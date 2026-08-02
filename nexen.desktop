@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Nexen
+Comment=Emulator
+Keywords=game;emulator;emu
+Categories=GNOME;GTK;Game;Emulator;
+Exec=/home/chad/Mesen2/bin/linux-x64/Release/linux-x64/publish/Nexen %f
+NoDisplay=false
+StartupNotify=true
+Icon=NexenIcon

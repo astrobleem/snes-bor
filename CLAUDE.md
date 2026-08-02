@@ -1,0 +1,96 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+A SNES (Super Nintendo) hardware-pipeline proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD). **This is not a playable game** — no player character, no enemy AI, no level content, no asset converter yet. It proves out the low-level hardware plumbing (SA-1 boot, CC-DMA sprite conversion, OAM/NMI frame commit, MSU-1 streaming, TAD audio) so a real game can be built on top of it later. See `README.md`'s "Current Status" section for the authoritative, currently-accurate list of what's verified working vs. not built — check it before assuming something works or is missing.
+
+`SNES-BOR-Engine-Prompt.md` is the original design spec for the full engine; most of it is still unbuilt. `core/*.pasm` (see Architecture below) is adapted from [SNES-SuperBossGaiden](https://github.com/snesdev0815/SNES-SuperBossGaiden) under the original author's personal permission — adapt freely, it does not need to stay a literal port.
+
+## Build
+
+Two-step build, both steps run automatically by `build_rom.py`:
+
+```bash
+python build_rom.py
+```
+
+This assembles `src/main.pasm` with Poppy (producing `src/main.bin` + `src/main.pansy`), then packs the ROM/MSU files into `build/` and `distribution/` (`bor.sfc`, `bor.msu`). **Always rebuild through this script after editing `src/main.pasm` or any `.include`d file under `src/core/`, `src/sa1/`, or `soundwork/tad/`** — there is no separate incremental step to forget.
+
+Prerequisites (see `build.md` for full detail):
+- **.NET 10 SDK**, user-local at `C:\Users\chad\.dotnet\dotnet.exe` (the system-wide `dotnet` resolves to 8.0, which fails with `NETSDK1045` against Poppy's `net10.0` target). `build_rom.py` already invokes the correct path.
+- Poppy CLI itself lives in a separate repo, `E:\gh\SNES-CrimePatrol\tools\poppy-src`, and must be built once (`dotnet build Poppy.CLI\Poppy.CLI.csproj -c Release`) before `build_rom.py` can call `poppy.dll`.
+
+There is no lint step and no unit-test framework — see Testing below for how correctness is actually checked.
+
+## Testing
+
+There's no automated test suite. Correctness is checked by loading `distribution/bor.sfc` in Mesen2 (an accurate SA-1 emulator) via its Python MCP debugging layer:
+
+```python
+import sys
+sys.path.append(r'E:\gh\Mesen2\python')
+from mesen_mcp.session import McpSession
+
+ROM = r'E:\gh\snes-bor\distribution\bor.sfc'
+MESEN = r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe'
+
+with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
+    m.run_frames(120)
+    m.pause()
+    print(m.get_ppu_state())
+    print(m.get_audio_state())
+```
+
+Before trusting hooks/exec-hooks or small memory reads from this harness, or before believing a "silent audio" or "flaky" result, read `build.md`'s "Testing in Mesen2" section and "Known harness gaps" — there are several real, non-obvious reliability gaps in the debug harness itself (stale small reads, `read_memory` returning `0` for hardware registers, unreliable exec hooks, nondeterministic-looking audio checks that turned out to hide a real deterministic bug). The standing rule in this project: don't accept "probably just flaky/harness noise" without checking ground truth (raw bytes, a from-scratch reimplementation of the expected computation, or a direct engine-state read) first — several past "nondeterminism" symptoms in this codebase turned out to be 100%-reproducible logic bugs.
+
+`m.reset_emulator()` before registering hooks/reading state is often necessary — hooks registered on an already-running paused session sometimes silently fire 0 times.
+
+## Architecture
+
+### Toolchain: Poppy assembler, not WLA-DX/ca65
+
+This project uses the **Poppy** 65816 assembler (a from-scratch tool in a sibling repo, `net10.0`), not the WLA-DX toolchain the `makefile`/`tools/wla-65816`/`tools/wlalink` binaries suggest (those are leftover from before the switch — ignore them; `build_rom.py` is the real build). Poppy has multiple confirmed silent-miscompile bugs (wrong bytes emitted with no error) that any new `.pasm` code must work around — **read `src/core/dma_channel.pasm`, `dma.pasm`, `allocate_wram.pasm`, `math.pasm`, and `error.pasm`'s header comments, and `main.pasm`'s inline comments, before writing new assembly**, especially around: indexed access to banked (`$7E`) symbols (`.w` silently drops the bank byte — always use `.l` or bare), macro invocations inside branch-skipped code (sized as 0 bytes during address estimation, corrupting the branch offset), branch-target labels that can resolve a couple bytes early relative to the real instruction stream (pad with `nop`), indexed long addressing to ROM data labels computing a wrong base address, and standalone `.dw` data-table blocks resolving to garbage regardless of placement (work around by inlining small tables as immediates instead of a referenced table). Also: `@`-prefixed local labels mis-resolve once the containing file is reached via `.include` — use fully-qualified global labels in anything meant to be included (this is why `src/core/*.pasm` never uses local labels).
+
+**Fixed `.org` directives silently truncate.** Poppy does not error when code between two fixed `.org` points overflows the gap — it silently corrupts whatever runs into the next `.org`. This has already forced the NMI/IRQ vectors in `main.pasm` to be pushed twice as `scpu_boot` grew. After growing any code between fixed `.org` regions, check symbol addresses with Poppy's `.pansy` sidecar file (symbol table) to confirm nothing overran — and keep `build_rom.py`'s hardcoded `RESET`/`NMI`/`IRQ` vector constants in sync with `main.pasm`'s actual `.org` addresses by hand; nothing enforces that automatically.
+
+### `src/main.pasm` — everything that actually ships
+
+Single linear `.bank 0` file (deliberately — multi-bank Poppy assembly has dropped code in the past). Fixed `.org` regions, in order:
+- `$8000` — SA-1 entry (`sa1_main`, reached via the hardware-forced Character Reset Vector). Draws the test sprite into BW-RAM and configures/arms CC-DMA.
+- `$8800` — TAD (Terrific Audio Driver) SPC700 driver, ported from ca65 to Poppy syntax.
+- `$AC00` — `LoadAudioData` LoROM-mapping callback.
+- `$B000` — the audio data blob itself (`.incbin`).
+- `$C100` — `src/core/*.pasm` utility modules (see below).
+- `$FC00` — S-CPU entry (`scpu_boot`, the S-CPU reset vector), boots in emulation mode. PPU/CGRAM/VRAM setup, CC-DMA pump loop, then falls into `scpu_main_loop`.
+- `$FF00` / `$FF10` — `nmi_handler` / `irq_handler` (pushed here from earlier addresses as boot code grew — see the `.org` truncation note above).
+
+**Everything else under `src/`** (`copy_working_test.*`, `exact_copy_test.*`, `minimal_test.*`, `ultimate_test.*`, `vram_test.*`, `with_nmi_test.*`, etc., and `src/sa1/sa1_boot.pasm`, `sa1_blitter.pasm`, `sa1_ccdma.pasm`) are **scratch/experiment files from earlier debugging, not part of the real build**. `build_rom.py` only ever assembles `src/main.pasm`; `sa1_boot.pasm`'s `.bank 1` code specifically is unreachable from the hardware CRV path and dead. Don't assume these files reflect current behavior — `main.pasm` is the only source of truth. Same caveat applies to the standalone `.pasm`/`.bin`/`.pansy` files scattered in `tools/` (`jml_test`, `org_test`, `sym_test*`, `va`-`vf`) — isolated Poppy-bug repros, not build inputs.
+
+### Dual-CPU split: S-CPU and SA-1
+
+- **SA-1 side** (`sa1_main`, `$8000`): draws a sprite into its BW-RAM canvas, then configures and arms SA-1's Character Conversion DMA (CC-DMA).
+- **S-CPU side** (`scpu_boot`, `$FC00`): waits for the CC-DMA arm signal (SFR `$2300` bit 5), then reads the converted tile bytes and writes them into VRAM, sets up CGRAM/tilemaps, and enters `scpu_main_loop`.
+- These are genuinely two separate 65816 CPUs sharing memory through specific hardware windows — getting the wrong window (S-CPU's BW-RAM view vs. I-RAM view vs. SA-1's own views) is a recurring class of bug here, not a one-off. **CC-DMA in particular is read-triggered, not a batch-copy DMA** — see `build.md`'s "How CC-DMA Type 1 actually works" section for the full mechanism (reverse-engineered from Mesen2's own C++ core source, since the register-level documentation available online is not precise enough to implement this correctly). If you're touching anything CC-DMA-, BW-RAM-, or VRAM-address-related, read that section first — there are also real word-vs-byte unit traps in `BG12NBA`/`BGxSC` and the CC-DMA source-address registers that have caused multiple real bugs.
+
+### `src/core/*.pasm` — ported engine utility modules
+
+Adapted from SNES-SuperBossGaiden (WLA-DX → Poppy syntax), `.include`d into `main.pasm` at `$C100`, `Init` routines called from `scpu_boot`:
+- `random.pasm` — 8-bit PRNG.
+- `input.pasm` — controller press/trigger/old-edge detection via hardware auto-joypad-read; `Core_Input_Poll` runs every main-loop iteration.
+- `math.pasm` — multiply/divide/min/max/abs helpers.
+- `error.pasm` — crash-screen handler for catching bugs under an emulator debugger.
+- `dma_channel.pasm` — allocator for the 8 hardware DMA channels.
+- `dma.pasm` — software DMA request queue (`Core_Dma_Enqueue`/`ProcessQueue`), drained once per frame from `Core_Nmi_Play`. Fixed to hardware channel 7.
+- `allocate_wram.pasm` / `allocate_vram.pasm` / `allocate_cgram.pasm` — fixed-block allocators for their respective memory spaces.
+- `oam.pasm` — OAM shadow buffer; `Core_Oam_Play` (called once per main-loop iteration) packs and enqueues the upload, `Core_Nmi_Play` performs the actual DMA.
+- `nmi.pasm` — the shadow-register commit system. Every PPU register the game touches is buffered in WRAM and committed to hardware in one pass by `Core_Nmi_Play` (called from `nmi_handler`). **`scpu_main_loop` must call `Core_Nmi_WaitFrame` once per iteration** (a busy-wait on `Nmi_FrameCounter`) to stay paced to real vblank — omitting this lets the loop spam DMA-queue-consuming calls (like `Core_Oam_Play`) far faster than once per frame, which was confirmed to overrun `Core_Nmi_Play`'s forced-blank commit bracket into active display and corrupt the top of every rendered frame. Any new per-frame subsystem that unconditionally enqueues DMA work is a candidate for repeating this same bug.
+- `oop.pasm` — class-based object dispatch (`RegisterClass`/`Create`/`Play`/`Kill`/garbage collection). `Core_Oop_Play` runs every main-loop iteration.
+- `screen.pasm` — camera/screen/focus-target engine. `Core_Screen_Play` runs every main-loop iteration.
+
+None of these files use Poppy's `@`-local label syntax (see the `.include` bug above) — match that convention in anything new added here.
+
+## Register/memory maps, MSU-1 protocol, CC-DMA mechanism
+
+`build.md` has the full SA-1/CC-DMA register table, the MSU-1 register protocol, and (most importantly) the reverse-engineered explanation of how CC-DMA Type 1 conversion actually works end-to-end — read it before touching anything in that area rather than re-deriving it from register-bit docs, which are not precise enough on their own to get this right.

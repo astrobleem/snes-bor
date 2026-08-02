@@ -1,0 +1,140 @@
+{
+  "entity": "Ralf",
+  "anim": "walk",
+  "loop": 1,
+  "scale": 0.42105263157894735,
+  "hotspot_canvas": [
+    12,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame06.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        36,
+        121
+      ],
+      "bbox": [
+        23,
+        14,
+        25,
+        109
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame07.bin"
+    }
+  ]
+}

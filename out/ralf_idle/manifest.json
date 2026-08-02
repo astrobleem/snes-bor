@@ -1,0 +1,108 @@
+{
+  "entity": "Ralf",
+  "anim": "idle",
+  "loop": 1,
+  "scale": 0.4444444444444444,
+  "hotspot_canvas": [
+    13,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        121
+      ],
+      "bbox": [
+        22,
+        23,
+        34,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}
