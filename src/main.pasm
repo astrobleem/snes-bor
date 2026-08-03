@@ -1947,8 +1947,8 @@ Anim_TickCounter = $7E53B1   ; .db -- frames remaining until next advance
 Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim is live)
 Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
-; TestSprite_PlayFrame's own state for the second, dpad-driven test sprite
-; -- see that routine's header, below TestSprite_WriteSolidTile. Now 2-axis:
+; Player_PlayFrame's own state for the second, dpad-driven test sprite -- see
+; that routine's header, below TestSprite_PlayFrame. Now 2-axis:
 ; X moves on held Left/Right, Y moves on held Up/Down, independently
 ; clamped, both read from Input_press+1 as two separate masks (not one
 ; shared accumulator threaded across both axes' branches -- see the
@@ -2579,19 +2579,19 @@ Anim_Done:
 ;
 ; IMPORTANT, easy to trip over later: this routine only writes sprite 0
 ; ONCE, at boot -- it is TestSprite_PlayFrame (below TestSprite_WriteSolidTile,
-; called every frame from scpu_main_loop before Core_Oam_Play) that keeps
-; sprite 0 alive going forward. That's not optional decoration: Core_Nmi_Play
-; wipes the *shadow* Oam_Buffer/Oam_ExpandedHi back to "every sprite hidden"
-; after every successful upload (see Core_Oam_ClearAll and oam.pasm's
-; Core_Oam_Play header), but leaves real hardware OAM itself untouched. So
-; the instant anything else calls Core_Oam_Play with a nonzero
-; Oam_CurrentSlot -- which TestSprite_PlayFrame's own sprite 1 now does,
-; every frame -- that DMA will overwrite sprite 0's slot with the shadow's
-; cleared state (Y=$F0, size bit back to 0) unless sprite 0's entry gets
-; re-written into the shadow buffer first. TestSprite_PlayFrame re-asserts
-; sprite 0's identical literal values (X=120, Y=100, tile=0, attr=$30,
-; hi=$02) every frame for exactly this reason -- don't remove that half of
-; it while only meaning to touch sprite 1.
+; called every frame from scpu_main_loop before Player_PlayFrame and
+; Core_Oam_Play) that keeps sprite 0 alive going forward. That's not optional
+; decoration: Core_Nmi_Play wipes the *shadow* Oam_Buffer/Oam_ExpandedHi back
+; to "every sprite hidden" after every successful upload (see
+; Core_Oam_ClearAll and oam.pasm's Core_Oam_Play header), but leaves real
+; hardware OAM itself untouched. So the instant anything else calls
+; Core_Oam_Play with a nonzero Oam_CurrentSlot -- which Player_PlayFrame's
+; own Core_Oam_SetSprite call does, every frame -- that DMA will overwrite
+; sprite 0's slot with the shadow's cleared state (Y=$F0, size bit back to 0)
+; unless sprite 0's entry gets re-written into the shadow buffer first.
+; TestSprite_PlayFrame re-asserts sprite 0's identical literal values (X=120,
+; Y=100, tile=0, attr=$30, hi=$02) every frame for exactly this reason --
+; don't remove it while only meaning to touch sprite 1 (now Player_PlayFrame).
 ; ============================================================================
     ; workaround: Poppy label address off-by-one (see poppy bug #4) -- padded
     ; wider than 1 nop; this project's usual single-nop guard was measured
@@ -2694,23 +2694,25 @@ TestSprite_WriteSolidTile__plane23:
     bne TestSprite_WriteSolidTile__plane23
     rts
 
-; Sole per-frame OAM writer, called once/frame from scpu_main_loop before
+; Sole per-frame writer for sprite 0 (the static test sprite), called once/
+; frame from scpu_main_loop, immediately before Player_PlayFrame and
 ; Core_Oam_Play. Because Core_Nmi_Play wipes the ENTIRE OAM shadow back to
 ; "all hidden" after every successful upload (see Core_Oam_ClearAll and
-; TestSprite_Init's own header comment above), the instant this routine
-; makes a second Core_Oam_Play call happen with a nonzero cursor, sprite
+; TestSprite_Init's own header comment above), the instant anything makes a
+; second Core_Oam_Play call happen with a nonzero cursor -- which
+; Player_PlayFrame's own Core_Oam_SetSprite call does, every frame -- sprite
 ; 0's slot would get stomped with the shadow's cleared state unless it's
-; re-written here too -- so this routine re-asserts BOTH sprites every
-; frame, not just the new one. Forces Oam_CurrentSlot to 0 up front rather
-; than trusting its leftover value, making this routine idempotent
-; regardless of Core_Nmi_Play/ClearAll timing (its very first call happens
-; before any NMI has run ClearAll, so the cursor is still 4 from
-; TestSprite_Init otherwise). Sprite 1 reuses the same solid-red 16x16 tile
-; (OBJ base tile 0) TestSprite_Init already wrote -- no new VRAM/CGRAM data
-; needed. Sprite 1 moves on both axes while the dpad is held -- X on
-; Left/Right, Y on Up/Down -- each independently clamped at the screen
-; edges. Must be called in .a16/.i16 and returns the same way, matching
-; scpu_main_loop's convention.
+; re-written here too. Forces Oam_CurrentSlot to 0 up front rather than
+; trusting its leftover value, making this routine idempotent regardless of
+; Core_Nmi_Play/ClearAll timing (its very first call happens before any NMI
+; has run ClearAll, so the cursor is still 4 from TestSprite_Init otherwise).
+;
+; MUST run before Player_PlayFrame every frame: Player_PlayFrame does not
+; reset Oam_CurrentSlot itself -- it relies on this routine having already
+; zeroed it and advanced it 0 -> 4 via the Core_Oam_SetSprite call below, so
+; Player_PlayFrame's own Core_Oam_SetSprite call lands in slot 1. Must be
+; called in .a16/.i16 and returns the same way, matching scpu_main_loop's
+; convention.
     nop
     nop
     nop
@@ -2737,12 +2739,42 @@ TestSprite_PlayFrame:
     rep #$31
 .a16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
+    rts
 
-    ; --- sprite 1 X: held-dpad Left/Right movement. Reads Input_press+1
-    ; using the exact same bit-check convention as Anim_UpdateFacing (see
-    ; that routine, above) -- and MUST resolve Left+Right-held-together the
-    ; same way Anim_UpdateFacing does (Left wins), or sprite 1 could move
-    ; right on a frame where Ralf's facing flips left off the same read of
+; Sole per-frame writer for sprite 1 (the dpad-driven player square), called
+; once/frame from scpu_main_loop right after TestSprite_PlayFrame and before
+; Core_Oam_Play. Reuses the same solid-red 16x16 tile (OBJ base tile 0)
+; TestSprite_Init already wrote -- no new VRAM/CGRAM data needed. Moves on
+; both axes while the dpad is held -- X on Left/Right, Y on Up/Down -- each
+; independently clamped at the screen edges.
+;
+; Depends on TestSprite_PlayFrame having already run this frame: this
+; routine does NOT reset Oam_CurrentSlot itself, relying on
+; TestSprite_PlayFrame's zero + Core_Oam_SetSprite call having already
+; advanced the cursor to 4, so this routine's own Core_Oam_SetSprite call
+; lands in slot 1. Must be called in .a16/.i16 and returns the same way,
+; matching scpu_main_loop's convention.
+;
+; workaround: Poppy label address off-by-one (see poppy bug #4 / poppy bug
+; #5's more general form -- this is a `jsr` target, not a branch target, so
+; it isn't the exact documented case, but the same estimation-vs-emit drift
+; still applies here) -- raw-byte-verified this session: without this
+; padding, the label resolved 1 byte early and landed on
+; TestSprite_PlayFrame's preceding `rts` opcode instead of this routine's
+; real first instruction, so every `jsr Player_PlayFrame` immediately hit
+; that stray `rts` and returned without running the body (Player_X/Y and
+; Oam_CurrentSlot never advanced past slot 0 -- confirmed both in Mesen2 and
+; via a raw hex dump of the assembled bytes at this address).
+    nop
+    nop
+    nop
+    nop
+Player_PlayFrame:
+    ; --- X: held-dpad Left/Right movement. Reads Input_press+1 using the
+    ; exact same bit-check convention as Anim_UpdateFacing (see that
+    ; routine, above) -- and MUST resolve Left+Right-held-together the same
+    ; way Anim_UpdateFacing does (Left wins), or sprite 1 could move right
+    ; on a frame where Ralf's facing flips left off the same read of
     ; Input_press. Unsigned cmp/bcc/bcs on purpose -- PLAYER_MAX_X
     ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
     ; boundary. Clamped, not bounced: holding a direction into the wall
@@ -2757,39 +2789,39 @@ TestSprite_PlayFrame:
 .a8
     lda.l Input_press+1
     and #$03
-    beq TestSprite_PlayFrame__sprite1_hold
+    beq Player_PlayFrame__hold
     lda.l Input_press+1
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
-    beq TestSprite_PlayFrame__sprite1_right
-    bra TestSprite_PlayFrame__sprite1_left
+    beq Player_PlayFrame__right
+    bra Player_PlayFrame__left
     nop
-TestSprite_PlayFrame__sprite1_right:
+Player_PlayFrame__right:
     lda.l Player_X
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_X + 1
-    bcc TestSprite_PlayFrame__sprite1_store_x
+    bcc Player_PlayFrame__store_x
     lda #PLAYER_MAX_X
-    bra TestSprite_PlayFrame__sprite1_store_x
+    bra Player_PlayFrame__store_x
     nop
-TestSprite_PlayFrame__sprite1_left:
+Player_PlayFrame__left:
     lda.l Player_X
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_X
-    bcs TestSprite_PlayFrame__sprite1_store_x
+    bcs Player_PlayFrame__store_x
     lda #PLAYER_MIN_X
-    bra TestSprite_PlayFrame__sprite1_store_x
+    bra Player_PlayFrame__store_x
     nop
-TestSprite_PlayFrame__sprite1_hold:
+Player_PlayFrame__hold:
     lda.l Player_X
     nop
-TestSprite_PlayFrame__sprite1_store_x:
+Player_PlayFrame__store_x:
     sta.l Player_X
     sta.l OamSetSprite_X
 
-    ; --- sprite 1 Y: held-dpad Up/Down movement, mirroring the X block
-    ; above exactly in structure. Independent read of Input_press+1 (not
+    ; --- Y: held-dpad Up/Down movement, mirroring the X block above
+    ; exactly in structure. Independent read of Input_press+1 (not
     ; threaded through the X block's accumulator/branches -- see WRAM decl
     ; comment above for why). Per core/input.pasm's documented $4218 bit
     ; layout, Down is bit10 of the word and Up is bit11 -- bits 2/3 of this
@@ -2801,34 +2833,34 @@ TestSprite_PlayFrame__sprite1_store_x:
     ; PLAYER_SPEED comment above). ---
     lda.l Input_press+1
     and #$0C
-    beq TestSprite_PlayFrame__sprite1_hold_y
+    beq Player_PlayFrame__hold_y
     lda.l Input_press+1
     and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
-    beq TestSprite_PlayFrame__sprite1_down
-    bra TestSprite_PlayFrame__sprite1_up
+    beq Player_PlayFrame__down
+    bra Player_PlayFrame__up
     nop
-TestSprite_PlayFrame__sprite1_down:
+Player_PlayFrame__down:
     lda.l Player_Y
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_Y + 1
-    bcc TestSprite_PlayFrame__sprite1_store_y
+    bcc Player_PlayFrame__store_y
     lda #PLAYER_MAX_Y
-    bra TestSprite_PlayFrame__sprite1_store_y
+    bra Player_PlayFrame__store_y
     nop
-TestSprite_PlayFrame__sprite1_up:
+Player_PlayFrame__up:
     lda.l Player_Y
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_Y
-    bcs TestSprite_PlayFrame__sprite1_store_y
+    bcs Player_PlayFrame__store_y
     lda #PLAYER_MIN_Y
-    bra TestSprite_PlayFrame__sprite1_store_y
+    bra Player_PlayFrame__store_y
     nop
-TestSprite_PlayFrame__sprite1_hold_y:
+Player_PlayFrame__hold_y:
     lda.l Player_Y
     nop
-TestSprite_PlayFrame__sprite1_store_y:
+Player_PlayFrame__store_y:
     sta.l Player_Y
     sta.l OamSetSprite_Y
     lda #0
@@ -3385,6 +3417,7 @@ scpu_main_loop:
     jsr Core_Oop_Play
     jsr Core_Screen_Play
     jsr TestSprite_PlayFrame
+    jsr Player_PlayFrame
     jsr Core_Oam_Play
     jsr Anim_Play
     bra scpu_main_loop
