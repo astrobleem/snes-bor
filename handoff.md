@@ -266,6 +266,18 @@ and visually in Mesen2:
   the last blob *starts*. Add the blob's real size (frame count x
   `ANIM_FRAME_BYTES`, or the `.bin` file's size on disk) to get the true
   end address before subtracting from `$FC00`.
+  **The `$C100`-`$FC00` window isn't the only place code could live** —
+  this session confirmed (raw bytes + Mesen2 behavioral test, see
+  [[poppy-assembler-bugs]] bug 9 and `tools/bank_test_*.pasm`) that the
+  project's long-standing "multi-bank Poppy assembly has dropped code"
+  caution is imprecise: nothing gets dropped, cross-bank *references*
+  (`jml`/`jsl` to a non-zero-bank label) just silently resolve to bank
+  `$00` instead of the real bank, while the referenced code's bytes land
+  correctly. A verified workaround (an explicit `bank:offset` literal
+  constant instead of the bare label) makes a second bank usable for
+  genuinely-isolated code. `bor.sfc` is 4MB and >99% unused, so this is a
+  real option once `$C100`-`$FC00` stops having room — not attempted for
+  real feature code yet, only proven in isolated `tools/` repros.
 
 Basic Mesen2 reproduction (adjust ROM path if working from a worktree):
 
