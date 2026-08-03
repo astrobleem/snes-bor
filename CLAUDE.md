@@ -57,7 +57,7 @@ This project uses the **Poppy** 65816 assembler (a from-scratch tool in a siblin
 
 ### `src/main.pasm` — everything that actually ships
 
-Single linear `.bank 0` file (deliberately — multi-bank Poppy assembly has dropped code in the past). Fixed `.org` regions, in order:
+Single linear `.bank 0` file (deliberately — Poppy's `.bank N` (N != 0) handling is confirmed broken: a label defined under a non-zero bank has its *bytes* emitted correctly at that bank's real file offset, but any reference to it (`jml`/`jsl`/`lda #`) resolves with bank byte `$00` instead of the true bank — nothing is dropped, but every cross-bank reference silently jumps to the wrong place. See `tools/bank_test_*.pasm` for the isolated repro and a confirmed workaround (an explicit numeric `bank:offset` literal, e.g. `jsl $01:8000`, bypasses the broken label resolution — the offset half is correct, only the bank byte needs a manual fix, same fixup-constant pattern as the other Poppy bugs below). Bank 0 confinement here is a standing caution, not a hard blocker, if a future session wants to use the ROM's ~4MB of otherwise-unused space (see `poppy_assembler_bugs.md` bug 9 in project memory). Fixed `.org` regions, in order:
 - `$8000` — SA-1 entry (`sa1_main`, reached via the hardware-forced Character Reset Vector). Draws the test sprite into BW-RAM and configures/arms CC-DMA.
 - `$8800` — TAD (Terrific Audio Driver) SPC700 driver, ported from ca65 to Poppy syntax.
 - `$AC00` — `LoadAudioData` LoROM-mapping callback.
