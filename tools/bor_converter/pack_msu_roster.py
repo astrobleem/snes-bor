@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""Packs up to 8 characters' idle/walk/attack animation data into a single
+bor.msu file for runtime selection over MSU-1 (see the plan at
+`temporal-swinging-hartmanis.md`), replacing the old flow of baking exactly
+one character's data into the ROM at build time via gen_pasm_animset.py +
+.incbin.
+
+Reuses (imports, does not duplicate) gen_pasm_animset.py's manifest/palette
+loading and bake_vram_frames.py's convert_frame_to_vram -- the same
+byte-validated CC-DMA-format converter already shipped and proven correct
+against real Mesen2 VRAM output.
+
+File format (see the plan for the authoritative spec):
+
+    0x00-0x07  magic "BORMSU1\0"
+    0x08       format_version = 1
+    0x09       roster_count (1-8)
+    0x0A-0x0F  reserved
+
+    0x10       directory: 8 records x 16 bytes = 128 bytes (0x10-0x8F)
+      record N at 0x10 + (N<<4):
+        +0  idle_frame_count   (u8)
+        +1  walk_frame_count   (u8)
+        +2  attack_frame_count (u8)
+        +3  idle_delay         (u8)
+        +4  walk_delay         (u8)
+        +5  attack_delay       (u8)
+        +6-7  reserved
+        +8-11 data_offset (u32 LE) -- absolute byte offset of this
+              character's blob from the start of the file
+        +12-15 reserved
+
+    0x90+      character blobs, packed sequentially:
+      +0..31   palette: 16 x BGR555 LE
+      +32..    idle_frame_count * 768 bytes
+      next     walk_frame_count * 768 bytes
+      next     attack_frame_count * 768 bytes
+
+Unused directory slots (roster_count <= N < 8) are left fully zeroed --
+main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as "no
+character here" (see the plan's Phase 5, MSU-absent / zero-frame-count path).
+
+data_offset is a full 32-bit field even though realistic rosters stay under
+16MB, because a real multi-character roster can push it past 65536 well
+before 8 slots are full -- every WRAM quantity derived from it in
+Anim_LoadCharacter must be handled as 24-bit (lo16+hi8) with explicit carry
+propagation, not a bare 16-bit add. This packer itself has no 16-bit
+limitation (Python ints are arbitrary precision), so verify_msu_roster.py's
+synthetic oversized-roster test only proves the *file format* round-trips a
+>65536 offset correctly -- it cannot exercise, and is not a substitute for,
+the real 65816 carry-add logic Phase 2 has to write and test on real
+hardware/emulation.
+
+Usage:
+    python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 8]
+
+Each <prefixN> follows the existing out/<name>_{idle,walk,attack}/
+convention (convert_animation.py / convert_character.py output). Emits
+<out_msu_path>.manifest.json alongside the .msu file: per-slot name, frame
+counts, delays, and computed data_offset -- the independent ground truth
+verify_msu_roster.py (and any future Mesen2 verification) checks packed
+WRAM/file state against.
+"""
+import json
+import os
+import struct
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gen_pasm_animset
+import bake_vram_frames
+
+MAGIC = b"BORMSU1\x00"
+FORMAT_VERSION = 1
+MAX_CHARACTERS = 8
+RECORD_SIZE = 16
+DIRECTORY_BASE = 0x10
+HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
+
+PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
+ANIM_FRAME_BYTES = 768
+
+
+def bake_anim_bytes(anim_dir):
+    """Like bake_vram_frames.bake(), but returns bytes in-memory instead of
+    writing a separate .bin file -- this packer emits one combined .msu
+    blob per character, not per-animation asset files."""
+    manifest_path = os.path.join(anim_dir, "manifest.json")
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    blob = bytearray()
+    for frame in manifest["frames"]:
+        bin_path = os.path.join(anim_dir, frame["bin"])
+        with open(bin_path, "rb") as f:
+            pixels = f.read()
+        blob += bake_vram_frames.convert_frame_to_vram(pixels)
+    return bytes(blob)
+
+
+def pack_character_blob(prefix):
+    """Returns (blob_bytes, info_dict) for one character's palette + baked
+    idle/walk/attack frames, sourced from <prefix>_{idle,walk,attack}/."""
+    idle_dir = f"{prefix}_idle"
+    walk_dir = f"{prefix}_walk"
+    attack_dir = f"{prefix}_attack"
+
+    idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
+    walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
+    attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
+    palette = gen_pasm_animset.load_palette(idle_dir)
+
+    for count, name in ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack")):
+        if not (0 <= count <= 255):
+            raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
+    for delay, name in ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack")):
+        if not (0 <= delay <= 255):
+            raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
+
+    palette_bytes = b"".join(struct.pack("<H", v) for v in palette)
+    assert len(palette_bytes) == PALETTE_BYTES
+
+    idle_bytes = bake_anim_bytes(idle_dir)
+    walk_bytes = bake_anim_bytes(walk_dir)
+    attack_bytes = bake_anim_bytes(attack_dir)
+    assert len(idle_bytes) == idle_count * ANIM_FRAME_BYTES
+    assert len(walk_bytes) == walk_count * ANIM_FRAME_BYTES
+    assert len(attack_bytes) == attack_count * ANIM_FRAME_BYTES
+
+    blob = palette_bytes + idle_bytes + walk_bytes + attack_bytes
+
+    info = {
+        "prefix": prefix,
+        "idle_frame_count": idle_count,
+        "walk_frame_count": walk_count,
+        "attack_frame_count": attack_count,
+        "idle_delay": idle_delay,
+        "walk_delay": walk_delay,
+        "attack_delay": attack_delay,
+        "blob_size": len(blob),
+    }
+    return blob, info
+
+
+def build_record(info, data_offset):
+    record = struct.pack(
+        "<BBBBBB2xI4x",
+        info["idle_frame_count"],
+        info["walk_frame_count"],
+        info["attack_frame_count"],
+        info["idle_delay"],
+        info["walk_delay"],
+        info["attack_delay"],
+        data_offset,
+    )
+    assert len(record) == RECORD_SIZE
+    return record
+
+
+def pack_roster(prefixes):
+    """Returns (msu_bytes, manifest_sidecar_dict). `prefixes` is a list of
+    1-8 out/<name> prefixes; unused directory slots stay zeroed."""
+    if not (1 <= len(prefixes) <= MAX_CHARACTERS):
+        raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
+
+    directory = bytearray(RECORD_SIZE * MAX_CHARACTERS)
+    blobs = []
+    sidecar_characters = []
+
+    data_offset = HEADER_SIZE
+    for slot, prefix in enumerate(prefixes):
+        blob, info = pack_character_blob(prefix)
+        record = build_record(info, data_offset)
+        directory[slot * RECORD_SIZE:(slot + 1) * RECORD_SIZE] = record
+
+        sidecar_characters.append({"slot": slot, "data_offset": data_offset, **info})
+
+        blobs.append(blob)
+        data_offset += len(blob)
+
+    header = struct.pack("<8sBB6x", MAGIC, FORMAT_VERSION, len(prefixes))
+    assert len(header) == DIRECTORY_BASE
+
+    msu_bytes = header + bytes(directory) + b"".join(blobs)
+
+    sidecar = {
+        "format_version": FORMAT_VERSION,
+        "roster_count": len(prefixes),
+        "header_size": HEADER_SIZE,
+        "total_size": len(msu_bytes),
+        "characters": sidecar_characters,
+    }
+    return msu_bytes, sidecar
+
+
+def main():
+    if len(sys.argv) < 3:
+        print(__doc__)
+        raise SystemExit(1)
+    out_msu_path = sys.argv[1]
+    prefixes = sys.argv[2:]
+
+    msu_bytes, sidecar = pack_roster(prefixes)
+
+    os.makedirs(os.path.dirname(out_msu_path) or ".", exist_ok=True)
+    with open(out_msu_path, "wb") as f:
+        f.write(msu_bytes)
+
+    manifest_path = out_msu_path + ".manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(sidecar, f, indent=2)
+
+    print(f"wrote {out_msu_path}: {len(msu_bytes)} bytes, {len(prefixes)} character(s)")
+    for c in sidecar["characters"]:
+        print(f"  slot {c['slot']}: {c['prefix']} @ offset {c['data_offset']} "
+              f"({c['blob_size']} bytes; idle={c['idle_frame_count']} "
+              f"walk={c['walk_frame_count']} attack={c['attack_frame_count']})")
+    print(f"wrote {manifest_path}")
+
+
+if __name__ == "__main__":
+    main()
