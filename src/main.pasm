@@ -1969,6 +1969,50 @@ PLAYER_SPEED = 2           ; shared between axes
 ; clamp and teleport to the opposite edge instead of stopping there.
 ; Holds today: X (2/8/216), Y (2/8/208).
 
+; --- Runtime character selection (MSU-1 streaming), see the plan at
+; temporal-swinging-hartmanis.md. Last cell any core/*.pasm file defines is
+; OamSetSprite_Hi = $7E53AF; main.pasm's own Anim_FrameIndex..Player_Y run
+; $7E53B0-$7E53B5 -- new cells start at $7E53B6, verified collision-free.
+Msu1Present = $7E0330   ; .db -- named alias for scpu_boot's existing MSU-1
+                          ; success flag (was a bare address there; set to
+                          ; 1/0 by the S-MSU1 presence check, unchanged)
+
+CharSelect_Index       = $7E53B6   ; .db -- current roster slot, 0..RosterCount-1
+CharSelect_RosterCount = $7E53B7   ; .db -- from file header byte 0x09, read every load
+CharSelect_Loaded      = $7E53B8   ; .db -- 0 while a (re)load is in progress or MSU/slot
+                                     ;        is unusable; gates Anim_Play (Phase 3)
+Anim_IdleFrameCount   = $7E53B9   ; .db
+Anim_WalkFrameCount   = $7E53BA   ; .db
+Anim_AttackFrameCount = $7E53BB   ; .db
+Anim_IdleDelay        = $7E53BC   ; .db
+Anim_WalkDelay        = $7E53BD   ; .db
+Anim_AttackDelay      = $7E53BE   ; .db
+; 24-bit (lo16+hi8) MSU byte offsets of this character's idle/walk/attack
+; frame data, computed once per load from the directory record's data_offset
+; -- see Anim_LoadCharacter. 24-bit, not 16-bit: a real multi-character
+; roster pushes data_offset past 65536 well before 8 slots fill (confirmed
+; in Phase 1 -- a single ~70KB character does it), and idle_frame_count*768
+; alone can exceed 16 bits for large frame counts, so every add here uses
+; explicit adc-with-carry-propagation, never a bare 16-bit add.
+Anim_IdleMsuBaseLo   = $7E53BF   ; .dw
+Anim_IdleMsuBaseHi   = $7E53C1   ; .db
+Anim_WalkMsuBaseLo   = $7E53C2   ; .dw
+Anim_WalkMsuBaseHi   = $7E53C4   ; .db
+Anim_AttackMsuBaseLo = $7E53C5   ; .dw
+Anim_AttackMsuBaseHi = $7E53C7   ; .db
+
+; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
+; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
+; Core_Wram_Allocate (zero call sites anywhere in this codebase today; same
+; untested-code-in-a-new-critical-path risk this project avoids elsewhere,
+; e.g. Core_Math_Mul). Safe as long as nothing else starts using the
+; allocator later; if that ever happens these must move to an allocated
+; block instead of silently colliding.
+AnimFrameStaging   = $7E2000   ; 768B -- one streamed frame, pre-DMA
+AnimPaletteStaging = $7E2300   ; 32B  -- one streamed palette
+AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
+                                 ;        before parsing into the cells above
+
 ; Picks idle/walk/attack and dispatches to whichever per-animation advance/
 ; DMA-enqueue routine is currently selected. Reads Input_press/Input_trigger
 ; fresh off Core_Input_Poll, which scpu_main_loop already calls earlier in
@@ -2874,6 +2918,256 @@ Player_PlayFrame__store_y:
     jsr Core_Oam_SetSprite        ; slot 1, cursor -> 8
     rts
 
+; ============================================================================
+; Anim_LoadCharacter -- boot-time and (future) Select-button character
+; (re)load from the runtime MSU-1 roster (see the plan at
+; temporal-swinging-hartmanis.md). Called with CharSelect_Index already set
+; to the desired roster slot. Placed BEFORE the AnimCharIdleFrames/
+; AnimCharAttackFrames blobs below, not after -- an earlier attempt to place
+; this after those blobs produced real "Branch target out of range" errors
+; from Poppy at every branch in this routine, confirming (empirically, not
+; just by re-reading the existing comment) that large data ahead of
+; branching code perturbs Poppy's branch-range estimation in this build;
+; see the AnimCharIdleFrames comment below for the original report of this
+; class of bug.
+;
+; This first version (Phase 2, step 1) only does the file-header/directory-
+; record seek+read+parse and the 24-bit idle/walk/attack MSU base-offset
+; computation -- it deliberately stops short of streaming the palette and
+; enqueuing the CGRAM DMA (added in a later step, once this much is verified
+; against Mesen2). CharSelect_Loaded stays 0 throughout this version for
+; that reason, not because loading failed.
+;
+; This routine's own first seek+read, called from scpu_boot right after
+; audio track-select, is also the real (not improvised-probe) test of
+; whether MSU-1 track-select writes ($2004-$2007) disturb a later data seek
+; ($2000-$2003) -- two earlier isolated probes left that genuinely
+; unresolved; see the msu-track-select-seek-ordering-risk memory.
+;
+; No caller convention assumed on entry (sets its own widths); every known
+; caller re-asserts its own widths immediately after the call, same pattern
+; Anim_Play/Anim_UpdateFacing document above.
+;
+; NOT YET VERIFIED AGAINST MESEN2: scpu_boot currently hangs somewhere
+; between msu1_done and the Player_X/Y boot-time init, well after this
+; routine's own call site -- confirmed via poison-value tests to be a real,
+; pre-existing hang reproducible on the pristine unmodified HEAD commit with
+; its original placeholder MSU data too, i.e. unrelated to this routine or
+; to the new MSU roster content. See the boot-hang-before-player-init
+; memory. This routine's jsr encoding and every sta.l in it were confirmed
+; correct by direct disassembly of the built ROM's bytes on disk (Mesen's
+; own snesPrgRom/disassemble reads are unreliable on this SA-1 cart and were
+; not trusted for that check) -- so the code above is believed correct, but
+; genuinely unverified end-to-end until the boot hang is fixed.
+; ============================================================================
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_LoadCharacter:
+    sep #$20
+.a8
+    lda.l Msu1Present
+    bne Anim_LoadCharacter__msu_ok
+    lda #0
+    sta.l CharSelect_Loaded
+    rep #$31
+.a16
+.i16
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__msu_ok:
+    lda #0
+    sta.l CharSelect_Loaded
+
+    ; --- Seek to file header (offset 0), read 16 bytes, extract
+    ; roster_count (byte 9) ---
+    sta $2000
+    sta $2001
+    sta $2002
+    sta $2003                 ; A is still 0 here -- triggers seek to offset 0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__header_busy:
+    lda $2000
+    bmi Anim_LoadCharacter__header_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__header_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l AnimHeaderStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0010
+    bcc Anim_LoadCharacter__header_read
+
+    sep #$20
+.a8
+    lda.l AnimHeaderStaging+9
+    sta.l CharSelect_RosterCount
+
+    ; --- Seek to this slot's directory record: offset = 0x10 + (index<<4).
+    ; Fits in one byte (index 0-7 -> max offset 0x80) -- no carry needed. ---
+    lda.l CharSelect_Index
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc #$10
+    sta $2000
+    lda #0
+    sta $2001
+    sta $2002
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__record_busy:
+    lda $2000
+    bmi Anim_LoadCharacter__record_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__record_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l AnimHeaderStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0010
+    bcc Anim_LoadCharacter__record_read
+
+    ; --- Parse record into WRAM cells ---
+    sep #$20
+.a8
+    lda.l AnimHeaderStaging+0
+    sta.l Anim_IdleFrameCount
+    lda.l AnimHeaderStaging+1
+    sta.l Anim_WalkFrameCount
+    lda.l AnimHeaderStaging+2
+    sta.l Anim_AttackFrameCount
+    lda.l AnimHeaderStaging+3
+    sta.l Anim_IdleDelay
+    lda.l AnimHeaderStaging+4
+    sta.l Anim_WalkDelay
+    lda.l AnimHeaderStaging+5
+    sta.l Anim_AttackDelay
+
+    ; Packer leaves unused slots fully zeroed -- a zero idle_frame_count is
+    ; a cheap free validity check (see the plan's Phase 5). Nothing to
+    ; compute in that case; leave CharSelect_Loaded=0 and bail.
+    lda.l Anim_IdleFrameCount
+    bne Anim_LoadCharacter__slot_ok
+    rep #$31
+.a16
+.i16
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__slot_ok:
+
+    ; idle_base (24-bit) = data_offset (24-bit, record bytes 8,9,10) + 32
+    ; (the palette). Record byte 11 (data_offset's top byte) is assumed 0 --
+    ; pack_msu_roster.py's rosters stay well under 16MB.
+    rep #$31
+.a16
+.i16
+    lda.l AnimHeaderStaging+8
+    clc
+    adc #32
+    sta.l Anim_IdleMsuBaseLo
+    sep #$20
+.a8
+    lda.l AnimHeaderStaging+10
+    adc #0                    ; carry-in only, from the 16-bit add above
+    sta.l Anim_IdleMsuBaseHi
+
+    ; --- walk_base (24-bit) = idle_base + idle_frame_count*768 ---
+    ; n*768 = ((n<<1)+n) << 8 -- the <<8 means the product's low byte is
+    ; always 0 and its own high byte becomes the 24-bit product's hi8, so no
+    ; separate multiply routine is needed (Core_Math_Mul is deliberately
+    ; unused here, see the plan -- zero prior call sites anywhere).
+    ; AnimHeaderStaging+12..+15 are reserved/unused bytes of the
+    ; already-parsed record, reused here as scratch.
+    lda.l Anim_IdleFrameCount
+    rep #$31
+.a16
+.i16
+    and #$00FF                 ; zero-extend n into 16-bit A
+    sta.l AnimHeaderStaging+12 ; scratch = n
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12 ; a = n*2 + n = n*3
+    sta.l AnimHeaderStaging+14 ; scratch16 = n*3
+
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12 ; product_lo low byte = 0
+    lda.l AnimHeaderStaging+14 ; (n*3)'s low byte
+    sta.l AnimHeaderStaging+13 ; product_lo high byte = (n*3)'s low byte
+                                ; product_hi = (n*3)'s high byte, at
+                                ; AnimHeaderStaging+15 -- used directly below
+
+    rep #$31
+.a16
+.i16
+    lda.l Anim_IdleMsuBaseLo
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l Anim_WalkMsuBaseLo
+    sep #$20
+.a8
+    lda.l Anim_IdleMsuBaseHi
+    adc.l AnimHeaderStaging+15 ; += product_hi + carry from the 16-bit add
+    sta.l Anim_WalkMsuBaseHi
+
+    ; --- attack_base (24-bit) = walk_base + walk_frame_count*768 ---
+    ; Same shift-add pattern as walk_base above.
+    lda.l Anim_WalkFrameCount
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l AnimHeaderStaging+12
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l AnimHeaderStaging+14
+
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12
+    lda.l AnimHeaderStaging+14
+    sta.l AnimHeaderStaging+13
+
+    rep #$31
+.a16
+.i16
+    lda.l Anim_WalkMsuBaseLo
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l Anim_AttackMsuBaseLo
+    sep #$20
+.a8
+    lda.l Anim_WalkMsuBaseHi
+    adc.l AnimHeaderStaging+15
+    sta.l Anim_AttackMsuBaseHi
+
+    rep #$31
+.a16
+.i16
+    rts
+
 ; Precomputed VRAM-format tile data referenced by Anim_Play_Idle/
 ; Anim_Play_Attack above (forward immediate-address references only, not
 ; indexed/branch -- placed AFTER all of their branches deliberately: with a
@@ -2884,11 +3178,13 @@ Player_PlayFrame__store_y:
 ; inline .incbin ahead of branching code perturbs Poppy's address
 ; estimation. Keep large data blobs after the code that branches, not
 ; before, matching TestSprite32x48's placement after sa1_spin's last
-; branch. Walk's blob (and the facing-flip tilemap blobs) no longer live
-; here -- relocated to ANIM_WALK_BASE/ANIM_TILEMAP_RIGHT_BASE/
-; ANIM_TILEMAP_LEFT_BASE in the TAD gap (`.org $8C00`, see the comment above
-; Tad_IsSongPlaying's block) to free room in this window for full-length
-; walk/attack frame counts.
+; branch, and Anim_LoadCharacter's own placement above this blob rather
+; than below it (see that routine's header comment for the same lesson
+; re-confirmed empirically). Walk's blob (and the facing-flip tilemap
+; blobs) no longer live here -- relocated to ANIM_WALK_BASE/
+; ANIM_TILEMAP_RIGHT_BASE/ANIM_TILEMAP_LEFT_BASE in the TAD gap (`.org
+; $8C00`, see the comment above Tad_IsSongPlaying's block) to free room in
+; this window for full-length walk/attack frame counts.
 AnimCharIdleFrames:
     .incbin "assets/anim_ralf_idle.bin"
 AnimCharAttackFrames:
@@ -3005,6 +3301,13 @@ msu1_missing:
     sta.l $7E0330           ; MSU-1 success flag = 0 (stz has no long addr mode; see poppy bug #2)
 
 msu1_done:
+    ; --- Runtime character selection: load roster slot 0 at boot. See
+    ; Anim_LoadCharacter's header for why this call site (right after
+    ; track-select) matters. ---
+    lda #0
+    sta.l CharSelect_Index
+    jsr Anim_LoadCharacter
+
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES
     ; reset already provides that condition; do not write APUIO0 here as a

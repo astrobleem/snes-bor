@@ -7,7 +7,13 @@ import sys
 ROM_SIZE = 0x400000
 BANK0_SIZE = 0x8000
 
-MSU_DATA = b"BEATS OF RAGE SNES MSU-1 PROOF OF CONCEPT OK!\x00"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'bor_converter'))
+import pack_msu_roster
+
+# Fixed initial roster for runtime MSU-1 character selection (see the plan
+# at temporal-swinging-hartmanis.md). Replaces the old single-string
+# MSU_DATA placeholder now that Anim_LoadCharacter reads a real directory.
+ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\SNES-CrimePatrol\tools\poppy-src\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
@@ -102,13 +108,17 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
+    msu_data, roster_sidecar = pack_msu_roster.pack_roster(ROSTER_PREFIXES)
     with open('build/bor.msu', 'wb') as f:
-        f.write(MSU_DATA)
+        f.write(msu_data)
     with open('distribution/bor.msu', 'wb') as f:
-        f.write(MSU_DATA)
+        f.write(msu_data)
 
     print(f"ROM: {len(rom)} bytes")
-    print(f"MSU: {len(MSU_DATA)} bytes (bor.msu)")
+    print(f"MSU: {len(msu_data)} bytes (bor.msu), roster: {', '.join(ROSTER_PREFIXES)}")
+    for c in roster_sidecar["characters"]:
+        print(f"  slot {c['slot']}: {c['prefix']} @ offset {c['data_offset']} "
+              f"(idle={c['idle_frame_count']} walk={c['walk_frame_count']} attack={c['attack_frame_count']})")
     print(f"Reset: ${rom[0x7FFD]<<8|rom[0x7FFC]:04X}  NMI: ${rom[0x7FFB]<<8|rom[0x7FFA]:04X}  IRQ: ${rom[0x7FFF]<<8|rom[0x7FFE]:04X}")
     print(f"Map: ${rom[0x7FD5]:02X}  Cart: ${rom[0x7FD6]:02X}")
     return 0
