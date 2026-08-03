@@ -2948,17 +2948,29 @@ Player_PlayFrame__store_y:
 ; caller re-asserts its own widths immediately after the call, same pattern
 ; Anim_Play/Anim_UpdateFacing document above.
 ;
-; NOT YET VERIFIED AGAINST MESEN2: scpu_boot currently hangs somewhere
-; between msu1_done and the Player_X/Y boot-time init, well after this
-; routine's own call site -- confirmed via poison-value tests to be a real,
-; pre-existing hang reproducible on the pristine unmodified HEAD commit with
-; its original placeholder MSU data too, i.e. unrelated to this routine or
-; to the new MSU roster content. See the boot-hang-before-player-init
-; memory. This routine's jsr encoding and every sta.l in it were confirmed
-; correct by direct disassembly of the built ROM's bytes on disk (Mesen's
-; own snesPrgRom/disassemble reads are unreliable on this SA-1 cart and were
-; not trusted for that check) -- so the code above is believed correct, but
-; genuinely unverified end-to-end until the boot hang is fixed.
+; The scpu_boot "hang" once suspected here was a false alarm: it was caused
+; by a Mesen2 test harness pointed at the main checkout's stale ROM instead
+; of this worktree's own build output (CLAUDE.md's testing snippet
+; hardcodes a bare `distribution/bor.sfc` path that resolves to whichever
+; checkout you happen to be in). Against the correct ROM, scpu_boot reaches
+; Player_X/Y init fine and the display renders normally. See the
+; boot-hang-before-player-init memory for the corrected account.
+;
+; KNOWN REAL BUG, still open: this routine's header seek+read (the first
+; seek+read after the legacy 46-byte MSU-1 probe earlier in scpu_boot) does
+; not reliably return the real file header -- direct WRAM captures of the
+; first byte read from $2001 after the seek show it intermittently/mostly
+; returning stale data consistent with the read pointer never having reset
+; to offset 0 (i.e. continuing from wherever the earlier 46-byte read left
+; it), even though the seek's $2003 write is unconditional in Mesen2's own
+; Msu1::Write (checked against Core/SNES/Coprocessors/MSU1/Msu1.cpp).
+; Ruled out so far: NMI interrupting the unmasked seek sequence (wrapping
+; it in php/sei/plp made no difference); audio track-select/LoadTrack
+; sharing state with the data-port file handle (they use a separate
+; _pcmReader, confirmed in the same source file). Not yet root-caused.
+; CharSelect_RosterCount ends up 0 instead of the real roster_count (2),
+; which anything gating on it (a future Select-button reselect, roster
+; bounds-checking) must not trust yet.
 ; ============================================================================
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_LoadCharacter:
