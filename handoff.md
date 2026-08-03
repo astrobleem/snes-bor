@@ -86,6 +86,65 @@ and visually in Mesen2:
   direction/clamp-endpoint/relative-change, not an exact pixel value
   computed from `frames * speed`, unless the value is saturated at a known
   clamp — and don't treat an immediate post-hold read as "settled."
+- **The BOR character-animation pipeline is now pak-agnostic for a single
+  shipped character** (still only one character in ROM at a time — see
+  below for why two can't coexist). New script
+  `tools/bor_converter/gen_pasm_animset.py` takes a character's three
+  `convert_animation.py` output dirs (idle/walk/attack, i.e. `manifest.json`
+  + `frameNN.bin` + `palette.txt` each) and emits the same hand-tuned Poppy
+  source shape `main.pasm` already hand-writes for Ralf: the
+  `ANIM_FRAME_COUNT`/`WALK_FRAME_COUNT`/`ATTACK_FRAME_COUNT` + `*_DELAY`
+  constants (delay = **median** of the manifest's per-frame delays, not
+  mean — confirmed to reproduce Ralf's existing 10/8/10 exactly, including
+  attack's non-uniform `[7,7,20,10,10]` case), the unrolled `cmp #N/beq`
+  frame-dispatch chains for `Anim_Play_Idle`/`Walk`/`Attack` (every
+  Poppy nop-padding/`brl`/label-fixup workaround reproduced, not just the
+  logic), the `AnimCharIdleFrames`/`AnimCharAttackFrames` `.incbin` lines,
+  and the 16-color CGRAM palette-load block (from the character's **idle**
+  palette only — matches today's behavior; walk/attack quantize
+  independently but neither is ever loaded, a real pre-existing bug, not
+  fixed this session — see "Recommended next step"). This exists because
+  Poppy cannot assemble a runtime-indexed data table here (confirmed again
+  this session — see `main.pasm`'s own comments near `ANIM_FRAME_COUNT`),
+  so "generic" has to mean "the *generator* is generic," not "the shipped
+  code reads a table."
+  **Validated two ways**: (1) run against Ralf's own existing
+  `out/ralf_{idle,walk,attack}/manifest.json` + `palette.txt`, the emitted
+  fragment is semantically identical (diffed with comments/whitespace
+  stripped) to the current hand-written `main.pasm`, modulo the deliberate
+  `AnimRalf*`→`AnimChar*` label rename. (2) A second real character, JHUN
+  (`DATA\CHARS\JHUN\JHUN.TXT` in the project's local BOR pak — chosen
+  because `entity_parse.py` confirmed its idle/walk/attack1 frame counts
+  are 6/8/5, **exactly** Ralf's, so the swap needed zero ROM-layout change)
+  was converted end-to-end (`convert_animation.py` ×3 →
+  `bake_vram_frames.py` ×3 → this generator), spliced into `main.pasm` in
+  place of Ralf's data, built, all three audit tools passed clean, and
+  verified in Mesen2: idle boots, walk triggers and cycles on held
+  Left/Right, facing flip works, attack triggers on Y-button edge and
+  reverts to idle on completion, screenshots show a correctly-rendered
+  (not garbled) character matching JHUN's actual palette throughout. The
+  JHUN swap was then **reverted** (`git checkout -- src/main.pasm` back to
+  Ralf's hand-written source, matching the plan's "don't ship a character
+  swap as a unilateral product decision" call) and rebuilt —
+  `src/main.bin`/`main.pansy`/`main.sym` came back **byte-identical** to
+  the already-committed Ralf build (`git diff` empty), the strongest
+  available confirmation of no regression. JHUN's converted assets
+  (`out/jhun_{idle,walk,attack}/`, `src/assets/anim_jhun_*.bin`) are kept
+  committed as a real, re-usable proof-of-concept — regenerating the swap
+  is just re-running the generator + re-doing the same splice (see
+  `gen_pasm_animset.py`'s own docstring for the exact commands and which
+  `main.pasm` lines to touch: the 3 delay constants near
+  `ANIM_FRAME_DELAY`, the `.incbin` filenames at the `AnimRalfIdleFrames`/
+  `AnimRalfAttackFrames` labels and the `.org $8C00` walk line, and the 16
+  palette immediates — no code-shape changes needed when frame counts
+  match, since the dispatch-chain text itself is then identical between
+  characters).
+  **Explicitly NOT done, and not a small remaining step** — see
+  `gen_pasm_animset.py`'s docstring and "Recommended next step" below:
+  palette unification across a character's 3 animations, a second
+  simultaneous character in ROM (blocked by budget: one character's data
+  is already 14,688 bytes against ~2,500 bytes total slack), pak-roster
+  auto-discovery (`models.txt`), runtime character selection.
 - **Three ROM-layout audit tools** (`tools/rom_audit/`) — run after any
   change that grows code/data in the `$C100`-`$FC00` fixed-`.org` window:
 
@@ -153,34 +212,39 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## Recommended next step
 
-Sprite 1 is now fully 2-axis dpad-driven and clamped (see "Current state"
-above) — the entity-movement groundwork from the last two sessions is
-done. The next task is **generalizing the BOR character-pak pipeline**:
-`AnimRalfIdleFrames`/`AnimRalfAttackFrames` and their frame-count constants
-(`ANIM_FRAME_COUNT`, `WALK_FRAME_COUNT`, `ATTACK_FRAME_COUNT`,
-`ANIM_FRAME_BYTES`, the `ANIM_TILEMAP_*_BASE` offsets) are all hardcoded to
-one character (Ralf) today — there's no character-selection layer. Using a
-different Beats of Rage pak means hand-editing these compile-time
-constants and re-baking, not swapping a data file. This is a real
-architectural addition, not a tweak:
-- A data-driven per-character animation descriptor (frame counts/offsets/
-  tile bases per character, likely indexed rather than a pile of `=`
-  constants) replacing today's hardcoded labels in `main.pasm`.
-- Extending `tools/bor_converter` (the pak-extraction/animation-baking
-  pipeline) to bake arbitrary paks against that descriptor format, not
-  just Ralf's.
-- Land this carefully against the ROM budget (~549 bytes before `$FC00`
-  as of this build) — a generic descriptor scheme should be evaluated for
-  its own byte cost before committing to a design, and the
-  `AnimRalfAttackFrames`/`AnimRalfIdleFrames` blobs remain the largest
-  single consumers of the `$C100`-`$FC00` window if space needs to be
-  freed alongside this.
+Sprite 1 is fully 2-axis dpad-driven (prior session) and the BOR animation
+pipeline is now pak-agnostic for a single shipped character, validated
+against a second real character (this session — see "Current state"
+above). The next real gap this surfaced: **palette unification across a
+character's idle/walk/attack animations**. Today (both before and after
+this session — deliberately not touched, to keep the pipeline-genericity
+verification isolated to one variable) only the **idle** animation's
+16-color palette is ever loaded into CGRAM; walk and attack each quantize
+their own palette independently in `convert_animation.py` (confirmed this
+session: JHUN's walk palette differs from its idle palette, same as Ralf's
+already did) but neither ever loads — walk/attack currently render through
+whatever colors idle happened to pick, which is cosmetically wrong now and
+will be more visibly wrong for future characters whose walk/attack use
+very different colors than idle. Fixing this needs either (a) a two-pass
+`convert_animation.py`/new orchestrator that builds one shared palette
+across all of a character's frames before quantizing any of them, or (b)
+loading a fresh palette on every animation switch (extra DMA/CGRAM-write
+work in `Anim_Play`'s dispatcher, and a correctness question about
+mid-transition flicker). `gen_pasm_animset.py`'s docstring has more detail
+on why this was deliberately deferred rather than folded into this
+session's generator work.
 
-Smaller, independent, available any time: renaming `TestSprite_PlayFrame`'s
-sprite-1 state/routine out of the `TestSprite_*` family (it's functionally
-closer to "the first player entity" than "a test sprite" now) — deferred
-this session as a pure, byte-neutral cleanup that doesn't need to block or
-be blocked by the pak-genericity work.
+Smaller, independent, available any time:
+- Renaming `TestSprite_PlayFrame`'s sprite-1 state/routine out of the
+  `TestSprite_*` family (it's functionally closer to "the first player
+  entity" than "a test sprite" now) — still deferred, pure byte-neutral
+  cleanup.
+- The `AnimRalfIdleFrames`/`AnimRalfAttackFrames` labels could be renamed
+  to the character-independent `AnimCharIdleFrames`/`AnimCharAttackFrames`
+  this session's generator already uses internally — cosmetic-only,
+  intentionally not done to the actually-shipped Ralf build this session
+  (see "Current state" above for why the JHUN proof used a revert instead
+  of a permanent rename).
 
 ## Harness gotchas (Mesen2 / build)
 
@@ -225,6 +289,10 @@ Quick-reference list of what's easy to trip over fresh:
 
 **Demo/example output, not fully wired into the ROM:** `out/ralf_idle/`,
 `out/ralf_walk/`, `out/ralf_attack/` — baked+wired source frame data.
+`out/jhun_idle/`, `out/jhun_walk/`, `out/jhun_attack/` and
+`src/assets/anim_jhun_*.bin` — this session's second-character
+pipeline-genericity proof (see "Current state" above); real converted/baked
+data, not currently referenced by `main.pasm` (which ships Ralf).
 
 **Already-flagged-as-dead:** `src/sa1/*.pasm`, `copy_working_test.*`,
 `exact_copy_test.*`, and similar files under `src/` are scratch/experiment

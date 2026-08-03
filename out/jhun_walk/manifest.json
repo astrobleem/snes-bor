@@ -1,0 +1,140 @@
+{
+  "entity": "Jhun",
+  "anim": "walk",
+  "loop": 1,
+  "scale": 0.41025641025641024,
+  "hotspot_canvas": [
+    12,
+    48
+  ],
+  "frames": [
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame06.bin"
+    },
+    {
+      "delay": 9,
+      "offset": [
+        34,
+        120
+      ],
+      "bbox": [
+        17,
+        5,
+        38,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame07.bin"
+    }
+  ]
+}

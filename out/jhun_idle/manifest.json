@@ -1,0 +1,108 @@
+{
+  "entity": "Jhun",
+  "anim": "idle",
+  "loop": 1,
+  "scale": 0.41379310344827586,
+  "hotspot_canvas": [
+    8,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        27,
+        118
+      ],
+      "bbox": [
+        16,
+        5,
+        29,
+        116
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}
