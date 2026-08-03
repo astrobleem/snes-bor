@@ -7,7 +7,7 @@
     lda #$4A10
     lda #$2DD1
     lda #$0000
-    lda #$1DB4
+    lda #$1DB3
     lda #$0910
     lda #$312A
     lda #$24E8

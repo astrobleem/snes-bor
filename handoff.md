@@ -100,11 +100,12 @@ and visually in Mesen2:
   frame-dispatch chains for `Anim_Play_Idle`/`Walk`/`Attack` (every
   Poppy nop-padding/`brl`/label-fixup workaround reproduced, not just the
   logic), the `AnimCharIdleFrames`/`AnimCharAttackFrames` `.incbin` lines,
-  and the 16-color CGRAM palette-load block (from the character's **idle**
-  palette only — matches today's behavior; walk/attack quantize
-  independently but neither is ever loaded, a real pre-existing bug, not
-  fixed this session — see "Recommended next step"). This exists because
-  Poppy cannot assemble a runtime-indexed data table here (confirmed again
+  and the 16-color CGRAM palette-load block, read from the character's
+  **idle** `palette.txt` by convention — as of this session that file is
+  identical across idle/walk/attack (see the palette-unification bullet
+  below), so reading idle's copy is now actually correct, not just
+  convenient. This exists because Poppy cannot assemble a runtime-indexed
+  data table here (confirmed again
   this session — see `main.pasm`'s own comments near `ANIM_FRAME_COUNT`),
   so "generic" has to mean "the *generator* is generic," not "the shipped
   code reads a table."
@@ -139,12 +140,53 @@ and visually in Mesen2:
   palette immediates — no code-shape changes needed when frame counts
   match, since the dispatch-chain text itself is then identical between
   characters).
-  **Explicitly NOT done, and not a small remaining step** — see
-  `gen_pasm_animset.py`'s docstring and "Recommended next step" below:
-  palette unification across a character's 3 animations, a second
+  **Explicitly NOT done, and not a small remaining step**: a second
   simultaneous character in ROM (blocked by budget: one character's data
   is already 14,688 bytes against ~2,500 bytes total slack), pak-roster
   auto-discovery (`models.txt`), runtime character selection.
+- **CGRAM palette is now unified across idle/walk/attack** (this session —
+  was last session's "Recommended next step"). Previously only idle's
+  16-color palette was ever loaded into CGRAM (`convert_animation.py`
+  quantized each animation's frames independently, so walk/attack rendered
+  through whatever colors idle happened to pick — confirmed wrong with
+  both Ralf and JHUN). New script `tools/bor_converter/convert_character.py`
+  fixes this at the source, not at runtime: it runs
+  `convert_animation.py`'s existing per-frame load/scale/place logic
+  (`_load_anim_frames`, now factored out and reused, not duplicated) for
+  all three of a character's animations, then does **one**
+  `Image.quantize` pass (`_quantize_shared`, also factored out) across all
+  of idle+walk+attack's frames combined, before slicing the result back
+  into three `_write_anim_outputs` calls that all receive the same
+  palette. Result: `palette.txt` is byte-identical across
+  `<prefix>_idle/_walk/_attack`. Per-animation scale/placement (legitimately
+  different per animation — a walk stride needs different framing than an
+  idle stance) is untouched. `gen_pasm_animset.py` needed **zero** code
+  changes — it already only reads idle's `palette.txt`, which is now
+  correct by construction. `convert_animation.py`'s own single-anim CLI is
+  unchanged in behavior (regression-checked: byte-identical `frame*.bin`/
+  `palette.txt`/`manifest.json` output against the previously-committed
+  `out/ralf_idle/` before this session's tool changes).
+  **Applied to Ralf's shipped data**: regenerated `out/ralf_*` +
+  `src/assets/anim_ralf_*.bin` via the new tool, regenerated the Poppy
+  fragment via `gen_pasm_animset.py`, diffed it against `main.pasm` —
+  confirmed **only** the 16 palette immediate values differed (everything
+  else, including frame counts/delays/dispatch-chain text, identical,
+  since same source data/geometry), hand-edited just those 16 lines into
+  `main.pasm`, rebuilt, all three `tools/rom_audit/*.py` tools clean,
+  verified in Mesen2 (idle/walk/attack all still trigger/cycle/revert
+  correctly, sprite 0/1 OAM byte-exact, facing flip unaffected, no
+  corruption) with before/after screenshots confirming walk now renders in
+  its own (shared, not idle's leftover) colors. Accepted tradeoff: 16
+  colors now split across ~3x more visual content than idle-only
+  quantization had, so any single animation may look marginally less rich
+  than before — visually confirmed still coherent, not degraded to the
+  point of looking broken.
+  **Also refreshed JHUN's proof-of-concept data** (`out/jhun_*`,
+  `src/assets/anim_jhun_*.bin`) through the same new tool for consistency
+  with the current pipeline — not re-spliced into `main.pasm` or
+  re-verified via a full Mesen splice (that splice mechanism was already
+  proven working last session and doesn't depend on which palette
+  algorithm produced the source data).
 - **Three ROM-layout audit tools** (`tools/rom_audit/`) — run after any
   change that grows code/data in the `$C100`-`$FC00` fixed-`.org` window:
 
@@ -212,27 +254,15 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## Recommended next step
 
-Sprite 1 is fully 2-axis dpad-driven (prior session) and the BOR animation
-pipeline is now pak-agnostic for a single shipped character, validated
-against a second real character (this session — see "Current state"
-above). The next real gap this surfaced: **palette unification across a
-character's idle/walk/attack animations**. Today (both before and after
-this session — deliberately not touched, to keep the pipeline-genericity
-verification isolated to one variable) only the **idle** animation's
-16-color palette is ever loaded into CGRAM; walk and attack each quantize
-their own palette independently in `convert_animation.py` (confirmed this
-session: JHUN's walk palette differs from its idle palette, same as Ralf's
-already did) but neither ever loads — walk/attack currently render through
-whatever colors idle happened to pick, which is cosmetically wrong now and
-will be more visibly wrong for future characters whose walk/attack use
-very different colors than idle. Fixing this needs either (a) a two-pass
-`convert_animation.py`/new orchestrator that builds one shared palette
-across all of a character's frames before quantizing any of them, or (b)
-loading a fresh palette on every animation switch (extra DMA/CGRAM-write
-work in `Anim_Play`'s dispatcher, and a correctness question about
-mid-transition flicker). `gen_pasm_animset.py`'s docstring has more detail
-on why this was deliberately deferred rather than folded into this
-session's generator work.
+Sprite 1 is fully 2-axis dpad-driven, the BOR animation pipeline is
+pak-agnostic for a single shipped character (validated against a second
+real character, JHUN), and the CGRAM palette is now unified across
+idle/walk/attack (all three prior sessions — see "Current state" above).
+No single gap stands out as urgent right now; pick from the smaller items
+below, or from the still-open, larger items in "What's NOT done yet"
+(real player entity/state, multi-enemy BG2 compositing, background/level
+tileset conversion, MSU-1 asset streaming) if the next session wants to
+move past hardware-plumbing proofs toward actual gameplay content.
 
 Smaller, independent, available any time:
 - Renaming `TestSprite_PlayFrame`'s sprite-1 state/routine out of the

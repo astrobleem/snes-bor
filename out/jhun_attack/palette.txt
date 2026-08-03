@@ -1,13 +1,13 @@
     lda #$0000
-    lda #$7BFF
     lda #$7B9C
     lda #$5B5C
     lda #$433F
     lda #$6718
     lda #$325B
     lda #$4A10
-    lda #$39D0
-    lda #$1DB4
+    lda #$2DD1
+    lda #$0000
+    lda #$1DB3
     lda #$0910
     lda #$312A
     lda #$24E8

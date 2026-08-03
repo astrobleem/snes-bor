@@ -6,8 +6,8 @@
     lda #$1DAC
     lda #$1508
     lda #$2107
-    lda #$08C8
     lda #$0000
+    lda #$08C8
     lda #$00AE
     lda #$0016
     lda #$000D

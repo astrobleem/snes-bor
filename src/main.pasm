@@ -3034,7 +3034,7 @@ scpu_clear_ppu:
     sta $2122
     rep #$20
 .a16
-    lda #$535F
+    lda #$537F
     sep #$20
 .a8
     sta $2122
@@ -3098,6 +3098,14 @@ scpu_clear_ppu:
     sta $2122
     rep #$20
 .a16
+    lda #$08C8
+    sep #$20
+.a8
+    sta $2122
+    xba
+    sta $2122
+    rep #$20
+.a16
     lda #$00AE
     sep #$20
 .a8
@@ -3115,14 +3123,6 @@ scpu_clear_ppu:
     rep #$20
 .a16
     lda #$000D
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$08C8
     sep #$20
 .a8
     sta $2122

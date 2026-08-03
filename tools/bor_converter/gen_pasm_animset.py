@@ -22,10 +22,16 @@ this script for why): only idle/walk/attack are supported (matching what
 main.pasm's scaffolding -- Anim_Play's dispatcher, Anim_UpdateFacing,
 Anim_CommitFrame -- expects), attack is assumed non-looping (manifest
 loop=0, reverts to idle on completion) and idle/walk looping (loop=1,
-wraps), and only idle's palette is emitted (matching main.pasm's current,
-known, not-yet-fixed behavior of loading one shared palette rather than
-per-animation ones -- see handoff.md's deferred-scope note on palette
-unification).
+wraps). Palette: this script always reads the **idle** dir's palette.txt
+by convention -- as of the palette-unification fix (see handoff.md),
+convert_character.py writes an identical, jointly-quantized palette.txt
+into all three of a character's idle/walk/attack dirs, so reading idle's
+copy is correct, not just convenient. If a character's assets were instead
+produced by convert_animation.py's standalone single-anim CLI (each
+animation quantized independently), this script will still only load
+idle's palette and walk/attack will render through it -- use
+convert_character.py, not three separate convert_animation.py calls, to
+get a character whose animations share one palette.
 
 Per-animation delay: manifests can carry a different delay per frame
 (e.g. Ralf's attack1: 7,7,20,10,10) but main.pasm bakes ONE delay constant

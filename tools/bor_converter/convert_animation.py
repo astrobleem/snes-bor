@@ -37,6 +37,13 @@ Algorithm:
      frame's indices already refer to the same shared 16-color palette --
      no separate nearest-color remapping step needed.
 
+This module's three pieces (`_load_anim_frames`, `_quantize_shared`,
+`_write_anim_outputs`) are split apart so `convert_character.py` can reuse
+steps 1-3 per animation but run step 4 ONCE across a character's combined
+idle+walk+attack frames -- see convert_character.py's docstring for why
+(palette unification across a character's animations, not just within
+one).
+
 Usage:
     python convert_animation.py <pak_path> <entity_txt_entry> <anim_name> <out_dir>
 
@@ -71,7 +78,12 @@ def _frame_bbox_and_bg(rgb_im):
     return (minx, miny, maxx, maxy)
 
 
-def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
+def _load_anim_frames(pak_path, entity_entry_name, anim_name, out_dir):
+    """Steps 1-3: pak extraction through per-frame canvas+mask placement at
+    one shared per-animation scale. Returns a dict with `entity_name`,
+    `loop`, `frames_meta` (the entity's raw per-frame metadata), `canvases`
+    (RGB Images) and `masks` (foreground bool grids), all frame-index-
+    aligned. Does not quantize or write anything."""
     os.makedirs(out_dir, exist_ok=True)
 
     entity_data = extract(pak_path, entity_entry_name)
@@ -150,8 +162,26 @@ def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
                  for x in range(TARGET_W)] for y in range(TARGET_H)]
         masks.append(mask)
 
-    # --- shared palette: replace background with one global avg fg color,
-    # stack all frames vertically, quantize once ---
+    return {
+        'entity_name': entity['name'],
+        'loop': anim['loop'],
+        'frames_meta': frames_meta,
+        'canvases': canvases,
+        'masks': masks,
+        'scale': scale,
+        'hotspot_canvas': [hx_canvas, hy_canvas],
+    }
+
+
+def _quantize_shared(canvases, masks):
+    """Step 4: replace background with one global avg fg color, stack ALL
+    given frames vertically, quantize once. `canvases`/`masks` may span a
+    single animation (convert_animation.py's own CLI) or a whole
+    character's idle+walk+attack combined (convert_character.py) -- the
+    caller decides what "shared" means by what it passes in here.
+
+    Returns (palette dict {index: (r,g,b)}, frame_indices list of
+    TARGET_H x TARGET_W int grids, one per input canvas, same order)."""
     all_fg = [canvases[i].load()[x, y]
               for i in range(len(canvases))
               for y in range(TARGET_H) for x in range(TARGET_W) if masks[i][y][x]]
@@ -184,7 +214,15 @@ def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
                     palette.setdefault(qi, tuple(qpal[(qi - 1) * 3:(qi - 1) * 3 + 3]))
         frame_indices.append(indices)
 
-    # --- write outputs ---
+    return palette, frame_indices
+
+
+def _write_anim_outputs(out_dir, frames_meta, frame_indices, palette,
+                         entity_name, anim_name, loop, scale, hotspot_canvas):
+    """Step 5: frame*.bin, palette.txt, manifest.json, preview.png for one
+    animation's frames, given an already-computed palette (shared across
+    however many animations the caller quantized together)."""
+    n = len(frame_indices)
     bin_paths = []
     for i, indices in enumerate(frame_indices):
         out_bin = bytearray(indices[y][x] & 0x0F for y in range(TARGET_H) for x in range(TARGET_W))
@@ -200,8 +238,8 @@ def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
             f.write(f'    lda #${to_bgr555(rgb_val):04X}\n')
 
     manifest = {
-        'entity': entity['name'], 'anim': anim_name, 'loop': anim['loop'],
-        'scale': scale, 'hotspot_canvas': [hx_canvas, hy_canvas],
+        'entity': entity_name, 'anim': anim_name, 'loop': loop,
+        'scale': scale, 'hotspot_canvas': hotspot_canvas,
         'frames': [
             {'delay': fm['delay'], 'offset': fm['offset'], 'bbox': fm['bbox'],
              'attack': fm['attack'], 'move': fm['move'], 'bin': os.path.basename(p)}
@@ -226,6 +264,15 @@ def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
         'bin_paths': bin_paths, 'pal_path': pal_path,
         'manifest_path': manifest_path, 'preview_path': preview_path,
     }
+
+
+def convert_animation(pak_path, entity_entry_name, anim_name, out_dir):
+    loaded = _load_anim_frames(pak_path, entity_entry_name, anim_name, out_dir)
+    palette, frame_indices = _quantize_shared(loaded['canvases'], loaded['masks'])
+    return _write_anim_outputs(
+        out_dir, loaded['frames_meta'], frame_indices, palette,
+        loaded['entity_name'], anim_name, loaded['loop'],
+        loaded['scale'], loaded['hotspot_canvas'])
 
 
 def main():
