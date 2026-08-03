@@ -1947,10 +1947,13 @@ Anim_TickCounter = $7E53B1   ; .db -- frames remaining until next advance
 Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim is live)
 Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
-; TestSprite_PlayFrame's own state for the second, independently-moving
-; test sprite -- see that routine's header, below TestSprite_WriteSolidTile.
-TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, bounces between MIN/MAX
-TestSprite2_DirLeft = $7E53B5 ; .db -- 0 = moving right, 1 = moving left
+; TestSprite_PlayFrame's own state for the second, dpad-driven test sprite
+; -- see that routine's header, below TestSprite_WriteSolidTile.
+TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, held Left/Right moves it,
+                              ;        clamped to MIN/MAX; $7E53B5 is now unused (was
+                              ;        TestSprite2_DirLeft, deleted -- no more autonomous
+                              ;        bounce direction to track once movement is
+                              ;        input-driven and clamped instead of bounced)
 TESTSPRITE2_MIN_X = 8
 TESTSPRITE2_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
 TESTSPRITE2_SPEED = 2
@@ -2693,8 +2696,10 @@ TestSprite_WriteSolidTile__plane23:
 ; before any NMI has run ClearAll, so the cursor is still 4 from
 ; TestSprite_Init otherwise). Sprite 1 reuses the same solid-red 16x16 tile
 ; (OBJ base tile 0) TestSprite_Init already wrote -- no new VRAM/CGRAM data
-; needed. Must be called in .a16/.i16 and returns the same way, matching
-; scpu_main_loop's convention.
+; needed. Sprite 1's X moves left/right while the dpad is held (clamped at
+; the screen edges, Y fixed at 150) -- see the per-sprite comment below for
+; the input-reading convention. Must be called in .a16/.i16 and returns the
+; same way, matching scpu_main_loop's convention.
     nop
     nop
     nop
@@ -2722,37 +2727,53 @@ TestSprite_PlayFrame:
 .a16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
 
-    ; --- sprite 1: ping-pong X bounce, Y fixed. Unsigned cmp/bcc/bcs on
-    ; purpose -- TESTSPRITE2_MAX_X (216) has bit7 set, so a signed bmi/bpl
-    ; branch would misfire near the boundary. ---
+    ; --- sprite 1: held-dpad X movement, Y fixed at 150. Reads Input_press+1
+    ; using the exact same bit-check convention as Anim_UpdateFacing (see
+    ; that routine, above) -- and MUST resolve Left+Right-held-together the
+    ; same way Anim_UpdateFacing does (Left wins), or sprite 1 could move
+    ; right on a frame where Ralf's facing flips left off the same read of
+    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- TESTSPRITE2_MAX_X
+    ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
+    ; boundary. Clamped, not bounced: holding a direction into the wall
+    ; just stops moving, no direction-flip state needed anymore (that's
+    ; why TestSprite2_DirLeft is gone -- see WRAM decl above). This clamp
+    ; is only correct while TESTSPRITE2_SPEED <= TESTSPRITE2_MIN_X (adc
+    ; side) and TESTSPRITE2_MAX_X + TESTSPRITE2_SPEED <= 255 (sbc side, via
+    ; the cmp) -- both hold today (8/216/2); if SPEED ever grows past that,
+    ; the add/subtract can wrap past the clamp and teleport the sprite to
+    ; the opposite edge instead of stopping there. ---
     sep #$20
 .a8
-    lda.l TestSprite2_DirLeft
-    bne TestSprite_PlayFrame__moving_left
-    bra TestSprite_PlayFrame__moving_right
+    lda.l Input_press+1
+    and #$03
+    beq TestSprite_PlayFrame__sprite1_hold
+    lda.l Input_press+1
+    and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
+    beq TestSprite_PlayFrame__sprite1_right
+    bra TestSprite_PlayFrame__sprite1_left
     nop
-TestSprite_PlayFrame__moving_right:
+TestSprite_PlayFrame__sprite1_right:
     lda.l TestSprite2_X
     clc
     adc #TESTSPRITE2_SPEED
     cmp #TESTSPRITE2_MAX_X + 1
-    bcc TestSprite_PlayFrame__store_x
-    lda #1
-    sta.l TestSprite2_DirLeft
+    bcc TestSprite_PlayFrame__sprite1_store_x
     lda #TESTSPRITE2_MAX_X
-    bra TestSprite_PlayFrame__store_x
+    bra TestSprite_PlayFrame__sprite1_store_x
     nop
-TestSprite_PlayFrame__moving_left:
+TestSprite_PlayFrame__sprite1_left:
     lda.l TestSprite2_X
     sec
     sbc #TESTSPRITE2_SPEED
     cmp #TESTSPRITE2_MIN_X
-    bcs TestSprite_PlayFrame__store_x
-    lda #0
-    sta.l TestSprite2_DirLeft
+    bcs TestSprite_PlayFrame__sprite1_store_x
     lda #TESTSPRITE2_MIN_X
+    bra TestSprite_PlayFrame__sprite1_store_x
     nop
-TestSprite_PlayFrame__store_x:
+TestSprite_PlayFrame__sprite1_hold:
+    lda.l TestSprite2_X
+    nop
+TestSprite_PlayFrame__sprite1_store_x:
     sta.l TestSprite2_X
     sta.l OamSetSprite_X
     lda #150
@@ -3252,11 +3273,10 @@ scpu_tm_write:
     lda #ANIM_FRAME_DELAY
     sta.l Anim_TickCounter
 
-    ; --- TestSprite_PlayFrame's sprite-1 bounce state ---
-    lda #TESTSPRITE2_MIN_X
+    ; --- TestSprite_PlayFrame's sprite-1 dpad-movement state ---
+    lda #120                        ; mid-screen; was TESTSPRITE2_MIN_X, which sits
+                                     ; exactly on the left clamp
     sta.l TestSprite2_X
-    lda #0
-    sta.l TestSprite2_DirLeft
     rep #$31
 .a16
 

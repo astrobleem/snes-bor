@@ -556,11 +556,12 @@
 00:D7FB TestSprite_WriteSolidTile__plane01
 00:D808 TestSprite_WriteSolidTile__plane23
 00:D813 TestSprite_PlayFrame
-00:D84C TestSprite_PlayFrame__moving_right
-00:D862 TestSprite_PlayFrame__moving_left
-00:D876 TestSprite_PlayFrame__store_x
-00:D89C AnimRalfIdleFrames
-00:D89C AnimRalfAttackFrames
+00:D856 TestSprite_PlayFrame__sprite1_right
+00:D866 TestSprite_PlayFrame__sprite1_left
+00:D876 TestSprite_PlayFrame__sprite1_hold
+00:D87B TestSprite_PlayFrame__sprite1_store_x
+00:D8A1 AnimRalfIdleFrames
+00:D8A1 AnimRalfAttackFrames
 00:FC00 scpu_boot
 00:FC7E msu1_busy_loop
 00:FC87 msu1_read_loop
@@ -576,7 +577,7 @@
 00:FE53 scpu_tm_col
 00:FE6D scpu_tm_blank
 00:FE71 scpu_tm_write
-00:FED2 scpu_main_loop
+00:FECC scpu_main_loop
 00:FF00 nmi_handler
 00:FF10 irq_handler
 00:606000 BW_CANVAS
@@ -768,4 +769,3 @@
 00:7E53B2 Anim_Selected
 00:7E53B3 Anim_FacingLeft
 00:7E53B4 TestSprite2_X
-00:7E53B5 TestSprite2_DirLeft
