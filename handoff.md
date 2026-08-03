@@ -19,19 +19,36 @@ and visually in Mesen2:
   frames, reverts to idle on completion), all in a fixed 4x6-tile BG2
   window. Facing flip (Left vs Right) swaps the live tilemap between two
   precomputed 6-row blocks.
-- **A real hardware OAM/OBJ sprite**: a 16x16 solid-red test sprite (X=120,
-  Y=100), proving the full OAM pipeline end-to-end — VRAM tile data, CGRAM
-  OBJ palette, `Oam_Buffer`/`Oam_ExpandedHi` shadow tables, `Core_Oam_Play`'s
-  hi-table packing (`Core_Oam_TransformHiOam`), and the queued-DMA upload
-  through `Core_Nmi_Play`. Both the low table (X/Y/tile/attr) and the real
-  hardware hi-table (size bit) are byte-exact against expected values; a
-  PPU-composited screenshot's red-pixel bounding box measures exactly 16x16
-  pixels. **The sprite persists on screen by accident, not by design** — see
-  `TestSprite_Init`'s header comment in `main.pasm` before adding a second
-  sprite or any per-frame OAM write (the DMA fires once at boot; the next
-  `Core_Oam_Play` call with a nonzero `Oam_CurrentSlot` will stomp this
-  sprite's real-OAM slot with the shadow's cleared state unless it's
-  re-written into the shadow buffer first).
+- **Two real hardware OAM/OBJ sprites, live and independently moving**:
+  sprite 0 is the original 16x16 solid-red test sprite (X=120, Y=100,
+  static); sprite 1 is a second instance of the same tile (Y=150, X
+  ping-ponging between 8 and 216 at 2px/frame). Both are re-written into
+  the shadow buffer **every frame** by `TestSprite_PlayFrame` (`main.pasm`,
+  right after `TestSprite_WriteSolidTile`, called from `scpu_main_loop`
+  before `Core_Oam_Play`) via the new `Core_Oam_SetSprite` entry point
+  (`core/oam.pasm`, right after `Core_Oam_Play`) — proving the OAM
+  pipeline end-to-end for live, per-frame-updated sprites, not just a
+  one-time boot write. `Core_Oam_SetSprite` takes its 5 fields
+  (X/Y/tile/attr/hi) via WRAM staging cells (`OamSetSprite_*`,
+  `$7E53AB-$7E53AF`), matching `core/dma.pasm`'s `DmaRequest_*` convention,
+  writes one `Oam_Buffer`/`Oam_ExpandedHi` entry at the `Oam_CurrentSlot`
+  cursor, and advances it — game code fills the cells and calls it once per
+  sprite per frame, then calls `Core_Oam_Play` once.
+  Verified in Mesen2: sprite 0's OAM bytes are byte-exact `[120,100,0,48]`
+  on every sampled frame across a 10-frame sweep; sprite 1's Y/tile/attr
+  stay fixed while X took 10/10 distinct values; the packed hi-table byte
+  was exactly `$0A` every sample (both sprites' size bit set, correctly
+  packed at bits 1-0 and 3-2); a full-screen screenshot shows both red
+  squares on screen with no top-of-frame corruption band (confirms one
+  544-byte OAM DMA/frame, now happening every frame instead of once, does
+  not reintroduce the old forced-blank/vblank-overrun bug — that bug came
+  from an unpaced loop spamming duplicate uploads, not from one legitimate
+  upload/frame). `TestSprite_Init`'s one-time write only sets what's on
+  screen before the main loop's first iteration now — `TestSprite_PlayFrame`
+  is what keeps sprite 0 alive going forward, and it MUST keep re-asserting
+  sprite 0 every frame it runs (see that routine's header comment) — the
+  shadow-wipe-after-upload trap `TestSprite_Init`'s header used to warn
+  about is now actually triggered every frame, not just theoretical.
 - **Three ROM-layout audit tools** (`tools/rom_audit/`) — run after any
   change that grows code/data in the `$C100`-`$FC00` fixed-`.org` window:
 
@@ -45,11 +62,12 @@ and visually in Mesen2:
   unreferenced label, `AnimRalfAttackFrames`, is expected — see
   `verify_layout.py`'s own docstring for why that specific pattern is safe).
 
-- **Remaining margin before `$FC00`**: ~834 bytes as of this build. Don't
-  compute this from the highest label address in `main.sym` alone — `.incbin`
-  blobs have no end-label, so that only gives you where the last blob
-  *starts*. Add the blob's real size (frame count x `ANIM_FRAME_BYTES`, or
-  the `.bin` file's size on disk) to get the true end address before
+- **Remaining margin before `$FC00`**: ~612 bytes as of this build (was
+  ~834 before this session's `Core_Oam_SetSprite` + second-sprite work).
+  Don't compute this from the highest label address in `main.sym` alone —
+  `.incbin` blobs have no end-label, so that only gives you where the last
+  blob *starts*. Add the blob's real size (frame count x `ANIM_FRAME_BYTES`,
+  or the `.bin` file's size on disk) to get the true end address before
   subtracting from `$FC00`.
 
 Basic Mesen2 reproduction (adjust ROM path if working from a worktree):
@@ -66,20 +84,20 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
     m.pause(); m.reset_emulator(); m.pause()
     m.run_frames(90)
     print('OAM sprite0:', list(m.read_memory('snesSpriteRam', 0, 4)))
-    print('OAM hi byte0 & 3:', m.read_memory('snesSpriteRam', 512, 1)[0] & 3)
+    print('OAM sprite1:', list(m.read_memory('snesSpriteRam', 4, 4)))
+    print('OAM hi byte0:', hex(m.read_memory('snesSpriteRam', 512, 1)[0]))  # expect 0x0A
     print('Anim_Selected:', m.read_u8(0x7E53B2, mem_type='snesMemory'))
 ```
 
 ## What's NOT done yet
 
 - **No player entity.** No input-driven movement, no player state, no
-  interaction between the OAM test sprite and Ralf's BG2 animation system.
-- **No `Core_Oam_SetSprite`-style per-frame entry point.** The OAM shadow
-  buffer is only ever written once, at boot. Adding one is the natural next
-  step but will immediately hit the "sprite persists by accident" trap
-  above — plan for it, don't rediscover it.
-- **No multi-sprite testing.** Only OAM slot 0 has ever been written with
-  real data.
+  interaction between the OAM test sprites and Ralf's BG2 animation system.
+  `TestSprite_PlayFrame`'s sprite 1 moves on a fixed, input-independent
+  ping-pong timer, not in response to controller state.
+- **Only 2 of 128 OAM slots ever exercised.** `Core_Oam_SetSprite` itself
+  is generic (any slot, any X/Y/tile/attr/hi), but nothing has called it
+  with a 3rd+ sprite or tested behavior near `OAM_SLOTS` (128).
 - **The hi-table's X-high bit is unexercised by any real shipped sprite**
   (only by a synthetic WRAM test) — unverified if a sprite ever needs X >=
   256.
@@ -92,11 +110,15 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## Recommended next step
 
-Add a per-frame `Core_Oam_SetSprite` entry point and prove a second,
-independently-moving sprite works — extends the OAM pipeline from "one
-static sprite" to "N sprites, updated live," which is what a real
-player/enemy entity will need. The hi-table fix is verified for both size
-values now, so the new sprite can freely be 8x8 or 16x16.
+Wire `Core_Oam_SetSprite` to a real input-driven entity — the natural next
+step is making sprite 1 (or a new slot) move via `Core_Input_Poll`'s dpad
+state instead of the current fixed ping-pong timer, as a step toward an
+actual player entity. `Core_Oam_SetSprite`'s calling convention (WRAM
+staging cells `OamSetSprite_*`, see `core/oam.pasm`) is generic and ready
+for that — no OAM-pipeline changes needed, just a different X/Y source per
+frame. ROM budget is getting tight (~612 bytes before `$FC00`) — a real
+entity update routine should stay small, or a first look at freeing space
+elsewhere in the `$C100`-`$FC00` window may be needed first.
 
 ## Harness gotchas (Mesen2 / build)
 

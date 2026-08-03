@@ -58,6 +58,19 @@ OamHiSrcIndex   = $7E53A6 ; .dw — index into Oam_ExpandedHi for the current gr
 OamHiDstIndex   = $7E53A8 ; .dw — index into Oam_PackedHi for the current group (stride 1)
 OamHiPackedTemp = $7E53AA ; .db — this group's packed byte, built up before the store
 
+; --- Core_Oam_SetSprite's caller-filled request cells. Same pattern as
+; core/dma.pasm's DmaRequest_* staging area (fill these, then jsr) rather
+; than a register-passed convention -- 5 independent byte fields doesn't
+; fit cleanly in A/X/Y. Not part of the shadow-clear range (OamShadow_End)
+; -- always fully overwritten by the caller before use, same as OamHi*
+; above. Fills the remaining gap before main.pasm's Anim_* block ($7E53B0).
+OamSetSprite_X    = $7E53AB ; .db — X-low (0-255; 9th/X-high bit lives in Hi below)
+OamSetSprite_Y    = $7E53AC ; .db
+OamSetSprite_Tile = $7E53AD ; .db — OBJ base tile index
+OamSetSprite_Attr = $7E53AE ; .db — priority/palette/flip byte
+OamSetSprite_Hi   = $7E53AF ; .db — hi-table byte, pre-shifted (bit0=X-high, bit1=size),
+                             ;        same convention as Oam_ExpandedHi's own entries
+
 OAM_DEFAULT_Y = $F0      ; off the visible 224-line frame -> sprite hidden
 
 Core_Oam_Init:
@@ -138,10 +151,13 @@ Core_Oam_ClearAll__hi_loop:
 ; across the top of the screen -- confirmed via a debug probe reading
 ; HVBJOY's vblank flag right after the commit bracket's un-blank write:
 ; still inside vblank at commit entry, already past it by the time
-; brightness gets restored, every single frame, steady-state). Nothing in
-; this project yet calls a Core_Oam_SetSprite-style entry point to advance
-; Oam_CurrentSlot, so OAM is 100% static -- there is no reason to spend
-; vblank DMA bandwidth re-uploading it every frame.
+; brightness gets restored, every single frame, steady-state). That bug
+; came from an *unpaced* loop enqueuing many duplicate uploads per real
+; frame (Core_Nmi_WaitFrame didn't exist yet) -- it was never about "one
+; upload per frame" being inherently unsafe. main.pasm's TestSprite_PlayFrame
+; now legitimately calls Core_Oam_SetSprite + this routine every frame to
+; drive a live sprite; one 544-byte OAM DMA/frame is a small fraction of
+; vblank's budget and does not reintroduce that bug.
 Core_Oam_Play:
     rep #$31
 .a16
@@ -176,6 +192,58 @@ Core_Oam_Play__queued:
     sta Oam_UploadFlag
     nop
 Core_Oam_Play__done:
+    rts
+
+; Call once per sprite you want visible this frame, after filling
+; OamSetSprite_X/Y/Tile/Attr/Hi. Writes one entry at the Oam_CurrentSlot
+; cursor and advances it by 4 (one Oam_Buffer slot); does NOT call
+; Core_Oam_Play itself -- caller writes every sprite for the frame first,
+; then calls Core_Oam_Play once. Never indexes a .l bank-$7E symbol with Y
+; (long-indexed-Y store doesn't exist in hardware -- see this file's header
+; and Core_Oam_TransformHiOam's own bug-1 note); X only, per that same
+; established pattern.
+    nop
+    nop
+    nop
+    nop
+Core_Oam_SetSprite:
+    php
+    rep #$31
+.a16
+    lda Oam_CurrentSlot
+    tax                          ; X = byte offset into Oam_Buffer (stride 4/sprite)
+
+    sep #$20
+.a8
+    lda.l OamSetSprite_X
+    sta.l Oam_Buffer,x
+    lda.l OamSetSprite_Y
+    sta.l Oam_Buffer+1,x
+    lda.l OamSetSprite_Tile
+    sta.l Oam_Buffer+2,x
+    lda.l OamSetSprite_Attr
+    sta.l Oam_Buffer+3,x
+
+    rep #$31
+.a16
+    lda Oam_CurrentSlot
+    lsr a
+    lsr a                         ; sprite index = byte-offset / 4 (Oam_ExpandedHi is stride 1)
+    tax
+
+    sep #$20
+.a8
+    lda.l OamSetSprite_Hi
+    sta.l Oam_ExpandedHi,x
+
+    rep #$31
+.a16
+    lda Oam_CurrentSlot
+    clc
+    adc #4
+    sta Oam_CurrentSlot
+
+    plp
     rts
 
 ; Packs Oam_ExpandedHi (1 byte/sprite; bit0 = X-high, bit1 = size, matching

@@ -1947,6 +1947,14 @@ Anim_TickCounter = $7E53B1   ; .db -- frames remaining until next advance
 Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim is live)
 Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
+; TestSprite_PlayFrame's own state for the second, independently-moving
+; test sprite -- see that routine's header, below TestSprite_WriteSolidTile.
+TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, bounces between MIN/MAX
+TestSprite2_DirLeft = $7E53B5 ; .db -- 0 = moving right, 1 = moving left
+TESTSPRITE2_MIN_X = 8
+TESTSPRITE2_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
+TESTSPRITE2_SPEED = 2
+
 ; Picks idle/walk/attack and dispatches to whichever per-animation advance/
 ; DMA-enqueue routine is currently selected. Reads Input_press/Input_trigger
 ; fresh off Core_Input_Poll, which scpu_main_loop already calls earlier in
@@ -2555,20 +2563,21 @@ Anim_Done:
 ; word addresses, no wrap-address guessing needed since they're all already
 ; in VRAM's valid 15-bit range.
 ;
-; IMPORTANT, easy to trip over later: this sprite's real OAM entry persists
-; on screen by ACCIDENT, not because anything keeps re-uploading it. The DMA
-; this routine queues (via Core_Oam_Play/Core_Nmi_Play) fires exactly once,
-; right after boot. Core_Nmi_Play's post-upload cleanup (see oam.pasm's
-; Core_Oam_Play header) then calls Core_Oam_ClearAll, which resets the
-; *shadow* Oam_Buffer to Y=$F0 (hidden) for every slot, zeroes
-; Oam_ExpandedHi, and rewinds Oam_CurrentSlot to 0 -- but real hardware OAM
-; itself is untouched, so sprite 0's entry (low AND high table) just sits
-; there showing whatever was last DMA'd. The moment a future session calls
-; Core_Oam_Play again with a nonzero Oam_CurrentSlot (e.g. adding a second
-; sprite, or any per-frame OAM write), that DMA will overwrite sprite 0's
-; slot with the shadow's cleared state (Y=$F0, size bit back to 0) unless
-; this sprite's entry gets re-written into the shadow buffer first. Don't
-; assume "it's on screen" means "it's being maintained."
+; IMPORTANT, easy to trip over later: this routine only writes sprite 0
+; ONCE, at boot -- it is TestSprite_PlayFrame (below TestSprite_WriteSolidTile,
+; called every frame from scpu_main_loop before Core_Oam_Play) that keeps
+; sprite 0 alive going forward. That's not optional decoration: Core_Nmi_Play
+; wipes the *shadow* Oam_Buffer/Oam_ExpandedHi back to "every sprite hidden"
+; after every successful upload (see Core_Oam_ClearAll and oam.pasm's
+; Core_Oam_Play header), but leaves real hardware OAM itself untouched. So
+; the instant anything else calls Core_Oam_Play with a nonzero
+; Oam_CurrentSlot -- which TestSprite_PlayFrame's own sprite 1 now does,
+; every frame -- that DMA will overwrite sprite 0's slot with the shadow's
+; cleared state (Y=$F0, size bit back to 0) unless sprite 0's entry gets
+; re-written into the shadow buffer first. TestSprite_PlayFrame re-asserts
+; sprite 0's identical literal values (X=120, Y=100, tile=0, attr=$30,
+; hi=$02) every frame for exactly this reason -- don't remove that half of
+; it while only meaning to touch sprite 1.
 ; ============================================================================
     ; workaround: Poppy label address off-by-one (see poppy bug #4) -- padded
     ; wider than 1 nop; this project's usual single-nop guard was measured
@@ -2669,6 +2678,94 @@ TestSprite_WriteSolidTile__plane23:
     sta $2118
     dex
     bne TestSprite_WriteSolidTile__plane23
+    rts
+
+; Sole per-frame OAM writer, called once/frame from scpu_main_loop before
+; Core_Oam_Play. Because Core_Nmi_Play wipes the ENTIRE OAM shadow back to
+; "all hidden" after every successful upload (see Core_Oam_ClearAll and
+; TestSprite_Init's own header comment above), the instant this routine
+; makes a second Core_Oam_Play call happen with a nonzero cursor, sprite
+; 0's slot would get stomped with the shadow's cleared state unless it's
+; re-written here too -- so this routine re-asserts BOTH sprites every
+; frame, not just the new one. Forces Oam_CurrentSlot to 0 up front rather
+; than trusting its leftover value, making this routine idempotent
+; regardless of Core_Nmi_Play/ClearAll timing (its very first call happens
+; before any NMI has run ClearAll, so the cursor is still 4 from
+; TestSprite_Init otherwise). Sprite 1 reuses the same solid-red 16x16 tile
+; (OBJ base tile 0) TestSprite_Init already wrote -- no new VRAM/CGRAM data
+; needed. Must be called in .a16/.i16 and returns the same way, matching
+; scpu_main_loop's convention.
+    nop
+    nop
+    nop
+    nop
+TestSprite_PlayFrame:
+    rep #$31
+.a16
+    lda #0
+    sta Oam_CurrentSlot
+
+    ; --- sprite 0: re-assert TestSprite_Init's original static values ---
+    sep #$20
+.a8
+    lda #120
+    sta.l OamSetSprite_X
+    lda #100
+    sta.l OamSetSprite_Y
+    lda #0
+    sta.l OamSetSprite_Tile
+    lda #$30
+    sta.l OamSetSprite_Attr
+    lda #$02
+    sta.l OamSetSprite_Hi
+    rep #$31
+.a16
+    jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
+
+    ; --- sprite 1: ping-pong X bounce, Y fixed. Unsigned cmp/bcc/bcs on
+    ; purpose -- TESTSPRITE2_MAX_X (216) has bit7 set, so a signed bmi/bpl
+    ; branch would misfire near the boundary. ---
+    sep #$20
+.a8
+    lda.l TestSprite2_DirLeft
+    bne TestSprite_PlayFrame__moving_left
+    bra TestSprite_PlayFrame__moving_right
+    nop
+TestSprite_PlayFrame__moving_right:
+    lda.l TestSprite2_X
+    clc
+    adc #TESTSPRITE2_SPEED
+    cmp #TESTSPRITE2_MAX_X + 1
+    bcc TestSprite_PlayFrame__store_x
+    lda #1
+    sta.l TestSprite2_DirLeft
+    lda #TESTSPRITE2_MAX_X
+    bra TestSprite_PlayFrame__store_x
+    nop
+TestSprite_PlayFrame__moving_left:
+    lda.l TestSprite2_X
+    sec
+    sbc #TESTSPRITE2_SPEED
+    cmp #TESTSPRITE2_MIN_X
+    bcs TestSprite_PlayFrame__store_x
+    lda #0
+    sta.l TestSprite2_DirLeft
+    lda #TESTSPRITE2_MIN_X
+    nop
+TestSprite_PlayFrame__store_x:
+    sta.l TestSprite2_X
+    sta.l OamSetSprite_X
+    lda #150
+    sta.l OamSetSprite_Y
+    lda #0
+    sta.l OamSetSprite_Tile
+    lda #$30
+    sta.l OamSetSprite_Attr
+    lda #$02
+    sta.l OamSetSprite_Hi
+    rep #$31
+.a16
+    jsr Core_Oam_SetSprite        ; slot 1, cursor -> 8
     rts
 
 ; Precomputed VRAM-format tile data referenced by Anim_Play_Idle/
@@ -3154,6 +3251,12 @@ scpu_tm_write:
     sta.l Anim_Selected
     lda #ANIM_FRAME_DELAY
     sta.l Anim_TickCounter
+
+    ; --- TestSprite_PlayFrame's sprite-1 bounce state ---
+    lda #TESTSPRITE2_MIN_X
+    sta.l TestSprite2_X
+    lda #0
+    sta.l TestSprite2_DirLeft
     rep #$31
 .a16
 
@@ -3206,6 +3309,7 @@ scpu_main_loop:
     jsr Core_Input_Poll
     jsr Core_Oop_Play
     jsr Core_Screen_Play
+    jsr TestSprite_PlayFrame
     jsr Core_Oam_Play
     jsr Anim_Play
     bra scpu_main_loop
