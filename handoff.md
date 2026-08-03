@@ -20,12 +20,13 @@ and visually in Mesen2:
   window. Facing flip (Left vs Right) swaps the live tilemap between two
   precomputed 6-row blocks.
 - **Two real hardware OAM/OBJ sprites, live and updated every frame** —
-  one static, one dpad-driven: sprite 0 is the original 16x16 solid-red
-  test sprite (X=120, Y=100, static); sprite 1 is a second instance of the
-  same tile (Y=150, fixed) whose X now moves left/right while the dpad is
-  held, clamped (not bounced) at X=8/X=216, holding position when nothing
-  is held. Both are re-written into the shadow buffer **every frame** by
-  `TestSprite_PlayFrame` (`main.pasm`, right after
+  one static, one dpad-driven on **both axes**: sprite 0 is the original
+  16x16 solid-red test sprite (X=120, Y=100, static); sprite 1 is a second
+  instance of the same tile whose X moves left/right and Y moves up/down
+  while the dpad is held, each axis independently clamped (not bounced) —
+  X at 8/216, Y at 8/208 — holding position on either axis when nothing on
+  that axis is held. Both sprites are re-written into the shadow buffer
+  **every frame** by `TestSprite_PlayFrame` (`main.pasm`, right after
   `TestSprite_WriteSolidTile`, called from `scpu_main_loop` before
   `Core_Oam_Play`) via the `Core_Oam_SetSprite` entry point (`core/oam.pasm`,
   right after `Core_Oam_Play`) — proving the OAM pipeline end-to-end for
@@ -36,21 +37,35 @@ and visually in Mesen2:
   writes one `Oam_Buffer`/`Oam_ExpandedHi` entry at the `Oam_CurrentSlot`
   cursor, and advances it — game code fills the cells and calls it once per
   sprite per frame, then calls `Core_Oam_Play` once.
-  Sprite 1 reads `Input_press+1` directly, using the exact same bit-check
-  convention as `Anim_UpdateFacing` (bit0=Right, bit1=Left) and the same
-  Left-wins tie-break when both are held simultaneously — so sprite 1's
-  movement direction and Ralf's BG2 facing flip always agree on the same
-  frame's input, never disagree due to two different readings of
-  `Input_press`.
-  Verified in Mesen2: holding Right/Left moves sprite 1's real OAM X byte
-  in the correct direction and by a multiple of `TESTSPRITE2_SPEED` (2);
-  it clamps at **exactly** 216 and **exactly** 8 (not off-by-one); it holds
-  position with no input; holding Left+Right together moves it left and
-  `Anim_FacingLeft` reads 1 on the same sample, confirming both subsystems
-  agree; sprite 0's OAM bytes stay byte-exact `[120,100,0,48]`, sprite 1's
-  Y/tile/attr stay fixed at `150/0/$30`, and the packed hi-table byte stays
-  exactly `$0A` throughout. A full-screen screenshot mid-movement shows
-  both red squares on screen with no top-of-frame corruption band.
+  Sprite 1 reads `Input_press+1` via **two independent masks**, one per
+  axis (X: `and #$03`, Y: `and #$0C`) — deliberately not threaded through a
+  shared accumulator across both axes' branches, to avoid the
+  accumulator/stack class of bug this project has hit before (see
+  [[65816-calling-convention-bugs]]). X uses the exact same bit-check
+  convention as `Anim_UpdateFacing` (bit0=Right, bit1=Left, Left wins on
+  both held) so sprite 1's X movement and Ralf's BG2 facing flip always
+  agree on the same frame's input. Y mirrors that convention (bit2=Down,
+  bit3=Up, Up wins on both held — same "higher bit wins" rule as X, not an
+  arbitrary second rule) but with `sbc`/`adc` swapped relative to X, since Y
+  grows downward on screen while X's Left is the *decreasing* direction.
+  Verified in Mesen2, both axes: holding a direction moves sprite 1's real
+  OAM byte in the correct direction (confirmed explicitly, not just
+  "changed by a multiple of speed" — Up decreases Y, Down increases Y,
+  Left decreases X, Right increases X); each axis clamps at **exactly** its
+  MIN/MAX (X: 8/216, Y: 8/208, not off-by-one); each axis holds position
+  independently with no input on that axis; holding Left+Up together moves
+  both axes in the same frame, and holding Left+Right together (X only)
+  still moves left with `Anim_FacingLeft` reading 1 on the same sample,
+  confirming X and Ralf's facing subsystem still agree; sprite 0's OAM
+  bytes stay byte-exact `[120,100,0,48]`, sprite 1's tile/attr stay fixed
+  at `0/$30`, and the packed hi-table byte stays exactly `$0A` throughout.
+  Full-screen screenshots during idle, walk, and attack all show Ralf's BG2
+  animation rendering correctly (no corruption) alongside both red OAM
+  squares — this specifically confirms the code insertion didn't disturb
+  `AnimRalfIdleFrames`/`AnimRalfAttackFrames`, which sit immediately after
+  this routine and are governed by a hand-measured Poppy-off-by-one
+  workaround (`ANIM_LABEL_FIXUP`) sensitive to exactly this kind of
+  preceding-code-size change.
   `TestSprite_Init`'s one-time write only sets what's on screen before the
   main loop's first iteration — `TestSprite_PlayFrame` is what keeps
   sprite 0 alive going forward, and it MUST keep re-asserting sprite 0
@@ -62,10 +77,15 @@ and visually in Mesen2:
   its C# handler (`UI/Utilities/Mcp/McpTools.cs`) resumes the emulator,
   sleeps roughly `frames * (1000/60) * 1.2 + 20ms`, then pauses, so the
   actual number of real frames that elapse can meaningfully overrun the
-  requested `frames` count (observed ~144% of requested in one run).
-  Assert direction/clamp-endpoint/relative-change, not an exact pixel
-  value computed from `frames * speed`, unless the value is saturated at a
-  known clamp.
+  requested `frames` count (observed ~144% of requested in one run) — and a
+  read taken *immediately* after a `set_input` call can still reflect 1-2
+  frames of bleed even with no further `run_frames` call (reproduced
+  identically on both the X and Y axes: an idle check right after a hold
+  showed ~1 extra step of movement; settling with a `run_frames` first,
+  then comparing two subsequent idle reads, is stable). Assert
+  direction/clamp-endpoint/relative-change, not an exact pixel value
+  computed from `frames * speed`, unless the value is saturated at a known
+  clamp — and don't treat an immediate post-hold read as "settled."
 - **Three ROM-layout audit tools** (`tools/rom_audit/`) — run after any
   change that grows code/data in the `$C100`-`$FC00` fixed-`.org` window:
 
@@ -79,15 +99,15 @@ and visually in Mesen2:
   unreferenced label, `AnimRalfAttackFrames`, is expected — see
   `verify_layout.py`'s own docstring for why that specific pattern is safe).
 
-- **Remaining margin before `$FC00`**: ~607 bytes as of this build (was
-  ~612 before this session's dpad-driven sprite-1 movement, ~834 before
-  the `Core_Oam_SetSprite` + second-sprite session before that — trading
-  the autonomous ping-pong bounce for dpad-driven clamped movement was
-  close to a wash, as expected). Don't compute this from the highest label
-  address in `main.sym` alone — `.incbin` blobs have no end-label, so that
-  only gives you where the last blob *starts*. Add the blob's real size
-  (frame count x `ANIM_FRAME_BYTES`, or the `.bin` file's size on disk) to
-  get the true end address before subtracting from `$FC00`.
+- **Remaining margin before `$FC00`**: ~549 bytes as of this build (was
+  ~607 before this session's Y-axis addition — the 2nd-axis dpad block cost
+  58 bytes, close to the ~80-byte estimate going in; ~612 before that
+  session's X-axis/clamp work, ~834 before the `Core_Oam_SetSprite` +
+  second-sprite session before that). Don't compute this from the highest
+  label address in `main.sym` alone — `.incbin` blobs have no end-label, so
+  that only gives you where the last blob *starts*. Add the blob's real
+  size (frame count x `ANIM_FRAME_BYTES`, or the `.bin` file's size on
+  disk) to get the true end address before subtracting from `$FC00`.
 
 Basic Mesen2 reproduction (adjust ROM path if working from a worktree):
 
@@ -110,12 +130,14 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## What's NOT done yet
 
-- **No real player entity yet.** Sprite 1's X now responds to the dpad,
-  but there's still no player state (health, animation, hitboxes), no
-  interaction between it and Ralf's BG2 animation system, and Y is still
-  hardcoded at 150 (X-only was a deliberate scope decision — see
-  `TestSprite_PlayFrame`'s header — to avoid building a one-off Y clamp
-  that a real 2-axis entity-update routine would just replace).
+- **No real player entity yet.** Sprite 1 now responds to the dpad on both
+  X and Y, but there's still no player state (health, animation,
+  hitboxes), and no interaction between it and Ralf's BG2 animation
+  system — it's still a second solid-red 16x16 square, not a character.
+  The `TestSprite_*` naming was deliberately kept this session (see
+  `handoff.md`'s prior "Recommended next step" and the routine's own
+  comments) — a pure rename out of that family is a separate, byte-neutral
+  follow-up, not done yet.
 - **Only 2 of 128 OAM slots ever exercised.** `Core_Oam_SetSprite` itself
   is generic (any slot, any X/Y/tile/attr/hi), but nothing has called it
   with a 3rd+ sprite or tested behavior near `OAM_SLOTS` (128).
@@ -131,18 +153,34 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## Recommended next step
 
-Sprite 1's X axis is now dpad-driven and clamped; Y is still hardcoded at
-150. The natural next step is generalizing `TestSprite_PlayFrame`'s
-sprite-1 block into a real 2-axis entity-update routine (reading all four
-dpad bits from `Input_press+1` in one pass, moving both X and Y, with
-independent clamp bounds per axis) — at that point it's honestly closer to
-"the first player entity" than "a test sprite," so it may be worth
-renaming/moving it out of the `TestSprite_*` family rather than continuing
-to grow it in place. ROM budget is getting tight (~607 bytes before
-`$FC00`) — a real entity update routine should stay small, or a first look
-at freeing space elsewhere in the `$C100`-`$FC00` window may be needed
-first (candidates: the `AnimRalfAttackFrames`/`AnimRalfIdleFrames` blobs
-are the largest single consumers of this window by far).
+Sprite 1 is now fully 2-axis dpad-driven and clamped (see "Current state"
+above) — the entity-movement groundwork from the last two sessions is
+done. The next task is **generalizing the BOR character-pak pipeline**:
+`AnimRalfIdleFrames`/`AnimRalfAttackFrames` and their frame-count constants
+(`ANIM_FRAME_COUNT`, `WALK_FRAME_COUNT`, `ATTACK_FRAME_COUNT`,
+`ANIM_FRAME_BYTES`, the `ANIM_TILEMAP_*_BASE` offsets) are all hardcoded to
+one character (Ralf) today — there's no character-selection layer. Using a
+different Beats of Rage pak means hand-editing these compile-time
+constants and re-baking, not swapping a data file. This is a real
+architectural addition, not a tweak:
+- A data-driven per-character animation descriptor (frame counts/offsets/
+  tile bases per character, likely indexed rather than a pile of `=`
+  constants) replacing today's hardcoded labels in `main.pasm`.
+- Extending `tools/bor_converter` (the pak-extraction/animation-baking
+  pipeline) to bake arbitrary paks against that descriptor format, not
+  just Ralf's.
+- Land this carefully against the ROM budget (~549 bytes before `$FC00`
+  as of this build) — a generic descriptor scheme should be evaluated for
+  its own byte cost before committing to a design, and the
+  `AnimRalfAttackFrames`/`AnimRalfIdleFrames` blobs remain the largest
+  single consumers of the `$C100`-`$FC00` window if space needs to be
+  freed alongside this.
+
+Smaller, independent, available any time: renaming `TestSprite_PlayFrame`'s
+sprite-1 state/routine out of the `TestSprite_*` family (it's functionally
+closer to "the first player entity" than "a test sprite" now) — deferred
+this session as a pure, byte-neutral cleanup that doesn't need to block or
+be blocked by the pak-genericity work.
 
 ## Harness gotchas (Mesen2 / build)
 
@@ -155,6 +193,10 @@ Quick-reference list of what's easy to trip over fresh:
 
 - `set_input`'s `frames` argument advances the emulator itself — don't
   `run_frames` again right after, you'll run extra frames with no input.
+- A read taken *immediately* after `set_input` returns can still reflect
+  1-2 frames of input bleed past the call boundary (wall-clock/sleep-based,
+  confirmed identically on two independent axes this session) — settle
+  with a `run_frames` call first before treating a position as "at rest."
 - A fresh/reset Mesen portable install can ship with `Snes.Port1.Type =
   "None"`, silently no-op'ing every `set_input` call.
 - `snesCgRam` (not `cgram`/`snesCGRam`/`paletteRam`) is the correct memory

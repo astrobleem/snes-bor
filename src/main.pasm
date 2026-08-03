@@ -1948,15 +1948,26 @@ Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim
 Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
 ; TestSprite_PlayFrame's own state for the second, dpad-driven test sprite
-; -- see that routine's header, below TestSprite_WriteSolidTile.
-TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, held Left/Right moves it,
-                              ;        clamped to MIN/MAX; $7E53B5 is now unused (was
-                              ;        TestSprite2_DirLeft, deleted -- no more autonomous
-                              ;        bounce direction to track once movement is
-                              ;        input-driven and clamped instead of bounced)
+; -- see that routine's header, below TestSprite_WriteSolidTile. Now 2-axis:
+; X moves on held Left/Right, Y moves on held Up/Down, independently
+; clamped, both read from Input_press+1 as two separate masks (not one
+; shared accumulator threaded across both axes' branches -- see the
+; routine body for why).
+TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, clamped to MIN/MAX_X
+TestSprite2_Y       = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
+                              ;        (was TestSprite2_DirLeft, deleted -- no more
+                              ;        autonomous bounce direction to track once
+                              ;        movement is input-driven and clamped instead
+                              ;        of bounced; reused here for the Y axis)
 TESTSPRITE2_MIN_X = 8
 TESTSPRITE2_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
-TESTSPRITE2_SPEED = 2
+TESTSPRITE2_MIN_Y = 8
+TESTSPRITE2_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
+TESTSPRITE2_SPEED = 2           ; shared between axes
+; Clamp-wrap safety invariant (both axes): SPEED <= MIN (sbc side) and
+; MAX + SPEED <= 255 (adc side), or the add/subtract can wrap past the
+; clamp and teleport to the opposite edge instead of stopping there.
+; Holds today: X (2/8/216), Y (2/8/208).
 
 ; Picks idle/walk/attack and dispatches to whichever per-animation advance/
 ; DMA-enqueue routine is currently selected. Reads Input_press/Input_trigger
@@ -2696,10 +2707,10 @@ TestSprite_WriteSolidTile__plane23:
 ; before any NMI has run ClearAll, so the cursor is still 4 from
 ; TestSprite_Init otherwise). Sprite 1 reuses the same solid-red 16x16 tile
 ; (OBJ base tile 0) TestSprite_Init already wrote -- no new VRAM/CGRAM data
-; needed. Sprite 1's X moves left/right while the dpad is held (clamped at
-; the screen edges, Y fixed at 150) -- see the per-sprite comment below for
-; the input-reading convention. Must be called in .a16/.i16 and returns the
-; same way, matching scpu_main_loop's convention.
+; needed. Sprite 1 moves on both axes while the dpad is held -- X on
+; Left/Right, Y on Up/Down -- each independently clamped at the screen
+; edges. Must be called in .a16/.i16 and returns the same way, matching
+; scpu_main_loop's convention.
     nop
     nop
     nop
@@ -2727,7 +2738,7 @@ TestSprite_PlayFrame:
 .a16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
 
-    ; --- sprite 1: held-dpad X movement, Y fixed at 150. Reads Input_press+1
+    ; --- sprite 1 X: held-dpad Left/Right movement. Reads Input_press+1
     ; using the exact same bit-check convention as Anim_UpdateFacing (see
     ; that routine, above) -- and MUST resolve Left+Right-held-together the
     ; same way Anim_UpdateFacing does (Left wins), or sprite 1 could move
@@ -2736,12 +2747,12 @@ TestSprite_PlayFrame:
     ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
     ; boundary. Clamped, not bounced: holding a direction into the wall
     ; just stops moving, no direction-flip state needed anymore (that's
-    ; why TestSprite2_DirLeft is gone -- see WRAM decl above). This clamp
-    ; is only correct while TESTSPRITE2_SPEED <= TESTSPRITE2_MIN_X (adc
-    ; side) and TESTSPRITE2_MAX_X + TESTSPRITE2_SPEED <= 255 (sbc side, via
-    ; the cmp) -- both hold today (8/216/2); if SPEED ever grows past that,
-    ; the add/subtract can wrap past the clamp and teleport the sprite to
-    ; the opposite edge instead of stopping there. ---
+    ; why TestSprite2_DirLeft is gone -- see WRAM decl above, now reused for
+    ; TestSprite2_Y). Wrap-safety invariant for this clamp documented next
+    ; to TESTSPRITE2_SPEED above; the Y block below has its own identical
+    ; block mirrored right after this one, with its own independent read of
+    ; Input_press+1 (deliberately not threaded through this block's
+    ; accumulator state across its three-way branch). ---
     sep #$20
 .a8
     lda.l Input_press+1
@@ -2776,7 +2787,49 @@ TestSprite_PlayFrame__sprite1_hold:
 TestSprite_PlayFrame__sprite1_store_x:
     sta.l TestSprite2_X
     sta.l OamSetSprite_X
-    lda #150
+
+    ; --- sprite 1 Y: held-dpad Up/Down movement, mirroring the X block
+    ; above exactly in structure. Independent read of Input_press+1 (not
+    ; threaded through the X block's accumulator/branches -- see WRAM decl
+    ; comment above for why). Per core/input.pasm's documented $4218 bit
+    ; layout, Down is bit10 of the word and Up is bit11 -- bits 2/3 of this
+    ; byte. Up wins when both held, same "higher bit wins" convention as
+    ; X's Left-over-Right (bit3 > bit2, matching bit1 > bit0). Up decreases
+    ; Y (sbc) and Down increases Y (adc) -- opposite of X's Left/Right-to-
+    ; sbc/adc mapping, since Y grows downward on screen. Unsigned cmp/bcc/
+    ; bcs and the same wrap-safety invariant as X apply here too (see the
+    ; TESTSPRITE2_SPEED comment above). ---
+    lda.l Input_press+1
+    and #$0C
+    beq TestSprite_PlayFrame__sprite1_hold_y
+    lda.l Input_press+1
+    and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
+    beq TestSprite_PlayFrame__sprite1_down
+    bra TestSprite_PlayFrame__sprite1_up
+    nop
+TestSprite_PlayFrame__sprite1_down:
+    lda.l TestSprite2_Y
+    clc
+    adc #TESTSPRITE2_SPEED
+    cmp #TESTSPRITE2_MAX_Y + 1
+    bcc TestSprite_PlayFrame__sprite1_store_y
+    lda #TESTSPRITE2_MAX_Y
+    bra TestSprite_PlayFrame__sprite1_store_y
+    nop
+TestSprite_PlayFrame__sprite1_up:
+    lda.l TestSprite2_Y
+    sec
+    sbc #TESTSPRITE2_SPEED
+    cmp #TESTSPRITE2_MIN_Y
+    bcs TestSprite_PlayFrame__sprite1_store_y
+    lda #TESTSPRITE2_MIN_Y
+    bra TestSprite_PlayFrame__sprite1_store_y
+    nop
+TestSprite_PlayFrame__sprite1_hold_y:
+    lda.l TestSprite2_Y
+    nop
+TestSprite_PlayFrame__sprite1_store_y:
+    sta.l TestSprite2_Y
     sta.l OamSetSprite_Y
     lda #0
     sta.l OamSetSprite_Tile
@@ -3277,6 +3330,8 @@ scpu_tm_write:
     lda #120                        ; mid-screen; was TESTSPRITE2_MIN_X, which sits
                                      ; exactly on the left clamp
     sta.l TestSprite2_X
+    lda #150                        ; matches this build's previous Y-fixed value
+    sta.l TestSprite2_Y
     rep #$31
 .a16
 
