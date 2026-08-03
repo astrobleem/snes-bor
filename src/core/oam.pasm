@@ -48,6 +48,16 @@ Oam_VramStart   = $7E53A4 ; .dw — VRAM word address sprite tiles are based at
 OamShadow_Start = Oam_Buffer
 OamShadow_End   = $7E53A6
 
+; --- Core_Oam_TransformHiOam's own working scratch, NOT part of the shadow
+; buffer above (always fully overwritten before being read within one call,
+; so they don't need to be in the init/upload clear cycle). Placed in the
+; gap between OamShadow_End and main.pasm's Anim_* WRAM block ($7E53B0+) --
+; confirmed via a project-wide grep for 7E53A/7E53B that nothing else claims
+; this range.
+OamHiSrcIndex   = $7E53A6 ; .dw — index into Oam_ExpandedHi for the current group (stride 4)
+OamHiDstIndex   = $7E53A8 ; .dw — index into Oam_PackedHi for the current group (stride 1)
+OamHiPackedTemp = $7E53AA ; .db — this group's packed byte, built up before the store
+
 OAM_DEFAULT_Y = $F0      ; off the visible 224-line frame -> sprite hidden
 
 Core_Oam_Init:
@@ -65,17 +75,13 @@ Core_Oam_Init__clear_loop:
 
     jsr Core_Oam_ClearAll
 
-    ; default sprite tile base: VRAM word $C000 (top of VRAM, well clear of
-    ; the BG tiles/tilemaps main.pasm's boot code already placed below it)
-    lda #$C000
+    ; default sprite tile base: VRAM word $4000
+    lda #$4000
     sta Oam_VramStart
 
     sep #$20
 .a8
-    lda.l Nmi_ObjSel
-    ora #$80                ; name table at word $C000 (bit7, matches base above:
-                             ; OBSEL name-select field * $1000 = $8000, plus the
-                             ; fixed $8000 base = $C000 when bit7 set and field=0)
+    lda #$02                ; base word $4000 (field 2 << 13), size mode 0
     sta.l Nmi_ObjSel
     rep #$31
 .a16
@@ -172,45 +178,124 @@ Core_Oam_Play__queued:
 Core_Oam_Play__done:
     rts
 
-; Packs Oam_ExpandedHi (1 byte/sprite, size+x-high bits pre-shifted into their
-; final position) into Oam_PackedHi (real hardware format, 4 sprites/byte).
-; Bit-for-bit the same LDA/ROR/ORA sequence as upstream's TRANSFORM_HIOAM
-; macro (9 total RORs per group of 4) — this is a specific bit-interleave,
-; not something to "simplify" without re-deriving the packing math.
+; Packs Oam_ExpandedHi (1 byte/sprite; bit0 = X-high, bit1 = size, matching
+; real hardware's field layout so no bit-order remap is needed, just
+; positioning) into Oam_PackedHi (real hardware 2nd-OAM-table format: 4
+; sprites/byte, sprite N's 2 bits at bits [(N&3)*2+1 : (N&3)*2] of byte
+; N>>2 -- ground truth is Mesen2's SnesPpu.cpp FetchSpritePosition:
+; `highTableValue = oamRam[0x200|(N>>2)] >> ((N<<1)&0x06)`, bit0 feeds the
+; X-sign table, bit1 ORs into OamMode's bit2).
+;
+; TWO real, independent bugs were found in this routine in a previous
+; session (it had never executed before that session's TestSprite_Init gave
+; it real data) and left deliberately unfixed pending root-causing a
+; miscompile risk. Both are fixed here now:
+;
+; 1. `sta.l Oam_PackedHi,y` was not a real 65816 addressing mode (no
+;    long-indexed-by-Y store exists in hardware, only long-indexed-by-X,
+;    opcode $9F) -- Poppy silently emitted a bank-dropping 2-byte
+;    absolute-Y store instead of erroring. FIX: never index a `.l` bank-$7E
+;    symbol with Y anywhere in this routine. Two WRAM scratch counters
+;    (OamHiSrcIndex, OamHiDstIndex, both stride-appropriate 16-bit values)
+;    replace the X/Y register pair; each is loaded into X via `lda.l`+`tax`
+;    (both real, unindexed or X-indexed instructions, never Y) immediately
+;    before the one indexed access that needs it, then X is free to hold a
+;    different value for the next indexed access in the same iteration.
+;    This is the same "swap what X means, never touch Y for `.l`" pattern
+;    as `Core_Oam_Play`'s own DMA-request setup elsewhere in this project.
+;
+; 2. The original LDA/ROR/ORA bit-interleave (ported from upstream's
+;    TRANSFORM_HIOAM macro) didn't place each sprite's 2 bits at hardware's
+;    expected position -- a from-scratch Python simulation found sprite 0's
+;    bits landing at bits 7-6 instead of 1-0, with at least one input bit
+;    lost. FIX: replaced with explicit AND #$03 (mask to the 2 meaningful
+;    bits) / ASL A * (2*group-position) (shift into place) / ORA (merge)
+;    per sprite, building the packed byte in OamHiPackedTemp one sprite at a
+;    time. No ROR, no carry-chain reasoning required to verify by hand --
+;    each sprite's contribution can be checked independently.
+;
+; A previous attempt at bug 1 alone (temporary DBR=$7E via phb/pha/plb,
+; dropping `.l` for short addressing) was bisected to break Ralf's BG2
+; idle/walk animation ticking completely, even with this routine never
+; actually called at runtime -- strong evidence of a Poppy address-
+; estimation-pass side effect from adding certain instructions to this
+; routine's body (not a runtime bug, since it happened whether or not the
+; routine executed), never root-caused to a mechanism, and NOT added as a
+; numbered entry to poppy_assembler_bugs.md for that reason. This rewrite
+; avoids phb/pha/plb entirely -- the DBR manipulation, not merely "changing
+; this routine's size," is the leading suspect, so the fix below sticks to
+; addressing patterns (`lda.l`/`sta.l`/`ora.l` unindexed, `lda.l ...,x` and
+; `sta.l ...,x` long-indexed-X, `tax`) already proven safe elsewhere in this
+; exact file. Still: raw-byte-verify every guarded label in this file after
+; this change, same as any edit that shifts code size in the $C100-$FC00
+; window -- see poppy_assembler_bugs.md bug #4.
+    nop
+    nop
+    nop
+    nop
 Core_Oam_TransformHiOam:
     php
     rep #$31
 .a16
-.i16
-    ldx #0
-    ldy #0
+    lda #0
+    sta.l OamHiSrcIndex
+    sta.l OamHiDstIndex
     nop
 Core_Oam_TransformHiOam__loop:
+    lda.l OamHiSrcIndex
+    tax
     sep #$20
 .a8
-    clc
     lda.l Oam_ExpandedHi,x
-    ror a
-    ror a
-    ora.l Oam_ExpandedHi+1,x
-    ror a
-    ror a
-    ora.l Oam_ExpandedHi+2,x
-    ror a
-    ror a
-    ora.l Oam_ExpandedHi+3,x
-    ror a
-    ror a
-    ror a
-    sta.l Oam_PackedHi,y
+    and #$03
+    sta.l OamHiPackedTemp              ; packed = sprite0's 2 bits (bits 1-0)
+
+    lda.l Oam_ExpandedHi+1,x
+    and #$03
+    asl a
+    asl a                               ; sprite1's bits -> bits 3-2
+    ora.l OamHiPackedTemp
+    sta.l OamHiPackedTemp
+
+    lda.l Oam_ExpandedHi+2,x
+    and #$03
+    asl a
+    asl a
+    asl a
+    asl a                               ; sprite2's bits -> bits 5-4
+    ora.l OamHiPackedTemp
+    sta.l OamHiPackedTemp
+
+    lda.l Oam_ExpandedHi+3,x
+    and #$03
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                               ; sprite3's bits -> bits 7-6
+    ora.l OamHiPackedTemp
+    sta.l OamHiPackedTemp
+
     rep #$31
 .a16
-    inx
-    inx
-    inx
-    inx
-    iny
-    cpx #OAM_SLOTS
+    lda.l OamHiDstIndex
+    tax
+    sep #$20
+.a8
+    lda.l OamHiPackedTemp
+    sta.l Oam_PackedHi,x                ; long-indexed-X: a real opcode
+
+    rep #$31
+.a16
+    lda.l OamHiSrcIndex
+    clc
+    adc #4
+    sta.l OamHiSrcIndex
+    lda.l OamHiDstIndex
+    inc a
+    sta.l OamHiDstIndex
+    cmp #32                             ; = OAM_SLOTS/4 groups of 4 sprites
     bcc Core_Oam_TransformHiOam__loop
     plp
     rts

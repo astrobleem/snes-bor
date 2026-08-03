@@ -19,7 +19,7 @@ def assemble():
     # reassembled, which cost a full debugging cycle chasing "fixes" that
     # were never actually built. Making this automatic removes that failure
     # mode entirely.
-    result = subprocess.run([DOTNET, POPPY_DLL, 'src/main.pasm'])
+    result = subprocess.run([DOTNET, POPPY_DLL, 'src/main.pasm', '-s', 'src/main.sym'])
     if result.returncode != 0:
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)

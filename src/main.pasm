@@ -1662,6 +1662,39 @@ Tad_IsSongPlaying:
 
 
 
+; ============================================================================
+; Walk animation + facing-flip tilemap data, relocated into TAD S-CPU-
+; management slack (real Tad_IsSongPlaying body ends around $8B25 -- see
+; raw-byte check below -- leaving ~8400 free bytes before the fixed
+; .org $AC00). A PRIOR attempt to reuse this gap (see Anim_Play's header
+; comment further below) moved a whole ROUTINE+blob here and crashed at
+; runtime: a JSR to a label placed right after the insertion point resolved
+; 13 bytes early. Direct raw-byte inspection this session also found
+; Tad_IsSfxPlaying/Tad_IsSongPlaying's OWN exported symbol addresses drift
+; +4 bytes (LATE, not early -- a different sign/magnitude than every other
+; documented Poppy label-address bug) from their real code -- i.e. this
+; specific $8800 region's label-address estimation is independently known
+; to be unreliable, for reasons not root-caused. This relocation sidesteps
+; that problem category entirely rather than trying to characterize it:
+; NO code and NO Poppy-estimated label is placed/referenced here. `.org` is
+; documented (and independently verified by tools/rom_audit/verify_layout.py)
+; to reset CurrentAddress to its literal operand in BOTH Poppy's address-
+; estimation pass and its real code-generation pass, so a fixed `.org`
+; directive's target address cannot be wrong regardless of what estimation
+; drift happened earlier in the file. Every reference to this blob elsewhere
+; in main.pasm uses the literal hex constants below (ANIM_WALK_BASE /
+; ANIM_TILEMAP_RIGHT_BASE / ANIM_TILEMAP_LEFT_BASE), never a label defined
+; here -- so there is no address for Poppy to estimate wrong in the first
+; place. Verify after any change: raw-byte-compare src/main.bin at file
+; offset (this .org value - $8000) against the source .bin files directly
+; (see build.md's Testing section), same method already proven for bugs
+; 4/5/7/8 elsewhere in this project.
+; ============================================================================
+.org $8C00
+    .incbin "assets/anim_ralf_walk.bin"        ; 8 frames * 768 = 6144 bytes
+    .incbin "assets/anim_tilemap_right.bin"    ; 48 bytes
+    .incbin "assets/anim_tilemap_left.bin"     ; 48 bytes
+    ; ends at $8C00 + 6240 = $A5E0, leaving ~1952 bytes free before $AC00.
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
@@ -1754,42 +1787,94 @@ __Tad_AudioData_0:
 ; 4x6-tile BG2 window (tiles 1..24 at char base $2000) the static sprite
 ; already renders into, so no tilemap changes are needed to animate it.
 ; Idle has 6 frames (delay 10, loop=1 in out/ralf_idle/manifest.json); walk
-; is baked from a 6-frame subset (indices 0,1,3,4,5,7 of the source 8-frame
-; cycle -- delay 8, loop=1 in out/ralf_walk/manifest.json) -- see the
-; WALK_FRAME_COUNT note below for why it's a subset, not the full 8. Both
-; hardcoded below (ANIM_*/WALK_*) rather than read from a ROM data table:
-; standalone .dw tables resolve to garbage in this Poppy build regardless of
-; placement (poppy_assembler_bugs memory), so small fixed tables get
-; inlined as immediates/branches instead, same as the CGRAM palette load and
-; Anim_Play_Idle/Anim_Play_Walk's frame dispatch below.
+; is the full 8-frame source cycle (delay 8, loop=1 in
+; out/ralf_walk/manifest.json); attack is the full 5-frame "attack1" cycle
+; (loop=0 in out/ralf_attack/manifest.json, non-looping). All three are full
+; cycles, not trimmed subsets -- see the WALK_FRAME_COUNT/ATTACK_FRAME_COUNT
+; notes below and the TAD-gap relocation comment above Tad_IsSongPlaying's
+; `.org $8C00` block for how the ROM-space budget was solved without
+; trimming.
+; All hardcoded below (ANIM_*/WALK_*/ATTACK_*) rather than read from a ROM
+; data table: standalone .dw tables resolve to garbage in this Poppy build
+; regardless of placement (poppy_assembler_bugs memory), so small fixed
+; tables get inlined as immediates/branches instead, same as the CGRAM
+; palette load and Anim_Play_Idle/Anim_Play_Walk/Anim_Play_Attack's frame
+; dispatch below.
+;
+; A first attempt (an earlier session) at putting the attack animation's
+; ROUTINE+blob in the $8800-$AC00 TAD S-CPU-management region's apparent
+; slack built with no assembler errors and passed a byte-level immediate-
+; address check, but crashed at runtime -- Mesen showed forced blank stuck
+; on and totally uninitialized WRAM even with the dispatcher untouched
+; (attack never called), isolating the corruption to the TAD-gap insertion
+; itself, not the dispatcher. Root cause not fully chased down (a JSR to a
+; label right after the insertion point was found to resolve 13 bytes
+; early, landing inside the *previous* routine's still-live tail code -- a
+; bigger drift than the well-known 0-2 byte "label resolves early" class
+; this project's nop-padding convention is built for), but the empirical
+; result was unambiguous: large new CODE inserted into that gap silently
+; broke something even without assembler errors. That attempt was reverted.
+;
+; A LATER session reused this same gap successfully, but for DATA only, and
+; specifically NOT via a Poppy-estimated label: see the large comment above
+; Tad_IsSongPlaying's `.org $8C00` block. That session also found, by direct
+; raw-byte inspection, that Tad_IsSfxPlaying/Tad_IsSongPlaying's own
+; exported symbol addresses drift +4 bytes (late, a different sign/
+; magnitude than every other documented Poppy label bug) from their real
+; code -- independent confirmation that this specific region's label-
+; address ESTIMATION is unreliable for reasons still not root-caused. The
+; fix that worked: never let Poppy estimate a label's address in this
+; region at all -- use a literal `.org` value and literal hex constants
+; derived from it (verified: `.org` resets CurrentAddress to its literal
+; operand identically in both Poppy's estimation pass and its real codegen
+; pass, so a fixed `.org` target cannot itself drift), and put no branches/
+; JSRs/code here, only `.incbin`. Do not reuse this region for new CODE (JSR/
+; branch targets, anything needing an estimated label address) without a
+; much more thorough verification pass (checking every such label's true
+; landing byte) than either session has done -- the underlying mechanism
+; behind both the +13 and +4 byte drifts observed here is still unidentified.
+; Idle's blob (and now attack's) still live in the $C100-$FC00 window,
+; matching the originally validated-safe pattern (blobs after all branching
+; code); walk's blob and the facing-flip tilemap blobs live in the TAD gap.
 ;
 ; Anim_Selected picks which animation Anim_Play advances/dispatches to:
-; dpad Left/Right held -> walk, otherwise idle (see Anim_Play below). Both
-; animations share the same Anim_FrameIndex/Anim_TickCounter WRAM state --
-; safe because only one of Anim_Play_Idle/Anim_Play_Walk ever runs per call,
+; attack (Y button, edge-triggered) takes priority over dpad movement and
+; latches until it finishes on its own; otherwise dpad Left/Right held ->
+; walk, else idle (see Anim_Play below). All three animations share the
+; same Anim_FrameIndex/Anim_TickCounter WRAM state -- safe because only one
+; of Anim_Play_Idle/Anim_Play_Walk/Anim_Play_Attack ever runs per call,
 ; gated on Anim_Selected, so the shared counters are only ever mutated by
 ; whichever animation is currently active.
 ; ============================================================================
 ANIM_FRAME_COUNT = 6
 ANIM_FRAME_DELAY = 10        ; ticks (main-loop frames) per idle frame
-ANIM_FRAME_BYTES = 768       ; 24 tiles * 32 bytes/tile, 4bpp (both anims)
+ANIM_FRAME_BYTES = 768       ; 24 tiles * 32 bytes/tile, 4bpp (all three anims)
 ANIM_VRAM_DEST_BYTE = $4020  ; = word $2010 * 2 -- same BG2 window the
                               ; static sprite already occupies (tiles 1..24)
-; WALK_FRAME_COUNT is 6, not the source's full 8: the $C100-$FC00 code+data
-; window is a fixed 15104-byte budget (see CLAUDE.md's "Fixed .org
-; directives silently truncate") and was already at capacity with idle
-; alone. A first attempt at baking all 8 walk frames built "successfully"
-; (Poppy gives no error for this) but silently truncated the last 768 bytes
-; of AnimRalfWalkFrames's .incbin -- confirmed by raw-byte comparison of
-; src/main.bin against the baked .bin, which matched frame-for-frame up to
-; exactly the $FC00 file offset and then diverged into scpu_boot's own
-; opening bytes (78 18 FB C2 30 = sei/clc/xce/rep #$30). Dropping to 6
-; frames (indices 0,1,3,4,5,7 of the source cycle, chosen for roughly even
-; temporal spacing) fits with a comfortable 768-byte margin instead of zero.
-; Re-verify this margin (raw-byte diff, not just "the build didn't error")
-; before adding any more code or data to this window.
-WALK_FRAME_COUNT = 6
+; Attack button: Y (bit14 overall = bit6 of Input_trigger's high byte, per
+; core/input.pasm's $4218 layout comment "B Y Sel Start U D L R | A X L R
+; 0000"). Edge-triggered (Input_trigger, not Input_press) so holding Y
+; doesn't re-trigger every frame -- checked in Anim_Play's dispatcher below.
+ANIM_ATTACK_BUTTON_MASK = $40
+; WALK_FRAME_COUNT/ATTACK_FRAME_COUNT: both now the FULL source cycle (8 and
+; 5 frames respectively), no longer trimmed subsets. Previously the
+; $C100-$FC00 code+data window's fixed 15104-byte budget forced walk down to
+; 3 frames and attack to 3 frames (a first attempt at baking all 8 walk
+; frames silently truncated the last 768 bytes -- Poppy gives no error for
+; .org overflow, see CLAUDE.md's "Fixed .org directives silently truncate").
+; This session moved the walk blob (and the facing-flip tilemap blobs) out
+; of this window entirely, into TAD S-CPU-management slack at $8C00 (see the
+; large comment above Tad_IsSongPlaying's `.org $8C00` block) -- freeing
+; enough room here to restore both walk and attack to their full frame
+; counts without re-trimming anything. Re-verify actual margin (raw-byte
+; diff, not just "the build didn't error") before adding more content to
+; either window.
+WALK_FRAME_COUNT = 8
 WALK_FRAME_DELAY = 8         ; ticks (main-loop frames) per walk frame
+ATTACK_FRAME_COUNT = 5
+ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
+                              ; has per-frame delays 7,7,20,10,10 -- collapsed
+                              ; to one fixed value like idle/walk
 
 ; AnimRalfIdleFrames's own label value resolves 1 byte EARLY here -- a new
 ; instance of the same Poppy address-estimation class documented elsewhere
@@ -1811,47 +1896,76 @@ WALK_FRAME_DELAY = 8         ; ticks (main-loop frames) per walk frame
 ; raw-byte method (see build.md's Testing section) rather than assuming +1
 ; is still correct.
 ;
-; ANIM_WALK_BASE_OFFSET (poppy bug #8): AnimRalfWalkFrames must NEVER be
-; referenced directly in an expression (a bare `lda #AnimRalfWalkFrames + N`
-; silently resolves to the SAME address as AnimRalfIdleFrames, not its own --
-; confirmed by raw-byte inspection: main.pansy's exported symbol table
-; reported AnimRalfIdleFrames and AnimRalfWalkFrames at the IDENTICAL
-; address, and every `lda #AnimRalfWalkFrames + ...` immediate compiled to
-; AnimRalfIdleFrames's frame addresses instead of walk's, with zero walk-
-; correct immediates found anywhere in main.bin). Root cause (per
-; poppy_assembler_bugs.md's existing "macro invocations inside branch-
-; skipped code sized as 0 bytes during address estimation" bug class):
-; AnimRalfIdleFrames's own .incbin appears to size as 0 bytes during Poppy's
-; address-ESTIMATION pass, so every symbol defined after it -- including
-; AnimRalfWalkFrames -- estimates to the same position as AnimRalfIdleFrames,
-; and that wrong estimated value leaks into expressions referencing it even
-; though AnimRalfIdleFrames itself (not used past a `+N` a second time here)
-; happens to resolve correctly in the final emit pass.
-; Workaround: never write `AnimRalfWalkFrames` in an expression. Compute
-; walk's frame addresses from the known-good AnimRalfIdleFrames label plus
-; the idle blob's compile-time-constant total size instead -- see
-; Anim_Play_Walk's dispatch below. Verified correct by raw-byte inspection:
-; the resulting immediates land exactly at AnimRalfIdleFrames's true address
-; + ANIM_WALK_BASE_OFFSET, matching the walk blob's true position found by
-; searching main.bin for the baked asset bytes directly.
+; ANIM_ATTACK_BASE_OFFSET (poppy bug #8 workaround, same as before):
+; AnimRalfAttackFrames must NEVER be referenced directly in an expression --
+; a bare `lda #AnimRalfAttackFrames + N` would silently resolve to the SAME
+; address as AnimRalfIdleFrames (the first of two adjacent back-to-back
+; .incbin labels), not its own; see poppy_assembler_bugs.md bug #8. Compute
+; attack's frame addresses from the known-good AnimRalfIdleFrames label plus
+; a compile-time-constant byte offset instead -- attack now follows idle
+; directly (walk no longer sits between them; it lives at ANIM_WALK_BASE in
+; the TAD gap instead, see below), so the offset is simply idle's own total
+; size.
 ANIM_LABEL_FIXUP = 1
-ANIM_WALK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle blob's
-                              ; total size; AnimRalfWalkFrames's .incbin
-                              ; immediately follows AnimRalfIdleFrames's with
-                              ; no gap, so this is its exact byte offset
+ANIM_ATTACK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle
+                              ; blob's total size; AnimRalfAttackFrames's
+                              ; .incbin immediately follows AnimRalfIdleFrames's
+                              ; with no gap, so this is its exact byte offset
+
+; ANIM_WALK_BASE / ANIM_TILEMAP_RIGHT_BASE / ANIM_TILEMAP_LEFT_BASE: these
+; three blobs now live in the TAD S-CPU-management gap at a literal fixed
+; `.org $8C00` (see the large comment above Tad_IsSongPlaying's `.org $8C00`
+; block, near the top of this file) rather than in this $C100-$FC00 window.
+; Deliberately literal hex constants, NOT expressions involving a
+; Poppy-estimated label address (unlike AnimRalfIdleFrames/AnimRalfAttackFrames
+; above): `.org` is documented (and independently verified by
+; tools/rom_audit/verify_layout.py) to reset Poppy's CurrentAddress to
+; exactly its operand value in BOTH the address-estimation pass and the real
+; code-generation pass, so a literal `.org` target can't drift the way an
+; estimated label can -- these constants need no ANIM_LABEL_FIXUP-style
+; correction and no bug #8 offset-from-another-label workaround, because
+; nothing here asks Poppy to report a label's address at all.
+ANIM_WALK_BASE = $8C00
+; Facing flip: BG2 tilemap entries carry their own h-flip bit (bit14) plus
+; tile index, so mirroring the whole 4x6 sprite means BOTH setting that bit
+; per tile AND reversing the tiles' column order (tx -> 3-tx) -- flipping
+; each tile's own pixels without also swapping column order would scramble
+; the image, not mirror it. Two small precomputed 48-byte tilemap blocks
+; (24 entries x 2 bytes, one per facing) are baked and DMA'd over the
+; active 4x6 region's entries (6 rows of 4 columns each) whenever facing
+; changes -- see Anim_UpdateFacing below.
+ANIM_TILEMAP_ROW_BYTES = 8          ; 4 columns * 2 bytes/entry
+ANIM_TILEMAP_ROW_STRIDE = $40       ; byte distance between rows in the 32-
+                                     ; column-wide tilemap ($5C00 base, word
+                                     ; stride 32 -> byte stride 64 = $40)
+ANIM_TILEMAP_ROW0_BYTE_ADDR = $B800  ; = word $5C00 * 2 (row 0, column 0)
+ANIM_TILEMAP_RIGHT_BASE = ANIM_WALK_BASE + (WALK_FRAME_COUNT * ANIM_FRAME_BYTES)
+ANIM_TILEMAP_LEFT_BASE = ANIM_TILEMAP_RIGHT_BASE + (6 * ANIM_TILEMAP_ROW_BYTES)
 
 Anim_FrameIndex  = $7E53B0   ; .db -- current frame of the active animation
 Anim_TickCounter = $7E53B1   ; .db -- frames remaining until next advance
-Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk (which anim is live)
+Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim is live)
+Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
-; Picks idle vs. walk from held dpad state, then dispatches to whichever
-; per-animation advance/DMA-enqueue routine is currently selected. Reads
-; Input_press fresh off Core_Input_Poll, which scpu_main_loop already calls
-; earlier in the same iteration. Only the high byte of the 16-bit
-; Input_press word is read: per core/input.pasm's documented $4218 bit
-; layout (B Y Sel Start U D L R | A X L R 0 0 0 0), Right is bit8 and Left
-; is bit9 of the word -- i.e. bits 0/1 of Input_press's high byte -- so an
-; 8-bit read of that one byte is enough, no 16-bit accumulator needed here.
+; Picks idle/walk/attack and dispatches to whichever per-animation advance/
+; DMA-enqueue routine is currently selected. Reads Input_press/Input_trigger
+; fresh off Core_Input_Poll, which scpu_main_loop already calls earlier in
+; the same iteration. Only the high byte of each 16-bit word is read: per
+; core/input.pasm's documented $4218 bit layout (B Y Sel Start U D L R |
+; A X L R 0 0 0 0), Right is bit8 and Left is bit9 (bits 0/1 of the high
+; byte), and Y is bit14 (bit6 of the high byte) -- so an 8-bit read of that
+; one byte is enough in each case, no 16-bit accumulator needed here.
+;
+; Attack takes priority over dpad movement and, once started, latches
+; until the non-looping attack animation finishes on its own
+; (Anim_Play_Attack reverts Anim_Selected to 0 itself -- see its header
+; comment): checked first, and if already attacking, skips straight to
+; dispatch via `brl` without re-reading input at all -- a plain `beq`/`bra`
+; can't reach Anim_Play__dispatch from here (too far, matching every other
+; "too far for an 8-bit bne" spot in this file that already uses brl), and
+; deliberately using an explicit brl rather than tuning a short branch's
+; range keeps this immune to the exact class of silent-drift bug that bit
+; the abandoned TAD-gap attempt above.
 ;
 ; Caller must be in .a16/.i16 (scpu_main_loop's convention after Core_Oam_
 ; Play returns) -- this routine exits in the same state, matching that
@@ -1864,6 +1978,24 @@ Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk (which anim is live)
 Anim_Play:
     sep #$20
 .a8
+    lda.l Anim_Selected
+    cmp #2
+    bne Anim_Play__check_attack_trigger
+    brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__check_attack_trigger:
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK
+    beq Anim_Play__no_attack_trigger
+    lda #2
+    sta.l Anim_Selected
+    lda #$FF
+    sta.l Anim_FrameIndex
+    lda #1
+    sta.l Anim_TickCounter
+    brl Anim_Play__dispatch
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__no_attack_trigger:
     lda.l Input_press+1
     and #$03
     beq Anim_Play__want_idle
@@ -1890,13 +2022,175 @@ Anim_Play__want_got:
     sta.l Anim_TickCounter
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__dispatch:
+    jsr Anim_UpdateFacing
+    ; Anim_UpdateFacing exits in .a16/.i16 (its own external convention,
+    ; matching Anim_Play's) -- but everything below here was written
+    ; assuming .a8 (inherited from Anim_Play's own top). Re-assert it
+    ; explicitly rather than relying on whatever state happened to precede
+    ; this call; omitting this turned `lda.l Anim_Selected` into a 16-bit
+    ; read spanning Anim_Selected+Anim_FacingLeft, and `cmp #2`/`cmp #1`
+    ; into 16-bit compares that silently stopped matching -- confirmed by
+    ; Mesen: attack triggered once then never re-dispatched, Anim_FrameIndex
+    ; free-ran 0-5 like idle while Anim_Selected stayed stuck at 2 in WRAM.
+    sep #$20
+.a8
     lda.l Anim_Selected
-    beq Anim_Play__idle
+    cmp #2
+    beq Anim_Play__attack
+    cmp #1
+    beq Anim_Play__walk
+    jsr Anim_Play_Idle
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__walk:
     jsr Anim_Play_Walk
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_Play__idle:
-    jsr Anim_Play_Idle
+Anim_Play__attack:
+    jsr Anim_Play_Attack
+    rts
+
+; Checks currently-held dpad Left/Right (Input_press, not Input_trigger --
+; facing should track the held direction continuously, not just its first
+; press) and, if it differs from Anim_FacingLeft, DMAs the matching
+; precomputed tilemap block over the active 4x6 BG2 region (6 rows of 4
+; tile entries) and updates Anim_FacingLeft. Neither direction held ->
+; keep the last facing (matches how real games hold facing through
+; idle/attack). Called once per Anim_Play invocation, regardless of which
+; animation is active -- facing is independent of Anim_Selected. Exits in
+; .a16/.i16, same convention as its caller.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_UpdateFacing:
+    sep #$20
+.a8
+    lda.l Input_press+1
+    and #$03
+    bne Anim_UpdateFacing__have_input
+    brl Anim_UpdateFacing__done   ; neither held -- keep current facing (too far for an 8-bit beq from here)
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__have_input:
+    and #$02                       ; bit9 (Left) of the word = bit1 of this byte
+    beq Anim_UpdateFacing__want_right
+    lda #1
+    bra Anim_UpdateFacing__want_got
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__want_right:
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__want_got:
+    cmp.l Anim_FacingLeft
+    bne Anim_UpdateFacing__facing_changed
+    brl Anim_UpdateFacing__done   ; too far for an 8-bit beq from here
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__facing_changed:
+    sta.l Anim_FacingLeft
+    cmp #0
+    beq Anim_UpdateFacing__to_right
+    brl Anim_UpdateFacing__to_left
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__to_right:
+    rep #$20
+.a16
+    lda #ANIM_TILEMAP_ROW0_BYTE_ADDR
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_ROW_BYTES
+    sta.l DmaRequest_Length
+    lda #ANIM_TILEMAP_RIGHT_BASE
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*2
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*3
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*4
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*5
+    jsr Anim_EnqueueTilemapRow
+    brl Anim_UpdateFacing__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__to_left:
+    rep #$20
+.a16
+    lda #ANIM_TILEMAP_ROW0_BYTE_ADDR
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_ROW_BYTES
+    sta.l DmaRequest_Length
+    lda #ANIM_TILEMAP_LEFT_BASE
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*2
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*3
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*4
+    jsr Anim_EnqueueTilemapRow
+    lda.l DmaRequest_TargetAddr
+    clc
+    adc #ANIM_TILEMAP_ROW_STRIDE
+    sta.l DmaRequest_TargetAddr
+    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*5
+    jsr Anim_EnqueueTilemapRow
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_UpdateFacing__done:
+    rep #$31
+.a16
+.i16
+    rts
+
+; Shared tail for Anim_UpdateFacing's 12 row-transfer sites above: caller
+; sets DmaRequest_TargetAddr/Length (Length is constant across all of them,
+; set once), passes the row's source address in the (16-bit) accumulator.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_EnqueueTilemapRow:
+    sta.l DmaRequest_SourceAddrLow
+    sep #$20
+.a8
+    lda #0
+    sta.l DmaRequest_SourceBank   ; both tilemap blobs live in bank 0
+    lda #DMA_TYPE_VRAM
+    sta.l DmaRequest_TypeFlags
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_Enqueue
     rts
 
 ; Advances Ralf's idle animation by one tick per call and, on frame-change,
@@ -1919,7 +2213,7 @@ Anim_Play_Idle:
     dec a
     sta.l Anim_TickCounter
     beq Anim_Play_Idle__advance
-    brl Anim_Play_Idle__done   ; too far for an 8-bit bne from here
+    brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__advance:
 
@@ -1956,65 +2250,48 @@ Anim_Play_Idle__f0:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP
-    bra Anim_Play_Idle__got_addr
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f1:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES
-    bra Anim_Play_Idle__got_addr
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f2:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*2
-    bra Anim_Play_Idle__got_addr
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f3:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*3
-    bra Anim_Play_Idle__got_addr
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f4:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*4
-    bra Anim_Play_Idle__got_addr
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f5:
     rep #$20
 .a16
     lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*5
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_Play_Idle__got_addr:
-    sta.l DmaRequest_SourceAddrLow
-    lda #ANIM_VRAM_DEST_BYTE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_FRAME_BYTES
-    sta.l DmaRequest_Length
-
-    sep #$20
-.a8
-    lda #0
-    sta.l DmaRequest_SourceBank   ; AnimRalfIdleFrames lives in bank 0
-    lda #DMA_TYPE_VRAM
-    sta.l DmaRequest_TypeFlags
-
-    rep #$31
-.a16
-.i16
-    jsr Core_Dma_Enqueue
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_Play_Idle__done:
-    rep #$31
-.a16
-.i16
+    jsr Anim_CommitFrame
     rts
 
-; Same structure as Anim_Play_Idle above, targeting the (6-frame subset of
-; the 8-frame source) walk cycle instead. Only called while Anim_Selected
-; == 1 (see Anim_Play above).
+; Same structure as Anim_Play_Idle above, targeting the full 8-frame walk
+; cycle (blob relocated to ANIM_WALK_BASE in the TAD gap, see the constant's
+; definition above). Only called while Anim_Selected == 1 (see Anim_Play
+; above).
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_Play_Walk:
     sep #$20
@@ -2023,7 +2300,7 @@ Anim_Play_Walk:
     dec a
     sta.l Anim_TickCounter
     beq Anim_Play_Walk__advance
-    brl Anim_Play_Walk__done   ; too far for an 8-bit bne from here
+    brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__advance:
 
@@ -2051,44 +2328,165 @@ Anim_Play_Walk__frame_ok:
     beq Anim_Play_Walk__f3
     cmp #4
     beq Anim_Play_Walk__f4
-    bra Anim_Play_Walk__f5
+    cmp #5
+    beq Anim_Play_Walk__f5
+    cmp #6
+    beq Anim_Play_Walk__f6
+    bra Anim_Play_Walk__f7
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f0:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET
-    bra Anim_Play_Walk__got_addr
+    lda #ANIM_WALK_BASE
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f1:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET + ANIM_FRAME_BYTES
-    bra Anim_Play_Walk__got_addr
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f2:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET + ANIM_FRAME_BYTES*2
-    bra Anim_Play_Walk__got_addr
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*2
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f3:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET + ANIM_FRAME_BYTES*3
-    bra Anim_Play_Walk__got_addr
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*3
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f4:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET + ANIM_FRAME_BYTES*4
-    bra Anim_Play_Walk__got_addr
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*4
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__f5:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_WALK_BASE_OFFSET + ANIM_FRAME_BYTES*5
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*5
+    jsr Anim_CommitFrame
+    rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_Play_Walk__got_addr:
+Anim_Play_Walk__f6:
+    rep #$20
+.a16
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*6
+    jsr Anim_CommitFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Walk__f7:
+    rep #$20
+.a16
+    lda #ANIM_WALK_BASE + ANIM_FRAME_BYTES*7
+    jsr Anim_CommitFrame
+    rts
+
+; Same structure as Anim_Play_Idle/Walk above, targeting the full 5-frame
+; "attack1" cycle. Only called while Anim_Selected == 2 (see Anim_Play
+; above). Non-looping (manifest loop=0):
+; on reaching the last frame, reverts Anim_Selected to 0 (idle) and forces
+; an immediate frame-0 idle render next call -- same "frame -1 forces
+; immediate advance" trick Anim_Play's top-level selection-change path
+; uses -- rather than wrapping back to frame 0 of the attack cycle.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_Play_Attack:
+    sep #$20
+.a8
+    lda.l Anim_TickCounter
+    dec a
+    sta.l Anim_TickCounter
+    beq Anim_Play_Attack__advance
+    brl Anim_Done   ; too far for an 8-bit bne from here
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__advance:
+
+    lda.l Anim_FrameIndex
+    inc a
+    cmp #ATTACK_FRAME_COUNT
+    bcc Anim_Play_Attack__frame_ok
+    ; Animation finished -- revert to idle instead of wrapping.
+    lda #0
+    sta.l Anim_Selected
+    lda #$FF
+    sta.l Anim_FrameIndex
+    lda #1
+    sta.l Anim_TickCounter
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__frame_ok:
+    sta.l Anim_FrameIndex
+    lda #ATTACK_FRAME_DELAY
+    sta.l Anim_TickCounter
+
+    ; frame_index -> source ROM address, via compare chain (no data table,
+    ; no indexed-long addressing to a ROM data label -- both silently
+    ; miscompile in this Poppy build; see poppy_assembler_bugs.md).
+    lda.l Anim_FrameIndex
+    cmp #0
+    beq Anim_Play_Attack__f0
+    cmp #1
+    beq Anim_Play_Attack__f1
+    cmp #2
+    beq Anim_Play_Attack__f2
+    cmp #3
+    beq Anim_Play_Attack__f3
+    bra Anim_Play_Attack__f4
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__f0:
+    rep #$20
+.a16
+    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET
+    jsr Anim_CommitFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__f1:
+    rep #$20
+.a16
+    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES
+    jsr Anim_CommitFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__f2:
+    rep #$20
+.a16
+    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*2
+    jsr Anim_CommitFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__f3:
+    rep #$20
+.a16
+    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*3
+    jsr Anim_CommitFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__f4:
+    rep #$20
+.a16
+    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*4
+    jsr Anim_CommitFrame
+    rts
+
+; Shared DMA-commit tail for Anim_Play_Idle/Walk/Attack above (and any
+; future Anim_Play_* routine): enqueues a VRAM DMA blit of the frame whose
+; source address is in the (16-bit) accumulator on entry. Extracted from
+; three near-identical copies (one per animation) to reclaim ROM space in
+; this already-tight $C100-$FC00 window -- every animation added after
+; idle+walk needs this same boilerplate, so de-duplicating it here makes
+; each new animation cheaper, not just this one. Exits in .a16/.i16,
+; matching every Anim_Play_* caller's expected convention; callers just
+; `rts` immediately after this returns.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_CommitFrame:
     sta.l DmaRequest_SourceAddrLow
     lda #ANIM_VRAM_DEST_BYTE
     sta.l DmaRequest_TargetAddr
@@ -2098,7 +2496,7 @@ Anim_Play_Walk__got_addr:
     sep #$20
 .a8
     lda #0
-    sta.l DmaRequest_SourceBank   ; AnimRalfWalkFrames lives in bank 0
+    sta.l DmaRequest_SourceBank   ; all three anim blobs live in bank 0
     lda #DMA_TYPE_VRAM
     sta.l DmaRequest_TypeFlags
 
@@ -2106,28 +2504,192 @@ Anim_Play_Walk__got_addr:
 .a16
 .i16
     jsr Core_Dma_Enqueue
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_Play_Walk__done:
+    rts
+
+; Shared "nothing changed this call" tail for Anim_Play_Idle/Walk/Attack
+; above -- reached via `brl` (too far for an 8-bit bne from any of them).
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Anim_Done:
     rep #$31
 .a16
 .i16
     rts
 
+; ============================================================================
+; TestSprite_Init -- one-time real-OAM bring-up: a 16x16 solid-color test
+; sprite, proving the OAM/OBJ rendering path end-to-end (actual hardware
+; sprite via OBSEL/OAM, not a BG2 tile window like Ralf's idle/walk/attack
+; animations). Not a player entity -- no input, no movement, just visibility.
+; Called once from scpu_boot, right after Core_Oam_Init, still under forced
+; blank (same window the raw BG1/BG2 VRAM writes earlier in scpu_boot use).
+;
+; Tile data is generated here, not `.incbin`'d -- a uniform solid color only
+; needs plane0 set (see below), so there's no separate data blob to place
+; (and no bug #8 risk from a second .incbin adjacent to
+; AnimRalfIdleFrames/AnimRalfAttackFrames below).
+;
+; Upgraded from 8x8 to a real 16x16 sprite (nonzero "size" hi-table bit) as a
+; focused follow-up to the session that rewrote core/oam.pasm's
+; Core_Oam_TransformHiOam -- that rewrite was verified only via a synthetic
+; WRAM injection test, never through an actual shipped sprite. This is that
+; end-to-end proof: sprite 0's Oam_ExpandedHi byte is set to $02 (size bit
+; set, X-high clear) below, so Core_Oam_Play's per-frame call into
+; Core_Oam_TransformHiOam packs a real nonzero hi-table bit for the first
+; time in the shipped ROM (previously only Core_Oam_TransformHiOam's own
+; synthetic test ever exercised a nonzero bit).
+;
+; A 16x16 OBJ is hardware-composed from four 8x8 tiles automatically fetched
+; from the OAM entry's base tile index N, N+1, N+$10, N+$11 (tile numbers
+; are row-major in a 16-tile-wide sheet, so +1 moves right, +$10 moves down
+; one tile row) -- NOT four separate OAM entries. Base tile index stays 0 in
+; the OAM entry below; the four tiles' pixel data are written to VRAM words
+; $4000/$4010/$4100/$4110 (OBJ base $4000 + tile_index*16 words/tile) by
+; four calls to TestSprite_WriteSolidTile.
+;
+; OBJ tile base: Core_Oam_Init sets Nmi_ObjSel so OBSEL's base field is 2
+; (-> VRAM word $4000, see its comment for the real, Mesen2-source-verified
+; bit layout -- the OLD comment/value here was flat wrong, found in the
+; session that first brought this sprite up) and size mode 0 (8x8 small /
+; 16x16 large -- this sprite now uses the large half of that pair via its
+; hi-table size bit). Tile data written below directly at $4000-relative
+; word addresses, no wrap-address guessing needed since they're all already
+; in VRAM's valid 15-bit range.
+;
+; IMPORTANT, easy to trip over later: this sprite's real OAM entry persists
+; on screen by ACCIDENT, not because anything keeps re-uploading it. The DMA
+; this routine queues (via Core_Oam_Play/Core_Nmi_Play) fires exactly once,
+; right after boot. Core_Nmi_Play's post-upload cleanup (see oam.pasm's
+; Core_Oam_Play header) then calls Core_Oam_ClearAll, which resets the
+; *shadow* Oam_Buffer to Y=$F0 (hidden) for every slot, zeroes
+; Oam_ExpandedHi, and rewinds Oam_CurrentSlot to 0 -- but real hardware OAM
+; itself is untouched, so sprite 0's entry (low AND high table) just sits
+; there showing whatever was last DMA'd. The moment a future session calls
+; Core_Oam_Play again with a nonzero Oam_CurrentSlot (e.g. adding a second
+; sprite, or any per-frame OAM write), that DMA will overwrite sprite 0's
+; slot with the shadow's cleared state (Y=$F0, size bit back to 0) unless
+; this sprite's entry gets re-written into the shadow buffer first. Don't
+; assume "it's on screen" means "it's being maintained."
+; ============================================================================
+    ; workaround: Poppy label address off-by-one (see poppy bug #4) -- padded
+    ; wider than 1 nop; this project's usual single-nop guard was measured
+    ; insufficient here after an unrelated edit elsewhere in the file shifted
+    ; cumulative address-estimation drift (raw-byte-verify, don't assume).
+    nop
+    nop
+    nop
+    nop
+TestSprite_Init:
+    rep #$20
+.a16
+    lda #$4000                ; tile 0 (top-left quadrant), OBJ base
+    sta $2116
+    jsr TestSprite_WriteSolidTile
+    lda #$4010                ; tile 1 (top-right quadrant): base + 1*16 words
+    sta $2116
+    jsr TestSprite_WriteSolidTile
+    lda #$4100                ; tile $10 (bottom-left quadrant): base + 16*16 words
+    sta $2116
+    jsr TestSprite_WriteSolidTile
+    lda #$4110                ; tile $11 (bottom-right quadrant): base + 17*16 words
+    sta $2116
+    jsr TestSprite_WriteSolidTile
+
+    ; --- OBJ palette: CGRAM color 128 (pixel value 0, unused/transparent,
+    ; left black) + color 129 (pixel value 1, bright red: R=31 G=0 B=0) ---
+    sep #$20
+.a8
+    lda #$80
+    sta $2121                ; CGRAM address = color 128 (OBJ palette 0)
+    lda #0
+    sta $2122                 ; color 128 low byte
+    sta $2122                 ; color 128 high byte
+    lda #$1F
+    sta $2122                 ; color 129 low byte ($001F = pure red)
+    lda #0
+    sta $2122                 ; color 129 high byte
+
+    ; --- OAM entry 0: X=120, Y=100, tile=0 (OBJ base), attr = priority 3 /
+    ; palette 0. One 8-bit store per field (not a 16-bit store spanning two
+    ; fields) -- avoids clobbering sprite 1's byte the way
+    ; Core_Oam_ClearAll's paired stores deliberately do (that pattern relies
+    ; on sprite 1 being off-screen/don't-care; this single-sprite init has
+    ; no such guarantee once slot 1 is used by something else later). Hi-
+    ; table size bit is set explicitly below (see the header comment above)
+    ; rather than left at Core_Oam_ClearAll's zeroed default. ---
+    lda #120
+    sta.l Oam_Buffer          ; sprite 0 X-low
+    lda #100
+    sta.l Oam_Buffer+1        ; sprite 0 Y
+    lda #0
+    sta.l Oam_Buffer+2        ; sprite 0 base tile index (OBJ base + 0); hardware
+                               ; auto-fetches +1/+$10/+$11 for the other 3 quadrants
+    lda #$30                  ; priority 3, palette 0, name table 0, no flip
+    sta.l Oam_Buffer+3
+
+    ; Sprite 0's hi-table byte: bit1 (size) = 1 selects the "large" half of
+    ; OBSEL's (8x8,16x16) size pair set by Core_Oam_Init; bit0 (X-high) stays
+    ; 0 since X=120 fits in the low table's 8 bits. Packed into real hardware
+    ; OAM2 format by Core_Oam_Play's call into Core_Oam_TransformHiOam.
+    lda #$02
+    sta.l Oam_ExpandedHi      ; sprite 0's hi-table byte
+
+    rep #$31
+.a16
+    lda #4                    ; one sprite written -> cursor = 4 bytes
+    sta.l Oam_CurrentSlot
+    rts
+
+; Writes the 32-byte solid-color-index-1 tile pattern to whatever VRAM
+; address is already latched in $2116 (word-increment-on-$2119 mode, set
+; once earlier in scpu_boot via $2115=$80 and never changed since). SNES
+; 4bpp tile format: 8 words of interleaved plane0/plane1 (one word per
+; pixel row), then 8 words of interleaved plane2/plane3. Solid color index
+; 1 (binary 0001) needs only plane0 set -- word = $00FF (low byte/plane0 =
+; $FF, high byte/plane1 = $00) for the first 8 words, $0000 for the last 8.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+    nop
+    nop
+    nop
+TestSprite_WriteSolidTile:
+    rep #$31
+.a16
+.i16
+    ldx #8
+    lda #$00FF
+    nop
+TestSprite_WriteSolidTile__plane01:
+    sta $2118
+    dex
+    bne TestSprite_WriteSolidTile__plane01
+
+    ldx #8
+    lda #$0000
+    nop
+TestSprite_WriteSolidTile__plane23:
+    sta $2118
+    dex
+    bne TestSprite_WriteSolidTile__plane23
+    rts
+
 ; Precomputed VRAM-format tile data referenced by Anim_Play_Idle/
-; Anim_Play_Walk above (forward immediate-address references only, not
-; indexed/branch -- placed AFTER all of their branches deliberately: with
-; a blob like this sitting BEFORE the branching code instead, Poppy's
+; Anim_Play_Attack above (forward immediate-address references only, not
+; indexed/branch -- placed AFTER all of their branches deliberately: with a
+; blob like this sitting BEFORE the branching code instead, Poppy's
 ; branch-range check failed every branch with "out of range" errors whose
-; reported distances lined up with the blob's size, even though none of
-; the real branch targets were more than a few dozen bytes away -- a large
+; reported distances lined up with the blob's size, even though none of the
+; real branch targets were more than a few dozen bytes away -- a large
 ; inline .incbin ahead of branching code perturbs Poppy's address
 ; estimation. Keep large data blobs after the code that branches, not
 ; before, matching TestSprite32x48's placement after sa1_spin's last
-; branch.
+; branch. Walk's blob (and the facing-flip tilemap blobs) no longer live
+; here -- relocated to ANIM_WALK_BASE/ANIM_TILEMAP_RIGHT_BASE/
+; ANIM_TILEMAP_LEFT_BASE in the TAD gap (`.org $8C00`, see the comment above
+; Tad_IsSongPlaying's block) to free room in this window for full-length
+; walk/attack frame counts.
 AnimRalfIdleFrames:
     .incbin "assets/anim_ralf_idle.bin"
-AnimRalfWalkFrames:
-    .incbin "assets/anim_ralf_walk.bin"
+AnimRalfAttackFrames:
+    .incbin "assets/anim_ralf_attack.bin"
 
 ; ============================================================================
 ; S-CPU entry (reset vector $FC00). Emulation mode on entry.
@@ -2570,6 +3132,7 @@ scpu_tm_write:
     ; core.nmi.init/core.nmi.play split.
     jsr Core_Nmi_Init
     jsr Core_Oam_Init
+    jsr TestSprite_Init
 
     sep #$20
 .a8
@@ -2579,7 +3142,7 @@ scpu_tm_write:
     sta.l Nmi_Bg1TilemapVram
     lda #$20
     sta.l Nmi_BgTilesVram12
-    lda #$03
+    lda #$13             ; TM: BG1 + BG2 + OBJ ($01 | $02 | $10) on main screen
     sta.l Nmi_MainScreen
     lda #$0F
     sta.l Nmi_ScreenBrightness
