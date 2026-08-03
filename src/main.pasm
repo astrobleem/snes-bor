@@ -1876,7 +1876,7 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
                               ; has per-frame delays 7,7,20,10,10 -- collapsed
                               ; to one fixed value like idle/walk
 
-; AnimRalfIdleFrames's own label value resolves 1 byte EARLY here -- a new
+; AnimCharIdleFrames's own label value resolves 1 byte EARLY here -- a new
 ; instance of the same Poppy address-estimation class documented elsewhere
 ; in this project (poppy_assembler_bugs.md), but this time affecting a data
 ; label used as an immediate VALUE rather than a branch/jsr target, so the
@@ -1885,11 +1885,11 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
 ; src/main.bin: Anim_Play_Idle__done's own body (also nop-guarded, so its
 ; label is ALSO 1 byte early) is exactly 4 bytes (nop/rep #$31/rts) starting
 ; at Anim_Play_Idle__done's reported symbol address, which puts
-; AnimRalfIdleFrames's TRUE first byte 1 byte after where the symbol table
+; AnimCharIdleFrames's TRUE first byte 1 byte after where the symbol table
 ; (and this label used in an expression) reports it. Cross-checked against a
 ; live Mesen DMA transfer before this fixup was added: frame N's VRAM data
 ; was a clean 1-byte right-shift of the intended frame, with the extra
-; leading byte matching the ROM byte immediately BEFORE AnimRalfIdleFrames's
+; leading byte matching the ROM byte immediately BEFORE AnimCharIdleFrames's
 ; true start (frame 0 case) / the previous frame's true last byte (frame 3
 ; case) -- i.e. every computed source address was exactly 1 too low. If this
 ; file's layout changes enough to shift this drift, re-verify with the same
@@ -1897,19 +1897,19 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
 ; is still correct.
 ;
 ; ANIM_ATTACK_BASE_OFFSET (poppy bug #8 workaround, same as before):
-; AnimRalfAttackFrames must NEVER be referenced directly in an expression --
-; a bare `lda #AnimRalfAttackFrames + N` would silently resolve to the SAME
-; address as AnimRalfIdleFrames (the first of two adjacent back-to-back
+; AnimCharAttackFrames must NEVER be referenced directly in an expression --
+; a bare `lda #AnimCharAttackFrames + N` would silently resolve to the SAME
+; address as AnimCharIdleFrames (the first of two adjacent back-to-back
 ; .incbin labels), not its own; see poppy_assembler_bugs.md bug #8. Compute
-; attack's frame addresses from the known-good AnimRalfIdleFrames label plus
+; attack's frame addresses from the known-good AnimCharIdleFrames label plus
 ; a compile-time-constant byte offset instead -- attack now follows idle
 ; directly (walk no longer sits between them; it lives at ANIM_WALK_BASE in
 ; the TAD gap instead, see below), so the offset is simply idle's own total
 ; size.
 ANIM_LABEL_FIXUP = 1
 ANIM_ATTACK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle
-                              ; blob's total size; AnimRalfAttackFrames's
-                              ; .incbin immediately follows AnimRalfIdleFrames's
+                              ; blob's total size; AnimCharAttackFrames's
+                              ; .incbin immediately follows AnimCharIdleFrames's
                               ; with no gap, so this is its exact byte offset
 
 ; ANIM_WALK_BASE / ANIM_TILEMAP_RIGHT_BASE / ANIM_TILEMAP_LEFT_BASE: these
@@ -1917,7 +1917,7 @@ ANIM_ATTACK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle
 ; `.org $8C00` (see the large comment above Tad_IsSongPlaying's `.org $8C00`
 ; block, near the top of this file) rather than in this $C100-$FC00 window.
 ; Deliberately literal hex constants, NOT expressions involving a
-; Poppy-estimated label address (unlike AnimRalfIdleFrames/AnimRalfAttackFrames
+; Poppy-estimated label address (unlike AnimCharIdleFrames/AnimCharAttackFrames
 ; above): `.org` is documented (and independently verified by
 ; tools/rom_audit/verify_layout.py) to reset Poppy's CurrentAddress to
 ; exactly its operand value in BOTH the address-estimation pass and the real
@@ -1947,23 +1947,23 @@ Anim_TickCounter = $7E53B1   ; .db -- frames remaining until next advance
 Anim_Selected    = $7E53B2   ; .db -- 0 = idle, 1 = walk, 2 = attack (which anim is live)
 Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facing left
 
-; TestSprite_PlayFrame's own state for the second, dpad-driven test sprite
-; -- see that routine's header, below TestSprite_WriteSolidTile. Now 2-axis:
+; Player_PlayFrame's own state for the second, dpad-driven test sprite -- see
+; that routine's header, below TestSprite_PlayFrame. Now 2-axis:
 ; X moves on held Left/Right, Y moves on held Up/Down, independently
 ; clamped, both read from Input_press+1 as two separate masks (not one
 ; shared accumulator threaded across both axes' branches -- see the
 ; routine body for why).
-TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, clamped to MIN/MAX_X
-TestSprite2_Y       = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
+Player_X = $7E53B4 ; .db -- sprite 1's current X, clamped to MIN/MAX_X
+Player_Y = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
                               ;        (was TestSprite2_DirLeft, deleted -- no more
                               ;        autonomous bounce direction to track once
                               ;        movement is input-driven and clamped instead
                               ;        of bounced; reused here for the Y axis)
-TESTSPRITE2_MIN_X = 8
-TESTSPRITE2_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
-TESTSPRITE2_MIN_Y = 8
-TESTSPRITE2_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
-TESTSPRITE2_SPEED = 2           ; shared between axes
+PLAYER_MIN_X = 8
+PLAYER_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
+PLAYER_MIN_Y = 8
+PLAYER_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
+PLAYER_SPEED = 2           ; shared between axes
 ; Clamp-wrap safety invariant (both axes): SPEED <= MIN (sbc side) and
 ; MAX + SPEED <= 255 (adc side), or the add/subtract can wrap past the
 ; clamp and teleport to the opposite edge instead of stopping there.
@@ -2271,42 +2271,42 @@ Anim_Play_Idle__frame_ok:
 Anim_Play_Idle__f0:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f1:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f2:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*2
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*2
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f3:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*3
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*3
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f4:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*4
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*4
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f5:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*5
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*5
     jsr Anim_CommitFrame
     rts
 
@@ -2466,35 +2466,35 @@ Anim_Play_Attack__frame_ok:
 Anim_Play_Attack__f0:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f1:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f2:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*2
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*2
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f3:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*3
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*3
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f4:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*4
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*4
     jsr Anim_CommitFrame
     rts
 
@@ -2548,7 +2548,7 @@ Anim_Done:
 ; Tile data is generated here, not `.incbin`'d -- a uniform solid color only
 ; needs plane0 set (see below), so there's no separate data blob to place
 ; (and no bug #8 risk from a second .incbin adjacent to
-; AnimRalfIdleFrames/AnimRalfAttackFrames below).
+; AnimCharIdleFrames/AnimCharAttackFrames below).
 ;
 ; Upgraded from 8x8 to a real 16x16 sprite (nonzero "size" hi-table bit) as a
 ; focused follow-up to the session that rewrote core/oam.pasm's
@@ -2579,19 +2579,19 @@ Anim_Done:
 ;
 ; IMPORTANT, easy to trip over later: this routine only writes sprite 0
 ; ONCE, at boot -- it is TestSprite_PlayFrame (below TestSprite_WriteSolidTile,
-; called every frame from scpu_main_loop before Core_Oam_Play) that keeps
-; sprite 0 alive going forward. That's not optional decoration: Core_Nmi_Play
-; wipes the *shadow* Oam_Buffer/Oam_ExpandedHi back to "every sprite hidden"
-; after every successful upload (see Core_Oam_ClearAll and oam.pasm's
-; Core_Oam_Play header), but leaves real hardware OAM itself untouched. So
-; the instant anything else calls Core_Oam_Play with a nonzero
-; Oam_CurrentSlot -- which TestSprite_PlayFrame's own sprite 1 now does,
-; every frame -- that DMA will overwrite sprite 0's slot with the shadow's
-; cleared state (Y=$F0, size bit back to 0) unless sprite 0's entry gets
-; re-written into the shadow buffer first. TestSprite_PlayFrame re-asserts
-; sprite 0's identical literal values (X=120, Y=100, tile=0, attr=$30,
-; hi=$02) every frame for exactly this reason -- don't remove that half of
-; it while only meaning to touch sprite 1.
+; called every frame from scpu_main_loop before Player_PlayFrame and
+; Core_Oam_Play) that keeps sprite 0 alive going forward. That's not optional
+; decoration: Core_Nmi_Play wipes the *shadow* Oam_Buffer/Oam_ExpandedHi back
+; to "every sprite hidden" after every successful upload (see
+; Core_Oam_ClearAll and oam.pasm's Core_Oam_Play header), but leaves real
+; hardware OAM itself untouched. So the instant anything else calls
+; Core_Oam_Play with a nonzero Oam_CurrentSlot -- which Player_PlayFrame's
+; own Core_Oam_SetSprite call does, every frame -- that DMA will overwrite
+; sprite 0's slot with the shadow's cleared state (Y=$F0, size bit back to 0)
+; unless sprite 0's entry gets re-written into the shadow buffer first.
+; TestSprite_PlayFrame re-asserts sprite 0's identical literal values (X=120,
+; Y=100, tile=0, attr=$30, hi=$02) every frame for exactly this reason --
+; don't remove it while only meaning to touch sprite 1 (now Player_PlayFrame).
 ; ============================================================================
     ; workaround: Poppy label address off-by-one (see poppy bug #4) -- padded
     ; wider than 1 nop; this project's usual single-nop guard was measured
@@ -2694,23 +2694,25 @@ TestSprite_WriteSolidTile__plane23:
     bne TestSprite_WriteSolidTile__plane23
     rts
 
-; Sole per-frame OAM writer, called once/frame from scpu_main_loop before
+; Sole per-frame writer for sprite 0 (the static test sprite), called once/
+; frame from scpu_main_loop, immediately before Player_PlayFrame and
 ; Core_Oam_Play. Because Core_Nmi_Play wipes the ENTIRE OAM shadow back to
 ; "all hidden" after every successful upload (see Core_Oam_ClearAll and
-; TestSprite_Init's own header comment above), the instant this routine
-; makes a second Core_Oam_Play call happen with a nonzero cursor, sprite
+; TestSprite_Init's own header comment above), the instant anything makes a
+; second Core_Oam_Play call happen with a nonzero cursor -- which
+; Player_PlayFrame's own Core_Oam_SetSprite call does, every frame -- sprite
 ; 0's slot would get stomped with the shadow's cleared state unless it's
-; re-written here too -- so this routine re-asserts BOTH sprites every
-; frame, not just the new one. Forces Oam_CurrentSlot to 0 up front rather
-; than trusting its leftover value, making this routine idempotent
-; regardless of Core_Nmi_Play/ClearAll timing (its very first call happens
-; before any NMI has run ClearAll, so the cursor is still 4 from
-; TestSprite_Init otherwise). Sprite 1 reuses the same solid-red 16x16 tile
-; (OBJ base tile 0) TestSprite_Init already wrote -- no new VRAM/CGRAM data
-; needed. Sprite 1 moves on both axes while the dpad is held -- X on
-; Left/Right, Y on Up/Down -- each independently clamped at the screen
-; edges. Must be called in .a16/.i16 and returns the same way, matching
-; scpu_main_loop's convention.
+; re-written here too. Forces Oam_CurrentSlot to 0 up front rather than
+; trusting its leftover value, making this routine idempotent regardless of
+; Core_Nmi_Play/ClearAll timing (its very first call happens before any NMI
+; has run ClearAll, so the cursor is still 4 from TestSprite_Init otherwise).
+;
+; MUST run before Player_PlayFrame every frame: Player_PlayFrame does not
+; reset Oam_CurrentSlot itself -- it relies on this routine having already
+; zeroed it and advanced it 0 -> 4 via the Core_Oam_SetSprite call below, so
+; Player_PlayFrame's own Core_Oam_SetSprite call lands in slot 1. Must be
+; called in .a16/.i16 and returns the same way, matching scpu_main_loop's
+; convention.
     nop
     nop
     nop
@@ -2737,19 +2739,49 @@ TestSprite_PlayFrame:
     rep #$31
 .a16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
+    rts
 
-    ; --- sprite 1 X: held-dpad Left/Right movement. Reads Input_press+1
-    ; using the exact same bit-check convention as Anim_UpdateFacing (see
-    ; that routine, above) -- and MUST resolve Left+Right-held-together the
-    ; same way Anim_UpdateFacing does (Left wins), or sprite 1 could move
-    ; right on a frame where Ralf's facing flips left off the same read of
-    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- TESTSPRITE2_MAX_X
+; Sole per-frame writer for sprite 1 (the dpad-driven player square), called
+; once/frame from scpu_main_loop right after TestSprite_PlayFrame and before
+; Core_Oam_Play. Reuses the same solid-red 16x16 tile (OBJ base tile 0)
+; TestSprite_Init already wrote -- no new VRAM/CGRAM data needed. Moves on
+; both axes while the dpad is held -- X on Left/Right, Y on Up/Down -- each
+; independently clamped at the screen edges.
+;
+; Depends on TestSprite_PlayFrame having already run this frame: this
+; routine does NOT reset Oam_CurrentSlot itself, relying on
+; TestSprite_PlayFrame's zero + Core_Oam_SetSprite call having already
+; advanced the cursor to 4, so this routine's own Core_Oam_SetSprite call
+; lands in slot 1. Must be called in .a16/.i16 and returns the same way,
+; matching scpu_main_loop's convention.
+;
+; workaround: Poppy label address off-by-one (see poppy bug #4 / poppy bug
+; #5's more general form -- this is a `jsr` target, not a branch target, so
+; it isn't the exact documented case, but the same estimation-vs-emit drift
+; still applies here) -- raw-byte-verified this session: without this
+; padding, the label resolved 1 byte early and landed on
+; TestSprite_PlayFrame's preceding `rts` opcode instead of this routine's
+; real first instruction, so every `jsr Player_PlayFrame` immediately hit
+; that stray `rts` and returned without running the body (Player_X/Y and
+; Oam_CurrentSlot never advanced past slot 0 -- confirmed both in Mesen2 and
+; via a raw hex dump of the assembled bytes at this address).
+    nop
+    nop
+    nop
+    nop
+Player_PlayFrame:
+    ; --- X: held-dpad Left/Right movement. Reads Input_press+1 using the
+    ; exact same bit-check convention as Anim_UpdateFacing (see that
+    ; routine, above) -- and MUST resolve Left+Right-held-together the same
+    ; way Anim_UpdateFacing does (Left wins), or sprite 1 could move right
+    ; on a frame where Ralf's facing flips left off the same read of
+    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- PLAYER_MAX_X
     ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
     ; boundary. Clamped, not bounced: holding a direction into the wall
     ; just stops moving, no direction-flip state needed anymore (that's
     ; why TestSprite2_DirLeft is gone -- see WRAM decl above, now reused for
-    ; TestSprite2_Y). Wrap-safety invariant for this clamp documented next
-    ; to TESTSPRITE2_SPEED above; the Y block below has its own identical
+    ; Player_Y). Wrap-safety invariant for this clamp documented next
+    ; to PLAYER_SPEED above; the Y block below has its own identical
     ; block mirrored right after this one, with its own independent read of
     ; Input_press+1 (deliberately not threaded through this block's
     ; accumulator state across its three-way branch). ---
@@ -2757,39 +2789,39 @@ TestSprite_PlayFrame:
 .a8
     lda.l Input_press+1
     and #$03
-    beq TestSprite_PlayFrame__sprite1_hold
+    beq Player_PlayFrame__hold
     lda.l Input_press+1
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
-    beq TestSprite_PlayFrame__sprite1_right
-    bra TestSprite_PlayFrame__sprite1_left
+    beq Player_PlayFrame__right
+    bra Player_PlayFrame__left
     nop
-TestSprite_PlayFrame__sprite1_right:
-    lda.l TestSprite2_X
+Player_PlayFrame__right:
+    lda.l Player_X
     clc
-    adc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MAX_X + 1
-    bcc TestSprite_PlayFrame__sprite1_store_x
-    lda #TESTSPRITE2_MAX_X
-    bra TestSprite_PlayFrame__sprite1_store_x
+    adc #PLAYER_SPEED
+    cmp #PLAYER_MAX_X + 1
+    bcc Player_PlayFrame__store_x
+    lda #PLAYER_MAX_X
+    bra Player_PlayFrame__store_x
     nop
-TestSprite_PlayFrame__sprite1_left:
-    lda.l TestSprite2_X
+Player_PlayFrame__left:
+    lda.l Player_X
     sec
-    sbc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MIN_X
-    bcs TestSprite_PlayFrame__sprite1_store_x
-    lda #TESTSPRITE2_MIN_X
-    bra TestSprite_PlayFrame__sprite1_store_x
+    sbc #PLAYER_SPEED
+    cmp #PLAYER_MIN_X
+    bcs Player_PlayFrame__store_x
+    lda #PLAYER_MIN_X
+    bra Player_PlayFrame__store_x
     nop
-TestSprite_PlayFrame__sprite1_hold:
-    lda.l TestSprite2_X
+Player_PlayFrame__hold:
+    lda.l Player_X
     nop
-TestSprite_PlayFrame__sprite1_store_x:
-    sta.l TestSprite2_X
+Player_PlayFrame__store_x:
+    sta.l Player_X
     sta.l OamSetSprite_X
 
-    ; --- sprite 1 Y: held-dpad Up/Down movement, mirroring the X block
-    ; above exactly in structure. Independent read of Input_press+1 (not
+    ; --- Y: held-dpad Up/Down movement, mirroring the X block above
+    ; exactly in structure. Independent read of Input_press+1 (not
     ; threaded through the X block's accumulator/branches -- see WRAM decl
     ; comment above for why). Per core/input.pasm's documented $4218 bit
     ; layout, Down is bit10 of the word and Up is bit11 -- bits 2/3 of this
@@ -2798,38 +2830,38 @@ TestSprite_PlayFrame__sprite1_store_x:
     ; Y (sbc) and Down increases Y (adc) -- opposite of X's Left/Right-to-
     ; sbc/adc mapping, since Y grows downward on screen. Unsigned cmp/bcc/
     ; bcs and the same wrap-safety invariant as X apply here too (see the
-    ; TESTSPRITE2_SPEED comment above). ---
+    ; PLAYER_SPEED comment above). ---
     lda.l Input_press+1
     and #$0C
-    beq TestSprite_PlayFrame__sprite1_hold_y
+    beq Player_PlayFrame__hold_y
     lda.l Input_press+1
     and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
-    beq TestSprite_PlayFrame__sprite1_down
-    bra TestSprite_PlayFrame__sprite1_up
+    beq Player_PlayFrame__down
+    bra Player_PlayFrame__up
     nop
-TestSprite_PlayFrame__sprite1_down:
-    lda.l TestSprite2_Y
+Player_PlayFrame__down:
+    lda.l Player_Y
     clc
-    adc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MAX_Y + 1
-    bcc TestSprite_PlayFrame__sprite1_store_y
-    lda #TESTSPRITE2_MAX_Y
-    bra TestSprite_PlayFrame__sprite1_store_y
+    adc #PLAYER_SPEED
+    cmp #PLAYER_MAX_Y + 1
+    bcc Player_PlayFrame__store_y
+    lda #PLAYER_MAX_Y
+    bra Player_PlayFrame__store_y
     nop
-TestSprite_PlayFrame__sprite1_up:
-    lda.l TestSprite2_Y
+Player_PlayFrame__up:
+    lda.l Player_Y
     sec
-    sbc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MIN_Y
-    bcs TestSprite_PlayFrame__sprite1_store_y
-    lda #TESTSPRITE2_MIN_Y
-    bra TestSprite_PlayFrame__sprite1_store_y
+    sbc #PLAYER_SPEED
+    cmp #PLAYER_MIN_Y
+    bcs Player_PlayFrame__store_y
+    lda #PLAYER_MIN_Y
+    bra Player_PlayFrame__store_y
     nop
-TestSprite_PlayFrame__sprite1_hold_y:
-    lda.l TestSprite2_Y
+Player_PlayFrame__hold_y:
+    lda.l Player_Y
     nop
-TestSprite_PlayFrame__sprite1_store_y:
-    sta.l TestSprite2_Y
+Player_PlayFrame__store_y:
+    sta.l Player_Y
     sta.l OamSetSprite_Y
     lda #0
     sta.l OamSetSprite_Tile
@@ -2857,9 +2889,9 @@ TestSprite_PlayFrame__sprite1_store_y:
 ; ANIM_TILEMAP_LEFT_BASE in the TAD gap (`.org $8C00`, see the comment above
 ; Tad_IsSongPlaying's block) to free room in this window for full-length
 ; walk/attack frame counts.
-AnimRalfIdleFrames:
+AnimCharIdleFrames:
     .incbin "assets/anim_ralf_idle.bin"
-AnimRalfAttackFrames:
+AnimCharAttackFrames:
     .incbin "assets/anim_ralf_attack.bin"
 
 ; ============================================================================
@@ -3327,11 +3359,11 @@ scpu_tm_write:
     sta.l Anim_TickCounter
 
     ; --- TestSprite_PlayFrame's sprite-1 dpad-movement state ---
-    lda #120                        ; mid-screen; was TESTSPRITE2_MIN_X, which sits
+    lda #120                        ; mid-screen; was PLAYER_MIN_X, which sits
                                      ; exactly on the left clamp
-    sta.l TestSprite2_X
+    sta.l Player_X
     lda #150                        ; matches this build's previous Y-fixed value
-    sta.l TestSprite2_Y
+    sta.l Player_Y
     rep #$31
 .a16
 
@@ -3385,6 +3417,7 @@ scpu_main_loop:
     jsr Core_Oop_Play
     jsr Core_Screen_Play
     jsr TestSprite_PlayFrame
+    jsr Player_PlayFrame
     jsr Core_Oam_Play
     jsr Anim_Play
     bra scpu_main_loop
