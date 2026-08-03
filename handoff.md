@@ -62,7 +62,7 @@ and visually in Mesen2:
   Full-screen screenshots during idle, walk, and attack all show Ralf's BG2
   animation rendering correctly (no corruption) alongside both red OAM
   squares — this specifically confirms the code insertion didn't disturb
-  `AnimRalfIdleFrames`/`AnimRalfAttackFrames`, which sit immediately after
+  `AnimCharIdleFrames`/`AnimCharAttackFrames`, which sit immediately after
   this routine and are governed by a hand-measured Poppy-off-by-one
   workaround (`ANIM_LABEL_FIXUP`) sensitive to exactly this kind of
   preceding-code-size change.
@@ -112,8 +112,11 @@ and visually in Mesen2:
   **Validated two ways**: (1) run against Ralf's own existing
   `out/ralf_{idle,walk,attack}/manifest.json` + `palette.txt`, the emitted
   fragment is semantically identical (diffed with comments/whitespace
-  stripped) to the current hand-written `main.pasm`, modulo the deliberate
-  `AnimRalf*`→`AnimChar*` label rename. (2) A second real character, JHUN
+  stripped) to the current hand-written `main.pasm` — as of this session
+  the shipped labels are literally `AnimCharIdleFrames`/
+  `AnimCharAttackFrames` too (see the rename bullet below), so this is now
+  an exact text match, not "identical modulo a deliberate rename." (2) A
+  second real character, JHUN
   (`DATA\CHARS\JHUN\JHUN.TXT` in the project's local BOR pak — chosen
   because `entity_parse.py` confirmed its idle/walk/attack1 frame counts
   are 6/8/5, **exactly** Ralf's, so the swap needed zero ROM-layout change)
@@ -135,8 +138,8 @@ and visually in Mesen2:
   is just re-running the generator + re-doing the same splice (see
   `gen_pasm_animset.py`'s own docstring for the exact commands and which
   `main.pasm` lines to touch: the 3 delay constants near
-  `ANIM_FRAME_DELAY`, the `.incbin` filenames at the `AnimRalfIdleFrames`/
-  `AnimRalfAttackFrames` labels and the `.org $8C00` walk line, and the 16
+  `ANIM_FRAME_DELAY`, the `.incbin` filenames at the `AnimCharIdleFrames`/
+  `AnimCharAttackFrames` labels and the `.org $8C00` walk line, and the 16
   palette immediates — no code-shape changes needed when frame counts
   match, since the dispatch-chain text itself is then identical between
   characters).
@@ -187,6 +190,27 @@ and visually in Mesen2:
   re-verified via a full Mesen splice (that splice mechanism was already
   proven working last session and doesn't depend on which palette
   algorithm produced the source data).
+- **Two prior sessions' deferred renames are now done** (this session, both
+  byte-neutral): `AnimRalfIdleFrames`/`AnimRalfAttackFrames` → the
+  character-independent `AnimCharIdleFrames`/`AnimCharAttackFrames` that
+  `gen_pasm_animset.py` already emitted (see the pak-agnostic-pipeline
+  bullet above for why that closes a validation gap, not just cosmetics);
+  and sprite 1's dpad-movement WRAM state/constants — `TestSprite2_X`/
+  `TestSprite2_Y` → `Player_X`/`Player_Y`, `TESTSPRITE2_MIN_X`/`MAX_X`/
+  `MIN_Y`/`MAX_Y`/`SPEED` → `PLAYER_MIN_X`/`MAX_X`/`MIN_Y`/`MAX_Y`/`SPEED`
+  — matching how "What's NOT done yet" already described sprite 1
+  (functionally closer to a player entity than a test sprite). Scoped
+  deliberately narrow: `TestSprite_PlayFrame` itself keeps its name (it
+  still re-asserts sprite 0, a genuinely static test sprite, every frame
+  in the same call that drives sprite 1 — renaming the routine would
+  misdescribe that half), as do `TestSprite_Init`/`TestSprite_WriteSolidTile`
+  and the `TestSprite_PlayFrame__sprite1_*` branch labels (scoped under the
+  routine's own name by this project's local-label convention). Verified
+  byte-neutral the strong way: `src/main.bin` came back **byte-identical**
+  to the previously-committed build after the rename + rebuild (`git diff`
+  on `main.bin` empty; only `main.sym`/`main.pansy` differ, as expected for
+  a pure symbol-name change) — the same confirmation-of-no-regression
+  pattern the JHUN swap-and-revert used last session.
 - **Three ROM-layout audit tools** (`tools/rom_audit/`) — run after any
   change that grows code/data in the `$C100`-`$FC00` fixed-`.org` window:
 
@@ -197,18 +221,21 @@ and visually in Mesen2:
   ```
 
   All three report clean on the current build (one benign drifted-but-
-  unreferenced label, `AnimRalfAttackFrames`, is expected — see
-  `verify_layout.py`'s own docstring for why that specific pattern is safe).
+  unreferenced label, now `AnimCharAttackFrames` post-rename (was
+  `AnimRalfAttackFrames`), is expected — see `verify_layout.py`'s own
+  docstring for why that specific pattern is safe).
 
-- **Remaining margin before `$FC00`**: ~549 bytes as of this build (was
-  ~607 before this session's Y-axis addition — the 2nd-axis dpad block cost
-  58 bytes, close to the ~80-byte estimate going in; ~612 before that
-  session's X-axis/clamp work, ~834 before the `Core_Oam_SetSprite` +
-  second-sprite session before that). Don't compute this from the highest
-  label address in `main.sym` alone — `.incbin` blobs have no end-label, so
-  that only gives you where the last blob *starts*. Add the blob's real
-  size (frame count x `ANIM_FRAME_BYTES`, or the `.bin` file's size on
-  disk) to get the true end address before subtracting from `$FC00`.
+- **Remaining margin before `$FC00`**: ~549 bytes as of this build, unchanged
+  from before this session (the rename work was byte-neutral by design/
+  verification — see above). History: ~607 before the prior session's
+  Y-axis addition (the 2nd-axis dpad block cost 58 bytes, close to the
+  ~80-byte estimate going in), ~612 before that session's X-axis/clamp
+  work, ~834 before the `Core_Oam_SetSprite` + second-sprite session before
+  that. Don't compute this from the highest label address in `main.sym`
+  alone — `.incbin` blobs have no end-label, so that only gives you where
+  the last blob *starts*. Add the blob's real size (frame count x
+  `ANIM_FRAME_BYTES`, or the `.bin` file's size on disk) to get the true
+  end address before subtracting from `$FC00`.
 
 Basic Mesen2 reproduction (adjust ROM path if working from a worktree):
 
@@ -232,13 +259,17 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 ## What's NOT done yet
 
 - **No real player entity yet.** Sprite 1 now responds to the dpad on both
-  X and Y, but there's still no player state (health, animation,
-  hitboxes), and no interaction between it and Ralf's BG2 animation
-  system — it's still a second solid-red 16x16 square, not a character.
-  The `TestSprite_*` naming was deliberately kept this session (see
-  `handoff.md`'s prior "Recommended next step" and the routine's own
-  comments) — a pure rename out of that family is a separate, byte-neutral
-  follow-up, not done yet.
+  X and Y, and its WRAM state/constants are named `Player_X`/`Player_Y`/
+  `PLAYER_*` as of this session, but there's still no player state (health,
+  animation, hitboxes), and no interaction between it and Ralf's BG2
+  animation system — it's still a second solid-red 16x16 square, not a
+  character. The routine that drives it, `TestSprite_PlayFrame`, still
+  keeps that name deliberately (it also re-asserts sprite 0, a genuinely
+  static test sprite, every frame in the same call — see the rename bullet
+  under "Current state" for the full scope reasoning); splitting that
+  routine so sprite-0 and sprite-1 logic each have an accurately-scoped
+  name is a separate, behavior-preserving-but-not-byte-neutral follow-up,
+  not done yet.
 - **Only 2 of 128 OAM slots ever exercised.** `Core_Oam_SetSprite` itself
   is generic (any slot, any X/Y/tile/attr/hi), but nothing has called it
   with a 3rd+ sprite or tested behavior near `OAM_SLOTS` (128).
@@ -256,25 +287,31 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 Sprite 1 is fully 2-axis dpad-driven, the BOR animation pipeline is
 pak-agnostic for a single shipped character (validated against a second
-real character, JHUN), and the CGRAM palette is now unified across
-idle/walk/attack (all three prior sessions — see "Current state" above).
-No single gap stands out as urgent right now; pick from the smaller items
-below, or from the still-open, larger items in "What's NOT done yet"
-(real player entity/state, multi-enemy BG2 compositing, background/level
-tileset conversion, MSU-1 asset streaming) if the next session wants to
-move past hardware-plumbing proofs toward actual gameplay content.
+real character, JHUN), the CGRAM palette is unified across idle/walk/
+attack, and this session closed out both prior sessions' deferred renames
+(`AnimChar*` labels, `Player_X`/`Player_Y`/`PLAYER_*` sprite-1 state — see
+"Current state" above). No small, independent, byte-neutral cleanup item
+remains queued. The next session's options are all from "What's NOT done
+yet," and all of them cost real bytes in the `$C100`-`$FC00` window (only
+~549 bytes of margin left) or need their own ROM-layout decision before
+any code is written:
 
-Smaller, independent, available any time:
-- Renaming `TestSprite_PlayFrame`'s sprite-1 state/routine out of the
-  `TestSprite_*` family (it's functionally closer to "the first player
-  entity" than "a test sprite" now) — still deferred, pure byte-neutral
-  cleanup.
-- The `AnimRalfIdleFrames`/`AnimRalfAttackFrames` labels could be renamed
-  to the character-independent `AnimCharIdleFrames`/`AnimCharAttackFrames`
-  this session's generator already uses internally — cosmetic-only,
-  intentionally not done to the actually-shipped Ralf build this session
-  (see "Current state" above for why the JHUN proof used a revert instead
-  of a permanent rename).
+- **Real player entity/state**: give sprite 1 health/hitbox/animation
+  state and actually connect it to Ralf's BG2 animation system (today
+  they're driven by the same input bits but are otherwise unrelated — a
+  solid-red OAM square moving independently of the animated BG2
+  character). This is the most natural "move past hardware-plumbing
+  proofs" step but is a real design decision (what owns position — OAM,
+  BG2 scroll, or both; how hitboxes interact with `core/oop.pasm`'s
+  class-based object system), not a mechanical change — plan it
+  separately rather than starting mid-session.
+- Multi-enemy BG2 compositing, background/level tileset conversion, or
+  wiring MSU-1 asset streaming to any of this — all still fully unstarted,
+  matching the project's "not a playable game yet" scope.
+- Splitting `TestSprite_PlayFrame` into sprite-0-owning and sprite-1-owning
+  routines with accurately scoped names (deferred again this session — see
+  "What's NOT done yet" above) — smaller than the above, but not
+  byte-neutral, so it wasn't bundled into this session's renames.
 
 ## Harness gotchas (Mesen2 / build)
 

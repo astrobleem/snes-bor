@@ -1876,7 +1876,7 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
                               ; has per-frame delays 7,7,20,10,10 -- collapsed
                               ; to one fixed value like idle/walk
 
-; AnimRalfIdleFrames's own label value resolves 1 byte EARLY here -- a new
+; AnimCharIdleFrames's own label value resolves 1 byte EARLY here -- a new
 ; instance of the same Poppy address-estimation class documented elsewhere
 ; in this project (poppy_assembler_bugs.md), but this time affecting a data
 ; label used as an immediate VALUE rather than a branch/jsr target, so the
@@ -1885,11 +1885,11 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
 ; src/main.bin: Anim_Play_Idle__done's own body (also nop-guarded, so its
 ; label is ALSO 1 byte early) is exactly 4 bytes (nop/rep #$31/rts) starting
 ; at Anim_Play_Idle__done's reported symbol address, which puts
-; AnimRalfIdleFrames's TRUE first byte 1 byte after where the symbol table
+; AnimCharIdleFrames's TRUE first byte 1 byte after where the symbol table
 ; (and this label used in an expression) reports it. Cross-checked against a
 ; live Mesen DMA transfer before this fixup was added: frame N's VRAM data
 ; was a clean 1-byte right-shift of the intended frame, with the extra
-; leading byte matching the ROM byte immediately BEFORE AnimRalfIdleFrames's
+; leading byte matching the ROM byte immediately BEFORE AnimCharIdleFrames's
 ; true start (frame 0 case) / the previous frame's true last byte (frame 3
 ; case) -- i.e. every computed source address was exactly 1 too low. If this
 ; file's layout changes enough to shift this drift, re-verify with the same
@@ -1897,19 +1897,19 @@ ATTACK_FRAME_DELAY = 10      ; ticks; manifest (out/ralf_attack/manifest.json)
 ; is still correct.
 ;
 ; ANIM_ATTACK_BASE_OFFSET (poppy bug #8 workaround, same as before):
-; AnimRalfAttackFrames must NEVER be referenced directly in an expression --
-; a bare `lda #AnimRalfAttackFrames + N` would silently resolve to the SAME
-; address as AnimRalfIdleFrames (the first of two adjacent back-to-back
+; AnimCharAttackFrames must NEVER be referenced directly in an expression --
+; a bare `lda #AnimCharAttackFrames + N` would silently resolve to the SAME
+; address as AnimCharIdleFrames (the first of two adjacent back-to-back
 ; .incbin labels), not its own; see poppy_assembler_bugs.md bug #8. Compute
-; attack's frame addresses from the known-good AnimRalfIdleFrames label plus
+; attack's frame addresses from the known-good AnimCharIdleFrames label plus
 ; a compile-time-constant byte offset instead -- attack now follows idle
 ; directly (walk no longer sits between them; it lives at ANIM_WALK_BASE in
 ; the TAD gap instead, see below), so the offset is simply idle's own total
 ; size.
 ANIM_LABEL_FIXUP = 1
 ANIM_ATTACK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle
-                              ; blob's total size; AnimRalfAttackFrames's
-                              ; .incbin immediately follows AnimRalfIdleFrames's
+                              ; blob's total size; AnimCharAttackFrames's
+                              ; .incbin immediately follows AnimCharIdleFrames's
                               ; with no gap, so this is its exact byte offset
 
 ; ANIM_WALK_BASE / ANIM_TILEMAP_RIGHT_BASE / ANIM_TILEMAP_LEFT_BASE: these
@@ -1917,7 +1917,7 @@ ANIM_ATTACK_BASE_OFFSET = ANIM_FRAME_COUNT * ANIM_FRAME_BYTES   ; = idle
 ; `.org $8C00` (see the large comment above Tad_IsSongPlaying's `.org $8C00`
 ; block, near the top of this file) rather than in this $C100-$FC00 window.
 ; Deliberately literal hex constants, NOT expressions involving a
-; Poppy-estimated label address (unlike AnimRalfIdleFrames/AnimRalfAttackFrames
+; Poppy-estimated label address (unlike AnimCharIdleFrames/AnimCharAttackFrames
 ; above): `.org` is documented (and independently verified by
 ; tools/rom_audit/verify_layout.py) to reset Poppy's CurrentAddress to
 ; exactly its operand value in BOTH the address-estimation pass and the real
@@ -1953,17 +1953,17 @@ Anim_FacingLeft  = $7E53B3   ; .db -- 0 = facing right (boot default), 1 = facin
 ; clamped, both read from Input_press+1 as two separate masks (not one
 ; shared accumulator threaded across both axes' branches -- see the
 ; routine body for why).
-TestSprite2_X       = $7E53B4 ; .db -- sprite 1's current X, clamped to MIN/MAX_X
-TestSprite2_Y       = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
+Player_X = $7E53B4 ; .db -- sprite 1's current X, clamped to MIN/MAX_X
+Player_Y = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
                               ;        (was TestSprite2_DirLeft, deleted -- no more
                               ;        autonomous bounce direction to track once
                               ;        movement is input-driven and clamped instead
                               ;        of bounced; reused here for the Y axis)
-TESTSPRITE2_MIN_X = 8
-TESTSPRITE2_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
-TESTSPRITE2_MIN_Y = 8
-TESTSPRITE2_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
-TESTSPRITE2_SPEED = 2           ; shared between axes
+PLAYER_MIN_X = 8
+PLAYER_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
+PLAYER_MIN_Y = 8
+PLAYER_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
+PLAYER_SPEED = 2           ; shared between axes
 ; Clamp-wrap safety invariant (both axes): SPEED <= MIN (sbc side) and
 ; MAX + SPEED <= 255 (adc side), or the add/subtract can wrap past the
 ; clamp and teleport to the opposite edge instead of stopping there.
@@ -2271,42 +2271,42 @@ Anim_Play_Idle__frame_ok:
 Anim_Play_Idle__f0:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f1:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f2:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*2
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*2
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f3:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*3
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*3
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f4:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*4
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*4
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__f5:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*5
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_FRAME_BYTES*5
     jsr Anim_CommitFrame
     rts
 
@@ -2466,35 +2466,35 @@ Anim_Play_Attack__frame_ok:
 Anim_Play_Attack__f0:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f1:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f2:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*2
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*2
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f3:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*3
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*3
     jsr Anim_CommitFrame
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__f4:
     rep #$20
 .a16
-    lda #AnimRalfIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*4
+    lda #AnimCharIdleFrames + ANIM_LABEL_FIXUP + ANIM_ATTACK_BASE_OFFSET + ANIM_FRAME_BYTES*4
     jsr Anim_CommitFrame
     rts
 
@@ -2548,7 +2548,7 @@ Anim_Done:
 ; Tile data is generated here, not `.incbin`'d -- a uniform solid color only
 ; needs plane0 set (see below), so there's no separate data blob to place
 ; (and no bug #8 risk from a second .incbin adjacent to
-; AnimRalfIdleFrames/AnimRalfAttackFrames below).
+; AnimCharIdleFrames/AnimCharAttackFrames below).
 ;
 ; Upgraded from 8x8 to a real 16x16 sprite (nonzero "size" hi-table bit) as a
 ; focused follow-up to the session that rewrote core/oam.pasm's
@@ -2743,13 +2743,13 @@ TestSprite_PlayFrame:
     ; that routine, above) -- and MUST resolve Left+Right-held-together the
     ; same way Anim_UpdateFacing does (Left wins), or sprite 1 could move
     ; right on a frame where Ralf's facing flips left off the same read of
-    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- TESTSPRITE2_MAX_X
+    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- PLAYER_MAX_X
     ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
     ; boundary. Clamped, not bounced: holding a direction into the wall
     ; just stops moving, no direction-flip state needed anymore (that's
     ; why TestSprite2_DirLeft is gone -- see WRAM decl above, now reused for
-    ; TestSprite2_Y). Wrap-safety invariant for this clamp documented next
-    ; to TESTSPRITE2_SPEED above; the Y block below has its own identical
+    ; Player_Y). Wrap-safety invariant for this clamp documented next
+    ; to PLAYER_SPEED above; the Y block below has its own identical
     ; block mirrored right after this one, with its own independent read of
     ; Input_press+1 (deliberately not threaded through this block's
     ; accumulator state across its three-way branch). ---
@@ -2764,28 +2764,28 @@ TestSprite_PlayFrame:
     bra TestSprite_PlayFrame__sprite1_left
     nop
 TestSprite_PlayFrame__sprite1_right:
-    lda.l TestSprite2_X
+    lda.l Player_X
     clc
-    adc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MAX_X + 1
+    adc #PLAYER_SPEED
+    cmp #PLAYER_MAX_X + 1
     bcc TestSprite_PlayFrame__sprite1_store_x
-    lda #TESTSPRITE2_MAX_X
+    lda #PLAYER_MAX_X
     bra TestSprite_PlayFrame__sprite1_store_x
     nop
 TestSprite_PlayFrame__sprite1_left:
-    lda.l TestSprite2_X
+    lda.l Player_X
     sec
-    sbc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MIN_X
+    sbc #PLAYER_SPEED
+    cmp #PLAYER_MIN_X
     bcs TestSprite_PlayFrame__sprite1_store_x
-    lda #TESTSPRITE2_MIN_X
+    lda #PLAYER_MIN_X
     bra TestSprite_PlayFrame__sprite1_store_x
     nop
 TestSprite_PlayFrame__sprite1_hold:
-    lda.l TestSprite2_X
+    lda.l Player_X
     nop
 TestSprite_PlayFrame__sprite1_store_x:
-    sta.l TestSprite2_X
+    sta.l Player_X
     sta.l OamSetSprite_X
 
     ; --- sprite 1 Y: held-dpad Up/Down movement, mirroring the X block
@@ -2798,7 +2798,7 @@ TestSprite_PlayFrame__sprite1_store_x:
     ; Y (sbc) and Down increases Y (adc) -- opposite of X's Left/Right-to-
     ; sbc/adc mapping, since Y grows downward on screen. Unsigned cmp/bcc/
     ; bcs and the same wrap-safety invariant as X apply here too (see the
-    ; TESTSPRITE2_SPEED comment above). ---
+    ; PLAYER_SPEED comment above). ---
     lda.l Input_press+1
     and #$0C
     beq TestSprite_PlayFrame__sprite1_hold_y
@@ -2808,28 +2808,28 @@ TestSprite_PlayFrame__sprite1_store_x:
     bra TestSprite_PlayFrame__sprite1_up
     nop
 TestSprite_PlayFrame__sprite1_down:
-    lda.l TestSprite2_Y
+    lda.l Player_Y
     clc
-    adc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MAX_Y + 1
+    adc #PLAYER_SPEED
+    cmp #PLAYER_MAX_Y + 1
     bcc TestSprite_PlayFrame__sprite1_store_y
-    lda #TESTSPRITE2_MAX_Y
+    lda #PLAYER_MAX_Y
     bra TestSprite_PlayFrame__sprite1_store_y
     nop
 TestSprite_PlayFrame__sprite1_up:
-    lda.l TestSprite2_Y
+    lda.l Player_Y
     sec
-    sbc #TESTSPRITE2_SPEED
-    cmp #TESTSPRITE2_MIN_Y
+    sbc #PLAYER_SPEED
+    cmp #PLAYER_MIN_Y
     bcs TestSprite_PlayFrame__sprite1_store_y
-    lda #TESTSPRITE2_MIN_Y
+    lda #PLAYER_MIN_Y
     bra TestSprite_PlayFrame__sprite1_store_y
     nop
 TestSprite_PlayFrame__sprite1_hold_y:
-    lda.l TestSprite2_Y
+    lda.l Player_Y
     nop
 TestSprite_PlayFrame__sprite1_store_y:
-    sta.l TestSprite2_Y
+    sta.l Player_Y
     sta.l OamSetSprite_Y
     lda #0
     sta.l OamSetSprite_Tile
@@ -2857,9 +2857,9 @@ TestSprite_PlayFrame__sprite1_store_y:
 ; ANIM_TILEMAP_LEFT_BASE in the TAD gap (`.org $8C00`, see the comment above
 ; Tad_IsSongPlaying's block) to free room in this window for full-length
 ; walk/attack frame counts.
-AnimRalfIdleFrames:
+AnimCharIdleFrames:
     .incbin "assets/anim_ralf_idle.bin"
-AnimRalfAttackFrames:
+AnimCharAttackFrames:
     .incbin "assets/anim_ralf_attack.bin"
 
 ; ============================================================================
@@ -3327,11 +3327,11 @@ scpu_tm_write:
     sta.l Anim_TickCounter
 
     ; --- TestSprite_PlayFrame's sprite-1 dpad-movement state ---
-    lda #120                        ; mid-screen; was TESTSPRITE2_MIN_X, which sits
+    lda #120                        ; mid-screen; was PLAYER_MIN_X, which sits
                                      ; exactly on the left clamp
-    sta.l TestSprite2_X
+    sta.l Player_X
     lda #150                        ; matches this build's previous Y-fixed value
-    sta.l TestSprite2_Y
+    sta.l Player_Y
     rep #$31
 .a16
 
