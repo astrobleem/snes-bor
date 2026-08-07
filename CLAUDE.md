@@ -29,11 +29,21 @@ There is no lint step and no unit-test framework — see Testing below for how c
 There's no automated test suite. Correctness is checked by loading `distribution/bor.sfc` in Mesen2 (an accurate SA-1 emulator) via its Python MCP debugging layer:
 
 ```python
-import sys
+import sys, os
 sys.path.append(r'E:\gh\Mesen2\python')
 from mesen_mcp.session import McpSession
 
-ROM = r'E:\gh\snes-bor\distribution\bor.sfc'
+# ALWAYS derive this from the actual repo root you're working in, never
+# hardcode `E:\gh\snes-bor\distribution\bor.sfc` literally -- if you're in a
+# git worktree (`.claude/worktrees/<name>/`), that literal path points at
+# the MAIN CHECKOUT's ROM instead, which build_rom.py never touched. Every
+# test then silently runs against a stale, unrelated build with no error --
+# an entire session was lost to exactly this (see the
+# boot-hang-before-player-init memory). Verify with a byte-level
+# build-identity check (grep the ROM for a known instruction's encoding)
+# before trusting any result if there's any doubt which ROM you're testing.
+REPO_ROOT = os.getcwd()  # or wherever this session's worktree/checkout root is
+ROM = os.path.join(REPO_ROOT, 'distribution', 'bor.sfc')
 MESEN = r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe'
 
 with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
