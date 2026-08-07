@@ -2999,17 +2999,46 @@ Anim_LoadCharacter__msu_ok:
     ; (even though the branch skips it at runtime), so it assembled the
     ; very next `lda #0` as a 3-byte 16-bit immediate (A9 00 00) instead of
     ; the 2-byte 8-bit form (A9 00). At runtime, with M actually still 1,
-    ; the CPU only consumes the first immediate byte and then decodes the
-    ; leftover 00 as a stray BRK, hijacking execution -- which is why this
-    ; routine's header seek never actually ran. Confirmed byte-for-byte via
-    ; a direct hex dump of the assembled ROM at this label's address; see
-    ; the boot-hang-before-player-init memory. This `sep #$20` is a
-    ; harmless no-op at runtime (M is already 1) but re-syncs Poppy's
-    ; width tracker so the `lda #0` below assembles correctly. Same root-
-    ; cause class as the documented branch-skipped-macro-sizing bug, just
-    ; for width-tracking instead of macro byte-counts -- watch for this
-    ; anywhere a `rep`/`sep` sits on a conditionally-skipped path before a
-    ; branch-target label.
+    ; the CPU only consumes the first immediate byte (A9 00) and then
+    ; decodes the leftover 00 as a stray BRK, which eats the next real
+    ; opcode byte (8F, the `sta.l CharSelect_Loaded` that should have run)
+    ; as its signature byte.
+    ;
+    ; This does NOT hang or skip the seek, and it is not a generic "A gets
+    ; clobbered" story either -- traced byte-for-byte against the pre-fix
+    ; ROM (git tag/commit a53f0a2's assembled `main.bin`): BRK vectors
+    ; through the native BRK vector ($FFE6), which `build_rom.py` points at
+    ; `irq_handler` ($FF10) -- and `irq_handler` is a single bare `rti`. RTI
+    ; pulls P and PC straight back off the stack, so execution resumes
+    ; exactly at the byte after the consumed 8F: `B8 53 7E` (`clv` /
+    ; `eor ($7E,S),Y`), which clobbers A with a stack-relative read (no
+    ; memory write), then falls straight into the four `sta $2000..$2003`
+    ; seek-trigger writes a few lines below with that clobbered A --
+    ; re-issuing the seek, but to a garbage address instead of offset 0,
+    ; using whatever value the stack-relative EOR produced (same value for
+    ; all four bytes, since nothing reloads A in between). `CharSelect_Loaded`
+    ; is what's actually skipped (never reached), matching the garbage
+    ; observed there pre-fix; the busy-wait poll and 16-byte read loop
+    ; after this are untouched code and still execute normally against the
+    ; (wrong) seeked offset, which is why boot never visibly crashed and
+    ; `AnimHeaderStaging` held plausible-looking (just wrong-offset) bytes.
+    ; Confirmed via a direct hex dump of the assembled ROM at this label's
+    ; address plus `build_rom.py`'s vector table; see the
+    ; boot-hang-before-player-init memory. This `sep #$20` is a harmless
+    ; no-op at runtime (M is already 1) but re-syncs Poppy's width tracker
+    ; so the `lda #0` below assembles correctly. Same root-cause class as
+    ; the documented branch-skipped-macro-sizing bug, just for width-
+    ; tracking instead of macro byte-counts -- watch for this anywhere a
+    ; `rep`/`sep` sits on a conditionally-skipped path before a branch-
+    ; target label whose own code goes straight into a width-dependent
+    ; immediate without its own preceding `rep`/`sep`. (Swept every other
+    ; forward-branch-over-rep/sep site in this file after finding this one:
+    ; all of them -- Anim_Play_Idle/Walk/Attack's __fN dispatch,
+    ; Anim_UpdateFacing__to_left/__done, Anim_LoadCharacter__slot_ok,
+    ; TadPrivate_Loader_TransferData__ReturnFalse -- land on labels that
+    ; either re-execute their own rep/sep before any width-dependent
+    ; immediate, or have no width-dependent immediate at all. This was the
+    ; only live instance.)
     sep #$20
 .a8
     lda #0
