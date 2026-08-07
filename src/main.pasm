@@ -7,6 +7,15 @@
 
 BW_CANVAS   = $606000   ; canvas: 128x96 4bpp linear at SA-1 BW-RAM $60:6000
 
+; Per-frame CC-DMA canvas pump state (S-CPU side, see Scpu_CcdmaPump in the
+; SA-1 region below):
+CanvasChunkOffset = $7E2340   ; .dw -- next 32-byte tile offset into the
+                                 ;        48-tile canvas (0..$05E0)
+Sa1LoopCounter    = $7E2342   ; .db -- SA-1 recomposite cycle counter,
+                                 ;        mirrored from I-RAM $3000 every frame
+PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
+                                 ;        forced-blank bracket (see Scpu_CcdmaPump)
+
 ; --- Blob symbols for LoROM TAD build ---
 ; Generated from tad-compiler ca65-export output.
 .include "../soundwork/tad/build/tad_blob_syms.pasm"
@@ -47,82 +56,100 @@ sa1_clear:
     cpx #$1800
     bcc sa1_clear
 
-    ; --- Draw a 32x48 real sprite frame, extracted and converted from the
-    ; game's own asset pack (not hand-authored/synthetic anymore) ---
-    ; Source: DATA\CHARS\RALF\IDLE1.GIF inside
-    ; "Beats of Rage Original [v.3.0 Build 4086].pak" (an indexed-color GIF,
-    ; magenta $FC00FF background/transparency marker per BOR convention).
-    ; Cropped to its real bounding box, nearest-neighbor scaled to fit
-    ; 32x48 (feet-aligned to the bottom, matching BOR's hotspot
-    ; convention), then quantized to 15 colors + reserved index 0 (mapped
-    ; to black, this canvas's real backdrop) via
-    ; tools/bor_converter/convert_real_sprite.py. See that script's header
-    ; for the PAK archive format (reverse-engineered from OpenBOR's own
-    ; packfile.c: `PACK`+version header, file data, then a directory table
-    ; at the END of the file with a trailing 4-byte offset pointing back to
-    ; it -- there is no compression or real encryption, despite "encrypted
-    ; archive" being the common description).
-    ; Drawn tightly packed at BW_CANVAS+0 (32 bytes/row, no padding).
-    ; CC-DMA's BW-RAM source is byte-per-pixel (one byte = one pixel,
-    ; color index in the low nibble), NOT nibble-packed 2px/byte --
-    ; feeding it a nibble-packed 768-byte buffer made it consume 768
-    ; "pixels" (1.5 real rows) instead of the intended 24 tiles, which is
-    ; why the converted VRAM output was noise rather than the sprite.
-    ; CC-DMA's source row pitch is implicitly SSS (configured tile width
-    ; below), so the source data's actual layout must match it exactly or
-    ; every row after the first reads from the wrong offset.
-    ;
-    ; Note: the source read below is plain absolute (not .l) indexed by Y
-    ; -- the 65816 has no indexed-long addressing mode with Y at all
-    ; (only X supports addr24,X); writing `.l ...,y` doesn't error in
-    ; this Poppy build, it silently falls back to 3-byte absolute,Y while
-    ; still apparently budgeting 4 bytes internally, which shifts every
-    ; following byte by one and corrupts the next instruction. Explicit
-    ; DB=0 here so the plain-absolute Y-indexed read is guaranteed
-    ; correct (TestSprite32x48 lives in this same bank) rather than
-    ; assuming SA-1's default DB happens to still be 0.
+    ; --- DBR = 0, where TestSprite32x48 lives ---
+    ; The blit's source read is plain absolute (not .l) indexed by Y -- the
+    ; 65816 has no indexed-long addressing mode with Y at all (only X
+    ; supports addr24,X); writing `.l ...,y` doesn't error in this Poppy
+    ; build, it silently falls back to 3-byte absolute,Y while still
+    ; apparently budgeting 4 bytes internally, which shifts every following
+    ; byte by one and corrupts the next instruction. Explicit DB=0 here so
+    ; the plain-absolute Y-indexed read is guaranteed correct
+    ; (TestSprite32x48 lives in this same bank) rather than assuming SA-1's
+    ; default DB happens to still be 0.
     sep #$20
 .a8
     lda #0
     pha
-    plb                     ; DBR = 0, where TestSprite32x48 lives
+    plb                     ; DBR = 0
     rep #$30
 .a16
 .i16
-    stz $00                 ; row = 0..47
-    stz $02                 ; source offset into TestSprite32x48, 0..1535
-sa1_sprite_row_loop:
-    lda $00
-    asl
-    asl
-    asl
-    asl
-    asl                     ; row * 32 (byte-per-pixel source: 32 px/row)
-    tax                     ; X = dest byte offset into BW_CANVAS this row
 
-    ldy $02                 ; Y = source byte offset, carried across rows
-    stz $04                 ; col = 0..31 (bytes this row)
-sa1_sprite_col_loop:
+; ============================================================================
+; Persistent SA-1 recomposite loop
+; ============================================================================
+; The smallest real step toward the spec's SA-1 software-sprite compositor
+; (SNES-BOR-Engine-Prompt.md §3): prove the SA-1 runs a persistent loop that
+; recomposites the shared BW-RAM canvas and RE-ARMS CC-DMA live, more than
+; the single boot-time shot the old sa1_spin offered. Each iteration:
+;
+;   1. Re-draws two static 32x48 blits into the canvas (blit A at
+;      BW_CANVAS+0, blit B at BW_CANVAS+$600), pixel-by-pixel through the
+;      $60-6F "always bitmap mode" window. $600 window bytes = $300 real
+;      bytes = 24 tiles, so blit B lands at real BW-RAM offset $3300,
+;      contiguous with blit A's tiles 0-23 at real $3000: the canvas is one
+;      48-tile (1536-byte) region, tiles 0-47.
+;   2. Re-arms CC-DMA Type 1 (the full register sequence, same as the old
+;      boot code -- it is cheap and self-documenting). Conversion itself
+;      stays READ-TRIGGERED: the $2236 write only re-sets CharConvDmaActive
+;      and CharConvIrqFlag (SFR $2300 bit 5, readable by BOTH CPUs -- Mesen2
+;      Sa1RegisterRead 0x2300), and no bytes move until the S-CPU reads the
+;      $40-4F window.
+;   3. Waits for the S-CPU to consume the whole canvas, then redraws. The
+;      release is an I-RAM mailbox: the pump writes $AA to $3025 once all
+;      48 tiles are in VRAM (Scpu_CcdmaPump) and the SA-1 polls that byte.
+;      The S-CPU gates its pump on SFR bit 5 (which IT can read); the SA-1
+;      cannot read SFR $2300 at all (its own register window has no 0x2300
+;      case -- Mesen2 Sa1RegisterRead -- so that read is open bus, and the
+;      old SFR-wait never released), which is exactly why the release must
+;      be a byte the SA-1 can see. This lock-step is the proto-mailbox from
+;      spec §3.8 (RENDER_START / CANVAS_READY) in its smallest form: the
+;      S-CPU's pump never reads a half-redrawn canvas, so it generalizes to
+;      dynamic content without a redraw-vs-conversion race.
+;
+; DP scratch $00/$02/$04/$06 lives in I-RAM $0000-$00FF, which CC-DMA's
+; converted-tile staging ALSO writes (DDA=0 -> each converted tile lands at
+; I-RAM $0000-$001F). That only happens while the S-CPU pumps (flag set,
+; this loop waiting), and every DP cell here is re-initialized before each
+; draw, so no stale value ever crosses a wait boundary. I-RAM $20/$21 are
+; above that staging band: $20 = phase canary (1..5, see below), $21 = the
+; recomposite cycle counter (the old `inc $3000` aliased DP $00 through the
+; I-RAM window's & $7FF mapping AND got stomped by the staging every tile;
+; $21 is outside both hazards).
+sa1_loop:
+    rep #$30                ; re-assert 16-bit A/X: reached via `bra sa1_loop`
+.a16                        ; from the 8-bit wait loop below (same fix family
+.i16                        ; as poppy bug #10 -- width on a branch path)
+    ; --- phase canary 1: entered the loop ---
     sep #$20
 .a8
-    lda TestSprite32x48,y
-    sta.l BW_CANVAS,x
+    lda #$01
+    sta $20
     rep #$20
 .a16
-    inx
-    iny
-    inc $04
-    lda $04
-    cmp #$0020
-    bcc sa1_sprite_col_loop
+    ; --- blit A: TestSprite32x48 at BW_CANVAS+0 ---
+    stz $06                 ; blit base offset = 0
+    jsr sa1_draw_blit
 
-    sty $02                 ; persist source offset for next row
+    ; --- phase canary 2: blit A done ---
+    sep #$20
+.a8
+    lda #$02
+    sta $20
+    rep #$20
+.a16
+    ; --- blit B: same sprite at BW_CANVAS+$600 ---
+    lda #$0600
+    sta $06
+    jsr sa1_draw_blit
 
-    inc $00
-    lda $00
-    cmp #$0030              ; 48 rows
-    bcc sa1_sprite_row_loop
-
+    ; --- phase canary 3: blit B done, about to arm ---
+    sep #$20
+.a8
+    lda #$03
+    sta $20
+    rep #$20
+.a16
     ; --- Configure SA-1 CC-DMA Type 1 (Auto Mode) FROM SA-1 CPU SIDE ---
     sep #$20
 .a8
@@ -139,9 +166,14 @@ sa1_sprite_col_loop:
     ; until something reads through the $40-4F (S-CPU) / $40-5F (SA-1)
     ; linear BW-RAM window, at which point the read is intercepted and the
     ; source bytes get converted to VRAM-format bitplanes on the fly (see
-    ; Mesen2 core: CpuBwRamHandler::Read -> Sa1::ReadCharConvertType1).
-    ; Our sprite is drawn via `sta.l BW_CANVAS,x` where BW_CANVAS=$606000 --
-    ; the $60-6F bank range is hard-wired "always bitmap mode" (see
+    ; Mesen2 core: CpuBwRamHandler::Read -> Sa1::ReadCharConvertType1). The
+    ; conversion is stateless per read -- the trigger condition is
+    ; (addr & 31) == 0 and the tile is derived purely from
+    ; (addr - DmaSrcAddr) -- so re-arming and re-pumping is free, which is
+    ; what makes this persistent loop possible at all.
+    ;
+    ; Our sprites are drawn via `sta.l BW_CANVAS,x` where BW_CANVAS=$606000
+    ; -- the $60-6F bank range is hard-wired "always bitmap mode" (see
     ; Sa1BwRamHandler::WriteBitmapMode), which auto-packs each byte we
     ; write (low nibble = one pixel's color) two-per-real-byte at HALF the
     ; window offset, with the $600000 bank component subtracted first:
@@ -150,7 +182,7 @@ sa1_sprite_col_loop:
     ; $3000, not $6000 and not $0. SDA must equal that real offset ($3000)
     ; for CC-DMA's tile/address math to land on our data; reading the
     ; converted bytes back out then requires reading through $40:3000+ (see
-    ; scpu_pump_loop below), NOT the $3000 S-CPU I-RAM window (a read from
+    ; Scpu_CcdmaPump below), NOT the $3000 S-CPU I-RAM window (a read from
     ; the I-RAM window never touches this handler and triggers nothing --
     ; this was the root cause of the noise/garbage seen before this fix).
     lda #$09
@@ -162,20 +194,255 @@ sa1_sprite_col_loop:
     stz $2235               ; dest = IRAM offset 0
     lda #$B1
     sta $2230               ; enable | charconv | auto | src=BW-RAM (SA-1 ONLY!)
-    stz $2236               ; write dest mid byte -> arms CharConvDmaActive
+    stz $2236               ; write dest mid byte -> arms CharConvDmaActive +
+                             ; sets CharConvIrqFlag (SFR bit 5) = "canvas ready"
                              ; (conversion itself still hasn't run yet -- see above)
 
-    ; --- Signal S-CPU: canvas ready ---
-    ; No explicit flag write needed: the $2236 write above (CharConv DMA
-    ; Auto Mode trigger) makes the SA-1 hardware set CharConvIrqFlag
-    ; (SFR bit 5, $2300) automatically. The old BW_READY/READY_MAGIC
-    ; flag in BW-RAM bank $41 never worked: that bank is the S-CPU's
-    ; paged/BMAPS-relative BW-RAM window, not a direct mirror, so the
-    ; S-CPU could never see what SA-1 wrote there. See scpu_poll below.
+    ; --- Re-composite cycle counter (debug/verification) ---
+    ; I-RAM $3000: incremented once per completed cycle. The S-CPU mirrors
+    ; it to WRAM Sa1LoopCounter every frame (Scpu_CcdmaPump) so a Mesen2
+    ; harness read proves the SA-1 loop is live and the handshake is
+    ; cycling -- never trust "probably running" without a ground-truth read.
+    ; I-RAM $21, not $3000: $3000 maps (via the I-RAM window's & $7FF) to
+    ; I-RAM $0000 = SA-1 DP byte $00 AND is overwritten every tile by CC-DMA
+    ; staging; $21 sits above the staging band and below the stack.
+    lda #$04                ; phase canary 4: armed, about to wait
+    sta $20
+    inc $21
 
-sa1_spin:
-    bra sa1_spin
+    ; --- Wait for the S-CPU to consume this canvas ---
+    ; Mailbox handshake (NOT the SFR): the SA-1's own read of $2300 never
+    ; returns the S-CPU's SFR -- Mesen's Sa1RegisterRead has no 0x2300 case
+    ; (that register belongs to CpuRegisterRead), so `lda $2300` on the
+    ; SA-1 falls through to open bus, and bit 5 of that value reads stuck
+    ; set here. The S-CPU can see the flag (it pumps on it), but the SA-1
+    ; physically cannot, so the old SFR-wait could never release the loop.
+    ; Instead: the S-CPU's pump writes $AA to I-RAM $3025 once all 48 tiles
+    ; are in VRAM (see Scpu_CcdmaPump), and the SA-1 polls that byte -- the
+    ; proto-mailbox from spec §3.8 (RENDER_START / CANVAS_READY) in its
+    ; smallest form. The SA-1 clears the mailbox before redrawing, so the
+    ; pump's next completion (48 frames later) cannot be mistaken for this
+    ; one, and the pump still gates on SFR bit 5 for its own start signal.
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+sa1_wait:
+    lda $3025               ; I-RAM mailbox: $AA = S-CPU has consumed canvas
+    cmp #$AA
+    bne sa1_wait
+    stz $25                 ; acknowledge: clear the mailbox (own I-RAM
+                            ; window; CIWP $FF set at boot permits it)
+    lda #$05                ; phase canary 5: wait exited, loop will re-arm
+    sta $20
+    bra sa1_loop
 
+; --- Draw one 32x48 blit of TestSprite32x48 into the canvas ---
+; Caller (sa1_loop) sets $06 = blit base offset in window units (0 or $600)
+; and must be in .a16/.i16; exits .a16/.i16. Source data is byte-per-pixel
+; (one byte = one pixel, color index in the low nibble); the bitmap window
+; auto-packs two pixels per real byte at HALF the window offset, so drawing
+; window offset X puts the packed sprite bytes at real BW-RAM offset
+; (($600000 & $1FFFFF) + X) >> 1 -- exactly the layout CC-DMA's tile math
+; expects for SDA=$3000 (see the CC-DMA comments above).
+;
+; The blit source is a 32x48 real sprite frame, extracted and converted
+; from the game's own asset pack (not hand-authored/synthetic): source
+; DATA\CHARS\RALF\IDLE1.GIF inside "Beats of Rage Original [v.3.0 Build
+; 4086].pak" (an indexed-color GIF, magenta $FC00FF background/transparency
+; marker per BOR convention), cropped to its real bounding box,
+; nearest-neighbor scaled to fit 32x48 (feet-aligned to the bottom,
+; matching BOR's hotspot convention), then quantized to 15 colors +
+; reserved index 0 (mapped to black, this canvas's real backdrop) via
+; tools/bor_converter/convert_real_sprite.py. See that script's header for
+; the PAK archive format (reverse-engineered from OpenBOR's own
+; packfile.c: `PACK`+version header, file data, then a directory table at
+; the END of the file with a trailing 4-byte offset pointing back to it --
+; there is no compression or real encryption, despite "encrypted archive"
+; being the common description).
+sa1_draw_blit:
+    stz $00                 ; row = 0..47
+    stz $02                 ; source offset into TestSprite32x48, 0..1535
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+sa1_draw_row_loop:
+    lda $00
+    asl
+    asl
+    asl
+    asl
+    asl                     ; row * 32 (byte-per-pixel source: 32 px/row)
+    clc
+    adc $06                 ; + blit base offset
+    tax                     ; X = dest byte offset into BW_CANVAS this row
+    ldy $02                 ; Y = source byte offset, carried across rows
+    stz $04                 ; col = 0..31 (bytes this row)
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+sa1_draw_col_loop:
+    sep #$20
+.a8
+    lda TestSprite32x48,y
+    sta.l BW_CANVAS,x
+    rep #$20
+.a16
+    inx
+    iny
+    inc $04
+    lda $04
+    cmp #$0020
+    bcc sa1_draw_col_loop
+
+    sty $02                 ; persist source offset for next row
+
+    inc $00
+    lda $00
+    cmp #$0030              ; 48 rows
+    bcc sa1_draw_row_loop
+    rts
+
+; ============================================================================
+; S-CPU side: per-frame CC-DMA canvas pump -- Scpu_CcdmaPump
+; ============================================================================
+; jsr'd once per frame from scpu_main_loop, immediately after
+; Core_Nmi_WaitFrame, so its VRAM writes land in the vblank tail rather than
+; mid-active-display. Converts and copies ONE 32-byte tile per frame while
+; the SA-1's canvas-ready flag is set (SFR $2300 bit 5 = CharConvIrqFlag),
+; and clears that flag (SIC $2202 bit 5) once the full 48-tile canvas
+; (1536 bytes, both 4x6 windows) is in VRAM -- releasing the SA-1 to
+; recomposite the next canvas. Full refresh therefore takes 48 frames;
+; a one-tile-per-frame chunk keeps this inside the vblank tail (16 word-
+; reads + 16 word-writes ~= 400 cycles), which a full 1536-byte pump would
+; blow out by an order of magnitude.
+;
+; The conversion is stateless per read (Mesen2 core: CpuBwRamHandler::Read
+; -> Sa1::ReadCharConvertType1: trigger on (addr & 31) == 0, tile derived
+; from (addr - DmaSrcAddr)), so pumping a 32-byte slice at any
+; 32-byte-aligned offset converts exactly that tile -- no conversion-side
+; chunk state to keep. The read itself returns the already-converted
+; VRAM-format bytes, staged by the hardware in I-RAM at DDA=0.
+;
+; Entry/exit convention: .a16/.i16 (scpu_main_loop's). Wrapped in php/sei ..
+; plp as a defensive convention matching Core_Dma_Enqueue's, but note sei
+; only masks IRQ, not NMI -- it cannot protect the X/Y loop counters below
+; from an NMI landing mid-loop. That protection instead comes from
+; Core_Nmi_Play itself (core/nmi.pasm): it pha/phx/phy/phb/phd at entry and
+; restores them before returning, so X/Y here survive an NMI intact
+; regardless of this wrapper. Verified empirically byte-perfect across a
+; live NMI-interrupted run; see the ccdma_validated_nmi_timing_bug and
+; nmi-handler-no-register-save-reentrancy project memories.
+Scpu_CcdmaPump:
+    php
+    sei
+    sep #$20
+.a8
+    lda $3021               ; SA-1 recomposite cycle counter (I-RAM $21;
+                            ; the old $3000 mirror read the CC-DMA staging
+                            ; band, not the counter)
+    sta.l Sa1LoopCounter    ; debug mirror: proves the SA-1 loop is live
+    lda $2300               ; SFR
+    and #$20                ; CharConvIrqFlag set -> a fresh canvas is armed
+    beq Scpu_CcdmaPump_Done
+    rep #$20
+.a16
+.i16
+    lda.l CanvasChunkOffset
+    tax
+    ldy #$0010              ; 16 words per 32-byte tile
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+Scpu_CcdmaPump_Read:
+    lda.l $403000,x         ; read+trigger-convert via S-CPU BW-RAM window ($40-4F)
+    sta.l PumpScratch,x     ; stage in WRAM -- deliberately OUTSIDE the forced-
+                            ; blank bracket: BW-RAM reads are not PPU accesses,
+                            ; and they can stall for many cycles on SA-1 BW-RAM
+                            ; arbitration, so keeping them out of the bracket
+                            ; keeps the bracket itself short and bounded. (A
+                            ; separate, pre-existing black band at the top of
+                            ; every frame was investigated this session and
+                            ; confirmed present even with this pump's jsr
+                            ; disabled entirely and at the branch's committed
+                            ; HEAD before this pump existed -- it comes from
+                            ; Core_Nmi_Play's own commit bracket in nmi.pasm
+                            ; being outpaced by this branch's larger per-
+                            ; vblank DMA/shadow-commit workload, not from
+                            ; anything in this routine. See the
+                            ; ccdma_validated_nmi_timing_bug project memory.)
+    inx
+    inx
+    dey
+    bne Scpu_CcdmaPump_Read
+
+    ; --- forced-blank bracket: only the $2116/$2118 writes need it ---
+    sep #$20
+.a8
+    lda #$80
+    sta $2100               ; INIDISP: force blank so the tile writes land
+                            ; regardless of vblank-tail timing (CanAccessVram
+                            ; only admits $2116/$2118 during forced blank or
+                            ; past the NMI scanline, and the pump runs after
+                            ; the NMI handler, in the vblank tail)
+    rep #$20
+.a16
+    lda.l CanvasChunkOffset
+    lsr                     ; byte offset -> VRAM word offset (32 bytes = 16 words)
+    clc
+    adc #$2010              ; VRAM dest word (BG2 char base $2000, tile 1)
+    sta $2116
+    lda.l CanvasChunkOffset
+    tax
+    ldy #$0010              ; 16 words per 32-byte tile
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+Scpu_CcdmaPump_Write:
+    lda.l PumpScratch,x     ; WRAM reads only -- no BW-RAM access inside the
+                            ; bracket, so it cannot stall on SA-1 arbitration
+                            ; (bounded, ~350 cycles for the 16-word loop)
+    sta $2118               ; write to VRAM $2118/$2119
+    inx
+    inx
+    dey
+    bne Scpu_CcdmaPump_Write
+    sep #$20
+.a8
+    lda.l Nmi_ScreenBrightness
+    sta $2100               ; restore the screen brightness ($0F, set in boot)
+    rep #$20
+.a16
+    txa
+    cmp #$0600              ; 1536 bytes = 48 tiles (both 4x6 windows)
+    bcc Scpu_CcdmaPump_Keep
+    sep #$20
+.a8
+    lda #$AA
+    sta $3025               ; I-RAM mailbox -> releases the SA-1's wait loop
+                            ; (the SA-1 cannot read SFR $2300 -- its own
+                            ; register window has no 0x2300 case, it reads
+                            ; open bus there -- so the release has to be a
+                            ; byte it CAN see; SIWP $FF set in scpu_boot
+                            ; permits this S-CPU I-RAM write)
+    lda #$20
+    sta $2202               ; SIC: clear CharConvIrqFlag -> pump's own next
+                            ; frame check skips until the SA-1 re-arms
+    rep #$20
+.a16
+    lda #$0000
+    sta.l CanvasChunkOffset
+    bra Scpu_CcdmaPump_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Scpu_CcdmaPump_Keep:
+    sta.l CanvasChunkOffset
+Scpu_CcdmaPump_Done:
+    plp
+    rep #$31
+.a16
+.i16
+    rts
+
+; ============================================================================
+; TAD Audio Driver Module (Ported from ca65 to Poppy .pasm)
+; ============================================================================
+; NOTE: the 32x48 sprite blob lives HERE, immediately before this .org, not
+; after the pump code above -- the SA-1 loop grew into that spot once
+; (canaries + mailbox handshake) and silently clobbered the blob (Poppy's
+; fixed-.org truncation; the blob's .incbin sat at the old location and the
+; pump overran it, corrupting the source pixels with no build error). This
+; placement pins the blob to the $8800 boundary with all the code's growth
+; room on the other side.
+;
 ; 32x48 4bpp linear-packed test sprite (768 bytes), hand-authored to
 ; validate the CC-DMA pipeline end-to-end -- see gen_sprite_bin.py-style
 ; generation notes: 24 uniquely-colored 8x8 tiles plus a white/black X
@@ -184,10 +451,6 @@ sa1_spin:
 ; uniform test block.
 TestSprite32x48:
     .incbin "assets/test_sprite_32x48.bin"
-
-; ============================================================================
-; TAD Audio Driver Module (Ported from ca65 to Poppy .pasm)
-; ============================================================================
 .org $8800
 ; Converted from CA65 to PASM by Poppy
 ; Original file: tad-audio.s
@@ -3536,50 +3799,26 @@ scpu_bg2_blank:
     dex
     bne scpu_bg2_blank
 
-    ; --- Wait for SA-1 ready flag: poll SFR CharConvIrqFlag ($2300 bit 5) ---
-    sep #$20
-.a8
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
-scpu_poll:
-    lda $2300
-    and #$20
-    beq scpu_poll
+    ; --- CC-DMA canvas pump: moved out of boot into Scpu_CcdmaPump, called
+    ; once per frame from scpu_main_loop right after Core_Nmi_WaitFrame
+    ; (vblank tail). The boot-time one-shot pump is gone deliberately: the
+    ; SA-1 now runs a PERSISTENT recomposite loop (sa1_loop, $8000+) that
+    ; re-arms CC-DMA for every fresh canvas and waits for the S-CPU to
+    ; consume it, so the pump must be re-runnable every frame -- one 32-
+    ; byte tile per frame, clearing SIC $2202 bit 5 (CharConvIrqFlag)
+    ; once all 48 tiles of both 4x6 windows are in VRAM, releasing the
+    ; SA-1 to recomposite. A boot-time pump would also deadlock the new
+    ; loop: it clears nothing, and the SA-1's first wait would hang on a
+    ; flag only the per-frame pump consumes. The first main-loop frame
+    ; simply pumps the canvas sa1_main armed at boot (flag set at boot).
 
-    ; --- Pump CC-DMA converted tiles straight from the read-triggered ---
-    ; conversion window to VRAM. CC-DMA Type 1 does NOT run as a batch copy
-    ; on the $2236 trigger -- it converts one tile at a time, lazily, the
-    ; instant something reads through the S-CPU's linear BW-RAM window at
-    ; banks $40-$4F (Mesen2 core: CpuBwRamHandler::Read, active whenever
-    ; CharConvDmaActive is set). Reading the S-CPU I-RAM window at $3000
-    ; (tried first) never touches that handler, so nothing ever converts --
-    ; that's why VRAM/I-RAM showed only stale leftover bytes before this
-    ; fix, unrelated to our sprite and unaffected by source-pixel-format
-    ; changes. A straight sequential read of 768 bytes from long address
-    ; $40:3000 (matching SDA=$003000 above) hits each tile's 32-byte-
-    ; aligned trigger boundary in order and the read itself returns the
-    ; already-converted VRAM-format byte -- no separate I-RAM pass needed.
-    ; 24 tiles * 16 words/tile = 384 words ($0300 bytes)
-    rep #$20
-.a16
-    rep #$10
-.i16
-    lda #$2010
-    sta $2116               ; VRAM dest = word $2010 (tile 1, BG2 char base $2000)
-
-    ldx #$0000
-    nop
-scpu_pump_loop:
-    lda.l $403000,x         ; Read+trigger-convert via S-CPU BW-RAM window ($40-4F)
-    sta $2118               ; Write to VRAM $2118/$2119
-    inx
-    inx
-    cpx #$0300              ; 768 bytes ($0300) = 24 tiles * 32 bytes
-    bcc scpu_pump_loop
-
-    ; --- BG2 tilemap at word $5C00: 4x6 sprite window (rest blank) ---
-    ; Entries (ty<6, tx<4): tile ty*4+tx+1, priority 1 ($2000 bit).
-    ; Matches the 24-tile (4 wide x 6 tall) region CC-DMA actually
-    ; converted -- see width=2 (4 tiles/line) config above.
+    ; --- BG2 tilemap at word $5C00: two 4x6 sprite windows (rest blank) ---
+    ; Entries (ty<6, tx<8): window A (tx<4) = tile ty*4+tx+1; window B
+    ; (tx>=4) = tile ty*4+tx+21 -- +20 = the 24 tiles window A occupies
+    ; (tiles 0-23 at real BW-RAM $3000), so window B's tiles 24-47 at
+    ; real BW-RAM $3300 are contiguous. Both windows priority 1 ($2000
+    ; bit). Matches the 48-tile canvas the SA-1 recomposite loop now
+    ; produces (see the blit layout comments at sa1_loop above).
     rep #$20
 .a16
     lda #$5C00
@@ -3592,7 +3831,7 @@ scpu_tm_row:
 scpu_tm_col:
     cpy #$0006
     bcs scpu_tm_blank
-    cpx #$0004
+    cpx #$0008
     bcs scpu_tm_blank
     tya
     asl
@@ -3602,6 +3841,12 @@ scpu_tm_col:
     clc
     adc $00
     inc a                   ; tile index + 1
+    cpx #$0004
+    bcc scpu_tm_win_a
+    clc
+    adc #$0014              ; window B: +20 tiles (see comment above)
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_tm_win_a:
     ora #$2000              ; priority 1
     bra scpu_tm_write
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
@@ -3699,6 +3944,12 @@ scpu_main_loop:
     ; already existed in core/nmi.pasm for exactly this purpose; it was
     ; simply never called from here.
     jsr Core_Nmi_WaitFrame
+
+    ; One 32-byte CC-DMA canvas tile per frame, in the vblank tail -- the
+    ; SA-1's persistent recomposite loop (sa1_loop) waits for this pump to
+    ; clear its canvas-ready flag before redrawing, and the pump never
+    ; reads a half-redrawn canvas (see Scpu_CcdmaPump's header comment).
+    jsr Scpu_CcdmaPump
 
     sep #$20
 .a8
