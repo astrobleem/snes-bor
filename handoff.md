@@ -9,7 +9,64 @@ bugs, the OBSEL/hi-table bring-up story, harness quirks) lives in this
 project's Claude memory files, not here — see the pointers at the bottom of
 each section below.
 
-## Current state (verified working)
+## Since this file was last rewritten (not yet folded into "Current state"
+below, which predates all of this)
+
+Everything in "Current state" below is still accurate but was written
+*before* three commits that a prior session made and pushed just before a
+power outage lost that session's window (git history and PR #3, "MSU-1
+runtime character-select: Phase 0 de-risk + Phase 1 roster packer", survived
+fine — only this file's narrative was left stale):
+
+- **`pack_msu_roster.py`** (Phase 1): packs up to 8 characters' idle/walk/
+  attack data into a single `.msu` file with a directory of frame counts/
+  delays/byte offsets. `build_rom.py` now packs Ralf+JHUN into `bor.msu`
+  through it instead of the old ASCII placeholder.
+- **`Anim_LoadCharacter`** (Phase 2, step 1): boot-time MSU-1 roster
+  header/directory-record seek+read+parse and 24-bit idle/walk/attack MSU
+  base-offset computation, called from `scpu_boot` right after track-select.
+  Deliberately stops short of streaming the palette/enqueuing CGRAM DMA —
+  that's a later step. `CharSelect_Loaded` stays `0` throughout this version
+  by design, not as a failure signal.
+- **A suspected `scpu_boot` hang was debunked**: it was a Mesen2 test
+  harness pointed at the *main checkout's* `distribution/bor.sfc` from
+  inside this worktree, silently testing a stale, unrelated ROM.
+  `CLAUDE.md`'s testing snippet now derives `ROM` from the working
+  directory instead of hardcoding that path.
+- **The real bug that surfaced once testing pointed at the right ROM —
+  `CharSelect_RosterCount` reading `0` instead of the real `2` — is now
+  fixed** (this session, after the outage). Root cause was a Poppy silent
+  miscompile, not the MSU-1 hardware/seek mechanism: `Anim_LoadCharacter__
+  msu_ok` is reached via a `bne` that jumps around an earlier `rep #$31`,
+  so the CPU is still 8-bit-accumulator at runtime there, but Poppy's
+  linear (non-control-flow-aware) `.a8`/`.a16` width tracking mis-sized the
+  label's first `lda #0` as a 3-byte 16-bit immediate anyway — the leftover
+  byte decoded as a stray `BRK` at runtime, hijacking execution before the
+  seek ever ran. Confirmed via a raw hex dump of the assembled ROM (not
+  inferred from behavior), fixed with a redundant `sep #$20`. Full account
+  in [[poppy_assembler_bugs]] memory (bug 10) and in `main.pasm`'s
+  `Anim_LoadCharacter__msu_ok` comment. Verified: `CharSelect_RosterCount`
+  reads `2` every run, all three `tools/rom_audit/*.py` clean, OAM sprite0/
+  sprite1 still byte-exact (`[120,100,0,48]`/`[120,150,0,48]`/hi-byte `$0A`
+  — a diagnostic probe used mid-investigation briefly regressed these, but
+  it was reverted and the final committed state is clean). Also resolved as
+  a side effect: [[msu_track_select_seek_ordering_risk]] — an isolated
+  probe proved track-select does not disturb a later data seek, settling
+  that previously-open question. Committed as `e138c56` on this branch.
+- **One loose end noticed but not chased, unrelated to the above**: a
+  Mesen2 `set_input` BTN_RIGHT hold (`port=0`) didn't move sprite 1 in this
+  session's harness, reproduced identically on the pre-fix baseline too —
+  so it's not a regression from this session's work, but it also wasn't
+  confirmed as a pre-existing harness quirk vs. something real. Worth a
+  clean re-check (matching whatever exact `set_input` invocation the
+  session that originally verified dpad movement used) before the next
+  session trusts `set_input`-based behavioral tests here.
+- **Next up for the MSU roster work**: Phase 2's remaining steps (palette
+  streaming + CGRAM DMA enqueue, then playback rewrite, then live reselect)
+  are still not started — `Anim_LoadCharacter` only does the header/record
+  parse so far. PR #3 is still draft.
+
+## Current state (verified working, as of the session before the above)
 
 `distribution/bor.sfc` boots and runs the following, all verified byte-level
 and visually in Mesen2:
