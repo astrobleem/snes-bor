@@ -3792,19 +3792,28 @@ scpu_main_loop:
     jsr Anim_Play
     bra scpu_main_loop
 
-; NMI/IRQ pushed from $FE00/$FE10 to $FE20/$FE30, then to $FF00/$FF10 --
-; scpu_boot's body keeps growing (most recently: the CC-DMA sprite/pump/
-; tilemap code, then the unrolled CGRAM palette load) and each time it
-; grows past whatever budget was left before these fixed .org addresses,
-; Poppy silently truncates/corrupts whatever ran into them instead of
-; erroring (see poppy_assembler_bugs.md). build_rom.py's NMI/IRQ vector
-; constants were updated to match -- these addresses are load-bearing,
-; keep them in sync. Still comfortably below $FFE4 (native vector table).
-.org $FF00
+; NMI/IRQ pushed from $FE00/$FE10 to $FE20/$FE30, to $FF00/$FF10, then to
+; $FF20/$FF30 -- scpu_boot's body keeps growing (most recently: the CC-DMA
+; sprite/pump/tilemap code, then the unrolled CGRAM palette load) and each
+; time it grows past whatever budget was left before these fixed .org
+; addresses, Poppy silently truncates/corrupts whatever ran into them
+; instead of erroring (see poppy_assembler_bugs.md). The $FF00 push was not
+; enough headroom for scpu_main_loop's own growth either: once its jsr list
+; grew to include jsr Anim_Play, the loop body's compiled length reached
+; exactly $FF00 with zero bytes free, silently truncating `jsr Anim_Play`
+; and the trailing `bra scpu_main_loop` entirely -- execution just fell
+; through into nmi_handler's `jsr Core_Nmi_Play`/`rti` every iteration
+; instead. Confirmed via Mesen's trace-based disassembler (Anim_Play's
+; address was never marked as executed) and by live-disassembling
+; scpu_main_loop's actual tail, which showed the last traced instruction
+; landing exactly at $FF00. build_rom.py's NMI/IRQ vector constants were
+; updated to match -- these addresses are load-bearing, keep them in sync.
+; Still comfortably below $FFE4 (native vector table).
+.org $FF20
 nmi_handler:
     jsr Core_Nmi_Play
     rti
 
-.org $FF10
+.org $FF30
 irq_handler:
     rti
