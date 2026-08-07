@@ -3230,6 +3230,86 @@ Anim_LoadCharacter__slot_ok:
     adc.l AnimHeaderStaging+15
     sta.l Anim_AttackMsuBaseHi
 
+    ; --- Palette (Phase 2 step 2): seek to this character's data_offset
+    ; (AnimHeaderStaging+8/9/10 -- still the raw record bytes here, untouched
+    ; since idle_base's own read above only computed idle_base = data_offset
+    ; + 32 into separate WRAM cells, never writing back into +8/9/10) and
+    ; stream the 32-byte palette (16 BGR555 colors) into AnimPaletteStaging.
+    ; Same seek+busy-poll+read-loop shape as the header/record reads above,
+    ; just a different length/destination. Replaces the old hardcoded
+    ; 16-immediate CGRAM block scpu_boot used to have (see msu1_done). ---
+    sep #$20
+.a8
+    lda.l AnimHeaderStaging+8
+    sta $2000
+    lda.l AnimHeaderStaging+9
+    sta $2001
+    lda.l AnimHeaderStaging+10
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__palette_busy:
+    lda $2000
+    bmi Anim_LoadCharacter__palette_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_LoadCharacter__palette_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l AnimPaletteStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0020
+    bcc Anim_LoadCharacter__palette_read
+
+    ; --- Enqueue a queued CGRAM DMA of the streamed palette (color 0, 32
+    ; bytes = 16 colors) -- queued (not direct $2122 writes) so the exact
+    ; same code path works at boot (flushed synchronously right after this
+    ; call via Core_Dma_ProcessQueue, see msu1_done) and at live reselect
+    ; (drained normally by Core_Nmi_Play during vblank, see Anim_Play). Same
+    ; DmaRequest_* field shape Anim_CommitFrame/Msu1_LoadFrame use, just
+    ; DMA_TYPE_CGRAM instead of DMA_TYPE_VRAM. ---
+    lda #AnimPaletteStaging
+    sta.l DmaRequest_SourceAddrLow
+    lda #0
+    sta.l DmaRequest_TargetAddr    ; CGRAM byte address 0 = color 0
+    lda #32
+    sta.l DmaRequest_Length
+    sep #$20
+.a8
+    lda #$7E
+    sta.l DmaRequest_SourceBank
+    lda #DMA_TYPE_CGRAM
+    sta.l DmaRequest_TypeFlags
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_Enqueue
+
+    ; --- Load succeeded: mark loaded, reset to idle, and force an
+    ; immediate frame-0 render (frame -1 wraps to 0 via the 8-bit inc in
+    ; Anim_Play_Idle, same "force immediate advance" trick Anim_Play's own
+    ; animation-switch path uses) rather than showing stale/blank VRAM for
+    ; up to a full Anim_IdleDelay ticks after a (re)load. ---
+    sep #$20
+.a8
+    lda #1
+    sta.l CharSelect_Loaded
+    lda #0
+    sta.l Anim_Selected
+    lda #$FF
+    sta.l Anim_FrameIndex
+    lda #1
+    sta.l Anim_TickCounter
+
     rep #$31
 .a16
 .i16
@@ -3417,143 +3497,20 @@ scpu_clear_ppu:
     sta $420D               ; MEMSEL: FastROM
 
     ; --- CGRAM palette row 0 ---
-    ; Inline immediates (16 explicit lda #imm loads) -- no ROM data table
-    ; at all this time, not just non-indexed addressing. cgram_table as a
-    ; standalone .dw block, placed either at the tail of the file or right
-    ; after the .incbin, or before scpu_boot, kept assembling to wrong or
-    ; corrupted bytes regardless of placement or of avoiding `,x`-indexed
-    ; reads (see poppy_assembler_bugs.md). Baking the 16 BGR555 values
-    ; directly into the instruction stream as immediates sidesteps data-
-    ; table emission entirely.
-    stz $2121               ; CGRAM address = color 0
-    rep #$20
-.a16
-    lda #$0000
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$537F
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$3ADE
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$1DFB
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$1556
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$1DAC
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$1508
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$2107
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$0000
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$08C8
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$00AE
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$0016
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$000D
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$04A4
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$14A3
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
-    rep #$20
-.a16
-    lda #$0000
-    sep #$20
-.a8
-    sta $2122
-    xba
-    sta $2122
+    ; Was 16 hardcoded lda #imm/$2122 immediates (no ROM data table -- see
+    ; poppy_assembler_bugs.md for why a standalone .dw table wasn't an
+    ; option). Now streamed from the MSU-1 roster instead: Anim_LoadCharacter
+    ; (called earlier, at msu1_done, right after track-select) already
+    ; queued this character's palette as a DMA_TYPE_CGRAM transfer via
+    ; Core_Dma_Enqueue. Flushed synchronously here (not left for the first
+    ; real NMI) because forced blank is guaranteed active at this exact
+    ; point (just asserted a few lines up) and nothing else is queued yet
+    ; this boot -- Core_Dma_ProcessQueue itself has no NMI-context
+    ; dependency (see its header), so calling it directly is safe. Live
+    ; reselect (Anim_Play, Select button) reuses the exact same
+    ; Anim_LoadCharacter enqueue path and lets Core_Nmi_Play drain it
+    ; normally instead, since forced blank isn't guaranteed there.
+    jsr Core_Dma_ProcessQueue
     rep #$20
 .a16
 
