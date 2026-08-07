@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Verify the persistent SA-1 recomposite loop + per-frame CC-DMA pump.
+"""Verify the persistent SA-1 recomposite loop + per-frame CC-DMA pump,
+scaled to 3 blits (72 tiles) -- the "how many at once" step.
 
 Ground truth for the VRAM comparison is a from-scratch reimplementation of
 Sa1::ReadCharConvertType1 (Mesen2 Core/SNES/Coprocessors/SA1/Sa1.cpp
@@ -9,34 +10,35 @@ emulator's own state, so a disagreement is our bug, not the harness's.
 Checks:
   1. Sa1LoopCounter ($7E2342, mirrored from I-RAM $21 every frame)
      strictly increases -- the SA-1 loop is live and the handshake cycles.
-  2. CanvasChunkOffset ($7E2340) stays in {0,32,...,$5E0} and advances
-     ~32/frame mod $600 -- the pump runs and its completion-reset works
-     (deltas of 24/25/26 tiles tolerated: the pass boundary can land
-     anywhere inside a 25-frame sampling window).
+  2. CanvasChunkOffset ($7E2340) stays in {0,32,...,$8E0} and advances
+     ~32/frame mod $900 -- the pump runs and its completion-reset works
+     (deltas of 20-28 tiles tolerated: the pass boundary can land anywhere
+     inside a 25-frame sampling window).
   3. VRAM window A (tiles 1-24 @ word $2010) -- each tile must equal the
      blit-A conversion OR the AnimFrameStaging frame ($7E2000, the last
-     MSU-1-streamed character frame). The anim pipeline legitimately
-     owns chars 1-24 too (ANIM_VRAM_DEST_BYTE = $4020 -- legacy design
-     where they double as the animated character's display tiles), so
-     window A is a per-tile mix of the two writers; a tile matching
-     neither means a real corruption.
-  4. VRAM window B (tiles 25-48 @ word $2190) matches the expected
-     conversion of blit B byte-exactly -- the anim pipeline never touches
-     chars 25-48, so this is the strict end-to-end proof that the pump's
-     CC-DMA reads + VRAM writes land.
+     MSU-1-streamed character frame). The anim pipeline legitimately owns
+     chars 1-24 too (ANIM_VRAM_DEST_BYTE = $4020 -- legacy design where
+     they double as the animated character's display tiles), so window A
+     is a per-tile mix of the two writers; a tile matching neither means a
+     real corruption.
+  4. VRAM windows B (tiles 25-48 @ word $2190) and C (tiles 49-72 @ word
+     $2310, the new 3rd blit) match the expected conversion byte-exactly --
+     the anim pipeline never touches those char ranges, so this is the
+     strict end-to-end proof that the pump's CC-DMA reads + VRAM writes
+     land for all three blits.
   5. Screenshot (informational, not gating): the strip (cols 0-63, rows
-     0-47) rendered from VRAM+tilemap+CGRAM is compared against the
-     actual screenshot. Reports a pre-existing ~16-19 row black band at
-     the top of every frame (confirmed present at this branch's
-     committed HEAD, and still present with this session's pump
-     disabled entirely -- it is Core_Nmi_Play's own commit bracket being
-     outpaced by this branch's MSU-1-streaming/2-sprite workload, not
-     anything from the persistent-loop pump; see the
-     ccdma_validated_nmi_timing_bug project memory). Outside the band,
-     an exact pixel match isn't achievable through this harness's
-     screenshot path (Mesen appears to apply a display filter this
-     script's raw bitplane decode doesn't model), so this check is
-     informational only -- checks 1-4 above are the real proof.
+     0-95, now 12 tile-rows tall to cover window C below A/B) rendered from
+     VRAM+tilemap+CGRAM is compared against the actual screenshot. Reports
+     a pre-existing ~16-19 row black band at the top of every frame
+     (confirmed present at this branch's committed HEAD before the
+     persistent loop existed at all -- it is Core_Nmi_Play's own commit
+     bracket being outpaced by this branch's MSU-1-streaming/2-sprite
+     workload, not anything from this pump; see the
+     ccdma_validated_nmi_timing_bug project memory). Outside the band, an
+     exact pixel match isn't achievable through this harness's screenshot
+     path (Mesen appears to apply a display filter this script's raw
+     bitplane decode doesn't model), so this check is informational only
+     -- checks 1-4 above are the real proof.
 """
 import os
 import sys
@@ -51,6 +53,9 @@ MAIN_BIN = os.path.join(REPO, 'src', 'main.bin')
 MESEN = r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe'
 
 BLOB_SIZE = 32 * 48      # 1536 bytes, values 0..15 (indexed-color GIF conversion)
+N_BLITS = 3
+N_TILES = 24 * N_BLITS   # 72
+CANVAS_BYTES = 768 * N_BLITS   # 2304 = $0900
 
 
 def find_blob(data, size=BLOB_SIZE):
@@ -65,10 +70,12 @@ def find_blob(data, size=BLOB_SIZE):
 
 
 def build_canvas(blob):
-    """Real BW-RAM canvas: 2px/byte nibble-packed, blit A at byte 0..767,
-    blit B at byte 768..1535 (window offset +$600 halves to +$300 real)."""
-    canvas = bytearray(1536)
-    for base in (0, 768):
+    """Real BW-RAM canvas: 2px/byte nibble-packed, one copy of the sprite
+    per blit (blit A at real byte 0, B at 768, C at 1536 -- window offsets
+    0/$600/$C00 each halve to 0/$300/$600 real bytes)."""
+    canvas = bytearray(768 * N_BLITS)
+    for blit in range(N_BLITS):
+        base = blit * 768
         for x in range(1536):
             px = blob[x] & 0x0F
             b = base + (x >> 1)
@@ -79,7 +86,7 @@ def build_canvas(blob):
     return bytes(canvas)
 
 
-def convert_tiles(canvas, n_tiles=48):
+def convert_tiles(canvas, n_tiles=N_TILES):
     """Type 1 conversion for 4bpp, width=2 (4 tiles/line), SDA=$3000.
     Per tile: src = tileY*128 + tileX*4; row y reads 4 bytes at src+y*16
     (byte j = plane j); pixel x = low/high nibble of byte x>>1.
@@ -104,18 +111,19 @@ def expand5(c):
     return (c << 3) | (c >> 2)   # Mesen's 5->8 bit channel expansion
 
 
-def render_strip(tm, vram_a, vram_b, cgram):
-    """Render the BG2 strip (cols 0-63, rows 0-47) from ground truth:
-    tilemap entries at word $5C00, chars 1-48, CGRAM palette."""
-    strip = [[None] * 64 for _ in range(48)]
-    for ty in range(6):
+def render_strip(tm, windows, cgram, tile_rows=12):
+    """Render the BG2 strip (cols 0-63, rows 0..tile_rows*8-1) from ground
+    truth: tilemap entries at word $5C00, chars 1-72 across `windows`
+    (a list of 24-tile VRAM buffers, one per blit window), CGRAM palette."""
+    strip = [[None] * 64 for _ in range(tile_rows * 8)]
+    for ty in range(tile_rows):
         for tx in range(8):
             e = tm[ty * 64 + tx * 2] | (tm[ty * 64 + tx * 2 + 1] << 8)
             tile = e & 0x3FF
-            if tile == 0 or tile > 48:
+            if tile == 0 or tile > 24 * len(windows):
                 continue
-            src = vram_b if tile > 24 else vram_a
-            tt = src[(tile - 1 - (24 if tile > 24 else 0)) * 32:]
+            window_idx, local = divmod(tile - 1, 24)
+            tt = windows[window_idx][local * 32:]
             for y in range(8):
                 for x in range(8):
                     v = 0
@@ -141,10 +149,11 @@ def main():
     assert blob == rom_data[find_blob(rom_data):][:BLOB_SIZE], \
         'ROM blob disagrees with main.bin blob'
     expected = convert_tiles(build_canvas(blob))
-    exp_a = expected[0:24 * 32]          # tiles 0-23 (window A)
-    exp_b = expected[24 * 32:48 * 32]    # tiles 24-47 (window B)
-    print(f'blob ok ({BLOB_SIZE}B), expected conversion computed '
-          f'({len(expected)}B)')
+    exp_a = expected[0:24 * 32]           # tiles 0-23  (window A)
+    exp_b = expected[24 * 32:48 * 32]     # tiles 24-47 (window B)
+    exp_c = expected[48 * 32:72 * 32]     # tiles 48-71 (window C, new)
+    print(f'blob ok ({BLOB_SIZE}B), expected {N_BLITS}-blit conversion '
+          f'computed ({len(expected)}B)')
 
     fails = []
     with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
@@ -158,15 +167,16 @@ def main():
             m.resume()
             m.run_frames(25)
         m.pause()
-        ok_set = all(o in range(0, 0x600, 32) for o in offsets)
-        ok_advance = all(32 * 20 <= ((b - a) % 0x600) <= 32 * 28
+        ok_set = all(o in range(0, CANVAS_BYTES, 32) for o in offsets)
+        ok_advance = all(32 * 20 <= ((b - a) % CANVAS_BYTES) <= 32 * 28
                          for a, b in zip(offsets, offsets[1:]))
         ok_count = counters[-1] >= counters[0] + 3
         print('offset samples:', [f'0x{o:04X}' for o in offsets])
         print('counter samples:', [f'{c}' for c in counters])
-        print(f'  offsets in {{0,32,..,$5E0}}: {ok_set}')
-        print(f'  offset advances ~32/frame (mod $600, 20-28 tiles/25fr '
-              f'window to tolerate the pass-boundary reset): {ok_advance}')
+        print(f'  offsets in {{0,32,..,${CANVAS_BYTES-32:04X}}}: {ok_set}')
+        print(f'  offset advances ~32/frame (mod ${CANVAS_BYTES:04X}, '
+              f'20-28 tiles/25fr window to tolerate the pass-boundary '
+              f'reset): {ok_advance}')
         print(f'  Sa1LoopCounter +{counters[-1] - counters[0]} over '
               f'{(8 - 1) * 25 + 60} frames (need >=3): {ok_count}')
         fails += ['offset set'] * (not ok_set)
@@ -181,7 +191,9 @@ def main():
         # match neither. Retry a few times: a real bug fails every time,
         # a sampling race clears within a couple of frames.
         vram_b = m.read_memory('snesVideoRam', 0x4320, 24 * 32)   # word $2190
+        vram_c = m.read_memory('snesVideoRam', 0x4620, 24 * 32)   # word $2310
         ok_b = vram_b == exp_b
+        ok_c = vram_c == exp_c
         for attempt in range(5):
             vram_a = m.read_memory('snesVideoRam', 0x4020, 24 * 32)  # word $2010
             staging = m.read_memory('snesMemory', 0x7E2000, 768)     # anim frame
@@ -203,26 +215,34 @@ def main():
               f'ANIM_VRAM_DEST_BYTE=$4020 collision): {ok_a}')
         print(f'VRAM window B @$4320 ({len(vram_b)}B) matches expected '
               f'byte-exactly: {ok_b}')
-        if not ok_b:
-            bad = [i for i, (x, y) in enumerate(zip(vram_b, exp_b))
-                   if x != y]
-            print(f'  first {len(bad)} mismatches: {bad[:12]}')
+        print(f'VRAM window C @$4620 ({len(vram_c)}B, new 3rd blit) '
+              f'matches expected byte-exactly: {ok_c}')
+        for name, ok, vram, exp in (('B', ok_b, vram_b, exp_b),
+                                     ('C', ok_c, vram_c, exp_c)):
+            if ok:
+                continue
+            bad = [i for i, (x, y) in enumerate(zip(vram, exp)) if x != y]
+            print(f'  window {name} first {len(bad)} mismatches: {bad[:12]}')
             for i in bad[:6]:
-                print(f'    byte {i}: got {vram_b[i]:02X} want {exp_b[i]:02X}')
+                print(f'    byte {i}: got {vram[i]:02X} want {exp[i]:02X}')
         fails += ['vram A'] * (not ok_a)
         fails += ['vram B'] * (not ok_b)
+        fails += ['vram C'] * (not ok_c)
 
         # --- 5: screenshot vs ground-truth render of the strip ---
-        tm = m.read_memory('snesVideoRam', 0xB800, 32 * 2 * 6)
+        TILE_ROWS = 12
+        tm = m.read_memory('snesVideoRam', 0xB800, 32 * 2 * TILE_ROWS)
         cgram = m.read_memory('snesCgram', 0, 0x200)
         shot = m.take_screenshot()
         path = shot['path'] if isinstance(shot, dict) else shot
         img = Image.open(path).convert('RGB')
         spx = img.load()
-        strip = render_strip(tm, vram_a, vram_b, cgram)
+        strip = render_strip(tm, [vram_a, vram_b, vram_c], cgram,
+                             tile_rows=TILE_ROWS)
+        n_rows = TILE_ROWS * 8
         tot = ok = tot_nb = ok_nb = 0
         band_rows = []
-        for y in range(48):
+        for y in range(n_rows):
             content = sum(1 for x in range(64) if strip[y][x] is not None)
             blacked = sum(1 for x in range(64)
                          if strip[y][x] is not None and spx[x, y] == (0, 0, 0))
@@ -246,13 +266,12 @@ def main():
         if band:
             print('  content-rows-gone-black = a KNOWN, PRE-EXISTING '
                   'forced-blank/vblank-commit overrun (confirmed present '
-                  'at this branch\'s committed HEAD, before this session\'s '
-                  'pump existed, and still present with the pump\'s jsr '
-                  'disabled -- see ccdma_validated_nmi_timing_bug memory). '
-                  'Not caused by this task and not gating pass/fail here; '
-                  'tracked as a separate defect.')
+                  'at this branch\'s committed HEAD, before the persistent '
+                  'loop existed at all -- see ccdma_validated_nmi_timing_bug '
+                  'memory). Not caused by this task and not gating '
+                  'pass/fail here; tracked as a separate defect.')
         if frac_nb <= 0.9:
-            for y in range(48):
+            for y in range(n_rows):
                 if y in band_rows:
                     continue
                 s = ''.join('#' if spx[x, y] != (0, 0, 0) else '.'
@@ -262,7 +281,6 @@ def main():
                 if s != r:
                     print(f'    row {y} shot {s}')
                     print(f'          rend {r}')
-        if frac_nb <= 0.9:
             print('  NOTE: not gating on this -- even after correcting the '
                   'RGB555->888 expansion, a residual soft/shifted mismatch '
                   'remains outside the band, consistent with Mesen\'s '

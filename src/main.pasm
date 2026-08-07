@@ -10,7 +10,7 @@ BW_CANVAS   = $606000   ; canvas: 128x96 4bpp linear at SA-1 BW-RAM $60:6000
 ; Per-frame CC-DMA canvas pump state (S-CPU side, see Scpu_CcdmaPump in the
 ; SA-1 region below):
 CanvasChunkOffset = $7E2340   ; .dw -- next 32-byte tile offset into the
-                                 ;        48-tile canvas (0..$05E0)
+                                 ;        72-tile canvas (0..$08E0)
 Sa1LoopCounter    = $7E2342   ; .db -- SA-1 recomposite cycle counter,
                                  ;        mirrored from I-RAM $3000 every frame
 PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
@@ -83,12 +83,15 @@ sa1_clear:
 ; recomposites the shared BW-RAM canvas and RE-ARMS CC-DMA live, more than
 ; the single boot-time shot the old sa1_spin offered. Each iteration:
 ;
-;   1. Re-draws two static 32x48 blits into the canvas (blit A at
-;      BW_CANVAS+0, blit B at BW_CANVAS+$600), pixel-by-pixel through the
-;      $60-6F "always bitmap mode" window. $600 window bytes = $300 real
-;      bytes = 24 tiles, so blit B lands at real BW-RAM offset $3300,
-;      contiguous with blit A's tiles 0-23 at real $3000: the canvas is one
-;      48-tile (1536-byte) region, tiles 0-47.
+;   1. Re-draws three static 32x48 blits into the canvas (blit A at
+;      BW_CANVAS+0, blit B at BW_CANVAS+$600, blit C at BW_CANVAS+$C00),
+;      pixel-by-pixel through the $60-6F "always bitmap mode" window. $600
+;      window bytes = $300 real bytes = 24 tiles, so blit B lands at real
+;      BW-RAM offset $3300 and blit C at real $3600, each contiguous with
+;      the previous blit's tiles: the canvas is one 72-tile (2304-byte)
+;      region, tiles 0-71. This is the "how many at once" scaling step --
+;      three independently-drawn, independently-converted software sprites
+;      sharing one recomposite pass and one CC-DMA arm/pump cycle.
 ;   2. Re-arms CC-DMA Type 1 (the full register sequence, same as the old
 ;      boot code -- it is cheap and self-documenting). Conversion itself
 ;      stays READ-TRIGGERED: the $2236 write only re-sets CharConvDmaActive
@@ -97,7 +100,7 @@ sa1_clear:
 ;      $40-4F window.
 ;   3. Waits for the S-CPU to consume the whole canvas, then redraws. The
 ;      release is an I-RAM mailbox: the pump writes $AA to $3025 once all
-;      48 tiles are in VRAM (Scpu_CcdmaPump) and the SA-1 polls that byte.
+;      72 tiles are in VRAM (Scpu_CcdmaPump) and the SA-1 polls that byte.
 ;      The S-CPU gates its pump on SFR bit 5 (which IT can read); the SA-1
 ;      cannot read SFR $2300 at all (its own register window has no 0x2300
 ;      case -- Mesen2 Sa1RegisterRead -- so that read is open bus, and the
@@ -112,7 +115,7 @@ sa1_clear:
 ; I-RAM $0000-$001F). That only happens while the S-CPU pumps (flag set,
 ; this loop waiting), and every DP cell here is re-initialized before each
 ; draw, so no stale value ever crosses a wait boundary. I-RAM $20/$21 are
-; above that staging band: $20 = phase canary (1..5, see below), $21 = the
+; above that staging band: $20 = phase canary (1..6, see below), $21 = the
 ; recomposite cycle counter (the old `inc $3000` aliased DP $00 through the
 ; I-RAM window's & $7FF mapping AND got stomped by the staging every tile;
 ; $21 is outside both hazards).
@@ -143,10 +146,22 @@ sa1_loop:
     sta $06
     jsr sa1_draw_blit
 
-    ; --- phase canary 3: blit B done, about to arm ---
+    ; --- phase canary 3: blit B done ---
     sep #$20
 .a8
     lda #$03
+    sta $20
+    rep #$20
+.a16
+    ; --- blit C: same sprite at BW_CANVAS+$C00 ---
+    lda #$0C00
+    sta $06
+    jsr sa1_draw_blit
+
+    ; --- phase canary 4: blit C done, about to arm ---
+    sep #$20
+.a8
+    lda #$04
     sta $20
     rep #$20
 .a16
@@ -206,7 +221,7 @@ sa1_loop:
     ; I-RAM $21, not $3000: $3000 maps (via the I-RAM window's & $7FF) to
     ; I-RAM $0000 = SA-1 DP byte $00 AND is overwritten every tile by CC-DMA
     ; staging; $21 sits above the staging band and below the stack.
-    lda #$04                ; phase canary 4: armed, about to wait
+    lda #$05                ; phase canary 5: armed, about to wait
     sta $20
     inc $21
 
@@ -217,11 +232,11 @@ sa1_loop:
     ; SA-1 falls through to open bus, and bit 5 of that value reads stuck
     ; set here. The S-CPU can see the flag (it pumps on it), but the SA-1
     ; physically cannot, so the old SFR-wait could never release the loop.
-    ; Instead: the S-CPU's pump writes $AA to I-RAM $3025 once all 48 tiles
+    ; Instead: the S-CPU's pump writes $AA to I-RAM $3025 once all 72 tiles
     ; are in VRAM (see Scpu_CcdmaPump), and the SA-1 polls that byte -- the
     ; proto-mailbox from spec §3.8 (RENDER_START / CANVAS_READY) in its
     ; smallest form. The SA-1 clears the mailbox before redrawing, so the
-    ; pump's next completion (48 frames later) cannot be mistaken for this
+    ; pump's next completion (72 frames later) cannot be mistaken for this
     ; one, and the pump still gates on SFR bit 5 for its own start signal.
     nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_wait:
@@ -230,12 +245,13 @@ sa1_wait:
     bne sa1_wait
     stz $25                 ; acknowledge: clear the mailbox (own I-RAM
                             ; window; CIWP $FF set at boot permits it)
-    lda #$05                ; phase canary 5: wait exited, loop will re-arm
+    lda #$06                ; phase canary 6: wait exited, loop will re-arm
     sta $20
     bra sa1_loop
 
 ; --- Draw one 32x48 blit of TestSprite32x48 into the canvas ---
-; Caller (sa1_loop) sets $06 = blit base offset in window units (0 or $600)
+; Caller (sa1_loop) sets $06 = blit base offset in window units (0, $600, or
+; $0C00)
 ; and must be in .a16/.i16; exits .a16/.i16. Source data is byte-per-pixel
 ; (one byte = one pixel, color index in the low nibble); the bitmap window
 ; auto-packs two pixels per real byte at HALF the window offset, so drawing
@@ -303,11 +319,11 @@ sa1_draw_col_loop:
 ; Core_Nmi_WaitFrame, so its VRAM writes land in the vblank tail rather than
 ; mid-active-display. Converts and copies ONE 32-byte tile per frame while
 ; the SA-1's canvas-ready flag is set (SFR $2300 bit 5 = CharConvIrqFlag),
-; and clears that flag (SIC $2202 bit 5) once the full 48-tile canvas
-; (1536 bytes, both 4x6 windows) is in VRAM -- releasing the SA-1 to
-; recomposite the next canvas. Full refresh therefore takes 48 frames;
+; and clears that flag (SIC $2202 bit 5) once the full 72-tile canvas
+; (2304 bytes, three 4x6 windows) is in VRAM -- releasing the SA-1 to
+; recomposite the next canvas. Full refresh therefore takes 72 frames;
 ; a one-tile-per-frame chunk keeps this inside the vblank tail (16 word-
-; reads + 16 word-writes ~= 400 cycles), which a full 1536-byte pump would
+; reads + 16 word-writes ~= 400 cycles), which a full 2304-byte pump would
 ; blow out by an order of magnitude.
 ;
 ; The conversion is stateless per read (Mesen2 core: CpuBwRamHandler::Read
@@ -403,7 +419,7 @@ Scpu_CcdmaPump_Write:
     rep #$20
 .a16
     txa
-    cmp #$0600              ; 1536 bytes = 48 tiles (both 4x6 windows)
+    cmp #$0900              ; 2304 bytes = 72 tiles (three 4x6 windows)
     bcc Scpu_CcdmaPump_Keep
     sep #$20
 .a8
@@ -3812,13 +3828,16 @@ scpu_bg2_blank:
     ; flag only the per-frame pump consumes. The first main-loop frame
     ; simply pumps the canvas sa1_main armed at boot (flag set at boot).
 
-    ; --- BG2 tilemap at word $5C00: two 4x6 sprite windows (rest blank) ---
+    ; --- BG2 tilemap at word $5C00: three 4x6 sprite windows (rest blank) ---
     ; Entries (ty<6, tx<8): window A (tx<4) = tile ty*4+tx+1; window B
     ; (tx>=4) = tile ty*4+tx+21 -- +20 = the 24 tiles window A occupies
     ; (tiles 0-23 at real BW-RAM $3000), so window B's tiles 24-47 at
-    ; real BW-RAM $3300 are contiguous. Both windows priority 1 ($2000
-    ; bit). Matches the 48-tile canvas the SA-1 recomposite loop now
-    ; produces (see the blit layout comments at sa1_loop above).
+    ; real BW-RAM $3300 are contiguous. A third window C (6<=ty<12, tx<4,
+    ; directly below window A) = tile (ty-6)*4+tx+49 -- the next 24 tiles
+    ; (48-71 zero-indexed, i.e. tile IDs 49-72) at real BW-RAM $3600,
+    ; contiguous with window B. All three windows priority 1 ($2000 bit).
+    ; Matches the 72-tile canvas the SA-1 recomposite loop now produces
+    ; (see the blit layout comments at sa1_loop above).
     rep #$20
 .a16
     lda #$5C00
@@ -3830,7 +3849,7 @@ scpu_tm_row:
     nop
 scpu_tm_col:
     cpy #$0006
-    bcs scpu_tm_blank
+    bcs scpu_tm_maybe_c
     cpx #$0008
     bcs scpu_tm_blank
     tya
@@ -3848,6 +3867,25 @@ scpu_tm_col:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 scpu_tm_win_a:
     ora #$2000              ; priority 1
+    bra scpu_tm_write
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_tm_maybe_c:
+    cpy #$000C
+    bcs scpu_tm_blank
+    cpx #$0004
+    bcs scpu_tm_blank
+    tya
+    sec
+    sbc #$0006               ; local ty = ty - 6
+    asl
+    asl                      ; local ty * 4
+    sta $00                  ; DP scratch
+    txa
+    clc
+    adc $00
+    clc
+    adc #$0031               ; window C: +49 tiles (see comment above)
+    ora #$2000               ; priority 1
     bra scpu_tm_write
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 scpu_tm_blank:
