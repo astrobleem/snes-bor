@@ -2003,6 +2003,30 @@ AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
 Anim_Play:
     sep #$20
 .a8
+    ; Live character reselect: Select button, edge-triggered (Input_trigger,
+    ; not Input_press, per core/input.pasm's $4218 layout comment "B Y Sel
+    ; Start U D L R | A X L R 0000" -- Select is bit13 overall = bit5 of the
+    ; high byte) so holding it doesn't re-trigger every frame, same
+    ; convention as the Y-button attack trigger below. Checked before the
+    ; CharSelect_Loaded gate so a slot that failed to load (e.g. MSU absent,
+    ; or this slot's data invalid) can still be retried via a different
+    ; slot rather than getting stuck.
+    lda.l Input_trigger+1
+    and #$20
+    beq Anim_Play__no_reselect
+    lda.l CharSelect_Index
+    inc a
+    cmp.l CharSelect_RosterCount
+    bcc Anim_Play__reselect_ok
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__reselect_ok:
+    sta.l CharSelect_Index
+    jsr Anim_LoadCharacter        ; sets/restores its own widths, see its header
+    sep #$20
+.a8
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__no_reselect:
     ; Nothing loaded (MSU-1 absent, or the current slot's data is invalid --
     ; see Anim_LoadCharacter) -- skip the whole dispatch below rather than
     ; streaming from a zeroed/garbage MSU base every tick.
