@@ -2918,12 +2918,27 @@ Player_PlayFrame__store_y:
 ; ============================================================================
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_LoadCharacter:
+    ; php/sei here, plp before each of this routine's two rts below: this
+    ; runs at boot (before NMITIMEN is ever enabled, so unprotected was
+    ; fine there) but ALSO from Anim_Play on live Select-button reselect,
+    ; during real gameplay with NMI active every frame. Its several
+    ; register-carrying read loops (header/record/palette, all using X as a
+    ; running byte count across many iterations) are exactly the shape that
+    ; bit Msu1_LoadFrame when unprotected -- nmi_handler doesn't save/
+    ; restore A/X/Y, so an NMI landing mid-loop would clobber the count and
+    ; corrupt WRAM. Same fix, same convention as Msu1_LoadFrame/
+    ; Core_Dma_Enqueue: plp restores the caller's original interrupt-enable
+    ; state but also clobbers M/X back to entry's, hence the explicit
+    ; rep #$31/.a16/.i16 re-assert after each plp, not relying on plp alone.
+    php
+    sei
     sep #$20
 .a8
     lda.l Msu1Present
     bne Anim_LoadCharacter__msu_ok
     lda #0
     sta.l CharSelect_Loaded
+    plp
     rep #$31
 .a16
 .i16
@@ -3074,6 +3089,7 @@ Anim_LoadCharacter__record_read:
     ; compute in that case; leave CharSelect_Loaded=0 and bail.
     lda.l Anim_IdleFrameCount
     bne Anim_LoadCharacter__slot_ok
+    plp
     rep #$31
 .a16
 .i16
@@ -3250,6 +3266,7 @@ Anim_LoadCharacter__palette_read:
     lda #1
     sta.l Anim_TickCounter
 
+    plp
     rep #$31
 .a16
 .i16
