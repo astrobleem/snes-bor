@@ -9,62 +9,65 @@ bugs, the OBSEL/hi-table bring-up story, harness quirks) lives in this
 project's Claude memory files, not here — see the pointers at the bottom of
 each section below.
 
-## Since this file was last rewritten (not yet folded into "Current state"
-below, which predates all of this)
+## MSU-1 runtime character-select: Phases 0-2 all complete
 
-Everything in "Current state" below is still accurate but was written
-*before* three commits that a prior session made and pushed just before a
-power outage lost that session's window (git history and PR #3, "MSU-1
-runtime character-select: Phase 0 de-risk + Phase 1 roster packer", survived
-fine — only this file's narrative was left stale):
+The full plan (streaming characters from `bor.msu` at runtime instead of
+baking exactly one into the ROM at build time) is now implemented and
+verified end-to-end, across PR #3 (merged, Phase 0 de-risk + Phase 1 roster
+packer + Phase 2 step 1) and this session's branch
+`phase2-palette-cgram-streaming` (Phase 2 steps 2-4):
 
-- **`pack_msu_roster.py`** (Phase 1): packs up to 8 characters' idle/walk/
-  attack data into a single `.msu` file with a directory of frame counts/
-  delays/byte offsets. `build_rom.py` now packs Ralf+JHUN into `bor.msu`
-  through it instead of the old ASCII placeholder.
-- **`Anim_LoadCharacter`** (Phase 2, step 1): boot-time MSU-1 roster
-  header/directory-record seek+read+parse and 24-bit idle/walk/attack MSU
-  base-offset computation, called from `scpu_boot` right after track-select.
-  Deliberately stops short of streaming the palette/enqueuing CGRAM DMA —
-  that's a later step. `CharSelect_Loaded` stays `0` throughout this version
-  by design, not as a failure signal.
-- **A suspected `scpu_boot` hang was debunked**: it was a Mesen2 test
-  harness pointed at the *main checkout's* `distribution/bor.sfc` from
-  inside this worktree, silently testing a stale, unrelated ROM.
-  `CLAUDE.md`'s testing snippet now derives `ROM` from the working
-  directory instead of hardcoding that path.
-- **The real bug that surfaced once testing pointed at the right ROM —
-  `CharSelect_RosterCount` reading `0` instead of the real `2` — is now
-  fixed** (this session, after the outage). Root cause was a Poppy silent
-  miscompile, not the MSU-1 hardware/seek mechanism: `Anim_LoadCharacter__
-  msu_ok` is reached via a `bne` that jumps around an earlier `rep #$31`,
-  so the CPU is still 8-bit-accumulator at runtime there, but Poppy's
-  linear (non-control-flow-aware) `.a8`/`.a16` width tracking mis-sized the
-  label's first `lda #0` as a 3-byte 16-bit immediate anyway — the leftover
-  byte decoded as a stray `BRK` at runtime, hijacking execution before the
-  seek ever ran. Confirmed via a raw hex dump of the assembled ROM (not
-  inferred from behavior), fixed with a redundant `sep #$20`. Full account
-  in [[poppy_assembler_bugs]] memory (bug 10) and in `main.pasm`'s
-  `Anim_LoadCharacter__msu_ok` comment. Verified: `CharSelect_RosterCount`
-  reads `2` every run, all three `tools/rom_audit/*.py` clean, OAM sprite0/
-  sprite1 still byte-exact (`[120,100,0,48]`/`[120,150,0,48]`/hi-byte `$0A`
-  — a diagnostic probe used mid-investigation briefly regressed these, but
-  it was reverted and the final committed state is clean). Also resolved as
-  a side effect: [[msu_track_select_seek_ordering_risk]] — an isolated
-  probe proved track-select does not disturb a later data seek, settling
-  that previously-open question. Committed as `e138c56` on this branch.
-- **One loose end noticed but not chased, unrelated to the above**: a
-  Mesen2 `set_input` BTN_RIGHT hold (`port=0`) didn't move sprite 1 in this
-  session's harness, reproduced identically on the pre-fix baseline too —
-  so it's not a regression from this session's work, but it also wasn't
-  confirmed as a pre-existing harness quirk vs. something real. Worth a
-  clean re-check (matching whatever exact `set_input` invocation the
-  session that originally verified dpad movement used) before the next
-  session trusts `set_input`-based behavioral tests here.
-- **Next up for the MSU roster work**: Phase 2's remaining steps (palette
-  streaming + CGRAM DMA enqueue, then playback rewrite, then live reselect)
-  are still not started — `Anim_LoadCharacter` only does the header/record
-  parse so far. PR #3 is still draft.
+- **`pack_msu_roster.py`** (Phase 1): packs up to 8 characters' palette +
+  idle/walk/attack data into a single `.msu` file with a directory of frame
+  counts/delays/byte offsets. `build_rom.py` packs Ralf+JHUN into `bor.msu`.
+- **`Anim_LoadCharacter`**: boot-time (and now live-reselect) MSU-1 roster
+  header/directory-record seek+read+parse, 24-bit idle/walk/attack MSU
+  base-offset computation, **32-byte palette stream + `DMA_TYPE_CGRAM`
+  enqueue**, and `CharSelect_Loaded=1` + a force-immediate-frame-0-render
+  trick on success. Called from `scpu_boot` at boot (flushed synchronously
+  via `Core_Dma_ProcessQueue` right after, replacing the old 16-immediate
+  `$2122` boot block) and from `Anim_Play` on live Select-button reselect.
+- **`Msu1_LoadFrame`** (replaces the old `Anim_CommitFrame`): streams one
+  768-byte frame from a runtime-computed MSU offset (`base +
+  frame_index*768`, same shift-add idiom `Anim_LoadCharacter` uses for
+  walk/attack base math) into `AnimFrameStaging`, then enqueues a
+  WRAM($7E)-sourced VRAM DMA. `Anim_Play_Idle/Walk/Attack`'s old 19 unrolled
+  per-frame-index compare-chain blocks (a workaround for indexed *ROM* data
+  access, which stopped applying once the source became a runtime WRAM
+  value) collapsed into WRAM-driven logic reading `Anim_{Idle,Walk,Attack}
+  FrameCount/Delay/MsuBase`. This deleted `AnimCharIdleFrames`/
+  `AnimCharAttackFrames` (8448 bytes) and walk's ROM blob (6144 bytes) —
+  ~14.6KB freed across the `$C100`-`$FC00` and TAD-gap windows, now that a
+  character's pixel data streams from `bor.msu` instead of being baked in
+  at build time.
+- **Live reselect**: `Anim_Play` checks the Select button (edge-triggered)
+  before its `CharSelect_Loaded` gate, advances `CharSelect_Index` modulo
+  `CharSelect_RosterCount`, and calls `Anim_LoadCharacter` — costs zero
+  bytes in the tight `$FC00`-`$FF20` `scpu_main_loop` window since
+  `Anim_Play` already lives in the roomy `$C100`-`$FC00` window.
+- **Two real bugs found and fixed along the way** (both via Mesen2's trace
+  disassembler / raw-byte comparison, not guessing): a 5th recurrence of
+  Poppy bug #10 (a new guard clause at `Anim_Play`'s top reached its
+  "loaded" label via a branch skipping a `rep`/`sep`, mis-sizing the next
+  `cmp #2`) — see [[poppy_assembler_bugs]]; and a previously-undocumented
+  class of bug, `nmi_handler` not saving/restoring A/X/Y so NMI landing
+  mid-loop during `Msu1_LoadFrame`'s 768-byte read corrupted unrelated
+  WRAM — see the new [[nmi_handler_no_register_save_reentrancy]] memory.
+  Fixed both `Msu1_LoadFrame` and (proactively, before it could bite live
+  reselect) `Anim_LoadCharacter` with `php`/`sei`-at-entry,
+  `plp`-before-`rts`, matching `Core_Dma_Enqueue`'s own established
+  convention.
+- **Verified in Mesen2, byte-exact against the packed `bor.msu`**: CGRAM
+  palette (both slots), streamed VRAM frames (idle/walk/attack, both
+  slots), live reselect swapping Ralf ↔ JHUN and back (palette + frame 0
+  each time), idle cycling, walk/attack/facing all still correct
+  post-reselect, OAM sprites unaffected. All three `tools/rom_audit/*.py`
+  tools clean throughout (0 drift, 0 ownership violations, 0 suspicious
+  jump edges).
+- **Not yet done**: a second, truly *simultaneous* rendered character (BG2
+  compositing) — reselect swaps which single character is loaded/rendered,
+  it doesn't render two at once. Boot always loads slot 0; nothing yet
+  persists the last-selected slot across a reset.
 
 ## Current state (verified working, as of the session before the above)
 
@@ -373,46 +376,55 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 - **The hi-table's X-high bit is unexercised by any real shipped sprite**
   (only by a synthetic WRAM test) — unverified if a sprite ever needs X >=
   256.
-- **No multi-enemy BG2 compositing, no background/level tileset conversion,
-  no MSU-1 asset streaming tied to any of this, no ROM-packing/manifest
-  stage.** Matches the project's stated "not a playable game yet" scope.
+- **No multi-enemy BG2 compositing** (only one character renders at a
+  time — Select swaps which one, doesn't add a second) **and no
+  background/level tileset conversion.** MSU-1 asset streaming itself
+  (palette + all three animations, live reselect) is now done — see
+  "MSU-1 runtime character-select" above. Matches the project's stated
+  "not a playable game yet" scope otherwise.
 - **Cosmetic boot-time "pop"** (static sprite geometry differs briefly from
   animated frames' geometry until `Anim_TickCounter` first reaches 0) — not
-  fixed, not decided.
+  fixed, not decided. Somewhat mitigated for the BG2 character specifically
+  by `Anim_LoadCharacter`'s force-immediate-frame-0-render trick (added
+  this session), which didn't exist when this was last written.
+- **Boot always loads roster slot 0.** Nothing persists a previously-
+  selected slot across a reset (no save state/SRAM involved anywhere yet).
 
 ## Recommended next step
 
-Sprite 1 is fully 2-axis dpad-driven, the BOR animation pipeline is
-pak-agnostic for a single shipped character (validated against a second
-real character, JHUN), the CGRAM palette is unified across idle/walk/
-attack, and both prior sessions' deferred cleanup items are now done
-(`AnimChar*`/`Player_X`/`Player_Y`/`PLAYER_*` renames, and this session's
-`TestSprite_PlayFrame`/`Player_PlayFrame` split — see "Current state"
-above). No small, independent cleanup item remains queued. The next
-session's options are all from "What's NOT done yet," and all of them cost
-real bytes in the `$C100`-`$FC00` window (only ~544 bytes of margin left)
-or need their own ROM-layout decision before any code is written:
+MSU-1 runtime character-select (palette streaming, frame-playback rewrite,
+live reselect) is now fully done — see the section above. Sprite 1 is
+fully 2-axis dpad-driven; the BOR animation pipeline is pak-agnostic and
+now MSU-1-native rather than ROM-baked. No small, independent cleanup item
+remains queued. The `$C100`-`$FC00` window has substantially more slack
+now than at any point in this project's history (Phase 2's deletion of the
+ROM-baked animation blobs freed ~14.6KB) — re-measure via `main.sym` before
+assuming a specific number, but ROM budget is no longer the binding
+constraint it was. The next session's options:
 
 - **Real player entity/state**: give sprite 1 health/hitbox/animation
-  state and actually connect it to Ralf's BG2 animation system (today
-  they're driven by the same input bits but are otherwise unrelated — a
-  solid-red OAM square moving independently of the animated BG2
+  state and actually connect it to the BG2 character animation system
+  (today they're driven by the same input bits but are otherwise unrelated
+  — a solid-red OAM square moving independently of the animated BG2
   character). This is the most natural "move past hardware-plumbing
   proofs" step but is a real design decision (what owns position — OAM,
   BG2 scroll, or both; how hitboxes interact with `core/oop.pasm`'s
   class-based object system), not a mechanical change — plan it
   separately rather than starting mid-session.
-- Multi-enemy BG2 compositing, background/level tileset conversion, or
-  wiring MSU-1 asset streaming to any of this — all still fully unstarted,
-  matching the project's "not a playable game yet" scope.
+- Multi-enemy BG2 compositing, background/level tileset conversion — both
+  still fully unstarted, matching the project's "not a playable game yet"
+  scope.
+- Persisting/restoring `CharSelect_Index` across a reset, if a "remembers
+  your last pick" boot experience is ever wanted (not asked for yet).
 
 ## Harness gotchas (Mesen2 / build)
 
 Full detail lives in project memory ([[mesen-audio-check-nondeterministic]],
 [[mesen-mcp-hook-reliability-gap]], [[mesen-controller-not-configured]],
 [[poppy-assembler-bugs]], [[ccdma-validated-nmi-timing-bug]],
-[[65816-calling-convention-bugs]], [[oam-sprite-bringup]]) — read those
-before spending time rediscovering a harness quirk or Poppy miscompile.
+[[65816-calling-convention-bugs]], [[oam-sprite-bringup]],
+[[nmi-handler-no-register-save-reentrancy]]) — read those before spending
+time rediscovering a harness quirk or Poppy miscompile.
 Quick-reference list of what's easy to trip over fresh:
 
 - `set_input`'s `frames` argument advances the emulator itself — don't
