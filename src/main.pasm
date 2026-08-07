@@ -2956,21 +2956,25 @@ Player_PlayFrame__store_y:
 ; Player_X/Y init fine and the display renders normally. See the
 ; boot-hang-before-player-init memory for the corrected account.
 ;
-; KNOWN REAL BUG, still open: this routine's header seek+read (the first
-; seek+read after the legacy 46-byte MSU-1 probe earlier in scpu_boot) does
-; not reliably return the real file header -- direct WRAM captures of the
-; first byte read from $2001 after the seek show it intermittently/mostly
-; returning stale data consistent with the read pointer never having reset
-; to offset 0 (i.e. continuing from wherever the earlier 46-byte read left
-; it), even though the seek's $2003 write is unconditional in Mesen2's own
-; Msu1::Write (checked against Core/SNES/Coprocessors/MSU1/Msu1.cpp).
-; Ruled out so far: NMI interrupting the unmasked seek sequence (wrapping
-; it in php/sei/plp made no difference); audio track-select/LoadTrack
-; sharing state with the data-port file handle (they use a separate
-; _pcmReader, confirmed in the same source file). Not yet root-caused.
-; CharSelect_RosterCount ends up 0 instead of the real roster_count (2),
-; which anything gating on it (a future Select-button reselect, roster
-; bounds-checking) must not trust yet.
+; FIXED (was "KNOWN REAL BUG, still open"): the header seek+read used to
+; not reliably return the real file header -- root cause was never the
+; MSU-1 hardware/seek mechanism at all (NMI masking and track-select
+; sharing were correctly ruled out below). It was a Poppy silent miscompile
+; at the Anim_LoadCharacter__msu_ok label just below: see that label's own
+; comment for the full byte-level account. CharSelect_RosterCount now
+; reads the real roster_count (2) every run; verified via raw ROM bytes,
+; the three rom_audit tools, and Mesen2 (roster_count=2, CharSelect_Loaded
+; a clean 0, OAM sprite0/sprite1 byte-exact unaffected).
+;
+; Isolation steps that got here (kept for the next time this class of bug
+; shows up): an isolated probe running the *exact same* seek+read pattern,
+; called as its own jsr both immediately after the legacy 46-byte read and
+; again immediately after track-select, worked perfectly both times --
+; which ruled out "any second seek is broken" and "track-select disturbs
+; the data port" empirically, not just by reading Mesen2's source. That
+; narrowed the bug to something specific to this routine's own code, which
+; a raw hex dump of the assembled ROM (not Mesen2's disassembler) then
+; pinned down directly.
 ; ============================================================================
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_LoadCharacter:
@@ -2986,6 +2990,28 @@ Anim_LoadCharacter:
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__msu_ok:
+    ; ROOT CAUSE FIX (confirmed via raw-byte ROM inspection, not just a
+    ; hunch): reached via the `bne` above, which jumps AROUND the
+    ; `rep #$31`/.a16/.i16 a few lines up -- so the CPU is still 8-bit-
+    ; accumulator (M=1) here at runtime. But Poppy's `.a8`/`.a16` width
+    ; tracking is purely textual/linear, not control-flow-aware: by the
+    ; time it reaches this label it has already seen that `rep #$31`/.a16
+    ; (even though the branch skips it at runtime), so it assembled the
+    ; very next `lda #0` as a 3-byte 16-bit immediate (A9 00 00) instead of
+    ; the 2-byte 8-bit form (A9 00). At runtime, with M actually still 1,
+    ; the CPU only consumes the first immediate byte and then decodes the
+    ; leftover 00 as a stray BRK, hijacking execution -- which is why this
+    ; routine's header seek never actually ran. Confirmed byte-for-byte via
+    ; a direct hex dump of the assembled ROM at this label's address; see
+    ; the boot-hang-before-player-init memory. This `sep #$20` is a
+    ; harmless no-op at runtime (M is already 1) but re-syncs Poppy's
+    ; width tracker so the `lda #0` below assembles correctly. Same root-
+    ; cause class as the documented branch-skipped-macro-sizing bug, just
+    ; for width-tracking instead of macro byte-counts -- watch for this
+    ; anywhere a `rep`/`sep` sits on a conditionally-skipped path before a
+    ; branch-target label.
+    sep #$20
+.a8
     lda #0
     sta.l CharSelect_Loaded
 
