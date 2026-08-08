@@ -38,7 +38,7 @@ python build_rom.py
 ## Output Artifacts
 
 - `build/bor.sfc` & `distribution/bor.sfc` — SNES ROM (LoROM, SA-1, Cart type `$35`, 4MB)
-- `build/bor.msu` & `distribution/bor.msu` — MSU-1 data stream (currently a 46-byte placeholder string, not real streamed data)
+- `build/bor.msu` & `distribution/bor.msu` — MSU-1 data stream: a real runtime character roster (`pack_msu_roster.py`), packing each shipped character's palette + idle/walk/attack pixel data behind a directory of frame counts/delays/byte offsets that `Anim_LoadCharacter` reads at boot/reselect (currently ~29KB for two characters, Ralf and JHUN) — no longer the old 46-byte placeholder string this file used to be.
 - `distribution/bor-1.pcm` — MSU-1 audio track 1, a placeholder voice clip used to prove audio playback works (not a Beats of Rage asset)
 - `src/main.bin` — raw Poppy binary output
 - `src/main.pansy` — Poppy metadata & symbol file (used by MCP tooling's `lookup_pansy`/`disassemble` for symbol-aware debugging)
@@ -61,8 +61,10 @@ python build_rom.py
 |---|---|---|
 | S-CPU Reset | `$FC00` | `scpu_boot` |
 | SA-1 Reset (CRV) | `$8000` | `sa1_main` |
-| NMI | `$FF00` | `nmi_handler` |
-| IRQ | `$FF10` | `irq_handler` |
+| NMI | `$FF20` | `nmi_handler` |
+| IRQ | `$FF30` | `irq_handler` |
+
+`scpu_boot`'s body has grown past these addresses more than once as code was added between fixed `.org` points (Poppy silently truncates on overflow rather than erroring — see the Poppy-bug notes in `CLAUDE.md`), pushing NMI/IRQ further out each time. Don't hardcode these — always cross-check against `build_rom.py`'s own printed `Reset:`/`NMI:`/`IRQ:` line (or `src/main.sym`) after any change that grows `scpu_boot` or `scpu_main_loop`.
 
 ---
 
@@ -111,11 +113,17 @@ Verified in this repo by adding a track-1 select + play/repeat trigger and captu
 ## Testing in Mesen2 (this environment)
 
 ```python
-import sys
+import sys, os
 sys.path.append(r'E:\gh\Mesen2\python')
 from mesen_mcp.session import McpSession
 
-ROM = r'E:\gh\snes-bor\distribution\bor.sfc'
+# Derive from the actual repo root you're working in -- a hardcoded
+# E:\gh\snes-bor\distribution\bor.sfc silently points at the MAIN
+# CHECKOUT's ROM when run from inside a git worktree, testing a stale/wrong
+# build with no error (see the worktree-mesen-rom-path-footgun project
+# memory; an entire session was lost to exactly this).
+REPO_ROOT = os.getcwd()
+ROM = os.path.join(REPO_ROOT, 'distribution', 'bor.sfc')
 MESEN = r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe'
 
 with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:

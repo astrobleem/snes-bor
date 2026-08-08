@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A SNES (Super Nintendo) hardware-pipeline proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD). **This is not a playable game** — no player character, no enemy AI, no level content, no asset converter yet. It proves out the low-level hardware plumbing (SA-1 boot, CC-DMA sprite conversion, OAM/NMI frame commit, MSU-1 streaming, TAD audio) so a real game can be built on top of it later. See `README.md`'s "Current Status" section for the authoritative, currently-accurate list of what's verified working vs. not built — check it before assuming something works or is missing.
+A SNES (Super Nintendo) hardware-pipeline proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD). **This is not a playable game** — there's a real animated character sprite (streamed at runtime from an MSU-1 asset roster, `tools/bor_converter/`) and a second player-controlled sprite, but no enemy AI, no level content, no player health/hitboxes, and no game loop. It proves out the low-level hardware plumbing (SA-1 boot, CC-DMA sprite conversion, OAM/NMI frame commit, MSU-1 streaming, TAD audio) so a real game can be built on top of it later. See `README.md`'s "Current Status" section for the authoritative, currently-accurate list of what's verified working vs. not built — check it before assuming something works or is missing.
 
 `SNES-BOR-Engine-Prompt.md` is the original design spec for the full engine; most of it is still unbuilt. `core/*.pasm` (see Architecture below) is adapted from [SNES-SuperBossGaiden](https://github.com/snesdev0815/SNES-SuperBossGaiden) under the original author's personal permission — adapt freely, it does not need to stay a literal port.
 
@@ -74,7 +74,7 @@ Single linear `.bank 0` file (deliberately — Poppy's `.bank N` (N != 0) handli
 - `$B000` — the audio data blob itself (`.incbin`).
 - `$C100` — `src/core/*.pasm` utility modules (see below).
 - `$FC00` — S-CPU entry (`scpu_boot`, the S-CPU reset vector), boots in emulation mode. PPU/CGRAM/VRAM setup, CC-DMA pump loop, then falls into `scpu_main_loop`.
-- `$FF00` / `$FF10` — `nmi_handler` / `irq_handler` (pushed here from earlier addresses as boot code grew — see the `.org` truncation note above).
+- `$FF20` / `$FF30` — `nmi_handler` / `irq_handler` (pushed here from earlier addresses as boot code grew, and can move again — see the `.org` truncation note above; always cross-check against `build_rom.py`'s printed `NMI:`/`IRQ:` line or `src/main.sym` rather than trusting a hardcoded address here).
 
 **Everything else under `src/`** (`copy_working_test.*`, `exact_copy_test.*`, `minimal_test.*`, `ultimate_test.*`, `vram_test.*`, `with_nmi_test.*`, etc., and `src/sa1/sa1_boot.pasm`, `sa1_blitter.pasm`, `sa1_ccdma.pasm`) are **scratch/experiment files from earlier debugging, not part of the real build**. `build_rom.py` only ever assembles `src/main.pasm`; `sa1_boot.pasm`'s `.bank 1` code specifically is unreachable from the hardware CRV path and dead. Don't assume these files reflect current behavior — `main.pasm` is the only source of truth. Same caveat applies to the standalone `.pasm`/`.bin`/`.pansy` files scattered in `tools/` (`jml_test`, `org_test`, `sym_test*`, `va`-`vf`) — isolated Poppy-bug repros, not build inputs.
 

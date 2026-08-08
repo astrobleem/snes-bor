@@ -9,6 +9,19 @@ bugs, the OBSEL/hi-table bring-up story, harness quirks) lives in this
 project's Claude memory files, not here — see the pointers at the bottom of
 each section below.
 
+> **Stale since ~`fae4642` (this file wasn't refreshed for several sessions'
+> worth of work):** the character no longer renders via a BG2 tilemap — see
+> the "Ralf's BG2 character animation" bullet below, which is now wrong.
+> `Character_PlayFrame` (`main.pasm`) draws it as a single large (32×64) real
+> OAM sprite instead, same pipeline as the player-controlled second sprite
+> described below. Also missing: the OAM high-water-mark/full-table-push
+> robustness fixes, the hi-table nop-guard fix, and a boot-time NMI race that
+> was found and fixed corrupting the loaded character's state. **README.md's
+> "Current Status" section is the currently-accurate summary** — treat
+> anything below that contradicts it as superseded, not as the current
+> architecture. This file could use a real refresh; that wasn't in scope for
+> the session that added this note.
+
 ## MSU-1 runtime character-select: Phases 0-2 all complete
 
 The full plan (streaming characters from `bor.msu` at runtime instead of
