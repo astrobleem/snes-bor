@@ -7,10 +7,26 @@
 
 BW_CANVAS   = $606000   ; canvas: 128x96 4bpp linear at SA-1 BW-RAM $60:6000
 
+; Number of concurrent blit windows the SA-1 compositor draws/recomposites
+; per cycle. sa1_loop and the BG2 tilemap generator (scpu_boot) both iterate
+; a REAL indexed loop over this count now, rather than N hand-unrolled code
+; blocks -- see the sa1_compositor_scaling_limit project memory: unrolling
+; hits an 8-bit branch-range assembler wall around N=4, and even past that
+; wall a full canvas refresh costs 24*N frames (Scpu_CcdmaPump drains one
+; tile/frame), so scaling N usefully needs both this loop AND a faster pump,
+; not just more unrolling. This constant is the only thing that needs to
+; change to retest a different N (also update Scpu_CcdmaPump's threshold
+; comparison below, which stays a hand-computed literal -- see its comment).
+COMPOSITOR_BLIT_COUNT = 21   ; VRAM ceiling: BG2 char base $2000, OBJ char
+                              ; base $4000, 384 words/window -> 21 windows
+                              ; (8064 words) fits, 22 would overrun OBJ's own
+                              ; tile graphics -- see sa1_compositor_scaling_limit
+
 ; Per-frame CC-DMA canvas pump state (S-CPU side, see Scpu_CcdmaPump in the
 ; SA-1 region below):
 CanvasChunkOffset = $7E2340   ; .dw -- next 32-byte tile offset into the
-                                 ;        72-tile canvas (0..$08E0)
+                                 ;        canvas (0..COMPOSITOR_BLIT_COUNT*768),
+                                 ;        i.e. COMPOSITOR_BLIT_COUNT * 24 tiles
 Sa1LoopCounter    = $7E2342   ; .db -- SA-1 recomposite cycle counter,
                                  ;        mirrored from I-RAM $3000 every frame
 PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
@@ -46,14 +62,18 @@ sa1_main:
 .a16
 .i16
 
-    ; --- Clear canvas: $1800 bytes at $60:6000 ---
+    ; --- Clear canvas: $7E00 bytes at $60:6000 (COMPOSITOR_BLIT_COUNT=21 *
+    ; $600 window bytes; hand-computed literal, not an expression -- see
+    ; poppy_assembler_bugs on computed-operand risk) ---
     ldx #$0000
     txa                     ; A = 0
 sa1_clear:
     sta.l BW_CANVAS,x
     inx
     inx
-    cpx #$1800
+    cpx #$7E00              ; 32256 bytes = COMPOSITOR_BLIT_COUNT(21) * $600
+                             ; window bytes; hand-computed literal, not an
+                             ; expression -- see poppy_assembler_bugs
     bcc sa1_clear
 
     ; --- DBR = 0, where TestSprite32x48 lives ---
@@ -83,15 +103,22 @@ sa1_clear:
 ; recomposites the shared BW-RAM canvas and RE-ARMS CC-DMA live, more than
 ; the single boot-time shot the old sa1_spin offered. Each iteration:
 ;
-;   1. Re-draws three static 32x48 blits into the canvas (blit A at
-;      BW_CANVAS+0, blit B at BW_CANVAS+$600, blit C at BW_CANVAS+$C00),
-;      pixel-by-pixel through the $60-6F "always bitmap mode" window. $600
-;      window bytes = $300 real bytes = 24 tiles, so blit B lands at real
-;      BW-RAM offset $3300 and blit C at real $3600, each contiguous with
-;      the previous blit's tiles: the canvas is one 72-tile (2304-byte)
-;      region, tiles 0-71. This is the "how many at once" scaling step --
-;      three independently-drawn, independently-converted software sprites
-;      sharing one recomposite pass and one CC-DMA arm/pump cycle.
+;   1. Re-draws COMPOSITOR_BLIT_COUNT static 32x48 blits into the
+;      canvas via a REAL indexed loop (sa1_loop_blits below), not N
+;      hand-unrolled copies of the draw call -- an earlier session tried
+;      unrolling all the way to N=21 and hit a real 65816 assembler wall
+;      (8-bit branch range, ±127 bytes) around N=4, since each unrolled
+;      copy grows the loop body's total byte count; a real loop's body
+;      stays a fixed size regardless of N (see the
+;      sa1_compositor_scaling_limit project memory). Blit i lands at
+;      BW_CANVAS + i*$600, pixel-by-pixel through the $60-6F "always bitmap
+;      mode" window. $600 window bytes = $300 real bytes = 24 tiles, so
+;      blit i's real BW-RAM offset is $3000 + i*$300, each contiguous with
+;      the previous blit's tiles: the canvas is one
+;      (COMPOSITOR_BLIT_COUNT*24)-tile region. This is the "how many at
+;      once" scaling step -- COMPOSITOR_BLIT_COUNT independently-drawn,
+;      independently-converted software sprites sharing one recomposite
+;      pass and one CC-DMA arm/pump cycle.
 ;   2. Re-arms CC-DMA Type 1 (the full register sequence, same as the old
 ;      boot code -- it is cheap and self-documenting). Conversion itself
 ;      stays READ-TRIGGERED: the $2236 write only re-sets CharConvDmaActive
@@ -99,26 +126,31 @@ sa1_clear:
 ;      Sa1RegisterRead 0x2300), and no bytes move until the S-CPU reads the
 ;      $40-4F window.
 ;   3. Waits for the S-CPU to consume the whole canvas, then redraws. The
-;      release is an I-RAM mailbox: the pump writes $AA to $3025 once all
-;      72 tiles are in VRAM (Scpu_CcdmaPump) and the SA-1 polls that byte.
-;      The S-CPU gates its pump on SFR bit 5 (which IT can read); the SA-1
-;      cannot read SFR $2300 at all (its own register window has no 0x2300
-;      case -- Mesen2 Sa1RegisterRead -- so that read is open bus, and the
-;      old SFR-wait never released), which is exactly why the release must
-;      be a byte the SA-1 can see. This lock-step is the proto-mailbox from
-;      spec §3.8 (RENDER_START / CANVAS_READY) in its smallest form: the
-;      S-CPU's pump never reads a half-redrawn canvas, so it generalizes to
-;      dynamic content without a redraw-vs-conversion race.
+;      release is an I-RAM mailbox: the pump writes $AA to $3025 once the
+;      whole canvas is in VRAM (Scpu_CcdmaPump) and the SA-1 polls that
+;      byte. The S-CPU gates its pump on SFR bit 5 (which IT can read); the
+;      SA-1 cannot read SFR $2300 at all (its own register window has no
+;      0x2300 case -- Mesen2 Sa1RegisterRead -- so that read is open bus,
+;      and the old SFR-wait never released), which is exactly why the
+;      release must be a byte the SA-1 can see. This lock-step is the
+;      proto-mailbox from spec §3.8 (RENDER_START / CANVAS_READY) in its
+;      smallest form: the S-CPU's pump never reads a half-redrawn canvas,
+;      so it generalizes to dynamic content without a redraw-vs-conversion
+;      race.
 ;
 ; DP scratch $00/$02/$04/$06 lives in I-RAM $0000-$00FF, which CC-DMA's
 ; converted-tile staging ALSO writes (DDA=0 -> each converted tile lands at
 ; I-RAM $0000-$001F). That only happens while the S-CPU pumps (flag set,
 ; this loop waiting), and every DP cell here is re-initialized before each
-; draw, so no stale value ever crosses a wait boundary. I-RAM $20/$21 are
-; above that staging band: $20 = phase canary (1..6, see below), $21 = the
-; recomposite cycle counter (the old `inc $3000` aliased DP $00 through the
-; I-RAM window's & $7FF mapping AND got stomped by the staging every tile;
-; $21 is outside both hazards).
+; draw, so no stale value ever crosses a wait boundary. I-RAM $08 is the
+; blit loop counter (0..COMPOSITOR_BLIT_COUNT-1), also inside the staging
+; band but, like $00-$06, re-initialized every cycle before it's read. I-RAM
+; $20/$21 are above that staging band: $20 = phase canary (1 = entered loop,
+; 2..COMPOSITOR_BLIT_COUNT+1 = "blit i done", COMPOSITOR_BLIT_COUNT+2 =
+; armed, COMPOSITOR_BLIT_COUNT+3 = wait exited), $21 = the recomposite cycle
+; counter (the old `inc $3000` aliased DP $00 through the I-RAM window's &
+; $7FF mapping AND got stomped by the staging every tile; $21 is outside
+; both hazards).
 sa1_loop:
     rep #$30                ; re-assert 16-bit A/X: reached via `bra sa1_loop`
 .a16                        ; from the 8-bit wait loop below (same fix family
@@ -130,41 +162,35 @@ sa1_loop:
     sta $20
     rep #$20
 .a16
-    ; --- blit A: TestSprite32x48 at BW_CANVAS+0 ---
+    ; --- real indexed loop over COMPOSITOR_BLIT_COUNT blits, base = i*$600 ---
+    stz $08                 ; loop counter i = 0
     stz $06                 ; blit base offset = 0
+    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
+sa1_loop_blits:
     jsr sa1_draw_blit
 
-    ; --- phase canary 2: blit A done ---
+    ; --- phase canary i+2: blit i done ---
     sep #$20
 .a8
-    lda #$02
+    lda $08
+    clc
+    adc #$02
     sta $20
     rep #$20
 .a16
-    ; --- blit B: same sprite at BW_CANVAS+$600 ---
-    lda #$0600
-    sta $06
-    jsr sa1_draw_blit
+    lda $06
+    clc
+    adc #$0600
+    sta $06                 ; next blit base = (i+1)*$600
+    inc $08                 ; i++
+    lda $08
+    cmp #COMPOSITOR_BLIT_COUNT
+    bcc sa1_loop_blits
 
-    ; --- phase canary 3: blit B done ---
-    sep #$20
-.a8
-    lda #$03
-    sta $20
-    rep #$20
-.a16
-    ; --- blit C: same sprite at BW_CANVAS+$C00 ---
-    lda #$0C00
-    sta $06
-    jsr sa1_draw_blit
+    ; last blit's own phase canary (i+2 = 5 for the 4th blit, i=3) already
+    ; doubles as "all blits done, about to arm" -- no separate canary write
+    ; needed here, matching the original N=3 code's dual-purpose canary.
 
-    ; --- phase canary 4: blit C done, about to arm ---
-    sep #$20
-.a8
-    lda #$04
-    sta $20
-    rep #$20
-.a16
     ; --- Configure SA-1 CC-DMA Type 1 (Auto Mode) FROM SA-1 CPU SIDE ---
     sep #$20
 .a8
@@ -221,8 +247,11 @@ sa1_loop:
     ; I-RAM $21, not $3000: $3000 maps (via the I-RAM window's & $7FF) to
     ; I-RAM $0000 = SA-1 DP byte $00 AND is overwritten every tile by CC-DMA
     ; staging; $21 sits above the staging band and below the stack.
-    lda #$05                ; phase canary 5: armed, about to wait
-    sta $20
+    lda #$17                ; phase canary N+2=23: armed, about to wait (last
+    sta $20                 ; blit's own canary, N+1=22, doubled as "about to
+                             ; arm" -- see comment above the CC-DMA config).
+                             ; COMPOSITOR_BLIT_COUNT-dependent (armed=N+2) --
+                             ; re-derive by hand if N changes.
     inc $21
 
     ; --- Wait for the S-CPU to consume this canvas ---
@@ -232,12 +261,13 @@ sa1_loop:
     ; SA-1 falls through to open bus, and bit 5 of that value reads stuck
     ; set here. The S-CPU can see the flag (it pumps on it), but the SA-1
     ; physically cannot, so the old SFR-wait could never release the loop.
-    ; Instead: the S-CPU's pump writes $AA to I-RAM $3025 once all 72 tiles
-    ; are in VRAM (see Scpu_CcdmaPump), and the SA-1 polls that byte -- the
-    ; proto-mailbox from spec §3.8 (RENDER_START / CANVAS_READY) in its
+    ; Instead: the S-CPU's pump writes $AA to I-RAM $3025 once the whole
+    ; canvas is in VRAM (see Scpu_CcdmaPump), and the SA-1 polls that byte --
+    ; the proto-mailbox from spec §3.8 (RENDER_START / CANVAS_READY) in its
     ; smallest form. The SA-1 clears the mailbox before redrawing, so the
-    ; pump's next completion (72 frames later) cannot be mistaken for this
-    ; one, and the pump still gates on SFR bit 5 for its own start signal.
+    ; pump's next completion (24*COMPOSITOR_BLIT_COUNT frames later) cannot
+    ; be mistaken for this one, and the pump still gates on SFR bit 5 for
+    ; its own start signal.
     nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_wait:
     lda $3025               ; I-RAM mailbox: $AA = S-CPU has consumed canvas
@@ -245,14 +275,14 @@ sa1_wait:
     bne sa1_wait
     stz $25                 ; acknowledge: clear the mailbox (own I-RAM
                             ; window; CIWP $FF set at boot permits it)
-    lda #$06                ; phase canary 6: wait exited, loop will re-arm
+    lda #$07                ; phase canary 7: wait exited, loop will re-arm
     sta $20
     bra sa1_loop
 
 ; --- Draw one 32x48 blit of TestSprite32x48 into the canvas ---
-; Caller (sa1_loop) sets $06 = blit base offset in window units (0, $600, or
-; $0C00)
-; and must be in .a16/.i16; exits .a16/.i16. Source data is byte-per-pixel
+; Caller (sa1_loop) sets $06 = blit base offset = i*$600 for i =
+; 0..COMPOSITOR_BLIT_COUNT-1 (loop counter i lives in $08), and must be in
+; .a16/.i16; exits .a16/.i16. Source data is byte-per-pixel
 ; (one byte = one pixel, color index in the low nibble); the bitmap window
 ; auto-packs two pixels per real byte at HALF the window offset, so drawing
 ; window offset X puts the packed sprite bytes at real BW-RAM offset
@@ -319,12 +349,19 @@ sa1_draw_col_loop:
 ; Core_Nmi_WaitFrame, so its VRAM writes land in the vblank tail rather than
 ; mid-active-display. Converts and copies ONE 32-byte tile per frame while
 ; the SA-1's canvas-ready flag is set (SFR $2300 bit 5 = CharConvIrqFlag),
-; and clears that flag (SIC $2202 bit 5) once the full 72-tile canvas
-; (2304 bytes, three 4x6 windows) is in VRAM -- releasing the SA-1 to
-; recomposite the next canvas. Full refresh therefore takes 72 frames;
-; a one-tile-per-frame chunk keeps this inside the vblank tail (16 word-
-; reads + 16 word-writes ~= 400 cycles), which a full 2304-byte pump would
-; blow out by an order of magnitude.
+; and clears that flag (SIC $2202 bit 5) once the full
+; (COMPOSITOR_BLIT_COUNT*24)-tile canvas (COMPOSITOR_BLIT_COUNT*768 bytes,
+; COMPOSITOR_BLIT_COUNT 4x6 windows) is in VRAM -- releasing the SA-1 to
+; recomposite the next canvas. Full refresh therefore takes
+; 24*COMPOSITOR_BLIT_COUNT frames (96 for the current N=4); a one-tile-
+; per-frame chunk keeps this inside the vblank tail (16 word-reads + 16
+; word-writes ~= 400 cycles), which a full-canvas-at-once pump would blow
+; out by an order of magnitude. NOTE: this cost scales linearly with N and
+; does not improve just by fixing the assembler-wall/`.org` problems that
+; block unrolling -- see the sa1_compositor_scaling_limit project memory.
+; The threshold constant below (Scpu_CcdmaPump_Keep's cmp) is a hand-
+; computed literal, not a COMPOSITOR_BLIT_COUNT*768 expression -- kept that
+; way deliberately (see the comment at the cmp site).
 ;
 ; The conversion is stateless per read (Mesen2 core: CpuBwRamHandler::Read
 ; -> Sa1::ReadCharConvertType1: trigger on (addr & 31) == 0, tile derived
@@ -353,17 +390,42 @@ Scpu_CcdmaPump:
     sta.l Sa1LoopCounter    ; debug mirror: proves the SA-1 loop is live
     lda $2300               ; SFR
     and #$20                ; CharConvIrqFlag set -> a fresh canvas is armed
-    beq Scpu_CcdmaPump_Done
+    bne Scpu_CcdmaPump_HasWork
+    brl Scpu_CcdmaPump_Done ; too far for an 8-bit beq now that the fixed
+                             ; 16-word unroll below grew this routine past
+                             ; the +-127 byte range -- see poppy_assembler_bugs
+    nop
+Scpu_CcdmaPump_HasWork:
     rep #$20
 .a16
 .i16
+    ; PumpScratch is a FIXED 32-byte (16-word) staging buffer -- its size
+    ; never scales with COMPOSITOR_BLIT_COUNT, unlike CanvasChunkOffset's own
+    ; range. It was previously indexed with X (= CanvasChunkOffset, which
+    ; grows across the WHOLE canvas), which swept staging writes straight
+    ; through the NMI shadow block once CanvasChunkOffset exceeded
+    ; $7E5000-PumpScratch ($2CBC), silently corrupting Nmi_InterruptFlags and
+    ; killing NMI (only bit at large enough COMPOSITOR_BLIT_COUNT -- N=4
+    ; never reached it, N=21 did, reproducibly, at CanvasChunkOffset ~$2CE0;
+    ; see sa1_compositor_scaling_limit memory). A ,Y-indexed .l fix was tried
+    ; next but 65816 has no long-addressing ,Y indexed mode at all (only
+    ; ,X) -- Poppy silently accepted the invalid `sta.l Sym,y` and emitted a
+    ; wrong/truncated encoding instead of erroring, corrupting the
+    ; instruction stream. Fixed instead by fully unrolling this FIXED
+    ; 16-word transfer (it never scales with N, so unrolling here doesn't
+    ; reintroduce the branch-range problem the real loops elsewhere in this
+    ; file were written to avoid) -- X stays dedicated to the genuinely
+    ; runtime-variable BW-RAM source offset (long,X is valid), and
+    ; PumpScratch's side uses compile-time `Symbol+K` immediate offsets
+    ; instead of indexing at all (same proven-safe pattern as
+    ; core/nmi.pasm's `Nmi_Bg1ScrollX+1`).
     lda.l CanvasChunkOffset
-    tax
-    ldy #$0010              ; 16 words per 32-byte tile
+    tax                      ; X = BW-RAM source read offset (CanvasChunkOffset-
+                             ; relative -- must sweep the real canvas position)
     nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 Scpu_CcdmaPump_Read:
     lda.l $403000,x         ; read+trigger-convert via S-CPU BW-RAM window ($40-4F)
-    sta.l PumpScratch,x     ; stage in WRAM -- deliberately OUTSIDE the forced-
+    sta.l PumpScratch+0     ; stage in WRAM -- deliberately OUTSIDE the forced-
                             ; blank bracket: BW-RAM reads are not PPU accesses,
                             ; and they can stall for many cycles on SA-1 BW-RAM
                             ; arbitration, so keeping them out of the bracket
@@ -380,8 +442,64 @@ Scpu_CcdmaPump_Read:
                             ; ccdma_validated_nmi_timing_bug project memory.)
     inx
     inx
-    dey
-    bne Scpu_CcdmaPump_Read
+    lda.l $403000,x
+    sta.l PumpScratch+2
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+4
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+6
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+8
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+10
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+12
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+14
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+16
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+18
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+20
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+22
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+24
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+26
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+28
+    inx
+    inx
+    lda.l $403000,x
+    sta.l PumpScratch+30
 
     ; --- forced-blank bracket: only the $2116/$2118 writes need it ---
     sep #$20
@@ -399,27 +517,65 @@ Scpu_CcdmaPump_Read:
     clc
     adc #$2010              ; VRAM dest word (BG2 char base $2000, tile 1)
     sta $2116
+    ; Fully unrolled, same rationale as Scpu_CcdmaPump_Read above -- fixed
+    ; 16-word transfer, no indexing needed on either side (source is a
+    ; compile-time PumpScratch+K offset, dest is the fixed $2118 port), so X
+    ; just holds CanvasChunkOffset untouched for the post-loop wrap check.
     lda.l CanvasChunkOffset
-    tax
-    ldy #$0010              ; 16 words per 32-byte tile
+    tax                      ; X = CanvasChunkOffset, held UNTOUCHED across this
+                             ; block (only needed below, for the next-offset/
+                             ; wrap computation)
     nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 Scpu_CcdmaPump_Write:
-    lda.l PumpScratch,x     ; WRAM reads only -- no BW-RAM access inside the
+    lda.l PumpScratch+0     ; WRAM reads only -- no BW-RAM access inside the
                             ; bracket, so it cannot stall on SA-1 arbitration
-                            ; (bounded, ~350 cycles for the 16-word loop)
+                            ; (bounded, ~350 cycles for the 16-word transfer)
     sta $2118               ; write to VRAM $2118/$2119
-    inx
-    inx
-    dey
-    bne Scpu_CcdmaPump_Write
+    lda.l PumpScratch+2
+    sta $2118
+    lda.l PumpScratch+4
+    sta $2118
+    lda.l PumpScratch+6
+    sta $2118
+    lda.l PumpScratch+8
+    sta $2118
+    lda.l PumpScratch+10
+    sta $2118
+    lda.l PumpScratch+12
+    sta $2118
+    lda.l PumpScratch+14
+    sta $2118
+    lda.l PumpScratch+16
+    sta $2118
+    lda.l PumpScratch+18
+    sta $2118
+    lda.l PumpScratch+20
+    sta $2118
+    lda.l PumpScratch+22
+    sta $2118
+    lda.l PumpScratch+24
+    sta $2118
+    lda.l PumpScratch+26
+    sta $2118
+    lda.l PumpScratch+28
+    sta $2118
+    lda.l PumpScratch+30
+    sta $2118
     sep #$20
 .a8
     lda.l Nmi_ScreenBrightness
     sta $2100               ; restore the screen brightness ($0F, set in boot)
     rep #$20
 .a16
-    txa
-    cmp #$0900              ; 2304 bytes = 72 tiles (three 4x6 windows)
+    txa                      ; A = CanvasChunkOffset (X untouched by the loop above)
+    clc
+    adc #$0020               ; + 32 bytes just pumped = next offset
+    cmp #$3F00              ; 16128 bytes = 504 tiles (COMPOSITOR_BLIT_COUNT=21 *
+                             ; 24 tiles); hand-computed literal, not a
+                             ; COMPOSITOR_BLIT_COUNT*768 expression -- see
+                             ; poppy_assembler_bugs on computed-operand risk.
+                             ; Re-derive by hand if COMPOSITOR_BLIT_COUNT
+                             ; changes (N*768, in hex).
     bcc Scpu_CcdmaPump_Keep
     sep #$20
 .a8
@@ -2403,13 +2559,23 @@ Anim_Play__attack:
 
 ; Checks currently-held dpad Left/Right (Input_press, not Input_trigger --
 ; facing should track the held direction continuously, not just its first
-; press) and, if it differs from Anim_FacingLeft, DMAs the matching
-; precomputed tilemap block over the active 4x6 BG2 region (6 rows of 4
-; tile entries) and updates Anim_FacingLeft. Neither direction held ->
-; keep the last facing (matches how real games hold facing through
+; press) and updates Anim_FacingLeft if it differs. Neither direction held
+; -> keep the last facing (matches how real games hold facing through
 ; idle/attack). Called once per Anim_Play invocation, regardless of which
 ; animation is active -- facing is independent of Anim_Selected. Exits in
 ; .a16/.i16, same convention as its caller.
+;
+; No longer does any DMA of its own -- now that the character renders as a
+; real OAM sprite (see Character_PlayFrame) instead of a BG2 tilemap
+; window, facing is just this one WRAM flag; Character_PlayFrame reads it
+; each frame and sets the OAM attribute byte's hflip bit, and the hardware
+; mirrors the whole 32x64 sprite block for free. This used to DMA two
+; precomputed 6-row tilemap blocks (ANIM_TILEMAP_RIGHT_BASE/LEFT_BASE) over
+; the BG2 window's active tile entries on every facing change -- that whole
+; mechanism (and the 12 Anim_EnqueueTilemapRow calls that drove it) is gone;
+; the ANIM_TILEMAP_* constants and Anim_EnqueueTilemapRow itself are now
+; unused dead code, left in place rather than torn out along with this
+; change (harmless, no per-frame cost).
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_UpdateFacing:
     sep #$20
@@ -2429,96 +2595,7 @@ Anim_UpdateFacing__want_right:
     lda #0
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__want_got:
-    cmp.l Anim_FacingLeft
-    bne Anim_UpdateFacing__facing_changed
-    brl Anim_UpdateFacing__done   ; too far for an 8-bit beq from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_UpdateFacing__facing_changed:
     sta.l Anim_FacingLeft
-    cmp #0
-    beq Anim_UpdateFacing__to_right
-    brl Anim_UpdateFacing__to_left
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_UpdateFacing__to_right:
-    rep #$20
-.a16
-    lda #ANIM_TILEMAP_ROW0_BYTE_ADDR
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_ROW_BYTES
-    sta.l DmaRequest_Length
-    lda #ANIM_TILEMAP_RIGHT_BASE
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*2
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*3
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*4
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_RIGHT_BASE + ANIM_TILEMAP_ROW_BYTES*5
-    jsr Anim_EnqueueTilemapRow
-    brl Anim_UpdateFacing__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Anim_UpdateFacing__to_left:
-    rep #$20
-.a16
-    lda #ANIM_TILEMAP_ROW0_BYTE_ADDR
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_ROW_BYTES
-    sta.l DmaRequest_Length
-    lda #ANIM_TILEMAP_LEFT_BASE
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*2
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*3
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*4
-    jsr Anim_EnqueueTilemapRow
-    lda.l DmaRequest_TargetAddr
-    clc
-    adc #ANIM_TILEMAP_ROW_STRIDE
-    sta.l DmaRequest_TargetAddr
-    lda #ANIM_TILEMAP_LEFT_BASE + ANIM_TILEMAP_ROW_BYTES*5
-    jsr Anim_EnqueueTilemapRow
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__done:
     rep #$31
@@ -2792,29 +2869,87 @@ Msu1_LoadFrame__read:
     cpx #ANIM_FRAME_BYTES
     bcc Msu1_LoadFrame__read
 
-    ; --- enqueue WRAM($7E)->VRAM DMA of the streamed frame ---
+    ; --- enqueue 6 strided WRAM($7E)->VRAM row DMAs of the streamed frame,
+    ; one per tile-row of the character's real OAM sprite (replaces the old
+    ; single flat 768-byte DMA into a fixed BG2 tile window). A real OAM
+    ; sprite's tile-fetch hardware indexes tiles as (tileRow<<4)|tileColumn
+    ; in a 16-tile-wide sheet (Mesen2-source-verified: SnesPpu.cpp's
+    ; GetSpriteTileAddress computes `tileIndex = (row<<4)|((tileColumn+
+    ; columnOffset)&0x0F)`) -- so for our 4-tiles-wide character, row r's 4
+    ; tiles sit at consecutive VRAM tile indices within that row (contiguous,
+    ; one 128-byte DMA each), but consecutive ROWS jump by 16 tile-index
+    ; slots (not 4), i.e. word address $4000 + r*256, byte address
+    ; $8000 + r*512 -- NOT a flat contiguous 768-byte run the way the old
+    ; BG2 window (addressed via a tilemap, not direct hardware tile-block
+    ; fetch) could use. AnimFrameStaging's own 768-byte layout (24 tiles,
+    ; row-major within its 4-wide source raster) is unchanged and still
+    ; correct as the SOURCE for each of these 6 row-slices -- only the
+    ; VRAM-side destination stride is new. Base tile index 0 (OBJ base
+    ; $4000, tileRow 0, tileCol 0); rows 6-7 of the 32x64 large-sprite block
+    ; are pre-blanked once at boot (see Character_BlankPadding) since only
+    ; 6 of the 8 rows carry real 32x48 art.
     lda #AnimFrameStaging
     sta.l DmaRequest_SourceAddrLow
-    lda #ANIM_VRAM_DEST_BYTE
+    lda #$8000                  ; row 0: word $4000 (tileRow0,col0) * 2
     sta.l DmaRequest_TargetAddr
-    lda #ANIM_FRAME_BYTES
+    lda #128                    ; 4 tiles/row * 32 bytes/tile
     sta.l DmaRequest_Length
+    jsr Msu1_LoadFrame_EnqueueRow
 
+    lda #AnimFrameStaging + 128
+    sta.l DmaRequest_SourceAddrLow
+    lda #$8200                  ; row 1: word $4100 (tileRow1,col0) * 2
+    sta.l DmaRequest_TargetAddr
+    jsr Msu1_LoadFrame_EnqueueRow
+
+    lda #AnimFrameStaging + 256
+    sta.l DmaRequest_SourceAddrLow
+    lda #$8400                  ; row 2: word $4200 * 2
+    sta.l DmaRequest_TargetAddr
+    jsr Msu1_LoadFrame_EnqueueRow
+
+    lda #AnimFrameStaging + 384
+    sta.l DmaRequest_SourceAddrLow
+    lda #$8600                  ; row 3: word $4300 * 2
+    sta.l DmaRequest_TargetAddr
+    jsr Msu1_LoadFrame_EnqueueRow
+
+    lda #AnimFrameStaging + 512
+    sta.l DmaRequest_SourceAddrLow
+    lda #$8800                  ; row 4: word $4400 * 2
+    sta.l DmaRequest_TargetAddr
+    jsr Msu1_LoadFrame_EnqueueRow
+
+    lda #AnimFrameStaging + 640
+    sta.l DmaRequest_SourceAddrLow
+    lda #$8A00                  ; row 5: word $4500 * 2
+    sta.l DmaRequest_TargetAddr
+    jsr Msu1_LoadFrame_EnqueueRow
+
+    plp
+    rep #$31
+.a16
+.i16
+    rts
+
+; Shared tail for Msu1_LoadFrame's 6 row-DMA sites above: caller sets
+; DmaRequest_SourceAddrLow/TargetAddr (Length is constant across all of
+; them, set once before the first call), this fills in the constant
+; SourceBank/TypeFlags fields and enqueues. Same shared-tail pattern as
+; Anim_EnqueueTilemapRow above. Entry/exit width-agnostic (re-asserts its
+; own widths), matching that routine's convention.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Msu1_LoadFrame_EnqueueRow:
     sep #$20
 .a8
     lda #$7E
     sta.l DmaRequest_SourceBank
     lda #DMA_TYPE_VRAM
     sta.l DmaRequest_TypeFlags
-
     rep #$31
 .a16
 .i16
     jsr Core_Dma_Enqueue
-    plp
-    rep #$31
-.a16
-.i16
     rts
 
 ; Shared "nothing changed this call" tail for Anim_Play_Idle/Walk/Attack
@@ -2981,184 +3116,191 @@ TestSprite_WriteSolidTile__plane23:
     bne TestSprite_WriteSolidTile__plane23
     rts
 
-; Sole per-frame writer for sprite 0 (the static test sprite), called once/
-; frame from scpu_main_loop, immediately before Player_PlayFrame and
-; Core_Oam_Play. Because Core_Nmi_Play wipes the ENTIRE OAM shadow back to
-; "all hidden" after every successful upload (see Core_Oam_ClearAll and
-; TestSprite_Init's own header comment above), the instant anything makes a
-; second Core_Oam_Play call happen with a nonzero cursor -- which
-; Player_PlayFrame's own Core_Oam_SetSprite call does, every frame -- sprite
-; 0's slot would get stomped with the shadow's cleared state unless it's
-; re-written here too. Forces Oam_CurrentSlot to 0 up front rather than
-; trusting its leftover value, making this routine idempotent regardless of
-; Core_Nmi_Play/ClearAll timing (its very first call happens before any NMI
-; has run ClearAll, so the cursor is still 4 from TestSprite_Init otherwise).
+; One-time boot blank of the character sprite's unused padding tiles.
+; OBSEL mode 6's "large" size is 32x64 (4 tiles wide x 8 tall, per Mesen2-
+; source-verified _oamSizes[6][1] = {4,8}), but our real art is only 32x48
+; (4x6 tiles) -- rows 6-7 of the 8-tall block would otherwise show whatever
+; garbage was last in that VRAM region. Tile-row addressing is NOT
+; contiguous with the previous row's 4 tiles: hardware tile index is
+; (tileRow<<4)|tileColumn (16-wide sheet), so row 6's 4 tiles sit at word
+; $4000+6*256=$4600..$463F while row 7's sit at $4700..$473F -- a 192-word
+; gap between them, same stride Msu1_LoadFrame's row DMAs use. Runs once
+; from scpu_boot, still under forced blank (same $2116/$2118 direct-write
+; pattern TestSprite_WriteSolidTile above uses), so no DMA needed.
+    nop
+    nop
+    nop
+    nop
+Character_BlankPadding:
+    rep #$20
+.a16
+    lda #$4600                ; tileRow 6, col 0
+    sta $2116
+    rep #$31
+.a16
+.i16
+    ldx #64                    ; 4 tiles * 16 words/tile
+    lda #$0000
+    nop
+Character_BlankPadding__row6:
+    sta $2118
+    dex
+    bne Character_BlankPadding__row6
+
+    rep #$20
+.a16
+    lda #$4700                ; tileRow 7, col 0
+    sta $2116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__row7:
+    sta $2118
+    dex
+    bne Character_BlankPadding__row7
+    rts
+
+; Sole per-frame writer for the real BOR character's OAM sprite (slot 0),
+; called once/frame from scpu_main_loop, right before Core_Oam_Play.
+; Replaces the old TestSprite_PlayFrame (decorative test square, retired)
+; and Player_PlayFrame (dpad-driven test square, merged in here) -- this is
+; now the SAME entity: dpad movement (unchanged from the old Player_PlayFrame
+; logic below) drives the position of the real, animated character whose
+; current frame Anim_Play/Msu1_LoadFrame streams into this sprite's OBJ tile
+; slot (base tile 0) every time its animation advances. Facing comes from
+; Anim_FacingLeft (still updated by Anim_UpdateFacing, which no longer does
+; any tilemap DMA of its own -- see that routine) via the attribute byte's
+; hardware hflip bit (bit6, $40) instead of the old per-tile tilemap-swap
+; trick a BG2 window needed; hardware mirrors the whole 32x64 block for
+; free. Because Core_Nmi_Play wipes the ENTIRE OAM shadow back to "all
+; hidden" after every successful upload (see Core_Oam_ClearAll), this
+; routine resets Oam_CurrentSlot to 0 itself every call rather than relying
+; on a separate routine to have done it first (TestSprite_PlayFrame's old
+; role) -- it's now the only sprite writer, so it owns the whole cursor
+; sequence. Must be called in .a16/.i16 and returns the same way, matching
+; scpu_main_loop's convention.
 ;
-; MUST run before Player_PlayFrame every frame: Player_PlayFrame does not
-; reset Oam_CurrentSlot itself -- it relies on this routine having already
-; zeroed it and advanced it 0 -> 4 via the Core_Oam_SetSprite call below, so
-; Player_PlayFrame's own Core_Oam_SetSprite call lands in slot 1. Must be
-; called in .a16/.i16 and returns the same way, matching scpu_main_loop's
-; convention.
+; workaround: Poppy label address off-by-one (see poppy bug #4 / poppy bug
+; #5's more general form) -- the old Player_PlayFrame at this same rough
+; file position needed this same padding (raw-byte-verified in a prior
+; session: without it, the label resolved 1 byte early onto the preceding
+; routine's `rts`) -- kept here since nothing about the file position that
+; caused it has changed enough to assume it's no longer needed.
     nop
     nop
     nop
     nop
-TestSprite_PlayFrame:
+Character_PlayFrame:
     rep #$31
 .a16
     lda #0
     sta Oam_CurrentSlot
 
-    ; --- sprite 0: re-assert TestSprite_Init's original static values ---
-    sep #$20
-.a8
-    lda #120
-    sta.l OamSetSprite_X
-    lda #100
-    sta.l OamSetSprite_Y
-    lda #0
-    sta.l OamSetSprite_Tile
-    lda #$30
-    sta.l OamSetSprite_Attr
-    lda #$02
-    sta.l OamSetSprite_Hi
-    rep #$31
-.a16
-    jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
-    rts
-
-; Sole per-frame writer for sprite 1 (the dpad-driven player square), called
-; once/frame from scpu_main_loop right after TestSprite_PlayFrame and before
-; Core_Oam_Play. Reuses the same solid-red 16x16 tile (OBJ base tile 0)
-; TestSprite_Init already wrote -- no new VRAM/CGRAM data needed. Moves on
-; both axes while the dpad is held -- X on Left/Right, Y on Up/Down -- each
-; independently clamped at the screen edges.
-;
-; Depends on TestSprite_PlayFrame having already run this frame: this
-; routine does NOT reset Oam_CurrentSlot itself, relying on
-; TestSprite_PlayFrame's zero + Core_Oam_SetSprite call having already
-; advanced the cursor to 4, so this routine's own Core_Oam_SetSprite call
-; lands in slot 1. Must be called in .a16/.i16 and returns the same way,
-; matching scpu_main_loop's convention.
-;
-; workaround: Poppy label address off-by-one (see poppy bug #4 / poppy bug
-; #5's more general form -- this is a `jsr` target, not a branch target, so
-; it isn't the exact documented case, but the same estimation-vs-emit drift
-; still applies here) -- raw-byte-verified this session: without this
-; padding, the label resolved 1 byte early and landed on
-; TestSprite_PlayFrame's preceding `rts` opcode instead of this routine's
-; real first instruction, so every `jsr Player_PlayFrame` immediately hit
-; that stray `rts` and returned without running the body (Player_X/Y and
-; Oam_CurrentSlot never advanced past slot 0 -- confirmed both in Mesen2 and
-; via a raw hex dump of the assembled bytes at this address).
-    nop
-    nop
-    nop
-    nop
-Player_PlayFrame:
-    ; --- X: held-dpad Left/Right movement. Reads Input_press+1 using the
-    ; exact same bit-check convention as Anim_UpdateFacing (see that
-    ; routine, above) -- and MUST resolve Left+Right-held-together the same
-    ; way Anim_UpdateFacing does (Left wins), or sprite 1 could move right
-    ; on a frame where Ralf's facing flips left off the same read of
-    ; Input_press. Unsigned cmp/bcc/bcs on purpose -- PLAYER_MAX_X
-    ; (216) has bit7 set, so a signed bmi/bpl branch would misfire near the
-    ; boundary. Clamped, not bounced: holding a direction into the wall
-    ; just stops moving, no direction-flip state needed anymore (that's
-    ; why TestSprite2_DirLeft is gone -- see WRAM decl above, now reused for
-    ; Player_Y). Wrap-safety invariant for this clamp documented next
-    ; to PLAYER_SPEED above; the Y block below has its own identical
-    ; block mirrored right after this one, with its own independent read of
-    ; Input_press+1 (deliberately not threaded through this block's
-    ; accumulator state across its three-way branch). ---
+    ; --- X: held-dpad Left/Right movement. Unchanged from the old
+    ; Player_PlayFrame -- see that routine's original header comment (now
+    ; here) for why Left wins on both-held and why the clamp compares are
+    ; unsigned. ---
     sep #$20
 .a8
     lda.l Input_press+1
     and #$03
-    beq Player_PlayFrame__hold
+    beq Character_PlayFrame__hold
     lda.l Input_press+1
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
-    beq Player_PlayFrame__right
-    bra Player_PlayFrame__left
+    beq Character_PlayFrame__right
+    bra Character_PlayFrame__left
     nop
-Player_PlayFrame__right:
+Character_PlayFrame__right:
     lda.l Player_X
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_X + 1
-    bcc Player_PlayFrame__store_x
+    bcc Character_PlayFrame__store_x
     lda #PLAYER_MAX_X
-    bra Player_PlayFrame__store_x
+    bra Character_PlayFrame__store_x
     nop
-Player_PlayFrame__left:
+Character_PlayFrame__left:
     lda.l Player_X
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_X
-    bcs Player_PlayFrame__store_x
+    bcs Character_PlayFrame__store_x
     lda #PLAYER_MIN_X
-    bra Player_PlayFrame__store_x
+    bra Character_PlayFrame__store_x
     nop
-Player_PlayFrame__hold:
+Character_PlayFrame__hold:
     lda.l Player_X
     nop
-Player_PlayFrame__store_x:
+Character_PlayFrame__store_x:
     sta.l Player_X
     sta.l OamSetSprite_X
 
-    ; --- Y: held-dpad Up/Down movement, mirroring the X block above
-    ; exactly in structure. Independent read of Input_press+1 (not
-    ; threaded through the X block's accumulator/branches -- see WRAM decl
-    ; comment above for why). Per core/input.pasm's documented $4218 bit
-    ; layout, Down is bit10 of the word and Up is bit11 -- bits 2/3 of this
-    ; byte. Up wins when both held, same "higher bit wins" convention as
-    ; X's Left-over-Right (bit3 > bit2, matching bit1 > bit0). Up decreases
-    ; Y (sbc) and Down increases Y (adc) -- opposite of X's Left/Right-to-
-    ; sbc/adc mapping, since Y grows downward on screen. Unsigned cmp/bcc/
-    ; bcs and the same wrap-safety invariant as X apply here too (see the
-    ; PLAYER_SPEED comment above). ---
+    ; --- Y: held-dpad Up/Down movement, mirroring the X block. Unchanged
+    ; from the old Player_PlayFrame. ---
     lda.l Input_press+1
     and #$0C
-    beq Player_PlayFrame__hold_y
+    beq Character_PlayFrame__hold_y
     lda.l Input_press+1
     and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
-    beq Player_PlayFrame__down
-    bra Player_PlayFrame__up
+    beq Character_PlayFrame__down
+    bra Character_PlayFrame__up
     nop
-Player_PlayFrame__down:
+Character_PlayFrame__down:
     lda.l Player_Y
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_Y + 1
-    bcc Player_PlayFrame__store_y
+    bcc Character_PlayFrame__store_y
     lda #PLAYER_MAX_Y
-    bra Player_PlayFrame__store_y
+    bra Character_PlayFrame__store_y
     nop
-Player_PlayFrame__up:
+Character_PlayFrame__up:
     lda.l Player_Y
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_Y
-    bcs Player_PlayFrame__store_y
+    bcs Character_PlayFrame__store_y
     lda #PLAYER_MIN_Y
-    bra Player_PlayFrame__store_y
+    bra Character_PlayFrame__store_y
     nop
-Player_PlayFrame__hold_y:
+Character_PlayFrame__hold_y:
     lda.l Player_Y
     nop
-Player_PlayFrame__store_y:
+Character_PlayFrame__store_y:
     sta.l Player_Y
     sta.l OamSetSprite_Y
+
     lda #0
-    sta.l OamSetSprite_Tile
-    lda #$30
+    sta.l OamSetSprite_Tile      ; OBJ base tile 0 (the character's slot)
+
+    ; --- Attribute byte: priority 3 / palette 0 (OBJ palette 0, streamed to
+    ; CGRAM $100+ by Anim_LoadCharacter -- see that routine) / hflip from
+    ; Anim_FacingLeft. Real art faces right by default (FacingLeft=0, no
+    ; flip); hardware mirrors the whole 32x64 block when hflip is set,
+    ; replacing the old BG2-window tilemap-swap trick entirely. Tested via
+    ; its own lda (not ldx/ldy -- index width is still 16-bit here, only
+    ; the accumulator was narrowed by the sep #$20 above, so an indexed
+    ; read of this 1-byte cell would silently read 2 bytes instead). ---
+    lda.l Anim_FacingLeft
+    beq Character_PlayFrame__no_flip
+    lda #$70                     ; priority 3, palette 0, hflip ($30 | $40)
+    bra Character_PlayFrame__attr_ok
+    nop
+Character_PlayFrame__no_flip:
+    lda #$30                     ; priority 3, palette 0, no flip
+    nop
+Character_PlayFrame__attr_ok:
     sta.l OamSetSprite_Attr
-    lda #$02
+
+    lda #$02                     ; hi-table: size bit set (large = 32x64
+                                  ; under OBSEL mode 6), X-high clear
     sta.l OamSetSprite_Hi
     rep #$31
 .a16
-    jsr Core_Oam_SetSprite        ; slot 1, cursor -> 8
+    jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
     rts
 
 ; ============================================================================
@@ -3529,8 +3671,9 @@ Anim_LoadCharacter__palette_read:
     cpx #$0020
     bcc Anim_LoadCharacter__palette_read
 
-    ; --- Enqueue a queued CGRAM DMA of the streamed palette (color 0, 32
-    ; bytes = 16 colors) -- queued (not direct $2122 writes) so the exact
+    ; --- Enqueue a queued CGRAM DMA of the streamed palette (color 128, 32
+    ; bytes = 16 colors -- OBJ palette 0) -- queued (not direct $2122
+    ; writes) so the exact
     ; same code path works at boot (flushed synchronously right after this
     ; call via Core_Dma_ProcessQueue, see msu1_done) and at live reselect
     ; (drained normally by Core_Nmi_Play during vblank, see Anim_Play). Same
@@ -3538,8 +3681,15 @@ Anim_LoadCharacter__palette_read:
     ; DMA_TYPE_CGRAM instead of DMA_TYPE_VRAM. ---
     lda #AnimPaletteStaging
     sta.l DmaRequest_SourceAddrLow
-    lda #0
-    sta.l DmaRequest_TargetAddr    ; CGRAM byte address 0 = color 0
+    lda #$0100
+    sta.l DmaRequest_TargetAddr    ; CGRAM byte address $100 = color 128 =
+                                    ; OBJ palette 0 (was color 0/BG palette 0
+                                    ; -- the character renders via a real OAM
+                                    ; sprite now, not a BG2 window, so its
+                                    ; palette needs to land in OBJ's CGRAM
+                                    ; range; see Character_PlayFrame's
+                                    ; attribute-byte comment for the palette
+                                    ; select field this must match)
     lda #32
     sta.l DmaRequest_Length
     sep #$20
@@ -3564,6 +3714,17 @@ Anim_LoadCharacter__palette_read:
     sta.l CharSelect_Loaded
     lda #0
     sta.l Anim_Selected
+    sta.l Anim_FacingLeft        ; 0 = facing right (boot default) -- never
+                                  ; explicitly initialized before this fix;
+                                  ; harmless under the old BG2-tilemap-swap
+                                  ; approach (only read on a facing *change*),
+                                  ; but Character_PlayFrame now reads it every
+                                  ; frame for the OAM hflip bit, so power-on
+                                  ; WRAM garbage here would render the
+                                  ; character hflipped from boot until the
+                                  ; first Left/Right press -- confirmed via a
+                                  ; fresh-boot Mesen2 read (value 35, not 0)
+                                  ; before this fix.
     lda #$FF
     sta.l Anim_FrameIndex
     lda #1
@@ -3822,69 +3983,91 @@ scpu_bg2_blank:
     ; re-arms CC-DMA for every fresh canvas and waits for the S-CPU to
     ; consume it, so the pump must be re-runnable every frame -- one 32-
     ; byte tile per frame, clearing SIC $2202 bit 5 (CharConvIrqFlag)
-    ; once all 48 tiles of both 4x6 windows are in VRAM, releasing the
+    ; once all COMPOSITOR_BLIT_COUNT*24 tiles are in VRAM, releasing the
     ; SA-1 to recomposite. A boot-time pump would also deadlock the new
     ; loop: it clears nothing, and the SA-1's first wait would hang on a
     ; flag only the per-frame pump consumes. The first main-loop frame
     ; simply pumps the canvas sa1_main armed at boot (flag set at boot).
 
-    ; --- BG2 tilemap at word $5C00: three 4x6 sprite windows (rest blank) ---
-    ; Entries (ty<6, tx<8): window A (tx<4) = tile ty*4+tx+1; window B
-    ; (tx>=4) = tile ty*4+tx+21 -- +20 = the 24 tiles window A occupies
-    ; (tiles 0-23 at real BW-RAM $3000), so window B's tiles 24-47 at
-    ; real BW-RAM $3300 are contiguous. A third window C (6<=ty<12, tx<4,
-    ; directly below window A) = tile (ty-6)*4+tx+49 -- the next 24 tiles
-    ; (48-71 zero-indexed, i.e. tile IDs 49-72) at real BW-RAM $3600,
-    ; contiguous with window B. All three windows priority 1 ($2000 bit).
-    ; Matches the 72-tile canvas the SA-1 recomposite loop now produces
-    ; (see the blit layout comments at sa1_loop above).
+    ; --- BG2 tilemap at word $5C00: COMPOSITOR_BLIT_COUNT 4x6 sprite windows
+    ; packed in an 8-windows-wide row-major grid (rest blank), generated by
+    ; a REAL indexed loop over (tx,ty) rather than one hand-written branch
+    ; per window -- an earlier session's attempt to keep hand-unrolling
+    ; this same style out to N=21 hit a real 65816 branch-range assembler
+    ; wall (see the sa1_compositor_scaling_limit project memory); this
+    ; version's code size is fixed regardless of N, so it doesn't.
+    ;
+    ; row_band = ty / 6 (which 6-tile-tall band of windows this row is in)
+    ; and col_band = tx / 4 (which 4-tile-wide window within that band) are
+    ; both tracked WITHOUT any divide instruction (65816 has none): col_band
+    ; is tx>>2 since 4 is a power of 2, and row_band is an incrementing
+    ; counter ($0A) bumped whenever a second counter tracking ty-within-
+    ; band ($0C, "row_local") wraps past 5 at the end of a row -- cheaper
+    ; and safer than a runtime division routine for a value that only
+    ; changes once every 6 rows. window_index = row_band*8 + col_band (row-
+    ; major), tile ID = window_index*24 + local_tx + local_ty*4 + 1 (+1
+    ; because tile IDs are 1-based, 0 = blank), where local_ty = row_local
+    ; and local_tx = tx&3 (tx mod 4, again via the power-of-2 shortcut).
+    ; This is a plain arithmetic identity, not a lookup -- reduces to the
+    ; old N<=3 hand-written formulas exactly for row_band=0 (window_index=0
+    ; gives ty*4+tx+1, window_index=1 gives the old "+20" case) without
+    ; spelling either out. A tile is blank whenever window_index >=
+    ; COMPOSITOR_BLIT_COUNT -- this alone also correctly blanks every row
+    ; entirely past the last real row band, since col_band=0 already pushes
+    ; window_index past COMPOSITOR_BLIT_COUNT for a fully-out-of-range band;
+    ; no separate "too many rows" check is needed. All real tiles get
+    ; priority 1 ($2000 bit).
     rep #$20
 .a16
     lda #$5C00
     sta $2116
     ldy #$0000              ; ty = 0..31
+    stz $0A                 ; row_band = 0
+    stz $0C                 ; row_local = ty within its row band, 0..5
     nop
 scpu_tm_row:
+    lda $0A
+    asl
+    asl
+    asl                     ; row_band * 8 = this row's window-index base
+    sta $0E
     ldx #$0000              ; tx = 0..31
     nop
 scpu_tm_col:
-    cpy #$0006
-    bcs scpu_tm_maybe_c
-    cpx #$0008
-    bcs scpu_tm_blank
-    tya
-    asl
-    asl                     ; ty * 4
-    sta $00                 ; DP scratch
     txa
+    lsr
+    lsr                     ; A = col_band = tx / 4 (window width = 4 tiles)
+    clc
+    adc $0E                 ; + row_band*8 = window_index
+    cmp #COMPOSITOR_BLIT_COUNT
+    bcc scpu_tm_win_ok       ; window_index < COMPOSITOR_BLIT_COUNT -> real window
+    brl scpu_tm_blank
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_tm_win_ok:
+    sta $02                 ; $02 = window_index
+    asl
+    asl
+    asl
+    asl                     ; window_index * 16
+    sta $04
+    lda $02
+    asl
+    asl
+    asl                     ; window_index * 8
+    clc
+    adc $04                 ; window_index*16 + window_index*8 = window_index*24
+    sta $04                 ; $04 = this window's tile-ID base
+    lda $0C                 ; row_local (ty within its row band, 0..5)
+    asl
+    asl                     ; row_local * 4
+    clc
+    adc $04                 ; + window base
+    sta $00                 ; $00 = window base + row_local*4
+    txa
+    and #$0003              ; local column = tx & 3 (tx mod 4)
     clc
     adc $00
-    inc a                   ; tile index + 1
-    cpx #$0004
-    bcc scpu_tm_win_a
-    clc
-    adc #$0014              ; window B: +20 tiles (see comment above)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-scpu_tm_win_a:
-    ora #$2000              ; priority 1
-    bra scpu_tm_write
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-scpu_tm_maybe_c:
-    cpy #$000C
-    bcs scpu_tm_blank
-    cpx #$0004
-    bcs scpu_tm_blank
-    tya
-    sec
-    sbc #$0006               ; local ty = ty - 6
-    asl
-    asl                      ; local ty * 4
-    sta $00                  ; DP scratch
-    txa
-    clc
-    adc $00
-    clc
-    adc #$0031               ; window C: +49 tiles (see comment above)
+    inc a                   ; +1 (tile IDs are 1-based)
     ora #$2000               ; priority 1
     bra scpu_tm_write
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
@@ -3897,6 +4080,15 @@ scpu_tm_write:
     cpx #$0020
     bcc scpu_tm_col
     iny
+    ; --- row-band bookkeeping: row_local wraps every 6 rows, bumping row_band ---
+    inc $0C
+    lda $0C
+    cmp #$0006
+    bcc scpu_tm_row_no_bump
+    stz $0C
+    inc $0A
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_tm_row_no_bump:
     cpy #$0020
     bcc scpu_tm_row
 
@@ -3915,6 +4107,7 @@ scpu_tm_write:
     jsr Core_Nmi_Init
     jsr Core_Oam_Init
     jsr TestSprite_Init
+    jsr Character_BlankPadding
 
     sep #$20
 .a8
@@ -3924,7 +4117,12 @@ scpu_tm_write:
     sta.l Nmi_Bg1TilemapVram
     lda #$20
     sta.l Nmi_BgTilesVram12
-    lda #$13             ; TM: BG1 + BG2 + OBJ ($01 | $02 | $10) on main screen
+    lda #$11             ; TM: BG1 + OBJ ($01 | $10) on main screen -- BG2
+                          ; dropped: the BOR character no longer renders into
+                          ; a BG2 tilemap window (see Msu1_LoadFrame), so its
+                          ; static leftover tile content would otherwise sit
+                          ; as an inert visual ghost. BG1 stays for whatever
+                          ; background content exists/will exist later.
     sta.l Nmi_MainScreen
     lda #$0F
     sta.l Nmi_ScreenBrightness
@@ -3983,11 +4181,17 @@ scpu_main_loop:
     ; simply never called from here.
     jsr Core_Nmi_WaitFrame
 
-    ; One 32-byte CC-DMA canvas tile per frame, in the vblank tail -- the
-    ; SA-1's persistent recomposite loop (sa1_loop) waits for this pump to
-    ; clear its canvas-ready flag before redrawing, and the pump never
-    ; reads a half-redrawn canvas (see Scpu_CcdmaPump's header comment).
-    jsr Scpu_CcdmaPump
+    ; Scpu_CcdmaPump (the SA-1 software-compositor pump from the "find the
+    ; limit" N-scaling experiment) is no longer called here -- it targeted
+    ; the same BG2 tile window the character used to render into, and its
+    ; per-frame DMA/VRAM-write cost was pure overhead competing for the same
+    ; already-tight vblank budget the real character rendering needs now.
+    ; That whole compositor line of work was a genuine SA-1/CC-DMA hardware
+    ; exploration (see sa1_compositor_scaling_limit project memory) but not
+    ; the mechanism this project's actual characters render through -- see
+    ; that memory for why (throughput: 24 frames per blit-window refresh,
+    ; and BG2 is a single shared layer that can't host independently-moving
+    ; actors regardless of pump speed).
 
     sep #$20
 .a8
@@ -4001,10 +4205,14 @@ scpu_main_loop:
     jsr Core_Input_Poll
     jsr Core_Oop_Play
     jsr Core_Screen_Play
-    jsr TestSprite_PlayFrame
-    jsr Player_PlayFrame
-    jsr Core_Oam_Play
+    ; Anim_Play (updates Anim_FacingLeft via Anim_UpdateFacing, and streams
+    ; a new frame into the character's OBJ tile slot on animation advance)
+    ; must run BEFORE Character_PlayFrame, so the OAM entry Character_
+    ; PlayFrame writes this same iteration reflects this frame's facing,
+    ; not the previous frame's.
     jsr Anim_Play
+    jsr Character_PlayFrame
+    jsr Core_Oam_Play
     bra scpu_main_loop
 
 ; NMI/IRQ pushed from $FE00/$FE10 to $FE20/$FE30, to $FF00/$FF10, then to

@@ -71,6 +71,24 @@ OamSetSprite_Attr = $7E53AE ; .db — priority/palette/flip byte
 OamSetSprite_Hi   = $7E53AF ; .db — hi-table byte, pre-shifted (bit0=X-high, bit1=size),
                              ;        same convention as Oam_ExpandedHi's own entries
 
+; Highest Oam_CurrentSlot byte-count ever seen across frames, so the
+; per-frame post-upload reset (Core_Oam_ClearActive) only has to walk the
+; slots that have ever actually been in use instead of the full 128-sprite
+; table -- see Core_Oam_ClearActive's own header for why. NOT part of
+; OamShadow_Start..End (must survive Core_Oam_Init's shadow-clear loop
+; running before this cell exists, and is set to 0 explicitly below
+; instead). $7E53C8: main.pasm's Anim_* block runs $7E53B0-$7E53C7,
+; confirmed collision-free via a project-wide grep for $7E53C8 and up.
+Oam_HighWaterSlot = $7E53C8 ; .dw
+
+; Nonzero: Core_Oam_Play's NEXT call must transfer the full 544-byte table
+; (both main and hi) regardless of Oam_CurrentSlot/Oam_HighWaterSlot,
+; instead of just the active range -- see Core_Oam_Init's header for why
+; a one-time full push is needed, and Core_Oam_Play's for how this flag is
+; consumed. $7E53CA: immediately after Oam_HighWaterSlot ($7E53C8-C9),
+; confirmed free via a project-wide grep for $7E53CA and up.
+Oam_NeedFullUpload = $7E53CA ; .dw
+
 OAM_DEFAULT_Y = $F0      ; off the visible 224-line frame -> sprite hidden
 
 Core_Oam_Init:
@@ -86,7 +104,51 @@ Core_Oam_Init__clear_loop:
     cpx #OamShadow_End - OamShadow_Start
     bcc Core_Oam_Init__clear_loop
 
+    lda #0
+    sta.l Oam_HighWaterSlot
+
     jsr Core_Oam_ClearAll
+
+    ; Real hardware OAM RAM starts in an undefined state (Mesen2 seeds it
+    ; with random garbage at power-on/reset, matching real hardware's
+    ; unpredictable SRAM contents) -- Core_Oam_ClearAll above only zeroes
+    ; the WRAM *shadow* copy, and Core_Oam_Play's per-frame upload only
+    ; ever DMAs the active range (see its own header), so without an
+    ; explicit full-table push, every hardware OAM slot beyond whatever's
+    ; actively used this session keeps its power-on garbage forever --
+    ; invisible in WRAM-shadow-only testing (which is all this project did
+    ; until a take_screenshot visual check caught it): a garbage slot's
+    ; random Y coordinate combined with this project's 32x64 large sprite
+    ; size means the "hidden" OAM_DEFAULT_Y=$F0 wrap trick doesn't apply to
+    ; slots that were never written at all, so they render as scattered
+    ; noise blocks across the whole visible screen.
+    ;
+    ; A first fix attempt hand-rolled a synchronous immediate DMA straight
+    ; to hardware channel 7 here, bypassing the async queue entirely
+    ; (reasoning: Core_Nmi_Init, which runs immediately before this, leaves
+    ; the screen in forced blank, and forced blank permits OAM writes any
+    ; time). That was abandoned after a real bug: DBR is not guaranteed 0
+    ; this early in scpu_boot, so the register writes silently landed
+    ; nowhere until switched to explicit `.l $00xxxx` addressing -- and even
+    ; then, the hi-table target address written was wrong ($0200, a BYTE
+    ; address, when $2102/$2103 take a 9-bit WORD address -- see
+    ; Core_Oam_Play's own hi-table comment for the ground-truth fix), which
+    ; alone fully explains the run-to-run "nondeterministic-looking" results
+    ; this attempt produced: the real cause was a broken pass/fail metric
+    ; (raw nonzero-byte count, which can't distinguish "cleared" from
+    ; "correctly hidden at Y=$F0" -- Core_Oam_ClearAll's own hidden-slot
+    ; value) combined with this real address bug, not any actual run-to-run
+    ; variation.
+    ;
+    ; Fix: don't hand-roll a second DMA path at all. Just tell Core_Oam_Play
+    ; its very next call must push the FULL table instead of only the
+    ; active range -- routing the one-time full clear through the same
+    ; already-proven Core_Oam_Play -> core/dma.pasm's queue ->
+    ; Core_Nmi_Play -> Core_Dma_ProcessQueue path every other OAM upload
+    ; uses, correctly vblank-timed and DBR-safe by construction, no raw
+    ; register writes or NMI race here at all.
+    lda #1
+    sta.l Oam_NeedFullUpload
 
     ; default sprite tile base: VRAM word $4000
     lda #$4000
@@ -94,7 +156,14 @@ Core_Oam_Init__clear_loop:
 
     sep #$20
 .a8
-    lda #$02                ; base word $4000 (field 2 << 13), size mode 0
+    lda #$C2                ; base word $4000 (field 2 << 13), size mode 6
+                             ; (16x32 small / 32x64 large -- Mesen2-source-
+                             ; verified pair table, SnesPpuTools.cpp
+                             ; _oamSizes[6] = {{2,4},{4,8}}) -- large (32x64,
+                             ; 4 tiles wide x 8 tall) is what a real 32x48 BOR
+                             ; character sprite uses now; was size mode 0
+                             ; (8x8/16x16) for the old decorative test/dpad
+                             ; sprites only.
     sta.l Nmi_ObjSel
     rep #$31
 .a16
@@ -137,6 +206,80 @@ Core_Oam_ClearAll__hi_loop:
     bcc Core_Oam_ClearAll__hi_loop
     rts
 
+; Post-upload per-frame reset, called by Core_Nmi_Play instead of
+; Core_Oam_ClearAll. Same effect (hide every previously-active entry,
+; rewind the write cursor) but bounded to Oam_HighWaterSlot -- the highest
+; byte count Core_Oam_Play has ever actually used -- instead of walking
+; the full 128-sprite / 544-byte table every single vblank regardless of
+; how many sprites are live. That full walk (this routine's other half,
+; Core_Oam_ClearAll, still used once at Core_Oam_Init boot time) was
+; measured via a temporary HVBJOY probe in core/nmi.pasm to be the
+; dominant cost pushing Core_Nmi_Play's forced-blank commit bracket past
+; real vblank once a per-frame OAM sprite (Character_PlayFrame) made
+; "clear+reupload every frame" the steady-state case: with 1 active
+; sprite it walked 127 sprites' worth of dead work for every 1 that
+; mattered. Core_Oam_Play is responsible for growing Oam_HighWaterSlot as
+; Oam_CurrentSlot grows; this routine only ever reads it, never shrinks
+; it -- shrinking would leave a since-vacated higher slot's stale sprite
+; on screen forever, which is exactly the bug this whole shadow-buffer
+; system exists to prevent.
+Core_Oam_ClearActive:
+    rep #$31
+.a16
+    lda #0
+    sta Oam_CurrentSlot
+
+    ; --- Main table: Oam_HighWaterSlot/4 sprites (exact -- Oam_CurrentSlot
+    ; only ever advances by exactly 4 per sprite written, so this divides
+    ; evenly, no rounding needed). ---
+    lda.l Oam_HighWaterSlot
+    lsr a
+    lsr a
+    beq Core_Oam_ClearActive__main_skip
+    tay
+    ldx #0
+    nop
+Core_Oam_ClearActive__main_loop:
+    lda #0
+    sta.l Oam_Buffer,x
+    lda #OAM_DEFAULT_Y
+    sta.l Oam_Buffer+1,x
+    lda #0
+    sta.l Oam_Buffer+3,x
+    inx
+    inx
+    inx
+    inx
+    dey
+    bne Core_Oam_ClearActive__main_loop
+    nop
+Core_Oam_ClearActive__main_skip:
+
+    ; --- Hi table: ceil(sprite_count/4) bytes -- identical formula to
+    ; Core_Oam_Play's own hi-table DMA length, so this clears exactly the
+    ; byte range that could ever have actually been written to hardware. ---
+    lda.l Oam_HighWaterSlot
+    clc
+    adc #15
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    beq Core_Oam_ClearActive__hi_skip
+    tay
+    ldx #0
+    nop
+Core_Oam_ClearActive__hi_loop:
+    lda #0
+    sta.l Oam_ExpandedHi,x
+    sta.l Oam_PackedHi,x
+    inx
+    dey
+    bne Core_Oam_ClearActive__hi_loop
+    nop
+Core_Oam_ClearActive__hi_skip:
+    rts
+
 ; Call once per frame after all sprites for this frame have been written
 ; into Oam_Buffer/Oam_ExpandedHi. Packs the hi-table and queues the upload;
 ; Core_Nmi_Play does the actual DMA and the post-upload buffer reset.
@@ -163,16 +306,63 @@ Core_Oam_Play:
 .a16
     lda Oam_CurrentSlot
     bne Core_Oam_Play__has_sprites
-    bra Core_Oam_Play__done
+    lda.l Oam_NeedFullUpload
+    bne Core_Oam_Play__has_sprites
+    ; bra (same +-127 range limit as bcc/beq) has to clear the entire rest
+    ; of this routine from here -- the longest jump in the file even before
+    ; this session's additions grew it further. jmp is absolute, no range
+    ; limit.
+    jmp Core_Oam_Play__done
     nop
+; Transfers only the ACTIVE sprite range (0..Oam_CurrentSlot for the main
+; table, ceil(sprite_count/4) bytes for the hi table) instead of the fixed
+; full 544-byte table every frame. Real hardware OAM slots beyond the
+; active range simply keep whatever an earlier frame's (also-truncated)
+; DMA last wrote there -- safe as long as nothing in this codebase ever
+; writes a sprite into a slot and then later leaves it unwritten while
+; some LOWER slot stays active (every current caller re-asserts every
+; active sprite's full state every single frame, own boot-time or first-
+; frame Core_Oam_ClearAll-driven upload already cleared the rest to hidden
+; once) -- if a future entity system adds sprites that come and go non-
+; contiguously, this needs revisiting (either go back to a full transfer,
+; or explicitly re-hide a freed slot's Y before it drops out of the active
+; range). Was a fixed 544-byte transfer (measured, via a temporary HVBJOY
+; probe in core/nmi.pasm, to be the dominant cost pushing Core_Nmi_Play's
+; commit bracket past real vblank once a real per-frame character sprite
+; made "one sprite every frame" the steady-state case instead of an
+; occasional test) -- with 1 active sprite this is 4+1=5 bytes instead of
+; 544, cutting the OAM DMA to roughly 1% of its previous cost.
 Core_Oam_Play__has_sprites:
+    ; Grow the high-water mark Core_Oam_ClearActive uses to bound its
+    ; per-frame walk -- see Oam_HighWaterSlot's own header comment. Only
+    ; ever grows; a shrink would let a since-vacated slot's stale sprite
+    ; survive on screen.
+    lda Oam_CurrentSlot
+    cmp.l Oam_HighWaterSlot
+    bcc Core_Oam_Play__hwm_done
+    sta.l Oam_HighWaterSlot
+Core_Oam_Play__hwm_done:
+
     jsr Core_Oam_TransformHiOam
 
+    ; --- Main table: Oam_CurrentSlot bytes (already a byte count: 4
+    ; bytes/sprite), starting at OAM address 0 -- except on the one-shot
+    ; full-upload frame (Oam_NeedFullUpload, set once by Core_Oam_Init),
+    ; where the whole 512-byte table goes regardless of Oam_CurrentSlot so
+    ; every hardware slot beyond the active range gets its power-on
+    ; garbage overwritten with the already-zeroed WRAM shadow. ---
     lda #$5100                        ; low+mid byte of Oam_Buffer's address
     sta DmaRequest_SourceAddrLow
     lda #0
     sta DmaRequest_TargetAddr         ; OAM address 0
-    lda #(OAM_SLOTS*4) + (OAM_SLOTS/4)  ; 512 + 32 = 544 bytes, one contiguous transfer
+    lda.l Oam_NeedFullUpload
+    beq Core_Oam_Play__main_len_partial
+    lda #OAM_SLOTS * 4
+    bra Core_Oam_Play__main_len_done
+    nop
+Core_Oam_Play__main_len_partial:
+    lda Oam_CurrentSlot
+Core_Oam_Play__main_len_done:
     sta DmaRequest_Length
 
     sep #$20
@@ -184,12 +374,79 @@ Core_Oam_Play__has_sprites:
     rep #$31
 .a16
     jsr Core_Dma_Enqueue
-    bcs Core_Oam_Play__queued
-    bra Core_Oam_Play__done
-    nop
-Core_Oam_Play__queued:
+    bcs Core_Oam_Play__queued_main
+    ; bra (not just bcc/bcs) is also range-limited to +-127 bytes -- the
+    ; hi-table dispatch block below (grown this session by the one-shot
+    ; full-upload length decision) pushed Core_Oam_Play__done far enough
+    ; away that a plain `bra` here no longer reaches it. jmp is absolute,
+    ; no range limit.
+    jmp Core_Oam_Play__done
+Core_Oam_Play__queued_main:
     lda #1
     sta Oam_UploadFlag
+
+    ; --- Hi table: ceil(sprite_count/4) bytes, starting at OAM address 512
+    ; (word address $0100, NOT byte address $0200) -- real hardware OAM's
+    ; hi table always starts there regardless of transfer size (it's a
+    ; fixed region, not relocatable). $2102/$2103 (OAMADDL/H, written here
+    ; as one 16-bit store spanning both, same as Core_Dma_TransferOam's own
+    ; convention) take a 9-bit WORD address: OAMADDL is the low 8 bits,
+    ; OAMADDH bit0 is bit 8, OAMADDH bit7 is EnableOamPriority (unrelated) --
+    ; ground-truth verified against Mesen2's SnesPpu.cpp
+    ; (`_state.InternalOamAddress = _state.OamRamAddress << 1`, i.e. the
+    ; PPU's real internal byte address is the written value doubled). Byte
+    ; 512 = word 256 = $0100. A previous version of this write used $0200
+    ; (the BYTE address, only valid if this register took bytes) -- since
+    ; $0200's low byte is $00 and OAMADDH's bit0 is 0, that silently
+    ; targeted word 0 (main-table byte 0) instead, zeroing over live sprite
+    ; data with hi-table content every frame this ran. Caught via a direct
+    ; snesSpriteRam hardware-OAM read showing sprite 0's Y stuck at 0
+    ; instead of the expected value.
+    ; sprite_count = Oam_CurrentSlot/4; ceil(sprite_count/4) =
+    ; ceil(Oam_CurrentSlot/16) = (Oam_CurrentSlot+15)>>4. Best-effort: if
+    ; this second enqueue fails (queue full), the hi table just stays one
+    ; frame stale -- for the size/X-high bits, which change far less often
+    ; than position, this is not visually significant, unlike skipping the
+    ; main table would be. ---
+    lda #$5300                        ; low+mid byte of Oam_PackedHi's address
+    sta DmaRequest_SourceAddrLow
+    lda #$0100                        ; OAM word address 256 (hi table start)
+    sta DmaRequest_TargetAddr
+
+    ; Same one-shot-full-upload override as the main table above, decided
+    ; and consumed here (this is the last read of Oam_NeedFullUpload this
+    ; call) rather than at the main table's enqueue, so a queue-full
+    ; failure on the main table (which leaves Oam_NeedFullUpload set for a
+    ; retry next frame, see the bcs branch above) doesn't get contradicted
+    ; by an early clear here.
+    lda.l Oam_NeedFullUpload
+    beq Core_Oam_Play__hi_len_partial
+    lda #0
+    sta.l Oam_NeedFullUpload
+    lda #OAM_SLOTS / 4
+    bra Core_Oam_Play__hi_len_done
+    nop
+Core_Oam_Play__hi_len_partial:
+    lda Oam_CurrentSlot
+    clc
+    adc #15
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+Core_Oam_Play__hi_len_done:
+    sta DmaRequest_Length
+
+    sep #$20
+.a8
+    lda #$7E
+    sta DmaRequest_SourceBank
+    lda #DMA_TYPE_OAM
+    sta DmaRequest_TypeFlags
+    rep #$31
+.a16
+    jsr Core_Dma_Enqueue
+    bra Core_Oam_Play__done
     nop
 Core_Oam_Play__done:
     rts
@@ -308,6 +565,23 @@ Core_Oam_TransformHiOam:
     lda #0
     sta.l OamHiSrcIndex
     sta.l OamHiDstIndex
+
+    ; Only pack the groups Core_Oam_Play will actually DMA this frame --
+    ; ceil(Oam_CurrentSlot/16) hi-table bytes, same formula as its DMA
+    ; length -- instead of always walking the full 32 groups (128
+    ; sprites) regardless of how many are active. This loop, unbounded,
+    ; was (together with Core_Oam_ClearAll's own full-128 walk) the
+    ; dominant per-frame cost pushing Core_Nmi_Play's vblank commit past
+    ; real vblank -- see Core_Oam_ClearActive's header for the full story.
+    lda Oam_CurrentSlot
+    clc
+    adc #15
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    beq Core_Oam_TransformHiOam__done   ; nothing active -- nothing to pack
+    tay
     nop
 Core_Oam_TransformHiOam__loop:
     lda.l OamHiSrcIndex
@@ -363,7 +637,9 @@ Core_Oam_TransformHiOam__loop:
     lda.l OamHiDstIndex
     inc a
     sta.l OamHiDstIndex
-    cmp #32                             ; = OAM_SLOTS/4 groups of 4 sprites
-    bcc Core_Oam_TransformHiOam__loop
+    dey
+    bne Core_Oam_TransformHiOam__loop
+    nop
+Core_Oam_TransformHiOam__done:
     plp
     rts
