@@ -362,6 +362,9 @@ Core_Oam_Play__hwm_done:
     nop
 Core_Oam_Play__main_len_partial:
     lda Oam_CurrentSlot
+    nop                     ; workaround: Poppy branch-target label misresolution (see poppy bug #4) --
+                             ; every other branch target in this file guards with a nop; this one didn't,
+                             ; the sibling bug below (Core_Oam_Play__hi_len_done) proved the risk is real
 Core_Oam_Play__main_len_done:
     sta DmaRequest_Length
 
@@ -434,6 +437,17 @@ Core_Oam_Play__hi_len_partial:
     lsr a
     lsr a
     lsr a
+    ; workaround: Poppy branch-target label misresolution (see poppy bug #4).
+    ; Root-caused a real bug via this exact spot: Core_Oam_Play__hi_len_done
+    ; had no nop guard, so Poppy resolved the label onto the LAST `lsr a`
+    ; above instead of the `sta` below it -- the one-shot full-upload branch
+    ; (`lda #OAM_SLOTS/4 / bra Core_Oam_Play__hi_len_done`) landed there and
+    ; silently re-executed that lsr, halving the intended 32-byte hi-table
+    ; length to 16 before it ever reached the sta. Root-caused via a WRAM
+    ; ring-log instrumenting Core_Dma_TransferOam's actual DAS7 value (16,
+    ; not 32) cross-checked against a direct disassemble showing the label
+    ; address landing mid-shift-sequence, not raw byte-count guessing.
+    nop
 Core_Oam_Play__hi_len_done:
     sta DmaRequest_Length
 
