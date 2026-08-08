@@ -75,7 +75,18 @@ Core_Nmi_Init:
     sep #$20
 .a8
     lda #$80                 ; INIDISP: force blank while we set everything up
-    sta $2100
+    ; Long addressing (bank $00 explicit) instead of a bare `sta $2100`:
+    ; Core_Nmi_Init runs at the very start of scpu_boot's PPU setup, before
+    ; anything in this project has ever established DBR=0 -- unlike
+    ; Core_Nmi_Play (which forces DBR=0 itself every call, since it's
+    ; reached from a real NMI with no guarantee either) this write had
+    ; never been verified to actually land. Found via a real, visible bug:
+    ; Core_Oam_Init's later one-time full-OAM-clear DMA (see oam.pasm)
+    ; landed only partially/inconsistently until this was fixed too --
+    ; consistent with forced blank never actually having been engaged, so
+    ; whether an OAM write took effect depended on real scanline timing
+    ; instead of being unconditionally safe.
+    sta.l $002100
 
     rep #$31
 .a16
@@ -93,10 +104,39 @@ Core_Nmi_Init__clear_loop:
 .a8
     lda #$81                 ; NMITIMEN: NMI enable + auto-joypad-read
     sta.l Nmi_InterruptFlags
-    sta $4200
+    sta.l $004200
 
-    lda $4210                 ; RDNMI: clear any pending nmi flag
-    lda $4211                 ; TIMEUP: clear any pending irq flag
+    lda.l $004210              ; RDNMI: clear any pending nmi flag
+    lda.l $004211              ; TIMEUP: clear any pending irq flag
+
+    ; --- One-time commit of the window/color-math/fixed-color registers,
+    ; moved out of Core_Nmi_Play's per-frame commit. Nothing in this
+    ; codebase ever sets Nmi_Window12Sel/WindowObjSel/Window1L/Window2L/
+    ; WindowBgLogic/WindowMainScreen/ColorMathControl/FixedColorR/G/B to
+    ; anything but their zeroed shadow default (confirmed via a project-wide
+    ; grep -- zero call sites write any of them, at all, anywhere), so
+    ; re-writing them to hardware every single vblank was pure dead weight.
+    ; Measured (via a temporary HVBJOY probe) to be a real contributor to a
+    ; vblank-budget overrun once a per-frame OAM sprite (Character_PlayFrame)
+    ; made the commit's steady-state cost much higher than when this
+    ; register block was written. If a future feature ever needs windowing
+    ; or color math, it should write these shadows directly AND go back to
+    ; committing them every frame in Core_Nmi_Play (or add a dirty-flag
+    ; gate) -- writing them here once is only correct as long as they truly
+    ; never change after boot. ---
+    stz $2123
+    stz $2125
+    stz $2126
+    stz $2128
+    stz $212A
+    stz $212E
+    stz $2130
+    lda #$20                  ; COLDATA red-select bit, value 0
+    sta $2132
+    lda #$40                  ; COLDATA green-select bit, value 0
+    sta $2132
+    lda #$80                  ; COLDATA blue-select bit, value 0
+    sta $2132
 
     rep #$31
 .a16
@@ -157,12 +197,13 @@ Core_Nmi_Play__do_commit:
     bra Core_Nmi_Play__do_oam_reset
     nop
 Core_Nmi_Play__do_oam_reset:
-    jsr Core_Oam_ClearAll
-    ; Core_Oam_ClearAll does `rep #$31` internally and never restores 8-bit
-    ; mode before its rts (Core_Oam_Init, its other caller, needs 16-bit
-    ; back and does its own sep #$20 afterward) -- so this call site, which
-    ; needs 8-bit to continue, must re-assert it itself rather than assume
-    ; the width it had before the call still holds.
+    jsr Core_Oam_ClearActive
+    ; Core_Oam_ClearActive does `rep #$31` internally and never restores
+    ; 8-bit mode before its rts (same calling convention as
+    ; Core_Oam_ClearAll, its full-table counterpart used only by
+    ; Core_Oam_Init at boot) -- so this call site, which needs 8-bit to
+    ; continue, must re-assert it itself rather than assume the width it
+    ; had before the call still holds.
     sep #$20
 .a8
     lda #0
@@ -180,22 +221,13 @@ Core_Nmi_Play__skip_oam_reset:
     sta $420C
     sta.l Nmi_HdmaEnableCurrent
 
-    lda.l Nmi_Window12Sel
-    sta $2123
-    lda.l Nmi_WindowObjSel
-    sta $2125
-    lda.l Nmi_Window1L
-    sta $2126
-    lda.l Nmi_Window2L
-    sta $2128
-    lda.l Nmi_WindowBgLogic
-    sta $212A
+    ; Window regs (W12SEL/WOBJSEL/WH0/WH2/WBGLOG/WOBJLOG/CGWSEL) and the
+    ; fixed color (COLDATA) are committed once, at boot, by Core_Nmi_Init --
+    ; nothing in this codebase ever changes their shadows away from 0, so
+    ; re-writing them here every vblank was pure dead weight that ate into
+    ; the frame's vblank budget. See Core_Nmi_Init for the one-time commit.
     lda.l Nmi_MainScreen
     sta $212C
-    lda.l Nmi_WindowMainScreen
-    sta $212E
-    lda.l Nmi_ColorMathControl
-    sta $2130
     lda.l Nmi_ScreenMode
     sta $2105
     lda.l Nmi_Bg1TilemapVram
@@ -206,19 +238,6 @@ Core_Nmi_Play__skip_oam_reset:
     sta $210B
     lda.l Nmi_ObjSel
     sta $2101
-
-    lda.l Nmi_FixedColorR
-    and #$1F
-    ora #$20                  ; COLDATA red-select bit
-    sta $2132
-    lda.l Nmi_FixedColorG
-    and #$1F
-    ora #$40                  ; COLDATA green-select bit
-    sta $2132
-    lda.l Nmi_FixedColorB
-    and #$1F
-    ora #$80                  ; COLDATA blue-select bit
-    sta $2132
 
     ; BGnHOFS/VOFS are write-twice registers: low byte then high byte, same
     ; address, latched internally by the PPU.
