@@ -2950,6 +2950,7 @@ Msu1_LoadFrame_EnqueueRow:
 .a16
 .i16
     jsr Core_Dma_Enqueue
+Msu1_LoadFrame_EnqueueRow__ok:
     rts
 
 ; Shared "nothing changed this call" tail for Anim_Play_Idle/Walk/Attack
@@ -3023,20 +3024,26 @@ Anim_Done:
     nop
     nop
     nop
+; Bare $21xx addresses below (and in TestSprite_WriteSolidTile) switched to
+; explicit `.l $00xxxx` long addressing while investigating a speckled-noise
+; rendering bug -- turned out not to be the actual cause (root cause was a
+; missing branch-target nop guard in core/oam.pasm's Core_Oam_Play, see that
+; file's Core_Oam_Play__hi_len_done comment). Left in place since it's
+; harmless either way, not because DBR was confirmed uncertain here.
 TestSprite_Init:
     rep #$20
 .a16
     lda #$4000                ; tile 0 (top-left quadrant), OBJ base
-    sta $2116
+    sta.l $002116
     jsr TestSprite_WriteSolidTile
     lda #$4010                ; tile 1 (top-right quadrant): base + 1*16 words
-    sta $2116
+    sta.l $002116
     jsr TestSprite_WriteSolidTile
     lda #$4100                ; tile $10 (bottom-left quadrant): base + 16*16 words
-    sta $2116
+    sta.l $002116
     jsr TestSprite_WriteSolidTile
     lda #$4110                ; tile $11 (bottom-right quadrant): base + 17*16 words
-    sta $2116
+    sta.l $002116
     jsr TestSprite_WriteSolidTile
 
     ; --- OBJ palette: CGRAM color 128 (pixel value 0, unused/transparent,
@@ -3044,14 +3051,14 @@ TestSprite_Init:
     sep #$20
 .a8
     lda #$80
-    sta $2121                ; CGRAM address = color 128 (OBJ palette 0)
+    sta.l $002121                ; CGRAM address = color 128 (OBJ palette 0)
     lda #0
-    sta $2122                 ; color 128 low byte
-    sta $2122                 ; color 128 high byte
+    sta.l $002122                 ; color 128 low byte
+    sta.l $002122                 ; color 128 high byte
     lda #$1F
-    sta $2122                 ; color 129 low byte ($001F = pure red)
+    sta.l $002122                 ; color 129 low byte ($001F = pure red)
     lda #0
-    sta $2122                 ; color 129 high byte
+    sta.l $002122                 ; color 129 high byte
 
     ; --- OAM entry 0: X=120, Y=100, tile=0 (OBJ base), attr = priority 3 /
     ; palette 0. One 8-bit store per field (not a 16-bit store spanning two
@@ -3103,7 +3110,7 @@ TestSprite_WriteSolidTile:
     lda #$00FF
     nop
 TestSprite_WriteSolidTile__plane01:
-    sta $2118
+    sta.l $002118
     dex
     bne TestSprite_WriteSolidTile__plane01
 
@@ -3111,7 +3118,7 @@ TestSprite_WriteSolidTile__plane01:
     lda #$0000
     nop
 TestSprite_WriteSolidTile__plane23:
-    sta $2118
+    sta.l $002118
     dex
     bne TestSprite_WriteSolidTile__plane23
     rts
@@ -3131,11 +3138,22 @@ TestSprite_WriteSolidTile__plane23:
     nop
     nop
     nop
+; Every $21xx write below uses explicit `.l $00xxxx` long addressing instead
+; of a bare address. This was a first fix attempt (assuming a DBR-uncertainty
+; issue, the same class already found in core/oam.pasm's Core_Oam_Init this
+; session) while investigating a speckled-noise rendering bug -- turned out
+; NOT to be the actual cause. The real bug was a missing branch-target nop
+; guard in core/oam.pasm's Core_Oam_Play (see that file's
+; Core_Oam_Play__hi_len_done comment) that silently halved the one-shot
+; full-table OAM upload's length, leaving most of hardware OAM (both tables)
+; at its power-on-random content -- garbage Y/size bits on otherwise-hidden
+; sprites rendered as scattered noise, nothing to do with VRAM/CGRAM write
+; timing at all. Left as `.l` anyway since it's harmless, just not the fix.
 Character_BlankPadding:
     rep #$20
 .a16
     lda #$4600                ; tileRow 6, col 0
-    sta $2116
+    sta.l $002116
     rep #$31
 .a16
 .i16
@@ -3143,14 +3161,14 @@ Character_BlankPadding:
     lda #$0000
     nop
 Character_BlankPadding__row6:
-    sta $2118
+    sta.l $002118
     dex
     bne Character_BlankPadding__row6
 
     rep #$20
 .a16
     lda #$4700                ; tileRow 7, col 0
-    sta $2116
+    sta.l $002116
     rep #$31
 .a16
 .i16
@@ -3158,7 +3176,7 @@ Character_BlankPadding__row6:
     lda #$0000
     nop
 Character_BlankPadding__row7:
-    sta $2118
+    sta.l $002118
     dex
     bne Character_BlankPadding__row7
     rts
@@ -4104,7 +4122,72 @@ scpu_tm_row_no_bump:
     ; back to 0. Brightness is NOT written directly here -- the shadow is
     ; set and the first vblank commits it, same as upstream's own
     ; core.nmi.init/core.nmi.play split.
+    ;
+    ; ROOT CAUSE FIX (found investigating a full-body character sprite
+    ; static/noise regression): Core_Nmi_Init enables real hardware NMI
+    ; (NMITIMEN=$81) below, but Oam_UploadFlag/Oam_HighWaterSlot aren't
+    ; zeroed until Core_Oam_Init runs several instructions later -- and NMI
+    ; is non-maskable, so a real vblank landing in that gap is not blocked
+    ; by anything here. When it lands, nmi_handler -> Core_Nmi_Play sees
+    ; Oam_UploadFlag as Mesen2's power-on-random WRAM garbage (almost
+    ; always nonzero), takes the "do OAM reset" branch, and calls
+    ; core/oam.pasm's Core_Oam_ClearActive with Oam_HighWaterSlot ALSO
+    ; still garbage -- that value (divided by 4) becomes the main-table
+    ; clear loop's iteration count, so a large garbage word turns into a
+    ; massive out-of-bounds write starting at Oam_Buffer ($7E5100),
+    ; stamping the OAM_DEFAULT_Y "hidden sprite" pattern hundreds of bytes
+    ; past Oam_Buffer's real 512-byte extent. That overrun lands squarely
+    ; on this file's own Anim_FrameIndex..Anim_AttackMsuBaseHi block
+    ; ($7E53B0-$7E53C7, immediately after oam.pasm's own WRAM cells),
+    ; zeroing CharSelect_Loaded/Anim_IdleFrameCount right after
+    ; Anim_LoadCharacter had already populated them correctly at boot --
+    ; confirmed via a write-hook trace showing the correct roster values
+    ; land first (Core_Oam_Init/Core_Nmi_Init haven't run yet at that
+    ; point), then get wiped by an OAM_DEFAULT_Y-shaped write burst spanning
+    ; from $7E5100 through past $7E53CF on the very first real NMI. With
+    ; CharSelect_Loaded stuck at 0, Anim_Play bails every frame before ever
+    ; calling Msu1_LoadFrame, so the character's OBJ tiles in VRAM are never
+    ; streamed and stay at raw VRAM garbage -- the observed full-body
+    ; static. (Core_Oam_Init's later, correctly-bounded calls repair
+    ; Oam_Buffer's own 512-byte range afterward, which is why that specific
+    ; range reads clean in a post-boot snapshot even though this bug is
+    ; real -- only the untouched-by-anything-else Anim_*/CharSelect_* cells
+    ; past it stay corrupted permanently.)
+    ;
+    ; Fix: zero just the two WRAM cells Core_Oam_ClearActive actually reads
+    ; before it can possibly run (the upload-flag gate and the high-water
+    ; bound), ahead of enabling NMI. Neither is part of NmiShadow_Start..End
+    ; ($7E5003-$7E5024ish) or Core_Oam_Init's own shadow range, so this
+    ; doesn't fight the Nmi_ObjSel ordering requirement above -- it just
+    ; makes Core_Oam_ClearActive a safe no-op (Oam_UploadFlag==0 skips it
+    ; entirely) if a vblank lands before Core_Oam_Init's own full init runs.
+    rep #$31
+.a16
+    lda #0
+    sta.l Oam_UploadFlag
+    sta.l Oam_HighWaterSlot
+
     jsr Core_Nmi_Init
+
+    ; Core_Nmi_Init's own shadow-clear loop leaves Nmi_ScreenBrightness at 0
+    ; ($00: brightness 0, forced-blank bit CLEAR) until the real value is set
+    ; much further down (the `lda #$0F / sta.l Nmi_ScreenBrightness` below),
+    ; and Core_Nmi_Init just enabled real NMI a few instructions ago. If a
+    ; real vblank landed in the gap between here and that later write, it
+    ; would commit a premature "unblank" and could break the direct
+    ; $2116/$2118/$2121/$2122 writes below. Defensive, cheap, and plausibly
+    ; correct on real hardware -- but NOT a confirmed fix for anything: this
+    ; was the first hypothesis for a real speckled-noise rendering bug (see
+    ; core/oam.pasm's Core_Oam_Play__hi_len_done comment for the actual root
+    ; cause, found afterward), and applying this write alone did not change
+    ; the symptom in testing. Kept as cheap insurance, not as documentation
+    ; of a fix.
+    sep #$20
+.a8
+    lda #$80
+    sta.l Nmi_ScreenBrightness
+    rep #$20
+.a16
     jsr Core_Oam_Init
     jsr TestSprite_Init
     jsr Character_BlankPadding
