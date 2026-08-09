@@ -44,12 +44,17 @@ def open_session(verify_script_file, boot_wait=2.0):
     return McpSession(rom=rom_path(verify_script_file), mesen=MESEN_EXE, boot_wait=boot_wait)
 
 
-def read_block(m, addr, length=32):
-    """addr must be a full $7Exxxx-style address. length must be >= 32."""
-    assert addr >= 0x7E0000 or addr >= 0x008000, \
-        f'read_block: {hex(addr)} does not look like a full address'
+def read_block(m, addr, length=32, mem_type='snesMemory'):
+    """For mem_type='snesMemory' (WRAM), addr must be a full $7Exxxx/$00xxxx
+    -style address -- a bare offset silently misreads in this harness. That
+    rule doesn't apply to the other memory types (snesCgRam, snesVideoRam,
+    snesSpriteRam), which are addressed as plain offsets into their own
+    small space. length must always be >= 32."""
+    if mem_type == 'snesMemory':
+        assert addr >= 0x7E0000 or addr >= 0x008000, \
+            f'read_block: {hex(addr)} does not look like a full WRAM address'
     assert length >= 32, 'read_block: reads under 32 bytes can be stale in this harness'
-    return m.read_memory('snesMemory', addr, length)
+    return m.read_memory(mem_type, addr, length)
 
 
 class Reporter:

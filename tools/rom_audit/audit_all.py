@@ -24,6 +24,7 @@ Usage: python tools/rom_audit/audit_all.py
 """
 import os
 import re
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +45,8 @@ OOP_SEED_NAMES = [
     'Character_PlayFrame',
     'Character_HitApply',
     'Character_HitApply_VsEntity1',
+    'Character_HitApply_VsEntity2',
+    'Character_HitApply_VsEntity3',
     'Character_HitApply_VsPlayer',
     'CharacterEntity_Init',
     'CharacterEntity_Play',
@@ -139,31 +142,53 @@ def run_one_seed_set(label, entry_addrs, data, labels_sorted, addrs, label_by_ad
     return ok, real_addrs
 
 
-def check_entity1_base_sync(pasm_path):
-    entity1_line = None
+def run_verify_layout():
+    """Runs verify_layout.py as a subprocess (it's a self-contained argv
+    script with its own SystemExit(1)-on-unsafe behavior; not worth
+    re-implementing its M1/M2/M3 drift model inline)."""
+    print('--- verify_layout.py ---')
+    result = subprocess.run(
+        [sys.executable, os.path.join(HERE, 'verify_layout.py'), PASM_PATH, SYM_PATH],
+        capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    print()
+    return result.returncode == 0
+
+
+def check_entity_base_sync(pasm_path):
+    """Entity1_Base/Entity2_Base/Entity3_Base are hand-maintained literals
+    (Poppy can't forward-reference CHAR_ZP_LEN -- see main.pasm's comment
+    above Entity1_Base). Assert each is still exactly slot*CHAR_ZP_LEN."""
+    entity_literals = {}
     char_zp_len = None
     with open(pasm_path, encoding='utf-8') as f:
         for line in f:
-            m = re.match(r'\s*Entity1_Base\s*=\s*\$7[eE]0[aA]00\s*\+\s*(\d+)', line)
+            m = re.match(r'\s*Entity([123])_Base\s*=\s*\$7[eE]0[aA]00\s*\+\s*(\d+)', line)
             if m:
-                entity1_line = int(m.group(1))
+                entity_literals[int(m.group(1))] = int(m.group(2))
             m2 = re.match(r'\s*CHAR_ZP_LEN\s*=\s*(\d+)', line)
             if m2:
                 char_zp_len = int(m2.group(1))
-    if entity1_line is None:
-        print('FAIL: could not find Entity1_Base = $7E0a00 + N in main.pasm')
-        return False
     if char_zp_len is None:
         print('FAIL: could not find CHAR_ZP_LEN = N in main.pasm')
         return False
-    if entity1_line != char_zp_len:
-        print(f'FAIL: Entity1_Base uses literal {entity1_line} but '
-              f'CHAR_ZP_LEN is {char_zp_len} -- these have drifted apart. '
-              f'Update the literal in Entity1_Base\'s definition (main.pasm) '
-              f'to match CHAR_ZP_LEN (Poppy cannot forward-reference it directly).')
-        return False
-    print(f'Entity1_Base literal ({entity1_line}) matches CHAR_ZP_LEN ({char_zp_len}). OK.')
-    return True
+    ok = True
+    for slot in (1, 2, 3):
+        expected = slot * char_zp_len
+        actual = entity_literals.get(slot)
+        if actual is None:
+            print(f'FAIL: could not find Entity{slot}_Base = $7E0a00 + N in main.pasm')
+            ok = False
+        elif actual != expected:
+            print(f'FAIL: Entity{slot}_Base uses literal {actual} but '
+                  f'{slot}*CHAR_ZP_LEN is {expected} -- these have drifted apart. '
+                  f'Update the literal in Entity{slot}_Base\'s definition (main.pasm).')
+            ok = False
+        else:
+            print(f'Entity{slot}_Base literal ({actual}) matches {slot}*CHAR_ZP_LEN ({expected}). OK.')
+    return ok
 
 
 def check_main_loop_margin(sym_by_name, real_addrs):
@@ -221,7 +246,8 @@ def main():
         'oop-dispatched entry points', oop_entries, data, labels_sorted, addrs, label_by_addr)
     all_ok &= ok
 
-    all_ok &= check_entity1_base_sync(PASM_PATH)
+    all_ok &= run_verify_layout()
+    all_ok &= check_entity_base_sync(PASM_PATH)
     all_ok &= check_main_loop_margin(sym_by_name, real_addrs_boot | real_addrs_oop)
 
     print()

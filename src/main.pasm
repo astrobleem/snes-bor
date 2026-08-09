@@ -2428,28 +2428,48 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
                                    ; 30 pixels" per the spec's own wording,
                                    ; doesn't need to be exact/circular
 
-; --- plan.md Phase 4: collision + hit reaction (AABB-only, no HP/damage
+; --- plan.md Phase 4/5: collision + hit reaction (AABB-only, no HP/damage
 ; tracking, matching the spec's explicit PoC scope). Same "player is always
 ; slot 0, fixed DP window" shortcut as Phase 3's PlayerEntity_PosX/Y above,
-; extended to Entity #1's window so either entity's Character_HitApply can
-; read/write the OTHER entity's position and hit-stun cell directly instead
-; of building a general entity-lookup mechanism -- fine for exactly 2
-; entities (today's scope); Phase 5 (3-4 entities) will need to revisit
-; this with a real per-attacker "who did I hit" loop instead of one
-; hardcoded other-entity address per side. Entity #1's window starts
-; immediately after Entity #0's in OopObjRam (core/oop.pasm's bump
-; allocator places objects back-to-back in creation order; msu1_done
-; creates Entity #0 then Entity #1) -- CHAR_ZP_LEN bytes in. Written as a
-; literal 35 (not a `CHAR_ZP_LEN` reference) because Poppy's constant
-; evaluator is single-pass and CHAR_ZP_LEN isn't defined until further down
-; this file (confirmed via a real "Cannot evaluate operand" build error
-; when this used the symbol) -- MUST be kept equal to CHAR_ZP_LEN below if
-; that ever changes again. These are ABSOLUTE addresses, always read/
-; written via `.l`, same caveat as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 35        ; = $7E0a00 + CHAR_ZP_LEN, see note above
+; extended to every other entity's window so any entity's Character_HitApply
+; can read/write the OTHER entity's position and hit-stun cell directly
+; instead of building a general entity-lookup mechanism. This is
+; deliberately NOT a runtime "compute base from slot number" routine --
+; Character_HitApply never needs to know its OWN slot (it always runs
+; inside the dispatched instance's own DP window), only the fixed target's
+; address, and both directions are compile-time-known: the player (mode 1)
+; always tests against slots 1/2/3, and every AI (mode 2) always tests
+; against slot 0. So a fixed literal per slot, generalizing the same
+; pattern Phase 4 already proved correct, is both simpler and safer than
+; runtime indexed addressing (which has its own confirmed Poppy traps --
+; see the `.l Symbol,y` ban). Plan.md caps this project at exactly 4
+; entities (the OBJ tile-sheet budget goes up to 8, but 4 is the current
+; target), so 4 hand-written literals is the actual ceiling, not a
+; scalability compromise.
+;
+; Each entity's window starts immediately after the previous one's in
+; OopObjRam (core/oop.pasm's bump allocator places objects back-to-back in
+; creation order; msu1_done creates Entity #0, #1, #2, #3 in that order) --
+; CHAR_ZP_LEN bytes apart. Written as literal multiples of 35 (not
+; `N*CHAR_ZP_LEN`) because Poppy's constant evaluator is single-pass and
+; CHAR_ZP_LEN isn't defined until further down this file (confirmed via a
+; real "Cannot evaluate operand" build error when Entity1_Base first used
+; the symbol) -- MUST be kept equal to CHAR_ZP_LEN's real value if that
+; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
+; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
+; as PlayerEntity_PosX/Y above. ---
+Entity1_Base    = $7E0a00 + 35        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
+Entity2_Base    = $7E0a00 + 70        ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
+Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
+Entity2_HitStun = Entity2_Base + 33   ; Entity #2's CHAR_HIT_STUN
+Entity3_Base    = $7E0a00 + 105       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
+Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
+Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 
 ; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
@@ -2609,6 +2629,20 @@ AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
 Anim_Play:
     sep #$20
 .a8
+    ; --- plan.md Phase 5: Select-button reselect applies to the PLAYER
+    ; only (CHAR_INPUT_DRIVEN==1). CharSelect_Index is a single global
+    ; cell, not per-instance state, so letting every AI entity react to it
+    ; too would make all of them reselect in lockstep on every press --
+    ; nonsensical once there's more than one entity. AI roles keep
+    ; whatever character CharacterEntity_Init assigned them and ignore
+    ; Select entirely; this is the deliberate, smallest-change decision
+    ; plan.md settles on rather than building per-instance roster state. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    beq Anim_Play__check_reselect
+    bra Anim_Play__no_reselect
+    nop
+Anim_Play__check_reselect:
     ; Live character reselect: Select button, edge-triggered (Input_trigger,
     ; not Input_press, per core/input.pasm's $4218 layout comment "B Y Sel
     ; Start U D L R | A X L R 0000" -- Select is bit13 overall = bit5 of the
@@ -3496,6 +3530,23 @@ TestSprite_WriteSolidTile__plane23:
 ; gap between them, same stride Msu1_LoadFrame's row DMAs use. Runs once
 ; from scpu_boot, still under forced blank (same $2116/$2118 direct-write
 ; pattern TestSprite_WriteSolidTile above uses), so no DMA needed.
+;
+; plan.md Phase 5: THIS WAS A LIVE, CONFIRMED BUG until this change -- the
+; original version below only blanked tile-column-slice 0 (hardcoded
+; $4600/$4700). Every entity in a NON-zero slice (Entity #1 at slice 1 was
+; already live before this phase) displayed whatever was last in that VRAM
+; region -- confirmed in Mesen2, 3/3 fresh sessions: slice-0's padding read
+; 0/128 nonzero, slice-1's read 124-128/128 nonzero with different garbage
+; bytes each run (power-on VRAM randomness, never written). Now unrolled
+; across all 4 slices this project supports (see Entity1/2/3_Base's own
+; comment for why 4 is the real cap) -- fully unrolled with compile-time-
+; constant word addresses rather than a runtime loop indexed by slice,
+; since this is one-shot boot code with no performance requirement and
+; avoiding any indexed addressing here sidesteps this project's several
+; confirmed Poppy indexed-addressing miscompile bugs entirely. Per-slice
+; word addresses: row 6 = $4600 + slice*$40, row 7 = $4700 + slice*$40
+; (slice*$40 words = slice*128 bytes = slice*4 tiles*32 bytes, matching
+; CHAR_TILE_BYTE_OFFSET's own CHAR_TILE_COLUMN*128 derivation elsewhere).
     nop
     nop
     nop
@@ -3514,7 +3565,7 @@ TestSprite_WriteSolidTile__plane23:
 Character_BlankPadding:
     rep #$20
 .a16
-    lda #$4600                ; tileRow 6, col 0
+    lda #$4600                ; slice 0, tileRow 6
     sta.l $002116
     rep #$31
 .a16
@@ -3522,14 +3573,14 @@ Character_BlankPadding:
     ldx #64                    ; 4 tiles * 16 words/tile
     lda #$0000
     nop
-Character_BlankPadding__row6:
+Character_BlankPadding__s0_row6:
     sta.l $002118
     dex
-    bne Character_BlankPadding__row6
+    bne Character_BlankPadding__s0_row6
 
     rep #$20
 .a16
-    lda #$4700                ; tileRow 7, col 0
+    lda #$4700                ; slice 0, tileRow 7
     sta.l $002116
     rep #$31
 .a16
@@ -3537,10 +3588,100 @@ Character_BlankPadding__row6:
     ldx #64
     lda #$0000
     nop
-Character_BlankPadding__row7:
+Character_BlankPadding__s0_row7:
     sta.l $002118
     dex
-    bne Character_BlankPadding__row7
+    bne Character_BlankPadding__s0_row7
+
+    rep #$20
+.a16
+    lda #$4640                ; slice 1, tileRow 6
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s1_row6:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s1_row6
+
+    rep #$20
+.a16
+    lda #$4740                ; slice 1, tileRow 7
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s1_row7:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s1_row7
+
+    rep #$20
+.a16
+    lda #$4680                ; slice 2, tileRow 6
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s2_row6:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s2_row6
+
+    rep #$20
+.a16
+    lda #$4780                ; slice 2, tileRow 7
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s2_row7:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s2_row7
+
+    rep #$20
+.a16
+    lda #$46C0                ; slice 3, tileRow 6
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s3_row6:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s3_row6
+
+    rep #$20
+.a16
+    lda #$47C0                ; slice 3, tileRow 7
+    sta.l $002116
+    rep #$31
+.a16
+.i16
+    ldx #64
+    lda #$0000
+    nop
+Character_BlankPadding__s3_row7:
+    sta.l $002118
+    dex
+    bne Character_BlankPadding__s3_row7
     rts
 
 ; Sole per-frame writer for the real BOR character's OAM sprite (slot 0),
@@ -3826,15 +3967,29 @@ Character_PlayFrame__no_flip:
 ; Attacking with CHAR_HIT_APPLIED already set: nothing to do.
 ;
 ; Attacking, no hit yet this cycle: CHAR_INPUT_DRIVEN picks which leaf
-; routine to run (1 = I'm the player, check vs. Entity1_PosX/Y/HitStun; 2 =
-; I'm the AI, check vs. PlayerEntity_PosX/Y/HitStun -- see those constants'
-; own header comment for why this hardcoded pair is fine for exactly 2
-; entities). Each leaf runs an unsigned per-axis abs-difference AABB
-; overlap test (same compare-then-subtract idiom as Anim_Play__ai_seek/
-; Character_PlayFrame__ai_x/ai_y's distance checks, just compared against
-; the full sprite box width/height instead of ANIM_AI_ATTACK_RANGE) and,
-; on overlap, stamps the other entity's CHAR_HIT_STUN and this entity's
-; CHAR_HIT_APPLIED.
+; routine(s) to run. Mode 1 (I'm the player) tests against EVERY AI slot in
+; turn -- VsEntity1, then VsEntity2, then VsEntity3, each a separate jsr'd
+; leaf with no shared "already hit someone" re-check between them, so one
+; attack can stun more than one overlapping AI in the same frame (that's
+; correct -- CHAR_HIT_APPLIED only ever latches THIS entity, the attacker,
+; not the targets). Mode 2 (I'm an AI) only ever tests against the player
+; (PlayerEntity_PosX/Y/HitStun) -- every AI's target is always slot 0, so
+; no AI-vs-AI leaf exists or is needed. Each leaf runs an unsigned per-axis
+; abs-difference AABB overlap test (same compare-then-subtract idiom as
+; Anim_Play__ai_seek/Character_PlayFrame__ai_x/ai_y's distance checks, just
+; compared against the full sprite box width/height instead of
+; ANIM_AI_ATTACK_RANGE) and, on overlap, stamps the other entity's
+; CHAR_HIT_STUN and this entity's own CHAR_HIT_APPLIED.
+;
+; Deliberately three separate leaf routines, not one parameterized by a
+; runtime-computed target address or one routine inlined three times --
+; plan.md Part Two explicitly rules both out: indexed-by-something-other-
+; than-X long addressing has its own confirmed Poppy miscompile risk, and
+; inlining three ~70-byte copies into one body risks a shared `__done`
+; branch exceeding the ±127-byte range, which assembles with NO error and
+; hangs the CPU at runtime (this exact bug already cost a session in
+; Phase 4 -- see Character_HitApply_VsEntity1's own header history). Three
+; short, independent, jsr'd leaves keeps every branch local and safe.
 ;
 ; No caller-convention assumed on entry; exits in .a16/.i16 matching
 ; CharacterEntity_Play's other two calls (Anim_Play/Character_PlayFrame).
@@ -3871,13 +4026,15 @@ Character_HitApply__attacking:
     bne Character_HitApply__done   ; already landed a hit this attack cycle
     lda CHAR_INPUT_DRIVEN
     cmp #1
-    beq Character_HitApply__do_vs_entity1
+    beq Character_HitApply__do_vs_all_ai
     cmp #2
     beq Character_HitApply__do_vs_player
     bra Character_HitApply__done   ; mode 0 (static) -- no defined "other entity"
     nop
-Character_HitApply__do_vs_entity1:
+Character_HitApply__do_vs_all_ai:
     jsr Character_HitApply_VsEntity1
+    jsr Character_HitApply_VsEntity2
+    jsr Character_HitApply_VsEntity3
     bra Character_HitApply__done
     nop
 Character_HitApply__do_vs_player:
@@ -3945,6 +4102,109 @@ Character_HitApply_VsEntity1__dy_have:
 Character_HitApply_VsEntity1__dy_ok:
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity1_HitStun
+    lda #1
+    sta CHAR_HIT_APPLIED
+    rts
+
+; Leaf: identical shape to Character_HitApply_VsEntity1 above, checked
+; against Entity #2's fixed-address box instead. plan.md Phase 5 (scale to
+; 4 entities) -- see Character_HitApply__do_vs_all_ai's header comment for
+; why this is 3 separate leaves rather than one parameterized/inlined
+; routine.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Character_HitApply_VsEntity2:
+    ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
+    ; reason (poppy bug #10 -- Poppy's linear width tracker has "seen" an
+    ; earlier `rep` by the time it reaches here even though every real jsr
+    ; into this routine runs before that rep executes).
+    sep #$20
+.a8
+    lda.l Entity2_PosX
+    cmp CHAR_POS_X
+    bcs Character_HitApply_VsEntity2__dx_otherge
+    lda CHAR_POS_X
+    sec
+    sbc.l Entity2_PosX
+    bra Character_HitApply_VsEntity2__dx_have
+    nop
+Character_HitApply_VsEntity2__dx_otherge:
+    sec
+    sbc CHAR_POS_X
+    nop
+Character_HitApply_VsEntity2__dx_have:
+    cmp #CHAR_HITBOX_W
+    bcc Character_HitApply_VsEntity2__dx_ok
+    rts                     ; no overlap on X
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity2__dx_ok:
+    lda.l Entity2_PosY
+    cmp CHAR_POS_Y
+    bcs Character_HitApply_VsEntity2__dy_otherge
+    lda CHAR_POS_Y
+    sec
+    sbc.l Entity2_PosY
+    bra Character_HitApply_VsEntity2__dy_have
+    nop
+Character_HitApply_VsEntity2__dy_otherge:
+    sec
+    sbc CHAR_POS_Y
+    nop
+Character_HitApply_VsEntity2__dy_have:
+    cmp #CHAR_HITBOX_H
+    bcc Character_HitApply_VsEntity2__dy_ok
+    rts                     ; no overlap on Y
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity2__dy_ok:
+    lda #CHAR_HIT_STUN_FRAMES
+    sta.l Entity2_HitStun
+    lda #1
+    sta CHAR_HIT_APPLIED
+    rts
+
+; Leaf: identical shape again, checked against Entity #3's fixed-address
+; box.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Character_HitApply_VsEntity3:
+    sep #$20
+.a8
+    lda.l Entity3_PosX
+    cmp CHAR_POS_X
+    bcs Character_HitApply_VsEntity3__dx_otherge
+    lda CHAR_POS_X
+    sec
+    sbc.l Entity3_PosX
+    bra Character_HitApply_VsEntity3__dx_have
+    nop
+Character_HitApply_VsEntity3__dx_otherge:
+    sec
+    sbc CHAR_POS_X
+    nop
+Character_HitApply_VsEntity3__dx_have:
+    cmp #CHAR_HITBOX_W
+    bcc Character_HitApply_VsEntity3__dx_ok
+    rts                     ; no overlap on X
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity3__dx_ok:
+    lda.l Entity3_PosY
+    cmp CHAR_POS_Y
+    bcs Character_HitApply_VsEntity3__dy_otherge
+    lda CHAR_POS_Y
+    sec
+    sbc.l Entity3_PosY
+    bra Character_HitApply_VsEntity3__dy_have
+    nop
+Character_HitApply_VsEntity3__dy_otherge:
+    sec
+    sbc CHAR_POS_Y
+    nop
+Character_HitApply_VsEntity3__dy_have:
+    cmp #CHAR_HITBOX_H
+    bcc Character_HitApply_VsEntity3__dy_ok
+    rts                     ; no overlap on Y
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity3__dy_ok:
+    lda #CHAR_HIT_STUN_FRAMES
+    sta.l Entity3_HitStun
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4504,6 +4764,48 @@ CharacterEntity_Init:
                                      ; the real roster index is safe on the
                                      ; stack from the pha above)
     beq CharacterEntity_Init__player
+    cmp #1
+    beq CharacterEntity_Init__role1
+    cmp #2
+    beq CharacterEntity_Init__role2
+    ; --- role 3 (the only remaining valid value -- plan.md Phase 5 caps
+    ; this project at exactly 4 entities, roles 0-3) -- falls through, no
+    ; cmp/beq needed. AI-seeking, own palette slot 3 / tile-column-slice 3,
+    ; starting position placed clear of every other role's spawn box (see
+    ; each role's own box below) so the four don't overlap before any of
+    ; them start moving. ---
+CharacterEntity_Init__role3:
+    sep #$20
+.a8
+    lda #120                        ; [120,152) x [40,104) -- clear of the
+    sta CHAR_POS_X                  ; player's [120,152) x [150,214) (same
+    lda #40                         ; X, Y separated by 46px, more than the
+    sta CHAR_POS_Y                  ; 64px sprite height)
+    lda #2
+    sta CHAR_INPUT_DRIVEN
+    lda #3
+    sta CHAR_PALETTE_SLOT
+    sta CHAR_TILE_COLUMN
+    bra CharacterEntity_Init__load
+    nop
+CharacterEntity_Init__role2:
+    ; --- role 2: AI-seeking, own palette slot 2 / tile-column-slice 2.
+    ; [200,232) x [150,214) -- clear of role 1's [40,72) and the player's
+    ; [120,152), same Y row, all three separated by >=48px in X. ---
+    sep #$20
+.a8
+    lda #200
+    sta CHAR_POS_X
+    lda #150
+    sta CHAR_POS_Y
+    lda #2
+    sta CHAR_INPUT_DRIVEN
+    lda #2
+    sta CHAR_PALETTE_SLOT
+    sta CHAR_TILE_COLUMN
+    bra CharacterEntity_Init__load
+    nop
+CharacterEntity_Init__role1:
     ; --- role 1: AI-seeking NPC defaults (plan.md Phase 2 introduced this
     ; entity as static/idle-only; Phase 3 repurposes it to seek the player
     ; instead -- CHAR_INPUT_DRIVEN=2, per plan.md Phase 3's own suggested
@@ -4529,7 +4831,7 @@ CharacterEntity_Init__player:
     ; --- role 0: player-controlled defaults (was scpu_boot's inline
     ; Player_X/Y init, moved here in Phase 1b since DP-relative writes are
     ; only correct with this object's window switched in). Palette 0/
-    ; column 0 reproduce the exact hardcoded values Phase 1b Step 3
+    ; column-slice 0 reproduce the exact hardcoded values Phase 1b Step 3
     ; replaced. ---
     sep #$20
 .a8
@@ -4762,6 +5064,33 @@ msu1_done:
     ; Core_Oop_Create's plp restores the ambient width from this call site
     ; (.a16/.i16, matching Anim_LoadCharacter's own exit convention) --
     ; TAD_Init below re-asserts its own required width explicitly anyway.
+    ;
+    ; --- plan.md Phase 5: flush the DMA queue right after EACH entity's
+    ; create, not just once after all four (as this code did before Phase
+    ; 5). REAL BUG, found and fixed this phase: Anim_LoadCharacter streams
+    ; each character's palette into ONE SHARED WRAM buffer
+    ; (AnimPaletteStaging, a single fixed $7E2300 location, not per-
+    ; instance) and only ENQUEUES a DMA request referencing that buffer's
+    ; ADDRESS -- the actual hardware DMA (reading the buffer's CURRENT
+    ; bytes) doesn't happen until Core_Dma_ProcessQueue runs. With exactly
+    ; 2 entities (Phase 2-4's whole history), flushing once at the very end
+    ; happened to always look correct, because the LAST entity loaded was
+    ; always also the one whose real data was still sitting in the shared
+    ; buffer at flush time -- entity 1's own palette IS whatever's there
+    ; when the single flush runs. That coincidence breaks with 3+ entities:
+    ; confirmed in Mesen2 that entities 1-3 all read back CGRAM slot 1's
+    ; palette (2/JHUN's real colors) once role2/3 also loaded Ralf/JHUN in
+    ; between, corrupting entities 1 and 2's own CGRAM writes to whatever
+    ; the LAST load (entity 3) had left in the shared buffer -- only entity
+    ; 0 (flushed here, before entity 1 ever overwrites the buffer) got its
+    ; own correct data. Flushing after every single create instead means
+    ; each entity's palette DMA fires while its own data is still the only
+    ; thing in the buffer. Safe to call this early: forced blank has been
+    ; continuously active since before this routine ran (nothing re-enables
+    ; the screen until the explicit "PPU init (forced blank)" section
+    ; below), matching the exact justification the original single
+    ; end-of-routine call already relied on. ---
+    jsr Core_Dma_ProcessQueue
 
     ; --- Entity #1: a second, simultaneous NPC -- roster slot 1 (JHUN),
     ; role 1 (own palette 1/tile-column 1). Phase 2 introduced it as
@@ -4780,6 +5109,34 @@ msu1_done:
     lda #$0101               ; init param -- role 1 (high byte), roster
                               ; slot 1 / JHUN (low byte)
     jsr Core_Oop_Create
+    jsr Core_Dma_ProcessQueue    ; see Entity #0's create above -- flush
+                                  ; per-entity, not once at the end
+
+    ; --- Entity #2 and Entity #3: plan.md Phase 5 (scale to 4 entities).
+    ; Only two characters exist in the roster (Ralf = slot 0, JHUN = slot
+    ; 1 -- ROSTER_PREFIXES in build_rom.py), so role 2 reuses Ralf and role
+    ; 3 reuses JHUN: two Ralfs, two JHUNs. Each instance still gets its own
+    ; CGRAM palette slot (CharacterEntity_Init sets CHAR_PALETTE_SLOT before
+    ; Anim_LoadCharacter's palette DMA reads it), so this is NOT a shared/
+    ; aliased palette -- it's two independent CGRAM writes of the SAME
+    ; source colors, which is exactly why two Ralfs render identically to
+    ; each other (expected, not a bug -- see plan.md Phase 5 "asset
+    ; question"). ---
+    lda.l CharacterClassId
+    and #$00ff
+    tay
+    lda #$0200               ; init param -- role 2 (high byte), roster
+                              ; slot 0 / Ralf (low byte)
+    jsr Core_Oop_Create
+    jsr Core_Dma_ProcessQueue
+
+    lda.l CharacterClassId
+    and #$00ff
+    tay
+    lda #$0301               ; init param -- role 3 (high byte), roster
+                              ; slot 1 / JHUN (low byte)
+    jsr Core_Oop_Create
+    jsr Core_Dma_ProcessQueue
 
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES
@@ -4825,17 +5182,17 @@ scpu_clear_ppu:
     ; --- CGRAM palette row 0 ---
     ; Was 16 hardcoded lda #imm/$2122 immediates (no ROM data table -- see
     ; poppy_assembler_bugs.md for why a standalone .dw table wasn't an
-    ; option). Now streamed from the MSU-1 roster instead: Anim_LoadCharacter
-    ; (called earlier, at msu1_done, right after track-select) already
-    ; queued this character's palette as a DMA_TYPE_CGRAM transfer via
-    ; Core_Dma_Enqueue. Flushed synchronously here (not left for the first
-    ; real NMI) because forced blank is guaranteed active at this exact
-    ; point (just asserted a few lines up) and nothing else is queued yet
-    ; this boot -- Core_Dma_ProcessQueue itself has no NMI-context
-    ; dependency (see its header), so calling it directly is safe. Live
-    ; reselect (Anim_Play, Select button) reuses the exact same
-    ; Anim_LoadCharacter enqueue path and lets Core_Nmi_Play drain it
-    ; normally instead, since forced blank isn't guaranteed there.
+    ; option). Now streamed from the MSU-1 roster instead: each of
+    ; msu1_done's entity creates already flushes its own palette DMA
+    ; immediately (plan.md Phase 5 -- see Entity #0's create call site for
+    ; why a single end-of-routine flush stopped being safe once 3+ entities
+    ; share one staging buffer), so THIS call is now just a defensive no-op
+    ; safety net in case anything else ever gets queued between here and
+    ; the last per-entity flush -- draining an already-empty queue is a
+    ; cheap check-and-return, not worth removing. Live reselect (Anim_Play,
+    ; Select button) reuses the exact same Anim_LoadCharacter enqueue path
+    ; and lets Core_Nmi_Play drain it normally instead, since forced blank
+    ; isn't guaranteed there.
     jsr Core_Dma_ProcessQueue
     rep #$20
 .a16

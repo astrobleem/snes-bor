@@ -1,20 +1,26 @@
 # Plan: multiple simultaneous on-screen characters
 
 > **START HERE IF YOU ARE PICKING THIS UP NEW.**
-> **Phases 0–4 are finished, committed, and verified.** Two characters
-> render simultaneously today — one player-controlled, one AI-controlled
-> that seeks the player and lands stunning attacks.
+> **Phases 0–5 are finished, committed, and verified.** Four characters
+> render simultaneously today — one player-controlled, three AI-controlled
+> that seek the player and land stunning attacks.
 >
 > Everything from here on lives in **[PART TWO](#part-two--long-horizon-plan-written-2026-08-09-after-phase-4-shipped)**
-> near the bottom of this file. Part Two is written to be followed
-> step-by-step, with exact commands and explicit stop conditions. **Go
-> read Part Two now.**
+> near the bottom of this file, specifically **§2.4 (Phase 6)** — Phase 5
+> is done. Part Two is written to be followed step-by-step, with exact
+> commands and explicit stop conditions. **Go read Part Two now.**
 >
 > Part One (everything between here and Part Two) is the historical
 > record of how Phases 0–4 were done. Read it for context on *why* the
 > code is shaped the way it is — but it is history, not a to-do list.
 > Note that Part One's OBJ tile-budget claim (that N=5 needs OBSEL's
 > second bank) is **wrong**; Part Two §2.3 has the corrected arithmetic.
+> Two real bugs were found and fixed during Phase 5 that weren't in the
+> original 10-step plan (a DMA-queue palette hazard, and a live
+> `Character_BlankPadding` bug) — see `handoff.md`'s Phase 5 section for
+> the full account, including one confirmed-but-unfixed finding (entity
+> 0's own palette has one wrong color) that's flagged there for whoever
+> picks this up next.
 
 ## TL;DR
 
@@ -792,7 +798,7 @@ always returns empty here. `m.disassemble()` returns garbage unless you
 `N` is a lower bound, not an exact frame count — assert on direction and
 on clamp endpoints, never on `frames × rate` equality.
 
-## 2.3 — Phase 5: scale from 2 entities to 4
+## 2.3 — Phase 5: scale from 2 entities to 4  ✅ DONE (commit follows this edit)
 
 **Target: exactly 4 entities total — 1 player + 3 AI.** Not "3 or 4."
 Four.
@@ -902,9 +908,17 @@ This is the whole of Phase 5. Each item below is a real site in
 7. **`CharacterEntity_Init`** has only role-0 and role-1 branches, with
    hardcoded per-role `CHAR_PALETTE_SLOT` and `CHAR_TILE_COLUMN`. Extend
    to roles 0–3. Role 0 = player, roles 1–3 = AI (`CHAR_INPUT_DRIVEN = 2`).
-   Assign `CHAR_TILE_COLUMN` = 0, 4, 8, 12 and `CHAR_PALETTE_SLOT` = 0, 1,
-   2, 3. Give roles 1–3 distinct starting X/Y so they do not spawn on top
-   of each other.
+   Assign `CHAR_TILE_COLUMN` = 0, 1, 2, 3 (this field is a **slice index**,
+   not a raw hardware tile-column number — the field's own comment says so
+   ["0-3, this instance's OBJ tile-block-0 column slice"] and
+   `Character_PlayFrame` multiplies it by 4 to get the real base tile.
+   `CHAR_TILE_COLUMN = 0, 4, 8, 12` — what an earlier draft of this
+   document said — is wrong and would double-apply the ×4) and
+   `CHAR_PALETTE_SLOT` = 0, 1, 2, 3. Give roles 1–3 distinct starting X/Y
+   so they do not spawn on top of each other, and pick them so no two
+   entities' 32×64 boxes overlap **before any of them start moving** — the
+   gate below checks distinct positions at spawn, not after they've had
+   time to converge on the player.
 8. **`msu1_done`** creates exactly two entities via two `Core_Oop_Create`
    calls. Make it four.
 9. **`Character_BlankPadding` — THIS IS AN EXISTING BUG, FIX IT.** The art
@@ -941,20 +955,28 @@ This is the whole of Phase 5. Each item below is a real site in
    STOP** — you have hit the `.org` truncation bug and the ROM is
    corrupt regardless of what it does on screen.
 3. `python tools/verify/phase5.py` — must print `PHASE 5: PASS`. It must
-   assert, at minimum: all four entities exist in `OopObjRam` with
-   distinct `CHAR_POS_X`; all four appear in hardware OAM
-   (`snesSpriteRam`) at distinct positions; `Nmi_FrameCounter` is still
-   advancing after 700 frames (proves no vblank overrun); each AI entity's
-   `CHAR_FRAME_INDEX` changes over a 240-frame window (proves streaming is
-   round-robining, not starving anyone); and the player's `CHAR_HIT_STUN`
-   goes nonzero when an AI attacks in range.
+   assert, at minimum: **shortly after boot** (a few tens of frames, before
+   the AI has had time to converge on the player — three of the four AI
+   seek the same target and will visibly stack given enough time, which is
+   correct behavior, not a bug to gate on) all four entities exist in
+   `OopObjRam` with distinct `CHAR_POS_X`/`CHAR_POS_Y`, and all four appear
+   in hardware OAM (`snesSpriteRam`) at distinct positions; `Nmi_
+   FrameCounter` is still advancing after 700 frames (proves no vblank
+   overrun); each AI entity's `CHAR_FRAME_INDEX` changes over a 240-frame
+   window (proves streaming is round-robining, not starving anyone); and
+   the player's `CHAR_HIT_STUN` goes nonzero when an AI attacks in range.
    It must **also** assert the two things step 9 and the palette note
    above are about:
-   - **Padding blanked for every column.** Read `snesVideoRam` at byte
-     `$8C00 + tc*32` (tileRow 6) and `$8E00 + tc*32` (tileRow 7) for
-     `tc` = 0, 4, 8, 12 — 128 bytes at each — and assert every byte is
-     zero. Non-zero means step 9 was missed or got the stride wrong, and
-     the visible symptom is garbage in the bottom 16 pixels of a sprite.
+   - **Padding blanked for every column.** `Character_BlankPadding` blanks
+     by tile-column-**slice** (0–3), each slice's padding sitting `slice *
+     128` bytes apart. Read `snesVideoRam` at byte `$8C00 + slice*128`
+     (tileRow 6) and `$8E00 + slice*128` (tileRow 7) for `slice` = 0, 1, 2,
+     3 — 128 bytes at each — and assert every byte is zero. (These are the
+     same addresses as `$8C00 + tc*32` for hardware tile column `tc` = 0,
+     4, 8, 12, if you prefer to think in raw tile-column numbers instead
+     of slices — same 4 byte ranges either way.) Non-zero means step 9 was
+     missed or got the stride wrong, and the visible symptom is garbage in
+     the bottom 16 pixels of a sprite.
    - **All four CGRAM palette slots written.** Read `snesCgRam` at bytes
      `$100`, `$120`, `$140`, `$160` (32 bytes each) and assert none is
      all-zero. Expect slots 0 and 2 to be **equal** to each other, and 1

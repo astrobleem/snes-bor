@@ -958,6 +958,157 @@ need to become a real per-attacker loop over however many entities exist,
 not one hardcoded other-entity address per side — read plan.md's Phase 5
 section and re-derive against the code as it exists by then.
 
+## Phase 5 done and verified: scale from 2 to 4 entities
+
+Before starting, built the two tools plan.md Part Two's section 2.2
+required first: `tools/rom_audit/audit_all.py` (re-seeds `audit_jumps.py`/
+`audit_ownership.py` by name, read from `main.sym`, so oop-dispatched code
+is actually covered — the standard 4 boot seeds never reach anything
+dispatched through `core/oop.pasm`'s indirect `jsr (ClassPlay,x)`; also
+asserts `Entity1/2/3_Base` stay in sync with `CHAR_ZP_LEN` and that
+`scpu_main_loop`'s margin before `nmi_handler` stays positive) and
+`tools/verify/_harness.py` (shared conventions for committed Mesen2 test
+scripts — worktree-safe ROM path, >=32-byte reads, majority-of-3). Both
+committed separately before touching any entity code.
+
+**The corrected OBJ tile-sheet arithmetic** (see plan.md §2.3): the sheet
+holds 8 of these 32x64 sprites, not 4 — 256 tiles ÷ 32 tiles/sprite, and
+the next VRAM occupant (BG2 tilemap) sits well clear at word `$5C00`. This
+phase's 4-entity target needed zero VRAM layout changes as a result — no
+OBSEL touch, no second tile bank, just widening the existing per-instance
+`CHAR_TILE_COLUMN`/`CHAR_PALETTE_SLOT` pattern to slices 0-3.
+
+**Design decision, made explicit before writing any code (confirmed twice
+with a second opinion, since the first pass got it wrong): fixed
+`EntityN_Base` literals for N=0-3, not a runtime "compute base from slot
+number" routine.** `Character_HitApply` never needs to know its own slot —
+it always runs inside the dispatched instance's own DP window — only the
+*target's* address, and both directions are compile-time-known: the
+player (mode 1) always tests against slots 1/2/3, the AI (mode 2) always
+tests against slot 0. So `Entity2_Base`/`Entity3_Base` are two more hand-
+written literals in the same style `Entity1_Base` already used, generizing
+the pattern rather than replacing it — genuinely simpler AND safer than
+runtime indexed addressing, which has its own confirmed Poppy traps (the
+`.l Symbol,y` ban).
+
+**Ten code changes, in order:**
+1. Added `Entity2_Base`/`Entity3_Base` (literals `70`/`105` = `2*CHAR_ZP_LEN`/
+   `3*CHAR_ZP_LEN`) alongside the existing `Entity1_Base`. `audit_all.py`'s
+   sync check extended to all three.
+2. `Character_HitApply`'s dispatcher: mode 1 (player) now calls THREE
+   `jsr`'d leaves in sequence (`VsEntity1`/`VsEntity2`/`VsEntity3`), not
+   one. Deliberately three separate leaves, not one parameterized-by-
+   register routine or three inlined copies — inlining three ~70-byte
+   copies risks a shared `__done` branch exceeding ±127 bytes, which
+   **assembles with no error and hangs the CPU** (Phase 4's own bug,
+   still fresh). `Character_HitApply_VsEntity2`/`VsEntity3` are copy-
+   shaped leaves off `VsEntity1`, each with its own `sep #$20`/`.a8`
+   re-sync at entry (rule 1 — every one of these leaves is textually
+   downstream of an earlier `rep`).
+3. `CharacterEntity_Init` extended from a 2-way (`beq`/fallthrough) branch
+   to an explicit 4-way `cmp`/`beq` chain for roles 0-3. **Found and fixed
+   a documentation bug of my own while writing this**: `CHAR_TILE_COLUMN`
+   is a *slice index* (0-3), not a raw hardware tile-column number —
+   `Character_PlayFrame` multiplies it by 4 to get the real base tile.
+   plan.md's Part Two originally said "assign 0, 4, 8, 12"; that was
+   wrong and would have double-applied the ×4. Fixed in plan.md before it
+   could mislead anyone executing this later. Roles 1-3 spawn at
+   non-overlapping 32x64 boxes (checked by hand and by the gate below).
+4. `msu1_done` now creates 4 entities (roles 0-3; role 2 reuses roster 0/
+   Ralf, role 3 reuses roster 1/JHUN — only 2 characters exist, so "4
+   entities" is necessarily "2 Ralfs + 2 JHUNs").
+5. `Character_BlankPadding` — **fixed a live, confirmed bug**, not just
+   generalized it. It only ever blanked tile-column-slice 0 (hardcoded
+   `$4600`/`$4700`); every other slice's unused rows 6-7 showed whatever
+   was last in that VRAM region. Confirmed in Mesen2 BEFORE this fix, 3/3
+   fresh sessions: slice 0's padding read 0/128 nonzero, slice 1's read
+   124-128/128 nonzero with **different garbage bytes on every run**
+   (power-on VRAM randomness, never written) — meaning Entity #1 had been
+   shipping with garbage in the bottom 16 pixels of its sprite since
+   Phase 2, unnoticed. Fixed by fully unrolling all 4 slices as compile-
+   time-constant word addresses (no runtime indexing at all, since this
+   is one-shot boot code with no performance requirement — sidesteps this
+   project's indexed-addressing Poppy traps entirely).
+6. Select-button reselect gated to `CHAR_INPUT_DRIVEN==1` (the player)
+   only — `CharSelect_Index` is a single global cell, so letting every AI
+   react to Select too would desync all of them together.
+
+**An eleventh change, NOT in the original 10-step plan — found only
+because the gate's own assertions caught it**: the CGRAM palette-DMA
+queue hazard. `Anim_LoadCharacter` streams each character's palette into
+ONE SHARED WRAM buffer (`AnimPaletteStaging`, fixed at `$7E2300`) and only
+*enqueues* a DMA request referencing that buffer's address — the real
+hardware DMA doesn't fire until `Core_Dma_ProcessQueue` runs. The old code
+called `ProcessQueue` exactly once, after all entity creates finished.
+With exactly 2 entities (this project's entire history before this
+phase), that always looked correct by coincidence: the LAST entity loaded
+was always also the one whose real data was still sitting in the shared
+buffer when the single flush ran. That coincidence breaks at 3+ entities:
+confirmed in Mesen2 that CGRAM slots 1 and 2 (JHUN role-1, Ralf role-2)
+both ended up holding role-3's (the *last* load's) palette instead of
+their own, while only slot 0 (flushed via a stale assumption that
+happened to still hold correct data at the time) looked right. **Fixed**
+by moving the `Core_Dma_ProcessQueue` call to run immediately after EACH
+entity's `Core_Oop_Create`, not once at the end — confirmed safe since
+forced blank is continuously active from before `msu1_done` runs through
+the explicit "PPU init" section afterward (nothing re-enables the screen
+in between), the same justification the original single end-of-routine
+call already relied on. Verified via a direct byte comparison against
+`bor.msu`'s own raw palette bytes (ground truth, not just cross-entity
+equality) — after the fix, entities 1/2/3's CGRAM colors 2-15 all match
+`bor.msu`'s ground-truth bytes exactly.
+
+**A twelfth finding, real but explicitly NOT fixed this phase**: entity 0
+(the player)'s own CGRAM color 1 (bytes 2-3 of its 32-byte palette) is
+wrong, 100% reproducibly across repeated fresh Mesen2 sessions, confirmed
+against `bor.msu`'s raw bytes as ground truth (observed `$001F`, ground
+truth `$537F` — every other color, including entity 0's own color 0 and
+colors 2-15, matches exactly). This is **not caused by Phase 5** — it
+reproduces identically regardless of entity count, because entity 0's
+load is always the very first `Anim_LoadCharacter` call of the boot
+sequence, which runs immediately after MSU-1 track-select
+(`$2004`-`$2007`). This is exactly the class of hazard
+`msu-track-select-seek-ordering-risk` (project memory) flagged and an
+earlier isolated probe seemed to clear — that probe evidently didn't
+reproduce the real production conditions. **Left unfixed**: no reliable
+mechanism was identified in the time available (this is genuinely a
+narrow, single-word anomaly confined to exactly one read in one specific
+sequence position, not a pattern that suggested an obvious fix), and per
+this project's stop-rule, guessing at a fix for something not understood
+risks making it worse. `tools/verify/phase5.py` checks colors 2-15 only
+for the two-Ralfs/two-JHUNs equality assertions and separately flags this
+known issue without failing the gate on it. **Whoever picks this up
+next**: the reproduction is trivial (`python
+C:\...\scratchpad\diag_palette.py`-style: read CGRAM `$100`-`$11F` after
+~30 frames, compare to `bor.msu` bytes 144-175) and 100% deterministic,
+so this should be tractable with a proper Mesen2 exec-hook or a
+Mesen2-source read of the MSU-1 core's actual C++ read-port timing model
+(same approach `build.md`'s CC-DMA section used for a similarly precise
+hardware-timing mystery).
+
+**Verification, in order**: `python build_rom.py` (clean) →
+`python tools/rom_audit/audit_all.py` (both seed sets clean, 0 suspicious
+edges, 0 ownership violations, `Entity1/2/3_Base` all in sync,
+`scpu_main_loop` margin 126 bytes positive) →
+`python tools/verify/phase5.py`, twice, both `PHASE 5: PASS` — asserts,
+among other things: all 4 entities have distinct spawn-time positions in
+both `OopObjRam` and hardware `snesSpriteRam`; all 4 tile-column slices'
+padding rows are confirmed zero (the bug from point 5 above, re-verified
+fixed); all 4 CGRAM palette slots are written and pair-equal as expected;
+each entity's `CHAR_FRAME_INDEX` varies across a 240-frame, 6-sample
+window (proving `Msu1_StreamBusy`'s round-robin doesn't starve any of the
+4); `Nmi_FrameCounter` still advances after 700 concurrent frames (no
+vblank overrun with 4 entities streaming/moving/colliding at once); the
+player's `CHAR_HIT_STUN` goes nonzero from an AI attack, majority-of-3.
+
+**Next**: Phase 6 (BG1 static backdrop + BG3 HUD) — plan.md §2.4's own
+first step is a hand-back gate: confirm whether a level-tileset converter
+exists yet (it didn't as of this session) before attempting anything else
+in that phase. The color-1 finding above and the OAM hi-table X-high gap
+(still unexercised — `PLAYER_MAX_X=216` means nothing in this build ever
+crosses X=255) are both real, both worth a session of their own, and both
+independent of Phase 6/7's own work.
+
 ## Harness gotchas (Mesen2 / build)
 
 Full detail lives in project memory ([[mesen-audio-check-nondeterministic]],

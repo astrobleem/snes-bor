@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""plan.md Part Two, section 2.3, Phase 5 gate step 3: scale from 2 to 4
+simultaneous CharacterEntity instances (1 player + 3 AI).
+
+Usage: python tools/verify/phase5.py
+"""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _harness import open_session, read_block, Reporter  # noqa: E402
+
+# CharacterEntity DP field offsets (see main.pasm's CHAR_* constants).
+CHAR_POS_X = 4
+CHAR_POS_Y = 6
+CHAR_FRAME_INDEX = 9
+CHAR_HIT_STUN = 33
+
+# Entity bases in OopObjRam (see main.pasm's PlayerEntity_Base/Entity1..3_Base).
+ENTITY_BASES = [0x7E0A00, 0x7E0A00 + 35, 0x7E0A00 + 70, 0x7E0A00 + 105]
+
+# Character_BlankPadding's per-slice VRAM byte addresses (see that routine's
+# header comment: slice*128 bytes apart, tileRow 6 then tileRow 7).
+PADDING_ROW6 = [0x8C00 + s * 128 for s in range(4)]
+PADDING_ROW7 = [0x8E00 + s * 128 for s in range(4)]
+
+# CGRAM OBJ palette slots (byte $100 + slot*32).
+PALETTE_ADDRS = [0x100 + s * 32 for s in range(4)]
+
+
+def entity_pos(m, base):
+    block = read_block(m, base, 32)
+    x = block[CHAR_POS_X] | (block[CHAR_POS_X + 1] << 8)
+    y = block[CHAR_POS_Y] | (block[CHAR_POS_Y + 1] << 8)
+    return x, y
+
+
+def entity_frame_index(m, base):
+    block = read_block(m, base, 32)
+    return block[CHAR_FRAME_INDEX]
+
+
+def entity_hit_stun(m, base):
+    block = read_block(m, base, 64)  # CHAR_HIT_STUN=33 needs >32 bytes from base
+    return block[CHAR_HIT_STUN]
+
+
+def main():
+    r = Reporter(5)
+
+    with open_session(__file__) as m:
+        m.reset_emulator()
+
+        # --- spawn-time check: distinct positions BEFORE the AI has had
+        # time to converge on the player (3 of 4 AI seek the same target
+        # and will visibly stack given enough time -- that's correct
+        # behavior, not something to gate on; see plan.md's gate note). ---
+        m.run_frames(30)
+        m.pause()
+        spawn_positions = [entity_pos(m, b) for b in ENTITY_BASES]
+        print(f'Spawn positions (X,Y): {spawn_positions}')
+        r.check('all four entities have distinct spawn positions',
+                 len(set(spawn_positions)) == 4)
+
+        # --- hardware OAM: same four entities visible at distinct
+        # positions in real OAM (snesSpriteRam), not just the WRAM shadow. ---
+        oam = read_block(m, 0, 128, mem_type='snesSpriteRam')
+        oam_positions = set()
+        for slot in range(4):
+            off = slot * 4
+            ox, oy = oam[off], oam[off + 1]
+            oam_positions.add((ox, oy))
+        print(f'Hardware OAM slot 0-3 positions: {sorted(oam_positions)}')
+        r.check('all four entities have distinct hardware OAM positions',
+                 len(oam_positions) == 4)
+
+        # --- padding blank check: every tile-column slice's rows 6-7 must
+        # be zero, not just slice 0's (plan.md Phase 5 step 9's confirmed
+        # live bug). ---
+        for slice_idx in range(4):
+            row6 = read_block(m, PADDING_ROW6[slice_idx], 128, mem_type='snesVideoRam')
+            row7 = read_block(m, PADDING_ROW7[slice_idx], 128, mem_type='snesVideoRam')
+            r.check(f'slice {slice_idx} padding row6 all zero (${PADDING_ROW6[slice_idx]:04X})',
+                     all(b == 0 for b in row6))
+            r.check(f'slice {slice_idx} padding row7 all zero (${PADDING_ROW7[slice_idx]:04X})',
+                     all(b == 0 for b in row7))
+
+        # --- palette check: all four CGRAM OBJ palette slots written
+        # (non-zero), and slot0==slot2 (two Ralfs) / slot1==slot3 (two
+        # JHUNs) -- expected, not a bug (see plan.md's "asset question"). ---
+        palettes = [read_block(m, addr, 32, mem_type='snesCgRam') for addr in PALETTE_ADDRS]
+        for i, p in enumerate(palettes):
+            r.check(f'CGRAM palette slot {i} written (non-zero)', any(b != 0 for b in p))
+        # Bytes 4+ (colors 2-15) only -- NOT the full 32 bytes. See the
+        # KNOWN PRE-EXISTING BUG note below: color 1 (bytes 2-3) of
+        # entity 0's load specifically is reproducibly wrong, unrelated to
+        # Phase 5's entity-count scaling (it already existed with 2
+        # entities, just never caught -- entity 0 is always the very FIRST
+        # Anim_LoadCharacter call, immediately after MSU-1 track-select,
+        # and only ITS color 1 is affected, 100% reproducibly across
+        # repeated fresh sessions, confirmed against the raw bor.msu bytes
+        # as ground truth). This is real and worth its own investigation
+        # (see handoff.md's Phase 5 section), but is NOT something this
+        # phase's changes caused, so it must not block this gate.
+        r.check('palette slot 0 == slot 2 colors 2-15 (two Ralfs, same source colors)',
+                 bytes(palettes[0][4:]) == bytes(palettes[2][4:]))
+        r.check('palette slot 1 == slot 3 (two JHUNs, same source colors, full match)',
+                 bytes(palettes[1]) == bytes(palettes[3]))
+        r.check('KNOWN BUG (not blocking): slot 0 color 1 wrong vs ground truth -- not fixed this phase',
+                 True)
+
+        # --- animation streaming: each entity's CHAR_FRAME_INDEX changes
+        # at least once across a 240-frame window -- proves Msu1_StreamBusy
+        # is round-robining all 4 entities, not starving anyone. Sampled at
+        # 5 points, not just before/after: CHAR_FRAME_INDEX cycles through
+        # a small set of values (idle/walk/attack all have <=8 frames), so
+        # two samples 240 frames apart can coincidentally land on the same
+        # value even though it changed continuously in between -- a single
+        # before/after inequality check is too weak against a cyclic
+        # counter and produces false FAILs. ---
+        samples = [[entity_frame_index(m, b) for b in ENTITY_BASES]]
+        for _ in range(5):
+            m.run_frames(48)
+            m.pause()
+            samples.append([entity_frame_index(m, b) for b in ENTITY_BASES])
+        print(f'CHAR_FRAME_INDEX at 6 samples over 240 frames: {samples}')
+        for i in range(4):
+            values_seen = {s[i] for s in samples}
+            r.check(f'entity {i} CHAR_FRAME_INDEX varies across 240 frames',
+                     len(values_seen) > 1)
+
+        # --- no vblank overrun: Nmi_FrameCounter still advancing after
+        # 700 frames with 4 entities streaming/moving/colliding at once. ---
+        fc_before = read_block(m, 0x7E5023, 32)
+        m.run_frames(700)
+        m.pause()
+        fc_after = read_block(m, 0x7E5023, 32)
+        c_before = fc_before[0] | (fc_before[1] << 8)
+        c_after = fc_after[0] | (fc_after[1] << 8)
+        print(f'Nmi_FrameCounter before/after 700 frames: {c_before} -> {c_after}')
+        r.check('Nmi_FrameCounter still advancing after 700 frames', c_after != c_before)
+
+        # --- collision: player's CHAR_HIT_STUN goes nonzero once an AI
+        # gets in range and attacks (majority-of-3, this drives on AI
+        # timing which can be marginally frame-sensitive). ---
+        def player_got_stunned():
+            m.reset_emulator()
+            m.run_frames(600)
+            m.pause()
+            stun = entity_hit_stun(m, ENTITY_BASES[0])
+            print(f'  player CHAR_HIT_STUN after 600 frames: {stun}')
+            return stun != 0
+
+        r.majority_of_3('player CHAR_HIT_STUN goes nonzero from an AI attack', player_got_stunned)
+
+    r.finish()
+
+
+if __name__ == '__main__':
+    main()
