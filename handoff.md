@@ -522,15 +522,35 @@ the Phase 1a baseline):
   `PLAYER_MAX_X`=216, attribute byte flips `$30`→`$70` on Left-held,
   matching pre-refactor exactly), 3/3 Mesen2 runs.
 
-**Next**: Phase 1b Step 2 — `Player_X/Y` → `CHAR_POS_X/Y` (offsets already
-reserved), plus gate the dpad read on `CHAR_INPUT_DRIVEN`. Same OAM-identity
-gate. Then Step 3 (`CHAR_PALETTE_SLOT`/`CHAR_TILE_COLUMN`/an explicit
-`Oam_CursorResetDone` flag — **not** `OopObjIndex` — deciding which entity
-resets `Oam_CurrentSlot` each frame; see plan.md's own warning on why
-`OopObjIndex` is the wrong check). Then Phase 2 — a second, simultaneous
-entity with different roster/palette/tile column. Read `plan.md`'s Phase 1
-section in full before continuing; it has the exact field layout and
-reasoning this work depends on.
+**Step 2 done and verified** (same incremental split): `Player_X`/`Player_Y`
+→ `CHAR_POS_X`/`CHAR_POS_Y` (DP-relative, offsets 4/6, already reserved in
+the field layout), and `Character_PlayFrame`'s dpad-read blocks (both X and
+Y) now gate on `CHAR_INPUT_DRIVEN` — skip straight to re-storing the current
+position unchanged if clear, so a future non-input-driven entity (Phase 2)
+stays static without a separate code path. Only one entity exists today so
+`CHAR_INPUT_DRIVEN` is hardcoded to 1 in `CharacterEntity_Init` rather than
+threaded through the init param yet — Phase 2's second entity is what will
+force that parameter to actually exist. The boot-time `Player_X/Y` init
+(mid-screen 120/150) had the same DP-window problem as Step 1's character
+load and moved the same way: out of `scpu_boot` (which runs with D at its
+default, not this object's window) and into `CharacterEntity_Init`, right
+after the `Anim_LoadCharacter` call.
+
+Verified: OAM shadow buffer byte-identical to the Phase 1a baseline at
+boot (3/3 runs), and held-dpad movement clamps at the same `PLAYER_MAX_X`
+(216)/`PLAYER_MAX_Y` (208) values as before on both axes.
+
+**Next**: Step 3 — `CHAR_PALETTE_SLOT`/`CHAR_TILE_COLUMN`, replacing
+`Character_PlayFrame`'s hardcoded `$30`/`$70` attribute-byte literals, plus
+an explicit `Oam_CursorResetDone` flag (**not** `OopObjIndex`) deciding
+which entity resets `Oam_CurrentSlot` each frame — see plan.md's own
+warning on why `OopObjIndex` is the wrong check, and why this step has no
+"renders identically" safety net (it doesn't manifest until Phase 2's
+second entity exists, so get the flag logic right by inspection, not just
+by the gate passing). Then Phase 2 — a second, simultaneous entity with
+different roster/palette/tile column. Read `plan.md`'s Phase 1 section in
+full before continuing; it has the exact field layout and reasoning this
+work depends on.
 
 ## Harness gotchas (Mesen2 / build)
 

@@ -3353,9 +3353,13 @@ Character_PlayFrame:
     ; --- X: held-dpad Left/Right movement. Unchanged from the old
     ; Player_PlayFrame -- see that routine's original header comment (now
     ; here) for why Left wins on both-held and why the clamp compares are
-    ; unsigned. ---
+    ; unsigned. Gated on CHAR_INPUT_DRIVEN (plan.md Phase 1b step 2): a
+    ; non-input-driven instance (Phase 2's second entity) skips straight to
+    ; __hold, which just re-stores its current CHAR_POS_X unchanged. ---
     sep #$20
 .a8
+    lda CHAR_INPUT_DRIVEN
+    beq Character_PlayFrame__hold
     lda.l Input_press+1
     and #$03
     beq Character_PlayFrame__hold
@@ -3365,7 +3369,7 @@ Character_PlayFrame:
     bra Character_PlayFrame__left
     nop
 Character_PlayFrame__right:
-    lda.l Player_X
+    lda CHAR_POS_X
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_X + 1
@@ -3374,7 +3378,7 @@ Character_PlayFrame__right:
     bra Character_PlayFrame__store_x
     nop
 Character_PlayFrame__left:
-    lda.l Player_X
+    lda CHAR_POS_X
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_X
@@ -3383,14 +3387,16 @@ Character_PlayFrame__left:
     bra Character_PlayFrame__store_x
     nop
 Character_PlayFrame__hold:
-    lda.l Player_X
+    lda CHAR_POS_X
     nop
 Character_PlayFrame__store_x:
-    sta.l Player_X
+    sta CHAR_POS_X
     sta.l OamSetSprite_X
 
     ; --- Y: held-dpad Up/Down movement, mirroring the X block. Unchanged
-    ; from the old Player_PlayFrame. ---
+    ; from the old Player_PlayFrame, same CHAR_INPUT_DRIVEN gate as X. ---
+    lda CHAR_INPUT_DRIVEN
+    beq Character_PlayFrame__hold_y
     lda.l Input_press+1
     and #$0C
     beq Character_PlayFrame__hold_y
@@ -3400,7 +3406,7 @@ Character_PlayFrame__store_x:
     bra Character_PlayFrame__up
     nop
 Character_PlayFrame__down:
-    lda.l Player_Y
+    lda CHAR_POS_Y
     clc
     adc #PLAYER_SPEED
     cmp #PLAYER_MAX_Y + 1
@@ -3409,7 +3415,7 @@ Character_PlayFrame__down:
     bra Character_PlayFrame__store_y
     nop
 Character_PlayFrame__up:
-    lda.l Player_Y
+    lda CHAR_POS_Y
     sec
     sbc #PLAYER_SPEED
     cmp #PLAYER_MIN_Y
@@ -3418,10 +3424,10 @@ Character_PlayFrame__up:
     bra Character_PlayFrame__store_y
     nop
 Character_PlayFrame__hold_y:
-    lda.l Player_Y
+    lda CHAR_POS_Y
     nop
 Character_PlayFrame__store_y:
-    sta.l Player_Y
+    sta CHAR_POS_Y
     sta.l OamSetSprite_Y
 
     lda #0
@@ -3897,9 +3903,14 @@ Anim_LoadCharacter__palette_read:
 ; Anim_LoadCharacter touch into this object's own DP window (CHAR_* offsets,
 ; declared near Anim_FrameIndex's old declaration above) instead of fixed
 ; bank-$7E globals -- those routines' bodies were edited in place to use
-; DP-relative (bare, no .l/.w) addressing for exactly those fields; still
-; global for now: CharSelect_*, Player_X/Y, and the hardcoded palette/tile-
-; column/single-entity assumptions (later steps).
+; DP-relative (bare, no .l/.w) addressing for exactly those fields; step 2
+; adds CHAR_POS_X/Y (was Player_X/Y) and CHAR_INPUT_DRIVEN, gating
+; Character_PlayFrame's dpad read on the latter -- still global/hardcoded
+; for now: CharSelect_*, and the palette/tile-column/single-entity
+; assumptions (later steps). Only one entity is ever created today, so
+; CHAR_INPUT_DRIVEN is hardcoded to 1 here rather than threaded through
+; the init param yet -- Phase 2's second, non-input-driven entity is what
+; will force that parameter to actually exist.
 ; ----------------------------------------------------------------------------
 
 ; @param a<16-bit>  init parameter: roster index (low byte valid)
@@ -3921,6 +3932,20 @@ CharacterEntity_Init:
     jsr Anim_LoadCharacter        ; sets/restores its own widths, see its
                                    ; header -- writes this object's CHAR_*
                                    ; fields since DP is still switched here
+
+    ; --- position + input-driven flag (was scpu_boot's inline Player_X/Y
+    ; init, moved here since DP-relative writes are only correct with this
+    ; object's window switched in -- see the header comment above). ---
+    sep #$20
+.a8
+    lda #120                        ; mid-screen; was PLAYER_MIN_X, which
+                                     ; sits exactly on the left clamp
+    sta CHAR_POS_X
+    lda #150                        ; matches this build's previous Y-fixed value
+    sta CHAR_POS_Y
+    lda #1
+    sta CHAR_INPUT_DRIVEN
+
     rep #$31
 .a16
 .i16
@@ -4450,14 +4475,11 @@ scpu_tm_row_no_bump:
     ; render trick; re-initializing it here would stomp that with stale
     ; values (FrameIndex=0/TickCounter=ANIM_FRAME_DELAY instead of the
     ; forced-refresh $FF/1) and bring back the old boot-time cosmetic pop
-    ; Anim_LoadCharacter's version was written to avoid.
-
-    ; --- TestSprite_PlayFrame's sprite-1 dpad-movement state ---
-    lda #120                        ; mid-screen; was PLAYER_MIN_X, which sits
-                                     ; exactly on the left clamp
-    sta.l Player_X
-    lda #150                        ; matches this build's previous Y-fixed value
-    sta.l Player_Y
+    ; Anim_LoadCharacter's version was written to avoid. CHAR_POS_X/Y (was
+    ; Player_X/Y) is no longer initialized here either, same reasoning:
+    ; it's DP-relative now (plan.md Phase 1b step 2), only correct when
+    ; written with this object's window switched in -- moved into
+    ; CharacterEntity_Init, right after the Anim_LoadCharacter call.
     rep #$31
 .a16
 
