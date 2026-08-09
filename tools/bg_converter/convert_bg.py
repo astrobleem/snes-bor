@@ -16,15 +16,26 @@ directly is therefore geometrically correct on a 4:3 display, not a distortion.
 NEAREST matches `bor_converter/convert_sprite.py`'s deliberate choice to avoid
 smoothing, which would invent colors against a hard 15-color-per-palette budget.
 
-Tile budget: BG1 character data lives at VRAM word $0000 and must not run into
-the BG2 char base at $2000, which caps this at 512 tiles (8192 words / 16).
-That region is NOT reclaimable: although BG2 is disabled on the main screen, the
-SA-1 compositor actively writes COMPOSITOR_BLIT_COUNT(21) * 24 = 504 tiles into
-$2000-$3F7F every frame, and there is no free 8064-word region left to relocate
-it to. 512 is a hard ceiling. The converter hard-errors above it rather than
-truncating; pick a simpler scene instead. Measured counts for the stock BOR
-levels range from 395 (hotel) to 896 (pier/elevator, i.e. no dedup at all), so
-scene choice matters more than any tuning knob here.
+Tile budget: BG1 character data lives at VRAM word $0000, so tile N occupies
+word N*16 and tile 512 would sit at word $2000 -- exactly where scpu_boot writes
+BG2's blank tile 0. That write is what caps this at 512 tiles.
+
+(An earlier version of this comment claimed $2000-$3F7F was being rewritten
+every frame by the SA-1 compositor. That is wrong: Scpu_CcdmaPump is defined in
+main.pasm but never called -- the main loop dropped it when the character moved
+to real OAM sprites. Checked before relying on it.)
+
+Raising the ceiling to 1024 tiles -- which would fit every stock BOR level, and
+is also the 10-bit tilemap tile-index limit and exactly where OBJ tiles start at
+word $4000 -- therefore needs only one change: drop scpu_boot's BG2 blank-tile
+write. BG2 is not on the main screen (TM = $15 = BG1+BG3+OBJ), so nothing it
+points at is visible. That is deliberately NOT done here; Phase 6 ships within
+the existing budget rather than editing verified boot code for a scene that
+already fits.
+
+The converter hard-errors above the cap rather than truncating; pick a simpler
+scene instead. Measured counts for the stock BOR levels range from 395 (hotel)
+to 896 (pier/elevator, i.e. no dedup at all).
 """
 import argparse
 import json
@@ -133,10 +144,11 @@ def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
         raise SystemExit(
             f'ERROR: {n_tiles} unique tiles exceeds the {max_tiles}-tile BG1 budget.\n'
             f'  BG1 character data must fit VRAM words $0000-$1FFF to stay clear of\n'
-            f'  the BG2 char base at $2000, which the SA-1 compositor writes every\n'
-            f'  frame (504 tiles) -- that region is not reclaimable.\n'
+            f'  the BG2 blank tile scpu_boot writes at word $2000.\n'
             f'  Pick a simpler scene. Stock levels that fit: 6AEASY (hotel, 395),\n'
-            f'  6BEASY (boss, 429). Not truncating.')
+            f'  6BEASY (boss, 429). Or see this module\'s docstring: dropping that\n'
+            f'  one boot write raises the ceiling to 1024, which fits every stock\n'
+            f'  level. Not truncating.')
 
     tiles_bin = st.encode_tileset(unique_tiles, bpp=4)
     tilemap_bin = st.encode_tilemap(entries, W_TILES, H_TILES)
