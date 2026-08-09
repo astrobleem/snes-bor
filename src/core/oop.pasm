@@ -259,16 +259,22 @@ OopObjRam_Lo = $0a00     ; low-16 constant for pointer arithmetic — avoids the
 
 Core_Oop_Init:
 	php
-	sep #$20
-.a8
-	rep #$10
+	rep #$31
+.a16
 .i16
+	; These arrays are parallel .dw (16-bit) arrays indexed by 2-byte
+	; stride -- clearing them in .a8 (as this loop used to) only zeroes
+	; the LOW byte of each element, leaving the high byte as whatever
+	; boot-time WRAM garbage was already there. Harmless today only
+	; because every consumer masks the result with a small constant that
+	; discards the high byte anyway (see plan.md Phase 1b's own note on
+	; this) -- but OopDp is read UNMASKED by Core_Oop_Play (`lda.l OopDp,x
+	; / tcd`), so a garbage high byte there means switching to a garbage
+	; direct page the moment a slot is read before Core_Oop_Create has
+	; fully written it. Fixed by running this loop in .a16 instead, so
+	; each sta.l clears the full 16-bit element.
 	ldx #0
 Core_Oop_Init__clear_objs:
-	; STZ has no long addressing mode on 65816 — `.l` on it doesn't error
-	; here, it silently emits a malformed encoding (confirmed by isolated
-	; repro — see core/dma_channel.pasm's header note). lda #0 / sta.l is
-	; the correct equivalent.
 	lda #0
 	sta.l OopFlags,x
 	sta.l OopClassId,x
@@ -296,8 +302,6 @@ Core_Oop_Init__clear_classes:
 	cpx #OOP_MAX_CLASSES*2
 	bcc Core_Oop_Init__clear_classes
 
-	rep #$31
-.a16
 	stz OopObjIndex
 	stz OopObjSlotPtr
 	stz OopObjRamPtr
