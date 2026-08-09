@@ -650,6 +650,42 @@ dpad-controllable (Right-held still clamps at X=216) while Entity #1 stays
 fixed; 3/3 Mesen2 runs consistent. Entity #0's own 4 OAM bytes still
 exactly match the original Phase 1a baseline (`[120, 150, 0, 48]`).
 
+**Two gaps closed after an advisor review of the above** (all the checks
+up to here only read the OAM *shadow buffer*/`OopObjRam`, which cannot by
+itself prove either sprite reaches real hardware, or that Entity #1 isn't
+silently starved of stream slots by the Phase 0 gate):
+
+- **Hardware OAM, not just the shadow buffer**: `snesSpriteRam` (Mesen2
+  MCP memory type — not `snesOam`/`spriteRam`/`oamRam`, none of which
+  exist) at offset 0 reads `[120, 150, 0, 48, 40, 150, 4, 50]` — both
+  sprites' bytes are genuinely present in hardware OAM, not just staged.
+  `Oam_HighWaterSlot` is 8 (grew past the old single-entity value, so the
+  upload actually covers both slots), and the hardware hi-table's first
+  byte is `$0A` = `0b00001010`, i.e. both sprite 0's and sprite 1's 2-bit
+  hi-fields correctly carry the "large" size bit — matches
+  `OamSetSprite_Hi=$02` packed for each.
+- **Entity #1 isn't stream-starved**: sampled Entity #1's `CHAR_FRAME_INDEX`
+  (`$7E0a00 + 33 + 9`, its DP offset 9 inside its own window) every 40
+  frames across 320 frames: `[4, 0, 2, 4, 0, 1, 3, 5]` — genuinely cycling
+  through its 0-5 idle frame range, not frozen. Confirms it isn't losing
+  every arbitration race under the Phase 0 `Msu1_StreamBusy` gate (the
+  exact starvation failure mode that gate's own header comment warns
+  about for a naive implementation).
+
+**One gate substituted for a weaker check, noted honestly rather than
+silently**: plan.md's Phase 2 gate asks for a byte-level comparison of
+each entity's rendered VRAM tile data against its *known baked frame
+bytes* (`out/<name>_idle/frameNN.bin`). The raw `.bin` files are 1536
+bytes, not the 768 `ANIM_FRAME_BYTES` the runtime streams — an unexplained
+converter-format difference not reverse-engineered this session. What was
+actually verified instead: Entity #1's VRAM bytes are real (non-zero) and
+differ from Entity #0's at the correct per-column offset, which rules out
+the specific cross-entity-overwrite bug this project has hit before (see
+Phase 0), but does **not** independently confirm the bytes are JHUN's
+*correct* pixel data byte-for-byte. If that stronger check is ever needed,
+start by understanding `tools/bor_converter/convert_character.py`'s output
+format before assuming the 768-byte runtime layout applies directly.
+
 **Next**: Phase 3 — minimal AI (per `SNES-BOR-Engine-Prompt.md` §6 and
 plan.md's Phase 3 section): give Entity #1 (or a new Entity #2) a
 seek-toward-player movement mode and an attack trigger at close range.
