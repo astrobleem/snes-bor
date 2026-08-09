@@ -426,11 +426,51 @@ Phase 0 (MSU-streaming serialization fix) is **done and verified**:
   Idle/walk/attack regression-checked clean afterward. All three
   `tools/rom_audit/*.py` scripts clean.
 
-**Next**: `plan.md`'s Phase 1 — move the current character into
-`core/oop.pasm` as a real registered class/instance (pure refactor, gate
-is pixel-identical rendering to today), then Phase 2 — a second,
-simultaneous entity. Read `plan.md` in full before starting; it has the
-exact WRAM/OBSEL/DMA-budget numbers this work depends on.
+**Phase 1a (advisor-recommended split of plan.md's Phase 1, done and
+verified):** proved `core/oop.pasm`'s `Core_Oop_Create`/`Core_Oop_Play`
+indirect-dispatch path (`jsr (ClassInit,x)` / `jsr (OopCurrent,x)`, each
+wrapped in a `phd`/`tcd`/`pld` DP-window switch) actually works with a real
+registered class — this project had zero classes registered before now, so
+that path had never once executed. A `Character` class is registered at
+boot (`scpu_boot`, right after `Core_Screen_Init`) with a thin-shim
+`Play`/`Init` (`CharacterEntity_Init`/`CharacterEntity_Play` in `main.pasm`,
+just after `Anim_LoadCharacter`'s `rts`) that dispatches unchanged to
+`Anim_Play`/`Character_PlayFrame` — no per-instance DP state yet, that's
+Phase 1b. `scpu_main_loop`'s direct `jsr Anim_Play`/`jsr Character_PlayFrame`
+calls were removed; `Core_Oop_Play` now drives them instead (runs slightly
+earlier in the loop, before `Core_Screen_Play`, which is self-contained and
+unaffected by the reorder).
+
+Hit and fixed a real, previously-latent Poppy bug doing this: **`LDX`/`LDY`
+have no absolute-long addressing mode on real 65816** (only `LDA` does) —
+`ldy.l CharacterClassId` silently loaded `Y=0` regardless of the byte's
+real value, which fed `Core_Oop_Create` an invalid 0 class id, underflowed
+its internal `dec a` to `$FFFF`, and sent every subsequent class-table
+array read to a wildly wrong offset — manifesting as a total boot hang with
+every WRAM read returning different garbage each session (looked exactly
+like harness nondeterminism until traced to ground truth). Fixed via
+`lda.l` + `and #$00ff` + `tay` instead. See [[poppy-assembler-bugs]] bug 11.
+
+Verified: all three `tools/rom_audit/*.py` scripts clean; 3/3 Mesen2 runs
+showing idle/walk/attack/facing behave identically to pre-Phase-1a
+(`Anim_Selected` 0→1 on Right held, back to 0 on release, →2 on Y held;
+`OopObjSlotPtr`/`OopObjRamPtr`/`OopCreateCounter` all confirm exactly one
+object was created).
+
+**Next**: Phase 1b — move the character's actual state (`Anim_*`,
+`Player_X/Y`, etc.) into the object's per-instance DP window using the
+field layout `plan.md` recommends (`CHAR_POS_X/Y`, `CHAR_FACING_LEFT`,
+`CHAR_FRAME_INDEX`, `CHAR_TICK_COUNTER`, `CHAR_SELECTED`,
+`CHAR_ROSTER_INDEX`, `CHAR_PALETTE_SLOT`, `CHAR_TILE_COLUMN`,
+`CHAR_INPUT_DRIVEN`, `CHAR_IDLE/WALK/ATTACK_FCOUNT/DELAY/BASE_LO/HI`), then
+Phase 2 — a second, simultaneous entity with different roster/palette/tile
+column. Read `plan.md` in full before starting; it has the exact
+WRAM/OBSEL/DMA-budget numbers this work depends on. Advisor's suggestion
+from Phase 1a (worth reusing for 1b): fill new instance fields via a
+`phd`/`txa`/`tcd`/`sta <offset>`/`pld` dance around the object's returned
+DP base, the same idiom `Core_Oop_Create` itself uses internally — simpler
+and more debuggable than packing multiple values into one 16-bit init
+parameter.
 
 ## Harness gotchas (Mesen2 / build)
 

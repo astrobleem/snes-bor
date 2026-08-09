@@ -2209,6 +2209,13 @@ __Tad_AudioData_0:
 ; CanvasChunkOffset ($7E2340) -- grep-confirmed clear before picking it.
 Msu1_StreamBusy = $7E2330   ; .db -- nonzero: a stream's DMAs are still
                               ;        queued/undrained; don't start another
+CharacterClassId = $7E2331   ; .db -- 8-bit class id returned by Core_Oop_
+                              ;        RegisterClass for the Character class
+                              ;        (plan.md Phase 1a). Read only via a
+                              ;        16-bit load masked with #$00ff (Core_
+                              ;        Oop_Create does this internally too) --
+                              ;        the byte just above it is unrelated,
+                              ;        don't trust it as a high byte.
 ; Verified via plan.md Phase 0's forced two-stream collision test (Mesen2,
 ; 3/3 runs): call A correctly left Msu1_StreamBusy=1, call B correctly
 ; observed it and was blocked (never overwrote AnimFrameStaging out from
@@ -3833,6 +3840,40 @@ Anim_LoadCharacter__palette_read:
 .i16
     rts
 
+; ----------------------------------------------------------------------------
+; CharacterEntity -- core/oop.pasm class registered at boot (plan.md Phase
+; 1a). Thin shim only: dispatches to the existing Anim_Play/Character_
+; PlayFrame pair, completely unchanged. No per-instance DP state yet -- that
+; move is Phase 1b. This step exists purely to prove Core_Oop_Create/Play's
+; indirect dispatch (jsr (ClassInit,x) / jsr (OopCurrent,x), each wrapped in
+; a phd/tcd/pld DP-window switch) actually works with a real registered
+; class before anything is restructured around it -- this project has never
+; exercised that dispatch path with a live class, only with zero classes
+; registered.
+; ----------------------------------------------------------------------------
+
+; @param a<16-bit>  init parameter (unused in Phase 1a)
+; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
+;                     deletion on the next Play pass if this isn't exactly 0
+    nop
+    nop
+CharacterEntity_Init:
+    lda #OBJR_NOERR
+    rts
+
+; Called from Core_Oop_Play, which is in .a16/.i16 throughout its dispatch
+; loop -- matches Anim_Play/Character_PlayFrame's own documented entry
+; contract, so no width juggling needed here.
+; @return a<16-bit>  OBJR_NOERR -- see CharacterEntity_Init; Core_Oop_Play
+;                     reads this the same way, right after the dispatch call
+    nop
+    nop
+CharacterEntity_Play:
+    jsr Anim_Play
+    jsr Character_PlayFrame
+    lda #OBJR_NOERR
+    rts
+
 ; Ralf's idle/attack pixel data used to be baked here as ROM .incbin blobs
 ; (AnimCharIdleFrames/AnimCharAttackFrames) -- gone now that all three
 ; animations stream from the MSU-1 roster at runtime instead (see
@@ -3868,6 +3909,42 @@ scpu_boot:
     jsr Core_Cgram_Init
     jsr Core_Oop_Init
     jsr Core_Screen_Init
+
+    ; Register + create the Character entity (plan.md Phase 1a). Fill the
+    ; RegisterClass staging cells (16-bit WRAM fields, see core/oop.pasm)
+    ; while still in the ambient .a16/.i16 from the rep #$30 above.
+    lda #0
+    sta.l OopRegStaging_Flags
+    lda #OOP_SELF_HEADER_SIZE
+    sta.l OopRegStaging_ZpLen
+    lda #CharacterEntity_Init
+    sta.l OopRegStaging_Init
+    lda #CharacterEntity_Play
+    sta.l OopRegStaging_Play
+    lda #0
+    sta.l OopRegStaging_Pause
+    sta.l OopRegStaging_OnCommand
+
+    ; Core_Oop_RegisterClass's own php/plp restores whatever width was live
+    ; at the call site, and its documented "@return a<8-bit> new class id"
+    ; contract only holds if that's .a8 -- so narrow right before calling it.
+    sep #$20
+.a8
+    jsr Core_Oop_RegisterClass
+    sta.l CharacterClassId
+
+    rep #$31
+.a16
+.i16
+    lda.l CharacterClassId  ; LDY/LDX have no absolute-long addressing mode on
+    and #$00ff               ; 65816 (only LDA does) -- `ldy.l` silently mis-
+    tay                       ; assembles instead of erroring, the same class
+                              ; of bug already documented for STZ.l elsewhere
+                              ; in this file. Load via LDA (masked -- the byte
+                              ; above CharacterClassId isn't a valid high
+                              ; byte) and TAY instead.
+    lda #0                  ; init param -- unused by CharacterEntity_Init
+    jsr Core_Oop_Create
 
     sep #$20
 .a8
@@ -4365,15 +4442,12 @@ scpu_main_loop:
     rep #$31
 .a16
     jsr Core_Input_Poll
+    ; Anim_Play (updates Anim_FacingLeft via Anim_UpdateFacing, and streams a
+    ; new frame into the character's OBJ tile slot on animation advance) and
+    ; Character_PlayFrame now run via Core_Oop_Play -> CharacterEntity_Play,
+    ; in that order (plan.md Phase 1a) -- no longer called directly here.
     jsr Core_Oop_Play
     jsr Core_Screen_Play
-    ; Anim_Play (updates Anim_FacingLeft via Anim_UpdateFacing, and streams
-    ; a new frame into the character's OBJ tile slot on animation advance)
-    ; must run BEFORE Character_PlayFrame, so the OAM entry Character_
-    ; PlayFrame writes this same iteration reflects this frame's facing,
-    ; not the previous frame's.
-    jsr Anim_Play
-    jsr Character_PlayFrame
     jsr Core_Oam_Play
     bra scpu_main_loop
 
