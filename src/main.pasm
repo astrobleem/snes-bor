@@ -2216,6 +2216,22 @@ CharacterClassId = $7E2331   ; .db -- 8-bit class id returned by Core_Oop_
                               ;        Oop_Create does this internally too) --
                               ;        the byte just above it is unrelated,
                               ;        don't trust it as a high byte.
+Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
+                              ;        per-instance -- deliberately a fixed
+                              ;        global, not a CHAR_* DP field) flag,
+                              ;        cleared once in scpu_main_loop right
+                              ;        before jsr Core_Oop_Play. The first
+                              ;        entity dispatched each frame sees this
+                              ;        clear, resets Oam_CurrentSlot to 0 and
+                              ;        sets this; every later entity that same
+                              ;        frame sees it set and leaves
+                              ;        Oam_CurrentSlot alone so it keeps
+                              ;        writing into the next free OAM slot
+                              ;        instead of stomping slot 0 again. NOT
+                              ;        OopObjIndex -- that's a slot offset
+                              ;        into OopObjRam, not dispatch order, and
+                              ;        breaks under entity deletion/slot
+                              ;        compaction (plan.md's own warning).
 ; Verified via plan.md Phase 0's forced two-stream collision test (Mesen2,
 ; 3/3 runs): call A correctly left Msu1_StreamBusy=1, call B correctly
 ; observed it and was blocked (never overwrote AnimFrameStaging out from
@@ -2472,7 +2488,10 @@ CHAR_WALK_BASE_LO   = 25   ; .dw
 CHAR_WALK_BASE_HI   = 27   ; .db
 CHAR_ATTACK_BASE_LO = 28   ; .dw
 CHAR_ATTACK_BASE_HI = 30   ; .db
-CHAR_ZP_LEN         = 31   ; total -- pass as OopRegStaging_ZpLen
+CHAR_TILE_BYTE_OFFSET = 31 ; .dw -- CHAR_TILE_COLUMN*128, recomputed at the
+                            ; top of every Msu1_LoadFrame call (Step 3); not
+                            ; loaded directly by name elsewhere, just scratch
+CHAR_ZP_LEN         = 33   ; total -- pass as OopRegStaging_ZpLen
 
 ; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
 ; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
@@ -2923,6 +2942,27 @@ Msu1_LoadFrame:
     adc.l AnimHeaderStaging+12  ; a = n*3
     sta.l AnimHeaderStaging+14  ; scratch16 = n*3
 
+    ; --- Precompute this instance's row-DMA target byte offset,
+    ; CHAR_TILE_COLUMN*128 (plan.md Phase 1b Step 3 -- see the row-DMA
+    ; comment below for the *128 derivation). Done here, after the
+    ; frame_index parameter above is already safely captured off the
+    ; accumulator into WRAM, since A can't be clobbered before that. ---
+    sep #$20
+.a8
+    lda CHAR_TILE_COLUMN
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                       ; a = CHAR_TILE_COLUMN * 128
+    sta CHAR_TILE_BYTE_OFFSET
+
     sep #$20
 .a8
     lda #0
@@ -2998,7 +3038,9 @@ Msu1_LoadFrame__read:
     lda #AnimFrameStaging
     sta.l DmaRequest_SourceAddrLow
     lda #$8000                  ; row 0: word $4000 (tileRow0,col0) * 2
-    sta.l DmaRequest_TargetAddr
+    clc                         ; + this instance's CHAR_TILE_COLUMN*128
+    adc CHAR_TILE_BYTE_OFFSET   ; column offset (Step 3; 0 at column 0,
+    sta.l DmaRequest_TargetAddr ; reproducing the prior hardcoded address)
     lda #128                    ; 4 tiles/row * 32 bytes/tile
     sta.l DmaRequest_Length
     jsr Msu1_LoadFrame_EnqueueRow
@@ -3006,30 +3048,40 @@ Msu1_LoadFrame__read:
     lda #AnimFrameStaging + 128
     sta.l DmaRequest_SourceAddrLow
     lda #$8200                  ; row 1: word $4100 (tileRow1,col0) * 2
+    clc
+    adc CHAR_TILE_BYTE_OFFSET
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
     lda #AnimFrameStaging + 256
     sta.l DmaRequest_SourceAddrLow
     lda #$8400                  ; row 2: word $4200 * 2
+    clc
+    adc CHAR_TILE_BYTE_OFFSET
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
     lda #AnimFrameStaging + 384
     sta.l DmaRequest_SourceAddrLow
     lda #$8600                  ; row 3: word $4300 * 2
+    clc
+    adc CHAR_TILE_BYTE_OFFSET
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
     lda #AnimFrameStaging + 512
     sta.l DmaRequest_SourceAddrLow
     lda #$8800                  ; row 4: word $4400 * 2
+    clc
+    adc CHAR_TILE_BYTE_OFFSET
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
     lda #AnimFrameStaging + 640
     sta.l DmaRequest_SourceAddrLow
     lda #$8A00                  ; row 5: word $4500 * 2
+    clc
+    adc CHAR_TILE_BYTE_OFFSET
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
@@ -3345,10 +3397,29 @@ Character_BlankPadding__row7:
     nop
     nop
 Character_PlayFrame:
+    ; --- OAM cursor reset: only the FIRST entity dispatched this frame
+    ; resets Oam_CurrentSlot to 0; later entities leave it where the prior
+    ; entity's Core_Oam_SetSprite call left it, so they append into the next
+    ; free slot instead of overwriting slot 0 (plan.md Phase 1b Step 3; see
+    ; Oam_CursorResetDone's own comment). Explicitly NOT keyed on
+    ; OopObjIndex. ---
+    sep #$20
+.a8
+    lda.l Oam_CursorResetDone
+    bne Character_PlayFrame__cursor_done
+    lda #1
+    sta.l Oam_CursorResetDone
     rep #$31
 .a16
     lda #0
     sta Oam_CurrentSlot
+    bra Character_PlayFrame__cursor_next
+    nop
+Character_PlayFrame__cursor_done:
+    rep #$31
+.a16
+    nop
+Character_PlayFrame__cursor_next:
 
     ; --- X: held-dpad Left/Right movement. Unchanged from the old
     ; Player_PlayFrame -- see that routine's original header comment (now
@@ -3430,27 +3501,37 @@ Character_PlayFrame__store_y:
     sta CHAR_POS_Y
     sta.l OamSetSprite_Y
 
-    lda #0
-    sta.l OamSetSprite_Tile      ; OBJ base tile 0 (the character's slot)
+    ; --- OBJ base tile: this instance's CHAR_TILE_COLUMN*4 (each entity
+    ; occupies a 4-tile-wide column slice of the 16-tile-wide OBJ sheet --
+    ; see Msu1_LoadFrame's row-DMA comment for the (tileRow<<4)|tileColumn
+    ; hardware layout this must match). Column 0 -> tile 0, matching the
+    ; hardcoded value this replaces (plan.md Phase 1b Step 3). ---
+    lda CHAR_TILE_COLUMN
+    asl a
+    asl a
+    sta.l OamSetSprite_Tile
 
-    ; --- Attribute byte: priority 3 / palette 0 (OBJ palette 0, streamed to
-    ; CGRAM $100+ by Anim_LoadCharacter -- see that routine) / hflip from
+    ; --- Attribute byte: priority 3 / palette = CHAR_PALETTE_SLOT (bits 3-1
+    ; of the attribute byte -- palette N is $30 | (N<<1); CHAR_PALETTE_SLOT=0
+    ; reproduces the old hardcoded $30/$70 exactly) / hflip from
     ; Anim_FacingLeft. Real art faces right by default (FacingLeft=0, no
     ; flip); hardware mirrors the whole 32x64 block when hflip is set,
     ; replacing the old BG2-window tilemap-swap trick entirely. Tested via
     ; its own lda (not ldx/ldy -- index width is still 16-bit here, only
     ; the accumulator was narrowed by the sep #$20 above, so an indexed
     ; read of this 1-byte cell would silently read 2 bytes instead). ---
+    lda CHAR_PALETTE_SLOT
+    asl a
+    ora #$30
+    sta.l OamSetSprite_Attr
     lda CHAR_FACING_LEFT
     beq Character_PlayFrame__no_flip
-    lda #$70                     ; priority 3, palette 0, hflip ($30 | $40)
-    bra Character_PlayFrame__attr_ok
+    lda.l OamSetSprite_Attr
+    ora #$40                     ; hflip
+    sta.l OamSetSprite_Attr
     nop
 Character_PlayFrame__no_flip:
-    lda #$30                     ; priority 3, palette 0, no flip
     nop
-Character_PlayFrame__attr_ok:
-    sta.l OamSetSprite_Attr
 
     lda #$02                     ; hi-table: size bit set (large = 32x64
                                   ; under OBSEL mode 6), X-high clear
@@ -3945,6 +4026,18 @@ CharacterEntity_Init:
     sta CHAR_POS_Y
     lda #1
     sta CHAR_INPUT_DRIVEN
+
+    ; --- CHAR_PALETTE_SLOT/CHAR_TILE_COLUMN (plan.md Phase 1b Step 3):
+    ; explicit 0 here, not left to Core_Oop_Init's object-RAM clear, since
+    ; both fields are now actually read every frame (Character_PlayFrame's
+    ; attribute byte and OBJ base tile, Msu1_LoadFrame's row-DMA target) --
+    ; Core_Oop_Init zeroing the window is true today but shouldn't be the
+    ; thing this depends on. 0/0 reproduces the exact hardcoded values
+    ; ($30 attr, tile 0, offset 0) these fields replaced. Phase 2's second
+    ; entity is what will pass non-zero values through the init param. ---
+    lda #0
+    sta CHAR_PALETTE_SLOT
+    sta CHAR_TILE_COLUMN
 
     rep #$31
 .a16
@@ -4546,6 +4639,18 @@ scpu_main_loop:
     ; new frame into the character's OBJ tile slot on animation advance) and
     ; Character_PlayFrame now run via Core_Oop_Play -> CharacterEntity_Play,
     ; in that order (plan.md Phase 1a) -- no longer called directly here.
+    ; Oam_CursorResetDone cleared once per frame right here, before dispatch
+    ; -- see its own comment for why this has to be a global flag Character_
+    ; PlayFrame checks-and-sets, not an unconditional reset (plan.md Phase 1b
+    ; Step 3; single-entity today, but must be right by inspection now since
+    ; there's no "renders identically" gate that would catch getting it
+    ; backwards until Phase 2's second entity exists).
+    sep #$20
+.a8
+    lda #0
+    sta.l Oam_CursorResetDone
+    rep #$31
+.a16
     jsr Core_Oop_Play
     jsr Core_Screen_Play
     jsr Core_Oam_Play

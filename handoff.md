@@ -540,17 +540,55 @@ Verified: OAM shadow buffer byte-identical to the Phase 1a baseline at
 boot (3/3 runs), and held-dpad movement clamps at the same `PLAYER_MAX_X`
 (216)/`PLAYER_MAX_Y` (208) values as before on both axes.
 
-**Next**: Step 3 — `CHAR_PALETTE_SLOT`/`CHAR_TILE_COLUMN`, replacing
-`Character_PlayFrame`'s hardcoded `$30`/`$70` attribute-byte literals, plus
-an explicit `Oam_CursorResetDone` flag (**not** `OopObjIndex`) deciding
-which entity resets `Oam_CurrentSlot` each frame — see plan.md's own
-warning on why `OopObjIndex` is the wrong check, and why this step has no
-"renders identically" safety net (it doesn't manifest until Phase 2's
-second entity exists, so get the flag logic right by inspection, not just
-by the gate passing). Then Phase 2 — a second, simultaneous entity with
-different roster/palette/tile column. Read `plan.md`'s Phase 1 section in
-full before continuing; it has the exact field layout and reasoning this
-work depends on.
+**Step 3 done and verified**: `Character_PlayFrame`'s hardcoded `$30`/`$70`
+attribute-byte literals are now computed from `CHAR_PALETTE_SLOT`
+(`$30 | (CHAR_PALETTE_SLOT<<1)`, then `|$40` if `CHAR_FACING_LEFT`), and the
+OBJ base tile is `CHAR_TILE_COLUMN*4` instead of the hardcoded `0`.
+`Msu1_LoadFrame` now precomputes `CHAR_TILE_BYTE_OFFSET` (`CHAR_TILE_COLUMN
+*128`, new `.dw` field at offset 31, `CHAR_ZP_LEN` now 33) once per call and
+adds it to all 6 row-DMA target addresses. `CharacterEntity_Init` explicitly
+zeroes `CHAR_PALETTE_SLOT`/`CHAR_TILE_COLUMN` (0/0 reproduces the exact
+values these fields replaced) rather than relying on `Core_Oop_Init`'s
+object-RAM clear, since both fields are now actually read every frame.
+
+Added the explicit `Oam_CursorResetDone` flag (**not** `OopObjIndex`, per
+plan.md's warning): a new global byte, `$7E2332` (free gap next to
+`Msu1_StreamBusy`/`CharacterClassId`), cleared once in `scpu_main_loop`
+immediately before `jsr Core_Oop_Play`. `Character_PlayFrame` now checks it
+at entry — first entity dispatched each frame sees it clear, resets
+`Oam_CurrentSlot` to 0 and sets the flag; any later entity that same frame
+sees it set and leaves `Oam_CurrentSlot` alone, so it appends into the next
+free slot instead of re-stomping slot 0. With only one entity today this is
+behaviorally identical to the old unconditional reset, so — as plan.md
+warned — the OAM-identity gate proves nothing about whether the flag logic
+itself is right; it was checked by inspection against plan.md's exact rule,
+not just by the gate passing. Real test of this logic is Phase 2's second
+entity.
+
+Verified: build clean (32561 bytes, same fixed `.org` window); all 3
+`rom_audit` tools clean (`verify_layout.py`: 417 labels, 0 drifted;
+`audit_jumps.py`: 1901 instructions, 249 edges, 0 suspicious;
+`audit_ownership.py`: 418 labels, 79 CALL-class edges, 0 violations); OAM
+shadow buffer byte-identical to the Phase 1a baseline at boot (3/3 Mesen2
+runs) — tile=0/attr=`$30` unchanged since `CHAR_PALETTE_SLOT`/
+`CHAR_TILE_COLUMN` are both 0 for this single entity; live behavior
+unchanged (Right-held clamps X at 216, Left-held clamps X at 8 with
+attribute byte `$70` = priority3|palette0|hflip, confirming the new
+`CHAR_PALETTE_SLOT`-derived computation reproduces the old hardcoded value
+exactly at slot 0).
+
+**Next**: Phase 1b is functionally complete for a single entity — every
+field in the plan.md layout is now live except `CHAR_ROSTER_INDEX` (still
+reads from the init param into the global `CharSelect_Index`, not stored
+per-instance; not needed until something wants to read back which roster
+slot a *specific* entity loaded). Move to **Phase 2** — create a second,
+simultaneous `CharacterEntity` (different roster index, `CHAR_PALETTE_SLOT
+=1`, `CHAR_TILE_COLUMN=1`, `CHAR_INPUT_DRIVEN=0` for a static/idle-only
+instance) via a second `jsr Core_Oop_Create` after the first, and verify
+both render simultaneously without VRAM/CGRAM/OAM corruption — this is the
+first real exercise of `Oam_CursorResetDone`, the per-column VRAM row-DMA
+offset, and the Phase-0 MSU-streaming serialization gate all at once. Read
+`plan.md`'s Phase 1/Phase 2 sections in full before continuing.
 
 ## Harness gotchas (Mesen2 / build)
 
