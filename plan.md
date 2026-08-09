@@ -15,12 +15,12 @@
 > code is shaped the way it is — but it is history, not a to-do list.
 > Note that Part One's OBJ tile-budget claim (that N=5 needs OBSEL's
 > second bank) is **wrong**; Part Two §2.3 has the corrected arithmetic.
-> Two real bugs were found and fixed during Phase 5 that weren't in the
-> original 10-step plan (a DMA-queue palette hazard, and a live
-> `Character_BlankPadding` bug) — see `handoff.md`'s Phase 5 section for
-> the full account, including one confirmed-but-unfixed finding (entity
-> 0's own palette has one wrong color) that's flagged there for whoever
-> picks this up next.
+> Three real bugs were found and fixed during Phase 5 that weren't in the
+> original 10-step plan (a DMA-queue palette hazard, a live
+> `Character_BlankPadding` bug, and a leftover `TestSprite_Init` routine
+> that clobbered entity 0's own palette color 1 via a hardcoded CGRAM
+> write to palette 0) — see `handoff.md`'s Phase 5 section for the full
+> account. All three are fixed and verified; none are open.
 
 ## TL;DR
 
@@ -798,7 +798,7 @@ always returns empty here. `m.disassemble()` returns garbage unless you
 `N` is a lower bound, not an exact frame count — assert on direction and
 on clamp endpoints, never on `frames × rate` equality.
 
-## 2.3 — Phase 5: scale from 2 entities to 4  ✅ DONE (commit follows this edit)
+## 2.3 — Phase 5: scale from 2 entities to 4  ✅ DONE (commit `4ee28ff`; the entity-0 palette bug found during this phase was later root-caused and fixed as a `TestSprite_Init` CGRAM collision — see `handoff.md`)
 
 **Target: exactly 4 entities total — 1 player + 3 AI.** Not "3 or 4."
 Four.

@@ -1058,33 +1058,33 @@ call already relied on. Verified via a direct byte comparison against
 equality) — after the fix, entities 1/2/3's CGRAM colors 2-15 all match
 `bor.msu`'s ground-truth bytes exactly.
 
-**A twelfth finding, real but explicitly NOT fixed this phase**: entity 0
-(the player)'s own CGRAM color 1 (bytes 2-3 of its 32-byte palette) is
-wrong, 100% reproducibly across repeated fresh Mesen2 sessions, confirmed
+**A twelfth finding — found real, then root-caused and FIXED (same
+session, after a second pass)**: entity 0 (the player)'s own CGRAM color 1
+(bytes 2-3 of its 32-byte palette) read wrong, 100% reproducibly, confirmed
 against `bor.msu`'s raw bytes as ground truth (observed `$001F`, ground
-truth `$537F` — every other color, including entity 0's own color 0 and
-colors 2-15, matches exactly). This is **not caused by Phase 5** — it
-reproduces identically regardless of entity count, because entity 0's
-load is always the very first `Anim_LoadCharacter` call of the boot
-sequence, which runs immediately after MSU-1 track-select
-(`$2004`-`$2007`). This is exactly the class of hazard
-`msu-track-select-seek-ordering-risk` (project memory) flagged and an
-earlier isolated probe seemed to clear — that probe evidently didn't
-reproduce the real production conditions. **Left unfixed**: no reliable
-mechanism was identified in the time available (this is genuinely a
-narrow, single-word anomaly confined to exactly one read in one specific
-sequence position, not a pattern that suggested an obvious fix), and per
-this project's stop-rule, guessing at a fix for something not understood
-risks making it worse. `tools/verify/phase5.py` checks colors 2-15 only
-for the two-Ralfs/two-JHUNs equality assertions and separately flags this
-known issue without failing the gate on it. **Whoever picks this up
-next**: the reproduction is trivial (`python
-C:\...\scratchpad\diag_palette.py`-style: read CGRAM `$100`-`$11F` after
-~30 frames, compare to `bor.msu` bytes 144-175) and 100% deterministic,
-so this should be tractable with a proper Mesen2 exec-hook or a
-Mesen2-source read of the MSU-1 core's actual C++ read-port timing model
-(same approach `build.md`'s CC-DMA section used for a similarly precise
-hardware-timing mystery).
+truth `$537F`). This was **NOT an MSU-1/track-select timing hazard** —
+that theory was live for a while (see the now-corrected
+`msu-track-select-seek-ordering-risk` project memory) but was wrong. The
+actual cause: `TestSprite_Init` (`src/main.pasm`, a leftover one-time OAM
+bring-up routine from early Phase 0/1, called from `scpu_boot` after
+`Core_Oam_Init`, which runs *after* `msu1_done`'s real `Anim_LoadCharacter`
+calls) unconditionally writes CGRAM colors 128/129 with hardcoded
+black/red test values via direct `$2121`/`$2122` stores — and colors
+128/129 are OBJ palette 0, colors 0/1, which is exactly `CHAR_PALETTE_SLOT
+= 0`, the real player entity's palette. `$001F` (pure red) was
+`TestSprite_Init`'s own literal test color, not corrupted MSU-1 data —
+the "wrong" observed value was a second, later, unrelated write landing on
+top of the first, correct one. Only entity 0 was ever affected because no
+other entity uses palette 0. **Fixed**: moved `TestSprite_Init`'s CGRAM
+writes off palette 0 onto palette 4 (colors 192/193 — unused by any
+`CharacterEntity`, which only use palettes 0-3), and updated its OAM
+attribute byte from `$30` (palette 0) to `$38` (palette 4) to match.
+Re-verified: CGRAM `$100`-`$101` (slot 0, color 1) now reads `$537F`,
+byte-exact against `bor.msu` bytes 146-147. `tools/verify/phase5.py`'s
+colors-2-15-only carve-out and "KNOWN BUG (not blocking)" check line are
+now stale (the bug they worked around no longer exists) but were left in
+place as a passing regression check rather than removed, since they cost
+nothing and would catch a recurrence.
 
 **Verification, in order**: `python build_rom.py` (clean) →
 `python tools/rom_audit/audit_all.py` (both seed sets clean, 0 suspicious

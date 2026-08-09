@@ -3442,19 +3442,29 @@ TestSprite_Init:
     sta.l $002116
     jsr TestSprite_WriteSolidTile
 
-    ; --- OBJ palette: CGRAM color 128 (pixel value 0, unused/transparent,
-    ; left black) + color 129 (pixel value 1, bright red: R=31 G=0 B=0) ---
+    ; --- OBJ palette: CGRAM color 192 (pixel value 0, unused/transparent,
+    ; left black) + color 193 (pixel value 1, bright red: R=31 G=0 B=0) ---
+    ; OBJ palette 4 (colors 192/193), NOT palette 0 -- palette 0 is
+    ; CHAR_PALETTE_SLOT=0, the real player entity's palette, and this
+    ; routine runs (from scpu_boot, after Core_Oam_Init) AFTER msu1_done's
+    ; Anim_LoadCharacter has already DMA'd entity 0's real 16-color palette
+    ; into CGRAM colors 128-143. Originally hardcoded to palette 0's colors
+    ; 128/129, which silently overwrote entity 0's own color-index-1 with
+    ; this test sprite's literal red every boot -- found via byte-exact
+    ; comparison against bor.msu's ground truth (see
+    ; msu_track_select_seek_ordering_risk memory / handoff.md Phase 5).
+    ; Palettes 4-7 are unused by any CharacterEntity (slots 0-3 only).
     sep #$20
 .a8
-    lda #$80
-    sta.l $002121                ; CGRAM address = color 128 (OBJ palette 0)
+    lda #$C0
+    sta.l $002121                ; CGRAM address = color 192 (OBJ palette 4)
     lda #0
-    sta.l $002122                 ; color 128 low byte
-    sta.l $002122                 ; color 128 high byte
+    sta.l $002122                 ; color 192 low byte
+    sta.l $002122                 ; color 192 high byte
     lda #$1F
-    sta.l $002122                 ; color 129 low byte ($001F = pure red)
+    sta.l $002122                 ; color 193 low byte ($001F = pure red)
     lda #0
-    sta.l $002122                 ; color 129 high byte
+    sta.l $002122                 ; color 193 high byte
 
     ; --- OAM entry 0: X=120, Y=100, tile=0 (OBJ base), attr = priority 3 /
     ; palette 0. One 8-bit store per field (not a 16-bit store spanning two
@@ -3471,7 +3481,10 @@ TestSprite_Init:
     lda #0
     sta.l Oam_Buffer+2        ; sprite 0 base tile index (OBJ base + 0); hardware
                                ; auto-fetches +1/+$10/+$11 for the other 3 quadrants
-    lda #$30                  ; priority 3, palette 0, name table 0, no flip
+    lda #$38                  ; priority 3, palette 4, name table 0, no flip --
+                               ; palette 4 (not 0) to match the CGRAM colors
+                               ; 192/193 written above, off entity 0's real
+                               ; palette 0 (see the CGRAM-write comment above)
     sta.l Oam_Buffer+3
 
     ; Sprite 0's hi-table byte: bit1 (size) = 1 selects the "large" half of
