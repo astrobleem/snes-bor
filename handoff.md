@@ -577,18 +577,85 @@ attribute byte `$70` = priority3|palette0|hflip, confirming the new
 `CHAR_PALETTE_SLOT`-derived computation reproduces the old hardcoded value
 exactly at slot 0).
 
-**Next**: Phase 1b is functionally complete for a single entity — every
-field in the plan.md layout is now live except `CHAR_ROSTER_INDEX` (still
-reads from the init param into the global `CharSelect_Index`, not stored
-per-instance; not needed until something wants to read back which roster
-slot a *specific* entity loaded). Move to **Phase 2** — create a second,
-simultaneous `CharacterEntity` (different roster index, `CHAR_PALETTE_SLOT
-=1`, `CHAR_TILE_COLUMN=1`, `CHAR_INPUT_DRIVEN=0` for a static/idle-only
-instance) via a second `jsr Core_Oop_Create` after the first, and verify
-both render simultaneously without VRAM/CGRAM/OAM corruption — this is the
-first real exercise of `Oam_CursorResetDone`, the per-column VRAM row-DMA
-offset, and the Phase-0 MSU-streaming serialization gate all at once. Read
-`plan.md`'s Phase 1/Phase 2 sections in full before continuing.
+Phase 1b is functionally complete for a single entity — every field in the
+plan.md layout is live except `CHAR_ROSTER_INDEX` (still reads from the
+init param into the global `CharSelect_Index`, not stored per-instance; not
+needed until something wants to read back which roster slot a *specific*
+entity loaded).
+
+## Phase 2 done and verified: second, simultaneous entity
+
+`CharacterEntity_Init`'s init param is now `(role<<8)|roster_index`: role 0
+= player-controlled defaults (Phase 1b's exact single-entity behavior,
+unchanged — Entity #0's `lda #0` call site still works since its old high
+byte was already 0), role 1 = a static NPC (own palette/tile-column, not
+dpad-driven). `msu1_done` now does a second `jsr Core_Oop_Create` right
+after the first: `lda #$0101` (role 1, roster slot 1 = JHUN) — Entity #1,
+`CHAR_PALETTE_SLOT=1`, `CHAR_TILE_COLUMN=1`, `CHAR_INPUT_DRIVEN=0`, fixed
+position X=40/Y=150 (clearly separated from Entity #0's X=120/Y=150, no
+32px-sprite overlap).
+
+**Two real bugs found and fixed during this phase's own verification, not
+found by any rom_audit tool or by the build succeeding — both only visible
+by reading actual WRAM/CGRAM state, not by "it built cleanly":**
+
+1. **CGRAM palette target was still hardcoded to `$0100` (palette 0) in
+   `Anim_LoadCharacter`**, unaffected by Phase 1b Step 3's
+   `CHAR_PALETTE_SLOT` attribute-byte work — Step 3 only changed which
+   palette *number* the OAM attribute byte points at, not where the actual
+   16-color palette *data* gets streamed to in CGRAM. Entity #1 would have
+   pointed its attribute bits at CGRAM palette 1 ($120) while nothing ever
+   wrote real data there (stale/boot CGRAM contents), rendering with a
+   garbage palette. Fixed: `Anim_LoadCharacter`'s CGRAM DMA target is now
+   `$0100 + CHAR_PALETTE_SLOT*32`, computed from the DP field right before
+   the enqueue. Confirmed via direct `snesCgRam` reads (Mesen2 MCP memory
+   type — not `cgRam`/`CgRam`/`paletteRam`, none of which exist; only
+   `snesCgRam`/`SnesCgRam` work) that palette 0 and palette 1 hold distinct,
+   both-non-zero 32-byte blocks after boot.
+2. **Ordering bug in the first `CharacterEntity_Init` rewrite**: an `and
+   #$00ff` was left in front of the `xba` used to extract the init param's
+   role byte, a leftover from an earlier draft's field order — it zeroed
+   the roster-index half of the param *before* `xba` could move it out of
+   the way, so the recovered "roster index" was always 0 and the role
+   check (via a second `and #$00ff`/`xba` round-trip) always evaluated to
+   0 regardless of what was actually passed in. Silently produced a
+   visually-plausible but wrong result: Entity #1 rendered as a second
+   *player-role*, roster-0 (Ralf) copy at the wrong position, not the
+   intended static JHUN NPC — caught only by reading `OopObjRam`'s raw
+   bytes for both objects' `CHAR_POS_X`/`CHAR_PALETTE_SLOT`/
+   `CHAR_TILE_COLUMN`/`CHAR_INPUT_DRIVEN` fields directly and comparing
+   against the intended role-1 values, not by the OAM sprite bytes alone
+   (which happened to show *some* second sprite, just the wrong one).
+   Fixed by saving the full param on the stack (`pha`) before the role
+   branch consumes `A`, and `pla`-ing it back afterward (with an explicit
+   `rep #$31`/`.a16` re-assert first, since both role branches leave `.a8`
+   in effect and `pla` must match `pha`'s original 16-bit width or the
+   stack unbalances by a byte).
+
+Verified after both fixes: all 3 `rom_audit` tools clean (419-420 labels,
+0 drifted/suspicious/violations); `OopObjRam` raw bytes for both objects'
+windows read back with the exact intended field values (Entity #0:
+pos=120/150, palette=0, column=0, input_driven=1; Entity #1: pos=40/150,
+palette=1, column=1, input_driven=0, and distinct idle/walk/attack delays
++ MSU base offsets confirming JHUN's data loaded, not Ralf's); `snesCgRam`
+confirms two distinct non-zero palettes; `snesVideoRam` confirms Entity
+#1's OBJ tile-column-1 VRAM bytes ($8080-$80FF) are real, non-zero, and
+different from Entity #0's column-0 bytes ($8000-$807F) — the row-DMA
+`CHAR_TILE_BYTE_OFFSET` targeting is correct, no cross-entity VRAM
+corruption; ran 720 total frames (12s) to let both entities' idle cycles
+(delays 10/8/10 vs 20/9/7 ticks) re-align at least once under real
+concurrent MSU streaming, `Msu1_StreamBusy` still correctly drained to 0
+afterward (no stuck/deadlocked stream gate); Entity #0 remains fully
+dpad-controllable (Right-held still clamps at X=216) while Entity #1 stays
+fixed; 3/3 Mesen2 runs consistent. Entity #0's own 4 OAM bytes still
+exactly match the original Phase 1a baseline (`[120, 150, 0, 48]`).
+
+**Next**: Phase 3 — minimal AI (per `SNES-BOR-Engine-Prompt.md` §6 and
+plan.md's Phase 3 section): give Entity #1 (or a new Entity #2) a
+seek-toward-player movement mode and an attack trigger at close range.
+Read plan.md's Phase 3 section in full before starting — it's
+intentionally lighter-detail than Phases 0-2 and expects re-deriving
+specifics against the code as it exists by the time you get there.
 
 ## Harness gotchas (Mesen2 / build)
 

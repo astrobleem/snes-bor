@@ -3919,15 +3919,28 @@ Anim_LoadCharacter__palette_read:
     ; DMA_TYPE_CGRAM instead of DMA_TYPE_VRAM. ---
     lda #AnimPaletteStaging
     sta.l DmaRequest_SourceAddrLow
-    lda #$0100
-    sta.l DmaRequest_TargetAddr    ; CGRAM byte address $100 = color 128 =
-                                    ; OBJ palette 0 (was color 0/BG palette 0
-                                    ; -- the character renders via a real OAM
-                                    ; sprite now, not a BG2 window, so its
-                                    ; palette needs to land in OBJ's CGRAM
-                                    ; range; see Character_PlayFrame's
-                                    ; attribute-byte comment for the palette
-                                    ; select field this must match)
+    ; CGRAM byte address $100 = color 128 = OBJ palette 0 base (was color 0/
+    ; BG palette 0 -- the character renders via a real OAM sprite now, not a
+    ; BG2 window). Palette N lives at $100 + N*32 (plan.md Phase 2's "OBJ
+    ; palette budget") -- this instance's CHAR_PALETTE_SLOT (already set by
+    ; CharacterEntity_Init before this call, see its header) picks which
+    ; slot, matching Character_PlayFrame's attribute-byte palette-select
+    ; bits exactly.
+    sep #$20
+.a8
+    lda CHAR_PALETTE_SLOT
+    rep #$31
+.a16
+.i16
+    and #$00ff
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                       ; x32
+    clc
+    adc #$0100
+    sta.l DmaRequest_TargetAddr
     lda #32
     sta.l DmaRequest_Length
     sep #$20
@@ -3994,7 +4007,12 @@ Anim_LoadCharacter__palette_read:
 ; will force that parameter to actually exist.
 ; ----------------------------------------------------------------------------
 
-; @param a<16-bit>  init parameter: roster index (low byte valid)
+; @param a<16-bit>  init parameter: (role<<8)|roster_index (Phase 2 -- role
+;                    0 = player-controlled defaults (Phase 1b's original
+;                    single-entity behavior, unchanged), role 1 = static NPC
+;                    defaults (own palette/tile-column, not dpad-driven).
+;                    Entity #0's existing `lda #0` call site is unaffected
+;                    (high byte already 0 = role 0).
 ; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
 ;                     deletion on the next Play pass if this isn't exactly 0
     nop
@@ -4005,18 +4023,50 @@ CharacterEntity_Init:
     ; (ClassInit,x) call site) -- CharSelect_Index stays a global cell for
     ; now (not yet per-instance, see CHAR_ROSTER_INDEX's own future step),
     ; same as Anim_LoadCharacter always assumed; only the roster index
-    ; itself comes from the init param.
-    and #$00ff
+    ; itself comes from the init param's low byte.
+    ;
+    ; CHAR_PALETTE_SLOT/CHAR_TILE_COLUMN/CHAR_INPUT_DRIVEN/CHAR_POS_X/Y are
+    ; set from the role (init param's high byte) BEFORE calling
+    ; Anim_LoadCharacter, not after -- Anim_LoadCharacter's own CGRAM DMA
+    ; enqueue reads CHAR_PALETTE_SLOT to pick this instance's palette
+    ; target address (plan.md Phase 2's "OBJ palette budget"); getting this
+    ; ordering backwards would stream real 16-color palette data to
+    ; whatever CHAR_PALETTE_SLOT happened to be at the time (0, from Core_
+    ; Oop_Init's clear) regardless of which slot this instance actually
+    ; renders with, leaving every non-zero-palette-slot entity pointing its
+    ; OAM attribute bits at CGRAM data nothing ever wrote.
+    pha                             ; save full (role<<8)|roster_index --
+                                    ; need the roster index back after the
+                                    ; role branch below consumes A
+    xba                             ; role -> low byte
+    and #$00ff                      ; role isolated (xba's high byte, now
+                                     ; zeroed here, is a scratch copy only --
+                                     ; the real roster index is safe on the
+                                     ; stack from the pha above)
+    beq CharacterEntity_Init__player
+    ; --- role 1: static NPC defaults (plan.md Phase 2) -- own palette/
+    ; tile-column, not dpad-driven, fixed position clearly separated in X
+    ; from the player's default 120 (32px-wide sprite: 40-72 vs 120-152,
+    ; no overlap) so the visual check isn't confused by overlap. ---
     sep #$20
 .a8
-    sta.l CharSelect_Index
-    jsr Anim_LoadCharacter        ; sets/restores its own widths, see its
-                                   ; header -- writes this object's CHAR_*
-                                   ; fields since DP is still switched here
-
-    ; --- position + input-driven flag (was scpu_boot's inline Player_X/Y
-    ; init, moved here since DP-relative writes are only correct with this
-    ; object's window switched in -- see the header comment above). ---
+    lda #40
+    sta CHAR_POS_X
+    lda #150
+    sta CHAR_POS_Y
+    lda #0
+    sta CHAR_INPUT_DRIVEN
+    lda #1
+    sta CHAR_PALETTE_SLOT
+    sta CHAR_TILE_COLUMN
+    bra CharacterEntity_Init__load
+    nop
+CharacterEntity_Init__player:
+    ; --- role 0: player-controlled defaults (was scpu_boot's inline
+    ; Player_X/Y init, moved here in Phase 1b since DP-relative writes are
+    ; only correct with this object's window switched in). Palette 0/
+    ; column 0 reproduce the exact hardcoded values Phase 1b Step 3
+    ; replaced. ---
     sep #$20
 .a8
     lda #120                        ; mid-screen; was PLAYER_MIN_X, which
@@ -4026,18 +4076,30 @@ CharacterEntity_Init:
     sta CHAR_POS_Y
     lda #1
     sta CHAR_INPUT_DRIVEN
-
-    ; --- CHAR_PALETTE_SLOT/CHAR_TILE_COLUMN (plan.md Phase 1b Step 3):
-    ; explicit 0 here, not left to Core_Oop_Init's object-RAM clear, since
-    ; both fields are now actually read every frame (Character_PlayFrame's
-    ; attribute byte and OBJ base tile, Msu1_LoadFrame's row-DMA target) --
-    ; Core_Oop_Init zeroing the window is true today but shouldn't be the
-    ; thing this depends on. 0/0 reproduces the exact hardcoded values
-    ; ($30 attr, tile 0, offset 0) these fields replaced. Phase 2's second
-    ; entity is what will pass non-zero values through the init param. ---
     lda #0
     sta CHAR_PALETTE_SLOT
     sta CHAR_TILE_COLUMN
+    nop
+CharacterEntity_Init__load:
+    ; --- Now recover the roster index (saved on the stack by the pha
+    ; above, since the role branch above clobbered A) and do the actual
+    ; MSU-1 load, with CHAR_PALETTE_SLOT already correct for its CGRAM DMA
+    ; target. Both role branches above leave .a8 (sep #$20) in effect, but
+    ; the pha at entry pushed a full 16-bit value (this routine's own
+    ; entry width) -- pla must match that width or the stack unbalances by
+    ; a byte, so re-assert .a16 first. ---
+    rep #$31
+.a16
+.i16
+    pla                              ; recover (role<<8)|roster_index
+    and #$00ff                       ; roster index in low byte
+    sep #$20
+.a8
+    sta.l CharSelect_Index
+    jsr Anim_LoadCharacter        ; sets/restores its own widths, see its
+                                   ; header -- writes this object's CHAR_*
+                                   ; fields since DP is still switched here
+                                   ; -- exits .a16/.i16 on both its rts paths
 
     rep #$31
 .a16
@@ -4228,11 +4290,26 @@ msu1_done:
     and #$00ff               ; 65816 (only LDA does) -- `ldy.l` silently mis-
     tay                       ; assembles instead of erroring (poppy bug #11).
                               ; Load via LDA (masked) and TAY instead.
-    lda #0                   ; init param -- roster index 0
+    lda #0                   ; init param -- (role<<8)|roster_index = role 0
+                              ; (player-controlled), roster slot 0 (Ralf)
     jsr Core_Oop_Create
     ; Core_Oop_Create's plp restores the ambient width from this call site
     ; (.a16/.i16, matching Anim_LoadCharacter's own exit convention) --
     ; TAD_Init below re-asserts its own required width explicitly anyway.
+
+    ; --- Entity #1 (plan.md Phase 2): a second, simultaneous, static NPC --
+    ; roster slot 1 (JHUN), role 1 (own palette 1/tile-column 1, not dpad-
+    ; driven -- see CharacterEntity_Init). Exercises a second oop.pasm
+    ; instance, a second OBJ palette, a second OBJ tile-column, a second
+    ; OAM slot via Oam_CursorResetDone, and real concurrent MSU streaming
+    ; under the Phase 0 serialization fix, all at once -- the smallest
+    ; slice that proves the whole multi-entity path per plan.md. ---
+    lda.l CharacterClassId
+    and #$00ff
+    tay
+    lda #$0101               ; init param -- role 1 (high byte), roster
+                              ; slot 1 / JHUN (low byte)
+    jsr Core_Oop_Create
 
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES
