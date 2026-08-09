@@ -455,7 +455,32 @@ Verified: all three `tools/rom_audit/*.py` scripts clean; 3/3 Mesen2 runs
 showing idle/walk/attack/facing behave identically to pre-Phase-1a
 (`Anim_Selected` 0→1 on Right held, back to 0 on release, →2 on Y held;
 `OopObjSlotPtr`/`OopObjRamPtr`/`OopCreateCounter` all confirm exactly one
-object was created).
+object was created). Also directly confirmed pixel-identical rendering,
+not just inferred from WRAM state: the packed OAM shadow buffer
+(`Oam_Buffer` $7E5100 512B + `Oam_PackedHi` $7E5300 32B) at frame 120 is
+byte-for-byte identical between this commit and the pre-Phase-1a commit
+(`3481652`) — worth re-checking, since `Character_PlayFrame` (which writes
+that buffer) now runs slightly earlier in the loop, inside `Core_Oop_Play`
+rather than directly from `scpu_main_loop`.
+
+**Phase 1b prerequisite, found but deliberately not fixed in 1a (no failing
+test attached to it yet, so it stayed out of that commit):**
+`Core_Oop_Init`'s `__clear_objs`/`__clear_classes` loops run in `.a8` while
+stepping `X` by 2 through 16-bit (`.dw`) array elements — this clears only
+each element's low byte, leaving the high byte as boot-time garbage.
+Currently harmless because every consumer (`Core_Oop_Play`'s flag check,
+etc.) masks with a small constant that discards the high byte anyway. It
+stops being harmless once `OopDp` (also cleared this same broken way) is
+read before being written for a given slot — `Core_Oop_Play` does
+`lda.l OopDp,x` / `tcd` with **no mask**, so a garbage high byte there
+means `tcd` switches to a garbage direct page, exactly the class of bug
+that cost most of this session (see bug 11 above). Today's single object
+survives only because `Core_Oop_Create` always fully (16-bit) overwrites
+`OopDp` for the slot it allocates before anything reads it. Fix before
+Phase 2 creates a second entity and any code path might read a slot's
+state before/without going through `Core_Oop_Create` first: change both
+loops to run in `.a16` (drop the `sep #$20`/`rep #$10` split, keep the
+`inx`/`inx` stride) so each `sta.l Array,x` clears the full 16-bit element.
 
 **Next**: Phase 1b — move the character's actual state (`Anim_*`,
 `Player_X/Y`, etc.) into the object's per-instance DP window using the
