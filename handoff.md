@@ -686,12 +686,125 @@ Phase 0), but does **not** independently confirm the bytes are JHUN's
 start by understanding `tools/bor_converter/convert_character.py`'s output
 format before assuming the 768-byte runtime layout applies directly.
 
-**Next**: Phase 3 — minimal AI (per `SNES-BOR-Engine-Prompt.md` §6 and
-plan.md's Phase 3 section): give Entity #1 (or a new Entity #2) a
-seek-toward-player movement mode and an attack trigger at close range.
-Read plan.md's Phase 3 section in full before starting — it's
-intentionally lighter-detail than Phases 0-2 and expects re-deriving
-specifics against the code as it exists by the time you get there.
+## Phase 3 done and verified: minimal AI
+
+Per `SNES-BOR-Engine-Prompt.md` §6.2 ("Enemies walk toward player. When
+within 30 pixels, play punch animation. No damage system for PoC.") and
+plan.md's Phase 3 section. Repurposed Entity #1 (Phase 2's static NPC)
+rather than adding a third entity — plan.md explicitly allowed either.
+
+`CHAR_INPUT_DRIVEN=2` is now a real third mode ("AI seek"), alongside 0
+(static) and 1 (player dpad). `CharacterEntity_Init`'s role-1 branch now
+sets `CHAR_INPUT_DRIVEN=2` instead of 0 (was "static NPC", is now
+"AI-seeking NPC" — same palette/tile-column/starting position as Phase 2,
+just no longer idle-only).
+
+- **`Anim_Play`**: `CHAR_INPUT_DRIVEN` is now checked before reading any
+  real controller state at all — a real gap Phase 2 left open (nothing
+  gated animation-*selection* on the flag, only Character_PlayFrame's
+  *position* code did; harmless while Entity #1 was mode 0/idle-only, but
+  would have let real player button presses drive a mode-2 AI entity's
+  `CHAR_SELECTED` too). Mode 0 forces idle. Mode 1 is the original
+  button-driven logic, unchanged (renamed into its own
+  `Anim_Play__player_input` block). Mode 2 computes exact per-axis
+  unsigned distance to `PlayerEntity_PosX/Y` (`$7E0a00+4/+6` — Entity #0's
+  fixed window, "player is always slot 0" per plan.md, since Entity #0 is
+  always created first and never deleted) via a compare-then-subtract-the-
+  right-way idiom (correct across the full 0-255 range, no two's-
+  complement wraparound approximation), and sets `CHAR_SELECTED=2`
+  (attack, reusing the same trigger shape as the button-driven path) once
+  within `ANIM_AI_ATTACK_RANGE=30` on *both* axes, else routes into the
+  existing `Anim_Play__want_got` walk/idle dispatch with want=1.
+- **`Character_PlayFrame`**: mode 2's X/Y blocks reuse the existing
+  `__left`/`__right`/`__up`/`__down` PLAYER_SPEED-stepped, clamped movement
+  labels (no new movement math), branching into them based on which side
+  of `PlayerEntity_PosX/Y` this entity is on.
+
+**One real bug found and fixed via live Mesen2 testing, not by any static
+check**: the first version gated "hold instead of walking into the player
+mid-punch" on `CHAR_SELECTED==2`, read in `Character_PlayFrame` right
+after `Anim_Play` runs in the same frame. `Anim_Play_Attack` reverts
+`CHAR_SELECTED` to 0 on the exact frame an attack animation finishes,
+*before* `Anim_Play`'s own AI-seek logic gets a chance to re-evaluate
+distance and re-trigger it back to 2 (that only happens next frame) —
+`Character_PlayFrame` running in between saw the transient 0 and let one
+frame of movement through per attack cycle. Observed directly: X crept
+from 94 toward the player by ~2px every ~40-50 frames over several hundred
+frames despite `CHAR_SELECTED` reading 2 at every sampled 30-frame
+checkpoint (the leak was faster than the sampling interval could normally
+catch — found by sampling frequently enough, not by reasoning about the
+code). Fixed by recomputing the same distance check directly in
+`Character_PlayFrame` instead of trusting `CHAR_SELECTED`'s momentarily
+stale value — no longer racy since it doesn't depend on `Anim_Play`'s
+internal state-machine transition timing.
+
+**A second discovery, structural rather than a bug**: the standard
+`rom_audit` invocation (`FC00 FF20 FF30 8000`, the four literal-JSR-
+reachable boot entries) has **never actually covered any code reached
+through `Core_Oop_Play`'s indirect dispatch** — `Anim_Play`,
+`Character_PlayFrame`, `CharacterEntity_Init/Play`, `Anim_LoadCharacter`,
+`Msu1_LoadFrame`, all of it — because it's only called via `jsr
+(OopCurrent,x)`/`jsr (ClassInit,x)`, a runtime-computed indirect jump the
+static recursive-descent walker cannot follow (this matches
+`audit_jumps.py`'s own documented "indirect forms aren't statically
+resolvable" limitation, just not one anyone had noticed applied to
+*this much* of the codebase). Confirmed directly: `audit_jumps.py src/
+main.bin FC00 FF20 FF30 8000` decoded exactly 1906 instructions/250 edges
+both immediately before and immediately after this phase's substantial
+new code, unchanged to the byte, because none of the new branches were
+ever walked at all — not because they were correct, but because they were
+invisible to that specific invocation. **The standard 4-entry-point audit
+has been silently vacuous for all Phase 1b/2/3 code this whole time; every
+prior phase's "all 3 rom_audit tools clean" claim only ever validated
+`scpu_boot`/boot-time code, never the per-frame entity logic.** Real
+coverage requires re-seeding both `audit_jumps.py` and
+`audit_ownership.py` from the actual indirectly-dispatched routines'
+addresses directly, e.g.:
+```
+python tools/rom_audit/audit_jumps.py src/main.bin <Anim_Play addr> <Character_PlayFrame addr> <CharacterEntity_Init addr> <CharacterEntity_Play addr>
+python tools/rom_audit/audit_ownership.py src/main.bin src/main.sym <same four addrs>
+```
+(addresses come from `src/main.sym`, they move every build). Doing this
+for the current build: 441 instructions/92 edges (jumps), 434 labels/441
+instructions/92 edges/11 CALL-class edges (ownership), **0 suspicious, 0
+violations** — confirms all of Phase 3's new branches are correctly
+encoded, not just unreachable-and-therefore-silent. **Use the
+Oop-seeded form, not just the standard 4-entry form, for any future
+change inside `Core_Oop_Play`-dispatched code** — the standard form isn't
+wrong, it's just checking a different, much smaller slice of the ROM than
+it looks like it's checking.
+
+Verified: build clean; standard rom_audit (419-434-ish labels, always 0
+drifted) *and* the Oop-seeded jumps/ownership audits both clean; isolated
+AI behavior in Mesen2 — Entity #1 walks 40→60→80→90 (X) over the first ~40
+frames, `CHAR_SELECTED` transitions 0(idle)→1(walk)→2(attack) exactly when
+X reaches 90 (30px from the player's default 120), then holds firmly at
+90 with no further creep across 300+ sampled frames (3/3 runs); moving the
+player away (Right-held to X=216) and re-sampling confirms Entity #1
+resumes walking and re-converges to hold exactly 30px away (186) — dynamic
+re-engagement works, not just a one-shot initial approach; hardware
+`snesSpriteRam` confirms both sprites' bytes correct after 720 frames of
+concurrent AI movement + player movement + streaming; `Msu1_StreamBusy`
+still correctly drains to 0 (no Phase 0 regression); player remains fully,
+independently controllable throughout (Down-held still clamps Y at 208).
+
+All of the above tests moved the player to the right of / away from
+Entity #1 (default X=90 vs. player 120/216), which only ever exercises the
+`playerge` arm of `Character_PlayFrame__ai_x`/`__ai_y` (the `bcs`-taken
+branch). The mirrored arm — player X/Y *less than* the entity's, taken when
+the player crosses to the entity's other side — was untested by any of the
+above. Closed this gap: held Left until the player clamped at X=8 (entity
+still at its converged X=90), then sampled Entity #1's X across 300 frames.
+It converges to exactly 38 (8+30, the correct hold distance on the other
+side) and holds with zero creep across all 10 sampled checkpoints;
+`CHAR_FACING_LEFT` correctly reads 1 (facing the player) throughout. The
+untested arm is correct — no swapped operand, no wrong branch target.
+
+**Next**: Phase 4 onward are roadmap-level only in plan.md (damage/health,
+more enemies, the rest of the original spec's control scheme). Read
+plan.md's "Phase 4 onward" section and re-derive specifics against the
+code as it exists by the time you get there — don't assume Phase 1-3's
+exact shape carries forward unchanged.
 
 ## Harness gotchas (Mesen2 / build)
 

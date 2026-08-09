@@ -2411,6 +2411,23 @@ PLAYER_SPEED = 2           ; shared between axes
 ; clamp and teleport to the opposite edge instead of stopping there.
 ; Holds today: X (2/8/216), Y (2/8/208).
 
+; --- plan.md Phase 3: minimal AI (SNES-BOR-Engine-Prompt.md Sec 6.2 --
+; "Enemies walk toward player. When within 30 pixels, play punch
+; animation. No damage system for PoC."). CHAR_INPUT_DRIVEN=2 means "seek
+; toward Entity #0's position" -- Entity #0 (the player) is always the
+; first object `Core_Oop_Create`d and never deleted, so its DP window is
+; always at a fixed, known address: OopObjRam+0 (plan.md's own "player is
+; always slot 0" shortcut, explicitly endorsed there over building a
+; general entity-lookup mechanism for a single-player game). These are
+; ABSOLUTE addresses (not CHAR_* DP-relative offsets) -- used from inside
+; a DIFFERENT entity's own DP window to read the player's position, so
+; they must NOT get `.l`/bare-DP treatment; always read via `lda.l`. ---
+PlayerEntity_PosX = $7E0a00 + 4   ; Entity #0's CHAR_POS_X (low byte valid)
+PlayerEntity_PosY = $7E0a00 + 6   ; Entity #0's CHAR_POS_Y (low byte valid)
+ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
+                                   ; 30 pixels" per the spec's own wording,
+                                   ; doesn't need to be exact/circular
+
 ; --- Runtime character selection (MSU-1 streaming), see the plan at
 ; temporal-swinging-hartmanis.md. Last cell any core/*.pasm file defines is
 ; OamSetSprite_Hi = $7E53AF; main.pasm's own Anim_FrameIndex..Player_Y run
@@ -2594,6 +2611,25 @@ Anim_Play__loaded:
     brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__check_attack_trigger:
+    ; --- plan.md Phase 3: route animation-selection by movement source
+    ; instead of always reading the real controller -- CHAR_INPUT_DRIVEN
+    ; wasn't checked here before this phase, which meant every entity
+    ; (including Phase 2's static Entity #1) reacted to real dpad/Y-button
+    ; presses for its OWN CHAR_SELECTED even though only Character_
+    ; PlayFrame's position-movement code checked the flag; harmless while
+    ; Entity #1 stayed idle-only (mode 0 below reproduces that), but would
+    ; have broken a mode-2 AI entity, whose CHAR_SELECTED this phase needs
+    ; to drive from distance-to-player instead. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #2
+    beq Anim_Play__ai_seek
+    cmp #1
+    beq Anim_Play__player_input
+    ; --- mode 0: static -- always idle, ignore real controller state. ---
+    lda #0
+    bra Anim_Play__want_got
+    nop
+Anim_Play__player_input:
     lda.l Input_trigger+1
     and #ANIM_ATTACK_BUTTON_MASK
     beq Anim_Play__no_attack_trigger
@@ -2614,6 +2650,65 @@ Anim_Play__no_attack_trigger:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__want_idle:
     lda #0
+    bra Anim_Play__want_got
+    nop
+    ; --- mode 2: AI seek (plan.md Phase 3) -- walk toward Entity #0
+    ; (`PlayerEntity_PosX/Y`, the fixed-slot-0 shortcut) unless within
+    ; ANIM_AI_ATTACK_RANGE pixels on BOTH axes, in which case attack
+    ; instead. Exact unsigned abs-difference per axis (compare-then-
+    ; subtract-the-right-way, no two's-complement wraparound approximation
+    ; -- correct across the full 0-255 coordinate range, not just |diff|
+    ; <128). Reuses Anim_Play__want_got's existing switch-to-1(walk)
+    ; dispatch machinery for the "far" case; the "close" case duplicates
+    ; the button-driven attack-trigger block above (same shape, different
+    ; trigger condition) since it must set CHAR_SELECTED directly, not
+    ; via want_got (which only handles idle/walk toggling, not attack). ---
+Anim_Play__ai_seek:
+    lda.l PlayerEntity_PosX
+    cmp CHAR_POS_X
+    bcs Anim_Play__ai_dx_playerge
+    lda CHAR_POS_X
+    sec
+    sbc.l PlayerEntity_PosX
+    bra Anim_Play__ai_dx_have
+    nop
+Anim_Play__ai_dx_playerge:
+    sec
+    sbc CHAR_POS_X
+    nop
+Anim_Play__ai_dx_have:
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Anim_Play__ai_dx_close
+    lda #1                          ; farther than range on X alone -- walk,
+    bra Anim_Play__want_got         ; no need to also check Y
+    nop
+Anim_Play__ai_dx_close:
+    lda.l PlayerEntity_PosY
+    cmp CHAR_POS_Y
+    bcs Anim_Play__ai_dy_playerge
+    lda CHAR_POS_Y
+    sec
+    sbc.l PlayerEntity_PosY
+    bra Anim_Play__ai_dy_have
+    nop
+Anim_Play__ai_dy_playerge:
+    sec
+    sbc CHAR_POS_Y
+    nop
+Anim_Play__ai_dy_have:
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Anim_Play__ai_attack
+    lda #1
+    bra Anim_Play__want_got
+    nop
+Anim_Play__ai_attack:
+    lda #2
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Play__dispatch
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__want_got:
     cmp CHAR_SELECTED
@@ -3421,16 +3516,21 @@ Character_PlayFrame__cursor_done:
     nop
 Character_PlayFrame__cursor_next:
 
-    ; --- X: held-dpad Left/Right movement. Unchanged from the old
-    ; Player_PlayFrame -- see that routine's original header comment (now
-    ; here) for why Left wins on both-held and why the clamp compares are
-    ; unsigned. Gated on CHAR_INPUT_DRIVEN (plan.md Phase 1b step 2): a
-    ; non-input-driven instance (Phase 2's second entity) skips straight to
-    ; __hold, which just re-stores its current CHAR_POS_X unchanged. ---
+    ; --- X: held-dpad Left/Right movement (mode 1) or AI seek-toward-player
+    ; (mode 2, plan.md Phase 3) or hold (mode 0). Unchanged from the old
+    ; Player_PlayFrame for mode 1 -- see that routine's original header
+    ; comment (now here) for why Left wins on both-held and why the clamp
+    ; compares are unsigned. ---
     sep #$20
 .a8
     lda CHAR_INPUT_DRIVEN
-    beq Character_PlayFrame__hold
+    cmp #1
+    beq Character_PlayFrame__dpad_x
+    cmp #2
+    beq Character_PlayFrame__ai_x
+    bra Character_PlayFrame__hold
+    nop
+Character_PlayFrame__dpad_x:
     lda.l Input_press+1
     and #$03
     beq Character_PlayFrame__hold
@@ -3438,6 +3538,38 @@ Character_PlayFrame__cursor_next:
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
     beq Character_PlayFrame__right
     bra Character_PlayFrame__left
+    nop
+Character_PlayFrame__ai_x:
+    ; Hold if within ANIM_AI_ATTACK_RANGE on X, matching Anim_Play's own
+    ; attack-range decision independently -- deliberately NOT keyed off
+    ; CHAR_SELECTED==2 (an earlier version did this and read stale/racy
+    ; state: Anim_Play_Attack reverts CHAR_SELECTED to 0 on its own last
+    ; frame, one call before Anim_Play's AI-seek logic re-evaluates
+    ; distance and re-triggers attack next frame -- Character_PlayFrame
+    ; runs in between and would see the transient 0, letting exactly one
+    ; frame of movement leak through per attack cycle. Confirmed via
+    ; Mesen2: X crept from 94 toward the player by ~2px every ~40-50
+    ; frames despite CHAR_SELECTED reading 2 at every sampled point).
+    ; Recomputing distance directly here is immune to that timing gap.
+    lda.l PlayerEntity_PosX
+    cmp CHAR_POS_X
+    beq Character_PlayFrame__hold  ; already X-aligned with the player
+    bcs Character_PlayFrame__ai_x_playerge
+    ; self > player
+    lda CHAR_POS_X
+    sec
+    sbc.l PlayerEntity_PosX
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Character_PlayFrame__hold
+    bra Character_PlayFrame__left  ; player is to the left -- reuse __left
+    nop
+Character_PlayFrame__ai_x_playerge:
+    ; A is still playerX (cmp doesn't touch it)
+    sec
+    sbc CHAR_POS_X
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Character_PlayFrame__hold
+    bra Character_PlayFrame__right ; player is to the right -- reuse __right
     nop
 Character_PlayFrame__right:
     lda CHAR_POS_X
@@ -3464,10 +3596,16 @@ Character_PlayFrame__store_x:
     sta CHAR_POS_X
     sta.l OamSetSprite_X
 
-    ; --- Y: held-dpad Up/Down movement, mirroring the X block. Unchanged
-    ; from the old Player_PlayFrame, same CHAR_INPUT_DRIVEN gate as X. ---
+    ; --- Y: held-dpad Up/Down movement, mirroring the X block (same three
+    ; CHAR_INPUT_DRIVEN modes). ---
     lda CHAR_INPUT_DRIVEN
-    beq Character_PlayFrame__hold_y
+    cmp #1
+    beq Character_PlayFrame__dpad_y
+    cmp #2
+    beq Character_PlayFrame__ai_y
+    bra Character_PlayFrame__hold_y
+    nop
+Character_PlayFrame__dpad_y:
     lda.l Input_press+1
     and #$0C
     beq Character_PlayFrame__hold_y
@@ -3475,6 +3613,26 @@ Character_PlayFrame__store_x:
     and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
     beq Character_PlayFrame__down
     bra Character_PlayFrame__up
+    nop
+Character_PlayFrame__ai_y:
+    ; Same distance-recompute fix as __ai_x -- see its comment.
+    lda.l PlayerEntity_PosY
+    cmp CHAR_POS_Y
+    beq Character_PlayFrame__hold_y
+    bcs Character_PlayFrame__ai_y_playerge
+    lda CHAR_POS_Y
+    sec
+    sbc.l PlayerEntity_PosY
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Character_PlayFrame__hold_y
+    bra Character_PlayFrame__up    ; player is above -- reuse __up
+    nop
+Character_PlayFrame__ai_y_playerge:
+    sec
+    sbc CHAR_POS_Y
+    cmp #ANIM_AI_ATTACK_RANGE+1
+    bcc Character_PlayFrame__hold_y
+    bra Character_PlayFrame__down  ; player is below -- reuse __down
     nop
 Character_PlayFrame__down:
     lda CHAR_POS_Y
@@ -4007,10 +4165,12 @@ Anim_LoadCharacter__palette_read:
 ; will force that parameter to actually exist.
 ; ----------------------------------------------------------------------------
 
-; @param a<16-bit>  init parameter: (role<<8)|roster_index (Phase 2 -- role
+; @param a<16-bit>  init parameter: (role<<8)|roster_index (Phase 2/3 -- role
 ;                    0 = player-controlled defaults (Phase 1b's original
-;                    single-entity behavior, unchanged), role 1 = static NPC
-;                    defaults (own palette/tile-column, not dpad-driven).
+;                    single-entity behavior, unchanged), role 1 = AI-seeking
+;                    NPC defaults (own palette/tile-column, CHAR_INPUT_
+;                    DRIVEN=2 -- seeks the player and attacks in range, see
+;                    Anim_Play/Character_PlayFrame's mode-2 branches).
 ;                    Entity #0's existing `lda #0` call site is unaffected
 ;                    (high byte already 0 = role 0).
 ; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
@@ -4044,17 +4204,21 @@ CharacterEntity_Init:
                                      ; the real roster index is safe on the
                                      ; stack from the pha above)
     beq CharacterEntity_Init__player
-    ; --- role 1: static NPC defaults (plan.md Phase 2) -- own palette/
-    ; tile-column, not dpad-driven, fixed position clearly separated in X
-    ; from the player's default 120 (32px-wide sprite: 40-72 vs 120-152,
-    ; no overlap) so the visual check isn't confused by overlap. ---
+    ; --- role 1: AI-seeking NPC defaults (plan.md Phase 2 introduced this
+    ; entity as static/idle-only; Phase 3 repurposes it to seek the player
+    ; instead -- CHAR_INPUT_DRIVEN=2, per plan.md Phase 3's own suggested
+    ; encoding, read by Anim_Play/Character_PlayFrame's new mode-2 branches.
+    ; Own palette/tile-column unchanged from Phase 2, fixed starting
+    ; position clearly separated in X from the player's default 120 (32px-
+    ; wide sprite: 40-72 vs 120-152, no overlap) so the visual check isn't
+    ; confused by overlap even before it starts walking. ---
     sep #$20
 .a8
     lda #40
     sta CHAR_POS_X
     lda #150
     sta CHAR_POS_Y
-    lda #0
+    lda #2
     sta CHAR_INPUT_DRIVEN
     lda #1
     sta CHAR_PALETTE_SLOT
@@ -4297,13 +4461,17 @@ msu1_done:
     ; (.a16/.i16, matching Anim_LoadCharacter's own exit convention) --
     ; TAD_Init below re-asserts its own required width explicitly anyway.
 
-    ; --- Entity #1 (plan.md Phase 2): a second, simultaneous, static NPC --
-    ; roster slot 1 (JHUN), role 1 (own palette 1/tile-column 1, not dpad-
-    ; driven -- see CharacterEntity_Init). Exercises a second oop.pasm
-    ; instance, a second OBJ palette, a second OBJ tile-column, a second
-    ; OAM slot via Oam_CursorResetDone, and real concurrent MSU streaming
-    ; under the Phase 0 serialization fix, all at once -- the smallest
-    ; slice that proves the whole multi-entity path per plan.md. ---
+    ; --- Entity #1: a second, simultaneous NPC -- roster slot 1 (JHUN),
+    ; role 1 (own palette 1/tile-column 1). Phase 2 introduced it as
+    ; static/idle-only to prove simultaneous rendering in isolation; Phase 3
+    ; (plan.md, SNES-BOR-Engine-Prompt.md Sec 6.2) repurposed
+    ; CharacterEntity_Init's role-1 branch to CHAR_INPUT_DRIVEN=2 instead,
+    ; so this same entity now seeks Entity #0's position and attacks within
+    ; range -- see Anim_Play/Character_PlayFrame's mode-2 branches. Still
+    ; exercises everything Phase 2 proved (a second oop.pasm instance, OBJ
+    ; palette, OBJ tile-column, OAM slot via Oam_CursorResetDone, and real
+    ; concurrent MSU streaming under the Phase 0 serialization fix) plus
+    ; now real per-frame position updates on top. ---
     lda.l CharacterClassId
     and #$00ff
     tay
