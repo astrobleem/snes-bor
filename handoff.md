@@ -1103,11 +1103,23 @@ player's `CHAR_HIT_STUN` goes nonzero from an AI attack, majority-of-3.
 
 **Next**: Phase 6 (BG1 static backdrop + BG3 HUD) — plan.md §2.4's own
 first step is a hand-back gate: confirm whether a level-tileset converter
-exists yet (it didn't as of this session) before attempting anything else
-in that phase. The color-1 finding above and the OAM hi-table X-high gap
-(still unexercised — `PLAYER_MAX_X=216` means nothing in this build ever
-crosses X=255) are both real, both worth a session of their own, and both
-independent of Phase 6/7's own work.
+exists yet before attempting anything else in that phase. **Re-checked
+this session (2026-08-09, after the palette fix above): still does not
+exist.** `tools/bor_converter/` only handles character sprite animation
+frames (`convert_animation.py`, `convert_sprite.py`, `convert_character.py`,
+`bake_vram_frames.py`, `gen_pasm_animset.py`, `pak_extract.py`,
+`pack_msu_roster.py`, `verify_msu_roster.py`) — nothing in `tools/`
+converts a level/tileset image into SNES 4bpp tile data plus a tilemap.
+Per plan.md §2.4's own explicit instruction, **Phase 6 is blocked here** —
+do not start designing/building a converter from plan.md alone, since it
+doesn't specify the source asset format, tile-dedup policy, or palette
+assignment strategy, and guessing at those produces work that gets thrown
+away. This needs a design discussion with the user before any code gets
+written. The color-1 finding mentioned in earlier drafts of this section
+is now fixed (see above, `TestSprite_Init` CGRAM collision) — the only
+remaining open findings are: the OAM hi-table X-high bit (still
+unexercised — `PLAYER_MAX_X=216` means nothing in this build ever crosses
+X=255), and the Phase 6 converter-design gate itself.
 
 ## Harness gotchas (Mesen2 / build)
 
