@@ -405,30 +405,32 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## Recommended next step
 
-MSU-1 runtime character-select (palette streaming, frame-playback rewrite,
-live reselect) is now fully done — see the section above. Sprite 1 is
-fully 2-axis dpad-driven; the BOR animation pipeline is pak-agnostic and
-now MSU-1-native rather than ROM-baked. No small, independent cleanup item
-remains queued. The `$C100`-`$FC00` window has substantially more slack
-now than at any point in this project's history (Phase 2's deletion of the
-ROM-baked animation blobs freed ~14.6KB) — re-measure via `main.sym` before
-assuming a specific number, but ROM budget is no longer the binding
-constraint it was. The next session's options:
+**Now executing `plan.md`** (repo root) — a phased plan for multiple
+simultaneous on-screen characters, written after a full project review.
+Phase 0 (MSU-streaming serialization fix) is **done and verified**:
 
-- **Real player entity/state**: give sprite 1 health/hitbox/animation
-  state and actually connect it to the BG2 character animation system
-  (today they're driven by the same input bits but are otherwise unrelated
-  — a solid-red OAM square moving independently of the animated BG2
-  character). This is the most natural "move past hardware-plumbing
-  proofs" step but is a real design decision (what owns position — OAM,
-  BG2 scroll, or both; how hitboxes interact with `core/oop.pasm`'s
-  class-based object system), not a mechanical change — plan it
-  separately rather than starting mid-session.
-- Multi-enemy BG2 compositing, background/level tileset conversion — both
-  still fully unstarted, matching the project's "not a playable game yet"
-  scope.
-- Persisting/restoring `CharSelect_Index` across a reset, if a "remembers
-  your last pick" boot experience is ever wanted (not asked for yet).
+- `Msu1_StreamBusy` (`$7E2330`, declared in `main.pasm` before the
+  `core/*.pasm` `.include` block since `core/nmi.pasm` needs to reference
+  it) gates `Anim_Play_Idle`/`Walk`/`Attack`'s per-tick countdown —
+  checked *before* the `Anim_TickCounter` decrement, not after it reaches
+  0, to avoid starving a blocked entity every frame. Set by `Msu1_LoadFrame`
+  once its 6 row-DMAs are queued; cleared by `Core_Nmi_Play`
+  (`core/nmi.pasm`) right after `Core_Dma_ProcessQueue` drains that
+  vblank.
+- `Msu1_LoadFrame_EnqueueRow` now checks `Core_Dma_Enqueue`'s carry and
+  faults (`Error_DmaQueueFull`) instead of silently dropping a row on
+  queue overflow — defense-in-depth on top of the gate above.
+- Verified via a forced two-stream collision test (temporary hook in
+  `Anim_Play`, removed after confirming): call A correctly left the gate
+  up, call B correctly observed it and was blocked — 3/3 Mesen2 runs.
+  Idle/walk/attack regression-checked clean afterward. All three
+  `tools/rom_audit/*.py` scripts clean.
+
+**Next**: `plan.md`'s Phase 1 — move the current character into
+`core/oop.pasm` as a real registered class/instance (pure refactor, gate
+is pixel-identical rendering to today), then Phase 2 — a second,
+simultaneous entity. Read `plan.md` in full before starting; it has the
+exact WRAM/OBSEL/DMA-budget numbers this work depends on.
 
 ## Harness gotchas (Mesen2 / build)
 

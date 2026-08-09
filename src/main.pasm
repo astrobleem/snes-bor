@@ -2191,6 +2191,31 @@ LoadAudioData:
 __Tad_AudioData_0:
     .incbin "../soundwork/tad/build/audio-data.bin"
 
+; Msu1_LoadFrame's 6 row-DMAs (later in this file) read from the single
+; shared AnimFrameStaging buffer asynchronously (fired by
+; Core_Dma_ProcessQueue at the next real vblank, not synchronously) -- so a
+; second caller streaming a new frame before that vblank has happened would
+; overwrite AnimFrameStaging out from under the first caller's still-pending
+; DMAs. Msu1_LoadFrame sets this to 1 right after queuing its 6 rows;
+; Core_Nmi_Play (core/nmi.pasm, included just below -- this is why the
+; declaration has to live here, textually before that .include, rather than
+; alongside AnimFrameStaging/AnimHeaderStaging further down this file) clears
+; it back to 0 once Core_Dma_ProcessQueue has actually drained that vblank.
+; Anim_Play_Idle/Walk/Attack check this *before* decrementing
+; Anim_TickCounter (not after it reaches 0 -- see their own comments) so a
+; blocked entity's countdown simply pauses for a frame instead of pinning at
+; 0 and re-losing the race every frame. See plan.md Phase 0. Placed in the
+; free $7E2330-$7E233F gap between AnimHeaderStaging ($7E2320-$232F) and
+; CanvasChunkOffset ($7E2340) -- grep-confirmed clear before picking it.
+Msu1_StreamBusy = $7E2330   ; .db -- nonzero: a stream's DMAs are still
+                              ;        queued/undrained; don't start another
+; Verified via plan.md Phase 0's forced two-stream collision test (Mesen2,
+; 3/3 runs): call A correctly left Msu1_StreamBusy=1, call B correctly
+; observed it and was blocked (never overwrote AnimFrameStaging out from
+; under A's still-pending DMAs). Test hook removed after confirmation --
+; see git history on this file around this comment if it needs to be
+; re-run.
+
 ; ============================================================================
 ; Core utility modules (ported from SNES-SuperBossGaiden, see src/core/)
 ; ============================================================================
@@ -2406,6 +2431,11 @@ AnimFrameStaging   = $7E2000   ; 768B -- one streamed frame, pre-DMA
 AnimPaletteStaging = $7E2300   ; 32B  -- one streamed palette
 AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
                                  ;        before parsing into the cells above
+; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
+; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
+; .include is textually processed before this point, so the constant must
+; already exist by then. See that declaration's own comment for what it
+; does.
 
 ; Picks idle/walk/attack and dispatches to whichever per-animation advance/
 ; DMA-enqueue routine is currently selected. Reads Input_press/Input_trigger
@@ -2636,6 +2666,15 @@ Anim_EnqueueTilemapRow:
 Anim_Play_Idle:
     sep #$20
 .a8
+    ; Msu1_StreamBusy gate (see that cell's own comment) -- checked BEFORE
+    ; the tick decrement below, not after it reaches 0, so a blocked
+    ; entity's countdown pauses for a frame instead of pinning at 0 and
+    ; re-losing the race to a lower-priority caller every single frame.
+    lda.l Msu1_StreamBusy
+    beq Anim_Play_Idle__not_busy
+    brl Anim_Done   ; too far for an 8-bit bne from here
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Idle__not_busy:
     lda.l Anim_TickCounter
     dec a
     sta.l Anim_TickCounter
@@ -2678,6 +2717,13 @@ Anim_Play_Idle__frame_ok:
 Anim_Play_Walk:
     sep #$20
 .a8
+    ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
+    ; for why the check must come before the tick decrement.
+    lda.l Msu1_StreamBusy
+    beq Anim_Play_Walk__not_busy
+    brl Anim_Done   ; too far for an 8-bit bne from here
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Walk__not_busy:
     lda.l Anim_TickCounter
     dec a
     sta.l Anim_TickCounter
@@ -2722,6 +2768,13 @@ Anim_Play_Walk__frame_ok:
 Anim_Play_Attack:
     sep #$20
 .a8
+    ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
+    ; for why the check must come before the tick decrement.
+    lda.l Msu1_StreamBusy
+    beq Anim_Play_Attack__not_busy
+    brl Anim_Done   ; too far for an 8-bit bne from here
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack__not_busy:
     lda.l Anim_TickCounter
     dec a
     sta.l Anim_TickCounter
@@ -2926,6 +2979,17 @@ Msu1_LoadFrame__read:
     sta.l DmaRequest_TargetAddr
     jsr Msu1_LoadFrame_EnqueueRow
 
+    ; All 6 rows are now queued but not yet drained -- Core_Dma_ProcessQueue
+    ; only runs at the next real vblank (inside Core_Nmi_Play), and their
+    ; source is AnimFrameStaging, a single shared buffer. Hold the busy gate
+    ; until that drain is confirmed (Core_Nmi_Play, core/nmi.pasm, clears
+    ; this) so no other caller overwrites AnimFrameStaging out from under
+    ; these still-pending DMAs. See Msu1_StreamBusy's own comment.
+    sep #$20
+.a8
+    lda #1
+    sta.l Msu1_StreamBusy
+
     plp
     rep #$31
 .a16
@@ -2950,6 +3014,21 @@ Msu1_LoadFrame_EnqueueRow:
 .a16
 .i16
     jsr Core_Dma_Enqueue
+    bcs Msu1_LoadFrame_EnqueueRow__ok
+    ; Queue full. Defense-in-depth, not the primary fix (see
+    ; Msu1_StreamBusy) -- with that gate correctly preventing two entities'
+    ; streams from overlapping, this should never actually trigger. If it
+    ; does, some other source of DMA-queue pressure this project hasn't
+    ; accounted for is present; faulting surfaces that immediately instead
+    ; of silently dropping this row's VRAM update and leaving a stale-tile
+    ; rendering bug to be "discovered" later. Inlined pea/jsr (not the
+    ; Core_Error_Trigger macro) -- see core/error.pasm's header for why a
+    ; macro invocation skipped by a branch mis-sizes the branch offset in
+    ; this Poppy build; core/dma.pasm's own Core_Dma_Enqueue uses the same
+    ; inlined shape for the same reason.
+    pea Error_DmaQueueFull
+    jsr Core_Error_Handler
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Msu1_LoadFrame_EnqueueRow__ok:
     rts
 

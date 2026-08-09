@@ -192,6 +192,17 @@ Core_Nmi_Play__do_commit:
 
     sep #$20
 .a8
+    ; Msu1_LoadFrame (main.pasm) sets Msu1_StreamBusy=1 right after queuing
+    ; its 6 row-DMAs, whose source is a single shared WRAM staging buffer
+    ; (AnimFrameStaging) -- those DMAs have now just fired via the
+    ; Core_Dma_ProcessQueue call directly above, so it's safe to clear the
+    ; gate here and let another caller reuse the buffer. Only reached via
+    ; the do-commit path (this routine's Core_Nmi_Play__frame_skipped path
+    ; does NOT run Core_Dma_ProcessQueue, so it must not clear this either
+    ; -- and doesn't, since that path returns before ever reaching here).
+    lda #0
+    sta.l Msu1_StreamBusy
+
     lda.l Oam_UploadFlag
     beq Core_Nmi_Play__skip_oam_reset
     bra Core_Nmi_Play__do_oam_reset
