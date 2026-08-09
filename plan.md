@@ -1037,7 +1037,17 @@ not done: the shipped scene fits in 429 tiles. Note that
 `Scpu_CcdmaPump` is defined but **never called**, so nothing rewrites
 `$2000+` per frame.
 
-## 2.5 — Phase 7: audio polish
+## 2.5 — Phase 7: audio polish  ⛔ BLOCKED at its own step-1 gate
+
+**Gate evaluated 2026-08-09: a song does NOT play.** `TadPrivate_state`
+sits at `$7F` = `LOADING_SONG_DATA_PLAY` steadily across ~10 seconds of
+emulated time, never reaching `PLAYING` (`$82`), and the S-DSP is still in
+reset+mute (`flg` = `$E0`) with all 8 voice envelopes at 0. The audio
+content itself is fine (`audio-data.bin` is 4183 bytes) and the boot
+handshake is fine (reaching `$7F` proves `Tad_Init` succeeded) — the song
+*transfer* never completes. Per this section's own instruction, stopped
+there rather than debugging the driver. Full observations in
+`handoff.md`'s "Phase 7 gate" section.
 
 **Step 1 (a gate, same shape as Phase 6):** TAD's *boot handshake* is
 verified working. Actual song and SFX *playback* has never been confirmed

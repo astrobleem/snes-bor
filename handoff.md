@@ -1201,10 +1201,51 @@ passing for the wrong reasons:**
 **Still open, unchanged**: the OAM hi-table X-high bit is still unexercised
 (`PLAYER_MAX_X=216` means nothing crosses X=255).
 
-**Next**: Phase 7 (audio polish) — plan.md §2.5 opens with its own
-hand-back gate: confirm real audio content actually plays before wiring a
-punch SFX, and note that §2.5 itself warns the Mesen2 audio check has a
-~40% false-silent rate, so any audio assertion needs majority-of-3.
+**Next**: Phase 7 (audio polish) — **gate evaluated, and it FAILS. Phase 7
+is blocked.** See the next section.
+
+## Phase 7 gate: BLOCKED — TAD is stuck in LOADING_SONG_DATA_PLAY
+
+plan.md §2.5's step 1 says to confirm a song actually plays before wiring
+a punch SFX, and to STOP and hand back if it does not. It does not.
+
+**What was checked** (2026-08-09, on the Phase 6 ROM):
+
+- `soundwork/tad/build/audio-data.bin` is **4183 bytes** — non-trivial, so
+  there is real content. It is `.incbin`'d at `main.pasm:2192`.
+- `TadPrivate_state` (`$7E0032`) reads **`$7F`** at frames 120, 300 and 600
+  — i.e. steady across ~10 seconds of emulated time. Per `main.pasm`'s own
+  `TadState` enum that value is **`LOADING_SONG_DATA_PLAY`**: the driver
+  accepted the song and set the play flag, but the load never completes.
+  It never reaches `PLAYING` (`$82`). `Tad_flags` = `$40`,
+  `TadPrivate_nextSong` = `0`.
+- The S-DSP is still in **reset + mute**: `flg` = `$E0` (bit7 reset, bit6
+  mute, bit5 echo-disable). All 8 voices read `envelope: 0` and
+  `currentOutput: 0`, and their pitch/sampleSrc/adsr registers hold
+  incoherent power-on garbage rather than song state. `voicesEnded: 0`.
+- The SPC700 *is* executing (PC ~574-578, cycle counter advancing
+  4.0M → 10.2M → 20.5M), so this is not a hung CPU — it is sitting in a
+  loop waiting for a transfer that never finishes.
+
+**Why the "~40% false-silent" caveat does not apply here.** §2.5 warns
+that the Mesen2 *audio-capture* check is unreliable and needs
+majority-of-3. This finding does not rest on audio capture at all — it is
+direct engine and DSP state, identical across three sample points in one
+run. It is also unambiguous in a way a waveform check could not be: the
+ROM *does* emit sound via MSU-1 (verified in an earlier phase), so a
+non-silent recording would prove nothing about TAD. Reading
+`TadPrivate_state` and the DSP `flg`/voice envelopes is what actually
+discriminates the two paths.
+
+**Not debugged further, deliberately** — §2.5 explicitly says not to
+attempt to author audio content or debug the TAD driver from that
+document, and the failure is in the song-load handshake, which is exactly
+the driver internals it rules out. Whoever picks this up starts here:
+`TadPrivate_state` stuck at `$7F` means `Tad_Process`/
+`Tad_FinishLoadingData` (both called every frame from `scpu_main_loop`)
+are not driving the song transfer to completion. The boot handshake
+itself is fine — reaching `$7F` at all proves `Tad_Init` succeeded and the
+loader accepted a song.
 
 ## Harness gotchas (Mesen2 / build)
 
