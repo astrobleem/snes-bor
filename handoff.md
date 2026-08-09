@@ -1101,25 +1101,110 @@ window (proving `Msu1_StreamBusy`'s round-robin doesn't starve any of the
 vblank overrun with 4 entities streaming/moving/colliding at once); the
 player's `CHAR_HIT_STUN` goes nonzero from an AI attack, majority-of-3.
 
-**Next**: Phase 6 (BG1 static backdrop + BG3 HUD) — plan.md §2.4's own
-first step is a hand-back gate: confirm whether a level-tileset converter
-exists yet before attempting anything else in that phase. **Re-checked
-this session (2026-08-09, after the palette fix above): still does not
-exist.** `tools/bor_converter/` only handles character sprite animation
-frames (`convert_animation.py`, `convert_sprite.py`, `convert_character.py`,
-`bake_vram_frames.py`, `gen_pasm_animset.py`, `pak_extract.py`,
-`pack_msu_roster.py`, `verify_msu_roster.py`) — nothing in `tools/`
-converts a level/tileset image into SNES 4bpp tile data plus a tilemap.
-Per plan.md §2.4's own explicit instruction, **Phase 6 is blocked here** —
-do not start designing/building a converter from plan.md alone, since it
-doesn't specify the source asset format, tile-dedup policy, or palette
-assignment strategy, and guessing at those produces work that gets thrown
-away. This needs a design discussion with the user before any code gets
-written. The color-1 finding mentioned in earlier drafts of this section
-is now fixed (see above, `TestSprite_Init` CGRAM collision) — the only
-remaining open findings are: the OAM hi-table X-high bit (still
-unexercised — `PLAYER_MAX_X=216` means nothing in this build ever crosses
-X=255), and the Phase 6 converter-design gate itself.
+**Next**: Phase 6 — done, see the next section.
+
+## Phase 6 done and verified: BG1 backdrop + BG3 HUD
+
+plan.md §2.4's hand-back gate ("no level-tileset converter exists; STOP")
+was hit and then **resolved by designing the converter with the user**,
+not by guessing at the three things §2.4 refused to specify. The answers:
+
+- **Source format** — composite a real BOR level. Level `.txt` files are a
+  flat keyword list (`background`, `panel` ×N, `frontpanel`, `order`)
+  laying panels side by side left-to-right. Because the backdrop is static
+  and non-scrolling, only the screen at scroll 0 is ever built: no
+  parallax rates, no z-order beyond back/panel/front. §2.4's warning that
+  this was "a multi-session project in its own right" was wrong.
+- **Dedup** — exact match plus H/V flip variants, since the tilemap has
+  flip bits for free. Measured 896 → 429 tiles on the shipped scene.
+- **Palette** — k-means tile-aware sub-palette assignment. The user
+  pointed at `tiledpalettequant.py` in the sibling SNES-SuperMonkeyIsland
+  repo, which solved this exact problem; it and four dedup/packing helpers
+  from that project's `snes_room_converter.py` were vendored rather than
+  rewritten.
+
+**One function was deliberately NOT vendored**: that project's
+`encode_tilemap_word` emits a *custom WRAM* format (11-bit tile id,
+palette at bits 11–13, no priority bit) which its engine remaps at
+VRAM-write time. We write VRAM directly, so ours emits real hardware
+layout (10-bit id, palette at 10–12, priority at 13). Copying it verbatim
+would have produced a silently garbled tilemap.
+
+**What shipped**: `tools/bg_converter/` (`level_parse` → `composite_scene`
+→ `convert_bg`, plus `make_hud_tiles` which generates the 2bpp HUD tiles
+procedurally so no new art asset is needed); `bor.msu` format v2 with a BG
+section appended after the character blobs (no character `data_offset`
+moves); `Bg_LoadScene`; `CHAR_HP`; `Hud_Play`. Shipped scene is 6BEASY,
+the boss throne room, 429 tiles.
+
+**Three constraints found by building, all of which would have burned a
+future session:**
+
+1. **BG3's 2bpp palettes overlap BG1's 4bpp ones.** A BG3 tile with
+   palette field p reads CGRAM `p*4..p*4+3`; BG1 reads `p*16..p*16+15`.
+   The backdrop therefore quantizes to **7** sub-palettes shifted to slots
+   1–7, reserving CGRAM sub-palette 0 for the HUD. Without this the HUD's
+   colors would silently be whatever the backdrop wrote into CGRAM 0–3.
+2. **`cpx.l` does not exist.** CPX has no long addressing mode on the
+   65816. Poppy assembled it with no error and emitted an encoding that
+   desynced the instruction stream and scribbled over CGRAM — the same
+   silent-invalid-addressing class as the documented `stz.l` and `.l,y`
+   traps. Both streaming loops now count DOWN in X, needing no memory
+   operand. **Add this to the list of Poppy addressing modes to never
+   trust.**
+3. **`$2115` (VMAIN) was still 0 inside `Bg_LoadScene`.** It runs from
+   `msu1_done`, earlier in `scpu_boot` than the `$2115` write the rest of
+   the boot VRAM code depends on, and the `$2100`–`$213F` clear loop had
+   already zeroed it. VRAM addresses advanced on the `$2118` write instead
+   of `$2119`, shearing every upload by one byte. Now set locally rather
+   than depending on call-site ordering.
+
+Both #2 and #3 presented as "CGRAM is fine but all three VRAM regions
+mismatch," and were only visible because the gate byte-compares against
+the converter's own output. A check that asked "does VRAM look plausible"
+would have passed.
+
+**A claim I made and then had to retract**: the 512-tile BG1 cap is *not*
+caused by the SA-1 compositor rewriting `$2000`–`$3F7F` every frame.
+`Scpu_CcdmaPump` is defined in `main.pasm` but **never called** — the main
+loop dropped it when characters moved to real OAM sprites. The real cause
+is that BG1 tile N sits at word N*16, so tile 512 lands on word `$2000`
+where `scpu_boot` writes BG2's blank tile. **Dropping that one boot write
+raises the ceiling to 1024**, which fits every stock BOR level and is both
+the 10-bit tilemap index limit and exactly where OBJ tiles begin at
+`$4000`; BG2 is not on the main screen so nothing it points at is visible.
+Not done here — the shipped scene fits in 429 tiles and there was no
+reason to edit verified boot code for headroom it doesn't need.
+
+**Verification**: `python build_rom.py` clean →
+`tools/rom_audit/audit_all.py` ALL CHECKS PASS (the `EntityN_Base` sync
+check confirmed the 36/72/108 literals after `CHAR_ZP_LEN` grew) →
+`tools/bor_converter/verify_msu_roster.py` all 3 checks pass →
+`tools/verify/phase6.py` **PHASE 6: PASS** (25 assertions) →
+`tools/verify/phase5.py` **PHASE 5: PASS** (no regression).
+
+**Two brittle assertions in phase5.py were fixed, both of which had been
+passing for the wrong reasons:**
+
+- It point-sampled the *oscillating* `CHAR_HIT_STUN` at exactly frame 600.
+  Phase 6 shifted boot timing enough to move frame 600 into a
+  decayed-to-zero gap and it "failed" while collisions were demonstrably
+  still landing. Now samples across a window
+  (`[0,20,13,5,0,5,4,20]`) and asserts nonzero at least once.
+- It hardcoded the entity bases as `+35/+70/+105` and silently began
+  reading entities 1–3 at wrong addresses the moment `CHAR_ZP_LEN` grew to
+  36 — the assertions still ran, they just examined the wrong memory.
+  `_harness.py` now has `pasm_constant()`, which parses values out of
+  `src/main.pasm`. **Verification scripts in this project must never
+  hardcode engine layout values.**
+
+**Still open, unchanged**: the OAM hi-table X-high bit is still unexercised
+(`PLAYER_MAX_X=216` means nothing crosses X=255).
+
+**Next**: Phase 7 (audio polish) — plan.md §2.5 opens with its own
+hand-back gate: confirm real audio content actually plays before wiring a
+punch SFX, and note that §2.5 itself warns the Mesen2 audio check has a
+~40% false-silent rate, so any audio assertion needs majority-of-3.
 
 ## Harness gotchas (Mesen2 / build)
 

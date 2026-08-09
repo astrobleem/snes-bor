@@ -1,14 +1,16 @@
 # Plan: multiple simultaneous on-screen characters
 
 > **START HERE IF YOU ARE PICKING THIS UP NEW.**
-> **Phases 0–5 are finished, committed, and verified.** Four characters
+> **Phases 0–6 are finished, committed, and verified.** Four characters
 > render simultaneously today — one player-controlled, three AI-controlled
-> that seek the player and land stunning attacks.
+> that seek the player and land stunning attacks — over a real converted
+> Beats of Rage level backdrop, with a four-bar BG3 health HUD.
 >
 > Everything from here on lives in **[PART TWO](#part-two--long-horizon-plan-written-2026-08-09-after-phase-4-shipped)**
-> near the bottom of this file, specifically **§2.4 (Phase 6)** — Phase 5
-> is done. Part Two is written to be followed step-by-step, with exact
-> commands and explicit stop conditions. **Go read Part Two now.**
+> near the bottom of this file, specifically **§2.5 (Phase 7, audio
+> polish)** — Phases 5 and 6 are done. Part Two is written to be followed
+> step-by-step, with exact commands and explicit stop conditions. **Go read
+> Part Two now.** Note that §2.5 opens with its own hand-back gate.
 >
 > Part One (everything between here and Part Two) is the historical
 > record of how Phases 0–4 were done. Read it for context on *why* the
@@ -986,33 +988,54 @@ This is the whole of Phase 5. Each item below is a real site in
    every bug you hit, and the gate output.
 5. Commit.
 
-## 2.4 — Phase 6: BG1 static backdrop + BG3 HUD
+## 2.4 — Phase 6: BG1 static backdrop + BG3 HUD  ✅ DONE
 
-**Read this before starting: Phase 6 contains a task that is much larger
-than it looks.** There is no level-tileset converter in this repo. Phase 6
-requires building one. That is a multi-session project in its own right —
-it is asset-pipeline work, not assembly work, and it involves format
-decisions that this document does not specify.
+**The gate below was answered by designing the converter with the user,
+not by guessing.** The three questions this section refused to guess at
+were settled as: source format = composite a real BOR level from its
+`background`/`panel`/`frontpanel`/`order` declarations at scroll 0; dedup
+= exact + H/V flip (the tilemap has flip bits for free); palette = k-means
+tile-aware sub-palette assignment via `tiledpalettequant.py`, adapted from
+the sibling SNES-SuperMonkeyIsland project rather than written fresh.
 
-**Step 1 (do this first, it is a gate):** confirm the converter still does
-not exist — check `tools/` for anything that converts a level or tileset
-image into SNES 4bpp tile data plus a tilemap.
+Shipped: `tools/bg_converter/` (`level_parse` → `composite_scene` →
+`convert_bg`, plus `make_hud_tiles`), `bor.msu` format v2 with a BG
+section, `Bg_LoadScene`, `CHAR_HP`, and `Hud_Play`. Gate script
+`tools/verify/phase6.py` — 25 assertions, all PASS. See `handoff.md`'s
+Phase 6 section for the full account.
 
-- **If it does not exist: STOP and hand back.** Write in `handoff.md` that
-  Phase 6 is blocked on a level-tileset converter that must be designed
-  first. Do not start building one from this document — it does not tell
-  you the source asset format, the tile-dedup policy, or the palette
-  assignment strategy, and guessing at those produces work that gets
-  thrown away.
-- **If it does exist** (someone built it since this was written), then the
-  remaining Phase 6 work is ordinary and you may proceed: a non-scrolling
-  BG1 backdrop (the PoC spec explicitly rules out scrolling — do not add
-  it) and a minimal BG3 health-bar layer. VRAM is available: BG1 tiles are
-  at word `$0000`, BG1 tilemap at `$0400`, and words `$5000`–`$5BFF` are
-  unused. Every new per-frame DMA consumer must respect the same 8-slot
-  queue budget described in §2.3 — a HUD that unconditionally enqueues a
-  DMA every frame is a textbook candidate for re-triggering the vblank
-  overrun bug.
+**Three things this section got wrong, corrected by building it:**
+
+1. **"A multi-session project in its own right."** It was not. The BOR
+   level format is a flat keyword list and the backdrop is static, so
+   only one screen at scroll 0 ever needs compositing — no parallax, no
+   z-order, no scroll rates. Most of the hard part (flip-aware dedup,
+   tile-aware palette k-means, 4bpp packing) already existed in a sibling
+   repo and was vendored.
+2. **"BG1 tilemap at `$0400`."** BG1 tiles now occupy `$0000`–`$1FFF`, so
+   the tilemap moved to word `$6000` and BG3's to `$6400`. Words
+   `$6000`–`$7FFF` were free and undocumented in `build.md`'s VRAM table.
+3. **BG3's palettes collide with BG1's.** A 2bpp BG3 tile with palette
+   field p reads CGRAM `p*4..p*4+3`, overlapping BG1's `p*16..p*16+15`.
+   The backdrop therefore quantizes to **7** sub-palettes shifted to slots
+   1–7, leaving CGRAM sub-palette 0 to the HUD. Not knowing this would
+   have produced a HUD whose colors were silently whatever the backdrop
+   put in CGRAM 0–3.
+
+**The DMA warning below was right and was honored:** `Hud_Play` is
+dirty-gated (it enqueues nothing on a frame where no `CHAR_HP` changed)
+and sends all four bars as one 256-byte DMA rather than four, since the
+queue has 8 slots and one entity's `Msu1_LoadFrame` already takes 6.
+
+**Tile budget, for whoever extends this:** BG1 is capped at 512 tiles
+because tile N sits at word N*16, so tile 512 lands on word `$2000` where
+`scpu_boot` writes BG2's blank tile. Dropping that single write raises the
+ceiling to 1024 — which fits every stock BOR level, and is both the 10-bit
+tilemap index limit and exactly where OBJ tiles start at `$4000`. BG2 is
+not on the main screen, so nothing it points at is visible. Deliberately
+not done: the shipped scene fits in 429 tiles. Note that
+`Scpu_CcdmaPump` is defined but **never called**, so nothing rewrites
+`$2000+` per frame.
 
 ## 2.5 — Phase 7: audio polish
 
