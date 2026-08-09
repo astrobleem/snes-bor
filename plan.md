@@ -1,5 +1,21 @@
 # Plan: multiple simultaneous on-screen characters
 
+> **START HERE IF YOU ARE PICKING THIS UP NEW.**
+> **Phases 0–4 are finished, committed, and verified.** Two characters
+> render simultaneously today — one player-controlled, one AI-controlled
+> that seeks the player and lands stunning attacks.
+>
+> Everything from here on lives in **[PART TWO](#part-two--long-horizon-plan-written-2026-08-09-after-phase-4-shipped)**
+> near the bottom of this file. Part Two is written to be followed
+> step-by-step, with exact commands and explicit stop conditions. **Go
+> read Part Two now.**
+>
+> Part One (everything between here and Part Two) is the historical
+> record of how Phases 0–4 were done. Read it for context on *why* the
+> code is shaped the way it is — but it is history, not a to-do list.
+> Note that Part One's OBJ tile-budget claim (that N=5 needs OBSEL's
+> second bank) is **wrong**; Part Two §2.3 has the corrected arithmetic.
+
 ## TL;DR
 
 Today exactly one animated character renders (a single 32×64 hardware OAM
@@ -341,7 +357,7 @@ before that's true.
 - **Audio content polish** beyond what's already boot-verified, until
   Phase 7 (last, roadmap-level, lowest priority).
 
-## Phase 0 — Fix the MSU-streaming serialization hazard
+## Phase 0 — Fix the MSU-streaming serialization hazard  ✅ DONE (`fd9bcdc`)
 
 **Blocks every later phase. Do this first, and prove it under real
 two-stream conditions before moving on — not just by reading the fix and
@@ -425,7 +441,7 @@ Confirm via Mesen2 (≥32-byte reads, majority-of-3 sessions):
 Update `handoff.md`'s "Recommended next step" to point at Phase 1 once this
 gate passes. Re-run all three `tools/rom_audit/*.py` scripts.
 
-## Phase 1 — Give the current character a real home in `core/oop.pasm`
+## Phase 1 — Give the current character a real home in `core/oop.pasm`  ✅ DONE (`fd9bcdc`)
 
 **This is a pure refactor. The gate is "renders pixel-identically to
 before," not new behavior.** Do not combine this with Phase 2's new entity
@@ -538,7 +554,7 @@ gate, not a feature gate: if anything looks even subtly different, stop and
 find out why before proceeding to Phase 2. Re-run all three
 `tools/rom_audit/*.py` scripts. Update `handoff.md`.
 
-## Phase 2 — Second, simultaneous entity
+## Phase 2 — Second, simultaneous entity  ✅ DONE (`e7d18eb`, `f2f52e0`)
 
 **Goal:** prove two entities render simultaneously, independently, and
 without the Phase 0 corruption — the actual milestone this plan exists to
@@ -581,7 +597,7 @@ reach.
 Update `handoff.md`. This is a strong, demo-able milestone — consider it a
 natural stopping point to check in even if continuing the same session.
 
-## Phase 3 — Minimal AI (the original spec's actual ask)
+## Phase 3 — Minimal AI (the original spec's actual ask)  ✅ DONE (`78f2acb`)
 
 Lighter detail from here on — re-derive specifics against the code as it
 exists once you reach this point, don't assume Phase 1/2's exact shape is
@@ -611,39 +627,417 @@ entity re-computes its OAM position every frame in addition to streaming
 animation frames — confirm this didn't reintroduce any DMA-queue pressure
 issue).
 
-## Phase 4 onward — roadmap level only, re-verify against then-current code
+---
 
-Do not implement these from this document's detail alone — re-read the
-actual code once you arrive, the same way earlier phases told you to. This
-section exists to keep the sequence and scope intentions visible, not to
-be a spec.
+# PART TWO — Long-horizon plan (written 2026-08-09, after Phase 4 shipped)
 
-- **Phase 4 — collision + hit reaction.** AABB overlap check between the
-  attacking entity's hitbox and the target's bounding box (matches
-  original spec's explicitly-stated "AABB-only collision" PoC
-  constraint). On overlap during an attack, target plays a "hit" reaction
-  — reuse an existing animation state or add a minimal new one. Explicitly
-  no HP/damage tracking (matches spec's "no damage system required for
-  PoC").
-- **Phase 5 — scale to 3-4 total enemies.** Repeat Phase 2/3/4's pattern
-  for more instances, up to the original spec's "4 enemies" PoC target
-  (comfortably within the N=4-free OBJ tile-column budget documented
-  above). Re-verify OBJ/DMA budgets hold under the worst case — all
-  entities' animations advancing on the same tick — don't assume Phase
-  0's fix generalizes past 2 concurrent streamers without checking; the
-  "skip and retry next frame" design should degrade gracefully (more
-  entities just each wait slightly longer for their turn), but confirm
-  this rather than assuming it.
-- **Phase 6 — BG1 static backdrop + BG3 HUD.** Non-scrolling (matches the
-  spec's explicit no-scrolling PoC constraint) background content and a
-  minimal health/HUD bar layer. No level-tileset converter exists yet
-  (confirmed gap versus the original spec's §5 asset pipeline) — building
-  one is part of this phase, not a prerequisite someone else has done.
-- **Phase 7 — audio polish.** TAD's boot handshake is verified; real
-  song/SFX playback content is not (confirmed gap — check
-  `soundwork/tad/` and README's "Not built" list for current status before
-  starting, it may have changed). Wire a punch SFX trigger to the attack
-  animation once real audio content is confirmed playing.
+Everything above this line is history: Phases 0–4 are **done, committed,
+and verified**. Everything below is work that has **not** been started.
+
+Part Two is written to be followed **mechanically**. Where Part One says
+things like "your call" or "re-derive against the code," Part Two does
+not. Every step below states the exact command to run, the exact output
+that means success, and the exact condition that means **stop**. If a step
+requires you to make a judgment call that is not written down here, that
+is a bug in this document — stop and hand back rather than inventing an
+answer.
+
+## 2.0 — Where the project actually is
+
+Committed and verified working:
+
+| Phase | What it did | Commit |
+|---|---|---|
+| 0 | Fixed the MSU-streaming serialization hazard (`Msu1_StreamBusy`) | `fd9bcdc` |
+| 1 | Moved the character into `core/oop.pasm` as `CharacterEntity` | `fd9bcdc` |
+| 2 | Second simultaneous entity (static NPC) | `e7d18eb`, `f2f52e0` |
+| 3 | Minimal AI — Entity #1 seeks the player and attacks in range | `78f2acb` |
+| 4 | AABB collision + hit reaction (`CHAR_HIT_STUN`) | `a32d88f` |
+
+So: **two** characters are on screen at once, one player-controlled, one
+AI-controlled, and the AI's attack visibly stuns the player. That is the
+current end state.
+
+**The other docs were brought in sync when Part Two was written** (same
+session), so you can trust them: `README.md`'s "Current Status" is
+accurate as of Phase 4, `CLAUDE.md` describes the entity system and the
+Poppy checklist, `build.md` carries the OBJ tile-sheet layout, and
+`handoff.md`'s older sections are now explicitly banner-marked where they
+are known wrong. **Keep them in sync as you go** — each phase gate below
+ends with a documentation step for exactly this reason.
+
+## 2.1 — Rules you must follow in every phase below
+
+These are not advice. Every one of them corresponds to a bug that has
+already cost this project real debugging time. They are listed here in
+full so you never have to go read another file to know them.
+
+### The Poppy assembler checklist
+
+Poppy emits **wrong bytes with no error message**. The build succeeding
+proves nothing. Obey all six of these mechanically, every time, even when
+they look redundant:
+
+1. **Put `sep #$20` + `.a8` (or `rep #$31` + `.a16` + `.i16`) at the entry
+   of every new routine, and at every label that can be reached by a
+   branch which jumps over an earlier `rep`/`sep`.** Poppy tracks
+   accumulator width by reading the file top-to-bottom and does not
+   understand control flow, so it mis-sizes `lda #`/`cmp #` after any
+   branch that skips a width change. When the CPU is already in that
+   width, the instruction is a runtime no-op — it costs nothing. **This
+   bug has occurred six times.** Symptom: `m.disassemble(addr)` shows a
+   phantom `BRK #$xx` in the middle of your routine.
+2. **Keep every conditional branch's target close — within ~15 lines of
+   source.** If the target is farther, invert the condition and use `brl`.
+   `bcs`/`bcc`/`beq`/`bne` past ±127 bytes **builds with no error at all**
+   and hangs the CPU at runtime. Symptom: `Nmi_FrameCounter` freezes and
+   every WRAM read returns the same value forever.
+3. **Put a `nop` immediately before every new label.** Poppy can resolve a
+   label a byte or two earlier than the real instruction stream.
+4. **Never write `.l Symbol,y`** — and never `ldx.l` / `ldy.l` / `stz.l`.
+   Poppy accepts them silently and emits garbage. Use `.l` without an
+   index, or a bare symbol.
+5. **Never reference a constant defined later in the file.** Poppy's
+   constant evaluator is single-pass. Symptom: `error: Cannot evaluate
+   operand for instruction`. This is the one Poppy bug that *does* error.
+6. **After adding code between two fixed `.org` points, confirm nothing
+   overran.** `.org` regions silently truncate into each other. The
+   automated check in §2.2 does this for you.
+
+### The stop rule
+
+> **If a verification gate fails twice with the same symptom, STOP.**
+> Write down exactly what you observed — the command you ran, its full
+> output, the memory addresses and values you read — into `handoff.md`,
+> and hand back. **Do not improvise a fix.**
+
+The reason is specific to this project: nearly every expensive bug in its
+history was a *toolchain trap that looked like a logic bug*. Time spent
+"fixing the logic" made things worse. A human or a more capable worker
+needs to see the raw symptom, undistorted by your repair attempts.
+
+Corollary: **never write off a failure as "flaky" or "harness noise."**
+Multiple past "nondeterministic" symptoms in this codebase turned out to
+be 100%-reproducible logic bugs.
+
+### What static tools can and cannot tell you
+
+`tools/rom_audit/*` checks that decoded bytes land on real instruction and
+label boundaries. **It does not check that your code does the right
+thing.** During Phase 4 it returned byte-identical clean results both
+before and after a change that left the ROM completely broken. A clean
+audit is necessary, never sufficient. Only Mesen2 behavioral testing can
+tell you the code works.
+
+## 2.2 — Build the two tools Phase 5 depends on (do this first)
+
+Both phases below assume these exist. They do not exist yet. Build them
+before starting Phase 5. Each is small.
+
+### Tool A — `tools/rom_audit/audit_all.py`
+
+**Problem it solves:** `audit_jumps.py` and `audit_ownership.py` are
+normally seeded with the four boot entry points (`FC00 FF20 FF30 8000`).
+Those seeds **never reach any code dispatched through `core/oop.pasm`** —
+the audit follows `jsr`/`jmp`, and oop dispatches indirectly via
+`jsr (ClassPlay,x)`. So `Anim_Play`, `Character_PlayFrame`,
+`Character_HitApply`, `CharacterEntity_Init`, `CharacterEntity_Play` — i.e.
+**all the code these phases touch** — are audited by nobody unless you
+re-seed by hand. Their addresses move on every build, so they must be
+looked up by name, not hardcoded.
+
+Write a script that:
+
+1. Parses `src/main.sym` into a `{name: address}` dictionary.
+2. Runs `audit_jumps.py` and `audit_ownership.py` twice: once with the
+   boot seeds `FC00 FF20 FF30 8000`, and once with the addresses looked up
+   **by name** for: `Anim_Play`, `Character_PlayFrame`,
+   `Character_HitApply`, `Character_HitApply_VsEntity1`,
+   `Character_HitApply_VsPlayer`, `CharacterEntity_Init`,
+   `CharacterEntity_Play`. If any name is missing from `main.sym`, print
+   which one and exit nonzero.
+3. Runs `verify_layout.py`.
+4. Parses `src/main.pasm` for `Entity1_Base` and `CHAR_ZP_LEN` and asserts
+   `Entity1_Base - $7E0a00 == CHAR_ZP_LEN`. (`Entity1_Base` is a
+   hand-maintained literal — see §2.3 step 3. This assert is the only
+   thing that will catch it going stale.)
+5. Asserts the gap between `scpu_main_loop`'s end and `nmi_handler`'s
+   address is still positive, and prints it.
+6. Prints `ALL CHECKS PASS` and exits 0, or prints the failures and exits
+   nonzero.
+
+Every phase gate below is then one line: `python tools/rom_audit/audit_all.py`.
+
+### Tool B — `tools/verify/` (committed Mesen2 test scripts)
+
+Every phase so far wrote a throwaway test script and deleted it. Stop
+doing that. Create `tools/verify/` and commit one script per phase
+(`phase5.py`, `phase6.py`, …). Each script must:
+
+- Derive the ROM path from the repo root it lives in — **never** hardcode
+  `E:\gh\snes-bor\distribution\bor.sfc`. Inside a git worktree that
+  literal path silently tests the *main checkout's* stale ROM. An entire
+  session has already been lost to exactly this.
+- Read memory in blocks of **32 bytes or more** and slice locally. Reads
+  smaller than 32 bytes can silently return stale data in this harness.
+- Pass **full `$7Exxxx` addresses** to `read_memory("snesMemory", …)`. A
+  bare offset like `0x53B4` silently misreads rather than erroring.
+- Run each assertion three times and take the majority. Print each
+  assertion's name followed by `PASS` or `FAIL`, and a final
+  `PHASE N: PASS` / `PHASE N: FAIL`.
+
+Known harness limits, so you do not waste time on them: `m.trace_log()`
+always returns empty here. `m.disassemble()` returns garbage unless you
+`m.run_frames(60)` first. `m.set_input(frames=N)` is wall-clock-based, so
+`N` is a lower bound, not an exact frame count — assert on direction and
+on clamp endpoints, never on `frames × rate` equality.
+
+## 2.3 — Phase 5: scale from 2 entities to 4
+
+**Target: exactly 4 entities total — 1 player + 3 AI.** Not "3 or 4."
+Four.
+
+### The budget arithmetic, settled
+
+Part One of this document said N=4 was the free limit and N=5 would need
+OBSEL's second tile bank. **That was wrong, in a way that matters.** Here
+is the real arithmetic, derived from the code:
+
+- OBSEL is `$C2` (set in `src/core/oam.pasm`): OBJ char base = word
+  `$4000`, size mode 6, whose "large" size is 32×64 = **4 tiles wide × 8
+  tiles tall**.
+- Sprite tile fetch indexes an 8-bit tile number as a **16 × 16** sheet:
+  `tileIndex = (row << 4) | col`. That is 256 tiles = words
+  `$4000`–`$4FFF`.
+- The next thing in VRAM above that is the BG2 tilemap at word `$5C00`
+  (`$2108`). Words `$5000`–`$5BFF` are unused. So the **entire** 256-tile
+  OBJ block is free.
+- Each entity consumes 4 columns × 8 rows. 16 columns ÷ 4 = **4 column
+  slices**; 16 rows ÷ 8 = **2 row bands**.
+
+**⇒ The hard ceiling is 8 entities, not 4, and no OBSEL change is
+needed.** N=4 uses only row band 0 (base tile index 0, exactly the region
+already proven working) and only widens the existing per-instance
+`CHAR_TILE_BYTE_OFFSET`. Phase 5 therefore does **not** touch VRAM layout
+at all. If a later phase wants 5–8 entities, row band 1 lives at base tile
+index 128 (word `$4800`, byte offset `+$1000`), and the only new work is
+extending `CHAR_TILE_BYTE_OFFSET` to `band*$1000 + col*128` and blanking
+rows 6–7 of the new slices in `Character_BlankPadding`.
+
+Two budgets are **not** binding at N=4 — do not spend time checking them:
+OBJ palettes (8 available, 4 needed) and oop capacity
+(`OOP_MAX_OBJECTS`=24, and `OOP_OBJ_RAM_SIZE`=$0c00 ÷ `CHAR_ZP_LEN`=35 =
+87 windows).
+
+**The one budget that *is* binding is the DMA queue.** `DMA_QUEUE_SLOTS`
+is 8, one entity's `Msu1_LoadFrame` enqueues 6 row-DMAs, and
+`Core_Oam_Play` consumes more. Phase 0's `Msu1_StreamBusy` serializes this
+so at most one entity streams per frame. **This is correct and must not be
+"fixed."** Its consequence is that with N entities, each entity's
+animation advances at most every N frames — at N=4, animation runs at
+~15fps per character while the game still runs at 60fps. **That is
+expected and acceptable.** Do not try to make all four stream in the same
+frame; that reintroduces the exact vblank-overrun bug Phase 0 fixed.
+
+### The asset question, settled
+
+Only two characters exist: `out/ralf` and `out/jhun`
+(`ROSTER_PREFIXES` in `build_rom.py`). Four entities will therefore be
+**two ralfs and two jhuns.** This needs no new art and no converter work.
+**Do not build a converter in this phase.**
+
+**Expect the two ralfs to look identical to each other, and the two jhuns
+to look identical to each other. This is correct, not a bug.**
+`CHAR_PALETTE_SLOT` is per-instance and each entity's `Anim_LoadCharacter`
+streams that character's own palette into its own CGRAM slot
+(`$100 + slot*32`) — so slots 0–3 all get properly initialized, but two
+entities loading the same character write byte-identical colors. Distinct
+*slots* are not distinct *colors*. The PoC spec asks for 4 enemies, not 4
+distinct-looking ones, so this is acceptable. **Do not invoke the stop
+rule over two identical-looking sprites**, and do not go hunting for a
+palette bug — you will find nothing. (If you want them visually distinct,
+that is a separate, optional task: convert a third and fourth character
+per the recipe in Part One's "Ground truth" section and add them to
+`ROSTER_PREFIXES`. It is not required to pass Phase 5's gate.)
+
+### The work: unwind every hardcoded "there are exactly 2 entities"
+
+This is the whole of Phase 5. Each item below is a real site in
+`src/main.pasm` that assumes two entities. Work through them in order.
+
+1. **Documentation.** `README.md`'s "Current Status" and "Not built"
+   sections both state "2 entities" as the current end state, and
+   `CLAUDE.md` says the same. Both become wrong the moment this phase
+   lands. Update them at the *end* of this phase, not the start — but note
+   it now so it isn't forgotten. `README.md` also carries the
+   `Character_BlankPadding` defect as a "Known live defect"; delete that
+   note once step 9 fixes it.
+2. **`Entity1_Base = $7E0a00 + 35`** and its derived `Entity1_PosX`,
+   `Entity1_PosY`, `Entity1_HitStun`. This is the item that genuinely
+   cannot survive N=4 — there is no `Entity2_Base`/`Entity3_Base` and
+   adding them by hand does not scale. **Replace it with a computed
+   base:** a small routine that takes a slot number in a register and
+   returns `OopObjRam + slot × CHAR_ZP_LEN`. Delete the `Entity1_*`
+   constants once nothing references them. (The literal `35` exists
+   because Poppy cannot forward-reference `CHAR_ZP_LEN` — rule 5 above.
+   Tool A's assert exists to catch it drifting.)
+3. **`PlayerEntity_PosX` / `PlayerEntity_PosY` / `PlayerEntity_HitStun`**
+   at fixed `$7E0a00` offsets. **These may stay as they are.** Entity #0
+   is created first and never killed, so "the player is always slot 0" is
+   a deliberate, endorsed shortcut. Do not build a general entity-lookup
+   system for a single-player game.
+4. **`Character_HitApply`'s two-way dispatch** — currently
+   `CHAR_INPUT_DRIVEN == 1 → VsEntity1`, `== 2 → VsPlayer`. Replace with:
+   an attacking *player* (mode 1) loops over AI slots 1..3 and stuns each
+   one it overlaps; an attacking *AI* (mode 2) tests only against slot 0.
+   Both leaf routines (`Character_HitApply_VsEntity1`,
+   `Character_HitApply_VsPlayer`) collapse into one routine parameterized
+   by target base address. **Remember rule 1** — put `sep #$20` + `.a8` at
+   the entry of the new routine and at every branch target inside the
+   loop. This exact routine is where the width bug bit twice already.
+5. **`Anim_Play__ai_seek`** reads `PlayerEntity_PosX/Y`. This is correct
+   and needs no change — every AI seeks the player.
+6. **`Character_PlayFrame__ai_x` / `__ai_y`** likewise read
+   `PlayerEntity_PosX/Y`. Also correct, no change.
+7. **`CharacterEntity_Init`** has only role-0 and role-1 branches, with
+   hardcoded per-role `CHAR_PALETTE_SLOT` and `CHAR_TILE_COLUMN`. Extend
+   to roles 0–3. Role 0 = player, roles 1–3 = AI (`CHAR_INPUT_DRIVEN = 2`).
+   Assign `CHAR_TILE_COLUMN` = 0, 4, 8, 12 and `CHAR_PALETTE_SLOT` = 0, 1,
+   2, 3. Give roles 1–3 distinct starting X/Y so they do not spawn on top
+   of each other.
+8. **`msu1_done`** creates exactly two entities via two `Core_Oop_Create`
+   calls. Make it four.
+9. **`Character_BlankPadding` — THIS IS AN EXISTING BUG, FIX IT.** The art
+   is 32×48 (6 tile rows) inside a 32×64 (8 tile row) sprite, so rows 6–7
+   must be blanked or they display whatever was last in VRAM. The routine
+   currently blanks **column 0 only** — it writes two hardcoded literals,
+   `lda #$4600` (tileRow 6, col 0) and `lda #$4700` (tileRow 7, col 0).
+   **Entity #1 at tile column 4 already has garbage in the bottom 16
+   pixels of its sprite right now, and nobody had noticed.** This is
+   confirmed, not inferred — 3/3 fresh Mesen2 sessions reading
+   `snesVideoRam` after 180 frames gave Entity #0's padding rows
+   (`$8C00`, `$8E00`) as 0/128 nonzero, and Entity #1's (`$8C80`,
+   `$8E80`) as 124–128/128 nonzero with different bytes each run.
+   Phase 5 triples the problem.
+   Rewrite it as a loop over all four tile columns. The addresses are:
+   row 6 → word `$4600 + tc*16`, row 7 → word `$4700 + tc*16`, for
+   `tc` = 0, 4, 8, 12. (Same `tc*32`-bytes stride as
+   `CHAR_TILE_BYTE_OFFSET`.) It runs once at boot under forced blank, so
+   it writes `$2116`/`$2118` directly and needs no DMA. **Rule 1 and rule
+   3 both apply to the new loop label.**
+10. **`CharSelect_Index` (`$7E53B6`) is a single global**, and the Select
+    button live-cycles it. With four entities on screen, "which character
+    is loaded" is no longer a global fact. **Decision, already made — do
+    not re-open it: make Select apply to slot 0 (the player) only.** Roles
+    1–3 keep whatever character `CharacterEntity_Init` gave them and
+    ignore Select entirely. This is the smallest change and keeps the
+    existing demo behavior meaningful.
+
+### Phase 5 gate — all of these must pass, in this order
+
+1. `python build_rom.py` — must complete with no `error:` lines.
+2. `python tools/rom_audit/audit_all.py` — must print `ALL CHECKS PASS`.
+   **If it reports drifted labels or a negative `scpu_main_loop` margin,
+   STOP** — you have hit the `.org` truncation bug and the ROM is
+   corrupt regardless of what it does on screen.
+3. `python tools/verify/phase5.py` — must print `PHASE 5: PASS`. It must
+   assert, at minimum: all four entities exist in `OopObjRam` with
+   distinct `CHAR_POS_X`; all four appear in hardware OAM
+   (`snesSpriteRam`) at distinct positions; `Nmi_FrameCounter` is still
+   advancing after 700 frames (proves no vblank overrun); each AI entity's
+   `CHAR_FRAME_INDEX` changes over a 240-frame window (proves streaming is
+   round-robining, not starving anyone); and the player's `CHAR_HIT_STUN`
+   goes nonzero when an AI attacks in range.
+   It must **also** assert the two things step 9 and the palette note
+   above are about:
+   - **Padding blanked for every column.** Read `snesVideoRam` at byte
+     `$8C00 + tc*32` (tileRow 6) and `$8E00 + tc*32` (tileRow 7) for
+     `tc` = 0, 4, 8, 12 — 128 bytes at each — and assert every byte is
+     zero. Non-zero means step 9 was missed or got the stride wrong, and
+     the visible symptom is garbage in the bottom 16 pixels of a sprite.
+   - **All four CGRAM palette slots written.** Read `snesCgRam` at bytes
+     `$100`, `$120`, `$140`, `$160` (32 bytes each) and assert none is
+     all-zero. Expect slots 0 and 2 to be **equal** to each other, and 1
+     and 3 to be equal to each other — that is the two-ralfs/two-jhuns
+     result described above and is a PASS, not a FAIL.
+4. Append a Phase 5 section to `handoff.md` recording what you changed,
+   every bug you hit, and the gate output.
+5. Commit.
+
+## 2.4 — Phase 6: BG1 static backdrop + BG3 HUD
+
+**Read this before starting: Phase 6 contains a task that is much larger
+than it looks.** There is no level-tileset converter in this repo. Phase 6
+requires building one. That is a multi-session project in its own right —
+it is asset-pipeline work, not assembly work, and it involves format
+decisions that this document does not specify.
+
+**Step 1 (do this first, it is a gate):** confirm the converter still does
+not exist — check `tools/` for anything that converts a level or tileset
+image into SNES 4bpp tile data plus a tilemap.
+
+- **If it does not exist: STOP and hand back.** Write in `handoff.md` that
+  Phase 6 is blocked on a level-tileset converter that must be designed
+  first. Do not start building one from this document — it does not tell
+  you the source asset format, the tile-dedup policy, or the palette
+  assignment strategy, and guessing at those produces work that gets
+  thrown away.
+- **If it does exist** (someone built it since this was written), then the
+  remaining Phase 6 work is ordinary and you may proceed: a non-scrolling
+  BG1 backdrop (the PoC spec explicitly rules out scrolling — do not add
+  it) and a minimal BG3 health-bar layer. VRAM is available: BG1 tiles are
+  at word `$0000`, BG1 tilemap at `$0400`, and words `$5000`–`$5BFF` are
+  unused. Every new per-frame DMA consumer must respect the same 8-slot
+  queue budget described in §2.3 — a HUD that unconditionally enqueues a
+  DMA every frame is a textbook candidate for re-triggering the vblank
+  overrun bug.
+
+## 2.5 — Phase 7: audio polish
+
+**Step 1 (a gate, same shape as Phase 6):** TAD's *boot handshake* is
+verified working. Actual song and SFX *playback* has never been confirmed
+audible. Before wiring anything, confirm there is real audio content:
+check that `soundwork/tad/build/audio-data.bin` is non-trivial in size and
+that a song actually plays.
+
+- **If no audio is audibly playing: STOP and hand back.** Report exactly
+  what you checked and what you observed. Do not attempt to author audio
+  content or debug the TAD driver from this document.
+- **If audio is confirmed playing:** the remaining work is small — trigger
+  a punch SFX from the attack animation's start (the same place
+  `CHAR_SELECTED` transitions to 2).
+
+**One harness warning specific to this phase:** the Mesen2 audio check in
+this harness has an observed ~40% false-silent rate on completely
+unchanged ROMs. **A single "silent" reading is not evidence of a
+regression.** Repeat any audio assertion at least three times and take the
+majority, exactly as §2.2 Tool B requires.
+
+## 2.6 — Known gaps that are deliberately NOT scheduled
+
+These appear in `README.md`'s "Not built" list and belong to no phase
+above. They are listed here so nobody assumes they were forgotten. None of
+them blocks Phases 5–7.
+
+- **OAM hi-table X-high bit is never exercised by a real sprite.** This
+  becomes real the moment an entity's X exceeds 255. Phase 5 spawns four
+  entities across the screen, so **watch for it there** — a sprite that
+  wraps to the left edge instead of moving right past X=255 is this bug,
+  not a movement bug.
+- **Roster selection is not persisted across reset.** Cosmetic.
+- **The raw BOR `.pak` format has never been ingested directly** — art
+  arrives pre-converted in `out/`. Relevant only if new characters are
+  needed; Phase 5 explicitly avoids needing any.
+- **No player health, no damage numbers, no game-over.** Deliberately out
+  of scope per the PoC spec, which calls for hit *reaction* without a
+  damage system. Phase 4 satisfies the spec as written.
+
+---
+
+**End of Part Two.** The two sections below this line ("Verification
+methodology" and "Critical files") are Part One material, but they still
+apply as reference — they list the raw audit commands that §2.2's Tool A
+wraps, and the file-by-file map of the codebase.
 
 ## Verification methodology (apply at every phase gate)
 

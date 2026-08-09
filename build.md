@@ -92,6 +92,25 @@ The `$60-$6F` bank range (where `BW_CANVAS` lives, e.g. `$60:6000`) is hard-wire
 
 `BG12NBA`/`BGxSC` fields, as reported by debugging tools, are often the raw internal word-address value (`Mesen2`'s `SnesPpu.cpp`: `ChrAddress = (value & 0x70) << 8`, `TilemapAddress = (value & 0x7C) << 8`) — e.g. `BG12NBA=$20` gives BG2 `ChrAddress = $2000` (a VRAM **word** address, used directly to index a word-addressed VRAM array). Reading/writing VRAM through a byte-addressed API (Mesen's `snesVideoRam` memory type, or any `$2116`/`$2118` sequence) means **doubling** that word address to get the real byte offset. Getting this unit wrong (byte vs. word) silently points tile/tilemap fetches at the wrong VRAM region — verify against a real emulator source, not against a debugger field's raw number, when in doubt.
 
+### OBJ tile sheet layout and the real multi-character budget
+
+Sprite tile fetch does **not** address tiles linearly. Mesen2's `SnesPpu.cpp` `GetSpriteTileAddress` computes `tileIndex = (row << 4) | ((tileColumn + columnOffset) & 0x0F)` — i.e. the 8-bit tile number is a coordinate in a **16 × 16 tile sheet**, and consecutive tile *rows* of one sprite jump by 16 index slots, not by the sprite's width. This is why `Msu1_LoadFrame` streams a character as **6 separate row-DMAs** rather than one flat 768-byte transfer, and why `Character_BlankPadding` blanks rows 6 and 7 at word `$4600`/`$4700` rather than at contiguous addresses.
+
+Current map (OBSEL = `$C2`, set in `core/oam.pasm`: OBJ char base = word `$4000`, size mode 6 whose "large" size is 32×64 = 4 tiles wide × 8 tall):
+
+| Region | Word address | Contents |
+|---|---|---|
+| BG1 tiles | `$0000` | blank tile 0 |
+| BG1 tilemap | `$0400` | |
+| BG2 tiles | `$2000` | CC-DMA test sprite |
+| **OBJ tiles** | **`$4000`–`$4FFF`** | 256 tiles — the full 16×16 sheet |
+| *(unused)* | `$5000`–`$5BFF` | |
+| BG2 tilemap | `$5C00` | |
+
+Because the next occupant sits at `$5C00`, the entire OBJ block is free. Each 32×64 character consumes 4 columns × 8 rows, so the sheet holds **8 characters**: 4 column slices (tile columns 0, 4, 8, 12 — byte offset `col*32`, which is what `CHAR_TILE_BYTE_OFFSET` carries) × 2 row bands (base tile index 0 and 128; the second band adds `$1000` bytes). **No OBSEL change and no second tile bank is needed for up to 8.**
+
+The actual constraint on character count is therefore **not** VRAM — it's the 8-slot software DMA queue (`core/dma.pasm`), since one `Msu1_LoadFrame` enqueues 6 slots and `Core_Oam_Play` needs more. `Msu1_StreamBusy` serializes streaming to one entity per frame, so N characters means each animates at most every N frames. See `README.md`'s Current Status and `plan.md` §2.3.
+
 ---
 
 ## MSU-1 Registers

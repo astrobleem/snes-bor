@@ -9,18 +9,34 @@ bugs, the OBSEL/hi-table bring-up story, harness quirks) lives in this
 project's Claude memory files, not here — see the pointers at the bottom of
 each section below.
 
-> **Stale since ~`fae4642` (this file wasn't refreshed for several sessions'
-> worth of work):** the character no longer renders via a BG2 tilemap — see
-> the "Ralf's BG2 character animation" bullet below, which is now wrong.
-> `Character_PlayFrame` (`main.pasm`) draws it as a single large (32×64) real
-> OAM sprite instead, same pipeline as the player-controlled second sprite
-> described below. Also missing: the OAM high-water-mark/full-table-push
-> robustness fixes, the hi-table nop-guard fix, and a boot-time NMI race that
-> was found and fixed corrupting the loaded character's state. **README.md's
-> "Current Status" section is the currently-accurate summary** — treat
-> anything below that contradicts it as superseded, not as the current
-> architecture. This file could use a real refresh; that wasn't in scope for
-> the session that added this note.
+> ## Read this banner before anything else in this file
+>
+> **Where to go for what:**
+> - **What to do next → [`plan.md`](plan.md) "Part Two."** That is the live,
+>   step-by-step roadmap for all remaining work. Nothing in *this* file is a
+>   to-do list any more.
+> - **What currently works → `README.md`'s "Current Status."** That is the
+>   authoritative summary. Treat anything in this file that contradicts it
+>   as superseded, not as the current architecture.
+> - **How it's built and why → `CLAUDE.md`** (build/test commands,
+>   architecture map, the entity system, the Poppy bug checklist).
+>
+> **What this file is:** an append-only debugging record. The most recent and
+> most accurate sections are the four near the bottom — "Phase 2 done and
+> verified" through "Phase 4 done and verified" — plus "Harness gotchas" and
+> "File inventory." Read those. Everything above them is older history, kept
+> for the root-cause detail, and parts of it are known wrong.
+>
+> **Known-wrong sections above, specifically:**
+> - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
+>   character animation" bullet). It's a single large 32×64 hardware OAM
+>   sprite, drawn by `Character_PlayFrame`.
+> - There is no separate "second dpad-driven test sprite." That entity and
+>   the animated character were merged, then generalized into the
+>   `CharacterEntity` object class — every on-screen character is now an
+>   instance of one class dispatched through `core/oop.pasm`.
+> - **"What's NOT done yet"** and **"Recommended next step"** are both stale
+>   — see the note at the head of each.
 
 ## MSU-1 runtime character-select: Phases 0-2 all complete
 
@@ -83,6 +99,15 @@ packer + Phase 2 step 1) and this session's branch
   persists the last-selected slot across a reset.
 
 ## Current state (verified working, as of the session before the above)
+
+> **HISTORICAL — the title is no longer true.** This section predates the
+> entity system. In particular `Player_PlayFrame` and `TestSprite_PlayFrame`
+> **no longer exist**: that dpad-driven sprite was merged into the animated
+> character and then generalized into the `CharacterEntity` object class, so
+> its two-axis movement now lives in `Character_PlayFrame` under
+> `CHAR_INPUT_DRIVEN=1`. The root-cause detail below (especially the
+> nop-guard/branch-resolution findings) is still accurate and worth reading;
+> the architecture description is not. Current state → `README.md`.
 
 `distribution/bor.sfc` boots and runs the following, all verified byte-level
 and visually in Mesen2:
@@ -373,6 +398,13 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 
 ## What's NOT done yet
 
+> **STALE — do not use this list.** It predates the entity system entirely.
+> There *is* a real player entity now (`CharacterEntity` with
+> `CHAR_INPUT_DRIVEN=1`), multi-character compositing works, and enemy AI
+> and collision both exist. For the current not-done list see `README.md`'s
+> "Not built" section; for what to do about it see `plan.md` Part Two. Kept
+> below only as a record of what was open at the time.
+
 - **No real player entity yet.** Sprite 1 now responds to the dpad on both
   X and Y, its WRAM state/constants are named `Player_X`/`Player_Y`/
   `PLAYER_*`, and (as of this session) it has its own accurately-named
@@ -404,6 +436,13 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
   selected slot across a reset (no save state/SRAM involved anywhere yet).
 
 ## Recommended next step
+
+> **SUPERSEDED.** This section describes Phases 0 and 1a as they were being
+> executed. Phases 0–4 are now all done and committed (`fd9bcdc`, `e7d18eb`,
+> `f2f52e0`, `78f2acb`, `a32d88f`) — see the "Phase 2/3/4 done and verified"
+> sections lower in this file. **The actual next step is `plan.md` Part
+> Two, §2.2 (build the two tooling scripts) followed by §2.3 (Phase 5).**
+> Kept below for the Phase 0 root-cause detail, which is still accurate.
 
 **Now executing `plan.md`** (repo root) — a phased plan for multiple
 simultaneous on-screen characters, written after a full project review.
