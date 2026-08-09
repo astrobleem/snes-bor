@@ -15,6 +15,7 @@ exist and are mandatory, not stylistic:
     documented false-failure rate on some checks (notably audio).
 """
 import os
+import re
 import sys
 
 MESEN_PYTHON_PATH = r'E:\gh\Mesen2\python'
@@ -42,6 +43,29 @@ def rom_path(verify_script_file):
 
 def open_session(verify_script_file, boot_wait=2.0):
     return McpSession(rom=rom_path(verify_script_file), mesen=MESEN_EXE, boot_wait=boot_wait)
+
+
+def pasm_constant(name):
+    """Read a plain integer constant out of src/main.pasm by name.
+
+    Verification scripts must never hardcode engine layout values. phase5.py
+    originally wrote the four entity bases as literal +35/+70/+105 and began
+    silently reading entities 1-3 at the wrong addresses the moment Phase 6
+    added CHAR_HP and grew CHAR_ZP_LEN to 36 -- the assertions still ran, they
+    just examined the wrong memory. Deriving from source makes that class of
+    drift impossible.
+
+    Handles `NAME = 36`, `NAME = $24`, and trailing comments.
+    """
+    path = os.path.join(repo_root_from(None), 'src', 'main.pasm')
+    pattern = re.compile(r'^\s*' + re.escape(name) + r'\s*=\s*(\$?[0-9A-Fa-f]+)\s*(?:;.*)?$')
+    with open(path, 'r', encoding='utf-8', errors='replace') as f:
+        for line in f:
+            m = pattern.match(line)
+            if m:
+                raw = m.group(1)
+                return int(raw[1:], 16) if raw.startswith('$') else int(raw, 10)
+    raise KeyError(f'constant {name!r} not found in {path}')
 
 
 def read_block(m, addr, length=32, mem_type='snesMemory'):

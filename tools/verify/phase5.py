@@ -8,7 +8,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, read_block, Reporter  # noqa: E402
 
 # CharacterEntity DP field offsets (see main.pasm's CHAR_* constants).
 CHAR_POS_X = 4
@@ -17,7 +17,11 @@ CHAR_FRAME_INDEX = 9
 CHAR_HIT_STUN = 33
 
 # Entity bases in OopObjRam (see main.pasm's PlayerEntity_Base/Entity1..3_Base).
-ENTITY_BASES = [0x7E0A00, 0x7E0A00 + 35, 0x7E0A00 + 70, 0x7E0A00 + 105]
+# Derived from CHAR_ZP_LEN rather than hardcoded: this was originally written as
+# literal +35/+70/+105 and silently started reading entities 1-3 at the wrong
+# addresses the moment Phase 6 added CHAR_HP and grew CHAR_ZP_LEN to 36.
+CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
+ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 
 # Character_BlankPadding's per-slice VRAM byte addresses (see that routine's
 # header comment: slice*128 bytes apart, tileRow 6 then tileRow 7).

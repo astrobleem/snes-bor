@@ -2458,19 +2458,23 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 35        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 36        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
-Entity2_Base    = $7E0a00 + 70        ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity1_Hp      = Entity1_Base + 35   ; Entity #1's CHAR_HP
+Entity2_Base    = $7E0a00 + 72        ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
 Entity2_HitStun = Entity2_Base + 33   ; Entity #2's CHAR_HIT_STUN
-Entity3_Base    = $7E0a00 + 105       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity2_Hp      = Entity2_Base + 35   ; Entity #2's CHAR_HP
+Entity3_Base    = $7E0a00 + 108       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
 Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
+Entity3_Hp      = Entity3_Base + 35   ; Entity #3's CHAR_HP
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
+PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
 
 ; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
 ; Character_PlayFrame's OamSetSprite_Hi comment) -- the AABB hitbox is just
@@ -2579,7 +2583,16 @@ CHAR_TILE_BYTE_OFFSET = 31 ; .dw -- CHAR_TILE_COLUMN*128, recomputed at the
 ; Character_HitApply. ---
 CHAR_HIT_STUN       = 33   ; .db -- frames remaining in hit-reaction freeze, 0 = not stunned
 CHAR_HIT_APPLIED    = 34   ; .db -- 1 once this attack cycle already landed a hit
-CHAR_ZP_LEN         = 35   ; total -- pass as OopRegStaging_ZpLen
+; Phase 6: CHAR_HP exists so the BG3 HUD has something real to display. It is
+; deliberately NOT a damage system -- nothing dies, respawns, or changes
+; behaviour at 0; the value just clamps there. Decremented in the same place
+; CHAR_HIT_STUN is stamped, so it tracks landed hits exactly.
+CHAR_HP             = 35   ; .db -- 0..CHAR_HP_MAX, drives the HUD bars
+CHAR_ZP_LEN         = 36   ; total -- pass as OopRegStaging_ZpLen
+
+CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
+                            ; HP; keep in sync with make_hud_tiles.py's max_hp
+CHAR_HP_PER_HIT     = 4    ; 16 hits to empty a bar
 
 ; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
 ; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
@@ -2614,6 +2627,28 @@ BG1_TILEMAP_WORDS     = 896    ; 32 * 28 entries actually streamed
 BG3_TILES_VRAM_WORD   = $5000  ; 2bpp HUD tiles
 BG3_TILEMAP_VRAM_WORD = $6400  ; 32x32 map
 BG3_TILEMAP_WORDS     = 1024
+
+; --- Phase 6 HUD (Hud_Play). Tile ids must match make_hud_tiles.py's manifest. ---
+HUD_TILE_BLANK     = 0
+HUD_TILE_FILL_BASE = 1    ; +n = n columns filled, n = 0..8  (tiles 1..9)
+HUD_TILE_CAP_LEFT  = 10
+HUD_TILE_CAP_RIGHT = 11
+HUD_BAR_TILES      = 8    ; body tiles per bar; 8 px each -> CHAR_HP_MAX = 64
+HUD_ROWS           = 4    ; one bar per entity, rows 0-3 of the BG3 tilemap
+HUD_STAGING_BYTES  = 256  ; HUD_ROWS * 32 entries * 2 bytes -- one DMA covers
+                           ; all four bars, so the HUD costs ONE queue slot, not
+                           ; four (DMA_QUEUE_SLOTS is only 8 and one entity's
+                           ; Msu1_LoadFrame already enqueues 6)
+; Tilemap high byte for every HUD entry: palette 0 (the HUD owns CGRAM
+; sub-palette 0) with the priority bit (bit 13) set, which is what puts BG3
+; above the backdrop given BGMODE's BG3-priority bit.
+HUD_ENTRY_HIGH     = $20
+
+HudCachedHp        = $7E2350   ; 4B  -- last HP drawn, per entity
+HudDirty           = $7E2354   ; .db -- nonzero forces a redraw (set at boot)
+HudBarHp           = $7E2355   ; .db -- scratch: HP remaining while drawing a bar
+HudBarFilled       = $7E2356   ; .db -- scratch: filled columns for one tile
+HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
 ; .include is textually processed before this point, so the constant must
@@ -4137,6 +4172,17 @@ Character_HitApply_VsEntity1__dy_have:
 Character_HitApply_VsEntity1__dy_ok:
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity1_HitStun
+    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
+    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
+    ; has a real value to draw.
+    lda.l Entity1_Hp
+    sec
+    sbc #CHAR_HP_PER_HIT
+    bcs Character_HitApply_VsEntity1__hp_ok
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity1__hp_ok:
+    sta.l Entity1_Hp
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4192,6 +4238,17 @@ Character_HitApply_VsEntity2__dy_have:
 Character_HitApply_VsEntity2__dy_ok:
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity2_HitStun
+    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
+    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
+    ; has a real value to draw.
+    lda.l Entity2_Hp
+    sec
+    sbc #CHAR_HP_PER_HIT
+    bcs Character_HitApply_VsEntity2__hp_ok
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity2__hp_ok:
+    sta.l Entity2_Hp
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4240,6 +4297,17 @@ Character_HitApply_VsEntity3__dy_have:
 Character_HitApply_VsEntity3__dy_ok:
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity3_HitStun
+    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
+    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
+    ; has a real value to draw.
+    lda.l Entity3_Hp
+    sec
+    sbc #CHAR_HP_PER_HIT
+    bcs Character_HitApply_VsEntity3__hp_ok
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity3__hp_ok:
+    sta.l Entity3_Hp
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4290,6 +4358,17 @@ Character_HitApply_VsPlayer__dy_have:
 Character_HitApply_VsPlayer__dy_ok:
     lda #CHAR_HIT_STUN_FRAMES
     sta.l PlayerEntity_HitStun
+    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
+    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
+    ; has a real value to draw.
+    lda.l PlayerEntity_Hp
+    sec
+    sbc #CHAR_HP_PER_HIT
+    bcs Character_HitApply_VsPlayer__hp_ok
+    lda #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsPlayer__hp_ok:
+    sta.l PlayerEntity_Hp
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4897,6 +4976,15 @@ CharacterEntity_Init__load:
     sep #$20
 .a8
     sta.l CharSelect_Index
+
+    ; Phase 6: full HP for every role. Set here, after the role branches have
+    ; converged, rather than four times over -- every branch reaches this
+    ; point and none of them wants a different starting value.
+    pha
+    lda #CHAR_HP_MAX
+    sta CHAR_HP
+    pla
+
     jsr Anim_LoadCharacter        ; sets/restores its own widths, see its
                                    ; header -- writes this object's CHAR_*
                                    ; fields since DP is still switched here
@@ -5188,6 +5276,192 @@ Bg_LoadScene__hud_done:
     rts
 
 ; ============================================================================
+; Hud_DrawBar -- render one entity's health bar into HudStaging.
+;   A = that entity's CHAR_HP (8-bit), X = byte offset of the bar's tilemap row
+; Leaves X past the bar. Clobbers A/X/Y.
+;
+; Layout per row: column 0 blank, column 1 left cap, columns 2-9 the eight body
+; tiles, column 10 right cap. Body tile i shows min(hp - i*8, 8) filled columns,
+; so one HP = one pixel of bar and CHAR_HP_MAX(64) exactly fills all eight.
+; ============================================================================
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+    nop
+    nop
+Hud_DrawBar:
+    sep #$20
+.a8
+    sta.l HudBarHp
+    inx
+    inx                         ; skip column 0
+
+    lda #HUD_TILE_CAP_LEFT
+    sta.l HudStaging,x
+    inx
+    lda #HUD_ENTRY_HIGH
+    sta.l HudStaging,x
+    inx
+
+    ldy #HUD_BAR_TILES
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Hud_DrawBar__body:
+    sep #$20
+.a8
+    lda.l HudBarHp
+    cmp #8
+    bcc Hud_DrawBar__partial
+    lda #8
+    sta.l HudBarFilled
+    lda.l HudBarHp
+    sec
+    sbc #8
+    sta.l HudBarHp
+    bra Hud_DrawBar__have
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Hud_DrawBar__partial:
+    sep #$20
+.a8
+    sta.l HudBarFilled          ; A is still the remaining HP (< 8)
+    lda #0
+    sta.l HudBarHp
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Hud_DrawBar__have:
+    sep #$20
+.a8
+    lda.l HudBarFilled
+    clc
+    adc #HUD_TILE_FILL_BASE
+    sta.l HudStaging,x
+    inx
+    lda #HUD_ENTRY_HIGH
+    sta.l HudStaging,x
+    inx
+    dey
+    bne Hud_DrawBar__body
+
+    lda #HUD_TILE_CAP_RIGHT
+    sta.l HudStaging,x
+    inx
+    lda #HUD_ENTRY_HIGH
+    sta.l HudStaging,x
+    inx
+    rts
+
+; ============================================================================
+; Hud_Play -- per-frame BG3 health-bar HUD (Phase 6).
+;
+; Called once per scpu_main_loop iteration, which Core_Nmi_WaitFrame paces to
+; one real frame. DIRTY-FLAG GATED: it compares all four entities' CHAR_HP
+; against HudCachedHp and returns immediately when nothing changed, so in the
+; common frame it enqueues NOTHING.
+;
+; That gating is the whole point, not an optimization. core/nmi.pasm's header
+; and plan.md 2.4 both record that a per-frame subsystem which unconditionally
+; enqueues DMA work is exactly what overran Core_Nmi_Play's forced-blank commit
+; bracket into active display and corrupted the top of every frame. HP changes
+; only on a landed hit, so this redraws a handful of times per second at most.
+; ============================================================================
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+    nop
+    nop
+Hud_Play:
+    php
+    sep #$20
+.a8
+    lda.l HudDirty
+    bne Hud_Play__rebuild
+    lda.l PlayerEntity_Hp
+    cmp.l HudCachedHp
+    bne Hud_Play__rebuild
+    lda.l Entity1_Hp
+    cmp.l HudCachedHp+1
+    bne Hud_Play__rebuild
+    lda.l Entity2_Hp
+    cmp.l HudCachedHp+2
+    bne Hud_Play__rebuild
+    lda.l Entity3_Hp
+    cmp.l HudCachedHp+3
+    bne Hud_Play__rebuild
+    plp
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Hud_Play__rebuild:
+    sep #$20
+.a8
+    lda #0
+    sta.l HudDirty
+    lda.l PlayerEntity_Hp
+    sta.l HudCachedHp
+    lda.l Entity1_Hp
+    sta.l HudCachedHp+1
+    lda.l Entity2_Hp
+    sta.l HudCachedHp+2
+    lda.l Entity3_Hp
+    sta.l HudCachedHp+3
+
+    ; --- blank the whole staging block, then draw the four bars over it ---
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Hud_Play__clear:
+    lda #$0000
+    sta.l HudStaging,x
+    inx
+    inx
+    cpx #HUD_STAGING_BYTES
+    bcc Hud_Play__clear
+
+    sep #$20
+.a8
+    lda.l HudCachedHp
+    rep #$10
+.i16
+    ldx #$0000              ; row 0
+    jsr Hud_DrawBar
+    sep #$20
+.a8
+    lda.l HudCachedHp+1
+    ldx #$0040              ; row 1 (32 entries * 2 bytes)
+    jsr Hud_DrawBar
+    sep #$20
+.a8
+    lda.l HudCachedHp+2
+    ldx #$0080              ; row 2
+    jsr Hud_DrawBar
+    sep #$20
+.a8
+    lda.l HudCachedHp+3
+    ldx #$00C0              ; row 3
+    jsr Hud_DrawBar
+
+    ; --- one queued VRAM DMA for all four rows ---
+    ; DmaRequest_TargetAddr is a BYTE address (Core_Dma_TransferVram halves it
+    ; into $2116), so the BG3 tilemap's word $6400 is byte $C800.
+    rep #$31
+.a16
+.i16
+    lda #HudStaging
+    sta.l DmaRequest_SourceAddrLow
+    lda #BG3_TILEMAP_VRAM_WORD * 2
+    sta.l DmaRequest_TargetAddr
+    lda #HUD_STAGING_BYTES
+    sta.l DmaRequest_Length
+    sep #$20
+.a8
+    lda #$7E
+    sta.l DmaRequest_SourceBank
+    lda #DMA_TYPE_VRAM
+    sta.l DmaRequest_TypeFlags
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_Enqueue
+
+    plp
+    rts
+
+; ============================================================================
 ; S-CPU entry (reset vector $FC00). Emulation mode on entry.
 ; ============================================================================
 .org $FC00
@@ -5436,6 +5710,17 @@ msu1_done:
 .a16
 .i16
     jsr Bg_LoadScene
+
+    ; Force Hud_Play's first pass to draw: HudCachedHp is uninitialized WRAM
+    ; here and could otherwise coincidentally match the entities' real starting
+    ; HP, leaving the bars blank until the first hit landed.
+    sep #$20
+.a8
+    lda #1
+    sta.l HudDirty
+    rep #$31
+.a16
+.i16
 
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES
@@ -5866,6 +6151,11 @@ scpu_main_loop:
 .a16
     jsr Core_Oop_Play
     jsr Core_Screen_Play
+    ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
+    ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
+    ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
+    ; header for why that matters to the vblank budget.
+    jsr Hud_Play
     jsr Core_Oam_Play
     bra scpu_main_loop
 
