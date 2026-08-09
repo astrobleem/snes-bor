@@ -1,0 +1,12 @@
+{
+  "tile_count": 12,
+  "bpp": 2,
+  "bytes": 192,
+  "tile_blank": 0,
+  "tile_fill_base": 1,
+  "tile_cap_left": 10,
+  "tile_cap_right": 11,
+  "bar_tiles": 8,
+  "max_hp": 64,
+  "cgram_palette": 0
+}
