@@ -2592,6 +2592,28 @@ AnimFrameStaging   = $7E2000   ; 768B -- one streamed frame, pre-DMA
 AnimPaletteStaging = $7E2300   ; 32B  -- one streamed palette
 AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
                                  ;        before parsing into the cells above
+
+; --- Phase 6 BG section staging (Bg_LoadScene). Only the 16-byte header and
+; the 16-byte BG directory record are staged in WRAM; the ~16KB of actual
+; pixel/tilemap data is streamed straight from the MSU-1 data port into the
+; PPU and never lands in WRAM at all. ---
+BgHeaderStaging    = $7E2330   ; 16B  -- bor.msu file header (bg_count at +10,
+                                 ;        bg_directory_offset at +12..15)
+BgRecordStaging    = $7E2340   ; 16B  -- one BG directory record
+; No word-count cell: the streaming loops count DOWN in X instead. An earlier
+; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
+; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
+; silently anyway (same class as the documented `stz.l` and `.l,y` traps),
+; emitting an encoding that desynced the instruction stream and scribbled over
+; CGRAM. Counting down needs no memory operand at all.
+
+; --- Phase 6 VRAM map (see Bg_LoadScene's header for the full picture) ---
+BG1_TILES_VRAM_WORD   = $0000  ; <=512 4bpp tiles, i.e. up to word $1FFF
+BG1_TILEMAP_VRAM_WORD = $6000  ; 32x32 map; only the top 32x28 is written
+BG1_TILEMAP_WORDS     = 896    ; 32 * 28 entries actually streamed
+BG3_TILES_VRAM_WORD   = $5000  ; 2bpp HUD tiles
+BG3_TILEMAP_VRAM_WORD = $6400  ; 32x32 map
+BG3_TILEMAP_WORDS     = 1024
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
 ; .include is textually processed before this point, so the constant must
@@ -4912,6 +4934,260 @@ CharacterEntity_Play:
 ; spot since there's no blob here anymore).
 
 ; ============================================================================
+; Bg_LoadScene -- upload the static BG1 backdrop + BG3 HUD tileset from the
+; bor.msu v2 BG section (Phase 6).
+;
+; Called ONCE from scpu_boot, after msu1_done's character loads, while still
+; under forced blank. Nothing here runs per frame -- that is deliberate. Every
+; per-frame DMA consumer in this codebase is a candidate for re-triggering the
+; vblank-overrun bug (see core/nmi.pasm's Core_Nmi_Play header and plan.md
+; 2.4's warning); a boot-time one-shot cannot.
+;
+; Streams MSU-1 -> PPU directly, with NO WRAM staging buffer. Msu1_LoadFrame
+; reads into AnimFrameStaging because it runs live and its destination is a
+; queued DMA; this runs under forced blank, so the data port can be pumped
+; straight into $2118/$2119 (VRAM) and $2122 (CGRAM). That matters: the BG blob
+; is ~16KB and there is no free 16KB WRAM staging region.
+;
+; The MSU-1 data port auto-increments on every $2001 read, so all four regions
+; are read back-to-back from ONE seek -- only the PPU destination changes
+; between them. Region order here must match pack_msu_roster.py's blob layout
+; exactly: CGRAM image, BG1 tilemap, BG1 tiles, BG3 HUD tiles.
+;
+; VRAM map this establishes (see build.md):
+;   $0000-$1FFF  BG1 tiles   (<=512 4bpp tiles; $2000+ is the SA-1 compositor's
+;                             BG2 char base, actively written every frame)
+;   $5000-$5BFF  BG3 HUD tiles (2bpp)
+;   $6000-$63FF  BG1 tilemap (32x28 of a 32x32 map)
+;   $6400-$67FF  BG3 tilemap
+; ============================================================================
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+    nop
+    nop
+Bg_LoadScene:
+    php
+    sei
+
+    ; --- VMAIN: increment by one word AFTER the $2119 (high-byte) write ---
+    ; Set here rather than relying on the caller: this routine runs from
+    ; msu1_done, which is EARLIER in scpu_boot than the $2115 write that the
+    ; rest of the boot VRAM code depends on, and scpu_boot's $2100-$213F clear
+    ; loop has already zeroed it. With $2115 = $00 the address would advance on
+    ; the $2118 write instead, so every high byte would land in the NEXT word
+    ; and the whole upload would shear by one byte. (Found exactly that way:
+    ; CGRAM streamed correctly while all three VRAM regions mismatched.)
+    sep #$20
+.a8
+    lda #$80
+    sta $2115
+
+    rep #$31
+.a16
+.i16
+
+    ; --- read bg_count ($0A) and bg_directory_offset ($0C-$0F) from the file
+    ; header. Seek to 0 first: this runs after Anim_LoadCharacter has left the
+    ; data pointer somewhere arbitrary. ---
+    sep #$20
+.a8
+    lda #0
+    sta $2000
+    sta $2001
+    sta $2002
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__hdr_busy:
+    lda $2000
+    bmi Bg_LoadScene__hdr_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__hdr_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l BgHeaderStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0010
+    bcc Bg_LoadScene__hdr_read
+
+    ; bg_count == 0 -> no BG section in this .msu; leave VRAM as-is.
+    sep #$20
+.a8
+    lda.l BgHeaderStaging+10
+    bne Bg_LoadScene__have_bg
+    plp
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__have_bg:
+
+    ; --- seek the BG directory (24 bits of the u32 at +12; a .msu never
+    ; reaches 16MB) and read record 0 ---
+    lda.l BgHeaderStaging+12
+    sta $2000
+    lda.l BgHeaderStaging+13
+    sta $2001
+    lda.l BgHeaderStaging+14
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__dir_busy:
+    lda $2000
+    bmi Bg_LoadScene__dir_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__dir_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l BgRecordStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0010
+    bcc Bg_LoadScene__dir_read
+
+    ; --- seek this screen's blob (record +8/9/10) ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+8
+    sta $2000
+    lda.l BgRecordStaging+9
+    sta $2001
+    lda.l BgRecordStaging+10
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__blob_busy:
+    lda $2000
+    bmi Bg_LoadScene__blob_busy
+
+    ; --- region 1: 256-byte CGRAM image -> colors 0-127 ---
+    ; Sub-palette 0 (colors 0-3) is the BG3 HUD's; 1-7 are the backdrop's.
+    ; See tools/bg_converter/convert_bg.py's PALETTE_OFFSET note on why BG1
+    ; cannot use all 8.
+    sep #$20
+.a8
+    lda #0
+    sta $2121               ; CGADD = color 0, auto-increments per pair
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__cgram:
+    sep #$20
+.a8
+    lda $2001
+    sta $2122
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0100
+    bcc Bg_LoadScene__cgram
+
+    ; --- region 2: 1792-byte BG1 tilemap -> VRAM word $6000 ---
+    ; $2115 was set to $80 (word-increment on $2119) at boot and never
+    ; changed, so each low/high byte pair advances one word.
+    rep #$31
+.a16
+.i16
+    lda #BG1_TILEMAP_VRAM_WORD
+    sta $2116
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__tilemap:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #BG1_TILEMAP_WORDS
+    bcc Bg_LoadScene__tilemap
+
+    ; --- region 3: bg_tile_count * 32 bytes of BG1 tiles -> VRAM word $0000 ---
+    ; Word count = tile_count * 16, computed with four shifts. tile_count is
+    ; capped at 512 by the converter and the packer, so this cannot exceed
+    ; $2000 words and cannot run into the compositor's BG2 char base.
+    lda #BG1_TILES_VRAM_WORD
+    sta $2116
+    lda.l BgRecordStaging+0     ; bg_tile_count (u16 LE)
+    and #$03FF
+    asl a
+    asl a
+    asl a
+    asl a                       ; * 16 words per 4bpp tile
+    tax                         ; X = words remaining, counted DOWN
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__tiles:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    dex
+    bne Bg_LoadScene__tiles
+
+    ; --- region 4: hud_tile_count * 16 bytes of BG3 tiles -> VRAM word $5000 ---
+    ; Word count = hud_tile_count * 8 (2bpp tiles are 16 bytes = 8 words).
+    lda #BG3_TILES_VRAM_WORD
+    sta $2116
+    sep #$20
+.a8
+    lda.l BgRecordStaging+4     ; hud_tile_count (u8)
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a                       ; * 8 words per 2bpp tile
+    tax                         ; X = words remaining, counted DOWN
+    beq Bg_LoadScene__hud_done  ; hud_tile_count 0 -> nothing to stream, and
+                                 ; dex/bne would otherwise wrap to 65536 words
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__hud:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    dex
+    bne Bg_LoadScene__hud
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__hud_done:
+
+    plp
+    rts
+
+; ============================================================================
 ; S-CPU entry (reset vector $FC00). Emulation mode on entry.
 ; ============================================================================
 .org $FC00
@@ -5151,6 +5427,16 @@ msu1_done:
     jsr Core_Oop_Create
     jsr Core_Dma_ProcessQueue
 
+    ; --- Phase 6: stream the static BG1 backdrop + BG3 HUD tileset. Runs
+    ; AFTER every character load, because it re-seeks the MSU-1 data pointer
+    ; for its own reads and would otherwise strand a half-finished character
+    ; load. Still under forced blank here, which is what lets it pump the
+    ; data port straight into the PPU with no WRAM staging. ---
+    rep #$31
+.a16
+.i16
+    jsr Bg_LoadScene
+
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES
     ; reset already provides that condition; do not write APUIO0 here as a
@@ -5177,17 +5463,24 @@ scpu_clear_ppu:
     lda #$80
     sta $2100               ; keep forced blank
 
-    lda #$01
-    sta $2105               ; BGMODE = 1
-    lda #$04
-    sta $2107               ; BG1SC: tilemap at word $0400
+    ; BGMODE 1 + bit3 (BG3 priority): in mode 1, setting bit 3 lifts BG3's
+    ; priority-1 tiles above BG1/BG2, which is what makes the BG3 HUD draw
+    ; over the backdrop rather than behind it.
+    lda #$09
+    sta $2105               ; BGMODE = 1, BG3 high priority
+    lda #$60
+    sta $2107               ; BG1SC: tilemap at word $6000 (moved from $0400 --
+                             ; BG1 tiles now occupy $0000-$1FFF, see Bg_LoadScene)
+    lda #$64
+    sta $2109               ; BG3SC: tilemap at word $6400
     lda #$5C
     sta $2108               ; BG2SC: tilemap at word $5C00
     lda #$20
     sta $210B               ; BG12NBA: BG1 tiles $0000, BG2 tiles $2000
-    stz $210C               ; BG34NBA: $0000
-    lda #$03
-    sta $212C               ; TM: BG1 + BG2 on main screen
+    lda #$05
+    sta $210C               ; BG34NBA: BG3 tiles at word $5000
+    lda #$05
+    sta $212C               ; TM: BG1 + BG3 on main screen
     stz $212D               ; TS: nothing on subscreen
     lda #$80
     sta $420D               ; MEMSEL: FastROM
@@ -5216,28 +5509,27 @@ scpu_clear_ppu:
     lda #$80
     sta $2115
 
-    ; --- BG1 tile 0: blank black 4bpp tile at VRAM word $0000 ---
+    ; BG1's blank-tile-0 write and its all-zero 1024-entry tilemap fill used
+    ; to sit here. Both are gone: Bg_LoadScene now streams a real backdrop
+    ; (tiles to word $0000, tilemap to $6000) from bor.msu's v2 BG section,
+    ; and the old fills would only have been overwritten. The BG3 tilemap is
+    ; still cleared below, since the HUD writes only the few entries its bars
+    ; occupy and the rest must not be power-on garbage.
     rep #$20
 .a16
-    stz $2116
-    ldx #$0010
-    lda #$0000
-    nop
-scpu_bg1_tile:
-    sta $2118
-    dex
-    bne scpu_bg1_tile
 
-    ; --- BG1 tilemap at word $0400: all tile 0 ---
-    lda #$0400
+    ; --- BG3 tilemap at word $6400: clear all 1024 entries to tile 0 (blank,
+    ; and blank is genuinely transparent on BG3 since HUD tile 0 is all
+    ; color-index 0). ---
+    lda #BG3_TILEMAP_VRAM_WORD
     sta $2116
-    ldx #$0400              ; 1024 entries
+    ldx #BG3_TILEMAP_WORDS
     lda #$0000
     nop
-scpu_bg1_map:
+scpu_bg3_map:
     sta $2118
     dex
-    bne scpu_bg1_map
+    bne scpu_bg3_map
 
     ; --- BG2 blank tile (index 0) at VRAM word $2000: 16 zero words ---
     ; BG12NBA ($210B) = $20 -> BG2 char base = WORD $2000. Mesen2's actual
@@ -5463,18 +5755,22 @@ scpu_tm_row_no_bump:
 
     sep #$20
 .a8
-    lda #$01
+    lda #$09             ; BGMODE 1 + BG3 priority (see the $2105 write above)
     sta.l Nmi_ScreenMode
-    lda #$04
+    lda #$60             ; BG1SC: tilemap at word $6000
     sta.l Nmi_Bg1TilemapVram
+    lda #$64             ; BG3SC: tilemap at word $6400
+    sta.l Nmi_Bg3TilemapVram
     lda #$20
     sta.l Nmi_BgTilesVram12
-    lda #$11             ; TM: BG1 + OBJ ($01 | $10) on main screen -- BG2
-                          ; dropped: the BOR character no longer renders into
-                          ; a BG2 tilemap window (see Msu1_LoadFrame), so its
-                          ; static leftover tile content would otherwise sit
-                          ; as an inert visual ghost. BG1 stays for whatever
-                          ; background content exists/will exist later.
+    lda #$05             ; BG34NBA: BG3 tiles at word $5000
+    sta.l Nmi_BgTilesVram34
+    lda #$15             ; TM: BG1 + BG3 + OBJ ($01 | $04 | $10) on main screen
+                          ; -- BG2 dropped: the BOR character no longer renders
+                          ; into a BG2 tilemap window (see Msu1_LoadFrame), so
+                          ; its tile content (still written every frame by the
+                          ; SA-1 compositor) would sit as an inert visual ghost.
+                          ; BG1 is now the real streamed backdrop; BG3 is the HUD.
     sta.l Nmi_MainScreen
     lda #$0F
     sta.l Nmi_ScreenBrightness

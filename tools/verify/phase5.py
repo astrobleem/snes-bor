@@ -140,16 +140,30 @@ def main():
         print(f'Nmi_FrameCounter before/after 700 frames: {c_before} -> {c_after}')
         r.check('Nmi_FrameCounter still advancing after 700 frames', c_after != c_before)
 
-        # --- collision: player's CHAR_HIT_STUN goes nonzero once an AI
-        # gets in range and attacks (majority-of-3, this drives on AI
-        # timing which can be marginally frame-sensitive). ---
+        # --- collision: player's CHAR_HIT_STUN goes nonzero once an AI gets in
+        # range and attacks.
+        #
+        # CHAR_HIT_STUN OSCILLATES -- it is stamped on each landed hit and then
+        # counts down to 0 between hits -- so a single reading at one fixed
+        # frame is not a test of whether collisions work, only of what phase the
+        # attack cycle happens to be in at that instant. This originally sampled
+        # once at frame 600 and passed for months, then "failed" the moment
+        # Phase 6's Bg_LoadScene shifted boot timing enough to move frame 600
+        # into a decayed-to-zero gap, while collisions were demonstrably still
+        # landing (stun values of 20/23/13 observed either side of it).
+        #
+        # Sample across a window and assert it is nonzero at least once. ---
         def player_got_stunned():
             m.reset_emulator()
-            m.run_frames(600)
+            m.run_frames(300)
             m.pause()
-            stun = entity_hit_stun(m, ENTITY_BASES[0])
-            print(f'  player CHAR_HIT_STUN after 600 frames: {stun}')
-            return stun != 0
+            seen = []
+            for _ in range(8):
+                m.run_frames(60)
+                m.pause()
+                seen.append(entity_hit_stun(m, ENTITY_BASES[0]))
+            print(f'  player CHAR_HIT_STUN over 8 samples/480 frames: {seen}')
+            return any(s != 0 for s in seen)
 
         r.majority_of_3('player CHAR_HIT_STUN goes nonzero from an AI attack', player_got_stunned)
 

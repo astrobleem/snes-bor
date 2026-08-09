@@ -66,9 +66,15 @@ Nmi_Bg2ScrollY        = $7E501D  ; .dw
 Nmi_Bg3ScrollX        = $7E501F  ; .dw
 Nmi_Bg3ScrollY        = $7E5021  ; .dw
 Nmi_FrameCounter      = $7E5023  ; .dw — incremented every real (non-skipped) NMI
+Nmi_BgTilesVram34     = $7E5025  ; .db — BG34NBA ($210C), added for Phase 6's BG3 HUD:
+                                  ; without a shadow, BG3 character data can only
+                                  ; live at word $0000 (the value Core_Nmi_Init's
+                                  ; clear loop leaves behind), which is where BG1's
+                                  ; own tiles now sit. Next free WRAM after this is
+                                  ; still well below Oam_Buffer at $7E5100.
 
 NmiShadow_Start = Nmi_FrameBusy
-NmiShadow_End   = $7E5025
+NmiShadow_End   = $7E5026
 
 Core_Nmi_Init:
     php
@@ -247,6 +253,8 @@ Core_Nmi_Play__skip_oam_reset:
     sta $2109
     lda.l Nmi_BgTilesVram12
     sta $210B
+    lda.l Nmi_BgTilesVram34
+    sta $210C
     lda.l Nmi_ObjSel
     sta $2101
 
