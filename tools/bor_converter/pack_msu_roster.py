@@ -13,9 +13,11 @@ against real Mesen2 VRAM output.
 File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
-    0x08       format_version = 1
+    0x08       format_version = 2
     0x09       roster_count (1-8)
-    0x0A-0x0F  reserved
+    0x0A       bg_count (0-4)              [v2]
+    0x0B       reserved
+    0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
     0x10       directory: 8 records x 16 bytes = 128 bytes (0x10-0x8F)
       record N at 0x10 + (N<<4):
@@ -35,6 +37,32 @@ File format (see the plan for the authoritative spec):
       +32..    idle_frame_count * 768 bytes
       next     walk_frame_count * 768 bytes
       next     attack_frame_count * 768 bytes
+
+    then       BG directory (v2, only when bg_count > 0): 4 records x 16 bytes,
+               located at bg_directory_offset.
+      record N:
+        +0-1   bg_tile_count   (u16 LE, <= 512)
+        +2     width_tiles     (u8, 32)
+        +3     height_tiles    (u8, 28)
+        +4     hud_tile_count  (u8)
+        +5-7   reserved
+        +8-11  data_offset     (u32 LE) -- absolute byte offset of this
+               screen's blob from the start of the file
+        +12-15 reserved
+
+    then       BG blobs, packed sequentially. One blob is everything the engine
+               needs to stand up one screen, in the order it uploads them:
+      +0..255       CGRAM image: 8 sub-palettes x 16 BGR555 LE. Sub-palette 0
+                    holds the BG3 HUD colors (see bg_converter/convert_bg.py's
+                    PALETTE_OFFSET note on why BG1 only uses slots 1-7);
+                    slots 1-7 are the backdrop.
+      +256..2047    BG1 tilemap: 32x28 real-SNES tilemap words, row-major
+      +2048..       BG1 tiles: bg_tile_count * 32 bytes (4bpp planar)
+      next          BG3 HUD tiles: hud_tile_count * 16 bytes (2bpp planar)
+
+The BG section is appended AFTER the character blobs so that adding it does not
+move any character data_offset -- a v1-era reader that ignores the new header
+fields still finds every character exactly where it used to be.
 
 Unused directory slots (roster_count <= N < 8) are left fully zeroed --
 main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as "no
@@ -71,7 +99,7 @@ import gen_pasm_animset
 import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2
 MAX_CHARACTERS = 8
 RECORD_SIZE = 16
 DIRECTORY_BASE = 0x10
@@ -79,6 +107,18 @@ HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
 
 PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
+
+# --- v2 BG section ---
+MAX_BGS = 4
+BG_RECORD_SIZE = 16
+BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
+BG_WIDTH_TILES = 32
+BG_HEIGHT_TILES = 28
+BG_TILEMAP_BYTES = BG_WIDTH_TILES * BG_HEIGHT_TILES * 2   # 1792
+BG_BYTES_PER_TILE = 32      # 4bpp
+HUD_BYTES_PER_TILE = 16     # 2bpp
+# BG1 char data must fit VRAM words $0000-$1FFF; see bg_converter/convert_bg.py.
+BG_MAX_TILES = 512
 
 
 def bake_anim_bytes(anim_dir):
@@ -156,11 +196,103 @@ def build_record(info, data_offset):
     return record
 
 
-def pack_roster(prefixes):
-    """Returns (msu_bytes, manifest_sidecar_dict). `prefixes` is a list of
-    1-8 out/<name> prefixes; unused directory slots stay zeroed."""
+def pack_bg_blob(bg_dir, hud_dir):
+    """Returns (blob_bytes, info_dict) for one screen: CGRAM image + BG1
+    tilemap + BG1 tiles + BG3 HUD tiles.
+
+    `bg_dir` is a tools/bg_converter/convert_bg.py output directory,
+    `hud_dir` a make_hud_tiles.py output directory. The HUD's 16-color
+    sub-palette is merged over CGRAM slot 0, which convert_bg.py deliberately
+    leaves zeroed for exactly this purpose -- so the engine can upload one
+    contiguous 256-byte CGRAM image rather than two separate transfers.
+    """
+    with open(os.path.join(bg_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        bg_manifest = json.load(f)
+    with open(os.path.join(hud_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        hud_manifest = json.load(f)
+
+    def _read(d, name):
+        with open(os.path.join(d, name), "rb") as f:
+            return f.read()
+
+    palette = bytearray(_read(bg_dir, "palette.bin"))
+    tilemap = _read(bg_dir, "tilemap.bin")
+    tiles = _read(bg_dir, "tiles.bin")
+    hud_palette = _read(hud_dir, "hud_palette.bin")
+    hud_tiles = _read(hud_dir, "hud_tiles.bin")
+
+    if len(palette) != BG_CGRAM_BYTES:
+        raise ValueError(f"{bg_dir}: palette.bin is {len(palette)}B, expected {BG_CGRAM_BYTES}")
+    if len(tilemap) != BG_TILEMAP_BYTES:
+        raise ValueError(f"{bg_dir}: tilemap.bin is {len(tilemap)}B, expected {BG_TILEMAP_BYTES}")
+    if len(hud_palette) != PALETTE_BYTES:
+        raise ValueError(f"{hud_dir}: hud_palette.bin is {len(hud_palette)}B, "
+                         f"expected {PALETTE_BYTES}")
+
+    tile_count = bg_manifest["unique_tiles"]
+    if len(tiles) != tile_count * BG_BYTES_PER_TILE:
+        raise ValueError(f"{bg_dir}: tiles.bin is {len(tiles)}B, expected "
+                         f"{tile_count * BG_BYTES_PER_TILE}")
+    if tile_count > BG_MAX_TILES:
+        raise ValueError(f"{bg_dir}: {tile_count} tiles exceeds the {BG_MAX_TILES}-tile "
+                         f"BG1 VRAM budget")
+    if bg_manifest["width_tiles"] != BG_WIDTH_TILES or \
+       bg_manifest["height_tiles"] != BG_HEIGHT_TILES:
+        raise ValueError(f"{bg_dir}: expected {BG_WIDTH_TILES}x{BG_HEIGHT_TILES} tiles")
+
+    hud_tile_count = hud_manifest["tile_count"]
+    if len(hud_tiles) != hud_tile_count * HUD_BYTES_PER_TILE:
+        raise ValueError(f"{hud_dir}: hud_tiles.bin is {len(hud_tiles)}B, expected "
+                         f"{hud_tile_count * HUD_BYTES_PER_TILE}")
+    if not (0 <= hud_tile_count <= 255):
+        raise ValueError(f"{hud_dir}: hud_tile_count {hud_tile_count} out of u8 range")
+
+    # Merge the HUD's sub-palette over CGRAM slot 0.
+    if any(palette[:PALETTE_BYTES]):
+        raise ValueError(f"{bg_dir}: CGRAM sub-palette 0 is not zeroed; it is "
+                         f"reserved for the BG3 HUD (see convert_bg.py PALETTE_OFFSET)")
+    palette[:PALETTE_BYTES] = hud_palette
+
+    blob = bytes(palette) + tilemap + tiles + hud_tiles
+    info = {
+        "bg_dir": bg_dir,
+        "hud_dir": hud_dir,
+        "level_entry": bg_manifest.get("level_entry"),
+        "bg_tile_count": tile_count,
+        "width_tiles": BG_WIDTH_TILES,
+        "height_tiles": BG_HEIGHT_TILES,
+        "hud_tile_count": hud_tile_count,
+        "blob_size": len(blob),
+    }
+    return blob, info
+
+
+def build_bg_record(info, data_offset):
+    record = struct.pack(
+        "<HBBB3xI4x",
+        info["bg_tile_count"],
+        info["width_tiles"],
+        info["height_tiles"],
+        info["hud_tile_count"],
+        data_offset,
+    )
+    assert len(record) == BG_RECORD_SIZE
+    return record
+
+
+def pack_roster(prefixes, bgs=None):
+    """Returns (msu_bytes, manifest_sidecar_dict).
+
+    `prefixes` is a list of 1-8 out/<name> character prefixes; unused
+    directory slots stay zeroed. `bgs` is an optional list of
+    (bg_dir, hud_dir) pairs, appended as the v2 BG section after the
+    character blobs so no character data_offset moves.
+    """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
+    bgs = bgs or []
+    if len(bgs) > MAX_BGS:
+        raise ValueError(f"at most {MAX_BGS} BG screens, got {len(bgs)}")
 
     directory = bytearray(RECORD_SIZE * MAX_CHARACTERS)
     blobs = []
@@ -177,10 +309,34 @@ def pack_roster(prefixes):
         blobs.append(blob)
         data_offset += len(blob)
 
-    header = struct.pack("<8sBB6x", MAGIC, FORMAT_VERSION, len(prefixes))
+    # --- v2 BG section, appended after every character blob ---
+    bg_directory = b""
+    bg_blobs = []
+    sidecar_bgs = []
+    bg_directory_offset = 0
+
+    if bgs:
+        # data_offset currently points just past the last character blob.
+        bg_directory_offset = data_offset
+        bg_dir_bytes = bytearray(BG_RECORD_SIZE * MAX_BGS)
+        bg_data_offset = bg_directory_offset + BG_RECORD_SIZE * MAX_BGS
+
+        for slot, (bg_dir, hud_dir) in enumerate(bgs):
+            blob, info = pack_bg_blob(bg_dir, hud_dir)
+            bg_dir_bytes[slot * BG_RECORD_SIZE:(slot + 1) * BG_RECORD_SIZE] = \
+                build_bg_record(info, bg_data_offset)
+            sidecar_bgs.append({"slot": slot, "data_offset": bg_data_offset, **info})
+            bg_blobs.append(blob)
+            bg_data_offset += len(blob)
+
+        bg_directory = bytes(bg_dir_bytes)
+
+    header = struct.pack("<8sBBBxI", MAGIC, FORMAT_VERSION, len(prefixes),
+                         len(bgs), bg_directory_offset)
     assert len(header) == DIRECTORY_BASE
 
-    msu_bytes = header + bytes(directory) + b"".join(blobs)
+    msu_bytes = (header + bytes(directory) + b"".join(blobs)
+                 + bg_directory + b"".join(bg_blobs))
 
     sidecar = {
         "format_version": FORMAT_VERSION,
@@ -188,6 +344,9 @@ def pack_roster(prefixes):
         "header_size": HEADER_SIZE,
         "total_size": len(msu_bytes),
         "characters": sidecar_characters,
+        "bg_count": len(bgs),
+        "bg_directory_offset": bg_directory_offset,
+        "bgs": sidecar_bgs,
     }
     return msu_bytes, sidecar
 

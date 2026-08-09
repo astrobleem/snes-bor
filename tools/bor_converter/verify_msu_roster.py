@@ -208,10 +208,122 @@ def check_large_offset_roster():
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+def parse_bg_header(data):
+    magic, version, roster_count, bg_count, bg_dir_offset = \
+        struct.unpack_from("<8sBBBxI", data, 0)
+    assert magic == pmr.MAGIC, f"bad magic: {magic!r}"
+    return version, roster_count, bg_count, bg_dir_offset
+
+
+def parse_bg_record(data, bg_dir_offset, slot):
+    off = bg_dir_offset + slot * pmr.BG_RECORD_SIZE
+    tile_count, w, h, hud_count, data_offset = \
+        struct.unpack_from("<HBBB3xI4x", data, off)
+    return {"bg_tile_count": tile_count, "width_tiles": w, "height_tiles": h,
+            "hud_tile_count": hud_count, "data_offset": data_offset}
+
+
+def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
+    """Round-trip the v2 BG section against bg_converter's own output files.
+
+    Ground truth here is the converter's emitted .bin files read straight off
+    disk -- not anything this packer computed -- so a packer offset/ordering
+    bug cannot pass by agreeing with itself.
+    """
+    print("\n=== Check 3: v2 BG section round-trips against bg_converter output ===")
+    if not os.path.isdir(bg_dir):
+        print(f"SKIP: {bg_dir} does not exist (run tools/bg_converter/convert_bg.py)")
+        return True
+
+    prefixes = ["out/ralf", "out/jhun"]
+    plain, _ = pmr.pack_roster(prefixes)
+    msu_bytes, sidecar = pmr.pack_roster(prefixes, bgs=[(bg_dir, hud_dir)])
+
+    version, roster_count, bg_count, bg_dir_offset = parse_bg_header(msu_bytes)
+    assert version == 2, f"expected format_version 2, got {version}"
+    assert bg_count == 1, f"expected bg_count 1, got {bg_count}"
+    print(f"header OK: version={version} roster_count={roster_count} "
+          f"bg_count={bg_count} bg_dir_offset={bg_dir_offset}")
+
+    # Adding the BG section must not disturb the character directory or any
+    # character blob. The 16-byte header itself legitimately differs -- bg_count
+    # (0x0A) and bg_directory_offset (0x0C-0x0F) are exactly what v2 adds -- so
+    # the stable region starts at DIRECTORY_BASE, not at 0.
+    if msu_bytes[pmr.DIRECTORY_BASE:len(plain)] != plain[pmr.DIRECTORY_BASE:]:
+        print("FAIL: appending the BG section changed the character directory or blobs")
+        return False
+    if msu_bytes[:pmr.DIRECTORY_BASE] == plain[:pmr.DIRECTORY_BASE]:
+        print("FAIL: header did not record the BG section at all")
+        return False
+    if bg_dir_offset != len(plain):
+        print(f"FAIL: bg_dir_offset {bg_dir_offset} != end of character data {len(plain)}")
+        return False
+    print(f"character region byte-identical to a v1-shaped pack ({len(plain)} bytes)")
+
+    def _read(d, name):
+        with open(os.path.join(d, name), "rb") as f:
+            return f.read()
+
+    with open(os.path.join(bg_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        bg_manifest = json.load(f)
+    with open(os.path.join(hud_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        hud_manifest = json.load(f)
+
+    rec = parse_bg_record(msu_bytes, bg_dir_offset, 0)
+    expected = {"bg_tile_count": bg_manifest["unique_tiles"],
+                "width_tiles": bg_manifest["width_tiles"],
+                "height_tiles": bg_manifest["height_tiles"],
+                "hud_tile_count": hud_manifest["tile_count"]}
+    for k, v in expected.items():
+        if rec[k] != v:
+            print(f"FAIL: BG record {k} = {rec[k]}, expected {v}")
+            return False
+    print(f"BG record OK: {rec['bg_tile_count']} tiles, "
+          f"{rec['width_tiles']}x{rec['height_tiles']}, "
+          f"{rec['hud_tile_count']} hud tiles @ offset {rec['data_offset']}")
+
+    if rec["bg_tile_count"] > pmr.BG_MAX_TILES:
+        print(f"FAIL: {rec['bg_tile_count']} tiles exceeds BG1 budget {pmr.BG_MAX_TILES}")
+        return False
+
+    # Byte-compare each region against the converter's files.
+    cur = rec["data_offset"]
+    cgram = msu_bytes[cur:cur + pmr.BG_CGRAM_BYTES]
+    exp_pal = bytearray(_read(bg_dir, "palette.bin"))
+    exp_pal[:pmr.PALETTE_BYTES] = _read(hud_dir, "hud_palette.bin")
+    if cgram != bytes(exp_pal):
+        print("FAIL: CGRAM image does not match palette.bin + hud_palette.bin merge")
+        return False
+    if cgram[:pmr.PALETTE_BYTES] == b"\x00" * pmr.PALETTE_BYTES:
+        print("FAIL: CGRAM sub-palette 0 is zeroed -- HUD colors were not merged in")
+        return False
+    cur += pmr.BG_CGRAM_BYTES
+
+    for name, expected_bytes in (
+            ("tilemap", _read(bg_dir, "tilemap.bin")),
+            ("tiles", _read(bg_dir, "tiles.bin")),
+            ("hud tiles", _read(hud_dir, "hud_tiles.bin"))):
+        actual = msu_bytes[cur:cur + len(expected_bytes)]
+        if actual != expected_bytes:
+            print(f"FAIL: BG {name} region does not match source ({len(expected_bytes)} bytes)")
+            return False
+        print(f"  {name}: {len(expected_bytes)} bytes byte-identical")
+        cur += len(expected_bytes)
+
+    if cur != len(msu_bytes):
+        print(f"FAIL: BG blob ends at {cur}, file is {len(msu_bytes)} bytes")
+        return False
+
+    print(f"total file size: {len(msu_bytes)} bytes")
+    print("PASS")
+    return True
+
+
 def main():
     ok1 = check_real_roster()
     ok2 = check_large_offset_roster()
-    if ok1 and ok2:
+    ok3 = check_bg_section()
+    if ok1 and ok2 and ok3:
         print("\nAll checks passed.")
         return 0
     print("\nSome checks FAILED.")

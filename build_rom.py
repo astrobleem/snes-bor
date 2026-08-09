@@ -15,6 +15,13 @@ import pack_msu_roster
 # MSU_DATA placeholder now that Anim_LoadCharacter reads a real directory.
 ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 
+# Phase 6: the static BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
+# v2 BG section. Each entry is (bg_converter output dir, make_hud_tiles output
+# dir). Regenerate with:
+#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\6BEASY.TXT" -o out/bg_boss
+#   python tools/bg_converter/make_hud_tiles.py -o out/hud
+BG_SCREENS = [("out/bg_boss", "out/hud")]
+
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\SNES-CrimePatrol\tools\poppy-src\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
 
@@ -108,7 +115,7 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
-    msu_data, roster_sidecar = pack_msu_roster.pack_roster(ROSTER_PREFIXES)
+    msu_data, roster_sidecar = pack_msu_roster.pack_roster(ROSTER_PREFIXES, bgs=BG_SCREENS)
     with open('build/bor.msu', 'wb') as f:
         f.write(msu_data)
     with open('distribution/bor.msu', 'wb') as f:
@@ -119,6 +126,10 @@ def main():
     for c in roster_sidecar["characters"]:
         print(f"  slot {c['slot']}: {c['prefix']} @ offset {c['data_offset']} "
               f"(idle={c['idle_frame_count']} walk={c['walk_frame_count']} attack={c['attack_frame_count']})")
+    for b in roster_sidecar["bgs"]:
+        print(f"  bg {b['slot']}: {b['bg_dir']} @ offset {b['data_offset']} "
+              f"({b['bg_tile_count']} tiles, {b['hud_tile_count']} hud tiles, "
+              f"{b['level_entry']})")
     print(f"Reset: ${rom[0x7FFD]<<8|rom[0x7FFC]:04X}  NMI: ${rom[0x7FFB]<<8|rom[0x7FFA]:04X}  IRQ: ${rom[0x7FFF]<<8|rom[0x7FFE]:04X}")
     print(f"Map: ${rom[0x7FD5]:02X}  Cart: ${rom[0x7FD6]:02X}")
     return 0
