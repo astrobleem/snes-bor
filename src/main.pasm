@@ -2427,6 +2427,53 @@ Anim_WalkMsuBaseHi   = $7E53C4   ; .db
 Anim_AttackMsuBaseLo = $7E53C5   ; .dw
 Anim_AttackMsuBaseHi = $7E53C7   ; .db
 
+; --- plan.md Phase 1b: core/oop.pasm CharacterEntity's per-instance
+; direct-page window field layout. These are NOT fixed bank-$7E addresses
+; like the Anim_*/Player_* cells above -- they're small byte OFFSETS from
+; whatever the D register currently holds, which Core_Oop_Create/Play
+; switch (via phd/tcd) to point at this specific object's own window
+; inside OopObjRam ($7E0a00-$7E15ff, low-16 $0a00-$15ff, entirely within
+; the $0000-$1FFF bank-0/bank-$7E WRAM mirror -- direct-page addressing
+; from within a dispatched Init/Play call therefore resolves to the right
+; physical byte). Confirmed via raw-byte inspection that a bare reference
+; to one of these small constants assembles as 65816 Direct Page mode
+; (2-byte opcode+offset, e.g. `A5 0B` for `lda CHAR_SELECTED`), not
+; Absolute -- never add `.l` or `.w` to any of these, that would force
+; absolute/long addressing at whatever tiny bank-0 address the offset
+; number happens to equal, not this object's window.
+;
+; core/oop.pasm reserves offsets 0-3 (OOP_SELF_HEADER_SIZE) for its own
+; self-handle header -- fields start at 4. Converted incrementally
+; (handoff.md tracks progress): Step 1 (this commit) moves the Anim_*
+; fields below; CHAR_POS_X/Y, CHAR_PALETTE_SLOT, CHAR_TILE_COLUMN,
+; CHAR_INPUT_DRIVEN, CHAR_ROSTER_INDEX are declared now (stable offsets
+; for later steps) but not yet used by any code -- Player_X/Y and the
+; hardcoded palette/tile-column/single-entity assumptions stay as they
+; are until their own steps.
+CHAR_POS_X          = 4    ; .dw -- screen X (Step 2)
+CHAR_POS_Y           = 6    ; .dw -- screen Y (Step 2)
+CHAR_FACING_LEFT    = 8    ; .db
+CHAR_FRAME_INDEX    = 9    ; .db
+CHAR_TICK_COUNTER   = 10   ; .db
+CHAR_SELECTED       = 11   ; .db -- 0=idle/1=walk/2=attack, mirrors old Anim_Selected
+CHAR_ROSTER_INDEX   = 12   ; .db -- which bor.msu slot this instance loaded (Step 4)
+CHAR_PALETTE_SLOT   = 13   ; .db -- 0-7, this instance's OBJ palette (Step 3)
+CHAR_TILE_COLUMN    = 14   ; .db -- 0-3, this instance's OBJ tile-block-0 column slice (Step 3)
+CHAR_INPUT_DRIVEN   = 15   ; .db -- nonzero = read dpad (Step 2/3)
+CHAR_IDLE_FCOUNT    = 16   ; .db
+CHAR_WALK_FCOUNT    = 17   ; .db
+CHAR_ATTACK_FCOUNT  = 18   ; .db
+CHAR_IDLE_DELAY     = 19   ; .db
+CHAR_WALK_DELAY     = 20   ; .db
+CHAR_ATTACK_DELAY   = 21   ; .db
+CHAR_IDLE_BASE_LO   = 22   ; .dw
+CHAR_IDLE_BASE_HI   = 24   ; .db
+CHAR_WALK_BASE_LO   = 25   ; .dw
+CHAR_WALK_BASE_HI   = 27   ; .db
+CHAR_ATTACK_BASE_LO = 28   ; .dw
+CHAR_ATTACK_BASE_HI = 30   ; .db
+CHAR_ZP_LEN         = 31   ; total -- pass as OopRegStaging_ZpLen
+
 ; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
 ; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
 ; Core_Wram_Allocate (zero call sites anywhere in this codebase today; same
@@ -2522,7 +2569,7 @@ Anim_Play__loaded:
     ; sep is a harmless no-op at runtime but re-syncs Poppy's tracker.
     sep #$20
 .a8
-    lda.l Anim_Selected
+    lda CHAR_SELECTED
     cmp #2
     bne Anim_Play__check_attack_trigger
     brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
@@ -2532,11 +2579,11 @@ Anim_Play__check_attack_trigger:
     and #ANIM_ATTACK_BUTTON_MASK
     beq Anim_Play__no_attack_trigger
     lda #2
-    sta.l Anim_Selected
+    sta CHAR_SELECTED
     lda #$FF
-    sta.l Anim_FrameIndex
+    sta CHAR_FRAME_INDEX
     lda #1
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__no_attack_trigger:
@@ -2550,9 +2597,9 @@ Anim_Play__want_idle:
     lda #0
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__want_got:
-    cmp.l Anim_Selected
+    cmp CHAR_SELECTED
     beq Anim_Play__dispatch
-    sta.l Anim_Selected
+    sta CHAR_SELECTED
     ; Switching animations: reset to frame -1 (wraps to 0 on the forced
     ; advance below, via 8-bit inc a) and force an immediate advance this
     ; same call, rather than waiting up to a full *_FRAME_DELAY ticks to
@@ -2561,9 +2608,9 @@ Anim_Play__want_got:
     ; behavior to preserve, so there's no reason to carry the same
     ; frame-skips-0 quirk into it.
     lda #$FF
-    sta.l Anim_FrameIndex
+    sta CHAR_FRAME_INDEX
     lda #1
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__dispatch:
     jsr Anim_UpdateFacing
@@ -2571,14 +2618,14 @@ Anim_Play__dispatch:
     ; matching Anim_Play's) -- but everything below here was written
     ; assuming .a8 (inherited from Anim_Play's own top). Re-assert it
     ; explicitly rather than relying on whatever state happened to precede
-    ; this call; omitting this turned `lda.l Anim_Selected` into a 16-bit
+    ; this call; omitting this turned `lda CHAR_SELECTED` into a 16-bit
     ; read spanning Anim_Selected+Anim_FacingLeft, and `cmp #2`/`cmp #1`
     ; into 16-bit compares that silently stopped matching -- confirmed by
     ; Mesen: attack triggered once then never re-dispatched, Anim_FrameIndex
     ; free-ran 0-5 like idle while Anim_Selected stayed stuck at 2 in WRAM.
     sep #$20
 .a8
-    lda.l Anim_Selected
+    lda CHAR_SELECTED
     cmp #2
     beq Anim_Play__attack
     cmp #1
@@ -2632,7 +2679,7 @@ Anim_UpdateFacing__want_right:
     lda #0
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__want_got:
-    sta.l Anim_FacingLeft
+    sta CHAR_FACING_LEFT
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__done:
     rep #$31
@@ -2682,24 +2729,24 @@ Anim_Play_Idle:
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__not_busy:
-    lda.l Anim_TickCounter
+    lda CHAR_TICK_COUNTER
     dec a
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     beq Anim_Play_Idle__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__advance:
 
-    lda.l Anim_IdleDelay
-    sta.l Anim_TickCounter
+    lda CHAR_IDLE_DELAY
+    sta CHAR_TICK_COUNTER
 
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     inc a
-    sta.l Anim_FrameIndex
-    cmp.l Anim_IdleFrameCount
+    sta CHAR_FRAME_INDEX
+    cmp CHAR_IDLE_FCOUNT
     bcc Anim_Play_Idle__frame_ok
     lda #0
-    sta.l Anim_FrameIndex        ; wrap (manifest loop=1)
+    sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__frame_ok:
     ; Copy this animation's 24-bit MSU base into AnimHeaderStaging+0/1/2 for
@@ -2708,13 +2755,13 @@ Anim_Play_Idle__frame_ok:
     rep #$31
 .a16
 .i16
-    lda.l Anim_IdleMsuBaseLo
+    lda CHAR_IDLE_BASE_LO
     sta.l AnimHeaderStaging+0
     sep #$20
 .a8
-    lda.l Anim_IdleMsuBaseHi
+    lda CHAR_IDLE_BASE_HI
     sta.l AnimHeaderStaging+2
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
     rts
 
@@ -2731,36 +2778,36 @@ Anim_Play_Walk:
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__not_busy:
-    lda.l Anim_TickCounter
+    lda CHAR_TICK_COUNTER
     dec a
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     beq Anim_Play_Walk__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__advance:
 
-    lda.l Anim_WalkDelay
-    sta.l Anim_TickCounter
+    lda CHAR_WALK_DELAY
+    sta CHAR_TICK_COUNTER
 
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     inc a
-    sta.l Anim_FrameIndex
-    cmp.l Anim_WalkFrameCount
+    sta CHAR_FRAME_INDEX
+    cmp CHAR_WALK_FCOUNT
     bcc Anim_Play_Walk__frame_ok
     lda #0
-    sta.l Anim_FrameIndex        ; wrap (manifest loop=1)
+    sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__frame_ok:
     rep #$31
 .a16
 .i16
-    lda.l Anim_WalkMsuBaseLo
+    lda CHAR_WALK_BASE_LO
     sta.l AnimHeaderStaging+0
     sep #$20
 .a8
-    lda.l Anim_WalkMsuBaseHi
+    lda CHAR_WALK_BASE_HI
     sta.l AnimHeaderStaging+2
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
     rts
 
@@ -2782,41 +2829,41 @@ Anim_Play_Attack:
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__not_busy:
-    lda.l Anim_TickCounter
+    lda CHAR_TICK_COUNTER
     dec a
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     beq Anim_Play_Attack__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__advance:
 
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     inc a
-    cmp.l Anim_AttackFrameCount
+    cmp CHAR_ATTACK_FCOUNT
     bcc Anim_Play_Attack__frame_ok
     ; Animation finished -- revert to idle instead of wrapping.
     lda #0
-    sta.l Anim_Selected
+    sta CHAR_SELECTED
     lda #$FF
-    sta.l Anim_FrameIndex
+    sta CHAR_FRAME_INDEX
     lda #1
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
     brl Anim_Done
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__frame_ok:
-    sta.l Anim_FrameIndex
-    lda.l Anim_AttackDelay
-    sta.l Anim_TickCounter
+    sta CHAR_FRAME_INDEX
+    lda CHAR_ATTACK_DELAY
+    sta CHAR_TICK_COUNTER
     rep #$31
 .a16
 .i16
-    lda.l Anim_AttackMsuBaseLo
+    lda CHAR_ATTACK_BASE_LO
     sta.l AnimHeaderStaging+0
     sep #$20
 .a8
-    lda.l Anim_AttackMsuBaseHi
+    lda CHAR_ATTACK_BASE_HI
     sta.l AnimHeaderStaging+2
-    lda.l Anim_FrameIndex
+    lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
     rts
 
@@ -3388,7 +3435,7 @@ Character_PlayFrame__store_y:
     ; its own lda (not ldx/ldy -- index width is still 16-bit here, only
     ; the accumulator was narrowed by the sep #$20 above, so an indexed
     ; read of this 1-byte cell would silently read 2 bytes instead). ---
-    lda.l Anim_FacingLeft
+    lda CHAR_FACING_LEFT
     beq Character_PlayFrame__no_flip
     lda #$70                     ; priority 3, palette 0, hflip ($30 | $40)
     bra Character_PlayFrame__attr_ok
@@ -3621,22 +3668,22 @@ Anim_LoadCharacter__record_read:
     sep #$20
 .a8
     lda.l AnimHeaderStaging+0
-    sta.l Anim_IdleFrameCount
+    sta CHAR_IDLE_FCOUNT
     lda.l AnimHeaderStaging+1
-    sta.l Anim_WalkFrameCount
+    sta CHAR_WALK_FCOUNT
     lda.l AnimHeaderStaging+2
-    sta.l Anim_AttackFrameCount
+    sta CHAR_ATTACK_FCOUNT
     lda.l AnimHeaderStaging+3
-    sta.l Anim_IdleDelay
+    sta CHAR_IDLE_DELAY
     lda.l AnimHeaderStaging+4
-    sta.l Anim_WalkDelay
+    sta CHAR_WALK_DELAY
     lda.l AnimHeaderStaging+5
-    sta.l Anim_AttackDelay
+    sta CHAR_ATTACK_DELAY
 
     ; Packer leaves unused slots fully zeroed -- a zero idle_frame_count is
     ; a cheap free validity check (see the plan's Phase 5). Nothing to
     ; compute in that case; leave CharSelect_Loaded=0 and bail.
-    lda.l Anim_IdleFrameCount
+    lda CHAR_IDLE_FCOUNT
     bne Anim_LoadCharacter__slot_ok
     plp
     rep #$31
@@ -3655,12 +3702,12 @@ Anim_LoadCharacter__slot_ok:
     lda.l AnimHeaderStaging+8
     clc
     adc #32
-    sta.l Anim_IdleMsuBaseLo
+    sta CHAR_IDLE_BASE_LO
     sep #$20
 .a8
     lda.l AnimHeaderStaging+10
     adc #0                    ; carry-in only, from the 16-bit add above
-    sta.l Anim_IdleMsuBaseHi
+    sta CHAR_IDLE_BASE_HI
 
     ; --- walk_base (24-bit) = idle_base + idle_frame_count*768 ---
     ; n*768 = ((n<<1)+n) << 8 -- the <<8 means the product's low byte is
@@ -3669,7 +3716,7 @@ Anim_LoadCharacter__slot_ok:
     ; unused here, see the plan -- zero prior call sites anywhere).
     ; AnimHeaderStaging+12..+15 are reserved/unused bytes of the
     ; already-parsed record, reused here as scratch.
-    lda.l Anim_IdleFrameCount
+    lda CHAR_IDLE_FCOUNT
     rep #$31
 .a16
 .i16
@@ -3692,19 +3739,19 @@ Anim_LoadCharacter__slot_ok:
     rep #$31
 .a16
 .i16
-    lda.l Anim_IdleMsuBaseLo
+    lda CHAR_IDLE_BASE_LO
     clc
     adc.l AnimHeaderStaging+12
-    sta.l Anim_WalkMsuBaseLo
+    sta CHAR_WALK_BASE_LO
     sep #$20
 .a8
-    lda.l Anim_IdleMsuBaseHi
+    lda CHAR_IDLE_BASE_HI
     adc.l AnimHeaderStaging+15 ; += product_hi + carry from the 16-bit add
-    sta.l Anim_WalkMsuBaseHi
+    sta CHAR_WALK_BASE_HI
 
     ; --- attack_base (24-bit) = walk_base + walk_frame_count*768 ---
     ; Same shift-add pattern as walk_base above.
-    lda.l Anim_WalkFrameCount
+    lda CHAR_WALK_FCOUNT
     rep #$31
 .a16
 .i16
@@ -3725,15 +3772,15 @@ Anim_LoadCharacter__slot_ok:
     rep #$31
 .a16
 .i16
-    lda.l Anim_WalkMsuBaseLo
+    lda CHAR_WALK_BASE_LO
     clc
     adc.l AnimHeaderStaging+12
-    sta.l Anim_AttackMsuBaseLo
+    sta CHAR_ATTACK_BASE_LO
     sep #$20
 .a8
-    lda.l Anim_WalkMsuBaseHi
+    lda CHAR_WALK_BASE_HI
     adc.l AnimHeaderStaging+15
-    sta.l Anim_AttackMsuBaseHi
+    sta CHAR_ATTACK_BASE_HI
 
     ; --- Palette (Phase 2 step 2): seek to this character's data_offset
     ; (AnimHeaderStaging+8/9/10 -- still the raw record bytes here, untouched
@@ -3817,8 +3864,8 @@ Anim_LoadCharacter__palette_read:
     lda #1
     sta.l CharSelect_Loaded
     lda #0
-    sta.l Anim_Selected
-    sta.l Anim_FacingLeft        ; 0 = facing right (boot default) -- never
+    sta CHAR_SELECTED
+    sta CHAR_FACING_LEFT        ; 0 = facing right (boot default) -- never
                                   ; explicitly initialized before this fix;
                                   ; harmless under the old BG2-tilemap-swap
                                   ; approach (only read on a facing *change*),
@@ -3830,9 +3877,9 @@ Anim_LoadCharacter__palette_read:
                                   ; fresh-boot Mesen2 read (value 35, not 0)
                                   ; before this fix.
     lda #$FF
-    sta.l Anim_FrameIndex
+    sta CHAR_FRAME_INDEX
     lda #1
-    sta.l Anim_TickCounter
+    sta CHAR_TICK_COUNTER
 
     plp
     rep #$31
@@ -3841,23 +3888,42 @@ Anim_LoadCharacter__palette_read:
     rts
 
 ; ----------------------------------------------------------------------------
-; CharacterEntity -- core/oop.pasm class registered at boot (plan.md Phase
-; 1a). Thin shim only: dispatches to the existing Anim_Play/Character_
-; PlayFrame pair, completely unchanged. No per-instance DP state yet -- that
-; move is Phase 1b. This step exists purely to prove Core_Oop_Create/Play's
-; indirect dispatch (jsr (ClassInit,x) / jsr (OopCurrent,x), each wrapped in
-; a phd/tcd/pld DP-window switch) actually works with a real registered
-; class before anything is restructured around it -- this project has never
-; exercised that dispatch path with a live class, only with zero classes
-; registered.
+; CharacterEntity -- core/oop.pasm class registered at boot. Phase 1a proved
+; Core_Oop_Create/Play's indirect dispatch (jsr (ClassInit,x) / jsr
+; (OopCurrent,x), each wrapped in a phd/tcd/pld DP-window switch) works with
+; a real registered class -- this project had never exercised that path
+; before. Phase 1b (this version) moves the Anim_*-derived state Anim_Play/
+; Anim_Play_Idle/Walk/Attack/Anim_UpdateFacing/Character_PlayFrame/
+; Anim_LoadCharacter touch into this object's own DP window (CHAR_* offsets,
+; declared near Anim_FrameIndex's old declaration above) instead of fixed
+; bank-$7E globals -- those routines' bodies were edited in place to use
+; DP-relative (bare, no .l/.w) addressing for exactly those fields; still
+; global for now: CharSelect_*, Player_X/Y, and the hardcoded palette/tile-
+; column/single-entity assumptions (later steps).
 ; ----------------------------------------------------------------------------
 
-; @param a<16-bit>  init parameter (unused in Phase 1a)
+; @param a<16-bit>  init parameter: roster index (low byte valid)
 ; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
 ;                     deletion on the next Play pass if this isn't exactly 0
     nop
     nop
 CharacterEntity_Init:
+    ; Called with DP already switched to this object's window (see Core_
+    ; Oop_Create) and .a16/.i16 (its own internal convention at the jsr
+    ; (ClassInit,x) call site) -- CharSelect_Index stays a global cell for
+    ; now (not yet per-instance, see CHAR_ROSTER_INDEX's own future step),
+    ; same as Anim_LoadCharacter always assumed; only the roster index
+    ; itself comes from the init param.
+    and #$00ff
+    sep #$20
+.a8
+    sta.l CharSelect_Index
+    jsr Anim_LoadCharacter        ; sets/restores its own widths, see its
+                                   ; header -- writes this object's CHAR_*
+                                   ; fields since DP is still switched here
+    rep #$31
+.a16
+.i16
     lda #OBJR_NOERR
     rts
 
@@ -3910,12 +3976,20 @@ scpu_boot:
     jsr Core_Oop_Init
     jsr Core_Screen_Init
 
-    ; Register + create the Character entity (plan.md Phase 1a). Fill the
+    ; Register the Character entity class (plan.md Phase 1a). Fill the
     ; RegisterClass staging cells (16-bit WRAM fields, see core/oop.pasm)
     ; while still in the ambient .a16/.i16 from the rep #$30 above.
+    ; Deliberately NOT calling Core_Oop_Create here too (Phase 1a did) --
+    ; Phase 1b's CharacterEntity_Init now does the MSU-1 roster load itself
+    ; (DP-relative writes need to land in this object's own window, not
+    ; wherever D happens to point at this early boot point), and that load
+    ; has a real ordering dependency on SA-1 reset + MSU-1 track-select
+    ; having already run (see Anim_LoadCharacter's header) -- both of which
+    ; happen well after this point in scpu_boot. Create is called instead
+    ; at msu1_done, replacing the old direct jsr Anim_LoadCharacter there.
     lda #0
     sta.l OopRegStaging_Flags
-    lda #OOP_SELF_HEADER_SIZE
+    lda #CHAR_ZP_LEN
     sta.l OopRegStaging_ZpLen
     lda #CharacterEntity_Init
     sta.l OopRegStaging_Init
@@ -3936,15 +4010,6 @@ scpu_boot:
     rep #$31
 .a16
 .i16
-    lda.l CharacterClassId  ; LDY/LDX have no absolute-long addressing mode on
-    and #$00ff               ; 65816 (only LDA does) -- `ldy.l` silently mis-
-    tay                       ; assembles instead of erroring, the same class
-                              ; of bug already documented for STZ.l elsewhere
-                              ; in this file. Load via LDA (masked -- the byte
-                              ; above CharacterClassId isn't a valid high
-                              ; byte) and TAY instead.
-    lda #0                  ; init param -- unused by CharacterEntity_Init
-    jsr Core_Oop_Create
 
     sep #$20
 .a8
@@ -4031,12 +4096,25 @@ msu1_missing:
     sta.l $7E0330           ; MSU-1 success flag = 0 (stz has no long addr mode; see poppy bug #2)
 
 msu1_done:
-    ; --- Runtime character selection: load roster slot 0 at boot. See
-    ; Anim_LoadCharacter's header for why this call site (right after
-    ; track-select) matters. ---
-    lda #0
-    sta.l CharSelect_Index
-    jsr Anim_LoadCharacter
+    ; --- Runtime character selection: create Entity #0 (roster slot 0).
+    ; CharacterEntity_Init does the actual MSU-1 load via Anim_LoadCharacter
+    ; (DP is already switched to this object's own window by Core_Oop_
+    ; Create by the time Init runs) -- see Anim_LoadCharacter's header for
+    ; why this call site specifically (right after track-select) matters
+    ; for the load itself; that dependency is why Create is called here,
+    ; not back where the class was registered (see that comment). ---
+    rep #$31
+.a16
+.i16
+    lda.l CharacterClassId  ; LDY/LDX have no absolute-long addressing mode on
+    and #$00ff               ; 65816 (only LDA does) -- `ldy.l` silently mis-
+    tay                       ; assembles instead of erroring (poppy bug #11).
+                              ; Load via LDA (masked) and TAY instead.
+    lda #0                   ; init param -- roster index 0
+    jsr Core_Oop_Create
+    ; Core_Oop_Create's plp restores the ambient width from this call site
+    ; (.a16/.i16, matching Anim_LoadCharacter's own exit convention) --
+    ; TAD_Init below re-asserts its own required width explicitly anyway.
 
     ; --- Initialize TAD Audio Driver ---
     ; IMPORTANT: TAD_Init requires the SPC700 to be at IPL reset. The SNES

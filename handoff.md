@@ -482,20 +482,55 @@ state before/without going through `Core_Oop_Create` first: change both
 loops to run in `.a16` (drop the `sep #$20`/`rep #$10` split, keep the
 `inx`/`inx` stride) so each `sta.l Array,x` clears the full 16-bit element.
 
-**Next**: Phase 1b — move the character's actual state (`Anim_*`,
-`Player_X/Y`, etc.) into the object's per-instance DP window using the
-field layout `plan.md` recommends (`CHAR_POS_X/Y`, `CHAR_FACING_LEFT`,
-`CHAR_FRAME_INDEX`, `CHAR_TICK_COUNTER`, `CHAR_SELECTED`,
-`CHAR_ROSTER_INDEX`, `CHAR_PALETTE_SLOT`, `CHAR_TILE_COLUMN`,
-`CHAR_INPUT_DRIVEN`, `CHAR_IDLE/WALK/ATTACK_FCOUNT/DELAY/BASE_LO/HI`), then
-Phase 2 — a second, simultaneous entity with different roster/palette/tile
-column. Read `plan.md` in full before starting; it has the exact
-WRAM/OBSEL/DMA-budget numbers this work depends on. Advisor's suggestion
-from Phase 1a (worth reusing for 1b): fill new instance fields via a
-`phd`/`txa`/`tcd`/`sta <offset>`/`pld` dance around the object's returned
-DP base, the same idiom `Core_Oop_Create` itself uses internally — simpler
-and more debuggable than packing multiple values into one 16-bit init
-parameter.
+**Phase 1b, Step 0 + Step 1 done and verified** (advisor-recommended
+incremental split, each step gated on OAM shadow-buffer byte-identity vs.
+the Phase 1a baseline):
+
+- **Step 0**: fixed `Core_Oop_Init`'s `__clear_objs`/`__clear_classes` loops
+  to run `.a16` instead of `.a8` (was only clearing the low byte of every
+  16-bit array element — see Phase 1a's note above). Pure bugfix, OAM
+  identity held.
+- **Step 1**: moved `Anim_Selected`/`Anim_FrameIndex`/`Anim_TickCounter`/
+  `Anim_FacingLeft` and the six `Anim_{Idle,Walk,Attack}{FrameCount,Delay}`
+  + three `MsuBase` pairs into the `CharacterEntity` class's per-instance DP
+  window (`CHAR_SELECTED`/`CHAR_FRAME_INDEX`/`CHAR_TICK_COUNTER`/
+  `CHAR_FACING_LEFT`/`CHAR_IDLE_FCOUNT` etc. — full field layout declared
+  near the old `Anim_FrameIndex` declaration in `main.pasm`, `CHAR_ZP_LEN`
+  now the registered class's real `ZpLen`). `Anim_Play`/`Anim_Play_Idle/
+  Walk/Attack`/`Anim_UpdateFacing`/`Character_PlayFrame`/`Anim_LoadCharacter`
+  were edited **in place** (not reimplemented) to use bare, DP-relative
+  addressing (no `.l`/`.w`) for exactly these fields — `CharSelect_*`,
+  `Player_X/Y`, `AnimHeaderStaging`/palette/frame staging, and the hardcoded
+  palette/tile-column/single-entity assumptions are still global, untouched
+  until their own later steps. **This forced the boot-time character load
+  to move**: `Anim_LoadCharacter`'s writes are only DP-correct when called
+  with the object's window already switched in (`phd`/`tcd`, done by
+  `Core_Oop_Create`/`Play`), so the old direct `jsr Anim_LoadCharacter` at
+  `msu1_done` (right after MSU-1 track-select — a real ordering dependency,
+  see that routine's header) is now `jsr Core_Oop_Create` instead, and
+  `CharacterEntity_Init` (given the roster index as its init param) does the
+  actual `jsr Anim_LoadCharacter` call, correctly DP-switched.
+  `Core_Oop_RegisterClass` stays at its original early boot position
+  (registration has no ordering dependency); only `Create` moved down.
+
+  Verified two ways beyond the OAM check: raw-byte confirmation that a bare
+  small-integer symbol (`CHAR_SELECTED = 11`) assembles as 65816 Direct Page
+  mode (`A5 0B`, 2 bytes) and not Absolute — this was unverified territory
+  (no prior DP-relative addressing anywhere in this codebase) so it was
+  checked directly before doing the 70-site mechanical conversion, not
+  assumed; and live walk/attack/facing behavior (Right-held clamps at
+  `PLAYER_MAX_X`=216, attribute byte flips `$30`→`$70` on Left-held,
+  matching pre-refactor exactly), 3/3 Mesen2 runs.
+
+**Next**: Phase 1b Step 2 — `Player_X/Y` → `CHAR_POS_X/Y` (offsets already
+reserved), plus gate the dpad read on `CHAR_INPUT_DRIVEN`. Same OAM-identity
+gate. Then Step 3 (`CHAR_PALETTE_SLOT`/`CHAR_TILE_COLUMN`/an explicit
+`Oam_CursorResetDone` flag — **not** `OopObjIndex` — deciding which entity
+resets `Oam_CurrentSlot` each frame; see plan.md's own warning on why
+`OopObjIndex` is the wrong check). Then Phase 2 — a second, simultaneous
+entity with different roster/palette/tile column. Read `plan.md`'s Phase 1
+section in full before continuing; it has the exact field layout and
+reasoning this work depends on.
 
 ## Harness gotchas (Mesen2 / build)
 
