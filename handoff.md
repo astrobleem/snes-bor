@@ -806,6 +806,119 @@ plan.md's "Phase 4 onward" section and re-derive specifics against the
 code as it exists by the time you get there — don't assume Phase 1-3's
 exact shape carries forward unchanged.
 
+## Phase 4 done and verified: collision + hit reaction
+
+plan.md's Phase 4 ("collision + hit reaction... AABB-only, no HP/damage
+tracking", matching SNES-BOR-Engine-Prompt.md's PoC scope). No hit/fall
+animation data exists in the MSU roster format (only idle/walk/attack are
+converted, confirmed by checking `tools/bor_converter/pack_msu_roster.py`
+and `out/jhun_*`/`out/ralf_*` — matches plan.md's explicit "reuse an
+existing animation state" allowance), so the visible "hit reaction" is:
+force the target back to idle (reusing that animation, same as an attack's
+own revert-to-idle) and freeze its movement for `CHAR_HIT_STUN_FRAMES`=24
+frames (~0.4s @ 60Hz).
+
+New per-entity DP fields: `CHAR_HIT_STUN` (offset 33, frames remaining,
+0=not stunned) and `CHAR_HIT_APPLIED` (offset 34, latches once per attack
+cycle so a multi-frame attack animation registers at most one hit).
+`CHAR_ZP_LEN` bumped 33->35. Both fields start zeroed for free —
+`Core_Oop__ClearObjRam` already zeroes an object's whole window before
+`Init` runs, confirmed by reading `core/oop.pasm`.
+
+Hitbox is just each entity's full 32x64 sprite box (no separate, narrower
+attack-hitbox data exists — matches "AABB-only, no pixel-perfect"). A hit
+registers the instant the attacker's `CHAR_SELECTED` reaches 2, not on some
+later "active" sub-frame of the swing (no per-frame hit-window data
+exists) — at `ANIM_AI_ATTACK_RANGE`=30 the two 32px boxes already overlap
+by 2px the moment the AI decides to attack, so this doesn't need a "walk
+closer" phase to look reasonable.
+
+Same "player is always slot 0" shortcut as Phase 3, extended: `Entity1_
+Base`/`Entity1_PosX`/`Entity1_PosY`/`Entity1_HitStun` are fixed absolute
+addresses at `$7E0a00 + 35` (Entity #1's window immediately follows Entity
+#0's — `core/oop.pasm`'s bump allocator places objects back-to-back in
+creation order, and `msu1_done` creates Entity #0 then Entity #1) plus
+that offset's own field offsets. Written as literal `35`, not a
+`CHAR_ZP_LEN` reference — Poppy's constant evaluator is single-pass/
+forward-reference-intolerant, confirmed via a real "Cannot evaluate
+operand" build error when this first used the symbol (`CHAR_ZP_LEN` isn't
+defined until later in the file). **Must be kept in sync by hand if
+`CHAR_ZP_LEN` ever changes again.** `Character_HitApply` (called from
+`CharacterEntity_Play`, after `Anim_Play`/`Character_PlayFrame` so
+`CHAR_SELECTED` reflects this frame's real state) picks which fixed
+address to check against via `CHAR_INPUT_DRIVEN` (1=player, other is
+Entity #1; 2=AI, other is the player) — fine for exactly 2 entities;
+Phase 5 (3-4 entities) will need a real per-attacker "who did I hit" loop
+instead of one hardcoded other-entity address per side.
+
+**Two real bugs found and fixed, both via live Mesen2 testing, both the
+same underlying Poppy issue (bug #10, already documented elsewhere in this
+file for `Anim_Play__loaded`/`Anim_LoadCharacter__msu_ok`) hitting new
+code in two different shapes:**
+
+1. First cut of `Character_HitApply` was one long block with `bcs
+   <label ~130 bytes away>` branches. Poppy assembled this with **no
+   build error** but produced a genuinely wrong jump target at runtime —
+   confirmed via Mesen2: the instant the AI's first attack made
+   `CHAR_SELECTED` reach 2 and this code ran its overlap test for the
+   first time, WRAM state froze completely, including
+   `Nmi_FrameCounter` itself (a full CPU hang, not just a stuck game
+   loop). Fixed by restructuring into a tiny dispatcher (`Character_
+   HitApply`) plus two short leaf routines (`Character_HitApply_
+   VsEntity1`/`VsPlayer`, called via `jsr`) so every relative branch is
+   local/short — sidesteps the whole class of bug rather than hand-tuning
+   one more `brl` distance.
+2. Even after that restructuring, the hit never actually registered
+   (`CHAR_HIT_APPLIED` stayed 0 forever, `CHAR_HIT_STUN` never got
+   stamped) even though positions clearly overlapped. Root cause: `Character_
+   HitApply__attacking`'s label is reached via a `beq` that jumps AROUND
+   an earlier `rep #$31`/`.a16`/`.i16` — so the CPU is still 8-bit there
+   at runtime, but Poppy's linear (non-control-flow-aware) width tracker
+   had already "seen" that `rep` textually and mis-sized the following
+   `cmp #1` as a 3-byte 16-bit form the real 8-bit CPU only half-consumed,
+   producing a phantom `BRK #$F0` and corrupting every byte after it in
+   the routine (confirmed via Mesen2's own disassembler showing exactly
+   that garbage, and via `Character_HitApply_VsEntity1`'s symbol address
+   landing mid-instruction in the real ROM). Exact same bug shape as the
+   `Anim_Play__loaded`/`Anim_LoadCharacter__msu_ok` comments already in
+   this file describe — just newly triggered by this phase's code. Fixed
+   with the same medicine: an explicit (runtime-no-op) `sep #$20`/`.a8`
+   re-sync right after the label, plus proactively at the top of both leaf
+   routines too (they're textually placed after another `rep #$31` inside
+   the dispatcher, so are equally exposed).
+
+**Lesson for future phases**: this is now the *third* independent time
+this exact bug shape (branch jumps around a `rep`, Poppy's linear tracker
+doesn't know, next immediate gets corrupted) has bitten new code in this
+file. Any branch that jumps around a `rep #$31`/`.a16`/`.i16` needs an
+explicit re-sync `sep #$20`/`.a8` (or `rep`, if the target context is
+16-bit) at its landing label — check for this pattern on sight rather than
+waiting to hit it again. `rom_audit`'s tools do **not** catch this class of
+bug (confirmed: `audit_jumps.py`/`audit_ownership.py` gave byte-identical
+clean results before and after the first, still-broken restructuring —
+they only validate that decoded bytes land on real instruction/label
+boundaries, not that program logic does the right thing at runtime).
+
+Verified in Mesen2 (majority-of-3+ runs, hardware `snesSpriteRam` + WRAM
+reads): both directions of hit-stun work — Entity #1 attacking the
+stationary player stuns it (`CHAR_HIT_STUN` jumps to 24, counts down,
+`CHAR_HIT_APPLIED` latches to 1 and doesn't re-fire until the attack cycle
+ends); walking the player back into Entity #1 and pressing the attack
+button stuns Entity #1 the same way; both entities alternate landing hits
+repeatedly in sustained close combat without ever re-freezing (confirming
+`CHAR_HIT_APPLIED`'s per-cycle reset works over many cycles, not just
+once). Stun correctly freezes both animation (forced back to idle) and
+movement (position holds), and both resume normal behavior the instant the
+countdown reaches 0. Regression-checked: hardware OAM both sprites correct
+after 700 concurrent frames, `Msu1_StreamBusy` still drains to 0 (no
+Phase 0 regression), player remains independently controllable throughout.
+
+**Next**: Phase 5 — scale to 3-4 total enemies (plan.md). The "player is
+always slot 0" and "fixed Entity #1 address" shortcuts above will both
+need to become a real per-attacker loop over however many entities exist,
+not one hardcoded other-entity address per side — read plan.md's Phase 5
+section and re-derive against the code as it exists by then.
+
 ## Harness gotchas (Mesen2 / build)
 
 Full detail lives in project memory ([[mesen-audio-check-nondeterministic]],

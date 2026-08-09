@@ -2428,6 +2428,46 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
                                    ; 30 pixels" per the spec's own wording,
                                    ; doesn't need to be exact/circular
 
+; --- plan.md Phase 4: collision + hit reaction (AABB-only, no HP/damage
+; tracking, matching the spec's explicit PoC scope). Same "player is always
+; slot 0, fixed DP window" shortcut as Phase 3's PlayerEntity_PosX/Y above,
+; extended to Entity #1's window so either entity's Character_HitApply can
+; read/write the OTHER entity's position and hit-stun cell directly instead
+; of building a general entity-lookup mechanism -- fine for exactly 2
+; entities (today's scope); Phase 5 (3-4 entities) will need to revisit
+; this with a real per-attacker "who did I hit" loop instead of one
+; hardcoded other-entity address per side. Entity #1's window starts
+; immediately after Entity #0's in OopObjRam (core/oop.pasm's bump
+; allocator places objects back-to-back in creation order; msu1_done
+; creates Entity #0 then Entity #1) -- CHAR_ZP_LEN bytes in. Written as a
+; literal 35 (not a `CHAR_ZP_LEN` reference) because Poppy's constant
+; evaluator is single-pass and CHAR_ZP_LEN isn't defined until further down
+; this file (confirmed via a real "Cannot evaluate operand" build error
+; when this used the symbol) -- MUST be kept equal to CHAR_ZP_LEN below if
+; that ever changes again. These are ABSOLUTE addresses, always read/
+; written via `.l`, same caveat as PlayerEntity_PosX/Y above. ---
+Entity1_Base    = $7E0a00 + 35        ; = $7E0a00 + CHAR_ZP_LEN, see note above
+Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
+Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
+Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
+PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
+
+; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
+; Character_PlayFrame's OamSetSprite_Hi comment) -- the AABB hitbox is just
+; that same full sprite box; no separate, narrower attack-hitbox data
+; exists (matches the spec's "AABB-only, no pixel-perfect" PoC scope). A
+; hit registers as soon as the attacker's CHAR_SELECTED reaches 2 (attack)
+; while already overlapping, not on some later "active" sub-frame of the
+; swing -- there's no per-frame hit-window data to key off of, and at
+; ANIM_AI_ATTACK_RANGE=30 the two 32px-wide boxes already overlap by 2px
+; the instant the AI's seek logic decides to attack, so this simplification
+; doesn't need a separate "walk closer" phase to still look reasonable.
+CHAR_HITBOX_W = 32
+CHAR_HITBOX_H = 64
+CHAR_HIT_STUN_FRAMES = 24   ; ~0.4s @ 60Hz -- long enough to read as a
+                              ; deliberate freeze, short enough not to feel
+                              ; like a stall
+
 ; --- Runtime character selection (MSU-1 streaming), see the plan at
 ; temporal-swinging-hartmanis.md. Last cell any core/*.pasm file defines is
 ; OamSetSprite_Hi = $7E53AF; main.pasm's own Anim_FrameIndex..Player_Y run
@@ -2508,7 +2548,18 @@ CHAR_ATTACK_BASE_HI = 30   ; .db
 CHAR_TILE_BYTE_OFFSET = 31 ; .dw -- CHAR_TILE_COLUMN*128, recomputed at the
                             ; top of every Msu1_LoadFrame call (Step 3); not
                             ; loaded directly by name elsewhere, just scratch
-CHAR_ZP_LEN         = 33   ; total -- pass as OopRegStaging_ZpLen
+; --- plan.md Phase 4: minimal collision + hit reaction. CHAR_HIT_STUN is a
+; simple frames-remaining countdown; nonzero forces this entity to idle and
+; suppresses its movement (see Anim_Play/Character_PlayFrame's stun checks)
+; -- the visible "hit reaction," reusing the idle animation rather than
+; adding new art (no hit/fall frame data exists in the MSU roster format;
+; plan.md explicitly allows reusing an existing state). CHAR_HIT_APPLIED
+; is a same-attack-cycle latch so a multi-frame attack animation registers
+; at most one hit instead of one every frame it stays overlapping; see
+; Character_HitApply. ---
+CHAR_HIT_STUN       = 33   ; .db -- frames remaining in hit-reaction freeze, 0 = not stunned
+CHAR_HIT_APPLIED    = 34   ; .db -- 1 once this attack cycle already landed a hit
+CHAR_ZP_LEN         = 35   ; total -- pass as OopRegStaging_ZpLen
 
 ; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
 ; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
@@ -2605,6 +2656,37 @@ Anim_Play__loaded:
     ; sep is a harmless no-op at runtime but re-syncs Poppy's tracker.
     sep #$20
 .a8
+    ; --- plan.md Phase 4: hit-reaction stun takes priority over both the
+    ; "already attacking" latch below and any input/AI decision -- a
+    ; stunned entity is forced to idle regardless of what it was doing,
+    ; and stays there (re-entering here every frame while CHAR_HIT_STUN
+    ; is nonzero, since Anim_Play runs once per entity per frame via
+    ; CharacterEntity_Play) until the countdown reaches 0. Decremented
+    ; here, not in Character_HitApply, so it counts down exactly once per
+    ; frame regardless of whether this entity ever attacks. Only forces
+    ; the CHAR_SELECTED/CHAR_FRAME_INDEX reset on the FIRST stunned frame
+    ; (CHAR_SELECTED already 0) -- otherwise every subsequent stunned
+    ; frame would restart idle at frame 0 every tick instead of letting it
+    ; loop naturally, which would look like a stutter instead of a held
+    ; reaction. ---
+    lda CHAR_HIT_STUN
+    beq Anim_Play__not_stunned
+    dec a
+    sta CHAR_HIT_STUN
+    lda CHAR_SELECTED
+    bne Anim_Play__stunned_reset
+    brl Anim_Play__dispatch     ; already idle -- let it keep looping, just hold
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__stunned_reset:
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Play__dispatch
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__not_stunned:
     lda CHAR_SELECTED
     cmp #2
     bne Anim_Play__check_attack_trigger
@@ -3523,6 +3605,15 @@ Character_PlayFrame__cursor_next:
     ; compares are unsigned. ---
     sep #$20
 .a8
+    ; --- plan.md Phase 4: hit-stun freezes movement too, same priority as
+    ; Anim_Play's stun check (CHAR_HIT_STUN already decremented there this
+    ; frame, before Character_PlayFrame runs -- see CharacterEntity_Play's
+    ; call order). ---
+    lda CHAR_HIT_STUN
+    beq Character_PlayFrame__not_stunned_x
+    bra Character_PlayFrame__hold
+    nop
+Character_PlayFrame__not_stunned_x:
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_x
@@ -3597,7 +3688,12 @@ Character_PlayFrame__store_x:
     sta.l OamSetSprite_X
 
     ; --- Y: held-dpad Up/Down movement, mirroring the X block (same three
-    ; CHAR_INPUT_DRIVEN modes). ---
+    ; CHAR_INPUT_DRIVEN modes, plus the same Phase 4 hit-stun check). ---
+    lda CHAR_HIT_STUN
+    beq Character_PlayFrame__not_stunned_y
+    bra Character_PlayFrame__hold_y
+    nop
+Character_PlayFrame__not_stunned_y:
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_y
@@ -3697,6 +3793,210 @@ Character_PlayFrame__no_flip:
     rep #$31
 .a16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
+    rts
+
+; ============================================================================
+; Character_HitApply -- plan.md Phase 4: minimal AABB collision + hit
+; reaction (SNES-BOR-Engine-Prompt.md's "AABB-only collision... no damage
+; system required for PoC"). Called once per entity per frame from
+; CharacterEntity_Play, AFTER Anim_Play/Character_PlayFrame have already
+; run for this entity this frame, so CHAR_SELECTED reflects this frame's
+; real animation state (including a same-frame transition into attack via
+; Anim_Play__ai_attack).
+;
+; Deliberately split into a tiny dispatcher plus two short leaf subroutines
+; (Character_HitApply_VsEntity1/VsPlayer) instead of one long block with
+; branches spanning the whole overlap test -- an earlier version had a
+; couple of `bcs <label 130+ bytes away>` branches that assembled with no
+; Poppy error but produced a genuinely broken jump target at runtime
+; (confirmed via Mesen2: WRAM state froze completely, including
+; Nmi_FrameCounter, the instant the AI's first attack made CHAR_SELECTED
+; reach 2 and this code actually ran its overlap test for the first time --
+; this file's own CLAUDE.md/poppy_assembler_bugs.md notes call out exactly
+; this class of silent branch-range miscompile repeatedly). Keeping every
+; relative branch here short and local (all targets within the same ~20-
+; line leaf routine) avoids the whole class of bug rather than trying to
+; get one more `brl` distance right by hand.
+;
+; Not attacking (CHAR_SELECTED != 2): just clears CHAR_HIT_APPLIED, so the
+; NEXT attack cycle is free to register a hit again -- this is the only
+; place that latch is cleared, making it edge-triggered on "just started
+; attacking" the same way Anim_Play_Attack's own revert-to-idle already is.
+;
+; Attacking with CHAR_HIT_APPLIED already set: nothing to do.
+;
+; Attacking, no hit yet this cycle: CHAR_INPUT_DRIVEN picks which leaf
+; routine to run (1 = I'm the player, check vs. Entity1_PosX/Y/HitStun; 2 =
+; I'm the AI, check vs. PlayerEntity_PosX/Y/HitStun -- see those constants'
+; own header comment for why this hardcoded pair is fine for exactly 2
+; entities). Each leaf runs an unsigned per-axis abs-difference AABB
+; overlap test (same compare-then-subtract idiom as Anim_Play__ai_seek/
+; Character_PlayFrame__ai_x/ai_y's distance checks, just compared against
+; the full sprite box width/height instead of ANIM_AI_ATTACK_RANGE) and,
+; on overlap, stamps the other entity's CHAR_HIT_STUN and this entity's
+; CHAR_HIT_APPLIED.
+;
+; No caller-convention assumed on entry; exits in .a16/.i16 matching
+; CharacterEntity_Play's other two calls (Anim_Play/Character_PlayFrame).
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Character_HitApply:
+    sep #$20
+.a8
+    lda CHAR_SELECTED
+    cmp #2
+    beq Character_HitApply__attacking
+    lda #0
+    sta CHAR_HIT_APPLIED
+    rep #$31
+.a16
+.i16
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply__attacking:
+    ; Reached via the `beq` above, which jumps AROUND the `rep #$31`/.a16/
+    ; .i16 a few lines up -- so M is still 1 (8-bit) here at runtime, but
+    ; Poppy's linear (non-control-flow-aware) width tracker has already
+    ; "seen" that rep textually and would otherwise mis-size `cmp #1` below
+    ; as a 3-byte 16-bit form the real 8-bit CPU only half-consumes,
+    ; corrupting every byte after it in this routine (confirmed via Mesen2's
+    ; disassembler: a phantom `BRK #$F0` right where `cmp #1`'s second byte
+    ; should have been, and Character_HitApply_VsEntity1/VsPlayer's own
+    ; symbol addresses landing mid-instruction in the real ROM as a result)
+    ; -- exact same bug and same fix as Anim_Play__loaded's own copy of this
+    ; comment (poppy bug #10). This sep is a harmless no-op at runtime but
+    ; re-syncs Poppy's tracker.
+    sep #$20
+.a8
+    lda CHAR_HIT_APPLIED
+    bne Character_HitApply__done   ; already landed a hit this attack cycle
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    beq Character_HitApply__do_vs_entity1
+    cmp #2
+    beq Character_HitApply__do_vs_player
+    bra Character_HitApply__done   ; mode 0 (static) -- no defined "other entity"
+    nop
+Character_HitApply__do_vs_entity1:
+    jsr Character_HitApply_VsEntity1
+    bra Character_HitApply__done
+    nop
+Character_HitApply__do_vs_player:
+    jsr Character_HitApply_VsPlayer
+    nop
+Character_HitApply__done:
+    rep #$31
+.a16
+.i16
+    rts
+
+; Leaf: overlap-test this entity (own DP window, CHAR_POS_X/Y) against
+; Entity #1's fixed-address box; on overlap, stamps Entity1_HitStun and
+; this entity's own CHAR_HIT_APPLIED. Entered and exited in .a8 (caller's
+; ambient width, unchanged) -- every branch target below is a handful of
+; lines away, well inside 8-bit branch range. No caller-convention assumed
+; on entry beyond that; doesn't touch X/Y.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Character_HitApply_VsEntity1:
+    ; Explicit re-sync, not just a comment this time -- Poppy's linear
+    ; tracker will have "seen" Character_HitApply__done's `rep #$31`
+    ; (textually above this routine) by the time it reaches here, even
+    ; though every real jsr into this routine happens from code that runs
+    ; BEFORE that rep executes (same class of bug as the fix a few dozen
+    ; lines up; cheap enough to just always pay for at a leaf entry point
+    ; rather than re-derive whether it's needed every time this file
+    ; changes around it).
+    sep #$20
+.a8
+    lda.l Entity1_PosX
+    cmp CHAR_POS_X
+    bcs Character_HitApply_VsEntity1__dx_otherge
+    lda CHAR_POS_X
+    sec
+    sbc.l Entity1_PosX
+    bra Character_HitApply_VsEntity1__dx_have
+    nop
+Character_HitApply_VsEntity1__dx_otherge:
+    sec
+    sbc CHAR_POS_X
+    nop
+Character_HitApply_VsEntity1__dx_have:
+    cmp #CHAR_HITBOX_W
+    bcc Character_HitApply_VsEntity1__dx_ok
+    rts                     ; no overlap on X
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity1__dx_ok:
+    lda.l Entity1_PosY
+    cmp CHAR_POS_Y
+    bcs Character_HitApply_VsEntity1__dy_otherge
+    lda CHAR_POS_Y
+    sec
+    sbc.l Entity1_PosY
+    bra Character_HitApply_VsEntity1__dy_have
+    nop
+Character_HitApply_VsEntity1__dy_otherge:
+    sec
+    sbc CHAR_POS_Y
+    nop
+Character_HitApply_VsEntity1__dy_have:
+    cmp #CHAR_HITBOX_H
+    bcc Character_HitApply_VsEntity1__dy_ok
+    rts                     ; no overlap on Y
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsEntity1__dy_ok:
+    lda #CHAR_HIT_STUN_FRAMES
+    sta.l Entity1_HitStun
+    lda #1
+    sta CHAR_HIT_APPLIED
+    rts
+
+; Leaf: same shape as Character_HitApply_VsEntity1 above, but checks
+; against PlayerEntity_PosX/Y/HitStun instead -- used by the AI (Entity
+; #1) when it's the one attacking.
+    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
+Character_HitApply_VsPlayer:
+    ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same reason.
+    sep #$20
+.a8
+    lda.l PlayerEntity_PosX
+    cmp CHAR_POS_X
+    bcs Character_HitApply_VsPlayer__dx_otherge
+    lda CHAR_POS_X
+    sec
+    sbc.l PlayerEntity_PosX
+    bra Character_HitApply_VsPlayer__dx_have
+    nop
+Character_HitApply_VsPlayer__dx_otherge:
+    sec
+    sbc CHAR_POS_X
+    nop
+Character_HitApply_VsPlayer__dx_have:
+    cmp #CHAR_HITBOX_W
+    bcc Character_HitApply_VsPlayer__dx_ok
+    rts                     ; no overlap on X
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsPlayer__dx_ok:
+    lda.l PlayerEntity_PosY
+    cmp CHAR_POS_Y
+    bcs Character_HitApply_VsPlayer__dy_otherge
+    lda CHAR_POS_Y
+    sec
+    sbc.l PlayerEntity_PosY
+    bra Character_HitApply_VsPlayer__dy_have
+    nop
+Character_HitApply_VsPlayer__dy_otherge:
+    sec
+    sbc CHAR_POS_Y
+    nop
+Character_HitApply_VsPlayer__dy_have:
+    cmp #CHAR_HITBOX_H
+    bcc Character_HitApply_VsPlayer__dy_ok
+    rts                     ; no overlap on Y
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply_VsPlayer__dy_ok:
+    lda #CHAR_HIT_STUN_FRAMES
+    sta.l PlayerEntity_HitStun
+    lda #1
+    sta CHAR_HIT_APPLIED
     rts
 
 ; ============================================================================
@@ -4281,6 +4581,8 @@ CharacterEntity_Init__load:
 CharacterEntity_Play:
     jsr Anim_Play
     jsr Character_PlayFrame
+    jsr Character_HitApply   ; plan.md Phase 4: AABB hit check, after this
+                               ; frame's real animation/position are known
     lda #OBJR_NOERR
     rts
 
