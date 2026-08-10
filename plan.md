@@ -1257,6 +1257,19 @@ new level; that's the only reason MSU-1 was preferred.
   its `encode_tilemap_column_major` is the piece Phase 6 deliberately
   skipped). Extend `bor.msu` to format v3, or emit a ROM blob per Step 1.
 - **Widen X to world coordinates** — the ~24 8-bit access sites above.
+  **Sequencing finding (2026-08-10): do this together with the camera
+  bullet below, not before it.** `PLAYER_MAX_X = 216`/`PLAYER_MAX_Y = 208`
+  clamp every write site to well under 255, so nothing can push
+  `CHAR_POS_X` past a byte until the camera exists to let a level be wider
+  than the viewport. Widening the storage/arithmetic first has **no gate**
+  — `PLAYER_MAX_X` still caps it, so "phase5 still passes" would be
+  green regardless of whether the widening is correct, the exact failure
+  shape this project has hit repeatedly. Land both in the same commit and
+  gate on "an entity's world X exceeds 255 and both the OAM low byte wraps
+  and the X-high bit (`OamSetSprite_Hi` bit0) sets correctly" — that is
+  the real test, not a synthetic force-write against unchanged OAM code
+  (`Core_Oam_SetSprite` already handles the X-high bit correctly; a
+  synthetic hook would test that existing path, not the widening).
 - **Implement `SCREEN_CMD_GET_CAMERA_DATA` on `CharacterEntity`** and
   `Core_Screen_Focus` entity 0. This is the payoff for screen.pasm.
 - **Column streamer**, in the `$C100` region (**7,000 bytes free** — last
