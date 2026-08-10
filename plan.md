@@ -355,7 +355,10 @@ before that's true.
   this project's bank-0/WRAM conventions — not a drop-in.
 - **Scrolling.** The original spec's own proof-of-concept explicitly
   requires none (single static screen). Don't add camera/scroll logic as
-  part of this plan.
+  part of this plan. **(Superseded 2026-08-10, by request — see §2.7,
+  Phase 8. The statement above was correct for Part One and is kept as
+  the record of why nothing here touches the camera; §2.7 is now the
+  live plan for scrolling.)**
 - **A character-select menu/UI**, save state, or persisting the roster
   selection across reset. Not asked for, not needed for this plan's goal.
 - **Real damage/health/game-state systems.** Phase 4 below stops at "an
@@ -1094,13 +1097,16 @@ majority, exactly as §2.2 Tool B requires.
 
 These appear in `README.md`'s "Not built" list and belong to no phase
 above. They are listed here so nobody assumes they were forgotten. None of
-them blocks Phases 5–7.
+them blocks Phases 5–7. **(One of them — the OAM X-high bit — does block
+Phase 8; see §2.7 and the annotation on that bullet below.)**
 
 - **OAM hi-table X-high bit is never exercised by a real sprite.** This
   becomes real the moment an entity's X exceeds 255. Phase 5 spawns four
   entities across the screen, so **watch for it there** — a sprite that
   wraps to the left edge instead of moving right past X=255 is this bug,
-  not a movement bug.
+  not a movement bug. **(Phase 8 makes this unavoidable: world X goes to
+  16 bits and the camera pans a 6876px level, so it is scheduled work in
+  §2.7, no longer just something to watch for.)**
 - **Roster selection is not persisted across reset.** Cosmetic.
 - **The raw BOR `.pak` format has never been ingested directly** — art
   arrives pre-converted in `out/`. Relevant only if new characters are
@@ -1108,6 +1114,150 @@ them blocks Phases 5–7.
 - **No player health, no damage numbers, no game-over.** Deliberately out
   of scope per the PoC spec, which calls for hit *reaction* without a
   damage system. Phase 4 satisfies the spec as written.
+
+## 2.7 — Phase 8: horizontal scrolling  📋 PLANNED (written 2026-08-10)
+
+Part One's "Explicitly out of scope" list says *"Don't add camera/scroll
+logic as part of this plan."* That was correct for Part One and is now
+superseded, by request. This section supersedes it; that bullet is
+annotated in place rather than deleted.
+
+**Half of this is already built and unused.** `src/core/screen.pasm` is
+576 lines of real camera engine — focus/blur, easing, clamping, playfield
+borders, `Core_Screen_ConvertAbsoluteToScreen` — with **zero consumers**.
+It is already called every frame (`Core_Screen_Init` at boot,
+`Core_Screen_Play` in the main loop); it just has nothing to follow,
+because it asks a focused object for `SCREEN_CMD_GET_CAMERA_DATA` and no
+class implements that.
+
+### Decisions settled by measurement — do not re-derive
+
+Run `python tools/bg_converter/measure_level_tiles.py` to reproduce any of
+this. It is committed for exactly that reason.
+
+| | boss (`6BEASY`) | warehouse (`4BEASY`) |
+|---|---|---|
+| Level width | 420px (**1.3 screens**) | 6876px (**21.5 screens**) |
+| Screen 0 | 447 tiles | 798 tiles |
+| Worst single screen | 685 tiles | **843 tiles** |
+| Whole level | **993 tiles** | **9,869 tiles** |
+
+1. **Streaming is mandatory for wide levels, and the intuition that says
+   otherwise is wrong.** A BOR level is `order abcdefabcdef...` — 6 unique
+   panels repeated — so it *looks* like tiles should nearly all be reused.
+   They are not: every fresh screen adds ~800 new unique tiles and **the
+   cumulative curve never flattens**. Panels are 191px wide (not a
+   multiple of 8) and `convert_bg.py` resamples 320→256 (0.8 scale), so
+   every repeat lands on a different tile phase and reuse is destroyed.
+2. **The working set is one screen, not one level** — 843 tiles worst
+   case. That **does not fit** the current 512-tile BG1 budget, and does
+   fit 1024. So **reclaiming the dead BG2 region (`$2000-$3FFF`) is a
+   prerequisite**, and it leaves only 181 tiles ≈ **6 columns of prefetch
+   runway**. That margin is the tightest number in this phase.
+3. **These counts are ~4% high, not a different order of magnitude.** The
+   tool stops before palette quantization (which can only reduce the
+   count). Calibration: it reports 447 for boss screen 0 where
+   `out/bg_boss/manifest.json` records 429 post-quantization.
+4. **There are two ring buffers and only one is SMI's.** *Tilemap column
+   recycling* is unconditional for any scroll past ~512px (a 64×32 map
+   covers only that) and is cheap — 28 words/column from WRAM. A *VRAM
+   tile cache* is needed only because 843 > 512.
+5. **MSU-1 has real headroom — an earlier assumption here was wrong.** It
+   is not true that 4 entities saturate `Msu1_StreamBusy` every frame.
+   Packed animation delays are **7–20 ticks per frame** (walk 8–9, idle
+   10–20), so four walking entities occupy roughly *half* of frames. A
+   column is 28 × 32B = 896B, needed every 8 frames at 1px/frame.
+6. **`CHAR_POS_X` is already `.dw`** (offset 4) and
+   `Core_Screen_ConvertAbsoluteToScreen` already takes 16-bit absolute
+   coords (`rep #$31`, `cpx`/`cpy`). So widening to world X needs **no
+   `CHAR_ZP_LEN` change and no `Entity*_Base` literal change** — only the
+   ~24 access sites that currently read/write it 8-bit under `sep #$20`
+   (36 textual references; `Entity1_PosX`'s own comment already says "low
+   byte valid").
+
+### Step 1 — the one genuinely open decision: where do tiles come from?
+
+**Do not pre-commit this. It is a test, not a preference.** MSU-1 has a
+*single stateful cursor* that auto-increments on every `$2001` read, and a
+seek is a write to `$2000-$2003`. `Msu1_StreamBusy` exists because two
+concurrent streams were *confirmed* to collide (Phase 0). Whether a
+column-stage seek can safely interleave with an animation stream whose
+DMAs are **queued but not yet drained** is unverified, and it decides the
+architecture:
+
+- **If it cannot interleave: put the tiles in ROM.** ~4MB is free and the
+  whole warehouse tileset is ~316KB. `build_rom.py` already builds
+  `rom = bytearray(0x400000)` and writes it whole, so a blob at a fixed
+  offset is supported *by construction* — **Poppy never sees the data, so
+  every `.bank N` and `.org`-truncation bug is bypassed.**
+- **If it can: keep MSU-1**, which keeps levels data-only (adding a level
+  needs no ROM rebuild). That is worth something.
+
+### The work
+
+- **Reclaim dead BG2** (`$2000-$3FFF` + `$5C00-$5FFF`) for a 1024-tile BG1
+  budget; raise `convert_bg.py`'s hard cap accordingly.
+- **64×32 BG1 tilemap.** It spans `$6000-$67FF` and **collides with BG3's
+  tilemap at `$6400`** — move BG3 to `$6800` (free; `$6800-$7FFF` is 6144
+  words). Update `BG3_TILEMAP_VRAM_WORD`, `$2109`, and `Nmi_Bg3TilemapVram`.
+- **Converter:** emit whole-level column-major tilemap + tileset + a
+  per-column tile-ID index (SMI's `snes_room_converter.py` has all three;
+  its `encode_tilemap_column_major` is the piece Phase 6 deliberately
+  skipped). Extend `bor.msu` to format v3, or emit a ROM blob per Step 1.
+- **Widen X to world coordinates** — the ~24 8-bit access sites above.
+- **Implement `SCREEN_CMD_GET_CAMERA_DATA` on `CharacterEntity`** and
+  `Core_Screen_Focus` entity 0. This is the payoff for screen.pasm.
+- **Column streamer**, in the `$C100` region (**7,000 bytes free** — last
+  symbol is `Hud_Play__clear` at `$E0A8`). Steal SMI's shape: two-pass
+  column staging (pass 1 cache misses, pass 2 tilemap remap), NMI writes
+  the staged column, no forced blank.
+- **Steal SMI's eviction fix too, rather than rediscovering it:** on
+  scroll *reversal* the ring buffer leaves stale tilemap entries. Fix is
+  one viewport column re-synced per idle frame (full re-sync in ~32).
+- **The OAM X-high bit becomes real here** — see §2.6's bullet, which
+  predicted exactly this. A sprite wrapping to the left edge instead of
+  passing X=255 is that bug.
+
+**Scope limits, stated so nobody over-builds:** the camera is
+**dpad-driven and clamped to `[0, maxScrollX]`** (SMI used the same
+testing camera). Encounter-gated scrolling — "clear the enemies to
+proceed" — needs a death system that does not exist and is **not** in this
+phase. No parallax: `bgspeed`/`scrollspeed` stay unread.
+
+### Phase 8 gate — all of these must pass, in this order
+
+1. `python build_rom.py` — no `error:` lines.
+2. `python tools/rom_audit/audit_all.py` — `ALL CHECKS PASS`.
+3. `python tools/rom_audit/check_label_drift.py` — `0 DRIFTED`, ROM-wide.
+4. `python tools/verify/phase8.py` — `PHASE 8: PASS`. Per the standing
+   rule, the central assertion must be **ground truth, not
+   self-consistency**: after scrolling N columns, the VRAM slot that a
+   given tilemap entry points at must **byte-match the converter's tile
+   for that world (x, y)**. Also: `Nmi_FrameCounter` still advancing
+   through sustained scrolling (vblank-overrun guard — this phase adds a
+   per-frame DMA producer, exactly the class §2.4 warns about); scroll
+   clamps at both ends; and a **scroll-reversal** pass, since that is
+   where SMI's eviction bug lives.
+5. Append a Phase 8 section to `handoff.md`.
+6. Commit.
+
+### Stop conditions
+
+- **Working set >1024 after reclaiming BG2.** Report and pick a narrower
+  level; do not silently truncate.
+- **`$C100` region exhausted.** 7,000 bytes is generous but the streamer
+  plus staging buffers is the largest single addition since Phase 6.
+- **Step 1's interleave test is ambiguous.** Take the ROM path; it
+  dissolves the question rather than betting on it.
+
+**The cheap version, if the full phase is too much:** boss is 993 tiles
+over 1.3 screens — the whole level fits a 1024-tile budget at once. (Its
+685-tile "worst screen" is the walk past the level's end, where the tool
+composites tiled background rather than panels; it is not a screen the
+camera can actually stop on.) That is a real scrolling demo with **zero
+streaming** and one static load — camera, world X, 64×32
+tilemap and column recycling only. It exercises every part of this phase
+except the tile cache.
 
 ---
 
