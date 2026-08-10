@@ -6023,29 +6023,20 @@ scpu_bg3_map:
     dex
     bne scpu_bg3_map
 
-    ; --- BG2 blank tile (index 0) at VRAM word $2000: 16 zero words ---
-    ; BG12NBA ($210B) = $20 -> BG2 char base = WORD $2000. Mesen2's actual
-    ; PPU implementation (SnesPpu.cpp, $210B write handler) computes
-    ; ChrAddress = (value & 0x70) << 8 for BG2 -- for value=$20 that's
-    ; ($20 & $70) << 8 = $2000, a WORD address used directly (tileStart =
-    ; ChrAddress + tileIndex*4*bpp, itself in words). An earlier pass at
-    ; this file moved the tile-data destination to word $1000 based on
-    ; get_ppu_state()'s reported chrAddr=8192 -- that field reports the
-    ; raw internal ChrAddress value (word units) unconverted, i.e. 8192
-    ; decimal == $2000 hex, not "8192 bytes". Confirmed empirically: VRAM
-    ; at byte 16384 (word $2000) held real non-blank data while our sprite
-    ; sat unread at word $1000, and BG2 was rendering that stale garbage
-    ; -- as tile 0 for every blank tilemap entry -- across the whole
-    ; screen, which is what actually produced the full-screen noise.
-    lda #$2000
-    sta $2116
-    ldx #$0010
-    lda #$0000
-    nop
-scpu_bg2_blank:
-    sta $2118
-    dex
-    bne scpu_bg2_blank
+    ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
+    ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a
+    ; stray BG2 tilemap reference would render zero instead of garbage --
+    ; see git history around this comment for the full incident that write
+    ; was fixing (real non-blank data at word $2000 rendering as full-
+    ; screen noise, root-caused to a chrAddr unit-conversion mistake, NOT
+    ; to this word ever needing blanking on purpose). That incident's fix
+    ; is now redundant: BG2 is off the main screen (TM=$15=BG1+BG3+OBJ,
+    ; below), and the SA-1 compositor that write was guarding against
+    ; (Scpu_CcdmaPump) is dead code -- defined, never called, since the
+    ; character moved to real OAM sprites. Keeping the write blocked BG1's
+    ; tile budget at 512 (tile 512 sits at word $2000): raising it to 1024
+    ; (10-bit tilemap limit, and where OBJ tiles start at $4000) needed
+    ; only removing it. See tools/bg_converter/convert_bg.py's docstring.
 
     ; --- CC-DMA canvas pump: moved out of boot into Scpu_CcdmaPump, called
     ; once per frame from scpu_main_loop right after Core_Nmi_WaitFrame

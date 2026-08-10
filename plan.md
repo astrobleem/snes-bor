@@ -1247,8 +1247,25 @@ new level; that's the only reason MSU-1 was preferred.
 
 ### The work
 
-- **Reclaim dead BG2** (`$2000-$3FFF` + `$5C00-$5FFF`) for a 1024-tile BG1
-  budget; raise `convert_bg.py`'s hard cap accordingly.
+- **Reclaim dead BG2 tile space (`$2000-$3FFF`) for a 1024-tile BG1
+  budget** ✅ DONE (2026-08-10). Removed `scpu_boot`'s one-shot BG2
+  blank-tile write (`scpu_bg2_blank`, 16 zero words at word `$2000`) — the
+  only thing that ever touched that range, since `Scpu_CcdmaPump` (the
+  code that write was protecting against) is dead, never called from
+  `scpu_main_loop`. Raised `convert_bg.py`'s `MAX_BG1_TILES` and
+  `pack_msu_roster.py`'s independent `BG_MAX_TILES` (a second, easily
+  missed cap) from 512 to 1024. Verified with warehouse's screen 0 (761
+  tiles — between the old and new caps, so it's the case that would have
+  silently corrupted under the old write): built as a throwaway BG source,
+  booted in Mesen, and the BG1 tileset **byte-matched `tiles.bin` across
+  the entire previously-hazardous region including tile 512's old target
+  address**, not just self-consistently rendered. Reverted the build
+  config back to boss (unchanged, still ships) and re-ran Phases 5/6/7 —
+  all still PASS, `0 DRIFTED` at 496 labels (one fewer than before: the
+  removed label). **`$5C00-$5FFF`** (BG2's tilemap, generated at boot but
+  never read since BG2 is off `TM`) is NOT reclaimed by this — nothing in
+  the 1024-tile budget needed it; leave it for whoever needs that
+  specific range.
 - **64×32 BG1 tilemap.** It spans `$6000-$67FF` and **collides with BG3's
   tilemap at `$6400`** — move BG3 to `$6800` (free; `$6800-$7FFF` is 6144
   words). Update `BG3_TILEMAP_VRAM_WORD`, `$2109`, and `Nmi_Bg3TilemapVram`.

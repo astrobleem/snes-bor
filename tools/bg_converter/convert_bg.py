@@ -17,25 +17,24 @@ NEAREST matches `bor_converter/convert_sprite.py`'s deliberate choice to avoid
 smoothing, which would invent colors against a hard 15-color-per-palette budget.
 
 Tile budget: BG1 character data lives at VRAM word $0000, so tile N occupies
-word N*16 and tile 512 would sit at word $2000 -- exactly where scpu_boot writes
-BG2's blank tile 0. That write is what caps this at 512 tiles.
+word N*16 and tile 512 sits at word $2000 -- BG2's char base. Nothing renders
+BG2 (TM = $15 = BG1+BG3+OBJ), so tiles there are never visible garbage; the
+only real hazard was scpu_boot's one-shot BG2 blank-tile write (16 zero words
+at word $2000, `scpu_bg2_blank` in main.pasm), which would have clobbered real
+BG1 tile data past index 512. Phase 8 (plan.md 2.7) removed that write, so the
+budget is now 1024 tiles -- also the 10-bit tilemap tile-index limit and
+exactly where OBJ tiles start at word $4000.
 
 (An earlier version of this comment claimed $2000-$3F7F was being rewritten
 every frame by the SA-1 compositor. That is wrong: Scpu_CcdmaPump is defined in
 main.pasm but never called -- the main loop dropped it when the character moved
 to real OAM sprites. Checked before relying on it.)
 
-Raising the ceiling to 1024 tiles -- which would fit every stock BOR level, and
-is also the 10-bit tilemap tile-index limit and exactly where OBJ tiles start at
-word $4000 -- therefore needs only one change: drop scpu_boot's BG2 blank-tile
-write. BG2 is not on the main screen (TM = $15 = BG1+BG3+OBJ), so nothing it
-points at is visible. That is deliberately NOT done here; Phase 6 ships within
-the existing budget rather than editing verified boot code for a scene that
-already fits.
-
 The converter hard-errors above the cap rather than truncating; pick a simpler
-scene instead. Measured counts for the stock BOR levels range from 395 (hotel)
-to 896 (pier/elevator, i.e. no dedup at all).
+scene instead. Measured whole-screen counts for the stock BOR levels range
+from 395 (hotel) to 896 (pier/elevator, i.e. no dedup at all) -- all under
+1024. See tools/bg_converter/measure_level_tiles.py for whole-LEVEL counts,
+which is a different (larger) number once a level is wider than one screen.
 """
 import argparse
 import json
@@ -74,11 +73,12 @@ PALETTE_OFFSET = 1
 TOTAL_PALETTES = 8
 COLORS_PER_PALETTE = 16
 
-# BG1 tiles occupy VRAM words $0000-$1FFF. $2000 upward is NOT free: the SA-1
-# compositor actively writes COMPOSITOR_BLIT_COUNT*24 = 504 tiles into the BG2
-# char base at $2000-$3F7F every frame (see main.pasm's COMPOSITOR_BLIT_COUNT).
-# 8192 words / 16 words-per-tile = 512 tiles is a hard ceiling, not a soft one.
-MAX_BG1_TILES = 512
+# BG1 tiles occupy VRAM words $0000-$3FFF (1024 tiles * 16 words/tile). The
+# SA-1 compositor's Scpu_CcdmaPump, which used to write into $2000-$3F7F every
+# frame, is dead code (defined, never called -- see this module's docstring);
+# the only real hazard was scpu_boot's one-shot BG2 blank-tile write at word
+# $2000, removed in Phase 8 (plan.md 2.7) specifically to raise this ceiling.
+MAX_BG1_TILES = 1024
 
 
 def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
@@ -143,12 +143,12 @@ def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
     if n_tiles > max_tiles:
         raise SystemExit(
             f'ERROR: {n_tiles} unique tiles exceeds the {max_tiles}-tile BG1 budget.\n'
-            f'  BG1 character data must fit VRAM words $0000-$1FFF to stay clear of\n'
-            f'  the BG2 blank tile scpu_boot writes at word $2000.\n'
-            f'  Pick a simpler scene. Stock levels that fit: 6AEASY (hotel, 395),\n'
-            f'  6BEASY (boss, 429). Or see this module\'s docstring: dropping that\n'
-            f'  one boot write raises the ceiling to 1024, which fits every stock\n'
-            f'  level. Not truncating.')
+            f'  BG1 character data must fit VRAM words $0000-$3FFF (1024 tiles) --\n'
+            f'  the 10-bit tilemap tile-index limit and where OBJ tiles start at\n'
+            f'  word $4000. Pick a simpler scene, or composite a narrower window\n'
+            f'  of a wider level (a whole multi-screen level needs the Phase 8\n'
+            f'  streaming tile cache, not a bigger single-screen budget). Not\n'
+            f'  truncating.')
 
     tiles_bin = st.encode_tileset(unique_tiles, bpp=4)
     tilemap_bin = st.encode_tilemap(entries, W_TILES, H_TILES)

@@ -1,0 +1,28 @@
+{
+  "level_entry": "DATA\\EASY\\4BEASY.TXT",
+  "background": "data\\bgs\\warehous\\back.gif",
+  "panels": [
+    "data\\bgs\\warehous\\p00.gif",
+    "data\\bgs\\warehous\\p01.gif",
+    "data\\bgs\\warehous\\p02.gif",
+    "data\\bgs\\warehous\\p03.gif",
+    "data\\bgs\\warehous\\p04.gif",
+    "data\\bgs\\warehous\\p05.gif"
+  ],
+  "frontpanel": "data\\bgs\\warehous\\front.gif",
+  "width_px": 256,
+  "height_px": 224,
+  "width_tiles": 32,
+  "height_tiles": 28,
+  "unique_tiles": 761,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 24352,
+  "tilemap_bytes": 1792,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0,
+  "scroll_x": 0
+}

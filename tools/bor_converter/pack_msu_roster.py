@@ -41,7 +41,7 @@ File format (see the plan for the authoritative spec):
     then       BG directory (v2, only when bg_count > 0): 4 records x 16 bytes,
                located at bg_directory_offset.
       record N:
-        +0-1   bg_tile_count   (u16 LE, <= 512)
+        +0-1   bg_tile_count   (u16 LE, <= 1024)
         +2     width_tiles     (u8, 32)
         +3     height_tiles    (u8, 28)
         +4     hud_tile_count  (u8)
@@ -117,8 +117,10 @@ BG_HEIGHT_TILES = 28
 BG_TILEMAP_BYTES = BG_WIDTH_TILES * BG_HEIGHT_TILES * 2   # 1792
 BG_BYTES_PER_TILE = 32      # 4bpp
 HUD_BYTES_PER_TILE = 16     # 2bpp
-# BG1 char data must fit VRAM words $0000-$1FFF; see bg_converter/convert_bg.py.
-BG_MAX_TILES = 512
+# BG1 char data must fit VRAM words $0000-$3FFF (1024 tiles); see
+# bg_converter/convert_bg.py's docstring -- Phase 8 (plan.md 2.7) removed the
+# boot-time BG2 blank-tile write that used to cap this at 512.
+BG_MAX_TILES = 1024
 
 
 def bake_anim_bytes(anim_dir):
