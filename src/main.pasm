@@ -1715,17 +1715,39 @@ TadPrivate_Process_WaitingForLoader:
         lda TadPrivate_nextSong
         beq TadPrivate_Process_WaitingForLoader__UseBlankSong
 
+; Two separate Poppy miscompiles lived in the six lines below, and together they
+; were the *second* Phase 7 blocker (the first was the dropped `bcc` in
+; LoadAudioData at $AC00). Both come from the same root cause: Poppy sizes
+; `ldx #`/`ldy #` immediates as 2 bytes during its address-estimation pass but
+; emits 3 in .i16, so every label and every `*` after one of them resolves short.
+;
+;  1. `__anon10` resolved to $8A29 while the real `jsr` sits at $8A2A. $8A29 is
+;     the high byte of `ldx #$8A23`, i.e. `$8A` = TXA. So the *success* path --
+;     the one taken every time a real song loads -- fell through TXA, which
+;     copies X (the data address, $8F35) into an 8-bit A. SetDataToTransfer then
+;     stored $35 as the data BANK. Observed live as bank=$35 while addr=$8F35 and
+;     size=341 were both correct: the giveaway was that "bank" was exactly the
+;     low byte of "addr". The song transfer then read from bank $35 (ROM garbage)
+;     and the SPC loader never completed it. Two nops give the early-landing
+;     branch somewhere harmless to fall through from.
+;
+;  2. `blanksongdata = * - 1` was a ::HACK from the upstream ca65 source that
+;     borrowed the third byte of `ldy #1` (a known $00) as the one-byte blank
+;     song. With `*` estimated short it resolved to $8A23 -- the *$01* byte --
+;     so the "blank song" was a $01, not a $00. Replaced with a real label on
+;     the zero padding at the head of the audio blob: same guarantee, no
+;     dependence on Poppy's estimation pass at all.
 TadPrivate_Process_WaitingForLoader__LoadData:
     jsl LoadAudioData
     bcs __anon10
         ; LoadAudioData returned false
     TadPrivate_Process_WaitingForLoader__UseBlankSong:
         ; The blank song is a single zero byte.
-        ; ::HACK use the 3rd byte of `ldy #1` (which is `0x00`) for the blank song 
         ldy #1
-        TadPrivate_Process_WaitingForLoader___blanksongdata = * - 1
-        lda #^(TadPrivate_Process_WaitingForLoader___blanksongdata)
-        ldx #((TadPrivate_Process_WaitingForLoader___blanksongdata)&$ffff)
+        lda #^(Tad_BlankSongByte)
+        ldx #((Tad_BlankSongByte)&$ffff)
+        nop                 ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+        nop
     __anon10:
 
     ; STACK holds next state
@@ -1798,6 +1820,10 @@ TadPrivate_Process_Loading__Return:
 .a8
 .i16
 ; DB access lowram
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
+    nop
+    nop
 Tad_FinishLoadingData:
     Tad_FinishLoadingData__Loop:
 ; [assert] assert .asize = 8, error
@@ -1890,6 +1916,10 @@ Tad_QueuePannedSoundEffect__EndIf:
 ; I unknown
 ; DB access lowram
 ; KEEP: X, Y
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
+    nop
+    nop
 Tad_QueueSoundEffect:
     cmp Tad_sfxQueue_sfx
     bcs Tad_QueueSoundEffect__EndIf
@@ -1907,6 +1937,22 @@ Tad_QueueSoundEffect__EndIf:
 .a8
 ; I unknown
 ; DB access lowram
+;
+; Second half of the Phase 7 blocker. This label resolved TWO bytes early
+; (Poppy bug #4), so `jsl Tad_LoadSong` from scpu_boot landed mid-instruction:
+; the assembled bytes at the exported address read `21 60` = `AND ($60,X)`,
+; which ran BEFORE the real `sta.l TadPrivate_nextSong` two bytes later. The
+; stray AND clobbered the song id (A=1) to 0, so `nextSong` was stored as 0 --
+; making the state machine take the blank-song path forever (observed:
+; nextSong=0, size=32, addr=$8A23 pointing into this routine's own
+; neighbourhood, stuck in LOADING_SONG_DATA_PLAY, S-DSP never leaving
+; reset+mute). Verified by disassembling src/main.bin at the exported address,
+; not inferred. Padding guards the call target so it falls through to the real
+; first instruction -- re-verify the raw bytes here if surrounding code shifts.
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
+    nop
+    nop
 Tad_LoadSong:
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::NULL, error
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::WAITING_FOR_LOADER_COMMON, error
@@ -1923,6 +1969,28 @@ Tad_LoadSong:
         lda #WAITING_FOR_LOADER_COMMON
         bra Tad_LoadSong__SetStateAndSwitchToLoader
 
+; The -2 label drift documented above is uniform across this whole routine, not
+; just its entry point, and the two interior labels were the ACTUAL Phase 7
+; blocker (the entry-point fix above only exposed them).
+;
+; `beq Tad_LoadSong__SongRequested` landed on $8ABA -- the `bra` belonging to
+; the common-data path two bytes earlier -- so it jumped straight to
+; SetStateAndSwitchToLoader and the `cmp #TAD__FIRST_LOADING_SONG_STATE / bcc`
+; guard below was DEAD CODE that never executed once. Result: every
+; Tad_LoadSong call forced TadPrivate_state to WAITING_FOR_LOADER_SONG,
+; including the very first one at boot while the state was still
+; WAITING_FOR_LOADER_COMMON. The common audio data was therefore never
+; transferred at all (traced live: state $7B -> $7C in one frame with the
+; transfer queue untouched at size=0), and the SPC loader -- correctly --
+; refused a song it had no common data for, so it never zeroed the spinlock
+; and TadPrivate_Loader_TransferData returned false forever.
+;
+; SetStateAndSwitchToLoader was drifted the same 2 bytes, landing on
+; `lda #WAITING_FOR_LOADER_SONG`, so the common-data path's own
+; `lda #WAITING_FOR_LOADER_COMMON` was overwritten with $7C too -- i.e. this
+; routine could not reach state $7B by any path.
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
 Tad_LoadSong__SongRequested:
     lda TadPrivate_state
     cmp #TAD__FIRST_LOADING_SONG_STATE
@@ -1931,6 +1999,8 @@ Tad_LoadSong__SongRequested:
 
         lda #WAITING_FOR_LOADER_SONG
 
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
     Tad_LoadSong__SetStateAndSwitchToLoader:
         sta TadPrivate_state
 
@@ -1941,6 +2011,8 @@ Tad_LoadSong__SongRequested:
         ; Send a *switch-to-loader* command to the audio-driver or loader
         lda #SWITCH_TO_LOADER
         sta.l SWITCH_TO_LOADER_PORT
+    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
+    nop
 Tad_LoadSong__Return:
     rtl
 
@@ -2140,12 +2212,28 @@ Tad_IsSongPlaying:
 .org $AC00
 .a8
 .i16
+; This was the Phase 7 blocker, and it was invisible in source: the branch
+; below was originally written as `bcc .valid` against a dot-prefixed local
+; label `.valid:`. **Poppy silently dropped the branch instruction entirely** --
+; the assembled bytes at $AC00 read `cmp #$02 / clc / rtl / rep #$30 ...` with
+; no `bcc` at all (raw-byte verified in src/main.bin; the label line vanished
+; too). So this callback ALWAYS took the invalid-song-id early return, leaving
+; A/X/Y as whatever the caller happened to hold. TadPrivate_Loader_SetDataToTransfer
+; then stored that garbage as the transfer queue (observed: addr=$8A23, size=1
+; instead of the correct addr=$8F35, size=341), and TAD sat in
+; LOADING_SONG_DATA_PLAY forever with the S-DSP still in reset+mute.
+;
+; Same family as CLAUDE.md's documented `@`-local-label rule -- this file's
+; standing convention is fully-qualified global labels only, and this was the
+; single place in main.pasm that violated it (verified by grep: one dot-label
+; definition, one branch to it, both here).
 LoadAudioData:
     cmp #N_DATA_ITEMS
-    bcc .valid
+    bcc LoadAudioData__valid
         clc
         rtl
-.valid:
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+LoadAudioData__valid:
     rep #$30
 .a16
     and #$00FF
@@ -2180,6 +2268,12 @@ LoadAudioData:
 ; Audio Data Blob ($B000 = file offset $3000)
 ; ============================================================================
 .org $B000
+Tad_BlankSongByte:
+    ; A guaranteed-$00 byte in bank 0, used as TAD's one-byte "blank song".
+    ; This is the first of the 43 zero pad bytes below; referencing it by label
+    ; (rather than the upstream `* - 1` trick) keeps the blank song correct no
+    ; matter how Poppy's address-estimation pass sizes the surrounding
+    ; immediates -- see TadPrivate_Process_WaitingForLoader__LoadData.
     ; The compiler's --output-bin is already a combined blob:
     ; [loader 116][audio driver 3221][DataTable][common/song data].
     ; The 43-byte callback precedes that blob, matching ca65-export.
