@@ -2310,17 +2310,38 @@ LoadAudioData__valid:
     sbc.l Tad_DataTable,x
     tay
 
+    ; Convert a Tad_DataTable entry into a far address.
+    ;
+    ; Upstream TAD does this with the standard LoROM dance -- `ora #$8000` for
+    ; the address and `bank = (offset >> 15) + AUDIO_DATA_BANK` via the
+    ; cmp/rol pair -- because in a normal ca65 build the audio blob is linked
+    ; to start at LoROM $8000 of its own bank, which makes a blob-relative
+    ; offset and a linear ROM offset the same number.
+    ;
+    ; That assumption does not hold here. This project is confined to bank 0
+    ; (Poppy's .bank N handling is broken), so the blob is .incbin'd at
+    ; __Tad_AudioData_0 = $B02B -- mid-bank, not at a bank boundary. The
+    ; upstream math therefore produced addresses $302B too low: the common
+    ; audio data resolved to $8D44 and song 1 to $8F35, both of which land in
+    ; the zero padding ahead of `.org $8C00`. The loader dutifully transferred
+    ; 497 and 341 bytes of ZEROS into Audio-RAM, so TAD reached PLAYING with
+    ; the S-DSP out of reset and full main volume, and emitted pure silence --
+    ; no voice was ever keyed on because there was no song to key one from.
+    ; (Verified by byte-comparing both candidate addresses against
+    ; soundwork/tad/build/audio-data.bin at the same offsets.)
+    ;
+    ; Since the whole blob is 4183 bytes spanning $B02B-$C082, it never
+    ; crosses a bank boundary, so the correct address is just a 16-bit add of
+    ; the blob base and a constant bank. If the blob ever grows past $FFFF
+    ; this must go back to carrying into the bank byte.
     lda.l Tad_DataTable,x
-    cmp #$8000
-    ora #$8000
+    clc
+    adc #(__Tad_AudioData_0 & $ffff)
     sta 1,s
 
     sep #$20
 .a8
-    lda.l Tad_DataTable+2,x
-    rol
-    clc
-    adc #AUDIO_DATA_BANK
+    lda #^(__Tad_AudioData_0)
 
     plx
     sec
