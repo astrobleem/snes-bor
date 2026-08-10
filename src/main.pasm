@@ -2602,14 +2602,28 @@ Player_Y = $7E53B5 ; .db -- sprite 1's current Y, clamped to MIN/MAX_Y
                               ;        movement is input-driven and clamped instead
                               ;        of bounced; reused here for the Y axis)
 PLAYER_MIN_X = 8
-PLAYER_MAX_X = 216         ; 16px sprite, keeps it fully on the 256px screen
+PLAYER_MAX_X = 216         ; superseded for X by WORLD_MAX_X below (Phase 8) --
+                             ; kept only as WORLD_MAX_X's derivation base and
+                             ; because nothing else needs it deleted
 PLAYER_MIN_Y = 8
 PLAYER_MAX_Y = 208         ; 16px sprite, 224-line visible screen: 208+16=224
 PLAYER_SPEED = 2           ; shared between axes
+; Phase 8: world-space X clamp for a level wider than one 256px screen.
+; PLAYER_MIN_X is unchanged (a left-edge render margin, independent of level
+; width). The right-edge margin PLAYER_MAX_X used to give from the SCREEN's
+; right edge (256 - 216 = 40px) is preserved here as a margin from the
+; LEVEL's real right edge instead. Boss's real content is 336px (42 tiles --
+; see out/bg_boss_level/manifest.json's content_width_tiles); hardcoded here
+; rather than read from the packed bg_record because there is no general
+; "current level" concept yet, matching how PLAYER_MAX_X/Y were already
+; per-scene constants, not derived from anything.
+WORLD_CONTENT_WIDTH = 336
+WORLD_MAX_X = 296          ; WORLD_CONTENT_WIDTH - (256 - PLAYER_MAX_X)
 ; Clamp-wrap safety invariant (both axes): SPEED <= MIN (sbc side) and
-; MAX + SPEED <= 255 (adc side), or the add/subtract can wrap past the
-; clamp and teleport to the opposite edge instead of stopping there.
-; Holds today: X (2/8/216), Y (2/8/208).
+; MAX + SPEED <= 255 for 8-bit axes / <= 65535 for the 16-bit X axis (adc
+; side), or the add/subtract can wrap past the clamp and teleport to the
+; opposite edge instead of stopping there. Holds today: X (2/8/296, 16-bit),
+; Y (2/8/208, 8-bit).
 
 ; --- plan.md Phase 3: minimal AI (SNES-BOR-Engine-Prompt.md Sec 6.2 --
 ; "Enemies walk toward player. When within 30 pixels, play punch
@@ -2747,7 +2761,19 @@ Anim_AttackMsuBaseHi = $7E53C7   ; .db
 ; for later steps) but not yet used by any code -- Player_X/Y and the
 ; hardcoded palette/tile-column/single-entity assumptions stay as they
 ; are until their own steps.
-CHAR_POS_X          = 4    ; .dw -- screen X (Step 2)
+CHAR_POS_X          = 4    ; .dw -- world X (Step 2; widened Phase 8)
+CHAR_POS_X_HI       = 5    ; high byte of CHAR_POS_X, as its OWN named
+                             ; constant rather than a `CHAR_POS_X+1` DP
+                             ; expression -- Poppy's address-estimation pass
+                             ; and its real encoding pass disagreed on that
+                             ; expression's instruction length in a `stz`
+                             ; (found via check_label_drift.py: every label
+                             ; after CharacterEntity_Init's spawn-position
+                             ; zeroing drifted). Matches this project's
+                             ; standing rule (see math.pasm's header) to
+                             ; avoid `Symbol+N` arithmetic feeding an
+                             ; instruction operand for a bank-$7E-adjacent
+                             ; symbol -- generalized here to a DP offset too.
 CHAR_POS_Y           = 6    ; .dw -- screen Y (Step 2)
 CHAR_FACING_LEFT    = 8    ; .db
 CHAR_FRAME_INDEX    = 9    ; .db
@@ -3017,7 +3043,12 @@ Anim_Play__check_attack_trigger:
     beq Anim_Play__player_input
     ; --- mode 0: static -- always idle, ignore real controller state. ---
     lda #0
-    bra Anim_Play__want_got
+    brl Anim_Play__want_got     ; bra went out of range (Phase 8's AI-seek
+                                  ; widening pushed want_got further away);
+                                  ; Poppy errors cleanly on this rather than
+                                  ; silently miscompiling, unlike a bcc/beq
+                                  ; over-range -- brl has full range and is
+                                  ; already used elsewhere in this routine
     nop
 Anim_Play__player_input:
     lda.l Input_trigger+1
@@ -3054,6 +3085,14 @@ Anim_Play__want_idle:
     ; trigger condition) since it must set CHAR_SELECTED directly, not
     ; via want_got (which only handles idle/walk toggling, not attack). ---
 Anim_Play__ai_seek:
+    ; X only (Phase 8: CHAR_POS_X is now a real 16-bit world coordinate,
+    ; since a level can be wider than one 256px screen -- Y stays 8-bit,
+    ; there is no vertical scroll). Every branch target in this X portion
+    ; gets a redundant rep #$20/.a16 resync (poppy bug #10); Y and
+    ; Anim_Play__want_got below are still real 8-bit fields (CHAR_POS_Y,
+    ; CHAR_SELECTED), so .a8 is restored before either is touched.
+    rep #$20
+.a16
     lda.l PlayerEntity_PosX
     cmp CHAR_POS_X
     bcs Anim_Play__ai_dx_playerge
@@ -3063,16 +3102,22 @@ Anim_Play__ai_seek:
     bra Anim_Play__ai_dx_have
     nop
 Anim_Play__ai_dx_playerge:
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     nop
 Anim_Play__ai_dx_have:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Anim_Play__ai_dx_close
+    sep #$20
+.a8
     lda #1                          ; farther than range on X alone -- walk,
     bra Anim_Play__want_got         ; no need to also check Y
     nop
 Anim_Play__ai_dx_close:
+    sep #$20
+.a8
     lda.l PlayerEntity_PosY
     cmp CHAR_POS_Y
     bcs Anim_Play__ai_dy_playerge
@@ -4070,6 +4115,15 @@ Character_PlayFrame__ai_x:
     ; Mesen2: X crept from 94 toward the player by ~2px every ~40-50
     ; frames despite CHAR_SELECTED reading 2 at every sampled point).
     ; Recomputing distance directly here is immune to that timing gap.
+    ;
+    ; Phase 8: this whole X block (through Character_PlayFrame__store_x) is
+    ; now 16-bit -- CHAR_POS_X is a real world coordinate, since a level can
+    ; be wider than one 256px screen. Every label below gets a redundant
+    ; rep #$20/.a16 resync (poppy bug #10), since __right/__left/__hold are
+    ; also reached directly from the still-.a8 dpad dispatch above. Y stays
+    ; 8-bit unchanged (no vertical scroll).
+    rep #$20
+.a16
     lda.l PlayerEntity_PosX
     cmp CHAR_POS_X
     beq Character_PlayFrame__hold  ; already X-aligned with the player
@@ -4084,6 +4138,8 @@ Character_PlayFrame__ai_x:
     nop
 Character_PlayFrame__ai_x_playerge:
     ; A is still playerX (cmp doesn't touch it)
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     cmp #ANIM_AI_ATTACK_RANGE+1
@@ -4091,15 +4147,19 @@ Character_PlayFrame__ai_x_playerge:
     bra Character_PlayFrame__right ; player is to the right -- reuse __right
     nop
 Character_PlayFrame__right:
+    rep #$20
+.a16
     lda CHAR_POS_X
     clc
     adc #PLAYER_SPEED
-    cmp #PLAYER_MAX_X + 1
+    cmp #WORLD_MAX_X + 1
     bcc Character_PlayFrame__store_x
-    lda #PLAYER_MAX_X
+    lda #WORLD_MAX_X
     bra Character_PlayFrame__store_x
     nop
 Character_PlayFrame__left:
+    rep #$20
+.a16
     lda CHAR_POS_X
     sec
     sbc #PLAYER_SPEED
@@ -4109,10 +4169,23 @@ Character_PlayFrame__left:
     bra Character_PlayFrame__store_x
     nop
 Character_PlayFrame__hold:
+    rep #$20
+.a16
     lda CHAR_POS_X
     nop
 Character_PlayFrame__store_x:
     sta CHAR_POS_X
+    ; Screen-relative X for OAM = world X - camera scroll. Uses Screen_PosX
+    ; as of the END of last frame (Core_Screen_Play, which re-eases it from
+    ; THIS frame's just-stored CHAR_POS_X, runs later in scpu_main_loop,
+    ; after Core_Oop_Play finishes every entity) -- a one-frame lag between
+    ; camera and sprite render position that is not visible at this scroll
+    ; speed. See plan.md Phase 8.
+    sec
+    sbc Screen_PosX
+    and #$00ff
+    sep #$20
+.a8
     sta.l OamSetSprite_X
 
     ; --- Y: held-dpad Up/Down movement, mirroring the X block (same three
@@ -4215,11 +4288,37 @@ Character_PlayFrame__store_y:
 Character_PlayFrame__no_flip:
     nop
 
-    lda #$02                     ; hi-table: size bit set (large = 32x64
-                                  ; under OBSEL mode 6), X-high clear
+    ; hi-table: size bit set (large = 32x64 under OBSEL mode 6) always;
+    ; X-high (bit0) set when this entity's screen-relative X (world X minus
+    ; camera scroll, recomputed here rather than carried from
+    ; Character_PlayFrame__store_x -- cheaper than threading a scratch
+    ; value through the tile/attr block above) is >= 256. Phase 8: this is
+    ; the first time this bit has ever needed to be anything but 0.
+    rep #$20
+.a16
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    and #$0100
+    beq Character_PlayFrame__hi_xlow   ; still 16-bit here -- beq itself is
+                                        ; width-independent, only immediate
+                                        ; operand SIZING would matter, and
+                                        ; there is none on this branch
+    sep #$20
+.a8
+    lda #$03
+    bra Character_PlayFrame__hi_store
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_PlayFrame__hi_xlow:
+    sep #$20
+.a8
+    lda #$02
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_PlayFrame__hi_store:
     sta.l OamSetSprite_Hi
     rep #$31
 .a16
+.i16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
     rts
 
@@ -4349,8 +4448,10 @@ Character_HitApply_VsEntity1:
     ; lines up; cheap enough to just always pay for at a leaf entry point
     ; rather than re-derive whether it's needed every time this file
     ; changes around it).
-    sep #$20
-.a8
+    ; Phase 8: dx is 16-bit (CHAR_POS_X/EntityN_PosX are real world X now);
+    ; dy stays 8-bit (no vertical scroll) -- __dx_ok resyncs back to .a8.
+    rep #$20
+.a16
     lda.l Entity1_PosX
     cmp CHAR_POS_X
     bcs Character_HitApply_VsEntity1__dx_otherge
@@ -4360,6 +4461,8 @@ Character_HitApply_VsEntity1:
     bra Character_HitApply_VsEntity1__dx_have
     nop
 Character_HitApply_VsEntity1__dx_otherge:
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     nop
@@ -4369,6 +4472,8 @@ Character_HitApply_VsEntity1__dx_have:
     rts                     ; no overlap on X
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity1__dx_ok:
+    sep #$20
+.a8
     lda.l Entity1_PosY
     cmp CHAR_POS_Y
     bcs Character_HitApply_VsEntity1__dy_otherge
@@ -4414,9 +4519,10 @@ Character_HitApply_VsEntity2:
     ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
     ; reason (poppy bug #10 -- Poppy's linear width tracker has "seen" an
     ; earlier `rep` by the time it reaches here even though every real jsr
-    ; into this routine runs before that rep executes).
-    sep #$20
-.a8
+    ; into this routine runs before that rep executes). Phase 8: dx is
+    ; 16-bit, dy stays 8-bit -- see VsEntity1's comment.
+    rep #$20
+.a16
     lda.l Entity2_PosX
     cmp CHAR_POS_X
     bcs Character_HitApply_VsEntity2__dx_otherge
@@ -4426,6 +4532,8 @@ Character_HitApply_VsEntity2:
     bra Character_HitApply_VsEntity2__dx_have
     nop
 Character_HitApply_VsEntity2__dx_otherge:
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     nop
@@ -4435,6 +4543,8 @@ Character_HitApply_VsEntity2__dx_have:
     rts                     ; no overlap on X
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity2__dx_ok:
+    sep #$20
+.a8
     lda.l Entity2_PosY
     cmp CHAR_POS_Y
     bcs Character_HitApply_VsEntity2__dy_otherge
@@ -4474,8 +4584,9 @@ Character_HitApply_VsEntity2__hp_ok:
 ; box.
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsEntity3:
-    sep #$20
-.a8
+    ; Phase 8: dx is 16-bit, dy stays 8-bit -- see VsEntity1's comment.
+    rep #$20
+.a16
     lda.l Entity3_PosX
     cmp CHAR_POS_X
     bcs Character_HitApply_VsEntity3__dx_otherge
@@ -4485,6 +4596,8 @@ Character_HitApply_VsEntity3:
     bra Character_HitApply_VsEntity3__dx_have
     nop
 Character_HitApply_VsEntity3__dx_otherge:
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     nop
@@ -4494,6 +4607,8 @@ Character_HitApply_VsEntity3__dx_have:
     rts                     ; no overlap on X
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity3__dx_ok:
+    sep #$20
+.a8
     lda.l Entity3_PosY
     cmp CHAR_POS_Y
     bcs Character_HitApply_VsEntity3__dy_otherge
@@ -4534,9 +4649,10 @@ Character_HitApply_VsEntity3__hp_ok:
 ; #1) when it's the one attacking.
     nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsPlayer:
-    ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same reason.
-    sep #$20
-.a8
+    ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
+    ; reason. Phase 8: dx is 16-bit, dy stays 8-bit -- see its comment.
+    rep #$20
+.a16
     lda.l PlayerEntity_PosX
     cmp CHAR_POS_X
     bcs Character_HitApply_VsPlayer__dx_otherge
@@ -4546,6 +4662,8 @@ Character_HitApply_VsPlayer:
     bra Character_HitApply_VsPlayer__dx_have
     nop
 Character_HitApply_VsPlayer__dx_otherge:
+    rep #$20
+.a16
     sec
     sbc CHAR_POS_X
     nop
@@ -4555,6 +4673,8 @@ Character_HitApply_VsPlayer__dx_have:
     rts                     ; no overlap on X
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsPlayer__dx_ok:
+    sep #$20
+.a8
     lda.l PlayerEntity_PosY
     cmp CHAR_POS_Y
     bcs Character_HitApply_VsPlayer__dy_otherge
@@ -5117,6 +5237,12 @@ CharacterEntity_Init__role3:
 .a8
     lda #120                        ; [120,152) x [40,104) -- clear of the
     sta CHAR_POS_X                  ; player's [120,152) x [150,214) (same
+    stz CHAR_POS_X_HI                ; CHAR_POS_X is .dw (Phase 8, world X) --
+                                     ; OopObjRam is never zeroed before Init
+                                     ; runs, so the high byte must be zeroed
+                                     ; explicitly or it's power-on WRAM
+                                     ; garbage. Same fix at every role branch
+                                     ; below and the player's, near CHAR_POS_Y.
     lda #40                         ; X, Y separated by 46px, more than the
     sta CHAR_POS_Y                  ; 64px sprite height)
     lda #2
@@ -5134,6 +5260,7 @@ CharacterEntity_Init__role2:
 .a8
     lda #200
     sta CHAR_POS_X
+    stz CHAR_POS_X_HI                ; see role 3's comment
     lda #150
     sta CHAR_POS_Y
     lda #2
@@ -5156,6 +5283,7 @@ CharacterEntity_Init__role1:
 .a8
     lda #40
     sta CHAR_POS_X
+    stz CHAR_POS_X_HI                ; see role 3's comment
     lda #150
     sta CHAR_POS_Y
     lda #2
@@ -5176,6 +5304,7 @@ CharacterEntity_Init__player:
     lda #120                        ; mid-screen; was PLAYER_MIN_X, which
                                      ; sits exactly on the left clamp
     sta CHAR_POS_X
+    stz CHAR_POS_X_HI                ; see role 3's comment
     lda #150                        ; matches this build's previous Y-fixed value
     sta CHAR_POS_Y
     lda #1
@@ -5233,6 +5362,41 @@ CharacterEntity_Play:
     jsr Character_HitApply   ; plan.md Phase 4: AABB hit check, after this
                                ; frame's real animation/position are known
     lda #OBJR_NOERR
+    rts
+
+; core/oop.pasm's generic command dispatch (Core_Oop_Call) reaches this via
+; an indirect jsr with D already switched to the CALLED object's own window
+; (see Core_Oop_Call's phd/tcd) -- CHAR_POS_X/Y below are bare/DP-relative
+; and read whichever entity core/screen.pasm is currently focused on, not
+; necessarily entity 0. OopCall_CommandId/ResultX/ResultY are fixed $7Exxxx
+; addresses (not DP offsets) and stay bare too, matching every other
+; reference to them in core/screen.pasm -- this project keeps DBR=$7E
+; throughout, so bare absolute addressing to a $7Exxxx symbol is unaffected
+; by D having just been switched.
+; Entered in .a16/.i16 (Core_Screen__SetTargetPosition's own ambient width
+; when it calls Core_Oop_Call) -- redundant resync anyway per poppy bug #10.
+; @return carry<bool>  set if OopCall_CommandId was handled
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+CharacterEntity_OnCommand:
+    rep #$31
+.a16
+.i16
+    lda OopCall_CommandId
+    cmp #SCREEN_CMD_GET_CAMERA_DATA
+    beq CharacterEntity_OnCommand__camera
+    clc
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+CharacterEntity_OnCommand__camera:
+    ; No jump/airborne state on this entity -- always report grounded, which
+    ; keeps Y-axis camera easing live (see screen.pasm's header on why
+    ; SCREEN_MODE_AIRBORNE freezes it). Harmless since Y never scrolls here.
+    lda CHAR_POS_X
+    sta OopCall_ResultX
+    lda CHAR_POS_Y
+    sta OopCall_ResultY
+    lda #SCREEN_MODE_GROUNDED
+    sec
     rts
 
 ; Ralf's idle/attack pixel data used to be baked here as ROM .incbin blobs
@@ -5782,6 +5946,7 @@ scpu_boot:
     sta.l OopRegStaging_Play
     lda #0
     sta.l OopRegStaging_Pause
+    lda #CharacterEntity_OnCommand   ; Phase 8: camera queries CHAR_POS_X/Y
     sta.l OopRegStaging_OnCommand
 
     ; Core_Oop_RegisterClass's own php/plp restores whatever width was live
@@ -5901,6 +6066,45 @@ msu1_done:
     ; Core_Oop_Create's plp restores the ambient width from this call site
     ; (.a16/.i16, matching Anim_LoadCharacter's own exit convention) --
     ; TAD_Init below re-asserts its own required width explicitly anyway.
+    ;
+    ; --- Phase 8: point the camera at this entity (the player, always slot
+    ; 0 -- see CLAUDE.md's "player is always slot 0" note) and set the
+    ; playfield width to the boss level's real content width
+    ; (WORLD_CONTENT_WIDTH, 336px/42 tiles -- out/bg_boss_level's
+    ; content_width_tiles). Core_Screen_SetPlayfieldBorder derives
+    ; Screen_MaxX = width - Screen_SizeX - 1 from that (336-256-1 = 79) --
+    ; the exact max BG1 horizontal scroll this level allows, computed once
+    ; here rather than hand-derived. Height/Y bounds are left at Core_
+    ; Screen_Init's defaults (effectively unbounded) since nothing writes
+    ; BG1VOFS -- no vertical scroll exists, matching plan.md Phase 8's
+    ; scope limits. Core_Oop_Create just left OopLastHandle_Num/Id/Slot set
+    ; to entity 0's own handle (its own @return contract), so those are
+    ; still valid inputs to Core_Screen_Focus here. ---
+    lda #0
+    ldx #0
+    ldy #WORLD_CONTENT_WIDTH
+    jsr Core_Screen_SetPlayfieldBorder
+    ; OopLastHandle_Id/Slot are documented "low byte valid" -- their high
+    ; byte is never explicitly zeroed (Core_Oop__PackHandle writes them via
+    ; an 8-bit `sta`, only touching the low byte). A raw 16-bit ldx/ldy of
+    ; either silently carries WRAM garbage into the high byte. That garbage
+    ; then propagates into Screen_FocusSlot and, from there, straight into
+    ; Core_Oop_Call's slot-index arithmetic as an UNMASKED 16-bit index --
+    ; found via a real, reproducible bug: entity 0 (the player) stopped
+    ; being dispatched by Core_Oop_Play entirely, forever, from the first
+    ; frame after this boot code ran (confirmed via Mesen2: CHAR_SELECTED/
+    ; CHAR_FRAME_INDEX/CHAR_TICK_COUNTER frozen at their power-on defaults
+    ; for the player specifically, while entities 1-3 kept animating
+    ; normally). Mask to the valid low byte before use.
+    lda OopLastHandle_Id
+    and #$00ff
+    tax
+    lda OopLastHandle_Slot
+    and #$00ff
+    tay
+    lda OopLastHandle_Num
+    jsr Core_Screen_FocusImmediate  ; snap immediately -- player spawns at
+                                      ; x=120, no reason to ease in from 0
     ;
     ; --- plan.md Phase 5: flush the DMA queue right after EACH entity's
     ; create, not just once after all four (as this code did before Phase
@@ -6442,6 +6646,13 @@ scpu_main_loop:
 .a16
     jsr Core_Oop_Play
     jsr Core_Screen_Play
+    ; Phase 8: commit the eased camera position to BG1's horizontal scroll
+    ; shadow -- Core_Nmi_Play writes Nmi_Bg1ScrollX to $210D (write-twice,
+    ; low then high byte) every vblank regardless, so this just has to keep
+    ; the shadow current. Nmi_Bg1ScrollY is deliberately left untouched: no
+    ; vertical scroll exists (see the playfield-height comment at msu1_done).
+    lda Screen_PosX
+    sta.l Nmi_Bg1ScrollX
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its

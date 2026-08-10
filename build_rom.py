@@ -20,7 +20,7 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 # dir). Regenerate with:
 #   python tools/bg_converter/convert_bg.py --level "DATA\EASY\6BEASY.TXT" -o out/bg_boss
 #   python tools/bg_converter/make_hud_tiles.py -o out/hud
-BG_SCREENS = [("out/bg_boss", "out/hud")]
+BG_SCREENS = [("out/bg_boss_level", "out/hud")]
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\SNES-CrimePatrol\tools\poppy-src\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'

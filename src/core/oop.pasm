@@ -222,16 +222,6 @@ OOP_SELF_HEADER_SIZE = 4
 	OopCall_CommandId .dw
 	OopCall_Slot       .dw
 	OopCall_ClassOfs   .dw
-
-	; general-purpose extra output slots: Core_Oop_Call's own return channel is
-	; a single 16-bit `a` (plus carry=handled) — most commands don't need
-	; more than that, so the engine doesn't reserve space for more by
-	; default. A command whose contract needs multiple values back (e.g.
-	; core/screen.pasm's camera-position query) can use these two as an
-	; additional, documented-per-command convention; the engine itself never
-	; reads or writes them.
-	OopCall_ResultX .dw
-	OopCall_ResultY .dw
 .ende
 
 ; --- Object slots: parallel arrays, index = slot byte-offset (0,2,4,...) ---
@@ -250,6 +240,32 @@ ClassInit      = $7E091a   ; 32B
 ClassPlay      = $7E093a   ; 32B
 ClassPause     = $7E095a   ; 32B
 ClassOnCommand = $7E097a   ; 32B — 0 = class doesn't handle any commands
+
+; general-purpose extra output slots for Core_Oop_Call's callee: its own
+; return channel is a single 16-bit `a` (plus carry=handled) — most commands
+; don't need more than that, so the engine doesn't reserve space for more by
+; default. A command whose contract needs multiple values back (e.g.
+; core/screen.pasm's camera-position query) can use these two as an
+; additional, documented-per-command convention; the engine itself never
+; reads or writes them.
+;
+; Deliberately declared HERE, as their own fixed addresses in the
+; $7E099a-$7E0a00 gap between ClassOnCommand's array (ends $7E099a) and
+; OopObjRam (starts $7E0a00) -- NOT as the last two fields of the
+; OopObjIndex.. .enum block above. They used to be the last two fields of
+; that enum, which put them at $7E078a/$7E078c: EXACTLY OopFlags[0] and
+; OopFlags[1] (byte offsets 0 and 2 into the OopFlags array right below,
+; which the enum's own fixed base address doesn't leave room for). Nothing
+; ever wrote OopCall_ResultX/Y before a real Core_Oop_Call consumer existed
+; (see core/screen.pasm's own header: this whole path was "boot-verified
+; but not exercised end-to-end"), so the collision sat latent until Phase 8
+; wired up the first one -- found via a real, reproducible bug: writing an
+; entity's CHAR_POS_X/Y into OopCall_ResultX/Y silently cleared
+; OBJ_FLAG_PRESENT on whichever object happened to occupy slot 0 (and
+; slot 2's low byte via ResultY), so Core_Oop_Play stopped dispatching it
+; forever, one frame after the first camera query ran.
+OopCall_ResultX = $7E09a0   ; .dw
+OopCall_ResultY = $7E09a2   ; .dw
 
 ; --- Per-object private RAM pool (bump-allocated, compacted on GC) ---
 OopObjRam    = $7E0a00   ; OOP_OBJ_RAM_SIZE bytes, $7E0a00-$7E15ff

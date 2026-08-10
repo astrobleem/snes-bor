@@ -19,8 +19,20 @@ from _harness import (open_session, pasm_constant, read_block,  # noqa: E402
                       repo_root_from, Reporter)
 
 ROOT = repo_root_from(None)
-BG_DIR = os.path.join(ROOT, 'out', 'bg_boss')
-HUD_DIR = os.path.join(ROOT, 'out', 'hud')
+sys.path.insert(0, ROOT)
+import build_rom  # noqa: E402
+
+# Ground truth is whichever BG build_rom.py actually ships -- hardcoding
+# 'out/bg_boss' here used to be correct, then silently became a check
+# against the WRONG level's tiles/tilemap the moment build_rom.py's
+# BG_SCREENS switched to a different directory (Phase 8: out/bg_boss_level).
+# Reading it from build_rom.py's own config means this gate always tracks
+# whatever ROM it's actually pointed at, the same standing rule this file's
+# other checks already apply to VRAM/CGRAM (compare against ground truth
+# the engine did not produce, not a value baked into the test).
+_bg_dir, _hud_dir = build_rom.BG_SCREENS[0]
+BG_DIR = os.path.join(ROOT, _bg_dir)
+HUD_DIR = os.path.join(ROOT, _hud_dir)
 
 # Engine layout, parsed from source so it cannot drift (see pasm_constant).
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
@@ -111,6 +123,9 @@ def main():
         r.check(f'BG3 char base = word ${BG3_TILES_WORD:04X} (needs the new $210C shadow)',
                 layers[2]['chrAddr'] == BG3_TILES_WORD)
         r.check('TM = BG1 + BG3 + OBJ ($15)', ppu['mainScreenLayers'] == 0x15)
+        expect_wide = manifest.get('width_tiles') == 64
+        r.check(f'BG1SC width mode matches manifest (width_tiles={manifest.get("width_tiles")})',
+                layers[0]['doubleWidth'] == expect_wide)
 
         # --- HUD: bars drawn, and they track CHAR_HP. ---
         # Row 0 is the player's bar: blank, cap-left, 8 body tiles, cap-right.

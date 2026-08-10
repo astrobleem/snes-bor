@@ -32,6 +32,14 @@ The three original single-character shots — idle, walk and attack, from before
 |---|---|---|
 | ![Idle animation](docs/screenshots/idle.png) | ![Walk animation](docs/screenshots/walk.png) | ![Attack animation](docs/screenshots/attack.png) |
 
+### Scrolling
+
+The level now extends past one screen (336px content, vs. the 256px screen), and the camera follows the player. Holding dpad-Right from boot pans the whole scene: the throne shot above is at scroll 0; the shot below is the same ROM, same level, after holding Right until the camera clamps at its computed max (`Screen_PosX = 79`) — the throne has moved off the left edge and the level's right boundary (nothing beyond it) is now visible.
+
+![The camera scrolled right to its clamp, throne pushed off-screen left, level edge visible on the right](docs/screenshots/scene_scrolled.png)
+
+The scroll is real hardware state, not a screen-space camera trick: `$210D` (BG1HOFS) is written from the same eased `Screen_PosX` every vblank, and the player's/AI's OAM X positions are computed screen-relative (world X minus camera X) every frame, including deriving OAM's X-high bit when that goes negative-of-256. There's still no vertical or diagonal scroll — BOR levels are horizontal-only side-scrollers, so none is planned.
+
 ---
 
 ## Current Status (2026-08-09)
