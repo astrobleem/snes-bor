@@ -1204,7 +1204,7 @@ passing for the wrong reasons:**
 **Next**: Phase 7 (audio polish) — **gate evaluated, and it FAILS. Phase 7
 is blocked.** See the next section.
 
-## Phase 7 gate: BLOCKED — TAD is stuck in LOADING_SONG_DATA_PLAY
+## Phase 7 gate: RESOLVED — audio plays (see the RESOLUTION section below)
 
 plan.md §2.5's step 1 says to confirm a song actually plays before wiring
 a punch SFX, and to STOP and hand back if it does not. It does not.
@@ -1246,6 +1246,53 @@ the driver internals it rules out. Whoever picks this up starts here:
 are not driving the song transfer to completion. The boot handshake
 itself is fine — reaching `$7F` at all proves `Tad_Init` succeeded and the
 loader accepted a song.
+
+### RESOLUTION (same day, after the user explicitly authorized debugging the driver)
+
+`tools/verify/phase7.py` now reports **PHASE 7: PASS**. State reaches
+`PLAYING` (`$82`) ~17 frames after reset, `FLG` = `$00` at main volume
+127/127, recorded peak amplitude 23082 on 3/3 runs. Phases 5 and 6 still
+pass; `audit_all.py` still `ALL CHECKS PASS`.
+
+Everything observed above was accurate. The inference drawn from it --
+"the failure is in the song-load handshake, i.e. driver internals" -- was
+not. **None of the five bugs were in TAD's logic.** Four were silent Poppy
+miscompiles and one was a porting error in this repo's own
+`LoadAudioData`:
+
+1. Poppy sizes `jsl <label>` as 3 bytes during address estimation and emits
+   4, so every label after a `jsl` resolves one byte early and the error
+   accumulates. The TAD region has exactly three `jsl`s, and the drift
+   across its 27 broken labels stepped 1 -> 2 -> 3 right after each one.
+   Three of those were individually fatal (stray `TXA` corrupting the data
+   bank; `Tad_LoadSong`'s state guard reduced to dead code so the common
+   audio data never transferred; `TadPrivate_Process_Loading` landing on
+   the previous routine's `rtl`, so `Tad_FinishLoadingData` spun forever).
+2. Poppy silently deletes a branch whose target is a dot-local label.
+3. `Tad_DataTable` offsets are relative to the ca65 audio *segment* base,
+   but `LoadAudioData` used upstream's LoROM conversion, which only works
+   when that segment starts at `$8000` of a bank. This blob is `.incbin`'d
+   mid-bank at `$B02B`, so every address came out `$302B` low and the
+   loader transferred **zeros**. Correct base is
+   `__Tad_AudioData_0 - 51` (that segment opens with the 51-byte
+   `LoadAudioData` callback).
+
+**The lesson worth carrying forward:** the DSP/state readings quoted above
+were treated as proof the driver was mid-handshake. They were equally
+consistent with a driver that had successfully loaded nothing. Once the
+label drift was fixed, TAD reported `PLAYING` with the DSP out of reset at
+full volume **and still emitted pure silence** for exactly that reason.
+Engine-visible status bytes could not tell those apart; only byte-comparing
+the ROM the loader was pointed at against `audio-data.bin` could.
+
+`tools/rom_audit/check_label_drift.py` was added to find bug 1 class
+mechanically. Note the pre-existing `rom_audit` checks cannot: they verify
+a branch target lands on a valid instruction boundary, and a drifted label
+usually does -- just the wrong instruction.
+
+**Recommended next step for Phase 7:** trigger an SFX on attack start. It
+needs content first -- `audio-enums.inc` exports only `s02_coin` and a
+placeholder `sfx_stub = 0`.
 
 ## Harness gotchas (Mesen2 / build)
 

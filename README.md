@@ -2,15 +2,29 @@
 
 A Super Nintendo Entertainment System (SNES) proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD).
 
-**This is a hardware-pipeline proof-of-concept, not a playable game.** Two independently-animated characters now render simultaneously — one dpad-controlled, one AI-controlled that walks toward the player and attacks in range, with AABB collision producing a real hit reaction. There is still no level content, no player health or damage system, and no game loop — see [Current Status](#current-status) below for exactly what does and doesn't work today. `SNES-BOR-Engine-Prompt.md` is the original design spec for the full engine; much of it is still unbuilt, and [plan.md](plan.md) is the live roadmap for the rest.
+**This is a hardware-pipeline proof-of-concept, not a playable game.** Four independently-animated characters now render simultaneously — one dpad-controlled, three AI-controlled that walk toward the player and attack in range, with AABB collision producing a real hit reaction — over a converted Beats of Rage level backdrop, with a BG3 health-bar HUD and TAD music playing on the S-DSP. There is still no scrolling, no damage system (HP is displayed, but nothing reacts at 0), and no game loop — see [Current Status](#current-status) below for exactly what does and doesn't work today. `SNES-BOR-Engine-Prompt.md` is the original design spec for the full engine; much of it is still unbuilt, and [plan.md](plan.md) is the live roadmap for the rest.
 
 ---
 
 ## Screenshots
 
-The player character (converted from a real Beats of Rage sprite sheet, streamed frame-by-frame from `bor.msu`) idling, walking, and attacking, rendered as a single large hardware OAM sprite. Since Phase 6 the background is a real converted Beats of Rage level (the boss throne room), streamed from `bor.msu` alongside a BG3 health-bar HUD.
+Captured from the current build (`distribution/bor.sfc`) in Mesen2. Everything on screen is streamed from `bor.msu` at runtime — nothing here is baked into the ROM.
 
-**These screenshots predate the entity system** and show only one character. The current build renders two simultaneously — the dpad-driven player plus an AI character that closes distance and attacks. They have not been recaptured.
+| The full scene | Mid-fight |
+|---|---|
+| ![Four characters over the converted backdrop](docs/screenshots/scene.png) | ![AI characters closing on the player](docs/screenshots/scene_action.png) |
+
+Four characters (2 Ralfs + 2 JHUNs — the roster holds two, so each appears twice) render as large 32×64 hardware OAM sprites against a real converted Beats of Rage level, the boss throne room. The four stacked red bars at the top left are the BG3 HUD, one per entity, driven by each character's own `CHAR_HP` byte and redrawn only when it changes.
+
+| HP depleting from AI hits |
+|---|
+| ![The player's HP bar drained by AI attacks](docs/screenshots/scene_hud_depleted.png) |
+
+TAD audio, recorded straight out of the emulator — the song's notes, then silence once the (deliberately short) track ends:
+
+![Recorded S-DSP output showing the song playing](docs/screenshots/audio_waveform.png)
+
+The three original single-character shots — idle, walk and attack, from before the entity system existed — are kept for the per-animation detail they show:
 
 | Idle | Walk | Attack |
 |---|---|---|
@@ -22,7 +36,14 @@ The player character (converted from a real Beats of Rage sprite sheet, streamed
 
 ### Working and verified
 
-**Most recent work — the entity system (`plan.md` Phases 0–5, all committed and verified).** This is what took the project from "one sprite on screen" to "four characters interacting simultaneously," and it is the part most likely to be relevant if you're picking this up:
+**Most recent work — TAD audio actually plays (`plan.md` Phase 7, previously ⛔ blocked at its own gate).** `tools/verify/phase7.py` now reports `PHASE 7: PASS`. Getting there meant fixing four silent assembler miscompiles and one real porting bug; none of it was the TAD driver's own logic.
+
+- **The failure mode worth knowing about: every status byte read perfect while the driver played nothing.** TAD sat at `TadState::PLAYING` (`$82`) with the S-DSP out of reset (`FLG=$00`) and main volume at 127/127 — and emitted pure silence, because it had faithfully loaded a song consisting entirely of zeros. `Tad_DataTable`'s entries are offsets from the start of the ca65 *audio data segment*, and upstream `LoadAudioData` converts them with the standard LoROM dance (`ora #$8000`), which is only correct when that segment is linked to start at LoROM `$8000` of its own bank. This project is confined to bank 0 (Poppy's `.bank N` handling is broken), so the blob is `.incbin`'d mid-bank at `$B02B` and every computed address came out `$302B` too low, landing in the zero padding ahead of `.org $8C00`. Fixed by rebasing onto the real segment base — which is `__Tad_AudioData_0 - 51`, since that segment opens with the 51-byte `LoadAudioData` callback before the blob (`main.pasm`'s comment claiming a "43-byte callback" was wrong; `audio-data.s:117` asserts 51). The arithmetic pins it exactly: the data table sits at blob offset 3337 and is 8 bytes, so data starts at 3345, and entry0 `$0D44` = 3396 − 51 = 3345, while the end entry `$108A` = 4234 − 51 = 4183 = the exact size of `audio-data.bin`.
+- **Root cause found for this project's long-running "label drift" assembler bug.** Poppy sizes `jsl <label>` as 3 bytes during its address-estimation pass and emits the correct 4, so every label after a `jsl` resolves one byte early — and the error *accumulates*, one byte per `jsl`. The TAD region contains exactly three `jsl`s and the measured drift across its 27 broken labels stepped 1 → 2 → 3 immediately after each one. Four of those broken labels were individually fatal: one made the `LoadAudioData` success path fall through a stray `TXA` (storing the data address's low byte as its *bank*), one turned `Tad_LoadSong`'s state guard into dead code that never executed (so the common audio data was never transferred at all), and one put `TadPrivate_Process_Loading` on the previous routine's `rtl`, making `Tad_FinishLoadingData` spin forever without ever calling `TransferData`. A fifth bug was separate: Poppy **silently deletes** a branch whose target is a dot-prefixed local label (`bcc .valid`), emitting neither the branch nor the label.
+- **New tool: `tools/rom_audit/check_label_drift.py`.** It asserts that the byte at each label's address is either a guard `nop` or an opcode for the mnemonic the *source* puts on the next line, reports the exact padding needed per label, and exits nonzero so it can gate a build. This matters because the existing `rom_audit` checks are structurally blind to this bug class — they verify a branch target lands on a valid instruction boundary, and a drifted label usually does, just the wrong instruction. `audit_all.py` returned `ALL CHECKS PASS` the entire time the audio driver couldn't load a single byte.
+- **Verification.** Recorded S-DSP output peaks at 23082 on all three runs (it was 0 / 13 / 2917 while the base was still wrong). The gate deliberately does not trust the engine's own status bytes: it byte-compares ROM against `soundwork/tad/build/audio-data.bin` and pins the drained transfer pointer to the exact end of the blob. The waveform assertion is majority-of-3 per `plan.md` §2.5's warning about this harness's ~40% false-silent rate, plus a distinct-`sha256`-across-runs check — real playback differs every run, whereas the pre-fix silence was byte-identical every time.
+
+**The entity system (`plan.md` Phases 0–5, all committed and verified).** This is what took the project from "one sprite on screen" to "four characters interacting simultaneously," and it is the part most likely to be relevant if you're picking this up:
 
 - **MSU-streaming serialization (Phase 0, `fd9bcdc`).** A real, deterministic data-corruption bug that could only manifest once a *second* entity started animating, so it had never been hit. `Msu1_LoadFrame` streams a frame through a single shared staging buffer and enqueues 6 row-DMAs; two entities advancing on the same frame would interleave into that one buffer and blow the 8-slot DMA queue. Fixed with an `Msu1_StreamBusy` flag that serializes streaming to at most one entity per frame; entities that don't get a turn simply retry next frame. **Consequence, by design:** with N entities on screen each character's animation advances at most every N frames. At N=4 that's ~15fps of animation against a 60fps game loop. This is correct behavior, not a performance bug.
 - **The character became a real object class (Phase 1, `fd9bcdc`).** `CharacterEntity` is now registered with `core/oop.pasm` and dispatched through it, with all per-character state (position, facing, frame index, animation selection, roster index, palette slot, tile column) living in that instance's own Direct Page window inside `OopObjRam` rather than in file-scope globals. `core/oop.pasm` switches the DP register per instance before calling `Init`/`Play`, so the same code drives every character.
@@ -83,7 +104,7 @@ The player character (converted from a real Beats of Rage sprite sheet, streamed
 Scheduled — see [plan.md](plan.md) Part Two for step-by-step plans:
 - **No scrolling.** BG1 holds one static, non-scrolling screen — the PoC spec rules scrolling out, so this is deliberate rather than pending.
 - **No damage system.** `CHAR_HP` exists and the HUD draws it, but nothing dies, respawns, or reacts at 0 — the spec scopes the PoC to hit *reaction*.
-- **TAD audio content** (the actual song/SFX data compiled into `soundwork/tad/build/`) has never been checked for whether it produces audible S-DSP output once playing — only the boot handshake into the driver was ever in scope. A punch SFX on the attack animation is blocked behind confirming that.
+- **No SFX are wired to gameplay.** Music now plays (see Phase 7 above), but nothing triggers a sound on an attack or a hit. This is no longer blocked — it is just unstarted, and it needs content before it needs code: `soundwork/tad/build/audio-enums.inc` currently exports exactly one song (`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound has to be authored in the Terrific Audio Driver project first.
 
 Not scheduled, and not blocking anything above:
 - **The hi-table's X-high bit (needed for X ≥ 256) is unverified by any real shipped sprite.** With 4 entities now spread across the screen this is closer to being hit than before, though `PLAYER_MAX_X=216` still keeps every current spawn position clear of X=255. A sprite that wraps to the left edge instead of continuing right past X=255 is this bug, not a movement bug.
@@ -106,8 +127,10 @@ A standalone hardware-plumbing proof, separate from the character/player sprites
 
 ### 2. Terrific Audio Driver (TAD)
 - Ported SPC700 audio driver, boots via the standard Sony/Nintendo IPL handshake over `$2140`–`$2143`.
-- `Tad_Init` transfers the loader + driver blob, then hands off to the driver's own command protocol (`TadState`: `WAITING_FOR_LOADER_COMMON` → `LOADING_COMMON_AUDIO_DATA` → `PAUSED`/`PLAYING`/`PLAYING_SFX`).
-- See "Working and verified" above for the boot-handshake bug that was blocking this entirely.
+- `Tad_Init` transfers the loader + driver blob, then hands off to the driver's own command protocol. The full state machine is now confirmed to run end to end: `WAITING_FOR_LOADER_COMMON` (`$7B`) → `LOADING_COMMON_AUDIO_DATA` (`$7D`) → `WAITING_FOR_LOADER_SONG` (`$7C`) → `LOADING_SONG_DATA_PLAY` (`$7F`) → `PLAYING` (`$82`), reached ~17 frames after reset.
+- Song and common audio data are read out of the `.incbin`'d blob at `$B02B` by the `LoadAudioData` callback at `.org $AC00`. Because the blob sits mid-bank rather than at a bank boundary, that callback does **not** use upstream TAD's LoROM address math — see "Working and verified" above for why, and do not "restore" it.
+- `Tad_Process` runs once per frame from `scpu_main_loop`; `Tad_FinishLoadingData` is a blocking spin, so a driver regression shows up as a frozen game rather than as silence. `tools/verify/phase7.py` asserts both.
+- See "Working and verified" above for the four assembler miscompiles and the address-math bug that were blocking audio entirely.
 
 ### 3. MSU-1 Streaming
 - **Hardware Verification:** S-CPU reads `$2002`–`$2007` and checks for the ASCII ident `"S-MSU1"`.
@@ -145,3 +168,19 @@ Manual load in any accurate SA-1 emulator (Mesen2/Nexen recommended) is currentl
 - `get_ppu_state()` / `get_audio_state()` (structured tool calls) over raw `read_memory`/`read_u8` peeks, which have shown stale/unreliable results on small reads in this environment.
 - `record_audio` + `audio_fingerprint`/`audio_waveform_png` to verify actual audio output (including MSU-1, which bypasses SPC700 entirely and won't show up in SPC-focused state reads).
 - **This check is nondeterministic**: the same unchanged ROM has come back silent (`peakAmplitude: 0`) on a real fraction of runs — observed 4 silent out of 7 consecutive runs on one identical binary, at `boot_wait` values from 2.0 to 10.0 with no relationship between wait length and failure rate. A single non-silent, correct-looking run is a real pass (a broken ROM can't spuriously produce a correct waveform); don't treat one silent run as a regression — see build.md's Testing section for the full replication rule.
+- **There is a sharp way to tell that flake apart from real silence**, found while unblocking Phase 7: compare `audio_fingerprint`'s `sha256` across runs. Genuine playback differs every run; a ROM that is actually emitting nothing produces a *byte-identical* recording every time. `tools/verify/phase7.py` asserts both that and a majority-of-3 peak.
+
+### Committed gate scripts
+
+Each phase's gate is a script, not a checklist, and all of them currently pass. Run them from the repo root (or from a worktree — they derive the ROM path themselves, never hardcode it):
+
+```bash
+python build_rom.py                              # always; there is no incremental step
+python tools/rom_audit/audit_all.py              # static layout/ownership audit -> ALL CHECKS PASS
+python tools/rom_audit/check_label_drift.py      # Poppy label-drift check, exits nonzero on drift
+python tools/verify/phase5.py                    # 4 entities: OAM, palettes, animation, hit stun
+python tools/verify/phase6.py                    # BG1 backdrop + BG3 HUD, byte-compared to the converter
+python tools/verify/phase7.py                    # TAD audio reaches PLAYING and is audibly non-silent
+```
+
+The `phase*.py` scripts deliberately compare against ground truth the engine did not produce (the converter's own `.bin` output, the packed `bor.msu`, `audio-data.bin`) rather than asking the engine whether it thinks it is happy. Phase 7 is the cautionary tale: every engine-visible status byte read perfect for as long as the driver was loading zeros.

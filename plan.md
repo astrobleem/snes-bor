@@ -1037,30 +1037,52 @@ not done: the shipped scene fits in 429 tiles. Note that
 `Scpu_CcdmaPump` is defined but **never called**, so nothing rewrites
 `$2000+` per frame.
 
-## 2.5 — Phase 7: audio polish  ⛔ BLOCKED at its own step-1 gate
+## 2.5 — Phase 7: audio polish  ✅ step-1 gate now PASSES
 
-**Gate evaluated 2026-08-09: a song does NOT play.** `TadPrivate_state`
-sits at `$7F` = `LOADING_SONG_DATA_PLAY` steadily across ~10 seconds of
-emulated time, never reaching `PLAYING` (`$82`), and the S-DSP is still in
-reset+mute (`flg` = `$E0`) with all 8 voice envelopes at 0. The audio
-content itself is fine (`audio-data.bin` is 4183 bytes) and the boot
-handshake is fine (reaching `$7F` proves `Tad_Init` succeeded) — the song
-*transfer* never completes. Per this section's own instruction, stopped
-there rather than debugging the driver. Full observations in
-`handoff.md`'s "Phase 7 gate" section.
+**Gate re-evaluated 2026-08-09 (later the same day), after the user
+explicitly authorized debugging the driver: a song DOES play.**
+`tools/verify/phase7.py` reports `PHASE 7: PASS` — `TadPrivate_state`
+reaches `PLAYING` (`$82`) about 17 frames after reset, the S-DSP leaves
+reset (`FLG` = `$00`) at main volume 127/127, and recorded output peaks at
+23082 on all three runs. Phases 5 and 6 still pass and `audit_all.py` is
+still `ALL CHECKS PASS`.
 
-**Step 1 (a gate, same shape as Phase 6):** TAD's *boot handshake* is
-verified working. Actual song and SFX *playback* has never been confirmed
-audible. Before wiring anything, confirm there is real audio content:
-check that `soundwork/tad/build/audio-data.bin` is non-trivial in size and
-that a song actually plays.
+The earlier reading in this section was accurate but incomplete: the
+transfer really did stall, and the cause was **not** the TAD driver's
+logic. It was four silent Poppy miscompiles plus one real porting bug:
 
-- **If no audio is audibly playing: STOP and hand back.** Report exactly
-  what you checked and what you observed. Do not attempt to author audio
-  content or debug the TAD driver from this document.
-- **If audio is confirmed playing:** the remaining work is small — trigger
-  a punch SFX from the attack animation's start (the same place
-  `CHAR_SELECTED` transitions to 2).
+- Poppy sizes `jsl <label>` 3 bytes during address estimation and emits 4,
+  so every label after a `jsl` drifts one byte early, cumulatively. The TAD
+  region has three `jsl`s and its 27 broken labels drifted 1 → 2 → 3 in
+  exactly that order. Fatal cases: `LoadAudioData`'s success path fell
+  through a stray `TXA`; `Tad_LoadSong`'s state guard became dead code, so
+  the common audio data was never transferred at all; and
+  `TadPrivate_Process_Loading` resolved onto the previous routine's `rtl`,
+  making `Tad_FinishLoadingData` spin forever (which also hung the main
+  loop). See `tools/rom_audit/check_label_drift.py`.
+- Poppy **silently deletes** a branch targeting a dot-local label
+  (`bcc .valid`) — no branch, no label, no diagnostic.
+- `Tad_DataTable`'s offsets are measured from the ca65 audio *segment*
+  base, and upstream `LoadAudioData`'s LoROM math assumes that segment
+  starts at `$8000` of a bank. This project's blob is `.incbin`'d mid-bank
+  at `$B02B`, so every address landed `$302B` low, in zero padding — TAD
+  reported `PLAYING` at full volume while loading pure zeros.
+
+**Remaining work in this phase (small, unstarted, and now unblocked):**
+trigger an SFX from the attack animation's start (the same place
+`CHAR_SELECTED` transitions to 2). **This needs content before it needs
+code** — `soundwork/tad/build/audio-enums.inc` exports only one song
+(`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound
+must be authored in the Terrific Audio Driver project first. Wiring
+`sfx_stub` would prove the `Tad_QueueSoundEffect` path but would not
+produce a punch.
+
+**One harness warning that still applies:** the Mesen2 audio check has an
+observed ~40% false-silent rate on unchanged ROMs, so repeat any audio
+assertion at least three times and take the majority. A sharper
+discriminator found while fixing this: real playback yields a *different*
+`audio_fingerprint` sha256 on every run, while true silence is
+byte-identical every time.
 
 **One harness warning specific to this phase:** the Mesen2 audio check in
 this harness has an observed ~40% false-silent rate on completely

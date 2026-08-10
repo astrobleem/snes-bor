@@ -34,7 +34,20 @@ There is no lint step and no unit-test framework — see Testing below for how c
 
 ## Testing
 
-There's no automated test suite. Correctness is checked by loading `distribution/bor.sfc` in Mesen2 (an accurate SA-1 emulator) via its Python MCP debugging layer:
+There's no unit-test framework, but each phase's gate is a committed script and all of them currently pass. Run these after any change:
+
+```bash
+python build_rom.py                              # no incremental step; always rebuild
+python tools/rom_audit/audit_all.py              # static layout/ownership -> ALL CHECKS PASS
+python tools/rom_audit/check_label_drift.py      # Poppy jsl label drift; exits nonzero on drift
+python tools/verify/phase5.py                    # 4 entities: OAM, palettes, animation, hit stun
+python tools/verify/phase6.py                    # BG1 backdrop + BG3 HUD vs. converter output
+python tools/verify/phase7.py                    # TAD audio reaches PLAYING and is audibly non-silent
+```
+
+They share `tools/verify/_harness.py`, which derives the ROM path from the repo root (so they work from a worktree) and enforces this project's read rules. **They deliberately compare against ground truth the engine did not produce** — the converter's own `.bin` files, the packed `bor.msu`, `audio-data.bin` — rather than asking the engine whether it looks happy. Phase 7 is why: TAD reported `PLAYING` with the S-DSP out of reset at full volume for as long as it was loading pure zeros, so every engine-visible status byte read perfect while nothing worked.
+
+Beyond those, correctness is checked by loading `distribution/bor.sfc` in Mesen2 (an accurate SA-1 emulator) via its Python MCP debugging layer:
 
 ```python
 import sys, os
@@ -75,7 +88,10 @@ Two more that between them account for most recent lost time, and that any new c
 - **Accumulator-width tracking is linear, not control-flow-aware** (six recurrences). Poppy sizes immediate operands by reading the file top-to-bottom, so any label reached by a branch that jumps *over* a `rep`/`sep` gets its following `lda #`/`cmp #` mis-sized, misaligning every byte after it. Symptom: `m.disassemble(addr)` shows a phantom `BRK #$xx` mid-routine. **Workaround: open every routine, and every such branch-target label, with a redundant `sep #$20`/`.a8` (or `rep`) re-sync.** It's a runtime no-op when the CPU is already in that width, so apply it unconditionally rather than reasoning about whether it's needed.
 - **A conditional branch past ±127 bytes assembles with no error whatsoever** and hangs the CPU at runtime (symptom: `Nmi_FrameCounter` freezes, every WRAM read returns a fixed value). Note this differs from the already-known `bra`-range bug, which *does* error. Keep conditional branch targets within ~15 source lines; if farther, invert the condition and `brl`, or split into a `jsr`'d leaf routine.
 
-Neither is catchable by `tools/rom_audit/*` — those tools verify that decoded bytes land on real instruction/label boundaries, never that the logic is right, and returned byte-identical clean results across a change that left the ROM completely broken. Only live Mesen2 testing plus direct disassembly finds these. Also: `@`-prefixed local labels mis-resolve once the containing file is reached via `.include` — use fully-qualified global labels in anything meant to be included (this is why `src/core/*.pasm` never uses local labels).
+A third, now root-caused, and the one to check first when a ported routine misbehaves:
+- **Poppy sizes `jsl <label>` as 3 bytes during address estimation and emits the correct 4**, so every label after a `jsl` resolves exactly one byte early — and the drift *accumulates*, one byte per `jsl`. This is the mechanism behind the long-standing "branch-target labels resolve a couple bytes early" note above, and it makes the drift predictable: dump the drift per label and you get a staircase whose steps line up with `jsl` sites. A drifted label usually lands on a perfectly valid *wrong* instruction (a `bra`, the previous routine's `rtl`), so it fails in ways that look like logic bugs. **Run `python tools/rom_audit/check_label_drift.py` after touching anything in the `$8800` TAD region** — it asserts the byte at each label is either a guard `nop` or an opcode for the mnemonic the source puts there, prints the exact nop count needed, and exits nonzero. Fix is still `nop` padding before the label; because nops shift the estimate and the real address equally, one blanket pass converges. Two tempting root-cause fixes do **not** work and have been tried: 4-digit index immediates (`ldy #$0001`) and `jsl.l Label` both assemble byte-identically. Separately, Poppy **silently deletes** a branch whose target is a dot-prefixed local label (`bcc .valid`) — branch and label both vanish with no diagnostic.
+
+None of these is catchable by the other `tools/rom_audit/*` scripts — they verify that decoded bytes land on real instruction/label boundaries, never that the logic is right, and returned `ALL CHECKS PASS` for as long as the TAD audio driver was unable to load a single byte. Only `check_label_drift.py`, live Mesen2 testing, and direct disassembly find these. Also: `@`-prefixed local labels mis-resolve once the containing file is reached via `.include` — use fully-qualified global labels in anything meant to be included (this is why `src/core/*.pasm` never uses local labels).
 
 **Fixed `.org` directives silently truncate.** Poppy does not error when code between two fixed `.org` points overflows the gap — it silently corrupts whatever runs into the next `.org`. This has already forced the NMI/IRQ vectors in `main.pasm` to be pushed twice as `scpu_boot` grew. After growing any code between fixed `.org` regions, check symbol addresses with Poppy's `.pansy` sidecar file (symbol table) to confirm nothing overran — and keep `build_rom.py`'s hardcoded `RESET`/`NMI`/`IRQ` vector constants in sync with `main.pasm`'s actual `.org` addresses by hand; nothing enforces that automatically.
 
