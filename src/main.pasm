@@ -5081,6 +5081,13 @@ CharacterEntity_Init:
     ; starting position placed clear of every other role's spawn box (see
     ; each role's own box below) so the four don't overlap before any of
     ; them start moving. ---
+    nop                             ; workaround: Poppy label drift (bug #4).
+    nop                             ; Nothing branches here today -- role 3 is
+                                    ; reached only by fall-through -- so this
+                                    ; guard is inert at runtime. It is here so
+                                    ; check_label_drift.py reports clean; a
+                                    ; standing known-DRIFTED line is how a real
+                                    ; one later gets waved through.
 CharacterEntity_Init__role3:
     sep #$20
 .a8

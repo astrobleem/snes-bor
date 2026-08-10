@@ -21,8 +21,22 @@ A `nop` ($EA) at the label counts as OK -- that is this codebase's standing
 workaround, deliberately placed so an early-landing branch falls through
 into the real instruction.
 
+SCOPE -- read this before trusting a clean result
+-------------------------------------------------
+Drift accumulates *within* a fixed `.org` region and resets at the next one
+(measured: both $8800 and $AC00 re-entered at drift 0). So every `.org`
+region accrues independently and a clean sweep of one says nothing about
+the others. This defaults to the whole ROM ($8000-$FFFF) for that reason;
+narrow it with --start/--end only when you already know where you're
+looking.
+
+`source_labels()` follows `.include` directives, so labels defined in
+src/core/*.pasm (which land in the $C100 region) are covered too. Without
+that, "0 DRIFTED over $C100-$FBFF" would have meant only "0 among
+main.pasm's own labels there" -- far less than it appears to say.
+
 Usage:
-    python tools/rom_audit/check_label_drift.py [--start $8800] [--end $AFFF]
+    python tools/rom_audit/check_label_drift.py [--start $8000] [--end $FFFF]
 
 Exit status is 1 if any label disagrees, so this can gate a build.
 """
@@ -98,14 +112,33 @@ def load_symbols(sym_path):
     return syms
 
 
-def source_labels(pasm_path):
-    """Yield (label, mnemonic, line_no) for every code label followed by an
-    instruction. Directives, comments and stacked labels are skipped over."""
+INCLUDE_RE = re.compile(r'^\s*\.include\s+"([^"]+)"', re.I)
+
+
+def source_labels(pasm_path, _seen=None):
+    """Yield (label, mnemonic, line_no, srcfile) for every code label followed
+    by an instruction. Directives, comments and stacked labels are skipped
+    over, and `.include`d files are recursed into -- src/core/*.pasm defines
+    ~half the labels in the $C100 region and they are invisible otherwise."""
+    if _seen is None:
+        _seen = set()
+    pasm_path = os.path.abspath(pasm_path)
+    if pasm_path in _seen or not os.path.exists(pasm_path):
+        return []
+    _seen.add(pasm_path)
+
     with open(pasm_path, encoding='utf-8', errors='replace') as f:
         lines = f.readlines()
 
+    here = os.path.dirname(pasm_path)
+    rel = os.path.relpath(pasm_path, repo_root()).replace('\\', '/')
+
     out = []
     for i, raw in enumerate(lines):
+        inc = INCLUDE_RE.match(raw)
+        if inc:
+            out.extend(source_labels(os.path.join(here, inc.group(1)), _seen))
+            continue
         if ASSIGN_RE.match(raw):
             continue
         m = LABEL_RE.match(raw)
@@ -127,7 +160,7 @@ def source_labels(pasm_path):
                 continue
             im = INSTR_RE.match(nxt)
             if im:
-                out.append((label, im.group(1).upper(), i + 1))
+                out.append((label, im.group(1).upper(), i + 1, rel))
             break
     return out
 
@@ -135,8 +168,8 @@ def source_labels(pasm_path):
 def main():
     root = repo_root()
     ap = argparse.ArgumentParser()
-    ap.add_argument('--start', default='0x8800')
-    ap.add_argument('--end', default='0xAFFF')
+    ap.add_argument('--start', default='0x8000')
+    ap.add_argument('--end', default='0xFFFF')
     ap.add_argument('--pasm', default=os.path.join(root, 'src', 'main.pasm'))
     ap.add_argument('--sym', default=os.path.join(root, 'src', 'main.sym'))
     ap.add_argument('--bin', default=os.path.join(root, 'src', 'main.bin'))
@@ -156,7 +189,7 @@ def main():
     checked = bad = guarded = 0
     problems = []
 
-    for label, mnem, line_no in source_labels(args.pasm):
+    for label, mnem, line_no, srcfile in source_labels(args.pasm):
         addr = syms.get(label)
         if addr is None or not (start <= addr <= end):
             continue
@@ -184,15 +217,15 @@ def main():
                 drift = k
                 break
         bad += 1
-        problems.append((label, addr, mnem, got, OPCODES[got], line_no, drift))
+        problems.append((label, addr, mnem, got, OPCODES[got], line_no, drift, srcfile))
 
     print(f'label-drift check  ${start:04X}-${end:04X}: '
           f'{checked} code labels, {guarded} nop-guarded, {bad} DRIFTED')
     if problems:
         print()
-        for label, addr, mnem, got, gotm, line_no, drift in problems:
+        for label, addr, mnem, got, gotm, line_no, drift, srcfile in problems:
             d = f'{drift}' if drift is not None else '?'
-            print(f'  DRIFT  {label}  (line {line_no}, needs {d} nop)')
+            print(f'  DRIFT  {label}  ({srcfile}:{line_no}, needs {d} nop)')
             print(f'         .sym says ${addr:04X}, byte there is ${got:02X} ({gotm}); '
                   f'source says `{mnem.lower()}`')
         print('\nFix: insert `nop` padding immediately BEFORE the label so an '
