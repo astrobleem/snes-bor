@@ -17,9 +17,14 @@ follows a label, and assert the byte at that label's address is an opcode
 for that mnemonic. `TadPrivate_Process_Loading:` is followed by `jsr`, so
 the byte there must be $20 or $FC; it was $6B (rtl). Caught.
 
-A `nop` ($EA) at the label counts as OK -- that is this codebase's standing
-workaround, deliberately placed so an early-landing branch falls through
-into the real instruction.
+A `nop` ($EA) at the label is this codebase's standing workaround,
+deliberately placed so an early-landing branch falls through into the real
+instruction. It is NOT accepted on sight: ~40% of labels take that path, so
+the check walks the whole nop run and asserts the expected mnemonic really
+does follow it. Accepting the bare $EA was itself a proxy, and it hid a
+live case -- `Tad_LoadSongIfChanged` sat on the tail of the *previous*
+routine's guard and resolved onto that routine's `rtl`, reading "guarded"
+while being drifted by 2.
 
 SCOPE -- read this before trusting a clean result
 -------------------------------------------------
@@ -202,7 +207,22 @@ def main():
             continue
         checked += 1
         if got == NOP and mnem != 'NOP':
-            guarded += 1
+            # A guard nop is only evidence if the real instruction actually
+            # follows the nop run. Two ways `$EA` reads clean while being
+            # wrong: it is an operand byte of a preceding instruction
+            # (`lda #$EA` -> A9 EA), or the drift exceeds the guard so the
+            # run isn't where it looks. ~40% of labels take this branch, so
+            # accepting it on sight would make the gate a proxy for itself.
+            k = 0
+            while byte_at(addr + k) == NOP and k < 16:
+                k += 1
+            if byte_at(addr + k) in expected:
+                guarded += 1
+                continue
+            bad += 1
+            problems.append((label, addr, mnem, byte_at(addr + k),
+                             OPCODES[byte_at(addr + k)] + f' after {k} nop(s)',
+                             line_no, None, srcfile))
             continue
         if got in expected:
             continue

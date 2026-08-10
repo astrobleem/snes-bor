@@ -2042,6 +2042,13 @@ Tad_LoadSong__Return:
 .a8
 ; I unknown
 ; DB access lowram
+    nop                     ; workaround: Poppy label drift (bug #4). Without
+    nop                     ; these the symbol lands on the tail of
+                            ; Tad_LoadSong__Return's own guard and resolves onto
+                            ; that routine's `rtl`. Inert today -- nothing in
+                            ; this ROM calls Tad_LoadSongIfChanged, it is only
+                            ; an exported TAD API -- but a caller added later
+                            ; would return instantly and silently.
 Tad_LoadSongIfChanged:
     cmp TadPrivate_nextSong
     beq __anon11
