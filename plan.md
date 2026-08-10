@@ -1184,23 +1184,66 @@ past a short level's end are mostly tiled background.
    (36 textual references; `Entity1_PosX`'s own comment already says "low
    byte valid").
 
-### Step 1 — the one genuinely open decision: where do tiles come from?
+### Step 1 — where do tiles come from — RESOLVED (2026-08-10): MSU-1
 
-**Do not pre-commit this. It is a test, not a preference.** MSU-1 has a
-*single stateful cursor* that auto-increments on every `$2001` read, and a
-seek is a write to `$2000-$2003`. `Msu1_StreamBusy` exists because two
-concurrent streams were *confirmed* to collide (Phase 0). Whether a
-column-stage seek can safely interleave with an animation stream whose
-DMAs are **queued but not yet drained** is unverified, and it decides the
-architecture:
+**Resolved by structural analysis, not measurement.** Unlike the tile-count
+numbers above (measured, reproducible via the committed tool), this is
+reasoned from three invariants already on record and grep-confirmed, not
+timed on hardware/Mesen2. Re-verify empirically once the streamer exists,
+per the gate below — don't treat this as equally settled.
 
-- **If it cannot interleave: put the tiles in ROM.** ~4MB is free and the
-  whole warehouse tileset is ~316KB. `build_rom.py` already builds
-  `rom = bytearray(0x400000)` and writes it whole, so a blob at a fixed
-  offset is supported *by construction* — **Poppy never sees the data, so
-  every `.bank N` and `.org`-truncation bug is bypassed.**
-- **If it can: keep MSU-1**, which keeps levels data-only (adding a level
-  needs no ROM rebuild). That is worth something.
+The worry was that a column-stage MSU-1 seek could interleave with an
+in-flight animation stream and corrupt it, the way two concurrent
+`Msu1_LoadFrame` calls were *confirmed* to collide in Phase 0. It cannot,
+for a reason specific to *why* that collision happened:
+
+1. **NMI never touches `$2000-$2007`** (grep-confirmed empty across
+   `core/nmi.pasm`/`core/dma.pasm`) — the only writer of MSU-1 track-select
+   ($2004-$2007) is one boot-time call, unrelated to the data port. So the
+   data port is touched exclusively by synchronous main-loop code; there is
+   no ISR that can reseek it mid-sequence.
+2. **`Msu1_LoadFrame`'s entire port interaction — seek, busy-poll, all 768
+   bytes of `lda $2001`/`sta` — completes synchronously inside one `sei`
+   section, before it ever touches the DMA queue.** By the time it returns,
+   the port is idle. `Msu1_StreamBusy=1` protects the shared
+   `AnimFrameStaging` WRAM buffer and the queued-but-undrained VRAM DMA
+   rows that read from it — **not port state**. Phase 0's collision was
+   two callers racing to reuse that WRAM buffer, not a port race.
+3. Therefore a column streamer that seeks + reads synchronously into **its
+   own staging buffer** (never `AnimFrameStaging`) cannot corrupt or be
+   corrupted by an animation stream — 65816 has one execution context, and
+   neither routine's critical section can be entered while the other's is
+   running.
+
+**This does not mean "stream a column any frame you like."** A real
+constraint survives, and it's the DMA queue, not the port:
+`Msu1_LoadFrame` holds 6 of 8 slots until vblank drains them, leaving only
+2 free. A cache-miss tile in a ring buffer can land in any free slot, so
+**N scattered misses in one column need N separate VRAM DMA enqueues** —
+naively, up to 28 for a full column, which blows the 2-slot budget and
+hits `Msu1_LoadFrame_EnqueueRow`'s designed-to-fault queue-full path. The
+streamer must do one of:
+
+   - **allocate cache slots in contiguous runs** (not first-free) so a
+     column's misses collapse into few DMA regions, or
+   - **spread one column's staging across several frames** (a few tiles'
+     worth of enqueues each), or
+   - **gate column staging on `Msu1_StreamBusy == 0`** (~50% of frames per
+     the duty-cycle finding above) and budget up to all 8 slots on those.
+
+Pick the DMA-enqueue policy explicitly when the streamer is designed; it
+is the actual open sub-decision Step 1 was gesturing at, not the port.
+
+MSU-1 also keeps levels data-only — no ROM rebuild to add one — which was
+the reason to prefer it if it worked. It does.
+
+**Fallback, kept on record in case the empirical gate below contradicts
+this reasoning:** put the tileset in ROM instead. ~4MB is free and the
+whole warehouse tileset is ~316KB. `build_rom.py` already builds
+`rom = bytearray(0x400000)` and writes it whole, so a blob at a fixed
+offset is supported *by construction* — Poppy never sees the data, so
+every `.bank N` and `.org`-truncation bug is bypassed. Costs a rebuild per
+new level; that's the only reason MSU-1 was preferred.
 
 ### The work
 
@@ -1246,7 +1289,11 @@ phase. No parallax: `bgspeed`/`scrollspeed` stay unread.
    through sustained scrolling (vblank-overrun guard — this phase adds a
    per-frame DMA producer, exactly the class §2.4 warns about); scroll
    clamps at both ends; and a **scroll-reversal** pass, since that is
-   where SMI's eviction bug lives.
+   where SMI's eviction bug lives. **Also empirically re-verify Step 1**
+   here — force a column stage and an animation stream in the same frame
+   (same forced-collision technique Phase 0 used) and confirm neither
+   corrupts the other; Step 1's resolution above was structural analysis,
+   not a measurement, unlike everything else in this section.
 5. Append a Phase 8 section to `handoff.md`.
 6. Commit.
 
