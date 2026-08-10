@@ -2825,7 +2825,16 @@ BG1_TILES_VRAM_WORD   = $0000  ; <=512 4bpp tiles, i.e. up to word $1FFF
 BG1_TILEMAP_VRAM_WORD = $6000  ; 32x32 map; only the top 32x28 is written
 BG1_TILEMAP_WORDS     = 896    ; 32 * 28 entries actually streamed
 BG3_TILES_VRAM_WORD   = $5000  ; 2bpp HUD tiles
-BG3_TILEMAP_VRAM_WORD = $6400  ; 32x32 map
+BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
+                                 ; Phase 8 (plan.md 2.7) to free $6400-$67FF so
+                                 ; BG1's tilemap can grow to a real 64x32 map
+                                 ; ($6000-$67FF) for horizontal scrolling. BG1SC
+                                 ; itself is NOT yet flipped to 64-wide mode --
+                                 ; that needs real tilemap content in the freed
+                                 ; range first (the whole-level converter, still
+                                 ; unbuilt), and with scroll=0 a flip with no
+                                 ; content there would be untestable, not just
+                                 ; premature. $6800-$7FFF (6144 words) was free.
 BG3_TILEMAP_WORDS     = 1024
 
 ; --- Phase 6 HUD (Hud_Play). Tile ids must match make_hud_tiles.py's manifest. ---
@@ -5249,12 +5258,14 @@ CharacterEntity_Play:
 ; between them. Region order here must match pack_msu_roster.py's blob layout
 ; exactly: CGRAM image, BG1 tilemap, BG1 tiles, BG3 HUD tiles.
 ;
-; VRAM map this establishes (see build.md):
-;   $0000-$1FFF  BG1 tiles   (<=512 4bpp tiles; $2000+ is the SA-1 compositor's
-;                             BG2 char base, actively written every frame)
+; VRAM map this establishes:
+;   $0000-$3FFF  BG1 tiles (<=1024 4bpp tiles; word $2000 is BG2's char base,
+;                but BG2 is off TM and nothing writes there at runtime -- see
+;                Phase 8's removal of the old scpu_bg2_blank boot write)
 ;   $5000-$5BFF  BG3 HUD tiles (2bpp)
-;   $6000-$63FF  BG1 tilemap (32x28 of a 32x32 map)
-;   $6400-$67FF  BG3 tilemap
+;   $6000-$63FF  BG1 tilemap (32x28 of a 32x32 map; $6400-$67FF is free for a
+;                future 64x32 map, see BG3_TILEMAP_VRAM_WORD's own comment)
+;   $6800-$6BFF  BG3 tilemap
 ; ============================================================================
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
     nop
@@ -5644,7 +5655,7 @@ Hud_Play__clear:
 
     ; --- one queued VRAM DMA for all four rows ---
     ; DmaRequest_TargetAddr is a BYTE address (Core_Dma_TransferVram halves it
-    ; into $2116), so the BG3 tilemap's word $6400 is byte $C800.
+    ; into $2116), so the BG3 tilemap's word $6800 is byte $D000.
     rep #$31
 .a16
 .i16
@@ -5963,8 +5974,9 @@ scpu_clear_ppu:
     lda #$60
     sta $2107               ; BG1SC: tilemap at word $6000 (moved from $0400 --
                              ; BG1 tiles now occupy $0000-$1FFF, see Bg_LoadScene)
-    lda #$64
-    sta $2109               ; BG3SC: tilemap at word $6400
+    lda #$68
+    sta $2109               ; BG3SC: tilemap at word $6800 (Phase 8: moved
+                             ; from $6400 to free room for a wider BG1 map)
     lda #$5C
     sta $2108               ; BG2SC: tilemap at word $5C00
     lda #$20
@@ -6010,7 +6022,7 @@ scpu_clear_ppu:
     rep #$20
 .a16
 
-    ; --- BG3 tilemap at word $6400: clear all 1024 entries to tile 0 (blank,
+    ; --- BG3 tilemap at word $6800: clear all 1024 entries to tile 0 (blank,
     ; and blank is genuinely transparent on BG3 since HUD tile 0 is all
     ; color-index 0). ---
     lda #BG3_TILEMAP_VRAM_WORD
@@ -6242,7 +6254,8 @@ scpu_tm_row_no_bump:
     sta.l Nmi_ScreenMode
     lda #$60             ; BG1SC: tilemap at word $6000
     sta.l Nmi_Bg1TilemapVram
-    lda #$64             ; BG3SC: tilemap at word $6400
+    lda #$68             ; BG3SC: tilemap at word $6800 (Phase 8: moved from
+                          ; $6400 to free room for a wider BG1 map)
     sta.l Nmi_Bg3TilemapVram
     lda #$20
     sta.l Nmi_BgTilesVram12

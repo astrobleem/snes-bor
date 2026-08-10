@@ -1266,9 +1266,21 @@ new level; that's the only reason MSU-1 was preferred.
   never read since BG2 is off `TM`) is NOT reclaimed by this — nothing in
   the 1024-tile budget needed it; leave it for whoever needs that
   specific range.
-- **64×32 BG1 tilemap.** It spans `$6000-$67FF` and **collides with BG3's
-  tilemap at `$6400`** — move BG3 to `$6800` (free; `$6800-$7FFF` is 6144
-  words). Update `BG3_TILEMAP_VRAM_WORD`, `$2109`, and `Nmi_Bg3TilemapVram`.
+- **Move BG3's tilemap out of the way** ✅ DONE (2026-08-10): `$6400` →
+  `$6800` (`$6800-$7FFF` was free, 6144 words), freeing `$6400-$67FF` for a
+  future 64×32 BG1 map. Updated `BG3_TILEMAP_VRAM_WORD`, both literal
+  `$2109` writes (boot-time direct + the `Nmi_Bg3TilemapVram` shadow —
+  two sites, easy to update only one and leave them disagreeing), and
+  every stale comment referencing the old address. Verified via
+  `phase6.py`, which reads `BG3_TILEMAP_WORD` from source rather than
+  hardcoding it, so it caught the move automatically: `BG3 tilemap
+  register = word $6800: PASS`, HUD still tracks live `CHAR_HP`, no
+  vblank overrun. Phases 5 and 7 unaffected, `0 DRIFTED`.
+  **`$2107`/`BG1SC` is deliberately NOT yet flipped to 64×32 mode** — the
+  freed range has no real content until the whole-level converter exists
+  (next bullet), and flipping it now would be untestable (scroll stays 0,
+  so nothing would visibly differ) as well as premature. Do that flip in
+  the same increment as the converter, not before.
 - **Converter:** emit whole-level column-major tilemap + tileset + a
   per-column tile-ID index (SMI's `snes_room_converter.py` has all three;
   its `encode_tilemap_column_major` is the piece Phase 6 deliberately
