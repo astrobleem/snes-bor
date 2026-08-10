@@ -35,10 +35,16 @@ The shave is small and known: on the boss level's screen 0 this reports
 quantization unique tiles -- about 4%. So treat the numbers here as ~4%
 high, not as a different order of magnitude.
 
-Reference results (stock pak, 2026-08-10):
+It walks only scroll positions the camera can reach -- [0, width - viewport]
+-- because screens composited past the level's end are mostly tiled
+background and inflate the count. That artifact dominates short levels: an
+earlier version walking to the full width reported 993 tiles for boss, which
+is 1.3 screens long, nearly double the real figure.
 
-    boss      DATA\\EASY\\6BEASY.TXT    420px   1.3 screens     993 tiles
-    warehouse DATA\\EASY\\4BEASY.TXT   6876px  21.5 screens   9,869 tiles
+Reference results (stock pak, 2026-08-10), reachable positions only:
+
+    boss      DATA\\EASY\\6BEASY.TXT    420px   1.3 screens     see below
+    warehouse DATA\\EASY\\4BEASY.TXT   6876px  21.5 screens   ~9,800 tiles
 
 Usage:
     python tools/bg_converter/measure_level_tiles.py
@@ -91,9 +97,28 @@ def measure(idx, level_entry, name):
     print(f'  total level width: {total_w}px '
           f'({total_w / BOR_SCREEN_W:.1f} screens)')
 
+    # Only walk scroll positions the camera can actually stop on. The camera
+    # clamps at [0, total_w - viewport], so walking to total_w composites
+    # screens that are mostly tiled background past the level's end and
+    # inflates the count -- which dominates short levels (boss is 1.3
+    # screens: one artifact screen nearly doubled its total).
+    #
+    # Sample positions must stay on ONE global 8px tile grid, or the same art
+    # gets counted once per phase and every number is garbage. convert_bg.py
+    # scales 320->256 (0.8), so a BOR-pixel offset lands on a tile boundary
+    # only when scroll_x * 0.8 is a multiple of 8 -- i.e. scroll_x must be a
+    # multiple of 10. BOR_SCREEN_W (320) already is; max_scroll is rounded
+    # down to one. This matters because real hardware scrolling does NOT
+    # re-tile -- the tilemap is authored once over the whole level on a fixed
+    # grid and the BG scroll registers shift it by pixels.
+    max_scroll = max(total_w - BOR_SCREEN_W, 0) // 10 * 10
+    positions = list(range(0, max_scroll + 1, BOR_SCREEN_W))
+    if positions[-1] != max_scroll:
+        positions.append(max_scroll)
+
     seen = set()
     rows = []
-    for scroll in range(0, max(total_w, 1), BOR_SCREEN_W):
+    for scroll in positions:
         scene = composite_screen(idx, level, scroll_x=scroll)
         img = Image.fromarray(scene).resize((SNES_W, SNES_H), Image.NEAREST)
         bgr = st.rgb_array_to_bgr555(np.array(img, dtype=np.uint8))

@@ -1138,9 +1138,14 @@ this. It is committed for exactly that reason.
 | | boss (`6BEASY`) | warehouse (`4BEASY`) |
 |---|---|---|
 | Level width | 420px (**1.3 screens**) | 6876px (**21.5 screens**) |
-| Screen 0 | 447 tiles | 798 tiles |
-| Worst single screen | 685 tiles | **843 tiles** |
-| Whole level | **993 tiles** | **9,869 tiles** |
+| Worst single screen | 447 tiles | **843 tiles** |
+| Whole level | 588 tiles | **9,789 tiles** |
+
+The tool walks only scroll positions the camera can reach
+(`[0, width - viewport]`) and keeps every sample on one global 8px tile
+grid. Both matter: an earlier version that walked to the full width
+reported **993** for boss — nearly double — because screens composited
+past a short level's end are mostly tiled background.
 
 1. **Streaming is mandatory for wide levels, and the intuition that says
    otherwise is wrong.** A BOR level is `order abcdefabcdef...` — 6 unique
@@ -1152,8 +1157,12 @@ this. It is committed for exactly that reason.
 2. **The working set is one screen, not one level** — 843 tiles worst
    case. That **does not fit** the current 512-tile BG1 budget, and does
    fit 1024. So **reclaiming the dead BG2 region (`$2000-$3FFF`) is a
-   prerequisite**, and it leaves only 181 tiles ≈ **6 columns of prefetch
-   runway**. That margin is the tightest number in this phase.
+   prerequisite**, and it leaves 181 tiles of headroom — a **floor** of
+   ~6 columns of prefetch runway (28 tiles/column, assuming every tile in
+   an incoming column is a cache miss). Real columns share tiles with
+   resident neighbours, so the effective runway is larger; treat 6 as the
+   pessimistic bound, not the expected value. This is still the tightest
+   number in the phase.
 3. **These counts are ~4% high, not a different order of magnitude.** The
    tool stops before palette quantization (which can only reduce the
    count). Calibration: it reports 447 for boss screen 0 where
@@ -1250,12 +1259,10 @@ phase. No parallax: `bgspeed`/`scrollspeed` stay unread.
 - **Step 1's interleave test is ambiguous.** Take the ROM path; it
   dissolves the question rather than betting on it.
 
-**The cheap version, if the full phase is too much:** boss is 993 tiles
-over 1.3 screens — the whole level fits a 1024-tile budget at once. (Its
-685-tile "worst screen" is the walk past the level's end, where the tool
-composites tiled background rather than panels; it is not a screen the
-camera can actually stop on.) That is a real scrolling demo with **zero
-streaming** and one static load — camera, world X, 64×32
+**The cheap version, if the full phase is too much:** boss is **588 tiles
+over its whole 1.3 screens** — the entire level loads at once. It still
+needs the reclaimed 1024 budget (588 > 512), but nothing else: a real
+scrolling demo with **zero streaming** and one static load — camera, world X, 64×32
 tilemap and column recycling only. It exercises every part of this phase
 except the tile cache.
 
