@@ -42,8 +42,10 @@ File format (see the plan for the authoritative spec):
                located at bg_directory_offset.
       record N:
         +0-1   bg_tile_count   (u16 LE, <= 1024)
-        +2     width_tiles     (u8, 32)
-        +3     height_tiles    (u8, 28)
+        +2     width_tiles     (u8, 32 or 64 -- see BG_VALID_WIDTHS; 64 means
+               the tilemap blob below is two concatenated 32x32 pages, not one)
+        +3     height_tiles    (u8, 28 -- real visible rows; always 28, even
+               when width_tiles==64 stores 32 padding rows per page on disk)
         +4     hud_tile_count  (u8)
         +5-7   reserved
         +8-11  data_offset     (u32 LE) -- absolute byte offset of this
@@ -56,8 +58,11 @@ File format (see the plan for the authoritative spec):
                     holds the BG3 HUD colors (see bg_converter/convert_bg.py's
                     PALETTE_OFFSET note on why BG1 only uses slots 1-7);
                     slots 1-7 are the backdrop.
-      +256..2047    BG1 tilemap: 32x28 real-SNES tilemap words, row-major
-      +2048..       BG1 tiles: bg_tile_count * 32 bytes (4bpp planar)
+      +256..        BG1 tilemap: real-SNES tilemap words, row-major. 1792
+                    bytes (32x28) if width_tiles==32; 4096 bytes (two
+                    concatenated 32x32 pages) if width_tiles==64 -- see
+                    _expected_tilemap_bytes().
+      next          BG1 tiles: bg_tile_count * 32 bytes (4bpp planar)
       next          BG3 HUD tiles: hud_tile_count * 16 bytes (2bpp planar)
 
 The BG section is appended AFTER the character blobs so that adding it does not
@@ -112,9 +117,33 @@ ANIM_FRAME_BYTES = 768
 MAX_BGS = 4
 BG_RECORD_SIZE = 16
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
-BG_WIDTH_TILES = 32
+BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
-BG_TILEMAP_BYTES = BG_WIDTH_TILES * BG_HEIGHT_TILES * 2   # 1792
+# Phase 8 (plan.md 2.7): a whole-level BG can also be 64 tiles wide (a real
+# BG1SC 64x32 map, two horizontally-adjacent 32x32 pages -- see
+# bg_converter/snes_tiles.encode_tilemap_paged and convert_bg.py's
+# convert_level()). Only 32 and 64 are valid widths for a single static load.
+BG_VALID_WIDTHS = (32, 64)
+
+
+def _expected_tilemap_bytes(width_tiles):
+    """Bytes convert_bg.py emits for a given tilemap width.
+
+    width=32 keeps the historical single-page format: only the 28 real rows
+    are stored (1792B), since there is no second page and nothing ever reads
+    past row 28. width=64 is two FULL 32x32 pages (4096B) -- page B must
+    start exactly 1024 words after page A regardless of how many rows are
+    visible, so rows 28-31 of each page are stored (zero-padded) even though
+    they're never displayed.
+    """
+    if width_tiles == 32:
+        return BG_WIDTH_TILES * BG_HEIGHT_TILES * 2
+    if width_tiles == 64:
+        return 64 * 32 * 2
+    raise ValueError(f"unsupported BG tilemap width_tiles={width_tiles} "
+                      f"(expected one of {BG_VALID_WIDTHS})")
+
+
 BG_BYTES_PER_TILE = 32      # 4bpp
 HUD_BYTES_PER_TILE = 16     # 2bpp
 # BG1 char data must fit VRAM words $0000-$3FFF (1024 tiles); see
@@ -223,10 +252,19 @@ def pack_bg_blob(bg_dir, hud_dir):
     hud_palette = _read(hud_dir, "hud_palette.bin")
     hud_tiles = _read(hud_dir, "hud_tiles.bin")
 
+    width_tiles = bg_manifest["width_tiles"]
+    height_tiles = bg_manifest["height_tiles"]
+    if width_tiles not in BG_VALID_WIDTHS:
+        raise ValueError(f"{bg_dir}: width_tiles={width_tiles}, expected one of {BG_VALID_WIDTHS}")
+    if height_tiles != BG_HEIGHT_TILES:
+        raise ValueError(f"{bg_dir}: height_tiles={height_tiles}, expected {BG_HEIGHT_TILES}")
+
+    expected_tilemap_bytes = _expected_tilemap_bytes(width_tiles)
     if len(palette) != BG_CGRAM_BYTES:
         raise ValueError(f"{bg_dir}: palette.bin is {len(palette)}B, expected {BG_CGRAM_BYTES}")
-    if len(tilemap) != BG_TILEMAP_BYTES:
-        raise ValueError(f"{bg_dir}: tilemap.bin is {len(tilemap)}B, expected {BG_TILEMAP_BYTES}")
+    if len(tilemap) != expected_tilemap_bytes:
+        raise ValueError(f"{bg_dir}: tilemap.bin is {len(tilemap)}B, expected "
+                         f"{expected_tilemap_bytes} for width_tiles={width_tiles}")
     if len(hud_palette) != PALETTE_BYTES:
         raise ValueError(f"{hud_dir}: hud_palette.bin is {len(hud_palette)}B, "
                          f"expected {PALETTE_BYTES}")
@@ -238,9 +276,6 @@ def pack_bg_blob(bg_dir, hud_dir):
     if tile_count > BG_MAX_TILES:
         raise ValueError(f"{bg_dir}: {tile_count} tiles exceeds the {BG_MAX_TILES}-tile "
                          f"BG1 VRAM budget")
-    if bg_manifest["width_tiles"] != BG_WIDTH_TILES or \
-       bg_manifest["height_tiles"] != BG_HEIGHT_TILES:
-        raise ValueError(f"{bg_dir}: expected {BG_WIDTH_TILES}x{BG_HEIGHT_TILES} tiles")
 
     hud_tile_count = hud_manifest["tile_count"]
     if len(hud_tiles) != hud_tile_count * HUD_BYTES_PER_TILE:
@@ -261,8 +296,8 @@ def pack_bg_blob(bg_dir, hud_dir):
         "hud_dir": hud_dir,
         "level_entry": bg_manifest.get("level_entry"),
         "bg_tile_count": tile_count,
-        "width_tiles": BG_WIDTH_TILES,
-        "height_tiles": BG_HEIGHT_TILES,
+        "width_tiles": width_tiles,
+        "height_tiles": height_tiles,
         "hud_tile_count": hud_tile_count,
         "blob_size": len(blob),
     }

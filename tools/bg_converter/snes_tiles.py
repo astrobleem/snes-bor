@@ -216,6 +216,37 @@ def encode_tilemap(entries, w_tiles, h_tiles, priority=False):
     return bytes(data)
 
 
+def encode_tilemap_paged(entries, w_tiles, h_tiles, page_width=32, page_height=32,
+                         priority=False):
+    """SNES 64x32 (or Nx32) BG tilemap: horizontally-adjacent 32x32 pages
+    concatenated in VRAM (page A first, page B at +page_width*page_height
+    words, etc). Each page is padded to the full page_height rows even
+    though only h_tiles are ever visible -- required because the hardware
+    places page B exactly page_width*page_height words after page A starts,
+    not after h_tiles rows. Padding columns/rows beyond w_tiles/h_tiles encode
+    as word 0 (tile 0); the caller is responsible for making sure the camera
+    can never scroll far enough to actually display them (clamp against the
+    real content width, not the padded page width).
+
+    `entries` must be indexed row-major over the LOGICAL w_tiles x h_tiles
+    grid, i.e. entries[row * w_tiles + col] -- same order encode_tilemap uses.
+    """
+    assert w_tiles % page_width == 0, f'{w_tiles} tiles not a multiple of page width {page_width}'
+    n_pages = w_tiles // page_width
+    data = bytearray()
+    for page in range(n_pages):
+        col0 = page * page_width
+        for row in range(page_height):
+            for col in range(page_width):
+                if row < h_tiles and (col0 + col) < w_tiles:
+                    tid, pal, hf, vf = entries[row * w_tiles + (col0 + col)]
+                    word = encode_tilemap_word(tid, pal, hf, vf, priority)
+                else:
+                    word = 0
+                data += struct.pack('<H', word)
+    return bytes(data)
+
+
 def encode_palette(palettes, num_palettes=8, colors_per_palette=16):
     """Sub-palettes -> CGRAM binary (BGR555 little-endian), zero-padded."""
     data = bytearray()

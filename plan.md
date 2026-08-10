@@ -1281,10 +1281,53 @@ new level; that's the only reason MSU-1 was preferred.
   (next bullet), and flipping it now would be untestable (scroll stays 0,
   so nothing would visibly differ) as well as premature. Do that flip in
   the same increment as the converter, not before.
-- **Converter:** emit whole-level column-major tilemap + tileset + a
-  per-column tile-ID index (SMI's `snes_room_converter.py` has all three;
-  its `encode_tilemap_column_major` is the piece Phase 6 deliberately
-  skipped). Extend `bor.msu` to format v3, or emit a ROM blob per Step 1.
+- **Whole-level static converter (the "cheap version" case, <=64 tiles
+  wide)** ✅ DONE (2026-08-10). `composite_scene.py` gained `composite_level`
+  (whole panel strip, no 320px window) and `level_width`. `convert_bg.py`
+  gained `convert_level`/`--whole-level`: composites the whole level,
+  resamples at the same 0.8 scale as the single-screen path, pads to a
+  32- or 64-tile page boundary, and hard-errors above 64 tiles (that case
+  needs the streaming converter below, not this path). `snes_tiles.py`
+  gained `encode_tilemap_paged` for real SNES 64x32 addressing: two
+  horizontally-adjacent 32x32 pages concatenated in VRAM (page B starts
+  exactly 1024 words after page A, so page A is padded to a full 32 rows
+  even though only 28 are ever visible — getting this wrong shears every
+  row of page B). `pack_msu_roster.py`'s BG record already carried
+  `width_tiles`/`height_tiles`; only `pack_bg_blob`'s validation was
+  hardcoded to exactly 32x28 — loosened to accept 32 or 64
+  (`BG_VALID_WIDTHS`), with the expected tilemap byte count now derived
+  per-width instead of a fixed 1792 constant. Manifest also records
+  `content_width_tiles` (the real unpadded width, 42 for boss) —
+  **the eventual camera clamp must use this, not `width_tiles` (64), or
+  the black padding region beyond the level's real edge becomes reachable.**
+  `Bg_LoadScene` reads `bg_record.width_tiles` at load time and branches
+  between the narrow (896-word) and wide (2048-word) tilemap DMA loop, and
+  the boot code now derives `Nmi_Bg1TilemapVram` ($60/$61) from that same
+  field instead of a hardcoded `$60`. **Found and fixed a real regression
+  while wiring this up:** an early attempt set that shadow from inside
+  `Bg_LoadScene` itself, which runs *before* `Core_Nmi_Init` — and
+  `Core_Nmi_Init` unconditionally zeroes the entire `NmiShadow_Start..End`
+  block, silently wiping it back to 0 (this broke BG1SC even for the
+  unchanged narrow/`bg_boss` path, caught by `phase6.py`). Fixed by
+  re-deriving the SC value from `BgRecordStaging+2` *after* `Core_Nmi_Init`,
+  in the same later boot block that already sets `Nmi_Bg3TilemapVram`.
+  Verified: both VRAM pages byte-match `out/bg_boss_level`'s `tilemap.bin`
+  and `tiles.bin` at frame 120; Mesen's own PPU-state decode reports
+  `doubleWidth: True` (not just a byte coincidence); `verify_msu_roster.py`
+  round-trips both the narrow and wide directories; `BgRecordStaging+2`
+  independently confirmed to still hold the right value at frame 120
+  (the assumption "nothing touches that WRAM in between" was measured, not
+  just argued); `phase6.py`, `check_label_drift.py` (0 DRIFTED), and
+  `audit_all.py` all still pass on the unchanged shipped `out/bg_boss`
+  build. `build_rom.py` still ships `out/bg_boss` (narrow) by default —
+  `out/bg_boss_level` is a new, committed, but not-yet-wired-in artifact
+  for the next (camera) increment to build on.
+- **Streaming converter** (for a level's real content wider than 64
+  tiles — the general case, e.g. warehouse at ~9800 tiles): emit whole-level
+  column-major tilemap + tileset + a per-column tile-ID index (SMI's
+  `snes_room_converter.py` has all three; its `encode_tilemap_column_major`
+  is the piece Phase 6 deliberately skipped). Extend `bor.msu` to format
+  v3, or emit a ROM blob per Step 1. Still entirely unbuilt.
 - **Widen X to world coordinates** — the ~24 8-bit access sites above.
   **Sequencing finding (2026-08-10): do this together with the camera
   bullet below, not before it.** `PLAYER_MAX_X = 216`/`PLAYER_MAX_Y = 208`

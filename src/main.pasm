@@ -2823,18 +2823,26 @@ BgRecordStaging    = $7E2340   ; 16B  -- one BG directory record
 ; --- Phase 6 VRAM map (see Bg_LoadScene's header for the full picture) ---
 BG1_TILES_VRAM_WORD   = $0000  ; <=512 4bpp tiles, i.e. up to word $1FFF
 BG1_TILEMAP_VRAM_WORD = $6000  ; 32x32 map; only the top 32x28 is written
-BG1_TILEMAP_WORDS     = 896    ; 32 * 28 entries actually streamed
+BG1_TILEMAP_WORDS     = 896    ; 32 * 28 entries actually streamed (narrow map,
+                                 ; bg_record width_tiles == 32)
+BG1_TILEMAP_WORDS_WIDE = 2048  ; two concatenated 32x32 pages (bg_record
+                                 ; width_tiles == 64): page A = words $6000-$63FF
+                                 ; (cols 0-31, all 32 rows -- rows 28-31 are
+                                 ; zero-padded even though never displayed,
+                                 ; because SNES 64x32 BG addressing requires
+                                 ; page B to start exactly 1024 words after page
+                                 ; A, not after 28 rows), page B = $6400-$67FF
+                                 ; (cols 32-63). This is why BG3's tilemap had to
+                                 ; move to $6800 first -- see BG3_TILEMAP_VRAM_WORD.
 BG3_TILES_VRAM_WORD   = $5000  ; 2bpp HUD tiles
 BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
                                  ; Phase 8 (plan.md 2.7) to free $6400-$67FF so
                                  ; BG1's tilemap can grow to a real 64x32 map
-                                 ; ($6000-$67FF) for horizontal scrolling. BG1SC
-                                 ; itself is NOT yet flipped to 64-wide mode --
-                                 ; that needs real tilemap content in the freed
-                                 ; range first (the whole-level converter, still
-                                 ; unbuilt), and with scroll=0 a flip with no
-                                 ; content there would be untestable, not just
-                                 ; premature. $6800-$7FFF (6144 words) was free.
+                                 ; ($6000-$67FF) for horizontal scrolling.
+                                 ; Bg_LoadScene now reads bg_record width_tiles
+                                 ; (32 or 64) and picks the narrow/wide tilemap
+                                 ; DMA loop and BG1SC value at runtime -- see
+                                 ; Bg_LoadScene__tilemap_wide.
 BG3_TILEMAP_WORDS     = 1024
 
 ; --- Phase 6 HUD (Hud_Play). Tile ids must match make_hud_tiles.py's manifest. ---
@@ -5406,9 +5414,24 @@ Bg_LoadScene__cgram:
     cpx #$0100
     bcc Bg_LoadScene__cgram
 
-    ; --- region 2: 1792-byte BG1 tilemap -> VRAM word $6000 ---
+    ; --- region 2: BG1 tilemap -> VRAM word $6000 ---
     ; $2115 was set to $80 (word-increment on $2119) at boot and never
-    ; changed, so each low/high byte pair advances one word.
+    ; changed, so each low/high byte pair advances one word. width_tiles
+    ; (bg_record +2) picks narrow (32-wide, 1792B) vs wide (64-wide, two
+    ; paged 32x32 screens, 4096B) -- see BG1_TILEMAP_WORDS_WIDE's comment.
+    ; NOTE: the matching BG1SC ($60/$61) value is NOT written to
+    ; Nmi_Bg1TilemapVram here, even though this is where width_tiles is
+    ; known -- Core_Nmi_Init (called later in scpu_boot) unconditionally
+    ; zeroes the whole NmiShadow_Start..End block, which would silently wipe
+    ; a write made here. BgRecordStaging+2 is re-read after Core_Nmi_Init
+    ; instead (see the shadow-init block below, near Nmi_ScreenMode) --
+    ; nothing touches that WRAM in between, so it is still valid there.
+    sep #$20
+.a8
+    lda.l BgRecordStaging+2     ; width_tiles (u8)
+    cmp #64
+    beq Bg_LoadScene__tilemap_wide
+
     rep #$31
 .a16
 .i16
@@ -5429,6 +5452,39 @@ Bg_LoadScene__tilemap:
     inx
     cpx #BG1_TILEMAP_WORDS
     bcc Bg_LoadScene__tilemap
+    bra Bg_LoadScene__tilemap_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__tilemap_wide:
+    sep #$20
+.a8
+
+    rep #$31
+.a16
+.i16
+    lda #BG1_TILEMAP_VRAM_WORD
+    sta $2116
+    ldx #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__tilemap_w:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #BG1_TILEMAP_WORDS_WIDE
+    bcc Bg_LoadScene__tilemap_w
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__tilemap_done:
+    sep #$20
+.a8
+    rep #$31
+.a16
+.i16
 
     ; --- region 3: bg_tile_count * 32 bytes of BG1 tiles -> VRAM word $0000 ---
     ; Word count = tile_count * 16, computed with four shifts. tile_count is
@@ -5973,7 +6029,11 @@ scpu_clear_ppu:
     sta $2105               ; BGMODE = 1, BG3 high priority
     lda #$60
     sta $2107               ; BG1SC: tilemap at word $6000 (moved from $0400 --
-                             ; BG1 tiles now occupy $0000-$1FFF, see Bg_LoadScene)
+                             ; BG1 tiles now occupy $0000-$1FFF, see Bg_LoadScene).
+                             ; Placeholder only -- still forced-blank here, and
+                             ; Bg_LoadScene (which already ran) set the real
+                             ; value into the Nmi_Bg1TilemapVram shadow, which
+                             ; overwrites this on the first NMI commit.
     lda #$68
     sta $2109               ; BG3SC: tilemap at word $6800 (Phase 8: moved
                              ; from $6400 to free room for a wider BG1 map)
@@ -6252,8 +6312,28 @@ scpu_tm_row_no_bump:
 .a8
     lda #$09             ; BGMODE 1 + BG3 priority (see the $2105 write above)
     sta.l Nmi_ScreenMode
-    lda #$60             ; BG1SC: tilemap at word $6000
+
+    ; BG1SC: $60 (32x32) or $61 (64x32), from the bg_record's width_tiles
+    ; that Bg_LoadScene already read into BgRecordStaging+2 (still valid --
+    ; nothing writes that WRAM in between). Done HERE, after Core_Nmi_Init's
+    ; shadow-clear loop, not inside Bg_LoadScene itself -- Bg_LoadScene runs
+    ; earlier in scpu_boot, and Core_Nmi_Init unconditionally zeroes the
+    ; whole NmiShadow_Start..End block, which silently wiped an earlier
+    ; attempt to set this shadow from within Bg_LoadScene.
+    lda.l BgRecordStaging+2
+    cmp #64
+    beq scpu_boot__bg1sc_wide
+    lda #$60
+    bra scpu_boot__bg1sc_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_boot__bg1sc_wide:
+    sep #$20
+.a8
+    lda #$61
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+scpu_boot__bg1sc_done:
     sta.l Nmi_Bg1TilemapVram
+
     lda #$68             ; BG3SC: tilemap at word $6800 (Phase 8: moved from
                           ; $6400 to free room for a wider BG1 map)
     sta.l Nmi_Bg3TilemapVram

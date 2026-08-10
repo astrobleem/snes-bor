@@ -102,14 +102,20 @@ def _tile_horizontally(dst_rgb, src_rgb, src_mask, y, width):
         x += sw
 
 
-def composite_screen(pak_index, level, panel_y=0, background_y=0,
-                     frontpanel_y=0, scroll_x=0):
-    """Build one BOR_SCREEN_W x BOR_SCREEN_H RGB screen of `level`.
+def level_width(pak_index, level):
+    """Total pixel width of the level's panel strip (sum of panel widths)."""
+    return sum(pak_index.image(p)[0].shape[1] for p in level.ordered_panels())
 
-    Layers, back to front: tiled `background`, the `order` panel sequence laid
-    side by side, then the tiled `frontpanel` overlay.
+
+def _composite(pak_index, level, width, height, panel_y, background_y,
+               frontpanel_y, scroll_x):
+    """Shared layer compositor: tiled background, panel strip, tiled front.
+
+    `width`/`height` size the canvas; `scroll_x` offsets the panel strip
+    within it (0 for a whole-level composite, the screen's scroll position
+    for a single-screen window).
     """
-    canvas = np.zeros((BOR_SCREEN_H, BOR_SCREEN_W, 3), dtype=np.uint8)
+    canvas = np.zeros((height, width, 3), dtype=np.uint8)
 
     if level.background:
         bg_rgb, bg_mask = pak_index.image(level.background)
@@ -117,13 +123,13 @@ def composite_screen(pak_index, level, panel_y=0, background_y=0,
         # far shorter than the screen (warehouse is 24px tall) and would
         # otherwise leave the canvas black wherever no panel covers it.
         y = background_y
-        while y < BOR_SCREEN_H:
-            _tile_horizontally(canvas, bg_rgb, bg_mask, y, BOR_SCREEN_W)
+        while y < height:
+            _tile_horizontally(canvas, bg_rgb, bg_mask, y, width)
             y += bg_rgb.shape[0]
 
     x = -scroll_x
     for panel_name in level.ordered_panels():
-        if x >= BOR_SCREEN_W:
+        if x >= width:
             break
         p_rgb, p_mask = pak_index.image(panel_name)
         _blit(canvas, p_rgb, p_mask, x, panel_y)
@@ -131,9 +137,27 @@ def composite_screen(pak_index, level, panel_y=0, background_y=0,
 
     if level.frontpanel:
         f_rgb, f_mask = pak_index.image(level.frontpanel)
-        _tile_horizontally(canvas, f_rgb, f_mask, frontpanel_y, BOR_SCREEN_W)
+        _tile_horizontally(canvas, f_rgb, f_mask, frontpanel_y, width)
 
     return canvas
+
+
+def composite_screen(pak_index, level, panel_y=0, background_y=0,
+                     frontpanel_y=0, scroll_x=0):
+    """Build one BOR_SCREEN_W x BOR_SCREEN_H RGB window of `level` at scroll_x."""
+    return _composite(pak_index, level, BOR_SCREEN_W, BOR_SCREEN_H,
+                      panel_y, background_y, frontpanel_y, scroll_x)
+
+
+def composite_level(pak_index, level, panel_y=0, background_y=0, frontpanel_y=0):
+    """Build the level's FULL panel strip as one wide RGB canvas (scroll_x=0
+    across the whole thing, not windowed to one screen). Used by the Phase 8
+    whole-level converter, which quantizes/dedups tiles once over everything
+    a camera could ever show rather than per-320px-screen.
+    """
+    width = level_width(pak_index, level)
+    return _composite(pak_index, level, width, BOR_SCREEN_H,
+                      panel_y, background_y, frontpanel_y, 0)
 
 
 def load_level(pak_index, level_entry):
