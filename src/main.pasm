@@ -2330,13 +2330,29 @@ LoadAudioData__valid:
     ; (Verified by byte-comparing both candidate addresses against
     ; soundwork/tad/build/audio-data.bin at the same offsets.)
     ;
-    ; Since the whole blob is 4183 bytes spanning $B02B-$C082, it never
-    ; crosses a bank boundary, so the correct address is just a 16-bit add of
-    ; the blob base and a constant bank. If the blob ever grows past $FFFF
-    ; this must go back to carrying into the bank byte.
+    ; The base to add is NOT __Tad_AudioData_0. soundwork/tad/build/audio-data.s
+    ; documents the table as "PRG ROM offsets (from the start of the first Audio
+    ; Data segment)", and in the ca65 layout that segment opens with the
+    ; 51-byte LoadAudioData callback and only then the blob -- so a table offset
+    ; is measured from 51 bytes BEFORE __Tad_AudioData_0. main.pasm pads only 43
+    ; bytes ahead of the .incbin (its comment claiming "43-byte callback" is
+    ; simply wrong; audio-data.s line 117 asserts the callback is 51), so the
+    ; segment base here is __Tad_AudioData_0 - 51.
+    ;
+    ; The arithmetic pins this down with no room for interpretation:
+    ;   Tad_DataTable sits at blob offset 3337 and is 8 bytes, so the data
+    ;   proper starts at blob offset 3345; entry0 is $0D44 = 3396, and
+    ;   3396 - 51 = 3345 exactly. The table's end entry is $108A = 4234, and
+    ;   4234 - 51 = 4183 = the exact size of audio-data.bin.
+    ; Using __Tad_AudioData_0 itself reads 51 bytes late and runs the last
+    ; song 51 bytes past the end of the blob.
+    ;
+    ; The whole blob is 4183 bytes spanning $B02B-$C082 and never crosses a
+    ; bank boundary, so this is a plain 16-bit add with a constant bank. If the
+    ; blob ever grows past $FFFF this must carry into the bank byte again.
     lda.l Tad_DataTable,x
     clc
-    adc #(__Tad_AudioData_0 & $ffff)
+    adc #((__Tad_AudioData_0 - 51) & $ffff)
     sta 1,s
 
     sep #$20
