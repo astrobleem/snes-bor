@@ -664,14 +664,21 @@ Committed and verified working:
 | 2 | Second simultaneous entity (static NPC) | `e7d18eb`, `f2f52e0` |
 | 3 | Minimal AI — Entity #1 seeks the player and attacks in range | `78f2acb` |
 | 4 | AABB collision + hit reaction (`CHAR_HIT_STUN`) | `a32d88f` |
+| 5 | Scaled to 4 simultaneous entities (1 player + 3 AI) | `4ee28ff` |
+| 6 | BG1 static level backdrop + BG3 HP-bar HUD | see §2.4 |
+| 7 | TAD audio unblocked — song reaches `PLAYING`, audibly non-silent | see §2.5 |
+| 8 | Horizontal scrolling: 16-bit world X, real camera, whole-level BG1 (cheap version — no streaming tile cache) | `5226b59` |
 
-So: **two** characters are on screen at once, one player-controlled, one
-AI-controlled, and the AI's attack visibly stuns the player. That is the
-current end state.
+So: **four** characters are on screen at once — one player-controlled,
+three AI-controlled that seek the player and attack in range — over a
+converted, camera-scrolled Beats of Rage level backdrop with a live BG3
+HP-bar HUD and TAD music playing. That is the current end state. The two
+things furthest from being real gameplay: no damage system beyond the
+`CHAR_HP` value itself, and no SFX wired to attacks/hits (§2.6).
 
 **The other docs were brought in sync when Part Two was written** (same
 session), so you can trust them: `README.md`'s "Current Status" is
-accurate as of Phase 4, `CLAUDE.md` describes the entity system and the
+accurate as of Phase 8, `CLAUDE.md` describes the entity system and the
 Poppy checklist, `build.md` carries the OBJ tile-sheet layout, and
 `handoff.md`'s older sections are now explicitly banner-marked where they
 are known wrong. **Keep them in sync as you go** — each phase gate below
@@ -1097,16 +1104,18 @@ majority, exactly as §2.2 Tool B requires.
 
 These appear in `README.md`'s "Not built" list and belong to no phase
 above. They are listed here so nobody assumes they were forgotten. None of
-them blocks Phases 5–7. **(One of them — the OAM X-high bit — does block
-Phase 8; see §2.7 and the annotation on that bullet below.)**
+them blocks Phases 5–8.
 
-- **OAM hi-table X-high bit is never exercised by a real sprite.** This
-  becomes real the moment an entity's X exceeds 255. Phase 5 spawns four
-  entities across the screen, so **watch for it there** — a sprite that
-  wraps to the left edge instead of moving right past X=255 is this bug,
-  not a movement bug. **(Phase 8 makes this unavoidable: world X goes to
-  16 bits and the camera pans a 6876px level, so it is scheduled work in
-  §2.7, no longer just something to watch for.)**
+- **OAM hi-table X-high bit — RESOLVED as far as the engine code goes, but
+  still never exercised by real gameplay.** Phase 8 widened world X to 16
+  bits and derives the X-high bit fresh from (world X − camera scroll)
+  every frame; `phase8.py` confirms the derivation is correct via a forced
+  WRAM write (`CHAR_POS_X = 400` on an idle entity), since no entity's
+  screen-relative X naturally exceeds 255 in this level with this AI model
+  (every AI entity seeks the player, the camera follows the player, so
+  they track together). A sprite that wraps to the left edge instead of
+  continuing right past X=255 would still be this bug if it ever
+  resurfaces — just not reachable to trigger that way today.
 - **Roster selection is not persisted across reset.** Cosmetic.
 - **The raw BOR `.pak` format has never been ingested directly** — art
   arrives pre-converted in `out/`. Relevant only if new characters are
@@ -1115,7 +1124,29 @@ Phase 8; see §2.7 and the annotation on that bullet below.)**
   of scope per the PoC spec, which calls for hit *reaction* without a
   damage system. Phase 4 satisfies the spec as written.
 
-## 2.7 — Phase 8: horizontal scrolling  📋 PLANNED (written 2026-08-10)
+## 2.7 — Phase 8: horizontal scrolling  ✅ DONE, cheap version (commit `5226b59`, 2026-08-10)
+
+**Shipped the "cheap version" called out below** (§ "The cheap version, if
+the full phase is too much"): the boss level's real content is 42 unique
+tiles, well under the 512-tile budget even without reclaiming BG2, so it
+loads as one static 64×32 whole-level `Bg_LoadScene` at boot — real camera,
+16-bit world X, 64-wide tilemap, no BG2 reclaim, **no streaming tile
+cache**. The general streaming converter (column recycling, per-frame tile
+producer, Step 1's MSU-seek-vs-animation-stream interleave hazard) is
+**still unbuilt** — a level whose live content exceeds ~500 unique tiles
+would need it. `tools/verify/phase8.py` gates exactly the cheap version and
+says so in its own docstring; its OAM X-high-bit check had to use a forced
+WRAM write (`CHAR_POS_X = 400`) rather than real gameplay, because with
+this AI model (every entity seeks the player, camera follows the player)
+no entity's screen-relative X naturally exceeds 255 within this level's
+`WORLD_MAX_X=296`.
+
+A genuine, previously-latent WRAM collision in `core/oop.pasm` was found and
+fixed during this phase: `OopCall_ResultX`/`OopCall_ResultY`, declared as
+the last two fields of the `OopObjRam` bookkeeping enum, resolved to the
+same addresses as `OopFlags[0]`/`[1]` — inert until this phase's camera
+query became the first real writer. See the fix's comment block in
+`oop.pasm` for the full mechanism.
 
 Part One's "Explicitly out of scope" list says *"Don't add camera/scroll
 logic as part of this plan."* That was correct for Part One and is now

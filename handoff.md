@@ -22,10 +22,10 @@ each section below.
 >   architecture map, the entity system, the Poppy bug checklist).
 >
 > **What this file is:** an append-only debugging record. The most recent and
-> most accurate sections are the four near the bottom — "Phase 2 done and
-> verified" through "Phase 4 done and verified" — plus "Harness gotchas" and
-> "File inventory." Read those. Everything above them is older history, kept
-> for the root-cause detail, and parts of it are known wrong.
+> most accurate sections are near the bottom — "Phase 2 done and verified"
+> through "Phase 8 done and verified" — plus "Harness gotchas" and "File
+> inventory." Read those. Everything above them is older history, kept for
+> the root-cause detail, and parts of it are known wrong.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1293,6 +1293,65 @@ usually does -- just the wrong instruction.
 **Recommended next step for Phase 7:** trigger an SFX on attack start. It
 needs content first -- `audio-enums.inc` exports only `s02_coin` and a
 placeholder `sfx_stub = 0`.
+
+## Phase 8 done and verified: horizontal scrolling (cheap version), commit `5226b59`
+
+Ships the "cheap version" plan.md §2.7 describes as a fallback: the boss
+level's real content is 42 unique tiles (well under the 512-tile budget),
+so the whole level loads as one static 64x32 `Bg_LoadScene` at boot, with a
+real camera panning across it -- no streaming tile cache, no per-frame
+column producer. `CHAR_POS_X`/`CHAR_POS_Y` are now real 16-bit world
+coordinates everywhere they're read (AI seek, player movement, all four
+`Character_HitApply_Vs*` overlap tests, OAM position/X-high derivation).
+
+**The camera itself was mostly dead code before this phase.**
+`core/screen.pasm` (576 lines: focus/blur, easing, clamping, playfield
+borders) was already called every frame from boot but had zero consumers --
+it asks its focused object for `SCREEN_CMD_GET_CAMERA_DATA` via
+`Core_Oop_Call` and nothing answered. This phase adds
+`CharacterEntity_OnCommand` to answer that, and wires
+`Core_Screen_SetPlayfieldBorder` + `Core_Screen_FocusImmediate` on the
+player at spawn (`msu1_done`) and a `Screen_PosX -> Nmi_Bg1ScrollX` commit
+each frame (`scpu_main_loop`), landing in the real `$210D` (BG1HOFS)
+register every vblank via the existing NMI shadow system.
+
+**A genuine WRAM collision bug in `core/oop.pasm` was found and fixed**,
+previously latent since nothing had ever written through it:
+`OopCall_ResultX`/`OopCall_ResultY`, declared as the last two fields of the
+`.enum $7E074A` bookkeeping block, resolved to the exact same addresses as
+`OopFlags[0]`/`[1]` (`OopFlags` begins immediately after that enum). The
+new camera-query handler writing an entity's position into
+`OopCall_ResultX`/`Y` every frame was silently clearing
+`OBJ_FLAG_PRESENT` on whichever object occupied slot 1, which
+`phase5.py`'s existing frame-index-variance check caught as "entity 0
+frozen" (a downstream effect -- slot 1 was the one actually corrupted;
+`Core_Oop_Play`'s dispatch loop skipping a non-present slot is what made it
+look like slot 0). Fixed by moving both fields to their own addresses in
+the unused WRAM gap between `ClassOnCommand`'s array and `OopObjRam`.
+
+**Verified in Mesen2** (`tools/verify/phase8.py`, 12/12 checks, ground
+truth = the converter's own `tiles.bin`/`tilemap.bin` and Mesen's own PPU
+decode, not engine WRAM shadows): BG1 tileset/tilemap byte-match, BG1SC
+really reports 64-wide mode, holding Right ~840 frames clamps world X at
+`WORLD_MAX_X` (296) and `Screen_PosX`/`$210D` at `MAX_SCROLL_X` (79),
+holding Left reverses cleanly back to 0/0, `Nmi_FrameCounter` keeps
+advancing pinned at both clamps (no vblank overrun despite the extra
+per-frame `$210D` write), and a forced write
+(`CHAR_POS_X = 400` on an idle entity, the same forced-collision technique
+Phase 0 used) confirms the OAM X-high bit sets correctly -- not reachable
+via real gameplay in this level, since every AI entity seeks the player and
+the camera follows the player, so no entity's screen-relative X naturally
+exceeds 255 here.
+
+**Not done:** the general streaming tile-cache half of §2.7 (column
+recycling, per-frame tile DMA producer, the MSU-seek-vs-animation-stream
+interleave re-verification that depends on it existing). Needed only if a
+future level's live content exceeds roughly 500 unique tiles.
+
+**Recommended next step:** either author a punch SFX (Phase 7's
+recommended next step, still open and unblocked by this phase) or pick a
+bigger level and build the streaming tile cache this phase deferred --
+`plan.md` §2.7 has the design for both starting points already written.
 
 ## Harness gotchas (Mesen2 / build)
 
