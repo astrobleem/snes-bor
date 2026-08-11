@@ -13,7 +13,7 @@ against real Mesen2 VRAM output.
 File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
-    0x08       format_version = 3               [was 2 -- see BG record v3 below]
+    0x08       format_version = 4               [was 2 -- see BG record v3/v4 below]
     0x09       roster_count (1-8)
     0x0A       bg_count (0-4)              [v2]
     0x0B       reserved
@@ -38,11 +38,25 @@ File format (see the plan for the authoritative spec):
       next     walk_frame_count * 768 bytes
       next     attack_frame_count * 768 bytes
 
-    then       BG directory (only when bg_count > 0): 4 records x 20 bytes,
-               located at bg_directory_offset. Bumped from 16 to 20 bytes in
-               v3 to fit a streaming level's real width (up to 688 tiles for
-               warehouse -- doesn't fit a u8) and tile count (up to 65535,
-               doesn't fit the old implicit <=1024 VRAM-fit assumption).
+    then       BG directory (only when bg_count > 0): 4 records x 32 bytes,
+               located at bg_directory_offset. Bumped 16->20 in v3 to fit a
+               streaming level's real width (up to 688 tiles for warehouse --
+               doesn't fit a u8) and tile count (up to 65535, doesn't fit the
+               old implicit <=1024 VRAM-fit assumption). Bumped again 20->32
+               in v4 to add three precomputed absolute region offsets
+               (tilemap_offset/tiles_offset/hud_tiles_offset) -- these are
+               `data_offset + 256`, `+ tilemap_bytes`, `+ bg_tile_count*32`
+               respectively, and could be derived by the engine at runtime,
+               but the streaming loader needs to re-seek to each region
+               independently (see StageColumn's header comment for why: its
+               per-tile pixel fetches interleave with the tilemap read and
+               break MSU-1's auto-increment sequential position, unlike the
+               static loader's single unbroken burst). Computing them in
+               Python once, here, avoids a 16x16->32-bit multiply-with-carry
+               on the 65816 side for values that are already known and fixed
+               at pack time -- this project's standing preference (see
+               CLAUDE.md) is to keep computed-offset arithmetic off the
+               65816 wherever a build-time constant will do.
       record N:
         +0     mode            (u8, BG_MODE_STATIC=0 or BG_MODE_STREAMING=1)
         +1     reserved
@@ -63,9 +77,16 @@ File format (see the plan for the authoritative spec):
                (VRAM-fit budget). STREAMING: <=65535 (no VRAM-fit ceiling;
                see bg_converter/convert_bg.py's MAX_STREAMING_TILES).
         +10-11 reserved
-        +12-15 data_offset     (u32 LE) -- absolute byte offset of this
-               screen's blob from the start of the file
-        +16-19 reserved
+        +12-15 data_offset       (u32 LE) -- absolute byte offset of this
+               screen's blob (the CGRAM region's start) from the start of
+               the file. Both modes use this for the initial seek.
+        +16-19 tilemap_offset    (u32 LE) -- data_offset + 256. STREAMING
+               only; the static loader never re-seeks mid-blob.
+        +20-23 tiles_offset      (u32 LE) -- tilemap_offset + tilemap_bytes.
+               STREAMING only.
+        +24-27 hud_tiles_offset  (u32 LE) -- tiles_offset + bg_tile_count*32.
+               STREAMING only.
+        +28-31 reserved
 
     then       BG blobs, packed sequentially. One blob is everything the engine
                needs to stand up one screen, in the order it uploads them:
@@ -128,7 +149,7 @@ import gen_pasm_animset
 import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
-FORMAT_VERSION = 3
+FORMAT_VERSION = 4
 MAX_CHARACTERS = 8
 RECORD_SIZE = 16
 DIRECTORY_BASE = 0x10
@@ -139,7 +160,7 @@ ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
 MAX_BGS = 4
-BG_RECORD_SIZE = 20         # bumped from 16 in v3 -- see module docstring
+BG_RECORD_SIZE = 32         # bumped 16->20 in v3, 20->32 in v4 -- see module docstring
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
@@ -345,20 +366,27 @@ def pack_bg_blob(bg_dir, hud_dir):
         "width_tiles": width_tiles,
         "height_tiles": height_tiles,
         "hud_tile_count": hud_tile_count,
+        "tilemap_bytes": len(tilemap),
         "blob_size": len(blob),
     }
     return blob, info
 
 
 def build_bg_record(info, data_offset):
+    tilemap_offset = data_offset + BG_CGRAM_BYTES
+    tiles_offset = tilemap_offset + info["tilemap_bytes"]
+    hud_tiles_offset = tiles_offset + info["bg_tile_count"] * BG_BYTES_PER_TILE
     record = struct.pack(
-        "<BxHBB2xH2xI4x",
+        "<BxHBB2xH2xIIII4x",
         info["mode"],
         info["width_tiles"],
         info["height_tiles"],
         info["hud_tile_count"],
         info["bg_tile_count"],
         data_offset,
+        tilemap_offset,
+        tiles_offset,
+        hud_tiles_offset,
     )
     assert len(record) == BG_RECORD_SIZE
     return record

@@ -217,10 +217,12 @@ def parse_bg_header(data):
 
 def parse_bg_record(data, bg_dir_offset, slot):
     off = bg_dir_offset + slot * pmr.BG_RECORD_SIZE
-    mode, w, h, hud_count, tile_count, data_offset = \
-        struct.unpack_from("<BxHBB2xH2xI4x", data, off)
+    mode, w, h, hud_count, tile_count, data_offset, tilemap_offset, tiles_offset, hud_tiles_offset = \
+        struct.unpack_from("<BxHBB2xH2xIIII4x", data, off)
     return {"mode": mode, "bg_tile_count": tile_count, "width_tiles": w,
-            "height_tiles": h, "hud_tile_count": hud_count, "data_offset": data_offset}
+            "height_tiles": h, "hud_tile_count": hud_count, "data_offset": data_offset,
+            "tilemap_offset": tilemap_offset, "tiles_offset": tiles_offset,
+            "hud_tiles_offset": hud_tiles_offset}
 
 
 def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
@@ -283,6 +285,18 @@ def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
     print(f"BG record OK: mode={rec['mode']} {rec['bg_tile_count']} tiles, "
           f"{rec['width_tiles']}x{rec['height_tiles']}, "
           f"{rec['hud_tile_count']} hud tiles @ offset {rec['data_offset']}")
+
+    exp_tilemap_offset = rec["data_offset"] + pmr.BG_CGRAM_BYTES
+    exp_tiles_offset = exp_tilemap_offset + len(_read(bg_dir, "tilemap.bin"))
+    exp_hud_tiles_offset = exp_tiles_offset + rec["bg_tile_count"] * pmr.BG_BYTES_PER_TILE
+    if (rec["tilemap_offset"], rec["tiles_offset"], rec["hud_tiles_offset"]) != \
+            (exp_tilemap_offset, exp_tiles_offset, exp_hud_tiles_offset):
+        print(f"FAIL: v4 precomputed offsets {rec['tilemap_offset']}/{rec['tiles_offset']}/"
+              f"{rec['hud_tiles_offset']} != expected {exp_tilemap_offset}/{exp_tiles_offset}/"
+              f"{exp_hud_tiles_offset}")
+        return False
+    print(f"  v4 offsets OK: tilemap={rec['tilemap_offset']} tiles={rec['tiles_offset']} "
+          f"hud_tiles={rec['hud_tiles_offset']}")
 
     if rec["bg_tile_count"] > pmr.BG_MAX_TILES_STATIC:
         print(f"FAIL: {rec['bg_tile_count']} tiles exceeds BG1 budget {pmr.BG_MAX_TILES_STATIC}")
@@ -359,6 +373,26 @@ def check_bg_section_streaming(bg_dir="out/bg_warehouse_stream", hud_dir="out/hu
     print(f"BG record OK: mode={rec['mode']} (STREAMING) {rec['bg_tile_count']} tiles, "
           f"{rec['width_tiles']}x{rec['height_tiles']}, "
           f"{rec['hud_tile_count']} hud tiles @ offset {rec['data_offset']}")
+
+    exp_tilemap_offset = rec["data_offset"] + pmr.BG_CGRAM_BYTES
+    exp_tiles_offset = exp_tilemap_offset + len(_read(bg_dir, "tilemap.bin"))
+    exp_hud_tiles_offset = exp_tiles_offset + rec["bg_tile_count"] * pmr.BG_BYTES_PER_TILE
+    if (rec["tilemap_offset"], rec["tiles_offset"], rec["hud_tiles_offset"]) != \
+            (exp_tilemap_offset, exp_tiles_offset, exp_hud_tiles_offset):
+        print(f"FAIL: v4 precomputed offsets {rec['tilemap_offset']}/{rec['tiles_offset']}/"
+              f"{rec['hud_tiles_offset']} != expected {exp_tilemap_offset}/{exp_tiles_offset}/"
+              f"{exp_hud_tiles_offset}")
+        return False
+    # Also confirm hud_tiles_offset actually lands on the real HUD tiles region
+    # in the packed bytes -- the engine will jump straight there via a raw
+    # seek with no other ground-truth check along the way.
+    exp_hud_tiles = _read(hud_dir, "hud_tiles.bin")
+    actual_hud_tiles = msu_bytes[rec["hud_tiles_offset"]:rec["hud_tiles_offset"] + len(exp_hud_tiles)]
+    if actual_hud_tiles != exp_hud_tiles:
+        print(f"FAIL: bytes at hud_tiles_offset {rec['hud_tiles_offset']} don't match hud_tiles.bin")
+        return False
+    print(f"  v4 offsets OK: tilemap={rec['tilemap_offset']} tiles={rec['tiles_offset']} "
+          f"hud_tiles={rec['hud_tiles_offset']} (hud tiles byte-identical at that offset)")
 
     if rec["width_tiles"] > 255:
         print(f"  width_tiles={rec['width_tiles']} exceeds a u8 -- confirms this record "

@@ -51,12 +51,27 @@ STREAM_CACHE_STRIDE  = 337       ; coprime with 1022 (=2*7*73; 337 is prime
                                    ; persistent scan cursor BETWEEN calls so
                                    ; successive allocations don't all start
                                    ; scanning from the same ring position.
-STREAM_CACHE_SCAN_LIMIT = 64     ; candidates probed before forced eviction
-; Provisional: SyncScroll (plan.md Phase 9 step 4, not yet written) is what
-; actually defines what "a generation" means (its stamp walk advances
-; StreamCache_CurrentStamp once per tick). Until that exists, this is an
-; arbitrary distance threshold exercised only by this module's own smoke
-; test -- re-verify once the real per-frame stamp cadence is wired in.
+; STREAM_CACHE_SCAN_LIMIT: candidates probed before forced eviction. Set to
+; the FULL usable ring (not a small window) -- found necessary, not just
+; conservative, via Bg_LoadScene_Streaming's real bulk load (~755 distinct
+; tiles for warehouse's initial 32-column viewport): StreamCache_CurrentStamp
+; never advances until SyncScroll (plan.md Phase 9 step 4) exists, so the
+; protection-window check below is degenerate right now -- EVERY occupied
+; slot's stamp distance is 0 (< STREAM_CACHE_PROTECT_WINDOW), so every
+; occupied slot looks "just touched" and nothing is ever evictable. With a
+; 64-candidate limit, once the stride-337 cursor's 64-slot scan window
+; started overlapping earlier allocations, the scan exhausted its budget
+; without ever reaching one of the hundreds of still-free slots elsewhere in
+; the ring, and force-evicted a slot that didn't need evicting at all --
+; caught by phase9_stagecolumn_spotcheck.py (tile IDs correctly decoded and
+; attributed, but slot 64 kept recurring across many distinct real tile IDs,
+; and Tile2Slot entries for already-allocated tiles were silently wiped by
+; those spurious evictions). A full-ring scan guarantees finding a genuinely
+; free slot whenever one exists, independent of the degenerate protection
+; check. Once SyncScroll makes CurrentStamp advance for real, protection
+; becomes meaningful again and a smaller limit may be worth revisiting for
+; per-frame scan cost -- re-verify then, don't assume this value is final.
+STREAM_CACHE_SCAN_LIMIT = STREAM_CACHE_USABLE
 STREAM_CACHE_PROTECT_WINDOW = 16
 
 ; A streamed level's distinct-tile-ID ceiling. Sized for warehouse

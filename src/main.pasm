@@ -2839,7 +2839,7 @@ AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
 ; PPU and never lands in WRAM at all. ---
 BgHeaderStaging    = $7E2330   ; 16B  -- bor.msu file header (bg_count at +10,
                                  ;        bg_directory_offset at +12..15)
-BgRecordStaging    = $7E2340   ; 20B  -- one BG directory record (v3, was 16B)
+BgRecordStaging    = $7E2340   ; 32B  -- one BG directory record (v4, was 20B/16B)
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
 ; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
@@ -2872,6 +2872,76 @@ BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
                                  ; Bg_LoadScene__tilemap_wide.
 BG3_TILEMAP_WORDS     = 1024
 
+; --- Phase 9 (plan.md 2.7) streaming BG1 initial-viewport load (StageColumn)
+; -- see Bg_LoadScene_Streaming's header comment for the two-pass column
+; algorithm this scratch supports. Boot-only for now: loads exactly
+; STREAM_STAGE_VIEWPORT_COLS columns starting at world column 0 into VRAM
+; columns 0..N-1 (identity mapping -- world column == VRAM column, always
+; tilemap page A). SyncScroll (plan.md Phase 9 step 4, not yet written) is
+; what will replace this with a true ring buffer, page-B addressing, and a
+; world-column != VRAM-column mapping.
+;
+; Every scratch cell below is its OWN named symbol, never accessed via a
+; `Symbol+N` offset (except where explicitly `.l`-qualified, matching
+; core/math.pasm's proven-safe precedent) -- this project's standing
+; caution against computed-offset operands mis-sizing under Poppy.
+BG_MODE_STATIC = 0
+BG_MODE_STREAMING = 1
+STREAM_STAGE_VIEWPORT_COLS = 32   ; one screen's worth; boot-only, see above
+STREAM_STAGE_ENTRY_BYTES = 3      ; matches CACHE_ENTRY_BYTES in the Python
+                                    ; tools (u16 tile_id + u8 attribute)
+; A running 24-bit MSU byte offset for "this column's tilemap entries start
+; here" -- initialized to the record's tilemap_offset (BgRecordStaging+16..18)
+; and advanced by StreamStage_ColStrideLo (height_tiles*3) after each column,
+; rather than recomputed via a multiply each time (columns are processed in
+; strictly increasing order at boot, so a running add is exact and needs no
+; runtime multiplication by a variable column index -- see
+; pack_msu_roster.py's v4 module docstring for the parallel reasoning behind
+; precomputing tilemap_offset/tiles_offset/hud_tiles_offset in Python).
+StreamStage_SeekLo      = $7E2380   ; .dw
+StreamStage_SeekHi      = $7E2382   ; .db
+StreamStage_ColStrideLo = $7E2383   ; .dw -- height_tiles*3, computed once per
+                                      ; level load (unrolled add, not a
+                                      ; general multiply -- see
+                                      ; Bg_LoadScene_Streaming's setup)
+StreamStage_TilesBaseLo = $7E2385   ; .dw -- tiles_offset (record +20/21),
+StreamStage_TilesBaseHi = $7E2387   ; .db -- read once, byte 2 (record +22)
+StreamStage_TileOffLo   = $7E2388   ; .dw -- scratch: tile_id * 32 (also
+                                      ; reused as a row*3 temp early in the
+                                      ; row loop, before the tile-pixel-fetch
+                                      ; use -- see that site's own comment)
+StreamStage_TileOffHi   = $7E238A   ; .db -- high byte of the same tile_id*32
+                                      ; scratch (StageColumn_FetchTilePixels
+                                      ; use only -- NOT reused elsewhere)
+StreamStage_SeekTmpLo   = $7E238B   ; .dw -- scratch: this tile-pixel fetch's
+StreamStage_SeekTmpHi   = $7E238D   ; .db -- seek address (TilesBase+TileOff)
+StreamStage_ColIndex    = $7E238E   ; .dw -- 0..STREAM_STAGE_VIEWPORT_COLS-1
+StreamStage_RowIndex    = $7E2390   ; .dw -- 0..height_tiles-1
+StreamStage_TileId      = $7E2392   ; .dw -- this row's decoded tile ID
+StreamStage_Attr        = $7E2394   ; .db -- this row's decoded attribute byte
+StreamStage_Slot        = $7E2395   ; .dw -- this row's resolved VRAM slot
+StreamStage_Word        = $7E2397   ; .dw -- the hw tilemap word being built
+                                      ; (own dedicated cell -- NOT TileOffHi,
+                                      ; which is only 1 byte; an earlier
+                                      ; version reused it as a 16-bit word
+                                      ; here and silently stomped/misread
+                                      ; SeekTmpLo, caught by
+                                      ; phase9_stagecolumn_spotcheck.py
+                                      ; reporting every tile's palette as 0)
+; Decoded entries for the column currently being staged: up to
+; STREAM_STAGE_MAX_ROWS rows x 3 bytes (tile_id lo, tile_id hi, attribute).
+; Read in one uninterrupted sequential MSU burst (pass 1), then walked again
+; (pass 2) to resolve a VRAM slot per tile and fetch any cache-miss tile's
+; pixel data -- pass 2's tile fetches need their own seeks (into the tiles
+; region), which would corrupt the tilemap region's sequential read position
+; if the two passes were interleaved instead of separated like this.
+STREAM_STAGE_MAX_ROWS = 28        ; must be >= any real level's height_tiles;
+                                    ; BgRecordStaging+4 (height_tiles) drives
+                                    ; the actual loop bound at runtime, this
+                                    ; is only the buffer's fixed capacity
+StreamStage_Entries   = $7E23A0   ; STREAM_STAGE_MAX_ROWS*3 = 84 bytes
+                                    ; ($7E23A0-$7E23F3)
+
 ; --- Phase 6 HUD (Hud_Play). Tile ids must match make_hud_tiles.py's manifest. ---
 HUD_TILE_BLANK     = 0
 HUD_TILE_FILL_BASE = 1    ; +n = n columns filled, n = 0..8  (tiles 1..9)
@@ -2888,12 +2958,13 @@ HUD_STAGING_BYTES  = 256  ; HUD_ROWS * 32 entries * 2 bytes -- one DMA covers
 ; above the backdrop given BGMODE's BG3-priority bit.
 HUD_ENTRY_HIGH     = $20
 
-HudCachedHp        = $7E2354   ; 4B  -- last HP drawn, per entity (shifted +4
-                                 ; from $7E2350 when BgRecordStaging grew to
-                                 ; 20B for the v3 BG record format)
-HudDirty           = $7E2358   ; .db -- nonzero forces a redraw (set at boot)
-HudBarHp           = $7E2359   ; .db -- scratch: HP remaining while drawing a bar
-HudBarFilled       = $7E235A   ; .db -- scratch: filled columns for one tile
+HudCachedHp        = $7E2360   ; 4B  -- last HP drawn, per entity (shifted
+                                 ; from $7E2350 -> $7E2354 -> $7E2360 as
+                                 ; BgRecordStaging grew 16B -> 20B -> 32B
+                                 ; across the v3/v4 BG record formats)
+HudDirty           = $7E2364   ; .db -- nonzero forces a redraw (set at boot)
+HudBarHp           = $7E2365   ; .db -- scratch: HP remaining while drawing a bar
+HudBarFilled       = $7E2366   ; .db -- scratch: filled columns for one tile
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
@@ -5537,7 +5608,7 @@ Bg_LoadScene__dir_read:
 .a16
 .i16
     inx
-    cpx #$0014
+    cpx #$0020
     bcc Bg_LoadScene__dir_read
 
     ; --- seek this screen's blob (record +12/13/14 -- v3 data_offset moved
@@ -5582,6 +5653,31 @@ Bg_LoadScene__cgram:
     inx
     cpx #$0100
     bcc Bg_LoadScene__cgram
+
+    ; --- Phase 9 mode dispatch: STREAMING levels use a completely different
+    ; region-2/3/4 loading strategy (Bg_LoadScene_Streaming's two-pass column
+    ; algorithm, random-access re-seeks) instead of the single-sequential-
+    ; burst static path below. width_tiles for a streaming level (up to 688
+    ; for warehouse) does not fit the static path's "cmp #64" width dispatch
+    ; either -- mode must be checked first, before width. ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+0     ; mode (u8)
+    cmp #BG_MODE_STREAMING
+    beq Bg_LoadScene__dispatch_streaming
+    rep #$31
+.a16
+.i16
+    bra Bg_LoadScene__dispatch_static
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__dispatch_streaming:
+    rep #$31
+.a16
+.i16
+    jsr Bg_LoadScene_Streaming
+    brl Bg_LoadScene__hud_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene__dispatch_static:
 
     ; --- region 2: BG1 tilemap -> VRAM word $6000 ---
     ; $2115 was set to $80 (word-increment on $2119) at boot and never
@@ -5716,6 +5812,497 @@ Bg_LoadScene__hud:
 Bg_LoadScene__hud_done:
 
     plp
+    rts
+
+; ============================================================================
+; Bg_LoadScene_Streaming -- Phase 9 (plan.md 2.7) step 3: boot-time initial-
+; viewport load for a BG_MODE_STREAMING level. Called from Bg_LoadScene once
+; it has read mode==STREAMING from BgRecordStaging, in place of the static
+; path's single-sequential-burst region 2/3/4 load.
+;
+; Loads exactly STREAM_STAGE_VIEWPORT_COLS (32) columns starting at world
+; column 0 into VRAM tilemap columns 0-31 (page A only -- see
+; STREAM_STAGE_VIEWPORT_COLS's own comment for why this is boot-only, no
+; scrolling yet). For each column:
+;   pass 1 -- seek once to this column's tilemap entries (StreamStage_SeekLo/
+;             Hi, advanced by StreamStage_ColStrideLo after each column, not
+;             recomputed by a multiply) and read all of them in one
+;             uninterrupted sequential MSU-1 burst into StreamStage_Entries.
+;   pass 2 -- walk the decoded entries. Each tile ID is looked up in
+;             StreamCache_Tile2Slot (core/stream_cache.pasm): a hit reuses
+;             the already-resident VRAM slot; a miss calls
+;             Core_StreamCache_AllocateSlot and then StageColumn_FetchTilePixels
+;             to pull that tile's 32 bytes of pixel data from the tiles
+;             region into the newly-assigned slot. Either way, a remapped
+;             hardware tilemap word (VRAM slot | palette | flip bits, see
+;             encode_tilemap_cache_entry's attribute layout) is written to
+;             this row's VRAM tilemap word.
+; Pass 2's per-tile pixel fetches are why passes 1/2 are split: a fetch does
+; its own MSU-1 seek, which would corrupt pass 1's sequential read position
+; if interleaved with it instead of run afterward from decoded WRAM data.
+;
+; Runs under forced blank from Bg_LoadScene's caller (scpu_boot), same as
+; the static path -- direct $2118/$2119/$2116 writes, no DMA queue involved
+; (see Bg_LoadScene's own header for why that's safe here but not per-frame).
+; ============================================================================
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming:
+    php
+    sei
+    rep #$31
+.a16
+.i16
+
+    ; --- one-time setup: cache tiles_offset (24-bit) and the column stride ---
+    lda.l BgRecordStaging+20    ; tiles_offset low16 (record +20/21)
+    sta StreamStage_TilesBaseLo
+    sep #$20
+.a8
+    lda.l BgRecordStaging+22    ; tiles_offset byte 2 (byte 3 assumed 0, same
+    sta StreamStage_TilesBaseHi ; as every other 24-bit MSU offset in this file)
+    rep #$31
+.a16
+.i16
+
+    ; column_stride_bytes = height_tiles * STREAM_STAGE_ENTRY_BYTES(3), via
+    ; two adds -- height_tiles is a runtime u8 (BgRecordStaging+4), small
+    ; enough that unrolled addition beats pulling in a general multiply
+    ; routine for a single one-time computation.
+    sep #$20
+.a8
+    lda.l BgRecordStaging+4     ; height_tiles (u8)
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta StreamStage_ColStrideLo
+    clc
+    adc StreamStage_ColStrideLo
+    clc
+    adc StreamStage_ColStrideLo
+    sta StreamStage_ColStrideLo   ; = height_tiles * 3
+
+    ; StreamStage_SeekLo/Hi start at tilemap_offset (record +16/17/18)
+    lda.l BgRecordStaging+16
+    sta StreamStage_SeekLo
+    sep #$20
+.a8
+    lda.l BgRecordStaging+18
+    sta StreamStage_SeekHi
+    rep #$31
+.a16
+.i16
+
+    lda #0
+    sta StreamStage_ColIndex
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__col_loop:
+    ; --- seek to this column's tilemap entries ---
+    sep #$20
+.a8
+    lda StreamStage_SeekLo
+    sta $2000
+    lda.l StreamStage_SeekLo+1
+    sta $2001
+    lda StreamStage_SeekHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__seek_busy:
+    lda $2000
+    bmi Bg_LoadScene_Streaming__seek_busy
+
+    ; --- pass 1: read this column's height_tiles*3 bytes sequentially into
+    ; StreamStage_Entries ---
+    rep #$31
+.a16
+.i16
+    ; X (not Y) indexes StreamStage_Entries below -- the 65816 has no
+    ; indexed-LONG addressing mode with Y at all (only `addr24,X` exists);
+    ; Poppy silently accepts `.l Symbol,y` anyway and falls back to 3-byte
+    ; absolute,Y (DBR-relative, and 1 byte short of what it budgeted),
+    ; corrupting every following instruction -- see the DBR=0 SA-1 blit
+    ; comment near this file's top for this project's first encounter with
+    ; the same bug. X counts UP here (compared against ColStrideLo) instead
+    ; of down, since X is now the index, not a spare down-counter.
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__read_entry:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamStage_Entries,x
+    rep #$31
+.a16
+.i16
+    inx
+    ; CPX, like STZ/INC/DEC/STX/STY/ASL/ROL, has NO absolute-LONG addressing
+    ; mode on real 65816 -- Poppy accepted `cpx StreamStage_ColStrideLo` (a
+    ; bank-$7E symbol) anyway and silently emitted 3-byte absolute (DBR-
+    ; relative) instead of erroring. During boot DBR=$00, so this compared X
+    ; against garbage at $002383 instead of the real height*3 bound at
+    ; $7E2383, and the loop never terminated at 84 -- it ran for thousands of
+    ; iterations, scribbling MSU-streamed bytes across the rest of bank $7E
+    ; (confirmed via a Mesen write-hook on $7E2501, which caught this exact
+    ; STA mid-runaway with X in the thousands). CMP has a long form and is
+    ; confirmed safe elsewhere in this file; TXA doesn't touch X, so the loop
+    ; index is unaffected.
+    txa
+    cmp StreamStage_ColStrideLo
+    bcc Bg_LoadScene_Streaming__read_entry
+
+    ; --- advance the running seek to the NEXT column, before pass 2 (pass 2
+    ; does its own unrelated seeks for tile-pixel fetches) ---
+    lda StreamStage_SeekLo
+    clc
+    adc StreamStage_ColStrideLo
+    sta StreamStage_SeekLo
+    sep #$20
+.a8
+    lda StreamStage_SeekHi
+    adc #0                       ; += carry from the 16-bit add above (SEP
+    sta StreamStage_SeekHi       ; #$20 does not touch the carry flag)
+    rep #$31
+.a16
+.i16
+
+    ; --- pass 2: walk this column's decoded entries ---
+    lda #0
+    sta StreamStage_RowIndex
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_loop:
+    ; X (not Y) = row * 3 (entry offset in StreamStage_Entries) -- same
+    ; indexed-long-needs-X constraint as the pass-1 read loop above.
+    lda StreamStage_RowIndex
+    sta StreamStage_TileOffLo     ; scratch use #1 this iteration: row temp
+                                    ; only, not read again until the tile-
+                                    ; pixel fetch below re-purposes this cell
+    asl a
+    clc
+    adc StreamStage_TileOffLo
+    tax
+
+    lda.l StreamStage_Entries,x   ; 16-bit read: tile_id lo+hi in one load
+    sta StreamStage_TileId
+    inx
+    inx                            ; X = row*3 + 2 (attribute byte)
+    sep #$20
+.a8
+    lda.l StreamStage_Entries,x
+    sta StreamStage_Attr
+    rep #$31
+.a16
+.i16
+
+    ; --- Tile2Slot lookup (word-indexed by tile_id*2) ---
+    lda StreamStage_TileId
+    asl a
+    tax
+    lda.l StreamCache_Tile2Slot,x
+    cmp #$FFFF
+    bne Bg_LoadScene_Streaming__row_hit
+    ; miss -- allocate a slot, then fetch this tile's pixel data
+    lda StreamStage_TileId
+    tax
+    jsr Core_StreamCache_AllocateSlot   ; A = slot; clobbers X,Y (both
+    sta StreamStage_Slot                 ; reloaded from WRAM below, so fine)
+    jsr StageColumn_FetchTilePixels
+    bra Bg_LoadScene_Streaming__row_resolved
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_hit:
+    sta StreamStage_Slot            ; A still holds Tile2Slot's value: the slot
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_resolved:
+    rep #$31
+.a16
+.i16
+
+    ; --- build the remapped hardware tilemap word: slot | (palette<<10) |
+    ; (hflip<<14) | (vflip<<15) -- see snes_tiles.encode_tilemap_cache_entry
+    ; for the attribute bit layout this decodes. Uses its own dedicated
+    ; StreamStage_Word cell -- an earlier version reused StreamStage_TileOffHi
+    ; (only 1 byte) as a 16-bit scratch here, which silently overlapped and
+    ; corrupted StreamStage_SeekTmpLo instead; see StreamStage_Word's own
+    ; declaration comment. ---
+    lda StreamStage_Slot
+    sta StreamStage_Word
+
+    sep #$20
+.a8
+    lda StreamStage_Attr
+    and #$07                        ; palette bits 0-2
+    rep #$31
+.a16
+.i16
+    and #$00FF                      ; zero-extend (A's high byte is stale
+                                      ; after the SEP/REP width round-trip)
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                            ; << 10
+    ora StreamStage_Word
+    sta StreamStage_Word
+
+    sep #$20
+.a8
+    lda StreamStage_Attr
+    and #$08                        ; hflip bit
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Bg_LoadScene_Streaming__row_no_hflip
+    lda StreamStage_Word
+    ora #$4000
+    sta StreamStage_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_no_hflip:
+
+    sep #$20
+.a8
+    lda StreamStage_Attr
+    and #$10                        ; vflip bit
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Bg_LoadScene_Streaming__row_no_vflip
+    lda StreamStage_Word
+    ora #$8000
+    sta StreamStage_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_no_vflip:
+
+    ; --- write to VRAM tilemap: word = BG1_TILEMAP_VRAM_WORD + col + row*32
+    ; (page A only -- col is always < 32 in this boot-only load) ---
+    lda StreamStage_RowIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                            ; row * 32
+    clc
+    adc StreamStage_ColIndex
+    clc
+    adc #BG1_TILEMAP_VRAM_WORD
+    sta $2116
+    ; word write, low byte then high byte -- shift right 8 in A (not a
+    ; Symbol+1 byte-split read) to get the high byte, matching this
+    ; project's caution around computed-offset operands.
+    sep #$20
+.a8
+    lda StreamStage_Word
+    sta $2118
+    rep #$31
+.a16
+.i16
+    lda StreamStage_Word
+    xba
+    sep #$20
+.a8
+    sta $2119
+    rep #$31
+.a16
+.i16
+
+    lda StreamStage_RowIndex
+    inc a
+    sta StreamStage_RowIndex
+    sep #$20
+.a8
+    lda.l BgRecordStaging+4
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    cmp StreamStage_RowIndex
+    beq Bg_LoadScene_Streaming__row_done
+    brl Bg_LoadScene_Streaming__row_loop
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__row_done:
+
+    ; --- column done: advance to the next one ---
+    lda StreamStage_ColIndex
+    inc a
+    sta StreamStage_ColIndex
+    cmp #STREAM_STAGE_VIEWPORT_COLS
+    bcs Bg_LoadScene_Streaming__col_finished
+    brl Bg_LoadScene_Streaming__col_loop
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__col_finished:
+
+    ; --- HUD tiles: seek to hud_tiles_offset (record +24/25/26) and stream
+    ; hud_tile_count*16 bytes, exactly like the static path's region 4 --
+    ; needs its own seek since the port position was left wherever the last
+    ; tile-pixel fetch (or this column's tilemap read) put it. ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+24
+    sta $2000
+    lda.l BgRecordStaging+25
+    sta $2001
+    lda.l BgRecordStaging+26
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__hud_seek_busy:
+    lda $2000
+    bmi Bg_LoadScene_Streaming__hud_seek_busy
+
+    rep #$31
+.a16
+.i16
+    lda #BG3_TILES_VRAM_WORD
+    sta $2116
+    sep #$20
+.a8
+    lda.l BgRecordStaging+5     ; hud_tile_count (u8)
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a                       ; * 8 words per 2bpp tile
+    tax
+    beq Bg_LoadScene_Streaming__hud_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__hud_loop:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    dex
+    bne Bg_LoadScene_Streaming__hud_loop
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadScene_Streaming__hud_done:
+
+    plp
+    rep #$31
+.a16
+.i16
+    rts
+
+; ----------------------------------------------------------------------
+; StageColumn_FetchTilePixels -- fetches one cache-miss tile's 32 bytes of
+; pixel data from the tiles region into its newly-assigned VRAM slot.
+; @param StreamStage_TileId<16-bit>  the tile ID to fetch
+; @param StreamStage_Slot<16-bit>    the VRAM slot Core_StreamCache_AllocateSlot
+;                                     just assigned it
+; Clobbers A/X. Entry/exit width-agnostic (re-asserts its own widths).
+; ----------------------------------------------------------------------
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumn_FetchTilePixels:
+    rep #$31
+.a16
+.i16
+    ; tile_id * 32 via 5 left-shifts of a 24-bit (lo16+hi8) value -- a
+    ; compile-time-constant shift count avoids pulling in a general
+    ; multiply routine for what's just "multiply by a power of two".
+    lda StreamStage_TileId
+    sta StreamStage_TileOffLo
+    sep #$20
+.a8
+    lda #0
+    sta StreamStage_TileOffHi
+    rep #$31
+.a16
+.i16
+    ; ASL/ROL, like STZ/INC/DEC/STX/STY, have NO absolute-LONG addressing
+    ; mode on real 65816 -- Poppy accepts `asl Symbol`/`rol Symbol` for a
+    ; bank-$7E symbol anyway and silently emits the 2-byte absolute
+    ; (DBR-relative) form instead of erroring, which during boot (DBR != $7E)
+    ; silently shifts the WRONG memory, leaving StreamStage_TileOffLo/Hi
+    ; unchanged. Same bug class CLAUDE.md documents for STZ; this file's
+    ; header note on Core_StreamCache_Init already covers STX/STY/INC/DEC,
+    ; now confirmed to extend to ASL/ROL too (found via
+    ; phase9_stagecolumn_spotcheck.py: every tile_id except 0 fetched wrong
+    ; pixel data, because 0<<5 is 0 regardless of whether the shift actually
+    ; ran on the right memory). Fix: shift through the accumulator (LDA/STA
+    ; both have long forms and are confirmed to auto-select them) instead of
+    ; a direct memory read-modify-write.
+    ldx #5
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumn_FetchTilePixels__shift:
+    lda StreamStage_TileOffLo
+    asl a
+    sta StreamStage_TileOffLo
+    sep #$20
+.a8
+    lda StreamStage_TileOffHi
+    rol a
+    sta StreamStage_TileOffHi
+    rep #$31
+.a16
+.i16
+    dex
+    bne StageColumn_FetchTilePixels__shift
+
+    ; seek_addr24 = TilesBase24 + TileOff24
+    lda StreamStage_TilesBaseLo
+    clc
+    adc StreamStage_TileOffLo
+    sta StreamStage_SeekTmpLo
+    sep #$20
+.a8
+    lda StreamStage_TilesBaseHi
+    adc StreamStage_TileOffHi
+    sta StreamStage_SeekTmpHi
+
+    lda StreamStage_SeekTmpLo
+    sta $2000
+    lda.l StreamStage_SeekTmpLo+1
+    sta $2001
+    lda StreamStage_SeekTmpHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumn_FetchTilePixels__seek_busy:
+    lda $2000
+    bmi StageColumn_FetchTilePixels__seek_busy
+
+    ; VMADD = BG1_TILES_VRAM_WORD + slot*16 words (one 4bpp tile = 16 words)
+    rep #$31
+.a16
+.i16
+    lda StreamStage_Slot
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc #BG1_TILES_VRAM_WORD
+    sta $2116
+
+    ldx #16                     ; 16 words = 32 bytes, one tile
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumn_FetchTilePixels__read:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    dex
+    bne StageColumn_FetchTilePixels__read
+
     rts
 
 ; ============================================================================
@@ -5928,12 +6515,21 @@ scpu_boot:
     jsr Core_Vram_Init
     jsr Core_Cgram_Init
 
-    ; --- TEMPORARY smoke test (plan.md Phase 9 step 2) -- exercises the new
-    ; streaming tile cache's allocator against a synthetic access pattern,
-    ; no MSU-1/VRAM involvement, before StageColumn (not yet written) wires
-    ; it into the real boot path. Remove once step 3 lands. ---
+    ; Core_StreamCache_Init sets up the Tile2Slot/Slot2Tile/SlotStamp tables
+    ; for real use by Bg_LoadScene_Streaming (called later, from within
+    ; Bg_LoadScene). The step-2 smoke test (Core_StreamCache_Test) that used
+    ; to run here has been removed now that step 3 (real content) has
+    ; landed -- it allocated 8 slots for synthetic tile IDs 0-7 using the
+    ; SAME Tile2Slot table a real streaming level uses, which silently
+    ; poisoned the cache: any real level tile whose ID happened to be 0-7
+    ; would read back as an already-cached "hit" against a slot the smoke
+    ; test never actually populated with pixel data, instead of genuinely
+    ; fetching that tile. Found via phase9_stagecolumn_spotcheck.py -- every
+    ; mismatch traced back to Tile2Slot[0..7] already holding the smoke
+    ; test's own stride-337 allocations. Core_StreamCache_Test itself is
+    ; kept in core/stream_cache.pasm for future ad hoc re-verification, just
+    ; no longer called from the real boot path.
     jsr Core_StreamCache_Init
-    jsr Core_StreamCache_Test
 
     jsr Core_Oop_Init
     jsr Core_Screen_Init
@@ -6530,13 +7126,21 @@ scpu_tm_row_no_bump:
     lda #$09             ; BGMODE 1 + BG3 priority (see the $2105 write above)
     sta.l Nmi_ScreenMode
 
-    ; BG1SC: $60 (32x32) or $61 (64x32), from the bg_record's width_tiles
-    ; that Bg_LoadScene already read into BgRecordStaging+2 (still valid --
+    ; BG1SC: $60 (32x32) or $61 (64x32), from the bg_record's mode/width_tiles
+    ; that Bg_LoadScene already read into BgRecordStaging (still valid --
     ; nothing writes that WRAM in between). Done HERE, after Core_Nmi_Init's
     ; shadow-clear loop, not inside Bg_LoadScene itself -- Bg_LoadScene runs
     ; earlier in scpu_boot, and Core_Nmi_Init unconditionally zeroes the
     ; whole NmiShadow_Start..End block, which silently wiped an earlier
     ; attempt to set this shadow from within Bg_LoadScene.
+    ; STREAMING always forces the wide (64x32) map -- SyncScroll's future
+    ; ring buffer needs both pages, and a streaming width_tiles (e.g. 688 for
+    ; warehouse) would not match the static path's "cmp #64" test anyway
+    ; (688 & $FF = $B0, not 64) even though this boot-only load only ever
+    ; populates page A.
+    lda.l BgRecordStaging+0     ; mode (u8)
+    cmp #BG_MODE_STREAMING
+    beq scpu_boot__bg1sc_wide
     lda.l BgRecordStaging+2
     cmp #64
     beq scpu_boot__bg1sc_wide
