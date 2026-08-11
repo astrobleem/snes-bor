@@ -342,6 +342,168 @@ def convert_level(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
     return manifest
 
 
+# The cache tilemap entry (snes_tiles.encode_tilemap_cache_entry) has a
+# full 16-bit tile-ID field -- unlike the whole-level path above, there is
+# no VRAM-fit ceiling here (that's the whole point of streaming). This cap
+# is generous headroom against that 16-bit field, not a real expected
+# limit: measured against warehouse (plan.md Phase 9's first streaming
+# target), a whole-level composite dedups to 13,437 unique tiles -- an
+# earlier 11-bit (2048) word design hit this exact wall and had to be
+# widened; see snes_tiles.py's comment on encode_tilemap_cache_entry for
+# the full story, including the real go/no-go number (max distinct tiles
+# in a 36-column sliding window, which is what actually has to fit in the
+# ~1023-slot VRAM ring buffer -- 982 for warehouse, so it clears).
+MAX_STREAMING_TILES = 65536
+
+
+def convert_streaming(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
+                      frontpanel_y=0, max_tiles=MAX_STREAMING_TILES, verbose=True):
+    """Convert an ENTIRE level into a column-major streaming BG1 source
+    (Phase 9, plan.md 2.7): the tile-dedup/quantize pipeline is the same as
+    convert_level() above, but there is no 64-tile/VRAM-fit ceiling (only
+    the cache word's 2048-tile-ID ceiling) and the tilemap is encoded
+    column-major so the engine's MSU-1 column streamer can seek directly
+    to any column's data without a separate index.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    idx = PakIndex(pak_path)
+    level = load_level(idx, level_entry)
+    if verbose:
+        print(f'level: {level}')
+
+    # --- 1. composite the WHOLE level, then resample at the same 0.8 scale
+    # convert()/convert_level() use ---
+    bor_w = level_width(idx, level)
+    scene = composite_level(idx, level, panel_y=panel_y,
+                            background_y=background_y,
+                            frontpanel_y=frontpanel_y)
+    assert scene.shape[1] == bor_w
+    Image.fromarray(scene).save(out_dir / 'scene_preview.png')
+
+    scale = SNES_W / BOR_SCREEN_W
+    snes_w_raw = round(bor_w * scale)
+    # No page-boundary padding here (unlike convert_level's 32/64-tile
+    # pages): the streaming tilemap has no fixed VRAM page to align to, the
+    # engine reads exactly this many columns.
+    w_tiles = -(-snes_w_raw // st.TILE_SIZE)  # ceil to a tile boundary
+    snes_w = w_tiles * st.TILE_SIZE
+
+    snes_img = Image.fromarray(scene).resize((snes_w_raw, SNES_H), Image.NEAREST)
+    rgb = np.zeros((SNES_H, snes_w, 3), dtype=np.uint8)
+    rgb[:, :snes_w_raw] = np.array(snes_img, dtype=np.uint8)
+    if verbose:
+        print(f'composited {bor_w}x{BOR_SCREEN_H} -> {snes_w_raw}x{SNES_H} '
+              f'(padded to {snes_w}x{SNES_H} tile boundary, {w_tiles} tiles wide), '
+              f'{len(np.unique(rgb.reshape(-1, 3), axis=0))} unique colors')
+
+    # --- 2. slice to BGR555 tiles ---
+    bgr = st.rgb_array_to_bgr555(rgb)
+    raw_tiles = st.image_to_tiles(bgr)
+    assert raw_tiles.shape[0] == w_tiles * H_TILES
+
+    # --- 3. dedup visual patterns before quantizing ---
+    unique_raw, pos_to_uid, flip_flags = st.dedup_bgr555(raw_tiles)
+    if verbose:
+        print(f'{raw_tiles.shape[0]} tiles -> {len(unique_raw)} unique BGR555 patterns '
+              f'(flip-aware)')
+
+    # --- 4. tile-aware palette optimization over the unique patterns ---
+    palettes, uniq_indexed, uniq_pal_ids = build_palettes_tileaware(
+        unique_raw, num_palettes=NUM_PALETTES, colors_per_palette=COLORS_PER_PALETTE)
+    if verbose:
+        print(f'built {len(palettes)} sub-palettes of {COLORS_PER_PALETTE}')
+
+    # --- 5. rebuild every screen position, re-applying its flip ---
+    indexed_tiles = np.zeros((len(raw_tiles), st.TILE_SIZE, st.TILE_SIZE), dtype=np.uint8)
+    pal_ids = np.zeros(len(raw_tiles), dtype=np.uint8)
+    for i, uid in enumerate(pos_to_uid):
+        tile = uniq_indexed[uid]
+        hf, vf = flip_flags[i]
+        if hf:
+            tile = tile[:, ::-1]
+        if vf:
+            tile = tile[::-1, :]
+        indexed_tiles[i] = tile
+        pal_ids[i] = uniq_pal_ids[uid]
+
+    # --- 6. dedup again post-indexing, then encode ---
+    unique_tiles, entries = st.dedup_tiles(indexed_tiles, pal_ids + PALETTE_OFFSET)
+    n_tiles = len(unique_tiles)
+    if verbose:
+        print(f'{len(indexed_tiles)} tiles -> {n_tiles} unique 4bpp tiles')
+
+    if n_tiles > max_tiles:
+        raise SystemExit(
+            f'ERROR: {n_tiles} unique tiles exceeds the {max_tiles}-tile cache-entry\n'
+            f'  tile-ID space (16 bits). Not truncating.')
+
+    tiles_bin = st.encode_tileset(unique_tiles, bpp=4)
+    tilemap_bin = st.encode_tilemap_column_major(entries, w_tiles, H_TILES)
+    cgram_palettes = [[0] * COLORS_PER_PALETTE] * PALETTE_OFFSET + list(palettes)
+    palette_bin = st.encode_palette(cgram_palettes, TOTAL_PALETTES, COLORS_PER_PALETTE)
+
+    (out_dir / 'tiles.bin').write_bytes(tiles_bin)
+    (out_dir / 'tilemap.bin').write_bytes(tilemap_bin)
+    (out_dir / 'palette.bin').write_bytes(palette_bin)
+
+    manifest = {
+        'level_entry': level_entry,
+        'background': level.background,
+        'panels': level.panels,
+        'frontpanel': level.frontpanel,
+        'streaming': True,
+        'width_px': snes_w, 'height_px': SNES_H,
+        'width_tiles': w_tiles, 'height_tiles': H_TILES,
+        'content_width_tiles': w_tiles,  # no page padding in streaming mode
+        'unique_tiles': n_tiles,
+        'num_palettes': NUM_PALETTES,
+        'palette_offset': PALETTE_OFFSET,
+        'colors_per_palette': COLORS_PER_PALETTE,
+        'tiles_bytes': len(tiles_bin),
+        'tilemap_bytes': len(tilemap_bin),
+        'palette_bytes': len(palette_bin),
+        'panel_y': panel_y, 'background_y': background_y,
+        'frontpanel_y': frontpanel_y,
+    }
+    (out_dir / 'manifest.json').write_text(json.dumps(manifest, indent=2))
+
+    render_preview_streaming(tiles_bin, tilemap_bin, palette_bin, w_tiles, H_TILES,
+                             out_dir / 'preview.png')
+
+    if verbose:
+        print(f'wrote {out_dir}/: tiles.bin {len(tiles_bin)}B, '
+              f'tilemap.bin {len(tilemap_bin)}B, palette.bin {len(palette_bin)}B')
+        print(f'cache word ID space: {n_tiles}/{max_tiles} tiles used; '
+              f'tilemap {w_tiles}x{H_TILES} column-major')
+    return manifest
+
+
+def render_preview_streaming(tiles_bin, tilemap_bin, palette_bin, w_tiles, h_tiles, out_path):
+    """Decode a column-major cache-format tilemap straight from the emitted
+    binaries (ground truth, not the source render) -- same discipline as
+    render_preview/render_preview_paged above."""
+    pal = np.frombuffer(palette_bin, dtype='<u2').reshape(-1, COLORS_PER_PALETTE)
+    n_tiles = len(tiles_bin) // st.BYTES_PER_4BPP_TILE
+    tiles = [st.decode_4bpp_tile(tiles_bin[i * 32:(i + 1) * 32]) for i in range(n_tiles)]
+    entries = st.decode_tilemap_column_major(tilemap_bin, w_tiles, h_tiles)
+
+    out = np.zeros((h_tiles * 8, w_tiles * 8, 3), dtype=np.uint8)
+    for row in range(h_tiles):
+        for col in range(w_tiles):
+            tid, pid, hf, vf = entries[row * w_tiles + col]
+            t = tiles[tid]
+            if hf:
+                t = t[:, ::-1]
+            if vf:
+                t = t[::-1, :]
+            for y in range(8):
+                for x in range(8):
+                    out[row * 8 + y, col * 8 + x] = st.bgr555_to_rgb(int(pal[pid][t[y, x]]))
+    Image.fromarray(out).save(out_path)
+
+
 def render_preview_paged(tiles_bin, tilemap_bin, palette_bin, w_tiles, h_tiles_visible,
                          out_path, page_width=32, page_height=32):
     """Like render_preview, but decodes a paged (or single-page) tilemap and
@@ -420,9 +582,19 @@ def main():
     ap.add_argument('--whole-level', action='store_true',
                     help='composite the ENTIRE level (up to 64 SNES tiles wide) '
                          'instead of one 320px screen, for Phase 8 scroll testing')
+    ap.add_argument('--streaming', action='store_true',
+                    help='composite the ENTIRE level with no width/VRAM-fit '
+                         'ceiling and encode a column-major streaming tilemap '
+                         '(Phase 9), for levels too wide for --whole-level')
     args = ap.parse_args()
 
-    if args.whole_level:
+    if args.streaming:
+        convert_streaming(args.pak, args.level, args.output,
+                          panel_y=args.panel_y, background_y=args.background_y,
+                          frontpanel_y=args.frontpanel_y,
+                          max_tiles=args.max_tiles if args.max_tiles != MAX_BG1_TILES
+                          else MAX_STREAMING_TILES)
+    elif args.whole_level:
         convert_level(args.pak, args.level, args.output,
                       panel_y=args.panel_y, background_y=args.background_y,
                       frontpanel_y=args.frontpanel_y, max_tiles=args.max_tiles)

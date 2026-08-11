@@ -13,7 +13,7 @@ against real Mesen2 VRAM output.
 File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
-    0x08       format_version = 2
+    0x08       format_version = 3               [was 2 -- see BG record v3 below]
     0x09       roster_count (1-8)
     0x0A       bg_count (0-4)              [v2]
     0x0B       reserved
@@ -38,19 +38,34 @@ File format (see the plan for the authoritative spec):
       next     walk_frame_count * 768 bytes
       next     attack_frame_count * 768 bytes
 
-    then       BG directory (v2, only when bg_count > 0): 4 records x 16 bytes,
-               located at bg_directory_offset.
+    then       BG directory (only when bg_count > 0): 4 records x 20 bytes,
+               located at bg_directory_offset. Bumped from 16 to 20 bytes in
+               v3 to fit a streaming level's real width (up to 688 tiles for
+               warehouse -- doesn't fit a u8) and tile count (up to 65535,
+               doesn't fit the old implicit <=1024 VRAM-fit assumption).
       record N:
-        +0-1   bg_tile_count   (u16 LE, <= 1024)
-        +2     width_tiles     (u8, 32 or 64 -- see BG_VALID_WIDTHS; 64 means
-               the tilemap blob below is two concatenated 32x32 pages, not one)
-        +3     height_tiles    (u8, 28 -- real visible rows; always 28, even
-               when width_tiles==64 stores 32 padding rows per page on disk)
-        +4     hud_tile_count  (u8)
-        +5-7   reserved
-        +8-11  data_offset     (u32 LE) -- absolute byte offset of this
+        +0     mode            (u8, BG_MODE_STATIC=0 or BG_MODE_STREAMING=1)
+        +1     reserved
+        +2-3   width_tiles     (u16 LE)
+               STATIC:    32 or 64 (see BG_VALID_WIDTHS_STATIC; 64 means the
+                          tilemap blob is two concatenated 32x32 pages)
+               STREAMING: the level's real content width in tiles, no cap
+                          beyond the u16 field (688 for warehouse) -- this is
+                          also the level's real scroll-clamp width; there is
+                          no separate padded/unpadded distinction the way
+                          Phase 8's whole-level static mode needed, because
+                          streaming never pads to a page boundary.
+        +4     height_tiles    (u8, 28 -- real visible rows; always 28, even
+               when a static width_tiles==64 stores 32 padding rows/page)
+        +5     hud_tile_count  (u8)
+        +6-7   reserved
+        +8-9   bg_tile_count   (u16 LE) -- unique tile count. STATIC: <=1024
+               (VRAM-fit budget). STREAMING: <=65535 (no VRAM-fit ceiling;
+               see bg_converter/convert_bg.py's MAX_STREAMING_TILES).
+        +10-11 reserved
+        +12-15 data_offset     (u32 LE) -- absolute byte offset of this
                screen's blob from the start of the file
-        +12-15 reserved
+        +16-19 reserved
 
     then       BG blobs, packed sequentially. One blob is everything the engine
                needs to stand up one screen, in the order it uploads them:
@@ -58,10 +73,19 @@ File format (see the plan for the authoritative spec):
                     holds the BG3 HUD colors (see bg_converter/convert_bg.py's
                     PALETTE_OFFSET note on why BG1 only uses slots 1-7);
                     slots 1-7 are the backdrop.
-      +256..        BG1 tilemap: real-SNES tilemap words, row-major. 1792
-                    bytes (32x28) if width_tiles==32; 4096 bytes (two
-                    concatenated 32x32 pages) if width_tiles==64 -- see
-                    _expected_tilemap_bytes().
+      +256..        BG1 tilemap.
+               STATIC:    real-SNES tilemap words (2 bytes/tile), row-major.
+                          1792 bytes (32x28) if width_tiles==32; 4096 bytes
+                          (two concatenated 32x32 pages) if width_tiles==64 --
+                          see _expected_tilemap_bytes().
+               STREAMING: cache-format entries (3 bytes/tile -- u16 tile_id +
+                          u8 attribute, see bg_converter/snes_tiles.
+                          encode_tilemap_cache_entry), COLUMN-major (not
+                          row-major): column 0 top-to-bottom, then column 1,
+                          etc. width_tiles*height_tiles*3 bytes total. The
+                          engine's column streamer seeks directly to
+                          column_index * height_tiles * 3 within this region,
+                          not through a separate index.
       next          BG1 tiles: bg_tile_count * 32 bytes (4bpp planar)
       next          BG3 HUD tiles: hud_tile_count * 16 bytes (2bpp planar)
 
@@ -104,7 +128,7 @@ import gen_pasm_animset
 import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
-FORMAT_VERSION = 2
+FORMAT_VERSION = 3
 MAX_CHARACTERS = 8
 RECORD_SIZE = 16
 DIRECTORY_BASE = 0x10
@@ -113,43 +137,55 @@ HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
 PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
-# --- v2 BG section ---
+# --- BG section (v2 static, v3 adds streaming) ---
 MAX_BGS = 4
-BG_RECORD_SIZE = 16
+BG_RECORD_SIZE = 20         # bumped from 16 in v3 -- see module docstring
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
-# Phase 8 (plan.md 2.7): a whole-level BG can also be 64 tiles wide (a real
-# BG1SC 64x32 map, two horizontally-adjacent 32x32 pages -- see
+# Phase 8 (plan.md 2.7): a whole-level static BG can also be 64 tiles wide (a
+# real BG1SC 64x32 map, two horizontally-adjacent 32x32 pages -- see
 # bg_converter/snes_tiles.encode_tilemap_paged and convert_bg.py's
 # convert_level()). Only 32 and 64 are valid widths for a single static load.
-BG_VALID_WIDTHS = (32, 64)
+BG_VALID_WIDTHS_STATIC = (32, 64)
+
+BG_MODE_STATIC = 0
+BG_MODE_STREAMING = 1
+
+CACHE_ENTRY_BYTES = 3       # Phase 9: u16 tile_id + u8 attribute (streaming)
 
 
-def _expected_tilemap_bytes(width_tiles):
-    """Bytes convert_bg.py emits for a given tilemap width.
+def _expected_tilemap_bytes(mode, width_tiles, height_tiles=BG_HEIGHT_TILES):
+    """Bytes convert_bg.py emits for a given tilemap mode/width.
 
-    width=32 keeps the historical single-page format: only the 28 real rows
-    are stored (1792B), since there is no second page and nothing ever reads
-    past row 28. width=64 is two FULL 32x32 pages (4096B) -- page B must
-    start exactly 1024 words after page A regardless of how many rows are
-    visible, so rows 28-31 of each page are stored (zero-padded) even though
-    they're never displayed.
+    STATIC width=32 is the historical single-page format: only the 28 real
+    rows are stored (1792B). width=64 is two FULL 32x32 pages (4096B) --
+    page B must start exactly 1024 words after page A regardless of how many
+    rows are visible, so rows 28-31 of each page are stored (zero-padded)
+    even though they're never displayed.
+
+    STREAMING has no page concept: exactly width_tiles*height_tiles entries,
+    column-major, 3 bytes each (see snes_tiles.encode_tilemap_cache_entry).
     """
+    if mode == BG_MODE_STREAMING:
+        return width_tiles * height_tiles * CACHE_ENTRY_BYTES
     if width_tiles == 32:
         return BG_WIDTH_TILES * BG_HEIGHT_TILES * 2
     if width_tiles == 64:
         return 64 * 32 * 2
-    raise ValueError(f"unsupported BG tilemap width_tiles={width_tiles} "
-                      f"(expected one of {BG_VALID_WIDTHS})")
+    raise ValueError(f"unsupported static tilemap width_tiles={width_tiles} "
+                      f"(expected one of {BG_VALID_WIDTHS_STATIC})")
 
 
 BG_BYTES_PER_TILE = 32      # 4bpp
 HUD_BYTES_PER_TILE = 16     # 2bpp
 # BG1 char data must fit VRAM words $0000-$3FFF (1024 tiles); see
 # bg_converter/convert_bg.py's docstring -- Phase 8 (plan.md 2.7) removed the
-# boot-time BG2 blank-tile write that used to cap this at 512.
-BG_MAX_TILES = 1024
+# boot-time BG2 blank-tile write that used to cap this at 512. Streaming
+# (Phase 9) is exempt -- its whole point is a distinct-tile count that
+# exceeds this, cached into VRAM at runtime rather than loaded whole.
+BG_MAX_TILES_STATIC = 1024
+BG_MAX_TILES_STREAMING = 65535  # u16 field ceiling, not a VRAM budget
 
 
 def bake_anim_bytes(anim_dir):
@@ -231,11 +267,13 @@ def pack_bg_blob(bg_dir, hud_dir):
     """Returns (blob_bytes, info_dict) for one screen: CGRAM image + BG1
     tilemap + BG1 tiles + BG3 HUD tiles.
 
-    `bg_dir` is a tools/bg_converter/convert_bg.py output directory,
-    `hud_dir` a make_hud_tiles.py output directory. The HUD's 16-color
-    sub-palette is merged over CGRAM slot 0, which convert_bg.py deliberately
-    leaves zeroed for exactly this purpose -- so the engine can upload one
-    contiguous 256-byte CGRAM image rather than two separate transfers.
+    `bg_dir` is a tools/bg_converter/convert_bg.py output directory (static
+    convert()/convert_level(), or Phase 9 convert_streaming() -- selected by
+    the presence of manifest.json's "streaming" key), `hud_dir` a
+    make_hud_tiles.py output directory. The HUD's 16-color sub-palette is
+    merged over CGRAM slot 0, which convert_bg.py deliberately leaves zeroed
+    for exactly this purpose -- so the engine can upload one contiguous
+    256-byte CGRAM image rather than two separate transfers.
     """
     with open(os.path.join(bg_dir, "manifest.json"), "r", encoding="utf-8") as f:
         bg_manifest = json.load(f)
@@ -252,30 +290,37 @@ def pack_bg_blob(bg_dir, hud_dir):
     hud_palette = _read(hud_dir, "hud_palette.bin")
     hud_tiles = _read(hud_dir, "hud_tiles.bin")
 
+    mode = BG_MODE_STREAMING if bg_manifest.get("streaming") else BG_MODE_STATIC
     width_tiles = bg_manifest["width_tiles"]
     height_tiles = bg_manifest["height_tiles"]
-    if width_tiles not in BG_VALID_WIDTHS:
-        raise ValueError(f"{bg_dir}: width_tiles={width_tiles}, expected one of {BG_VALID_WIDTHS}")
     if height_tiles != BG_HEIGHT_TILES:
         raise ValueError(f"{bg_dir}: height_tiles={height_tiles}, expected {BG_HEIGHT_TILES}")
 
-    expected_tilemap_bytes = _expected_tilemap_bytes(width_tiles)
+    tile_count = bg_manifest["unique_tiles"]
+    max_tiles = BG_MAX_TILES_STREAMING if mode == BG_MODE_STREAMING else BG_MAX_TILES_STATIC
+
+    if mode == BG_MODE_STATIC and width_tiles not in BG_VALID_WIDTHS_STATIC:
+        raise ValueError(f"{bg_dir}: width_tiles={width_tiles}, expected one of "
+                         f"{BG_VALID_WIDTHS_STATIC}")
+    if not (0 <= width_tiles <= 0xFFFF):
+        raise ValueError(f"{bg_dir}: width_tiles={width_tiles} out of u16 range")
+
+    expected_tilemap_bytes = _expected_tilemap_bytes(mode, width_tiles, height_tiles)
     if len(palette) != BG_CGRAM_BYTES:
         raise ValueError(f"{bg_dir}: palette.bin is {len(palette)}B, expected {BG_CGRAM_BYTES}")
     if len(tilemap) != expected_tilemap_bytes:
         raise ValueError(f"{bg_dir}: tilemap.bin is {len(tilemap)}B, expected "
-                         f"{expected_tilemap_bytes} for width_tiles={width_tiles}")
+                         f"{expected_tilemap_bytes} for mode={mode} width_tiles={width_tiles}")
     if len(hud_palette) != PALETTE_BYTES:
         raise ValueError(f"{hud_dir}: hud_palette.bin is {len(hud_palette)}B, "
                          f"expected {PALETTE_BYTES}")
 
-    tile_count = bg_manifest["unique_tiles"]
     if len(tiles) != tile_count * BG_BYTES_PER_TILE:
         raise ValueError(f"{bg_dir}: tiles.bin is {len(tiles)}B, expected "
                          f"{tile_count * BG_BYTES_PER_TILE}")
-    if tile_count > BG_MAX_TILES:
-        raise ValueError(f"{bg_dir}: {tile_count} tiles exceeds the {BG_MAX_TILES}-tile "
-                         f"BG1 VRAM budget")
+    if tile_count > max_tiles:
+        raise ValueError(f"{bg_dir}: {tile_count} tiles exceeds the {max_tiles}-tile "
+                         f"budget for mode={mode}")
 
     hud_tile_count = hud_manifest["tile_count"]
     if len(hud_tiles) != hud_tile_count * HUD_BYTES_PER_TILE:
@@ -295,6 +340,7 @@ def pack_bg_blob(bg_dir, hud_dir):
         "bg_dir": bg_dir,
         "hud_dir": hud_dir,
         "level_entry": bg_manifest.get("level_entry"),
+        "mode": mode,
         "bg_tile_count": tile_count,
         "width_tiles": width_tiles,
         "height_tiles": height_tiles,
@@ -306,11 +352,12 @@ def pack_bg_blob(bg_dir, hud_dir):
 
 def build_bg_record(info, data_offset):
     record = struct.pack(
-        "<HBBB3xI4x",
-        info["bg_tile_count"],
+        "<BxHBB2xH2xI4x",
+        info["mode"],
         info["width_tiles"],
         info["height_tiles"],
         info["hud_tile_count"],
+        info["bg_tile_count"],
         data_offset,
     )
     assert len(record) == BG_RECORD_SIZE

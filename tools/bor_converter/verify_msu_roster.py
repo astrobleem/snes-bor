@@ -217,20 +217,21 @@ def parse_bg_header(data):
 
 def parse_bg_record(data, bg_dir_offset, slot):
     off = bg_dir_offset + slot * pmr.BG_RECORD_SIZE
-    tile_count, w, h, hud_count, data_offset = \
-        struct.unpack_from("<HBBB3xI4x", data, off)
-    return {"bg_tile_count": tile_count, "width_tiles": w, "height_tiles": h,
-            "hud_tile_count": hud_count, "data_offset": data_offset}
+    mode, w, h, hud_count, tile_count, data_offset = \
+        struct.unpack_from("<BxHBB2xH2xI4x", data, off)
+    return {"mode": mode, "bg_tile_count": tile_count, "width_tiles": w,
+            "height_tiles": h, "hud_tile_count": hud_count, "data_offset": data_offset}
 
 
 def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
-    """Round-trip the v2 BG section against bg_converter's own output files.
+    """Round-trip the static-mode BG section against bg_converter's own
+    output files.
 
     Ground truth here is the converter's emitted .bin files read straight off
     disk -- not anything this packer computed -- so a packer offset/ordering
     bug cannot pass by agreeing with itself.
     """
-    print("\n=== Check 3: v2 BG section round-trips against bg_converter output ===")
+    print("\n=== Check 3: BG section round-trips against bg_converter output (static) ===")
     if not os.path.isdir(bg_dir):
         print(f"SKIP: {bg_dir} does not exist (run tools/bg_converter/convert_bg.py)")
         return True
@@ -240,7 +241,7 @@ def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
     msu_bytes, sidecar = pmr.pack_roster(prefixes, bgs=[(bg_dir, hud_dir)])
 
     version, roster_count, bg_count, bg_dir_offset = parse_bg_header(msu_bytes)
-    assert version == 2, f"expected format_version 2, got {version}"
+    assert version == pmr.FORMAT_VERSION, f"expected format_version {pmr.FORMAT_VERSION}, got {version}"
     assert bg_count == 1, f"expected bg_count 1, got {bg_count}"
     print(f"header OK: version={version} roster_count={roster_count} "
           f"bg_count={bg_count} bg_dir_offset={bg_dir_offset}")
@@ -270,7 +271,8 @@ def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
         hud_manifest = json.load(f)
 
     rec = parse_bg_record(msu_bytes, bg_dir_offset, 0)
-    expected = {"bg_tile_count": bg_manifest["unique_tiles"],
+    expected = {"mode": pmr.BG_MODE_STATIC,
+                "bg_tile_count": bg_manifest["unique_tiles"],
                 "width_tiles": bg_manifest["width_tiles"],
                 "height_tiles": bg_manifest["height_tiles"],
                 "hud_tile_count": hud_manifest["tile_count"]}
@@ -278,12 +280,12 @@ def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
         if rec[k] != v:
             print(f"FAIL: BG record {k} = {rec[k]}, expected {v}")
             return False
-    print(f"BG record OK: {rec['bg_tile_count']} tiles, "
+    print(f"BG record OK: mode={rec['mode']} {rec['bg_tile_count']} tiles, "
           f"{rec['width_tiles']}x{rec['height_tiles']}, "
           f"{rec['hud_tile_count']} hud tiles @ offset {rec['data_offset']}")
 
-    if rec["bg_tile_count"] > pmr.BG_MAX_TILES:
-        print(f"FAIL: {rec['bg_tile_count']} tiles exceeds BG1 budget {pmr.BG_MAX_TILES}")
+    if rec["bg_tile_count"] > pmr.BG_MAX_TILES_STATIC:
+        print(f"FAIL: {rec['bg_tile_count']} tiles exceeds BG1 budget {pmr.BG_MAX_TILES_STATIC}")
         return False
 
     # Byte-compare each region against the converter's files.
@@ -319,11 +321,77 @@ def check_bg_section(bg_dir="out/bg_boss", hud_dir="out/hud"):
     return True
 
 
+def check_bg_section_streaming(bg_dir="out/bg_warehouse_stream", hud_dir="out/hud"):
+    """Same round-trip as check_bg_section, but for a Phase 9 streaming BG:
+    confirms the record reports mode=STREAMING with a width_tiles that
+    would not fit the old static record's u8 field, and that the
+    column-major cache-format tilemap comes back byte-identical to the
+    converter's own tilemap.bin (not just the same length)."""
+    print("\n=== Check 4: BG section round-trips against bg_converter output (streaming) ===")
+    if not os.path.isdir(bg_dir):
+        print(f"SKIP: {bg_dir} does not exist (run tools/bg_converter/convert_bg.py --streaming)")
+        return True
+
+    prefixes = ["out/ralf", "out/jhun"]
+    msu_bytes, sidecar = pmr.pack_roster(prefixes, bgs=[(bg_dir, hud_dir)])
+    version, roster_count, bg_count, bg_dir_offset = parse_bg_header(msu_bytes)
+    assert version == pmr.FORMAT_VERSION, f"expected format_version {pmr.FORMAT_VERSION}, got {version}"
+
+    def _read(d, name):
+        with open(os.path.join(d, name), "rb") as f:
+            return f.read()
+
+    with open(os.path.join(bg_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        bg_manifest = json.load(f)
+    with open(os.path.join(hud_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        hud_manifest = json.load(f)
+
+    rec = parse_bg_record(msu_bytes, bg_dir_offset, 0)
+    expected = {"mode": pmr.BG_MODE_STREAMING,
+                "bg_tile_count": bg_manifest["unique_tiles"],
+                "width_tiles": bg_manifest["width_tiles"],
+                "height_tiles": bg_manifest["height_tiles"],
+                "hud_tile_count": hud_manifest["tile_count"]}
+    for k, v in expected.items():
+        if rec[k] != v:
+            print(f"FAIL: BG record {k} = {rec[k]}, expected {v}")
+            return False
+    print(f"BG record OK: mode={rec['mode']} (STREAMING) {rec['bg_tile_count']} tiles, "
+          f"{rec['width_tiles']}x{rec['height_tiles']}, "
+          f"{rec['hud_tile_count']} hud tiles @ offset {rec['data_offset']}")
+
+    if rec["width_tiles"] > 255:
+        print(f"  width_tiles={rec['width_tiles']} exceeds a u8 -- confirms this record "
+              f"genuinely needed the wider v3 field, not just a format bump")
+
+    cur = rec["data_offset"] + pmr.BG_CGRAM_BYTES  # skip CGRAM, already checked by check_bg_section
+    exp_tilemap = _read(bg_dir, "tilemap.bin")
+    actual_tilemap = msu_bytes[cur:cur + len(exp_tilemap)]
+    if actual_tilemap != exp_tilemap:
+        print(f"FAIL: streaming tilemap region does not match tilemap.bin "
+              f"({len(exp_tilemap)} bytes)")
+        return False
+    print(f"  column-major tilemap: {len(exp_tilemap)} bytes byte-identical")
+    cur += len(exp_tilemap)
+
+    exp_tiles = _read(bg_dir, "tiles.bin")
+    actual_tiles = msu_bytes[cur:cur + len(exp_tiles)]
+    if actual_tiles != exp_tiles:
+        print(f"FAIL: streaming tiles region does not match tiles.bin ({len(exp_tiles)} bytes)")
+        return False
+    print(f"  tiles: {len(exp_tiles)} bytes byte-identical")
+
+    print(f"total file size: {len(msu_bytes)} bytes")
+    print("PASS")
+    return True
+
+
 def main():
     ok1 = check_real_roster()
     ok2 = check_large_offset_roster()
     ok3 = check_bg_section()
-    if ok1 and ok2 and ok3:
+    ok4 = check_bg_section_streaming()
+    if ok1 and ok2 and ok3 and ok4:
         print("\nAll checks passed.")
         return 0
     print("\nSome checks FAILED.")

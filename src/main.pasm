@@ -2456,6 +2456,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/screen.pasm"
 .include "core/nmi.pasm"
 .include "core/oam.pasm"
+.include "core/stream_cache.pasm"
 
 ; ============================================================================
 ; Ralf idle/walk animation: precomputed VRAM-format tile data ("Option B"
@@ -2838,7 +2839,7 @@ AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
 ; PPU and never lands in WRAM at all. ---
 BgHeaderStaging    = $7E2330   ; 16B  -- bor.msu file header (bg_count at +10,
                                  ;        bg_directory_offset at +12..15)
-BgRecordStaging    = $7E2340   ; 16B  -- one BG directory record
+BgRecordStaging    = $7E2340   ; 20B  -- one BG directory record (v3, was 16B)
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
 ; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
@@ -2887,10 +2888,12 @@ HUD_STAGING_BYTES  = 256  ; HUD_ROWS * 32 entries * 2 bytes -- one DMA covers
 ; above the backdrop given BGMODE's BG3-priority bit.
 HUD_ENTRY_HIGH     = $20
 
-HudCachedHp        = $7E2350   ; 4B  -- last HP drawn, per entity
-HudDirty           = $7E2354   ; .db -- nonzero forces a redraw (set at boot)
-HudBarHp           = $7E2355   ; .db -- scratch: HP remaining while drawing a bar
-HudBarFilled       = $7E2356   ; .db -- scratch: filled columns for one tile
+HudCachedHp        = $7E2354   ; 4B  -- last HP drawn, per entity (shifted +4
+                                 ; from $7E2350 when BgRecordStaging grew to
+                                 ; 20B for the v3 BG record format)
+HudDirty           = $7E2358   ; .db -- nonzero forces a redraw (set at boot)
+HudBarHp           = $7E2359   ; .db -- scratch: HP remaining while drawing a bar
+HudBarFilled       = $7E235A   ; .db -- scratch: filled columns for one tile
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
@@ -5534,17 +5537,19 @@ Bg_LoadScene__dir_read:
 .a16
 .i16
     inx
-    cpx #$0010
+    cpx #$0014
     bcc Bg_LoadScene__dir_read
 
-    ; --- seek this screen's blob (record +8/9/10) ---
+    ; --- seek this screen's blob (record +12/13/14 -- v3 data_offset moved
+    ; from +8 to +12 when the record grew from 16 to 20 bytes; see
+    ; pack_msu_roster.py's BG record docstring) ---
     sep #$20
 .a8
-    lda.l BgRecordStaging+8
+    lda.l BgRecordStaging+12
     sta $2000
-    lda.l BgRecordStaging+9
+    lda.l BgRecordStaging+13
     sta $2001
-    lda.l BgRecordStaging+10
+    lda.l BgRecordStaging+14
     sta $2002
     lda #0
     sta $2003
@@ -5656,7 +5661,7 @@ Bg_LoadScene__tilemap_done:
     ; $2000 words and cannot run into the compositor's BG2 char base.
     lda #BG1_TILES_VRAM_WORD
     sta $2116
-    lda.l BgRecordStaging+0     ; bg_tile_count (u16 LE)
+    lda.l BgRecordStaging+8     ; bg_tile_count (u16 LE) -- v3 moved from +0 to +8
     and #$03FF
     asl a
     asl a
@@ -5683,7 +5688,7 @@ Bg_LoadScene__tiles:
     sta $2116
     sep #$20
 .a8
-    lda.l BgRecordStaging+4     ; hud_tile_count (u8)
+    lda.l BgRecordStaging+5     ; hud_tile_count (u8) -- v3 moved from +4 to +5
     rep #$31
 .a16
 .i16
@@ -5922,6 +5927,14 @@ scpu_boot:
     jsr Core_Wram_Init
     jsr Core_Vram_Init
     jsr Core_Cgram_Init
+
+    ; --- TEMPORARY smoke test (plan.md Phase 9 step 2) -- exercises the new
+    ; streaming tile cache's allocator against a synthetic access pattern,
+    ; no MSU-1/VRAM involvement, before StageColumn (not yet written) wires
+    ; it into the real boot path. Remove once step 3 lands. ---
+    jsr Core_StreamCache_Init
+    jsr Core_StreamCache_Test
+
     jsr Core_Oop_Init
     jsr Core_Screen_Init
 

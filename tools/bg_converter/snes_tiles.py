@@ -247,6 +247,84 @@ def encode_tilemap_paged(entries, w_tiles, h_tiles, page_width=32, page_height=3
     return bytes(data)
 
 
+# A first version of this format packed the tile ID into an 11-bit field
+# inside one 16-bit word (matching SMI's own custom word, minus the
+# priority bit -- see the module docstring for why SMI's exact layout
+# can't be reused verbatim). That caps distinct tile IDs at 2048.
+# Measured against the real warehouse level (plan.md Phase 9's chosen
+# first streaming target): composited whole, it dedups to 13,437 unique
+# tiles -- 6.5x over that cap. The number that actually gates whether
+# streaming can work at all is different and smaller: the max distinct
+# tile count in a sliding 36-column window (32-column viewport + 2-column
+# prefetch each side, i.e. what must fit resident in VRAM at once) is 982
+# -- under the 1023 usable VRAM ring-buffer slots, so the architecture is
+# sound. The blocker was purely this word's ID-space width, not the cache
+# design. Fixed by widening the word to 3 bytes: a full 16-bit tile ID
+# (0-65535, far past any real level's tile count) plus a separate
+# attribute byte for palette/flip.
+def encode_tilemap_cache_entry(tile_id, pal_id, hflip, vflip):
+    """Custom WRAM tilemap entry for the streaming tile cache (Phase 9,
+    plan.md 2.7). Unlike encode_tilemap_word above (real hardware format,
+    written straight to VRAM), this is remapped by the engine at stream
+    time: `tile_id` here is the level's real tile ID, not a VRAM tile
+    index -- the engine looks it up in its Tile2Slot cache table,
+    substitutes the tile's current VRAM slot (which DOES fit the real
+    hardware word's 10-bit field, since VRAM only ever holds <=1024
+    tiles), and only the result is a real hardware tilemap word.
+
+    3 bytes: u16 tile_id (LE) + u8 attribute byte (palette in bits 0-2,
+    hflip bit 3, vflip bit 4). No priority bit (BG1 backdrops never use
+    one -- see the module docstring).
+    """
+    attr = (pal_id & 0x07)
+    if hflip:
+        attr |= 1 << 3
+    if vflip:
+        attr |= 1 << 4
+    return struct.pack('<HB', tile_id & 0xFFFF, attr)
+
+
+def encode_tilemap_column_major(entries, w_tiles, h_tiles):
+    """Column-major tilemap using the cache entry format above: column 0
+    top-to-bottom, then column 1, and so on. `entries` is still indexed
+    row-major over the w_tiles x h_tiles grid (entries[row*w_tiles+col]),
+    matching encode_tilemap's convention -- only the output order and
+    entry format differ.
+
+    Column-major matters because it makes "column N's on-disk data" a flat
+    contiguous run of h_tiles entries at a directly computable byte
+    offset -- exactly what the engine's MSU-1 column streamer needs (seek
+    + read, see plan.md Phase 9 for why SMI's separate per-column lookup
+    table isn't needed here: MSU-1 seek plus this arithmetic replaces it).
+    """
+    data = bytearray()
+    for col in range(w_tiles):
+        for row in range(h_tiles):
+            tid, pal, hf, vf = entries[row * w_tiles + col]
+            data += encode_tilemap_cache_entry(tid, pal, hf, vf)
+    return bytes(data)
+
+
+CACHE_ENTRY_BYTES = 3  # u16 tile_id + u8 attribute
+
+
+def decode_tilemap_column_major(data, w_tiles, h_tiles):
+    """Inverse of encode_tilemap_column_major -- returns a row-major
+    entries list (tid, pal, hf, vf), for verification/preview rendering."""
+    entries = [None] * (w_tiles * h_tiles)
+    i = 0
+    for col in range(w_tiles):
+        for row in range(h_tiles):
+            off = i * CACHE_ENTRY_BYTES
+            tid, attr = struct.unpack_from('<HB', data, off)
+            i += 1
+            pal = attr & 0x07
+            hf = bool(attr & (1 << 3))
+            vf = bool(attr & (1 << 4))
+            entries[row * w_tiles + col] = (tid, pal, hf, vf)
+    return entries
+
+
 def encode_palette(palettes, num_palettes=8, colors_per_palette=16):
     """Sub-palettes -> CGRAM binary (BGR555 little-endian), zero-padded."""
     data = bytearray()
