@@ -3039,6 +3039,30 @@ StreamScroll_TileBuf     = $7E253A   ; 32B ($7E253A-$7E2559) -- one
                                        ; staged here (never the live MSU
                                        ; port) because Core_Dma_Enqueue needs
                                        ; a WRAM/ROM source address
+; StreamScroll_Budget allows up to 2 miss-enqueues per Core_StreamScroll_Play
+; call, but Core_Dma_Enqueue only stores the SOURCE ADDRESS, not the bytes --
+; the actual copy happens later, when this frame's NMI drains the queue. A
+; single shared TileBuf meant the 2nd miss's FetchTileToBuffer call
+; overwrote the 1st miss's still-unDMA'd bytes before the queue ever drained,
+; so the 1st miss's VRAM slot silently received the 2nd tile's pixels
+; instead of its own -- confirmed via phase9_syncscroll_test2.py: Tile2Slot
+; correctly reported the 1st tile resident at its slot, yet the slot's VRAM
+; bytes didn't match that tile, only the (different) tile fetched right
+; after it in the same call. Fixed with a second, separate buffer (bank $7F,
+; alongside the rest of the stream cache's tables) selected by which of the
+; 2 per-call misses this is -- see StreamScroll_FetchBufSel.
+StreamScroll_TileBuf1    = $7F9000   ; 32B ($7F9000-$7F901F) -- 2nd of the
+                                       ; per-call double-buffer described
+                                       ; above; free bank-$7F space, well
+                                       ; past Tile2Slot/Slot2Tile/SlotStamp.
+StreamScroll_FetchBufSel = $7E2599   ; .db -- which buffer (0=TileBuf,
+                                       ; 1=TileBuf1) the miss currently being
+                                       ; resolved should use; set from
+                                       ; StreamScroll_Budget's value BEFORE
+                                       ; that miss's fetch/enqueue (Budget is
+                                       ; only incremented AFTER a successful
+                                       ; enqueue, so it's 0 for the 1st miss
+                                       ; this call and 1 for the 2nd).
 ; StreamScroll_ColBuf/HeightTiles/ColPending/ColTargetWord are declared
 ; earlier, alongside Msu1_StreamBusy, textually before core/nmi.pasm's
 ; .include -- Core_Nmi_Play's forced-blank column-write block references
@@ -6615,9 +6639,19 @@ Core_StreamScroll_FetchTileToBuffer__seek_busy:
     rep #$31
 .a16
 .i16
+    ; Which of the 2 per-call double-buffers to fill -- see
+    ; StreamScroll_FetchBufSel's declaration comment for why this can't be a
+    ; single shared buffer.
+    sep #$20
+.a8
+    lda StreamScroll_FetchBufSel
+    bne Core_StreamScroll_FetchTileToBuffer__buf1
+    rep #$31
+.a16
+.i16
     ldx #0
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Core_StreamScroll_FetchTileToBuffer__read:
+Core_StreamScroll_FetchTileToBuffer__read0:
     sep #$20
 .a8
     lda $2001
@@ -6627,7 +6661,28 @@ Core_StreamScroll_FetchTileToBuffer__read:
 .i16
     inx
     cpx #32
-    bcc Core_StreamScroll_FetchTileToBuffer__read
+    bcc Core_StreamScroll_FetchTileToBuffer__read0
+
+    rts
+
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScroll_FetchTileToBuffer__buf1:
+    rep #$31
+.a16
+.i16
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScroll_FetchTileToBuffer__read1:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamScroll_TileBuf1,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #32
+    bcc Core_StreamScroll_FetchTileToBuffer__read1
 
     rts
 
@@ -6787,6 +6842,14 @@ Core_StreamScroll_ResolveRows__is_miss:
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__miss_ok:
+    ; Still 8-bit accumulator here (from the Budget cmp above) -- capture
+    ; Budget's CURRENT value (0 for this call's 1st miss, 1 for its 2nd,
+    ; since Budget is only incremented AFTER a successful enqueue below) as
+    ; the double-buffer selector, before FetchTileToBuffer uses it. See
+    ; StreamScroll_FetchBufSel's declaration comment for why this buffer
+    ; can't be shared between the two possible per-call misses.
+    lda StreamScroll_Budget
+    sta StreamScroll_FetchBufSel
     rep #$31
 .a16
 .i16
@@ -6796,12 +6859,33 @@ Core_StreamScroll_ResolveRows__miss_ok:
     sta StreamStage_Slot
     jsr Core_StreamScroll_FetchTileToBuffer
 
+    sep #$20
+.a8
+    lda StreamScroll_FetchBufSel
+    bne Core_StreamScroll_ResolveRows__src_buf1
+    rep #$31
+.a16
+.i16
     lda #StreamScroll_TileBuf
     sta DmaRequest_SourceAddrLow
     sep #$20
 .a8
     lda #$7E
     sta DmaRequest_SourceBank
+    bra Core_StreamScroll_ResolveRows__src_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScroll_ResolveRows__src_buf1:
+    rep #$31
+.a16
+.i16
+    lda #StreamScroll_TileBuf1
+    sta DmaRequest_SourceAddrLow
+    sep #$20
+.a8
+    lda #$7F
+    sta DmaRequest_SourceBank
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScroll_ResolveRows__src_done:
     rep #$31
 .a16
 .i16
