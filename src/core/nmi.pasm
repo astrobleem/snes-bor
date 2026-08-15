@@ -129,32 +129,75 @@ Core_Nmi_Init__clear_loop:
 
     ; --- One-time commit of the window/color-math/fixed-color registers,
     ; moved out of Core_Nmi_Play's per-frame commit. Nothing in this
-    ; codebase ever sets Nmi_Window12Sel/WindowObjSel/Window1L/Window2L/
-    ; WindowBgLogic/WindowMainScreen/ColorMathControl/FixedColorR/G/B to
-    ; anything but their zeroed shadow default (confirmed via a project-wide
-    ; grep -- zero call sites write any of them, at all, anywhere), so
-    ; re-writing them to hardware every single vblank was pure dead weight.
-    ; Measured (via a temporary HVBJOY probe) to be a real contributor to a
-    ; vblank-budget overrun once a per-frame OAM sprite (Character_PlayFrame)
-    ; made the commit's steady-state cost much higher than when this
-    ; register block was written. If a future feature ever needs windowing
-    ; or color math, it should write these shadows directly AND go back to
-    ; committing them every frame in Core_Nmi_Play (or add a dirty-flag
-    ; gate) -- writing them here once is only correct as long as they truly
-    ; never change after boot. ---
-    stz $2123
-    stz $2125
-    stz $2126
-    stz $2128
-    stz $212A
-    stz $212E
-    stz $2130
+    ; codebase ever changes them after this point (confirmed via a
+    ; project-wide grep -- zero call sites write any of them, at all,
+    ; anywhere else), so re-writing them to hardware every single vblank was
+    ; pure dead weight. Measured (via a temporary HVBJOY probe) to be a real
+    ; contributor to a vblank-budget overrun once a per-frame OAM sprite
+    ; (Character_PlayFrame) made the commit's steady-state cost much higher
+    ; than when this register block was written. If a future feature ever
+    ; needs the window/color-math regs to change at runtime, it should write
+    ; these shadows directly AND go back to committing them every frame in
+    ; Core_Nmi_Play (or add a dirty-flag gate) -- writing them here once is
+    ; only correct as long as they truly never change after boot. ---
+    stz $2125                 ; WOBJSEL: no OBJ/color-math window
+    stz $212A                 ; WBGLOG: unused (only one window active on BG1)
+    stz $2128                 ; WH2 (Window2 left): Window2 unused
+    stz $2129                 ; WH3 (Window2 right): Window2 unused
+    stz $2130                 ; CGWSEL: no color math
     lda #$20                  ; COLDATA red-select bit, value 0
     sta $2132
     lda #$40                  ; COLDATA green-select bit, value 0
     sta $2132
     lda #$80                  ; COLDATA blue-select bit, value 0
     sta $2132
+
+    ; --- SyncScroll leading-edge staleness mask (plan.md 2.7 DMA-budget
+    ; follow-up): BG1 Window1, inverted, hides the outermost 2 columns on
+    ; each side of the screen (cols 0-1 and 30-31 -- WH0/WH1 below bound the
+    ; 28-column "visible" middle, and the invert bit flips the masked region
+    ; to be OUTSIDE that bound instead of inside it). Masks BOTH edges
+    ; unconditionally rather than just the camera's current leading edge:
+    ; doing it direction-aware would mean re-writing WH0/WH1 as the camera
+    ; turns, which is exactly the per-frame window-register cost this same
+    ; boot-time-only commit strategy exists to avoid (see this block's
+    ; header comment -- it was a measured, real vblank-budget contributor
+    ; once). Symmetric masking is the cheap, always-safe tradeoff: the
+    ; STREAM_SCROLL_PREFETCH=4 margin means 2 columns is enough IF the
+    ; camera can never outrun the resolver by more than that margin.
+    ; Originally this mask alone was NOT enough: a large PlayerEntity_PosX
+    ; jump on out/bg_warehouse_stream produced visible garbled tile garbage
+    ; ~5 columns past this mask's edge while StreamScroll_StagedHi was still
+    ; catching up. Fixed at the source instead of by widening this mask:
+    ; Core_StreamScroll_ClampCamera (main.pasm, called from scpu_main_loop
+    ; right after Core_Screen_Play) now clamps Screen_PosX so the camera
+    ; literally cannot get ahead of what SyncScroll has resolved, so this
+    ; mask only ever has to cover its designed 2-column margin. See
+    ; syncscroll_budget_throughput project memory for the full story
+    ; (finding this also uncovered a real, previously-dormant Poppy-fork
+    ; miscompile in Core_StreamScroll_PickColumn, now fixed too). Widen this
+    ; mask only if a "pending_repair" stale-slot-reuse case (a different,
+    ; smaller failure mode the clamp does NOT cover -- see that memory) is
+    ; ever observed visible at the edge in practice.
+    lda #$03                  ; W12SEL: BG1 window1 enable (bit0) + invert (bit1)
+    sta $2123
+    lda #16                   ; WH0: window1 left edge (col 2's first pixel)
+    sta $2126
+    lda #239                  ; WH1: window1 right edge (col 29's last pixel)
+    sta $2127
+    lda #$01                  ; TMW: apply the window mask to BG1 (bit0) on
+    sta $212E                 ; the main screen
+
+    ; Force the masked strip to real black rather than trusting whatever
+    ; the level converter happened to leave in CGRAM color 0 (BG1 covers
+    ; the full screen otherwise, so color 0 -- the backdrop -- would
+    ; normally never be visible; safe to override here, AFTER Bg_LoadScene
+    ; has already run and loaded its own palette, so this write is never
+    ; clobbered by it).
+    lda #0
+    sta $2121                 ; CGADD = color 0
+    sta $2122                 ; low byte
+    sta $2122                 ; high byte
 
     rep #$31
 .a16
