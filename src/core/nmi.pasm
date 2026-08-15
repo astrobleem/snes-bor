@@ -108,6 +108,18 @@ Core_Nmi_Init__clear_loop:
 
     sep #$20
 .a8
+    ; Close the forced-blank race the caller (scpu_boot) used to paper over
+    ; with its own post-return `Nmi_ScreenBrightness = $80` write: the clear
+    ; loop above just zeroed this shadow cell (brightness 0, forced-blank bit
+    ; CLEAR), and NMI is unmaskable, so any vblank landing between here and
+    ; that caller-side write would have Core_Nmi_Play commit brightness=0 to
+    ; real $2100 -- unblanking the screen while scpu_boot's later direct
+    ; $2116/$2118 writes (Character_BlankPadding, TestSprite_Init) still
+    ; assume forced blank is engaged, silently dropping/corrupting them.
+    ; Setting the shadow back to forced-blank here, BEFORE NMITIMEN goes
+    ; live below, means it is never wrong at any point after NMI is enabled.
+    lda #$80
+    sta.l Nmi_ScreenBrightness
     lda #$81                 ; NMITIMEN: NMI enable + auto-joypad-read
     sta.l Nmi_InterruptFlags
     sta.l $004200

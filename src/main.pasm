@@ -1133,7 +1133,29 @@ TadPrivate_Loader_CheckReadyAndSendLoaderDataType:
         sta READY_PORT_H
 
         ; The S-CPU must wait for the loader to write 0 to the spinlock before transferring data.
-        stz TadPrivate_dataToTransfer_prevSpinLock
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+TadPrivate_bytesToTransferPerFrame_Lo = $0033
+TadPrivate_dataToTransfer_addr_Lo = $0036
+TadPrivate_dataToTransfer_prevSpinLock_Lo = $003B
+TadPrivate_dataToTransfer_size_Lo = $0039
+TadPrivate_nextCommand_id_Lo = $003D
+TadPrivate_nextSong_Lo = $003C
+TadPrivate_previousCommand_Lo = $0035
+Tad_flags_Lo = $0030
+
+        stz.w TadPrivate_dataToTransfer_prevSpinLock_Lo
 
         ; return true
         sec
@@ -1153,9 +1175,9 @@ TadPrivate_Loader_CheckReadyAndSendLoaderDataType__ReturnFalse:
 .i16
 ;; DB access registers
 TadPrivate_Loader_SetDataToTransfer:
-    stx TadPrivate_dataToTransfer_addr
+    stx.w TadPrivate_dataToTransfer_addr_Lo
     sta TadPrivate_dataToTransfer_bank
-    sty TadPrivate_dataToTransfer_size
+    sty.w TadPrivate_dataToTransfer_size_Lo
 
     rts
 
@@ -1224,7 +1246,7 @@ TadPrivate_Loader_TransferData:
 .a8
 
     lda TadPrivate_dataToTransfer_bank
-    ldy TadPrivate_dataToTransfer_addr
+    ldy.w TadPrivate_dataToTransfer_addr_Lo
 
     pha
     plb
@@ -1277,11 +1299,11 @@ TadPrivate_Loader_TransferData__EndLoop:
 ; DB restored
 ; D = 0
 
-    sty TadPrivate_dataToTransfer_addr
+    sty.w TadPrivate_dataToTransfer_addr_Lo
     sta TadPrivate_dataToTransfer_prevSpinLock
 
 
-    ldy TadPrivate_dataToTransfer_size
+    ldy.w TadPrivate_dataToTransfer_size_Lo
     bne TadPrivate_Loader_TransferData__ReturnFalse
         ; End of data transfer
 
@@ -1452,10 +1474,10 @@ APUIO3 = $2143
 
 ; [assert] assert Tad_flags + 1 = Tad_audioMode, error
     ldx #(TAD_DEFAULT_FLAGS) | ((TAD_DEFAULT_AUDIO_MODE) << 8)
-    stx Tad_flags
+    stx.w Tad_flags_Lo
 
     ldx #TAD_DEFAULT_TRANSFER_PER_FRAME
-    stx TadPrivate_bytesToTransferPerFrame
+    stx.w TadPrivate_bytesToTransferPerFrame_Lo
 
 
     lda #^(Tad_AudioDriver_Bin)
@@ -1467,7 +1489,7 @@ APUIO3 = $2143
     sta TadPrivate_nextCommand_id
     sta Tad_sfxQueue_sfx
 
-    stz TadPrivate_nextSong
+    stz.w TadPrivate_nextSong_Lo
 
     Tad_Init__DataTypeLoop:
         lda #CODE
@@ -1535,7 +1557,7 @@ __TadProc_Loaded:
             ; Previous command has been processed
 
             ; Check command queue
-            ldy TadPrivate_nextCommand_id
+            ldy.w TadPrivate_nextCommand_id_Lo
             bpl Tad_Process__SendCommand
 
             ; X = TadPrivate_state
@@ -1685,7 +1707,7 @@ TadPrivate_Process_WaitingForLoader:
 
         ; Clear unused TAD flags
         lda #$ff ^ _ALL_FLAGS
-        trb Tad_flags
+        trb.w Tad_flags_Lo
 
         ; Convert `Tad_audioMode` to TadLoaderDataType and combine with TadFlags
 ; [assert] assert ((0 + 1) & 3) = TadLoaderDataType::SURROUND_FLAG, error ; mono
@@ -1793,7 +1815,7 @@ TadPrivate_Process_Loading:
             ; TadPrivate_Process_Loading__Song data was loaded into Audio-RAM
             ; Loader has finished, audio driver is now active
 
-            stz TadPrivate_previousCommand
+            stz.w TadPrivate_previousCommand_Lo
 
             ; Reset command and SFX queues
             lda #$ff
@@ -1870,7 +1892,7 @@ Tad_FinishLoadingData:
 nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
 nop                     ; address estimation, so every label after one drifts
 Tad_QueueCommand:
-    bit TadPrivate_nextCommand_id
+    bit.w TadPrivate_nextCommand_id_Lo
     bpl Tad_QueueCommand__ReturnFalse
         ; command queue is empty
     nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
@@ -1983,7 +2005,7 @@ Tad_LoadSong:
     sta TadPrivate_nextSong
 
     lda #RELOAD_COMMON_AUDIO_DATA
-    trb Tad_flags
+    trb.w Tad_flags_Lo
     beq Tad_LoadSong__SongRequested
         ; Common audio data requested
         lda #WAITING_FOR_LOADER_COMMON
@@ -2084,7 +2106,7 @@ nop                     ; address estimation, so every label after one drifts
 nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_ReloadCommonAudioData:
     lda #RELOAD_COMMON_AUDIO_DATA
-    tsb Tad_flags
+    tsb.w Tad_flags_Lo
     rts
 
 
@@ -2096,7 +2118,7 @@ nop                     ; address estimation, so every label after one drifts
 nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_SongsStartImmediately:
     lda #PLAY_SONG_IMMEDIATELY
-    tsb Tad_flags
+    tsb.w Tad_flags_Lo
     rts
 
 
@@ -2108,7 +2130,7 @@ nop                     ; address estimation, so every label after one drifts
 nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_SongsStartPaused:
     lda #PLAY_SONG_IMMEDIATELY
-    trb Tad_flags
+    trb.w Tad_flags_Lo
     rts
 
 
@@ -2120,7 +2142,7 @@ nop                     ; address estimation, so every label after one drifts
 nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_GlobalVolumesResetOnSongStart:
     lda #RESET_GLOBAL_VOLUMES_ON_SONG_START
-    tsb Tad_flags
+    tsb.w Tad_flags_Lo
     rts
 
 
@@ -2132,7 +2154,7 @@ nop                     ; address estimation, so every label after one drifts
 nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_GlobalVolumesPersist:
     lda #RESET_GLOBAL_VOLUMES_ON_SONG_START
-    trb Tad_flags
+    trb.w Tad_flags_Lo
     rts
 
 
@@ -2158,7 +2180,7 @@ Tad_SetTransferSize:
     nop                     ; address estimation, so every label after one drifts
     nop                     ; early (poppy bug #4). Guard absorbs the early landing.
     __anon13:
-    stx TadPrivate_bytesToTransferPerFrame
+    stx.w TadPrivate_bytesToTransferPerFrame_Lo
 
     rts
 
@@ -8147,19 +8169,17 @@ scpu_tm_row_no_bump:
 
     jsr Core_Nmi_Init
 
-    ; Core_Nmi_Init's own shadow-clear loop leaves Nmi_ScreenBrightness at 0
-    ; ($00: brightness 0, forced-blank bit CLEAR) until the real value is set
-    ; much further down (the `lda #$0F / sta.l Nmi_ScreenBrightness` below),
-    ; and Core_Nmi_Init just enabled real NMI a few instructions ago. If a
-    ; real vblank landed in the gap between here and that later write, it
-    ; would commit a premature "unblank" and could break the direct
-    ; $2116/$2118/$2121/$2122 writes below. Defensive, cheap, and plausibly
-    ; correct on real hardware -- but NOT a confirmed fix for anything: this
-    ; was the first hypothesis for a real speckled-noise rendering bug (see
-    ; core/oam.pasm's Core_Oam_Play__hi_len_done comment for the actual root
-    ; cause, found afterward), and applying this write alone did not change
-    ; the symptom in testing. Kept as cheap insurance, not as documentation
-    ; of a fix.
+    ; Belt-and-suspenders re-write: Core_Nmi_Init itself now sets this shadow
+    ; to $80 (forced blank) before enabling NMITIMEN, so the real race this
+    ; used to guard against (a vblank landing before this instruction and
+    ; committing a stale brightness=0/unblank from the clear loop, corrupting
+    ; the direct $2116/$2118/$2121/$2122 writes below) is already closed at
+    ; the source. Confirmed load-bearing, not hypothetical: with Poppy's
+    ; astrobleem fork (different boot cycle timing than the original
+    ; toolchain), this exact race started landing deterministically and
+    ; silently dropped Character_BlankPadding's VRAM writes until the
+    ; Core_Nmi_Init fix went in. This write is now redundant but kept as
+    ; harmless insurance.
     sep #$20
 .a8
     lda #$80

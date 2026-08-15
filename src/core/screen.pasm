@@ -125,28 +125,55 @@ Core_Screen_Init:
 	php
 	rep #$31
 .a16
-	stz Screen_PosX
-	stz Screen_PosY
-	stz Screen_RightX
-	stz Screen_BottomY
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+OopCall_Param_Lo = $0782
+Screen_BottomY_Lo = $1614
+Screen_FocusId_Lo = $1620
+Screen_FocusNum_Lo = $161E
+Screen_FocusSlot_Lo = $1622
+Screen_MinX_Lo = $160A
+Screen_MinY_Lo = $160C
+Screen_PosX_Lo = $1601
+Screen_PosXFrac_Lo = $1600
+Screen_PosY_Lo = $1604
+Screen_PosYFrac_Lo = $1603
+Screen_RightX_Lo = $1612
+Screen_ShakeOffsetX_Lo = $161C
+
+	stz.w Screen_PosX_Lo
+	stz.w Screen_PosY_Lo
+	stz.w Screen_RightX_Lo
+	stz.w Screen_BottomY_Lo
 	lda #SCREEN_DEFAULT_SIZE_X
 	sta Screen_SizeX
 	lda #SCREEN_DEFAULT_SIZE_Y
 	sta Screen_SizeY
-	stz Screen_MinX
-	stz Screen_MinY
-	stz Screen_ShakeOffsetX
+	stz.w Screen_MinX_Lo
+	stz.w Screen_MinY_Lo
+	stz.w Screen_ShakeOffsetX_Lo
 	lda #$ffff-SCREEN_DEFAULT_SIZE_X
 	sta Screen_MaxX
 	lda #$ffff-SCREEN_DEFAULT_SIZE_Y
 	sta Screen_MaxY
-	stz Screen_FocusNum
-	stz Screen_FocusId
-	stz Screen_FocusSlot
+	stz.w Screen_FocusNum_Lo
+	stz.w Screen_FocusId_Lo
+	stz.w Screen_FocusSlot_Lo
 	sep #$20
 .a8
-	stz Screen_PosXFrac
-	stz Screen_PosYFrac
+	stz.w Screen_PosXFrac_Lo
+	stz.w Screen_PosYFrac_Lo
 	rep #$31
 .a16
 	plp
@@ -155,8 +182,8 @@ Core_Screen_Init:
 ; @return x<16-bit>  current x position (integer part)
 ; @return y<16-bit>  current y position (integer part)
 Core_Screen_GetPosition:
-	ldx Screen_PosX
-	ldy Screen_PosY
+	ldx.w Screen_PosX_Lo
+	ldy.w Screen_PosY_Lo
 	rts
 
 ; @param a<16-bit>  handle num
@@ -167,8 +194,8 @@ Core_Screen_Focus:
 	rep #$31
 .a16
 	sta Screen_FocusNum
-	stx Screen_FocusId
-	sty Screen_FocusSlot
+	stx.w Screen_FocusId_Lo
+	sty.w Screen_FocusSlot_Lo
 	plp
 	rts
 
@@ -179,17 +206,17 @@ Core_Screen_FocusImmediate:
 	rep #$31
 .a16
 	sta Screen_FocusNum
-	stx Screen_FocusId
-	sty Screen_FocusSlot
+	stx.w Screen_FocusId_Lo
+	sty.w Screen_FocusSlot_Lo
 
 	jsr Core_Screen__SetTargetPosition
 	bcc Core_Screen_FocusImmediate__clamp
 		lda Screen_TargetX
 		sta Screen_PosX
-		stz Screen_PosXFrac
+		stz.w Screen_PosXFrac_Lo
 		lda Screen_TargetY
 		sta Screen_PosY
-		stz Screen_PosYFrac
+		stz.w Screen_PosYFrac_Lo
 
 Core_Screen_FocusImmediate__clamp:
 	jsr Core_Screen__ClampToScreen
@@ -200,9 +227,9 @@ Core_Screen_Blur:
 	php
 	rep #$31
 .a16
-	stz Screen_FocusNum
-	stz Screen_FocusId
-	stz Screen_FocusSlot
+	stz.w Screen_FocusNum_Lo
+	stz.w Screen_FocusId_Lo
+	stz.w Screen_FocusSlot_Lo
 	plp
 	rts
 
@@ -220,7 +247,7 @@ Core_Screen_SetPlayfieldBorder:
 	rep #$31
 .a16
 	sta Screen_MinX
-	stx Screen_MinY
+	stx.w Screen_MinY_Lo
 	tya
 	sec
 	sbc Screen_SizeX
@@ -250,13 +277,13 @@ Core_Screen_ConvertAbsoluteToScreen:
 	php
 	rep #$31
 .a16
-	cpx Screen_PosX
+	cpx.w Screen_PosX_Lo
 	bcc Core_Screen_ConvertAbsoluteToScreen__off
-	cpy Screen_PosY
+	cpy.w Screen_PosY_Lo
 	bcc Core_Screen_ConvertAbsoluteToScreen__off
-	cpx Screen_RightX
+	cpx.w Screen_RightX_Lo
 	bcs Core_Screen_ConvertAbsoluteToScreen__off
-	cpy Screen_BottomY
+	cpy.w Screen_BottomY_Lo
 	bcs Core_Screen_ConvertAbsoluteToScreen__off
 
 	txa
@@ -284,14 +311,14 @@ Core_Screen_CheckIfOnScreen:
 	php
 	rep #$31
 .a16
-	cpx Screen_PosX
+	cpx.w Screen_PosX_Lo
 	bcc Core_Screen_CheckIfOnScreen__off
 	txa
 	sec
 	sbc Screen_SizeX
 	cmp Screen_PosX
 	bcs Core_Screen_CheckIfOnScreen__off
-	cpy Screen_PosY
+	cpy.w Screen_PosY_Lo
 	bcc Core_Screen_CheckIfOnScreen__off
 	tya
 	sec
@@ -319,15 +346,15 @@ Core_Screen__SetTargetPosition:
 	rts
 
 Core_Screen__SetTargetPosition__has_focus:
-	stz OopCall_Param
+	stz.w OopCall_Param_Lo
 	lda #SCREEN_CMD_GET_CAMERA_DATA
 	sta OopCall_CommandId
 
 	lda Screen_FocusNum
-	ldx Screen_FocusSlot
-	ldy Screen_FocusId
+	ldx.w Screen_FocusSlot_Lo
+	ldy.w Screen_FocusId_Lo
 	jsr Core_Oop_Call
-	stx Screen_FocusSlot
+	stx.w Screen_FocusSlot_Lo
 	bcs Core_Screen__SetTargetPosition__handled
 	clc
 	rts
@@ -556,10 +583,10 @@ Core_Screen_Play:
 	lda Screen_ShakeOffsetX
 	beq Core_Screen_Play__ease
 	bmi Core_Screen_Play__shake_negative
-		dec Screen_ShakeOffsetX
+		dec.w Screen_ShakeOffsetX_Lo
 		bra Core_Screen_Play__ease
 Core_Screen_Play__shake_negative:
-	inc Screen_ShakeOffsetX
+	inc.w Screen_ShakeOffsetX_Lo
 
 Core_Screen_Play__ease:
 	jsr Core_Screen__SetTargetPosition

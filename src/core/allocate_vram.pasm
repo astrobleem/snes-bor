@@ -83,7 +83,25 @@ Core_Vram_Init__clear_blocks:
 	inx
 	cpx #VRAM_ALLOCATION_BLOCKS
 	bcc Core_Vram_Init__clear_blocks
-	stz VramAlloc_CurrentId
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+VramAlloc_CurrentId_Lo = $04F4
+VramAlloc_Length_Lo = $04F7
+VramAlloc_NeedBytes_Lo = $04F9
+VramAlloc_Start_Lo = $04FB
+
+	stz.w VramAlloc_CurrentId_Lo
 
 	plp
 	rts
@@ -121,8 +139,8 @@ Core_Vram_Allocate__step_ok:
 	jsr Core_Error_Handler
 
 Core_Vram_Allocate__valid_length:
-	stx VramAlloc_Length
-	stx VramAlloc_NeedBytes
+	stx.w VramAlloc_Length_Lo
+	stx.w VramAlloc_NeedBytes_Lo
 
 	tya
 	sta VramAlloc_Start
@@ -239,7 +257,7 @@ Core_Vram_Allocate__mark:
 
 	rep #$31
 .a16
-	ldx VramAlloc_Start
+	ldx.w VramAlloc_Start_Lo
 	sep #$20
 .a8
 	lda VramAlloc_CurrentId

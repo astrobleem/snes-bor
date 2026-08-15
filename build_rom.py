@@ -23,7 +23,7 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 BG_SCREENS = [("out/bg_boss_level", "out/hud")]
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
-POPPY_DLL = r'E:\gh\SNES-CrimePatrol\tools\poppy-src\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
+POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
 
 def assemble():
     # Runs Poppy to (re)produce src/main.bin from src/main.pasm. Previously

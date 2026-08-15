@@ -318,12 +318,43 @@ Core_Oop_Init__clear_classes:
 	cpx #OOP_MAX_CLASSES*2
 	bcc Core_Oop_Init__clear_classes
 
-	stz OopObjIndex
-	stz OopObjSlotPtr
-	stz OopObjRamPtr
-	stz OopGarbagePresent
-	stz OopClassCount
-	stz OopCreateCounter
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+ClassInit_Lo = $091A
+ClassOnCommand_Lo = $097A
+OopCall_ClassOfs_Lo = $0788
+OopCall_Slot_Lo = $0786
+OopClassCount_Lo = $0752
+OopCreateCounter_Lo = $0754
+OopCreate_ClassOfs_Lo = $075A
+OopCreate_RamOfs_Lo = $0760
+OopCreate_Slot_Lo = $075C
+OopCreate_ZpLen_Lo = $075E
+OopCurrent_Lo = $08AA
+OopGarbagePresent_Lo = $0750
+OopGc_Dst_Lo = $0780
+OopGc_Src_Lo = $077E
+OopObjIndex_Lo = $074A
+OopObjRamPtr_Lo = $074E
+OopObjSlotPtr_Lo = $074C
+
+	stz.w OopObjIndex_Lo
+	stz.w OopObjSlotPtr_Lo
+	stz.w OopObjRamPtr_Lo
+	stz.w OopGarbagePresent_Lo
+	stz.w OopClassCount_Lo
+	stz.w OopCreateCounter_Lo
 
 	plp
 	rts
@@ -366,7 +397,7 @@ Core_Oop_RegisterClass__zplen_ok:
 	lda OopRegStaging_OnCommand
 	sta.l ClassOnCommand,x
 
-	inc OopClassCount
+	inc.w OopClassCount_Lo
 	lda OopClassCount
 
 	plp
@@ -464,8 +495,8 @@ Core_Oop__PackHandle:
 
 ; @param  OopCreate_RamOfs, OopCreate_ZpLen
 Core_Oop__ClearObjRam:
-	ldx OopCreate_RamOfs
-	ldy OopCreate_ZpLen
+	ldx.w OopCreate_RamOfs_Lo
+	ldy.w OopCreate_ZpLen_Lo
 Core_Oop__ClearObjRam__loop:
 	lda #0
 	sta.l OopObjRam,x
@@ -491,7 +522,7 @@ Core_Oop_Create:
 	dec a                    ; class id is 1-based; class array offset is 0-based
 	asl a
 	tax
-	stx OopCreate_ClassOfs
+	stx.w OopCreate_ClassOfs_Lo
 
 	lda.l ClassFlags,x
 	and #CLASS_FLAG_SINGLETON
@@ -515,9 +546,9 @@ Core_Oop_Create__not_singleton:
 		jsr Core_Error_Handler
 
 Core_Oop_Create__slot_ok:
-	stx OopCreate_Slot
+	stx.w OopCreate_Slot_Lo
 
-	ldx OopCreate_ClassOfs
+	ldx.w OopCreate_ClassOfs_Lo
 	lda.l ClassZpLen,x
 	and #$00ff
 	sta OopCreate_ZpLen
@@ -542,7 +573,7 @@ Core_Oop_Create__ram_ok:
 	adc OopCreate_ZpLen
 	sta OopObjRamPtr
 
-	ldx OopCreate_Slot
+	ldx.w OopCreate_Slot_Lo
 	lda #OBJ_FLAG_PRESENT
 	sta.l OopFlags,x
 	lda OopCreate_ClassId
@@ -559,12 +590,12 @@ Core_Oop_Create__ram_ok:
 	; 65816 long addressing has no ,Y indexed form (only ,X) — read both
 	; class routine pointers via x=classOfs first, stash on the stack, then
 	; switch x back to the object's slot to store them.
-	ldx OopCreate_ClassOfs
+	ldx.w OopCreate_ClassOfs_Lo
 	lda.l ClassPlay,x
 	pha
 	lda.l ClassPause,x
 	pha
-	ldx OopCreate_Slot
+	ldx.w OopCreate_Slot_Lo
 	pla
 	sta.l OopPause,x
 	pla
@@ -586,7 +617,7 @@ Core_Oop_Create__slotptr_ok:
 	; (1B), offset 1-2=num(2B), offset 3=slot(1B). Index via x, bumped at
 	; runtime between fields rather than compile-time Symbol+N — see header
 	; note on why this file never uses +N on a bank-$7E array symbol.
-	ldx OopCreate_RamOfs
+	ldx.w OopCreate_RamOfs_Lo
 	sep #$20
 .a8
 	lda OopCreate_ClassId
@@ -610,13 +641,13 @@ Core_Oop_Create__slotptr_ok:
 	phd
 	tcd
 	lda OopCreate_Param
-	ldx OopCreate_ClassOfs
-	jsr (ClassInit,x)
+	ldx.w OopCreate_ClassOfs_Lo
+	jsr (ClassInit_Lo,x)
 	pld
 
 	cmp #OBJR_NOERR
 	beq Core_Oop_Create__init_ok
-		ldx OopCreate_Slot
+		ldx.w OopCreate_Slot_Lo
 		lda.l OopFlags,x
 		ora #OBJ_FLAG_DELETE_SCHEDULED
 		sta.l OopFlags,x
@@ -624,7 +655,7 @@ Core_Oop_Create__slotptr_ok:
 		sta OopGarbagePresent
 Core_Oop_Create__init_ok:
 
-	ldx OopCreate_Slot
+	ldx.w OopCreate_Slot_Lo
 	jsr Core_Oop__PackHandle
 	lda OopCreate_Dp
 	tax
@@ -781,7 +812,7 @@ Core_Oop_Call__found:
 	; 65816 long addressing has no ,Y indexed form (only ,X) — stash the
 	; object's slot first, repurpose x for the classOfs-indexed read, then
 	; reload the slot back into x before using it again below.
-	stx OopCall_Slot
+	stx.w OopCall_Slot_Lo
 	lda.l OopClassId,x
 	and #$00ff
 	dec a                    ; class id is 1-based; class array offset is 0-based
@@ -789,17 +820,17 @@ Core_Oop_Call__found:
 	tax
 	lda.l ClassOnCommand,x
 	beq Core_Oop_Call__unhandled
-	stx OopCall_ClassOfs
+	stx.w OopCall_ClassOfs_Lo
 
-	ldx OopCall_Slot
+	ldx.w OopCall_Slot_Lo
 	lda.l OopDp,x
 	phd
 	tcd
 	lda OopCall_Param
-	ldx OopCall_ClassOfs
-	jsr (ClassOnCommand,x)
+	ldx.w OopCall_ClassOfs_Lo
+	jsr (ClassOnCommand_Lo,x)
 	pld
-	ldx OopCall_Slot
+	ldx.w OopCall_Slot_Lo
 	rts
 
 Core_Oop_Call__unhandled:
@@ -813,11 +844,11 @@ Core_Oop_Play:
 	rep #$31
 .a16
 	ldx #0
-	cpx OopObjSlotPtr
+	cpx.w OopObjSlotPtr_Lo
 	bcs Core_Oop_Play__done
 
 Core_Oop_Play__loop:
-	stx OopObjIndex
+	stx.w OopObjIndex_Lo
 	lda.l OopFlags,x
 	and #OBJ_FLAG_PRESENT | OBJ_FLAG_DELETE_SCHEDULED | OBJ_FLAG_DISABLED
 	cmp #OBJ_FLAG_PRESENT
@@ -826,12 +857,12 @@ Core_Oop_Play__loop:
 	lda.l OopDp,x
 	phd
 	tcd
-	jsr (OopCurrent,x)
+	jsr (OopCurrent_Lo,x)
 	pld
 
 	cmp #OBJR_NOERR
 	beq Core_Oop_Play__skip
-		ldx OopObjIndex
+		ldx.w OopObjIndex_Lo
 		lda.l OopFlags,x
 		ora #OBJ_FLAG_DELETE_SCHEDULED
 		sta.l OopFlags,x
@@ -839,10 +870,10 @@ Core_Oop_Play__loop:
 		sta OopGarbagePresent
 
 Core_Oop_Play__skip:
-	ldx OopObjIndex
+	ldx.w OopObjIndex_Lo
 	inx
 	inx
-	cpx OopObjSlotPtr
+	cpx.w OopObjSlotPtr_Lo
 	bcc Core_Oop_Play__loop
 
 Core_Oop_Play__done:
@@ -863,13 +894,13 @@ Core_Oop_CollectGarbage:
 	; loop cursor lives in memory, not x — Core_Oop__ReclaimSlot below does not
 	; preserve x (it has its own internal loops), so a register-only cursor
 	; here would get corrupted the moment a reclaim actually happens.
-	stz OopObjIndex
+	stz.w OopObjIndex_Lo
 	lda OopObjIndex
 	cmp OopObjSlotPtr
 	bcs Core_Oop_CollectGarbage__reset_flag
 
 Core_Oop_CollectGarbage__loop:
-	ldx OopObjIndex
+	ldx.w OopObjIndex_Lo
 	lda.l OopFlags,x
 	and #OBJ_FLAG_DELETE_SCHEDULED
 	beq Core_Oop_CollectGarbage__skip
@@ -883,7 +914,7 @@ Core_Oop_CollectGarbage__skip:
 	bcc Core_Oop_CollectGarbage__loop
 
 Core_Oop_CollectGarbage__reset_flag:
-	stz OopGarbagePresent
+	stz.w OopGarbagePresent_Lo
 
 Core_Oop_CollectGarbage__done:
 	plp
@@ -936,15 +967,15 @@ Core_Oop__ReclaimSlot__shift:
 
 	sep #$20
 .a8
-	ldx OopGc_Src
+	ldx.w OopGc_Src_Lo
 	lda.l OopObjRam,x
-	ldx OopGc_Dst
+	ldx.w OopGc_Dst_Lo
 	sta.l OopObjRam,x
 	rep #$31
 .a16
 
-	inc OopGc_Src
-	inc OopGc_Dst
+	inc.w OopGc_Src_Lo
+	inc.w OopGc_Dst_Lo
 	bra Core_Oop__ReclaimSlot__shift
 
 Core_Oop__ReclaimSlot__shift_done:
@@ -955,7 +986,7 @@ Core_Oop__ReclaimSlot__shift_done:
 
 	; adjust every other slot's dp if it pointed at or after the freed block
 	ldx #0
-	cpx OopObjSlotPtr
+	cpx.w OopObjSlotPtr_Lo
 	bcs Core_Oop__ReclaimSlot__adjust_done
 Core_Oop__ReclaimSlot__adjust_loop:
 	lda.l OopFlags,x
@@ -973,7 +1004,7 @@ Core_Oop__ReclaimSlot__adjust_loop:
 Core_Oop__ReclaimSlot__adjust_next:
 	inx
 	inx
-	cpx OopObjSlotPtr
+	cpx.w OopObjSlotPtr_Lo
 	bcc Core_Oop__ReclaimSlot__adjust_loop
 Core_Oop__ReclaimSlot__adjust_done:
 
@@ -986,7 +1017,7 @@ Core_Oop__ReclaimSlot__shrink:
 	tax
 	lda.l OopFlags,x
 	bne Core_Oop__ReclaimSlot__shrink_done
-	stx OopObjSlotPtr
+	stx.w OopObjSlotPtr_Lo
 	bra Core_Oop__ReclaimSlot__shrink
 Core_Oop__ReclaimSlot__shrink_done:
 	rts

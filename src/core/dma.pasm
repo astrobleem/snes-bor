@@ -277,7 +277,22 @@ Core_Dma_ProcessQueue__next:
 Core_Dma_ProcessQueue__done:
 	rep #$31
 .a16
-	stz DmaQueue_BudgetTotal
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+DmaQueue_BudgetTotal_Lo = $047A
+
+	stz.w DmaQueue_BudgetTotal_Lo
 	rts
 
 ; --- Transfer handlers. Entered with x = current slot's byte offset. ---

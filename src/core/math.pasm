@@ -65,16 +65,35 @@ Core_Math_Mul:
 	rep #$31
 .a16
 	sta Math_Mul_Multiplier
-	stx Math_Mul_Multiplicand
-	stz Math_Mul_ProductLo
-	stz Math_Mul_ProductHi
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+Math_Div_Quotient_Lo = $0428
+Math_Mul_Multiplicand_Lo = $0422
+Math_Mul_Multiplier_Lo = $0420
+Math_Mul_ProductHi_Lo = $0426
+Math_Mul_ProductLo_Lo = $0424
+
+	stx.w Math_Mul_Multiplicand_Lo
+	stz.w Math_Mul_ProductLo_Lo
+	stz.w Math_Mul_ProductHi_Lo
 	sep #$20
 .a8
 	lda #0
 	ldx #$10
 Core_Math_Mul__bit_loop:
-	lsr Math_Mul_Multiplier+1
-	ror Math_Mul_Multiplier
+	lsr.w Math_Mul_Multiplier_Lo+1
+	ror.w Math_Mul_Multiplier_Lo
 	bcc Core_Math_Mul__skip_add
 	lda Math_Mul_ProductHi
 	clc
@@ -85,15 +104,15 @@ Core_Math_Mul__bit_loop:
 Core_Math_Mul__skip_add:
 	ror a
 	sta.l Math_Mul_ProductHi+1
-	ror Math_Mul_ProductHi
-	ror Math_Mul_ProductLo+1
-	ror Math_Mul_ProductLo
+	ror.w Math_Mul_ProductHi_Lo
+	ror.w Math_Mul_ProductLo_Lo+1
+	ror.w Math_Mul_ProductLo_Lo
 	dex
 	bne Core_Math_Mul__bit_loop
 	rep #$31
 .a16
 	lda Math_Mul_ProductLo
-	ldx Math_Mul_ProductHi
+	ldx.w Math_Mul_ProductHi_Lo
 	rts
 
 ; @param a<16-bit>  integer 0
@@ -151,7 +170,7 @@ Core_Math_Abs__done:
 Core_Math_Div:
 	rep #$31
 .a16
-	stz Math_Div_Quotient
+	stz.w Math_Div_Quotient_Lo
 	ldy #1
 	cmp #0
 	bne Core_Math_Div__has_divisor
@@ -176,7 +195,7 @@ Core_Math_Div__sub_loop:
 	bcc Core_Math_Div__no_borrow
 	tax
 Core_Math_Div__no_borrow:
-	rol Math_Div_Quotient
+	rol.w Math_Div_Quotient_Lo
 	pla
 	lsr a
 	dey

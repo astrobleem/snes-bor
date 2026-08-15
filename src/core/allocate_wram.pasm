@@ -78,7 +78,25 @@ Core_Wram_Init__clear_blocks:
 	inx
 	cpx #WRAM_ALLOCATION_BLOCKS
 	bcc Core_Wram_Init__clear_blocks
-	stz WramAlloc_CurrentId
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+WramAlloc_CurrentId_Lo = $04C0
+WramAlloc_NeedBlocks_Lo = $04F1
+WramAlloc_RunLen_Lo = $04F3
+WramAlloc_RunStart_Lo = $04F2
+
+	stz.w WramAlloc_CurrentId_Lo
 
 	rep #$31
 .a16
@@ -120,7 +138,7 @@ Core_Wram_Allocate__valid_length:
 	txa
 	and #$00ff
 	beq Core_Wram_Allocate__no_partial
-	inc WramAlloc_NeedBlocks
+	inc.w WramAlloc_NeedBlocks_Lo
 Core_Wram_Allocate__no_partial:
 
 	; Block indices/counts all fit in 8 bits (0-48) — go fully 8-bit for
@@ -133,22 +151,22 @@ Core_Wram_Allocate__no_partial:
 	sep #$30
 .a8
 .i8
-	stz WramAlloc_RunStart
-	stz WramAlloc_RunLen
+	stz.w WramAlloc_RunStart_Lo
+	stz.w WramAlloc_RunLen_Lo
 	ldx #0
 
 Core_Wram_Allocate__scan:
 	lda.l WramAlloc_Blocks,x
 	bne Core_Wram_Allocate__run_broken
 
-	inc WramAlloc_RunLen
+	inc.w WramAlloc_RunLen_Lo
 	lda WramAlloc_RunLen
 	cmp WramAlloc_NeedBlocks
 	bcs Core_Wram_Allocate__run_found
 	bra Core_Wram_Allocate__scan_next
 
 Core_Wram_Allocate__run_broken:
-	stz WramAlloc_RunLen
+	stz.w WramAlloc_RunLen_Lo
 	txa
 	inc a
 	sta WramAlloc_RunStart
@@ -172,8 +190,8 @@ Core_Wram_Allocate__run_found:
 Core_Wram_Allocate__id_ok:
 	sta WramAlloc_CurrentId
 
-	ldx WramAlloc_RunStart
-	ldy WramAlloc_NeedBlocks
+	ldx.w WramAlloc_RunStart_Lo
+	ldy.w WramAlloc_NeedBlocks_Lo
 Core_Wram_Allocate__fill:
 	sta.l WramAlloc_Blocks,x
 	inx

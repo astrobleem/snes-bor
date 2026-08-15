@@ -31,9 +31,26 @@ Core_Input_Init:
 	sta $4200            ; enable auto-joypad read only (NMI/IRQ stay off)
 	rep #$31
 .a16
-	stz Input_press
-	stz Input_trigger
-	stz Input_old
+; --- Poppy-fork migration: low16 aliases for STZ/INC/DEC/STX/STY/LDX/LDY/BIT/
+; TSB/TRB/CPX/CPY/ASL/LSR/ROL/ROR/indirect-indexed JSR(,x)/JMP(,x) sites below.
+; Real 65816 has no absolute-long encoding for these mnemonics. Old Poppy
+; silently truncated a $7Exxxx operand to its low 16 bits (2-byte absolute,
+; DBR-relative); new Poppy correctly refuses to do this truncation implicitly.
+; This project confines all code+data to ROM bank 0 (see CLAUDE.md), and DBR
+; is never set outside {$00-$3F,$7E,$7F} at runtime, so for any symbol whose
+; offset is <$2000 the WRAM mirror at $0000-$1FFF (present in every bank
+; $00-$3F/$80-$BF) makes the plain 2-byte absolute form land on the exact
+; same physical byte as the canonical $7Exxxx symbol, regardless of DBR's
+; exact value. These _Lo aliases reproduce that byte-identical encoding
+; explicitly. Use ONLY at a site with no long-addressing alternative --
+; never as a general substitute for the canonical long-addressed symbol.
+Input_old_Lo = $0414
+Input_press_Lo = $0410
+Input_trigger_Lo = $0412
+
+	stz.w Input_press_Lo
+	stz.w Input_trigger_Lo
+	stz.w Input_old_Lo
 	rts
 
 ; Call once per frame. Safe to call more than once per frame (idempotent
@@ -66,7 +83,7 @@ Core_Input_Poll__wait_busy:
 	rts
 
 Core_Input_Poll__no_pad:
-	stz Input_press
-	stz Input_old
-	stz Input_trigger
+	stz.w Input_press_Lo
+	stz.w Input_old_Lo
+	stz.w Input_trigger_Lo
 	rts
