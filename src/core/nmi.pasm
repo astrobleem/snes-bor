@@ -196,6 +196,14 @@ Core_Nmi_Play__do_commit:
 .a16
     jsr Core_Dma_ProcessQueue
 
+    ; Phase 9 step 4 (SyncScroll): if Core_StreamScroll_Play (main.pasm)
+    ; finished resolving a streaming BG1 column this frame, write it into
+    ; VRAM now, still inside forced blank, via direct port writes -- NOT a
+    ; DMA. A DMA_OPT_STRIDE32 transfer (VMAIN=$81, +32 words/write) driven
+    ; from the queue hung the CPU under Mesen2; this is the same safe
+    ; port-write shape Bg_LoadScene_Streaming's row loop already uses.
+    jsr Core_StreamScroll_CommitColumn
+
     sep #$20
 .a8
     ; Msu1_LoadFrame (main.pasm) sets Msu1_StreamBusy=1 right after queuing
