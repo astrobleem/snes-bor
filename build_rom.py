@@ -28,20 +28,22 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe"]
 #   python tools/bg_converter/make_hud_tiles.py -o out/hud
 #
 # Phase 9 (plan.md 2.8/2.9): first real (non-synthetic) level to use the
-# streaming tile cache. Stage 1A is BOR's actual opening level -- 6 screens/
-# 1920px wide, 2215 unique tiles over the whole level (measured via
-# measure_level_tiles.py), well past the 512/1024-tile static-load budget
-# that gated the old out/bg_boss_level. Was previously verified only
-# against the synthetic out/bg_warehouse_stream stress asset (13437 tiles,
-# deliberately unrealistic); this is the first time it renders real BOR
-# level content.
+# streaming tile cache. Stage 1A is BOR's actual opening level -- 34 panels/
+# 4080 BOR px (3264 SNES px, 408 tiles) wide once level_parse.py's
+# multi-`order`-line append bug was fixed (spawn-table phase, 2026-08-16;
+# the level's own file splits one 34-panel sequence across two `order`
+# lines, which this converter used to silently truncate to just the last
+# one -- 16 of 34 panels, the WRONG half of the level, shipped for a while
+# before this was caught). 3730 unique 4bpp tiles over the corrected whole
+# level, well past the 512/1024-tile static-load budget that gated the old
+# out/bg_boss_level.
 BG_SCREENS = [("out/bg_stage1a", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
 # convert_frontpanel.py output) or None if that BG has no frontpanel packed.
 # Regenerate with:
-#   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 192
+#   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
 #
 # Step 2a (the engine-side cache allocator) is done and shipping; nothing
 # yet reads this data at runtime (Step 2b, in progress) -- packing it here

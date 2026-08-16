@@ -17,6 +17,12 @@ The scenery model, verified against `DATA\\EASY\\4BEASY.TXT` in the real pak:
 
 `order` indexes the panels by letter: 'a' is the first `panel` line, 'b' the
 second, and so on. The level is that sequence of panels laid side by side.
+Multiple `order` lines APPEND rather than replace (confirmed against
+Plombo/beatsofrage's `BOR.C`; `DATA\\EASY\\1AEASY.TXT` splits one 34-panel
+sequence across two `order` lines for exactly this reason) -- this module
+concatenates them; a single `order = parts[1]` replace was a real,
+previously-shipped bug here (see `plan.md`'s spawn-table phase for the
+fix commit).
 
 This module deliberately does NOT model scroll speed, parallax, or z-depth.
 snes-bor's Phase 6 backdrop is static and non-scrolling (plan.md 2.4 rules
@@ -87,7 +93,16 @@ def parse_level(text, name='level'):
         elif keyword == 'frontpanel' and len(parts) > 1:
             frontpanel = to_pak_name(parts[1])
         elif keyword == 'order' and len(parts) > 1:
-            order = parts[1]
+            # BOR APPENDS each `order` line to the running sequence, not
+            # replaces it -- confirmed against Plombo/beatsofrage's BOR.C
+            # (`else if(stricmp(command, "order")==0){ // Append to order`,
+            # ~line 1936). Stock level files rely on this: 1AEASY.TXT splits
+            # one 34-panel sequence across two `order` lines specifically
+            # because its own instructional comment says "don't make the
+            # lines too long." A single `order = parts[1]` (replace) here
+            # silently dropped the first line entirely for any level using
+            # more than one -- a real bug, not a stylistic choice.
+            order += parts[1]
 
     # A level with panels but no explicit `order` means "each panel once, in
     # declaration order" -- BOR's own default.
