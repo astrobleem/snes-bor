@@ -6793,25 +6793,50 @@ Core_StreamScroll_PickColumn__check_hi:
     rts                             ; extend right
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair:
-    ; clamp the cursor into [StagedLo, StagedHi] in case a watermark shift
-    ; moved the window since it was last set
+    ; clamp the cursor into [DesiredLo, DesiredHi] -- NOT [StagedLo,
+    ; StagedHi] -- so the repair sweep only ever revisits the camera-
+    ; relevant window (viewport +/- STREAM_SCROLL_PREFETCH), not the whole
+    ; wider ring retained up to the VRAM ring's 64-column cap. Reaching
+    ; this label already proves DesiredLo>=StagedLo and DesiredHi<=StagedHi
+    ; this call (both extend checks above fell through), so this is always
+    ; a subset of the old clamp range, never out of bounds.
+    ;
+    ; Root cause this fixes (Phase 9 SyncScroll "pending_repair never
+    ; converges" investigation): the retained [StagedLo,StagedHi] window
+    ; grows to the full 64-column VRAM ring capacity, but the level's
+    ; distinct-tile count over any 64-column span (up to 1568 measured on
+    ; the warehouse asset) routinely exceeds the 1022-slot cache, which is
+    ; mathematically impossible to keep fully resident no matter the
+    ; eviction/protect-window policy. The round-robin repair cursor used to
+    ; spend equal effort on those doomed-to-thrash far columns as on the
+    ; ~40-column actually-desired window, so eviction pressure from
+    ; resolving neglected trailing columns kept knocking newly-resolved,
+    ; currently-VISIBLE columns back out of cache (confirmed via
+    ; tools/verify's pending-mismatch histogram: solid blocks of 100%-
+    ; pending columns inside the live viewport, not just the stale tail
+    ; near StagedLo). The desired window's own worst-case distinct-tile
+    ; count (measured 872 for the bare 32-col viewport, up to ~1080 for the
+    ; full 40-col prefetch margin at some level positions) fits the 1022
+    ; slot budget far more reliably, so narrowing repair's scope to it lets
+    ; the sweep actually converge instead of chasing a permanently
+    ; oversubscribed range.
     lda StreamScroll_RepairCur
-    cmp StreamScroll_StagedLo
+    cmp StreamScroll_DesiredLo
     bcs Core_StreamScroll_PickColumn__repair_lo_ok
-    lda StreamScroll_StagedLo
+    lda StreamScroll_DesiredLo
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_lo_ok:
-    cmp StreamScroll_StagedHi
+    cmp StreamScroll_DesiredHi
     bcc Core_StreamScroll_PickColumn__repair_hi_ok
     beq Core_StreamScroll_PickColumn__repair_hi_ok
-    lda StreamScroll_StagedHi
+    lda StreamScroll_DesiredHi
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_hi_ok:
     pha
     inc a
-    cmp StreamScroll_StagedHi
+    cmp StreamScroll_DesiredHi
     bcc Core_StreamScroll_PickColumn__repair_adv_ok
-    lda StreamScroll_StagedLo
+    lda StreamScroll_DesiredLo
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_adv_ok:
     sta StreamScroll_RepairCur
