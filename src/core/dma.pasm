@@ -182,6 +182,55 @@ Core_Dma_Enqueue__found_slot:
 	sec
 	rts
 
+; Non-mutating peek: does Core_Dma_Enqueue currently have a free slot to
+; scan into? Callers that must commit other state (e.g. a stream cache's
+; Tile2Slot/Slot2Tile tables) BEFORE they know a DMA source/target, need to
+; know enqueue will succeed before committing that state -- committing it
+; and then having Enqueue fail on a full queue leaves the cache believing a
+; tile occupies a slot whose physical VRAM content was never written,
+; producing silent, permanent corruption until the slot is next evicted.
+; Nothing can insert into the queue between this check and the caller's own
+; Enqueue call in this single-threaded main-loop flow (NMI only drains,
+; never fills), so a free slot found here is guaranteed still free then.
+; @return carry<bool>  set if at least one inactive slot exists
+Core_Dma_HasFreeSlot:
+	php
+	sei
+	rep #$31
+.a16
+	lda DmaQueue_CurrentSlot
+	and #(DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE) - 1
+	tax
+	ldy #DMA_QUEUE_SLOTS
+Core_Dma_HasFreeSlot__scan:
+	sep #$20
+.a8
+	lda.l DmaQueue+4,x
+	bit #DMA_OPT_ACTIVE
+	beq Core_Dma_HasFreeSlot__found
+	rep #$31
+.a16
+	txa
+	clc
+	adc #DMA_QUEUE_SLOT_SIZE
+	and #(DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE) - 1
+	tax
+	dey
+	bne Core_Dma_HasFreeSlot__scan
+
+	rep #$31
+.a16
+	plp
+	clc
+	rts
+
+Core_Dma_HasFreeSlot__found:
+	rep #$31
+.a16
+	plp
+	sec
+	rts
+
 ; @param a<16-bit>  size of a transfer you're considering registering
 ; @return carry<bool>  set if it would still fit in this frame's budget
 Core_Dma_CheckLength:

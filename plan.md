@@ -1643,10 +1643,9 @@ engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
 boundary.
 
 ## 2.10 — Phase 10: frontpanel foreground layer (IN PROGRESS — Steps 1, 2a,
-2b ✅ DONE 2026-08-16 (converter tooling, cache allocator, boot-time
-initial load, all verified in Mesen2); Step 2c (runtime repair-sweep),
-Step 3 (explicit HUD-coexistence recheck), Step 4 (phase10 verify script)
-not started)
+2b, 2c, 3 ✅ DONE 2026-08-16 (converter tooling, cache allocator, boot-time
+initial load, runtime scroll resolver, HUD coexistence, all verified in
+Mesen2); only Step 4 (a committed `phase10*.py` verify script) remains)
 
 ### The problem
 
@@ -1843,27 +1842,119 @@ each step should get its own commit and gate, not one giant change)
    pushed the settle point later, confirmed via direct probing, not a
    regression) and phase6.py's CGRAM ground-truth comparison now merges in
    the FP palette's real bytes.
-   **2c (runtime resolver/repair-sweep) is NOT started** — the frontpanel
-   cache is boot-time-loaded only; nothing yet re-resolves it as the
-   camera scrolls (BG1's `Core_StreamScroll_*` equivalent). That's the
-   next step.
+   **2c (runtime resolver/repair-sweep) — ✅ DONE (2026-08-16), verified in
+   Mesen2.** `Core_StreamScrollFp_*` (main.pasm: `SeekColumn`,
+   `FetchTileToBuffer`, `PickColumn`, `ResolveRows`, `CommitColumn`, `Play`)
+   is a twin of BG1's own `Core_StreamScroll_*`, called from
+   `scpu_main_loop` right after `Core_StreamScroll_Play` and gated the same
+   way (`Msu1_StreamBusy`, no contention with `Msu1_LoadFrame`). **One real
+   structural simplification, not just a smaller copy**: BG3's tilemap is a
+   single 32×32 map exactly the size of one viewport, so there's no room
+   for BG1's prefetch margin — the resolved window is always exactly the
+   32 onscreen columns, and only `FP_CONTENT_ROW_COUNT=7` rows (21-27) are
+   ever seeked/resolved/committed, never the other 21 blank ones (verified
+   this session that rows 0-20 are blank across the FULL 192-column level
+   width, not just the boot-time window — the earlier 213/143-tile
+   estimates were about tile *content*, not row range, and this insight
+   didn't change either of those numbers, just the resolver's scope).
+   `STREAM_SCROLLFP_BUDGET_MAX=2` (vs. BG1's 6), deliberately conservative
+   given the DMA-queue-contention stop condition below.
+
+   Getting this working found and fixed **three real bugs, all caught by
+   direct Mesen2 verification, not assumption**:
+   1. **Missing window-width enforcement.** The first version let
+      `StreamScrollFp_StagedLo/StagedHi` grow unbounded as the camera moved
+      (a scripted 143-column scroll left `StagedLo` pinned at 0 and
+      `StagedHi` at 174 — a 175-column "window" against a 32-column
+      physical ring). Unlike BG1 (64-column ring vs. a ≤40-column window,
+      so some slack exists), FP's ring exactly equals its window size, so
+      moving one edge must explicitly pull the opposite edge in by the
+      same amount every commit — not something the repair sweep alone
+      naturally corrects here. Fixed in `Core_StreamScrollFp_ResolveRows`'s
+      commit step.
+   2. **A chained-ADC carry bug**, the one that actually produced visible
+      corruption (a scripted scroll test showed a garbled fence/backdrop
+      past the boot window). `STREAM_FP_TILEMAP_ROW_START*3` (63) was
+      being added to the per-column seek address via a second `adc #63`
+      chained onto the first `adc TilemapOffLo` with no `clc` between them,
+      intending the carry to propagate through to the Hi-byte add. It
+      doesn't: chaining two ADCs into the *same* 16-bit word for a 3-term
+      sum makes the second ADC's carry-out reflect only its own overflow,
+      not the true combined total's — confirmed via a temporary WRAM probe
+      comparing the actual computed seek address against a hand-computed
+      expected one, which showed the Hi byte silently off by exactly 1 in
+      the failing case. Fixed by folding the `+63` into the preserved
+      `StreamScrollFp_TilemapOffLo/Hi` base ONCE, at boot capture time (a
+      clean single-carry 2-term add), rather than adding it again on every
+      `Core_StreamScrollFp_SeekColumn` call.
+   3. **DMA-queue-contention cache corruption — the one that made the
+      "tested, not yet broken" stop condition below actually fire.**
+      `Core_StreamScrollFp_ResolveRows` (and, it turns out,
+      `Core_StreamScroll_ResolveRows` too — this bug predates Step 2c and
+      is shared by BG1's resolver, not new here) called
+      `Core_StreamCache(Fp)_AllocateSlot` — which permanently commits the
+      cache's `Tile2Slot`/`Slot2Tile` mapping — *before* confirming
+      `Core_Dma_Enqueue` would actually succeed. Found via a targeted pixel
+      byte-level check (Mesen2 VRAM reads of a runtime-resolved tilemap
+      word's physical tile bytes, compared against the converter's own
+      `tiles.bin`/`tilemap.bin` ground truth, column-major-indexed) that
+      the earlier screenshot-only verification below could not catch: 1 of
+      32 sampled columns had a tilemap word pointing to a slot whose
+      physical VRAM content belonged to a completely different source
+      tile. Root cause: when `Core_Dma_Enqueue` fails because the shared
+      8-slot software DMA queue is full that frame (real contention
+      between OAM upload, BG1's budget-6 misses, and FP's budget-2 misses
+      all sharing one queue), the resolver bails out early — but the cache
+      tables were already updated to claim the tile now lives in that
+      slot, even though the DMA that would write its real pixel data
+      there never fired. On retry, the next lookup sees a cache *hit* and
+      never re-fetches, permanently corrupting that slot's visible content
+      until it happens to be evicted again. Fixed by adding
+      `Core_Dma_HasFreeSlot` (`src/core/dma.pasm`), a non-mutating queue
+      peek, and calling it as a guard immediately before
+      `Core_StreamCache(Fp)_AllocateSlot` in both resolvers — bailing out
+      (matching the existing "queue full, retry later" pattern) before
+      any cache-table state is touched if no slot is actually free.
+
+   **Verified**: a scripted 900-column-right-then-900-column-left scroll
+   test (`m.set_input(BTN_RIGHT/BTN_LEFT, 900)`) renders cleanly in both
+   directions — screenshots show the fence correctly repositioned in front
+   of the characters at every sampled point, `StreamScrollFp_StagedLo/Hi`
+   stay exactly 32 apart and track the camera column throughout, and
+   `Nmi_FrameCounter` keeps advancing (no vblank overrun) under sustained
+   scrolling with both BG1's and FP's resolvers active in the same frames.
+   Beyond that, after finding bug 3, a targeted pixel-level check compared
+   every non-blank tile across all 7 content rows of the resolved window
+   (224 tiles) against the converter's own `tiles.bin` ground truth,
+   byte-for-byte — 0 mismatches on the fixed build (was 1/32 before the
+   fix, on the same scroll position). A fresh post-fix boot screenshot
+   confirms the boot loader (which shares the `+63`-folded
+   `StreamScrollFp_TilemapOffLo/Hi` base) still renders correctly too.
+   Full regression suite (`check_label_drift.py`, `audit_all.py`,
+   phase5/6/7) green on the rebuilt ROM. `scpu_main_loop`-to-`nmi_handler`
+   margin is now 23 bytes (down from 34 after Step 2b) — still positive
+   and passing `audit_all.py`'s own guard, but tightening; watch this if
+   adding more code to `scpu_main_loop` or the pre-`scpu_boot` utility
+   region.
 3. **BG3 priority + HUD coexistence.** Set the priority bit on frontpanel
-   tilemap entries the same way the HUD already does; verify the HUD still
-   renders correctly sharing the layer (its own dedicated Phase 6 checks
-   already assert this — rerun them, don't assume). Confirm `$2105`/BG3
-   register state matches what both consumers need simultaneously.
+   tilemap entries the same way the HUD already does (done as part of Step
+   2b/2c — `Core_StreamScrollFp_ResolveRows` sets bit 13 unconditionally,
+   same as `Bg_LoadSceneFp_Streaming`'s boot loader); the dedicated Phase 6
+   HUD checks (rerun as part of Step 2c's regression pass, not assumed)
+   still pass, and the reverse-scroll test above never touched rows 0-3
+   (HUD-owned), rows 4-20 (always blank), or produced any visible
+   coexistence artifact. Still worth an EXPLICIT dedicated check (e.g. HUD
+   changing HP while FP is mid-resolve) before calling this fully closed,
+   but nothing found so far suggests a problem.
 4. **Verification.** A new `tools/verify/phase10*.py`, structured like
    `phase9_syncscroll_test2.py` (ground truth = the new converter's own
    tilemap/tileset .bin files, Tile2Slot-consistency invariant, not
    self-consistency), checked against the real shipped stage-1A level, not
    a synthetic asset (Phase 9 already paid down that particular lesson,
-   don't reintroduce it here). Also explicitly re-check for OAM/DMA-queue
-   pressure — this phase adds a **second** per-frame streaming consumer
-   competing for the same 8-slot DMA queue and `Msu1_StreamBusy`-style
-   serialization Phase 0/9 already had to solve once; re-verify the
-   vblank-overrun guard (`Nmi_FrameCounter` still advancing) under BOTH
-   layers streaming misses in the same frame, the same forced-collision
-   technique Phase 0 used for the original single-layer case.
+   don't reintroduce it here) — still NOT written; Step 2c's own
+   verification so far is ad hoc Mesen2 scripting (see above), not a
+   committed regression gate. This is the one real remaining gap before
+   Phase 10 can be called fully done.
 
 ### Stop conditions
 
@@ -1876,11 +1967,23 @@ each step should get its own commit and gate, not one giant change)
 - **A 40-col window's worst case exceeds the sized cache** on a different
   future level (this session only measured stage 1A). Re-run the
   measurement per-level before assuming 213-ish generalizes.
-- **DMA queue contention between the two streaming layers** produces a
-  vblank overrun under combined worst-case miss load. This is the most
-  likely real failure mode given Phase 0/9's own history — budget real
-  time for it, don't assume Phase 9's existing `STREAM_SCROLL_BUDGET_MAX=6`
-  headroom trivially covers a second consumer.
+- **DMA queue contention between the two streaming layers** — this DID fire
+  during Step 2c bring-up (see bug 3 above) and is now fixed at the root
+  (`Core_Dma_HasFreeSlot` guards both resolvers against committing cache
+  state ahead of a DMA enqueue that might fail), not just papered over by
+  the conservative budget. `STREAM_SCROLLFP_BUDGET_MAX=2` (vs. BG1's
+  `STREAM_SCROLL_BUDGET_MAX=6`) was still chosen conservatively and there's
+  no evidence it needs to change. The 900-column bidirectional scroll
+  stress test plus the full-window pixel-level VRAM check (224/224 tiles
+  byte-exact against converter ground truth) together are stronger
+  evidence than screenshots alone, but still NOT the same as Phase 0's own
+  deliberate forced-worst-case-collision technique (both layers missing in
+  the exact same frame, engineered rather than incidental). A future
+  session revisiting either budget (e.g. raising FP's) should still re-run
+  that more deliberate test first — the fix makes queue-full *safe*, not
+  free of its own opportunity cost (a bailed-out row just retries next
+  frame, which is fine, but budget changes should still be measured, not
+  assumed).
 
 ---
 

@@ -259,6 +259,11 @@ Core_Nmi_Play__do_commit:
     ; port-write shape Bg_LoadScene_Streaming's row loop already uses.
     jsr Core_StreamScroll_CommitColumn
 
+    ; Phase 10 Step 2c (plan.md 2.10): same handoff for the BG3 frontpanel's
+    ; own streaming resolver -- see Core_StreamScrollFp_CommitColumn's
+    ; header comment.
+    jsr Core_StreamScrollFp_CommitColumn
+
     sep #$20
 .a8
     ; Msu1_LoadFrame (main.pasm) sets Msu1_StreamBusy=1 right after queuing

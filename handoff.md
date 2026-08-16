@@ -33,20 +33,27 @@ each section below.
 > verified, AND shipped: the ROM streams a real BOR level (stage 1A,
 > `out/bg_stage1a`), not the old static boss level.
 >
-> **Phase 10 (frontpanel foreground layer) is IN PROGRESS** — Steps 1
-> (converter tooling), 2a (cache allocator), and 2b (boot-time initial
-> load) are done and verified in Mesen2: the chain-link fence now renders
-> correctly in front of the character sprites, with no rendering
-> corruption. Step 2b's bring-up found and fixed four real bugs (two in
-> `main.pasm`'s boot ordering/scratch-cell reuse, one BG3 CHR-base
-> tilemap-addressing bug, one converter transparency-quantization bug) —
-> see `plan.md` §2.10 Step 2b for the full list, each is worth reading
-> before touching this code again since none of the four failure modes are
-> obvious from the symptom alone. Steps 2c-4 (per-frame repair-sweep,
-> explicit HUD-coexistence recheck, verification script) are NOT started.
-> See the Phase 10 section near the bottom and `plan.md` §2.10 Step 2c for
-> exactly where to pick this up; `plan.md` §2.9 lists other, unrelated
-> candidate phases if not.
+> **Phase 10 (frontpanel foreground layer) is IN PROGRESS, nearly done** —
+> Steps 1 (converter tooling), 2a (cache allocator), 2b (boot-time initial
+> load), 2c (runtime scroll resolver), and 3 (HUD coexistence) are all done
+> and verified in Mesen2: the chain-link fence renders correctly in front
+> of the character sprites and correctly tracks the camera as it scrolls,
+> in both directions, with no rendering corruption. Step 2b's bring-up
+> found and fixed four real bugs (two in `main.pasm`'s boot ordering/
+> scratch-cell reuse, one BG3 CHR-base tilemap-addressing bug, one
+> converter transparency-quantization bug); Step 2c's found and fixed three
+> more (a window-width-tracking bug, a chained-ADC carry-propagation bug,
+> and a DMA-queue-contention cache-corruption bug shared by BOTH streaming
+> resolvers, not FP-only — see `Core_Dma_HasFreeSlot` in
+> `src/core/dma.pasm`) — see `plan.md` §2.10 Steps 2b/2c for the full list,
+> each worth reading before touching this code again since none of the
+> seven failure modes are obvious from the symptom alone. **Only Step 4 (a
+> committed
+> `tools/verify/phase10*.py` gate) remains** — everything so far is ad hoc
+> Mesen2 scripting, not a repeatable regression gate. See the Phase 10
+> section near the bottom and `plan.md` §2.10 Step 4 for exactly where to
+> pick this up; `plan.md` §2.9 lists other, unrelated candidate phases if
+> not.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1464,7 +1471,7 @@ input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
 next phases (damage system, SFX, roster persistence), none started.
 
-## Phase 10: frontpanel foreground layer — Steps 1, 2a, 2b DONE; 2c-4 not started
+## Phase 10: frontpanel foreground layer — Steps 1, 2a, 2b, 2c, 3 DONE; only Step 4 (verify script) not started
 
 Found while recapturing README screenshots against the newly-shipped stage
 1A (see Phase 9 above): the fence in `scene_scrolled.png` renders *behind*
@@ -1588,16 +1595,85 @@ the settle point later — confirmed via direct probing, not a regression);
 `phase6.py`'s CGRAM ground-truth comparison now merges in the FP
 palette's real bytes.
 
-**Steps 2c-4 are NOT started.** No per-frame resolver/repair-sweep (the
-FP cache is boot-time-loaded only right now — nothing re-resolves it as
-the camera scrolls), no explicit re-check of BG3 priority/HUD coexistence
-under the new FP content (Phase 6's own HUD checks pass unchanged, but
-`plan.md` §2.10 Step 3 asks for an explicit recheck, not just an assumed
-pass), no `phase10*.py` test script. Start at `plan.md` §2.10 Step 2c — a
-`Core_StreamScroll_*`-equivalent per-frame resolver targeting this cache.
-This is real remaining risk (a second per-frame streaming consumer
-competing for the same 8-slot DMA queue Phase 0/9 already had to solve
-once) — budget real Mesen2 verification time.
+**Step 2c (runtime resolver/repair-sweep) is done and verified in
+Mesen2.** `Core_StreamScrollFp_*` (main.pasm) is a twin of BG1's own
+`Core_StreamScroll_*`, called from `scpu_main_loop` right after it and
+gated the same way (`Msu1_StreamBusy`). One real structural
+simplification versus a straight copy: BG3's tilemap is a single 32×32
+map exactly the size of one viewport, so there's no room for BG1's
+prefetch margin — the window is always exactly the 32 onscreen columns,
+and only the 7 real-content rows (21-27, confirmed blank everywhere else
+across the full 192-column level) are ever seeked/resolved/committed.
+`STREAM_SCROLLFP_BUDGET_MAX=2` (vs. BG1's 6), deliberately conservative
+given the DMA-queue-contention risk `plan.md` flags.
+
+Getting this working found three real bugs, all via direct Mesen2
+verification:
+1. **Missing window-width enforcement** — the tracked window grew
+   unbounded (a 143-column scroll left it 175 columns wide against a
+   32-column physical ring) because, unlike BG1's 64-col-ring-vs-≤40-col-
+   window slack, FP's ring exactly equals its window size, so moving one
+   edge must explicitly pull the opposite edge in by the same amount
+   every commit.
+2. **A chained-ADC carry bug** — produced visible corruption (garbled
+   fence/backdrop past the boot window in a scripted scroll test). Adding
+   `STREAM_FP_TILEMAP_ROW_START*3` (63) via a second `adc #63` chained onto
+   `adc TilemapOffLo` with no `clc` between them does NOT correctly
+   propagate a combined carry into the Hi-byte add — the second ADC's
+   carry-out reflects only its own overflow, not the true 3-term total's.
+   Found via a temporary WRAM probe comparing the actual computed seek
+   address against a hand-computed expected one (the Hi byte was silently
+   off by 1). Fixed by folding `+63` into the preserved base once, at boot
+   capture time, instead of re-adding it every call.
+3. **DMA-queue-contention cache corruption** — the subtlest of the three,
+   invisible to screenshots and only caught by a targeted pixel-level VRAM
+   check. `Core_StreamScrollFp_ResolveRows` (and `Core_StreamScroll_
+   ResolveRows`, BG1's own twin — this bug predates Step 2c and is shared,
+   not FP-only) called `Core_StreamCache(Fp)_AllocateSlot`, which
+   permanently commits the cache's Tile2Slot/Slot2Tile mapping, *before*
+   confirming `Core_Dma_Enqueue` would succeed. When the shared 8-slot
+   software DMA queue is full that frame (real contention between OAM
+   upload, BG1's budget-6 misses, and FP's budget-2 misses), the enqueue
+   fails and the resolver bails — but the cache already believes the tile
+   lives in that slot, even though its real pixel data was never DMA'd
+   there. The next lookup sees a cache hit and never re-fetches:
+   permanent, silent corruption until that slot happens to be evicted
+   again. Confirmed with a Mesen2 VRAM read comparing a runtime-resolved
+   tilemap word's actual physical tile bytes against the converter's own
+   `tiles.bin`/`tilemap.bin` ground truth (column-major indexed) — 1 of 32
+   sampled columns mismatched before the fix, 0 of 32 (then 0 of 224 across
+   all 7 content rows) after. Fixed by adding `Core_Dma_HasFreeSlot`
+   (`src/core/dma.pasm`), a non-mutating queue-full check, called as a
+   guard before `AllocateSlot` in both resolvers.
+
+**Verified**: a scripted 900-column-right-then-900-column-left scroll
+test renders cleanly in both directions (fence stays correctly positioned
+in front of characters at every sampled point), `StreamScrollFp_StagedLo/
+Hi` stay exactly 32 apart and track the camera throughout, and
+`Nmi_FrameCounter` keeps advancing with both resolvers active in the same
+frames. After bug 3's fix, a targeted pixel-level VRAM check confirmed
+every non-blank tile across all 7 content rows of the resolved window
+(224 tiles) matches the converter's ground truth byte-for-byte, and a
+fresh post-fix boot screenshot confirms the boot loader (sharing the
+`+63`-folded base) still renders correctly too. Full regression suite
+green. `scpu_main_loop`-to-`nmi_handler` margin is now 23 bytes (down from
+34) — still positive, but watch it.
+
+**Step 3 (BG3 priority + HUD coexistence) is also done** — the priority
+bit is set unconditionally by `Core_StreamScrollFp_ResolveRows`, same as
+the boot loader; Phase 6's own HUD checks still pass, and the scroll test
+never showed any coexistence artifact. Not yet an explicit dedicated
+"HUD changes while FP mid-resolve" test, but nothing found suggests a
+problem.
+
+**Only Step 4 remains**: a committed `tools/verify/phase10*.py` gate
+(ground truth = the converter's own tilemap/tileset `.bin` files, not
+self-consistency) — everything verified so far is ad hoc Mesen2
+scripting, not a repeatable regression gate. See `plan.md` §2.10's stop
+conditions for the DMA-queue-contention risk's current status (tested
+under real bidirectional scrolling, not yet Phase-0-style deliberately
+forced worst-case collision — don't treat it as fully cleared before
+raising `STREAM_SCROLLFP_BUDGET_MAX`).
 
 ## Harness gotchas (Mesen2 / build)
 

@@ -2454,6 +2454,27 @@ StreamScroll_ColPending    = $7E2594 ; .db -- 1 iff ColBuf holds a fully
                               ;        entirely -- see core/dma.pasm history.
 StreamScroll_ColTargetWord = $7E2595 ; .dw -- VRAM word address of ColBuf
                               ;        row 0 (row N goes at +32*N words)
+
+; Phase 10 Step 2c (plan.md 2.10): the BG3 frontpanel's own per-frame
+; streaming resolver needs the SAME early-declared-before-nmi.pasm-include
+; handoff shape as StreamScroll_ColBuf/ColPending/ColTargetWord immediately
+; above (Core_Nmi_Play's forced-blank column-write block references these
+; too) -- distinct cells, not reused, for the same reason Step 2b's
+; StreamStageFp_* block exists (see that block's own header comment): BG1's
+; ColBuf/ColPending/ColTargetWord are live per-frame state a second
+; consumer must never alias onto. Only FP_CONTENT_ROW_COUNT (7) words, not
+; StreamScroll_ColBuf's up-to-28 -- see STREAM_FP_TILEMAP_ROW_START's
+; declaration (further below) for why the frontpanel only ever needs rows
+; 21-27 resolved, never the whole tilemap column.
+StreamScrollFp_ColBuf        = $7E2640 ; 14B ($7E2640-$7E264D), word-indexed
+                              ;        by row WITHIN the 7 real rows (index 0
+                              ;        = tilemap row 21), not an absolute row
+StreamScrollFp_ColPending    = $7E264E ; .db
+StreamScrollFp_ColTargetWord = $7E264F ; .dw -- VRAM word address of
+                              ;        StreamScrollFp_ColBuf row 0 (row N
+                              ;        goes at +32*N words, same single-32x32
+                              ;        -map stride BG3_TILEMAP_VRAM_WORD uses)
+
 CharacterClassId = $7E2331   ; .db -- 8-bit class id returned by Core_Oop_
                               ;        RegisterClass for the Character class
                               ;        (plan.md Phase 1a). Read only via a
@@ -2943,17 +2964,26 @@ FP_TILE_INDEX_BASE = 32        ; (FP_TILES_VRAM_WORD - BG3_TILES_VRAM_WORD) / 8.
                                  ; (into/before HUD's own 12 tiles), rendering
                                  ; garbage VRAM as pixel data. Add this to the
                                  ; slot before OR'ing in palette/priority bits.
-; STREAM_FP_TILEMAP_ROW_START -- DOCUMENTATION ONLY, not used in any address
-; arithmetic (Bg_LoadSceneFp_Streaming writes tilemap row = RowIndex directly,
-; same convention as BG1 -- see that routine's write-target comment for why
-; adding this as an offset was a real bug). Measured directly from
-; out/fp_stage1a/tilemap.bin via decode_tilemap_column_major: rows 0-20 are
-; 100% blank (tile id 0), rows 21-27 hold the fence -- BOR's frontpanel is a
-; bottom rail, not a full-height overlay. Never visibly collides with HUD's
-; own BG3 tilemap rows 0-3 (HUD_STAGING_BYTES / Hud_Play) -- see
-; Bg_LoadSceneFp_Streaming's write-target comment for why the boot-time
-; overwrite of those rows is harmless.
+; STREAM_FP_TILEMAP_ROW_START -- NOT used by Bg_LoadSceneFp_Streaming itself
+; (that boot loader writes tilemap row = RowIndex directly across all 28
+; rows -- see its write-target comment for why adding this as an offset
+; there was a real bug). Measured directly from out/fp_stage1a/tilemap.bin
+; via decode_tilemap_column_major, and confirmed to hold across the FULL
+; 192-column level width, not just the boot-time window: rows 0-20 are
+; 100% blank (tile id 0) at every column, rows 21-27 hold the fence -- BOR's
+; frontpanel is a bottom rail, not a full-height overlay. Never visibly
+; collides with HUD's own BG3 tilemap rows 0-3 (HUD_STAGING_BYTES /
+; Hud_Play) -- see Bg_LoadSceneFp_Streaming's write-target comment for why
+; the boot-time overwrite of those rows is harmless.
+;
+; Step 2c's runtime resolver (Core_StreamScrollFp_*, further below) DOES use
+; this in real address arithmetic: since it's true for every column, not
+; just the boot window, the resolver only ever needs to seek/read/write
+; these 7 rows per newly-exposed column, never the other 21 -- a real,
+; load-bearing simplification versus mirroring BG1's full-height resolver,
+; not just an optimization.
 STREAM_FP_TILEMAP_ROW_START = 21
+FP_CONTENT_ROW_COUNT = 7               ; 28 - STREAM_FP_TILEMAP_ROW_START
 
 ; --- dedicated scratch for Bg_LoadSceneFp_Streaming, NOT shared with
 ; StreamStage_* (used for BG1's own boot loader above). Reuse was tried
@@ -2981,6 +3011,83 @@ StreamStageFp_Attr        = $7E25D4   ; .db
 StreamStageFp_Slot        = $7E25D5   ; .dw
 StreamStageFp_Word        = $7E25D7   ; .dw
 StreamStageFp_Entries     = $7E25E0   ; 84B ($7E25E0-$7E2633)
+
+; Step 2c's runtime resolver reuses StreamStageFp_ColStrideLo/TilesBaseLo/
+; TilesBaseHi/TileOffLo/TileOffHi/SeekLo/SeekHi/SeekTmpLo/SeekTmpHi/TileId/
+; Attr/Slot/Word/Entries above as its own scratch, exactly the way BG1's own
+; Core_StreamScroll_SeekColumn/ResolveRows already reuse Bg_LoadScene_
+; Streaming's StreamStage_* cells (see that comment block, further below,
+; for the precedent) -- safe because the boot loader and the resolver never
+; run concurrently, and ColStrideLo/TilesBaseLo/TilesBaseHi are written once
+; at boot and never touched again by anything. The ONE value the boot loop
+; does NOT preserve is the tilemap's own base MSU offset: StreamStageFp_
+; SeekLo/Hi hold it only transiently before Bg_LoadSceneFp_Streaming's
+; column loop repeatedly advances them past it (mirrors StreamScroll_
+; TilemapOffLo/Hi's own reason for existing, further below) -- so a
+; dedicated preserved copy is captured once at boot into StreamScrollFp_
+; TilemapOffLo/Hi below, right alongside the mutable copy, before that loop
+; ever runs.
+; --- Phase 10 Step 2c (plan.md 2.10): BG3 frontpanel per-frame streaming
+; resolver state. Tracks the SAME world camera (Screen_PosX) as BG1's own
+; StreamScroll_* below, against the separate FP cache/tilemap instead.
+; Unlike BG1, BG3's tilemap is a single 32x32 map (BG3_TILEMAP_VRAM_WORD) --
+; no 64-column two-page ring -- and that size exactly equals
+; STREAM_STAGE_VIEWPORT_COLS (32). That leaves NO headroom for a BG1-style
+; prefetch margin: the desired window here is always exactly the 32
+; onscreen columns (StreamScrollFp_StagedLo..StagedLo+31), not viewport+
+; prefetch. Widening it would let vram_col (world_col & 31) alias two
+; different world columns onto the same physical tilemap slot and silently
+; overwrite a still-visible one -- the same class of bug BG1's own
+; PickColumn__repair clamp exists to prevent, just with a smaller ring here.
+StreamScrollFp_TilemapOffLo = $7E2634  ; .dw -- tilemap_offset low16,
+                              ;        preserved copy (see the comment
+                              ;        above StreamStageFp_Entries)
+StreamScrollFp_TilemapOffHi = $7E2636  ; .db -- tilemap_offset byte 2
+STREAM_SCROLLFP_BUDGET_MAX = 2         ; Deliberately far more conservative
+; than STREAM_SCROLL_BUDGET_MAX=6 -- see that constant's own header comment
+; for the confirmed-real risk (suspected NMI-reentrancy corruption at higher
+; per-call synchronous MSU seek/read work) AND plan.md 2.10's stop-condition
+; about a second per-frame streaming consumer competing for the same 8-slot
+; DMA queue BG1's own resolver already uses up to 6 of. Start low, verify
+; Nmi_FrameCounter still advances under a forced-collision stress test
+; (both layers missing the same frame) before ever raising -- do not tune
+; this by feel.
+StreamScrollFp_Enabled     = $7E2651   ; .db
+StreamScrollFp_StagedLo    = $7E2652   ; .dw
+StreamScrollFp_StagedHi    = $7E2654   ; .dw
+StreamScrollFp_PendCol     = $7E2656   ; .dw -- $FFFF = nothing pending
+StreamScrollFp_PendTile    = $7E2658   ; .dw -- 0..FP_CONTENT_ROW_COUNT-1,
+                              ;        an index into the 7 real rows, NOT an
+                              ;        absolute BG3 tilemap row (add
+                              ;        STREAM_FP_TILEMAP_ROW_START to get
+                              ;        that back)
+StreamScrollFp_ProdHi       = $7E265A  ; .dw -- Core_Math_Mul's high product
+                              ;        word (world_col * ColStrideLo)
+StreamScrollFp_CameraCol    = $7E265C  ; .dw -- Screen_PosX >> 3
+StreamScrollFp_Budget       = $7E265E  ; .db
+StreamScrollFp_FetchBufSel  = $7E265F  ; .db -- which of the
+                              ;        STREAM_SCROLLFP_BUDGET_MAX
+                              ;        StreamScrollFp_TileBufN slots this
+                              ;        call's miss should use (see
+                              ;        StreamScroll_FetchBufSel's own
+                              ;        declaration comment for why this
+                              ;        can't be a single shared buffer)
+; DesiredLo/DesiredHi/RepairCur mirror BG1's own PickColumn fields exactly
+; (same names, same algorithm) -- see Core_StreamScrollFp_PickColumn's own
+; header comment for the one real difference: no prefetch margin, so
+; DesiredHi-DesiredLo is always exactly STREAM_STAGE_VIEWPORT_COLS-1 (never
+; wider), which is also why FP's ResolveRows commit step doesn't need BG1's
+; "trim the opposite edge to fit the physical ring" logic -- the window can
+; never grow past the ring's own 32-column capacity here.
+StreamScrollFp_DesiredLo    = $7E2660  ; .dw
+StreamScrollFp_DesiredHi    = $7E2662  ; .dw
+StreamScrollFp_RepairCur    = $7E2664  ; .dw
+; StreamScrollFp_TileBufN lives in bank $7F, clear of both BG1's own
+; StreamScroll_TileBufN ($7F9000-$7F90FF) and the FP cache's own tables
+; ($7FA000+, see stream_cache_fp.pasm) -- same "constant source bank, slot =
+; base + FetchBufSel*16" shape as BG1's, but 16-byte (2bpp) slots, not 32.
+StreamScrollFp_TileBufN     = $7F9100  ; STREAM_SCROLLFP_BUDGET_MAX*16 bytes
+                              ;        ($7F9100-$7F911F at MAX=2)
 
 ; --- Phase 9 (plan.md 2.7) streaming BG1 initial-viewport load (StageColumn)
 ; -- see Bg_LoadScene_Streaming's header comment for the two-pass column
@@ -6673,10 +6780,31 @@ Bg_LoadSceneFp_Streaming__hdr_read:
 
     lda.l StreamStageFp_Entries+8     ; tilemap_offset low16 (header +8/9)
     sta StreamStageFp_SeekLo
+    ; Step 2c's own preserved copy (see StreamScrollFp_TilemapOffLo's own
+    ; declaration comment) folds in the STREAM_FP_TILEMAP_ROW_START*3(63)
+    ; row-start byte offset HERE, once, rather than adding it again on every
+    ; Core_StreamScrollFp_SeekColumn call. Real bug found via Mesen2 (a
+    ; scripted scroll test produced garbage tilemap words that traced back
+    ; to a wrong computed seek address): chaining two ADCs into the SAME
+    ; 16-bit word (`adc TilemapOffLo` then `adc #63`, no clc between them,
+    ; intending the carry to propagate through) does NOT correctly compute
+    ; a combined carry-out for a 3-term sum -- the second ADC's carry-out
+    ; only reflects whether ITS OWN addition overflowed, not whether the
+    ; true mathematical total (product+TilemapOffLo+63) exceeded 65535, so
+    ; the byte that carries into the Hi-word add was wrong by exactly the
+    ; cases where the two adds' overflow outcomes disagreed. Folding +63
+    ; into the preserved base here means the runtime add is a clean 2-term
+    ; sum (product + adjusted-base), the same proven single-carry shape
+    ; BG1's own Core_StreamScroll_SeekColumn already uses.
+    clc
+    adc #63
+    sta StreamScrollFp_TilemapOffLo
     sep #$20
 .a8
     lda.l StreamStageFp_Entries+10    ; tilemap_offset byte 2 (header +10)
     sta StreamStageFp_SeekHi
+    adc #0                       ; propagate the 16-bit add's carry above
+    sta StreamScrollFp_TilemapOffHi
     rep #$31
 .a16
 .i16
@@ -6973,6 +7101,27 @@ Bg_LoadSceneFp_Streaming__row_done:
     brl Bg_LoadSceneFp_Streaming__col_loop
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__col_finished:
+    rep #$31
+.a16
+.i16
+
+    ; --- Phase 10 Step 2c: initialize the runtime resolver's state now that
+    ; the initial viewport (world columns 0..31) is VRAM-resident,
+    ; identity-mapped to BG3 tilemap columns 0..31 (vram_col == world_col
+    ; for this boot-time load, which never wraps) -- same shape as BG1's own
+    ; Phase 9 step 4 init block (Bg_LoadScene_Streaming__col_finished, see
+    ; its comment for the precedent this mirrors). ---
+    lda #0
+    sta StreamScrollFp_StagedLo
+    sta StreamScrollFp_RepairCur
+    lda #STREAM_STAGE_VIEWPORT_COLS-1
+    sta StreamScrollFp_StagedHi
+    lda #$FFFF
+    sta StreamScrollFp_PendCol
+    sep #$20
+.a8
+    lda #1
+    sta StreamScrollFp_Enabled
     rep #$31
 .a16
 .i16
@@ -7468,12 +7617,28 @@ Core_StreamScroll_ResolveRows__is_miss:
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__miss_ok:
+    ; Must not commit Core_StreamCache_AllocateSlot's Tile2Slot/Slot2Tile
+    ; mapping unless Core_Dma_Enqueue below is guaranteed to succeed -- see
+    ; Core_Dma_HasFreeSlot's header for why (a committed-but-never-DMA'd
+    ; slot corrupts silently and permanently). Check first, bail like a
+    ; normal queue-full retry if not.
+    jsr Core_Dma_HasFreeSlot
+    bcs Core_StreamScroll_ResolveRows__queue_ok
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScroll_ResolveRows__queue_ok:
     ; Still 8-bit accumulator here (from the Budget cmp above) -- capture
     ; Budget's CURRENT value (0 for this call's 1st miss, 1 for its 2nd,
     ; since Budget is only incremented AFTER a successful enqueue below) as
     ; the double-buffer selector, before FetchTileToBuffer uses it. See
     ; StreamScroll_FetchBufSel's declaration comment for why this buffer
     ; can't be shared between the two possible per-call misses.
+    sep #$20
+.a8
     lda StreamScroll_Budget
     sta StreamScroll_FetchBufSel
     rep #$31
@@ -7981,6 +8146,723 @@ Core_StreamScroll_Play__resume:
     rts
 
 ; ============================================================================
+; Phase 10 Step 2c (plan.md 2.10): BG3 frontpanel per-frame streaming
+; resolver. Tracks the same world camera (Screen_PosX) as Core_StreamScroll_*
+; above, against the separate FP cache/tilemap. See StreamScrollFp_
+; TilemapOffLo's declaration comment for the one real structural difference
+; from BG1's version: BG3's tilemap is a single 32x32 map, exactly the size
+; of one viewport, so there is no prefetch margin and the resolved window is
+; always exactly STREAM_STAGE_VIEWPORT_COLS(32) wide -- simpler than BG1's
+; elastic-up-to-64 window, no "trim to fit the ring" step needed.
+; ============================================================================
+
+; Twin of Core_StreamScroll_SeekColumn, computing a seek target from
+; StreamScrollFp_TilemapOffLo/Hi (the preserved base) instead of
+; StreamScroll_TilemapOffLo/Hi, and landing on the FIRST of the
+; FP_CONTENT_ROW_COUNT real-content rows (STREAM_FP_TILEMAP_ROW_START), not
+; row 0 -- see FP_CONTENT_ROW_COUNT's declaration for why only these 7 rows
+; are ever resolved. Reads FP_CONTENT_ROW_COUNT*3 bytes (21), not a full
+; height_tiles*3 (84) like the boot loader's own column read.
+; @param X<16-bit>  world column to seek to
+; Clobbers A, X, Y.
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_SeekColumn:
+    php
+    sei
+    rep #$31
+.a16
+.i16
+    ; Same LDX-has-no-absolute-long-addressing-mode workaround as BG1's own
+    ; Core_StreamScroll_SeekColumn (see its header comment for the full
+    ; mechanism) -- load via LDA.l (matching BG1's own exact original)
+    ; into a scratch cell, then TAX.
+    phx                          ; save world_col (the @param X)
+    lda.l StreamStageFp_ColStrideLo
+    tax
+    pla                           ; world_col back into A
+    jsr Core_Math_Mul            ; a = product lo16, x = product hi16
+    pha
+    txa
+    sta StreamScrollFp_ProdHi
+    pla
+
+    ; StreamScrollFp_TilemapOffLo/Hi already has STREAM_FP_TILEMAP_ROW_START*3
+    ; (63) folded in (see where it's captured, in Bg_LoadSceneFp_Streaming's
+    ; header-read section, for why -- a real bug, found via Mesen2: adding it
+    ; here instead, as a second chained ADC into the same 16-bit word, does
+    ; NOT correctly propagate a combined carry into the Hi-byte add below).
+    ; This is now a clean 2-term add, the same proven single-carry shape
+    ; BG1's own Core_StreamScroll_SeekColumn already uses.
+    clc
+    adc StreamScrollFp_TilemapOffLo
+    sta StreamStageFp_SeekLo
+
+    sep #$20
+.a8
+    lda StreamScrollFp_TilemapOffHi
+    adc StreamScrollFp_ProdHi        ; carry survives the SEP above unaffected
+    sta StreamStageFp_SeekHi
+
+    lda StreamStageFp_SeekLo
+    sta $2000
+    lda.l StreamStageFp_SeekLo+1
+    sta $2001
+    lda StreamStageFp_SeekHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_SeekColumn__seek_busy:
+    lda $2000
+    bmi Core_StreamScrollFp_SeekColumn__seek_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_SeekColumn__read_entry:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamStageFp_Entries,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #(FP_CONTENT_ROW_COUNT*3)
+    bcc Core_StreamScrollFp_SeekColumn__read_entry
+
+    plp
+    rep #$31
+.a16
+.i16
+    rts
+
+; Twin of Core_StreamScroll_FetchTileToBuffer for 2bpp tiles: 16 bytes/8
+; words, not 32 bytes/16 words, so a 4-shift *16 instead of a 5-shift *32,
+; and StreamScrollFp_TileBufN's slots are 16 bytes each, not 32.
+; @param StreamStageFp_TileId<16-bit>  the tile ID to fetch
+; Clobbers A/X/Y.
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_FetchTileToBuffer:
+    rep #$31
+.a16
+.i16
+    lda StreamStageFp_TileId
+    sta StreamStageFp_TileOffLo
+    sep #$20
+.a8
+    lda #0
+    sta StreamStageFp_TileOffHi
+    rep #$31
+.a16
+.i16
+    ldx #4                        ; *16 (2bpp 8x8 tile), not BG1's *32
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_FetchTileToBuffer__shift:
+    lda StreamStageFp_TileOffLo
+    asl a
+    sta StreamStageFp_TileOffLo
+    sep #$20
+.a8
+    lda StreamStageFp_TileOffHi
+    rol a
+    sta StreamStageFp_TileOffHi
+    rep #$31
+.a16
+.i16
+    dex
+    bne Core_StreamScrollFp_FetchTileToBuffer__shift
+
+    lda StreamStageFp_TilesBaseLo
+    clc
+    adc StreamStageFp_TileOffLo
+    sta StreamStageFp_SeekTmpLo
+    sep #$20
+.a8
+    lda StreamStageFp_TilesBaseHi
+    adc StreamStageFp_TileOffHi
+    sta StreamStageFp_SeekTmpHi
+
+    lda StreamStageFp_SeekTmpLo
+    sta $2000
+    lda.l StreamStageFp_SeekTmpLo+1
+    sta $2001
+    lda StreamStageFp_SeekTmpHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_FetchTileToBuffer__seek_busy:
+    lda $2000
+    bmi Core_StreamScrollFp_FetchTileToBuffer__seek_busy
+
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda StreamScrollFp_FetchBufSel
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a                   ; A = FetchBufSel * 16 (2bpp slot size)
+    tax
+    ldy #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_FetchTileToBuffer__read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamScrollFp_TileBufN,x
+    rep #$31
+.a16
+.i16
+    inx
+    iny
+    cpy #16
+    bcc Core_StreamScrollFp_FetchTileToBuffer__read
+
+    rts
+
+; Twin of Core_StreamScroll_PickColumn, minus the wide-ring "repair cursor
+; clamped into [DesiredLo,DesiredHi]" complexity BG1 needs for its own
+; elastic (prefetch-widened) window -- see the header comment above this
+; whole Step 2c block for why FP's window can't grow past 32 columns, so a
+; plain extend-left/extend-right/repair-one-column-at-a-time shape (same
+; overall algorithm BG1 uses, same field names) is enough without ever
+; needing to trim an over-wide window afterward.
+; @return A<16-bit>  world column to stage this tick
+; Clobbers A, X.
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn:
+    rep #$31
+.a16
+.i16
+    lda Screen_PosX
+    lsr a
+    lsr a
+    lsr a                         ; cameraCol = Screen_PosX >> 3
+    sta StreamScrollFp_CameraCol
+    sta StreamScrollFp_DesiredLo
+
+    clc
+    adc #(STREAM_STAGE_VIEWPORT_COLS-1)
+    pha
+    lda.l StreamScroll_WidthTiles  ; shared level width -- see this field's
+                                     ; own declaration for the ordering
+                                     ; assumption this relies on (BG1's boot
+                                     ; loader runs before FP's, so this is
+                                     ; already populated by the time Step 2c
+                                     ; ever runs)
+    dec a
+    tax
+    pla
+    jsr Core_Math_Min               ; a = min(desired_hi_raw, width-1)
+    sta StreamScrollFp_DesiredHi
+
+    lda StreamScrollFp_DesiredLo
+    cmp StreamScrollFp_StagedLo
+    bcs Core_StreamScrollFp_PickColumn__check_hi
+    lda StreamScrollFp_StagedLo
+    dec a
+    rts                             ; extend left
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn__check_hi:
+    lda StreamScrollFp_DesiredHi
+    cmp StreamScrollFp_StagedHi
+    beq Core_StreamScrollFp_PickColumn__repair
+    bcc Core_StreamScrollFp_PickColumn__repair
+    lda StreamScrollFp_StagedHi
+    inc a
+    rts                             ; extend right
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn__repair:
+    lda StreamScrollFp_RepairCur
+    cmp StreamScrollFp_DesiredLo
+    bcs Core_StreamScrollFp_PickColumn__repair_lo_ok
+    lda StreamScrollFp_DesiredLo
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn__repair_lo_ok:
+    cmp StreamScrollFp_DesiredHi
+    bcc Core_StreamScrollFp_PickColumn__repair_hi_ok
+    beq Core_StreamScrollFp_PickColumn__repair_hi_ok
+    lda StreamScrollFp_DesiredHi
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn__repair_hi_ok:
+    pha
+    inc a
+    cmp StreamScrollFp_DesiredHi
+    bcc Core_StreamScrollFp_PickColumn__repair_adv_ok
+    lda StreamScrollFp_DesiredLo
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_PickColumn__repair_adv_ok:
+    sta StreamScrollFp_RepairCur
+    pla
+    rts
+
+; Twin of Core_StreamScroll_ResolveRows, resolving FP_CONTENT_ROW_COUNT rows
+; (not up to 28) budget-capped at STREAM_SCROLLFP_BUDGET_MAX. StreamScrollFp_
+; PendTile indexes 0..FP_CONTENT_ROW_COUNT-1 into the 7 real rows fetched by
+; Core_StreamScrollFp_SeekColumn -- StreamStageFp_Entries holds exactly
+; those 7*3 bytes starting at index 0 (unlike BG1's Entries, which holds a
+; full height_tiles*3 and is indexed by absolute row), so no
+; STREAM_FP_TILEMAP_ROW_START adjustment is needed when reading it here.
+; @return carry<bool>  set if PendCol fully committed (its DMA enqueued,
+;         PendCol reset to $FFFF); clear if still in progress
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows:
+    rep #$31
+.a16
+.i16
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__row:
+    lda StreamScrollFp_PendTile
+    cmp #FP_CONTENT_ROW_COUNT
+    bcc Core_StreamScrollFp_ResolveRows__have_row
+    brl Core_StreamScrollFp_ResolveRows__commit
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__have_row:
+
+    lda StreamScrollFp_PendTile
+    sta StreamStageFp_TileOffLo   ; row temp only (matches boot's own reuse)
+    asl a
+    clc
+    adc StreamStageFp_TileOffLo
+    tax                            ; x = row*3
+
+    lda.l StreamStageFp_Entries,x
+    sta StreamStageFp_TileId
+    inx
+    inx
+    sep #$20
+.a8
+    lda.l StreamStageFp_Entries,x
+    sta StreamStageFp_Attr
+    rep #$31
+.a16
+.i16
+
+    lda StreamStageFp_TileId
+    asl a
+    tax
+    lda.l StreamCacheFp_Tile2Slot,x
+    cmp #$FFFF
+    beq Core_StreamScrollFp_ResolveRows__is_miss
+    brl Core_StreamScrollFp_ResolveRows__hit
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__is_miss:
+    ; StreamScrollFp_Budget is a .db -- an 8-bit compare, same reason as
+    ; Core_StreamScroll_ResolveRows' own is_miss (see its comment).
+    sep #$20
+.a8
+    lda StreamScrollFp_Budget
+    cmp #STREAM_SCROLLFP_BUDGET_MAX
+    bcc Core_StreamScrollFp_ResolveRows__miss_ok
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__miss_ok:
+    ; Must not commit Core_StreamCacheFp_AllocateSlot's Tile2Slot/Slot2Tile
+    ; mapping unless Core_Dma_Enqueue below is guaranteed to succeed -- see
+    ; Core_Dma_HasFreeSlot's header (same reasoning as
+    ; Core_StreamScroll_ResolveRows' identical guard).
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_HasFreeSlot
+    bcs Core_StreamScrollFp_ResolveRows__queue_ok
+    clc
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__queue_ok:
+    sep #$20
+.a8
+    lda StreamScrollFp_Budget
+    sta StreamScrollFp_FetchBufSel
+    rep #$31
+.a16
+.i16
+    lda StreamStageFp_TileId
+    tax
+    jsr Core_StreamCacheFp_AllocateSlot
+    sta StreamStageFp_Slot
+    jsr Core_StreamScrollFp_FetchTileToBuffer
+
+    sep #$20
+.a8
+    lda StreamScrollFp_FetchBufSel
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a                   ; A = FetchBufSel * 16
+    clc
+    adc #StreamScrollFp_TileBufN
+    sta DmaRequest_SourceAddrLow
+    sep #$20
+.a8
+    lda #$7F
+    sta DmaRequest_SourceBank
+    rep #$31
+.a16
+.i16
+
+    lda StreamStageFp_Slot
+    asl a
+    asl a
+    asl a                          ; slot*8 words -- 2bpp tile size, not
+                                     ; BG1's slot*16
+    clc
+    adc #FP_TILES_VRAM_WORD
+    asl a                          ; word address -> byte address
+    sta DmaRequest_TargetAddr
+    lda #16
+    sta DmaRequest_Length
+    sep #$20
+.a8
+    lda #DMA_TYPE_VRAM
+    sta DmaRequest_TypeFlags
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_Enqueue
+    bcs Core_StreamScrollFp_ResolveRows__enqueued
+    clc                             ; queue full -- retry this row later
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__enqueued:
+    sep #$20
+.a8
+    lda StreamScrollFp_Budget
+    inc a
+    sta StreamScrollFp_Budget
+    rep #$31
+.a16
+.i16
+    brl Core_StreamScrollFp_ResolveRows__resolved
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__hit:
+    sta StreamStageFp_Slot
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__resolved:
+
+    ; --- build the remapped hw tilemap word -- identical bit layout to
+    ; Bg_LoadSceneFp_Streaming's row loop, INCLUDING FP_TILE_INDEX_BASE
+    ; (see that constant's own declaration for why a bare slot number is
+    ; wrong here -- the same off-by-32-tiles bug it fixes for the boot
+    ; loader applies just as much to this runtime resolver). ---
+    lda StreamStageFp_Slot
+    clc
+    adc #FP_TILE_INDEX_BASE
+    sta StreamStageFp_Word
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$07
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                            ; << 10
+    ora StreamStageFp_Word
+    sta StreamStageFp_Word
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$08
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Core_StreamScrollFp_ResolveRows__no_hflip
+    lda StreamStageFp_Word
+    ora #$4000
+    sta StreamStageFp_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__no_hflip:
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$10
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Core_StreamScrollFp_ResolveRows__no_vflip
+    lda StreamStageFp_Word
+    ora #$8000
+    sta StreamStageFp_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__no_vflip:
+
+    ; --- priority bit: always set, unconditionally -- every frontpanel
+    ; tile needs it (unlike BG1, which never sets it at all), same
+    ; convention Bg_LoadSceneFp_Streaming's own boot loader uses. ---
+    lda StreamStageFp_Word
+    ora #$2000
+    sta StreamStageFp_Word
+
+    ; --- store into StreamScrollFp_ColBuf[row] (word-indexed) ---
+    lda StreamScrollFp_PendTile
+    asl a
+    tax
+    lda StreamStageFp_Word
+    sta.l StreamScrollFp_ColBuf,x
+
+    lda StreamScrollFp_PendTile
+    inc a
+    sta StreamScrollFp_PendTile
+    brl Core_StreamScrollFp_ResolveRows__row
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__commit:
+    ; every row resolved -- hand ColBuf off to Core_Nmi_Play's forced-blank
+    ; column-write block (Core_StreamScrollFp_CommitColumn), same direct-
+    ; port-write handoff BG1 uses and for the same reason (see
+    ; StreamScroll_ColPending's declaration comment). vram_col = world_col
+    ; & 31 -- BG3's tilemap is a single 32x32 page, no two-page ring like
+    ; BG1's, so no page-select bit is needed.
+    lda StreamScrollFp_ColPending
+    and #$00FF
+    beq Core_StreamScrollFp_ResolveRows__col_free
+    sec                                ; NMI hasn't drained the previous
+    rts                                ; column yet -- retry this commit later
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__col_free:
+    lda StreamScrollFp_PendCol
+    and #$001F
+    clc
+    adc #(BG3_TILEMAP_VRAM_WORD + STREAM_FP_TILEMAP_ROW_START*32)
+    sta StreamScrollFp_ColTargetWord
+
+    sep #$20
+.a8
+    lda #1
+    sta StreamScrollFp_ColPending
+    rep #$31
+.a16
+.i16
+
+    ; --- extend the resident window to include PendCol, wherever it landed.
+    ; UNLIKE the comment that used to sit here claimed, the window does NOT
+    ; stay bounded on its own just because PickColumn moves one edge by one
+    ; column per call -- confirmed by a real bug caught via Mesen2 (a
+    ; scripted 143-column scroll left StagedLo pinned at 0 and StagedHi at
+    ; 174, a 175-column "window" against a 32-column physical ring). Moving
+    ; one edge must explicitly pull the OPPOSITE edge in in lockstep so the
+    ; window never exceeds STREAM_STAGE_VIEWPORT_COLS(32) -- there is no
+    ; margin to spare here, unlike BG1's own 64-column ring against its
+    ; 32-40-column window, so this can't be left to the repair sweep to
+    ; eventually fix (and doesn't need BG1's more general "trim if over
+    ; capacity" shape either, since a fixed-width window has an exact
+    ; opposite-edge position, not just an upper bound). ---
+    lda StreamScrollFp_PendCol
+    cmp StreamScrollFp_StagedLo
+    bcs Core_StreamScrollFp_ResolveRows__not_below
+    sta StreamScrollFp_StagedLo
+    clc
+    adc #(STREAM_STAGE_VIEWPORT_COLS-1)
+    sta StreamScrollFp_StagedHi
+    brl Core_StreamScrollFp_ResolveRows__window_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__not_below:
+    lda StreamScrollFp_PendCol
+    cmp StreamScrollFp_StagedHi
+    bcc Core_StreamScrollFp_ResolveRows__window_done
+    sta StreamScrollFp_StagedHi
+    sec
+    sbc #(STREAM_STAGE_VIEWPORT_COLS-1)
+    sta StreamScrollFp_StagedLo
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_ResolveRows__window_done:
+
+    lda #$FFFF
+    sta StreamScrollFp_PendCol
+    sec
+    rts
+
+; Called from Core_Nmi_Play (core/nmi.pasm), still inside its forced-blank
+; bracket, right after Core_StreamScroll_CommitColumn. Writes
+; StreamScrollFp_ColBuf into VRAM at StreamScrollFp_ColTargetWord via direct
+; port writes -- twin of Core_StreamScroll_CommitColumn, see its header
+; comment for why this can't be a DMA. Only walks FP_CONTENT_ROW_COUNT rows
+; (a fixed constant here, not a variable HeightTiles like BG1's, since FP
+; never resolves the other 21 blank rows -- see this block's own header).
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_CommitColumn:
+    ; Called from core/nmi.pasm's Core_Nmi_Play, which forces DBR=0 -- every
+    ; $7Exxxx access in THIS routine must be explicit .l, not bare .w, same
+    ; reason Core_StreamScroll_CommitColumn's own header comment gives.
+    sep #$20
+.a8
+    lda.l StreamScrollFp_ColPending
+    bne Core_StreamScrollFp_CommitColumn__go
+    rep #$31
+.a16
+.i16
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_CommitColumn__go:
+    ; VMAIN must be freshly set here too, not assumed from Core_StreamScroll_
+    ; CommitColumn's own write just above this call in Core_Nmi_Play -- see
+    ; that routine's header comment for the exact word-vs-byte shear bug
+    ; this guards against. Harmless if it's already $80 (this call runs
+    ; right after that one every frame), but re-asserting costs nothing and
+    ; removes any ordering assumption between the two.
+    sep #$20
+.a8
+    lda #$80
+    sta $2115
+    rep #$31
+.a16
+.i16
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_CommitColumn__row:
+    txa
+    cmp #FP_CONTENT_ROW_COUNT
+    bcs Core_StreamScrollFp_CommitColumn__done
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                       ; A = row * 32 (words between rows in VRAM)
+    clc
+    adc.l StreamScrollFp_ColTargetWord
+    sta $2116
+    ; ColBuf index MUST be X, not Y -- see Core_StreamScroll_CommitColumn's
+    ; own header comment for the confirmed Poppy bug (`.l Symbol,y` silently
+    ; falls back to a wrong-bank, wrong-length absolute,Y) this avoids.
+    phx
+    txa
+    asl a                       ; A = row * 2 (ColBuf is word-indexed)
+    tax
+    lda.l StreamScrollFp_ColBuf,x
+    sep #$20
+.a8
+    sta $2118
+    rep #$31
+.a16
+.i16
+    lda.l StreamScrollFp_ColBuf,x
+    xba
+    sep #$20
+.a8
+    sta $2119
+    rep #$31
+.a16
+.i16
+    plx                          ; restore the row counter
+    inx
+    bra Core_StreamScrollFp_CommitColumn__row
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_CommitColumn__done:
+    sep #$20
+.a8
+    lda #0
+    sta.l StreamScrollFp_ColPending
+    rep #$31
+.a16
+.i16
+    rts
+
+; Call once per scpu_main_loop iteration, right after Core_StreamScroll_Play
+; (this file's own convention: BG1 resolves first, FP second, both gated the
+; same way). No-ops immediately if FP has no data for this level
+; (StreamScrollFp_Enabled stays 0, set by Bg_LoadSceneFp_Streaming iff
+; BgRecordStaging+28..30 was nonzero) or while an in-flight animation-frame
+; stream still has DMAs queued (Msu1_StreamBusy != 0) -- same gating BG1's
+; own Core_StreamScroll_Play uses, so FP never contends with Msu1_LoadFrame
+; for queue slots either. Does NOT additionally check StreamScroll_Budget or
+; otherwise defer to BG1 finishing first within the same frame -- both may
+; enqueue in the same frame, up to STREAM_SCROLL_BUDGET_MAX(6) +
+; STREAM_SCROLLFP_BUDGET_MAX(2) = 8 DMAs, exactly DMA_QUEUE_SLOTS' capacity.
+; Core_Dma_Enqueue's own queue-full handling (retry next call, never
+; corrupts) makes this safe either way -- see STREAM_SCROLLFP_BUDGET_MAX's
+; own declaration comment for the real risk this combination carries and
+; why it must be stress-tested, not just trusted, before shipping.
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_Play:
+    php
+    sei
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda StreamScrollFp_Enabled
+    bne Core_StreamScrollFp_Play__enabled
+    rep #$31
+.a16
+.i16
+    plp
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_Play__enabled:
+    lda.l Msu1_StreamBusy
+    beq Core_StreamScrollFp_Play__msu_free
+    rep #$31
+.a16
+.i16
+    plp
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_Play__msu_free:
+    ; Redundant re-sync -- same reason Core_StreamScroll_Play__msu_free's
+    ; own comment gives (this label is reached by a `beq` that jumps over a
+    ; rep #$31/.a16 a few lines below __enabled's own body).
+    sep #$20
+.a8
+    lda #0
+    sta StreamScrollFp_Budget
+    rep #$31
+.a16
+.i16
+
+    lda StreamScrollFp_PendCol
+    cmp #$FFFF
+    bne Core_StreamScrollFp_Play__resume
+
+    jsr Core_StreamScrollFp_PickColumn
+    sta StreamScrollFp_PendCol
+    tax
+    jsr Core_StreamScrollFp_SeekColumn
+    lda #0
+    sta StreamScrollFp_PendTile
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Core_StreamScrollFp_Play__resume:
+    jsr Core_StreamScrollFp_ResolveRows
+
+    plp
+    rep #$31
+.a16
+.i16
+    rts
+
+; ============================================================================
 ; Hud_DrawBar -- render one entity's health bar into HudStaging.
 ;   A = that entity's CHAR_HP (8-bit), X = byte offset of the bar's tilemap row
 ; Leaves X past the bar. Clobbers A/X/Y.
@@ -8209,19 +9091,24 @@ scpu_boot:
     ; Phase 10 (plan.md 2.10) frontpanel cache -- same Init-only-no-test
     ; convention as the BG1 call immediately above (see that call site's
     ; comment for the exact poisoned-cache failure mode this avoids).
-    ; Nothing yet calls Core_StreamCacheFp_AllocateSlot from a real per-
-    ; frame path -- this only makes Init's own effect (tables cleared)
-    ; observable for verification; the resolver that would actually use
-    ; this cache is not written yet (Phase 10 Step 2, still in progress).
+    ; Core_StreamCacheFp_AllocateSlot is now called from a real per-frame
+    ; path (Step 2c's Core_StreamScrollFp_Play, further below) whenever FP
+    ; content is actually shipped.
     jsr Core_StreamCacheFp_Init
 
-    ; StreamScroll_Enabled must be explicitly zeroed here, unconditionally,
-    ; for every build (including a BG_MODE_STATIC level like the shipped
-    ; boss) -- WRAM is not guaranteed zero at power-on on real hardware, and
-    ; Bg_LoadScene_Streaming (the only place that ever sets this to 1) never
-    ; runs at all for a static level, so without this an uninitialized byte
-    ; could read nonzero and make Core_StreamScroll_Play act on garbage
-    ; StreamStage_*/StreamScroll_* state every frame.
+    ; StreamScroll_Enabled/StreamScrollFp_Enabled must be explicitly zeroed
+    ; here, unconditionally, for every build (including a BG_MODE_STATIC
+    ; level, or a level with no FP data at all) -- WRAM is not guaranteed
+    ; zero at power-on on real hardware, and Bg_LoadScene_Streaming/
+    ; Bg_LoadSceneFp_Streaming (the only places that ever set these to 1)
+    ; don't run at all in those cases, so without this an uninitialized byte
+    ; could read nonzero and make Core_StreamScroll_Play/Core_StreamScrollFp_
+    ; Play act on garbage StreamStage_*/StreamScroll_*/StreamScrollFp_*
+    ; state every frame. StreamScrollFp_ColPending is zeroed the same way,
+    ; for the same reason StreamScroll_ColPending would need it if BG1 ever
+    ; grew an equivalent unconditional-zero requirement -- Core_Nmi_Play's
+    ; forced-blank column-write block runs every single frame regardless of
+    ; Enabled, gated only on ColPending.
     rep #$31
 .a16
 .i16
@@ -8229,6 +9116,8 @@ scpu_boot:
 .a8
     lda #0
     sta StreamScroll_Enabled
+    sta StreamScrollFp_Enabled
+    sta StreamScrollFp_ColPending
     rep #$31
 .a16
 .i16
@@ -9055,6 +9944,10 @@ scpu_main_loop:
     ; level (the shipped boss build) and whenever an animation-frame stream
     ; still has DMAs in flight -- see Core_StreamScroll_Play's own header.
     jsr Core_StreamScroll_Play
+    ; Phase 10 Step 2c (plan.md 2.10): same idea, for the BG3 frontpanel's
+    ; own cache -- see Core_StreamScrollFp_Play's own header for the DMA-
+    ; queue-sharing note (BG1 and FP may both enqueue in the same frame).
+    jsr Core_StreamScrollFp_Play
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
