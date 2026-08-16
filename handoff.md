@@ -24,7 +24,7 @@ each section below.
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
-> layer" (planned only, no code) — plus "Harness gotchas" and "File
+> layer" (Step 1/converter done, engine not started) — plus "Harness gotchas" and "File
 > inventory." Read those. Everything above them is older history, kept for
 > the root-cause detail, and parts of it are known wrong.
 >
@@ -33,10 +33,12 @@ each section below.
 > verified, AND shipped: the ROM streams a real BOR level (stage 1A,
 > `out/bg_stage1a`), not the old static boss level.
 >
-> **Phase 10 (frontpanel foreground layer) is PLANNED but not started** —
-> see its own section near the bottom and `plan.md` §2.10. Design and
-> sizing measurements are done and trustworthy; no code exists yet. This
-> is the next thing to pick up if continuing this line of work; `plan.md`
+> **Phase 10 (frontpanel foreground layer) is IN PROGRESS** — Step 1
+> (converter tooling, `tools/bg_converter/convert_frontpanel.py`) is done
+> and verified offline (`out/fp_stage1a/`). Steps 2-4 (the actual engine
+> work — a second streaming cache instance, BG3 priority wiring,
+> verification) are NOT started. See the Phase 10 section near the bottom
+> and `plan.md` §2.10 Step 2 for exactly where to pick this up; `plan.md`
 > §2.9 lists other, unrelated candidate phases if not.
 >
 > **Known-wrong sections above, specifically:**
@@ -1455,7 +1457,7 @@ input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
 next phases (damage system, SFX, roster persistence), none started.
 
-## Phase 10: frontpanel foreground layer — PLANNED ONLY, no code written
+## Phase 10: frontpanel foreground layer — Step 1 (converter) DONE, engine not started
 
 Found while recapturing README screenshots against the newly-shipped stage
 1A (see Phase 9 above): the fence in `scene_scrolled.png` renders *behind*
@@ -1487,11 +1489,30 @@ incrementally. User explicitly chose "go big, full general solution" over
 a cheaper scoped-down version (crop to just the bottom rail band) when
 asked — that's why the plan is for the general case, not a quick patch.
 
-**Nothing has been implemented.** Design and the sizing measurements above
-are real and can be trusted; no converter code, no engine code, no test
-script exists yet. Start at `plan.md` §2.10 Step 1 (converter tooling —
-verifiable offline against the 213-tile number without touching Mesen2 or
-`main.pasm` at all).
+**Step 1 (converter tooling) is done and verified offline** —
+`tools/bg_converter/convert_frontpanel.py`, run against stage 1A into
+`out/fp_stage1a/`. Real measured results (not the estimates above, which
+were sizing bounds, not final numbers): **535 unique tiles total, 143
+worst-case in any 40-column window** (down from the 213 estimate — even
+better than hoped). CGRAM: exactly 9 usable colors as predicted (3 free
+BG3 sub-palettes × 3 real colors), and **visually verified** in
+`out/fp_stage1a/preview.png` (decoded from the emitted binaries, not the
+source render) — fence mesh, posts, "LAP CLAP" signs, and foliage are all
+clearly readable at that budget. Also added
+`snes_tiles.decode_2bpp_tile` (the missing inverse of the pre-existing
+`encode_2bpp_tile`).
+
+**Steps 2-4 (engine) are NOT started.** No `main.pasm` changes, no second
+cache instance, no BG3 priority-bit wiring, no `phase10*.py` test script.
+`core/stream_cache.pasm`/`Core_StreamScroll_*` still only know about one
+(BG1) layer. Start at `plan.md` §2.10 Step 2 — generalizing/duplicating
+the cache mechanism for a second `(tile base, tilemap base, Tile2Slot)`
+triple sized for the ~143-tile window (budget headroom above that, not
+exactly at it, matching `STREAM_CACHE_USABLE`'s own precedent). This is
+real engine work with real risk (a second per-frame streaming consumer
+competing for the same 8-slot DMA queue Phase 0/9 already had to solve
+once) — budget real Mesen2 verification time, this is not a quick follow-
+on to Step 1's clean offline result.
 
 ## Harness gotchas (Mesen2 / build)
 

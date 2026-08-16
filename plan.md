@@ -1642,8 +1642,8 @@ build a script under `tools/verify/`, verify against ground truth the
 engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
 boundary.
 
-## 2.10 — Phase 10: frontpanel foreground layer (PLANNED, not started —
-design + sizing done 2026-08-16, no engine or converter code written yet)
+## 2.10 — Phase 10: frontpanel foreground layer (IN PROGRESS — Step 1
+(converter tooling) ✅ DONE 2026-08-16; Steps 2-4 (engine) not started)
 
 ### The problem
 
@@ -1702,10 +1702,14 @@ window resident cache with eviction/repair, not a whole-level load. The
 same shape applies to the frontpanel once you size against the *right*
 window, not the whole level:
 
-- **Measured (this session) worst-case unique frontpanel tiles in any
-  40-column (32 viewport + 2×4 prefetch) window: 213**, not 846 — the
-  same "don't size against the whole level" lesson §2.8's own history
-  already teaches. 213 fits comfortably in a modest cache.
+- **Measured (this session, pre-quantization estimate) worst-case unique
+  frontpanel tiles in any 40-column (32 viewport + 2×4 prefetch) window:
+  213**, not 846 — the same "don't size against the whole level" lesson
+  §2.8's own history already teaches. 213 fits comfortably in a modest
+  cache. (Step 1 below later re-measured this from the real, quantized
+  converter output: **143**, even smaller — the estimate here was
+  deliberately conservative/unquantized and held up fine as a sizing
+  bound; use the Step 1 number as current ground truth, not this one.)
 - Target layer: **BG3**, 2bpp, using its existing **per-tile priority bit**
   (bit 13 of the tilemap word) — already proven in production by the HUD,
   which uses it to sit above OBJ today. Frontpanel tiles get the same bit
@@ -1736,17 +1740,42 @@ window, not the whole level:
 ### Step breakdown (mirrors §2.8/Phase 9's own step 1-4 structure —
 each step should get its own commit and gate, not one giant change)
 
-1. **Converter tooling.** A `convert_bg.py`-analogous streaming extractor
-   for frontpanel-only content: composite frontpanel alone (not flattened
-   into background+panels — `composite_scene.py`'s `_composite` currently
-   always merges all three; needs a frontpanel-only variant, keeping the
-   transparency mask instead of discarding it), tile-aware 2bpp
-   quantization (new, see CGRAM budget above), flip-aware dedup, column-
-   major tilemap emission matching `pack_msu_roster.py`'s existing
-   `CACHE_ENTRY_BYTES=3` (u16 tile_id + u8 attribute) format so the same
-   engine-side cache/tilemap decode logic can be reused. Verifiable
-   entirely offline (no Mesen2 needed) against the measured 213-tile
-   worst-case-window number before touching any assembly.
+1. **Converter tooling — ✅ DONE (2026-08-16), verified offline, no engine
+   code touched.** `tools/bg_converter/convert_frontpanel.py`, run against
+   stage 1A (`out/fp_stage1a/`). Mirrors `convert_bg.py`'s
+   `convert_streaming()` shape: a new frontpanel-only compositor (keeps
+   the transparency mask instead of discarding it, unlike
+   `composite_scene.py`'s `_composite`, which flattens background+panels+
+   frontpanel together), masked-out pixels baked to BOR's own magenta
+   sentinel so they quantize to color index 0 (real transparency, not a
+   parallel bookkeeping array), 2bpp tile-aware quantization (reused
+   `tiledpalettequant.build_palettes_tileaware` as-is — it was already
+   generic on `colors_per_palette`, no new quantization code needed,
+   correcting this section's earlier assumption), flip-aware dedup,
+   column-major tilemap in the existing `CACHE_ENTRY_BYTES=3` format
+   (unchanged — no per-tile priority bit needed there; every frontpanel
+   tile needs the BG3 priority bit uniformly, so Step 2/3's engine code
+   sets it once when committing to VRAM, not per-tile data here). Also
+   added `snes_tiles.decode_2bpp_tile` (the missing inverse of the
+   already-existing `encode_2bpp_tile`) for the preview renderer.
+
+   **Real measured results, not estimates**: 535 unique tiles total
+   (down from the naive 846 whole-level estimate — quantization collapses
+   more than raw flip-aware dedup alone); **worst-case unique tiles in any
+   40-col window: 143** (recomputed from the actual emitted tilemap, not
+   re-run of the earlier estimate script — down from that section's
+   213-tile estimate, both comfortably small either way). At 8 words/tile
+   that's ~1144 words resident for a window-sized cache, trivially inside
+   the free-VRAM analysis above. CGRAM: exactly 9 usable colors as
+   predicted (3 free BG3 sub-palettes × 3 non-transparent colors), of
+   which the quantizer actually used 7 distinct real colors (2 slots came
+   back as unused duplicate-transparent entries — a minor quantizer
+   inefficiency, not a bug, worth revisiting but not blocking). **Visually
+   verified** (`out/fp_stage1a/preview.png`, decoded straight from the
+   emitted binaries, not the source render): fence mesh, wooden posts,
+   "LAP CLAP" signs, and foliage are all clearly readable even at 9 colors
+   — the tight budget was a real concern going in and turned out fine in
+   practice, not just in theory.
 2. **Engine: a second cache instance.** Generalize or duplicate
    `core/stream_cache.pasm` (parameterize its VRAM base / entry size — 2bpp
    tiles are 16 bytes not 32 — rather than hardcoding a second near-copy of

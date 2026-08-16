@@ -348,3 +348,14 @@ def decode_4bpp_tile(data):
             tile[row, col] = (((bp0 >> bit) & 1) | (((bp1 >> bit) & 1) << 1) |
                               (((bp2 >> bit) & 1) << 2) | (((bp3 >> bit) & 1) << 3))
     return tile
+
+
+def decode_2bpp_tile(data):
+    """Inverse of encode_2bpp_tile -- used to rebuild verification images."""
+    tile = np.zeros((TILE_SIZE, TILE_SIZE), dtype=np.uint8)
+    for row in range(TILE_SIZE):
+        bp0, bp1 = data[row * 2], data[row * 2 + 1]
+        for col in range(TILE_SIZE):
+            bit = 7 - col
+            tile[row, col] = ((bp0 >> bit) & 1) | (((bp1 >> bit) & 1) << 1)
+    return tile
