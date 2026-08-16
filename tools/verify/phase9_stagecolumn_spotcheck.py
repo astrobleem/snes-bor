@@ -18,11 +18,17 @@ import snes_tiles as st  # noqa: E402
 sys.path.append(os.path.dirname(__file__))
 from _harness import open_session, read_block, repo_root_from  # noqa: E402
 
+ROOT = repo_root_from(__file__)
+sys.path.insert(0, ROOT)
+import build_rom  # noqa: E402
+
 BG1_TILEMAP_WORD = 0x6000
 BG1_TILES_WORD = 0x0000
 VIEWPORT_COLS = 32
 HEIGHT = 28
-BG_DIR = os.path.join(repo_root_from(__file__), 'out', 'bg_warehouse_stream')
+# Ground truth is whichever streaming BG build_rom.py actually ships -- see
+# phase6.py's identical rationale for not hardcoding a specific out/ dir.
+BG_DIR = os.path.join(ROOT, build_rom.BG_SCREENS[0][0])
 
 
 def main():

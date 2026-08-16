@@ -1516,6 +1516,61 @@ visible viewport post-fix); full regression suite (label-drift, audit_all,
 phase5/6/7) green on the **shipped boss-level ROM** after every fix in this
 phase, most recently re-confirmed 2026-08-15.
 
+**UPDATE (2026-08-16): wired into the shipped ROM for real, against a real
+BOR level.** `build_rom.py`'s `BG_SCREENS` now ships `out/bg_stage1a` —
+BOR's actual stage 1A (`DATA\EASY\1AEASY.TXT`, converted with
+`--streaming`), not the synthetic warehouse asset: 6 screens/1920px wide,
+2458 unique tiles level-wide (measured via `measure_level_tiles.py`: 2215
+pre-quantization, comfortably past the 512/1024-tile static-load ceiling
+that gated `out/bg_boss_level`). This closes the "never rendered real
+level content" gap noted below — first-try clean render (see screenshots
+from this session), full traversal from world X=0 to 1880 (near the
+level's width) with no visible corruption, `StreamScroll_StagedHi`
+tracking the camera the whole way. **No `main.pasm`/engine code changes
+were needed** — every fix this update required was in the test scripts,
+not the engine:
+- `phase6.py`'s whole-tileset/whole-tilemap byte-exact checks are
+  structurally inapplicable to a streaming BG (VRAM only ever holds the
+  cache's ~1022-slot resident subset, never the full converter tileset) —
+  now skipped with a clear message when `manifest["streaming"]` is set,
+  falling back to `phase9_syncscroll_test2.py`'s Tile2Slot-consistency
+  check as real ground truth instead. Also fixed a wrong assumption in the
+  BG1SC-width-mode check: streaming mode always uses the full 64-col
+  *hardware* tilemap as its ring buffer regardless of the level's logical
+  *software* `width_tiles` (192 here, not 64) — those are different
+  numbers, conflating them was the bug.
+- `phase5.py`'s padding-blank check needed 20 more real frames before its
+  sample point — a streaming BG's boot-time viewport load does far more
+  real per-tile MSU seeking during `scpu_boot` than a static whole-level
+  load, so frame 30 could still be mid-boot (same artifact previously
+  characterized against the synthetic warehouse asset, now reproduced for
+  real; see [[syncscroll_budget_throughput]]).
+- `phase9_syncscroll_test2.py` and `phase9_stagecolumn_spotcheck.py` had
+  `out/bg_warehouse_stream` hardcoded — generalized to read
+  `build_rom.py`'s own `BG_SCREENS`, matching `phase6.py`'s existing
+  convention, so they now test whatever streaming BG actually ships
+  instead of only ever the synthetic asset. Both PASS against
+  `out/bg_stage1a` (stagecolumn: 896/896 viewport entries byte-exact
+  against ground truth; syncscroll: 0 hard mismatches after a full
+  cam_col sweep to the level's right edge, 169/616 sampled entries showing
+  expected/harmless pending-repair outside the live viewport).
+- **`phase8.py` now correctly, cleanly FAILs** with an explicit message
+  ("is not a whole-level (--whole-level) conversion") when run against the
+  shipped ROM — expected, not a regression: that gate is specifically for
+  the static whole-level path, which the shipped BG no longer uses.
+  `out/bg_boss_level` (and the old static path itself) remain fully intact
+  and buildable for anyone who wants to re-verify Phase 8's own gate
+  against that config.
+
+The two previously-open items are now **partially addressed, not fully
+closed**: this proves the engine against real level content (was open),
+but real-play scroll-lag magnitude is still unmeasured (traversal above
+used a scripted WRAM position sweep, not sustained realistic held-dpad
+input), and there is still no self-contained committed `phase9.py` gate —
+the two `phase9_*.py` scripts are more reusable now (they track
+`BG_SCREENS` automatically) but still require Mesen2 and take real wall-
+clock time, not a quick pytest-style assertion.
+
 **Not done / open, if a future level actually needs this engine:**
 - **Real-play scroll-lag magnitude is still unmeasured.** The camera clamp
   was verified against an artificial WRAM teleport of `PlayerEntity_PosX`,
@@ -1559,13 +1614,13 @@ which they'd prefer, per this project's usual "don't start speculative
 phases uninvited" norm. In rough order of how directly they extend what
 Phase 9 just finished vs. how independent they are:
 
-1. **Convert a real (non-synthetic) BOR level wide/detailed enough to need
-   streaming, and wire it in for real.** This is the natural "prove Phase 9
-   actually matters" step — everything about the streaming engine today is
-   verified only against the synthetic `out/bg_warehouse_stream` asset.
-   Would also finally exercise the two open items above (real-play lag,
-   and turning the ad hoc phase9 scripts into a real gate) under real
-   conditions instead of synthetic ones.
+1. ~~Convert a real (non-synthetic) BOR level and wire it in for real.~~
+   **DONE 2026-08-16** — see the "UPDATE" note under §2.8 above (stage 1A,
+   `out/bg_stage1a`, shipped in `BG_SCREENS`). Real-play scroll-lag under
+   sustained held-dpad input (as opposed to a scripted position sweep) and
+   a self-contained `phase9.py` gate are still open, smaller follow-ups —
+   worth doing before trusting this engine on a much bigger level, but no
+   longer blocking on "has this ever rendered real content."
 2. **A damage system.** `CHAR_HP` and the HUD already exist and work
    (Phase 6); nothing currently happens at 0 HP. README's "Not built" list
    calls this out as the most obvious missing "game" piece.

@@ -46,7 +46,7 @@ python tools/verify/phase7.py                    # TAD audio reaches PLAYING and
 python tools/verify/phase8.py                    # camera/scroll: world X, BG1HOFS, clamps, OAM X-high bit
 ```
 
-`tools/verify/phase9_*.py` are a separate, non-gate pair of scripts for the streaming tile cache (`plan.md` §2.8) — they need a temporary `build_rom.py` config edit and are not safe to run as-is against the shipped ROM. Don't add them to the routine list above; see `plan.md` §2.8's own gate procedure if you're touching `Core_StreamScroll_*`/`core/stream_cache.pasm`.
+`tools/verify/phase9_*.py` are a separate, non-gate pair of scripts for the streaming tile cache (`plan.md` §2.8) — they track `BG_SCREENS` automatically now (like `phase6.py`) and pass against whatever streaming BG currently ships (as of 2026-08-16, a real level, `out/bg_stage1a`), but each takes real Mesen2 wall-clock time. Don't add them to the routine list above; see `plan.md` §2.8's own gate procedure if you're touching `Core_StreamScroll_*`/`core/stream_cache.pasm`.
 
 They share `tools/verify/_harness.py`, which derives the ROM path from the repo root (so they work from a worktree) and enforces this project's read rules. **They deliberately compare against ground truth the engine did not produce** — the converter's own `.bin` files, the packed `bor.msu`, `audio-data.bin` — rather than asking the engine whether it looks happy. Phase 7 is why: TAD reported `PLAYING` with the S-DSP out of reset at full volume for as long as it was loading pure zeros, so every engine-visible status byte read perfect while nothing worked.
 

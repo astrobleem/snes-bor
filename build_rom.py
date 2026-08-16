@@ -15,12 +15,23 @@ import pack_msu_roster
 # MSU_DATA placeholder now that Anim_LoadCharacter reads a real directory.
 ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 
-# Phase 6: the static BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
-# v2 BG section. Each entry is (bg_converter output dir, make_hud_tiles output
-# dir). Regenerate with:
-#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\6BEASY.TXT" -o out/bg_boss
+# Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
+# BG section. Each entry is (bg_converter output dir, make_hud_tiles output
+# dir). Mode (static whole-level vs. streaming) is auto-detected by
+# pack_msu_roster.py from the bg_dir's manifest.json "streaming" key -- see
+# that file's header comment. Regenerate with:
+#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1AEASY.TXT" -o out/bg_stage1a --streaming
 #   python tools/bg_converter/make_hud_tiles.py -o out/hud
-BG_SCREENS = [("out/bg_boss_level", "out/hud")]
+#
+# Phase 9 (plan.md 2.8/2.9): first real (non-synthetic) level to use the
+# streaming tile cache. Stage 1A is BOR's actual opening level -- 6 screens/
+# 1920px wide, 2215 unique tiles over the whole level (measured via
+# measure_level_tiles.py), well past the 512/1024-tile static-load budget
+# that gated the old out/bg_boss_level. Was previously verified only
+# against the synthetic out/bg_warehouse_stream stress asset (13437 tiles,
+# deliberately unrealistic); this is the first time it renders real BOR
+# level content.
+BG_SCREENS = [("out/bg_stage1a", "out/hud")]
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'

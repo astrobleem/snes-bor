@@ -27,13 +27,21 @@ sys.path.append(r'E:\gh\snes-bor\tools\bg_converter')
 import snes_tiles as st  # noqa: E402
 
 sys.path.append(r'E:\gh\snes-bor\tools\verify')
-from _harness import open_session, read_block  # noqa: E402
+from _harness import open_session, read_block, repo_root_from  # noqa: E402
+
+ROOT = repo_root_from(None)
+sys.path.insert(0, ROOT)
+import build_rom  # noqa: E402
 
 BG1_TILEMAP_WORD = 0x6000
 BG1_TILES_WORD = 0x0000
 VIEWPORT_COLS = 32
 HEIGHT = 28
-BG_DIR = r'E:\gh\snes-bor\out\bg_warehouse_stream'
+# Ground truth is whichever streaming BG build_rom.py actually ships -- do
+# not hardcode a specific out/ dir, see phase6.py's identical rationale.
+# This still requires BG_SCREENS to point at a streaming (not static)
+# conversion; run against a temporary streaming BG_SCREENS swap otherwise.
+BG_DIR = os.path.join(ROOT, build_rom.BG_SCREENS[0][0])
 
 Screen_PosX = 0x7E1601
 PlayerEntity_PosX = 0x7E0A04

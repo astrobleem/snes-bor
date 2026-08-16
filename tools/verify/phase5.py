@@ -80,7 +80,16 @@ def main():
 
         # --- padding blank check: every tile-column slice's rows 6-7 must
         # be zero, not just slice 0's (plan.md Phase 5 step 9's confirmed
-        # live bug). ---
+        # live bug). Needs more real boot time than the checks above: a
+        # streaming BG boot-time viewport load (plan.md §2.8, Phase 9) does
+        # far more real per-tile MSU seeking during scpu_boot than a static
+        # whole-level load, so frame 30 alone can still be mid-boot here --
+        # confirmed clean by frame ~50 on both the synthetic warehouse
+        # stress asset and a real converted level (see
+        # syncscroll_budget_throughput project memory). This no-ops (just
+        # burns 20 already-settled frames) for a static BG. ---
+        m.run_frames(20)
+        m.pause()
         for slice_idx in range(4):
             row6 = read_block(m, PADDING_ROW6[slice_idx], 128, mem_type='snesVideoRam')
             row7 = read_block(m, PADDING_ROW7[slice_idx], 128, mem_type='snesVideoRam')

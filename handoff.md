@@ -27,11 +27,11 @@ each section below.
 > inventory." Read those. Everything above them is older history, kept for
 > the root-cause detail, and parts of it are known wrong.
 >
-> **As of 2026-08-15, Phase 9 (streaming BG1 tile cache) is the most recent
-> completed phase — see that section near the bottom.** It is built and
-> verified but NOT wired into the shipped ROM (the shipped level doesn't
-> need it). Nothing is currently in progress; `plan.md` §2.9 lists candidate
-> next phases, none started.
+> **As of 2026-08-16, Phase 9 (streaming BG1 tile cache) is the most recent
+> completed phase — see that section near the bottom.** It is built,
+> verified, AND now shipped: the ROM streams a real BOR level (stage 1A,
+> `out/bg_stage1a`), not the old static boss level. Nothing is currently in
+> progress; `plan.md` §2.9 lists candidate next phases, none started.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1432,11 +1432,22 @@ green on the shipped boss-level ROM after every fix, most recently
 - Never exercised against a real converted BOR level, only the synthetic
   stress-test asset.
 
-**Recommended next step:** convert a real BOR level wide/detailed enough
-to actually need this cache and wire it in for real — that's the only way
-to find out if the above open items matter. See `plan.md` §2.9 for this
-and other candidate next phases (damage system, SFX, roster persistence),
-none of which are started or committed to yet.
+**Recommended next step: SUPERSEDED, done 2026-08-16.** `build_rom.py` now
+ships `out/bg_stage1a` (BOR's real stage 1A, 2,458 tiles, streaming mode)
+in place of the static boss level — first real (non-synthetic) content
+this engine has ever rendered. Verified clean via a full scripted
+traversal (screenshots, no corruption) and both `phase9_*.py` scripts
+(generalized to track `BG_SCREENS` instead of hardcoding the warehouse
+asset — now genuine ground-truth checks, not just synthetic-asset-only).
+No `main.pasm` changes were needed; three test scripts (`phase5.py`,
+`phase6.py`, both `phase9_*.py`) needed fixes for assumptions that only
+held for a static or synthetic BG. Full detail in `plan.md` §2.8's
+"UPDATE" note. `phase8.py` now correctly, expectedly FAILs against the
+shipped ROM (it gates the static whole-level path specifically) — not a
+regression. Still open: real-play scroll-lag under sustained held-dpad
+input (only tested via a scripted position sweep), and there's still no
+self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
+next phases (damage system, SFX, roster persistence), none started.
 
 ## Harness gotchas (Mesen2 / build)
 

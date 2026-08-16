@@ -78,18 +78,32 @@ def main():
         m.run_frames(120)
         m.pause()
 
-        # --- BG1 tiles: the whole tileset, byte-exact against tiles.bin. ---
-        n = len(tiles)
-        got = bytes(read_block(m, BG1_TILES_WORD * 2, n, mem_type='snesVideoRam'))
-        r.check(f'BG1 tileset matches tiles.bin ({n} bytes, {manifest["unique_tiles"]} tiles)',
-                got == tiles)
-        r.check('BG1 tileset is not blank (real backdrop, not the old zero fill)',
-                any(b != 0 for b in got))
+        # --- BG1 tiles/tilemap: byte-exact against tiles.bin/tilemap.bin. ---
+        # Only meaningful for a STATIC whole-level load, where the converter's
+        # entire tileset sits resident in VRAM. A streaming level (plan.md
+        # §2.8, Phase 9) never holds more than the cache's ~1022-slot subset
+        # resident at once -- comparing VRAM to the full tiles.bin/tilemap.bin
+        # would be comparing against the wrong invariant, not a real bug
+        # surface. Ground truth for a streaming BG's correctness is
+        # tools/verify/phase9_syncscroll_test2.py's Tile2Slot-consistency
+        # check instead (see plan.md §2.8's gate section) -- run that
+        # against whatever BG_SCREENS currently ships if you need to verify
+        # streaming-mode tile/tilemap correctness.
+        if manifest.get('streaming'):
+            print(f'BG1 is streaming-mode ({manifest["unique_tiles"]} unique tiles level-wide) '
+                  f'-- skipping whole-tileset/whole-tilemap byte-exact checks, not applicable. '
+                  f'See tools/verify/phase9_syncscroll_test2.py for the real ground-truth check.')
+        else:
+            n = len(tiles)
+            got = bytes(read_block(m, BG1_TILES_WORD * 2, n, mem_type='snesVideoRam'))
+            r.check(f'BG1 tileset matches tiles.bin ({n} bytes, {manifest["unique_tiles"]} tiles)',
+                    got == tiles)
+            r.check('BG1 tileset is not blank (real backdrop, not the old zero fill)',
+                    any(b != 0 for b in got))
 
-        # --- BG1 tilemap ---
-        gotm = bytes(read_block(m, BG1_TILEMAP_WORD * 2, len(tilemap), mem_type='snesVideoRam'))
-        r.check(f'BG1 tilemap matches tilemap.bin ({len(tilemap)} bytes) '
-                f'at word ${BG1_TILEMAP_WORD:04X}', gotm == tilemap)
+            gotm = bytes(read_block(m, BG1_TILEMAP_WORD * 2, len(tilemap), mem_type='snesVideoRam'))
+            r.check(f'BG1 tilemap matches tilemap.bin ({len(tilemap)} bytes) '
+                    f'at word ${BG1_TILEMAP_WORD:04X}', gotm == tilemap)
 
         # --- BG3 HUD tileset ---
         goth = bytes(read_block(m, BG3_TILES_WORD * 2, len(hud_tiles), mem_type='snesVideoRam'))
@@ -123,8 +137,14 @@ def main():
         r.check(f'BG3 char base = word ${BG3_TILES_WORD:04X} (needs the new $210C shadow)',
                 layers[2]['chrAddr'] == BG3_TILES_WORD)
         r.check('TM = BG1 + BG3 + OBJ ($15)', ppu['mainScreenLayers'] == 0x15)
-        expect_wide = manifest.get('width_tiles') == 64
-        r.check(f'BG1SC width mode matches manifest (width_tiles={manifest.get("width_tiles")})',
+        # Streaming mode always uses the full 64-col hardware tilemap as its
+        # ring buffer, regardless of the level's logical width_tiles (that's
+        # the SOFTWARE cache's column count, e.g. 192 for a 1920px level --
+        # unrelated to the HARDWARE BG1SC register, which only ever has a
+        # 32- or 64-wide mode to choose from).
+        expect_wide = True if manifest.get('streaming') else manifest.get('width_tiles') == 64
+        r.check(f'BG1SC width mode matches manifest (streaming={manifest.get("streaming", False)}, '
+                f'width_tiles={manifest.get("width_tiles")})',
                 layers[0]['doubleWidth'] == expect_wide)
 
         # --- HUD: bars drawn, and they track CHAR_HP. ---
