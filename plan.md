@@ -1642,10 +1642,11 @@ build a script under `tools/verify/`, verify against ground truth the
 engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
 boundary.
 
-## 2.10 — Phase 10: frontpanel foreground layer (IN PROGRESS — Steps 1, 2a,
-2b, 2c, 3 ✅ DONE 2026-08-16 (converter tooling, cache allocator, boot-time
-initial load, runtime scroll resolver, HUD coexistence, all verified in
-Mesen2); only Step 4 (a committed `phase10*.py` verify script) remains)
+## 2.10 — Phase 10: frontpanel foreground layer ✅ DONE 2026-08-16 (all of
+Steps 1, 2a, 2b, 2c, 3, 4 — converter tooling, cache allocator, boot-time
+initial load, runtime scroll resolver, HUD coexistence, and a committed
+`tools/verify/phase10_frontpanel.py` gate — verified in Mesen2 and passing
+deterministically)
 
 ### The problem
 
