@@ -23,15 +23,21 @@ each section below.
 >
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
-> through "Phase 9 done and verified" — plus "Harness gotchas" and "File
+> through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
+> layer" (planned only, no code) — plus "Harness gotchas" and "File
 > inventory." Read those. Everything above them is older history, kept for
 > the root-cause detail, and parts of it are known wrong.
 >
 > **As of 2026-08-16, Phase 9 (streaming BG1 tile cache) is the most recent
-> completed phase — see that section near the bottom.** It is built,
-> verified, AND now shipped: the ROM streams a real BOR level (stage 1A,
-> `out/bg_stage1a`), not the old static boss level. Nothing is currently in
-> progress; `plan.md` §2.9 lists candidate next phases, none started.
+> COMPLETED phase — see that section near the bottom.** It is built,
+> verified, AND shipped: the ROM streams a real BOR level (stage 1A,
+> `out/bg_stage1a`), not the old static boss level.
+>
+> **Phase 10 (frontpanel foreground layer) is PLANNED but not started** —
+> see its own section near the bottom and `plan.md` §2.10. Design and
+> sizing measurements are done and trustworthy; no code exists yet. This
+> is the next thing to pick up if continuing this line of work; `plan.md`
+> §2.9 lists other, unrelated candidate phases if not.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1448,6 +1454,44 @@ regression. Still open: real-play scroll-lag under sustained held-dpad
 input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
 next phases (damage system, SFX, roster persistence), none started.
+
+## Phase 10: frontpanel foreground layer — PLANNED ONLY, no code written
+
+Found while recapturing README screenshots against the newly-shipped stage
+1A (see Phase 9 above): the fence in `scene_scrolled.png` renders *behind*
+the characters, not in front of them like real BOR. Root cause and full
+design are in `plan.md` §2.10 — short version: this converter bakes
+background+panels+frontpanel into one flat static BG1 image, and OBJ
+sprites always render above BG1 here, so the frontpanel (meant to occlude
+characters) can't. Not a regression from this session — the boss level has
+this too, just wasn't visually obvious there.
+
+**Two cheaper fixes were measured and ruled out, don't re-propose without
+new numbers**: a bigger static tile budget (846 unique tiles level-wide —
+too many, and inflated by tile-phase drift, not real content); BG3
+hardware wraparound scroll at the frontpanel's own repeat period (doesn't
+work — the 183px-native/146.4px-scaled repeat unit isn't a multiple of 8,
+so hardware tile-grid wraparound reproduces the same phase-drift inflation
+a periodic BG layer always suffers from here). A pure-OBJ approach was also
+ruled out — the art is near full-screen-height, and tiling it from large
+sprites risks exceeding the real 34-tiles/scanline hardware limit.
+
+**The approach that fits**: generalize Phase 9's own streaming-cache
+mechanism to a second, independent layer on BG3 (2bpp, using the priority
+bit the HUD already proves works), sized against the real camera-window
+worst case — measured this session at **213 unique tiles in a 40-column
+window**, not the misleading 846 whole-level number. `plan.md` §2.10 has
+the full step breakdown (converter tooling, a second cache instance,
+BG3/HUD coexistence, verification) mirroring how Phase 9 itself was built
+incrementally. User explicitly chose "go big, full general solution" over
+a cheaper scoped-down version (crop to just the bottom rail band) when
+asked — that's why the plan is for the general case, not a quick patch.
+
+**Nothing has been implemented.** Design and the sizing measurements above
+are real and can be trusted; no converter code, no engine code, no test
+script exists yet. Start at `plan.md` §2.10 Step 1 (converter tooling —
+verifiable offline against the 213-tile number without touching Mesen2 or
+`main.pasm` at all).
 
 ## Harness gotchas (Mesen2 / build)
 

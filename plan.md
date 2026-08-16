@@ -1607,12 +1607,15 @@ into the shipped ROM's config)
 5. Full regression suite on the reverted, shipped-config ROM: `audit_all.py`,
    `check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`, `phase8.py`.
 
-## 2.9 — What to do next (Phase 10 candidates, not yet started)
+## 2.9 — Other candidates (not yet started, not what Phase 10 below is)
 
 Nothing below is committed to or scheduled — pick one, or ask the user
 which they'd prefer, per this project's usual "don't start speculative
-phases uninvited" norm. In rough order of how directly they extend what
-Phase 9 just finished vs. how independent they are:
+phases uninvited" norm. These predate and are independent of §2.10's
+Phase 10 (which came from a different, later finding — the frontpanel
+occlusion bug — and was explicitly chosen by the user over these). In
+rough order of how directly they extend what Phase 9 finished vs. how
+independent they are:
 
 1. ~~Convert a real (non-synthetic) BOR level and wire it in for real.~~
    **DONE 2026-08-16** — see the "UPDATE" note under §2.8 above (stage 1A,
@@ -1638,6 +1641,153 @@ what static tools can/can't prove) and this file's per-phase gate pattern:
 build a script under `tools/verify/`, verify against ground truth the
 engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
 boundary.
+
+## 2.10 — Phase 10: frontpanel foreground layer (PLANNED, not started —
+design + sizing done 2026-08-16, no engine or converter code written yet)
+
+### The problem
+
+BOR's `frontpanel` art (e.g. stage 1A's chain-link fence,
+`data\bgs\street\f03.gif`) is documented in this project's own converter
+(`tools/bg_converter/level_parse.py`: `frontpanel   ...   # overlay drawn
+in front`) as meant to render **in front of** characters. This engine
+currently bakes background+panels+frontpanel into one flat static BG1
+image, and OBJ sprites (the characters) always render above BG1 here, so
+the frontpanel ends up *behind* characters — the opposite of real BOR.
+Not new to Phase 9's stage-1A swap — the boss level has a frontpanel too
+(`data\bgs\boss\front.gif`) — the fence just makes it visually obvious.
+See `README.md`'s "Not built" section and the `scene_scrolled.png`
+screenshot for what this looks like uncorrected.
+
+### Two cheaper approaches were considered and ruled out by measurement —
+don't re-propose either without new numbers
+
+1. **Static single load.** Deduping the frontpanel across the whole level
+   like a normal background gives **846 unique tiles** (measured via a
+   one-off script this session, not yet committed as a tool — see "Step 1"
+   below for turning it into one) — too many for the ~512-tile VRAM gap
+   available without a real relayout, and it's an inflated number anyway
+   (see next point), so don't chase a bigger static budget as the fix.
+2. **BG3 hardware wraparound scroll at the frontpanel's own repeat
+   period.** The idea: give BG3 a small tilemap holding one repeat unit
+   and drive its scroll register independently of BG1's, relying on
+   hardware tile-grid wraparound for an infinite repeat, needing only the
+   unit's own tile count. **This doesn't work**: the repeat unit is 183px
+   native, 146.4px after this pipeline's fixed 0.8 scale — not a multiple
+   of 8. A hardware tile-addressed layer can only wrap cleanly on 8px
+   boundaries, so forcing this to tile via scroll wraparound reproduces
+   the same tile-phase-drift problem `measure_level_tiles.py` already
+   documents for backgrounds, and the achievable unique-tile count
+   collapses back to the same ballpark as the whole-level number above,
+   not the small one-repeat-unit number. (Sprites don't have this problem
+   — OAM position is per-pixel, not tile-quantized — which is why the
+   next approach considered was OBJ-based, and why the ACTUAL fix below
+   is BG-based-but-non-periodic, not periodic-BG-based.)
+3. **OBJ sprites tiling the fence across the screen.** One repeat unit
+   really is small on its own — **89 unique non-blank tiles, 22 colors**
+   (measured; this is real content, not inflated by phase drift, because
+   sprite positioning is pixel-exact). But the art is nearly full-screen
+   height (192px / 24 tile-rows). Built from 32×32 large OBJ blocks, one
+   full repeat needs ~30 sprites; with ~2 repeats visible at once that's
+   roughly 40 8×8-tile-columns touched per scanline row — over the SNES's
+   real 34-tiles-per-scanline hardware limit. That's a hard-wall sprite-
+   dropout risk, not a style nitpick, and not something to eyeball around.
+
+### The approach that actually fits the numbers: generalize Phase 9's own
+streaming tile cache to a second, independent layer
+
+Phase 9 already solved exactly this class of problem for BG1 — a level
+whose real content is too big to hold statically, handled by a per-camera-
+window resident cache with eviction/repair, not a whole-level load. The
+same shape applies to the frontpanel once you size against the *right*
+window, not the whole level:
+
+- **Measured (this session) worst-case unique frontpanel tiles in any
+  40-column (32 viewport + 2×4 prefetch) window: 213**, not 846 — the
+  same "don't size against the whole level" lesson §2.8's own history
+  already teaches. 213 fits comfortably in a modest cache.
+- Target layer: **BG3**, 2bpp, using its existing **per-tile priority bit**
+  (bit 13 of the tilemap word) — already proven in production by the HUD,
+  which uses it to sit above OBJ today. Frontpanel tiles get the same bit
+  set; HUD tiles keep using it too — they coexist on the same physical
+  layer, not a new one.
+- **VRAM budget**: currently free space is `$5000`-`$5FFF` (4096 words,
+  minus the HUD's ~12 tiles) plus the fully-unused tail `$6C00`-`$7FFF`
+  (5120 words) — roughly 1140 2bpp-tile-equivalent words total if
+  consolidated. A ~213-plus-headroom cache (say 300-400 slots, matching
+  Phase 9's own "budget above the measured worst case, not exactly at it"
+  convention — see `STREAM_CACHE_USABLE`'s own history) fits **without**
+  needing the BG1 tilemap or BG3 tilemap to move, since 400 slots × 8
+  words = 3200 words fits inside the existing `$5000`-`$5FFF` gap alone.
+  Re-verify this arithmetic against the actual build before relying on
+  it — VRAM layout has shifted before and will again.
+- **CGRAM budget**: measured 22 distinct colors in the frontpanel content,
+  which needs either 2 sub-palettes (8 colors, still short) or real
+  tile-aware quantization down to ≤15 colors + transparent in one
+  4-color... **no** — 2bpp is 4 colors/sub-palette (3 usable + transparent),
+  not enough for 22 colors in one sub-palette. This needs multi-sub-palette
+  tile-aware assignment (reuse `tiledpalettequant.py`'s existing k-means
+  machinery, parameterized for `colors_per_palette=4` instead of BG1's 16)
+  across however many of BG3's 8 sub-palette slots aren't already used by
+  the HUD (HUD currently uses sub-palette 0 only — 7 free). This is new
+  code, not a reuse of the HUD's fixed 2-color bar generator
+  (`make_hud_tiles.py`), which was never built to handle organic pixel art.
+
+### Step breakdown (mirrors §2.8/Phase 9's own step 1-4 structure —
+each step should get its own commit and gate, not one giant change)
+
+1. **Converter tooling.** A `convert_bg.py`-analogous streaming extractor
+   for frontpanel-only content: composite frontpanel alone (not flattened
+   into background+panels — `composite_scene.py`'s `_composite` currently
+   always merges all three; needs a frontpanel-only variant, keeping the
+   transparency mask instead of discarding it), tile-aware 2bpp
+   quantization (new, see CGRAM budget above), flip-aware dedup, column-
+   major tilemap emission matching `pack_msu_roster.py`'s existing
+   `CACHE_ENTRY_BYTES=3` (u16 tile_id + u8 attribute) format so the same
+   engine-side cache/tilemap decode logic can be reused. Verifiable
+   entirely offline (no Mesen2 needed) against the measured 213-tile
+   worst-case-window number before touching any assembly.
+2. **Engine: a second cache instance.** Generalize or duplicate
+   `core/stream_cache.pasm` (parameterize its VRAM base / entry size — 2bpp
+   tiles are 16 bytes not 32 — rather than hardcoding a second near-copy of
+   the whole file) and `Core_StreamScroll_*`'s resolver/repair-sweep logic
+   for a second `(tile base, tilemap base, Tile2Slot table)` triple. Reuse
+   the *mechanism*, not necessarily the same WRAM addresses — BG1's
+   `StreamScroll_*`/cache state is already sized for BG1's own budget.
+3. **BG3 priority + HUD coexistence.** Set the priority bit on frontpanel
+   tilemap entries the same way the HUD already does; verify the HUD still
+   renders correctly sharing the layer (its own dedicated Phase 6 checks
+   already assert this — rerun them, don't assume). Confirm `$2105`/BG3
+   register state matches what both consumers need simultaneously.
+4. **Verification.** A new `tools/verify/phase10*.py`, structured like
+   `phase9_syncscroll_test2.py` (ground truth = the new converter's own
+   tilemap/tileset .bin files, Tile2Slot-consistency invariant, not
+   self-consistency), checked against the real shipped stage-1A level, not
+   a synthetic asset (Phase 9 already paid down that particular lesson,
+   don't reintroduce it here). Also explicitly re-check for OAM/DMA-queue
+   pressure — this phase adds a **second** per-frame streaming consumer
+   competing for the same 8-slot DMA queue and `Msu1_StreamBusy`-style
+   serialization Phase 0/9 already had to solve once; re-verify the
+   vblank-overrun guard (`Nmi_FrameCounter` still advancing) under BOTH
+   layers streaming misses in the same frame, the same forced-collision
+   technique Phase 0 used for the original single-layer case.
+
+### Stop conditions
+
+- **CGRAM quantization can't get frontpanel content under budget** (7 free
+  sub-palettes × 4 colors = 28 colors total budget across however many
+  distinct frontpanel *tiles* need distinct sub-palettes, not just 22
+  colors in the abstract — tile-aware assignment may need more sub-palette
+  diversity than flat color count suggests). Report the real number found;
+  don't silently drop colors past what quantization can defensibly do.
+- **A 40-col window's worst case exceeds the sized cache** on a different
+  future level (this session only measured stage 1A). Re-run the
+  measurement per-level before assuming 213-ish generalizes.
+- **DMA queue contention between the two streaming layers** produces a
+  vblank overrun under combined worst-case miss load. This is the most
+  likely real failure mode given Phase 0/9's own history — budget real
+  time for it, don't assume Phase 9's existing `STREAM_SCROLL_BUDGET_MAX=6`
+  headroom trivially covers a second consumer.
 
 ---
 
