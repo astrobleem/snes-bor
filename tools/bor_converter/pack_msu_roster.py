@@ -372,12 +372,20 @@ def pack_bg_blob(bg_dir, hud_dir):
     return blob, info
 
 
-def build_bg_record(info, data_offset):
+def build_bg_record(info, data_offset, fp_offset=0):
     tilemap_offset = data_offset + BG_CGRAM_BYTES
     tiles_offset = tilemap_offset + info["tilemap_bytes"]
     hud_tiles_offset = tiles_offset + info["bg_tile_count"] * BG_BYTES_PER_TILE
+    # Last 4 bytes were reserved padding through v4; v5 (Phase 10, plan.md
+    # 2.10) repurposes them for fp_offset -- the absolute byte offset of this
+    # BG's optional frontpanel blob (see pack_fp_blob/FP_RECORD_SIZE below),
+    # or 0 if this BG has none. Deliberately NOT a new top-level directory
+    # (the primary 16-byte header has no spare bytes to grow into without
+    # shifting every existing absolute offset in the file) -- a frontpanel
+    # is level-specific 1:1 with the BG it overlays, so hanging it off the
+    # BG record it belongs to is the honest structure, not a workaround.
     record = struct.pack(
-        "<BxHBB2xH2xIIII4x",
+        "<BxHBB2xH2xIIIII",
         info["mode"],
         info["width_tiles"],
         info["height_tiles"],
@@ -387,24 +395,131 @@ def build_bg_record(info, data_offset):
         tilemap_offset,
         tiles_offset,
         hud_tiles_offset,
+        fp_offset,
     )
     assert len(record) == BG_RECORD_SIZE
     return record
 
 
-def pack_roster(prefixes, bgs=None):
+# --- Frontpanel (FP) section (v5, Phase 10, plan.md 2.10): a second,
+# independent streaming tile source for BG3, hung off a BG record via its
+# now-repurposed reserved bytes (see build_bg_record above). Always
+# streaming-mode (no static frontpanel path exists) and always 2bpp (BG3 in
+# Mode 1) -- unlike the BG section, there is no mode/bpp field, because
+# there is only one shape this data can take.
+#
+# Blob layout, self-describing (an inline 16-byte record prefix, not a
+# separate directory -- see build_bg_record's comment for why):
+#   +0-1   width_tiles   (u16 LE) -- MUST equal the owning BG's width_tiles;
+#          both layers share one camera-column index, see
+#          convert_frontpanel.py's own docstring on this constraint.
+#   +2     height_tiles  (u8, always 28)
+#   +3     reserved
+#   +4-5   tile_count    (u16 LE)
+#   +6-7   reserved
+#   +8-11  tilemap_offset (u32 LE, absolute) -- precomputed here (Python),
+#          not derived from a multiply on the 65816, matching BG record v4's
+#          own precedent.
+#   +12-15 tiles_offset   (u32 LE, absolute)
+#   +16..  palette: 4 sub-palettes x 4 colors x 2 bytes = 32 bytes (BG3's
+#          real usable ID range in this engine -- see
+#          convert_frontpanel.py's CGRAM budget note. Sub-palette 0 stays
+#          zeroed, same HUD-reservation convention as the BG section.)
+#   next   tilemap: width_tiles*height_tiles*CACHE_ENTRY_BYTES(3) bytes,
+#          column-major (identical format to the BG streaming tilemap).
+#   next   tiles: tile_count * FP_BYTES_PER_TILE(16) bytes, 2bpp planar.
+FP_RECORD_SIZE = 16
+FP_PALETTE_BYTES = 32       # 4 sub-palettes x 4 colors x 2 bytes
+FP_BYTES_PER_TILE = 16      # 2bpp
+FP_MAX_TILES = 65535        # u16 field ceiling, not a real expected limit
+
+
+def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
+    """Returns (blob_bytes, info_dict) for one frontpanel layer, with its
+    self-describing 16-byte header already correctly filled in. Needs
+    `data_offset` (where this blob will land in the final file) up front,
+    unlike pack_bg_blob/build_bg_record's split -- this blob's own bytes
+    (the header) depend on that offset, since there's no external directory
+    record for it (see build_bg_record's comment for why)."""
+    with open(os.path.join(fp_dir, "manifest.json"), "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+
+    def _read(name):
+        with open(os.path.join(fp_dir, name), "rb") as f:
+            return f.read()
+
+    palette = _read("palette.bin")
+    tilemap = _read("tilemap.bin")
+    tiles = _read("tiles.bin")
+
+    if not manifest.get("streaming"):
+        raise ValueError(f"{fp_dir}: not a streaming conversion (frontpanel "
+                         f"has no static path)")
+    width_tiles = manifest["width_tiles"]
+    height_tiles = manifest["height_tiles"]
+    tile_count = manifest["unique_tiles"]
+
+    if width_tiles != expected_width_tiles:
+        raise ValueError(f"{fp_dir}: width_tiles={width_tiles} does not match "
+                         f"the owning BG's width_tiles={expected_width_tiles} "
+                         f"-- both layers must share one camera-column index")
+    if len(palette) != FP_PALETTE_BYTES:
+        raise ValueError(f"{fp_dir}: palette.bin is {len(palette)}B, expected "
+                         f"{FP_PALETTE_BYTES}")
+    expected_tilemap_bytes = width_tiles * height_tiles * CACHE_ENTRY_BYTES
+    if len(tilemap) != expected_tilemap_bytes:
+        raise ValueError(f"{fp_dir}: tilemap.bin is {len(tilemap)}B, expected "
+                         f"{expected_tilemap_bytes}")
+    if len(tiles) != tile_count * FP_BYTES_PER_TILE:
+        raise ValueError(f"{fp_dir}: tiles.bin is {len(tiles)}B, expected "
+                         f"{tile_count * FP_BYTES_PER_TILE}")
+    if tile_count > FP_MAX_TILES:
+        raise ValueError(f"{fp_dir}: {tile_count} tiles exceeds the "
+                         f"{FP_MAX_TILES}-tile field ceiling")
+
+    tilemap_offset = data_offset + FP_RECORD_SIZE + FP_PALETTE_BYTES
+    tiles_offset = tilemap_offset + len(tilemap)
+    header = struct.pack(
+        "<HBxH2xII",
+        width_tiles, height_tiles, tile_count,
+        tilemap_offset, tiles_offset,
+    )
+    assert len(header) == FP_RECORD_SIZE
+    blob = header + palette + tilemap + tiles
+
+    info = {
+        "fp_dir": fp_dir,
+        "width_tiles": width_tiles,
+        "height_tiles": height_tiles,
+        "tile_count": tile_count,
+        "tilemap_offset": tilemap_offset,
+        "tiles_offset": tiles_offset,
+        "blob_size": len(blob),
+    }
+    return blob, info
+
+
+def pack_roster(prefixes, bgs=None, fps=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-8 out/<name> character prefixes; unused
     directory slots stay zeroed. `bgs` is an optional list of
     (bg_dir, hud_dir) pairs, appended as the v2 BG section after the
-    character blobs so no character data_offset moves.
+    character blobs so no character data_offset moves. `fps` (v5, Phase 10,
+    plan.md 2.10) is an optional list the SAME LENGTH as `bgs` -- fps[i] is
+    either an out/<name> convert_frontpanel.py output dir for bgs[i], or
+    None if that BG has no frontpanel layer. Each present frontpanel is
+    packed immediately after its owning BG's own blob (see build_fp_blob),
+    with its offset threaded into that BG's record (build_bg_record).
     """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
     bgs = bgs or []
     if len(bgs) > MAX_BGS:
         raise ValueError(f"at most {MAX_BGS} BG screens, got {len(bgs)}")
+    fps = fps or ([None] * len(bgs))
+    if len(fps) != len(bgs):
+        raise ValueError(f"fps must be the same length as bgs ({len(bgs)}), got {len(fps)}")
 
     directory = bytearray(RECORD_SIZE * MAX_CHARACTERS)
     blobs = []
@@ -435,11 +550,25 @@ def pack_roster(prefixes, bgs=None):
 
         for slot, (bg_dir, hud_dir) in enumerate(bgs):
             blob, info = pack_bg_blob(bg_dir, hud_dir)
-            bg_dir_bytes[slot * BG_RECORD_SIZE:(slot + 1) * BG_RECORD_SIZE] = \
-                build_bg_record(info, bg_data_offset)
-            sidecar_bgs.append({"slot": slot, "data_offset": bg_data_offset, **info})
+            this_bg_data_offset = bg_data_offset
             bg_blobs.append(blob)
             bg_data_offset += len(blob)
+
+            fp_offset = 0
+            fp_info = None
+            fp_dir = fps[slot]
+            if fp_dir is not None:
+                fp_offset = bg_data_offset
+                fp_blob, fp_info = build_fp_blob(fp_dir, info["width_tiles"], fp_offset)
+                bg_blobs.append(fp_blob)
+                bg_data_offset += len(fp_blob)
+
+            bg_dir_bytes[slot * BG_RECORD_SIZE:(slot + 1) * BG_RECORD_SIZE] = \
+                build_bg_record(info, this_bg_data_offset, fp_offset)
+            sidecar_bg = {"slot": slot, "data_offset": this_bg_data_offset, **info}
+            if fp_info is not None:
+                sidecar_bg["fp"] = {"data_offset": fp_offset, **fp_info}
+            sidecar_bgs.append(sidecar_bg)
 
         bg_directory = bytes(bg_dir_bytes)
 

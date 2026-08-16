@@ -33,6 +33,8 @@ import build_rom  # noqa: E402
 _bg_dir, _hud_dir = build_rom.BG_SCREENS[0]
 BG_DIR = os.path.join(ROOT, _bg_dir)
 HUD_DIR = os.path.join(ROOT, _hud_dir)
+_fp_dir = build_rom.FP_SCREENS[0]
+FP_DIR = os.path.join(ROOT, _fp_dir) if _fp_dir else None
 
 # Engine layout, parsed from source so it cannot drift (see pasm_constant).
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
@@ -70,6 +72,13 @@ def main():
     tilemap = read_file(os.path.join(BG_DIR, 'tilemap.bin'))
     palette = bytearray(read_file(os.path.join(BG_DIR, 'palette.bin')))
     palette[:32] = read_file(os.path.join(HUD_DIR, 'hud_palette.bin'))
+    # Phase 10 (plan.md 2.10): Bg_LoadSceneFp_Streaming also writes BG3
+    # sub-palettes 1-3 (CGRAM colors 4-15, bytes 8-31) from the frontpanel's
+    # own palette.bin (its first 8 bytes are a zero dummy for sub-palette 0,
+    # which the HUD already owns -- see that routine's header comment).
+    if FP_DIR:
+        fp_palette = read_file(os.path.join(FP_DIR, 'palette.bin'))
+        palette[8:32] = fp_palette[8:32]
     hud_tiles = read_file(os.path.join(HUD_DIR, 'hud_tiles.bin'))
     manifest = json.loads(read_file(os.path.join(BG_DIR, 'manifest.json')))
 

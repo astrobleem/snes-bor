@@ -2927,6 +2927,61 @@ BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
                                  ; Bg_LoadScene__tilemap_wide.
 BG3_TILEMAP_WORDS     = 1024
 
+; --- Phase 10 (plan.md 2.10) BG3 frontpanel foreground layer ---
+FP_TILES_VRAM_WORD = $5100     ; 2bpp streaming-cache tiles: 256 slots * 8
+                                 ; words/tile (see STREAM_FP_CACHE_USABLE) =
+                                 ; 2048 words, $5100-$58FF. HUD's 12 tiles
+                                 ; occupy $5000-$505F (see BG3_TILES_VRAM_WORD)
+                                 ; -- $5100 leaves headroom, ends well short of
+                                 ; BG1's tilemap at $6000.
+FP_TILE_INDEX_BASE = 32        ; (FP_TILES_VRAM_WORD - BG3_TILES_VRAM_WORD) / 8.
+                                 ; The tilemap word's character-number field is
+                                 ; PPU-relative to BG3_TILES_VRAM_WORD (its CHR
+                                 ; base), NOT to FP_TILES_VRAM_WORD -- a bare
+                                 ; cache slot number written as the character
+                                 ; field silently points 32 tiles too early
+                                 ; (into/before HUD's own 12 tiles), rendering
+                                 ; garbage VRAM as pixel data. Add this to the
+                                 ; slot before OR'ing in palette/priority bits.
+; STREAM_FP_TILEMAP_ROW_START -- DOCUMENTATION ONLY, not used in any address
+; arithmetic (Bg_LoadSceneFp_Streaming writes tilemap row = RowIndex directly,
+; same convention as BG1 -- see that routine's write-target comment for why
+; adding this as an offset was a real bug). Measured directly from
+; out/fp_stage1a/tilemap.bin via decode_tilemap_column_major: rows 0-20 are
+; 100% blank (tile id 0), rows 21-27 hold the fence -- BOR's frontpanel is a
+; bottom rail, not a full-height overlay. Never visibly collides with HUD's
+; own BG3 tilemap rows 0-3 (HUD_STAGING_BYTES / Hud_Play) -- see
+; Bg_LoadSceneFp_Streaming's write-target comment for why the boot-time
+; overwrite of those rows is harmless.
+STREAM_FP_TILEMAP_ROW_START = 21
+
+; --- dedicated scratch for Bg_LoadSceneFp_Streaming, NOT shared with
+; StreamStage_* (used for BG1's own boot loader above). Reuse was tried
+; first and was a real bug, caught by direct VRAM verification (see
+; plan.md 2.10 Step 2b): StreamStage_SeekLo/TilesBaseLo etc. are not
+; boot-only -- Core_StreamScroll_SeekColumn (further below) reuses them
+; every frame for BG1's own runtime scroll repairs, and assumes
+; TilesBaseLo/Hi holds BG1's tiles_offset for the entire level.
+; Bg_LoadSceneFp_Streaming running after BG1's own boot loader and
+; overwriting those cells with FP's values silently broke BG1's live
+; scrolling from that point on. ---
+StreamStageFp_SeekLo      = $7E25C0   ; .dw
+StreamStageFp_SeekHi      = $7E25C2   ; .db
+StreamStageFp_ColStrideLo = $7E25C3   ; .dw
+StreamStageFp_TilesBaseLo = $7E25C5   ; .dw
+StreamStageFp_TilesBaseHi = $7E25C7   ; .db
+StreamStageFp_TileOffLo   = $7E25C8   ; .dw
+StreamStageFp_TileOffHi   = $7E25CA   ; .db
+StreamStageFp_SeekTmpLo   = $7E25CB   ; .dw
+StreamStageFp_SeekTmpHi   = $7E25CD   ; .db
+StreamStageFp_ColIndex    = $7E25CE   ; .dw
+StreamStageFp_RowIndex    = $7E25D0   ; .dw
+StreamStageFp_TileId      = $7E25D2   ; .dw
+StreamStageFp_Attr        = $7E25D4   ; .db
+StreamStageFp_Slot        = $7E25D5   ; .dw
+StreamStageFp_Word        = $7E25D7   ; .dw
+StreamStageFp_Entries     = $7E25E0   ; 84B ($7E25E0-$7E2633)
+
 ; --- Phase 9 (plan.md 2.7) streaming BG1 initial-viewport load (StageColumn)
 ; -- see Bg_LoadScene_Streaming's header comment for the two-pass column
 ; algorithm this scratch supports. Boot-only for now: loads exactly
@@ -5683,10 +5738,14 @@ CharacterEntity_OnCommand__camera:
 ;   $0000-$3FFF  BG1 tiles (<=1024 4bpp tiles; word $2000 is BG2's char base,
 ;                but BG2 is off TM and nothing writes there at runtime -- see
 ;                Phase 8's removal of the old scpu_bg2_blank boot write)
-;   $5000-$5BFF  BG3 HUD tiles (2bpp)
+;   $5000-$505F  BG3 HUD tiles (2bpp)
+;   $5100-$58FF  BG3 frontpanel streaming-cache tiles (2bpp, Phase 10, see
+;                FP_TILES_VRAM_WORD) -- populated by Bg_LoadSceneFp_Streaming,
+;                not this routine
 ;   $6000-$63FF  BG1 tilemap (32x28 of a 32x32 map; $6400-$67FF is free for a
 ;                future 64x32 map, see BG3_TILEMAP_VRAM_WORD's own comment)
-;   $6800-$6BFF  BG3 tilemap
+;   $6800-$6BFF  BG3 tilemap (HUD rows 0-3, frontpanel rows 21-27, see
+;                STREAM_FP_TILEMAP_ROW_START)
 ; ============================================================================
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
     nop
@@ -5850,6 +5909,16 @@ Bg_LoadScene__dispatch_streaming:
 .a16
 .i16
     jsr Bg_LoadScene_Streaming
+    ; Phase 10 (plan.md 2.10) step 2b's BG3 frontpanel load does NOT happen
+    ; here -- it's called later from scpu_boot, AFTER scpu_bg3_map's
+    ; unconditional 1024-word BG3 tilemap clear (that clear runs once
+    ; Bg_LoadScene returns; calling Bg_LoadSceneFp_Streaming from inside
+    ; Bg_LoadScene, as an earlier version of this code did, meant every FP
+    ; tilemap write got silently wiped moments later -- caught by direct
+    ; VRAM verification showing all-zero content despite a WRAM write-
+    ; counter proving the write loop ran to completion; see plan.md 2.10
+    ; Step 2b and scpu_bg3_map's own comment). BgRecordStaging is still
+    ; valid at that later point -- nothing between here and there touches it.
     brl Bg_LoadScene__hud_done
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__dispatch_static:
@@ -6521,6 +6590,490 @@ StageColumn_FetchTilePixels__read:
 .i16
     dex
     bne StageColumn_FetchTilePixels__read
+
+    rts
+
+; ============================================================================
+; Bg_LoadSceneFp_Streaming -- Phase 10 (plan.md 2.10) step 2b: boot-time
+; initial-viewport load for the BG3 frontpanel layer (fence/rail foreground),
+; parallel to Bg_LoadScene_Streaming above but targeting BG3's 2bpp tile/
+; tilemap VRAM instead of BG1's 4bpp. Called from Bg_LoadScene right after
+; Bg_LoadScene_Streaming, only when BgRecordStaging+28 (fp_offset) is nonzero
+; (not every BG record has a packed frontpanel).
+;
+; The FP blob is self-describing (see pack_msu_roster.py's build_fp_blob): a
+; 16-byte header (width_tiles, height_tiles, tile_count, tilemap_offset,
+; tiles_offset -- the last two are ABSOLUTE file offsets, already computed in
+; Python, same "compute offsets in Python" convention as the BG record's own
+; v4 fields) immediately followed by a 32-byte CGRAM palette (4 sub-palettes
+; x 4 colors; sub-palette 0 is a zero-filled dummy -- BG3 sub-palette 0
+; belongs to the HUD, see HUD_ENTRY_HIGH's comment -- so only the real 24
+; bytes, sub-palettes 1-3, get written), then the tilemap, then the tiles.
+; Header fields other than tilemap_offset/tiles_offset are read (to advance
+; the auto-incrementing MSU port) and discarded -- row count/column stride
+; reuse BgRecordStaging+4 (the owning BG's height_tiles), exactly like
+; Bg_LoadScene_Streaming already does for BG1, since the converter enforces
+; width_tiles match and this level's FP/BG height always agree.
+;
+; Row placement: STREAM_FP_TILEMAP_ROW_START (measured, see its own comment)
+; -- the frontpanel never collides with HUD's BG3 tilemap rows, so this lands
+; as a real (not staged/inert) tilemap write in the same step that packed the
+; data, rather than needing a separate "resolve the collision" step.
+;
+; Every written tilemap word gets HUD_ENTRY_HIGH's same priority bit ($2000 --
+; BGMODE's BG3-priority bit renders a BG3 tile with this bit set above OBJ in
+; Mode 1) -- that's what puts characters behind the fence, the whole point of
+; Phase 10. Unconditional on every FP tile, not data-driven.
+; ============================================================================
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming:
+    php
+    sei
+
+    ; --- seek to fp_offset (BgRecordStaging+28, 24-bit: byte 31 assumed 0,
+    ; same convention as every other MSU offset in this file) ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+28
+    sta $2000
+    lda.l BgRecordStaging+29
+    sta $2001
+    lda.l BgRecordStaging+30
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__seek_busy:
+    lda $2000
+    bmi Bg_LoadSceneFp_Streaming__seek_busy
+
+    ; --- read the 16-byte FP header sequentially into StreamStageFp_Entries
+    ; (reused as scratch -- BG1's own column loop hasn't started yet, and this
+    ; is only 16 of its 84 bytes), then pull tilemap_offset/tiles_offset out
+    ; via plain (non-indexed) .l reads, same pattern as the BgRecordStaging+N
+    ; reads above. Deliberately NOT built up via Symbol+1 byte-split writes --
+    ; see Bg_LoadScene_Streaming's own VRAM-word-write comment on why this
+    ; project avoids that on computed operands. ---
+    rep #$31
+.a16
+.i16
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__hdr_read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamStageFp_Entries,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #16
+    bcc Bg_LoadSceneFp_Streaming__hdr_read
+
+    lda.l StreamStageFp_Entries+8     ; tilemap_offset low16 (header +8/9)
+    sta StreamStageFp_SeekLo
+    sep #$20
+.a8
+    lda.l StreamStageFp_Entries+10    ; tilemap_offset byte 2 (header +10)
+    sta StreamStageFp_SeekHi
+    rep #$31
+.a16
+.i16
+    lda.l StreamStageFp_Entries+12    ; tiles_offset low16 (header +12/13)
+    sta StreamStageFp_TilesBaseLo
+    sep #$20
+.a8
+    lda.l StreamStageFp_Entries+14    ; tiles_offset byte 2 (header +14)
+    sta StreamStageFp_TilesBaseHi
+    rep #$31
+.a16
+.i16
+
+    ; --- palette: 8 dummy bytes (sub-palette 0), then 24 real bytes
+    ; (sub-palettes 1-3) straight to CGRAM color 4 -- no reseek needed, the
+    ; MSU port is already positioned right after the header from the
+    ; sequential reads above. ---
+    sep #$20
+.a8
+    lda $2001
+    lda $2001
+    lda $2001
+    lda $2001
+    lda $2001
+    lda $2001
+    lda $2001
+    lda $2001
+
+    lda #4
+    sta $2121               ; CGADD = color 4 (BG3 sub-palette 1)
+    rep #$31
+.a16
+.i16
+    ldx #24
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__pal_loop:
+    sep #$20
+.a8
+    lda $2001
+    sta $2122
+    rep #$31
+.a16
+.i16
+    dex
+    bne Bg_LoadSceneFp_Streaming__pal_loop
+
+    ; --- column_stride_bytes = height_tiles * 3, same one-time computation
+    ; as Bg_LoadScene_Streaming (BgRecordStaging+4 reused, see header) ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+4     ; height_tiles (u8)
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta StreamStageFp_ColStrideLo
+    clc
+    adc StreamStageFp_ColStrideLo
+    clc
+    adc StreamStageFp_ColStrideLo
+    sta StreamStageFp_ColStrideLo   ; = height_tiles * 3
+
+    lda #0
+    sta StreamStageFp_ColIndex
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__col_loop:
+    ; --- seek to this column's tilemap entries ---
+    sep #$20
+.a8
+    lda StreamStageFp_SeekLo
+    sta $2000
+    lda.l StreamStageFp_SeekLo+1
+    sta $2001
+    lda StreamStageFp_SeekHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__seek_busy2:
+    lda $2000
+    bmi Bg_LoadSceneFp_Streaming__seek_busy2
+
+    ; --- pass 1: read this column's height_tiles*3 bytes sequentially ---
+    rep #$31
+.a16
+.i16
+    ldx #0
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__read_entry:
+    sep #$20
+.a8
+    lda $2001
+    sta.l StreamStageFp_Entries,x
+    rep #$31
+.a16
+.i16
+    inx
+    txa
+    cmp StreamStageFp_ColStrideLo
+    bcc Bg_LoadSceneFp_Streaming__read_entry
+
+    ; --- advance the running seek to the NEXT column ---
+    lda StreamStageFp_SeekLo
+    clc
+    adc StreamStageFp_ColStrideLo
+    sta StreamStageFp_SeekLo
+    sep #$20
+.a8
+    lda StreamStageFp_SeekHi
+    adc #0                       ; += carry from the 16-bit add above
+    sta StreamStageFp_SeekHi
+    rep #$31
+.a16
+.i16
+
+    ; --- pass 2: walk this column's decoded entries ---
+    lda #0
+    sta StreamStageFp_RowIndex
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_loop:
+    lda StreamStageFp_RowIndex
+    sta StreamStageFp_TileOffLo     ; scratch use #1: row temp only, re-purposed
+                                    ; by StageColumnFp_FetchTilePixels below
+    asl a
+    clc
+    adc StreamStageFp_TileOffLo
+    tax
+
+    lda.l StreamStageFp_Entries,x   ; 16-bit read: tile_id lo+hi in one load
+    sta StreamStageFp_TileId
+    inx
+    inx                            ; X = row*3 + 2 (attribute byte)
+    sep #$20
+.a8
+    lda.l StreamStageFp_Entries,x
+    sta StreamStageFp_Attr
+    rep #$31
+.a16
+.i16
+
+    ; --- Tile2Slot lookup (FP's own cache table, word-indexed by tile_id*2) ---
+    lda StreamStageFp_TileId
+    asl a
+    tax
+    lda.l StreamCacheFp_Tile2Slot,x
+    cmp #$FFFF
+    bne Bg_LoadSceneFp_Streaming__row_hit
+    ; miss -- allocate a slot, then fetch this tile's pixel data
+    lda StreamStageFp_TileId
+    tax
+    jsr Core_StreamCacheFp_AllocateSlot   ; A = slot; clobbers X,Y
+    sta StreamStageFp_Slot
+    jsr StageColumnFp_FetchTilePixels
+    bra Bg_LoadSceneFp_Streaming__row_resolved
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_hit:
+    sta StreamStageFp_Slot            ; A still holds Tile2Slot's value: the slot
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_resolved:
+    rep #$31
+.a16
+.i16
+
+    ; --- build the remapped hardware tilemap word: slot | (palette<<10) |
+    ; (hflip<<14) | (vflip<<15) -- see snes_tiles.encode_tilemap_cache_entry
+    ; for the attribute bit layout this decodes. ---
+    lda StreamStageFp_Slot
+    clc
+    adc #FP_TILE_INDEX_BASE        ; slot -> PPU character number (see
+                                     ; FP_TILE_INDEX_BASE's definition)
+    sta StreamStageFp_Word
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$07                        ; palette bits 0-2 (already absolute,
+                                      ; 1-3 -- see PALETTE_OFFSET in
+                                      ; convert_frontpanel.py)
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                            ; << 10
+    ora StreamStageFp_Word
+    sta StreamStageFp_Word
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$08                        ; hflip bit
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Bg_LoadSceneFp_Streaming__row_no_hflip
+    lda StreamStageFp_Word
+    ora #$4000
+    sta StreamStageFp_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_no_hflip:
+
+    sep #$20
+.a8
+    lda StreamStageFp_Attr
+    and #$10                        ; vflip bit
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Bg_LoadSceneFp_Streaming__row_no_vflip
+    lda StreamStageFp_Word
+    ora #$8000
+    sta StreamStageFp_Word
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_no_vflip:
+
+    ; --- priority bit: same as HUD_ENTRY_HIGH -- renders this FP tile above
+    ; OBJ under BGMODE's BG3-priority bit (see this routine's header). ---
+    lda StreamStageFp_Word
+    ora #$2000
+    sta StreamStageFp_Word
+
+    ; --- write to VRAM tilemap: word = BG3_TILEMAP_VRAM_WORD + row*32 + col.
+    ; row is written DIRECTLY (0..height_tiles-1), same convention as
+    ; Bg_LoadScene_Streaming's own BG1 write -- STREAM_FP_TILEMAP_ROW_START
+    ; is NOT an offset added here: the converter's tilemap.bin already
+    ; encodes the full height_tiles rows, with rows 0..ROW_START-1 baked in
+    ; as blank (tile id 0) entries. Rows 0-3 of this range do briefly
+    ; overwrite the HUD's own BG3 tilemap rows during this boot-time call --
+    ; harmless, since HudDirty starts nonzero and Hud_Play's first
+    ; scpu_main_loop call unconditionally rebuilds them before any frame is
+    ; ever displayed (forced blank is still on here; see this routine's
+    ; header). Adding ROW_START here was a real bug caught by direct VRAM
+    ; verification (see plan.md 2.10 Step 2b): it wrote rows 21-48, past the
+    ; tilemap's 32-row extent. ---
+    lda StreamStageFp_RowIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                            ; row * 32
+    clc
+    adc StreamStageFp_ColIndex
+    clc
+    adc #BG3_TILEMAP_VRAM_WORD
+    sta $2116
+    sep #$20
+.a8
+    lda StreamStageFp_Word
+    sta $2118
+    rep #$31
+.a16
+.i16
+    lda StreamStageFp_Word
+    xba
+    sep #$20
+.a8
+    sta $2119
+    rep #$31
+.a16
+.i16
+
+    lda StreamStageFp_RowIndex
+    inc a
+    sta StreamStageFp_RowIndex
+    sep #$20
+.a8
+    lda.l BgRecordStaging+4
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    cmp StreamStageFp_RowIndex
+    beq Bg_LoadSceneFp_Streaming__row_done
+    brl Bg_LoadSceneFp_Streaming__row_loop
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__row_done:
+
+    ; --- column done: advance to the next one ---
+    lda StreamStageFp_ColIndex
+    inc a
+    sta StreamStageFp_ColIndex
+    cmp #STREAM_STAGE_VIEWPORT_COLS
+    bcs Bg_LoadSceneFp_Streaming__col_finished
+    brl Bg_LoadSceneFp_Streaming__col_loop
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Bg_LoadSceneFp_Streaming__col_finished:
+    rep #$31
+.a16
+.i16
+
+    plp
+    rts
+
+; ----------------------------------------------------------------------
+; StageColumnFp_FetchTilePixels -- StageColumn_FetchTilePixels's twin for the
+; FP cache: 2bpp tiles (16 bytes/8 words, not 32 bytes/16 words) fetched into
+; FP_TILES_VRAM_WORD-based slots instead of BG1_TILES_VRAM_WORD ones. The
+; *8-not-*16 shift count is the one line a copy-paste of the BG1 routine
+; would get silently wrong.
+; @param StreamStageFp_TileId<16-bit>  the tile ID to fetch
+; @param StreamStageFp_Slot<16-bit>    the VRAM slot just assigned to it
+; Clobbers A/X. Entry/exit width-agnostic (re-asserts its own widths).
+; ----------------------------------------------------------------------
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumnFp_FetchTilePixels:
+    rep #$31
+.a16
+.i16
+    ; tile_id * 16 (2bpp tile = 16 bytes) via 4 left-shifts, shift-through-
+    ; accumulator (ASL/ROL have no absolute-long addressing mode -- see
+    ; StageColumn_FetchTilePixels's own comment).
+    lda StreamStageFp_TileId
+    sta StreamStageFp_TileOffLo
+    sep #$20
+.a8
+    lda #0
+    sta StreamStageFp_TileOffHi
+    rep #$31
+.a16
+.i16
+    ldx #4
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumnFp_FetchTilePixels__shift:
+    lda StreamStageFp_TileOffLo
+    asl a
+    sta StreamStageFp_TileOffLo
+    sep #$20
+.a8
+    lda StreamStageFp_TileOffHi
+    rol a
+    sta StreamStageFp_TileOffHi
+    rep #$31
+.a16
+.i16
+    dex
+    bne StageColumnFp_FetchTilePixels__shift
+
+    ; seek_addr24 = TilesBase24 + TileOff24
+    lda StreamStageFp_TilesBaseLo
+    clc
+    adc StreamStageFp_TileOffLo
+    sta StreamStageFp_SeekTmpLo
+    sep #$20
+.a8
+    lda StreamStageFp_TilesBaseHi
+    adc StreamStageFp_TileOffHi
+    sta StreamStageFp_SeekTmpHi
+
+    lda StreamStageFp_SeekTmpLo
+    sta $2000
+    lda.l StreamStageFp_SeekTmpLo+1
+    sta $2001
+    lda StreamStageFp_SeekTmpHi
+    sta $2002
+    lda #0
+    sta $2003
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumnFp_FetchTilePixels__seek_busy:
+    lda $2000
+    bmi StageColumnFp_FetchTilePixels__seek_busy
+
+    ; VMADD = FP_TILES_VRAM_WORD + slot*8 words (one 2bpp tile = 8 words)
+    rep #$31
+.a16
+.i16
+    lda StreamStageFp_Slot
+    asl a
+    asl a
+    asl a
+    clc
+    adc #FP_TILES_VRAM_WORD
+    sta $2116
+
+    ldx #8                      ; 8 words = 16 bytes, one 2bpp tile
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+StageColumnFp_FetchTilePixels__read:
+    sep #$20
+.a8
+    lda $2001
+    sta $2118
+    lda $2001
+    sta $2119
+    rep #$31
+.a16
+.i16
+    dex
+    bne StageColumnFp_FetchTilePixels__read
 
     rts
 
@@ -8108,6 +8661,31 @@ scpu_bg3_map:
     dex
     bne scpu_bg3_map
 
+    ; --- Phase 10 (plan.md 2.10) step 2b: BG3 frontpanel initial-viewport
+    ; load. MUST run after the BG3 tilemap clear directly above -- see
+    ; Bg_LoadScene__dispatch_streaming's own comment on why calling this
+    ; from inside Bg_LoadScene was a real bug (the clear ran after and wiped
+    ; it). Guarded on fp_offset (BgRecordStaging+28..30) being nonzero --
+    ; not every BG record has a packed frontpanel. ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+28
+    ora.l BgRecordStaging+29
+    ora.l BgRecordStaging+30
+    beq Boot_LoadFp__skip
+    rep #$31
+.a16
+.i16
+    jsr Bg_LoadSceneFp_Streaming
+    bra Boot_LoadFp__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Boot_LoadFp__skip:
+    rep #$31
+.a16
+.i16
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Boot_LoadFp__done:
+
     ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
     ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a
     ; stray BG2 tilemap reference would render zero instead of garbage --
@@ -8505,12 +9083,15 @@ scpu_main_loop:
 ; $FF30 -> $FF40/$FF50, when Core_StreamScroll_ClampCamera's jsr call site
 ; grew scpu_main_loop past $FF20 by 2 bytes (build_rom.py's NMI/IRQ vector
 ; constants updated to match -- keep them in sync, nothing enforces this
-; automatically).
-.org $FF40
+; automatically). Pushed AGAIN, $FF40/$FF50 -> $FF60/$FF70, when Phase 10's
+; (plan.md 2.10) BG3 frontpanel boot-time load call site grew scpu_boot and
+; left only a 2-byte margin (tools/rom_audit/audit_all.py's own margin
+; check caught it -- see that script's header for what it verifies).
+.org $FF60
 nmi_handler:
     jsr Core_Nmi_Play
     rti
 
-.org $FF50
+.org $FF70
 irq_handler:
     rti

@@ -39,7 +39,17 @@ SYM_PATH = os.path.join(REPO_ROOT, 'src', 'main.sym')
 PASM_PATH = os.path.join(REPO_ROOT, 'src', 'main.pasm')
 BASE = 0x8000
 
-BOOT_SEED_NAMES_HEX = ['FC00', 'FF20', 'FF30', '8000']
+BOOT_SEED_NAMES_HEX = ['FC00', '8000']
+BOOT_SEED_NAMES = ['nmi_handler', 'irq_handler']  # looked up by name, not
+# hardcoded hex, same rationale as OOP_SEED_NAMES above: these addresses
+# move as scpu_boot grows (already pushed at least twice in this project's
+# history -- see CLAUDE.md's ".org truncation" note). The old hardcoded
+# 'FF20'/'FF30' were a stale snapshot from an earlier push; growing
+# scpu_boot further (Phase 10, plan.md 2.10) shifted what bytes now live at
+# those addresses, and decoding a misaligned instruction stream from there
+# walked off into a bogus jump target far past $FFFF, crashing this script
+# with an IndexError instead of failing cleanly. Looking these up from
+# main.sym means the seed always matches the CURRENT real entry points.
 OOP_SEED_NAMES = [
     'Anim_Play',
     'Character_PlayFrame',
@@ -223,10 +233,10 @@ def main():
 
     sym_by_name = parse_sym_by_name(SYM_PATH)
 
-    missing = [n for n in OOP_SEED_NAMES if n not in sym_by_name]
+    missing = [n for n in OOP_SEED_NAMES + BOOT_SEED_NAMES if n not in sym_by_name]
     if missing:
         print(f'FAIL: the following names are missing from {SYM_PATH}: {missing}')
-        print('(they may have been renamed -- update OOP_SEED_NAMES in this script)')
+        print('(they may have been renamed -- update OOP_SEED_NAMES/BOOT_SEED_NAMES in this script)')
         raise SystemExit(1)
 
     data = open(BIN_PATH, 'rb').read()
@@ -236,7 +246,8 @@ def main():
 
     all_ok = True
 
-    boot_entries = [int(h, 16) for h in BOOT_SEED_NAMES_HEX]
+    boot_entries = [int(h, 16) for h in BOOT_SEED_NAMES_HEX] + \
+        [sym_by_name[n] for n in BOOT_SEED_NAMES]
     ok, real_addrs_boot = run_one_seed_set(
         'boot entry points', boot_entries, data, labels_sorted, addrs, label_by_addr)
     all_ok &= ok

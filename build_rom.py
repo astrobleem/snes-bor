@@ -33,6 +33,17 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
 # level content.
 BG_SCREENS = [("out/bg_stage1a", "out/hud")]
 
+# Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
+# BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
+# convert_frontpanel.py output) or None if that BG has no frontpanel packed.
+# Regenerate with:
+#   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 192
+#
+# Step 2a (the engine-side cache allocator) is done and shipping; nothing
+# yet reads this data at runtime (Step 2b, in progress) -- packing it here
+# is inert until then, same as stream_cache_fp.pasm's own Init-only state.
+FP_SCREENS = ["out/fp_stage1a"]
+
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
 
@@ -79,8 +90,8 @@ def main():
 
     # Vectors — fixed by .org directives in main.pasm
     RESET = 0xFC00   # scpu_boot
-    NMI = 0xFF40     # nmi_handler (rti stub)
-    IRQ = 0xFF50     # irq_handler (rti stub)
+    NMI = 0xFF60     # nmi_handler (rti stub)
+    IRQ = 0xFF70     # irq_handler (rti stub)
 
     # COP/BRK/ABORT never fire intentionally in this codebase, but leaving
     # their vectors unset means they point at ROM offset 0 (zero-filled
@@ -126,7 +137,8 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
-    msu_data, roster_sidecar = pack_msu_roster.pack_roster(ROSTER_PREFIXES, bgs=BG_SCREENS)
+    msu_data, roster_sidecar = pack_msu_roster.pack_roster(
+        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS)
     with open('build/bor.msu', 'wb') as f:
         f.write(msu_data)
     with open('distribution/bor.msu', 'wb') as f:
@@ -141,6 +153,10 @@ def main():
         print(f"  bg {b['slot']}: {b['bg_dir']} @ offset {b['data_offset']} "
               f"({b['bg_tile_count']} tiles, {b['hud_tile_count']} hud tiles, "
               f"{b['level_entry']})")
+        fp = b.get('fp')
+        if fp:
+            print(f"    fp: {fp['fp_dir']} @ offset {fp['data_offset']} "
+                  f"({fp['tile_count']} tiles, width_tiles={fp['width_tiles']})")
     print(f"Reset: ${rom[0x7FFD]<<8|rom[0x7FFC]:04X}  NMI: ${rom[0x7FFB]<<8|rom[0x7FFA]:04X}  IRQ: ${rom[0x7FFF]<<8|rom[0x7FFE]:04X}")
     print(f"Map: ${rom[0x7FD5]:02X}  Cart: ${rom[0x7FD6]:02X}")
     return 0

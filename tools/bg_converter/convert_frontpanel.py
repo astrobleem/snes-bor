@@ -218,6 +218,20 @@ def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
     palettes, uniq_indexed, uniq_pal_ids = build_palettes_tileaware(
         unique_raw, num_palettes=NUM_PALETTES, colors_per_palette=COLORS_PER_PALETTE,
         trans_color=trans_bgr)
+
+    # build_palettes_tileaware's nearest-color pixel assignment NEVER maps a
+    # pixel to index 0 (see its own `dist[:, :, 0] = np.inf` -- correct for
+    # convert_bg.py's opaque BG1 use of this same shared quantizer, wrong
+    # here). It only PREPENDS trans_color as slot 0 of each output palette,
+    # so a genuinely transparent (TRANS_RGB-keyed) source pixel still gets
+    # nearest-color-matched to a REAL palette entry instead of index 0 --
+    # confirmed via direct VRAM inspection (Mesen2) rendering as solid
+    # opaque magenta over most of the screen instead of see-through
+    # backdrop, root-caused to CGRAM sub-palette 1 index 2 decoding to
+    # R=31,G=0,B=31. Force it back to index 0 by exact match on the RAW
+    # (pre-quantization) pixel color, which is decidable independent of
+    # whatever the quantizer chose. ---
+    uniq_indexed[unique_raw == trans_bgr] = 0
     if verbose:
         print(f'built {len(palettes)} sub-palettes of {COLORS_PER_PALETTE} '
               f'({COLORS_PER_PALETTE - 1} usable colors each, '

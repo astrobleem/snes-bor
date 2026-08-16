@@ -24,22 +24,29 @@ each section below.
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
-> layer" (Step 1/converter done, engine not started) — plus "Harness gotchas" and "File
-> inventory." Read those. Everything above them is older history, kept for
-> the root-cause detail, and parts of it are known wrong.
+> layer" (Steps 1, 2a, 2b done; 2c-4 not started) — plus "Harness gotchas" and
+> "File inventory." Read those. Everything above them is older history, kept
+> for the root-cause detail, and parts of it are known wrong.
 >
 > **As of 2026-08-16, Phase 9 (streaming BG1 tile cache) is the most recent
-> COMPLETED phase — see that section near the bottom.** It is built,
+> fully-COMPLETED phase — see that section near the bottom.** It is built,
 > verified, AND shipped: the ROM streams a real BOR level (stage 1A,
 > `out/bg_stage1a`), not the old static boss level.
 >
-> **Phase 10 (frontpanel foreground layer) is IN PROGRESS** — Step 1
-> (converter tooling) and Step 2a (cache allocator, `core/
-> stream_cache_fp.pasm`) are done and verified. Steps 2b-4 (boot load,
-> per-frame resolver, BG3 priority wiring, verification) are NOT started —
-> the cache exists but nothing calls it yet. See the Phase 10 section near
-> the bottom and `plan.md` §2.10 Step 2b for exactly where to pick this up;
-> `plan.md` §2.9 lists other, unrelated candidate phases if not.
+> **Phase 10 (frontpanel foreground layer) is IN PROGRESS** — Steps 1
+> (converter tooling), 2a (cache allocator), and 2b (boot-time initial
+> load) are done and verified in Mesen2: the chain-link fence now renders
+> correctly in front of the character sprites, with no rendering
+> corruption. Step 2b's bring-up found and fixed four real bugs (two in
+> `main.pasm`'s boot ordering/scratch-cell reuse, one BG3 CHR-base
+> tilemap-addressing bug, one converter transparency-quantization bug) —
+> see `plan.md` §2.10 Step 2b for the full list, each is worth reading
+> before touching this code again since none of the four failure modes are
+> obvious from the symptom alone. Steps 2c-4 (per-frame repair-sweep,
+> explicit HUD-coexistence recheck, verification script) are NOT started.
+> See the Phase 10 section near the bottom and `plan.md` §2.10 Step 2c for
+> exactly where to pick this up; `plan.md` §2.9 lists other, unrelated
+> candidate phases if not.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1457,7 +1464,7 @@ input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
 next phases (damage system, SFX, roster persistence), none started.
 
-## Phase 10: frontpanel foreground layer — Step 1 (converter) DONE, engine not started
+## Phase 10: frontpanel foreground layer — Steps 1, 2a, 2b DONE; 2c-4 not started
 
 Found while recapturing README screenshots against the newly-shipped stage
 1A (see Phase 9 above): the fence in `scene_scrolled.png` renders *behind*
@@ -1519,15 +1526,78 @@ shipped stage-1A ROM after this addition — this cache exists in the build
 now but nothing calls `AllocateSlot` from any real per-frame or boot-time
 path yet, so it's inert, zero risk to what's shipped.
 
-**Steps 2b-4 are NOT started.** No initial-viewport boot load, no
-per-frame resolver/repair-sweep, no BG3 priority-bit wiring, no
-`phase10*.py` test script. Start at `plan.md` §2.10 Step 2b/2c — a
-`Bg_LoadScene_Streaming`-equivalent boot load, then a
-`Core_StreamScroll_*`-equivalent per-frame resolver, both targeting this
-now-existing cache. This is the harder half, with real risk (a second
-per-frame streaming consumer competing for the same 8-slot DMA queue
-Phase 0/9 already had to solve once) — budget real Mesen2 verification
-time.
+**Step 2b (boot-time initial load) is done and verified in Mesen2.**
+`Bg_LoadSceneFp_Streaming`/`StageColumnFp_FetchTilePixels` (main.pasm), a
+`Bg_LoadScene_Streaming`-equivalent boot-time loader for the FP cache,
+called from `scpu_boot` after `scpu_bg3_map`'s tilemap clear. Getting this
+working end-to-end surfaced and fixed four real bugs, each caught by
+direct Mesen2 ground-truth checks, not assumption — worth reading in full
+before touching this code again:
+
+1. **Row-offset double-count**: the tilemap write address originally added
+   a `STREAM_FP_TILEMAP_ROW_START` offset on top of the row index, but the
+   converter's `tilemap.bin` already encodes the full row range including
+   blank rows. Fixed by writing `row*32 + col` directly.
+2. **Scratch-cell aliasing with live BG1 runtime state**: the FP loader
+   initially reused BG1's `StreamStage_*` scratch cells, which are NOT
+   boot-only — `Core_StreamScroll_SeekColumn` depends on them holding
+   BG1's own state persistently every frame. Fixed by giving the FP loader
+   its own `StreamStageFp_*` cell block.
+3. **Boot-ordering clobber**: the FP call site was originally inside
+   `Bg_LoadScene` itself, but `scpu_bg3_map`'s unconditional 1024-word BG3
+   tilemap clear runs LATER in `scpu_boot`, silently wiping every FP write.
+   Fixed by moving the call to after that clear loop.
+4. **BG3 CHR-base tilemap-addressing bug** (the one that produced the
+   full-screen magenta corruption, found last, after the first three
+   fixes still left the screen wrong): the tilemap word's character-number
+   field is PPU-relative to `BG3_TILES_VRAM_WORD` ($5000, BG3's real CHR
+   base), not to `FP_TILES_VRAM_WORD` ($5100, where this cache physically
+   stores its tiles) — writing the bare cache-slot number as the character
+   field pointed 32 tiles too early, into/before the HUD's own 12 tiles,
+   so every frontpanel tile rendered uninitialized VRAM instead of its own
+   data. This is exactly why BG1's equivalent loader "just worked" without
+   this correction: BG1's cache tiles happen to start at the same address
+   as BG1's own CHR base, so slot == character number there by
+   coincidence, an assumption that silently didn't survive the port to
+   BG3. Fixed with `FP_TILE_INDEX_BASE = 32` (`= (FP_TILES_VRAM_WORD -
+   BG3_TILES_VRAM_WORD) / 8`), added to the slot number before building
+   the tilemap word.
+
+A fifth, independent bug was found in the *converter* while chasing the
+same magenta symptom: `tiledpalettequant.build_palettes_tileaware`
+accepts a `trans_color` parameter but never actually indexes a genuinely
+transparent source pixel to palette slot 0 — it only prepends that color
+as slot 0 in the *output* palette, then nearest-color-matches every real
+pixel (transparent ones included) against the non-zero slots, since its
+distance calc explicitly excludes index 0 (`dist[:, :, 0] = np.inf`).
+Fine for `convert_bg.py`'s opaque-only use case, silently wrong for
+`convert_frontpanel.py`'s transparency-dependent one. Fixed in
+`convert_frontpanel.py` with `uniq_indexed[unique_raw == trans_bgr] = 0`
+after quantization, forcing raw-transparent pixels back to index 0;
+`out/fp_stage1a/` was regenerated (535 tiles / 143-tile worst-case window
+unchanged — same shape, corrected pixel data).
+
+**Verified**: a Mesen2 screenshot after all five fixes shows a clean
+scene — brick-wall BG1 backdrop, HUD bars, and the chain-link fence with
+"LAP CLAP" signage rendering correctly in front of the character sprites,
+no magenta or garbage-tile corruption anywhere. Full regression suite
+(`check_label_drift.py`, `audit_all.py`, phase5/6/7) green on the rebuilt
+ROM. `phase5.py`'s padding-row settle-time check was bumped from 20 to
+120 frames total (a second boot-time streaming loader legitimately pushed
+the settle point later — confirmed via direct probing, not a regression);
+`phase6.py`'s CGRAM ground-truth comparison now merges in the FP
+palette's real bytes.
+
+**Steps 2c-4 are NOT started.** No per-frame resolver/repair-sweep (the
+FP cache is boot-time-loaded only right now — nothing re-resolves it as
+the camera scrolls), no explicit re-check of BG3 priority/HUD coexistence
+under the new FP content (Phase 6's own HUD checks pass unchanged, but
+`plan.md` §2.10 Step 3 asks for an explicit recheck, not just an assumed
+pass), no `phase10*.py` test script. Start at `plan.md` §2.10 Step 2c — a
+`Core_StreamScroll_*`-equivalent per-frame resolver targeting this cache.
+This is real remaining risk (a second per-frame streaming consumer
+competing for the same 8-slot DMA queue Phase 0/9 already had to solve
+once) — budget real Mesen2 verification time.
 
 ## Harness gotchas (Mesen2 / build)
 

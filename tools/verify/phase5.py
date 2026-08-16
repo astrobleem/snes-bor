@@ -87,8 +87,15 @@ def main():
         # confirmed clean by frame ~50 on both the synthetic warehouse
         # stress asset and a real converted level (see
         # syncscroll_budget_throughput project memory). This no-ops (just
-        # burns 20 already-settled frames) for a static BG. ---
-        m.run_frames(20)
+        # burns already-settled frames) for a static BG.
+        #
+        # Phase 10 (plan.md 2.10) added a second boot-time streaming loader
+        # (Bg_LoadSceneFp_Streaming, BG3 frontpanel) that runs after this one
+        # and does its own real per-tile MSU seeking -- confirmed via direct
+        # Mesen2 probing that this pushed the settle point from ~50 total
+        # frames to ~100; bumped to 150 for margin, not tuned to the exact
+        # boundary. ---
+        m.run_frames(120)
         m.pause()
         for slice_idx in range(4):
             row6 = read_block(m, PADDING_ROW6[slice_idx], 128, mem_type='snesVideoRam')

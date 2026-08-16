@@ -1642,8 +1642,11 @@ build a script under `tools/verify/`, verify against ground truth the
 engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
 boundary.
 
-## 2.10 — Phase 10: frontpanel foreground layer (IN PROGRESS — Step 1
-(converter tooling) ✅ DONE 2026-08-16; Steps 2-4 (engine) not started)
+## 2.10 — Phase 10: frontpanel foreground layer (IN PROGRESS — Steps 1, 2a,
+2b ✅ DONE 2026-08-16 (converter tooling, cache allocator, boot-time
+initial load, all verified in Mesen2); Step 2c (runtime repair-sweep),
+Step 3 (explicit HUD-coexistence recheck), Step 4 (phase10 verify script)
+not started)
 
 ### The problem
 
@@ -1800,12 +1803,50 @@ each step should get its own commit and gate, not one giant change)
    back-references consistent both directions. Full regression suite
    (label-drift, audit_all, phase5/6/7, phase9_stagecolumn_spotcheck) still
    green on the real shipped stage-1A ROM after this addition.
-   **2b (boot-time initial load) and 2c (runtime resolver/repair-sweep) are
-   NOT started** — this cache has an allocator but nothing yet calls it
-   from a real per-frame or boot-time path. That's the actual next step,
-   and the harder half: a `Bg_LoadScene_Streaming`-equivalent initial
-   viewport load, then a `Core_StreamScroll_*`-equivalent per-frame
-   resolver.
+   **2b (boot-time initial load) — ✅ DONE (2026-08-16), verified in
+   Mesen2.** `Bg_LoadSceneFp_Streaming`/`StageColumnFp_FetchTilePixels`
+   (main.pasm), a `Bg_LoadScene_Streaming`-equivalent initial-viewport
+   loader using dedicated `StreamStageFp_*` scratch cells (NOT the shared
+   `StreamStage_*` cells — those are live BG1 per-frame runtime state, not
+   boot-only scratch; aliasing them was one of three real bugs found and
+   fixed getting this working, see below). Called from `scpu_boot` after
+   `scpu_bg3_map`'s unconditional 1024-word BG3 tilemap clear (moving the
+   call site there was bug #2 — it was originally invoked from inside
+   `Bg_LoadScene` and had every write silently wiped by that later clear).
+   Bug #3, found only after the first two were fixed and a screenshot still
+   showed the entire backdrop as solid magenta: **the tilemap word's
+   character-number field is PPU-relative to `BG3_TILES_VRAM_WORD` ($5000,
+   BG3's actual CHR base), not to `FP_TILES_VRAM_WORD` ($5100, where this
+   cache's tiles are actually stored)** — writing the bare cache slot
+   number as the character field pointed 32 tiles too early, into/before
+   the HUD's own 12 tiles, so every frontpanel tile rendered whatever
+   uninitialized VRAM happened to sit there. Fixed with a new
+   `FP_TILE_INDEX_BASE = 32` constant (`= (FP_TILES_VRAM_WORD -
+   BG3_TILES_VRAM_WORD) / 8`) added to the slot number before the
+   palette/priority bits are OR'd in. A fourth, independent bug in
+   `convert_frontpanel.py` (`tiledpalettequant.build_palettes_tileaware`
+   never actually indexes a transparent source pixel to palette slot 0
+   despite accepting a `trans_color` param — it only prepends that color
+   as slot 0 in the output palette, then nearest-color-matches every real
+   pixel including transparent ones against the non-zero slots) was found
+   and fixed the same session (`uniq_indexed[unique_raw == trans_bgr] = 0`
+   forcing raw-transparent pixels back to index 0 post-quantization);
+   `out/fp_stage1a/` was regenerated with the fix (535 tiles / 143
+   worst-case window unchanged — same shape, corrected pixel data).
+   **Verified**: Mesen2 screenshot after all four fixes shows a clean
+   scene — brick-wall BG1 backdrop, HUD bars, and the chain-link fence
+   with "LAP CLAP" signage rendering correctly in front of the character
+   sprites, no magenta corruption anywhere. Full regression suite
+   (`check_label_drift.py`, `audit_all.py`, phase5/6/7) green on the
+   rebuilt ROM; phase5.py's padding-row settle-time check was bumped from
+   20 to 120 frames (a second boot-time streaming loader legitimately
+   pushed the settle point later, confirmed via direct probing, not a
+   regression) and phase6.py's CGRAM ground-truth comparison now merges in
+   the FP palette's real bytes.
+   **2c (runtime resolver/repair-sweep) is NOT started** — the frontpanel
+   cache is boot-time-loaded only; nothing yet re-resolves it as the
+   camera scrolls (BG1's `Core_StreamScroll_*` equivalent). That's the
+   next step.
 3. **BG3 priority + HUD coexistence.** Set the priority bit on frontpanel
    tilemap entries the same way the HUD already does; verify the HUD still
    renders correctly sharing the layer (its own dedicated Phase 6 checks
