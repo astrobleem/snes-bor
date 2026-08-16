@@ -25,18 +25,28 @@ each section below.
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
 > layer" (DONE, all steps 1-4), then "Phase 11: damage system" (DONE), then
-> "Phase 12: expand the roster" (DONE) — plus "Harness gotchas" and "File
+> "Phase 12: expand the roster" (DONE), then "Phase 9 gate: scroll-lag +
+> self-contained gate closed" (DONE) — plus "Harness gotchas" and "File
 > inventory." Read those. Everything above them is older history, kept for
 > the root-cause detail, and parts of it are known wrong.
 >
-> **As of 2026-08-16, Phase 12 (roster expansion) is the most recent
-> fully-COMPLETED phase — see that section near the bottom.** A real third
-> character (JOE) was converted from the BOR pak and added as roster slot
-> 2, replacing Entity #2's old "duplicate Ralf" fallback; a real pre-existing
-> bug in `CharSelect_Index`'s boot-time initialization (exposed, not
-> introduced, by having a 3rd slot to skip) was found and fixed along the
-> way. Built, verified in Mesen2, AND gated by a committed regression
-> script (`tools/verify/phase12_roster.py`).
+> **As of 2026-08-16, the Phase 9 gate's two open follow-ups (real-play
+> scroll-lag measurement + a self-contained `phase9.py`) are closed — see
+> that section near the bottom.** `set_input` was confirmed to move the
+> camera correctly (a prior session's "never moved" observation was a
+> short-hold-window race, not a broken tool or a real gap); real held-right
+> input surfaced a genuine, bounded/recoverable throughput dip in the
+> streaming cache under sustained fast travel, now gated by
+> `tools/verify/phase9.py` (no `BG_SCREENS` swap needed — the shipped level
+> is already streaming).
+>
+> **Phase 12 (roster expansion) is DONE.** A real third character (JOE) was
+> converted from the BOR pak and added as roster slot 2, replacing Entity
+> #2's old "duplicate Ralf" fallback; a real pre-existing bug in
+> `CharSelect_Index`'s boot-time initialization (exposed, not introduced, by
+> having a 3rd slot to skip) was found and fixed along the way. Built,
+> verified in Mesen2, AND gated by a committed regression script
+> (`tools/verify/phase12_roster.py`).
 >
 > **Phase 11 (damage system) is DONE.** AI entities soft-kill at
 > `CHAR_HP==0` (stop acting/moving/hitting, sprite hides) without ever
@@ -1806,6 +1816,58 @@ loosened) for the new composition: "slot0==slot2 (two Ralfs)" is gone
 "slot1==slot3 (two JHUNs)" is unchanged. Full regression suite
 (`audit_all.py`, `check_label_drift.py`, `phase5.py`, `phase6.py`,
 `phase7.py`, `phase11_damage.py`) all still pass.
+
+## Phase 9 gate: scroll-lag measurement + self-contained gate — DONE (see `plan.md` §2.9's "Phase 9 gate" section for the full writeup)
+
+Closed the two items `plan.md`'s "Phase 9 gate" section left open after the
+warehouse-swap re-verification: real-play scroll-lag under sustained
+held-dpad input was never measured (only a scripted `PlayerEntity_PosX`
+WRAM teleport had been tried), and there was no self-contained committed
+`phase9.py` gate (the `phase9_stagecolumn_spotcheck.py`/
+`phase9_syncscroll_test2.py` pair needs a manual `BG_SCREENS` swap and real
+wall-clock time).
+
+**`set_input` resolved — not a harness gap.** Driving
+`m.set_input(m.BTN_RIGHT, ...)` against the live shipped ROM (`out/bg_stage1a`,
+already a real streaming level, so no config swap needed) showed the camera
+DOES move correctly. The prior session's "camera never advanced across 20
+iterations" was a short-hold-window race: pairing a 10-frame `set_input`
+with an immediately-following 10-frame `run_frames` produced unreliable
+partial presses (about half the sample windows showed BOTH
+`PlayerEntity_PosX` and `Screen_PosX` completely frozen). A comfortably
+longer run window than the hold (30-frame hold / 35-frame run) gave clean,
+consistent movement every time — see `phase9_scroll_lag_resolved` project
+memory.
+
+**Real finding**: with reliable input, the camera never lags behind the
+player — `Screen_PosX` tracks `PlayerEntity_PosX` with a constant ~144px
+follow offset that does not grow. But the player's OWN movement throughput
+periodically dips under sustained held-right — from ~78px per 35-frame
+window (matching nominal `PLAYER_SPEED`=2px/frame) down to near-zero,
+including brief single-window full stops, before recovering. This
+correlates with `StreamScroll_CameraCol` catching up to
+`StreamScroll_StagedHi` (the streaming cache's desired window closing in on
+its resident window) — read as a symptom of the shared per-frame DMA-queue
+budget (column-streaming DMAs competing with the one-entity-streams-per-
+frame animation cap from CLAUDE.md's entity-system constraint), consistent
+with `syncscroll_budget_throughput`'s already-documented actively-tuned
+tradeoff. Not treated as a bug to fix.
+
+**New gate**: `tools/verify/phase9.py` (routine, added to CLAUDE.md's and
+README's test lists — distinct from the ad hoc `phase9_stagecolumn_spotcheck.py`/
+`phase9_syncscroll_test2.py` pair, which stay non-routine). Runs 20
+iterations of held-right at the reliable cadence against the ROM as
+actually shipped (no `BG_SCREENS` mutation) and asserts: camera and
+streaming cache both advance under held input; no stall run longer than 2
+sample windows (~70 frames, catching a real hang regression without gating
+exact throughput numbers, which are expected to keep being tuned); camera
+lag behind the cache's own resident high-water mark stays under one
+screen-width; engine still running (`Nmi_FrameCounter` advancing) at the
+end. All checks PASS. This is also the first time the streaming engine has
+been exercised against `distribution/bor.sfc` as actually built, not a
+temporary synthetic-asset config swap. Full regression suite (`audit_all.py`,
+`check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`,
+`phase11_damage.py`, `phase12_roster.py`) all still pass.
 
 ## Harness gotchas (Mesen2 / build)
 

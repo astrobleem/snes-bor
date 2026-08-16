@@ -44,11 +44,12 @@ python tools/verify/phase5.py                    # 4 entities: OAM, palettes, an
 python tools/verify/phase6.py                    # BG1 backdrop + BG3 HUD vs. converter output
 python tools/verify/phase7.py                    # TAD audio reaches PLAYING and is audibly non-silent
 python tools/verify/phase8.py                    # camera/scroll: world X, BG1HOFS, clamps, OAM X-high bit
+python tools/verify/phase9.py                     # streaming cache under sustained held-dpad input: throughput bounded, no permanent stall
 python tools/verify/phase11_damage.py             # damage system: dead AI stops acting/hitting, sprite hides
 python tools/verify/phase12_roster.py             # roster expansion: 3 selectable characters, Select cycles/wraps
 ```
 
-`tools/verify/phase9_*.py` are a separate, non-gate pair of scripts for the streaming tile cache (`plan.md` §2.8) — they track `BG_SCREENS` automatically now (like `phase6.py`) and pass against whatever streaming BG currently ships (as of 2026-08-16, a real level, `out/bg_stage1a`), but each takes real Mesen2 wall-clock time. Don't add them to the routine list above; see `plan.md` §2.8's own gate procedure if you're touching `Core_StreamScroll_*`/`core/stream_cache.pasm`.
+`tools/verify/phase9_stagecolumn_spotcheck.py` and `phase9_syncscroll_test2.py` (note: distinct from the routine `phase9.py` above) are a separate, non-gate pair of scripts for byte-exact Tile2Slot-vs-VRAM consistency in the streaming tile cache (`plan.md` §2.8) — they track `BG_SCREENS` automatically now (like `phase6.py`) and pass against whatever streaming BG currently ships (as of 2026-08-16, a real level, `out/bg_stage1a`), but each takes real Mesen2 wall-clock time. Don't add them to the routine list above; see `plan.md` §2.8's own gate procedure if you're touching `Core_StreamScroll_*`/`core/stream_cache.pasm`.
 
 `tools/verify/phase10_frontpanel.py` is the same kind of non-routine, real-Mesen2-time gate for the BG3 frontpanel streaming cache (`plan.md` §2.10) — checks both the boot-time viewport load and the runtime scroll resolver (`Core_StreamScrollFp_*`/`core/stream_cache_fp.pasm`) against the frontpanel converter's own `tilemap.bin`/`tiles.bin`, using the same Tile2Slot-consistency invariant as `phase9_syncscroll_test2.py`. Don't add it to the routine list above; run it directly if touching `Core_StreamScrollFp_*`, `core/stream_cache_fp.pasm`, or `Core_Dma_HasFreeSlot`/`Core_Dma_Enqueue` in `core/dma.pasm` (that guard is shared by both BG1's and FP's resolvers — see its header comment).
 

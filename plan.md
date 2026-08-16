@@ -1562,35 +1562,45 @@ not the engine:
   and buildable for anyone who wants to re-verify Phase 8's own gate
   against that config.
 
-The two previously-open items are now **partially addressed, not fully
-closed**: this proves the engine against real level content (was open),
-but real-play scroll-lag magnitude is still unmeasured (traversal above
-used a scripted WRAM position sweep, not sustained realistic held-dpad
-input), and there is still no self-contained committed `phase9.py` gate —
-the two `phase9_*.py` scripts are more reusable now (they track
-`BG_SCREENS` automatically) but still require Mesen2 and take real wall-
-clock time, not a quick pytest-style assertion.
+**UPDATE (2026-08-16): both remaining items closed.** See
+`tools/verify/phase9.py` (new, committed, routine gate — no `BG_SCREENS`
+swap needed, since `out/bg_stage1a` is itself the streaming level now).
 
-**Not done / open, if a future level actually needs this engine:**
-- **Real-play scroll-lag magnitude is still unmeasured.** The camera clamp
-  was verified against an artificial WRAM teleport of `PlayerEntity_PosX`,
-  not against sustained realistic held-dpad-right input — `set_input`
-  wasn't observed to move the camera in that test (see
-  [[syncscroll_budget_throughput]], "Attempted to re-test with realistic
-  held-dpad-right input"). Before shipping a level that actually exercises
-  streaming, re-attempt that test and resolve whether it's a harness issue
-  or a real gap.
-- **No committed `phase9.py` gate script.** The two `phase9_*.py` scripts
-  are ad hoc and require the manual `BG_SCREENS` swap described above —
-  they were never turned into a self-contained gate (build its own test
-  ROM, run, restore) the way `phase5.py`–`phase8.py` are. Worth doing
-  before this engine is ever load-bearing for a shipped level.
-- **This engine has never actually rendered in the shipped product.** It
-  has only ever been exercised against the synthetic warehouse asset with
-  a temporary config swap. The first time a real converted level needs
-  streaming, budget time for surprises — it has never been proven against
-  real BOR level content, only a stress-test asset built specifically to
-  have an unrealistically high tile count.
+Real-play scroll-lag, measured via `m.set_input(m.BTN_RIGHT, ...)` against
+the live shipped ROM: `set_input` **does** move the camera correctly —
+the prior "camera never advanced" observation was a harness-usage issue,
+not a real gap or a broken tool. Root cause: a short hold window (10-frame
+`set_input` paired with a 10-frame `run_frames`) produces unreliable
+partial presses — roughly half the sample windows showed BOTH
+`PlayerEntity_PosX` and `Screen_PosX` completely frozen despite
+continuously re-issued held-right input. A longer, comfortably-paired
+cadence (30-frame hold / 35-frame run) gives clean, consistent movement.
+This is a generalization of [[mesen_set_input_wall_clock]]'s "frames is a
+lower bound" note, not a new bug.
+
+With the reliable cadence, real held-right movement surfaced a genuine,
+previously-undocumented finding: the camera itself never lags behind the
+player (`Screen_PosX` tracks `PlayerEntity_PosX` with a constant ~144px
+follow offset, not a growing one), but the **player's own movement
+throughput periodically degrades** under sustained rightward travel — from
+nominal ~78px per 35-frame window (≈2px/frame, matching `PLAYER_SPEED`)
+down to brief near-zero windows, including occasional single-window full
+stops, before recovering. This correlates with the streaming cache's
+desired window catching up to its resident window (`StreamScroll_CameraCol`
+approaching `StreamScroll_StagedHi`) and is consistent with the DMA-queue
+budget being shared between column-streaming DMAs and the
+one-entity-streams-per-frame animation cap (see CLAUDE.md's entity-system
+constraint). Not treated as a bug to fix here — `syncscroll_budget_throughput`
+already documents this budget as an actively-tuned tradeoff — but now
+`phase9.py` gates that it stays *bounded and recoverable* (no stall run
+longer than 2 sample windows, camera lag behind the cache's own
+high-water mark stays under one screen-width) rather than being an
+unmeasured unknown.
+
+**This engine has now actually rendered in the shipped product** —
+`phase9.py` runs against `distribution/bor.sfc` built from the real
+`ROSTER_PREFIXES`/`BG_SCREENS` config, not a temporary synthetic-asset
+swap.
 
 ### Phase 9 gate (for re-verifying, not for shipping — this isn't wired
 into the shipped ROM's config)
