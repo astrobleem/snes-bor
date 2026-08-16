@@ -15,6 +15,7 @@ CHAR_POS_X = 4
 CHAR_POS_Y = 6
 CHAR_FRAME_INDEX = 9
 CHAR_HIT_STUN = 33
+CHAR_HP = 35
 
 # Entity bases in OopObjRam (see main.pasm's PlayerEntity_Base/Entity1..3_Base).
 # Derived from CHAR_ZP_LEN rather than hardcoded: this was originally written as
@@ -47,6 +48,11 @@ def entity_frame_index(m, base):
 def entity_hit_stun(m, base):
     block = read_block(m, base, 64)  # CHAR_HIT_STUN=33 needs >32 bytes from base
     return block[CHAR_HIT_STUN]
+
+
+def entity_hp(m, base):
+    block = read_block(m, base, 64)  # CHAR_HP=35 needs >32 bytes from base
+    return block[CHAR_HP]
 
 
 def main():
@@ -142,17 +148,30 @@ def main():
         # two samples 240 frames apart can coincidentally land on the same
         # value even though it changed continuously in between -- a single
         # before/after inequality check is too weak against a cyclic
-        # counter and produces false FAILs. ---
+        # counter and produces false FAILs.
+        #
+        # Spawn-table phase (2026-08-16): entities 2/3 (indices 2/3 here) no
+        # longer animate from boot -- they boot at CHAR_HP=0 (unspawned) and
+        # only start acting once the global spawn queue's trigger_x is
+        # reached by Screen_PosX (core/spawn.pasm), which requires camera
+        # movement this passive (no dpad input) test never drives. Only
+        # entity 1's spawn record has trigger_x=0, so only entities 0
+        # (player, never gated by this at all) and 1 are expected to
+        # animate here -- verified via Mesen: entities 2/3 stay HP=0 and
+        # CHAR_FRAME_INDEX frozen for the whole run in this exact scenario,
+        # which is correct now, not a regression. ---
         samples = [[entity_frame_index(m, b) for b in ENTITY_BASES]]
         for _ in range(5):
             m.run_frames(48)
             m.pause()
             samples.append([entity_frame_index(m, b) for b in ENTITY_BASES])
         print(f'CHAR_FRAME_INDEX at 6 samples over 240 frames: {samples}')
-        for i in range(4):
+        for i in range(2):
             values_seen = {s[i] for s in samples}
             r.check(f'entity {i} CHAR_FRAME_INDEX varies across 240 frames',
                      len(values_seen) > 1)
+        r.check('entities 2/3 stay unspawned (HP=0) without camera movement',
+                 all(entity_hp(m, b) == 0 for b in ENTITY_BASES[2:4]))
 
         # --- no vblank overrun: Nmi_FrameCounter still advancing after
         # 700 frames with 4 entities streaming/moving/colliding at once. ---

@@ -39,6 +39,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import open_session, pasm_constant, read_block, Reporter  # noqa: E402
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
+CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 
 CHAR_POS_X = 4
@@ -79,6 +80,20 @@ def main():
 
         hp_before = read_block(m, Entity1_Hp, 32)[0]
         print(f'Entity1_Hp before kill: {hp_before}')
+
+        # Spawn-table phase (2026-08-16): entities 2/3 no longer stand alive
+        # from boot -- they start CHAR_HP=0 (unspawned, see core/spawn.pasm)
+        # and only reach CHAR_HP_MAX once the level's spawn queue trigger_x
+        # is reached, which needs camera movement this test never drives.
+        # This test needs them ALIVE as controls (to prove the dead-check is
+        # scoped to entity 1 only, not freezing everyone) -- same "direct
+        # WRAM write is safe here, nothing else races CHAR_HP" reasoning as
+        # entity 1's own kill write below, just setting HP up instead of
+        # down.
+        for i in (2, 3):
+            m.write_memory('snesMemory', ENTITY_BASES[i] + CHAR_HP, f'{CHAR_HP_MAX:02X}')
+        m.run_frames(5)
+        m.pause()
 
         posx_before = {i: entity_posx(m, b) for i, b in enumerate(ENTITY_BASES)}
 

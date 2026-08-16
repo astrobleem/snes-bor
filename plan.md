@@ -48,8 +48,13 @@ or the full OpenBOR scripting engine — see "Explicitly out of scope."
 > already real prior design work toward running that VM on this hardware
 > (`openbor4086_sa1_bootstrap.zip`, untracked, in the repo root) — but it
 > was never assembled or verified, and it targets a bank layout this
-> project's Poppy-toolchain constraints don't allow as-is. Read that
-> section before scoping any "next level" or "spawn enemies" work.
+> project's Poppy-toolchain constraints don't allow as-is. **Update
+> (still 2026-08-16): the spawn-wave gap is now closed** — Phase 13
+> (§2.13) added a convert-time spawn table (no VM needed) that drives real
+> enemy waves for stage 1A. Level-transition/win-condition logic is still
+> not implemented. Read §2.13 before touching spawn behavior for stage 1A,
+> or the "What 'levels' actually means" section above it before scoping a
+> *second* level or the OpenBOR VM path.
 
 Work through the phases **in order**. Phase 0 is a bug fix that is a hard
 prerequisite — the current code has a real, deterministic data-corruption
@@ -415,17 +420,18 @@ one — `BG_SCREENS` in `build_rom.py` is a single hardcoded
 loaded level (Phase 8/9); nothing past its right edge exists to scroll
 into.
 
-**There is no win condition, no game loop, and no spawn-wave logic.**
-`CLAUDE.md` already says this outright ("this is not a playable game...
-there is still no game loop") and it remains true after Phase 11's damage
-system: AI entities now soft-kill at `CHAR_HP==0` (stop acting, sprite
-hides), but nothing *consumes* that fact — there's no "all enemies dead →
-advance" check, because there's nothing to advance to and no wave/spawn
-system that would make "all enemies dead" a meaningful moment in the
-first place. The 4 entities are hardcoded at boot (fixed roster slots,
-fixed `EntityN_Base` WRAM addresses, per CLAUDE.md's own "player is
-always slot 0" design note) — nothing spawns, despawns, or arrives in
-waves.
+**There is no win condition or game loop, but there IS now real spawn-wave
+logic (Phase 13, §2.13, done 2026-08-16).** `CLAUDE.md` still says "this is
+not a playable game... there is still no game loop," and that part remains
+true — there's still no "all enemies dead → advance" check, because
+there's still nothing to advance TO (no level-transition system, next
+paragraph). But the 4 entities are no longer hardcoded-alive-forever the
+way they were through Phase 12: a real spawn table (built from stage 1A's
+own `spawn`/`at` script blocks) now drives when/where/facing each of the 3
+AI slots gets placed, reusing Phase 11's `CHAR_HP==0` soft-kill sentinel as
+"unspawned" too. See §2.13 for exactly what is and isn't modeled (position/
+timing is faithful; character identity, per-spawn HP overrides, and
+non-enemy spawns like the `1up` pickup are not).
 
 **Why that's not a small gap: real OpenBOR levels are driven by a real
 bytecode-VM scripting language, not declarative data.** This project's
@@ -482,30 +488,31 @@ this constraint. Using it here means either re-deriving it for bank 0 or
 adopting the numeric-`bank:offset`-literal workaround CLAUDE.md documents
 for cross-bank references — a real adaptation pass, not a copy-paste.
 
-**Two realistic paths forward, very different in cost:**
-1. **Convert-time spawn tables (small, tractable, no VM).** This engine
-   already hardcodes its entities at boot instead of a general
-   entity-lookup system. The same shape of shortcut works for spawn data:
-   parse the small subset of a level script actually needed (enemy
-   type/position/wave timing, a level-end marker) in Python at
-   convert-time, bake it into a small fixed table the SA-1 walks through
-   at runtime — no interpreter, no bytecode, no VM. Gets real spawn waves
-   and a real "next level" trigger without ever running arbitrary script
-   logic on hardware. Does not generalize to levels whose logic is
+**Two realistic paths forward, very different in cost — path 1 is now DONE
+(Phase 13, §2.13, 2026-08-16; user-selected: "do the spawn-table route"):**
+1. **Convert-time spawn tables (small, tractable, no VM). ✅ DONE.** This
+   engine already hardcoded its entities at boot instead of a general
+   entity-lookup system; the same shape of shortcut now works for spawn
+   data too — the small subset of a level script actually needed (enemy
+   position/wave timing) is parsed in Python at convert-time and baked
+   into a small fixed table the SA-1 walks through at runtime. No
+   interpreter, no bytecode, no VM. Real spawn waves now exist (see
+   §2.13); a real "next level" trigger does not (still no level-transition
+   system — see above). Does not generalize to levels whose logic is
    actually conditional/scripted (most are not, for a beat-em-up — enemy
    waves are usually just "spawn these N enemies when the player crosses
    X").
 2. **Actually run the OpenBOR VM (large, scaffold exists, unverified).**
-   Finish what `openbor4086_sa1_bootstrap.zip` started: get Gate 0 to
-   actually assemble and pass against its own fixtures, on this project's
-   real Poppy fork and bank-0 constraint, then extend opcode-by-opcode.
-   This is not "the next phase" of this plan — it's comparable in scope to
-   everything Phases 0-12 already took, and should be scoped as its own
-   plan with its own phase-gate structure if picked up, not folded into
-   this file's phase list.
+   Still not started. Finish what `openbor4086_sa1_bootstrap.zip` started:
+   get Gate 0 to actually assemble and pass against its own fixtures, on
+   this project's real Poppy fork and bank-0 constraint, then extend
+   opcode-by-opcode. This is not "the next phase" of this plan — it's
+   comparable in scope to everything Phases 0-12 already took, and should
+   be scoped as its own plan with its own phase-gate structure if picked
+   up, not folded into this file's phase list.
 
-Neither is scheduled. Per this project's "don't start speculative phases
-uninvited" norm, pick one and say so (or ask) before starting either.
+Path 2 is not scheduled. Per this project's "don't start speculative
+phases uninvited" norm, that stays true until explicitly asked for.
 
 ## Phase 0 — Fix the MSU-streaming serialization hazard  ✅ DONE (`fd9bcdc`)
 
@@ -2295,6 +2302,132 @@ with "slot2 (JOE) distinct from slot0 (Ralf)"; "slot1==slot3 (two JHUNs)"
 is unchanged and still holds. Full regression suite (`audit_all.py`,
 `check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`,
 `phase11_damage.py`) all still pass.
+
+---
+
+## 2.13 — Phase 13: convert-time spawn table ✅ DONE 2026-08-16
+(user-selected: "do the spawn-table route", path 1 of the two listed in
+"What 'levels' actually means here")
+
+### What changed
+
+Real enemy spawn waves now exist for stage 1A, sourced from the level's own
+`spawn`/`at` script blocks instead of the 4 hardcoded-forever entities
+Phase 5 shipped. `tools/bg_converter/spawn_parse.py` (new) parses BOR's
+`spawn`/`wait`/`group` block syntax into Python objects — verified against
+`DATA\EASY\1AEASY.TXT`'s real 41 events (33 spawn/6 wait/2 group).
+`tools/bg_converter/build_spawn_table.py` (new) converts the 33 spawn
+events into a flat array of 7-byte records (`trigger_x`, `spawn_x`,
+`spawn_y`, `facing_left`, reserved), applying the same 0.8x
+(`256/320`) scale `convert_bg.py` uses so spawn positions land in the same
+world-pixel space as the already-converted backdrop. Coordinate math is
+BOR's actual `SCROLL_RIGHT` formula (`levelpos = advancex`, confirmed
+directly against `Plombo/beatsofrage`'s `BOR.C` ~line 4804 — 1AEASY.TXT has
+no `direction` line, so BOR's own default applies, NOT the SCROLL_LEFT
+far-end-counting-down formula `spawn_parse.py`'s docstring originally
+guessed at).
+
+Engine side: `core/spawn.pasm` (new, included into `main.pasm`'s `$C100`
+region) is a single global queue — one `Spawn_Index` walks the 33 records
+in trigger order. Each frame, `Spawn_Play` (called from `scpu_main_loop`)
+checks whether `Screen_PosX` has reached the pending record's `trigger_x`
+and at least one AI slot (Entity1/2/3) is free; if so, that slot gets the
+record's position/facing and full HP, and the index advances. If not, the
+record stays pending and is retried next frame — this reproduces the
+source level's real wave clustering (six simultaneous `at=960` spawns fill
+all 3 slots, hold the rest pending, drain as kills free slots) without
+partitioning events across slots round-robin-style, which would have
+scattered a wave into unrelated trickle spawns instead.
+
+"Free slot" reuses the existing Phase 11 soft-kill sentinel: `CharacterEntity_Init`
+now boots every AI role at `CHAR_HP=0` (was `CHAR_HP_MAX`) — entities stay
+hidden/inert from frame 1 until this table places them, instead of
+standing fully alive with nothing to do. The player is unaffected (still
+boots at `CHAR_HP_MAX`, still exempt from death per Phase 11's scope).
+
+The table itself ships in `bor.msu`, not the ROM — `pack_msu_roster.py`
+gained a `spawn_blob` parameter, appended after the existing BG/FP
+sections (`SPAWN_RECORD_SIZE=7`; sidecar reports `spawn_offset`/
+`spawn_count`). `Spawn_Init` (boot-time, called once from `main.pasm` right
+after the frontpanel boot load) seeks MSU to the spawn section and reads
+it sequentially into a WRAM buffer (`$7E5507`, 231 bytes) — the same
+seek-then-sequential-read shape `Bg_LoadSceneFp_Streaming`'s own boot load
+already uses. `SPAWN_MSU_OFFSET`/`SPAWN_COUNT` in `core/spawn.pasm` are
+hand-synced build-time constants (the spawn blob's file offset depends on
+every character/BG/FP blob packed before it, which `main.pasm` has no way
+to compute) — `build_rom.py`'s new `check_spawn_constants()` cross-checks
+them against what `pack_msu_roster.py` actually computed and aborts the
+build loudly on mismatch, same accepted-risk pattern as this file's own
+RESET/NMI/IRQ vector constants.
+
+### Why not read the table straight from ROM
+
+`CLAUDE.md` documents a confirmed Poppy bug where indexed-long addressing
+to a ROM data label computes a wrong base address, and this codebase has
+no existing, proven use of indexed ROM reads to build on (every other
+`.incbin` blob — TAD driver, character/BG tile data — is DMA'd as a whole
+block or read via MSU, never CPU-indexed by a runtime-variable offset).
+Rather than be the first place in the project to test that addressing mode
+under real hardware timing, the table ships via MSU like everything else
+runtime-variable, and every actual runtime access is indexed *WRAM*
+access (`.l Label,x`) — the pattern already proven throughout this
+codebase (`Hud_Play`'s `HudStaging,x` loop, `EntityN_*` struct field
+access).
+
+### A real Poppy bug hit and worked around
+
+A genuine "Branch target out of range" build error surfaced while adding
+`core/spawn.pasm`, reported as `src/main.pasm:167` — a location that
+turned out to be **spawn.pasm's own line 167**, not a real position in
+`main.pasm`: Poppy's `.include` error reporting apparently reuses the
+included file's own line number under the main file's name, which cost
+real time chasing the wrong branch before this was recognized. The actual
+culprit was a `bcc Spawn_Play__not_yet` whose target label was defined at
+the very end of the routine — a forward jump spanning the entire rest of
+the function (find_slot + all three per-slot blocks), well past the
+6502/65816's ±127-byte conditional-branch range. Fixed with this project's
+standard workaround: invert the condition to a short `bcs` plus an
+unconditional `brl` (±32KB range) for the actual long jump — already a
+documented pattern elsewhere in `main.pasm` (`Anim_Play__dispatch`'s own
+`brl` sites).
+
+### Deliberate scope cuts (see `build_spawn_table.py`'s and `core/spawn.pasm`'s
+own docstrings for the full reasoning)
+
+- `wait`/`group` events are parsed by `spawn_parse.py` but not emitted into
+  the table — no scroll-blocking-until-clear, no respawn-pool sizing.
+- Every record always spawns at full HP — the source level's per-spawn
+  `health` override is not modeled.
+- Every record spawns a generic AI-seeking enemy using whichever roster
+  character is already wired to the slot it lands in — the source level's
+  specific character identity (Shermie, Yashiro, ...) and non-enemy
+  spawns (the `1up` pickup, the `trash` breakable prop — this engine has
+  no pickup/prop entity class) are not modeled. Position/timing fidelity
+  is the goal; character/entity-kind identity is explicitly not.
+- No level-end trigger, no "next level," no win condition — still out of
+  scope, unchanged from before this phase.
+
+### Verified
+
+`phase5.py`/`phase6.py`/`phase11_damage.py` updated (not loosened) to match
+the new boot state: AI entities are expected to read `CHAR_HP==0` until
+spawned, not `CHAR_HP_MAX` from frame 1. `phase11_damage.py`'s controls
+(entities 2/3, used to prove the dead-check stays scoped to entity 1 only)
+now force-write their HP to `CHAR_HP_MAX` at test start, same "direct WRAM
+write is safe, nothing else races `CHAR_HP`" reasoning the test already
+used for its kill write. Confirmed via a direct Mesen2 read (not just the
+gates) that a passive, no-input boot leaves `Screen_PosX` at 0 forever, so
+only the one `trigger_x==0` record (entity 1) ever fires — entities 2/3
+staying at `CHAR_HP==0` in that scenario is correct, not a bug; entity 1
+spawns immediately, walks toward the player, and its `CHAR_HP` visibly
+depletes the player over ~900 frames, confirming the whole pipeline
+(MSU read → WRAM table → trigger compare → slot claim → AI seek/attack)
+end to end. Full regression suite (`audit_all.py`, `check_label_drift.py`,
+`phase5.py`, `phase6.py`, `phase7.py`, `phase9.py`, `phase11_damage.py`,
+`phase12_roster.py`) passes, including `phase9.py`'s sustained-held-input
+run (confirms `Spawn_Play`'s once-per-frame check doesn't introduce a
+stall or vblank overrun under real camera movement, which is what
+actually exercises `trigger_x > 0` records).
 
 ---
 

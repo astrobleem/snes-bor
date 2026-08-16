@@ -161,6 +161,8 @@ ANIM_FRAME_BYTES = 768
 # --- BG section (v2 static, v3 adds streaming) ---
 MAX_BGS = 4
 BG_RECORD_SIZE = 32         # bumped 16->20 in v3, 20->32 in v4 -- see module docstring
+
+SPAWN_RECORD_SIZE = 7       # see build_spawn_table.py's module docstring for the layout
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
@@ -499,7 +501,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     return blob, info
 
 
-def pack_roster(prefixes, bgs=None, fps=None):
+def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-8 out/<name> character prefixes; unused
@@ -511,6 +513,19 @@ def pack_roster(prefixes, bgs=None, fps=None):
     None if that BG has no frontpanel layer. Each present frontpanel is
     packed immediately after its owning BG's own blob (see build_fp_blob),
     with its offset threaded into that BG's record (build_bg_record).
+
+    `spawn_blob` (spawn-table phase, 2026-08-16) is an optional raw bytes
+    blob from build_spawn_table.py -- this project's single global spawn
+    queue, not a per-slot directory entry (there is only ever one level's
+    worth of spawn data, same "bake one instance in" pattern as BG_SCREENS/
+    FP_SCREENS). Appended at the very end of the file so it can never move
+    any earlier section's offset. Its absolute file offset and record count
+    (spawn_blob is a flat array of 7-byte records, see build_spawn_table.py)
+    are returned in the sidecar for build_rom.py to cross-check against
+    main.pasm's hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT constants -- same
+    "computed here, hardcoded there, checked at build time" convention as
+    the RESET/NMI/IRQ vector constants CLAUDE.md already documents as a
+    standing, accepted (not automatically enforced) risk.
     """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
@@ -579,6 +594,15 @@ def pack_roster(prefixes, bgs=None, fps=None):
     msu_bytes = (header + bytes(directory) + b"".join(blobs)
                  + bg_directory + b"".join(bg_blobs))
 
+    spawn_offset = 0
+    spawn_count = 0
+    if spawn_blob:
+        spawn_offset = len(msu_bytes)
+        spawn_count = len(spawn_blob) // SPAWN_RECORD_SIZE
+        assert len(spawn_blob) % SPAWN_RECORD_SIZE == 0, \
+            f"spawn_blob length {len(spawn_blob)} not a multiple of {SPAWN_RECORD_SIZE}"
+        msu_bytes = msu_bytes + spawn_blob
+
     sidecar = {
         "format_version": FORMAT_VERSION,
         "roster_count": len(prefixes),
@@ -588,6 +612,8 @@ def pack_roster(prefixes, bgs=None, fps=None):
         "bg_count": len(bgs),
         "bg_directory_offset": bg_directory_offset,
         "bgs": sidecar_bgs,
+        "spawn_offset": spawn_offset,
+        "spawn_count": spawn_count,
     }
     return msu_bytes, sidecar
 

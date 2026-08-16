@@ -50,6 +50,12 @@ BG_SCREENS = [("out/bg_stage1a", "out/hud")]
 # is inert until then, same as stream_cache_fp.pasm's own Init-only state.
 FP_SCREENS = ["out/fp_stage1a"]
 
+# Spawn-table phase (plan.md, 2026-08-16): the single global spawn queue for
+# BG_SCREENS[0]'s level, built by tools/bg_converter/build_spawn_table.py from
+# the same DATA\EASY\1AEASY.TXT script. Regenerate with:
+#   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
+SPAWN_TABLE = "out/spawn_stage1a/spawn_table.bin"
+
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
 
@@ -64,6 +70,38 @@ def assemble():
     if result.returncode != 0:
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)
+
+def check_spawn_constants(roster_sidecar):
+    """Cross-checks src/main.pasm's hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
+    constants (core/spawn.pasm) against what pack_msu_roster.py just
+    actually computed. These can't be computed by main.pasm itself (the
+    spawn blob's file offset depends on every character/BG/FP blob packed
+    before it, all of which can change size independently) so they're baked
+    by hand -- same accepted-risk pattern as this file's own RESET/NMI/IRQ
+    vector constants. This check is the "caught at build time instead of
+    silently reading garbage at runtime" insurance for that pattern.
+    """
+    import re
+    text = open('src/core/spawn.pasm', encoding='utf-8').read()
+    offset_m = re.search(r'SPAWN_MSU_OFFSET\s*=\s*\$([0-9A-Fa-f]+)', text)
+    count_m = re.search(r'SPAWN_COUNT\s*=\s*(\d+)', text)
+    if not offset_m or not count_m:
+        print("check_spawn_constants: couldn't find SPAWN_MSU_OFFSET/SPAWN_COUNT "
+              "in src/core/spawn.pasm", file=sys.stderr)
+        sys.exit(1)
+    pasm_offset = int(offset_m.group(1), 16)
+    pasm_count = int(count_m.group(1))
+    real_offset = roster_sidecar["spawn_offset"]
+    real_count = roster_sidecar["spawn_count"]
+    if pasm_offset != real_offset or pasm_count != real_count:
+        print(f"check_spawn_constants: MISMATCH -- src/core/spawn.pasm has "
+              f"SPAWN_MSU_OFFSET=${pasm_offset:06X} SPAWN_COUNT={pasm_count}, "
+              f"but the just-packed bor.msu has spawn_offset=${real_offset:06X} "
+              f"spawn_count={real_count}. Update src/core/spawn.pasm to match "
+              f"and rebuild.", file=sys.stderr)
+        sys.exit(1)
+    print(f"check_spawn_constants: OK (offset=${real_offset:06X}, count={real_count})")
+
 
 def main():
     assemble()
@@ -143,8 +181,10 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
+    spawn_blob = open(SPAWN_TABLE, 'rb').read() if os.path.exists(SPAWN_TABLE) else b""
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
-        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS)
+        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawn_blob=spawn_blob)
+    check_spawn_constants(roster_sidecar)
     with open('build/bor.msu', 'wb') as f:
         f.write(msu_data)
     with open('distribution/bor.msu', 'wb') as f:

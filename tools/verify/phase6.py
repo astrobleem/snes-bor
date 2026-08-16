@@ -180,14 +180,22 @@ def main():
         print(f'player CHAR_HP={hp}, HUD bar shows {filled} filled pixels')
         r.check('HUD bar pixel count equals player CHAR_HP', filled == hp)
 
-        # --- HP starts full and actually depletes, clamped at 0 (never wraps). ---
+        # --- HP starts full and actually depletes, clamped at 0 (never wraps).
+        # Spawn-table phase (2026-08-16): AI entities (index 1-3) now boot at
+        # HP=0 (unspawned -- this project's soft-kill sentinel doubles as
+        # "not placed yet", see core/spawn.pasm) and only reach CHAR_HP_MAX
+        # once the global spawn queue's trigger_x is reached by Screen_PosX.
+        # The player (index 0) is unaffected -- still full from boot. Each AI
+        # slot's HP is therefore 0 (still pending) or CHAR_HP_MAX (spawned),
+        # never anything else this early. ---
         m.reset_emulator()
         m.run_frames(20)
         m.pause()
         start = [entity_hp(m, b) for b in ENTITY_BASES]
         print(f'HP at frame 20: {start}')
-        r.check(f'all four entities start at CHAR_HP_MAX ({CHAR_HP_MAX})',
-                all(h == CHAR_HP_MAX for h in start))
+        r.check('player starts at CHAR_HP_MAX', start[0] == CHAR_HP_MAX)
+        r.check('AI entities start unspawned or full (0 or CHAR_HP_MAX)',
+                all(h in (0, CHAR_HP_MAX) for h in start[1:]))
 
         m.run_frames(900)
         m.pause()
@@ -196,6 +204,8 @@ def main():
         r.check('player HP decreased from AI hits', later[0] < start[0])
         r.check('no HP underflowed past 0 (clamped, not wrapped)',
                 all(0 <= h <= CHAR_HP_MAX for h in later))
+        r.check('at least one AI entity spawned by frame 920',
+                any(h == CHAR_HP_MAX for h in later[1:]))
 
         # HUD followed the change rather than staying at its boot draw.
         words = hud_row0()

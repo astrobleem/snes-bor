@@ -2524,6 +2524,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/oam.pasm"
 .include "core/stream_cache.pasm"
 .include "core/stream_cache_fp.pasm"
+.include "core/spawn.pasm"
 
 ; ============================================================================
 ; Ralf idle/walk animation: precomputed VRAM-format tile data ("Option B"
@@ -2751,17 +2752,23 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; as PlayerEntity_PosX/Y above. ---
 Entity1_Base    = $7E0a00 + 36        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
+Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
+Entity1_FacingLeft = Entity1_Base + 8 ; Entity #1's CHAR_FACING_LEFT (spawn-table phase)
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
 Entity1_Hp      = Entity1_Base + 35   ; Entity #1's CHAR_HP
 Entity2_Base    = $7E0a00 + 72        ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
+Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
+Entity2_FacingLeft = Entity2_Base + 8 ; Entity #2's CHAR_FACING_LEFT (spawn-table phase)
 Entity2_HitStun = Entity2_Base + 33   ; Entity #2's CHAR_HIT_STUN
 Entity2_Hp      = Entity2_Base + 35   ; Entity #2's CHAR_HP
 Entity3_Base    = $7E0a00 + 108       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
+Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
+Entity3_FacingLeft = Entity3_Base + 8 ; Entity #3's CHAR_FACING_LEFT (spawn-table phase)
 Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
 Entity3_Hp      = Entity3_Base + 35   ; Entity #3's CHAR_HP
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
@@ -5814,11 +5821,31 @@ CharacterEntity_Init__load:
 .a8
     sta.l CharSelect_Index
 
-    ; Phase 6: full HP for every role. Set here, after the role branches have
-    ; converged, rather than four times over -- every branch reaches this
-    ; point and none of them wants a different starting value.
+    ; Phase 6: full HP for the player. Spawn-table phase (2026-08-16):
+    ; AI roles (CHAR_INPUT_DRIVEN==2, set by the role branch above) now boot
+    ; at HP=0 instead -- this project's existing soft-kill sentinel (see
+    ; phase11_damage_system_softkill memory: CHAR_HP==0 means "not acting,
+    ; not hittable, sprite hidden") doubles as "unspawned, slot free for
+    ; Spawn_Play to claim" here. Entity1/2/3 previously stood fully alive
+    ; from boot with nothing to fight; now they stay hidden/inert until the
+    ; spawn table's global queue (core/spawn.pasm) places them, matching
+    ; the source level's actual wave timing instead of an instant reveal.
     pha
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    beq CharacterEntity_Init__load_hp_full
+    lda #0
+    bra CharacterEntity_Init__load_hp_set
+    nop
+CharacterEntity_Init__load_hp_full:
+    sep #$20
+.a8
     lda #CHAR_HP_MAX
+CharacterEntity_Init__load_hp_set:
+    sep #$20
+.a8
     sta CHAR_HP
     pla
 
@@ -9672,6 +9699,14 @@ Boot_LoadFp__skip:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Boot_LoadFp__done:
 
+    ; --- Spawn-table phase (2026-08-16): one-time boot read of the level's
+    ; spawn queue into WRAM (see core/spawn.pasm's header). Placed here,
+    ; after the BG1/FP boot loads finish, same "blocking MSU read outside
+    ; the per-frame Msu1_StreamBusy budget" shape as Bg_LoadSceneFp_
+    ; Streaming just above -- not a per-frame streaming consumer, so this
+    ; doesn't compete with Msu1_LoadFrame's one-entity-per-frame rule. ---
+    jsr Spawn_Init
+
     ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
     ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a
     ; stray BG2 tilemap reference would render zero instead of garbage --
@@ -10045,6 +10080,10 @@ scpu_main_loop:
     ; own cache -- see Core_StreamScrollFp_Play's own header for the DMA-
     ; queue-sharing note (BG1 and FP may both enqueue in the same frame).
     jsr Core_StreamScrollFp_Play
+    ; Spawn-table phase: runs before Hud_Play so a spawn landing this frame
+    ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
+    ; redraw instead of lagging one frame behind.
+    jsr Spawn_Play
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
