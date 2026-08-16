@@ -1,0 +1,25 @@
+{
+  "level_entry": "DATA\\EASY\\1BEASY.TXT",
+  "background": "data\\bgs\\bar\\bar.gif",
+  "panels": [
+    "data\\bgs\\bar\\bar1.gif",
+    "data\\bgs\\bar\\bar2.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 1120,
+  "height_px": 224,
+  "width_tiles": 140,
+  "height_tiles": 28,
+  "content_width_tiles": 140,
+  "unique_tiles": 2347,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 75104,
+  "tilemap_bytes": 11760,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

@@ -35,14 +35,16 @@ or the full OpenBOR scripting engine — see "Explicitly out of scope."
 
 > **UPDATE (2026-08-16): read this before assuming "levels" means what it
 > sounds like.** As of Phase 9/12 this engine renders a real, converted BOR
-> level (stage 1A) with real characters (Ralf/JHUN/JOE) and real horizontal
-> scrolling. That is **not** the same as "levels work" in the OpenBOR
-> sense, and earlier phases of this doc did not draw that line clearly
-> enough. See the new "What 'levels' actually means here, and what's
-> missing" section right after "Explicitly out of scope" for the honest,
-> corrected picture — it covers content coverage (1 of 14 stages, 3 of ~24
-> characters converted), the complete absence of enemy spawn-wave/level-
-> transition/win-condition logic, and why that logic isn't a small gap:
+> level with real characters (Ralf/JHUN/JOE) and real horizontal scrolling
+> (Phase 14, same day: the shipped level is now stage 1B, having replaced
+> stage 1A — 2 of 14 stages converted total, 1 shipped at a time). That is
+> **not** the same as "levels work" in the OpenBOR sense, and earlier
+> phases of this doc did not draw that line clearly enough. See the new
+> "What 'levels' actually means here, and what's missing" section right
+> after "Explicitly out of scope" for the honest, corrected picture — it
+> covers content coverage, the complete absence of level-*selection*/
+> level-*transition*/win-condition logic (spawn-wave logic itself was
+> closed by Phase 13), and why that remaining logic isn't a small gap:
 > real OpenBOR levels are driven by `openborscript`, a genuine embedded
 > bytecode-VM scripting language, not declarative data. There is
 > already real prior design work toward running that VM on this hardware
@@ -408,10 +410,16 @@ stages (`1A/1B/1C, 2, 3A/3B/3C, 4A/4B, 5A/5B, 6A/6B/6C`) × 3 difficulties,
 and roughly two dozen playable/enemy characters (Angel, Biker-K, Billy,
 Bink, Crab, Eiji, Heavy, JHUN, JOE, K9999, Kula, K, Lobster, Mary, Maxima,
 Mighty, MrBig, Ralf, Ramon, Robert, Rugal, Shermie, Yamazaki, Yashiro).
-This engine ships **1 of those 14 stages** (1A, `out/bg_stage1a`) and
+This engine ships **1 of those 14 stages at a time** — currently stage 1B
+(`out/bg_stage1b`), which replaced stage 1A (Phase 14, 2026-08-16; 1A's
+converted assets, `out/bg_stage1a`, stay committed and buildable, just not
+shipped). **2 of the 14 stages have been converted total** (1A and 1B), and
 **3 of those ~24 characters** (Ralf/JHUN/JOE — Entity #3 reuses JHUN a
 second time). Nothing else has been converted; nothing here is blocked
-from converting more, it's just not been asked for yet.
+from converting more, it's just not been asked for yet. There is still no
+level-*selection* or level-*transition* system — "which level ships" is a
+`build_rom.py` constant, the same one-at-a-time shortcut this project uses
+for its roster and everything else.
 
 **There is no level-transition system, full stop.** Nothing in
 `main.pasm` detects "reached the end of this level" or loads a different
@@ -2428,6 +2436,72 @@ end to end. Full regression suite (`audit_all.py`, `check_label_drift.py`,
 run (confirms `Spawn_Play`'s once-per-frame check doesn't introduce a
 stall or vblank overrun under real camera movement, which is what
 actually exercises `trigger_x > 0` records).
+
+---
+
+## 2.14 — Phase 14: a second real level, shipped as the new default ✅ DONE 2026-08-16
+(user-selected: "convert a 2nd level"; user also chose to replace stage 1A
+as the shipped level, same pattern as when 1A replaced the old synthetic
+`out/bg_boss_level`)
+
+### What changed
+
+Stage 1B ("The bar", `DATA\EASY\1BEASY.TXT`) is now what `distribution/bor.sfc`
+actually boots, replacing stage 1A. Chosen specifically because it's
+shaped differently from 1A, to prove the Phase 9/10/13 pipeline
+generalizes rather than being tuned to one level's specifics:
+- **Narrower**: only 2 distinct panel images (order string
+  `aabaabaabaabaa`, 14 panels/1120 BOR px = 896 SNES px/140 tiles wide,
+  vs. 1A's 408 tiles). Still needs streaming mode — 2347 unique 4bpp tiles,
+  well past the 1024-tile static-load budget even at this narrower width.
+- **No frontpanel layer at all** (`level.frontpanel is None`, confirmed via
+  `level_parse.py` — 1B's level file has no `frontpanel` keyword, not just
+  an unconverted one). `FP_SCREENS = [None]` in `build_rom.py` — the first
+  real exercise of `pack_msu_roster.py`'s already-existing "no frontpanel
+  for this BG" path (previously only tested with a frontpanel present).
+- **A real, different spawn table** (28 records vs. 1A's 33 — regenerated
+  via the same `build_spawn_table.py`/`spawn_parse.py` from Phase 13, no
+  code changes needed). Includes non-enemy prop spawns (`Table`, `Chair`)
+  and a `2pitem` keyword `spawn_parse.py` doesn't recognize — silently
+  ignored by design (not in `SPAWN_KEYS`), same as any other unmodeled
+  field.
+
+`out/bg_stage1a`, `out/fp_stage1a`, and `out/spawn_stage1a` all stay
+committed and buildable (same "old level stays available, just not
+shipped" pattern `out/bg_boss_level` already established) — only
+`build_rom.py`'s `BG_SCREENS`/`FP_SCREENS`/`SPAWN_TABLE` and
+`core/spawn.pasm`'s hand-synced `SPAWN_MSU_OFFSET`/`SPAWN_COUNT` changed.
+
+### A real, level-specific test assumption found and fixed
+
+`phase5.py` had a Phase 13-era assertion assuming exactly one spawn record
+fires at boot with no camera movement (`trigger_x==0`), because that
+happened to be true for stage 1A (only entity 1's record has
+`trigger_x==0`). Stage 1B has **two** such records (`Table`/`Chair`, both
+`at 0`), so entities 1 AND 2 spawn immediately at boot — the old assertion
+("entities 2/3 stay unspawned") failed, correctly, against real Mesen2
+data (entity 2's `CHAR_FRAME_INDEX` was genuinely cycling). Fixed by
+generalizing the check rather than hardcoding stage 1B's layout in its
+place: assert AI slots 2/3 are each *either* unspawned (`HP==0`) *or*
+fully spawned (`HP==CHAR_HP_MAX`) — matching the permissive pattern
+`phase6.py` already used — instead of asserting a specific level's
+trigger-count shape. This is now robust to whatever the next shipped
+level's own spawn table looks like.
+
+### Verified
+
+Full regression suite passes against the new level: `audit_all.py`,
+`check_label_drift.py`, `phase5.py` (after the fix above), `phase6.py`
+(BG1/HUD — correctly picked up `width_tiles=140` and 2347 tiles from the
+new level's own manifest, confirming those checks really do track
+`BG_SCREENS` automatically rather than hardcoding 1A's numbers),
+`phase7.py`, `phase9.py` (real held-input camera scroll against the
+narrower level — cache kept extending its resident window, no stall
+longer than tolerance, no width-mismatch or corruption symptoms from the
+narrower/frontpanel-less shape), `phase11_damage.py`, `phase12_roster.py`.
+`phase10_frontpanel.py` (non-routine gate) was not re-run — it's
+specifically about the frontpanel streaming path, which stage 1B has none
+of; it still applies to stage 1A's data if that's ever revisited.
 
 ---
 

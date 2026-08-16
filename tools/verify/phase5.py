@@ -22,6 +22,7 @@ CHAR_HP = 35
 # literal +35/+70/+105 and silently started reading entities 1-3 at the wrong
 # addresses the moment Phase 6 added CHAR_HP and grew CHAR_ZP_LEN to 36.
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
+CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 
 # Character_BlankPadding's per-slice VRAM byte addresses (see that routine's
@@ -150,16 +151,22 @@ def main():
         # before/after inequality check is too weak against a cyclic
         # counter and produces false FAILs.
         #
-        # Spawn-table phase (2026-08-16): entities 2/3 (indices 2/3 here) no
-        # longer animate from boot -- they boot at CHAR_HP=0 (unspawned) and
-        # only start acting once the global spawn queue's trigger_x is
-        # reached by Screen_PosX (core/spawn.pasm), which requires camera
-        # movement this passive (no dpad input) test never drives. Only
-        # entity 1's spawn record has trigger_x=0, so only entities 0
-        # (player, never gated by this at all) and 1 are expected to
-        # animate here -- verified via Mesen: entities 2/3 stay HP=0 and
-        # CHAR_FRAME_INDEX frozen for the whole run in this exact scenario,
-        # which is correct now, not a regression. ---
+        # Spawn-table phase (2026-08-16, Phase 13/14): AI entities (indices
+        # 1-3 here) no longer animate from boot unconditionally -- they boot
+        # at CHAR_HP=0 (unspawned) and only start acting once the global
+        # spawn queue's trigger_x is reached by Screen_PosX (core/
+        # spawn.pasm), which requires camera movement this passive (no dpad
+        # input) test never drives. How many AI slots are already alive by
+        # frame 0 depends on the SHIPPED LEVEL's own spawn table shape --
+        # stage 1A has exactly one trigger_x==0 record (only entity 1 spawns
+        # at boot); stage 1B (Phase 14) has two (Table/Chair, both `at 0`),
+        # so entities 1 AND 2 spawn immediately, only entity 3 stays
+        # unspawned. Don't hardcode which slots that is -- entity 1 is
+        # guaranteed alive at boot only because every shipped level so far
+        # happens to have at least one trigger_x==0 record; assert that
+        # directly, and check the other two AI slots permissively (0 or
+        # CHAR_HP_MAX, matching phase6.py's own already-generalized check)
+        # rather than assuming a specific level's trigger layout. ---
         samples = [[entity_frame_index(m, b) for b in ENTITY_BASES]]
         for _ in range(5):
             m.run_frames(48)
@@ -170,8 +177,8 @@ def main():
             values_seen = {s[i] for s in samples}
             r.check(f'entity {i} CHAR_FRAME_INDEX varies across 240 frames',
                      len(values_seen) > 1)
-        r.check('entities 2/3 stay unspawned (HP=0) without camera movement',
-                 all(entity_hp(m, b) == 0 for b in ENTITY_BASES[2:4]))
+        r.check('AI entities 2/3 are either unspawned or fully spawned (0 or CHAR_HP_MAX)',
+                 all(entity_hp(m, b) in (0, CHAR_HP_MAX) for b in ENTITY_BASES[2:4]))
 
         # --- no vblank overrun: Nmi_FrameCounter still advancing after
         # 700 frames with 4 entities streaming/moving/colliding at once. ---

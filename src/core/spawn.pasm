@@ -62,14 +62,18 @@
 ; other core/*.pasm file (see core/random.pasm's header for why).
 ; ============================================================================
 
-SPAWN_MSU_OFFSET = $03C8D0   ; from build_rom.py's check_spawn_constants -- must be
+SPAWN_MSU_OFFSET = $021C80   ; from build_rom.py's check_spawn_constants -- must be
                               ; re-synced (rerun the build, copy its reported value)
-                              ; any time an earlier roster/BG/FP asset changes size
-SPAWN_COUNT      = 33        ; record count from build_spawn_table.py's own printed output
+                              ; any time an earlier roster/BG/FP asset changes size,
+                              ; or the shipped level changes (Phase 14).
+SPAWN_COUNT      = 28        ; record count from build_spawn_table.py's own printed
+                              ; output -- 28 for stage 1B (Phase 14, plan.md 2.14),
+                              ; was 33 for stage 1A (Phase 13)
 
-; --- WRAM layout: $7E5500-$7E55E5, first free region after Anim_*/
-; CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by grep --
-; see main.pasm's own $7E53B6 note for the same verification convention). ---
+; --- WRAM layout: $7E5500 + SPAWN_COUNT*7 bytes (196 for stage 1B's 28
+; records), first free region after Anim_*/CharSelect_*'s $7E53B0-$7E53C9
+; block (verified collision-free by grep -- see main.pasm's own $7E53B6 note
+; for the same verification convention). ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..SPAWN_COUNT
 Spawn_ScratchIdx    = $7E5501   ; .dw -- zero-extended copy of Spawn_Index for the *7 multiply
 Spawn_ScratchX      = $7E5503   ; .dw -- captured spawn_x, held across slot search (clobbers X)

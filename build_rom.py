@@ -24,37 +24,37 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe"]
 # dir). Mode (static whole-level vs. streaming) is auto-detected by
 # pack_msu_roster.py from the bg_dir's manifest.json "streaming" key -- see
 # that file's header comment. Regenerate with:
-#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1AEASY.TXT" -o out/bg_stage1a --streaming
+#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1BEASY.TXT" -o out/bg_stage1b --streaming
 #   python tools/bg_converter/make_hud_tiles.py -o out/hud
 #
-# Phase 9 (plan.md 2.8/2.9): first real (non-synthetic) level to use the
-# streaming tile cache. Stage 1A is BOR's actual opening level -- 34 panels/
-# 4080 BOR px (3264 SNES px, 408 tiles) wide once level_parse.py's
-# multi-`order`-line append bug was fixed (spawn-table phase, 2026-08-16;
-# the level's own file splits one 34-panel sequence across two `order`
-# lines, which this converter used to silently truncate to just the last
-# one -- 16 of 34 panels, the WRONG half of the level, shipped for a while
-# before this was caught). 3730 unique 4bpp tiles over the corrected whole
-# level, well past the 512/1024-tile static-load budget that gated the old
-# out/bg_boss_level.
-BG_SCREENS = [("out/bg_stage1a", "out/hud")]
+# Phase 14 (plan.md 2.14, 2026-08-16): second real level, replacing stage 1A
+# as the shipped default -- same pattern as when 1A replaced the old
+# synthetic out/bg_boss_level. Stage 1B ("The bar") is a genuinely different
+# shape of level than 1A: only 2 distinct panel images (order "aabaabaab...",
+# 14 panels/1120 BOR px = 896 SNES px/140 tiles wide -- narrower than 1A's
+# 408) and, unlike 1A, NO frontpanel layer at all (level.frontpanel is None
+# -- confirmed via level_parse.py). 2347 unique 4bpp tiles, still well past
+# the 1024-tile static-load budget, so streaming mode is still needed even
+# at this narrower width. out/bg_stage1a's data (and out/bg_boss_level's)
+# stays committed and buildable -- only this list changed.
+BG_SCREENS = [("out/bg_stage1b", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
 # convert_frontpanel.py output) or None if that BG has no frontpanel packed.
-# Regenerate with:
+# Stage 1B has no `frontpanel` keyword in its own level file, so this is
+# genuinely None here (not just unconverted) -- see BG_SCREENS' own comment.
+# Regenerate 1A's (kept committed, no longer shipped) with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-#
-# Step 2a (the engine-side cache allocator) is done and shipping; nothing
-# yet reads this data at runtime (Step 2b, in progress) -- packing it here
-# is inert until then, same as stream_cache_fp.pasm's own Init-only state.
-FP_SCREENS = ["out/fp_stage1a"]
+FP_SCREENS = [None]
 
-# Spawn-table phase (plan.md, 2026-08-16): the single global spawn queue for
-# BG_SCREENS[0]'s level, built by tools/bg_converter/build_spawn_table.py from
-# the same DATA\EASY\1AEASY.TXT script. Regenerate with:
-#   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
-SPAWN_TABLE = "out/spawn_stage1a/spawn_table.bin"
+# Spawn-table phase (plan.md 2.13)/Phase 14 (plan.md 2.14): the single global
+# spawn queue for BG_SCREENS[0]'s level, built by tools/bg_converter/
+# build_spawn_table.py from the same level script. Regenerate 1B's with:
+#   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1BEASY.TXT" out/spawn_stage1b/spawn_table.bin
+# 1A's spawn table (out/spawn_stage1a, kept committed) was regenerated the
+# same way with "DATA\EASY\1AEASY.TXT" instead.
+SPAWN_TABLE = "out/spawn_stage1b/spawn_table.bin"
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
