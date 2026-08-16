@@ -1630,10 +1630,9 @@ independent they are:
 1. ~~Convert a real (non-synthetic) BOR level and wire it in for real.~~
    **DONE 2026-08-16** — see the "UPDATE" note under §2.8 above (stage 1A,
    `out/bg_stage1a`, shipped in `BG_SCREENS`). Real-play scroll-lag under
-   sustained held-dpad input (as opposed to a scripted position sweep) and
-   a self-contained `phase9.py` gate are still open, smaller follow-ups —
-   worth doing before trusting this engine on a much bigger level, but no
-   longer blocking on "has this ever rendered real content."
+   sustained held-dpad input and a self-contained `phase9.py` gate are
+   **also DONE 2026-08-16** — see the "Phase 9 gate" section's own UPDATE
+   note above. Both follow-ups fully closed; nothing left open here.
 2. ~~A damage system.~~ **DONE 2026-08-16** — see §2.11 below. AI entities
    now soft-kill at `CHAR_HP==0` (stop acting, stop taking/dealing hits,
    sprite hides); player death stays out of scope.
