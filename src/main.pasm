@@ -3395,6 +3395,30 @@ Anim_Play__loaded:
     ; sep is a harmless no-op at runtime but re-syncs Poppy's tracker.
     sep #$20
 .a8
+    ; --- Damage system: a dead AI entity (CHAR_INPUT_DRIVEN==2, CHAR_HP==0
+    ; -- see Character_HitApply_VsEntityN's own dead-skip check, which is
+    ; what makes CHAR_HP==0 a sticky terminal state instead of something
+    ; that could tick back up) stops acting entirely: no AI seek/attack
+    ; dispatch below, and critically no Anim_Play_Idle/Walk/Attack call, so
+    ; it never reaches Msu1_LoadFrame again -- Msu1_StreamBusy's one-
+    ; entity-per-frame budget (CLAUDE.md) is never spent on an invisible
+    ; corpse. The player (CHAR_INPUT_DRIVEN==1) is deliberately exempt --
+    ; player death/game-over is out of scope, see plan.md. Checked before
+    ; the hit-stun block below so a killing blow's stun doesn't need to
+    ; run out first. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #2
+    bne Anim_Play__not_dead
+    lda CHAR_HP
+    bne Anim_Play__not_dead
+    rep #$31
+.a16
+.i16
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__not_dead:
+    sep #$20
+.a8
     ; --- plan.md Phase 4: hit-reaction stun takes priority over both the
     ; "already attacking" latch below and any input/AI decision -- a
     ; stunned entity is forced to idle regardless of what it was doing,
@@ -4487,6 +4511,18 @@ Character_PlayFrame__cursor_next:
     ; Anim_Play's stun check (CHAR_HIT_STUN already decremented there this
     ; frame, before Character_PlayFrame runs -- see CharacterEntity_Play's
     ; call order). ---
+    ; --- Damage system: a dead AI entity holds position, same freeze the
+    ; hit-stun check below already gives a stunned entity -- see Anim_Play's
+    ; own copy of this dead check for why CHAR_HP==0 is a sticky terminal
+    ; state and why the player is exempt. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #2
+    bne Character_PlayFrame__x_check_stun
+    lda CHAR_HP
+    bne Character_PlayFrame__x_check_stun
+    bra Character_PlayFrame__hold
+    nop
+Character_PlayFrame__x_check_stun:
     lda CHAR_HIT_STUN
     beq Character_PlayFrame__not_stunned_x
     bra Character_PlayFrame__hold
@@ -4601,6 +4637,15 @@ Character_PlayFrame__store_x:
 
     ; --- Y: held-dpad Up/Down movement, mirroring the X block (same three
     ; CHAR_INPUT_DRIVEN modes, plus the same Phase 4 hit-stun check). ---
+    ; --- Damage system: same dead-AI freeze as the X block above. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #2
+    bne Character_PlayFrame__y_check_stun
+    lda CHAR_HP
+    bne Character_PlayFrame__y_check_stun
+    bra Character_PlayFrame__hold_y
+    nop
+Character_PlayFrame__y_check_stun:
     lda CHAR_HIT_STUN
     beq Character_PlayFrame__not_stunned_y
     bra Character_PlayFrame__hold_y
@@ -4727,6 +4772,22 @@ Character_PlayFrame__hi_xlow:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_PlayFrame__hi_store:
     sta.l OamSetSprite_Hi
+    ; --- Damage system: a dead AI entity's sprite is hidden the same way
+    ; the OAM layer already understands a slot as "clean" -- Y=$F0, not a
+    ; large/offscreen X (Phase 8 made X a 16-bit world coordinate with an
+    ; AI-seek distance math that assumes real positions; a sentinel X would
+    ; perturb that). See memory: ccdma_validated_nmi_timing_bug. Overrides
+    ; OamSetSprite_Y only, after every other field above is already set --
+    ; CHAR_POS_Y itself (and OamSetSprite_X/Tile/Attr/Hi) are left alone. ---
+    lda CHAR_INPUT_DRIVEN
+    cmp #2
+    bne Character_PlayFrame__not_dead_hide
+    lda CHAR_HP
+    bne Character_PlayFrame__not_dead_hide
+    lda #$F0
+    sta.l OamSetSprite_Y
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_PlayFrame__not_dead_hide:
     rep #$31
 .a16
 .i16
@@ -4903,11 +4964,15 @@ Character_HitApply_VsEntity1__dy_have:
     rts                     ; no overlap on Y
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity1__dy_ok:
+    ; Damage system: a dead target (HP already 0) takes no further stun or
+    ; damage -- HP==0 is a sticky terminal state, not just a display floor.
+    ; See Anim_Play's own dead check for the rest of the reaction (AI stops
+    ; acting, sprite hides).
+    lda.l Entity1_Hp
+    beq Character_HitApply_VsEntity1__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity1_HitStun
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
-    ; has a real value to draw.
     lda.l Entity1_Hp
     sec
     sbc #CHAR_HP_PER_HIT
@@ -4918,6 +4983,8 @@ Character_HitApply_VsEntity1__hp_ok:
     sta.l Entity1_Hp
     lda #1
     sta CHAR_HIT_APPLIED
+    rts
+Character_HitApply_VsEntity1__dead_skip:
     rts
 
 ; Leaf: identical shape to Character_HitApply_VsEntity1 above, checked
@@ -4974,11 +5041,12 @@ Character_HitApply_VsEntity2__dy_have:
     rts                     ; no overlap on Y
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity2__dy_ok:
+    ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
+    lda.l Entity2_Hp
+    beq Character_HitApply_VsEntity2__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity2_HitStun
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
-    ; has a real value to draw.
     lda.l Entity2_Hp
     sec
     sbc #CHAR_HP_PER_HIT
@@ -4989,6 +5057,8 @@ Character_HitApply_VsEntity2__hp_ok:
     sta.l Entity2_Hp
     lda #1
     sta CHAR_HIT_APPLIED
+    rts
+Character_HitApply_VsEntity2__dead_skip:
     rts
 
 ; Leaf: identical shape again, checked against Entity #3's fixed-address
@@ -5038,11 +5108,12 @@ Character_HitApply_VsEntity3__dy_have:
     rts                     ; no overlap on Y
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity3__dy_ok:
+    ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
+    lda.l Entity3_Hp
+    beq Character_HitApply_VsEntity3__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity3_HitStun
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
-    ; has a real value to draw.
     lda.l Entity3_Hp
     sec
     sbc #CHAR_HP_PER_HIT
@@ -5053,6 +5124,8 @@ Character_HitApply_VsEntity3__hp_ok:
     sta.l Entity3_Hp
     lda #1
     sta CHAR_HIT_APPLIED
+    rts
+Character_HitApply_VsEntity3__dead_skip:
     rts
 
 ; Leaf: same shape as Character_HitApply_VsEntity1 above, but checks

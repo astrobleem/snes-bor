@@ -1624,9 +1624,9 @@ independent they are:
    a self-contained `phase9.py` gate are still open, smaller follow-ups —
    worth doing before trusting this engine on a much bigger level, but no
    longer blocking on "has this ever rendered real content."
-2. **A damage system.** `CHAR_HP` and the HUD already exist and work
-   (Phase 6); nothing currently happens at 0 HP. README's "Not built" list
-   calls this out as the most obvious missing "game" piece.
+2. ~~A damage system.~~ **DONE 2026-08-16** — see §2.11 below. AI entities
+   now soft-kill at `CHAR_HP==0` (stop acting, stop taking/dealing hits,
+   sprite hides); player death stays out of scope.
 3. **SFX wired to gameplay.** Blocked on content, not code — see
    `README.md`'s "Not built" section: `soundwork/tad/build/audio-enums.inc`
    exports one placeholder effect (`sfx_stub = 0`); a real punch/hit sound
@@ -2005,6 +2005,82 @@ each step should get its own commit and gate, not one giant change)
   free of its own opportunity cost (a bailed-out row just retries next
   frame, which is fine, but budget changes should still be measured, not
   assumed).
+
+## 2.11 — Phase 11: damage system ✅ DONE 2026-08-16 (user-selected from
+§2.9's candidate list; commit pending)
+
+### The constraint that shaped the design
+
+`CHAR_HP`/`CHAR_HP_MAX`/`CHAR_HP_PER_HIT`/HUD were already real (Phase 6);
+the only gap was "nothing reacts at 0" (README's own "Not built" line).
+The obvious approach — kill the entity via `core/oop.pasm`'s generic
+`Core_Oop_Destroy`/garbage-collect path — is a trap specific to this
+codebase: `Entity1_Base`/`Entity2_Base`/`Entity3_Base` (`main.pasm`, e.g.
+`Entity1_Base = $7E0a00 + 36`) are compile-time-fixed WRAM literals, NOT
+derived at runtime from each entity's `OopDp`. `Core_Oop__ReclaimSlot`
+compacts `OopObjRam` and rewrites *surviving* objects' `OopDp` on kill —
+if entity 1 were reclaimed, entity 2/3's real DP window would physically
+move while every hardcoded `Entity2_Base`/`Entity3_Base` reference
+(`Character_HitApply_VsEntity2/3`, the AI-seek/render code, etc.) kept
+reading the old address. This is exactly the class of bug CLAUDE.md's
+"player is always slot 0... don't build a general entity-lookup system"
+note warns against, just for AI slots too, not only the player.
+
+### The design: soft-kill via CHAR_HP==0 itself
+
+No new struct field, no `Core_Oop_Destroy` call, `OopObjRam`/`CHAR_ZP_LEN`
+untouched. `CHAR_HP==0` (already the existing clamp floor) IS the dead
+condition — a sticky terminal state, since nothing outside the HitApply
+leaves' own clamp-at-0 ever writes `CHAR_HP`, and this phase makes those
+leaves refuse to touch a target that's already at 0 (see below). Scoped to
+AI entities only (`CHAR_INPUT_DRIVEN==2`); the player is exempt —
+player death/game-over stays out of scope per "Explicitly out of scope."
+
+Four small, local checks added, all following this file's Poppy-safety
+rules (short branches, redundant `sep`/`rep` resyncs at every new
+branch target — see §2.1):
+1. **`Anim_Play`** (`main.pasm`, right after `Anim_Play__loaded`): a dead
+   AI entity `rts`s immediately, before the hit-stun check. This is what
+   stops it acting at all — no AI seek/attack dispatch, and critically no
+   `Anim_Play_Idle/Walk/Attack` call, so it never reaches `Msu1_LoadFrame`
+   again and never spends the shared one-entity-per-frame MSU streaming
+   budget (`Msu1_StreamBusy`, CLAUDE.md) on an invisible corpse.
+2. **`Character_PlayFrame`** X and Y movement blocks: a dead AI entity
+   branches to the existing `__hold`/`__hold_y` freeze targets (same one
+   hit-stun already uses), so its position stops updating.
+3. **`Character_PlayFrame`**, right before `jsr Core_Oam_SetSprite`: a
+   dead AI entity's `OamSetSprite_Y` is overridden to `$F0` — the OAM
+   layer's own established "hidden" idiom (see
+   `ccdma_validated_nmi_timing_bug` project memory: hardware-OAM "clean"
+   means `Y=$F0`, not zeroed), NOT a large/offscreen X — Phase 8 made X a
+   real 16-bit world coordinate with AI-seek distance math that assumes
+   real positions, so a sentinel X would perturb that.
+4. **`Character_HitApply_VsEntity1/2/3`**, at each leaf's `__dy_ok`
+   (post-overlap-test, pre-stamp point): if the target's `CHAR_HP` already
+   reads 0, `rts` before stamping `HitStun` or touching `Hp` again — a
+   dead entity takes no further hits and doesn't re-count as a landed hit
+   for the attacker's own `CHAR_HIT_APPLIED` latch (so an attack can still
+   land on a second, live target the same cycle). `Character_HitApply`'s
+   dispatcher needed no change: a dead AI never re-enters `CHAR_SELECTED==2`
+   (item 1 prevents that), so it can never become the attacker either.
+
+### Verified
+
+`tools/verify/phase11_damage.py` (new gate): forces Entity #1's `CHAR_HP`
+to 0 via direct WRAM write (safe here — unlike Phase 10's `PosX`, nothing
+else races `CHAR_HP`), runs 600 real frames, and confirms against live
+Mesen2 state: `CHAR_HP` stays 0, `CHAR_POS_X` frozen, `HitStun` stays 0,
+hardware OAM slot 1's Y byte reads `$F0`, and `Nmi_FrameCounter` keeps
+advancing (no vblank overrun from the new branches). Controls: entities 0
+(player)/2/3 are NOT hidden, entities 2/3's `CHAR_HP` is untouched by
+entity 1 dying, and both keep animating (`CHAR_FRAME_INDEX` sampled across
+6 ticks) — deliberately NOT a position check for 2/3, since a living AI
+entity holds still once within `ANIM_AI_ATTACK_RANGE` regardless of this
+feature (`Character_PlayFrame__ai_x`'s own pre-existing behavior), so a
+frozen X there is expected and would be a false positive if used as the
+"unaffected" signal. Passed deterministically across 2 full runs.
+Full regression suite (`audit_all.py`, `check_label_drift.py`, `phase5.py`,
+`phase6.py`, `phase7.py`) all still pass after this change.
 
 ---
 

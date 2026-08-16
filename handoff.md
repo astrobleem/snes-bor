@@ -24,14 +24,18 @@ each section below.
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
-> layer" (DONE, all steps 1-4) — plus "Harness gotchas" and "File inventory."
-> Read those. Everything above them is older history, kept for the root-cause
-> detail, and parts of it are known wrong.
+> layer" (DONE, all steps 1-4), then "Phase 11: damage system" (DONE) — plus
+> "Harness gotchas" and "File inventory." Read those. Everything above them
+> is older history, kept for the root-cause detail, and parts of it are
+> known wrong.
 >
-> **As of 2026-08-16, Phase 10 (frontpanel foreground layer) is the most
-> recent fully-COMPLETED phase — see that section near the bottom.** It is
-> built, verified in Mesen2, AND gated by a committed regression script
-> (`tools/verify/phase10_frontpanel.py`).
+> **As of 2026-08-16, Phase 11 (damage system) is the most recent
+> fully-COMPLETED phase — see that section near the bottom.** AI entities
+> now soft-kill at `CHAR_HP==0` (stop acting/moving/hitting, sprite hides)
+> without ever touching `core/oop.pasm`'s generic kill/GC path, which would
+> have broken the codebase's `Entity1_Base`/`Entity2_Base`/`Entity3_Base`
+> fixed-address scheme. Built, verified in Mesen2, AND gated by a committed
+> regression script (`tools/verify/phase11_damage.py`).
 >
 > **Phase 10 (frontpanel foreground layer) is DONE** — all of Steps 1
 > (converter tooling), 2a (cache allocator), 2b (boot-time initial load),
@@ -1468,7 +1472,8 @@ shipped ROM (it gates the static whole-level path specifically) — not a
 regression. Still open: real-play scroll-lag under sustained held-dpad
 input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
-next phases (damage system, SFX, roster persistence), none started.
+next phases (SFX, roster persistence — none started; the damage system
+option there is now done, see the Phase 11 section further down).
 
 ## Phase 10: frontpanel foreground layer — DONE (Steps 1, 2a, 2b, 2c, 3, 4 all done and gated)
 
@@ -1689,6 +1694,66 @@ deterministically (checked twice) on the full committed build.
 (the root bug that caused it is now fixed via `Core_Dma_HasFreeSlot`, but
 don't raise `STREAM_SCROLLFP_BUDGET_MAX` without re-measuring first —
 see that section for why).
+
+## Phase 11: damage system — DONE (see `plan.md` §2.11 for the full writeup)
+
+`CHAR_HP`/the HUD already worked (Phase 6); the only remaining gap was
+"nothing reacts at 0." The obvious approach — kill the entity through
+`core/oop.pasm`'s generic `Core_Oop_Destroy`/garbage-collect path — turned
+out to be a trap specific to this codebase: `Entity1_Base`/`Entity2_Base`/
+`Entity3_Base` (`main.pasm`) are compile-time-fixed WRAM literals, not
+derived at runtime from each entity's `OopDp`, and `Core_Oop__ReclaimSlot`
+compacts `OopObjRam` and rewrites *surviving* objects' `OopDp` on kill — if
+entity 1 were reclaimed, entity 2/3's real DP window would physically move
+while every hardcoded `EntityN_Base` reference elsewhere in the codebase
+(`Character_HitApply_VsEntity2/3`, etc.) kept reading the old address. Same
+class of hazard as CLAUDE.md's "player is always slot 0... don't build a
+general entity-lookup system" note, just for AI slots too.
+
+**The design instead: soft-kill via `CHAR_HP==0` itself.** No new struct
+field, `core/oop.pasm`'s kill/GC path never called, `OopObjRam` untouched.
+`CHAR_HP==0` (the existing clamp floor) IS the dead condition — sticky,
+since nothing but the `HitApply` leaves' own clamp-at-0 ever writes
+`CHAR_HP`, and this phase makes those leaves refuse to re-touch a target
+already at 0. Scoped to AI entities only (`CHAR_INPUT_DRIVEN==2`); the
+player is exempt — player death/game-over stays out of scope.
+
+Four small, local edits in `main.pasm`, each following this project's
+Poppy-safety rules (short branches, redundant `sep`/`rep` resyncs at every
+new branch target):
+1. `Anim_Play` (right after `Anim_Play__loaded`): a dead AI entity `rts`s
+   immediately — no AI seek/attack dispatch, and critically no
+   `Anim_Play_Idle/Walk/Attack`, so it never reaches `Msu1_LoadFrame` again
+   and never spends the shared one-entity-per-frame MSU streaming budget on
+   an invisible corpse.
+2. `Character_PlayFrame`'s X and Y movement blocks: a dead AI entity
+   branches to the existing `__hold`/`__hold_y` freeze targets (same ones
+   hit-stun already uses).
+3. `Character_PlayFrame`, right before `jsr Core_Oam_SetSprite`: a dead AI
+   entity's `OamSetSprite_Y` is overridden to `$F0` — the OAM layer's own
+   "hidden" idiom (see `ccdma_validated_nmi_timing_bug` project memory), not
+   a sentinel X (Phase 8 made X a real 16-bit world coordinate with AI-seek
+   distance math that assumes real positions).
+4. `Character_HitApply_VsEntity1/2/3`'s `__dy_ok` leaves: if the target's
+   `CHAR_HP` already reads 0, `rts` before stamping `HitStun`/touching `Hp`
+   again — a dead entity takes no further hits, and doesn't consume the
+   attacker's `CHAR_HIT_APPLIED` latch (so the same attack can still land
+   on a second, live target this cycle). `Character_HitApply`'s dispatcher
+   needed no change — a dead AI never re-enters `CHAR_SELECTED==2` (item 1
+   prevents that), so it can't become an attacker either.
+
+**Verified**: `tools/verify/phase11_damage.py` forces Entity #1's `CHAR_HP`
+to 0 (direct WRAM write is safe here — unlike Phase 10's `PosX`, nothing
+else races `CHAR_HP`), runs 600 real frames, and confirms against live
+Mesen2 state: `CHAR_HP` stays 0, `CHAR_POS_X` frozen, `HitStun` stays 0,
+hardware OAM slot 1's Y byte reads `$F0`, `Nmi_FrameCounter` keeps
+advancing (no vblank overrun). Controls: entities 0/2/3 are not hidden,
+entities 2/3's HP is untouched, and both keep animating (sampled across 6
+ticks — deliberately not a position check, since a living AI entity holds
+still once within `ANIM_AI_ATTACK_RANGE` regardless of this feature).
+Passed deterministically across 2 runs. Full regression suite
+(`audit_all.py`, `check_label_drift.py`, `phase5.py`, `phase6.py`,
+`phase7.py`) still passes.
 
 ## Harness gotchas (Mesen2 / build)
 
