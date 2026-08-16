@@ -28,7 +28,7 @@ This assembles `src/main.pasm` with Poppy (producing `src/main.bin` + `src/main.
 
 Prerequisites (see `build.md` for full detail):
 - **.NET 10 SDK**, user-local at `C:\Users\chad\.dotnet\dotnet.exe` (the system-wide `dotnet` resolves to 8.0, which fails with `NETSDK1045` against Poppy's `net10.0` target). `build_rom.py` already invokes the correct path.
-- Poppy CLI itself lives in a separate repo, `E:\gh\SNES-CrimePatrol\tools\poppy-src`, and must be built once (`dotnet build Poppy.CLI\Poppy.CLI.csproj -c Release`) before `build_rom.py` can call `poppy.dll`.
+- Poppy CLI itself lives in a separate repo — **`astrobleem/poppy`** (`E:\gh\poppy-astrobleem`), a fixed fork of the old, buggier Poppy that used to live at `E:\gh\SNES-CrimePatrol\tools\poppy-src`. Must be built once (`dotnet build src\Poppy.CLI\Poppy.CLI.csproj -c Release`) before `build_rom.py` can call `poppy.dll`; `build_rom.py`'s `POPPY_DLL` already points at the fork's output path. See `poppy_fork_migration` project memory for why the switch happened and two real regressions it caught.
 
 There is no lint step and no unit-test framework — see Testing below for how correctness is actually checked.
 

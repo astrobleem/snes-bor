@@ -33,6 +33,24 @@ characters** — the actual next step toward the original design's "1 player +
 N enemies" proof of concept. It does **not** attempt combat polish, levels,
 or the full OpenBOR scripting engine — see "Explicitly out of scope."
 
+> **UPDATE (2026-08-16): read this before assuming "levels" means what it
+> sounds like.** As of Phase 9/12 this engine renders a real, converted BOR
+> level (stage 1A) with real characters (Ralf/JHUN/JOE) and real horizontal
+> scrolling. That is **not** the same as "levels work" in the OpenBOR
+> sense, and earlier phases of this doc did not draw that line clearly
+> enough. See the new "What 'levels' actually means here, and what's
+> missing" section right after "Explicitly out of scope" for the honest,
+> corrected picture — it covers content coverage (1 of 14 stages, 3 of ~24
+> characters converted), the complete absence of enemy spawn-wave/level-
+> transition/win-condition logic, and why that logic isn't a small gap:
+> real OpenBOR levels are driven by `openborscript`, a genuine embedded
+> bytecode-VM scripting language, not declarative data. There is
+> already real prior design work toward running that VM on this hardware
+> (`openbor4086_sa1_bootstrap.zip`, untracked, in the repo root) — but it
+> was never assembled or verified, and it targets a bank layout this
+> project's Poppy-toolchain constraints don't allow as-is. Read that
+> section before scoping any "next level" or "spawn enemies" work.
+
 Work through the phases **in order**. Phase 0 is a bug fix that is a hard
 prerequisite — the current code has a real, deterministic data-corruption
 bug that only manifests once a second entity starts animating, so it has
@@ -347,12 +365,12 @@ before that's true.
   entities this plan adds. Its hardware mechanism remains a valid, proven
   proof of concept for something else later, but not for this work — see
   "The architecture decision" above.
-- **The OpenBOR bytecode VM bootstrap** (`openbor4086_sa1_bootstrap.zip`).
-  Real, substantial pre-existing design work, but 0% implemented, untracked,
-  targets a memory layout this project doesn't use, and depends on
-  concepts from a sibling project not present here. If this is ever picked
-  up, treat it as its own ground-up project with a real adaptation pass to
-  this project's bank-0/WRAM conventions — not a drop-in.
+- **The OpenBOR bytecode VM bootstrap** (`openbor4086_sa1_bootstrap.zip`,
+  untracked, repo root). Real, substantial pre-existing design work — see
+  the section immediately below for the full, corrected account of what it
+  actually contains and doesn't. If this is ever picked up, treat it as its
+  own ground-up project with a real adaptation pass to this project's
+  bank-0/WRAM conventions — not a drop-in.
 - **Scrolling.** The original spec's own proof-of-concept explicitly
   requires none (single static screen). Don't add camera/scroll logic as
   part of this plan. **(Superseded 2026-08-10, by request — see §2.7,
@@ -364,9 +382,130 @@ before that's true.
 - **Real damage/health/game-state systems.** Phase 4 below stops at "an
   enemy visibly reacts to being hit" — no HP tracking, no death, no win
   condition. Matches the original spec's own PoC scope ("no damage system
-  required").
+  required"). **(Partially superseded 2026-08-16, by request — see §2.11,
+  Phase 11. HP tracking and AI soft-kill are now real; player death/game-
+  over and any actual win condition remain out of scope — there is still
+  no game loop, see the section below.)**
 - **Audio content polish** beyond what's already boot-verified, until
   Phase 7 (last, roadmap-level, lowest priority).
+
+## What "levels" actually means here, and what's missing (added 2026-08-16)
+
+Read this before scoping "add a second level," "make enemies spawn," or
+"let the player beat the game" — each of those sounds like a small
+follow-on to what already works and isn't. This section exists because a
+user Q&A session surfaced that this doc's own framing had drifted into
+sounding more finished than the engine actually is.
+
+**Content coverage, precisely.** The source `.pak`
+(`Beats of Rage Original [v.3.0 Build 4086].pak`, repo root) contains 14
+stages (`1A/1B/1C, 2, 3A/3B/3C, 4A/4B, 5A/5B, 6A/6B/6C`) × 3 difficulties,
+and roughly two dozen playable/enemy characters (Angel, Biker-K, Billy,
+Bink, Crab, Eiji, Heavy, JHUN, JOE, K9999, Kula, K, Lobster, Mary, Maxima,
+Mighty, MrBig, Ralf, Ramon, Robert, Rugal, Shermie, Yamazaki, Yashiro).
+This engine ships **1 of those 14 stages** (1A, `out/bg_stage1a`) and
+**3 of those ~24 characters** (Ralf/JHUN/JOE — Entity #3 reuses JHUN a
+second time). Nothing else has been converted; nothing here is blocked
+from converting more, it's just not been asked for yet.
+
+**There is no level-transition system, full stop.** Nothing in
+`main.pasm` detects "reached the end of this level" or loads a different
+one — `BG_SCREENS` in `build_rom.py` is a single hardcoded
+`(background, hud)` tuple, period. The camera scrolls within the one
+loaded level (Phase 8/9); nothing past its right edge exists to scroll
+into.
+
+**There is no win condition, no game loop, and no spawn-wave logic.**
+`CLAUDE.md` already says this outright ("this is not a playable game...
+there is still no game loop") and it remains true after Phase 11's damage
+system: AI entities now soft-kill at `CHAR_HP==0` (stop acting, sprite
+hides), but nothing *consumes* that fact — there's no "all enemies dead →
+advance" check, because there's nothing to advance to and no wave/spawn
+system that would make "all enemies dead" a meaningful moment in the
+first place. The 4 entities are hardcoded at boot (fixed roster slots,
+fixed `EntityN_Base` WRAM addresses, per CLAUDE.md's own "player is
+always slot 0" design note) — nothing spawns, despawns, or arrives in
+waves.
+
+**Why that's not a small gap: real OpenBOR levels are driven by a real
+bytecode-VM scripting language, not declarative data.** This project's
+own `tools/bg_converter/level_parse.py` only reads the purely-scenery
+keywords out of a level `.txt` (`background`/`panel`/`frontpanel`/`order`)
+— its own docstring says the rest is thrown away: *"spawn/group/wait/at
+describe enemy waves and are ignored."* In real OpenBOR
+(`DCurrent/openbor` on GitHub — also see `Plombo/beatsofrage`, the
+original Beats of Rage engine source OpenBOR descends from, as a
+secondary reference), *what happens* in a
+level — enemy spawn waves, boss triggers, level-clear/level-transition,
+HUD events — is controlled by `openborscript`: a genuine embedded C-like
+scripting language with its own bytecode VM
+(`engine/source/scriptlib/`: `Lexer.c` → `Parser.c` → `Interpreter.c`,
+an `OpCode` enum of 48 values — `LOAD`, `SAVE`, `CALL`, `JUMP`,
+`Branch_TRUE`, `ADD`, etc. — plus a typed `ScriptVariant` system and
+symbol tables). None of that is implemented here. Not partially, not as
+a stub — there is no script interpreter of any kind in this codebase.
+
+**There IS real prior design work toward this — but it never got past
+scaffolding.** `openbor4086_sa1_bootstrap.zip` (untracked, sitting in the
+repo root right now — `git status` will show it) is a self-contained,
+well-researched bootstrap attempt from an earlier session (2026-08-03),
+built from the exact `DCurrent/openbor` source paths named above:
+- `opcode_manifest.csv` — all 48 opcode values, names, operand shapes, and
+  runtime semantics, cross-checked against the real `Instruction.h` enum
+  (confirmed accurate when independently re-derived this session).
+- `FORMAT.md` — a full binary module format spec (64-byte header, 8-byte
+  instruction records, slot/callsite/string tables) meant to be produced
+  by an offline Python linker rather than parsing OpenBOR script source on
+  the SNES itself — a reasonable scope cut.
+- `src/bor_vm_core.pasm` (~800 lines) + `src/bor_vm_opcodes.pasm` — a
+  65816/SA-1 interpreter scaffold: direct-page VM state layout, status/
+  error codes, fault handling design.
+- `tests/gate0_program.json` + `tests/gate0_module.bin` +
+  `tests/gate0_expected_slots.bin` — a first correctness milestone
+  (sequential IP increment, `ADD`, `EQ`, `Branch_FALSE`, `JUMP`, `ERR`,
+  root `RET` — nothing else) with real test fixtures.
+
+**But `IMPLEMENTATION_CHECKLIST.md`'s every box is unchecked.** Gate 0 —
+the deliberately tiny first milestone, not the full VM — was never
+assembled, run, or verified against its own fixtures. And it isn't a
+drop-in even for that: `bor_vm_core.pasm` hardcodes
+`VM_DEFAULT_CODE_BANK=$C0`, `VM_DEFAULT_SLOT_BANK=$40`,
+`VM_DEFAULT_FRAME_BANK=$41` — a genuine multi-bank layout — while
+CLAUDE.md's "Toolchain" section documents Poppy's confirmed bug that
+cross-bank `jsl`/`jml`/`lda #` references silently resolve to bank `$00`
+instead of the real bank for any label defined under a non-zero
+`.bank N`. This project has stayed bank-0-confined specifically because
+of that bug (see CLAUDE.md's `src/main.pasm` section). The scaffold
+inherited its bank layout from a sibling project
+(`astrobleem/supermn-snes`, cited in `SOURCES.md`) that doesn't share
+this constraint. Using it here means either re-deriving it for bank 0 or
+adopting the numeric-`bank:offset`-literal workaround CLAUDE.md documents
+for cross-bank references — a real adaptation pass, not a copy-paste.
+
+**Two realistic paths forward, very different in cost:**
+1. **Convert-time spawn tables (small, tractable, no VM).** This engine
+   already hardcodes its entities at boot instead of a general
+   entity-lookup system. The same shape of shortcut works for spawn data:
+   parse the small subset of a level script actually needed (enemy
+   type/position/wave timing, a level-end marker) in Python at
+   convert-time, bake it into a small fixed table the SA-1 walks through
+   at runtime — no interpreter, no bytecode, no VM. Gets real spawn waves
+   and a real "next level" trigger without ever running arbitrary script
+   logic on hardware. Does not generalize to levels whose logic is
+   actually conditional/scripted (most are not, for a beat-em-up — enemy
+   waves are usually just "spawn these N enemies when the player crosses
+   X").
+2. **Actually run the OpenBOR VM (large, scaffold exists, unverified).**
+   Finish what `openbor4086_sa1_bootstrap.zip` started: get Gate 0 to
+   actually assemble and pass against its own fixtures, on this project's
+   real Poppy fork and bank-0 constraint, then extend opcode-by-opcode.
+   This is not "the next phase" of this plan — it's comparable in scope to
+   everything Phases 0-12 already took, and should be scoped as its own
+   plan with its own phase-gate structure if picked up, not folded into
+   this file's phase list.
+
+Neither is scheduled. Per this project's "don't start speculative phases
+uninvited" norm, pick one and say so (or ask) before starting either.
 
 ## Phase 0 — Fix the MSU-streaming serialization hazard  ✅ DONE (`fd9bcdc`)
 

@@ -8,9 +8,9 @@ See [README.md](README.md#current-status) for what's actually verified working v
 
 - **.NET 10 SDK** — required by Poppy CLI (`poppy.dll`). Poppy targets `net10.0`; a system-wide .NET 8 install is **not** sufficient and will fail with `NETSDK1045`.
   - On this machine, .NET 10 is a **user-local preview install**, not on `PATH`: `C:\Users\chad\.dotnet\dotnet.exe` (SDK `10.0.300-preview.0.26177.108`). Invoke it explicitly rather than the bare `dotnet` command, which resolves to the system-wide 8.0 install.
-  - Poppy's source lives in a separate repo, not inside this one: `E:\gh\SNES-CrimePatrol\tools\poppy-src`. It must be built once before use:
+  - Poppy's source lives in a separate repo, not inside this one — **`astrobleem/poppy`** (`E:\gh\poppy-astrobleem`), a fixed fork of the old, buggier Poppy that used to live at `E:\gh\SNES-CrimePatrol\tools\poppy-src` (see `poppy_fork_migration` project memory for why). It must be built once before use:
     ```bash
-    cd E:\gh\SNES-CrimePatrol\tools\poppy-src\src
+    cd E:\gh\poppy-astrobleem\src
     C:\Users\chad\.dotnet\dotnet.exe build Poppy.CLI\Poppy.CLI.csproj -c Release
     # -> Poppy.CLI\bin\Release\net10.0\poppy.dll
     ```
@@ -25,7 +25,7 @@ The `make`/`cd /home/chad/...` instructions below reflect the project's original
 
 ```bash
 # 1. Assemble src/main.pasm -> src/main.bin + src/main.pansy
-C:\Users\chad\.dotnet\dotnet.exe E:\gh\SNES-CrimePatrol\tools\poppy-src\src\Poppy.CLI\bin\Release\net10.0\poppy.dll src\main.pasm
+C:\Users\chad\.dotnet\dotnet.exe E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll src\main.pasm
 
 # 2. Pack ROM & MSU-1 assets
 python build_rom.py
