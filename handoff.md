@@ -34,12 +34,12 @@ each section below.
 > `out/bg_stage1a`), not the old static boss level.
 >
 > **Phase 10 (frontpanel foreground layer) is IN PROGRESS** — Step 1
-> (converter tooling, `tools/bg_converter/convert_frontpanel.py`) is done
-> and verified offline (`out/fp_stage1a/`). Steps 2-4 (the actual engine
-> work — a second streaming cache instance, BG3 priority wiring,
-> verification) are NOT started. See the Phase 10 section near the bottom
-> and `plan.md` §2.10 Step 2 for exactly where to pick this up; `plan.md`
-> §2.9 lists other, unrelated candidate phases if not.
+> (converter tooling) and Step 2a (cache allocator, `core/
+> stream_cache_fp.pasm`) are done and verified. Steps 2b-4 (boot load,
+> per-frame resolver, BG3 priority wiring, verification) are NOT started —
+> the cache exists but nothing calls it yet. See the Phase 10 section near
+> the bottom and `plan.md` §2.10 Step 2b for exactly where to pick this up;
+> `plan.md` §2.9 lists other, unrelated candidate phases if not.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1502,17 +1502,32 @@ clearly readable at that budget. Also added
 `snes_tiles.decode_2bpp_tile` (the missing inverse of the pre-existing
 `encode_2bpp_tile`).
 
-**Steps 2-4 (engine) are NOT started.** No `main.pasm` changes, no second
-cache instance, no BG3 priority-bit wiring, no `phase10*.py` test script.
-`core/stream_cache.pasm`/`Core_StreamScroll_*` still only know about one
-(BG1) layer. Start at `plan.md` §2.10 Step 2 — generalizing/duplicating
-the cache mechanism for a second `(tile base, tilemap base, Tile2Slot)`
-triple sized for the ~143-tile window (budget headroom above that, not
-exactly at it, matching `STREAM_CACHE_USABLE`'s own precedent). This is
-real engine work with real risk (a second per-frame streaming consumer
-competing for the same 8-slot DMA queue Phase 0/9 already had to solve
-once) — budget real Mesen2 verification time, this is not a quick follow-
-on to Step 1's clean offline result.
+**Step 2a (cache allocator) is done and verified in Mesen2.**
+`src/core/stream_cache_fp.pasm` — a deliberate near-duplicate of
+`stream_cache.pasm`, not a parameterized/shared version (see that file's
+own header for why duplication was chosen over cleverness here). 256
+usable 2bpp slots, tables at `$7FA000`+/`$7E25A0`+ (grep-confirmed unused).
+`Core_StreamCacheFp_Init` runs from `scpu_boot` right after the existing
+BG1 call; `Core_StreamCacheFp_Test` exists but is NOT called from boot
+(same poisoned-cache reason as BG1's own `Core_StreamCache_Test`) — verify
+it via a temporary boot-time call, added/run/removed, same pattern used
+here this session: 8 synthetic tile IDs got 8 distinct slots with the
+exact expected stride-97 arithmetic, `Tile2Slot`/`Slot2Tile` back-
+references consistent. Full regression suite (label-drift, audit_all,
+phase5/6/7, both `phase9_*` scripts) re-confirmed green on the real
+shipped stage-1A ROM after this addition — this cache exists in the build
+now but nothing calls `AllocateSlot` from any real per-frame or boot-time
+path yet, so it's inert, zero risk to what's shipped.
+
+**Steps 2b-4 are NOT started.** No initial-viewport boot load, no
+per-frame resolver/repair-sweep, no BG3 priority-bit wiring, no
+`phase10*.py` test script. Start at `plan.md` §2.10 Step 2b/2c — a
+`Bg_LoadScene_Streaming`-equivalent boot load, then a
+`Core_StreamScroll_*`-equivalent per-frame resolver, both targeting this
+now-existing cache. This is the harder half, with real risk (a second
+per-frame streaming consumer competing for the same 8-slot DMA queue
+Phase 0/9 already had to solve once) — budget real Mesen2 verification
+time.
 
 ## Harness gotchas (Mesen2 / build)
 

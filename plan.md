@@ -1776,13 +1776,36 @@ each step should get its own commit and gate, not one giant change)
    "LAP CLAP" signs, and foliage are all clearly readable even at 9 colors
    — the tight budget was a real concern going in and turned out fine in
    practice, not just in theory.
-2. **Engine: a second cache instance.** Generalize or duplicate
-   `core/stream_cache.pasm` (parameterize its VRAM base / entry size — 2bpp
-   tiles are 16 bytes not 32 — rather than hardcoding a second near-copy of
-   the whole file) and `Core_StreamScroll_*`'s resolver/repair-sweep logic
-   for a second `(tile base, tilemap base, Tile2Slot table)` triple. Reuse
-   the *mechanism*, not necessarily the same WRAM addresses — BG1's
-   `StreamScroll_*`/cache state is already sized for BG1's own budget.
+2. **Engine: a second cache instance.**
+   **2a (allocator) — ✅ DONE (2026-08-16), verified in Mesen2.**
+   `src/core/stream_cache_fp.pasm`, a deliberate near-duplicate of
+   `stream_cache.pasm` (not a parameterized/shared version — Poppy has no
+   clean way to thread a "which layer" value through indexed banked-symbol
+   access without real correctness risk, and this project already prefers
+   duplication over that kind of cleverness elsewhere, e.g.
+   `Character_HitApply_VsEntity1/2/3`). Sized for the measured 535-tile/
+   143-worst-case-window budget: 256 usable slots (2bpp, 8 words/tile —
+   2048 words, comfortably inside the free `$5000`-`$5FFF` BG3 gap), tables
+   in grep-confirmed-unused `$7FA000`+ (bank $7F, well clear of BG1's own
+   tables) and `$7E25A0`+ (bank $7E, the gap right after
+   `StreamScroll_FetchBufSel`). `Core_StreamCacheFp_Init` is called from
+   `scpu_boot` right after the existing BG1 call; `Core_StreamCacheFp_Test`
+   exists but is deliberately NOT called from the boot path, same
+   poisoned-cache reason `stream_cache.pasm`'s own `Core_StreamCache_Test`
+   isn't. Verified via a temporary boot-time call to the Test routine
+   (added, run, confirmed, then removed before committing, matching this
+   project's established "temporary hook" pattern — see Phase 0's history
+   for the precedent): 8 synthetic tile IDs allocated 8 distinct slots with
+   the exact expected stride-97 arithmetic, `Tile2Slot`/`Slot2Tile`
+   back-references consistent both directions. Full regression suite
+   (label-drift, audit_all, phase5/6/7, phase9_stagecolumn_spotcheck) still
+   green on the real shipped stage-1A ROM after this addition.
+   **2b (boot-time initial load) and 2c (runtime resolver/repair-sweep) are
+   NOT started** — this cache has an allocator but nothing yet calls it
+   from a real per-frame or boot-time path. That's the actual next step,
+   and the harder half: a `Bg_LoadScene_Streaming`-equivalent initial
+   viewport load, then a `Core_StreamScroll_*`-equivalent per-frame
+   resolver.
 3. **BG3 priority + HUD coexistence.** Set the priority bit on frontpanel
    tilemap entries the same way the HUD already does; verify the HUD still
    renders correctly sharing the layer (its own dedicated Phase 6 checks

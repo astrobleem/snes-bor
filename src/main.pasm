@@ -2502,6 +2502,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/nmi.pasm"
 .include "core/oam.pasm"
 .include "core/stream_cache.pasm"
+.include "core/stream_cache_fp.pasm"
 
 ; ============================================================================
 ; Ralf idle/walk animation: precomputed VRAM-format tile data ("Option B"
@@ -7651,6 +7652,15 @@ scpu_boot:
     ; kept in core/stream_cache.pasm for future ad hoc re-verification, just
     ; no longer called from the real boot path.
     jsr Core_StreamCache_Init
+
+    ; Phase 10 (plan.md 2.10) frontpanel cache -- same Init-only-no-test
+    ; convention as the BG1 call immediately above (see that call site's
+    ; comment for the exact poisoned-cache failure mode this avoids).
+    ; Nothing yet calls Core_StreamCacheFp_AllocateSlot from a real per-
+    ; frame path -- this only makes Init's own effect (tables cleared)
+    ; observable for verification; the resolver that would actually use
+    ; this cache is not written yet (Phase 10 Step 2, still in progress).
+    jsr Core_StreamCacheFp_Init
 
     ; StreamScroll_Enabled must be explicitly zeroed here, unconditionally,
     ; for every build (including a BG_MODE_STATIC level like the shipped
