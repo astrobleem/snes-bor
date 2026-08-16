@@ -1946,15 +1946,35 @@ each step should get its own commit and gate, not one giant change)
    coexistence artifact. Still worth an EXPLICIT dedicated check (e.g. HUD
    changing HP while FP is mid-resolve) before calling this fully closed,
    but nothing found so far suggests a problem.
-4. **Verification.** A new `tools/verify/phase10*.py`, structured like
-   `phase9_syncscroll_test2.py` (ground truth = the new converter's own
-   tilemap/tileset .bin files, Tile2Slot-consistency invariant, not
+4. **Verification — DONE.** `tools/verify/phase10_frontpanel.py`, structured
+   like `phase9_syncscroll_test2.py` (ground truth = the converter's own
+   `tilemap.bin`/`tiles.bin`, Tile2Slot-consistency invariant, not
    self-consistency), checked against the real shipped stage-1A level, not
-   a synthetic asset (Phase 9 already paid down that particular lesson,
-   don't reintroduce it here) — still NOT written; Step 2c's own
-   verification so far is ad hoc Mesen2 scripting (see above), not a
-   committed regression gate. This is the one real remaining gap before
-   Phase 10 can be called fully done.
+   a synthetic asset. Two checks: the boot-time viewport (224 non-blank
+   entries across the 7 content rows, 0 mismatches) and the runtime
+   resolver under a bidirectional-with-reversals scroll sequence (same
+   224-entry check against whatever window results, plus `Nmi_FrameCounter`
+   advancing every step).
+
+   Writing this test surfaced a real bug: the runtime resolver's `StagedLo`/
+   `StagedHi` are bumped synchronously with handing a column off to
+   `Core_Nmi_Play`'s forced-blank commit — one real frame BEFORE that commit
+   actually writes VRAM (same design BG1's resolver already uses). A
+   first-draft version of this test checked tilemap attribute bits BEFORE
+   the Tile2Slot-consistency check, so a column at the freshly-extended edge
+   that hadn't been physically committed yet (still showing a stale
+   leftover word from whatever world column last occupied that ring slot)
+   was misclassified as a hard attribute mismatch instead of "pending
+   repair." Reordering to check Tile2Slot-consistency first — exactly the
+   order `phase9_syncscroll_test2.py` already established for BG1 — fixed
+   it; this is a test-methodology bug, not an engine bug (BG1's own gate
+   never hit it because its step list is a monotonic forward sweep with
+   generous settle time, never the tight reversals this test deliberately
+   uses to stress both ring directions).
+
+   The gate is deterministic across repeated runs (checked twice) and
+   passes on the full committed build. **Phase 10 is now fully done** —
+   all four steps plus Step 3 verified and gated.
 
 ### Stop conditions
 

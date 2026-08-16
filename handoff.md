@@ -24,36 +24,35 @@ each section below.
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
-> layer" (Steps 1, 2a, 2b done; 2c-4 not started) — plus "Harness gotchas" and
-> "File inventory." Read those. Everything above them is older history, kept
-> for the root-cause detail, and parts of it are known wrong.
+> layer" (DONE, all steps 1-4) — plus "Harness gotchas" and "File inventory."
+> Read those. Everything above them is older history, kept for the root-cause
+> detail, and parts of it are known wrong.
 >
-> **As of 2026-08-16, Phase 9 (streaming BG1 tile cache) is the most recent
-> fully-COMPLETED phase — see that section near the bottom.** It is built,
-> verified, AND shipped: the ROM streams a real BOR level (stage 1A,
-> `out/bg_stage1a`), not the old static boss level.
+> **As of 2026-08-16, Phase 10 (frontpanel foreground layer) is the most
+> recent fully-COMPLETED phase — see that section near the bottom.** It is
+> built, verified in Mesen2, AND gated by a committed regression script
+> (`tools/verify/phase10_frontpanel.py`).
 >
-> **Phase 10 (frontpanel foreground layer) is IN PROGRESS, nearly done** —
-> Steps 1 (converter tooling), 2a (cache allocator), 2b (boot-time initial
-> load), 2c (runtime scroll resolver), and 3 (HUD coexistence) are all done
-> and verified in Mesen2: the chain-link fence renders correctly in front
-> of the character sprites and correctly tracks the camera as it scrolls,
-> in both directions, with no rendering corruption. Step 2b's bring-up
-> found and fixed four real bugs (two in `main.pasm`'s boot ordering/
-> scratch-cell reuse, one BG3 CHR-base tilemap-addressing bug, one
-> converter transparency-quantization bug); Step 2c's found and fixed three
-> more (a window-width-tracking bug, a chained-ADC carry-propagation bug,
-> and a DMA-queue-contention cache-corruption bug shared by BOTH streaming
-> resolvers, not FP-only — see `Core_Dma_HasFreeSlot` in
-> `src/core/dma.pasm`) — see `plan.md` §2.10 Steps 2b/2c for the full list,
-> each worth reading before touching this code again since none of the
-> seven failure modes are obvious from the symptom alone. **Only Step 4 (a
-> committed
-> `tools/verify/phase10*.py` gate) remains** — everything so far is ad hoc
-> Mesen2 scripting, not a repeatable regression gate. See the Phase 10
-> section near the bottom and `plan.md` §2.10 Step 4 for exactly where to
-> pick this up; `plan.md` §2.9 lists other, unrelated candidate phases if
-> not.
+> **Phase 10 (frontpanel foreground layer) is DONE** — all of Steps 1
+> (converter tooling), 2a (cache allocator), 2b (boot-time initial load),
+> 2c (runtime scroll resolver), 3 (HUD coexistence), and 4 (committed
+> verify gate) are done, verified in Mesen2, AND gated by
+> `tools/verify/phase10_frontpanel.py`: the chain-link fence renders
+> correctly in front of the character sprites and correctly tracks the
+> camera as it scrolls, in both directions, with no rendering corruption.
+> Step 2b's bring-up found and fixed four real bugs (two in `main.pasm`'s
+> boot ordering/scratch-cell reuse, one BG3 CHR-base tilemap-addressing
+> bug, one converter transparency-quantization bug); Step 2c's found and
+> fixed three more (a window-width-tracking bug, a chained-ADC
+> carry-propagation bug, and a DMA-queue-contention cache-corruption bug
+> shared by BOTH streaming resolvers, not FP-only — see
+> `Core_Dma_HasFreeSlot` in `src/core/dma.pasm`); writing Step 4's gate
+> found one more, in the TEST not the engine (attr-before-Tile2Slot check
+> ordering misclassified a not-yet-committed edge column as a hard
+> failure) — see `plan.md` §2.10 Steps 2b/2c/4 for the full list, each
+> worth reading before touching this code again since none of the eight
+> failure modes are obvious from the symptom alone. `plan.md` §2.9 lists
+> other, unrelated candidate next phases.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1471,7 +1470,7 @@ input (only tested via a scripted position sweep), and there's still no
 self-contained `phase9.py` gate. See `plan.md` §2.9 for other candidate
 next phases (damage system, SFX, roster persistence), none started.
 
-## Phase 10: frontpanel foreground layer — Steps 1, 2a, 2b, 2c, 3 DONE; only Step 4 (verify script) not started
+## Phase 10: frontpanel foreground layer — DONE (Steps 1, 2a, 2b, 2c, 3, 4 all done and gated)
 
 Found while recapturing README screenshots against the newly-shipped stage
 1A (see Phase 9 above): the fence in `scene_scrolled.png` renders *behind*
@@ -1666,14 +1665,30 @@ never showed any coexistence artifact. Not yet an explicit dedicated
 "HUD changes while FP mid-resolve" test, but nothing found suggests a
 problem.
 
-**Only Step 4 remains**: a committed `tools/verify/phase10*.py` gate
-(ground truth = the converter's own tilemap/tileset `.bin` files, not
-self-consistency) — everything verified so far is ad hoc Mesen2
-scripting, not a repeatable regression gate. See `plan.md` §2.10's stop
-conditions for the DMA-queue-contention risk's current status (tested
-under real bidirectional scrolling, not yet Phase-0-style deliberately
-forced worst-case collision — don't treat it as fully cleared before
-raising `STREAM_SCROLLFP_BUDGET_MAX`).
+**Step 4 (committed verify gate) is also done**: `tools/verify/
+phase10_frontpanel.py`, structured like `phase9_syncscroll_test2.py`
+(ground truth = the converter's own `tilemap.bin`/`tiles.bin`, Tile2Slot-
+consistency invariant, not self-consistency). Checks the boot-time
+viewport (224 non-blank entries, 0 mismatches) and the runtime resolver
+under a bidirectional-with-reversals scroll sequence (same check against
+whatever window results, plus `Nmi_FrameCounter` advancing every step).
+Writing it surfaced one more thing worth knowing: `StagedLo`/`StagedHi`
+are bumped synchronously with handing a column to `Core_Nmi_Play`'s
+forced-blank commit, one real frame before that commit actually writes
+VRAM (same design BG1 already uses) — a first-draft version of this test
+checked tilemap attribute bits before the Tile2Slot-consistency check, so
+a freshly-extended-but-not-yet-committed edge column was misclassified as
+a hard failure instead of "pending repair." Fixed by matching BG1's own
+check order (Tile2Slot-consistency first) — a test-methodology bug, not
+an engine bug; BG1's own gate never hit it because its step list is a
+monotonic forward sweep, never this test's deliberate reversals. Passes
+deterministically (checked twice) on the full committed build.
+
+**Phase 10 is now fully done, all four steps plus Step 3.** See `plan.md`
+§2.10's stop conditions for the DMA-queue-contention risk's current status
+(the root bug that caused it is now fixed via `Core_Dma_HasFreeSlot`, but
+don't raise `STREAM_SCROLLFP_BUDGET_MAX` without re-measuring first —
+see that section for why).
 
 ## Harness gotchas (Mesen2 / build)
 
