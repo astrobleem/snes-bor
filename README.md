@@ -24,11 +24,13 @@ Nothing reacts at 0 HP: there is no damage system, just the value and its bar.
 
 ### Scrolling
 
-The level extends 1920px past one screen (256px), and the camera follows the player. The shot below is further into the same level — the streaming tile cache has evicted the opening alley's tiles from VRAM and resolved new ones (chain-link fence, ivy-covered brick) as the camera moved past them, not just panned a single static image:
+The level extends 1920px past one screen (256px), and the camera follows the player. The shot below is further into the same level, past a full screen of the opening alley — the streaming tile cache has evicted those tiles from VRAM and resolved new ones (fresh graffiti, a different brick pattern) as the camera moved past them, not just panned a single static image. It was captured at the real dpad movement speed (`PLAYER_SPEED`) with the resolver given time to settle, and checked against ground truth (0 stale tiles in the visible viewport) before saving — a first attempt at this shot used an unrealistically fast scripted camera jump and genuinely showed cache-eviction garbage; that was a bug in the capture method, not the engine, but it's worth saying plainly rather than quietly swapping the image.
 
-![The camera scrolled further into the level; new backdrop content (chain-link fence, ivy-covered brick) has streamed in](docs/screenshots/scene_scrolled.png)
+![The camera scrolled further into the level, past the opening alley; a new graffiti/brick section has streamed in, with the chain-link fence in the foreground](docs/screenshots/scene_scrolled.png)
 
 The scroll is real hardware state, not a screen-space camera trick: `$210D` (BG1HOFS) is written from the same eased `Screen_PosX` every vblank, and the player's/AI's OAM X positions are computed screen-relative (world X minus camera X) every frame, including deriving OAM's X-high bit when that goes negative-of-256. There's still no vertical or diagonal scroll — BOR levels are horizontal-only side-scrollers, so none is planned.
+
+**The fence in that shot is also a good example of the frontpanel-layering limitation** described under [Not built](#not-built) below — it's meant to occlude the characters and currently doesn't.
 
 ---
 
@@ -106,6 +108,7 @@ The scroll is real hardware state, not a screen-space camera trick: `$210D` (BG1
 ### Not built
 
 Scheduled — see [plan.md](plan.md) Part Two for step-by-step plans:
+- **Frontpanel foreground art renders BEHIND characters, not in front of them — a real, structural limitation, not a bug in this session's work.** BOR's `frontpanel` layer (e.g. stage 1A's chain-link fence) is meant to occlude characters (`tools/bg_converter/level_parse.py` calls it "overlay drawn in front" of its own accord). This converter bakes background+panels+frontpanel into one flat static BG1 image, and hardware OBJ sprites (the characters) always render above BG1 in this engine, so the frontpanel ends up behind the characters instead — the opposite of real BOR's depth ordering. Not new to this session (the boss level has a frontpanel too, `data\bgs\boss\front.gif`); stage 1A's fence just makes it obvious. Fixing this for real needs the frontpanel split into its own layer with correct SNES priority (e.g. moved onto BG3 with an OBJ-behind-BG3 priority bit, freeing up the HUD's current BG3 usage or sharing it), not something to paper over with capture angle choices.
 - **No damage system.** `CHAR_HP` exists and the HUD draws it, but nothing dies, respawns, or reacts at 0 — the spec scopes the PoC to hit *reaction*.
 - **No SFX are wired to gameplay.** Music now plays (see Phase 7 above), but nothing triggers a sound on an attack or a hit. This is no longer blocked — it is just unstarted, and it needs content before it needs code: `soundwork/tad/build/audio-enums.inc` currently exports exactly one song (`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound has to be authored in the Terrific Audio Driver project first.
 - **Real-play scroll-lag under sustained held-dpad input is still unmeasured for the streaming path** (plan.md §2.8): the full-level traversal verified in Current Status above used a scripted WRAM position sweep, not sustained realistic input, and there's still no self-contained `phase9.py` regression gate (the two `phase9_*.py` scripts require Mesen2 and real wall-clock time). Neither blocks the level from working — see Current Status — but both are worth closing before trusting this on an even bigger level. The old static whole-level path (`out/bg_boss_level`, plan.md §2.7) is fully intact and still buildable if needed.
