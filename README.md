@@ -8,35 +8,25 @@ A Super Nintendo Entertainment System (SNES) proof-of-concept targeting real SA-
 
 ## Screenshots
 
-Captured from the current build (`distribution/bor.sfc`) in Mesen2. Everything on screen is streamed from `bor.msu` at runtime — nothing here is baked into the ROM.
+Captured from the current build (`distribution/bor.sfc`) in Mesen2, on the real level the ROM now ships (BOR's stage 1A, `DATA\EASY\1AEASY.TXT`, streamed through the Phase 9 tile cache — see [Current Status](#current-status)). Everything on screen is streamed from `bor.msu` at runtime — nothing here is baked into the ROM.
 
-| Player HP 52/80 | Player HP 0/80 | Player HP 0/80, later |
+| Player HP 36/64 | Player HP 0/64 | Player HP still 0, later |
 |---|---|---|
-| ![Four characters over the converted backdrop, player HP bar partly drained](docs/screenshots/scene.png) | ![The same scene with the player's HP bar empty](docs/screenshots/scene_action.png) | ![Player HP still empty, characters at new positions](docs/screenshots/scene_hud_depleted.png) |
+| ![Four characters over the converted street backdrop, player HP bar partly drained](docs/screenshots/scene.png) | ![The same scene with the player's HP bar empty](docs/screenshots/scene_action.png) | ![Player HP still empty, fight continuing](docs/screenshots/scene_hud_depleted.png) |
 
-Four characters (2 Ralfs + 2 JHUNs — the roster holds two, so each appears twice) render as large 32×64 hardware OAM sprites against a real converted Beats of Rage level, the boss throne room. Three stand in the bottom row and the fourth in front of the throne base.
+Four characters (2 Ralfs + 2 JHUNs — the roster holds two, so each appears twice) render as large 32×64 hardware OAM sprites against a real converted Beats of Rage level.
 
-The stacked red bars at the top left are the BG3 HUD, one bar per entity, driven by that character's own `CHAR_HP` byte and redrawn only when it changes. **The topmost bar is the player** (entity 0 — "the player is always slot 0"). Measured off the three shots above, it is 52 px of 80 in the first and empty in the other two. An empty bar draws no red at all, so the right-hand two shots show three bars, not four.
+The stacked red bars at the top left are the BG3 HUD, one bar per entity, driven by that character's own `CHAR_HP` byte and redrawn only when it changes. **The topmost bar is the player** (entity 0 — "the player is always slot 0"). Measured off the three shots above, it is 36 px of 64 in the first and empty in the other two. An empty bar draws no red at all, so the right-hand two shots show three bars, not four.
 
-The three AI bars stay full only because these captures were taken with no attack input — damage is *not* one-directional. `Character_HitApply_VsPlayer` costs the player HP and `Character_HitApply_VsEntity1/2/3` cost the AI entities theirs, all four at `CHAR_HP_PER_HIT` (4) per landed hit, clamped at 0, out of `CHAR_HP_MAX` (64).
+The three AI bars stay full because damage is *not* one-directional but the AI hasn't landed a hit on itself in these particular captures — `Character_HitApply_VsPlayer` costs the player HP and `Character_HitApply_VsEntity1/2/3` cost the AI entities theirs, all four at `CHAR_HP_PER_HIT` (4) per landed hit, clamped at 0, out of `CHAR_HP_MAX` (64).
 
 Nothing reacts at 0 HP: there is no damage system, just the value and its bar.
 
-TAD audio, recorded straight out of the emulator: a moment of silence while the driver uploads, then a run of discrete note attacks, then silence for the rest of the capture once the (deliberately short) track ends.
-
-![Recorded S-DSP output showing the song playing](docs/screenshots/audio_waveform.png)
-
-The three original single-character shots — idle, walk and attack, from before the entity system existed — are kept for the per-animation detail they show:
-
-| Idle | Walk | Attack |
-|---|---|---|
-| ![Idle animation](docs/screenshots/idle.png) | ![Walk animation](docs/screenshots/walk.png) | ![Attack animation](docs/screenshots/attack.png) |
-
 ### Scrolling
 
-The level now extends past one screen (336px content, vs. the 256px screen), and the camera follows the player. Holding dpad-Right from boot pans the whole scene: the throne shot above is at scroll 0; the shot below is the same ROM, same level, after holding Right until the camera clamps at its computed max (`Screen_PosX = 79`) — the throne has moved off the left edge and the level's right boundary (nothing beyond it) is now visible.
+The level extends 1920px past one screen (256px), and the camera follows the player. The shot below is further into the same level — the streaming tile cache has evicted the opening alley's tiles from VRAM and resolved new ones (chain-link fence, ivy-covered brick) as the camera moved past them, not just panned a single static image:
 
-![The camera scrolled right to its clamp, throne pushed off-screen left, level edge visible on the right](docs/screenshots/scene_scrolled.png)
+![The camera scrolled further into the level; new backdrop content (chain-link fence, ivy-covered brick) has streamed in](docs/screenshots/scene_scrolled.png)
 
 The scroll is real hardware state, not a screen-space camera trick: `$210D` (BG1HOFS) is written from the same eased `Screen_PosX` every vblank, and the player's/AI's OAM X positions are computed screen-relative (world X minus camera X) every frame, including deriving OAM's X-high bit when that goes negative-of-256. There's still no vertical or diagonal scroll — BOR levels are horizontal-only side-scrollers, so none is planned.
 
@@ -46,7 +36,7 @@ The scroll is real hardware state, not a screen-space camera trick: `$210D` (BG1
 
 ### Working and verified
 
-**Most recent work — the shipped ROM now streams a real, full-size Beats of Rage level (`plan.md` §2.8, Phase 9).** `build_rom.py`'s `BG_SCREENS` ships `out/bg_stage1a` — BOR's actual stage 1A (`DATA\EASY\1AEASY.TXT`), 6 screens/1920px wide, 2,458 unique tiles level-wide, far past the ~1,000-tile ceiling a static whole-level load can hold in VRAM at once. A ring-buffer VRAM tile-slot cache (`src/core/stream_cache.pasm`, 1,022 usable slots) plus a runtime engine (`Core_StreamScroll_*` in `src/main.pasm`) extends/repairs a camera-relevant resident window on the fly, streaming individual tiles from `bor.msu` on cache miss. Verified end-to-end in Mesen2: a full scripted traversal from world X=0 to 1880 renders cleanly with no corruption (screenshots show real graffiti/brick/window art, not placeholder blocks), and both ground-truth scripts pass against this real level — `tools/verify/phase9_stagecolumn_spotcheck.py` (896/896 boot-time viewport tiles byte-exact) and `phase9_syncscroll_test2.py` (0 hard mismatches after a full-level camera sweep). This is a real product change, not just an engine proof: the previous shipped level (`out/bg_boss_level`, the boss throne room, still fully intact and buildable) is no longer what boots by default. See `plan.md` §2.8 for the full mechanism, the bugs found building the engine itself (a Poppy-fork silent-miscompile on a two-term `adc` immediate, a `TileBuf` double-fetch, a `CommitColumn` hang, and a repair-sweep-scope bug that caused a stale-tile metric to never converge), and the "UPDATE" note there for what wiring in a real level required (three test-script fixes, zero engine-code changes) and what's still open (real-play scroll-lag under sustained held-dpad input is still only tested via a scripted position sweep; there's still no self-contained `phase9.py` gate). §2.9 lists other candidate next steps.
+**Most recent work — the shipped ROM now streams a real, full-size Beats of Rage level (`plan.md` §2.8, Phase 9).** `build_rom.py`'s `BG_SCREENS` ships `out/bg_stage1a` — BOR's actual stage 1A (`DATA\EASY\1AEASY.TXT`), 6 screens/1920px wide, 2,458 unique tiles level-wide, far past the ~1,000-tile ceiling a static whole-level load can hold in VRAM at once. A ring-buffer VRAM tile-slot cache (`src/core/stream_cache.pasm`, 1,022 usable slots) plus a runtime engine (`Core_StreamScroll_*` in `src/main.pasm`) extends/repairs a camera-relevant resident window on the fly, streaming individual tiles from `bor.msu` on cache miss. Verified end-to-end in Mesen2: a full scripted traversal from world X=0 to 1880 renders cleanly with no corruption (screenshots show real graffiti/brick/window art, not placeholder blocks), and both ground-truth scripts pass against this real level — `tools/verify/phase9_stagecolumn_spotcheck.py` (896/896 boot-time viewport tiles byte-exact) and `phase9_syncscroll_test2.py` (0 hard mismatches after a full-level camera sweep). This is a real product change, not just an engine proof: the previous shipped level (`out/bg_boss_level`, still fully intact and buildable) is no longer what boots by default. See `plan.md` §2.8 for the full mechanism, the bugs found building the engine itself (a Poppy-fork silent-miscompile on a two-term `adc` immediate, a `TileBuf` double-fetch, a `CommitColumn` hang, and a repair-sweep-scope bug that caused a stale-tile metric to never converge), and the "UPDATE" note there for what wiring in a real level required (three test-script fixes, zero engine-code changes) and what's still open (real-play scroll-lag under sustained held-dpad input is still only tested via a scripted position sweep; there's still no self-contained `phase9.py` gate). §2.9 lists other candidate next steps.
 
 **Before that — real horizontal scrolling with a live camera (`plan.md` Phase 8).** `tools/verify/phase8.py` reports `PHASE 8: PASS` (12/12 checks). See the Scrolling screenshot section above for what it looks like; the mechanism: `CHAR_POS_X`/`CHAR_POS_Y` are now 16-bit world coordinates everywhere they're read, `core/screen.pasm`'s camera engine (576 lines, previously wired in but with zero consumers) now has a real one via a new `CharacterEntity_OnCommand` handler answering its `SCREEN_CMD_GET_CAMERA_DATA` query, and the eased camera position is committed to the real `$210D` (BG1HOFS) register every vblank. This ships the "cheap version": the boss level's real content is 588 unique tiles, so it loads as one static whole-level 64-wide BG1 map at boot rather than needing a streaming tile cache (built later, see plan.md §2.8/Phase 9 above). Along the way, found and fixed a genuine, previously-latent WRAM collision in `core/oop.pasm` — `OopCall_ResultX`/`OopCall_ResultY` had resolved to the same addresses as `OopFlags[0]`/`[1]`, inert until this phase's camera query became the first real writer through them.
 
