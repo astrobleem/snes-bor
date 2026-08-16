@@ -13,7 +13,11 @@ import pack_msu_roster
 # Fixed initial roster for runtime MSU-1 character selection (see the plan
 # at temporal-swinging-hartmanis.md). Replaces the old single-string
 # MSU_DATA placeholder now that Anim_LoadCharacter reads a real directory.
-ROSTER_PREFIXES = ["out/ralf", "out/jhun"]
+# Phase 12 (plan.md 2.12): added out/joe as roster slot 2, converted from
+# the real BOR pak via convert_character.py -- CharSelect_RosterCount is
+# read from the packed file header at runtime (main.pasm), so no engine
+# code needed to change for a 3rd roster slot to become selectable.
+ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output

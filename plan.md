@@ -1632,9 +1632,12 @@ independent they are:
    exports one placeholder effect (`sfx_stub = 0`); a real punch/hit sound
    needs to be authored in the Terrific Audio Driver project first, then
    triggered from `Character_HitApply`.
-4. **Persist the selected roster slot across a reset**, or expand the
-   roster past 2 characters. Both are small, self-contained, and don't
-   interact with anything above.
+4. **Persist the selected roster slot across a reset**, or ~~expand the
+   roster past 2 characters~~. Both are small, self-contained, and don't
+   interact with anything above. The roster-expansion half is **DONE
+   2026-08-16** — see §2.12 below (a real third character, JOE, converted
+   from the BOR pak, added as roster slot 2). Persisting the selection
+   across a reset is still open.
 
 Whichever is picked, follow §2.1's rules (Poppy checklist, the stop rule,
 what static tools can/can't prove) and this file's per-phase gate pattern:
@@ -2081,6 +2084,69 @@ frozen X there is expected and would be a false positive if used as the
 "unaffected" signal. Passed deterministically across 2 full runs.
 Full regression suite (`audit_all.py`, `check_label_drift.py`, `phase5.py`,
 `phase6.py`, `phase7.py`) all still pass after this change.
+
+## 2.12 — Phase 12: expand the roster past 2 characters ✅ DONE 2026-08-16
+(user-selected from §2.9's candidate list)
+
+### What changed
+
+`tools/bor_converter/convert_character.py "Beats of Rage Original
+[v.3.0 Build 4086].pak" "DATA\CHARS\JOE\JOE.TXT" out/joe` converted a real
+third character (JOE) from the local BOR pak, same pipeline already used
+for JHUN — idle (10 frames)/walk (7)/attack1 (11), quantized to one shared
+16-color palette. Added as roster slot 2 in `build_rom.py`'s
+`ROSTER_PREFIXES`. No engine-side roster-count logic needed to change:
+`CharSelect_RosterCount` is read from the packed `.msu` file's own header
+byte at runtime (`main.pasm`), not a compile-time constant — the format
+already supported up to 8 (`pack_msu_roster.py`'s own docstring).
+
+`CharacterEntity_Init`'s Entity #2 now loads roster slot 2 (JOE) instead of
+reusing Ralf a second time — the roster composition is now Ralf (player,
+selectable)/JHUN (Entity #1)/JOE (Entity #2)/JHUN (Entity #3), replacing
+the old "2 Ralfs + 2 JHUNs" duplication. Entity #3 still reuses JHUN; a 4th
+distinct character is a separate, still-unscheduled expansion.
+
+### A real bug this exposed (not introduced, exposed)
+
+`CharSelect_Index` is shared, mutable scratch — every entity's own
+`CharacterEntity_Init` call reuses it to pass ITS OWN roster slot to
+`Anim_LoadCharacter` at boot. After all four entities are created, it's
+left holding whichever roster slot was created LAST (Entity #3's, roster
+slot 1), not the player's own real slot (0). `Anim_Play__check_reselect`
+(player-only) reads this SAME cell as "the player's current index" on the
+player's first Select press after boot — so without a reset, the first
+press increments from the wrong base. With the old 2-slot roster this was
+invisible (index 1 -> wrap -> 0 either way looks the same with only 2
+slots to cycle through); with 3 slots it produced a real, confirmed skip:
+the first press after boot jumped the player straight from Ralf to JOE,
+silently skipping JHUN entirely. **Fixed** with a one-instruction reset
+(`lda #0 / sta.l CharSelect_Index`) in `main.pasm`'s boot sequence, added
+right after all four entities finish their own boot-time loads (each of
+which has already consumed whatever value it needed) and before `Bg_
+LoadScene` runs. This is a general fix (any future roster size benefits),
+not something specific to 3 slots — found while writing this phase's own
+verify gate, which asserted a clean `[0,1,2,0]` Select-cycle sequence and
+caught the pre-fix `[1,2,0,1]` (i.e. skip-JHUN) behavior immediately.
+
+### Verified
+
+`tools/verify/phase12_roster.py` (new gate): confirms `CharSelect_
+RosterCount` reads 3 (the real packed header value); presses Select three
+times from boot and confirms the player's own CGRAM palette snapshot
+sequence is `[Ralf, JHUN, JOE, Ralf]` — `CharSelect_Index` reads exactly
+`[0,1,2,0]`, all three distinct-character snapshots differ pairwise, and
+the wrapped 4th snapshot exactly matches the 1st (same character reloads
+identically); `CharSelect_Loaded` stays 1 after every reselect (no failed
+load); and confirms Entity #2's own CGRAM palette slot matches the
+player's slot-2 (JOE) snapshot, proving Entity #2 really loaded roster
+slot 2 at boot, not just that Select cycling works. Passed deterministically
+across 2 runs. `phase5.py`'s palette-equality assertion was updated (not
+loosened) to match the new composition: the old "slot0==slot2 (two
+Ralfs)" check is gone (no longer true — Entity #2 is JOE now), replaced
+with "slot2 (JOE) distinct from slot0 (Ralf)"; "slot1==slot3 (two JHUNs)"
+is unchanged and still holds. Full regression suite (`audit_all.py`,
+`check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`,
+`phase11_damage.py`) all still pass.
 
 ---
 

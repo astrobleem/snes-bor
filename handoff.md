@@ -24,18 +24,25 @@ each section below.
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
-> layer" (DONE, all steps 1-4), then "Phase 11: damage system" (DONE) — plus
-> "Harness gotchas" and "File inventory." Read those. Everything above them
-> is older history, kept for the root-cause detail, and parts of it are
-> known wrong.
+> layer" (DONE, all steps 1-4), then "Phase 11: damage system" (DONE), then
+> "Phase 12: expand the roster" (DONE) — plus "Harness gotchas" and "File
+> inventory." Read those. Everything above them is older history, kept for
+> the root-cause detail, and parts of it are known wrong.
 >
-> **As of 2026-08-16, Phase 11 (damage system) is the most recent
-> fully-COMPLETED phase — see that section near the bottom.** AI entities
-> now soft-kill at `CHAR_HP==0` (stop acting/moving/hitting, sprite hides)
-> without ever touching `core/oop.pasm`'s generic kill/GC path, which would
-> have broken the codebase's `Entity1_Base`/`Entity2_Base`/`Entity3_Base`
-> fixed-address scheme. Built, verified in Mesen2, AND gated by a committed
-> regression script (`tools/verify/phase11_damage.py`).
+> **As of 2026-08-16, Phase 12 (roster expansion) is the most recent
+> fully-COMPLETED phase — see that section near the bottom.** A real third
+> character (JOE) was converted from the BOR pak and added as roster slot
+> 2, replacing Entity #2's old "duplicate Ralf" fallback; a real pre-existing
+> bug in `CharSelect_Index`'s boot-time initialization (exposed, not
+> introduced, by having a 3rd slot to skip) was found and fixed along the
+> way. Built, verified in Mesen2, AND gated by a committed regression
+> script (`tools/verify/phase12_roster.py`).
+>
+> **Phase 11 (damage system) is DONE.** AI entities soft-kill at
+> `CHAR_HP==0` (stop acting/moving/hitting, sprite hides) without ever
+> touching `core/oop.pasm`'s generic kill/GC path, which would have broken
+> the codebase's `Entity1_Base`/`Entity2_Base`/`Entity3_Base` fixed-address
+> scheme. Gated by `tools/verify/phase11_damage.py`.
 >
 > **Phase 10 (frontpanel foreground layer) is DONE** — all of Steps 1
 > (converter tooling), 2a (cache allocator), 2b (boot-time initial load),
@@ -1754,6 +1761,51 @@ still once within `ANIM_AI_ATTACK_RANGE` regardless of this feature).
 Passed deterministically across 2 runs. Full regression suite
 (`audit_all.py`, `check_label_drift.py`, `phase5.py`, `phase6.py`,
 `phase7.py`) still passes.
+
+## Phase 12: expand the roster past 2 characters — DONE (see `plan.md` §2.12 for the full writeup)
+
+`tools/bor_converter/convert_character.py "Beats of Rage Original [v.3.0
+Build 4086].pak" "DATA\CHARS\JOE\JOE.TXT" out/joe` converted a real third
+character (JOE, idle 10/walk 7/attack1 11 frames) via the same pipeline
+already used for JHUN. Added as roster slot 2 in `build_rom.py`'s
+`ROSTER_PREFIXES`. No engine-side roster-count logic needed to change —
+`CharSelect_RosterCount` is read from the packed `.msu` file's own header
+byte at runtime, and the format already supported up to 8 roster slots.
+`CharacterEntity_Init`'s Entity #2 now loads roster slot 2 (JOE) instead
+of duplicating Ralf a second time (composition: Ralf/JHUN/JOE/JHUN,
+replacing the old 2-Ralfs-2-JHUNs duplication).
+
+**A real bug this exposed, not introduced.** `CharSelect_Index` is shared
+scratch that every entity's own `CharacterEntity_Init` call reuses to pass
+its own roster slot to `Anim_LoadCharacter`. After all four entities are
+created at boot, it's left holding whichever slot was created LAST
+(Entity #3's), not the player's own real slot (0). The player's Select
+reselect logic reads this SAME cell as "the player's current index" on
+the first press after boot — without a reset, that first press increments
+from the wrong base. Invisible with the old 2-slot roster (index 1 wraps
+to 0 either way, looks the same); with 3 slots it produced a confirmed,
+real skip — the first press after boot jumped the player straight from
+Ralf to JOE, silently skipping JHUN. **Fixed** with a one-instruction
+reset (`lda #0 / sta.l CharSelect_Index`) added to `main.pasm`'s boot
+sequence right after all four entities finish their own boot-time loads.
+Found while writing this phase's own verify gate, which asserted a clean
+`[0,1,2,0]` Select-cycle sequence and caught the pre-fix `[1,2,0,1]`
+(skip-JHUN) behavior immediately.
+
+**Verified**: `tools/verify/phase12_roster.py` confirms `CharSelect_
+RosterCount` reads 3 (the real packed header value); three Select presses
+from boot produce the player's own CGRAM palette sequence Ralf→JHUN→JOE→
+Ralf exactly (`CharSelect_Index` reads `[0,1,2,0]`, all three snapshots
+pairwise distinct, the wrap matches the original); `CharSelect_Loaded`
+stays 1 after every reselect; and Entity #2's own CGRAM palette
+independently matches the player's slot-2 (JOE) snapshot, confirming
+Entity #2 really loaded roster slot 2 at boot. Passed deterministically
+across 2 runs. `phase5.py`'s palette-equality assertion was updated (not
+loosened) for the new composition: "slot0==slot2 (two Ralfs)" is gone
+(no longer true), replaced with "slot2 (JOE) distinct from slot0 (Ralf)";
+"slot1==slot3 (two JHUNs)" is unchanged. Full regression suite
+(`audit_all.py`, `check_label_drift.py`, `phase5.py`, `phase6.py`,
+`phase7.py`, `phase11_damage.py`) all still pass.
 
 ## Harness gotchas (Mesen2 / build)
 

@@ -106,8 +106,13 @@ def main():
                      all(b == 0 for b in row7))
 
         # --- palette check: all four CGRAM OBJ palette slots written
-        # (non-zero), and slot0==slot2 (two Ralfs) / slot1==slot3 (two
-        # JHUNs) -- expected, not a bug (see plan.md's "asset question"). ---
+        # (non-zero), and slot1==slot3 (Entity #1 and #3 both load roster
+        # slot 1 / JHUN -- see main.pasm's CharacterEntity_Init role-3
+        # comment) -- expected, not a bug (see plan.md's "asset question").
+        # Phase 12 (plan.md 2.12) gave Entity #2 its own distinct roster
+        # slot (2 / JOE) instead of reusing Ralf, so slot0==slot2 no longer
+        # holds -- that assertion is gone, not loosened; nothing here still
+        # duplicates Ralf's palette on purpose. ---
         palettes = [read_block(m, addr, 32, mem_type='snesCgRam') for addr in PALETTE_ADDRS]
         for i, p in enumerate(palettes):
             r.check(f'CGRAM palette slot {i} written (non-zero)', any(b != 0 for b in p))
@@ -122,10 +127,10 @@ def main():
         # as ground truth). This is real and worth its own investigation
         # (see handoff.md's Phase 5 section), but is NOT something this
         # phase's changes caused, so it must not block this gate.
-        r.check('palette slot 0 == slot 2 colors 2-15 (two Ralfs, same source colors)',
-                 bytes(palettes[0][4:]) == bytes(palettes[2][4:]))
         r.check('palette slot 1 == slot 3 (two JHUNs, same source colors, full match)',
                  bytes(palettes[1]) == bytes(palettes[3]))
+        r.check('palette slot 2 (JOE) distinct from slot 0 (Ralf) -- different source colors',
+                 bytes(palettes[2][4:]) != bytes(palettes[0][4:]))
         r.check('KNOWN BUG (not blocking): slot 0 color 1 wrong vs ground truth -- not fixed this phase',
                  True)
 

@@ -9433,20 +9433,23 @@ msu1_done:
                                   ; per-entity, not once at the end
 
     ; --- Entity #2 and Entity #3: plan.md Phase 5 (scale to 4 entities).
-    ; Only two characters exist in the roster (Ralf = slot 0, JHUN = slot
-    ; 1 -- ROSTER_PREFIXES in build_rom.py), so role 2 reuses Ralf and role
-    ; 3 reuses JHUN: two Ralfs, two JHUNs. Each instance still gets its own
-    ; CGRAM palette slot (CharacterEntity_Init sets CHAR_PALETTE_SLOT before
-    ; Anim_LoadCharacter's palette DMA reads it), so this is NOT a shared/
-    ; aliased palette -- it's two independent CGRAM writes of the SAME
-    ; source colors, which is exactly why two Ralfs render identically to
-    ; each other (expected, not a bug -- see plan.md Phase 5 "asset
-    ; question"). ---
+    ; Originally Ralf/JHUN reused a second time each (roster only held 2
+    ; characters) -- Phase 12 (plan.md 2.12) added a real third roster
+    ; entry (JOE, slot 2, converted from the real BOR pak), so Entity #2
+    ; now gets its own distinct character instead of duplicating Ralf.
+    ; Entity #3 still reuses JHUN (roster slot 1) -- a 4th distinct
+    ; character is a separate, still-unscheduled expansion, not required
+    ; by anything here. Each instance still gets its own CGRAM palette slot
+    ; (CharacterEntity_Init sets CHAR_PALETTE_SLOT before Anim_LoadCharacter's
+    ; palette DMA reads it), so entities sharing a roster slot (Entity #1
+    ; and #3, both JHUN) render identically to each other via two
+    ; independent CGRAM writes of the SAME source colors -- expected, not a
+    ; bug (see plan.md Phase 5 "asset question"). ---
     lda.l CharacterClassId
     and #$00ff
     tay
-    lda #$0200               ; init param -- role 2 (high byte), roster
-                              ; slot 0 / Ralf (low byte)
+    lda #$0202               ; init param -- role 2 (high byte), roster
+                              ; slot 2 / JOE (low byte)
     jsr Core_Oop_Create
     jsr Core_Dma_ProcessQueue
 
@@ -9457,6 +9460,27 @@ msu1_done:
                               ; slot 1 / JHUN (low byte)
     jsr Core_Oop_Create
     jsr Core_Dma_ProcessQueue
+
+    ; --- Phase 12 (plan.md 2.12): reset the reselect scratch cell.
+    ; CharSelect_Index is shared, mutable scratch that every entity's own
+    ; CharacterEntity_Init call reuses to pass ITS OWN roster slot to
+    ; Anim_LoadCharacter (see that routine's header) -- after all four
+    ; entities above are created, it's left holding whichever roster slot
+    ; was created LAST (Entity #3's, not the player's own). Anim_Play__
+    ; check_reselect (player-only, CHAR_INPUT_DRIVEN==1) reads this SAME
+    ; cell as "the player's current index" on the player's first Select
+    ; press after boot, so without this reset the first press increments
+    ; from the wrong base and can skip a roster slot entirely -- confirmed
+    ; while building the 3-slot roster's own verify gate: entity creation
+    ; order left this cell at 1 (JHUN), so the first press jumped the
+    ; player straight from Ralf to JOE, silently skipping JHUN. Reset here,
+    ; once, after every entity's own boot-time load has already consumed
+    ; whatever value it needed, so the very first Select press increments
+    ; from the player's real starting slot (0) instead of a stale leftover. ---
+    sep #$20
+.a8
+    lda #0
+    sta.l CharSelect_Index
 
     ; --- Phase 6: stream the static BG1 backdrop + BG3 HUD tileset. Runs
     ; AFTER every character load, because it re-seeks the MSU-1 data pointer
