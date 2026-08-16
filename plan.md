@@ -1431,6 +1431,161 @@ except the tile cache.
 
 ---
 
+## 2.8 — Phase 9: streaming tile cache ✅ DONE (steps 1–4, commits `315673b`,
+`03a8ad7`, `d2c677b`, `1415969`, `cf5332a`, `9bed554`)
+
+This is the "full version" of scrolling that Phase 8 explicitly deferred
+(§2.7's "still unbuilt" streaming converter) — a level whose live content
+exceeds the ~500-tile static-load budget. **It is built, verified against a
+synthetic 13,437-tile test level, and NOT wired into the shipped ROM** —
+the shipped boss level (588 tiles) still uses Phase 8's cheap static load,
+because it doesn't need streaming. This phase exists so a *future* wider
+level can use it; nothing about the current product depends on it working.
+Keep that distinction in mind reading `README.md`'s "Current Status" — the
+streaming cache being "done" does not mean the shipped ROM streams tiles.
+
+**What was built:**
+- `tools/bg_converter/` gained a streaming-format level converter (produces
+  a column-major `tilemap.bin` instead of one flat screen) and a synthetic
+  stress-test asset, `out/bg_warehouse_stream` (13,437 unique tiles across
+  the whole level — deliberately far larger than the 1,022-slot cache can
+  hold at once, to force real cache-miss/eviction behavior under test).
+- `src/core/stream_cache.pasm`: a ring-buffer VRAM tile-slot allocator,
+  `STREAM_CACHE_USABLE = 1022` slots, LRU-ish eviction with a
+  `STREAM_CACHE_PROTECT_WINDOW = 16`-slot protection on the most-recently-
+  touched slots. `Core_StreamCache_AllocateSlot`'s eviction scan covers the
+  *full* 1022-slot ring every call (a prior fix — a narrower scan limit
+  used to force-evict slots that didn't need it; see that constant's
+  declaration comment before changing it).
+- `src/main.pasm`, the `Core_StreamScroll_*` family: the runtime engine.
+  `Core_StreamScroll_PickColumn` decides each call whether to extend the
+  resident window left/right or run one step of a background repair sweep;
+  `Core_StreamScroll_ResolveRows`/`FetchTileToBuffer` do the actual MSU
+  seek + cache-slot fetch, budgeted at `STREAM_SCROLL_BUDGET_MAX = 6`
+  cache-miss DMAs per call (swept 2/4/6/7/8 against the warehouse asset —
+  6 is the highest value that didn't produce tilemap attribute corruption;
+  see [[syncscroll_budget_throughput]] before raising it, there's a
+  specific re-verification procedure, not just "try a bigger number").
+  `Core_StreamScroll_ClampCamera` prevents the camera from outrunning the
+  resolver in the first place (holds the visible edge at
+  `StreamScroll_StagedLo`/`StagedHi` rather than the raw camera position) —
+  this is the *primary* defense against visible garbage tiles under fast
+  scrolling. A `Window1`-based 2-column edge mask (`core/nmi.pasm`,
+  `Core_Nmi_Init`) is a secondary belt-and-suspenders backstop for the
+  separate, lower-severity "stale-but-not-garbage" case below.
+- Ad hoc (not committed-gate) verification: `tools/verify/
+  phase9_stagecolumn_spotcheck.py` and `phase9_syncscroll_test2.py`. Both
+  require temporarily pointing `build_rom.py`'s `BG_SCREENS` at
+  `out/bg_warehouse_stream` and reverting it afterward — **always confirm
+  `git diff -- build_rom.py` is empty before committing anything**, this
+  has bitten prior sessions.
+
+**Bugs found and fixed along the way** (full detail in
+[[syncscroll_budget_throughput]] and [[poppy_fork_migration]] memories):
+- `TileBuf` double-fetch corruption in the resolver (step 4).
+- `CommitColumn` hang + a `WorldMaxX` that needed to become dynamic instead
+  of a level-specific constant (step 4).
+- A Poppy fork miscompile: `adc #(STREAM_STAGE_VIEWPORT_COLS-1+
+  STREAM_SCROLL_PREFETCH)` — a two-term immediate expression — silently
+  assembled to zero bytes, so `DesiredHi` was computed 35 columns short of
+  intended. Dormant for a long time (unclamped camera movement eventually
+  exceeded the wrong `DesiredHi` anyway, just later); the camera-clamp fix
+  made that impossible and turned it into a hard permanent freeze. Fixed by
+  splitting into two single-term `adc`s — **avoid multi-term immediate
+  expressions in `adc`/`sbc` operands in this codebase, split them.**
+- `pending_repair` non-convergence (the fix committed as `9bed554`, the
+  session immediately before this doc update): the repair-sweep cursor used
+  to round-robin across the *entire* retained window
+  (`StreamScroll_StagedLo`..`StagedHi`, which grows to the VRAM ring's full
+  64-column physical cap), which routinely exceeds the cache's real
+  capacity (measured 1,568 distinct tiles over a 64-column span on the
+  warehouse asset, vs. a 1,022-slot cache) — mathematically impossible to
+  keep resident regardless of eviction policy, so repairing a far,
+  no-longer-visible column would evict a currently-visible one, forever.
+  Fixed by clamping the repair cursor to `[StreamScroll_DesiredLo,
+  StreamScroll_DesiredHi]` (the ~40-column camera-relevant window, provably
+  always a subset of `[StagedLo, StagedHi]` at the point it's read) instead
+  — this is a *correction* of an earlier, wrong "self-corrects in 1-2s, not
+  worth fixing" conclusion reached the same session; see the memory file
+  for why that was wrong and how it was re-measured.
+
+**Verified:** `phase9_syncscroll_test2.py` PASS against the warehouse
+asset (its "pending repair" metric — entries whose live cache slot has been
+reassigned since the tilemap word was written — reads 0 across the entire
+visible viewport post-fix); full regression suite (label-drift, audit_all,
+phase5/6/7) green on the **shipped boss-level ROM** after every fix in this
+phase, most recently re-confirmed 2026-08-15.
+
+**Not done / open, if a future level actually needs this engine:**
+- **Real-play scroll-lag magnitude is still unmeasured.** The camera clamp
+  was verified against an artificial WRAM teleport of `PlayerEntity_PosX`,
+  not against sustained realistic held-dpad-right input — `set_input`
+  wasn't observed to move the camera in that test (see
+  [[syncscroll_budget_throughput]], "Attempted to re-test with realistic
+  held-dpad-right input"). Before shipping a level that actually exercises
+  streaming, re-attempt that test and resolve whether it's a harness issue
+  or a real gap.
+- **No committed `phase9.py` gate script.** The two `phase9_*.py` scripts
+  are ad hoc and require the manual `BG_SCREENS` swap described above —
+  they were never turned into a self-contained gate (build its own test
+  ROM, run, restore) the way `phase5.py`–`phase8.py` are. Worth doing
+  before this engine is ever load-bearing for a shipped level.
+- **This engine has never actually rendered in the shipped product.** It
+  has only ever been exercised against the synthetic warehouse asset with
+  a temporary config swap. The first time a real converted level needs
+  streaming, budget time for surprises — it has never been proven against
+  real BOR level content, only a stress-test asset built specifically to
+  have an unrealistically high tile count.
+
+### Phase 9 gate (for re-verifying, not for shipping — this isn't wired
+into the shipped ROM's config)
+
+1. Temporarily set `build_rom.py`'s `BG_SCREENS = [("out/bg_warehouse_stream",
+   "out/hud")]`, `python build_rom.py`.
+2. `python tools/verify/phase9_stagecolumn_spotcheck.py` — boot-time
+   viewport load matches the converter's ground truth.
+3. `python tools/verify/phase9_syncscroll_test2.py` — 0 hard mismatches, 0
+   (or a documented, understood-small) pending-repair count in the visible
+   viewport.
+4. Revert `BG_SCREENS` to `[("out/bg_boss_level", "out/hud")]`,
+   `python build_rom.py`, confirm `git diff -- build_rom.py` is empty.
+5. Full regression suite on the reverted, shipped-config ROM: `audit_all.py`,
+   `check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`, `phase8.py`.
+
+## 2.9 — What to do next (Phase 10 candidates, not yet started)
+
+Nothing below is committed to or scheduled — pick one, or ask the user
+which they'd prefer, per this project's usual "don't start speculative
+phases uninvited" norm. In rough order of how directly they extend what
+Phase 9 just finished vs. how independent they are:
+
+1. **Convert a real (non-synthetic) BOR level wide/detailed enough to need
+   streaming, and wire it in for real.** This is the natural "prove Phase 9
+   actually matters" step — everything about the streaming engine today is
+   verified only against the synthetic `out/bg_warehouse_stream` asset.
+   Would also finally exercise the two open items above (real-play lag,
+   and turning the ad hoc phase9 scripts into a real gate) under real
+   conditions instead of synthetic ones.
+2. **A damage system.** `CHAR_HP` and the HUD already exist and work
+   (Phase 6); nothing currently happens at 0 HP. README's "Not built" list
+   calls this out as the most obvious missing "game" piece.
+3. **SFX wired to gameplay.** Blocked on content, not code — see
+   `README.md`'s "Not built" section: `soundwork/tad/build/audio-enums.inc`
+   exports one placeholder effect (`sfx_stub = 0`); a real punch/hit sound
+   needs to be authored in the Terrific Audio Driver project first, then
+   triggered from `Character_HitApply`.
+4. **Persist the selected roster slot across a reset**, or expand the
+   roster past 2 characters. Both are small, self-contained, and don't
+   interact with anything above.
+
+Whichever is picked, follow §2.1's rules (Poppy checklist, the stop rule,
+what static tools can/can't prove) and this file's per-phase gate pattern:
+build a script under `tools/verify/`, verify against ground truth the
+engine didn't produce, update `README.md`/`handoff.md`, commit at the phase
+boundary.
+
+---
+
 **End of Part Two.** The two sections below this line ("Verification
 methodology" and "Critical files") are Part One material, but they still
 apply as reference — they list the raw audit commands that §2.2's Tool A

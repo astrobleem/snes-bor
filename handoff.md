@@ -23,9 +23,15 @@ each section below.
 >
 > **What this file is:** an append-only debugging record. The most recent and
 > most accurate sections are near the bottom — "Phase 2 done and verified"
-> through "Phase 8 done and verified" — plus "Harness gotchas" and "File
+> through "Phase 9 done and verified" — plus "Harness gotchas" and "File
 > inventory." Read those. Everything above them is older history, kept for
 > the root-cause detail, and parts of it are known wrong.
+>
+> **As of 2026-08-15, Phase 9 (streaming BG1 tile cache) is the most recent
+> completed phase — see that section near the bottom.** It is built and
+> verified but NOT wired into the shipped ROM (the shipped level doesn't
+> need it). Nothing is currently in progress; `plan.md` §2.9 lists candidate
+> next phases, none started.
 >
 > **Known-wrong sections above, specifically:**
 > - The character does **not** render via a BG2 tilemap (the "Ralf's BG2
@@ -1348,10 +1354,89 @@ recycling, per-frame tile DMA producer, the MSU-seek-vs-animation-stream
 interleave re-verification that depends on it existing). Needed only if a
 future level's live content exceeds roughly 500 unique tiles.
 
-**Recommended next step:** either author a punch SFX (Phase 7's
-recommended next step, still open and unblocked by this phase) or pick a
-bigger level and build the streaming tile cache this phase deferred --
-`plan.md` §2.7 has the design for both starting points already written.
+**Recommended next step:** SUPERSEDED — the streaming tile cache mentioned
+below was built next (see "Phase 9" immediately below). A punch SFX is
+still open and unblocked.
+
+## Phase 9 done and verified: streaming BG1 tile cache (built, NOT shipped)
+commits `315673b`, `03a8ad7`, `d2c677b`, `1415969`, `cf5332a`, `9bed554`
+
+**Read this bold line before anything else in this section**: this engine
+is fully built and verified, but **the shipped ROM does not use it** —
+`build_rom.py`'s `BG_SCREENS` still points at the static boss level from
+Phase 8, because 588 tiles doesn't need streaming. Everything below was
+verified against a synthetic 13,437-tile stress-test level
+(`out/bg_warehouse_stream`), never against a real converted BOR level. Full
+detail and the exact fix commit messages live in `plan.md` §2.8 (added the
+same session as this entry) and the `syncscroll_budget_throughput` project
+memory — this section is the short version.
+
+**What it is:** the general case Phase 8 deferred — a level too big to fit
+its whole tileset in VRAM at once. `src/core/stream_cache.pasm` is a
+ring-buffer VRAM tile-slot cache (1,022 usable slots) with LRU-ish
+eviction; `Core_StreamScroll_*` in `main.pasm` extends/repairs a
+~40-column camera-relevant resident window each call, streaming
+individual tiles from `bor.msu` on cache miss (budgeted at
+`STREAM_SCROLL_BUDGET_MAX=6` cache-miss DMAs per call — swept and measured,
+see the memory before raising it), and `Core_StreamScroll_ClampCamera`
+holds the visible edge at the resolved window's boundary so the camera can
+never outrun the resolver and show garbage tiles (a 2-column `Window1` edge
+mask is a secondary backstop for a separate, lower-severity staleness
+case).
+
+**Four real bugs found and fixed, most recent last:**
+1. `TileBuf` double-fetch corruption in the resolver.
+2. `CommitColumn` hang + `WorldMaxX` needed to become a dynamic value
+   instead of a level-specific constant.
+3. A Poppy-fork silent miscompile: a two-term `adc #(A+B)` immediate
+   expression assembled to **zero bytes**, silently shrinking the resolved
+   window by 35 columns. Dormant for a while (unclamped camera eventually
+   exceeded the wrong bound anyway); became a hard permanent freeze the
+   moment the camera clamp above made that impossible. Fixed by splitting
+   into two single-term `adc`s. **Lesson: don't write multi-term immediate
+   expressions in `adc`/`sbc` operands in this codebase — split them.**
+4. **`pending_repair` never converging** (fixed last, commit `9bed554`,
+   this session). The repair-sweep cursor round-robinned across the
+   *entire* retained window, which grows to the VRAM ring's full 64-column
+   physical cap — a span whose real distinct-tile count (measured 1,568 on
+   the warehouse asset) routinely exceeds the 1,022-slot cache, so
+   repairing a far, no-longer-visible column would evict a currently-
+   visible one, forever. Fixed by clamping the repair cursor to the
+   ~40-column `[DesiredLo, DesiredHi]` camera-relevant window instead
+   (provably always a subset of the retained window at the point it's
+   read). **This corrects an earlier same-session conclusion** ("self-
+   corrects within 1-2 seconds, not worth fixing") that a direct 50-second
+   idle-dwell measurement proved wrong — the earlier estimate was
+   extrapolated from the repair cursor's cycling *rate*, never from
+   actually confirming the pending count dropped over time. Verified after
+   the fix: the metric went from oscillating 609-752/1792 to a flat, stable
+   623/1792, with the entire live viewport reading 0 pending.
+
+**Verified:** `tools/verify/phase9_syncscroll_test2.py` and
+`phase9_stagecolumn_spotcheck.py` PASS against `out/bg_warehouse_stream`
+(temporary `BG_SCREENS` swap, reverted after — always check `git diff --
+build_rom.py` is empty before committing). Full regression suite
+(`check_label_drift.py`, `audit_all.py`, `phase5.py`–`phase8.py`) re-run
+green on the shipped boss-level ROM after every fix, most recently
+2026-08-15.
+
+**Explicitly open, not fixed this phase:**
+- Real-play scroll-lag magnitude under the camera clamp is unmeasured —
+  only tested via an artificial WRAM teleport of `PlayerEntity_PosX`, not
+  sustained realistic held-dpad input (`set_input` wasn't observed to move
+  the camera in that attempt; unresolved whether that's a harness gap or
+  real).
+- No committed `phase9.py` gate script — the two `phase9_*.py` scripts are
+  ad hoc and need the manual config swap above, unlike `phase5.py`–
+  `phase8.py` which are self-contained.
+- Never exercised against a real converted BOR level, only the synthetic
+  stress-test asset.
+
+**Recommended next step:** convert a real BOR level wide/detailed enough
+to actually need this cache and wire it in for real — that's the only way
+to find out if the above open items matter. See `plan.md` §2.9 for this
+and other candidate next phases (damage system, SFX, roster persistence),
+none of which are started or committed to yet.
 
 ## Harness gotchas (Mesen2 / build)
 
