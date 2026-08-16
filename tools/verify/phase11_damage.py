@@ -143,9 +143,21 @@ def main():
         # position alone can't distinguish "still animating/attacking" from
         # "the new dead-check is wrongly freezing it too", since a live AI
         # holding attack range also stops moving (see module docstring).
+        #
+        # Stride must NOT be a "round" frame count -- Phase 15 (plan.md
+        # 2.15) found a real false FAIL here: Yashiro's (entity 3's own
+        # roster character) attack-animation cycle period evenly divides 40,
+        # so a fixed 40-frame stride always samples the exact same phase --
+        # a strobe/aliasing artifact indistinguishable from a genuine freeze
+        # by this check alone. Single-frame-stepping and a 37-frame (prime)
+        # stride both showed it animating normally; JOE (entity 2) never
+        # exhibited this because its own cycle period doesn't happen to
+        # divide 40. 37 is prime, so it can't alias against any small-integer
+        # cycle length the way 40 (2^3*5) can. See phase12_roster memory /
+        # this phase's own project memory for the full investigation.
         frame_samples = {2: [], 3: []}
         for _ in range(6):
-            m.run_frames(40)
+            m.run_frames(37)
             m.pause()
             for i in (2, 3):
                 _, fi = entity_hp_and_frame(m, ENTITY_BASES[i])

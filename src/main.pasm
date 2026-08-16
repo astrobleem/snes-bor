@@ -9464,14 +9464,17 @@ msu1_done:
     ; characters) -- Phase 12 (plan.md 2.12) added a real third roster
     ; entry (JOE, slot 2, converted from the real BOR pak), so Entity #2
     ; now gets its own distinct character instead of duplicating Ralf.
-    ; Entity #3 still reuses JHUN (roster slot 1) -- a 4th distinct
-    ; character is a separate, still-unscheduled expansion, not required
-    ; by anything here. Each instance still gets its own CGRAM palette slot
+    ; Phase 15 (plan.md 2.15) added a real fourth roster entry (Yashiro,
+    ; slot 3 -- the most-spawned enemy in the shipped level's own spawn
+    ; table, see build_rom.py's ROSTER_PREFIXES comment), so Entity #3 now
+    ; loads its own distinct character too instead of reusing JHUN a
+    ; second time. All 4 on-screen entities are visually distinct as of
+    ; this phase. Each instance still gets its own CGRAM palette slot
     ; (CharacterEntity_Init sets CHAR_PALETTE_SLOT before Anim_LoadCharacter's
-    ; palette DMA reads it), so entities sharing a roster slot (Entity #1
-    ; and #3, both JHUN) render identically to each other via two
-    ; independent CGRAM writes of the SAME source colors -- expected, not a
-    ; bug (see plan.md Phase 5 "asset question"). ---
+    ; palette DMA reads it), so this was always safe regardless of which
+    ; roster slot an entity loads -- see plan.md Phase 5 "asset question"
+    ; for why sharing a slot (as Entity #1/#3 used to) was never a bug
+    ; either, just a visual duplication now removed. ---
     lda.l CharacterClassId
     and #$00ff
     tay
@@ -9483,8 +9486,8 @@ msu1_done:
     lda.l CharacterClassId
     and #$00ff
     tay
-    lda #$0301               ; init param -- role 3 (high byte), roster
-                              ; slot 1 / JHUN (low byte)
+    lda #$0303               ; init param -- role 3 (high byte), roster
+                              ; slot 3 / Yashiro (low byte)
     jsr Core_Oop_Create
     jsr Core_Dma_ProcessQueue
 

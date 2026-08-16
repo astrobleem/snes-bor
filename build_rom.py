@@ -17,7 +17,12 @@ import pack_msu_roster
 # the real BOR pak via convert_character.py -- CharSelect_RosterCount is
 # read from the packed file header at runtime (main.pasm), so no engine
 # code needed to change for a 3rd roster slot to become selectable.
-ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe"]
+# Phase 15 (plan.md 2.15): added out/yashiro as roster slot 3, converted
+# the same way -- picked specifically because Yashiro is the most-spawned
+# enemy in the shipped level's (stage 1B) own spawn table. Entity #3 now
+# loads this slot instead of reusing JHUN a second time (see main.pasm's
+# Entity #3 Core_Oop_Create call, init param changed $0301 -> $0303).
+ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output

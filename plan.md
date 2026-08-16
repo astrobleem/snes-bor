@@ -34,10 +34,11 @@ N enemies" proof of concept. It does **not** attempt combat polish, levels,
 or the full OpenBOR scripting engine — see "Explicitly out of scope."
 
 > **UPDATE (2026-08-16): read this before assuming "levels" means what it
-> sounds like.** As of Phase 9/12 this engine renders a real, converted BOR
-> level with real characters (Ralf/JHUN/JOE) and real horizontal scrolling
-> (Phase 14, same day: the shipped level is now stage 1B, having replaced
-> stage 1A — 2 of 14 stages converted total, 1 shipped at a time). That is
+> sounds like.** As of Phase 9/12/15 this engine renders a real, converted
+> BOR level with real characters (Ralf/JHUN/JOE/Yashiro) and real horizontal
+> scrolling (Phase 14, same day: the shipped level is now stage 1B, having
+> replaced stage 1A — 2 of 14 stages converted total, 1 shipped at a time).
+> That is
 > **not** the same as "levels work" in the OpenBOR sense, and earlier
 > phases of this doc did not draw that line clearly enough. See the new
 > "What 'levels' actually means here, and what's missing" section right
@@ -414,9 +415,11 @@ This engine ships **1 of those 14 stages at a time** — currently stage 1B
 (`out/bg_stage1b`), which replaced stage 1A (Phase 14, 2026-08-16; 1A's
 converted assets, `out/bg_stage1a`, stay committed and buildable, just not
 shipped). **2 of the 14 stages have been converted total** (1A and 1B), and
-**3 of those ~24 characters** (Ralf/JHUN/JOE — Entity #3 reuses JHUN a
-second time). Nothing else has been converted; nothing here is blocked
-from converting more, it's just not been asked for yet. There is still no
+**4 of those ~24 characters** (Ralf/JHUN/JOE/Yashiro — Phase 15,
+2026-08-16, gave each of the 4 entities its own distinct roster slot;
+before that, Entity #3 reused JHUN a second time). Nothing else has been
+converted; nothing here is blocked from converting more, it's just not
+been asked for yet. There is still no
 level-*selection* or level-*transition* system — "which level ships" is a
 `build_rom.py` constant, the same one-at-a-time shortcut this project uses
 for its roster and everything else.
@@ -2502,6 +2505,83 @@ narrower/frontpanel-less shape), `phase11_damage.py`, `phase12_roster.py`.
 `phase10_frontpanel.py` (non-routine gate) was not re-run — it's
 specifically about the frontpanel streaming path, which stage 1B has none
 of; it still applies to stage 1A's data if that's ever revisited.
+
+---
+
+## 2.15 — Phase 15: a real 4th distinct character (Yashiro) ✅ DONE 2026-08-16
+(user-selected: "4th distinct character"; user also asked directly whether
+this project is working toward general OpenBOR compatibility — answered:
+no, see `openbor_script_vm_gap` project memory, the spawn-table approach
+(§2.13) is a declarative-data shortcut, not an interpreter)
+
+### What changed
+
+Entity #3 previously reused roster slot 1 (JHUN) a second time — a
+placeholder from Phase 5's original 4-entity scale-up, before real roster
+slots existed. Converted Yashiro (`DATA\CHARS\YASHIRO\YASHIRO.TXT`, picked
+specifically because it's the most-spawned enemy in stage 1B's own spawn
+table) via `tools/bor_converter/convert_character.py` into
+`out/yashiro_idle`/`_walk`/`_attack`, added as `ROSTER_PREFIXES` slot 3 in
+`build_rom.py`. All 4 entities (player + 3 AI) are now visually distinct
+characters.
+
+Two small hand-synced changes, same "roster slot count is read at runtime
+from the packed `.msu` header, not a compile-time constant" mechanism
+§2.12 already established:
+- `main.pasm`'s Entity #3 `Core_Oop_Create` call: init param `$0301` (role
+  3, roster slot 1) → `$0303` (role 3, roster slot 3).
+- `core/spawn.pasm`'s `SPAWN_MSU_OFFSET`: re-synced to `$0270A0` (adding a
+  4th roster character shifts every subsequent MSU blob's offset — same
+  build-then-copy-the-real-value cycle `check_spawn_constants` already
+  enforces, not new mechanism).
+
+### A real false FAIL, root-caused (not a starvation/GC bug)
+
+`phase11_damage.py` failed after this change: `CHAR_FRAME_INDEX` samples
+for entity 3 read as frozen (`[0, 0, 0, 0, 0, 0]`) across its 6×40-frame
+sampling loop, while entity 2 (JOE) varied normally in the same run. This
+looked alarming — entity 3 is exactly the entity whose init param just
+changed, and the codebase has a documented history of real Msu1_StreamBusy
+starvation and core/oop.pasm GC-compaction hazards (see CLAUDE.md's "at
+most one entity may stream per frame" and this file's own §2.11) — so it
+was investigated directly against live Mesen2 state rather than assumed
+flaky, per this project's standing rule.
+
+Ground truth (single-frame-stepping through the exact same post-kill
+window) showed entity 3's `CHAR_FRAME_INDEX`/`CHAR_TICK_COUNTER` advancing
+completely normally, frame by frame — directly contradicting the test's own
+40-frame-stride samples. Re-sampling with a 37-frame (prime) stride instead
+of 40 also showed normal variation. **Root cause: Yashiro's own
+attack-animation cycle period happens to evenly divide 40**, so
+`phase11_damage.py`'s fixed 40-frame sampling stride always landed on the
+exact same phase of the cycle — a strobe/aliasing artifact, not a freeze.
+JOE (entity 2) never triggered this because its own cycle period doesn't
+happen to divide 40. This is the same class of false-FAIL `phase5.py`'s own
+header comment already warned about ("a single before/after inequality
+check is too weak against a cyclic counter") — just triggered by a
+still-cyclic *fixed-stride multi-sample* window instead of a single
+before/after pair. Fixed by switching `phase11_damage.py`'s sampling stride
+from 40 to 37 (prime — can't alias against any small-integer cycle length
+the way a highly composite number like 40 can).
+
+Also updated for the roster-size change (expected, not bugs): `phase5.py`
+(palette slot 3 is now checked distinct from slot 1/JHUN, since slot 1==3
+no longer holds — same "removed, not relaxed" precedent §2.12 set for its
+own slot0==slot2 check) and `phase12_roster.py` (already generalized in
+§2.12 to derive its expectations from `roster_count` dynamically — needed
+zero further changes, ran clean against the 4-character roster immediately,
+confirming that generalization work paid off).
+
+### Verified
+
+Full regression suite passes: `audit_all.py`, `check_label_drift.py`,
+`phase5.py`, `phase6.py`, `phase7.py`, `phase9.py`, `phase11_damage.py`
+(after the stride fix), `phase12_roster.py`. `phase8.py` fails, but this
+predates Phase 15 entirely — it gates the old whole-level-static-BG
+scrolling shape, and stage 1B (shipped since §2.14) is a streaming BG; the
+gate's own docstring already says it only covers "the cheap version that
+actually shipped" before Phase 9. Not fixed here — out of this phase's
+scope, tracked as a known-stale gate, not a regression.
 
 ---
 

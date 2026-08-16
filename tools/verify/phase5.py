@@ -134,10 +134,15 @@ def main():
         # as ground truth). This is real and worth its own investigation
         # (see handoff.md's Phase 5 section), but is NOT something this
         # phase's changes caused, so it must not block this gate.
-        r.check('palette slot 1 == slot 3 (two JHUNs, same source colors, full match)',
-                 bytes(palettes[1]) == bytes(palettes[3]))
+        # Phase 15 (plan.md 2.15): Entity #3 now loads Yashiro (roster slot
+        # 3) instead of reusing JHUN (slot 1) -- the old "slot 1 == slot 3"
+        # equality check is gone, not loosened, same "removed, not relaxed"
+        # precedent as Phase 12's own slot0==slot2 removal noted above. All
+        # 4 palette slots are now expected to be pairwise distinct.
         r.check('palette slot 2 (JOE) distinct from slot 0 (Ralf) -- different source colors',
                  bytes(palettes[2][4:]) != bytes(palettes[0][4:]))
+        r.check('palette slot 3 (Yashiro) distinct from slot 1 (JHUN) -- different source colors',
+                 bytes(palettes[3][4:]) != bytes(palettes[1][4:]))
         r.check('KNOWN BUG (not blocking): slot 0 color 1 wrong vs ground truth -- not fixed this phase',
                  True)
 

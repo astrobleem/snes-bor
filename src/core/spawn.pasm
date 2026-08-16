@@ -62,7 +62,7 @@
 ; other core/*.pasm file (see core/random.pasm's header for why).
 ; ============================================================================
 
-SPAWN_MSU_OFFSET = $021C80   ; from build_rom.py's check_spawn_constants -- must be
+SPAWN_MSU_OFFSET = $0270A0   ; from build_rom.py's check_spawn_constants -- must be
                               ; re-synced (rerun the build, copy its reported value)
                               ; any time an earlier roster/BG/FP asset changes size,
                               ; or the shipped level changes (Phase 14).

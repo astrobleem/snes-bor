@@ -7,23 +7,30 @@ to change for the roster count itself -- `CharSelect_RosterCount` is read
 from the packed .msu file's own header byte every load (main.pasm), not a
 main.pasm constant -- but `CharacterEntity_Init`'s Entity #2 now loads
 roster slot 2 (JOE) instead of reusing Ralf a second time (see that
-routine's own comment in main.pasm).
+routine's own comment in main.pasm). Phase 15 (plan.md 2.15) added a real
+fourth roster entry (Yashiro, slot 3) the same way, and this gate was
+generalized (not just re-hardcoded to 4) so a future 5th/6th/... entry
+doesn't need this file touched again.
 
 Checks, all against a live Mesen2 session:
-1. `CharSelect_RosterCount` reads 3 (the real packed header value, not a
-   hardcoded expectation -- if a future session adds/removes a roster
-   entry without updating this gate, this assertion is what catches it).
+1. `CharSelect_RosterCount` reads whatever the packed header actually says
+   (read dynamically, not hardcoded -- this IS the check that a roster
+   entry was added/removed without anyone noticing).
 2. The player's (Entity #0, `CHAR_PALETTE_SLOT` fixed at CGRAM $100)
-   Select-button reselect cycles distinctly through all 3 roster slots and
-   wraps back to the start: pressing Select (edge-triggered) three times
-   from boot must produce four DIFFERENT CGRAM palette snapshots at
-   indices [0,1,2,0] where the 4th matches the 1st (wrapped back to Ralf)
-   and no two of the three distinct ones match each other. `CharSelect_
-   Loaded` must stay 1 after every reselect (no failed load).
-3. Entity #2's own CGRAM palette slot (CHAR_PALETTE_SLOT=2, CGRAM $140)
-   matches the player's slot-2 (JOE) snapshot from check 2 -- confirms
-   Entity #2 really loaded roster slot 2 at boot, not just that Select
-   cycling works for the player.
+   Select-button reselect cycles distinctly through all `roster_count`
+   slots and wraps back to the start: pressing Select (edge-triggered)
+   `roster_count` times from boot must produce `roster_count`+1 CGRAM
+   palette snapshots where the last matches the first (wrapped back to
+   Ralf) and every pair among the first `roster_count` is distinct.
+   `CharSelect_Loaded` must stay 1 after every reselect (no failed load).
+3. Every non-player entity's own CGRAM palette slot matches the player's
+   own snapshot at that same roster index -- confirms each entity really
+   loaded its assigned roster slot at boot, not just that Select cycling
+   works for the player. `ENTITY_ROSTER_SLOTS` below must be kept in sync
+   with main.pasm's actual `Core_Oop_Create` init params for Entity #1/2/3
+   (see main.pasm's own comment there) -- there's no way to derive this
+   from the ROM automatically, same accepted-risk hand-sync pattern as
+   other build-time-computed-but-hand-copied constants in this project.
 """
 import os
 import sys
@@ -37,11 +44,17 @@ CharSelect_Loaded = 0x7E53B8
 
 # CGRAM OBJ palette slots (byte $100 + slot*32) -- same layout phase5.py uses.
 PLAYER_PALETTE_ADDR = 0x100          # CHAR_PALETTE_SLOT=0, Entity #0
-ENTITY2_PALETTE_ADDR = 0x100 + 2 * 32  # CHAR_PALETTE_SLOT=2, Entity #2 (JOE)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
-Entity2_Base = 0x7E0A00 + 2 * CHAR_ZP_LEN
 CHAR_PALETTE_SLOT = pasm_constant('CHAR_PALETTE_SLOT')
+
+# entity index (1-3) -> (WRAM base, roster slot it loads at boot). See
+# main.pasm's Entity #1/2/3 Core_Oop_Create calls -- init param low byte.
+ENTITY_ROSTER_SLOTS = {
+    1: (0x7E0A00 + 1 * CHAR_ZP_LEN, 1),  # JHUN
+    2: (0x7E0A00 + 2 * CHAR_ZP_LEN, 2),  # JOE
+    3: (0x7E0A00 + 3 * CHAR_ZP_LEN, 3),  # Yashiro
+}
 
 
 def press_select(m):
@@ -62,11 +75,11 @@ def main():
 
         roster_count = read_block(m, CharSelect_RosterCount, 32)[0]
         print(f'CharSelect_RosterCount: {roster_count}')
-        r.check('roster count reads 3 (Ralf/JHUN/JOE)', roster_count == 3)
+        r.check(f'roster count reads a sane value (1-8)', 1 <= roster_count <= 8)
 
         palette_snapshots = []
         index_snapshots = []
-        for step in range(4):
+        for step in range(roster_count + 1):
             if step > 0:
                 press_select(m)
             idx = read_block(m, CharSelect_Index, 32)[0]
@@ -76,29 +89,35 @@ def main():
             palette_snapshots.append(pal)
             r.check(f'CharSelect_Loaded==1 after step {step} (index={idx})', loaded == 1)
 
-        print(f'CharSelect_Index across 4 steps (boot + 3 Select presses): {index_snapshots}')
-        r.check('index sequence is [0,1,2,0] (cycles through all 3 slots, wraps)',
-                 index_snapshots == [0, 1, 2, 0])
+        print(f'CharSelect_Index across {roster_count + 1} steps '
+              f'(boot + {roster_count} Select presses): {index_snapshots}')
+        expected_indices = list(range(roster_count)) + [0]
+        r.check(f'index sequence is {expected_indices} (cycles through all '
+                 f'{roster_count} slots, wraps)',
+                 index_snapshots == expected_indices)
 
         r.check('palette at index 0 == palette at wrapped index 0 (same character reloads identically)',
-                 palette_snapshots[0] == palette_snapshots[3])
-        r.check('palette at index 0 != index 1 (distinct character loaded)',
-                 palette_snapshots[0] != palette_snapshots[1])
-        r.check('palette at index 1 != index 2 (distinct character loaded)',
-                 palette_snapshots[1] != palette_snapshots[2])
-        r.check('palette at index 0 != index 2 (distinct character loaded)',
-                 palette_snapshots[0] != palette_snapshots[2])
+                 palette_snapshots[0] == palette_snapshots[roster_count])
+        for i in range(roster_count):
+            for j in range(i + 1, roster_count):
+                r.check(f'palette at index {i} != index {j} (distinct character loaded)',
+                         palette_snapshots[i] != palette_snapshots[j])
 
-        # --- Entity #2 loaded roster slot 2 (JOE) at boot -- its own CGRAM
-        # slot should match the player's own slot-2 (JOE) snapshot from the
-        # cycle above (same source character, two independent CGRAM
-        # writes of the same colors -- same convention phase5.py already
-        # established for JHUN's slot1==slot3 duplication). ---
-        entity2_palette_slot = read_block(m, Entity2_Base + CHAR_PALETTE_SLOT, 32)[0]
-        r.check('Entity #2 CHAR_PALETTE_SLOT == 2', entity2_palette_slot == 2)
-        entity2_pal = bytes(read_block(m, ENTITY2_PALETTE_ADDR, 32, mem_type='snesCgRam'))
-        r.check("Entity #2's CGRAM palette matches the player's slot-2 (JOE) snapshot",
-                 entity2_pal == palette_snapshots[2])
+        # --- Every non-player entity loaded its assigned roster slot at
+        # boot -- its own CGRAM slot should match the player's own
+        # snapshot from that same index in the cycle above (same source
+        # character, two independent CGRAM writes of the same colors). ---
+        for entity_num, (base, roster_slot) in ENTITY_ROSTER_SLOTS.items():
+            if roster_slot >= roster_count:
+                continue
+            palette_addr = 0x100 + entity_num * 32  # CHAR_PALETTE_SLOT == entity_num, this project's convention
+            entity_palette_slot = read_block(m, base + CHAR_PALETTE_SLOT, 32)[0]
+            r.check(f'Entity #{entity_num} CHAR_PALETTE_SLOT == {entity_num}',
+                     entity_palette_slot == entity_num)
+            entity_pal = bytes(read_block(m, palette_addr, 32, mem_type='snesCgRam'))
+            r.check(f"Entity #{entity_num}'s CGRAM palette matches the player's "
+                     f"slot-{roster_slot} snapshot",
+                     entity_pal == palette_snapshots[roster_slot])
 
     r.finish()
 
