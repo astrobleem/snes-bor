@@ -1,0 +1,180 @@
+{
+  "format": "bor4086-gate-fixture-v1",
+  "description": "Integer-only first acceptance gate. Constants are preinitialized because CONSTINT records are runtime no-ops after linking.",
+  "numeric_profile": "q16.16-slot8",
+  "slot_count": 5,
+  "initial_slots": [
+    {
+      "id": 0,
+      "type": "VT_INTEGER",
+      "value": 2
+    },
+    {
+      "id": 1,
+      "type": "VT_INTEGER",
+      "value": 3
+    },
+    {
+      "id": 2,
+      "type": "VT_EMPTY",
+      "value": 0
+    },
+    {
+      "id": 3,
+      "type": "VT_INTEGER",
+      "value": 5
+    },
+    {
+      "id": 4,
+      "type": "VT_EMPTY",
+      "value": 0
+    }
+  ],
+  "instructions": [
+    {
+      "ip": 0,
+      "opcode": 2,
+      "name": "CONSTINT",
+      "a": 0,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 1,
+      "opcode": 2,
+      "name": "CONSTINT",
+      "a": 1,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 2,
+      "opcode": 16,
+      "name": "ADD",
+      "a": 2,
+      "b": 0,
+      "c": 1
+    },
+    {
+      "ip": 3,
+      "opcode": 2,
+      "name": "CONSTINT",
+      "a": 3,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 4,
+      "opcode": 26,
+      "name": "EQ",
+      "a": 4,
+      "b": 2,
+      "c": 3
+    },
+    {
+      "ip": 5,
+      "opcode": 36,
+      "name": "Branch_FALSE",
+      "a": 8,
+      "b": 4,
+      "c": 0
+    },
+    {
+      "ip": 6,
+      "opcode": 20,
+      "name": "JUMP",
+      "a": 9,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 7,
+      "opcode": 33,
+      "name": "NOOP",
+      "a": 0,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 8,
+      "opcode": 15,
+      "name": "ERR",
+      "a": 0,
+      "b": 0,
+      "c": 0
+    },
+    {
+      "ip": 9,
+      "opcode": 43,
+      "name": "RET",
+      "a": 0,
+      "b": 0,
+      "c": 0
+    }
+  ],
+  "expected": {
+    "status": "DONE",
+    "error": 0,
+    "executed_trace": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        16
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        26
+      ],
+      [
+        5,
+        36
+      ],
+      [
+        6,
+        20
+      ],
+      [
+        9,
+        43
+      ]
+    ],
+    "slots": [
+      {
+        "id": 0,
+        "type": "VT_INTEGER",
+        "value": 2
+      },
+      {
+        "id": 1,
+        "type": "VT_INTEGER",
+        "value": 3
+      },
+      {
+        "id": 2,
+        "type": "VT_INTEGER",
+        "value": 5
+      },
+      {
+        "id": 3,
+        "type": "VT_INTEGER",
+        "value": 5
+      },
+      {
+        "id": 4,
+        "type": "VT_INTEGER",
+        "value": 1
+      }
+    ]
+  }
+}

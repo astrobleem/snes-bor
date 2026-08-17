@@ -35,24 +35,38 @@ depending on it.
 
 ### §0.1 Where the source material lives
 
-The design work this plan builds on ships as `openbor4086_sa1_bootstrap.zip` in
-the repo root (untracked, created 2026-08-03 by an earlier session). Extract it
-somewhere scratch and read it — it is genuinely good research:
+**Everything the gates actually need is committed to `tools/verify/vm_fixtures/`.**
+You do not need the zip to start:
+
+| Committed file | What it is |
+|---|---|
+| `gate0_program.json` | Gate 0 fixture + expected final state — this *is* the gate |
+| `gate0_module.bin` | Same fixture, packed as a revision-1 module (184 B) |
+| `gate0_expected_slots.bin` | Expected final slot image (40 B) — Gate 0's ground truth |
+| `run_gate0_reference.py` | Host oracle (path-adjusted for this location) |
+| `opcode_manifest.csv` | All 48 opcodes, operands, semantics — this is the ABI |
+| `bor_vm_opcodes.pasm` | 48 opcode constants — paste into the build as-is |
+| `validate_fixtures.py` | Cross-checks all of the above against each other |
+
+**Run `python tools/verify/vm_fixtures/validate_fixtures.py` before trusting any
+Gate 0 failure** (expects `FIXTURES: PASS`). It verifies the module header
+against `FORMAT.md`, the stored CRC32, every instruction record against the JSON,
+and both slot images — with no engine involved. If it fails, the fixture is
+wrong, not your interpreter. It passed when vendored (2026-08-16), including the
+CRC; that was the first time anything in the package had been checked at all.
+
+The remaining design documents stay in `openbor4086_sa1_bootstrap.zip` in the
+repo root (untracked, created 2026-08-03 by an earlier session). Extract and read
+them — they are genuinely good research:
 
 ```bash
 unzip -o openbor4086_sa1_bootstrap.zip -d <scratch>/
 ```
 
-| File | What it is | Trust level |
+| File in the zip | What it is | Trust level |
 |---|---|---|
 | `README.md` | Full design contract, 12 sections | High — read it all |
 | `FORMAT.md` | Binary module format, revision 1 | High — implement as written |
-| `opcode_manifest.csv` | All 48 opcodes, operands, semantics | High — this is the ABI |
-| `tests/gate0_program.json` | Gate 0 fixture + expected final state | High — this is the gate |
-| `tests/gate0_module.bin` | Same fixture, packed (184 bytes) | High |
-| `tests/gate0_expected_slots.bin` | Expected final slot image (40 bytes) | High — ground truth |
-| `tools/run_gate0_reference.py` | Host oracle for the fixture | High |
-| `src/bor_vm_opcodes.pasm` | 48 opcode constants | High — paste as-is |
 | `src/bor_vm_core.pasm` | ~800-line interpreter scaffold | **Low — see §0.5** |
 
 `IMPLEMENTATION_CHECKLIST.md`'s every box is unchecked. Nothing in that package
@@ -436,7 +450,7 @@ debug interpreter logic against a module that never loaded.
 `distribution/bor.sfc`:
 
 - read back the full loaded region from `VmCode_Wram` and **byte-compare it
-  against `tests/gate0_module.bin` on disk** (the ground-truth rule — compare
+  against `tools/verify/vm_fixtures/gate0_module.bin` on disk** (the ground-truth rule — compare
   against the file, not against a checksum the engine computed);
 - assert `VmState_Status == VMSTAT_READY` and `VmState_Error == 0`;
 - assert both guard regions still read their fill patterns;
@@ -454,7 +468,7 @@ memory `worktree_mesen_rom_path_footgun`). Never hardcode the ROM path.
 ## §2 — Gate 0: fetch, dispatch, integer slots, branch, root RET
 
 The bootstrap package's mandatory first milestone. Scope is *exactly*
-`tests/gate0_program.json` and nothing more.
+`tools/verify/vm_fixtures/gate0_program.json` and nothing more.
 
 ### Implement
 
@@ -491,14 +505,16 @@ high, and let the carry propagate. This project has already been bitten by a
 `tools/verify/vm_gate0.py`:
 
 1. Run the host oracle first and require it green:
-   `python <scratch>/openbor4086_sa1_bootstrap/tools/run_gate0_reference.py`
+   `python tools/verify/vm_fixtures/run_gate0_reference.py`
    → `OK: Gate 0 reference result and complete IP/opcode trace match.`
-   (Vendor this script into `tools/verify/` so the gate is self-contained.)
+   Also run `python tools/verify/vm_fixtures/validate_fixtures.py`
+   → `FIXTURES: PASS`, so a fixture problem can never masquerade as an
+   interpreter bug.
 2. In Mesen2: run until `VmState_Status != VMSTAT_RUNNING`, bounded by a frame
    cap so a hang fails instead of hanging the test.
 3. Assert `VmState_Status == VMSTAT_DONE`, `VmState_Error == 0`.
 4. **Byte-compare the 40-byte `VmSlots_Wram` region against
-   `tests/gate0_expected_slots.bin`.** This is the gate. Not a spot-check of one
+   `tools/verify/vm_fixtures/gate0_expected_slots.bin`.** This is the gate. Not a spot-check of one
    slot — all 40 bytes.
 5. Assert the executed trace ring matches the fixture's `executed_trace` exactly:
    `[[0,2],[1,2],[2,16],[3,2],[4,26],[5,36],[6,20],[9,43]]`. This independently
