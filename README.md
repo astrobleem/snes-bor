@@ -129,12 +129,21 @@ The chain-link fence renders **in front of** the characters (compare against `sc
 
 ### Not built
 
+> **Roadmap moved (2026-08-16).** Phases 0–15 in [plan.md](plan.md) are all done;
+> that file is now history. New work lives in **[plan_game.md](plan_game.md)** —
+> the critical path to an actual playable game (font/text renderer, game state
+> machine, player death, win condition, stage transition, menus, score, moveset,
+> bosses, ending) — and **[plan_vm.md](plan_vm.md)**, an OpenBOR `openborscript`
+> bytecode VM. **The VM is a compatibility substrate, not a path to a shippable
+> game**; nothing in `plan_game.md` depends on it. The single hard prerequisite
+> for every menu-shaped item is a font/text renderer, which does not exist today.
+
 Scheduled — see [plan.md](plan.md) Part Two for step-by-step plans:
 - **No SFX are wired to gameplay.** Music now plays (see Phase 7 above), but nothing triggers a sound on an attack or a hit. This is no longer blocked — it is just unstarted, and it needs content before it needs code: `soundwork/tad/build/audio-enums.inc` currently exports exactly one song (`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound has to be authored in the Terrific Audio Driver project first.
 - **Real-play scroll-lag under sustained held-dpad input is still unmeasured for the streaming path** (plan.md §2.8): the full-level traversal verified in Current Status above used a scripted WRAM position sweep, not sustained realistic input, and there's still no self-contained `phase9.py` regression gate (the two `phase9_*.py` scripts require Mesen2 and real wall-clock time). Neither blocks the level from working — see Current Status — but both are worth closing before trusting this on an even bigger level. The old static whole-level path (`out/bg_boss_level`, plan.md §2.7) is fully intact and still buildable if needed.
 
 Not scheduled, and not blocking anything above:
-- Nothing persists a previously-selected roster slot across a reset — boot always loads slot 0. Cosmetic. (Also: Select now only affects the player, slot 0 — AI entities ignore it, since `CharSelect_Index` is a single global cell, not per-instance.)
+- Nothing persists a previously-selected roster slot across a reset — boot always loads slot 0. **Declined (2026-08-16): this is not a Beats of Rage feature and is not wanted — do not propose it as a quick win.** (Also: Select now only affects the player, slot 0 — AI entities ignore it, since `CharSelect_Index` is a single global cell, not per-instance.)
 - Ralf/JHUN/JOE/Yashiro's converted animation data (via the real `tools/bor_converter/` pipeline, directly from `Beats of Rage Original [v.3.0 Build 4086].pak` in the repo root — see "Most recent work" above for Yashiro, Phase 15) is what's shipped; the roster holds 4 selectable characters as of Phase 15, and all 4 entities (player + 3 AI) are now fully distinct characters.
 - Only 4 of 128 OAM slots are ever exercised.
 

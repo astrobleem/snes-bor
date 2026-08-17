@@ -1,5 +1,22 @@
 # Plan: multiple simultaneous on-screen characters
 
+> **⚠️ THIS FILE IS NOW HISTORY. Phases 0–15 are all DONE.**
+> **New work lives in one of two files, and which one depends on your goal:**
+>
+> | Goal | File |
+> |---|---|
+> | **Make this a playable, releasable game** (menus, stages, win condition, death, score, ending) | **`plan_game.md`** ← the critical path |
+> | Run real OpenBOR `openborscript` mods (bytecode VM) | `plan_vm.md` |
+>
+> **The VM is not required to ship a game**, and its first five gates produce
+> zero user-visible change. If someone tells you the VM is how you get menus or
+> level progression, they are wrong — see `plan_vm.md`'s own banner.
+>
+> Both new plans assume `README.md`'s "Current Status" as ground truth. Part Two
+> below (§§2.0–2.15) remains the historical record of Phases 5–15 and is still
+> worth reading for *why* the code is shaped as it is, but it is no longer a
+> to-do list.
+
 > **START HERE IF YOU ARE PICKING THIS UP NEW.**
 > **Phases 0–6 are finished, committed, and verified.** Four characters
 > render simultaneously today — one player-controlled, three AI-controlled
@@ -1798,12 +1815,15 @@ independent they are:
    exports one placeholder effect (`sfx_stub = 0`); a real punch/hit sound
    needs to be authored in the Terrific Audio Driver project first, then
    triggered from `Character_HitApply`.
-4. **Persist the selected roster slot across a reset**, or ~~expand the
-   roster past 2 characters~~. Both are small, self-contained, and don't
-   interact with anything above. The roster-expansion half is **DONE
+4. ~~Persist the selected roster slot across a reset~~, or ~~expand the
+   roster past 2 characters~~. The roster-expansion half is **DONE
    2026-08-16** — see §2.12 below (a real third character, JOE, converted
-   from the BOR pak, added as roster slot 2). Persisting the selection
-   across a reset is still open.
+   from the BOR pak, added as roster slot 2), and §2.15 (Yashiro, slot 3).
+   **Roster-slot persistence is DECLINED (2026-08-16, by the user) and is
+   not to be proposed again** — it is not a Beats of Rage feature and was
+   never wanted. Do not resurface it as a "small quick win"; it has been
+   suggested and rejected. (Persisting *options* — volume, difficulty — is
+   a different thing and is genuinely expected; see `plan_game.md` §5.)
 
 Whichever is picked, follow §2.1's rules (Poppy checklist, the stop rule,
 what static tools can/can't prove) and this file's per-phase gate pattern:

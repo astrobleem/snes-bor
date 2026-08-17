@@ -12,9 +12,12 @@ each section below.
 > ## Read this banner before anything else in this file
 >
 > **Where to go for what:**
-> - **What to do next → [`plan.md`](plan.md) "Part Two."** That is the live,
->   step-by-step roadmap for all remaining work. Nothing in *this* file is a
->   to-do list any more.
+> - **What to do next → [`plan_game.md`](plan_game.md)** (critical path to a
+>   playable game) or [`plan_vm.md`](plan_vm.md) (OpenBOR script VM, a
+>   compatibility substrate that is **not** required to ship a game).
+>   **Updated 2026-08-16:** `plan.md`'s Phases 0–15 are all DONE and that file
+>   is now history, not a roadmap. Nothing in *this* file is a to-do list
+>   either.
 > - **What currently works → `README.md`'s "Current Status."** That is the
 >   authoritative summary. Treat anything in this file that contradicts it
 >   as superseded, not as the current architecture.
