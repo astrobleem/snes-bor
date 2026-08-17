@@ -26,12 +26,29 @@ each section below.
 > through "Phase 9 done and verified," then "Phase 10: frontpanel foreground
 > layer" (DONE, all steps 1-4), then "Phase 11: damage system" (DONE), then
 > "Phase 12: expand the roster" (DONE), then "Phase 9 gate: scroll-lag +
-> self-contained gate closed" (DONE) — plus "Harness gotchas" and "File
-> inventory." Read those. Everything above them is older history, kept for
-> the root-cause detail, and parts of it are known wrong.
+> self-contained gate closed" (DONE), then "Phase 13: convert-time spawn
+> table" (DONE), "Phase 14: a second real level, shipped as the new
+> default" (DONE), "Phase 15: a real 4th distinct character" (DONE) — plus
+> "Harness gotchas" and "File inventory." Read those. Everything above them
+> is older history, kept for the root-cause detail, and parts of it are
+> known wrong.
 >
-> **As of 2026-08-16, the Phase 9 gate's two open follow-ups (real-play
-> scroll-lag measurement + a self-contained `phase9.py`) are closed — see
+> **As of 2026-08-16, Phase 15 (a real 4th roster character, Yashiro,
+> replacing Entity #3's JHUN duplicate) is DONE — see that section near the
+> bottom.** All 4 entities are now visually distinct. A real-looking
+> `phase11_damage.py` FAIL this exposed turned out to be a sampling-stride
+> aliasing artifact (Yashiro's own animation cycle period evenly divides
+> the test's 40-frame stride), not an engine bug — fixed by switching the
+> stride to 37 (prime).
+>
+> **Also as of 2026-08-16: Phase 14 (a second real level, stage 1B, now the
+> shipped default) and Phase 13 (a convert-time spawn table driving real
+> enemy waves) are both DONE** — see their own sections near the bottom.
+> Two of the source pak's 14 stages are now converted (1A and 1B), one
+> shipped at a time.
+>
+> **The Phase 9 gate's two open follow-ups (real-play scroll-lag
+> measurement + a self-contained `phase9.py`) are closed — see
 > that section near the bottom.** `set_input` was confirmed to move the
 > camera correctly (a prior session's "never moved" observation was a
 > short-hold-window race, not a broken tool or a real gap); real held-right
@@ -1868,6 +1885,124 @@ been exercised against `distribution/bor.sfc` as actually built, not a
 temporary synthetic-asset config swap. Full regression suite (`audit_all.py`,
 `check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`,
 `phase11_damage.py`, `phase12_roster.py`) all still pass.
+
+## Phase 13: convert-time spawn table — DONE (see `plan.md` §2.13 for the full writeup)
+
+Through Phase 12 the 3 AI entities stood fully alive from frame 1 with no
+relationship to the source level's actual content. `tools/bg_converter/
+spawn_parse.py` + `build_spawn_table.py` (new) parse stage 1A's real
+`spawn`/`at` script blocks (33 events) into a flat 7-byte-record table
+(trigger world-X, spawn position, facing), scaled the same 0.8x the
+backdrop converter uses. `core/spawn.pasm` (new) walks this as a single
+global queue at runtime: each frame, if the camera has reached the next
+pending record's trigger and an AI slot is free (`CHAR_HP==0`, reusing
+Phase 11's soft-kill sentinel as "unspawned"), that slot gets (re)spawned.
+AI entities now boot at `CHAR_HP=0` instead of full HP. The table ships via
+`bor.msu` (new spawn section in `pack_msu_roster.py`), not a ROM `.incbin`
+— this codebase has no proven indexed-ROM-read pattern and CLAUDE.md
+documents a confirmed Poppy bug in exactly that addressing mode.
+
+**A real Poppy bug surfaced, mislocated by the toolchain itself.** A
+genuine "Branch target out of range" build error was reported as
+`src/main.pasm:167`, which was actually `core/spawn.pasm`'s own line 167 —
+Poppy's `.include` error reporting reused the included file's line number
+under the main file's name (this got root-caused and fixed upstream later
+the same day, see the Poppy-fork section below). Fixed locally with the
+standard long-branch workaround (`brl` instead of a `bcc` whose target sat
+past the rest of the routine).
+
+**Verified**: a passive no-input boot spawns exactly the one
+`trigger_x==0` entity, which walks toward and visibly damages the player
+over ~900 frames. `phase5.py`/`phase6.py`/`phase11_damage.py` updated (not
+loosened) to reflect AI entities reading `CHAR_HP==0` until spawned. Full
+regression suite passes, including `phase9.py`'s sustained-held-input run
+(no stall/vblank-overrun regression from the new per-frame check).
+
+## Phase 14: a second real level, shipped as the new default — DONE (see `plan.md` §2.14 for the full writeup)
+
+Stage 1B (`DATA\EASY\1BEASY.TXT`, "The bar") replaces stage 1A as what
+`distribution/bor.sfc` boots — 1A's converted assets stay committed and
+buildable, just not shipped. Picked to be a different shape than 1A to
+prove the pipeline generalizes: only 2 distinct panel images (140 tiles
+wide vs. 1A's 408, still needs streaming), **no frontpanel layer at all**
+(`FP_SCREENS = [None]` — first real exercise of that code path), and a
+real, different spawn table (28 records vs. 33) with non-enemy prop spawns
+(`Table`, `Chair`) and an unrecognized `2pitem` keyword silently ignored by
+design. `spawn_parse.py`/`build_spawn_table.py` needed **zero code
+changes** to handle the new level's different shape.
+
+**A real, level-specific test assumption found and fixed.** `phase5.py`
+assumed exactly one spawn record fires at boot with no camera movement
+(true for 1A, which has one `trigger_x==0` record). Stage 1B has two
+(`Table`/`Chair`, both `at 0`), so entities 1 AND 2 spawn immediately —
+the old assertion correctly failed against real Mesen2 data. Fixed by
+generalizing to "AI slots 2/3 are either unspawned or fully spawned"
+instead of hardcoding a trigger-count shape.
+
+**Verified**: full regression suite passes against the new level,
+including `phase6.py`/`phase9.py` confirming they really do read the
+level's own manifest (`width_tiles=140`, 2347 tiles) rather than
+hardcoding 1A's numbers. `phase10_frontpanel.py` (non-routine) was not
+re-run — stage 1B has no frontpanel to gate.
+
+**Same-day, separate work**: found and fixed a real upstream Poppy bug
+(`astrobleem/poppy`'s `Program.cs` hardcoded the top-level input filename
+in its parser/semantic/codegen error loops instead of the actual
+`.include`d file's own path — this is exactly what mislocated Phase 13's
+branch-range error above). Fixed, tested (full 9-project suite, before and
+after), committed, and pushed upstream (`2cdbe88`) so other projects
+benefit. Separately pulled two further upstream fixes from another
+project's session (`9bbd336` dot-local label scoping, `a7a760e` M/X
+width-inference reset after `rts`/`rtl`/`rti`/`brk`) and verified
+`snes-bor` rebuilds byte-identical against both. See `poppy_fork_migration`
+project memory.
+
+Also attempted (and correctly declined to ship): recapturing this
+project's own README screenshots against the newly-shipped stage 1B build.
+Found a genuine Mesen2 MCP tooling bug in the process — `take_screenshot`/
+`render_filmstrip` render a stale, frozen BG3 HUD layer even when
+WRAM/VRAM ground truth confirms it changed — documented as
+`mesen_screenshot_stale_hud_layer` project memory rather than shipping
+misleading screenshots. README's screenshot section is flagged stale
+(predates the 1A→1B swap) until that tooling gap is worked around.
+
+## Phase 15: a real 4th distinct character (Yashiro) — DONE (see `plan.md` §2.15 for the full writeup)
+
+Entity #3 previously reused roster slot 1 (JHUN) a second time — a Phase
+5-era placeholder. Converted Yashiro (picked because it's the
+most-spawned enemy in stage 1B's own spawn table) via the existing
+`tools/bor_converter/convert_character.py` pipeline and added it as
+roster slot 3. Two hand-synced changes: `main.pasm`'s Entity #3 init param
+(`$0301`→`$0303`) and `core/spawn.pasm`'s `SPAWN_MSU_OFFSET` (re-synced
+for the roster's new size, same `check_spawn_constants` mechanism as every
+earlier asset-size change). All 4 entities (player + 3 AI) are now
+visually distinct characters; the roster holds 4 selectable characters.
+
+**A real-looking `phase11_damage.py` FAIL, root-caused instead of
+dismissed as flaky.** After the swap, entity 3's `CHAR_FRAME_INDEX` read
+as completely frozen (`[0,0,0,0,0,0]`) across the test's 6×40-frame
+sampling loop, while entity 2 varied normally — looked exactly like a
+Msu1_StreamBusy starvation or oop.pasm GC-compaction hazard, both real
+documented risk classes in this codebase. Investigated against live ground
+truth per CLAUDE.md's standing rule: single-frame-stepping through the
+identical window showed entity 3 animating completely normally, and
+re-sampling with a 37-frame (prime) stride instead of 40 also showed
+normal variation. **Root cause: Yashiro's own attack-animation cycle
+period happens to evenly divide 40**, so the fixed 40-frame stride always
+sampled the same phase — a strobe/aliasing artifact, not a freeze. JOE
+(entity 2) never triggered this because its cycle period doesn't happen to
+divide 40. Fixed by switching `phase11_damage.py`'s stride to 37.
+
+`phase12_roster.py`, already generalized in Phase 12 to derive its checks
+from `roster_count` dynamically, needed zero further changes and passed
+immediately against the 4-character roster.
+
+**Verified**: full regression suite passes (`audit_all.py`,
+`check_label_drift.py`, `phase5.py`, `phase6.py`, `phase7.py`,
+`phase9.py`, `phase11_damage.py`, `phase12_roster.py`). `phase8.py` fails,
+but that predates this phase — it gates the pre-Phase-9
+whole-level-static-BG scrolling shape, which stage 1B isn't; a known-stale
+gate, not a regression.
 
 ## Harness gotchas (Mesen2 / build)
 
