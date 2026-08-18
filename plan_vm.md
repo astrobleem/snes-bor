@@ -338,9 +338,9 @@ not conclude from "it built clean" that no branch is over-range.
 
 Beyond branch range, the scaffold also violates project conventions in ways that
 will silently miscompile here:
-- **No `nop` guards before any label** (Poppy bug 13 — `jsl` sized 3, emits 4).
-- **No redundant `sep`/`rep` width re-sync at branch targets** (Poppy's linear
-  width tracking).
+- **No `sep`/`rep` width directive at branch targets** (Poppy's linear width
+  tracking — still live, §0.6 item 1). This is the one that will actually bite.
+  (Its missing `nop` label guards, by contrast, are now fine: that bug is fixed.)
 - **DP-based state and `[dp],y` fetch** (deviation 3).
 - **`.snes` / bank directives** that don't match this project's single-`.bank 0`
   layout.
@@ -351,37 +351,68 @@ copy-paste it.
 
 ### §0.6 The Poppy checklist — apply to every line of new assembly
 
-Inline here on purpose, because you will not go read `CLAUDE.md` mid-gate. All of
-these are confirmed silent-miscompile bugs in this toolchain.
+Inline here on purpose, because you will not go read `CLAUDE.md` mid-gate.
 
-1. **Open every routine, and every branch-target label, with a redundant
-   `sep #$20` / `.a8` (or `rep #$30` / `.a16 .i16`) width re-sync.** Poppy tracks
-   accumulator width linearly, not along control flow, so a label reached by a
-   branch that jumps over a `rep`/`sep` gets its following `lda #`/`cmp #`
-   mis-sized and every byte after it misaligns. Symptom: a phantom `BRK #$xx`
-   mid-routine in `m.disassemble()`. The re-sync is a runtime no-op when the
-   width already matches — apply it unconditionally rather than reasoning.
-2. **Put a `nop` guard before every new label.** Poppy sizes `jsl` as 3 bytes and
-   emits 4, so labels drift one byte early per preceding `jsl`, cumulatively.
-3. **Keep conditional branch targets within ~15 source lines.** Farther: invert
-   the condition and `brl`, or split into a `jsr`'d leaf routine. A conditional
-   branch past ±127 bytes can assemble silently and hang the CPU.
-4. **Indexed WRAM access uses `.l` or bare, never `.w`.** `.w` on an indexed
-   bank-`$7E` symbol silently drops the bank byte.
-5. **Never write `.l Symbol,y`.** No such 65816 addressing mode exists (verified
-   in fullsnes, §0.2); Poppy emits a wrong absolute,Y instruction with no error.
-   Index long addressing by `X` only.
-6. **Never branch to a dot-prefixed local label** (`bcc .valid`). Poppy silently
-   deletes both the branch and the label (bug 14). Use global labels.
-7. **No `@`-local labels in anything `.include`d.** They mis-resolve once reached
-   via `.include`. No `src/core/*.pasm` file uses them; match that.
-8. **No macro invocations inside branch-skipped code.** Macros are sized 0 bytes
-   during address estimation, corrupting the branch offset. Inline by hand.
-9. **`stz` has no long addressing mode.** `stz.l` doesn't error, it emits
-   garbage. Use `lda #0` / `sta.l`.
-10. **`cpx` has no long addressing mode either.** Same failure shape.
-11. **Prefer hand-computed literals over computed operand expressions** in
-    immediates; this project has been bitten by silently-wrong arithmetic there.
+**Re-measured 2026-08-18 against `E:\gh\poppy-astrobleem` HEAD `a7a760e`, with
+fresh minimal repros. Most of this toolchain's historical silent-miscompile bugs
+are FIXED.** That materially changes what you have to write. The rules below are
+split accordingly, and **do not add defensive scaffolding for anything in the
+second list** — the `nop` guards throughout `src/core/*.pasm` are historical, not
+a pattern to extend.
+
+**Still live — these three you must actually handle:**
+
+1. **Open every routine, and every branch-target label, with an explicit
+   `sep #$20` / `.a8` (or `rep #$31` / `.a16 .i16`) width directive.** Poppy still
+   tracks accumulator width linearly, not along control flow, so a label reached
+   by a branch that jumps over a `rep`/`sep` gets its following `lda #`/`cmp #`
+   mis-sized and every byte after it misaligns. Measured: `cmp #$02` at such a
+   label assembles as `c9 02 00` — three bytes — and the trailing `00` decodes as
+   a phantom `BRK`. **An explicit `.a8` after the label fixes it** (measured:
+   `c9 02`). Apply it unconditionally rather than reasoning about whether it is
+   needed; it is a runtime no-op when the width already matches.
+2. **Never take the address of an `.incbin` blob, and never define a label
+   directly after one that you intend to reference.** `.incbin` is still sized
+   **0 bytes** in the layout pass, so every symbol at or after it collides on the
+   first blob's address (measured: three labels all reported `$8005` when the
+   true addresses were `$8005`/`$8015`/`$8025`). The VM has no reason to
+   `.incbin` anything — the module travels through `bor.msu` (§0.2) — so the
+   practical rule is simply **do not introduce one**.
+3. **The `.sym` file writes bank `00` for labels in non-zero banks.** Irrelevant
+   while everything stays in `.bank 0` (it does, §0.3), but do not trust a `.sym`
+   bank byte if that ever changes.
+
+**Fixed — do not write workarounds for these:**
+
+| Historical bug | Status now |
+|---|---|
+| `jsl` sized 3 / emitted 4 → cumulative label drift | **Fixed.** Labels after three `jsl`s land exactly right. **New code does not need `nop` guards before labels.** |
+| `bcs`/`bcc` past ±127 assembling silently | **Fixed.** All conditional branches *and* `bra` now error, with the correct line number. |
+| `.org` overflow silently truncating into the next region | **Fixed.** Now errors: "overlaps previously emitted bytes". |
+| `stz.l`, `ldx.l`/`ldy.l`, `cpx.l`/`cpy.l`, `.l Symbol,y` | **Fixed.** All are hard errors now ("no long form for this mode"). |
+| Standalone `.dw` data table resolving to garbage | **Fixed.** Resolves correctly. |
+| Branch to a dot-prefixed local label silently deleted | **Fixed.** Dot-locals work. |
+| Macro invocations sized 0 bytes in the estimation pass | **Fixed.** |
+| `.include` errors reported under the wrong filename | **Fixed.** |
+| Cross-bank `jsl` resolving with bank `$00` | **Fixed** in codegen (only the `.sym` bank byte is still wrong — live item 3). |
+
+**Still true, but as 65816 facts rather than Poppy bugs:**
+
+4. **Indexed WRAM access uses `.l` or bare, never `.w`** — `.w` on a bank-`$7E`
+   symbol is a genuinely wrong 16-bit address, not a toolchain artifact.
+5. **Long addressing is indexed by `X` only**; there is no `nnnnnn,Y` opcode
+   (verified in fullsnes, §0.2). Poppy now rejects it, so this is a constraint on
+   how you lay out loops, not a trap.
+6. **Conditional branches are ±127 bytes.** Poppy errors now instead of failing
+   silently, but you still have to structure code so it does not happen — see
+   §0.9 item 7 for the trampoline shape.
+7. **No `@`-local labels in anything `.include`d.** No `src/core/*.pasm` file uses
+   them; match that convention.
+
+**If you hit a silent miscompile that is on neither list**, that is a genuinely
+new finding: build a minimal repro (a dozen lines — `.snes`, `.bank 0`,
+`.org $8000`, assemble, dump the bytes), confirm it, and record it. This section
+was rewritten from exactly that process and it took about ten minutes.
 
 ### §0.7 Universal exit criteria — every gate, no exceptions
 
@@ -611,9 +642,11 @@ for.
 4. **No `@`-local and no dot-prefixed labels** (§0.6 items 6, 7). Name labels
    `Vm_Load__seek_busy`-style, the same double-underscore convention
    `core/spawn.pasm` uses.
-5. **A `nop` guard line before every label**, with the same comment
-   `core/spawn.pasm` uses so it is greppable:
-   `nop  ; workaround: Poppy branch-target label misalignment (see poppy bug #4)`
+5. **Do NOT add `nop` guards before labels.** Every `core/*.pasm` file has them
+   and they are historical: the `jsl`-sizing bug that made labels drift is fixed
+   (§0.6). New code that copies the guards inherits dead weight in a 7168-byte
+   budget. `tools/rom_audit/check_label_drift.py` still runs and will tell you if
+   this ever regresses.
 6. **A redundant `sep #$20` / `.a8` (or `rep #$31` / `.a16` / `.i16`) as the
    first line after every label**, §0.6 item 1.
 7. **When a conditional branch's target is more than ~15 source lines away,
@@ -743,7 +776,8 @@ workflow — it is what `check_spawn_constants`'s message is written for.
 
 `Vm_Load` is `Spawn_Init` with a different destination, a header check, and a
 status byte. **Open `src/core/spawn.pasm` and keep it visible while writing this.**
-Copy its `php`/`sei`/`sep #$20` opening, its exact `$2000`–`$2003` seek, its
+Copy its structure but **not** its `nop` guard lines (§0.9 item 5). Copy its
+`php`/`sei`/`sep #$20` opening, its exact `$2000`–`$2003` seek, its
 `Spawn_Init__seek_busy` spin (`lda $2000` / `bmi`), and its byte-at-a-time
 `lda $2001` / `sta.l <dest>,x` read loop. Do not invent a different MSU access
 pattern; sequential reads only, and this one blocking boot-time read deliberately
@@ -786,7 +820,6 @@ Worked example for the first check, showing every convention from §0.9 in place
 follow this shape for all of them:
 
 ```
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Vm_ValidateHeader:
     sep #$20
 .a8
@@ -797,10 +830,11 @@ Vm_ValidateHeader:
     cmp #$34                ; '4'
     bne Vm_ValidateHeader__to_fail
     ...
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Vm_ValidateHeader__to_fail:
     brl Vm_Load__fail       ; ONE trampoline for the whole routine -- every
-                            ; bne above stays a short, in-range branch (0.9 item 7)
+                            ; bne above stays a short, in-range branch (0.9 item 7).
+                            ; No nop guard before either label: that bug is fixed
+                            ; (0.6), and core/spawn.pasm's guards are historical.
 ```
 
 On success: `VmState_Status = VMSTAT_READY`, `VmState_Error = VMERR_NONE`, `rts`.
