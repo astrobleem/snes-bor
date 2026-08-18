@@ -27,6 +27,30 @@
 
 ---
 
+## How to use this plan
+
+Read §0 in full **once**, then work one gate per change, top to bottom, in order.
+Gate 0a is the first one; it is §1.
+
+Everything you need is in this file or in a committed file it names. You should
+not need to consult a person, another model, or the internet to finish a gate.
+Specifically:
+
+- **Missing constant?** §0.8 defines every `VMSTAT_*`, `VMERR_*`, and WRAM
+  address. It is the authority, not the zip.
+- **How do I write 65816 for this project?** §0.6 (toolchain bugs) and §0.9
+  (file conventions). Both are inline on purpose — you will not go read
+  `CLAUDE.md` mid-gate.
+- **Stuck?** §0.10, in order, before escalating to anything.
+- **How do I know the gate is done?** §0.7 for the criteria that apply to every
+  gate, plus the gate's own "Definition of done" checklist.
+
+Two things are worth reading end to end before you touch anything, and they are
+short: `src/core/spawn.pasm` (the template §1 asks you to copy) and
+`build_rom.py`'s `check_spawn_constants` (the template §1 asks you to mirror).
+
+---
+
 ## §0 — Ground truth measured for this plan (2026-08-16)
 
 Everything in this section was **measured this session**, not assumed. Do not
@@ -54,6 +78,13 @@ against `FORMAT.md`, the stored CRC32, every instruction record against the JSON
 and both slot images — with no engine involved. If it fails, the fixture is
 wrong, not your interpreter. It passed when vendored (2026-08-16), including the
 CRC; that was the first time anything in the package had been checked at all.
+
+**What is *not* in that directory, and where it is instead:** the VM's status
+codes, fault codes, and WRAM addresses. `bor_vm_opcodes.pasm` is the 48 opcode
+numbers and nothing else. **§0.8 of this file defines all of the rest, ready to
+paste.** Do not go looking for them in the zip — its README lists status *names*
+with no numeric values at all, which is exactly the kind of gap that turns into
+two incompatible enumerations three gates apart.
 
 The remaining design documents stay in `openbor4086_sa1_bootstrap.zip` in the
 repo root (untracked, created 2026-08-03 by an earlier session). Extract and read
@@ -245,20 +276,32 @@ the spawn table itself (~196 bytes for the shipped level), ending near `$7E55CB`
 Use this map. Bank-align it so a later `X`-indexed read never has to think:
 
 ```
-$7E6000  VmCode_Wram      module image: header + instruction records
-                          32 KB cap = 4096 records (revision-1 allows 8192;
-                          cap at 4096 here to keep X-index headroom)
-$7EE000  VmSlots_Wram     mutable variant slots, 8 B each
-                          8 KB = 1024 slots
-$7EFF00  VmGuardLo        16 guard bytes (pattern $A5) — see §0.7
-$7F0000  VmFrames_Wram    call frames, 12 B each, 64 deep = 768 B
-$7F0300  VmStrPool_Wram   dynamic string pool (Gate 4), 4 KB
-$7F1300  VmTrace_Wram     (IP,opcode) ring, 32 entries x 4 B = 128 B
-$7F1380  VmGuardHi        16 guard bytes (pattern $5A)
-$7F1400  VmState_*        IP, STATUS, ERROR, BUDGET, FRAME_TOP, etc.
+addr      size    region
+--------  ------  ----------------------------------------------------------
+$7E6000   32768   VmCode_Wram    module image: header + instruction records.
+                                 4096-record cap (revision 1 allows 8192; the
+                                 lower cap is what keeps this inside 32 KB).
+                                 Ends $7EDFFF.
+$7EE000      16   VmGuardLo      guard bytes, pattern $A5 (§0.7)
+$7EE010    8192   VmSlots_Wram   1024 mutable variant slots x 8 B.
+                                 Ends $7F000F.
+  ($7F0010-$7F00FF is deliberate slack — do not allocate it without redrawing
+   this table; it is what makes the two banks' contents independently movable.)
+$7F0100     768   VmFrames_Wram  64 call frames x 12 B (Gate 3). Ends $7F03FF.
+$7F0400    4096   VmStrPool_Wram dynamic string pool (Gate 4). Ends $7F13FF.
+$7F1400     128   VmTrace_Wram   (IP,opcode) ring, 32 x 4 B. Ends $7F147F.
+$7F1480      16   VmGuardHi      guard bytes, pattern $5A
+$7F1500      20   VmState_*      status, error, IP, budget, counts, scratch
 ```
 
-`VmState_*` cells are plain absolute `$7F14xx` addresses, one per line, exactly
+**Check the arithmetic before you move anything in this table.** An earlier draft
+of this plan put `VmGuardLo` at `$7EFF00`, which is *inside* a 1024-slot array
+based at `$7EE000` — the guard would have been silently overwritten by ordinary
+slot writes to slots 1008–1023 and reported a corrupt-memory failure that was
+really a map bug. Every region above has its end address written out for exactly
+that reason. Add yours the same way.
+
+`VmState_*` cells are plain absolute `$7F15xx` addresses, one per line, exactly
 like `core/spawn.pasm`'s own `Spawn_Index` / `Spawn_Scratch*` block. Do not use
 Direct Page (§0.2, deviation 3).
 
@@ -400,6 +443,217 @@ not produce** — the fixture `.bin` files, the host oracle's output, the packed
 cautionary tale: TAD reported `PLAYING` at full volume for as long as it was
 faithfully loading pure zeros, and every engine-visible byte read perfect.
 
+**Gate-line rule.** Every gate script's last line is `GATE <N>: PASS` or
+`GATE <N>: FAIL`, and the process exits 0 / 1 to match. `tools/verify/_harness.py`'s
+`Reporter` prints `PHASE <n>: ...`, which is the wrong word. **Add a `kind`
+parameter to it once, in the Gate 0a change** — it is a two-line edit and every
+later gate depends on it:
+
+```python
+class Reporter:
+    def __init__(self, phase_number, kind='PHASE'):
+        self.phase_number = phase_number
+        self.kind = kind
+        ...
+    def finish(self):
+        ...
+        print(f'{self.kind} {self.phase_number}: {"PASS" if overall else "FAIL"}')
+```
+
+Then `Reporter('0a', kind='GATE')` prints `GATE 0a: PASS`. Existing `phaseN.py`
+scripts are unaffected because `kind` defaults to `'PHASE'`.
+
+---
+
+## §0.8 — Constants and enums: nothing committed defines these, so define them here
+
+**`VMSTAT_*` and `VMERR_*` do not exist in any committed file.** `bor_vm_opcodes.pasm`
+is the 48 opcode numbers only. The status names live in the zip's `README.md` §3 with
+**no numeric values at all**, and the error values live in its §9. Both are reproduced
+below so you never have to open the zip for them.
+
+**Create `src/core/vm/vm_consts.pasm` with exactly this content, first thing, before
+any other VM file.** Every later gate, and every gate *script*, reads its values from
+this one file.
+
+```
+; ============================================================================
+; core/vm/vm_consts.pasm -- VM status codes, fault codes, and WRAM map.
+; Equates only, no code. .include'd FIRST inside main.pasm's .org $9000 block
+; so every later vm/*.pasm file sees these names.
+;
+; If main.pasm itself ever needs one of these, move that single constant to
+; main.pasm ABOVE its .org $C100 include block instead -- main.pasm has twice
+; been bitten by a constant used textually before the .include that defined it
+; (see its own notes near "declared here, textually before core/nmi.pasm's
+; .include").
+; ============================================================================
+
+; --- Status. Held in VmState_Status as ONE byte. ---
+; UNINIT is deliberately 0 so that "boot zeroed this WRAM and the loader never
+; ran" is distinguishable from "the loader ran and succeeded". Never renumber
+; READY to 0.
+VMSTAT_UNINIT   = 0
+VMSTAT_READY    = 1
+VMSTAT_RUNNING  = 2
+VMSTAT_YIELDED  = 3
+VMSTAT_DONE     = 4
+VMSTAT_FAULT    = 5
+
+; --- Fault codes. Held in VmState_Error as a 16-bit word.
+; $0001-$000F are the bootstrap package's own recommended values (its README
+; section 9) -- do not renumber them, the gate fixtures use them.
+VMERR_NONE            = $0000
+VMERR_BAD_OPCODE      = $0001   ; opcode value >= 48
+VMERR_FIELD_OPCODE    = $0002   ; opcode 7 (FIELD) -- always a fault, never a no-op
+VMERR_EXPLICIT_ERR    = $0003   ; opcode 15 (ERR)
+VMERR_BAD_SLOT        = $0004
+VMERR_BAD_TYPE        = $0005
+VMERR_DIV_ZERO        = $0006
+VMERR_CALL_DEPTH      = $0007
+VMERR_NO_CALL_FRAME   = $0008
+VMERR_BAD_CALLSITE    = $0009
+VMERR_BAD_NATIVE      = $000A
+VMERR_STRING_POOL     = $000B
+VMERR_STRING_OVERFLOW = $000C
+VMERR_BAD_JUMP        = $000D   ; IP outside 0..instruction_count-1
+VMERR_BAD_MODULE      = $000E   ; header validation failed (Gate 0a)
+VMERR_BUDGET_PROTOCOL = $000F   ; opcode budget exhausted without a yield
+VMERR_UNIMPLEMENTED   = $0010   ; opcode is a VALID ABI value but this gate
+                                ; has not implemented it yet. See the note
+                                ; below -- this is NOT the same as $0001.
+
+; --- WRAM map (plan_vm.md 0.4). Absolute addresses, never Direct Page.
+; End addresses are written out on purpose -- see 0.4's note about the guard
+; region that was originally placed inside the slot array. ---
+VmCode_Wram     = $7E6000   ; 32768 B, ends $7EDFFF
+VmGuardLo       = $7EE000   ; 16 B of $A5
+VmSlots_Wram    = $7EE010   ; 1024 slots x 8 B = 8192 B, ends $7F000F
+VmFrames_Wram   = $7F0100   ; 64 frames x 12 B = 768 B   (Gate 3)
+VmStrPool_Wram  = $7F0400   ; 4096 B string pool         (Gate 4)
+VmTrace_Wram    = $7F1400   ; 32 x 4 B = 128 B           (Gate 0)
+VmGuardHi       = $7F1480   ; 16 B of $5A
+VM_GUARD_LEN    = 16
+VM_GUARD_LO_FILL = $A5
+VM_GUARD_HI_FILL = $5A
+VM_CODE_MAX      = 32768
+VM_INSTR_MAX     = 4096
+VM_SLOT_MAX      = 1024
+
+; --- VmState_* scalars. One per line, plain absolute addresses, exactly like
+; core/spawn.pasm's Spawn_Index / Spawn_Scratch* block. ---
+VmState_Status      = $7F1500   ; .db -- VMSTAT_*
+VmState_Error       = $7F1501   ; .dw -- VMERR_*
+VmState_Ip          = $7F1503   ; .dw -- current instruction index
+VmState_ErrorIp     = $7F1505   ; .dw -- IP at time of fault
+VmState_ErrorOpcode = $7F1507   ; .db -- opcode at time of fault
+VmState_Budget      = $7F1508   ; .dw -- opcodes remaining this frame
+VmState_FrameTop    = $7F150A   ; .dw -- call-frame depth        (Gate 3)
+VmState_TraceHead   = $7F150C   ; .db -- trace ring write index  (Gate 0)
+VmState_InstrCount  = $7F150D   ; .dw -- copied from header at load
+VmState_SlotCount   = $7F150F   ; .dw -- copied from header at load
+VmState_Scratch0    = $7F1511   ; .dw
+VmState_Scratch1    = $7F1513   ; .dw
+VM_STATE_FIRST      = $7F1500
+VM_STATE_LAST       = $7F1515   ; exclusive -- zero [FIRST,LAST) at boot
+```
+
+**Why `$0010 VMERR_UNIMPLEMENTED` is a separate code from `$0001
+VMERR_BAD_OPCODE`, and why you must not merge them.** The committed host oracle
+`run_gate0_reference.py` faults with `0x0010` on any opcode it does not handle,
+and with `0x0002` on `FIELD`. It never emits `0x0001`, because Gate 0's fixture
+contains no out-of-range opcode. The package's README, meanwhile, calls `$0001`
+`VMERR_BAD_OPCODE`. Both are right about different things:
+
+- `>= 48` — not an ABI value at all — is `$0001 VMERR_BAD_OPCODE`.
+- `< 48` but not implemented at the gate you are on is `$0010 VMERR_UNIMPLEMENTED`,
+  which is what the oracle already emits.
+
+Implement both. Gate 1 (§3) is where `VMERR_UNIMPLEMENTED` stops being reachable
+for values `0..47`, and its gate table asserts exactly that.
+
+**Gate scripts must read these values out of `vm_consts.pasm`, never hardcode
+them.** `_harness.py`'s `pasm_constant()` only searches `src/main.pasm`, so add
+its sibling once, in the Gate 0a change:
+
+```python
+def pasm_constant_in(relpath, name):
+    """Same contract as pasm_constant(), for any .pasm file under the repo
+    root -- e.g. pasm_constant_in('src/core/vm/vm_consts.pasm', 'VMSTAT_READY').
+    Verification scripts must never hardcode engine layout values; see
+    pasm_constant()'s docstring for the phase5.py incident that rule came from."""
+    path = os.path.join(repo_root_from(None), *relpath.split('/'))
+    pattern = re.compile(r'^\s*' + re.escape(name) + r'\s*=\s*(\$?[0-9A-Fa-f]+)\s*(?:;.*)?$')
+    with open(path, 'r', encoding='utf-8', errors='replace') as f:
+        for line in f:
+            m = pattern.match(line)
+            if m:
+                raw = m.group(1)
+                return int(raw[1:], 16) if raw.startswith('$') else int(raw, 10)
+    raise KeyError(f'constant {name!r} not found in {path}')
+```
+
+## §0.9 — Conventions for every VM source file
+
+These are not style preferences. Each one is a bug this project has already paid
+for.
+
+1. **`jsr`/`rts`, never `jsl`/`rtl`.** All VM code is in bank 0 alongside its
+   callers, so long calls buy nothing — and every `jsl` you avoid is one byte of
+   Poppy label drift (§0.6 item 2) you never accrue. `Vm_Load` is called by
+   `scpu_boot`, which is bank 0. `core/spawn.pasm` is `jsr`/`rts` for the same
+   reason; match it.
+2. **New files go in `src/core/vm/`**, `.include`d inside main.pasm's **new
+   `.org $9000` block** — never appended to the `.org $C100` list (§0.3).
+3. **`.include` order inside that block is fixed:** `vm_consts.pasm` first
+   (equates), then `bor_vm_opcodes.pasm`, then code files. Poppy resolves
+   top-to-bottom.
+4. **No `@`-local and no dot-prefixed labels** (§0.6 items 6, 7). Name labels
+   `Vm_Load__seek_busy`-style, the same double-underscore convention
+   `core/spawn.pasm` uses.
+5. **A `nop` guard line before every label**, with the same comment
+   `core/spawn.pasm` uses so it is greppable:
+   `nop  ; workaround: Poppy branch-target label misalignment (see poppy bug #4)`
+6. **A redundant `sep #$20` / `.a8` (or `rep #$31` / `.a16` / `.i16`) as the
+   first line after every label**, §0.6 item 1.
+7. **When a conditional branch's target is more than ~15 source lines away,
+   invert it and `brl`.** `core/spawn.pasm` has a worked example with a comment
+   explaining the exact build error it fixes; copy that shape. For a *cluster* of
+   handlers that all need to reach one distant fault label, put a local
+   trampoline next to the cluster instead:
+   ```
+       bne Vm_Foo__to_fault      ; near branch, always in range
+       ...
+   Vm_Foo__to_fault:
+       brl Vm_Fault              ; one long branch serves the whole cluster
+   ```
+   §0.5 measured 37 sites in the bootstrap scaffold that need exactly this.
+
+## §0.10 — When you get stuck
+
+In priority order, and **before** asking anyone anything:
+
+1. **A Poppy build error, or code that assembles but behaves impossibly** (a
+   `BRK #$xx` appearing mid-routine in `m.disassemble()`, a routine that runs the
+   wrong instructions, `Nmi_FrameCounter` frozen): it is §0.6. Work the list
+   top to bottom. Do not theorize about 65816 semantics until §0.6 is exhausted.
+2. **A gate failing on values:** run `python tools/verify/vm_fixtures/validate_fixtures.py`
+   and `python tools/verify/vm_fixtures/run_gate0_reference.py` first. If either
+   is red, the *fixture* is wrong and your interpreter may be fine.
+3. **A gate failing on reads that look like garbage or don't change:** it is
+   probably the harness, and `build.md`'s "Known harness gaps" names the exact
+   failure modes — reads under 32 bytes go stale, bare offsets silently misread,
+   `read_memory` returns `0` for hardware registers, exec hooks fire once then
+   stop. Re-read a 32-byte block spanning the address after `m.reset_emulator()`
+   before concluding anything.
+4. **A result that looks nondeterministic or "flaky":** in this project that has
+   been a 100%-reproducible logic bug every single time it has come up. Do not
+   accept it. Get raw bytes.
+5. **You believe a decision in §0.2 is wrong.** Do not act on that mid-gate.
+   Finish the gate as specified, then write the case up. Those three deviations
+   exist because re-litigating them mid-implementation is how this kind of work
+   stalls.
+
 ---
 
 ## §1 — Gate 0a: module transport (do this first; the package doesn't list it)
@@ -413,55 +667,247 @@ debug interpreter logic against a module that never loaded.
 
 | File | New/edit | What |
 |---|---|---|
-| `tools/bor_converter/pack_msu_roster.py` | edit | Add a VM-module section after the spawn section |
-| `build_rom.py` | edit | `VM_MODULE = "out/vm/gate0_module.bin"`; pass to packer; add `check_vm_constants()` |
-| `src/core/vm/vm_load.pasm` | **new** | Boot-time MSU→WRAM loader + header validation |
-| `src/main.pasm` | edit | New `.org $9000` block (**not `$8C60`** — see §0.3); `.include` VM files; call `Vm_Load` from `scpu_boot` |
+| `src/core/vm/vm_consts.pasm` | **new** | §0.8's equates, verbatim |
+| `src/core/vm/vm_load.pasm` | **new** | `Vm_Init` + `Vm_Load` + `Vm_ValidateHeader` |
+| `src/main.pasm` | edit | New `.org $9000` block; `.include` the two files; `jsr Vm_Load` in `scpu_boot` |
+| `tools/bor_converter/pack_msu_roster.py` | edit | Append a VM-module section **after** the spawn section |
+| `build_rom.py` | edit | `VM_MODULE` constant; pass to packer; `check_vm_constants()` |
+| `tools/verify/_harness.py` | edit | `Reporter(kind=...)` (§0.7) + `pasm_constant_in()` (§0.8) |
 | `tools/verify/vm_gate0a.py` | **new** | The gate |
 
-### Steps
+**The module to ship is `tools/verify/vm_fixtures/gate0_module.bin` itself.** An
+earlier draft of this plan said `out/vm/gate0_module.bin`; that was written before
+the fixtures were vendored (commit `f6dd0ac`) and copying the file to a second
+location would only create a way for the packed bytes and the compared-against
+bytes to drift apart. Pack the fixture directly.
 
-1. **Copy the spawn-section pattern exactly.** Read `pack_msu_roster.py`'s spawn
-   handling and `core/spawn.pasm`'s loader end to end first. The VM section is
-   the same shape: append after existing sections so no earlier `data_offset`
-   moves, and return the new offset/size in the sidecar dict.
-2. **Add `VM_MSU_OFFSET` / `VM_MODULE_SIZE`** to `src/core/vm/vm_load.pasm` as
-   hand-synced constants, and **add `check_vm_constants()` to `build_rom.py`**
-   modelled line-for-line on `check_spawn_constants()` — it re-reads the `.pasm`,
-   compares against what the packer just computed, and `sys.exit(1)` on mismatch
-   with the corrected value printed. This is not optional bookkeeping; adding any
-   asset shifts every later offset, and this guard is what turns a silent
-   garbage-read into a build failure.
-3. **Write `Vm_Load`**: seek `bor.msu` to `VM_MSU_OFFSET`, read `VM_MODULE_SIZE`
-   bytes sequentially into `VmCode_Wram`. Sequential MSU reads only — same as
-   `core/spawn.pasm`. Call it from `scpu_boot` **after** the existing MSU init,
-   and **before** `Core_Nmi_Init` (§0.4).
-4. **Write `Vm_ValidateHeader`** per `FORMAT.md`'s 64-byte header: magic `"B48S"`,
-   `format_version == 1`, `opcode_abi == $30`, `numeric_profile == 0`,
-   `module_size` matches, counts within caps (`instruction_count <= 4096`,
-   `slot_count <= 1024`), every table offset inside the module. On any failure
-   set `VmState_Status = VMSTAT_FAULT` and `VmState_Error = VMERR_BAD_MODULE`.
-   CRC32 verification is deferred to Gate 1 — note it as a TODO in the source.
-5. **Fill both guard regions** with their patterns during init.
+### Step 1 — `src/core/vm/vm_consts.pasm`
 
-### Gate
+Create it with §0.8's content, unchanged. Nothing else in this step.
 
-`tools/verify/vm_gate0a.py` must, against a live Mesen2 session on
-`distribution/bor.sfc`:
+### Step 2 — pack the module into `bor.msu`
 
-- read back the full loaded region from `VmCode_Wram` and **byte-compare it
-  against `tools/verify/vm_fixtures/gate0_module.bin` on disk** (the ground-truth rule — compare
-  against the file, not against a checksum the engine computed);
-- assert `VmState_Status == VMSTAT_READY` and `VmState_Error == 0`;
-- assert both guard regions still read their fill patterns;
-- assert `Nmi_FrameCounter` advances normally across 120 frames (the loader runs
-  at boot under forced blank; a hang or a vblank overrun here is a real failure).
+In `tools/bor_converter/pack_msu_roster.py`, extend `pack_roster`'s signature to
+`def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):`
+and add the VM section **strictly after** the existing spawn append — the block
+that begins `spawn_offset = 0` and ends `msu_bytes = msu_bytes + spawn_blob`:
 
-Pass line: `GATE 0a: PASS`.
+```python
+    vm_offset = 0
+    vm_size = 0
+    if vm_blob:
+        vm_offset = len(msu_bytes)
+        vm_size = len(vm_blob)
+        msu_bytes = msu_bytes + vm_blob
+```
 
-Use `tools/verify/_harness.py` — it derives the ROM path from the repo root, which
-is what keeps a worktree from silently testing the main checkout's stale ROM (see
-memory `worktree_mesen_rom_path_footgun`). Never hardcode the ROM path.
+then add `"vm_offset": vm_offset, "vm_size": vm_size` to the `sidecar` dict, and
+document it in `pack_roster`'s docstring the way `spawn_blob` already is.
+
+**Ordering is the whole point.** Appending last means no earlier section's
+`data_offset` moves, so no existing constant needs re-syncing. **If
+`check_spawn_constants` starts reporting a mismatch after this edit, you inserted
+the VM block too early — move it, do not "fix" `SPAWN_MSU_OFFSET`.** It should
+stay exactly `$0270A0` / 28.
+
+In `build_rom.py`, next to `SPAWN_TABLE`:
+
+```python
+# Gate 0a (plan_vm.md 1): the VM's Gate 0 module, packed at the very end of
+# bor.msu so it can never move an earlier section's offset. This is the same
+# file tools/verify/vm_gate0a.py byte-compares the loaded WRAM region against
+# -- deliberately one file, not a copy, so the packed bytes and the ground
+# truth cannot drift apart.
+VM_MODULE = "tools/verify/vm_fixtures/gate0_module.bin"
+```
+
+read it beside `spawn_blob` in `main()`, pass `vm_blob=vm_blob` to `pack_roster`,
+and call `check_vm_constants(roster_sidecar)` right after `check_spawn_constants`.
+Write `check_vm_constants` **modelled line for line on `check_spawn_constants`**
+(same `re.search` shape, same `sys.exit(1)`, same "here is the corrected value"
+message), reading `VM_MSU_OFFSET` and `VM_MODULE_SIZE` out of
+`src/core/vm/vm_load.pasm` and comparing them against `roster_sidecar["vm_offset"]`
+and `roster_sidecar["vm_size"]`. Print `check_vm_constants: OK (offset=..., size=...)`
+on success.
+
+This guard is not bookkeeping. Any future asset that changes size shifts the VM
+module's offset, and without the guard the loader silently reads whatever bytes
+now sit there — a garbage module with a plausible-looking header.
+
+**Bootstrap order:** on the very first build, `vm_load.pasm` doesn't exist yet and
+you don't know the offset. Run the build once with placeholder values, read the
+mismatch message, paste the reported values in, rebuild. That is the intended
+workflow — it is what `check_spawn_constants`'s message is written for.
+
+### Step 3 — `src/core/vm/vm_load.pasm`
+
+`Vm_Load` is `Spawn_Init` with a different destination, a header check, and a
+status byte. **Open `src/core/spawn.pasm` and keep it visible while writing this.**
+Copy its `php`/`sei`/`sep #$20` opening, its exact `$2000`–`$2003` seek, its
+`Spawn_Init__seek_busy` spin (`lda $2000` / `bmi`), and its byte-at-a-time
+`lda $2001` / `sta.l <dest>,x` read loop. Do not invent a different MSU access
+pattern; sequential reads only, and this one blocking boot-time read deliberately
+sits outside `Msu1_StreamBusy`'s one-stream-per-frame budget exactly like
+`Spawn_Init` does.
+
+Structure, in this order:
+
+```
+VM_MSU_OFFSET   = $000000   ; hand-synced; build_rom.py's check_vm_constants()
+                            ; prints the correct value on mismatch
+VM_MODULE_SIZE  = 184       ; gate0_module.bin, likewise checked at build time
+
+Vm_Init:        ; zero VmState_*, fill both guard regions
+Vm_Load:        ; jsr Vm_Init, seek+read into VmCode_Wram, jsr Vm_ValidateHeader
+Vm_ValidateHeader:
+Vm_Load__fail:  ; VmState_Status = VMSTAT_FAULT, VmState_Error = VMERR_BAD_MODULE
+```
+
+`Vm_Init` must:
+- write `0` to every byte in `[VM_STATE_FIRST, VM_STATE_LAST)` — a single
+  `ldx #0` / `sta.l VM_STATE_FIRST,x` / `inx` / `cpx #(VM_STATE_LAST-VM_STATE_FIRST)`
+  loop, leaving `VmState_Status` at `VMSTAT_UNINIT` (§0.8);
+- fill `VmGuardLo` with 16 × `$A5` and `VmGuardHi` with 16 × `$5A`.
+
+`Vm_ValidateHeader` checks, in this order, per `FORMAT.md`'s 64-byte header —
+**offsets are from `VmCode_Wram`, and each is one `lda.l` / `cmp #` / branch**:
+
+| Header offset | Check |
+|---|---|
+| `+$00..$03` | the four bytes are `'B'`, `'4'`, `'8'`, `'S'` (`$42 $34 $38 $53`) |
+| `+$04` | `== 1` (format_version) |
+| `+$05` | `== $30` (opcode_abi) |
+| `+$06` | `== 0` (numeric_profile — Q16.16, §0.3) |
+| `+$08` (u16) | `<= 4096`, and store to `VmState_InstrCount` |
+| `+$0A` (u16) | `<= 1024`, and store to `VmState_SlotCount` |
+| `+$34` (u32) | low 16 bits `== VM_MODULE_SIZE`, high 16 bits `== 0` |
+
+Worked example for the first check, showing every convention from §0.9 in place —
+follow this shape for all of them:
+
+```
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Vm_ValidateHeader:
+    sep #$20
+.a8
+    lda.l VmCode_Wram+0
+    cmp #$42                ; 'B'
+    bne Vm_ValidateHeader__to_fail
+    lda.l VmCode_Wram+1
+    cmp #$34                ; '4'
+    bne Vm_ValidateHeader__to_fail
+    ...
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Vm_ValidateHeader__to_fail:
+    brl Vm_Load__fail       ; ONE trampoline for the whole routine -- every
+                            ; bne above stays a short, in-range branch (0.9 item 7)
+```
+
+On success: `VmState_Status = VMSTAT_READY`, `VmState_Error = VMERR_NONE`, `rts`.
+On any failure: fall into `Vm_Load__fail`, which sets `VMSTAT_FAULT` /
+`VMERR_BAD_MODULE` and returns. **Never leave `VmState_Status` at `VMSTAT_UNINIT`
+on either path** — an unwritten status is indistinguishable from a loader that
+never ran, which is precisely the confusion §0.8 numbers `UNINIT = 0` to prevent.
+
+CRC32 is **deferred to Gate 1**. Write `; TODO(Gate 1): verify crc32 at header
++$38 over bytes $40..module_size` at the end of the routine and move on.
+
+Index-width reminder: the read loop runs with `rep #$31` (`.a16 .i16`) and flips
+to `sep #$20` (`.a8`) inside the body, exactly as `Spawn_Init__read` does. `X`
+counts bytes to `VM_MODULE_SIZE`, which is well under 64 KB.
+
+### Step 4 — wire it into `src/main.pasm`
+
+Two edits, both at anchors you should locate by **searching for the quoted text**
+rather than trusting line numbers, which drift:
+
+1. **The new `.org` block.** Find the line
+   `; ends at $8C00 + 96 = $8C60, leaving ~8096 bytes free before $AC00.`
+   That is the end of the `.org $8C00` block, immediately before the
+   `LoadAudioData` banner and `.org $AC00`. Insert between them:
+
+   ```
+   ; ============================================================================
+   ; VM region -- plan_vm.md 0.3. Owns $9000-$AC00 (7168 bytes) and no more.
+   ; $8C60-$9000 is reserved for plan_game.md's core/text.pasm; do NOT start
+   ; here at $8C60. Overflow past $AC00 silently corrupts LoadAudioData and
+   ; presents as an AUDIO bug -- run plan_vm.md 0.7's region-occupancy check
+   ; after every change in this region.
+   ; ============================================================================
+   .org $9000
+   .include "core/vm/vm_consts.pasm"
+   .include "core/vm/vm_load.pasm"
+   ```
+
+   `.org` blocks in this file are in ascending address order and there is no
+   precedent for a backwards one. `$9000` sits correctly between `$8C00` and
+   `$AC00`.
+
+2. **The call site.** Find `jsr Spawn_Init` in `scpu_boot` and add directly after
+   it:
+
+   ```
+       ; --- Gate 0a (plan_vm.md 1): boot-time MSU -> WRAM load of the script
+       ; VM's bytecode module, plus header validation. Placed here for two
+       ; reasons at once: it is after MSU-1 is up (same blocking-read shape as
+       ; Spawn_Init directly above, outside the per-frame Msu1_StreamBusy
+       ; budget), and it is before Core_Nmi_Init enables NMI -- every
+       ; VmState_* cell and both guard regions must be initialized before a
+       ; vblank can occur (plan_vm.md 0.4; see memory
+       ; boot_nmi_race_before_oam_init for the session that rule cost). ---
+       jsr Vm_Load
+   ```
+
+   That one placement satisfies both ordering constraints without you having to
+   reason about either.
+
+### Step 5 — `tools/verify/vm_gate0a.py`
+
+Use `tools/verify/_harness.py`. It derives the ROM path from the repo root, which
+is what stops a worktree from silently testing the main checkout's stale ROM
+(memory `worktree_mesen_rom_path_footgun`). **Never hardcode the ROM path**, and
+read every constant with `pasm_constant_in('src/core/vm/vm_consts.pasm', ...)`
+rather than typing numbers.
+
+Assertions, **in this order** — the order is deliberate:
+
+1. **Guards first.** `VmGuardLo` at `$7EE000` reads 16 × `$A5` **and** `VmGuardHi`
+   at `$7F1480` reads 16 × `$5A`. Running this first means a harness that cannot
+   see `$7E` or `$7F` at all fails here, distinguishably, instead of masquerading
+   as a loader bug two assertions later.
+2. **The module bytes.** Read `VM_MODULE_SIZE` bytes from `$7E6000` and
+   byte-compare against `tools/verify/vm_fixtures/gate0_module.bin` read from
+   disk. Compare against the file, never against a checksum the engine computed
+   (§0.7's ground-truth rule). On mismatch, print the first differing offset and
+   both bytes — "arrays differ" is not a usable failure message.
+3. **Status.** `VmState_Status == VMSTAT_READY` and `VmState_Error == 0`.
+4. **Liveness.** `Nmi_FrameCounter` advances normally across 120 frames. The
+   loader runs at boot under forced blank; a hang or vblank overrun here is real.
+
+Read rules that are not optional, all from `build.md`'s "Known harness gaps":
+- Call `m.reset_emulator()` before reading anything.
+- Use `_harness.read_block(m, addr, length)` with `length >= 32` — **reads under
+  32 bytes have returned stale data in this harness.** `VmState_Status` is a
+  single byte, exactly the size that gap applies to, so read a 32-byte block
+  spanning `$7F1500` and slice locally.
+- Full addresses (`0x7E6000`), never bare offsets (memory
+  `mesen_read_memory_bare_offset_gap`).
+
+Finish with `Reporter('0a', kind='GATE').finish()` (§0.7), giving `GATE 0a: PASS`.
+
+### Definition of done
+
+- [ ] `python build_rom.py` prints both `check_spawn_constants: OK` (still
+      `$0270A0` / 28) and `check_vm_constants: OK`
+- [ ] `python tools/rom_audit/check_label_drift.py` exits 0
+- [ ] `python tools/rom_audit/audit_all.py` → `ALL CHECKS PASS`
+- [ ] §0.7's region-occupancy check prints `region OK` (this is the first gate
+      where it has any symbols to find)
+- [ ] `python tools/verify/vm_gate0a.py` → `GATE 0a: PASS`
+- [ ] The regression suite in §0.7 is still green (`phase8.py` excepted)
+- [ ] Committed with `Gate 0a` in the message, and this section's status updated
+
+**Then stop.** Gate 0 is a separate change (§0.7's stop rule).
 
 ---
 
@@ -487,13 +933,59 @@ The bootstrap package's mandatory first milestone. Scope is *exactly*
 | `ERR` (15) | `VMERR_EXPLICIT_ERR` |
 | `RET` (43) | Root only → `VMSTAT_DONE` |
 | `NOOP` (33) | → `vm_next` |
-| Unknown / `FIELD` (7) | Deterministic fault, never a no-op |
+| `FIELD` (7) | Always faults: `VMERR_FIELD_OPCODE` ($0002) |
+| Opcode `>= 48` | `VMERR_BAD_OPCODE` ($0001) |
+| Any other value `0..47` | `VMERR_UNIMPLEMENTED` ($0010) — a deterministic fault, **never** a silent no-op. §0.8 explains why these last two are different codes; the committed host oracle already emits $0010 |
+
+### Files
+
+| File | New/edit | What |
+|---|---|---|
+| `src/core/vm/bor_vm_opcodes.pasm` | **new** | Copy `tools/verify/vm_fixtures/bor_vm_opcodes.pasm` as-is |
+| `src/core/vm/vm_run.pasm` | **new** | Dispatcher, trace ring, handlers |
+| `src/core/vm/vm_slots.pasm` | **new** | Slot read/write + the 32-bit helpers |
+| `src/main.pasm` | edit | Two more `.include`s in the `.org $9000` block; `Vm_LoadSlots` call after `Vm_Load` |
+| `tools/verify/vm_gate0.py` | **new** | The gate |
+
+Gate 0a loaded the module image but deliberately did **not** copy the initial
+slot image out of it. Do that here: read `initial_slots_offset` (header `+$1C`)
+and `slot_count` (already in `VmState_SlotCount`), and copy `slot_count * 8`
+bytes from `VmCode_Wram + initial_slots_offset` to `VmSlots_Wram`. For the Gate 0
+fixture that is 5 slots / 40 bytes.
+
+### The exit contract, and the trace ring
 
 **The single most bug-prone thing at this gate is the IP contract.** Sequential
 handlers increment IP exactly once (`jmp vm_next`); control-transfer handlers
 assign IP and re-enter (`jmp vm_run`). A handler that does both advances two
 instructions and the trace will not match. The scaffold's exit-contract comment
-(its §8) is correct — follow it literally.
+(its §8) is correct — follow it literally:
+
+```
+normal sequential instruction -> jmp Vm_Next    ; IP = IP + 1, then re-fetch
+control transfer              -> jmp Vm_Run     ; IP already assigned, re-fetch
+fault                         -> jmp Vm_Fault
+cooperative boundary          -> jmp Vm_Yield
+root return                   -> jmp Vm_Done
+```
+
+`JUMP` (20) and `Branch_FALSE` (36) are the two handlers at this gate that take
+the `Vm_Run` exit. Everything else takes `Vm_Next`. If your trace shows IP
+skipping by 2 after a branch, this is why — it is not a fetch bug.
+
+**Trace ring record, 4 bytes, at `VmTrace_Wram` (`$7F1300`), 32 entries:**
+
+```
++0  u16  IP
++2  u8   opcode
++3  u8   reserved (write 0)
+```
+
+`VmState_TraceHead` is the next write index, `0..31`, wrapping. Write the entry
+**before** dispatching, so a faulting instruction appears in its own trace. The
+gate reads the ring back and reconstructs execution order from `TraceHead`; with
+8 executed instructions and a 32-entry ring there is no wrap to reason about at
+this gate, but write the wrap correctly anyway — Gate 1's fault fixtures use it.
 
 32-bit arithmetic on a 16-bit accumulator: operate on two 16-bit halves, low then
 high, and let the carry propagate. This project has already been bitten by a
@@ -523,7 +1015,20 @@ high, and let the carry propagate. This project has already been bitten by a
    unreachable `ERR` at IP 8 stayed unreachable.
 6. Assert both guard regions unchanged.
 
+Same harness rules as Gate 0a's step 5 — `reset_emulator()` first, reads `>= 32`
+bytes, full addresses, every constant via
+`pasm_constant_in('src/core/vm/vm_consts.pasm', ...)`, and
+`Reporter('0', kind='GATE').finish()`.
+
 Pass line: `GATE 0: PASS`.
+
+**Two failures to expect, so you recognize them instead of debugging blind:**
+- *Slots right, trace wrong.* The IP contract (above). Look for a handler that
+  both assigns IP and falls through to `Vm_Next`.
+- *One slot's high 16 bits wrong, low 16 right.* Carry propagation in the 32-bit
+  `ADD`. This project already shipped that exact bug once (Phase 10 — a chained
+  `adc` silently corrupted a computed address); write the carry handling
+  deliberately rather than improvising it.
 
 **Stop here.** Do not add calls, strings, decimals, or dispatcher optimization in
 the same change.
