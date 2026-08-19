@@ -402,7 +402,6 @@
 00:8C00 ANIM_WALK_BASE
 00:8C00 ANIM_TILEMAP_RIGHT_BASE
 00:8C30 ANIM_TILEMAP_LEFT_BASE
-00:8C60 TestSprite32x48
 00:AC00 LoadAudioData
 00:AC07 LoadAudioData__valid
 00:B000 Tad_BlankSongByte
@@ -991,6 +990,7 @@
 00:F425 Hud_Play
 00:F459 Hud_Play__rebuild
 00:F487 Hud_Play__clear
+00:F600 TestSprite32x48
 00:FC00 scpu_boot
 00:FCCD msu1_busy_loop
 00:FCD6 msu1_read_loop

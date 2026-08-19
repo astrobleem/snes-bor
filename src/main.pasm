@@ -2291,18 +2291,9 @@ Tad_IsSongPlaying:
     ; the two generic facing-flip tilemap blocks remain.
     .incbin "assets/anim_tilemap_right.bin"    ; 48 bytes
     .incbin "assets/anim_tilemap_left.bin"     ; 48 bytes
-    ; tilemaps end at $8C00 + 96 = $8C60.
-
-; 32x48 4bpp linear-packed test sprite (1536 bytes -- two 768-byte halves; the
-; SA-1 blitter walks source offsets 0..1535), hand-authored to validate the
-; CC-DMA pipeline end-to-end: 24 uniquely-colored 8x8 tiles plus a white/black
-; X overlay across the whole sprite, so both per-tile addressing AND
-; within-tile multi-color nibble packing get exercised, not just a uniform
-; test block. Moved here from just below $8800, where its tail was being
-; silently overwritten by the TAD driver -- see that .org's comment.
-; Occupies $8C60-$925F; ~6560 bytes still free before $AC00.
-TestSprite32x48:
-    .incbin "assets/test_sprite_32x48.bin"
+    ; ends at $8C00 + 96 = $8C60, leaving ~8096 bytes free before $AC00.
+    ; That gap is SPOKEN FOR -- plan_vm.md L191-203 reserves $8C60-$9000 for
+    ; core/text.pasm and $9000-$AC00 for the script VM. Do not park data here.
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
@@ -9158,6 +9149,31 @@ Hud_Play__clear:
 ; ============================================================================
 ; S-CPU entry (reset vector $FC00). Emulation mode on entry.
 ; ============================================================================
+; ============================================================================
+; 32x48 4bpp test sprite blob
+; ============================================================================
+; 1536 bytes -- two 768-byte halves; the SA-1 blitter walks source offsets
+; 0..1535 (see Sa1_DrawSprite). Hand-authored to validate the CC-DMA pipeline
+; end-to-end: 24 uniquely-colored 8x8 tiles plus a white/black X overlay across
+; the whole sprite, so both per-tile addressing AND within-tile multi-color
+; nibble packing get exercised, not just a uniform test block.
+;
+; Pinned here, ending exactly at $FBFF, for want of anywhere better: it used to
+; sit just below $8800 where the TAD driver silently overwrote its last 60
+; bytes (nothing could see that until poppy#384 made .incbin count in the
+; layout pass), and it cannot go in the $8C60-$AC00 gap because plan_vm.md
+; reserves all of it. It must stay in bank 0 and be reachable by a 16-bit
+; absolute read, because sa1_main reads it as "lda TestSprite32x48,y" with
+; DBR = 0.
+;
+; This leaves core/*.pasm only ~269 bytes of growth room ($F4F3-$F5FF). That is
+; tight but no longer dangerous: the assembler errors with "overlaps previously
+; emitted bytes" if the core region reaches $F600. If it does, move this blob
+; rather than shaving core -- it has no address requirements beyond bank 0.
+.org $F600
+TestSprite32x48:
+    .incbin "assets/test_sprite_32x48.bin"
+
 .org $FC00
 
 scpu_boot:
