@@ -1,0 +1,816 @@
+; ============================================================================
+; core/vm/vm_run.pasm -- Gate 0 (plan_vm.md §2): fetch, dispatch, integer
+; slots, branch, root RET.
+;
+; Public entry: Vm_Run, called once per frame from scpu_main_loop (deviation
+; 1, plan_vm.md §0.2). Vm_Run itself is a no-op once the script has reached a
+; terminal state (DONE/FAULT) -- VMSTAT_DONE=4 and VMSTAT_FAULT=5 are the two
+; highest values in §0.8's enum specifically so "status >= VMSTAT_DONE" is one
+; compare for "already terminal."
+;
+; The exit contract (plan_vm.md §2, "the single most bug-prone thing at this
+; gate"):
+;   sequential instruction -> jmp Vm_Next        ; IP += 1, then re-fetch
+;   control transfer       -> jmp Vm_Run__loop   ; IP already assigned, re-fetch
+;   fault                  -> jmp Vm_Fault        ; A (.a16) holds the VMERR_*
+;   cooperative boundary   -> jmp Vm_Run__yield
+;   root return            -> jmp Vm_Done
+; The plan's own contract table names the control-transfer target "Vm_Run" --
+; here that is Vm_Run__loop, the re-fetch continuation. Vm_Run (no suffix) is
+; reserved for the once-per-frame jsr entry, which does one-time budget/status
+; setup that must not repeat on every single instruction; re-running it every
+; instruction would re-arm a full frame's budget every fetch and the
+; cooperative yield could never trigger. This is a plan clarification, not a
+; deviation -- the actual point of that row ("re-fetch without incrementing
+; IP") is exactly what Vm_Run__loop does.
+;
+; VmState_Ip IS the "current instruction" register throughout -- fetch reads
+; it, dispatch runs against what it names, and a fault's ErrorIp is just
+; VmState_Ip read back, unmodified since the fetch that produced it. No
+; separate "current IP" scratch cell exists or is needed.
+;
+; Record fetch (deviation 3, plan_vm.md §0.2): X = instructions_offset (cached
+; by Vm_LoadSlots into VmPriv_InstrOff) + IP*8, then `lda.l VmCode_Wram,x` per
+; field -- never `[ptr],y`, DP is core/oop.pasm's.
+;
+; Two things this file is careful about because this project has already
+; shipped both bugs once:
+;   - VmState_Status/VmState_TraceHead/VmState_ErrorOpcode are all single
+;     bytes (.db) sitting directly next to other VmState_* fields. Every
+;     write to one of them is in `.a8` mode -- a 16-bit write here would
+;     silently stomp the following field's low byte.
+;   - The 32-bit ADD's carry from low-word to high-word is never preceded by
+;     a fresh `clc` between the two `adc`s. A stray `clc` there silently drops
+;     the carry (this exact bug shipped once already, Phase 10, README.md).
+;
+; No `ldx.l`/`ldy.l`/`cpx.l`/`cpy.l` anywhere in this file -- none of those
+; addressing modes exist on real 65816, and Poppy hard-errors on them now
+; (CLAUDE.md's fixed-bug table). Loading an index register from a WRAM long
+; address is always `lda.l Cell` then `tax`, never `ldx.l Cell`.
+;
+; Global (not @-local) labels; jsr/rts (bank 0); explicit width directive
+; after every label (poppy#386, still live -- enforced by
+; tools/rom_audit/check_width_directives.py); no nop guards (that bug is
+; fixed). Every conditional branch that might be far uses the near-branch-
+; to-a-local-trampoline-then-brl shape core/spawn.pasm and vm_load.pasm both
+; already use.
+; ============================================================================
+
+; --- Private, implementation-detail WRAM. NOT part of §0.8's ABI -- nothing
+; outside this file and vm_slots.pasm should reference these, and a later
+; gate is free to grow this block (right after VM_STATE_LAST, verified
+; collision-free with everything else in the engine). ---
+VmPriv_Opcode   = $7F1515   ; .db  -- current record's opcode byte
+VmPriv_Flags    = $7F1516   ; .db  -- current record's flags byte (unused, Gate 0)
+VmPriv_A        = $7F1517   ; .dw  -- current record's operand A
+VmPriv_B        = $7F1519   ; .dw  -- operand B
+VmPriv_C        = $7F151B   ; .dw  -- operand C
+VmPriv_InstrOff = $7F151D   ; .dw  -- cached instructions_offset (vm_slots.pasm)
+VmPriv_LeftLo   = $7F151F   ; .dw  -- 32-bit binary-op scratch, low/high words
+VmPriv_LeftHi   = $7F1521   ; .dw
+VmPriv_RightLo  = $7F1523   ; .dw
+VmPriv_RightHi  = $7F1525   ; .dw
+VmPriv_CopySrc  = $7F1527   ; .dw  -- vm_slots.pasm's Vm_LoadSlots copy cursors
+VmPriv_CopyDst  = $7F1529   ; .dw
+VmPriv_CopyLen  = $7F152B   ; .dw
+
+; Opcodes executed per Vm_Run call before a cooperative yield. Not part of
+; §0.8 (a tuning knob, not ABI); 200 matches §0.2's own stated expectation
+; ("game-logic scripts run a few hundred opcodes per frame"). Gate 0's 8-
+; instruction fixture finishes in the first call regardless of this value, as
+; long as it is comfortably above 8, which it is by two orders of magnitude.
+VM_BUDGET_PER_FRAME = 200
+
+; ============================================================================
+; Vm_Run -- the once-per-frame jsr entry.
+; ============================================================================
+Vm_Run:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l VmState_Status
+    and #$00FF
+    cmp #VMSTAT_DONE
+    bcs Vm_Run__noop            ; DONE(4) or FAULT(5): already terminal
+
+    lda #VM_BUDGET_PER_FRAME
+    sta.l VmState_Budget
+    sep #$20
+.a8
+    lda #VMSTAT_RUNNING
+    sta.l VmState_Status
+    bra Vm_Run__loop
+
+Vm_Run__noop:
+    plp
+    rts
+
+; ============================================================================
+; Vm_Run__loop -- the tight fetch/dispatch loop. Re-entered by control-
+; transfer handlers (the plan's exit-contract "jmp Vm_Run" is this label --
+; see the file header). Never call this with a jsr; it only ever returns via
+; Vm_Done/Vm_Fault/Vm_Run__yield's own rts, using the stack frame Vm_Run's
+; jsr established.
+; ============================================================================
+Vm_Run__loop:
+    rep #$31
+.a16
+.i16
+    lda.l VmState_Budget
+    beq Vm_Run__yield           ; budget already 0: yield WITHOUT decrementing
+    dec a
+    sta.l VmState_Budget
+
+    jsr Vm_Fetch
+    jsr Vm_TraceWrite
+
+    sep #$20
+.a8
+    lda.l VmPriv_Opcode
+    cmp #BOR_OPCODE_END
+    bcs Vm_Run__loop__bad_opcode
+    brl Vm_Dispatch_00
+
+Vm_Run__loop__bad_opcode:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_BAD_OPCODE
+    jmp Vm_Fault
+
+Vm_Run__yield:
+    sep #$20
+.a8
+    lda #VMSTAT_YIELDED
+    sta.l VmState_Status
+    plp
+    rts
+
+; ============================================================================
+; Vm_Fetch -- IP bounds check, then the 8-byte record into VmPriv_Opcode/
+; Flags/A/B/C. On an out-of-range IP, faults VMERR_BAD_JUMP directly (never
+; returns to the caller in that case).
+; ============================================================================
+Vm_Fetch:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l VmState_Ip
+    cmp.l VmState_InstrCount
+    bcc Vm_Fetch__inrange
+    lda #VMERR_BAD_JUMP
+    jmp Vm_Fault                ; does not return; the pending jsr's return
+                                 ; address is simply abandoned on the stack --
+                                 ; Vm_Fault's own rts unwinds to Vm_Run's
+                                 ; caller, past this jsr, which is correct: a
+                                 ; fault always exits the whole interpreter,
+                                 ; never just the fetch.
+
+Vm_Fetch__inrange:
+    lda.l VmState_Ip
+    asl a
+    asl a
+    asl a                       ; IP*8 -- max 4095*8=32760, fits 16 bits
+    clc
+    adc.l VmPriv_InstrOff
+    tax                         ; X = instructions_offset + IP*8 (field 0)
+
+    sep #$20
+.a8
+    lda.l VmCode_Wram,x
+    sta.l VmPriv_Opcode
+    inx
+    lda.l VmCode_Wram,x
+    sta.l VmPriv_Flags
+    inx
+
+    rep #$31
+.a16
+.i16
+    lda.l VmCode_Wram,x
+    sta.l VmPriv_A
+    inx
+    inx
+    lda.l VmCode_Wram,x
+    sta.l VmPriv_B
+    inx
+    inx
+    lda.l VmCode_Wram,x
+    sta.l VmPriv_C
+
+    plp
+    rts
+
+; ============================================================================
+; Vm_TraceWrite -- append (VmState_Ip, VmPriv_Opcode) to the 32-entry ring at
+; VmTrace_Wram, before dispatch (plan_vm.md §2: "so a faulting instruction
+; appears in its own trace").
+; ============================================================================
+Vm_TraceWrite:
+    php
+    sep #$20
+.a8
+    lda.l VmState_TraceHead     ; single byte -- must not touch InstrCount
+                                 ; right after it, hence .a8 here specifically.
+    rep #$31
+.a16
+.i16
+    and #$00FF                  ; zero-extend (an 8-bit load leaves the high
+                                 ; byte of A stale, not zeroed)
+    asl a
+    asl a                       ; TraceHead * 4 (entry byte offset)
+    tax
+
+    lda.l VmState_Ip
+    sta.l VmTrace_Wram+0,x      ; +0 u16 IP
+
+    sep #$20
+.a8
+    lda.l VmPriv_Opcode
+    sta.l VmTrace_Wram+2,x      ; +2 u8 opcode
+    lda #0
+    sta.l VmTrace_Wram+3,x      ; +3 u8 reserved
+
+    lda.l VmState_TraceHead
+    inc a
+    and #$1F                    ; wrap 0..31 (32 entries, power of 2)
+    sta.l VmState_TraceHead
+
+    plp
+    rts
+
+; ============================================================================
+; Explicit dispatcher. One cmp/bne/jmp per ABI opcode value, 0..47, exactly
+; the scaffold's shape (plan_vm.md §2: "Do not build a jump table yet"). All
+; in .a8 mode -- the opcode never exceeds 255. Values not implemented at this
+; gate all jump to the single shared Vm_Op_Unimplemented, rather than each
+; getting its own placeholder stub -- smaller, and Gate 1 (§3) is where most
+; of these get filled in anyway.
+; ============================================================================
+Vm_Dispatch_00:
+.a8
+    cmp #BOR_OP_CONSTSTR
+    bne Vm_Dispatch_01
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_01:
+.a8
+    cmp #BOR_OP_CONSTDBL
+    bne Vm_Dispatch_02
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_02:
+.a8
+    cmp #BOR_OP_CONSTINT
+    bne Vm_Dispatch_03
+    jmp Vm_Op_ConstInt
+Vm_Dispatch_03:
+.a8
+    cmp #BOR_OP_LOAD
+    bne Vm_Dispatch_04
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_04:
+.a8
+    cmp #BOR_OP_SAVE
+    bne Vm_Dispatch_05
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_05:
+.a8
+    cmp #BOR_OP_INC
+    bne Vm_Dispatch_06
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_06:
+.a8
+    cmp #BOR_OP_DEC
+    bne Vm_Dispatch_07
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_07:
+.a8
+    cmp #BOR_OP_FIELD
+    bne Vm_Dispatch_08
+    jmp Vm_Op_Field
+Vm_Dispatch_08:
+.a8
+    cmp #BOR_OP_CALL
+    bne Vm_Dispatch_09
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_09:
+.a8
+    cmp #BOR_OP_POS
+    bne Vm_Dispatch_10
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_10:
+.a8
+    cmp #BOR_OP_NEG
+    bne Vm_Dispatch_11
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_11:
+.a8
+    cmp #BOR_OP_NOT
+    bne Vm_Dispatch_12
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_12:
+.a8
+    cmp #BOR_OP_MUL
+    bne Vm_Dispatch_13
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_13:
+.a8
+    cmp #BOR_OP_DIV
+    bne Vm_Dispatch_14
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_14:
+.a8
+    cmp #BOR_OP_MOD
+    bne Vm_Dispatch_15
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_15:
+.a8
+    cmp #BOR_OP_ERR
+    bne Vm_Dispatch_16
+    jmp Vm_Op_Err
+Vm_Dispatch_16:
+.a8
+    cmp #BOR_OP_ADD
+    bne Vm_Dispatch_17
+    jmp Vm_Op_Add
+Vm_Dispatch_17:
+.a8
+    cmp #BOR_OP_SUB
+    bne Vm_Dispatch_18
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_18:
+.a8
+    cmp #BOR_OP_SHL
+    bne Vm_Dispatch_19
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_19:
+.a8
+    cmp #BOR_OP_SHR
+    bne Vm_Dispatch_20
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_20:
+.a8
+    cmp #BOR_OP_JUMP
+    bne Vm_Dispatch_21
+    jmp Vm_Op_Jump
+Vm_Dispatch_21:
+.a8
+    cmp #BOR_OP_PJUMP
+    bne Vm_Dispatch_22
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_22:
+.a8
+    cmp #BOR_OP_GE
+    bne Vm_Dispatch_23
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_23:
+.a8
+    cmp #BOR_OP_LE
+    bne Vm_Dispatch_24
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_24:
+.a8
+    cmp #BOR_OP_LT
+    bne Vm_Dispatch_25
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_25:
+.a8
+    cmp #BOR_OP_GT
+    bne Vm_Dispatch_26
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_26:
+.a8
+    cmp #BOR_OP_EQ
+    bne Vm_Dispatch_27
+    jmp Vm_Op_Eq
+Vm_Dispatch_27:
+.a8
+    cmp #BOR_OP_NE
+    bne Vm_Dispatch_28
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_28:
+.a8
+    cmp #BOR_OP_OR
+    bne Vm_Dispatch_29
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_29:
+.a8
+    cmp #BOR_OP_AND
+    bne Vm_Dispatch_30
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_30:
+.a8
+    cmp #BOR_OP_BIT_OR
+    bne Vm_Dispatch_31
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_31:
+.a8
+    cmp #BOR_OP_XOR
+    bne Vm_Dispatch_32
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_32:
+.a8
+    cmp #BOR_OP_BIT_AND
+    bne Vm_Dispatch_33
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_33:
+.a8
+    cmp #BOR_OP_NOOP
+    bne Vm_Dispatch_34
+    jmp Vm_Op_Noop
+Vm_Dispatch_34:
+.a8
+    cmp #BOR_OP_PUSH
+    bne Vm_Dispatch_35
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_35:
+.a8
+    cmp #BOR_OP_POP
+    bne Vm_Dispatch_36
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_36:
+.a8
+    cmp #BOR_OP_BRANCH_FALSE
+    bne Vm_Dispatch_37
+    jmp Vm_Op_BranchFalse
+Vm_Dispatch_37:
+.a8
+    cmp #BOR_OP_BRANCH_TRUE
+    bne Vm_Dispatch_38
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_38:
+.a8
+    cmp #BOR_OP_BRANCH_EQUAL
+    bne Vm_Dispatch_39
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_39:
+.a8
+    cmp #BOR_OP_DATA
+    bne Vm_Dispatch_40
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_40:
+.a8
+    cmp #BOR_OP_PARAM
+    bne Vm_Dispatch_41
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_41:
+.a8
+    cmp #BOR_OP_IMMEDIATE
+    bne Vm_Dispatch_42
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_42:
+.a8
+    cmp #BOR_OP_DEFERRED
+    bne Vm_Dispatch_43
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_43:
+.a8
+    cmp #BOR_OP_RET
+    bne Vm_Dispatch_44
+    jmp Vm_Op_Ret
+Vm_Dispatch_44:
+.a8
+    cmp #BOR_OP_CHECKARG
+    bne Vm_Dispatch_45
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_45:
+.a8
+    cmp #BOR_OP_CLEAN
+    bne Vm_Dispatch_46
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_46:
+.a8
+    cmp #BOR_OP_JUMPR
+    bne Vm_Dispatch_47
+    jmp Vm_Op_Unimplemented
+Vm_Dispatch_47:
+.a8
+    cmp #BOR_OP_FUNCDECL
+    bne Vm_Op_Unimplemented
+    jmp Vm_Op_Unimplemented
+
+; ============================================================================
+; Shared exits.
+; ============================================================================
+Vm_Next:
+    rep #$31
+.a16
+.i16
+    lda.l VmState_Ip
+    inc a
+    sta.l VmState_Ip
+    jmp Vm_Run__loop
+
+Vm_Done:
+    sep #$20
+.a8
+    lda #VMSTAT_DONE
+    sta.l VmState_Status
+    plp
+    rts
+
+; Entry contract: A (16-bit, `.a16` already active) holds the VMERR_* code.
+; VmState_Ip already names the faulting instruction (fetch stored it there;
+; no handler advances it before reaching here) and VmPriv_Opcode already
+; holds its opcode -- neither is threaded through as a parameter.
+Vm_Fault:
+    sta.l VmState_Error
+    lda.l VmState_Ip
+    sta.l VmState_ErrorIp
+    sep #$20
+.a8
+    lda.l VmPriv_Opcode
+    sta.l VmState_ErrorOpcode
+    lda #VMSTAT_FAULT
+    sta.l VmState_Status
+    plp
+    rts
+
+; ============================================================================
+; Opcode handlers.
+; ============================================================================
+
+; CONSTINT -- constants are prelinked into the initial slot image (Gate 0
+; fixture's initial_slots already carries the CONSTINT values); the record is
+; a runtime no-op.
+Vm_Op_ConstInt:
+    jmp Vm_Next
+
+Vm_Op_Noop:
+    jmp Vm_Next
+
+Vm_Op_Field:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_FIELD_OPCODE
+    jmp Vm_Fault
+
+Vm_Op_Err:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_EXPLICIT_ERR
+    jmp Vm_Fault
+
+Vm_Op_Unimplemented:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_UNIMPLEMENTED
+    jmp Vm_Fault
+
+; JUMP -- assign IP, do not fall through to the increment. The target is not
+; separately range-checked here: Vm_Fetch re-validates IP < instruction_count
+; on the very next fetch and faults VMERR_BAD_JUMP there if it is not, so a
+; second check here would just duplicate that one.
+Vm_Op_Jump:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_A
+    sta.l VmState_Ip
+    jmp Vm_Run__loop
+
+; RET -- Gate 0 has no call-frame mechanism (CALL is VMERR_UNIMPLEMENTED at
+; this gate, so VmState_FrameTop can never become nonzero), so every RET at
+; this gate is necessarily a root return.
+Vm_Op_Ret:
+    jmp Vm_Done
+
+; Branch_FALSE -- truthiness on INTEGER only, and non-INTEGER is FALSY, not a
+; fault (this differs from ADD/EQ's INTEGER-only-or-fault rule -- see this
+; file's header note on gate0_program.json's own reference oracle, which
+; treats a non-INTEGER condition as false rather than raising VMERR_BAD_TYPE).
+; a = branch target if false; b = condition slot.
+Vm_Op_BranchFalse:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x       ; condition's type
+    cmp #BOR_VT_INTEGER
+    bne Vm_Op_BranchFalse__take   ; not INTEGER -> falsy -> branch taken
+    rep #$31
+.a16
+.i16
+    lda.l VmSlots_Wram+4,x        ; condition's value, low word
+    ora.l VmSlots_Wram+6,x        ; OR in the high word: nonzero either half
+                                    ; means the 32-bit value is nonzero
+    bne Vm_Op_BranchFalse__not_taken
+
+Vm_Op_BranchFalse__take:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_A
+    sta.l VmState_Ip
+    jmp Vm_Run__loop
+
+Vm_Op_BranchFalse__not_taken:
+    jmp Vm_Next
+
+; ADD -- Signed 32-bit, INTEGER-only at this gate (plan_vm.md §2's Implement
+; table). a = dest slot, b = left slot, c = right slot.
+Vm_Op_Add:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Add__left_ok
+    brl Vm_Op_Add__to_bad_type
+Vm_Op_Add__left_ok:
+
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_C
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Add__right_ok
+    brl Vm_Op_Add__to_bad_type
+Vm_Op_Add__right_ok:
+
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l VmSlots_Wram+4,x
+    sta.l VmPriv_LeftLo
+    lda.l VmSlots_Wram+6,x
+    sta.l VmPriv_LeftHi
+
+    lda.l VmPriv_C
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l VmSlots_Wram+4,x
+    sta.l VmPriv_RightLo
+    lda.l VmSlots_Wram+6,x
+    sta.l VmPriv_RightHi
+
+    ; 32-bit add: low half, then high half, carry propagates. Deliberately no
+    ; `clc` between the two `adc`s -- that dropped-carry bug shipped once
+    ; already (Phase 10, README.md) and is exactly what a "just be safe and
+    ; clc every add" reflex would reintroduce here.
+    clc
+    lda.l VmPriv_LeftLo
+    adc.l VmPriv_RightLo
+    sta.l VmPriv_LeftLo
+    lda.l VmPriv_LeftHi
+    adc.l VmPriv_RightHi
+    sta.l VmPriv_LeftHi
+
+    lda.l VmPriv_A
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda #BOR_VT_INTEGER
+    sta.l VmSlots_Wram+0,x
+    lda #0
+    sta.l VmSlots_Wram+1,x
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l VmSlots_Wram+2,x
+    lda.l VmPriv_LeftLo
+    sta.l VmSlots_Wram+4,x
+    lda.l VmPriv_LeftHi
+    sta.l VmSlots_Wram+6,x
+    jmp Vm_Next
+
+Vm_Op_Add__to_bad_type:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_BAD_TYPE
+    jmp Vm_Fault
+
+; EQ -- INTEGER-only at this gate (plan_vm.md §2's Implement table); result
+; is INTEGER 0/1. a = dest slot, b = left slot, c = right slot.
+Vm_Op_Eq:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Eq__left_ok
+    brl Vm_Op_Eq__to_bad_type
+Vm_Op_Eq__left_ok:
+
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_C
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Eq__right_ok
+    brl Vm_Op_Eq__to_bad_type
+Vm_Op_Eq__right_ok:
+
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l VmSlots_Wram+4,x
+    sta.l VmPriv_LeftLo
+    lda.l VmSlots_Wram+6,x
+    sta.l VmPriv_LeftHi
+
+    lda.l VmPriv_C
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l VmSlots_Wram+4,x
+    cmp.l VmPriv_LeftLo
+    bne Vm_Op_Eq__not_equal
+    lda.l VmSlots_Wram+6,x
+    cmp.l VmPriv_LeftHi
+    bne Vm_Op_Eq__not_equal
+
+    lda #1
+    bra Vm_Op_Eq__store
+
+Vm_Op_Eq__not_equal:
+.a16
+    lda #0
+
+Vm_Op_Eq__store:
+    sta.l VmPriv_LeftLo          ; reuse as the 0/1 result
+
+    lda.l VmPriv_A
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda #BOR_VT_INTEGER
+    sta.l VmSlots_Wram+0,x
+    lda #0
+    sta.l VmSlots_Wram+1,x
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l VmSlots_Wram+2,x
+    lda.l VmPriv_LeftLo
+    sta.l VmSlots_Wram+4,x
+    lda #0
+    sta.l VmSlots_Wram+6,x
+    jmp Vm_Next
+
+Vm_Op_Eq__to_bad_type:
+    rep #$31
+.a16
+.i16
+    lda #VMERR_BAD_TYPE
+    jmp Vm_Fault

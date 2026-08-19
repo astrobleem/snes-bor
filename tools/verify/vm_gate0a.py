@@ -52,6 +52,7 @@ VmState_InstrCount = pasm_constant_in(CONSTS, 'VmState_InstrCount')
 VmState_SlotCount = pasm_constant_in(CONSTS, 'VmState_SlotCount')
 VMSTAT_READY = pasm_constant_in(CONSTS, 'VMSTAT_READY')
 VMSTAT_UNINIT = pasm_constant_in(CONSTS, 'VMSTAT_UNINIT')
+VMSTAT_FAULT = pasm_constant_in(CONSTS, 'VMSTAT_FAULT')
 VMERR_NONE = pasm_constant_in(CONSTS, 'VMERR_NONE')
 VM_MODULE_SIZE = pasm_constant_in(LOADER, 'VM_MODULE_SIZE')
 
@@ -138,9 +139,21 @@ def main():
               f'instr_count={instr} slot_count={slots}')
         if status == VMSTAT_UNINIT:
             print('  NOTE: status is still VMSTAT_UNINIT, which means Vm_Load '
-                  'never ran at all -- check the jsr Vm_Load call site in '
+                  'never ran at all -- check the jsr Vm_Boot call site in '
                   'scpu_boot, not the header checks.')
-        r.check(f'VmState_Status == VMSTAT_READY ({VMSTAT_READY})', status == VMSTAT_READY)
+        # Originally asserted status == VMSTAT_READY exactly. Gate 0
+        # (plan_vm.md 2) wired Vm_Run into scpu_main_loop, so the shipped
+        # gate0_module.bin now runs to completion automatically within the
+        # first few frames -- by the time this gate takes its snapshot,
+        # status has legitimately moved past READY to DONE. What this gate
+        # is actually verifying (the loader succeeded and header-validated
+        # the module) is proven by "reached a real post-load state without
+        # ever faulting", not by catching it at the one specific value that
+        # used to be the only thing after it. VMERR_NONE below still pins
+        # down "the loader itself never raised an error."
+        r.check(f'VmState_Status left VMSTAT_UNINIT ({VMSTAT_UNINIT}) and never '
+                f'reached VMSTAT_FAULT ({VMSTAT_FAULT}) -- status={status}',
+                status not in (VMSTAT_UNINIT, VMSTAT_FAULT))
         r.check(f'VmState_Error == VMERR_NONE (${VMERR_NONE:04X})', error == VMERR_NONE)
 
         # The two header fields Vm_ValidateHeader copies out. Ground truth is

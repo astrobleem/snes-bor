@@ -978,6 +978,43 @@ Finish with `Reporter('0a', kind='GATE').finish()` (§0.7), giving `GATE 0a: PAS
 
 ## §2 — Gate 0: fetch, dispatch, integer slots, branch, root RET
 
+> **Status: DONE** (2026-08-19). `GATE 0: PASS` -- 9 assertions, all green:
+> host oracle + fixture self-consistency both PASS before the engine was
+> trusted, status/error, the full 40-byte slot region byte-identical to
+> `gate0_expected_slots.bin`, the reconstructed 8-entry trace ring exact
+> match, both guard regions, frame-counter liveness. `Vm_Run` is wired into
+> `scpu_main_loop` (deviation 1) and is a no-op once terminal. VM symbols
+> occupy `$9000`-`$9586`, 5754 of 7168 bytes still free. Gate 1 (§3) is next
+> and is a separate change.
+>
+> Two things worth carrying forward, found executing this gate rather than
+> reading it:
+> - **The exit contract's "jmp Vm_Run" for control transfer is implemented as
+>   a separate internal label (`Vm_Run__loop`), not the literal jsr entry
+>   point.** The public `Vm_Run` does one-time per-frame budget/status setup
+>   that must not repeat every instruction (it would re-arm a full frame's
+>   budget on every fetch and the cooperative yield could never trigger).
+>   `Vm_Run__loop` is the re-fetch continuation the contract actually means.
+>   Name it that way in any later gate's own control-transfer handlers.
+> - **The carry-propagation regression this gate's own header warns about
+>   ("one slot's high word wrong, low word right") is not actually
+>   detectable by `gate0_program.json`'s fixture.** Its ADD is `2 + 3 = 5`,
+>   which never generates a carry out of the low 16 bits -- a stray `clc`
+>   between the two `adc`s was deliberately reintroduced and reverted during
+>   this gate's own verification, and `vm_gate0.py` passed regardless. The
+>   carry-handling discipline documented in `vm_run.pasm`'s header is still
+>   correct and still worth keeping, but no committed gate currently proves
+>   it; a fixture whose ADD actually crosses a 16-bit boundary would close
+>   this gap and is worth adding in a later gate rather than assumed covered
+>   now.
+> - **`vm_gate0a.py`'s status assertion had to be relaxed.** It originally
+>   pinned `VmState_Status == VMSTAT_READY`; once `Vm_Run` runs automatically
+>   every frame, the shipped module completes to `VMSTAT_DONE` well before
+>   Gate 0a's own snapshot, so that assertion started failing -- a real
+>   cross-gate regression, not flakiness. It now asserts status left
+>   `VMSTAT_UNINIT` and never reached `VMSTAT_FAULT`, which is what Gate 0a
+>   was actually protecting.
+
 The bootstrap package's mandatory first milestone. Scope is *exactly*
 `tools/verify/vm_fixtures/gate0_program.json` and nothing more.
 

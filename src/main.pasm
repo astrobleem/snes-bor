@@ -2304,7 +2304,10 @@ Tad_IsSongPlaying:
 ; ============================================================================
 .org $9000
 .include "core/vm/vm_consts.pasm"
+.include "core/vm/bor_vm_opcodes.pasm"
 .include "core/vm/vm_load.pasm"
+.include "core/vm/vm_slots.pasm"
+.include "core/vm/vm_run.pasm"
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
@@ -9755,7 +9758,13 @@ Boot_LoadFp__done:
     ; VmState_* cell and both guard regions must be initialized before a
     ; vblank can occur (plan_vm.md 0.4; see memory
     ; boot_nmi_race_before_oam_init for the session that rule cost). ---
-    jsr Vm_Load
+    ; --- Gate 0 (plan_vm.md 2): Vm_Boot now also copies the module's
+    ; initial slot image into VmSlots_Wram, right after Vm_Load
+    ; validates the header -- see vm_slots.pasm's own comment for why
+    ; this replaced a second call site instead of adding one (scpu_boot's
+    ; fixed region had only 6 bytes of margin before $FF60, not enough
+    ; for two new jsr's). Still before Core_Nmi_Init enables NMI. ---
+    jsr Vm_Boot
 
     ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
     ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a
@@ -10110,6 +10119,12 @@ scpu_main_loop:
 .a16
     jsr Core_Oop_Play
     jsr Core_Screen_Play
+    ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
+    ; call per frame, same as the two lines above. Vm_Run itself is a
+    ; no-op once the loaded script has reached VMSTAT_DONE/VMSTAT_FAULT,
+    ; so this is safe to call unconditionally on every iteration
+    ; regardless of whether a script is loaded, running, or finished. ---
+    jsr Vm_Run
     ; Phase 9 step 4 follow-up: clamp the just-eased camera position to what
     ; SyncScroll has actually resolved, BEFORE it's committed below -- see
     ; Core_StreamScroll_ClampCamera's own header comment for why.
