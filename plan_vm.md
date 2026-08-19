@@ -151,11 +151,25 @@ exactly this reason, quoted from `README.md`:
 
 Copy that template wholesale, including its build-time guard (§1).
 
-**Do not put high-bank ROM pointers in this VM, even as an "alternative."** The
-ROM is 4 MB with only bank 0 populated, so it *looks* like free real estate. It
-is a trap: Poppy's confirmed cross-bank label mis-resolution (bug 9) plus the
-LoROM 32 KB-per-bank address window make it strictly worse than WRAM here, and
-you have ~107 KB of WRAM you don't have to fight for.
+**Module transport itself still goes through WRAM/`bor.msu`, per the spawn-table
+precedent above** — that decision rests on the *indexed-ROM-read* Poppy bug
+(`.l Label,x` against a ROM `.incbin`), which is a different bug and is not
+addressed by anything below.
+
+**Correction (2026-08-19): the "high-bank ROM is a trap" framing that used to
+sit here was stale and has been removed.** It cited "Poppy's confirmed
+cross-bank label mis-resolution (bug 9)" — that bug is fixed in the fork (see
+CLAUDE.md's toolchain table, and re-confirmed this session with a fresh
+two-bank repro: `jsl` in both directions, a `.dw` pointer table, and
+back-and-forth `.bank` switching all resolved the correct bank byte and landed
+bytes at the correct LoROM file offset). This means §0.3's 7168-byte ceiling
+is a real constraint on where `main.pasm`'s *own* bank-0 code sits today, but
+it is not a hard ceiling on VM code in general — a future gate that outgrows
+bank 0 can put overflow code in another bank and reach it with an ordinary
+`jsl`/`jml`, the same way any other cross-bank call would work. Nothing below
+in §0.3 needed to change as a result (Gate 0 fits in ~5.7 KB of the existing
+budget with room to spare), so this is recorded here for whichever future gate
+first needs to decide whether to spill into a second bank, not acted on now.
 
 ---
 
