@@ -360,10 +360,12 @@ split accordingly, and **do not add defensive scaffolding for anything in the
 second list** — the `nop` guards throughout `src/core/*.pasm` are historical, not
 a pattern to extend.
 
-**Still live — these three you must actually handle:**
+**Still live — these five you must actually handle.** All are filed upstream (poppy#382–387); check whether one has been fixed before working around it.
 
-1. **Open every routine, and every branch-target label, with an explicit
-   `sep #$20` / `.a8` (or `rep #$31` / `.a16 .i16`) width directive.** Poppy still
+1. **An unknown mnemonic is silently ignored** ([poppy#382](https://github.com/TheAnsarya/poppy/issues/382)). A typo'd instruction assembles clean and emits nothing — no error, no warning. At runtime the routine just skips that step. When a handler "does nothing" and the logic looks right, disassemble it before debugging the logic.
+2. **Do not use macros** ([poppy#383](https://github.com/TheAnsarya/poppy/issues/383)). A `%Invoke` emits zero bytes, silently (measured: a 4-`nop` macro produced a 3-byte file), and the documented `\param` syntax is a lexer error. A 48-handler dispatcher is exactly the kind of code that invites a macro — write it out by hand instead.
+3. **Open every routine, and every branch-target label, with an explicit
+   `sep #$20` / `.a8` (or `rep #$31` / `.a16 .i16`) width directive.** ([poppy#386](https://github.com/TheAnsarya/poppy/issues/386)). Poppy still
    tracks accumulator width linearly, not along control flow, so a label reached
    by a branch that jumps over a `rep`/`sep` gets its following `lda #`/`cmp #`
    mis-sized and every byte after it misaligns. Measured: `cmp #$02` at such a
@@ -371,14 +373,14 @@ a pattern to extend.
    a phantom `BRK`. **An explicit `.a8` after the label fixes it** (measured:
    `c9 02`). Apply it unconditionally rather than reasoning about whether it is
    needed; it is a runtime no-op when the width already matches.
-2. **Never take the address of an `.incbin` blob, and never define a label
-   directly after one that you intend to reference.** `.incbin` is still sized
+4. **Never take the address of an `.incbin` blob, and never define a label
+   directly after one that you intend to reference.** ([poppy#384](https://github.com/TheAnsarya/poppy/issues/384)) `.incbin` is still sized
    **0 bytes** in the layout pass, so every symbol at or after it collides on the
    first blob's address (measured: three labels all reported `$8005` when the
    true addresses were `$8005`/`$8015`/`$8025`). The VM has no reason to
    `.incbin` anything — the module travels through `bor.msu` (§0.2) — so the
    practical rule is simply **do not introduce one**.
-3. **The `.sym` file writes bank `00` for labels in non-zero banks.** Irrelevant
+5. **The `.sym` file writes bank `00` for labels in non-zero banks.** Irrelevant
    while everything stays in `.bank 0` (it does, §0.3), but do not trust a `.sym`
    bank byte if that ever changes.
 
@@ -389,7 +391,7 @@ a pattern to extend.
 | `jsl` sized 3 / emitted 4 → cumulative label drift | **Fixed.** Labels after three `jsl`s land exactly right. **New code does not need `nop` guards before labels.** |
 | `bcs`/`bcc` past ±127 assembling silently | **Fixed.** All conditional branches *and* `bra` now error, with the correct line number. |
 | `.org` overflow silently truncating into the next region | **Fixed.** Now errors: "overlaps previously emitted bytes". |
-| `stz.l`, `ldx.l`/`ldy.l`, `cpx.l`/`cpy.l`, `.l Symbol,y` | **Fixed.** All are hard errors now ("no long form for this mode"). |
+| `stz.l`, `ldx.l`/`ldy.l`, `cpx.l`/`cpy.l`, `.l Symbol,y` | **Fixed.** All are hard errors now ("no long form for this mode"). Note this does NOT cover `sta.w $7E1234,x`, which still emits a truncated long instruction ([poppy#385](https://github.com/TheAnsarya/poppy/issues/385)) — see rule 4 below. |
 | Standalone `.dw` data table resolving to garbage | **Fixed.** Resolves correctly. |
 | Branch to a dot-prefixed local label silently deleted | **Fixed.** Dot-locals work. |
 | Macro invocations sized 0 bytes in the estimation pass | **Fixed.** |
@@ -398,8 +400,11 @@ a pattern to extend.
 
 **Still true, but as 65816 facts rather than Poppy bugs:**
 
-4. **Indexed WRAM access uses `.l` or bare, never `.w`** — `.w` on a bank-`$7E`
-   symbol is a genuinely wrong 16-bit address, not a toolchain artifact.
+4. **Indexed WRAM access uses `.l` or bare, never `.w`.** Two separate reasons:
+   `.w` on a bank-`$7E` symbol is a genuinely wrong 16-bit address, *and* Poppy
+   still emits a truncated long instruction for it (`sta.w $7E1234,x` →
+   `9f 34 12`, three bytes where the CPU decodes four, desyncing everything
+   after — [poppy#385](https://github.com/TheAnsarya/poppy/issues/385)).
 5. **Long addressing is indexed by `X` only**; there is no `nnnnnn,Y` opcode
    (verified in fullsnes, §0.2). Poppy now rejects it, so this is a constraint on
    how you lay out loops, not a trap.
@@ -412,7 +417,9 @@ a pattern to extend.
 **If you hit a silent miscompile that is on neither list**, that is a genuinely
 new finding: build a minimal repro (a dozen lines — `.snes`, `.bank 0`,
 `.org $8000`, assemble, dump the bytes), confirm it, and record it. This section
-was rewritten from exactly that process and it took about ten minutes.
+was rewritten from exactly that process and it took about ten minutes. Then
+file it upstream at https://github.com/TheAnsarya/poppy/issues with the repro
+inline, the way poppy#382–387 are written.
 
 ### §0.7 Universal exit criteria — every gate, no exceptions
 
