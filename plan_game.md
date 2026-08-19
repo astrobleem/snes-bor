@@ -4,11 +4,16 @@
 > current ROM into something a person could sit down and play from title screen
 > to ending.
 >
-> **None of it requires the script VM** (`plan_vm.md`). The VM is a compatibility
-> substrate for running real `openborscript` mods; it is orthogonal to shipping a
-> game, and Gates 0–5 of it produce zero user-visible change. If you are picking
-> up work and the goal is "make this a game," you are in the right file. If the
-> goal is "run arbitrary OpenBOR mods," you want `plan_vm.md`.
+> **None of the menu/HUD/game-state machinery in this file requires the script
+> VM** (`plan_vm.md`) to be *implemented* — but as of 2026-08-19, `plan_vm.md`
+> is required and prioritized project-wide: the goal is the full converted
+> OpenBOR content library (14 stages, ~24 characters), and hand-written
+> stand-ins for VM-driven content (the fixed spawn table, hard-coded roster)
+> are to be phased out as VM gates land, not kept forever. This file's own
+> "text gets the low end because it is on the critical path and the VM is not"
+> byte-budget framing (below) is from before that decision — re-check
+> `plan_vm.md` §0.3 rather than assuming the VM still yields priority in their
+> shared ROM region.
 >
 > Read `README.md`'s "Current Status" first — it is the authoritative list of
 > what actually works today. This file assumes it.

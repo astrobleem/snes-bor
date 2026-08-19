@@ -2,28 +2,70 @@
 
 > **READ THIS BANNER BEFORE ANYTHING ELSE.**
 >
+> **STATUS CHANGE, 2026-08-19: the VM is now REQUIRED, not optional, and is
+> part of the project's actual goal — the user decided this explicitly.** The
+> paragraphs immediately below (Gates 0–5 don't matter, this is a nice-to-have
+> compatibility layer, don't call it the way we get levels/menus) described
+> the *original* framing and are kept only as history — do not act on them.
+> The corrected framing:
+>
+> - **Goal: the full converted OpenBOR content library, not this repo's
+>   hand-picked subset.** Per `openbor_script_vm_gap` project memory, only 1 of
+>   14 stages and 3 of ~24 characters are converted today. The VM is what lets
+>   the other 13 stages and ~21 characters run at all — those aren't
+>   incremental extras, they're the actual point.
+> - **Hand-written engine logic that stands in for what the VM will drive is
+>   to be phased out, not maintained forever in parallel.** Concretely: the
+>   fixed convert-time spawn table (`core/spawn.pasm`, Phase 13) and the
+>   hard-coded roster/character-select logic exist because no VM could run a
+>   real script yet. As VM gates land far enough to replace them, replace
+>   them — don't keep both a hand-written and a VM-driven path indefinitely.
+> - **This was originally deprioritized because the plan believed the ROM was
+>   hard-capped at 7168 bytes of bank 0 by a confirmed Poppy bug.** That bug
+>   (project memory `poppy_assembler_bugs.md` bug 9, cross-bank `jsl`/label
+>   resolution) is fixed in the current fork — re-measured 2026-08-19 with a
+>   fresh two-bank repro (`jsl` both directions, a `.dw` table, back-and-forth
+>   `.bank` switching), all correct. §0.3's budget number is still accurate for
+>   *today's* bank-0 region, but it is no longer a hard ceiling on the VM
+>   overall — a gate that outgrows it can spill into another bank via ordinary
+>   `jsl`. See §0.3's own correction note for detail.
+> - **Extraction/conversion tooling must target general OpenBOR compatibility,
+>   not just this project's current asset set.** `tools/bg_converter/` today
+>   reads only the *declarative* keywords out of a BOR level (`background`,
+>   `panel`, `spawn`, `at`, `order`) and discards real script — see the
+>   original rationale paragraph just below, which is still accurate as *why*
+>   the VM exists. Any new or modified extraction script (`tools/bor_converter/`,
+>   `tools/bg_converter/`) should be built so it can convert an *arbitrary*
+>   OpenBOR mod, not just the specific mods already vendored into this repo —
+>   keep the eventual "run any converted OpenBOR content" goal in mind when
+>   choosing what a script hard-codes versus what it derives from the source
+>   mod's own data.
+>
+> --- *original framing below, superseded above, kept for history* ---
+>
 > This plan builds a **bytecode interpreter** for `openborscript`, the embedded
 > scripting language real OpenBOR mods are written in. It is a *compatibility
 > substrate*.
 >
-> **It is NOT the path to a playable, shippable game, and Gates 0–5 produce
-> zero user-visible change.** You can finish Gate 5 and the ROM will look and
-> play exactly like it does today. If your goal is "a complete Beats of Rage
-> game with menus, stages, and a win condition," you want **`plan_game.md`**,
-> not this file. Nothing in `plan_game.md` depends on this VM.
+> ~~It is NOT the path to a playable, shippable game, and Gates 0–5 produce
+> zero user-visible change.~~ **Superseded above: it is now a required, core
+> part of the project.** If your goal is "a complete Beats of Rage game with
+> menus, stages, and a win condition," you still also want **`plan_game.md`**
+> for the menu/HUD/game-state machinery the VM doesn't cover — but that is
+> "also," not "instead of."
 >
-> Do not let anyone (including yourself, three gates from now) restate this
-> plan as "the VM enables menus/levels/progression later." It does not. Those
-> are separate, independent work, planned separately, and mostly gated on a
-> font/text renderer that does not exist yet.
+> ~~Do not let anyone (including yourself, three gates from now) restate this
+> plan as "the VM enables menus/levels/progression later."~~ **Superseded: it
+> is exactly how the project gets levels and characters beyond the small
+> hand-converted set that exists today.**
 >
-> **Why build it at all, then?** Because today `tools/bg_converter/` can only
+> **Why build it at all?** Because today `tools/bg_converter/` can only
 > read the *declarative* keywords out of a BOR level (`background`, `panel`,
 > `spawn`, `at`, `order`). Anything a mod expresses as actual script —
 > conditional waves, bosses with scripted phases, cutscenes, custom win
 > conditions — is discarded at convert time and cannot be expressed as a
 > convert-time table. The VM is what makes those runnable. That is its whole
-> value proposition. It is a real one, and it is not urgent.
+> value proposition, and per the status change above, it is now urgent.
 
 ---
 
