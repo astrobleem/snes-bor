@@ -501,7 +501,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     return blob, info
 
 
-def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None):
+def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-8 out/<name> character prefixes; unused
@@ -526,6 +526,16 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None):
     "computed here, hardcoded there, checked at build time" convention as
     the RESET/NMI/IRQ vector constants CLAUDE.md already documents as a
     standing, accepted (not automatically enforced) risk.
+
+    `vm_blob` (Gate 0a, plan_vm.md 1) is the script VM's bytecode module,
+    appended after the spawn section and therefore at the very end of the
+    file -- same reasoning as spawn_blob, one step further along: nothing
+    that already has a hardcoded offset can move. Its absolute file offset
+    and byte length are returned in the sidecar so build_rom.py's
+    check_vm_constants() can cross-check them against vm_load.pasm's
+    hand-synced VM_MSU_OFFSET/VM_MODULE_SIZE. Unlike spawn_blob there is no
+    record size to divide by -- the module is one opaque blob whose internal
+    layout is FORMAT.md's 64-byte header plus 8-byte instruction records.
     """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
@@ -603,6 +613,13 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None):
             f"spawn_blob length {len(spawn_blob)} not a multiple of {SPAWN_RECORD_SIZE}"
         msu_bytes = msu_bytes + spawn_blob
 
+    vm_offset = 0
+    vm_size = 0
+    if vm_blob:
+        vm_offset = len(msu_bytes)
+        vm_size = len(vm_blob)
+        msu_bytes = msu_bytes + vm_blob
+
     sidecar = {
         "format_version": FORMAT_VERSION,
         "roster_count": len(prefixes),
@@ -614,6 +631,8 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None):
         "bgs": sidecar_bgs,
         "spawn_offset": spawn_offset,
         "spawn_count": spawn_count,
+        "vm_offset": vm_offset,
+        "vm_size": vm_size,
     }
     return msu_bytes, sidecar
 

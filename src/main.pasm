@@ -2296,6 +2296,17 @@ Tad_IsSongPlaying:
     ; core/text.pasm and $9000-$AC00 for the script VM. Do not park data here.
 
 ; ============================================================================
+; VM region -- plan_vm.md 0.3. Owns $9000-$AC00 (7168 bytes) and no more.
+; $8C60-$9000 is reserved for plan_game.md's core/text.pasm; do NOT start
+; here at $8C60. Overflow past $AC00 silently corrupts LoadAudioData and
+; presents as an AUDIO bug -- run plan_vm.md 0.7's region-occupancy check
+; after every change in this region.
+; ============================================================================
+.org $9000
+.include "core/vm/vm_consts.pasm"
+.include "core/vm/vm_load.pasm"
+
+; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
 ; ============================================================================
 .org $AC00
@@ -9735,6 +9746,16 @@ Boot_LoadFp__done:
     ; Streaming just above -- not a per-frame streaming consumer, so this
     ; doesn't compete with Msu1_LoadFrame's one-entity-per-frame rule. ---
     jsr Spawn_Init
+
+    ; --- Gate 0a (plan_vm.md 1): boot-time MSU -> WRAM load of the script
+    ; VM's bytecode module, plus header validation. Placed here for two
+    ; reasons at once: it is after MSU-1 is up (same blocking-read shape as
+    ; Spawn_Init directly above, outside the per-frame Msu1_StreamBusy
+    ; budget), and it is before Core_Nmi_Init enables NMI -- every
+    ; VmState_* cell and both guard regions must be initialized before a
+    ; vblank can occur (plan_vm.md 0.4; see memory
+    ; boot_nmi_race_before_oam_init for the session that rule cost). ---
+    jsr Vm_Load
 
     ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
     ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a

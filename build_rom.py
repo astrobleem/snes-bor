@@ -61,6 +61,13 @@ FP_SCREENS = [None]
 # same way with "DATA\EASY\1AEASY.TXT" instead.
 SPAWN_TABLE = "out/spawn_stage1b/spawn_table.bin"
 
+# Gate 0a (plan_vm.md 1): the VM's Gate 0 module, packed at the very end of
+# bor.msu so it can never move an earlier section's offset. This is the same
+# file tools/verify/vm_gate0a.py byte-compares the loaded WRAM region against
+# -- deliberately one file, not a copy, so the packed bytes and the ground
+# truth cannot drift apart.
+VM_MODULE = "tools/verify/vm_fixtures/gate0_module.bin"
+
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
 
@@ -106,6 +113,37 @@ def check_spawn_constants(roster_sidecar):
               f"and rebuild.", file=sys.stderr)
         sys.exit(1)
     print(f"check_spawn_constants: OK (offset=${real_offset:06X}, count={real_count})")
+
+
+def check_vm_constants(roster_sidecar):
+    """The check_spawn_constants pattern, applied to the script VM's module
+    (Gate 0a, plan_vm.md 1). src/core/vm/vm_load.pasm hand-syncs
+    VM_MSU_OFFSET/VM_MODULE_SIZE because neither can be computed by main.pasm
+    -- the module's file offset depends on every character/BG/FP/spawn blob
+    packed before it. Without this check, any future asset that changes size
+    shifts the module and the loader silently reads whatever bytes now sit
+    there: a garbage module with a plausible-looking header.
+    """
+    import re
+    text = open('src/core/vm/vm_load.pasm', encoding='utf-8').read()
+    offset_m = re.search(r'VM_MSU_OFFSET\s*=\s*\$([0-9A-Fa-f]+)', text)
+    size_m = re.search(r'VM_MODULE_SIZE\s*=\s*(\d+)', text)
+    if not offset_m or not size_m:
+        print("check_vm_constants: couldn't find VM_MSU_OFFSET/VM_MODULE_SIZE "
+              "in src/core/vm/vm_load.pasm", file=sys.stderr)
+        sys.exit(1)
+    pasm_offset = int(offset_m.group(1), 16)
+    pasm_size = int(size_m.group(1))
+    real_offset = roster_sidecar["vm_offset"]
+    real_size = roster_sidecar["vm_size"]
+    if pasm_offset != real_offset or pasm_size != real_size:
+        print(f"check_vm_constants: MISMATCH -- src/core/vm/vm_load.pasm has "
+              f"VM_MSU_OFFSET=${pasm_offset:06X} VM_MODULE_SIZE={pasm_size}, "
+              f"but the just-packed bor.msu has vm_offset=${real_offset:06X} "
+              f"vm_size={real_size}. Update src/core/vm/vm_load.pasm to match "
+              f"and rebuild.", file=sys.stderr)
+        sys.exit(1)
+    print(f"check_vm_constants: OK (offset=${real_offset:06X}, size={real_size})")
 
 
 def main():
@@ -187,9 +225,12 @@ def main():
 
     # Write MSU-1 data files
     spawn_blob = open(SPAWN_TABLE, 'rb').read() if os.path.exists(SPAWN_TABLE) else b""
+    vm_blob = open(VM_MODULE, 'rb').read() if os.path.exists(VM_MODULE) else b""
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
-        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawn_blob=spawn_blob)
+        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawn_blob=spawn_blob,
+        vm_blob=vm_blob)
     check_spawn_constants(roster_sidecar)
+    check_vm_constants(roster_sidecar)
     with open('build/bor.msu', 'wb') as f:
         f.write(msu_data)
     with open('distribution/bor.msu', 'wb') as f:

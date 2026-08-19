@@ -68,6 +68,22 @@ def pasm_constant(name):
     raise KeyError(f'constant {name!r} not found in {path}')
 
 
+def pasm_constant_in(relpath, name):
+    """Same contract as pasm_constant(), for any .pasm file under the repo
+    root -- e.g. pasm_constant_in('src/core/vm/vm_consts.pasm', 'VMSTAT_READY').
+    Verification scripts must never hardcode engine layout values; see
+    pasm_constant()'s docstring for the phase5.py incident that rule came from."""
+    path = os.path.join(repo_root_from(None), *relpath.split('/'))
+    pattern = re.compile(r'^\s*' + re.escape(name) + r'\s*=\s*(\$?[0-9A-Fa-f]+)\s*(?:;.*)?$')
+    with open(path, 'r', encoding='utf-8', errors='replace') as f:
+        for line in f:
+            m = pattern.match(line)
+            if m:
+                raw = m.group(1)
+                return int(raw[1:], 16) if raw.startswith('$') else int(raw, 10)
+    raise KeyError(f'constant {name!r} not found in {path}')
+
+
 def read_block(m, addr, length=32, mem_type='snesMemory'):
     """For mem_type='snesMemory' (WRAM), addr must be a full $7Exxxx/$00xxxx
     -style address -- a bare offset silently misreads in this harness. That
@@ -85,8 +101,12 @@ class Reporter:
     """Collects named PASS/FAIL assertions and prints the phase summary
     line every phaseN.py script must end with."""
 
-    def __init__(self, phase_number):
+    def __init__(self, phase_number, kind='PHASE'):
+        # `kind` lets plan_vm.md's gate scripts print "GATE 0a: PASS" instead
+        # of "PHASE 0a: PASS" (plan_vm.md 0.7's gate-line rule). It defaults to
+        # 'PHASE', so every existing phaseN.py is unaffected.
         self.phase_number = phase_number
+        self.kind = kind
         self.results = []
 
     def check(self, name, condition):
@@ -107,7 +127,7 @@ class Reporter:
     def finish(self):
         overall = all(ok for _, ok in self.results)
         print()
-        print(f'PHASE {self.phase_number}: {"PASS" if overall else "FAIL"}')
+        print(f'{self.kind} {self.phase_number}: {"PASS" if overall else "FAIL"}')
         if not overall:
             failed = [name for name, ok in self.results if not ok]
             print(f'  failed: {failed}')
