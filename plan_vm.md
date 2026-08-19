@@ -451,13 +451,15 @@ Plus the full existing regression suite, which must stay green — the VM is
 additive and must not disturb anything:
 
 ```bash
-python tools/verify/phase5.py phase6.py phase7.py phase9.py \
+python tools/verify/phase5.py phase6.py phase7.py phase8.py phase9.py \
        phase11_damage.py phase12_roster.py    # run individually
 ```
 
-(`phase8.py` fails and has failed since Phase 14 — it gates the pre-streaming
-whole-level-BG shape. Known stale, not your regression. Do not "fix" it as part
-of a VM gate.)
+(**All seven pass, `phase8.py` included.** An earlier revision of this plan said
+`phase8.py` was known-stale and must not be fixed — it had been hard-failing on
+its own precondition since Phase 14 swapped in a streaming level. It was repaired
+in commit `a71e26c` and now derives its world bounds from whatever level ships.
+Treat a `phase8.py` failure as a real regression like any other.)
 
 **Plus the region-occupancy check** — mandatory, because `.org` truncation is
 silent and presents as an audio bug:
@@ -713,6 +715,13 @@ In priority order, and **before** asking anyone anything:
 
 ## §1 — Gate 0a: module transport (do this first; the package doesn't list it)
 
+> **Status: DONE** (2026-08-19). `GATE 0a: PASS` — 8 assertions, all green:
+> both guard regions, 184 bytes at `$7E6000` byte-matching
+> `tools/verify/vm_fixtures/gate0_module.bin`, `VMSTAT_READY`/`VMERR_NONE`, the
+> two header counts copied out, and frame-counter liveness. VM symbols occupy
+> `$9000`-`$90F6`, leaving 6922 bytes of the region's 7168. Gate 0 (§2) is next
+> and is a separate change.
+
 The bootstrap package's Gate 0 assumes the module is already in memory. Under
 deviation 2 it isn't — it has to travel `bor.msu` → WRAM first. **Build and
 verify that transport before writing one line of interpreter**, or you will
@@ -960,7 +969,7 @@ Finish with `Reporter('0a', kind='GATE').finish()` (§0.7), giving `GATE 0a: PAS
 - [ ] §0.7's region-occupancy check prints `region OK` (this is the first gate
       where it has any symbols to find)
 - [ ] `python tools/verify/vm_gate0a.py` → `GATE 0a: PASS`
-- [ ] The regression suite in §0.7 is still green (`phase8.py` excepted)
+- [ ] The regression suite in §0.7 is still green — all seven, no exceptions
 - [ ] Committed with `Gate 0a` in the message, and this section's status updated
 
 **Then stop.** Gate 0 is a separate change (§0.7's stop rule).
