@@ -260,6 +260,10 @@ INDEXED_SUFFIX_RE = re.compile(r'^(.*?)\s*,\s*[xXyYsS]\s*$')
 # Set any switch below back to True to re-arm this tool if a regression puts
 # the corresponding mechanism back. The detection code is all still here and
 # still reports the statements it saw; only the drift accumulation is gated.
+# NOTE: with all three False this tool compares main.sym to main.sym and
+# reports "0 drifted" unconditionally. Its PASS line inside audit_all.py's
+# ALL CHECKS PASS is therefore NOT evidence of anything -- it is a parked
+# detector, kept for its documentation and for one-edit re-arming.
 M1_INCBIN_SIZED_ZERO = False
 M2_MACRO_SIZED_ZERO = False
 M3_BASE_OFFSET_NOT_WIDENED = False

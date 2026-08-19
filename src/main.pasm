@@ -9152,11 +9152,14 @@ Hud_Play__clear:
 ; ============================================================================
 ; 32x48 4bpp test sprite blob
 ; ============================================================================
-; 1536 bytes -- two 768-byte halves; the SA-1 blitter walks source offsets
-; 0..1535 (see Sa1_DrawSprite). Hand-authored to validate the CC-DMA pipeline
-; end-to-end: 24 uniquely-colored 8x8 tiles plus a white/black X overlay across
-; the whole sprite, so both per-tile addressing AND within-tile multi-color
-; nibble packing get exercised, not just a uniform test block.
+; 1536 bytes. The SA-1 blitter walks source offsets 0..1535 one byte at a time
+; (sa1_draw_col_loop above); read that loop for the actual stride rather than
+; trusting a size claim here -- the comment this replaced said "768 bytes",
+; which is what made the $8800 overlap below non-obvious for months. Hand-
+; authored to validate the CC-DMA pipeline end-to-end: uniquely-colored 8x8
+; tiles plus a white/black X overlay across the whole sprite, so both per-tile
+; addressing AND within-tile multi-color packing get exercised, not just a
+; uniform test block.
 ;
 ; Pinned here, ending exactly at $FBFF, for want of anywhere better: it used to
 ; sit just below $8800 where the TAD driver silently overwrote its last 60
