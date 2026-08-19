@@ -64,7 +64,7 @@ python build_rom.py
 | NMI | `$FF20` | `nmi_handler` |
 | IRQ | `$FF30` | `irq_handler` |
 
-`scpu_boot`'s body has grown past these addresses more than once as code was added between fixed `.org` points (Poppy silently truncates on overflow rather than erroring — see the Poppy-bug notes in `CLAUDE.md`), pushing NMI/IRQ further out each time. Don't hardcode these — always cross-check against `build_rom.py`'s own printed `Reset:`/`NMI:`/`IRQ:` line (or `src/main.sym`) after any change that grows `scpu_boot` or `scpu_main_loop`.
+`scpu_boot`'s body has grown past these addresses more than once, historically, as code was added between fixed `.org` points, pushing NMI/IRQ further out each time. At the time those pushes happened, Poppy silently truncated on `.org` overflow instead of erroring — that's fixed in the current fork (re-tested 2026-08-19: a fresh overflow now errors cleanly, "overlaps previously emitted bytes", instead of truncating), so a *new* overflow today will fail the build loudly rather than needing to be caught by inspection. Still don't hardcode these — always cross-check against `build_rom.py`'s own printed `Reset:`/`NMI:`/`IRQ:` line (or `src/main.sym`) after any change that grows `scpu_boot` or `scpu_main_loop`.
 
 ---
 

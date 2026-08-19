@@ -407,17 +407,32 @@ Inherited from `CLAUDE.md` and fifteen phases of hard-won experience. These are
 not optional.
 
 1. **`python build_rom.py` after every change.** No incremental step exists.
-2. **`python tools/rom_audit/check_label_drift.py`** after touching any `.pasm` —
-   Poppy sizes `jsl` as 3 bytes and emits 4, drifting every later label
-   cumulatively. `audit_all.py` is structurally blind to this.
-3. **Apply the Poppy checklist to every new line of assembly** — redundant
-   `sep`/`rep` at every routine and branch-target label; `nop` guard before every
-   label; `.l` never `.w` for indexed `$7E`; never `.l Symbol,y`; conditional
-   branches within ~15 source lines or invert-and-`brl`; no dot-prefixed local
-   labels; no macros in branch-skipped code. `plan_vm.md` §0.6 has the full list
+2. **`python tools/rom_audit/check_label_drift.py`** after touching any `.pasm`.
+   Its original reason (Poppy sizing `jsl` as 3 bytes and emitting 4, drifting
+   every later label cumulatively) is **fixed in the current fork** — this is
+   now the regression detector for that fix, not defense against a live bug.
+   `audit_all.py` is structurally blind to this class regardless.
+3. **Apply the Poppy checklist to every new line of assembly — re-measure
+   against CLAUDE.md's "Fixed in the fork" table before assuming an item below
+   is still live; most of this list is now historical, not active defense.**
+   Still live: redundant `sep`/`rep` at every routine and branch-target label
+   (poppy#386, the one remaining live bug) and the real 65816 fact that
+   conditional branches only reach ±127 bytes (keep them within ~15 source
+   lines or invert-and-`brl` — not a Poppy bug, still a hardware constraint).
+   **Now fixed, no longer needed in new code**: `nop` guards before labels
+   (jsl sizing/label drift fixed), avoiding dot-prefixed local labels (fixed),
+   avoiding macros in branch-skipped code (fixed — macros were never actually
+   broken here, per poppy_assembler_bugs.md). `.l` vs `.w` for indexed `$7E`
+   and `.l Symbol,y` are still correct style (neither addressing mode is valid
+   on real 65816 regardless of Poppy), but Poppy now hard-errors on both
+   instead of silently mis-assembling, so a mistake here is now a loud build
+   failure, not a silent landmine. `plan_vm.md` §0.6 has the full current list
    with rationale.
-4. **Watch `.org` region occupancy.** `$C100`–`$FC00` has ~1913 bytes free.
-   Overflow is silent and corrupts the next region.
+4. **Watch `.org` region occupancy.** `$C100`–`$FC00` had ~1913 bytes free as
+   of 2026-08-16 (re-measure, don't trust this number). Overflow used to be
+   silent and corrupt the next region — the current fork now errors on it
+   ("overlaps previously emitted bytes") instead, so a *new* overflow will
+   fail the build loudly.
 5. **Verify against ground truth the engine did not produce** — converter output,
    the packed `bor.msu`, raw ROM bytes. Never trust the engine's own status bytes;
    Phase 7 read `PLAYING` at full volume while loading pure zeros.
