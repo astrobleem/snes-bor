@@ -384,6 +384,15 @@ in the fork on 2026-08-18 (`272f7ea`, `08fe283`); see the table below.
    still open on purpose — it needs a new analysis pass with a false-positive
    budget, not a one-line reconciliation between two existing passes.
 
+   **You do not have to remember this.** `python tools/rom_audit/check_width_directives.py`
+   (also run by `audit_all.py`) fails on any NEW branch/jump-target label that
+   reaches a width-dependent immediate without a directive. Run it before every
+   gate's exit criteria. A 48-way opcode dispatcher is 48 branch targets, so
+   this check is aimed squarely at the code you are about to write: put
+   `sep #$20` / `.a8` (or `rep #$30` / `.a16 .i16`) at the top of every handler,
+   unconditionally. If the check fires, add the directive — never add a line to
+   `check_width_directives_baseline.txt` to silence it.
+
 **Fixed — do not write workarounds for these:**
 
 | Historical bug | Status now |

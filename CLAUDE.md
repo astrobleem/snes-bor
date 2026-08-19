@@ -46,6 +46,7 @@ There's no unit-test framework, but each phase's gate is a committed script and 
 python build_rom.py                              # no incremental step; always rebuild
 python tools/rom_audit/audit_all.py              # static layout/ownership -> ALL CHECKS PASS
 python tools/rom_audit/check_label_drift.py      # Poppy jsl label drift; exits nonzero on drift
+python tools/rom_audit/check_width_directives.py # poppy#386 guard: .a8/.a16 at branch targets (also run by audit_all)
 python tools/verify/phase5.py                    # 4 entities: OAM, palettes, animation, hit stun
 python tools/verify/phase6.py                    # BG1 backdrop + BG3 HUD vs. converter output
 python tools/verify/phase7.py                    # TAD audio reaches PLAYING and is audibly non-silent
@@ -105,6 +106,8 @@ Poppy's defining hazard is that it can emit **wrong bytes with no error at all**
 **Still live — exactly one, and you must write defensively against it:**
 
 1. **Accumulator-width tracking is linear, not control-flow-aware** ([poppy#386](https://github.com/TheAnsarya/poppy/issues/386)). A label reached by a branch that jumps *over* a `rep`/`sep` gets its following `lda #`/`cmp #` mis-sized, misaligning every byte after it. Measured: `cmp #$02` at such a label assembles as `c9 02 00`, and the trailing `00` decodes as a phantom `BRK` — the classic symptom in `m.disassemble(addr)`. **Workaround: open every routine, and every branch-target label, with an explicit `sep #$20`/`.a8` (or `rep #$31`/`.a16`/`.i16`) directive.** Measured to fix it (`c9 02`), and a runtime no-op when the width already matches, so apply it unconditionally rather than reasoning about whether it is needed. Six recurrences before it was understood. This one was deliberately left unfixed: unlike the others it needs a new analysis pass with a false-positive budget, not a contradiction between two existing passes.
+
+   **The rule is enforced mechanically, not by memory** — `tools/rom_audit/check_width_directives.py` (run by `audit_all.py`) flags any branch/jump-target label that reaches a width-dependent immediate (`lda #`, `cmp #`, `ldx #`, …) with no explicit width directive in between. The 196 sites that predate the check are baselined in `check_width_directives_baseline.txt`; it fails on **new** ones only. If it fires, add the directive — never add a baseline line to silence it. (None of the 196 are currently mis-assembled: `check_label_drift.py` reports 0 drifted, which is what this bug's downstream misalignment would show up as. They are latent — one future `rep`/`sep` placed before any of them flips it.)
 
 **Fixed in the fork — do not write workarounds for these, and treat old in-file comments about them as stale:**
 

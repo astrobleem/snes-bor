@@ -167,6 +167,23 @@ def run_verify_layout():
     return result.returncode == 0
 
 
+def run_width_directive_check():
+    """Runs check_width_directives.py as a subprocess: the poppy#386 guard.
+    That is the one assembler bug still live, it has no fix on the horizon
+    (see the script's own header), and its workaround -- an explicit .a8/.a16
+    at every branch/jump target -- is exactly the kind of rule that silently
+    stops being followed. Baselined, so it fails on NEW sites only."""
+    print('--- check_width_directives.py (poppy#386 guard) ---')
+    result = subprocess.run(
+        [sys.executable, os.path.join(HERE, 'check_width_directives.py')],
+        capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    print()
+    return result.returncode == 0
+
+
 def check_entity_base_sync(pasm_path):
     """Entity1_Base/Entity2_Base/Entity3_Base are hand-maintained literals
     (Poppy can't forward-reference CHAR_ZP_LEN -- see main.pasm's comment
@@ -258,6 +275,7 @@ def main():
     all_ok &= ok
 
     all_ok &= run_verify_layout()
+    all_ok &= run_width_directive_check()
     all_ok &= check_entity_base_sync(PASM_PATH)
     all_ok &= check_main_loop_margin(sym_by_name, real_addrs_boot | real_addrs_oop)
 
