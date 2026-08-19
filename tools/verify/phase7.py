@@ -45,13 +45,22 @@ TAD_BLOCK = 0x7E0030          # Tad_flags .. the transfer queue, one read
 
 
 def blob_base():
-    """Address of __Tad_AudioData_0 from Poppy's symbol table."""
+    """(bank, address) of __Tad_AudioData_0 from Poppy's symbol table.
+
+    Was bank-0-only (returned just the 16-bit address, and callers assumed
+    bank $00) back when the audio blob was `.incbin`'d mid-bank-0 -- that
+    assumption broke silently when the blob moved to a `.bank 1` boundary
+    on 2026-08-19 (Poppy's cross-bank jsl/label bug that justified bank-0
+    confinement turned out to be fixed; see CLAUDE.md's Architecture section
+    and poppy_assembler_bugs.md bug 9's correction note). Read the real bank
+    from the .sym file instead of assuming $00.
+    """
     sym = os.path.join(ROOT, 'src', 'main.sym')
     with open(sym, encoding='utf-8-sig', errors='replace') as f:
         for line in f:
             m = re.match(r'\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+(\S+)', line)
             if m and m.group(3) == '__Tad_AudioData_0':
-                return int(m.group(2), 16)
+                return int(m.group(1), 16), int(m.group(2), 16)
     raise KeyError('__Tad_AudioData_0 not found in src/main.sym')
 
 
@@ -69,9 +78,9 @@ def main():
 
     with open(AUDIO_BIN, 'rb') as f:
         audio = f.read()
-    base = blob_base()
-    print(f'audio-data.bin = {len(audio)} bytes, blob base ${base:04X}, '
-          f'spans ${base:04X}-${base + len(audio):04X}')
+    bank, base = blob_base()
+    print(f'audio-data.bin = {len(audio)} bytes, blob base ${bank:02X}:{base:04X}, '
+          f'spans ${bank:02X}:{base:04X}-${bank:02X}:{base + len(audio):04X}')
 
     r.check(f'audio-data.bin is non-trivial ({len(audio)} bytes)', len(audio) > 1024)
 
@@ -110,7 +119,7 @@ def main():
         # compiled audio data, byte for byte. This is the check that would
         # have caught the zero-padding bug immediately. ---
         probe = 256
-        got = bytes(read_block(m, 0x000000 + base, probe, mem_type='snesMemory'))
+        got = bytes(read_block(m, (bank << 16) + base, probe, mem_type='snesMemory'))
         r.check(f'ROM at the blob base byte-matches audio-data.bin (first {probe} bytes)',
                 got == audio[:probe])
 

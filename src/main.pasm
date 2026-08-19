@@ -2330,6 +2330,22 @@ Tad_IsSongPlaying:
 ; standing convention is fully-qualified global labels only, and this was the
 ; single place in main.pasm that violated it (verified by grep: one dot-label
 ; definition, one branch to it, both here).
+; AUDIO_DATA_BANK -- the SNES bank the audio blob lives in, provided by
+; `../soundwork/tad/build/tad_blob_syms.pasm` (this file's own `.include`,
+; near the top of main.pasm) as a literal generated constant, NOT computed
+; here via `^(__Tad_AudioData_0)`. That matters because of a separate,
+; still-live Poppy bug found while making this change (2026-08-19): the `^`
+; (bank-byte-of-label) operator always resolves to $00 regardless of a
+; label's real bank -- confirmed with an isolated repro
+; (`lda #^(Bank1Label)` / `lda #^(Bank2Label)` both assembled as `lda #$00`)
+; -- distinct from, and not fixed by, the cross-bank jsl/`.sym` fix
+; (poppy_assembler_bugs.md bug 9). `jsl`/`.l` addressing to a non-zero-bank
+; label both resolve correctly; only this standalone `^` expression operator
+; doesn't. Don't use `^(Label)` on a non-zero-bank label anywhere in this
+; codebase without re-verifying first -- use a literal/generated constant
+; instead, same as this file already does for Tad_Loader_Bin/
+; Tad_AudioDriver_Bin/Tad_DataTable.
+
 LoadAudioData:
     cmp #N_DATA_ITEMS
     bcc LoadAudioData__valid
@@ -2351,79 +2367,51 @@ LoadAudioData__valid:
     sbc.l Tad_DataTable,x
     tay
 
-    ; Convert a Tad_DataTable entry into a far address.
-    ;
-    ; Upstream TAD does this with the standard LoROM dance -- `ora #$8000` for
-    ; the address and `bank = (offset >> 15) + AUDIO_DATA_BANK` via the
-    ; cmp/rol pair -- because in a normal ca65 build the audio blob is linked
-    ; to start at LoROM $8000 of its own bank, which makes a blob-relative
-    ; offset and a linear ROM offset the same number.
-    ;
-    ; That assumption does not hold here. This project is confined to bank 0
-    ; (Poppy's .bank N handling is broken), so the blob is .incbin'd at
-    ; __Tad_AudioData_0 = $B02B -- mid-bank, not at a bank boundary. The
-    ; upstream math therefore produced addresses $302B too low: the common
-    ; audio data resolved to $8D44 and song 1 to $8F35, both of which land in
-    ; the zero padding ahead of `.org $8C00`. The loader dutifully transferred
-    ; 497 and 341 bytes of ZEROS into Audio-RAM, so TAD reached PLAYING with
-    ; the S-DSP out of reset and full main volume, and emitted pure silence --
-    ; no voice was ever keyed on because there was no song to key one from.
-    ; (Verified by byte-comparing both candidate addresses against
-    ; soundwork/tad/build/audio-data.bin at the same offsets.)
-    ;
-    ; The base to add is NOT __Tad_AudioData_0. soundwork/tad/build/audio-data.s
-    ; documents the table as "PRG ROM offsets (from the start of the first Audio
-    ; Data segment)", and in the ca65 layout that segment opens with the
-    ; 51-byte LoadAudioData callback and only then the blob -- so a table offset
-    ; is measured from 51 bytes BEFORE __Tad_AudioData_0. main.pasm pads only 43
-    ; bytes ahead of the .incbin (its comment claiming "43-byte callback" is
-    ; simply wrong; audio-data.s line 117 asserts the callback is 51), so the
-    ; segment base here is __Tad_AudioData_0 - 51.
-    ;
-    ; The arithmetic pins this down with no room for interpretation:
-    ;   Tad_DataTable sits at blob offset 3337 and is 8 bytes, so the data
-    ;   proper starts at blob offset 3345; entry0 is $0D44 = 3396, and
-    ;   3396 - 51 = 3345 exactly. The table's end entry is $108A = 4234, and
-    ;   4234 - 51 = 4183 = the exact size of audio-data.bin.
-    ; Using __Tad_AudioData_0 itself reads 51 bytes late and runs the last
-    ; song 51 bytes past the end of the blob.
-    ;
-    ; The whole blob is 4183 bytes spanning $B02B-$C082 and never crosses a
-    ; bank boundary, so this is a plain 16-bit add with a constant bank. If the
-    ; blob ever grows past $FFFF this must carry into the bank byte again.
+    ; Convert a Tad_DataTable entry into a far address -- now the actual
+    ; standard upstream LoROM dance (`ora #$8000` for the address, a fixed
+    ; bank byte), not a custom fixup. Historical note: this project used to
+    ; be confined to bank 0 (believed: Poppy's `.bank N` handling broken),
+    ; so the blob was `.incbin`'d mid-bank at $B02B and needed a $302B
+    ; correction plus a hand-derived "-51" offset to compensate -- see git
+    ; history / snes_bor_phase7_tad_audio_unblocked.md for that mechanism if
+    ; you need it. That belief was wrong (bug 9 is fixed, re-measured
+    ; 2026-08-19) and the blob has been relocated to a real bank boundary
+    ; (`.bank 1`, `.org $8000`) instead, with 51 bytes of padding ahead of
+    ; the blob matching the ca65-upstream "segment = 51-byte callback + blob"
+    ; convention `Tad_DataTable`'s offsets are measured from -- see that
+    ; region's own header comment for the exact byte accounting. Table
+    ; offsets are all comfortably under $8000 (the largest, the end-of-table
+    ; marker, is $108A = 4234), so `ora #$8000` alone is always correct with
+    ; no carry into the bank byte; if the audio data ever grows past $7FFF
+    ; this needs the real cmp/rol bank-carry dance upstream uses.
     lda.l Tad_DataTable,x
-    clc
-    adc #((__Tad_AudioData_0 - 51) & $ffff)
+    ora #$8000
     sta 1,s
 
     sep #$20
 .a8
-    lda #^(__Tad_AudioData_0)
+    lda #AUDIO_DATA_BANK
 
     plx
     sec
     rtl
 
 ; ============================================================================
-; Audio Data Blob ($B000 = file offset $3000)
+; Blank-song byte ($B000 = file offset $3000). The real audio data blob has
+; moved to a `.bank 1` boundary (see the very end of this file) -- this one
+; guaranteed-$00 byte stays in bank 0 since it's referenced from bank-0 code
+; via `^(Tad_BlankSongByte)`/`&$ffff`
+; (TadPrivate_Process_WaitingForLoader__LoadData), and `^` only resolves
+; correctly for a bank-0 label (see AUDIO_DATA_BANK's comment above).
 ; ============================================================================
 .org $B000
 Tad_BlankSongByte:
     ; A guaranteed-$00 byte in bank 0, used as TAD's one-byte "blank song".
-    ; This is the first of the 43 zero pad bytes below; referencing it by label
-    ; (rather than the upstream `* - 1` trick) keeps the blank song correct no
-    ; matter how Poppy's address-estimation pass sizes the surrounding
-    ; immediates -- see TadPrivate_Process_WaitingForLoader__LoadData.
-    ; The compiler's --output-bin is already a combined blob:
-    ; [loader 116][audio driver 3221][DataTable][common/song data].
-    ; The 43-byte callback precedes that blob, matching ca65-export.
-    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-    .db $00, $00, $00
-__Tad_AudioData_0:
-    .incbin "../soundwork/tad/build/audio-data.bin"
+    ; Referencing it by label (rather than the upstream `* - 1` trick) keeps
+    ; the blank song correct no matter how Poppy's address-estimation pass
+    ; sizes the surrounding immediates -- see
+    ; TadPrivate_Process_WaitingForLoader__LoadData.
+    .db $00
 
 ; Msu1_LoadFrame's 6 row-DMAs (later in this file) read from the single
 ; shared AnimFrameStaging buffer asynchronously (fired by
@@ -10189,3 +10177,43 @@ nmi_handler:
 .org $FF70
 irq_handler:
     rti
+
+; ============================================================================
+; Audio Data Blob -- relocated 2026-08-19 to a real bank boundary.
+;
+; Historically this project believed Poppy's `.bank N` (N != 0) handling was
+; broken, so this blob was `.incbin`'d mid-bank-0 at $B02B and LoadAudioData
+; needed a hand-derived `$302B`/`-51` fixup to compensate (see git history and
+; snes_bor_phase7_tad_audio_unblocked.md for that mechanism, and CLAUDE.md's
+; Architecture section / poppy_assembler_bugs.md bug 9 for why the belief was
+; wrong -- re-measured 2026-08-19 with a fresh two-bank repro, fixed in the
+; fork). This region replaces that mid-bank placement with the real thing:
+; a bank boundary, using the exact same math the upstream ca65 TAD build uses.
+;
+; `soundwork/tad/build/audio-data.s` documents `Tad_DataTable`'s entries as
+; "PRG ROM offsets (from the start of the first Audio Data segment)", and in
+; the real ca65 build that segment is [51-byte LoadAudioData callback][blob]
+; linked to start at LoROM $8000 of its own bank -- so table offset 0 means
+; segment address $8000, not blob address $8000. This project's LoadAudioData
+; callback is a separate routine (at $AC00, not physically adjacent to the
+; blob), so there's no real 51-byte callback to place here -- only 51 bytes
+; of padding are needed to preserve the same offset arithmetic. With that
+; padding in place, LoadAudioData's conversion is the literal upstream
+; `ora #$8000` dance (see that routine's own comment) with no correction
+; constant needed at all.
+;
+; Verify after any change: Tad_DataTable's own end-of-table marker
+; ($108A = 4234) must equal 51 (this padding) + the exact byte size of
+; audio-data.bin -- same invariant Phase 7 originally verified, just against
+; a $8000-based segment start instead of a mid-bank one.
+; ============================================================================
+.bank 1
+.org $8000
+    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    .db $00
+__Tad_AudioData_0:
+    .incbin "../soundwork/tad/build/audio-data.bin"

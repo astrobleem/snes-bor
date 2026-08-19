@@ -152,7 +152,14 @@ def main():
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
 
     rom = bytearray(ROM_SIZE)
-    copy_len = min(len(poppy_data), BANK0_SIZE)
+    # Historically clamped to BANK0_SIZE (32KB) because main.pasm was
+    # single-bank only -- that clamp would now silently drop any `.bank N`
+    # (N != 0) content straight out of the shipped ROM with no error (see
+    # CLAUDE.md's Architecture section: cross-bank jsl/label resolution is
+    # fixed in the fork as of 2026-08-19, so main.pasm can now use more than
+    # bank 0). Copy the whole assembled binary; ROM_SIZE (4MB) is already the
+    # real ceiling.
+    copy_len = min(len(poppy_data), ROM_SIZE)
     rom[0:copy_len] = poppy_data[0:copy_len]
 
     # SA-1's reset vector (CRV) is hardware-forced into bank $00 on every
