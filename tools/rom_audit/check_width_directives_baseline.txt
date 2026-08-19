@@ -39,7 +39,6 @@ src/core/math.pasm:Core_Math_Div__normalize_loop
 src/core/nmi.pasm:Core_Nmi_Init__clear_loop
 src/core/nmi.pasm:Core_Nmi_Play__do_commit
 src/core/nmi.pasm:Core_Nmi_Play__frame_skipped
-src/core/nmi.pasm:Core_Nmi_Play__skip_oam_reset
 src/core/oam.pasm:Core_Oam_ClearActive__hi_loop
 src/core/oam.pasm:Core_Oam_ClearActive__main_loop
 src/core/oam.pasm:Core_Oam_ClearActive__main_skip

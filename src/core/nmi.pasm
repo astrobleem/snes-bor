@@ -295,7 +295,12 @@ Core_Nmi_Play__do_oam_reset:
     sta.l Oam_UploadFlag
     nop                       ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Nmi_Play__skip_oam_reset:
-
+.a8
+    ; poppy#386: reached directly via the `beq` a few lines up, which skips
+    ; the `sep #$20`/`.a8` above (on the do-oam-reset path only) -- currently
+    ; safe by luck (width entering the beq already happens to be 8-bit) per
+    ; check_width_directives_baseline.txt, but latent per that file's own
+    ; warning. Poppy's own new width-hazard diagnostic flags this exact site.
     lda #1
     sta.l Nmi_Busy
 
