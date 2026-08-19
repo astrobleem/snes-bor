@@ -95,7 +95,11 @@ SCREEN_DEFAULT_SPEED = $0200
 	Screen__Half        .dw
 .ende
 
-.section "screen.luts" superfree
+; (was: .section "screen.luts" superfree -- a WLA-DX leftover from the
+; SuperBossGaiden port. Poppy has no .section support and silently ignored the
+; directive, so these LUTs have always been placed inline at the current address;
+; removing it is byte-identical. It only became visible once the assembler
+; started reporting the parse errors it had been swallowing, poppy#382.)
 ScreenMoveLut:
 	.dw 0, 0, 0, 0, 0
 	.dw SCREEN_DEFAULT_SPEED/16, SCREEN_DEFAULT_SPEED/16, SCREEN_DEFAULT_SPEED/16, SCREEN_DEFAULT_SPEED/16

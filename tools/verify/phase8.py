@@ -35,13 +35,30 @@ BG1_TILES_WORD = pasm_constant('BG1_TILES_VRAM_WORD')
 BG1_TILEMAP_WORD = pasm_constant('BG1_TILEMAP_VRAM_WORD')
 WORLD_CONTENT_WIDTH = pasm_constant('WORLD_CONTENT_WIDTH')
 WORLD_MAX_X = pasm_constant('WORLD_MAX_X')
+PLAYER_MAX_X = pasm_constant('PLAYER_MAX_X')
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 
 SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X -- not in
                       # main.pasm, so not reachable via pasm_constant; the
                       # value is a Phase 1 constant nothing has changed.
-MAX_SCROLL_X = WORLD_CONTENT_WIDTH - SCREEN_SIZE_X - 1  # Core_Screen_SetPlayfieldBorder's own formula
+
+# WORLD_CONTENT_WIDTH / WORLD_MAX_X are the STATIC-level fallbacks. For a
+# streaming level the engine sets its world width at boot from the converted
+# level's own content width (see Boot_SetWorldMaxX and WorldMaxX's comment in
+# main.pasm), so this gate has to do the same or it checks the boss level's
+# numbers against whatever level actually shipped. Both formulas below are the
+# engine's own, re-derived here rather than hardcoded.
+def world_bounds(manifest):
+    if manifest.get('whole_level'):
+        content_px = WORLD_CONTENT_WIDTH
+    else:
+        content_px = manifest['content_width_tiles'] * 8
+    return (
+        content_px,
+        content_px - (SCREEN_SIZE_X - PLAYER_MAX_X),  # WORLD_MAX_X
+        content_px - SCREEN_SIZE_X - 1,               # Core_Screen_SetPlayfieldBorder
+    )
 
 Screen_PosX = 0x7E1601
 Nmi_Bg1ScrollX = 0x7E5017
@@ -85,16 +102,22 @@ def main():
         raise SystemExit(1)
 
     manifest = json.loads(read_file(os.path.join(BG_DIR, 'manifest.json')))
-    if not manifest.get('whole_level'):
-        print(f'FAIL: {BG_DIR} is not a whole-level (--whole-level) conversion; '
-              f'build_rom.py must ship one for this gate to mean anything')
-        raise SystemExit(1)
-
-    tiles = read_file(os.path.join(BG_DIR, 'tiles.bin'))
-    tilemap = read_file(os.path.join(BG_DIR, 'tilemap.bin'))
+    # Phase 14 replaced the shipped level with a streaming one, and this gate
+    # kept demanding the old whole-level manifest key -- so it had been hard-
+    # failing on its precondition, before touching the ROM at all, since that
+    # commit. The half of the gate that assumed a fully-resident tilemap is
+    # genuinely inapplicable to a streaming BG (only a window is in VRAM;
+    # phase9.py and phase9_syncscroll_test2.py cover streaming VRAM
+    # consistency). The camera half -- easing, both clamps, the $210D write,
+    # screen-relative OAM X -- is level-independent and is what this gate is
+    # really for, so it now runs against whatever BG ships.
+    whole_level = bool(manifest.get('whole_level'))
+    global CONTENT_PX, WORLD_MAX_X, MAX_SCROLL_X
+    CONTENT_PX, WORLD_MAX_X, MAX_SCROLL_X = world_bounds(manifest)
     content_width_tiles = manifest['content_width_tiles']
-    print(f'shipped whole-level BG: {BG_DIR} ({manifest["width_tiles"]}-tile map, '
-          f'{content_width_tiles} real content tiles, {manifest["unique_tiles"]} unique tiles)')
+    print(f'shipped BG: {BG_DIR} ({manifest["width_tiles"]}-tile map, '
+          f'{content_width_tiles} real content tiles, {manifest["unique_tiles"]} unique tiles, '
+          f'{"whole-level" if whole_level else "streaming"})')
 
     with open_session(__file__) as m:
         m.reset_emulator()
@@ -105,11 +128,17 @@ def main():
         # off-screen-at-boot page B) byte-match the converter's output, and
         # BG1SC really is in 64-wide mode per Mesen's own PPU decode -- not
         # just self-consistent with our own Nmi_Bg1TilemapVram shadow. ---
-        got_tiles = bytes(read_block(m, BG1_TILES_WORD * 2, len(tiles), mem_type='snesVideoRam'))
-        r.check(f'BG1 tileset matches tiles.bin ({len(tiles)} bytes)', got_tiles == tiles)
-        got_tilemap = bytes(read_block(m, BG1_TILEMAP_WORD * 2, len(tilemap), mem_type='snesVideoRam'))
-        r.check(f'BG1 tilemap matches tilemap.bin ({len(tilemap)} bytes, both pages)',
-                got_tilemap == tilemap)
+        if whole_level:
+            tiles = read_file(os.path.join(BG_DIR, 'tiles.bin'))
+            tilemap = read_file(os.path.join(BG_DIR, 'tilemap.bin'))
+            got_tiles = bytes(read_block(m, BG1_TILES_WORD * 2, len(tiles), mem_type='snesVideoRam'))
+            r.check(f'BG1 tileset matches tiles.bin ({len(tiles)} bytes)', got_tiles == tiles)
+            got_tilemap = bytes(read_block(m, BG1_TILEMAP_WORD * 2, len(tilemap), mem_type='snesVideoRam'))
+            r.check(f'BG1 tilemap matches tilemap.bin ({len(tilemap)} bytes, both pages)',
+                    got_tilemap == tilemap)
+        else:
+            print('streaming BG: skipping the whole-tilemap VRAM comparison '
+                  '(only a window is resident by design -- see phase9.py)')
         layers = m.get_ppu_state()['layers']
         r.check('BG1SC is in 64x32 mode (Mesen decode, not our own shadow)',
                 layers[0]['doubleWidth'] is True)
@@ -118,7 +147,7 @@ def main():
         # SetPlayfieldBorder's own formula (width - size.x - 1); re-derived
         # here from WORLD_CONTENT_WIDTH rather than hardcoded, so a level
         # swap can't silently desync this gate from the engine. ---
-        print(f'MAX_SCROLL_X = {MAX_SCROLL_X} (WORLD_CONTENT_WIDTH={WORLD_CONTENT_WIDTH})')
+        print(f'MAX_SCROLL_X = {MAX_SCROLL_X} (content width {CONTENT_PX}px, WORLD_MAX_X={WORLD_MAX_X})')
         for _ in range(14):
             m.set_input(m.BTN_RIGHT, 60)
         m.pause()

@@ -235,6 +235,36 @@ BASE_OFFSET_RE = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*)\s*([+\-])\s*(.+)$')
 INDEXED_SUFFIX_RE = re.compile(r'^(.*?)\s*,\s*[xXyYsS]\s*$')
 
 
+# ============================================================================
+# MECHANISM SWITCHES -- READ BEFORE TRUSTING A CLEAN RUN
+# ============================================================================
+# Everything above describes the assembler as it behaved through 2026-08-17.
+# On 2026-08-18 all three mechanisms were fixed in the astrobleem/poppy fork,
+# so all three contribute 0 bytes of drift now and this tool passes trivially:
+#
+#   M1 -- SemanticAnalyzer.VisitDirective now has an "incbin" case that stats
+#         the file (honouring the optional offset/length args) and advances
+#         CurrentAddress, mirroring CodeGenerator.HandleIncbinDirective
+#         (poppy#384).
+#   M2 -- macro expansion now runs in BOTH analyzer passes, not just pass 2,
+#         so an invocation is sized in pass 1. (This codebase has no live
+#         invocations either way.)
+#   M3 -- TryGetConstantOperandValue gained a BinaryExpressionNode case, so
+#         "Base + N" resolves and gets the Absolute->AbsoluteLong upgrade in
+#         pass 1 (poppy#376).
+#
+# The surviving ground-truth layout check is check_label_drift.py, which reads
+# the emitted bytes rather than modelling the analyzer: it asserts the byte at
+# each label is the opcode the source puts there. Prefer it.
+#
+# Set any switch below back to True to re-arm this tool if a regression puts
+# the corresponding mechanism back. The detection code is all still here and
+# still reports the statements it saw; only the drift accumulation is gated.
+M1_INCBIN_SIZED_ZERO = False
+M2_MACRO_SIZED_ZERO = False
+M3_BASE_OFFSET_NOT_WIDENED = False
+
+
 def strip_comment(line):
     in_quotes = False
     for i, ch in enumerate(line):
@@ -484,7 +514,8 @@ def main():
             except OSError as e:
                 print(f'WARNING: {srcfile}:{lineno}: cannot stat incbin {inc_path}: {e}', file=sys.stderr)
                 continue
-            drift += real_len  # M1: pass1 counted 0, codegen emits real_len
+            if M1_INCBIN_SIZED_ZERO:
+                drift += real_len  # pass1 counted 0, codegen emits real_len
             continue
 
         m = MACRO_INVOKE_RE.match(stripped)
@@ -495,7 +526,8 @@ def main():
                 if size is None:
                     unsizable_macros.add(reason)
                 else:
-                    drift += size  # M2: pass1 counted 0, codegen expands fully
+                    if M2_MACRO_SIZED_ZERO:
+                        drift += size  # pass1 counted 0, codegen expands fully
                     m2_hits.append((name, size, srcfile, lineno))
             continue
 
@@ -522,7 +554,8 @@ def main():
                     if base_val is not None and off_val is not None:
                         combined = base_val + off_val if sign == '+' else base_val - off_val
                         if combined > 0xFFFF:
-                            drift += 1  # M3: pass1 sized Absolute(2), codegen sized AbsoluteLong(3)
+                            if M3_BASE_OFFSET_NOT_WIDENED:
+                                drift += 1  # pass1 sized Absolute(2), codegen AbsoluteLong(3)
                             m3_hits.append((mnem, operand, combined, srcfile, lineno))
 
     note_region_end()

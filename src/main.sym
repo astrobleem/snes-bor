@@ -328,7 +328,6 @@
 00:8196 Scpu_CcdmaPump_Write
 00:8233 Scpu_CcdmaPump_Keep
 00:8237 Scpu_CcdmaPump_Done
-00:823B TestSprite32x48
 00:8800 TadPrivate_Loader_CheckReadyAndSendLoaderDataType
 00:881A TadPrivate_Loader_CheckReadyAndSendLoaderDataType__ReturnFalse
 00:881C TadPrivate_Loader_SetDataToTransfer
@@ -403,6 +402,7 @@
 00:8C00 ANIM_WALK_BASE
 00:8C00 ANIM_TILEMAP_RIGHT_BASE
 00:8C30 ANIM_TILEMAP_LEFT_BASE
+00:8C60 TestSprite32x48
 00:AC00 LoadAudioData
 00:AC07 LoadAudioData__valid
 00:B000 Tad_BlankSongByte

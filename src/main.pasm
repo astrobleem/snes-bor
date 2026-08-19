@@ -607,22 +607,18 @@ Scpu_CcdmaPump_Done:
 ; ============================================================================
 ; TAD Audio Driver Module (Ported from ca65 to Poppy .pasm)
 ; ============================================================================
-; NOTE: the 32x48 sprite blob lives HERE, immediately before this .org, not
-; after the pump code above -- the SA-1 loop grew into that spot once
-; (canaries + mailbox handshake) and silently clobbered the blob (Poppy's
-; fixed-.org truncation; the blob's .incbin sat at the old location and the
-; pump overran it, corrupting the source pixels with no build error). This
-; placement pins the blob to the $8800 boundary with all the code's growth
-; room on the other side.
-;
-; 32x48 4bpp linear-packed test sprite (768 bytes), hand-authored to
-; validate the CC-DMA pipeline end-to-end -- see gen_sprite_bin.py-style
-; generation notes: 24 uniquely-colored 8x8 tiles plus a white/black X
-; overlay across the whole sprite, so both per-tile addressing AND
-; within-tile multi-color nibble packing get exercised, not just a
-; uniform test block.
-TestSprite32x48:
-    .incbin "assets/test_sprite_32x48.bin"
+; NOTE: the 32x48 sprite blob used to live HERE, immediately before this .org,
+; pinned to the $8800 boundary so the SA-1 code above had all the growth room.
+; That was wrong twice over: it had already been clobbered once when the pump
+; grew into it, and by 2026-08-18 it had overrun the boundary in the other
+; direction -- the blob is 1536 bytes, not the 768 this comment used to claim,
+; so it ran $823B-$883A and its last 60 bytes were overwritten by the TAD
+; driver at $8800. Neither Poppy nor any audit script could see it, because
+; .incbin contributed 0 bytes to the layout pass (poppy#384) and so the overlap
+; check never fired. With that fixed the assembler reports the collision, and
+; the blob now lives in the wide-open $8C00 region instead (search
+; TestSprite32x48 there). Keep it out of any region with a hard boundary
+; $600 bytes away.
 .org $8800
 ; Converted from CA65 to PASM by Poppy
 ; Original file: tad-audio.s
@@ -2295,7 +2291,18 @@ Tad_IsSongPlaying:
     ; the two generic facing-flip tilemap blocks remain.
     .incbin "assets/anim_tilemap_right.bin"    ; 48 bytes
     .incbin "assets/anim_tilemap_left.bin"     ; 48 bytes
-    ; ends at $8C00 + 96 = $8C60, leaving ~8096 bytes free before $AC00.
+    ; tilemaps end at $8C00 + 96 = $8C60.
+
+; 32x48 4bpp linear-packed test sprite (1536 bytes -- two 768-byte halves; the
+; SA-1 blitter walks source offsets 0..1535), hand-authored to validate the
+; CC-DMA pipeline end-to-end: 24 uniquely-colored 8x8 tiles plus a white/black
+; X overlay across the whole sprite, so both per-tile addressing AND
+; within-tile multi-color nibble packing get exercised, not just a uniform
+; test block. Moved here from just below $8800, where its tail was being
+; silently overwritten by the TAD driver -- see that .org's comment.
+; Occupies $8C60-$925F; ~6560 bytes still free before $AC00.
+TestSprite32x48:
+    .incbin "assets/test_sprite_32x48.bin"
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
