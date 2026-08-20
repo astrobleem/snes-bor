@@ -598,67 +598,46 @@ Vm_Op_Jump:
 ; root return, since CALL was VMERR_UNIMPLEMENTED and VmState_FrameTop could
 ; never become nonzero) is gone now that CALL is real.
 
-; Branch_FALSE -- truthiness on INTEGER only, and non-INTEGER is FALSY, not a
-; fault (this differs from ADD/EQ's INTEGER-only-or-fault rule -- see this
-; file's header note on gate0_program.json's own reference oracle, which
-; treats a non-INTEGER condition as false rather than raising VMERR_BAD_TYPE).
+; Branch_FALSE -- VM truthiness (Vm_TruthySlot, vm_arith32.pasm -- Gate 4
+; extends it to INTEGER-nonzero-or-STR-nonempty, see that file's own header
+; note); never a fault, matching this handler's own long-standing precedent
+; (this file's header note on gate0_program.json's reference oracle, which
+; treats a falsy condition as "branch taken", not VMERR_BAD_TYPE).
 ; a = branch target if false; b = condition slot.
 Vm_Op_BranchFalse:
     rep #$31
 .a16
 .i16
     lda.l VmPriv_B
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
-.a8
-    lda.l VmSlots_Wram+0,x       ; condition's type
-    cmp #BOR_VT_INTEGER
-    bne Vm_Op_BranchFalse__take   ; not INTEGER -> falsy -> branch taken
-    rep #$31
-.a16
-.i16
-    lda.l VmSlots_Wram+4,x        ; condition's value, low word
-    ora.l VmSlots_Wram+6,x        ; OR in the high word: nonzero either half
-                                    ; means the 32-bit value is nonzero
+    jsr Vm_TruthySlot
+    cmp #0                        ; Vm_TruthySlot's own `plp` restores the
+                                    ; flags that were live at ITS entry, not
+                                    ; ones reflecting the value it returns in
+                                    ; A -- an explicit cmp is required here,
+                                    ; never branch on flags surviving a jsr
     bne Vm_Op_BranchFalse__not_taken
 
-Vm_Op_BranchFalse__take:
-    rep #$31
-.a16
-.i16
     lda.l VmPriv_A
     sta.l VmState_Ip
     jmp Vm_Run__loop
 
 Vm_Op_BranchFalse__not_taken:
+.a16
+.i16
     jmp Vm_Next
 
 ; Branch_TRUE (Gate 1, plan_vm.md 3) -- the mirror image of Branch_FALSE:
-; truthiness on INTEGER only, non-INTEGER is falsy (not taken), never a
-; fault -- same precedent, opposite direction. a = branch target if true;
-; b = condition slot.
+; same VM truthiness, opposite direction, never a fault. a = branch target
+; if true; b = condition slot.
 Vm_Op_BranchTrue:
     rep #$31
 .a16
 .i16
     lda.l VmPriv_B
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
-.a8
-    lda.l VmSlots_Wram+0,x       ; condition's type
-    cmp #BOR_VT_INTEGER
-    bne Vm_Op_BranchTrue__not_taken   ; not INTEGER -> falsy -> not taken
-    rep #$31
-.a16
-.i16
-    lda.l VmSlots_Wram+4,x        ; condition's value, low word
-    ora.l VmSlots_Wram+6,x        ; nonzero either half -> truthy
+    jsr Vm_TruthySlot
+    cmp #0                        ; see Branch_FALSE's own note just above:
+                                    ; Vm_TruthySlot's `plp` does not leave
+                                    ; flags reflecting its returned value
     beq Vm_Op_BranchTrue__not_taken
 
     lda.l VmPriv_A
@@ -666,6 +645,8 @@ Vm_Op_BranchTrue:
     jmp Vm_Run__loop
 
 Vm_Op_BranchTrue__not_taken:
+.a16
+.i16
     jmp Vm_Next
 
 ; Branch_EQUAL (Gate 1, plan_vm.md 3) -- branches when left and right are
@@ -727,8 +708,15 @@ Vm_Op_BranchEqual__not_taken:
 .i16
     jmp Vm_Next
 
-; ADD -- Signed 32-bit, INTEGER-only at this gate (plan_vm.md §2's Implement
-; table). a = dest slot, b = left slot, c = right slot.
+; ADD -- Signed 32-bit INTEGER pair, or STR concatenation when BOTH operands
+; are STR (Gate 4, plan_vm.md §6 / opcode_manifest.csv: "or string
+; concatenation when either operand is a string"). A mixed INTEGER/STR pair
+; faults VMERR_BAD_TYPE rather than coercing the integer to its script
+; string form -- that formatting step belongs to Gate 5's decimal-to-string
+; work (plan_vm.md §7 lists it as its own historical quirk needing an
+; explicit fixture), not this gate; a documented scope decision, not an
+; oversight (matches this file's own precedent for NEG's non-INTEGER case).
+; a = dest slot, b = left slot, c = right slot.
 Vm_Op_Add:
     rep #$31
 .a16
@@ -741,10 +729,8 @@ Vm_Op_Add:
     sep #$20
 .a8
     lda.l VmSlots_Wram+0,x
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Add__left_ok
-    brl Vm_Op_Add__to_bad_type
-Vm_Op_Add__left_ok:
+    sta.l VmPriv_LeftLo           ; scratch reuse: left TYPE byte (Branch_
+                                    ; EQUAL's own precedent for this trick)
 
     rep #$31
 .a16
@@ -757,11 +743,51 @@ Vm_Op_Add__left_ok:
     sep #$20
 .a8
     lda.l VmSlots_Wram+0,x
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Add__right_ok
-    brl Vm_Op_Add__to_bad_type
-Vm_Op_Add__right_ok:
+    cmp #BOR_VT_STR
+    bne Vm_Op_Add__right_not_str
+    ; right IS STR
+    lda.l VmPriv_LeftLo
+    cmp #BOR_VT_STR
+    beq Vm_Op_Add__concat
+    brl Vm_Op_Add__to_bad_type     ; right STR, left not STR -> mixed, fault
 
+Vm_Op_Add__right_not_str:
+.a8
+    ; right is NOT STR
+    lda.l VmPriv_LeftLo
+    cmp #BOR_VT_STR
+    bne Vm_Op_Add__right_not_str__left_not_str
+    brl Vm_Op_Add__to_bad_type     ; left STR, right not STR -> mixed, fault
+
+Vm_Op_Add__right_not_str__left_not_str:
+.a8
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Add__right_not_str__left_int
+    brl Vm_Op_Add__to_bad_type
+
+Vm_Op_Add__right_not_str__left_int:
+.a8
+    lda.l VmSlots_Wram+0,x         ; right TYPE again -- X still = slot C's offset
+    cmp #BOR_VT_INTEGER
+    beq Vm_Op_Add__int_path
+    brl Vm_Op_Add__to_bad_type
+
+Vm_Op_Add__concat:
+.a8
+    rep #$31
+.a16
+.i16
+    jsr Vm_Str_ConcatOp
+    bcc Vm_Op_Add__concat_ok
+    jmp Vm_Fault                  ; A (.a16) already holds the VMERR_* code
+
+Vm_Op_Add__concat_ok:
+.a16
+.i16
+    jmp Vm_Next
+
+Vm_Op_Add__int_path:
+.a8
     rep #$31
 .a16
 .i16
@@ -826,96 +852,28 @@ Vm_Op_Add__to_bad_type:
     lda #VMERR_BAD_TYPE
     jmp Vm_Fault
 
-; EQ -- INTEGER-only at this gate (plan_vm.md §2's Implement table); result
-; is INTEGER 0/1. a = dest slot, b = left slot, c = right slot.
+; EQ -- INTEGER pair or STR pair (Gate 4, plan_vm.md §6 extends Gate 0's
+; INTEGER-only rule the same way GE/LE/LT/GT/NE do -- see vm_arith32.pasm's
+; own header note above those handlers); result is INTEGER 0/1. a = dest
+; slot, b = left slot, c = right slot. Vm_LoadAndCompare/Vm_CompareInt/
+; Vm_StoreIntResult are all defined later in vm_arith32.pasm/vm_string.pasm
+; (.include'd after this file) -- the same cross-file forward reference
+; vm_arith32.pasm's own header already documents and relies on.
 Vm_Op_Eq:
-    rep #$31
-.a16
-.i16
-    lda.l VmPriv_B
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
-.a8
-    lda.l VmSlots_Wram+0,x
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Eq__left_ok
+    jsr Vm_LoadAndCompare
+    bcc Vm_Op_Eq__ok
     brl Vm_Op_Eq__to_bad_type
-Vm_Op_Eq__left_ok:
 
-    rep #$31
-.a16
-.i16
-    lda.l VmPriv_C
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
+Vm_Op_Eq__ok:
 .a8
-    lda.l VmSlots_Wram+0,x
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Eq__right_ok
-    brl Vm_Op_Eq__to_bad_type
-Vm_Op_Eq__right_ok:
-
     rep #$31
 .a16
 .i16
-    lda.l VmPriv_B
-    asl a
-    asl a
-    asl a
-    tax
-    lda.l VmSlots_Wram+4,x
+    lda.l VmArith_CmpEQ
     sta.l VmPriv_LeftLo
-    lda.l VmSlots_Wram+6,x
+    lda #0
     sta.l VmPriv_LeftHi
-
-    lda.l VmPriv_C
-    asl a
-    asl a
-    asl a
-    tax
-    lda.l VmSlots_Wram+4,x
-    cmp.l VmPriv_LeftLo
-    bne Vm_Op_Eq__not_equal
-    lda.l VmSlots_Wram+6,x
-    cmp.l VmPriv_LeftHi
-    bne Vm_Op_Eq__not_equal
-
-    lda #1
-    bra Vm_Op_Eq__store
-
-Vm_Op_Eq__not_equal:
-.a16
-    lda #0
-
-Vm_Op_Eq__store:
-    sta.l VmPriv_LeftLo          ; reuse as the 0/1 result
-
-    lda.l VmPriv_A
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
-.a8
-    lda #BOR_VT_INTEGER
-    sta.l VmSlots_Wram+0,x
-    lda #0
-    sta.l VmSlots_Wram+1,x
-    rep #$31
-.a16
-.i16
-    lda #0
-    sta.l VmSlots_Wram+2,x
-    lda.l VmPriv_LeftLo
-    sta.l VmSlots_Wram+4,x
-    lda #0
-    sta.l VmSlots_Wram+6,x
+    jsr Vm_StoreIntResult
     jmp Vm_Next
 
 Vm_Op_Eq__to_bad_type:

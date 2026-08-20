@@ -70,6 +70,18 @@ Vm_LoadSlots:
     lda.l VmCode_Wram+$24
     sta.l VmCall_ArgSlotsOff
 
+    ; strings_offset (header +$28) -- Gate 4 (plan_vm.md §6): cached once
+    ; here, same rationale as callsites_offset/arg_slot_ids_offset just
+    ; above. Vm_Str_Resolve (core/vm/vm_string.pasm) re-reads this on every
+    ; ROM-string load. VmStr_StringsOff is declared in vm_string.pasm, which
+    ; is .include'd AFTER this file -- a forward reference across files, the
+    ; same one this whole vm/ directory already relies on throughout
+    ; (vm_arith32.pasm's own header note; vm_run.pasm's dispatch table
+    ; forward-references handlers hundreds of lines below it in the SAME
+    ; file). Poppy resolves global labels regardless of definition order.
+    lda.l VmCode_Wram+$28
+    sta.l VmStr_StringsOff
+
     ; initial_slots_offset (header +$1C) -- used immediately, not cached.
     lda.l VmCode_Wram+$1C
     sta.l VmPriv_CopySrc            ; source cursor starts at the slot image

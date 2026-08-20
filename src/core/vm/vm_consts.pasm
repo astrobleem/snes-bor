@@ -161,3 +161,22 @@ VM_NATIVE_ABS = 1
 VM_NATIVE_MIN = 2
 VM_NATIVE_MAX = 3
 VM_NATIVE_LOG = 4
+
+; --- Gate 4 (plan_vm.md §6): dynamic string pool layout. Fixed-size slab
+; carved out of VmStrPool_Wram (4096 B, above): 64 objects x 64 bytes.
+; Object layout, relative to VmStrPool_Wram + index*VMSTRPOOL_OBJ_SIZE:
+;   +0  .db refcount   -- 0 means the object is free (Vm_Str_Alloc scans for
+;                          this; reaching 0 via release is what frees it --
+;                          no separate free-list, no data wipe needed)
+;   +1  .db length      -- 0..VMSTRPOOL_MAX_LEN
+;   +2  .. data bytes, up to VMSTRPOOL_MAX_LEN
+; A STR slot's value field (vm_slots.pasm's 8-byte record, +4 u32) is a
+; handle: high word bit15 SET means the low word is a VmStrPool_Wram object
+; index (a dynamic string); bit15 CLEAR means the low word is an index into
+; the module's own interned-string table (FORMAT.md "Interned strings"), a
+; ROM string. This mirrors FORMAT.md's own handle rule (bit31 of the full
+; 32-bit value) split across this project's Lo/Hi-word convention. ---
+VMSTRPOOL_OBJ_SIZE  = 64
+VMSTRPOOL_OBJ_COUNT = 64      ; 64 x 64 = 4096 = VmStrPool_Wram's full reservation
+VMSTRPOOL_MAX_LEN   = 62      ; OBJ_SIZE minus the 2-byte refcount/length header
+VMSTR_DYNAMIC_HI    = $8000   ; value high word when the low word is a pool index

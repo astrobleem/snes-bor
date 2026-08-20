@@ -75,7 +75,13 @@ VmArith_NegHi      = $7FE0DF   ; .dw -- high word
 VmArith_CmpLT      = $7FE0E1   ; .dw -- Vm_CompareInt result: left < right
 VmArith_CmpEQ      = $7FE0E3   ; .dw -- Vm_CompareInt result: left == right
 VmArith_CopyBuf    = $7FE0E5   ; 8 B -- Vm_SlotCopy's staging buffer
-; Ends $7FE0ED. VmFrames_Wram starts $7FE100 -- 19 bytes of slack kept.
+VmArith_TruthyIdx  = $7FE0ED   ; .dw -- Vm_TruthySlot's saved slot index
+                                 ; (Gate 4: WRAM scratch instead of a stack
+                                 ; pha/pla, since Vm_TruthySlot's STR path
+                                 ; needs the index back after a sep/rep width
+                                 ; change and a pha/pla pair must never cross
+                                 ; a width change with mismatched pull width)
+; Ends $7FE0EF. VmFrames_Wram starts $7FE100 -- 17 bytes of slack kept.
 
 ; ============================================================================
 ; Vm_Negate32 -- two's-complement negate of VmArith_NegLo/Hi, in place.
@@ -520,11 +526,18 @@ Vm_CompareInt__gt:
 ; truthiness directly rather than requiring VT_INTEGER-or-fault the way
 ; ADD/MUL/etc. do.
 ; ============================================================================
+; Gate 4 (plan_vm.md §6) adds STR: truthy iff aux (cached length) is nonzero
+; (README §6's truthiness table). Still INTEGER-nonzero-or-STR-nonempty-or-
+; falsy -- PTR truthiness is out of scope until a real typed-handle native
+; needs it, same "documented decision, not a guess" precedent this file's
+; header already uses for NEG's non-INTEGER case.
 Vm_TruthySlot:
     php
     rep #$31
 .a16
 .i16
+    sta.l VmArith_TruthyIdx      ; keep the slot index -- Vm_Str_TruthySlot
+                                   ; needs it again on the STR path
     asl a
     asl a
     asl a
@@ -533,7 +546,18 @@ Vm_TruthySlot:
 .a8
     lda.l VmSlots_Wram+0,x
     cmp #BOR_VT_INTEGER
-    bne Vm_TruthySlot__falsy
+    beq Vm_TruthySlot__integer
+    cmp #BOR_VT_STR
+    beq Vm_TruthySlot__str
+    rep #$31
+.a16
+.i16
+    lda #0
+    plp
+    rts
+
+Vm_TruthySlot__integer:
+.a8
     rep #$31
 .a16
 .i16
@@ -544,9 +568,17 @@ Vm_TruthySlot:
     plp
     rts
 
-Vm_TruthySlot__falsy:
+Vm_TruthySlot__str:
 .a8
     rep #$31
+.a16
+.i16
+    lda.l VmArith_TruthyIdx
+    jsr Vm_Str_TruthySlot
+    plp
+    rts
+
+Vm_TruthySlot__falsy:
 .a16
 .i16
     lda #0
@@ -561,12 +593,25 @@ Vm_TruthySlot__falsy:
 ; distinction in their two descriptions is purely a host-linker-side
 ; naming convention (plan_vm.md §0.4: variables and expression temporaries
 ; share one flat 1024-slot array at runtime), not a runtime difference.
+;
+; Gate 4 (plan_vm.md §6): retains B's value before releasing A's OLD value,
+; not the other way around -- if A and B name the same slot (a plain
+; self-copy), retain-then-release nets to zero on the SAME object instead of
+; freeing it out from under itself before the copy even happens. Both
+; Vm_Str_RetainIfDynamic/ReleaseIfDynamic are no-ops on non-STR and ROM-
+; string slots, so this costs nothing on the integer-only path Gate 2 already
+; exercises.
 ; ============================================================================
 Vm_SlotCopy:
     php
     rep #$31
 .a16
 .i16
+    lda.l VmPriv_B
+    jsr Vm_Str_RetainIfDynamic
+    lda.l VmPriv_A
+    jsr Vm_Str_ReleaseIfDynamic
+
     lda.l VmPriv_B
     asl a
     asl a
@@ -941,18 +986,20 @@ Vm_Op_Shr__done:
     jsr Vm_StoreIntResult
     jmp Vm_Next
 
-; GE/LE/LT/GT/NE -- INTEGER-only-or-fault (matches ADD/EQ's own rule, not
-; Branch_FALSE/TRUE's non-INTEGER-is-falsy one: opcode_manifest.csv places
-; these in the same "binary comparison" class as EQ, which vm_run.pasm
-; already implements as INTEGER-only-or-VMERR_BAD_TYPE).
+; GE/LE/LT/GT/NE -- INTEGER pair or STR pair (Gate 4, plan_vm.md §6, README
+; §6 "Comparisons": string pairs compare lexicographically, exactly like
+; EQ/NE); any other pairing (including a mismatched INTEGER/STR pair) faults
+; VMERR_BAD_TYPE. Vm_LoadAndCompare (core/vm/vm_string.pasm) tries the
+; INTEGER pairing first, falls back to STR, and leaves the 0/1 result in
+; VmArith_CmpLT/CmpEQ either way -- the store logic below is unchanged from
+; Gate 2's INTEGER-only version, since it only ever reads those two cells.
 Vm_Op_Ge:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadAndCompare
     bcc Vm_Op_Ge__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Ge__ok:
 .a8
-    jsr Vm_CompareInt
     rep #$31
 .a16
 .i16
@@ -965,13 +1012,12 @@ Vm_Op_Ge__ok:
     jmp Vm_Next
 
 Vm_Op_Le:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadAndCompare
     bcc Vm_Op_Le__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Le__ok:
 .a8
-    jsr Vm_CompareInt
     rep #$31
 .a16
 .i16
@@ -984,13 +1030,12 @@ Vm_Op_Le__ok:
     jmp Vm_Next
 
 Vm_Op_Lt:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadAndCompare
     bcc Vm_Op_Lt__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Lt__ok:
 .a8
-    jsr Vm_CompareInt
     rep #$31
 .a16
 .i16
@@ -1002,13 +1047,12 @@ Vm_Op_Lt__ok:
     jmp Vm_Next
 
 Vm_Op_Gt:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadAndCompare
     bcc Vm_Op_Gt__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Gt__ok:
 .a8
-    jsr Vm_CompareInt
     rep #$31
 .a16
 .i16
@@ -1022,13 +1066,12 @@ Vm_Op_Gt__ok:
     jmp Vm_Next
 
 Vm_Op_Ne:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadAndCompare
     bcc Vm_Op_Ne__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Ne__ok:
 .a8
-    jsr Vm_CompareInt
     rep #$31
 .a16
 .i16
