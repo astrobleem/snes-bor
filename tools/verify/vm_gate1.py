@@ -19,16 +19,23 @@ Scope landed alongside this gate:
     Gate 0 already had) -- checked directly below for one fault case.
 
 THE EXPECTED-OUTCOME TABLE BELOW IS BUILT FROM opcode_manifest.csv'S CLASSES
-PLUS plan_vm.md's OWN GATE 0 (§2) AND GATE 1 (§3) IMPLEMENT LISTS -- never
-from vm_run.pasm's dispatch table. That is deliberate (plan_vm.md §3's own
-instruction) and it matters: §0.8 of the plan claims Gate 1 is where
-VMERR_UNIMPLEMENTED ($0010) "stops being reachable for values 0..47", but
-that is stale -- §3's own implement list only covers 14 of the 48 values, and
-Gate 0 covers 9 more. The remaining 25 legitimately still fault $0010 here;
-they are §4 (Gate 2) and §5 (Gate 3)'s work. A table built from "implemented
-so far" (Gate 0 + Gate 1's lists) rather than the stale §0.8 sentence is the
-one that is actually correct -- if you see this script assert all 48 values
-reach DONE/0, that is the bug, not a passing run.
+PLUS plan_vm.md's OWN GATE 0 (§2), GATE 1 (§3), AND (as of Gate 2 landing)
+GATE 2 (§4) IMPLEMENT LISTS -- never from vm_run.pasm's dispatch table. That
+is deliberate (plan_vm.md §3's own instruction) and it matters: §0.8 of the
+plan claims Gate 1 is where VMERR_UNIMPLEMENTED ($0010) "stops being
+reachable for values 0..47", but that was stale even at Gate 1 -- §3's own
+implement list only covered 14 of the 48 values, and Gate 0 covered 9 more.
+Gate 2 (plan_vm.md §4) then implemented 23 more (everything but CALL, whose
+own numeric slot sits inside this gate's range but which is genuinely still
+Gate 3's job), leaving exactly 3 legitimately unimplemented here: CALL (8),
+PARAM (40), JUMPR (46) -- all §5 (Gate 3). A table built from "implemented so
+far" rather than the stale §0.8 sentence is the one that is actually
+correct -- if you see this script assert all 48 values reach DONE/0, that is
+the bug, not a passing run. (Real per-opcode *correctness* for Gate 2's
+opcodes -- edge values, wrap, div/mod-by-zero, shift normalization -- is
+vm_gate2.py's job; this file only checks that dispatch reaches the right
+handler and finishes cleanly on type-correct operands, its original Gate 0/1
+scope, unchanged.)
 
 MECHANISM: this project cannot cheaply rebuild+reload 50 separate ROMs, and
 "run each in isolation" (the plan's own words) rules out chaining faulting
@@ -144,22 +151,40 @@ SLOT_COUNT = 3
 GATE0_DONE = {2, 16, 20, 26, 33, 36, 43}  # CONSTINT ADD JUMP EQ NOOP Branch_FALSE RET
 GATE0_FAULT = {7: VMERR_FIELD_OPCODE, 15: VMERR_EXPLICIT_ERR}  # FIELD ERR
 
-# --- Gate 1 (plan_vm.md §3) implement list -- landing in this change. ---
+# --- Gate 1 (plan_vm.md §3) implement list. ---
 GATE1_CONTROL_DONE = {21, 37, 38}  # PJUMP Branch_TRUE Branch_EQUAL
 GATE1_NOOP_DONE = {0, 1, 34, 35, 39, 41, 42, 44, 45, 47}
 # CONSTSTR CONSTDBL PUSH POP DATA IMMEDIATE DEFERRED CHECKARG CLEAN FUNCDECL
 
-DONE_OPCODES = GATE0_DONE | GATE1_CONTROL_DONE | GATE1_NOOP_DONE
-assert len(DONE_OPCODES) == 7 + 3 + 10 == 20
+# --- Gate 2 (plan_vm.md §4) implement list -- landed after this gate; kept
+# here (not re-derived from vm_run.pasm's dispatch table, same rule as
+# everything else in this file) so this script stays a valid regression
+# check instead of going stale the moment Gate 2's own opcodes stopped
+# faulting VMERR_UNIMPLEMENTED. CALL (8) is the one opcode in this numeric
+# range Gate 2 deliberately left alone -- it's Gate 3 (plan_vm.md §5). Real
+# per-opcode correctness (edge values, overflow, div/mod-by-zero, shift
+# normalization, etc.) is vm_gate2.py's job, not this file's -- this file
+# only needs each of these to reach DONE/VMERR_NONE with type-correct,
+# non-faulting operands, matching its own "dispatch reached its handler
+# and finished cleanly" pass condition.
+GATE2_UNARY_INPLACE_DONE = {5, 6, 9, 10, 11}        # INC DEC POS NEG NOT: a=operand slot
+GATE2_LOAD_SAVE_DONE = {3, 4}                        # LOAD SAVE: a=dest, b=source
+GATE2_BINARY_INT_DONE = {12, 13, 14, 17, 18, 19,     # MUL DIV MOD SUB SHL SHR
+                          22, 23, 24, 25, 27,          # GE LE LT GT NE
+                          28, 29, 30, 31, 32}           # OR AND BIT_OR XOR BIT_AND
+
+DONE_OPCODES = (GATE0_DONE | GATE1_CONTROL_DONE | GATE1_NOOP_DONE
+                | GATE2_UNARY_INPLACE_DONE | GATE2_LOAD_SAVE_DONE | GATE2_BINARY_INT_DONE)
+assert len(DONE_OPCODES) == 7 + 3 + 10 + 5 + 2 + 16 == 43
 
 ALL_OPCODES = set(range(48))
 UNIMPLEMENTED_OPCODES = ALL_OPCODES - DONE_OPCODES - set(GATE0_FAULT)
-assert len(UNIMPLEMENTED_OPCODES) == 48 - 20 - 2 == 26
+assert len(UNIMPLEMENTED_OPCODES) == 48 - 43 - 2 == 3  # CALL(8), PARAM(40), JUMPR(46) -- Gate 3
 
 CONTROL_TARGET_1 = {20, 21}       # JUMP/PJUMP: a=target
 BRANCH_COND = {36, 37}            # Branch_FALSE/TRUE: a=target, b=cond slot
 BRANCH_EQUAL = {38}               # a=target, b=left slot, c=right slot
-BINARY_INT = {16, 26}             # ADD/EQ: a=dest, b=left, c=right
+BINARY_INT = {16, 26} | GATE2_BINARY_INT_DONE  # ADD/EQ and Gate 2's binary family: a=dest, b=left, c=right
 
 
 def build_case(opcode):
@@ -174,6 +199,10 @@ def build_case(opcode):
         return rec(opcode, a=1, b=1, c=2) + rec(RET), 2
     if opcode in BINARY_INT:
         return rec(opcode, a=0, b=1, c=2) + rec(RET), 2
+    if opcode in GATE2_UNARY_INPLACE_DONE:
+        return rec(opcode, a=1) + rec(RET), 2
+    if opcode in GATE2_LOAD_SAVE_DONE:
+        return rec(opcode, a=0, b=1) + rec(RET), 2
     if opcode in DONE_OPCODES:  # remaining no-op-family DONE cases
         return rec(opcode) + rec(RET), 2
     # FIELD, ERR, every VMERR_UNIMPLEMENTED opcode, and >=48 probes: a

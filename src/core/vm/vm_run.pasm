@@ -279,22 +279,22 @@ Vm_Dispatch_03:
 .a8
     cmp #BOR_OP_LOAD
     bne Vm_Dispatch_04
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Load
 Vm_Dispatch_04:
 .a8
     cmp #BOR_OP_SAVE
     bne Vm_Dispatch_05
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Save
 Vm_Dispatch_05:
 .a8
     cmp #BOR_OP_INC
     bne Vm_Dispatch_06
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Inc
 Vm_Dispatch_06:
 .a8
     cmp #BOR_OP_DEC
     bne Vm_Dispatch_07
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Dec
 Vm_Dispatch_07:
 .a8
     cmp #BOR_OP_FIELD
@@ -309,32 +309,32 @@ Vm_Dispatch_09:
 .a8
     cmp #BOR_OP_POS
     bne Vm_Dispatch_10
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Pos
 Vm_Dispatch_10:
 .a8
     cmp #BOR_OP_NEG
     bne Vm_Dispatch_11
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Neg
 Vm_Dispatch_11:
 .a8
     cmp #BOR_OP_NOT
     bne Vm_Dispatch_12
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Not
 Vm_Dispatch_12:
 .a8
     cmp #BOR_OP_MUL
     bne Vm_Dispatch_13
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Mul
 Vm_Dispatch_13:
 .a8
     cmp #BOR_OP_DIV
     bne Vm_Dispatch_14
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Div
 Vm_Dispatch_14:
 .a8
     cmp #BOR_OP_MOD
     bne Vm_Dispatch_15
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Mod
 Vm_Dispatch_15:
 .a8
     cmp #BOR_OP_ERR
@@ -349,17 +349,17 @@ Vm_Dispatch_17:
 .a8
     cmp #BOR_OP_SUB
     bne Vm_Dispatch_18
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Sub
 Vm_Dispatch_18:
 .a8
     cmp #BOR_OP_SHL
     bne Vm_Dispatch_19
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Shl
 Vm_Dispatch_19:
 .a8
     cmp #BOR_OP_SHR
     bne Vm_Dispatch_20
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Shr
 Vm_Dispatch_20:
 .a8
     cmp #BOR_OP_JUMP
@@ -375,22 +375,22 @@ Vm_Dispatch_22:
 .a8
     cmp #BOR_OP_GE
     bne Vm_Dispatch_23
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Ge
 Vm_Dispatch_23:
 .a8
     cmp #BOR_OP_LE
     bne Vm_Dispatch_24
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Le
 Vm_Dispatch_24:
 .a8
     cmp #BOR_OP_LT
     bne Vm_Dispatch_25
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Lt
 Vm_Dispatch_25:
 .a8
     cmp #BOR_OP_GT
     bne Vm_Dispatch_26
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Gt
 Vm_Dispatch_26:
 .a8
     cmp #BOR_OP_EQ
@@ -400,32 +400,32 @@ Vm_Dispatch_27:
 .a8
     cmp #BOR_OP_NE
     bne Vm_Dispatch_28
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Ne
 Vm_Dispatch_28:
 .a8
     cmp #BOR_OP_OR
     bne Vm_Dispatch_29
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Or
 Vm_Dispatch_29:
 .a8
     cmp #BOR_OP_AND
     bne Vm_Dispatch_30
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_And
 Vm_Dispatch_30:
 .a8
     cmp #BOR_OP_BIT_OR
     bne Vm_Dispatch_31
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_BitOr
 Vm_Dispatch_31:
 .a8
     cmp #BOR_OP_XOR
     bne Vm_Dispatch_32
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Xor
 Vm_Dispatch_32:
 .a8
     cmp #BOR_OP_BIT_AND
     bne Vm_Dispatch_33
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_BitAnd
 Vm_Dispatch_33:
 .a8
     cmp #BOR_OP_NOOP
