@@ -10173,12 +10173,16 @@ scpu_main_loop:
 ; (plan.md 2.10) BG3 frontpanel boot-time load call site grew scpu_boot and
 ; left only a 2-byte margin (tools/rom_audit/audit_all.py's own margin
 ; check caught it -- see that script's header for what it verifies).
-.org $FF60
+; Pushed AGAIN, $FF60/$FF70 -> $FF90/$FFA0, ahead of VM Gate 6 wiring a
+; cooperative-budget jsr into scpu_main_loop (plan_vm.md §8 step 4) -- the
+; prior push left only 3 bytes of margin, exactly enough to silently
+; truncate a single new call site and reproduce this same bug a fifth time.
+.org $FF90
 nmi_handler:
     jsr Core_Nmi_Play
     rti
 
-.org $FF70
+.org $FFA0
 irq_handler:
     rti
 
