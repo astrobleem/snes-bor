@@ -48,12 +48,37 @@ VMERR_UNIMPLEMENTED   = $0010   ; opcode is a VALID ABI value but this gate
 ; End addresses are written out on purpose -- see 0.4's note about the guard
 ; region that was originally placed inside the slot array. ---
 VmCode_Wram     = $7E6000   ; 32768 B, ends $7EDFFF
-VmGuardLo       = $7EE000   ; 16 B of $A5
-VmSlots_Wram    = $7EE010   ; 1024 slots x 8 B = 8192 B, ends $7F000F
-VmFrames_Wram   = $7F0100   ; 64 frames x 12 B = 768 B   (Gate 3)
-VmStrPool_Wram  = $7F0400   ; 4096 B string pool         (Gate 4)
-VmTrace_Wram    = $7F1400   ; 32 x 4 B = 128 B           (Gate 0)
-VmGuardHi       = $7F1480   ; 16 B of $5A
+VmGuardLo       = $7EE000   ; 16 B of $A5, ends $7EE00F
+
+; --- Gate 1 (plan_vm.md 3) WRAM-collision fix -----------------------------
+; Everything below USED to live at $7EE010/$7F01xx/$7F14xx/$7F15xx. That
+; entire span is inside core/stream_cache.pasm's StreamCache_Tile2Slot table
+; ($7F0000-$7F7FFF, a full 32KB tile-ID->VRAM-slot array) -- this file's own
+; grep-based "confirmed unused" claims never covered bank $7F because nobody
+; re-grepped stream_cache.pasm's header comment against the VM's addresses
+; when the VM's WRAM map was first written. This is a real, independent
+; latent bug -- found while investigating a tools/verify/phase9.py failure,
+; but NOT what was actually causing that failure (relocating every address
+; here reproduced phase9's failure identically; see vm_load.pasm's own note
+; for the real cause, a harness timing-margin issue, fixed separately in
+; phase9.py itself). Worth fixing regardless: Gate 3's still-unimplemented
+; VmFrames_Wram (768B) and Gate 4's VmStrPool_Wram (4096B) would have
+; written deep into Tile2Slot's live entries once built.
+;
+; New home: $7FC000-$7FFFFF (16 KB). Grep-confirmed free as of Gate 1 --
+; stream_cache.pasm's own tables end at $7F8BFE, StreamScroll_TileBufN/
+; StreamScrollFp_TileBufN occupy $7F9000-$7F911F, and stream_cache_fp.pasm's
+; tables end at $7FB8FF (main.pasm:3096, stream_cache_fp.pasm:60-65) --
+; nothing references $7FC000+ anywhere in src/. VmSlots_Wram moved here too
+; (its old base spilled 16 bytes into Tile2Slot's own first entries) rather
+; than just shrinking the gap after VmGuardLo, so Code/GuardLo can stay
+; exactly where they are (proven collision-free, zero risk) and everything
+; that touches the tile cache moves together as one block with headroom for
+; Gate 3/4's still-unimplemented Frames/StrPool reservations.
+; ----------------------------------------------------------------------------
+VmSlots_Wram    = $7FC000   ; 1024 slots x 8 B = 8192 B, ends $7FDFFF
+VmGuardHi       = $7FE000   ; 16 B of $5A, ends $7FE00F
+VmTrace_Wram    = $7FE010   ; 32 x 4 B = 128 B, ends $7FE08F           (Gate 0)
 VM_GUARD_LEN    = 16
 VM_GUARD_LO_FILL = $A5
 VM_GUARD_HI_FILL = $5A
@@ -62,18 +87,42 @@ VM_INSTR_MAX     = 4096
 VM_SLOT_MAX      = 1024
 
 ; --- VmState_* scalars. One per line, plain absolute addresses, exactly like
-; core/spawn.pasm's Spawn_Index / Spawn_Scratch* block. ---
-VmState_Status      = $7F1500   ; .db -- VMSTAT_*
-VmState_Error       = $7F1501   ; .dw -- VMERR_*
-VmState_Ip          = $7F1503   ; .dw -- current instruction index
-VmState_ErrorIp     = $7F1505   ; .dw -- IP at time of fault
-VmState_ErrorOpcode = $7F1507   ; .db -- opcode at time of fault
-VmState_Budget      = $7F1508   ; .dw -- opcodes remaining this frame
-VmState_FrameTop    = $7F150A   ; .dw -- call-frame depth        (Gate 3)
-VmState_TraceHead   = $7F150C   ; .db -- trace ring write index  (Gate 0)
-VmState_InstrCount  = $7F150D   ; .dw -- copied from header at load
-VmState_SlotCount   = $7F150F   ; .dw -- copied from header at load
-VmState_Scratch0    = $7F1511   ; .dw
-VmState_Scratch1    = $7F1513   ; .dw
-VM_STATE_FIRST      = $7F1500
-VM_STATE_LAST       = $7F1515   ; exclusive -- zero [FIRST,LAST) at boot
+; core/spawn.pasm's Spawn_Index / Spawn_Scratch* block. Base is VmTrace_Wram's
+; end ($7FE090, see the relocation note above VmSlots_Wram) -- kept as a
+; literal here, not the equate, matching this file's own established style
+; (vm_run.pasm/vm_load.pasm do the same for VmPriv_*/VmLoad_Crc*). ---
+VmState_Status      = $7FE090   ; .db -- VMSTAT_*
+VmState_Error       = $7FE091   ; .dw -- VMERR_*
+VmState_Ip          = $7FE093   ; .dw -- current instruction index
+VmState_ErrorIp     = $7FE095   ; .dw -- IP at time of fault
+VmState_ErrorOpcode = $7FE097   ; .db -- opcode at time of fault
+VmState_Budget      = $7FE098   ; .dw -- opcodes remaining this frame
+VmState_FrameTop    = $7FE09A   ; .dw -- call-frame depth (Gate 3). Also
+                                 ; doubles as the fault-time frame-depth
+                                 ; capture plan_vm.md 3 asks for: nothing
+                                 ; mutates it after a fault (Vm_Run__noop
+                                 ; early-exits once status >= VMSTAT_DONE), so
+                                 ; a dedicated VmState_ErrorFrameTop would be
+                                 ; a redundant snapshot of a cell that is
+                                 ; already frozen by the time anything reads
+                                 ; it.
+VmState_TraceHead   = $7FE09C   ; .db -- trace ring write index  (Gate 0)
+VmState_InstrCount  = $7FE09D   ; .dw -- copied from header at load
+VmState_SlotCount   = $7FE09F   ; .dw -- copied from header at load
+VmState_Scratch0    = $7FE0A1   ; .dw
+VmState_Scratch1    = $7FE0A3   ; .dw
+; --- Gate 1 (plan_vm.md 3): full fault capture also wants the failing
+; record's operands, not just its IP/opcode. VmPriv_A/B/C (vm_run.pasm) are
+; overwritten by the very next fetch, so a resumed/retried run would lose
+; them without this snapshot. ---
+VmState_ErrorA      = $7FE0A5   ; .dw -- operand A at time of fault
+VmState_ErrorB      = $7FE0A7   ; .dw -- operand B at time of fault
+VmState_ErrorC      = $7FE0A9   ; .dw -- operand C at time of fault
+VM_STATE_FIRST      = $7FE090
+VM_STATE_LAST       = $7FE0AB   ; exclusive -- zero [FIRST,LAST) at boot
+
+; Gate 3/4 reservations (not yet implemented) -- placed here, well clear of
+; VmPriv_*/VmLoad_Crc* below (which end $7FE0C9), with headroom inside the
+; same relocated $7FC000-$7FFFFF block.
+VmFrames_Wram   = $7FE100   ; 64 frames x 12 B = 768 B, ends $7FE3FF   (Gate 3)
+VmStrPool_Wram  = $7FE400   ; 4096 B string pool, ends $7FF3FF         (Gate 4)

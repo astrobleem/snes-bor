@@ -60,19 +60,30 @@
 ; outside this file and vm_slots.pasm should reference these, and a later
 ; gate is free to grow this block (right after VM_STATE_LAST, verified
 ; collision-free with everything else in the engine). ---
-VmPriv_Opcode   = $7F1515   ; .db  -- current record's opcode byte
-VmPriv_Flags    = $7F1516   ; .db  -- current record's flags byte (unused, Gate 0)
-VmPriv_A        = $7F1517   ; .dw  -- current record's operand A
-VmPriv_B        = $7F1519   ; .dw  -- operand B
-VmPriv_C        = $7F151B   ; .dw  -- operand C
-VmPriv_InstrOff = $7F151D   ; .dw  -- cached instructions_offset (vm_slots.pasm)
-VmPriv_LeftLo   = $7F151F   ; .dw  -- 32-bit binary-op scratch, low/high words
-VmPriv_LeftHi   = $7F1521   ; .dw
-VmPriv_RightLo  = $7F1523   ; .dw
-VmPriv_RightHi  = $7F1525   ; .dw
-VmPriv_CopySrc  = $7F1527   ; .dw  -- vm_slots.pasm's Vm_LoadSlots copy cursors
-VmPriv_CopyDst  = $7F1529   ; .dw
-VmPriv_CopyLen  = $7F152B   ; .dw
+; Base is VM_STATE_LAST ($7FE0AB as of the Gate 1 WRAM-collision relocation --
+; see vm_consts.pasm's header note above VmSlots_Wram for why this whole
+; block moved out of bank $7F's $0000-$7FFF/$1400-$153F range, which turned
+; out to be inside core/stream_cache.pasm's Tile2Slot table) -- kept as a
+; literal here, not the equate, to match every other absolute WRAM address in
+; this project (CLAUDE.md: plain absolute addresses, never computed from
+; another symbol). If VM_STATE_LAST ever moves again, grep this file's own
+; header comment plus vm_slots.pasm/vm_load.pasm for `7FE0` before
+; renumbering.
+VmPriv_Opcode   = $7FE0AB   ; .db  -- current record's opcode byte
+VmPriv_Flags    = $7FE0AC   ; .db  -- current record's flags byte (unused, Gate 0)
+VmPriv_A        = $7FE0AD   ; .dw  -- current record's operand A
+VmPriv_B        = $7FE0AF   ; .dw  -- operand B
+VmPriv_C        = $7FE0B1   ; .dw  -- operand C
+VmPriv_InstrOff = $7FE0B3   ; .dw  -- cached instructions_offset (vm_slots.pasm)
+VmPriv_LeftLo   = $7FE0B5   ; .dw  -- 32-bit binary-op scratch, low/high words
+VmPriv_LeftHi   = $7FE0B7   ; .dw
+VmPriv_RightLo  = $7FE0B9   ; .dw
+VmPriv_RightHi  = $7FE0BB   ; .dw
+VmPriv_CopySrc  = $7FE0BD   ; .dw  -- vm_slots.pasm's Vm_LoadSlots copy cursors
+VmPriv_CopyDst  = $7FE0BF   ; .dw
+VmPriv_CopyLen  = $7FE0C1   ; .dw
+; Ends $7FE0C3. vm_load.pasm's own CRC32 scratch (Gate 1) starts there, in
+; that file, not here -- see its header note on why it doesn't reuse these.
 
 ; Opcodes executed per Vm_Run call before a cooperative yield. Not part of
 ; §0.8 (a tuning knob, not ABI); 200 matches §0.2's own stated expectation
@@ -253,12 +264,12 @@ Vm_Dispatch_00:
 .a8
     cmp #BOR_OP_CONSTSTR
     bne Vm_Dispatch_01
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_01:
 .a8
     cmp #BOR_OP_CONSTDBL
     bne Vm_Dispatch_02
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_02:
 .a8
     cmp #BOR_OP_CONSTINT
@@ -358,7 +369,8 @@ Vm_Dispatch_21:
 .a8
     cmp #BOR_OP_PJUMP
     bne Vm_Dispatch_22
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Jump              ; PJUMP (21): identical runtime effect to
+                                 ; JUMP after host linking (opcode_manifest.csv)
 Vm_Dispatch_22:
 .a8
     cmp #BOR_OP_GE
@@ -423,12 +435,12 @@ Vm_Dispatch_34:
 .a8
     cmp #BOR_OP_PUSH
     bne Vm_Dispatch_35
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_35:
 .a8
     cmp #BOR_OP_POP
     bne Vm_Dispatch_36
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_36:
 .a8
     cmp #BOR_OP_BRANCH_FALSE
@@ -438,17 +450,17 @@ Vm_Dispatch_37:
 .a8
     cmp #BOR_OP_BRANCH_TRUE
     bne Vm_Dispatch_38
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_BranchTrue
 Vm_Dispatch_38:
 .a8
     cmp #BOR_OP_BRANCH_EQUAL
     bne Vm_Dispatch_39
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_BranchEqual
 Vm_Dispatch_39:
 .a8
     cmp #BOR_OP_DATA
     bne Vm_Dispatch_40
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_40:
 .a8
     cmp #BOR_OP_PARAM
@@ -458,12 +470,12 @@ Vm_Dispatch_41:
 .a8
     cmp #BOR_OP_IMMEDIATE
     bne Vm_Dispatch_42
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_42:
 .a8
     cmp #BOR_OP_DEFERRED
     bne Vm_Dispatch_43
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_43:
 .a8
     cmp #BOR_OP_RET
@@ -473,12 +485,12 @@ Vm_Dispatch_44:
 .a8
     cmp #BOR_OP_CHECKARG
     bne Vm_Dispatch_45
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_45:
 .a8
     cmp #BOR_OP_CLEAN
     bne Vm_Dispatch_46
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Noop
 Vm_Dispatch_46:
 .a8
     cmp #BOR_OP_JUMPR
@@ -487,8 +499,10 @@ Vm_Dispatch_46:
 Vm_Dispatch_47:
 .a8
     cmp #BOR_OP_FUNCDECL
-    bne Vm_Op_Unimplemented
-    jmp Vm_Op_Unimplemented
+    bne Vm_Op_Unimplemented     ; dead: every value 0..46 already matched
+                                 ; above, so only 47 itself can reach here --
+                                 ; kept as a defensive fallback, not a live path
+    jmp Vm_Op_Noop
 
 ; ============================================================================
 ; Shared exits.
@@ -518,6 +532,12 @@ Vm_Fault:
     sta.l VmState_Error
     lda.l VmState_Ip
     sta.l VmState_ErrorIp
+    lda.l VmPriv_A
+    sta.l VmState_ErrorA
+    lda.l VmPriv_B
+    sta.l VmState_ErrorB
+    lda.l VmPriv_C
+    sta.l VmState_ErrorC
     sep #$20
 .a8
     lda.l VmPriv_Opcode
@@ -615,6 +635,97 @@ Vm_Op_BranchFalse__take:
     jmp Vm_Run__loop
 
 Vm_Op_BranchFalse__not_taken:
+    jmp Vm_Next
+
+; Branch_TRUE (Gate 1, plan_vm.md 3) -- the mirror image of Branch_FALSE:
+; truthiness on INTEGER only, non-INTEGER is falsy (not taken), never a
+; fault -- same precedent, opposite direction. a = branch target if true;
+; b = condition slot.
+Vm_Op_BranchTrue:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x       ; condition's type
+    cmp #BOR_VT_INTEGER
+    bne Vm_Op_BranchTrue__not_taken   ; not INTEGER -> falsy -> not taken
+    rep #$31
+.a16
+.i16
+    lda.l VmSlots_Wram+4,x        ; condition's value, low word
+    ora.l VmSlots_Wram+6,x        ; nonzero either half -> truthy
+    beq Vm_Op_BranchTrue__not_taken
+
+    lda.l VmPriv_A
+    sta.l VmState_Ip
+    jmp Vm_Run__loop
+
+Vm_Op_BranchTrue__not_taken:
+    jmp Vm_Next
+
+; Branch_EQUAL (Gate 1, plan_vm.md 3) -- branches when left and right are
+; type-equal AND value-equal. Unlike ADD/EQ (INTEGER-only-or-VMERR_BAD_TYPE,
+; plan_vm.md 2), the manifest does not restrict this opcode's family to
+; INTEGER, so a type mismatch is simply "not equal" (Branch_FALSE/TRUE's own
+; non-INTEGER-is-falsy precedent), never a fault. a = branch target if equal;
+; b = left slot; c = right slot.
+Vm_Op_BranchEqual:
+    rep #$31
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    sta.l VmPriv_LeftLo           ; left TYPE (scratch reuse -- this handler
+                                   ; owns VmPriv_Left*/Right* exclusively for
+                                   ; its own duration, same as ADD/EQ do)
+    rep #$31
+.a16
+.i16
+    lda.l VmSlots_Wram+4,x
+    sta.l VmPriv_LeftHi           ; left VALUE low word (scratch reuse)
+    lda.l VmSlots_Wram+6,x
+    sta.l VmPriv_RightLo          ; left VALUE high word (scratch reuse)
+
+    lda.l VmPriv_C
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l VmSlots_Wram+0,x
+    cmp.l VmPriv_LeftLo
+    bne Vm_Op_BranchEqual__not_taken   ; type mismatch -> not equal
+    rep #$31
+.a16
+.i16
+    lda.l VmSlots_Wram+4,x
+    cmp.l VmPriv_LeftHi
+    bne Vm_Op_BranchEqual__not_taken
+    lda.l VmSlots_Wram+6,x
+    cmp.l VmPriv_RightLo
+    bne Vm_Op_BranchEqual__not_taken
+
+    lda.l VmPriv_A
+    sta.l VmState_Ip
+    jmp Vm_Run__loop
+
+Vm_Op_BranchEqual__not_taken:
+    rep #$31
+.a16
+.i16
     jmp Vm_Next
 
 ; ADD -- Signed 32-bit, INTEGER-only at this gate (plan_vm.md §2's Implement

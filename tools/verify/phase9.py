@@ -73,9 +73,32 @@ StreamScroll_StagedHi = 0x7E2524
 # movement). Use the reliable cadence; see mesen_set_input_wall_clock
 # project memory for the general "frames is a lower bound" caveat this
 # extends.
-HOLD_FRAMES = 30
-RUN_FRAMES = 35
-ITERATIONS = 20
+#
+# 30f/35f had ZERO margin against real-world (wall-clock) scheduling
+# jitter in the Mesen automation harness: the VM Gate 1 session proved this
+# directly by injecting a pure dead-cycle busy loop (no WRAM writes, no
+# behavioral change whatsoever) at boot on an otherwise-unmodified engine --
+# it flipped this same "no stall > 2 windows" check between PASS and FAIL
+# across repeated runs of the IDENTICAL build. That means any future
+# boot-time cost anywhere in the engine (not just the VM) could trip this
+# gate without a real regression. Widened to 45f/55f so each sampled window
+# contains enough real movement that a single badly-timed `set_input` call
+# landing late can't zero out that window's whole delta -- same fix shape
+# as the original 10f->30f/35f change above, just for a different jitter
+# source. Re-validate with the same A/B methodology (5x on a clean build,
+# 5x with injected boot-time delay) before changing this cadence again.
+# ITERATIONS trimmed down from 30f/35f's 20 (~700 run frames total) so the
+# widened per-window cadence below doesn't run the held-right player past
+# the shipped level's end -- discovered empirically: 45f/55f x 20 (~1100
+# frames) drove PosX/Screen_PosX/StreamScroll_StagedHi all the way to a
+# real, legitimate plateau (world-X clamp / end of streamable content) for
+# the run's back half, which looks identical to a hang to this script's
+# stall counter but isn't one. 14 iterations keeps total held-input frames
+# (770) close to the original cadence's (700), comfortably short of that
+# plateau on the shipped level.
+HOLD_FRAMES = 45
+RUN_FRAMES = 55
+ITERATIONS = 14
 
 SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X, same
                       # not-reachable-via-pasm_constant note as phase8.py.

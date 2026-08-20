@@ -1195,6 +1195,45 @@ the same change.
 
 ## §3 — Gate 1: complete the control/no-op family and the fault model
 
+> **Status: DONE** (2026-08-19). `GATE 1: PASS` -- all 48 ABI opcode values
+> plus probes at 48 and 255 reach the correct `(status, error)` pair, built
+> from `opcode_manifest.csv`/this section's own implement list, not from the
+> implementation. `PJUMP`/`Branch_TRUE`/`Branch_EQUAL` have real handlers;
+> the link/no-op family routes to a shared `Vm_Op_Noop`; module CRC32
+> (zlib/ISO-HDLC, table-driven) validates at load; `Vm_Fault` captures
+> failing IP, opcode, and operands A/B/C (frame depth reuses the existing
+> `VmState_FrameTop` cell, frozen at fault time -- no separate snapshot
+> needed). Full regression suite (phase5-8, phase11_damage, phase12_roster,
+> vm_gate0a, vm_gate0) confirmed green alongside vm_gate1.
+>
+> Two things worth carrying forward, found executing this gate rather than
+> reading it:
+> - **A real, independent WRAM-collision bug was found and fixed along the
+>   way, unrelated to this gate's own pass/fail.** `VmTrace_Wram`/
+>   `VmState_*`/`VmSlots_Wram` (and this gate's own `VmPriv_*`/CRC32
+>   scratch) sat inside `core/stream_cache.pasm`'s `StreamCache_Tile2Slot`
+>   table (`$7F0000-$7F7FFF`) since Gate 0 -- that file's "confirmed unused"
+>   grep never covered bank `$7F`. Silent at Gate 0 (small footprint, lucky
+>   tile IDs); this gate's added writes made it start mattering. Relocated
+>   the whole VM-scalar block to `$7FC000-$7FFFFF` (see `vm_consts.pasm`).
+>   Gate 3's `VmFrames_Wram` (768B) and Gate 4's `VmStrPool_Wram` (4096B)
+>   would have collided badly once built, so this was worth finding now.
+> - **That WRAM fix was NOT what was breaking `tools/verify/phase9.py`,
+>   despite looking exactly like the cause at first.** The real finding:
+>   `phase9.py`'s "no stall > 2 windows" check had *zero* margin against
+>   real-world (wall-clock) scheduling jitter in the Mesen automation
+>   harness -- proven by injecting a pure dead-cycle busy loop (no WRAM
+>   writes, no behavioral change at all) at boot on the pre-Gate-1 engine
+>   and watching the identical check flip between PASS and FAIL across
+>   repeated runs of one unchanged build. Any future boot-time cost
+>   anywhere in the engine could have tripped this, not just VM work. Fixed
+>   in `phase9.py` itself (widened `HOLD_FRAMES`/`RUN_FRAMES` cadence,
+>   `ITERATIONS` trimmed to compensate so the held-right run doesn't outrun
+>   the shipped level), not by touching the VM or loosening the stall
+>   threshold. Validated 5x on Gate 1's build and 5x on base, both 5/5.
+>   See `phase9.py`'s own comment for the re-validation protocol if this
+>   cadence ever needs to change again.
+
 **Pass condition: every ABI value 0..47 reaches either its intended handler or an
 explicit, deterministic fault. No value is silently a no-op.**
 
