@@ -10227,3 +10227,4 @@ __Tad_AudioData_0:
     .incbin "../soundwork/tad/build/audio-data.bin"
 
 .include "core/vm/vm_dec16_heavy.pasm"
+.include "core/vm/vm_native_engine.pasm"

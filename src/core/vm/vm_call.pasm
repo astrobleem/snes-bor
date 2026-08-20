@@ -456,6 +456,16 @@ Vm_Op_Call__native:
     beq Vm_Op_Call__native_max
     cmp #VM_NATIVE_LOG
     beq Vm_Op_Call__native_log
+    cmp #100                        ; Gate 6 engine natives (vm_native_engine.pasm,
+    bcs Vm_Op_Call__native_engine   ; bank 1) start at 100 -- see vm_consts.pasm.
+                                     ; Collapsed to ONE range check + ONE jsl instead
+                                     ; of nine, each with its own cmp/beq/jsl/brl:
+                                     ; bank 0's $9000-$AC00 VM window had no room left
+                                     ; for nine of those blocks (measured -- the first
+                                     ; attempt overlapped LoadAudioData's fixed $AC00
+                                     ; org by 46 bytes). The 9-way dispatch itself now
+                                     ; lives in bank 1 (Vm_NativeEng_Dispatch), which
+                                     ; has real headroom.
     lda #VMERR_BAD_NATIVE
     jmp Vm_Fault
 
@@ -474,6 +484,10 @@ Vm_Op_Call__native_max:
 Vm_Op_Call__native_log:
 .a16
     jsr Vm_NativeLog
+    brl Vm_Op_Call__native_done
+Vm_Op_Call__native_engine:
+.a16
+    jsl Vm_NativeEng_Dispatch
 
 Vm_Op_Call__native_done:
 .a16

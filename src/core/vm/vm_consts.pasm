@@ -162,6 +162,22 @@ VM_NATIVE_MIN = 2
 VM_NATIVE_MAX = 3
 VM_NATIVE_LOG = 4
 
+; Gate 6 (plan_vm.md §8): the 6 real engine-facing natives SPAWN000.C uses,
+; specialized to one stable ID per (function, compile-time property-string)
+; pair by the exporter (tools/bor_converter/openbor_script/natives.py) --
+; see that file's module docstring and core/vm/vm_native_engine.pasm's own
+; header for why. IDs start at 100 to leave headroom below Gate 3's 1-4
+; range for any future hand-assigned test native.
+VM_NATIVE_GETLOCALVAR_SELF        = 100
+VM_NATIVE_GETENTITYPROP_X         = 101
+VM_NATIVE_GETENTITYPROP_A         = 102
+VM_NATIVE_GETENTITYPROP_Z         = 103
+VM_NATIVE_GETENTITYPROP_DIRECTION = 104
+VM_NATIVE_CLEARSPAWNENTRY         = 105
+VM_NATIVE_SETSPAWNENTRY_NAME      = 106
+VM_NATIVE_SPAWN                   = 107
+VM_NATIVE_CHANGEENTITYPROP_POSITION = 108
+
 ; --- Gate 4 (plan_vm.md §6): dynamic string pool layout. Fixed-size slab
 ; carved out of VmStrPool_Wram (4096 B, above): 64 objects x 64 bytes.
 ; Object layout, relative to VmStrPool_Wram + index*VMSTRPOOL_OBJ_SIZE:

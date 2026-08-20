@@ -61,6 +61,7 @@ VmState_FrameTop = pasm_constant_in(CONSTS, 'VmState_FrameTop')
 VMSTAT_DONE = pasm_constant_in(CONSTS, 'VMSTAT_DONE')
 VMSTAT_FAULT = pasm_constant_in(CONSTS, 'VMSTAT_FAULT')
 VMSTAT_READY = pasm_constant_in(CONSTS, 'VMSTAT_READY')
+VMSTAT_RUNNING = pasm_constant_in(CONSTS, 'VMSTAT_RUNNING')
 VMERR_NONE = pasm_constant_in(CONSTS, 'VMERR_NONE')
 VMERR_BAD_TYPE = pasm_constant_in(CONSTS, 'VMERR_BAD_TYPE')
 VMERR_BAD_NATIVE = pasm_constant_in(CONSTS, 'VMERR_BAD_NATIVE')
@@ -163,6 +164,17 @@ def run_case(m, case):
             return state[off]
         return state[off] | (state[off + 1] << 8)
 
+    # Only VMSTAT_DONE/VMSTAT_FAULT are terminal. VMSTAT_RUNNING is written
+    # the instant the interpreter loop starts (vm_run.pasm) and is a real,
+    # legitimate in-progress state -- treating "!= READY" as "finished" (the
+    # original bug here) misreads a poll that lands mid-execution as a
+    # terminal result, capturing torn/mid-run frame_top and slot state. This
+    # was latent (never observed) until unrelated ROM growth shifted timing
+    # enough for a deep case (10-frame recursion) to occasionally still be
+    # RUNNING when a poll landed -- see the Gate 6 regression investigation
+    # that found it (2026-08-20): confirmed via a direct repro that
+    # run_case() returned status=VMSTAT_RUNNING, frame_top=1 for a case that
+    # deterministically finishes DONE/frame_top=0 given enough time.
     status_byte = VMSTAT_READY
     state = None
     for _ in range(60):
@@ -170,7 +182,7 @@ def run_case(m, case):
         m.pause()
         state = read_block(m, VM_STATE_FIRST, 32)
         status_byte = field(state, VmState_Status, 1)
-        if status_byte != VMSTAT_READY:
+        if status_byte not in (VMSTAT_READY, VMSTAT_RUNNING):
             break
     else:
         return None
