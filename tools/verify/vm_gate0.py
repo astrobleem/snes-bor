@@ -1,49 +1,58 @@
 #!/usr/bin/env python3
 """plan_vm.md §2, Gate 0: fetch, dispatch, integer slots, branch, root RET.
 
-Scope is exactly tools/verify/vm_fixtures/gate0_program.json: 10 instructions,
-8 of them executed (JUMP skips the unreachable ERR at IP 8), covering
-CONSTINT/ADD/EQ/Branch_FALSE/JUMP/RET.
+HOST-SIDE HALF (unchanged since Gate 0/2): tools/verify/vm_fixtures/
+gate0_module.bin, gate0_program.json and gate0_expected_slots.bin are a
+fixed 10-instruction fixture (8 executed; JUMP skips an unreachable ERR at
+IP 8) covering CONSTINT/ADD/EQ/Branch_FALSE/JUMP/RET. run_gate0_reference.py
+(a from-scratch host VM, independent of oracle.py/the compiler pipeline)
+must agree with the fixture's own `expected` block, and validate_fixtures.py
+must confirm gate0_module.bin/gate0_program.json/gate0_expected_slots.bin
+are mutually consistent, BEFORE the engine is even booted (plan_vm.md 0.7's
+"the fixture is wrong, not the interpreter" rule). This is pure dispatch
+coverage and has nothing to do with what actually ships at boot.
 
-GROUND TRUTH (§0.7's rule, and §2's own "run the host oracle first" order):
-  1. The host reference VM (run_gate0_reference.py) must independently agree
-     with gate0_program.json's `expected` block before the engine is even
-     booted -- if that disagrees, the FIXTURE is wrong, not the interpreter.
-  2. validate_fixtures.py must confirm gate0_module.bin, gate0_program.json
-     and gate0_expected_slots.bin are all mutually consistent.
-  3. Only then does this script assert the real ROM against
-     gate0_expected_slots.bin (the file, not a checksum) and the fixture's
-     own `executed_trace`.
-
-Assertion order matters (§2's "Gate" section): status/error first (cheap,
-catches a hang or a completely wrong run immediately), then the full 40-byte
-slot region byte-compared with the first differing offset reported on
-mismatch, then the trace ring reconstructed from VmState_TraceHead and
-compared entry-by-entry against the fixture's executed_trace, then both guard
-regions.
-
-Two failure signatures §2 calls out by name, so a real hit reads as
-recognition instead of a fresh investigation:
-  - Slots right, trace wrong: the IP exit contract (a handler both assigning
-    IP and falling through to Vm_Next).
-  - One slot's high word wrong, low word right: carry propagation in the
-    32-bit ADD.
+HARDWARE HALF (Task #13, 2026-08-20 -- rewritten, was previously also
+pinned to gate0_module.bin). Once build_rom.py's VM_MODULE stopped being
+the Gate 0 fixture (repointed at a real compiled script,
+boot_spawn_wave1_module.bin, so a real openborscript module ships through
+the normal MSU/Vm_Load boot path instead of only ever being WRAM-injected
+by gates 1-6), asserting gate0_expected_slots.bin against real hardware
+would no longer be testing what's true -- it would be asserting stale
+content. Gate 0's OWN non-duplicated coverage is the boot-transport path
+(MSU->WRAM, Vm_ValidateHeader, initial-slot-image copy, execution reaching
+VMSTAT_DONE without fault) -- gates 1-6 already prove dispatch/opcode
+correctness against arbitrary programs via direct WRAM injection, so this
+half is now content-agnostic: it recompiles fixtures/boot_spawn_wave1.c
+fresh (the same source-of-truth build_rom.py's packed VM_MODULE came from),
+byte-compares the fresh pack against the actual VM_MODULE file on disk
+(catching drift between the two independent of hardware), computes expected
+final VM slots and entity-world state via oracle.py (same host interpreter
+vm_gate6.py already validated against real natives), then boots the real
+ROM with NO wram injection -- this is the one gate that exercises the real
+MSU load, not a shortcut around it -- and diffs against the oracle.
 
 Usage: python tools/verify/vm_gate0.py
 """
 import json
 import os
+import re
 import struct
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import (open_session, pasm_constant_in, read_block,  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in, read_block,  # noqa: E402
                       repo_root_from, Reporter)
 
 ROOT = repo_root_from(__file__)
+sys.path.insert(0, os.path.join(ROOT, 'tools', 'bor_converter'))
+from openbor_script import lexer, parser, compiler, module as modpkg, oracle  # noqa: E402
+
 CONSTS = 'src/core/vm/vm_consts.pasm'
 FIXTURES = os.path.join(ROOT, 'tools', 'verify', 'vm_fixtures')
+FIXTURE_SCRIPT = os.path.join(ROOT, 'tools', 'bor_converter', 'openbor_script',
+                               'fixtures', 'boot_spawn_wave1.c')
 
 VmSlots_Wram = pasm_constant_in(CONSTS, 'VmSlots_Wram')
 VmGuardLo = pasm_constant_in(CONSTS, 'VmGuardLo')
@@ -54,16 +63,30 @@ VM_GUARD_HI_FILL = pasm_constant_in(CONSTS, 'VM_GUARD_HI_FILL')
 VM_STATE_FIRST = pasm_constant_in(CONSTS, 'VM_STATE_FIRST')
 VmState_Status = pasm_constant_in(CONSTS, 'VmState_Status')
 VmState_Error = pasm_constant_in(CONSTS, 'VmState_Error')
-VmState_TraceHead = pasm_constant_in(CONSTS, 'VmState_TraceHead')
-VmTrace_Wram = pasm_constant_in(CONSTS, 'VmTrace_Wram')
 VMSTAT_DONE = pasm_constant_in(CONSTS, 'VMSTAT_DONE')
 VMSTAT_RUNNING = pasm_constant_in(CONSTS, 'VMSTAT_RUNNING')
 VMERR_NONE = pasm_constant_in(CONSTS, 'VMERR_NONE')
 
-SLOT_SIZE = 8
-TRACE_ENTRY_SIZE = 4
-TRACE_RING_LEN = 32
+CHAR_POS_X = pasm_constant('CHAR_POS_X')
+CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
+CHAR_FACING_LEFT = pasm_constant('CHAR_FACING_LEFT')
+CHAR_HP = pasm_constant('CHAR_HP')
+CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
+CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+ENTITY_BASE = 0x7E0a00
 
+# Boot defaults (main.pasm's CharacterEntity_Init__player/__role1-3): player
+# spawns at (120, 150) facing right (0); all 3 AI roles boot HP=0 -- ground
+# truth for the world oracle.run_oracle() needs, re-derived from source, not
+# assumed.
+BOOT_WORLD = {
+    0: {'x': 120, 'y': 150, 'facing': 0, 'hp': 64},
+    1: {'x': 0, 'y': 0, 'facing': 0, 'hp': 0},
+    2: {'x': 0, 'y': 0, 'facing': 0, 'hp': 0},
+    3: {'x': 0, 'y': 0, 'facing': 0, 'hp': 0},
+}
+
+SLOT_SIZE = 8
 Nmi_FrameCounter = 0x7E5023
 
 
@@ -75,8 +98,29 @@ def run(cmd):
     return r.returncode == 0
 
 
-def describe_slot_mismatch(got, want, program):
-    names = {s['a']: s.get('name', '') for s in program['instructions']}
+def frame_counter(m):
+    b = read_block(m, Nmi_FrameCounter, 32)
+    return b[0] | (b[1] << 8)
+
+
+def get_vm_module_path():
+    with open(os.path.join(ROOT, 'build_rom.py'), encoding='utf-8') as f:
+        m = re.search(r'^VM_MODULE\s*=\s*"([^"]+)"', f.read(), re.MULTILINE)
+    if not m:
+        print('FAIL: could not find VM_MODULE = "..." in build_rom.py')
+        raise SystemExit(1)
+    return os.path.join(ROOT, m.group(1))
+
+
+def build_module():
+    with open(FIXTURE_SCRIPT, encoding='utf-8') as f:
+        src = f.read()
+    toks = lexer.tokenize(src)
+    program = parser.Parser(toks).parse_program()
+    return compiler.compile_module(program)
+
+
+def describe_slot_mismatch(got, want):
     for i in range(0, len(want), SLOT_SIZE):
         if got[i:i + SLOT_SIZE] != want[i:i + SLOT_SIZE]:
             slot_id = i // SLOT_SIZE
@@ -87,16 +131,25 @@ def describe_slot_mismatch(got, want, program):
     return 'identical'
 
 
-def frame_counter(m):
-    b = read_block(m, Nmi_FrameCounter, 32)
-    return b[0] | (b[1] << 8)
+def entity_addr(e):
+    return ENTITY_BASE + e * CHAR_ZP_LEN
+
+
+def read_world(m):
+    world = {}
+    for e in range(4):
+        data = read_block(m, entity_addr(e), 40)
+        x = data[CHAR_POS_X] | (data[CHAR_POS_X + 1] << 8)
+        y = data[CHAR_POS_Y] | (data[CHAR_POS_Y + 1] << 8)
+        world[e] = {'x': x, 'y': y, 'facing': data[CHAR_FACING_LEFT], 'hp': data[CHAR_HP]}
+    return world
 
 
 def main():
     r = Reporter('0', kind='GATE')
 
-    print('--- host oracle, then fixture self-consistency (must both pass '
-          'before the engine is trusted) ---')
+    print('--- host-side dispatch fixture (unchanged): reference VM, then '
+          'mutual fixture consistency ---')
     if not run(os.path.join(FIXTURES, 'run_gate0_reference.py')):
         print('FAIL: the host reference VM does not agree with its own fixture. '
               'The FIXTURE is wrong -- fix that before touching the interpreter.')
@@ -107,23 +160,36 @@ def main():
         raise SystemExit(1)
     print()
 
-    with open(os.path.join(FIXTURES, 'gate0_program.json'), encoding='utf-8') as f:
-        program = json.load(f)
-    with open(os.path.join(FIXTURES, 'gate0_expected_slots.bin'), 'rb') as f:
-        want_slots = f.read()
+    print('--- hardware boot-transport half: whatever module build_rom.py '
+          'actually ships ---')
+    vm_module_path = get_vm_module_path()
+    print(f'VM_MODULE: {os.path.relpath(vm_module_path, ROOT)}')
+    with open(vm_module_path, 'rb') as f:
+        shipped_blob = f.read()
 
-    expected = program['expected']
-    expected_trace = expected['executed_trace']
-    slot_count = program['slot_count']
-    assert len(want_slots) == slot_count * SLOT_SIZE
+    fresh = build_module()
+    fresh_blob = modpkg.pack_module(fresh)
+    if fresh_blob != shipped_blob:
+        print('FAIL: recompiling fixtures/boot_spawn_wave1.c does not '
+              'byte-match the module build_rom.py actually packed -- '
+              're-export it (see export_openbor_script_module.py) before '
+              'trusting this gate.')
+        raise SystemExit(1)
+    print(f'module: {len(shipped_blob)} bytes, {fresh.entry_main} entry, '
+          f'{len(fresh.instructions)} instructions, {len(fresh.slots)} slots '
+          '-- fresh compile matches shipped bytes')
+
+    oracle_result = oracle.run_oracle(fresh, {e: dict(v) for e, v in BOOT_WORLD.items()}, {})
+    oracle_slots = oracle_result['slots']
+    want_slots = b''.join(
+        struct.pack('<BBHI', s[0], s[1] & 0xFF, s[2] & 0xFFFF, s[3] & 0xFFFFFFFF)
+        for s in oracle_slots)
 
     with open_session(__file__) as m:
         m.reset_emulator()
         m.run_frames(120)
         m.pause()
 
-        # Status/error first, cheap and immediately distinguishing a hang or
-        # a badly-wrong run from a real mismatch.
         status = 0
         for _ in range(180):
             m.pause()
@@ -144,39 +210,38 @@ def main():
         r.check(f'VmState_Status == VMSTAT_DONE ({VMSTAT_DONE})', status == VMSTAT_DONE)
         r.check(f'VmState_Error == VMERR_NONE (${VMERR_NONE:04X})', error == VMERR_NONE)
 
-        # Slots: the gate. All 40 bytes, byte-compared against the fixture
-        # file, never a spot-check of one slot.
         got_slots = bytes(read_block(m, VmSlots_Wram, max(32, len(want_slots))))[:len(want_slots)]
         same_slots = got_slots == want_slots
         if not same_slots:
-            print('  ' + describe_slot_mismatch(got_slots, want_slots, program))
+            print('  ' + describe_slot_mismatch(got_slots, want_slots))
         r.check(f'{len(want_slots)} bytes at ${VmSlots_Wram:06X} byte-match '
-                f'gate0_expected_slots.bin', same_slots)
+                'oracle-computed final slots', same_slots)
 
-        # Trace ring: reconstruct execution order from TraceHead, since the
-        # ring wraps (not exercised at 8 entries into a 32-entry ring, but
-        # written correctly regardless -- Gate 1's fault fixtures use it).
-        head = state[VmState_TraceHead - VM_STATE_FIRST]
-        n_executed = len(expected_trace)
-        ring = bytes(read_block(m, VmTrace_Wram, TRACE_RING_LEN * TRACE_ENTRY_SIZE))
-        start = (head - n_executed) % TRACE_RING_LEN
-        got_trace = []
-        for i in range(n_executed):
-            off = ((start + i) % TRACE_RING_LEN) * TRACE_ENTRY_SIZE
-            ip = ring[off] | (ring[off + 1] << 8)
-            opcode = ring[off + 2]
-            got_trace.append([ip, opcode])
-        print(f'trace (TraceHead={head}): {got_trace}')
-        trace_ok = got_trace == expected_trace
-        if not trace_ok:
-            print(f'  expected: {expected_trace}')
-            print('  NOTE: if the slots check above passed but this did not, see '
-                  'plan_vm.md 2\'s "Slots right, trace wrong" -- a handler is '
-                  'both assigning IP and falling through to Vm_Next.')
-        r.check(f'executed trace matches fixture ({n_executed} entries)', trace_ok)
+        hw_world = read_world(m)
+        # NOT the same scoping vm_gate6.py used -- that gate samples right
+        # after its own injected module reaches VMSTAT_DONE, with nothing
+        # else having run yet. This gate's harness convention (m.run_frames
+        # (120) before ANY sampling, matching vm_gate0a.py/every other
+        # gate's boot-settle pattern) means Phase 13's real spawn-table wave
+        # queue and Phase 5/11's AI-seek/combat have ALSO run for real by
+        # the time we read anything -- confirmed empirically (2026-08-20):
+        # entities 2/3 come up alive with real spawn-table positions
+        # unrelated to this module, and the player's HP drops from combat,
+        # all before this gate ever samples. That's real, already-verified
+        # engine behavior (Phase 5/11/13's own gates), not something Gate 0
+        # should re-assert or be confused by. The one fact this gate can
+        # actually attribute to the VM's own SPAWN call, robust to that
+        # contamination, is that entity 1 -- Vm_NativeEng_Spawn's scan
+        # starts at index 1, and it runs to VMSTAT_DONE within the first
+        # frame, before Spawn_Play's own same-order scan could reach index
+        # 1 -- ended up alive. Exact position is NOT re-asserted here:
+        # vm_gate6.py's WRAM-injection scenario 1 already proves the SPAWN/
+        # CHANGEENTITYPROP_POSITION natives place it correctly in isolation.
+        vm_spawned = hw_world[1]['hp'] != 0
+        if not vm_spawned:
+            print(f'  hw world: {hw_world}')
+        r.check('entity 1 alive (VMs own SPAWN call claimed the slot)', vm_spawned)
 
-        # Guards, last (cheap, and a corrupted guard after a real run is its
-        # own finding regardless of what else passed or failed).
         lo = read_block(m, VmGuardLo, 32)[:VM_GUARD_LEN]
         hi = read_block(m, VmGuardHi, 32)[:VM_GUARD_LEN]
         r.check(f'VmGuardLo still {VM_GUARD_LEN} x ${VM_GUARD_LO_FILL:02X}',

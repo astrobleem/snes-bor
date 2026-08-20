@@ -7,9 +7,11 @@ first interpreter code. Transport is gated first on purpose -- an interpreter
 debugged against a module that never loaded is unfalsifiable.
 
 GROUND TRUTH (plan_vm.md §0.7's rule). The module bytes are compared against
-tools/verify/vm_fixtures/gate0_module.bin read from disk -- the very same file
-build_rom.py packs into bor.msu, deliberately one file rather than a copy so the
-packed bytes and the compared-against bytes cannot drift apart. The engine's own
+whatever file build_rom.py's own VM_MODULE constant names (read from
+build_rom.py itself, Task #13, 2026-08-20 -- was hardcoded to
+gate0_module.bin until VM_MODULE was repointed at a real compiled script),
+deliberately the same file rather than a copy so the packed bytes and the
+compared-against bytes cannot drift apart. The engine's own
 status byte is checked too, but only AFTER the byte comparison, and it is never
 the sole evidence: phase7 is the cautionary tale, where TAD reported PLAYING at
 full volume for as long as it was faithfully loading pure zeros and every
@@ -29,6 +31,7 @@ Every address and constant is read from source via pasm_constant_in(); nothing
 here is hardcoded. Usage: python tools/verify/vm_gate0a.py
 """
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -57,7 +60,19 @@ VMERR_NONE = pasm_constant_in(CONSTS, 'VMERR_NONE')
 VM_MODULE_SIZE = pasm_constant_in(LOADER, 'VM_MODULE_SIZE')
 
 # build_rom.py packs this exact file; see its VM_MODULE constant.
-FIXTURE = os.path.join(ROOT, 'tools', 'verify', 'vm_fixtures', 'gate0_module.bin')
+# Task #13 (2026-08-20): read build_rom.py's own VM_MODULE constant rather
+# than hardcoding gate0_module.bin -- that file stopped being what ships at
+# boot once VM_MODULE was repointed at a real compiled script
+# (boot_spawn_wave1_module.bin). This gate proves transport (byte-for-byte
+# WRAM match + header validation), which holds for whatever module actually
+# ships; it was never coupled to gate0_module.bin's specific content the way
+# vm_gate0.py's old fixture-diff assertions were.
+with open(os.path.join(ROOT, 'build_rom.py'), encoding='utf-8') as _f:
+    _m = re.search(r'^VM_MODULE\s*=\s*"([^"]+)"', _f.read(), re.MULTILINE)
+if not _m:
+    print("FAIL: couldn't find VM_MODULE = \"...\" in build_rom.py")
+    raise SystemExit(1)
+FIXTURE = os.path.join(ROOT, _m.group(1))
 
 Nmi_FrameCounter = 0x7E5023  # same cell phase6.py/phase8.py read
 

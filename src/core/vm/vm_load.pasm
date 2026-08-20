@@ -84,7 +84,7 @@ VM_MSU_OFFSET   = $027164   ; from build_rom.py's check_vm_constants -- re-sync
                             ; (rerun the build, paste its reported value) any
                             ; time an earlier roster/BG/FP/spawn asset changes
                             ; size, or the shipped level changes.
-VM_MODULE_SIZE  = 184       ; tools/verify/vm_fixtures/gate0_module.bin, likewise
+VM_MODULE_SIZE  = 424       ; tools/verify/vm_fixtures/boot_spawn_wave1_module.bin, likewise
                             ; checked at build time. Also cross-checked against
                             ; the module's own header field at +$34 below.
 

@@ -99,6 +99,7 @@ silently reusing old data.
 Usage: python tools/verify/vm_gate1.py
 """
 import os
+import re
 import struct
 import sys
 
@@ -107,9 +108,11 @@ from _harness import open_session, pasm_constant_in, read_block, repo_root_from,
 
 ROOT = repo_root_from(__file__)
 CONSTS = 'src/core/vm/vm_consts.pasm'
+CALL_CONSTS = 'src/core/vm/vm_call.pasm'
 FIXTURES = os.path.join(ROOT, 'tools', 'verify', 'vm_fixtures')
 
 VmCode_Wram = pasm_constant_in(CONSTS, 'VmCode_Wram')
+VmCall_CallsitesOff = pasm_constant_in(CALL_CONSTS, 'VmCall_CallsitesOff')
 VmSlots_Wram = pasm_constant_in(CONSTS, 'VmSlots_Wram')
 VM_STATE_FIRST = pasm_constant_in(CONSTS, 'VM_STATE_FIRST')
 VmState_Status = pasm_constant_in(CONSTS, 'VmState_Status')
@@ -132,9 +135,23 @@ VMERR_UNIMPLEMENTED = pasm_constant_in(CONSTS, 'VMERR_UNIMPLEMENTED')
 VMERR_CALL_DEPTH = pasm_constant_in(CONSTS, 'VMERR_CALL_DEPTH')
 VMERR_NO_CALL_FRAME = pasm_constant_in(CONSTS, 'VMERR_NO_CALL_FRAME')
 
-with open(os.path.join(FIXTURES, 'gate0_module.bin'), 'rb') as f:
-    GATE0_MODULE = f.read()
-INSTRUCTIONS_OFFSET = struct.unpack_from('<I', GATE0_MODULE, 0x18)[0]
+# Task #13 (2026-08-20): read instructions_offset from whatever module
+# build_rom.py's VM_MODULE actually ships and boots, not a hardcoded
+# gate0_module.bin -- VM_MODULE stopped being that fixture when it was
+# repointed at a real compiled script (boot_spawn_wave1_module.bin), and
+# this offset must match VmPriv_InstrOff, the cached value Vm_Boot actually
+# derived from the module that really loaded. Using the wrong offset here
+# doesn't fail loudly -- it silently injects each of this gate's 50 cases
+# into the wrong WRAM location, which is exactly what caused a real,
+# reproducible opcode-8 (CALL) misfire the first time VM_MODULE changed out
+# from under this file's stale assumption.
+with open(os.path.join(ROOT, 'build_rom.py'), encoding='utf-8') as f:
+    _vm_module_match = re.search(r'^VM_MODULE\s*=\s*"([^"]+)"', f.read(), re.MULTILINE)
+if not _vm_module_match:
+    raise SystemExit('FAIL: could not find VM_MODULE = "..." in build_rom.py')
+with open(os.path.join(ROOT, _vm_module_match.group(1)), 'rb') as f:
+    BOOT_MODULE = f.read()
+INSTRUCTIONS_OFFSET = struct.unpack_from('<I', BOOT_MODULE, 0x18)[0]
 RECORDS_ADDR = VmCode_Wram + INSTRUCTIONS_OFFSET
 
 RET = 0x2B  # BOR_OP_RET -- opcode_manifest.csv
@@ -267,6 +284,19 @@ def run_case(m, opcode):
 
     m.write_memory('snesMemory', RECORDS_ADDR, records.hex())
     m.write_memory('snesMemory', VmSlots_Wram, SLOTS.hex())
+    if opcode == 8:  # CALL -- see GATE3_FAULT's own comment: this case's
+        # callsite_id (instruction field b) is 0, and needs callsite 0 to be
+        # a plain self-recursive script call (target_kind=SCRIPT=0,
+        # target_id=0) to deterministically walk to VMERR_CALL_DEPTH,
+        # regardless of what real callsite data the actually-booted module
+        # (VM_MODULE, Task #13) left resident at the cached
+        # VmCall_CallsitesOff -- clobbering just callsite 0 there (12 bytes,
+        # all-zero == exactly that record) rather than pointing the cache at
+        # a whole separate synthetic window, since nothing else reads it
+        # during this single-record fixture.
+        callsites_off = read_block(m, VmCall_CallsitesOff, 32)
+        callsites_off_val = callsites_off[0] | (callsites_off[1] << 8)
+        m.write_memory('snesMemory', VmCode_Wram + callsites_off_val, ('00' * 12))
     m.write_u16(VmState_Ip, 0)
     m.write_u16(VmState_Error, 0)
     m.write_u16(VmState_InstrCount, instr_count)

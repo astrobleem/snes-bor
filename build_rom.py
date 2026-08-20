@@ -61,12 +61,23 @@ FP_SCREENS = [None]
 # same way with "DATA\EASY\1AEASY.TXT" instead.
 SPAWN_TABLE = "out/spawn_stage1b/spawn_table.bin"
 
-# Gate 0a (plan_vm.md 1): the VM's Gate 0 module, packed at the very end of
-# bor.msu so it can never move an earlier section's offset. This is the same
-# file tools/verify/vm_gate0a.py byte-compares the loaded WRAM region against
-# -- deliberately one file, not a copy, so the packed bytes and the ground
-# truth cannot drift apart.
-VM_MODULE = "tools/verify/vm_fixtures/gate0_module.bin"
+# Task #13 (2026-08-20): the real compiled openborscript module shipped
+# through the normal MSU/Vm_Load boot path, replacing the Gate 0 test
+# fixture (gate0_module.bin) that shipped here since Gate 0a. Compiled from
+# tools/bor_converter/openbor_script/fixtures/boot_spawn_wave1.c -- a
+# synthetic entry-point script (see that file's own header for why it's
+# synthetic rather than a mod pak's SPAWN000.C directly: the compiler has no
+# codegen yet for a real script-to-script CALL with arguments) that reuses
+# the exact same 9 natives vm_gate6.py already proved correct on real
+# hardware against Double Dragon Moto's SPAWN000.C. Effect: spawns one AI
+# entity 40 world-X pixels ahead of the player, at the player's Y, the first
+# frame after boot. Packed at the very end of bor.msu so it can never move
+# an earlier section's offset. This is the same file tools/verify/
+# vm_gate0a.py byte-compares the loaded WRAM region against, and the same
+# file tools/verify/vm_gate0.py recompiles fresh and diffs real boot
+# execution against (via oracle.py) -- deliberately one file, not a copy, so
+# the packed bytes and the ground truth cannot drift apart.
+VM_MODULE = "tools/verify/vm_fixtures/boot_spawn_wave1_module.bin"
 
 DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
 POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
