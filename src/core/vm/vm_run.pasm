@@ -708,14 +708,22 @@ Vm_Op_BranchEqual__not_taken:
 .i16
     jmp Vm_Next
 
-; ADD -- Signed 32-bit INTEGER pair, or STR concatenation when BOTH operands
-; are STR (Gate 4, plan_vm.md §6 / opcode_manifest.csv: "or string
-; concatenation when either operand is a string"). A mixed INTEGER/STR pair
-; faults VMERR_BAD_TYPE rather than coercing the integer to its script
-; string form -- that formatting step belongs to Gate 5's decimal-to-string
-; work (plan_vm.md §7 lists it as its own historical quirk needing an
-; explicit fixture), not this gate; a documented scope decision, not an
-; oversight (matches this file's own precedent for NEG's non-INTEGER case).
+; ADD -- numeric addition (INTEGER pair, DECIMAL pair, or mixed -- Gate 5,
+; plan_vm.md §7: routed through vm_dec16.pasm's Vm_LoadBinaryNumeric/
+; Vm_StoreNumericResult exactly like SUB, since Q16.16 addition is bit-
+; identical to INTEGER addition -- both operands are already scaled by the
+; same 65536 factor once promoted, so the raw 32-bit add/carry-propagate
+; below needs no scaling correction), or STR concatenation when BOTH
+; operands are STR (Gate 4, plan_vm.md §6 / opcode_manifest.csv: "or string
+; concatenation when either operand is a string"). A STR paired with a
+; non-STR (INTEGER/DECIMAL/PTR/EMPTY) still faults VMERR_BAD_TYPE rather
+; than coercing the numeric side to text -- Gate 4's header comment
+; deferred that formatting step to "Gate 5's decimal-to-string work";
+; Gate 5 built and fixtures the formatter itself (vm_dec16_heavy.pasm's
+; Vm_Dec_FormatSlot, bank 1) but wiring it into ADD overflowed this file's
+; $9000-$AC00 budget by ~166 bytes (vm_dec16.pasm's own header has the
+; measurement) -- deferred to Gate 6 as a documented, budget-forced scope
+; decision, not an oversight (same precedent as NEG's non-INTEGER case).
 ; a = dest slot, b = left slot, c = right slot.
 Vm_Op_Add:
     rep #$31
@@ -749,7 +757,7 @@ Vm_Op_Add:
     lda.l VmPriv_LeftLo
     cmp #BOR_VT_STR
     beq Vm_Op_Add__concat
-    brl Vm_Op_Add__to_bad_type     ; right STR, left not STR -> mixed, fault
+    brl Vm_Op_Add__to_bad_type     ; right STR, left not STR -> fault
 
 Vm_Op_Add__right_not_str:
 .a8
@@ -757,19 +765,18 @@ Vm_Op_Add__right_not_str:
     lda.l VmPriv_LeftLo
     cmp #BOR_VT_STR
     bne Vm_Op_Add__right_not_str__left_not_str
-    brl Vm_Op_Add__to_bad_type     ; left STR, right not STR -> mixed, fault
+    brl Vm_Op_Add__to_bad_type     ; left STR, right not STR -> fault
 
 Vm_Op_Add__right_not_str__left_not_str:
 .a8
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Add__right_not_str__left_int
-    brl Vm_Op_Add__to_bad_type
-
-Vm_Op_Add__right_not_str__left_int:
-.a8
-    lda.l VmSlots_Wram+0,x         ; right TYPE again -- X still = slot C's offset
-    cmp #BOR_VT_INTEGER
-    beq Vm_Op_Add__int_path
+    ; neither operand is STR -- both must be numeric (any INTEGER/DECIMAL
+    ; pairing), via the same Vm_LoadBinaryNumeric every other Gate 5
+    ; arithmetic op uses (replaces the old INTEGER-only double type check).
+    rep #$31
+.a16
+.i16
+    jsr Vm_LoadBinaryNumeric
+    bcc Vm_Op_Add__numeric_path
     brl Vm_Op_Add__to_bad_type
 
 Vm_Op_Add__concat:
@@ -786,31 +793,9 @@ Vm_Op_Add__concat_ok:
 .i16
     jmp Vm_Next
 
-Vm_Op_Add__int_path:
-.a8
-    rep #$31
+Vm_Op_Add__numeric_path:
 .a16
 .i16
-    lda.l VmPriv_B
-    asl a
-    asl a
-    asl a
-    tax
-    lda.l VmSlots_Wram+4,x
-    sta.l VmPriv_LeftLo
-    lda.l VmSlots_Wram+6,x
-    sta.l VmPriv_LeftHi
-
-    lda.l VmPriv_C
-    asl a
-    asl a
-    asl a
-    tax
-    lda.l VmSlots_Wram+4,x
-    sta.l VmPriv_RightLo
-    lda.l VmSlots_Wram+6,x
-    sta.l VmPriv_RightHi
-
     ; 32-bit add: low half, then high half, carry propagates. Deliberately no
     ; `clc` between the two `adc`s -- that dropped-carry bug shipped once
     ; already (Phase 10, README.md) and is exactly what a "just be safe and
@@ -822,27 +807,7 @@ Vm_Op_Add__int_path:
     lda.l VmPriv_LeftHi
     adc.l VmPriv_RightHi
     sta.l VmPriv_LeftHi
-
-    lda.l VmPriv_A
-    asl a
-    asl a
-    asl a
-    tax
-    sep #$20
-.a8
-    lda #BOR_VT_INTEGER
-    sta.l VmSlots_Wram+0,x
-    lda #0
-    sta.l VmSlots_Wram+1,x
-    rep #$31
-.a16
-.i16
-    lda #0
-    sta.l VmSlots_Wram+2,x
-    lda.l VmPriv_LeftLo
-    sta.l VmSlots_Wram+4,x
-    lda.l VmPriv_LeftHi
-    sta.l VmSlots_Wram+6,x
+    jsr Vm_StoreNumericResult
     jmp Vm_Next
 
 Vm_Op_Add__to_bad_type:

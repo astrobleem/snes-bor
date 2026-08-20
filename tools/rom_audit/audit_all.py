@@ -97,6 +97,29 @@ def run_one_seed_set(label, entry_addrs, data, labels_sorted, addrs, label_by_ad
     # audit_jumps-style: every edge must land on a real instruction, or on
     # NOP padding that falls through to one (this project's established
     # "nop guard" convention).
+    #
+    # Gate 5 (plan_vm.md §7) added this project's first `jsl` targets
+    # outside bank 0 (vm_arith32.pasm/vm_dec16.pasm calling into
+    # vm_dec16_heavy.pasm, appended in `.bank 1` after the TAD audio blob).
+    # This whole script -- like audit_ownership.py's own load_labels(),
+    # which explicitly loads only `bank == '00'` symbols -- is scoped to
+    # bank 0 only: `data` is the raw concatenated multi-bank main.bin and
+    # BASE=$8000 assumes a SINGLE bank's worth of address space, so a JSL
+    # target with a nonzero bank byte (target > 0xFFFF) is neither
+    # checkable against real_addrs/label_by_addr (both bank-0-only) nor
+    # safe to index into `data` with a bank-0-relative offset -- it can
+    # land far past len(data), which crashed this loop with an IndexError
+    # the first time a real cross-bank jsl edge existed to walk. Skip
+    # those edges entirely rather than mis-auditing or crashing on them;
+    # auditing bank 1+ content is out of scope for this tool.
+    cross_bank = [(src, target, kind) for src, target, kind in all_edges if target > 0xFFFF]
+    all_edges = [(src, target, kind) for src, target, kind in all_edges if target <= 0xFFFF]
+    call_edges = [(src, target, kind) for src, target, kind in call_edges if target <= 0xFFFF]
+    if cross_bank:
+        print(f'{len(cross_bank)} cross-bank JSL/JML edges skipped (out of this tool\'s bank-0 scope):')
+        for src, target, kind in cross_bank[:20]:
+            print(f'  {kind} at {hex(src)} -> {hex(target)} (bank {target >> 16:02X})')
+
     suspicious = []
     for src, target, kind in all_edges:
         if target in real_addrs:

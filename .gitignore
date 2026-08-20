@@ -6,6 +6,7 @@
 # for how tools/bor_converter/ consumes it locally. Brackets escaped: .gitignore
 # treats [...] as a glob character class, not a literal, without the backslash.
 /Beats of Rage Original \[v.3.0 Build 4086\].pak
+/Teenage Mutant Ninja Turtles \[v.3.0 Build 4153\].pak
 
 # Python
 __pycache__/

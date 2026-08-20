@@ -35,13 +35,17 @@
 ; deliberately diverging from the historical (unsafe, unguarded) behavior --
 ; also plan_vm.md §4's decision, not an oversight.
 ;
-; NEG on a non-INTEGER slot (this gate has no DECIMAL yet -- that's Gate 5,
-; plan_vm.md §7) is left unchanged, not faulted -- the same "other types are
-; unchanged" precedent opcode_manifest.csv states explicitly for INC/DEC,
-; applied here by symmetry since the manifest's own NEG row only warns to
-; verify the DECIMAL case (out of scope this gate) and says nothing about
-; non-numeric types. This is a documented decision, not a guess: no historical
-; behavior is being reproduced blind (plan_vm.md §4's own instruction).
+; NEG on a non-INTEGER, non-DECIMAL slot (STR/PTR/EMPTY) is left unchanged,
+; not faulted -- the same "other types are unchanged" precedent
+; opcode_manifest.csv states explicitly for INC/DEC. DECIMAL support for
+; INC/DEC/NEG/MUL/DIV/SUB and Vm_TruthySlot landed in Gate 5 (plan_vm.md
+; §7, vm_dec16.pasm) -- ADD's own DECIMAL support lives in vm_run.pasm
+; instead (it was already routing through a type ladder there). MOD/SHL/
+; SHR/BIT_OR/XOR/BIT_AND stayed INTEGER-only in RESULT (Gate 5 only added
+; DECIMAL->INTEGER "integer-convert" on their OPERANDS, via
+; Vm_LoadBinaryIntConvert -- opcode_manifest.csv's own wording for those
+; six opcodes, distinct from ADD/SUB/MUL/DIV's "decimal result if either
+; operand is decimal").
 ;
 ; Global (not @-local) labels; jsr/rts (bank 0); explicit width directive
 ; before every width-dependent immediate reachable from a branch/jump
@@ -547,6 +551,10 @@ Vm_TruthySlot:
     lda.l VmSlots_Wram+0,x
     cmp #BOR_VT_INTEGER
     beq Vm_TruthySlot__integer
+    cmp #BOR_VT_DECIMAL          ; Gate 5: same nonzero-raw-words test as
+    beq Vm_TruthySlot__integer   ; INTEGER -- Q16.16 0.0 is raw $00000000,
+                                   ; same as INTEGER 0, so the shared branch
+                                   ; needs no DECIMAL-specific code at all.
     cmp #BOR_VT_STR
     beq Vm_TruthySlot__str
     rep #$31
@@ -681,6 +689,12 @@ Vm_Op_Save:
 ; INC/DEC -- INTEGER only at this gate (DECIMAL is Gate 5); every other
 ; type, per opcode_manifest.csv, is left unchanged. a = operand slot,
 ; doubles as the destination (in place).
+; INC -- INTEGER or DECIMAL (Gate 5); every other type, per
+; opcode_manifest.csv, is left unchanged. a = operand slot, doubles as the
+; destination (in place). DECIMAL's "1" is Q16.16's own 1.0 ($00010000):
+; only the high (integer-part) word advances, the fraction is untouched --
+; a common Q16.16-specific bug this comment exists to flag (adding a bare
+; 1 to the low word instead would advance the fraction by 1/65536, not 1).
 Vm_Op_Inc:
     rep #$31
 .a16
@@ -694,7 +708,13 @@ Vm_Op_Inc:
 .a8
     lda.l VmSlots_Wram+0,x
     cmp #BOR_VT_INTEGER
-    bne Vm_Op_Inc__skip
+    beq Vm_Op_Inc__int
+    cmp #BOR_VT_DECIMAL
+    beq Vm_Op_Inc__dec
+    bra Vm_Op_Inc__skip
+
+Vm_Op_Inc__int:
+.a8
     rep #$31
 .a16
 .i16
@@ -707,6 +727,17 @@ Vm_Op_Inc:
     sta.l VmSlots_Wram+6,x
     jmp Vm_Next
 
+Vm_Op_Inc__dec:
+.a8
+    rep #$31
+.a16
+.i16
+    clc
+    lda.l VmSlots_Wram+6,x
+    adc #1
+    sta.l VmSlots_Wram+6,x
+    jmp Vm_Next
+
 Vm_Op_Inc__skip:
 .a8
     rep #$31
@@ -714,6 +745,7 @@ Vm_Op_Inc__skip:
 .i16
     jmp Vm_Next
 
+; DEC -- mirrors INC's INTEGER/DECIMAL handling above.
 Vm_Op_Dec:
     rep #$31
 .a16
@@ -727,7 +759,13 @@ Vm_Op_Dec:
 .a8
     lda.l VmSlots_Wram+0,x
     cmp #BOR_VT_INTEGER
-    bne Vm_Op_Dec__skip
+    beq Vm_Op_Dec__int
+    cmp #BOR_VT_DECIMAL
+    beq Vm_Op_Dec__dec
+    bra Vm_Op_Dec__skip
+
+Vm_Op_Dec__int:
+.a8
     rep #$31
 .a16
 .i16
@@ -737,6 +775,17 @@ Vm_Op_Dec:
     sta.l VmSlots_Wram+4,x
     lda.l VmSlots_Wram+6,x
     sbc #0
+    sta.l VmSlots_Wram+6,x
+    jmp Vm_Next
+
+Vm_Op_Dec__dec:
+.a8
+    rep #$31
+.a16
+.i16
+    sec
+    lda.l VmSlots_Wram+6,x
+    sbc #1
     sta.l VmSlots_Wram+6,x
     jmp Vm_Next
 
@@ -752,9 +801,17 @@ Vm_Op_Dec__skip:
 Vm_Op_Pos:
     jmp Vm_Next
 
-; NEG -- INTEGER only at this gate; non-INTEGER unchanged (see this file's
-; header note on why, and the DECIMAL caveat this deliberately does not
-; resolve).
+; NEG -- INTEGER or DECIMAL (Gate 5, opcode_manifest.csv's own row: "Negate
+; integer or decimal in place"); every other type unchanged (this file's
+; established "other types are unchanged" precedent, matching INC/DEC).
+; Q16.16 negation is exactly the same 32-bit two's-complement negate as
+; INTEGER's -- the type byte at VmSlots_Wram+0 is never touched by the code
+; below either way, so the slot keeps whatever tag it already had; this is
+; also this gate's documented resolution of the manifest's "verify the
+; exact Build 4086 decimal quirk with an oracle" caveat (no oracle exists
+; until Gate 6's real script content -- plain two's-complement negate is
+; the same documented-decision precedent this file already applies
+; elsewhere, not a guess).
 Vm_Op_Neg:
     rep #$31
 .a16
@@ -768,7 +825,13 @@ Vm_Op_Neg:
 .a8
     lda.l VmSlots_Wram+0,x
     cmp #BOR_VT_INTEGER
-    bne Vm_Op_Neg__skip
+    beq Vm_Op_Neg__negate
+    cmp #BOR_VT_DECIMAL
+    beq Vm_Op_Neg__negate
+    bra Vm_Op_Neg__skip
+
+Vm_Op_Neg__negate:
+.a8
     rep #$31
 .a16
 .i16
@@ -805,19 +868,41 @@ Vm_Op_Not:
     jsr Vm_StoreIntResult
     jmp Vm_Next
 
+; MUL -- Gate 5 (plan_vm.md §7): INTEGER pair (unchanged Vm_Mul32, 32-bit
+; wrap), DECIMAL pair or mixed (Q16.16: (a*b)>>16 truncated toward zero,
+; Vm_Dec_Q16Mul in bank 1, reached via `jsl` -- vm_dec16.pasm's own header
+; explains why that primitive can't live in bank 0's tight VM window).
+; Vm_LoadBinaryNumeric leaves VmDec_ResultIsDec set either way, consumed by
+; Vm_StoreNumericResult to tag the result.
 Vm_Op_Mul:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryNumeric
     bcc Vm_Op_Mul__ok
     brl Vm_BinaryInt_BadType
 
 Vm_Op_Mul__ok:
 .a8
-    jsr Vm_Mul32
-    jsr Vm_StoreIntResult
+    lda.l VmDec_ResultIsDec        ; .db cell -- read 8-bit (see
+                                     ; Vm_StoreNumericResult's own note on
+                                     ; why a 16-bit read here is a real bug)
+    beq Vm_Op_Mul__int
+    rep #$31
+.a16
+.i16
+    jsl Vm_Dec_Q16Mul
+    jsr Vm_StoreNumericResult
     jmp Vm_Next
 
+Vm_Op_Mul__int:
+.a8
+    jsr Vm_Mul32
+    jsr Vm_StoreNumericResult
+    jmp Vm_Next
+
+; SUB -- Q16.16 subtraction is bit-identical to INTEGER subtraction once
+; both operands are the same fixed-point scale (same reasoning as ADD's own
+; header in vm_run.pasm), so only the load/store routing changed for Gate 5.
 Vm_Op_Sub:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryNumeric
     bcc Vm_Op_Sub__ok
     brl Vm_BinaryInt_BadType
 
@@ -833,13 +918,15 @@ Vm_Op_Sub__ok:
     lda.l VmPriv_LeftHi
     sbc.l VmPriv_RightHi
     sta.l VmPriv_LeftHi
-    jsr Vm_StoreIntResult
+    jsr Vm_StoreNumericResult
     jmp Vm_Next
 
 ; DIV -- divisor zero -> destination becomes EMPTY (historical behavior,
-; not a fault). Otherwise signed 32-bit division truncated toward zero.
+; not a fault), regardless of INTEGER/DECIMAL. Otherwise INTEGER pair uses
+; the unchanged Vm_DivMod32Signed; DECIMAL pair or mixed uses Gate 5's
+; Vm_Dec_Q16DivSigned ((a<<16)/b, truncated toward zero, bank 1 via `jsl`).
 Vm_Op_Div:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryNumeric
     bcc Vm_Op_Div__ok
     brl Vm_BinaryInt_BadType
 
@@ -875,12 +962,30 @@ Vm_Op_Div__ok:
 Vm_Op_Div__nonzero:
 .a16
 .i16
+    sep #$20
+.a8
+    lda.l VmDec_ResultIsDec        ; .db cell -- read 8-bit (see
+                                     ; Vm_StoreNumericResult's own note on
+                                     ; why a 16-bit read here is a real bug)
+    beq Vm_Op_Div__int
+    rep #$31
+.a16
+.i16
+    jsl Vm_Dec_Q16DivSigned
+    jsr Vm_StoreNumericResult
+    jmp Vm_Next
+
+Vm_Op_Div__int:
+.a8
+    rep #$31
+.a16
+.i16
     jsr Vm_DivMod32Signed
     lda.l VmArith_QLo
     sta.l VmPriv_LeftLo
     lda.l VmArith_QHi
     sta.l VmPriv_LeftHi
-    jsr Vm_StoreIntResult
+    jsr Vm_StoreNumericResult
     jmp Vm_Next
 
 ; MOD -- divisor zero -> VMERR_DIV_ZERO fault (plan_vm.md §4's deliberate
@@ -888,7 +993,7 @@ Vm_Op_Div__nonzero:
 ; remainder of the same truncated-toward-zero division DIV performs (sign
 ; follows the dividend).
 Vm_Op_Mod:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_Mod__ok
     brl Vm_BinaryInt_BadType
 
@@ -921,7 +1026,7 @@ Vm_Op_Mod__nonzero:
 ; Logical (unsigned) shift, 32-bit wrap, one bit at a time via the
 ; Accumulator-mode shift chain this file's header note explains.
 Vm_Op_Shl:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_Shl__ok
     brl Vm_BinaryInt_BadType
 
@@ -954,7 +1059,7 @@ Vm_Op_Shl__done:
     jmp Vm_Next
 
 Vm_Op_Shr:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_Shr__ok
     brl Vm_BinaryInt_BadType
 
@@ -1122,7 +1227,7 @@ Vm_Op_And:
 ; only VT_INTEGER exists to "integer-convert" at this gate, so a type
 ; mismatch faults rather than silently coercing).
 Vm_Op_BitOr:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_BitOr__ok
     brl Vm_BinaryInt_BadType
 
@@ -1141,7 +1246,7 @@ Vm_Op_BitOr__ok:
     jmp Vm_Next
 
 Vm_Op_Xor:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_Xor__ok
     brl Vm_BinaryInt_BadType
 
@@ -1160,7 +1265,7 @@ Vm_Op_Xor__ok:
     jmp Vm_Next
 
 Vm_Op_BitAnd:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryIntConvert
     bcc Vm_Op_BitAnd__ok
     brl Vm_BinaryInt_BadType
 

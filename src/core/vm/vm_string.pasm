@@ -684,14 +684,19 @@ Vm_CompareStr__equal:
 
 ; ============================================================================
 ; Vm_LoadAndCompare -- shared entry for GE/LE/LT/GT/EQ/NE (vm_arith32.pasm
-; and vm_run.pasm's Vm_Op_Eq): tries the INTEGER pair first, falls back to
-; the STR pair, and either way leaves the result in VmArith_CmpLT/CmpEQ so
-; every caller's existing downstream store logic (already written against
-; those two cells) needs no per-type branching of its own. Carry CLEAR on
-; success, SET if neither pairing matched (caller faults VMERR_BAD_TYPE).
+; and vm_run.pasm's Vm_Op_Eq): tries the INTEGER/DECIMAL numeric pair first
+; (Gate 5, plan_vm.md §7 -- vm_dec16.pasm's Vm_LoadBinaryNumeric, which
+; also accepts a pure-INTEGER pair unchanged from Gate 2/4 and promotes a
+; mixed pair to Q16.16; Vm_CompareInt's signed 32-bit raw compare works
+; unmodified on promoted Q16.16 values, since Q16.16's raw bit pattern
+; preserves int32 ordering exactly), falls back to the STR pair, and
+; either way leaves the result in VmArith_CmpLT/CmpEQ so every caller's
+; existing downstream store logic (already written against those two
+; cells) needs no per-type branching of its own. Carry CLEAR on success,
+; SET if neither pairing matched (caller faults VMERR_BAD_TYPE).
 ; ============================================================================
 Vm_LoadAndCompare:
-    jsr Vm_LoadBinaryInt
+    jsr Vm_LoadBinaryNumeric
     bcc Vm_LoadAndCompare__int
     jsr Vm_LoadBinaryStr
     bcc Vm_LoadAndCompare__str
@@ -730,6 +735,21 @@ Vm_Str_ConcatOp:
     jsr Vm_Str_LoadA
     lda.l VmPriv_C
     jsr Vm_Str_LoadB
+
+; Vm_Str_ConcatOp__FromScratch -- Gate 5's vm_dec16.pasm Vm_Dec_ConcatCoerce
+; (ADD's STR+numeric coercion path) tail-jumps in here via `brl` once it has
+; populated VmStr_ScratchA/LenA and VmStr_ScratchB/LenB itself (one side
+; via the normal Vm_Str_LoadA/LoadB call, the other from a formatted
+; numeric buffer) -- everything below is byte-identical to Vm_Str_ConcatOp
+; proper, just entered without its own two jsr Vm_Str_LoadA/LoadB calls
+; (which read from actual STR slots the numeric side doesn't have). Same
+; php-protected stack frame as Vm_Str_ConcatOp itself -- the tail-jumper's
+; OWN `php` (never separately `plp`'d before the jump) supplies the byte
+; this routine's `plp` exits below expect to pop; see vm_dec16.pasm's own
+; header for why that is correct, not a leak.
+Vm_Str_ConcatOp__FromScratch:
+.a16
+.i16
 
     lda.l VmStr_LenA
     clc

@@ -180,3 +180,119 @@ VMSTRPOOL_OBJ_SIZE  = 64
 VMSTRPOOL_OBJ_COUNT = 64      ; 64 x 64 = 4096 = VmStrPool_Wram's full reservation
 VMSTRPOOL_MAX_LEN   = 62      ; OBJ_SIZE minus the 2-byte refcount/length header
 VMSTR_DYNAMIC_HI    = $8000   ; value high word when the low word is a pool index
+
+; --- Gate 5 (plan_vm.md §7): Q16.16 decimals. New WRAM scratch region --
+; grep-confirmed free 2026-08-20 (nothing under src/ references $7FF4A1 or
+; higher; vm_string.pasm's own scratch is the highest prior user, ending
+; $7FF4A1 exactly -- see that file's header). Kept entirely separate from
+; vm_arith32.pasm's VmArith_* cells (which stay INTEGER-only, Gate 2) rather
+; than reused, since Vm_Dec_Q16Mul/Q16DivSigned below are bank-1 routines
+; (see the note on VM_DEC_BANK) with their OWN self-contained 16x16->32
+; multiply / restoring-division primitives -- reusing Core_Math_Mul or
+; Vm_DivMod32Unsigned from bank 1 would require converting those routines'
+; `rts` to `rtl` (breaking their existing same-bank `jsr` callers' stack
+; balance), which is out of scope for this gate; duplicating the small
+; primitives locally in bank 1 avoids that risk entirely. ---
+VmDec_ResultIsDec = $7FF4A1   ; .db -- 0 = pure-INTEGER path (Vm_LoadBinaryNumeric
+                                ; left both operand values untouched), 1 = at
+                                ; least one operand was DECIMAL (both operand
+                                ; values are now Q16.16-promoted); consumed by
+                                ; Vm_StoreNumericResult to pick the result's
+                                ; VT_* tag.
+VmDec_LLhi        = $7FF4A2   ; .dw -- Vm_Dec_Q16Mul partial-product scratch:
+                                ; high word of loA*loB
+VmDec_LHlo        = $7FF4A4   ; .dw -- low word of loA*hiB
+VmDec_LHhi        = $7FF4A6   ; .dw -- high word of loA*hiB
+VmDec_HLlo        = $7FF4A8   ; .dw -- low word of hiA*loB
+VmDec_HLhi        = $7FF4AA   ; .dw -- high word of hiA*loB
+VmDec_HHlo        = $7FF4AC   ; .dw -- low word of hiA*hiB (its high word is
+                                ; bits 48-63 of the full 64-bit product, never
+                                ; needed -- Q16 multiply only keeps bits 16-47)
+VmDec_MulWord1    = $7FF4AE   ; .dw -- combined bits 16-31 of the product
+VmDec_MulWord2    = $7FF4B0   ; .dw -- combined bits 32-47 of the product
+                                ; (== the Q16.16 magnitude result, pre-sign)
+VmDec_MulCarry    = $7FF4B2   ; .dw -- carry-accumulation scratch shared by
+                                ; both combine steps above
+VmDec_MagALo      = $7FF4B4   ; .dw -- Q16Mul/Q16Div shared: abs(left), low
+VmDec_MagAHi      = $7FF4B6   ; .dw -- abs(left), high
+VmDec_MagBLo      = $7FF4B8   ; .dw -- abs(right), low
+VmDec_MagBHi      = $7FF4BA   ; .dw -- abs(right), high
+VmDec_SignA       = $7FF4BC   ; .dw -- $8000 or $0000, left operand's original sign
+VmDec_SignB       = $7FF4BE   ; .dw -- right operand's original sign
+VmDec_DivQLo      = $7FF4C0   ; .dw -- Vm_Dec_DivModNUnsigned quotient, low
+VmDec_DivQHi      = $7FF4C2   ; .dw -- quotient, high (seeded with the
+                                ; dividend before the call -- same
+                                ; shift-the-dividend-into-itself trick
+                                ; vm_arith32.pasm's Vm_DivMod32Unsigned uses)
+VmDec_DivRLo      = $7FF4C4   ; .dw -- remainder, low
+VmDec_DivRHi      = $7FF4C6   ; .dw -- remainder, high
+VmDec_DivDLo      = $7FF4C8   ; .dw -- divisor, low
+VmDec_DivDHi      = $7FF4CA   ; .dw -- divisor, high
+VmDec_FormatBuf   = $7FF4CC   ; 16 B -- Vm_Dec_FormatSlot's ASCII output
+                                ; staging area (max real use: 11 bytes, a
+                                ; sign + 10 digits for INT_MIN, or a sign +
+                                ; 5 int digits + '.' + 4 frac digits for a
+                                ; DECIMAL -- both well under 16)
+VmDec_FormatLen   = $7FF4DC   ; .dw -- length actually written to FormatBuf
+; --- Vm_Dec_ConcatCoerce (vm_dec16.pasm) parameter cells -- ADD's STR+
+; numeric coercion path, populated by vm_run.pasm's Vm_Op_Add before it
+; `jsr`s there. ---
+VmDec_NumSideSlot = $7FF4DE   ; .dw -- slot index of the INTEGER/DECIMAL operand
+VmDec_StrSideSlot = $7FF4E0   ; .dw -- slot index of the BOR_VT_STR operand
+VmDec_NumSideIsA  = $7FF4E2   ; .dw -- 1 if the numeric operand is ADD's LEFT
+                                ; (VmPriv_B) operand, 0 if it's the RIGHT
+                                ; (VmPriv_C) operand
+; --- bank-1 (vm_dec16_heavy.pasm) internal scratch -- Vm_Dec_Mul16x16's
+; own 16x16->32 shift-add staging (self-contained, does NOT reuse
+; core/math.pasm's Core_Math_Mul or its low16-alias cells -- see
+; vm_consts.pasm's own VM_DEC_BANK note on why). ---
+VmDec_MulTmpMultiplicand = $7FF4E4   ; .dw
+VmDec_MulTmpMultiplier   = $7FF4E6   ; .dw
+VmDec_MulTmpProdLo       = $7FF4E8   ; .dw
+VmDec_MulTmpProdHi       = $7FF4EA   ; .dw
+; --- Vm_Dec_FormatSlot / Vm_Dec_FormatInt32 (bank 1) scratch. ---
+VmDec_FmtFracLo    = $7FF4EC   ; .dw -- fractional-digit generator's 32-bit
+                                 ; running value, low word
+VmDec_FmtFracHi    = $7FF4EE   ; .dw -- high word (holds the just-produced
+                                 ; digit 0-9 between Vm_Dec_FracDigit calls)
+VmDec_FmtDigitCount = $7FF4F0  ; .dw -- Vm_Dec_FormatInt32's collected
+                                 ; integer-part digit count
+VmDec_DigitStack   = $7FF4F2   ; 10 B -- one decimal digit (0-9) per byte,
+                                 ; ones place at index 0, filled upward;
+                                 ; 10 bytes covers uint32's max 10 digits
+; Ends $7FF4FC.
+
+; Q16.16 layout: same 4-byte Lo/Hi slot value field as INTEGER, reinterpreted
+; as a signed 32-bit fixed-point number with the binary point between bit 15
+; and bit 16 (Hi = signed 16-bit integer part, Lo = unsigned 16-bit fraction,
+; 1/65536 per count). INTEGER->DECIMAL promotion is `raw << 16` mod 2^32 --
+; i.e. newHi=oldLo, newLo=0 -- so only integers in -32768..32767 promote
+; exactly; anything outside that range wraps, the same mod-2^32 wrap
+; convention Gate 2 already uses everywhere else (a documented decision, not
+; a guess -- plan_vm.md §7 only mandates truncate-toward-zero on the way
+; DOWN, promotion's own overflow rule is this gate's to pick). DECIMAL-
+; >INTEGER truncation (used by MOD/SHL/SHR/BIT_OR/XOR/BIT_AND, which
+; "integer-convert" a DECIMAL operand per opcode_manifest.csv) truncates
+; toward zero: nonnegative values take Hi as-is (already floor==trunc for
+; nonnegative numbers); negative values with a nonzero fraction take Hi+1
+; (since Hi alone is floor(value), one closer to zero); the 16-bit Hi (or
+; Hi+1) is then sign-extended to the full 32-bit INTEGER result.
+;
+; Cartridge-defined decimal/integer->string format (plan_vm.md §7 -- no
+; historical printf reference exists to match, so this project defines its
+; own and fixtures it): INTEGER formats as a bare signed decimal ("-42",
+; "0", "2147483647"). DECIMAL formats as signed-integer-part + "." + exactly
+; 4 fractional digits, each digit truncated (not rounded) from repeated
+; `frac *= 10; digit = frac >> 16; frac &= $FFFF` steps (e.g. 3.5 ->
+; "3.5000", -2.25 -> "-2.2500"; note the sign is attached once, to the whole
+; value, not to the integer part alone -- -0.5 formats "-0.5000", never
+; "0.-5000" or a bare "-.5000").
+; Vm_Dec_Q16Mul/Q16DivSigned/FormatSlot live in bank 1 (appended after the
+; TAD audio blob inside main.pasm's existing `.bank 1` section), reached via
+; plain `jsl Label` -- CLAUDE.md's Architecture section reconfirms cross-bank
+; `jsl` resolves the correct bank byte automatically (fixed, unlike the
+; separate and still-`^`-operator-specific poppy#389 workaround, which this
+; code never needs since it never uses `^`). Not confined to bank 0's
+; ~7168-byte VM window the way vm_run.pasm/vm_arith32.pasm/vm_string.pasm
+; are -- that's the whole point of putting the heavy Q16 primitives there
+; (plan_vm.md 0.3's ROM-budget note).

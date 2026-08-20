@@ -2311,6 +2311,7 @@ Tad_IsSongPlaying:
 .include "core/vm/vm_arith32.pasm"
 .include "core/vm/vm_call.pasm"
 .include "core/vm/vm_string.pasm"
+.include "core/vm/vm_dec16.pasm"
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
@@ -10220,3 +10221,5 @@ irq_handler:
     .db $00
 __Tad_AudioData_0:
     .incbin "../soundwork/tad/build/audio-data.bin"
+
+.include "core/vm/vm_dec16_heavy.pasm"
