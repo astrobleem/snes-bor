@@ -60,6 +60,16 @@ Vm_LoadSlots:
     lda.l VmCode_Wram+$18
     sta.l VmPriv_InstrOff
 
+    ; callsites_offset (header +$20) / arg_slot_ids_offset (header +$24) --
+    ; Gate 3 (plan_vm.md §5): cached once here, same rationale as
+    ; instructions_offset just above -- CALL/PARAM re-read these on every
+    ; call/param, so folding the header lookup in here once is cheaper than
+    ; re-reading VmCode_Wram+$20/+$24 from vm_call.pasm on every dispatch.
+    lda.l VmCode_Wram+$20
+    sta.l VmCall_CallsitesOff
+    lda.l VmCode_Wram+$24
+    sta.l VmCall_ArgSlotsOff
+
     ; initial_slots_offset (header +$1C) -- used immediately, not cached.
     lda.l VmCode_Wram+$1C
     sta.l VmPriv_CopySrc            ; source cursor starts at the slot image

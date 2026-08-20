@@ -304,7 +304,7 @@ Vm_Dispatch_08:
 .a8
     cmp #BOR_OP_CALL
     bne Vm_Dispatch_09
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Call
 Vm_Dispatch_09:
 .a8
     cmp #BOR_OP_POS
@@ -465,7 +465,7 @@ Vm_Dispatch_40:
 .a8
     cmp #BOR_OP_PARAM
     bne Vm_Dispatch_41
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Param
 Vm_Dispatch_41:
 .a8
     cmp #BOR_OP_IMMEDIATE
@@ -495,7 +495,7 @@ Vm_Dispatch_46:
 .a8
     cmp #BOR_OP_JUMPR
     bne Vm_Dispatch_47
-    jmp Vm_Op_Unimplemented
+    jmp Vm_Op_Jumpr
 Vm_Dispatch_47:
 .a8
     cmp #BOR_OP_FUNCDECL
@@ -593,11 +593,10 @@ Vm_Op_Jump:
     sta.l VmState_Ip
     jmp Vm_Run__loop
 
-; RET -- Gate 0 has no call-frame mechanism (CALL is VMERR_UNIMPLEMENTED at
-; this gate, so VmState_FrameTop can never become nonzero), so every RET at
-; this gate is necessarily a root return.
-Vm_Op_Ret:
-    jmp Vm_Done
+; RET -- real call-frame-aware implementation is vm_call.pasm's Vm_Op_Ret
+; (Gate 3, plan_vm.md §5). The Gate 0 stub that lived here (every RET is a
+; root return, since CALL was VMERR_UNIMPLEMENTED and VmState_FrameTop could
+; never become nonzero) is gone now that CALL is real.
 
 ; Branch_FALSE -- truthiness on INTEGER only, and non-INTEGER is FALSY, not a
 ; fault (this differs from ADD/EQ's INTEGER-only-or-fault rule -- see this

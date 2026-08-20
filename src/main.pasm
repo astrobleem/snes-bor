@@ -2309,6 +2309,7 @@ Tad_IsSongPlaying:
 .include "core/vm/vm_slots.pasm"
 .include "core/vm/vm_run.pasm"
 .include "core/vm/vm_arith32.pasm"
+.include "core/vm/vm_call.pasm"
 
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)

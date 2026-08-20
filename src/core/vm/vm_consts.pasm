@@ -121,8 +121,43 @@ VmState_ErrorC      = $7FE0A9   ; .dw -- operand C at time of fault
 VM_STATE_FIRST      = $7FE090
 VM_STATE_LAST       = $7FE0AB   ; exclusive -- zero [FIRST,LAST) at boot
 
-; Gate 3/4 reservations (not yet implemented) -- placed here, well clear of
-; VmPriv_*/VmLoad_Crc* below (which end $7FE0C9), with headroom inside the
-; same relocated $7FC000-$7FFFFF block.
+; Gate 3/4 reservations -- placed here, well clear of VmPriv_*/VmLoad_Crc*/
+; VmArith_* below (which end $7FE0ED, see vm_arith32.pasm's own header), with
+; headroom inside the same relocated $7FC000-$7FFFFF block.
 VmFrames_Wram   = $7FE100   ; 64 frames x 12 B = 768 B, ends $7FE3FF   (Gate 3)
 VmStrPool_Wram  = $7FE400   ; 4096 B string pool, ends $7FF3FF         (Gate 4)
+
+; --- Gate 3 (plan_vm.md §5): call model protocol constants. Frame layout
+; matches the bootstrap package's README §7 `BorCallFrame` (12 B, u16 x 6),
+; deviation 1 (plain WRAM, not BW-RAM) already noted elsewhere in this repo.
+; Callsite record layout matches FORMAT.md's "Callsite table" section (12 B).
+; vm_call.pasm's own header has the full field-by-field walkthrough. ---
+VM_FRAME_SIZE        = 12
+VM_FRAME_MAX         = 64      ; matches VmFrames_Wram's 64-frame reservation
+VMFRAME_RETURN_IP    = 0       ; .dw offset within one frame record
+VMFRAME_RESULT_SLOT  = 2       ; .dw -- caller_result_slot
+VMFRAME_CALLSITE_ID  = 4       ; .dw
+VMFRAME_ARG_CURSOR   = 6       ; .dw
+VMFRAME_RETURN_SRC   = 8       ; .dw -- $FFFF sentinel until JUMPR stages one
+VMFRAME_RESERVED     = 10      ; .dw
+VMFRAME_RETURN_SRC_EMPTY = $FFFF
+
+VM_CALLSITE_SIZE      = 12
+VM_TARGET_KIND_SCRIPT = 0
+VM_TARGET_KIND_IMPORT = 1       ; normalized to an instruction index at
+                                 ; export time (FORMAT.md normalization
+                                 ; rule 2) -- identical runtime handling to
+                                 ; VM_TARGET_KIND_SCRIPT, same precedent as
+                                 ; JUMP/PJUMP in vm_run.pasm.
+VM_TARGET_KIND_NATIVE = 2
+
+; Native function IDs. Gate 3 scope only (plan_vm.md §5): "a minimal native
+; function table with abs, min, max, and a test-logging function." Stable
+; and host-generated per the package's own ABI rule -- these four are hand-
+; assigned here because no real exporter exists yet (that's Gate 6); a real
+; exporter must treat these as already-reserved values, never renumber them
+; out from under a module that references them.
+VM_NATIVE_ABS = 1
+VM_NATIVE_MIN = 2
+VM_NATIVE_MAX = 3
+VM_NATIVE_LOG = 4

@@ -19,22 +19,28 @@ Scope landed alongside this gate:
     Gate 0 already had) -- checked directly below for one fault case.
 
 THE EXPECTED-OUTCOME TABLE BELOW IS BUILT FROM opcode_manifest.csv'S CLASSES
-PLUS plan_vm.md's OWN GATE 0 (§2), GATE 1 (§3), AND (as of Gate 2 landing)
-GATE 2 (§4) IMPLEMENT LISTS -- never from vm_run.pasm's dispatch table. That
-is deliberate (plan_vm.md §3's own instruction) and it matters: §0.8 of the
-plan claims Gate 1 is where VMERR_UNIMPLEMENTED ($0010) "stops being
-reachable for values 0..47", but that was stale even at Gate 1 -- §3's own
-implement list only covered 14 of the 48 values, and Gate 0 covered 9 more.
-Gate 2 (plan_vm.md §4) then implemented 23 more (everything but CALL, whose
-own numeric slot sits inside this gate's range but which is genuinely still
-Gate 3's job), leaving exactly 3 legitimately unimplemented here: CALL (8),
-PARAM (40), JUMPR (46) -- all §5 (Gate 3). A table built from "implemented so
-far" rather than the stale §0.8 sentence is the one that is actually
-correct -- if you see this script assert all 48 values reach DONE/0, that is
-the bug, not a passing run. (Real per-opcode *correctness* for Gate 2's
-opcodes -- edge values, wrap, div/mod-by-zero, shift normalization -- is
-vm_gate2.py's job; this file only checks that dispatch reaches the right
-handler and finishes cleanly on type-correct operands, its original Gate 0/1
+PLUS plan_vm.md's OWN GATE 0 (§2), GATE 1 (§3), GATE 2 (§4), AND (as of Gate 3
+landing) GATE 3 (§5) IMPLEMENT LISTS -- never from vm_run.pasm's dispatch
+table. That is deliberate (plan_vm.md §3's own instruction) and it matters:
+§0.8 of the plan claims Gate 1 is where VMERR_UNIMPLEMENTED ($0010) "stops
+being reachable for values 0..47", but that was stale even at Gate 1 -- §3's
+own implement list only covered 14 of the 48 values, and Gate 0 covered 9
+more. Gate 2 (plan_vm.md §4) then implemented 23 more (everything but CALL,
+whose own numeric slot sits inside its range but which was genuinely still
+Gate 3's job), and Gate 3 (plan_vm.md §5) finally implemented the last three
+-- CALL (8), PARAM (40), JUMPR (46) -- so VMERR_UNIMPLEMENTED is at last
+genuinely unreachable for every value 0..47 (see GATE3_FAULT below: this
+file's own generic single-record fixture still faults all three, just with
+gate-appropriate errors -- VMERR_CALL_DEPTH/VMERR_NO_CALL_FRAME -- never
+VMERR_UNIMPLEMENTED again). A table built from "implemented so far" rather
+than the stale §0.8 sentence is the one that is actually correct -- if you
+see this script assert all 48 values reach DONE/0, that is the bug, not a
+passing run. (Real per-opcode *correctness* for Gate 2's opcodes -- edge
+values, wrap, div/mod-by-zero, shift normalization -- is vm_gate2.py's job,
+and Gate 3's call-frame semantics -- nesting, missing arguments, return
+values, natives -- is vm_gate3.py's job; this file only checks that dispatch
+reaches the right handler and finishes cleanly (or faults exactly as
+expected) on its own minimal fixture, its original Gate 0/1
 scope, unchanged.)
 
 MECHANISM: this project cannot cheaply rebuild+reload 50 separate ROMs, and
@@ -123,6 +129,8 @@ VMERR_BAD_OPCODE = pasm_constant_in(CONSTS, 'VMERR_BAD_OPCODE')
 VMERR_FIELD_OPCODE = pasm_constant_in(CONSTS, 'VMERR_FIELD_OPCODE')
 VMERR_EXPLICIT_ERR = pasm_constant_in(CONSTS, 'VMERR_EXPLICIT_ERR')
 VMERR_UNIMPLEMENTED = pasm_constant_in(CONSTS, 'VMERR_UNIMPLEMENTED')
+VMERR_CALL_DEPTH = pasm_constant_in(CONSTS, 'VMERR_CALL_DEPTH')
+VMERR_NO_CALL_FRAME = pasm_constant_in(CONSTS, 'VMERR_NO_CALL_FRAME')
 
 with open(os.path.join(FIXTURES, 'gate0_module.bin'), 'rb') as f:
     GATE0_MODULE = f.read()
@@ -173,13 +181,35 @@ GATE2_BINARY_INT_DONE = {12, 13, 14, 17, 18, 19,     # MUL DIV MOD SUB SHL SHR
                           22, 23, 24, 25, 27,          # GE LE LT GT NE
                           28, 29, 30, 31, 32}           # OR AND BIT_OR XOR BIT_AND
 
+# --- Gate 3 (plan_vm.md §5) implement list -- landed after this gate,
+# same "keep the historical categorization current" rule as Gate 2's own
+# comment above. CALL/PARAM/JUMPR are real handlers now, but this file's
+# generic per-opcode fixture (a=b=c=0, single record, no companion RET --
+# see build_case's fallback branch below) was never designed to build a
+# type-correct call program for them, and doesn't need to: it still reaches
+# a deterministic, gate-appropriate fault, just not VMERR_UNIMPLEMENTED
+# anymore.
+#   - CALL(8): target=instruction 0, which is CALL itself -- a direct
+#     self-recursive script call. Each pass through the loop pushes another
+#     frame and jumps straight back to the same CALL record, so this
+#     deterministically walks the frame stack to VM_FRAME_MAX and faults
+#     VMERR_CALL_DEPTH -- a real exercise of the overflow guard, not a
+#     placeholder.
+#   - PARAM(40)/JUMPR(46): both require an active call frame
+#     (VmState_FrameTop > 0); the root program here never called into
+#     anything, so both deterministically fault VMERR_NO_CALL_FRAME.
+# Real per-opcode correctness (nested/recursive frames, missing arguments,
+# return values, the native table) is vm_gate3.py's job, not this file's --
+# same division of labor Gate 2's own comment above already established.
+GATE3_FAULT = {8: VMERR_CALL_DEPTH, 40: VMERR_NO_CALL_FRAME, 46: VMERR_NO_CALL_FRAME}
+
 DONE_OPCODES = (GATE0_DONE | GATE1_CONTROL_DONE | GATE1_NOOP_DONE
                 | GATE2_UNARY_INPLACE_DONE | GATE2_LOAD_SAVE_DONE | GATE2_BINARY_INT_DONE)
 assert len(DONE_OPCODES) == 7 + 3 + 10 + 5 + 2 + 16 == 43
 
 ALL_OPCODES = set(range(48))
-UNIMPLEMENTED_OPCODES = ALL_OPCODES - DONE_OPCODES - set(GATE0_FAULT)
-assert len(UNIMPLEMENTED_OPCODES) == 48 - 43 - 2 == 3  # CALL(8), PARAM(40), JUMPR(46) -- Gate 3
+UNIMPLEMENTED_OPCODES = ALL_OPCODES - DONE_OPCODES - set(GATE0_FAULT) - set(GATE3_FAULT)
+assert len(UNIMPLEMENTED_OPCODES) == 48 - 43 - 2 - 3 == 0  # nothing left unimplemented
 
 CONTROL_TARGET_1 = {20, 21}       # JUMP/PJUMP: a=target
 BRANCH_COND = {36, 37}            # Branch_FALSE/TRUE: a=target, b=cond slot
@@ -217,6 +247,8 @@ def expected_outcome(opcode):
         return 'DONE', VMERR_NONE
     if opcode in GATE0_FAULT:
         return 'FAULT', GATE0_FAULT[opcode]
+    if opcode in GATE3_FAULT:
+        return 'FAULT', GATE3_FAULT[opcode]
     if opcode in UNIMPLEMENTED_OPCODES:
         return 'FAULT', VMERR_UNIMPLEMENTED
     if opcode >= 48:
