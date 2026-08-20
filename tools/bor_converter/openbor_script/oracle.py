@@ -210,13 +210,22 @@ class Oracle:
             return (VT_INTEGER, 0)  # real hardware's Vm_StoreIntResult always
         if name == 'SETSPAWNENTRY_NAME':          # tags the CALL result VT_INTEGER
             return (VT_INTEGER, 0)                # (see vm_native_engine.pasm header);
-        if name == 'SPAWN':                        # oracle matches that constraint
+        if name == 'SPAWN':
+            # Matches vm_native_engine.pasm's Vm_NativeEng_Spawn exactly: it
+            # writes ONLY CHAR_HP (CHAR_HP_MAX) -- position/facing are left
+            # at whatever they last were, per that routine's own header
+            # comment ("SPAWN000.C's own control flow always follows with
+            # its own changeentityproperty(...,'position',...) call"). An
+            # earlier version of this oracle also copied the player's x/y/
+            # facing onto the newly-spawned entity here, which happened to
+            # agree with hardware for x/y (SPAWN000.C's own position call
+            # overwrites them regardless) but silently diverged on facing,
+            # which no native in this script ever sets -- caught by
+            # vm_gate6.py's hardware trace diff (2026-08-20): real hardware
+            # left facing at world_in's original value; this oracle didn't.
             for e in (1, 2, 3):
                 if self.world[e]['hp'] == 0:
                     self.world[e]['hp'] = CHAR_HP_MAX
-                    self.world[e]['x'] = self.world[0]['x']
-                    self.world[e]['y'] = self.world[0]['y']
-                    self.world[e]['facing'] = self.world[0]['facing']
                     return (VT_INTEGER, e)
             return (VT_INTEGER, 0)  # no free slot -- deliberate simplification,
                                      # see vm_native_engine.pasm header; unused by

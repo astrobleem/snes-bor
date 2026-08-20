@@ -7,6 +7,7 @@
 # treats [...] as a glob character class, not a literal, without the backslash.
 /Beats of Rage Original \[v.3.0 Build 4086\].pak
 /Teenage Mutant Ninja Turtles \[v.3.0 Build 4153\].pak
+/Double Dragon Moto \[Ver. 0.2\]\[v.3.0 Build 4432\].pak
 
 # Python
 __pycache__/
