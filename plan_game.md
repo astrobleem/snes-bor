@@ -30,22 +30,28 @@ a 4-entity system with per-instance state, dpad player control, AI that seeks an
 attacks, AABB collision with hit stun, HP with a BG3 health-bar HUD, a soft-kill
 at 0 HP for AI, two converted real levels with a streaming tile cache, horizontal
 camera scrolling, a frontpanel foreground layer, a 4-character roster with live
-Select-cycling, and convert-time spawn tables driving real enemy waves.
+Select-cycling, convert-time spawn tables driving real enemy waves, a font/text
+renderer (G1), a game state machine (G2), and player death/lives/continues/game
+over (G3).
 
 **What that adds up to:** one level that boots, scrolls, and lets you punch three
-enemies until they stop moving. Then nothing happens. Forever.
+enemies until they die back at you — and if they win, you get a game-over screen
+and a continue, not a soft freeze. There is still no win condition, no second
+level reachable from the first, and no menus with real content (title/char-select/
+pause all exist as state-machine stops with no drawn screen yet — text CAN be
+drawn since G1, nothing calls it for a menu yet).
 
-**The honest gap list**, none of which is started:
+**The honest gap list**, none of which is started (past G1–G3, done above):
 
 | Missing | Blocks |
 |---|---|
 | ~~Font / text renderer~~ | **Done (G1, 2026-08-21)** — `core/text.pasm`, gate `game_g1_text.py` |
-| Game state machine | Title → play → death → retry loop |
-| Player death | Any loss condition at all |
+| ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
+| ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
 | Win condition | Any reason to finish a level |
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
-| Score / lives / continues | Arcade structure |
+| Score | Arcade structure (lives/continues done in G3) |
 | Jump, throw, grab, specials | BOR's actual moveset |
 | Items / pickups | The `1up` and `trash` the spawn tables already contain |
 | Bosses | Stage climaxes |
@@ -201,6 +207,39 @@ frame counts.
 ---
 
 ## §3 — Phase G3: player death, lives, continues, game over
+
+> **Status: DONE** (2026-08-21). `GATE G3: PASS` — `core/game_state.pasm`'s
+> `Game_State_Play__playing` now checks `PlayerEntity_Hp == 0` once per frame
+> and dispatches to `Game_State_HandlePlayerDeath` (entirely separate from the
+> AI soft-kill path, per the "watch out" below). A death with lives remaining
+> decrements `Game_Lives` and calls `Game_State_RespawnPlayer` — full HP, zeroed
+> hit-stun/facing/animation-selection, placed at the camera's left edge, and
+> `Player_InvulnFrames` armed (90 frames, ~1.5s) so the respawn can't be
+> instantly re-hit (`Character_HitApply_VsPlayer` early-outs while it's
+> nonzero). No death animation exists in the MSU roster (idle/walk/attack
+> only), so the existing generic hit-stun reaction stands in for it, per this
+> section's own allowance. Exhausting the last life enters
+> `GAME_STATE_GAMEOVER` with a 300-frame (~5s) continue countdown; Start
+> restores fresh `Game_Lives` and full HP and returns to `GAME_STATE_PLAYING`;
+> letting the countdown expire falls back to `GAME_STATE_TITLE`. Gate:
+> `tools/verify/game_g3_death.py`.
+>
+> **`GAME_LIVES_START` is 20, not a small arcade-style number** — deliberately,
+> for gate-suite safety rather than difficulty: with 3, unattended AI combat
+> reached `GAME_STATE_GAMEOVER` by ~frame 1200 (measured), and GAMEOVER skips
+> `Game_State_Play__playing`'s entire body (no `Core_Oop_Play`/`Core_Oam_Play`/
+> streaming) — several existing routine gates run longer than that with no
+> player input and would have silently frozen mid-gate on unlucky combat RNG.
+> `phase6.py`/`phase8.py`/`phase9.py` were also updated: `phase6.py` accepts a
+> `Game_Lives` drop as alternate evidence of damage (a death+respawn can now
+> complete inside its test window); `phase8.py`/`phase9.py` force
+> `Player_InvulnFrames` during their held-input holds so organic combat can't
+> interrupt an unrelated camera/streaming test (`phase9.py`'s held-right
+> reliably killed the unprotected player and froze the run's back half,
+> confirmed 3/3 runs before the fix — a real confound, not flakiness).
+> Re-tune `GAME_LIVES_START` for actual difficulty in a later phase; don't
+> lower it without re-checking the long-running gates' total frame budgets
+> first.
 
 The player is currently *exempt* from the damage system by design — HP reaches 0
 and nothing happens.
