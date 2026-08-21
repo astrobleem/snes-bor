@@ -15,7 +15,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import (open_session, pasm_constant, read_block,  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in, read_block,  # noqa: E402
                       repo_root_from, Reporter)
 
 ROOT = repo_root_from(None)
@@ -79,6 +79,18 @@ def main():
     if FP_DIR:
         fp_palette = read_file(os.path.join(FP_DIR, 'palette.bin'))
         palette[8:32] = fp_palette[8:32]
+    else:
+        # Phase G1 (plan_game.md 1): with no frontpanel loaded, Core_Text_Init
+        # writes the font's own 4 colors into BG3 palette id
+        # FONT_CGRAM_PAL_ID (CGRAM bytes (id*4)*2 .. +7) -- src/assets/
+        # font_palette.bin is the committed, authoritative copy
+        # tools/bg_converter/make_font_tiles.py emits (see core/text.pasm's
+        # header for why this and the frontpanel case are mutually exclusive
+        # today).
+        FONT_CGRAM_PAL_ID = pasm_constant_in('src/core/text.pasm', 'FONT_CGRAM_PAL_ID')
+        font_off = FONT_CGRAM_PAL_ID * 4 * 2
+        font_palette = read_file(os.path.join(ROOT, 'src', 'assets', 'font_palette.bin'))
+        palette[font_off:font_off + len(font_palette)] = font_palette
     hud_tiles = read_file(os.path.join(HUD_DIR, 'hud_tiles.bin'))
     manifest = json.loads(read_file(os.path.join(BG_DIR, 'manifest.json')))
 

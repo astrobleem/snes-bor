@@ -2296,6 +2296,13 @@ Tad_IsSongPlaying:
     ; core/text.pasm and $9000-$AC00 for the script VM. Do not park data here.
 
 ; ============================================================================
+; plan_game.md Phase G1 -- font/text renderer. Owns $8C60-$9000 (928 bytes)
+; and no more; overflow past $9000 silently corrupts the VM region below.
+; ============================================================================
+.org $8C60
+.include "core/text.pasm"
+
+; ============================================================================
 ; VM region -- plan_vm.md 0.3. Owns $9000-$AC00 (7168 bytes) and no more.
 ; $8C60-$9000 is reserved for plan_game.md's core/text.pasm; do NOT start
 ; here at $8C60. Overflow past $AC00 silently corrupts LoadAudioData and
@@ -4454,6 +4461,21 @@ Character_BlankPadding__s3_row7:
     sta.l $002118
     dex
     bne Character_BlankPadding__s3_row7
+    rts
+
+; --- Character_BlankPadding_Guarded: Core_Nmi_Stop / Character_BlankPadding /
+; Core_Nmi_Start as one call (Phase G1 fix -- see this routine's own header
+; above: called AFTER Core_Nmi_Init, so an NMI landing mid-loop can hijack
+; $2116 out from under it via Core_Dma_ProcessQueue's own VRAM DMA writes;
+; Core_Nmi_Stop/Start mask NMI generation for the duration, which sei alone
+; cannot since NMI is non-maskable). A single call site in the boot path
+; (scpu_boot, near $FF90) instead of three separate jsr's there -- that
+; fixed region has almost no spare bytes; see check_width_directives.py's
+; "margin" line in audit_all.py's output if this ever needs re-measuring. ---
+Character_BlankPadding_Guarded:
+    jsr Core_Nmi_Stop
+    jsr Character_BlankPadding
+    jsr Core_Nmi_Start
     rts
 
 ; Sole per-frame writer for the real BOR character's OAM sprite (slot 0),
@@ -9758,6 +9780,43 @@ Boot_LoadFp__done:
     ; for two new jsr's). Still before Core_Nmi_Init enables NMI. ---
     jsr Vm_Boot
 
+    ; --- Phase G1 (plan_game.md 1): boot-time proof the text renderer works
+    ; end-to-end. Row 4 -- just below the HUD's rows 0-3, clear of the
+    ; frontpanel's rows 21-27 (stage 1B, the shipped level, has no
+    ; frontpanel anyway). Still before Core_Nmi_Init, same reasoning as
+    ; every other boot-time VRAM/CGRAM load above. ---
+    sep #$20
+.a8
+    lda #4
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_Hello - Text_StringPool)
+    jsr Core_Text_DrawString
+
+    ; --- Phase G1: Core_Text_DrawNumber is NOT also called here. It was,
+    ; originally, right after DrawString above -- and that back-to-back
+    ; boot-time pair rendered "1024-BOR" on row 4 instead of "SNES-BOR" on
+    ; row 4 / "1024" on row 5. Root cause: both calls share one WRAM staging
+    ; buffer (TextStaging) and Text_FlushRow's DMA is QUEUED, not
+    ; synchronous -- see core/text.pasm's TextStaging comment for the full
+    ; mechanism. Fired from here, before Core_Nmi_Init, there is no NMI to
+    ; drain the first call's queued transfer before the second call
+    ; overwrites the buffer it reads from. Deferred to scpu_main_loop
+    ; instead (Text_G1DemoDrawn one-shot, right after the first
+    ; Core_Nmi_WaitFrame), where at least one real NMI is guaranteed to have
+    ; drained DrawString's boot-time request first. Zero the flag here,
+    ; explicitly -- this project doesn't zero WRAM at boot, so an unset cell
+    ; is garbage, not 0. ---
+    sep #$20
+.a8
+    lda #0
+    sta.l Text_G1DemoDrawn
+    rep #$31
+.a16
+.i16
+
     ; --- BG2 blank-tile write REMOVED (Phase 8, plan.md 2.7). It used to
     ; zero 16 words at VRAM word $2000 (BG2's char base, $210B=$20) so a
     ; stray BG2 tilemap reference would render zero instead of garbage --
@@ -9967,7 +10026,34 @@ scpu_tm_row_no_bump:
 .a16
     jsr Core_Oam_Init
     jsr TestSprite_Init
-    jsr Character_BlankPadding
+
+    ; --- Phase G1 found Character_BlankPadding itself unsafe against NMI.
+    ; It writes VRAM directly via $2116/$2118 in one long loop, but runs
+    ; AFTER Core_Nmi_Init -- NMI is already enabled -- and Core_Dma_
+    ; ProcessQueue (drained from NMI) also writes $2116 before firing a
+    ; queued VRAM DMA, so an NMI landing mid-loop hijacks Character_
+    ; BlankPadding's write pointer out from under it (confirmed via a
+    ; direct VRAM read: a padding row's first few bytes were correctly
+    ; zeroed, the rest were leftover garbage -- exactly what an interrupted,
+    ; resumed-at-the-wrong-address loop produces; tools/verify/phase5.py's
+    ; "slice N padding all zero" checks caught it). See Character_
+    ; BlankPadding_Guarded's own header (right after Character_
+    ; BlankPadding's rts) for why this is one jsr instead of three
+    ; Core_Nmi_Stop/BlankPadding/Start calls inlined here -- this fixed
+    ; region has almost no spare bytes. ---
+    jsr Character_BlankPadding_Guarded
+
+    ; --- Phase G1: font tiles/palette load, AFTER Bg_LoadScene -- Bg_LoadScene's
+    ; own CGRAM image load zeros the whole BG3-reserved CGRAM block (colors
+    ; 0-15) as part of loading BG1's real palette, clobbering the font's
+    ; colors 4-7 if this ran earlier. Also AFTER Character_BlankPadding_
+    ; Guarded, not just after Bg_LoadScene -- Core_Text_Init's own font-tile
+    ; DMA enqueue must not become queue traffic that could drain mid-loop
+    ; during Character_BlankPadding's fragile window either (moot once
+    ; Core_Nmi_Stop/Start wraps that window, but keeping this after it too
+    ; needs no justification beyond "still correct" and avoids re-opening
+    ; the question). Confirmed via direct CGRAM read. ---
+    jsr Core_Text_Init
 
     sep #$20
 .a8
@@ -10070,6 +10156,15 @@ scpu_main_loop:
     ; already existed in core/nmi.pasm for exactly this purpose; it was
     ; simply never called from here.
     jsr Core_Nmi_WaitFrame
+
+    ; --- Phase G1 (plan_game.md 1): one-shot Core_Text_DrawNumber demo.
+    ; Body lives in core/text.pasm (Core_Text_G1Demo), not inline here --
+    ; this fixed $FC00-$FF90 region has almost no spare bytes (the build
+    ; already errors "overlaps $FC00-$FF9B" if this grows past a ~18-byte
+    ; margin), so only a 3-byte jsr can live in this loop; the real logic,
+    ; and why it must run here (after the first Core_Nmi_WaitFrame) and not
+    ; at boot, is documented at the subroutine itself. ---
+    jsr Core_Text_G1Demo
 
     ; Scpu_CcdmaPump (the SA-1 software-compositor pump from the "find the
     ; limit" N-scaling experiment) is no longer called here -- it targeted
@@ -10228,3 +10323,28 @@ __Tad_AudioData_0:
 
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
+
+; ============================================================================
+; Font Data Blob -- plan_game.md Phase G1. ROM-resident (not MSU-streamed:
+; it's small, static, and never changes at runtime, unlike character/BG art),
+; DMA'd straight from ROM into VRAM/CGRAM by Core_Text_Init. Own bank so it
+; can't collide with the audio blob's `.bank 1` region or grow into it;
+; FONT_DATA_BANK below is a literal constant (not `^(Label)`) matching this
+; project's own AUDIO_DATA_BANK precedent, though the `^` operator itself was
+; fixed 2026-08-19 (poppy#389) and would also work now.
+; ============================================================================
+.bank 2
+.org $8000
+Font_TilesData:
+    .incbin "assets/font_tiles.bin"     ; 1520 bytes, 95 2bpp tiles (ASCII 32-126)
+Font_PaletteData:
+    .incbin "assets/font_palette.bin"   ; 8 bytes, 4 BGR555 colors
+
+; Text_StringPool -- every string core/text.pasm's Core_Text_DrawString can
+; draw, concatenated and null-terminated; callers pass a byte OFFSET into
+; this table (via Y), not a pointer -- see core/text.pasm's own header for
+; why. tools/verify/game_g1_text.py's gate draws Text_Str_Hello.
+Text_StringPool:
+Text_Str_Hello:
+    .db "SNES-BOR", $00
+

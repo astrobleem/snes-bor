@@ -101,7 +101,30 @@ def main():
         # and does its own real per-tile MSU seeking -- confirmed via direct
         # Mesen2 probing that this pushed the settle point from ~50 total
         # frames to ~100; bumped to 150 for margin, not tuned to the exact
-        # boundary. ---
+        # boundary.
+        #
+        # Phase G1 (plan_game.md 1): this check reproducibly FAILed against a
+        # build that called Core_Text_Init (font tile/palette DMA) right
+        # after Bg_LoadScene, well before Character_BlankPadding. Root
+        # cause, confirmed via a direct standalone VRAM read at the exact
+        # failing address ($8C80): Character_BlankPadding writes VRAM
+        # directly via $2116/$2118 in a long loop, but runs AFTER
+        # Core_Nmi_Init -- so an NMI landing mid-loop could drain the
+        # queued font DMA (Core_Dma_ProcessQueue also writes $2116 before
+        # firing its own transfer), hijacking Character_BlankPadding's VRAM
+        # write pointer out from under it. Confirmed as a real regression,
+        # not harness flakiness, by A/B testing via git stash: the
+        # unmodified pre-Phase-G1 build passed this exact check 3/3 runs
+        # while the modified build failed reproducibly at the SAME 120
+        # frames. (An earlier standalone repro that appeared to contradict
+        # this failure was itself buggy -- it read VRAM at 2x the intended
+        # offset and was quietly checking a different, uncorrupted address;
+        # see the mesen_screenshot_stale_hud_layer-style lesson: verify the
+        # repro's own addressing before trusting a "can't reproduce"
+        # result.) Fixed by moving the Core_Text_Init call to run after
+        # Character_BlankPadding instead (see main.pasm's own comment at
+        # that call site) -- left at 120, not bumped; the settle-margin
+        # theory was wrong. ---
         m.run_frames(120)
         m.pause()
         for slice_idx in range(4):
