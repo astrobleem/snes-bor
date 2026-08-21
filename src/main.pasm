@@ -2536,6 +2536,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/stream_cache.pasm"
 .include "core/stream_cache_fp.pasm"
 .include "core/spawn.pasm"
+.include "core/game_state.pasm"
 
 ; ============================================================================
 ; Ralf idle/walk animation: precomputed VRAM-format tile data ("Option B"
@@ -10004,6 +10005,12 @@ scpu_tm_row_no_bump:
     lda #0
     sta.l Oam_UploadFlag
     sta.l Oam_HighWaterSlot
+    ; Phase G2 (plan_game.md 2): zero Game_State/Game_StatePrev before NMI is
+    ; enabled, same rule as the two cells just above (memory
+    ; boot_nmi_race_before_oam_init) -- GAME_STATE_PLAYING is deliberately 0,
+    ; so this zero-init IS the boot-state choice, not just a formality.
+    sta.l Game_State
+    sta.l Game_StatePrev
 
     jsr Core_Nmi_Init
 
@@ -10204,44 +10211,15 @@ scpu_main_loop:
     sta.l Oam_CursorResetDone
     rep #$31
 .a16
-    jsr Core_Oop_Play
-    jsr Core_Screen_Play
-    ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
-    ; call per frame, same as the two lines above. Vm_Run itself is a
-    ; no-op once the loaded script has reached VMSTAT_DONE/VMSTAT_FAULT,
-    ; so this is safe to call unconditionally on every iteration
-    ; regardless of whether a script is loaded, running, or finished. ---
-    jsr Vm_Run
-    ; Phase 9 step 4 follow-up: clamp the just-eased camera position to what
-    ; SyncScroll has actually resolved, BEFORE it's committed below -- see
-    ; Core_StreamScroll_ClampCamera's own header comment for why.
-    jsr Core_StreamScroll_ClampCamera
-    ; Phase 8: commit the eased camera position to BG1's horizontal scroll
-    ; shadow -- Core_Nmi_Play writes Nmi_Bg1ScrollX to $210D (write-twice,
-    ; low then high byte) every vblank regardless, so this just has to keep
-    ; the shadow current. Nmi_Bg1ScrollY is deliberately left untouched: no
-    ; vertical scroll exists (see the playfield-height comment at msu1_done).
-    lda Screen_PosX
-    sta.l Nmi_Bg1ScrollX
-    ; Phase 9 step 4: keep the streaming BG1 ring buffer in sync with the
-    ; camera position just committed above. No-ops for a BG_MODE_STATIC
-    ; level (the shipped boss build) and whenever an animation-frame stream
-    ; still has DMAs in flight -- see Core_StreamScroll_Play's own header.
-    jsr Core_StreamScroll_Play
-    ; Phase 10 Step 2c (plan.md 2.10): same idea, for the BG3 frontpanel's
-    ; own cache -- see Core_StreamScrollFp_Play's own header for the DMA-
-    ; queue-sharing note (BG1 and FP may both enqueue in the same frame).
-    jsr Core_StreamScrollFp_Play
-    ; Spawn-table phase: runs before Hud_Play so a spawn landing this frame
-    ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
-    ; redraw instead of lagging one frame behind.
-    jsr Spawn_Play
-    ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
-    ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
-    ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
-    ; header for why that matters to the vblank budget.
-    jsr Hud_Play
-    jsr Core_Oam_Play
+    ; Phase G2 (plan_game.md 2): Game_State_Play (core/game_state.pasm) now
+    ; owns everything that used to be a straight-line jsr list here (Core_
+    ; Oop_Play through Core_Oam_Play) -- it dispatches on Game_State and
+    ; only runs that block in GAME_STATE_PLAYING. Moving the body out is
+    ; budget-positive for this fixed $FC00-$FF90 region (one 3-byte jsr
+    ; instead of ~11 jsr/lda/sta lines), not just an organizational change --
+    ; see check_width_directives.py/audit_all.py's tight-margin note on this
+    ; loop before adding anything back here directly.
+    jsr Game_State_Play
     bra scpu_main_loop
 
 ; NMI/IRQ pushed from $FE00/$FE10 to $FE20/$FE30, to $FF00/$FF10, then to

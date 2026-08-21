@@ -141,11 +141,18 @@ The chain-link fence renders **in front of** the characters (compare against `sc
 > The other half of new work is **[plan_game.md](plan_game.md)** — the
 > critical path to an actual playable game (font/text renderer, game state
 > machine, player death, win condition, stage transition, menus, score,
-> moveset, bosses, ending); the single hard prerequisite for every
-> menu-shaped item is a font/text renderer, which does not exist today. This
-> reverses the original "VM is not required" framing — see `plan_vm.md`'s own
-> banner for the full reasoning (the ROM-budget concern that drove that
-> framing turned out to rest on a Poppy bug that's actually fixed).
+> moveset, bosses, ending). Phase G1 (font/text renderer, the hard
+> prerequisite for every menu-shaped item) shipped 2026-08-21
+> (`core/text.pasm`, `tools/bg_converter/make_font_tiles.py`, gate
+> `game_g1_text.py`) — text can now be drawn on BG3. G2 (game state machine)
+> shipped the same day (`core/game_state.pasm`, gate `game_g2_states.py`) —
+> `Game_State` now gates PLAYING/TITLE/PAUSED (boot defaults to PLAYING so
+> every existing gate keeps passing unchanged); CHARSELECT/GAMEOVER/
+> STAGECLEAR/ENDING are stubs. Next up is G3, player death/lives/continues.
+> This reverses the original "VM is not required" framing —
+> see `plan_vm.md`'s own banner for the full reasoning (the ROM-budget concern
+> that drove that framing turned out to rest on a Poppy bug that's actually
+> fixed).
 
 Scheduled — see [plan_vm.md](plan_vm.md) and [plan_game.md](plan_game.md) for step-by-step plans:
 - **No SFX are wired to gameplay.** Music now plays (see Phase 7 above), but nothing triggers a sound on an attack or a hit. This is no longer blocked — it is just unstarted, and it needs content before it needs code: `soundwork/tad/build/audio-enums.inc` currently exports exactly one song (`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound has to be authored in the Terrific Audio Driver project first.

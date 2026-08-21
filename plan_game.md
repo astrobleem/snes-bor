@@ -39,7 +39,7 @@ enemies until they stop moving. Then nothing happens. Forever.
 
 | Missing | Blocks |
 |---|---|
-| Font / text renderer | Every menu, every score, every "GAME OVER" |
+| ~~Font / text renderer~~ | **Done (G1, 2026-08-21)** — `core/text.pasm`, gate `game_g1_text.py` |
 | Game state machine | Title → play → death → retry loop |
 | Player death | Any loss condition at all |
 | Win condition | Any reason to finish a level |
@@ -143,6 +143,22 @@ screenshots show a stale BG3 layer even when VRAM is correct.
 ---
 
 ## §2 — Phase G2: a game state machine
+
+> **Status: DONE** (2026-08-21). `GATE G2: PASS` — `core/game_state.pasm` adds
+> `Game_State`/`Game_StatePrev` and all 7 `GAME_STATE_*` constants; `scpu_main_loop`
+> now calls one `jsr Game_State_Play` (replacing the ~11-line straight-line
+> gameplay list it used to run unconditionally, which is budget-*positive* for
+> the tight `$FC00`-`$FF90` region, not neutral). `GAME_STATE_PLAYING = 0` is
+> the boot default (so the existing zero-init-before-`Core_Nmi_Init` step
+> doubles as the state choice) — every existing routine gate keeps passing
+> unchanged, since they all drive the ROM from boot expecting gameplay already
+> running. TITLE and PAUSED are real (reachable via a forced `Game_State`
+> write today; no menu content yet, that's G5) and correctly one-shot-hide/
+> restore hardware OAM on the PLAYING transition edge; CHARSELECT/GAMEOVER/
+> STAGECLEAR/ENDING are explicit no-op stubs. `CharSelect_Index`'s hard-coded
+> roster logic was deliberately NOT wired into `GAME_STATE_CHARSELECT` here —
+> CLAUDE.md says that's to be phased out as VM gates land, not invested in
+> further. Gate: `tools/verify/game_g2_states.py`.
 
 Today `scpu_boot` falls straight into `scpu_main_loop`, which unconditionally
 runs the gameplay subsystems forever. There is no concept of "not in gameplay."
