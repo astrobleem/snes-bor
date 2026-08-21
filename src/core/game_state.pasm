@@ -31,7 +31,7 @@ GAME_STATE_PLAYING    = 0   ; current behavior -- also the boot default, see abo
 GAME_STATE_TITLE      = 1   ; title screen, waiting for Start
 GAME_STATE_CHARSELECT = 2   ; character select (stub only, see header)
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
-GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (stub)
+GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (Phase G3 -- real, see below)
 GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (stub)
 GAME_STATE_ENDING     = 6   ; credits (stub)
 
@@ -40,6 +40,69 @@ Game_StatePrev = $7E2752   ; .dw -- last frame's state, used only to detect
                            ; the transition edge into a non-playing state
                            ; (one-shot OAM clear+upload, then Core_Oam_Play
                            ; stops being called for the rest of that state)
+
+; ============================================================================
+; Phase G3 (plan_game.md 3): player death, lives, continues, game over.
+;
+; The player (entity 0, CHAR_INPUT_DRIVEN==1) was previously exempt from the
+; damage system entirely -- Character_HitApply_VsPlayer clamps CHAR_HP at 0
+; and nothing reacts. This phase adds a reaction, but deliberately NOT by
+; reusing the AI soft-kill machinery (the CHAR_INPUT_DRIVEN==2-gated dead
+; checks scattered through Anim_Play/Character_PlayFrame/Character_HitApply):
+; that path freezes an entity forever, which is correct for a corpse but
+; wrong for the player, who must respawn or reach GAME OVER instead. Player
+; death is handled ENTIRELY here, once per frame, at the top of the PLAYING
+; dispatch -- see Game_State_Play__playing below -- so none of those four
+; existing dead-check call sites needed to change at all.
+;
+; No death/fall animation exists in the MSU roster format (converter only
+; emits idle/walk/attack) -- plan_game.md 3 explicitly permits accepting a
+; plain reaction instead: the killing blow already stamps CHAR_HIT_STUN via
+; Character_HitApply_VsPlayer like any other hit, so the existing generic
+; hit-reaction (hold idle) already reads as "you got hit" for the one frame
+; before Game_State_HandlePlayerDeath below reacts to CHAR_HP==0.
+; ============================================================================
+
+GAME_LIVES_START             = 20    ; arbitrary arcade-style default; BOR
+                                       ; itself has no lives concept, this
+                                       ; project's own choice for a loss loop.
+                                       ; Set deliberately high (not a balance
+                                       ; choice): with 3, unattended AI combat
+                                       ; drove Game_Lives to 0 and reached
+                                       ; GAME_STATE_GAMEOVER by ~frame 1200 in
+                                       ; measured testing, and GAMEOVER skips
+                                       ; Game_State_Play__playing's entire body
+                                       ; (no Oop/Oam/Screen/streaming) -- long
+                                       ; verify gates (phase6.py alone runs
+                                       ; ~1720 cumulative frames with no player
+                                       ; input) were one unlucky combat RNG
+                                       ; roll from silently freezing mid-gate.
+                                       ; 20 gives ~6000 frames of organic-death
+                                       ; margin at the measured ~1 life/300f
+                                       ; rate -- real difficulty tuning is a
+                                       ; later phase's job, not this one's.
+PLAYER_RESPAWN_INVULN_FRAMES = 90     ; ~1.5s @ 60Hz
+PLAYER_RESPAWN_X_MARGIN      = 16     ; px inset from the camera's left edge,
+                                       ; so the respawned player isn't flush
+                                       ; against the screen boundary
+PLAYER_RESPAWN_Y             = 150    ; matches CharacterEntity_Init__player's
+                                       ; own boot default
+GAME_OVER_CONTINUE_FRAMES    = 300    ; ~5s @ 60Hz to press Start before
+                                       ; falling back to GAME_STATE_TITLE
+
+Game_Lives             = $7E2754   ; .db -- remaining lives; a death at 0
+                                    ; lives triggers GAME_STATE_GAMEOVER
+                                    ; instead of a respawn
+Player_InvulnFrames    = $7E2755   ; .db -- brief post-respawn invulnerability
+                                    ; countdown; Character_HitApply_VsPlayer
+                                    ; skips stun/damage entirely while nonzero
+GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
+                                    ; GAME_STATE_GAMEOVER falls back to TITLE;
+                                    ; set once on the transition INTO
+                                    ; GAMEOVER (see
+                                    ; Game_State_HandlePlayerDeath), not
+                                    ; lazily -- ticking a stale/garbage value
+                                    ; down would be wrong on first entry
 
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
@@ -100,9 +163,11 @@ Game_State_Play__no_transition:
     beq Game_State_Play__title
     cmp #GAME_STATE_PAUSED
     beq Game_State_Play__paused
-    ; CHARSELECT/GAMEOVER/STAGECLEAR/ENDING: explicit no-op stubs for this
-    ; phase -- Core_Nmi_WaitFrame (scpu_main_loop) already keeps pacing
-    ; correct, nothing else needs to run yet.
+    cmp #GAME_STATE_GAMEOVER
+    beq Game_State_Play__gameover
+    ; CHARSELECT/STAGECLEAR/ENDING: explicit no-op stubs for this phase --
+    ; Core_Nmi_WaitFrame (scpu_main_loop) already keeps pacing correct,
+    ; nothing else needs to run yet.
     jmp Game_State_Play__done
 
 Game_State_Play__title:
@@ -119,7 +184,71 @@ Game_State_Play__paused:
     ; menu can read Start/Select to resume without any change here.
     jmp Game_State_Play__done
 
+Game_State_Play__gameover:
+    rep #$31
+.a16
+    ; Phase G3: continue countdown. Start before GameOver_ContinueTimer
+    ; hits 0 continues (fresh lives, full respawn, back to PLAYING);
+    ; letting it expire falls back to GAME_STATE_TITLE -- the existing
+    ; "nothing is running" holding state (G2). There's no better fallback
+    ; yet; a real "insert coin"/attract-mode content is G5's job.
+    lda.l Input_trigger+1
+    and #$0010                     ; Start -- core/input.pasm's documented
+                                    ; "B Y Sel Start U D L R" high-byte layout
+    beq Game_State_Play__gameover_no_continue
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    jsr Game_State_RespawnPlayer
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
+    jmp Game_State_Play__done
+Game_State_Play__gameover_no_continue:
+    lda.l GameOver_ContinueTimer
+    beq Game_State_Play__gameover_timeout
+    dec a
+    sta.l GameOver_ContinueTimer
+    jmp Game_State_Play__done
+Game_State_Play__gameover_timeout:
+    rep #$31
+.a16
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
+    jmp Game_State_Play__done
+
 Game_State_Play__playing:
+    rep #$31
+.a16
+    ; Phase G3 (plan_game.md 3): player death check, before this frame's
+    ; Core_Oop_Play pass -- see this file's Phase G3 header for why this
+    ; is handled entirely here rather than in the AI-shaped dead-check
+    ; sites elsewhere. Reads CHAR_HP==0 one frame after the killing blow
+    ; landed (Character_HitApply_VsPlayer already stamped hit-stun/HP the
+    ; frame before, via the normal collision pass) -- that one frame of
+    ; latency is harmless: the player is exempt from every AI-only dead
+    ; check, so it just plays one more ordinary (already-stunned) frame.
+    lda.l PlayerEntity_Hp
+    and #$00FF
+    bne Game_State_Play__no_death
+    jsr Game_State_HandlePlayerDeath
+    lda.l Game_State
+    cmp #GAME_STATE_PLAYING
+    beq Game_State_Play__no_death
+    ; Left PLAYING (GAMEOVER) this frame -- skip the rest of the gameplay
+    ; body; the transition-edge check at the top of this routine will hide
+    ; OAM next call, same as any other PLAYING exit.
+    jmp Game_State_Play__done
+Game_State_Play__no_death:
+    rep #$31
+.a16
+    ; Phase G3: tick the post-respawn invulnerability window down once per
+    ; frame regardless of whether a hit actually lands this frame --
+    ; Character_HitApply_VsPlayer only READS this, never decrements it.
+    lda.l Player_InvulnFrames
+    and #$00FF
+    beq Game_State_Play__invuln_done
+    dec a
+    sta.l Player_InvulnFrames
+Game_State_Play__invuln_done:
     ; The body every gate today already exercises from boot -- moved
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
@@ -164,4 +293,69 @@ Game_State_Play__playing:
 
 Game_State_Play__done:
     plp
+    rts
+
+; ----------------------------------------------------------------------
+; Phase G3 (plan_game.md 3): called once, the instant PlayerEntity_Hp
+; reads 0 during PLAYING (see Game_State_Play__playing above). Decrements
+; Game_Lives; if lives remain, respawns the player in place (see
+; Game_State_RespawnPlayer below); otherwise arms the continue countdown
+; and transitions to GAME_STATE_GAMEOVER. Entry/exit convention: .a16/.i16
+; (Game_State_Play's).
+; ----------------------------------------------------------------------
+Game_State_HandlePlayerDeath:
+    rep #$31
+.a16
+    lda.l Game_Lives
+    and #$00FF
+    beq Game_State_HandlePlayerDeath__gameover
+    sep #$20
+.a8
+    dec a
+    sta.l Game_Lives
+    rep #$31
+.a16
+    jsr Game_State_RespawnPlayer
+    rts
+
+Game_State_HandlePlayerDeath__gameover:
+    rep #$31
+.a16
+    lda #GAME_OVER_CONTINUE_FRAMES
+    sta.l GameOver_ContinueTimer
+    lda #GAME_STATE_GAMEOVER
+    sta.l Game_State
+    rts
+
+; ----------------------------------------------------------------------
+; Phase G3: full player reset -- HP, hit-stun, facing, animation-selection
+; (plan_game.md 3's own "watch out" list: "not just HP"), a brief
+; invulnerability window, and reposition to the camera's current left
+; edge. Called both from a normal death-with-lives-remaining (above) and
+; from a GAME OVER continue (Game_State_Play__gameover). Entry/exit
+; convention: .a16/.i16.
+; ----------------------------------------------------------------------
+Game_State_RespawnPlayer:
+    sep #$20
+.a8
+    lda #CHAR_HP_MAX
+    sta.l PlayerEntity_Hp
+    lda #0
+    sta.l PlayerEntity_HitStun
+    sta.l PlayerEntity_FacingLeft
+    sta.l PlayerEntity_Selected
+    lda #$FF
+    sta.l PlayerEntity_FrameIndex
+    lda #1
+    sta.l PlayerEntity_TickCounter
+    lda #PLAYER_RESPAWN_INVULN_FRAMES
+    sta.l Player_InvulnFrames
+    lda #PLAYER_RESPAWN_Y
+    sta.l PlayerEntity_PosY
+    rep #$31
+.a16
+    lda Screen_PosX
+    clc
+    adc #PLAYER_RESPAWN_X_MARGIN
+    sta.l PlayerEntity_PosX
     rts

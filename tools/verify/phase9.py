@@ -51,13 +51,16 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, read_block, repo_root_from, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant_in, read_block, repo_root_from, Reporter  # noqa: E402
 
 ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
 import build_rom  # noqa: E402
 
 BG_DIR = os.path.join(ROOT, build_rom.BG_SCREENS[0][0])
+
+SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X, same
+                      # not-reachable-via-pasm_constant note as phase8.py.
 
 PlayerEntity_PosX = 0x7E0a00 + 4
 Screen_PosX = 0x7E1601
@@ -98,10 +101,26 @@ StreamScroll_StagedHi = 0x7E2524
 # plateau on the shipped level.
 HOLD_FRAMES = 45
 RUN_FRAMES = 55
-ITERATIONS = 14
 
-SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X, same
-                      # not-reachable-via-pasm_constant note as phase8.py.
+# Phase G3 (plan_game.md 3): the player can now die and respawn at the
+# camera's left edge, which resets world X and reads as a "stall" to this
+# test's stall counter -- it's testing streaming-cache throughput, not
+# combat survival. Force invulnerability each iteration so combat can't
+# confound it (verified: WITHOUT this, held-right on this level reliably
+# kills the player via organic AI combat by iteration ~7 and reaches
+# GAME_STATE_GAMEOVER by iteration ~10, freezing PosX for the rest of the
+# run, 3/3 reproducible runs -- a real confound, not timing jitter).
+# Same fix shape as phase8.py's held-input tests.
+PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
+
+# ITERATIONS trimmed from 14 to 8: with invulnerability removing hit-stun's
+# periodic movement freeze, held-right at 45f/55f cadence empirically hits
+# the level's real world-X clamp at iteration 8 (posx plateaus and repeats
+# from there on) -- measured directly: [192,304,418,532,646,760,874,988,
+# 1080,1080,1080,1080,1080,1080]. 8 iterations keeps every sampled window a
+# real, meaningful throughput measurement instead of padding the run with
+# dead plateau windows that would need excluding from the stall count.
+ITERATIONS = 8
 
 
 def read_u16(m, addr):
@@ -132,6 +151,7 @@ def main():
         screen_samples = []
         staged_hi_samples = []
         for i in range(ITERATIONS):
+            m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
             m.set_input(m.BTN_RIGHT, HOLD_FRAMES, port=0)
             m.run_frames(RUN_FRAMES)
             m.pause()

@@ -2785,6 +2785,13 @@ Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
 Entity3_Hp      = Entity3_Base + 35   ; Entity #3's CHAR_HP
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
+; Phase G3 (plan_game.md 3): respawn must reset facing/animation-selection,
+; not just HP/hit-stun -- same ABSOLUTE-address caveat as every alias above
+; (written from Game_State_Play, outside entity 0's own DP window).
+PlayerEntity_FacingLeft  = $7E0a00 + 8    ; Entity #0's CHAR_FACING_LEFT
+PlayerEntity_FrameIndex  = $7E0a00 + 9    ; Entity #0's CHAR_FRAME_INDEX
+PlayerEntity_TickCounter = $7E0a00 + 10   ; Entity #0's CHAR_TICK_COUNTER
+PlayerEntity_Selected    = $7E0a00 + 11   ; Entity #0's CHAR_SELECTED
 
 ; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
 ; Character_PlayFrame's OamSetSprite_Hi comment) -- the AABB hitbox is just
@@ -5211,11 +5218,23 @@ Character_HitApply_VsPlayer__dy_have:
     rts                     ; no overlap on Y
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsPlayer__dy_ok:
+    ; Phase G3 (plan_game.md 3): a just-respawned player is briefly
+    ; invulnerable (Player_InvulnFrames, ticked down once per frame by
+    ; Game_State_Play -- see core/game_state.pasm) -- same "no further
+    ; stun/damage" shape as the AI leaves' dead-target skip above, but
+    ; temporary instead of sticky.
+    lda.l Player_InvulnFrames
+    beq Character_HitApply_VsPlayer__not_invuln
+    rts
+Character_HitApply_VsPlayer__not_invuln:
+    sep #$20
+.a8
     lda #CHAR_HIT_STUN_FRAMES
     sta.l PlayerEntity_HitStun
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    ; Not a damage system -- nothing reacts to reaching 0; the HUD just
-    ; has a real value to draw.
+    ; Phase G3: CHAR_HP==0 now DOES trigger a reaction -- see
+    ; core/game_state.pasm's Game_State_Play__playing, which checks this
+    ; once per frame at the top of the PLAYING dispatch.
     lda.l PlayerEntity_Hp
     sec
     sbc #CHAR_HP_PER_HIT
@@ -9190,19 +9209,31 @@ Hud_Play__clear:
 ; addressing AND within-tile multi-color packing get exercised, not just a
 ; uniform test block.
 ;
-; Pinned here, ending exactly at $FBFF, for want of anywhere better: it used to
-; sit just below $8800 where the TAD driver silently overwrote its last 60
-; bytes (nothing could see that until poppy#384 made .incbin count in the
-; layout pass), and it cannot go in the $8C60-$AC00 gap because plan_vm.md
-; reserves all of it. It must stay in bank 0 and be reachable by a 16-bit
-; absolute read, because sa1_main reads it as "lda TestSprite32x48,y" with
-; DBR = 0.
+; Relocated 2026-08-21 (Phase G3, plan_game.md 3) from $F600 to this bank-0
+; gap: it used to sit just below $8800 where the TAD driver silently
+; overwrote its last 60 bytes (nothing could see that until poppy#384 made
+; .incbin count in the layout pass), and it cannot go in the $8C60-$AC00
+; gap because plan_vm.md reserves all of it. It must stay in bank 0 and be
+; reachable by a 16-bit absolute read, because sa1_main reads it as "lda
+; TestSprite32x48,y" with DBR = 0 -- $B100 satisfies that exactly as well
+; as $F600 did, and unlike relocating executable code with branch-target
+; labels (tried and reverted -- see git history around this comment, or
+; project memory phase_g3_player_death: it triggered a ~550-label
+; estimation-vs-codegen drift cascade via check_label_drift.py), a plain
+; .incbin blob referenced only by a 16-bit absolute-indexed load has no
+; branch estimation to get wrong.
 ;
-; This leaves core/*.pasm only ~269 bytes of growth room ($F4F3-$F5FF). That is
-; tight but no longer dangerous: the assembler errors with "overlaps previously
-; emitted bytes" if the core region reaches $F600. If it does, move this blob
-; rather than shaving core -- it has no address requirements beyond bank 0.
-.org $F600
+; core/*.pasm (the $C100-$F600 region) had only ~269 bytes of growth room
+; left ($F4F3-$F5FF) and overflowed the instant G3's player-death/respawn/
+; game-over logic was added to core/game_state.pasm -- confirmed via a real
+; "overlaps previously emitted bytes" build error, not a guess. This is
+; exactly the relief valve this comment used to invite ("if it does, move
+; this blob rather than shaving core") -- taken here instead of growing
+; core/*.pasm itself. $B001-$C0FF (~4350 bytes) sits completely unused
+; between Tad_BlankSongByte (1 byte, $B000) and the next fixed `.org
+; $C100` -- grep-confirmed clear (no other `.org` targets this range)
+; before landing here.
+.org $B100
 TestSprite32x48:
     .incbin "assets/test_sprite_32x48.bin"
 
@@ -10011,6 +10042,18 @@ scpu_tm_row_no_bump:
     ; so this zero-init IS the boot-state choice, not just a formality.
     sta.l Game_State
     sta.l Game_StatePrev
+    ; Phase G3 (plan_game.md 3): Player_InvulnFrames must not rely on WRAM
+    ; happening to power on zero (this project's own documented gotcha --
+    ; see WorldMaxX's declaration comment) -- a large garbage value would
+    ; delay the very first AI-vs-player hit-stun by up to ~4s, which is
+    ; harmless but not correct boot state, so zero it explicitly here too.
+    sta.l Player_InvulnFrames
+    sep #$20
+.a8
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    rep #$31
+.a16
 
     jsr Core_Nmi_Init
 

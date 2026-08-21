@@ -40,6 +40,13 @@ FP_DIR = os.path.join(ROOT, _fp_dir) if _fp_dir else None
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+# Phase G3 (plan_game.md 3): the player can now die and respawn at full HP
+# (core/game_state.pasm), so "HP is still CHAR_HP_MAX" no longer proves
+# nothing happened -- it could mean a death+respawn cycle completed inside
+# this test's own 900-frame window. Game_Lives dropping below its boot
+# value is independent evidence a death (and therefore damage) occurred.
+GAME_LIVES_START = pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START')
+GAME_LIVES = pasm_constant_in('src/core/game_state.pasm', 'Game_Lives')
 BG1_TILES_WORD = pasm_constant('BG1_TILES_VRAM_WORD')
 BG1_TILEMAP_WORD = pasm_constant('BG1_TILEMAP_VRAM_WORD')
 BG3_TILES_WORD = pasm_constant('BG3_TILES_VRAM_WORD')
@@ -212,8 +219,12 @@ def main():
         m.run_frames(900)
         m.pause()
         later = [entity_hp(m, b) for b in ENTITY_BASES]
-        print(f'HP at frame 920: {later}')
-        r.check('player HP decreased from AI hits', later[0] < start[0])
+        lives = read_block(m, GAME_LIVES, 32)[0]
+        print(f'HP at frame 920: {later} (Game_Lives={lives})')
+        # Phase G3: HP back at CHAR_HP_MAX is also correct if a death+respawn
+        # cycle happened in this window -- Game_Lives dropping proves that.
+        r.check('player HP decreased from AI hits, or died+respawned (Game_Lives dropped)',
+                later[0] < start[0] or lives < GAME_LIVES_START)
         r.check('no HP underflowed past 0 (clamped, not wrapped)',
                 all(0 <= h <= CHAR_HP_MAX for h in later))
         r.check('at least one AI entity spawned by frame 920',

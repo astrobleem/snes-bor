@@ -38,6 +38,15 @@ WORLD_MAX_X = pasm_constant('WORLD_MAX_X')
 PLAYER_MAX_X = pasm_constant('PLAYER_MAX_X')
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
+# Phase G3 (plan_game.md 3): the player can now die and respawn at the
+# camera's left edge (core/game_state.pasm), which would reset world X mid
+# hold-right/hold-left and defeat this test's entire point -- it's testing
+# camera/scroll clamping, not combat survival. Force invulnerability for
+# the whole held-input run so combat can't confound it, same category as
+# other gates writing WRAM directly to set up controlled conditions (e.g.
+# phase11_damage.py force-writing CHAR_HP).
+from _harness import pasm_constant_in  # noqa: E402
+PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
 
 SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X -- not in
                       # main.pasm, so not reachable via pasm_constant; the
@@ -149,6 +158,7 @@ def main():
         # swap can't silently desync this gate from the engine. ---
         print(f'MAX_SCROLL_X = {MAX_SCROLL_X} (content width {CONTENT_PX}px, WORLD_MAX_X={WORLD_MAX_X})')
         for _ in range(14):
+            m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
             m.set_input(m.BTN_RIGHT, 60)
         m.pause()
         sx = screen_pos_x(m)
@@ -171,6 +181,7 @@ def main():
         # resident), but the camera's OWN easing/clamp code has never been
         # exercised in this direction before, so still worth a real check. ---
         for _ in range(14):
+            m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
             m.set_input(m.BTN_LEFT, 60)
         m.pause()
         sx = screen_pos_x(m)

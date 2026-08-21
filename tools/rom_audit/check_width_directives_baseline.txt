@@ -130,7 +130,6 @@ src/main.pasm:Character_HitApply_VsEntity3__dy_ok
 src/main.pasm:Character_HitApply_VsEntity3__hp_ok
 src/main.pasm:Character_HitApply_VsPlayer__dx_have
 src/main.pasm:Character_HitApply_VsPlayer__dy_have
-src/main.pasm:Character_HitApply_VsPlayer__dy_ok
 src/main.pasm:Character_HitApply_VsPlayer__hp_ok
 src/main.pasm:Character_PlayFrame__ai_y
 src/main.pasm:Character_PlayFrame__ai_y_playerge
