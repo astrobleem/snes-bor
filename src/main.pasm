@@ -4392,25 +4392,25 @@ Character_PlayFrame__cursor_next:
     bne Character_PlayFrame__x_check_stun
     lda CHAR_HP
     bne Character_PlayFrame__x_check_stun
-    bra Character_PlayFrame__hold
-    nop
+    brl Character_PlayFrame__hold
 Character_PlayFrame__x_check_stun:
     lda CHAR_HIT_STUN
     beq Character_PlayFrame__not_stunned_x
-    bra Character_PlayFrame__hold
-    nop
+    brl Character_PlayFrame__hold
 Character_PlayFrame__not_stunned_x:
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_x
     cmp #2
     beq Character_PlayFrame__ai_x
-    bra Character_PlayFrame__hold
-    nop
+    brl Character_PlayFrame__hold
 Character_PlayFrame__dpad_x:
     lda.l Input_press+1
     and #$03
-    beq Character_PlayFrame__hold
+    bne Character_PlayFrame__dpad_x_have
+    brl Character_PlayFrame__hold
+Character_PlayFrame__dpad_x_have:
+.a8
     lda.l Input_press+1
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
     beq Character_PlayFrame__right
@@ -4439,7 +4439,11 @@ Character_PlayFrame__ai_x:
 .a16
     lda.l PlayerEntity_PosX
     cmp CHAR_POS_X
-    beq Character_PlayFrame__hold  ; already X-aligned with the player
+    bne Character_PlayFrame__ai_x_not_aligned
+    brl Character_PlayFrame__hold  ; already X-aligned with the player
+Character_PlayFrame__ai_x_not_aligned:
+.a16
+    ; bne above doesn't disturb N/C -- still the same cmp's flags.
     bcs Character_PlayFrame__ai_x_playerge
     ; self > player
     lda CHAR_POS_X
@@ -4465,6 +4469,42 @@ Character_PlayFrame__right:
     lda CHAR_POS_X
     clc
     adc #PLAYER_SPEED
+    ; G7 run/dash: holding B doubles PLAYER_SPEED. IMPORTANT: __right/__left/
+    ; __up/__down are NOT player-only -- __ai_x/__ai_y above deliberately
+    ; reuse these same blocks (only the DPAD DISPATCH is gated on
+    ; CHAR_INPUT_DRIVEN==1; Input_press is a global controller read with no
+    ; entity context). An earlier version of this omitted the mode check and
+    ; let every AI entity run at 2x whenever the player merely held B.
+    ; Stash the post-first-step value across the check with pha/pla -- safe
+    ; across an NMI since interrupt entry/exit is push/pull-symmetric
+    ; regardless of what nmi_handler itself saves. The mode+button check
+    ; itself needs 8-bit accumulator (CHAR_INPUT_DRIVEN and Input_press+1 are
+    ; both bytes); A is already saved on the stack, so it's safe to narrow
+    ; here and widen back before the pla (pha executed at .a16 pushed 2
+    ; bytes; pla below also runs at .a16, so the push/pull width matches).
+    pha
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_PlayFrame__right_norun8
+    lda.l Input_press+1
+    and #$80                ; B = bit7 of the high byte
+    beq Character_PlayFrame__right_norun8
+    rep #$20
+.a16
+    pla
+    clc
+    adc #PLAYER_SPEED
+    bra Character_PlayFrame__right_clampcheck
+    nop
+Character_PlayFrame__right_norun8:
+.a8
+    rep #$20
+.a16
+    pla
+Character_PlayFrame__right_clampcheck:
+.a16
     ; WorldMaxX (WRAM, boot-set) replaces the immediate WORLD_MAX_X here --
     ; see its own declaration comment. "newX <= WorldMaxX" via bcc-or-beq
     ; instead of the old ">= WORLD_MAX_X+1" immediate-compare shape, since
@@ -4482,6 +4522,31 @@ Character_PlayFrame__left:
     lda CHAR_POS_X
     sec
     sbc #PLAYER_SPEED
+    ; G7 run/dash -- same shape as __right above (mode check + sbc instead
+    ; of adc).
+    pha
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_PlayFrame__left_norun8
+    lda.l Input_press+1
+    and #$80
+    beq Character_PlayFrame__left_norun8
+    rep #$20
+.a16
+    pla
+    sec
+    sbc #PLAYER_SPEED
+    bra Character_PlayFrame__left_clampcheck
+    nop
+Character_PlayFrame__left_norun8:
+.a8
+    rep #$20
+.a16
+    pla
+Character_PlayFrame__left_clampcheck:
+.a16
     cmp #PLAYER_MIN_X
     bcs Character_PlayFrame__store_x
     lda #PLAYER_MIN_X
@@ -4515,21 +4580,18 @@ Character_PlayFrame__store_x:
     bne Character_PlayFrame__y_check_stun
     lda CHAR_HP
     bne Character_PlayFrame__y_check_stun
-    bra Character_PlayFrame__hold_y
-    nop
+    brl Character_PlayFrame__hold_y
 Character_PlayFrame__y_check_stun:
     lda CHAR_HIT_STUN
     beq Character_PlayFrame__not_stunned_y
-    bra Character_PlayFrame__hold_y
-    nop
+    brl Character_PlayFrame__hold_y
 Character_PlayFrame__not_stunned_y:
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_y
     cmp #2
     beq Character_PlayFrame__ai_y
-    bra Character_PlayFrame__hold_y
-    nop
+    brl Character_PlayFrame__hold_y
 Character_PlayFrame__dpad_y:
     lda.l Input_press+1
     and #$0C
@@ -4563,6 +4625,29 @@ Character_PlayFrame__down:
     lda CHAR_POS_Y
     clc
     adc #PLAYER_SPEED
+    ; G7 run/dash: holding B doubles PLAYER_SPEED for the PLAYER ONLY.
+    ; Unlike the X blocks this one is already 8-bit throughout (inherits the
+    ; sep #$20/.a8 set earlier in this routine), so the CHAR_INPUT_DRIVEN
+    ; mode check needs no width toggle. __ai_y above deliberately reuses
+    ; this same block for AI entities, so the mode check is load-bearing --
+    ; without it, every AI entity would run at 2x whenever the player merely
+    ; held B (Input_press has no entity context).
+    pha
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_PlayFrame__down_norun
+    lda.l Input_press+1
+    and #$80                ; B = bit7 of the high byte
+    beq Character_PlayFrame__down_norun
+    pla
+    clc
+    adc #PLAYER_SPEED
+    bra Character_PlayFrame__down_clampcheck
+    nop
+Character_PlayFrame__down_norun:
+    pla
+Character_PlayFrame__down_clampcheck:
+.a8
     cmp #PLAYER_MAX_Y + 1
     bcc Character_PlayFrame__store_y
     lda #PLAYER_MAX_Y
@@ -4572,6 +4657,24 @@ Character_PlayFrame__up:
     lda CHAR_POS_Y
     sec
     sbc #PLAYER_SPEED
+    ; G7 run/dash -- same shape as __down above (mode check + sbc instead of
+    ; adc).
+    pha
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_PlayFrame__up_norun
+    lda.l Input_press+1
+    and #$80
+    beq Character_PlayFrame__up_norun
+    pla
+    sec
+    sbc #PLAYER_SPEED
+    bra Character_PlayFrame__up_clampcheck
+    nop
+Character_PlayFrame__up_norun:
+    pla
+Character_PlayFrame__up_clampcheck:
+.a8
     cmp #PLAYER_MIN_Y
     bcs Character_PlayFrame__store_y
     lda #PLAYER_MIN_Y

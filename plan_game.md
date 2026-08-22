@@ -52,7 +52,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset |
+| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; jump/grab/special/block/knockdown all still open, see §7 |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
@@ -499,13 +499,80 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-Currently: walk and one attack. BOR Original has considerably more, and this is
-what separates "tech demo" from "beat-'em-up."
+> **Status: PARTIAL (first slice DONE, 2026-08-22).** `GATE G7-RUN: PASS`
+> (`tools/verify/game_g7_run.py`). Run/dash shipped first, deliberately,
+> because it's the only item below that needs no new animation content —
+> OpenBOR's own reference (`openbor_script_reference.txt:982`) treats run as
+> walk/idle frames driven at higher velocity, not a distinct move, so this
+> was implementable as a pure speed modifier on the existing walk code.
+> Holding B now doubles the player's per-frame movement speed. Implemented
+> entirely inside `Character_PlayFrame`'s existing `__right`/`__left`/
+> `__down`/`__up` blocks in `main.pasm`: after the existing
+> `adc`/`sbc #PLAYER_SPEED` step and before the existing clamp, a held-B
+> check (`Input_press` bit15 in the 16-bit X blocks, `Input_press+1` bit7 in
+> the 8-bit Y blocks — B was the one button in the already-read input byte
+> nothing else claimed) conditionally applies a second
+> `adc`/`sbc #PLAYER_SPEED`, `pha`/`pla`-stashing the post-first-step value
+> across the test. **NOT player-only for free — this project's own first
+> assumption here was wrong, caught by pre-commit review, not by the gate
+> as first written.** `__right`/`__left`/`__up`/`__down` are shared code:
+> `__ai_x`/`__ai_y` (above these blocks in the same routine) deliberately
+> reuse them for AI-driven entities, and only the *dpad dispatch*
+> (`__dpad_x`/`__dpad_y`) is gated on `CHAR_INPUT_DRIVEN==1` — `Input_press`
+> itself is a global controller read with no entity context. A version of
+> this change without a mode check inside the movement blocks themselves let
+> every AI entity run at 2x speed whenever the player merely held B. Fixed
+> by adding an explicit `CHAR_INPUT_DRIVEN==1` check directly inside each
+> movement block (in the 16-bit X blocks this means narrowing to 8-bit
+> around the check — A is already saved via `pha` — then widening back
+> before the `pla`; the already-8-bit Y blocks needed no width toggle). No
+> new struct field either (the entity struct is fully packed, no spare byte,
+> and `Entity1/2/3_Base` are hand-synced literal offsets, another reason to
+> avoid touching it). No converter/roster/MSU changes.
+>
+> **Real cost hit doing this**: inserting the new branches pushed several
+> pre-existing `bra`/`beq` instructions in this routine out of 8-bit branch
+> range against their targets (`Character_PlayFrame__hold`/`__hold_y`) —
+> this project has hit this exact class of cost before when widening this
+> routine (see Phase 8's own history). Fixed by converting the `bra`s to
+> `brl` directly, and the `beq`s by inverting the condition and branching
+> around a `brl`.
+>
+> New gate `tools/verify/game_g7_run.py`: measures the actual position delta
+> over a held walk vs. a held run(+B) window of identical nominal length and
+> asserts a ~2x ratio, rather than exact frame-count arithmetic — an earlier
+> version of this gate tried predicting the exact pixel delta from
+> `Nmi_FrameCounter`-measured elapsed frames and found the per-frame rate
+> itself never hit exactly `PLAYER_SPEED` (this project's own
+> `mesen_set_input_wall_clock` lesson: `set_input`'s frame count is a
+> wall-clock lower bound, not exact), even though the walk-vs-run *ratio*
+> came out clean (exactly 2.0 on both X and Y once the Y-axis measurement
+> window was fixed to not saturate `PLAYER_MAX_Y` — an earlier version of
+> the gate had silently been measuring the clamp, not run speed, on Y).
+> Also asserts holding B alone (no dpad) never moves the player, and —
+> the check that actually catches the AI-speed bug above — that a forced,
+> actively-seeking AI entity's movement rate is unchanged whether or not the
+> player holds B (measured with matched `set_input` calls on both arms;
+> mixing `set_input` and `run_frames` for the two arms was tried first and
+> produced a false failure, since the two helpers advance the emulator
+> through different, not-exactly-frame-equal paths). Full regression suite
+> passes (`audit_all.py`, `check_label_drift.py`,
+> `check_width_directives.py` — zero new violations, `phase5.py`–`phase8.py`,
+> `phase11_damage.py`, `phase12_roster.py`).
+>
+> **Still fully open** (all need new animation content the converter doesn't
+> produce today — see "Content dependency" below): jump/jump-attack (the
+> largest remaining item, needs a Z axis and forces Y-sorted depth priority),
+> grab/throw, special, block, knockdown/getting-up/invulnerability-frames.
+
+Currently: walk, run, and one attack. BOR Original has considerably more, and
+this is what separates "tech demo" from "beat-'em-up."
 
 - **Jump** (and jump attack) — needs a Z axis / ground-plane model the engine does
   not have. This is the largest single combat item.
 - **Grab / throw** — proximity grab state, mutual entity locking.
-- **Special** (HP-cost screen-clear), **run/dash**, **block** if the char has it.
+- **Special** (HP-cost screen-clear), **block** if the char has it.
+- ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - **Knockdown, getting up, invulnerability frames** — currently only hit stun.
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
