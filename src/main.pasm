@@ -2941,7 +2941,23 @@ AnimHeaderStaging  = $7E2320   ; 16B  -- raw directory/file-header record,
 ; PPU and never lands in WRAM at all. ---
 BgHeaderStaging    = $7E2330   ; 16B  -- bor.msu file header (bg_count at +10,
                                  ;        bg_directory_offset at +12..15)
-BgRecordStaging    = $7E2340   ; 32B  -- one BG directory record (v4, was 20B/16B)
+; Phase G4 (plan_game.md 4): relocated $7E2340 -> $7E2666 and grown 32B ->
+; 40B (v6 record: +32 spawn_offset/+36 spawn_count, see core/spawn.pasm's
+; header) -- $7E2340+32 butts directly against HudCachedHp at $7E2360 with
+; no room to grow in place. $7E2666 is real free WRAM (core/text.pasm's own
+; header already documents the gap between StreamScrollFp_RepairCur, ending
+; $7E2666, and TextStaging at $7E2700, "with margin to spare"). Pure data,
+; no branch-target labels inside it, so relocating is safe -- same
+; reasoning Phase G3 used moving TestSprite32x48 (see that phase's memory).
+BgRecordStaging    = $7E2666   ; 40B  -- one BG directory record (v6, was 32B/20B/16B)
+                                 ; occupies $7E2666-$7E268D
+Bg_LoadScene_StageIndex = $7E268E  ; .db -- which bg record Bg_LoadScene loads
+                                 ; next; caller sets this before jsr Bg_LoadScene
+                                 ; (boot sets it to 0; Stage_Load, core/
+                                 ; game_state.pasm, sets it to Game_StageIndex)
+BgDirSeekLo = $7E268F   ; .dw -- scratch: stage-adjusted bg directory seek addr
+BgDirSeekHi = $7E2691   ; .db
+BgDirSeekTmp = $7E2692  ; .dw -- scratch: Bg_LoadScene_StageIndex * BG_RECORD_SIZE
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
 ; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
@@ -6066,13 +6082,42 @@ Bg_LoadScene__hdr_read:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__have_bg:
 
-    ; --- seek the BG directory (24 bits of the u32 at +12; a .msu never
-    ; reaches 16MB) and read record 0 ---
-    lda.l BgHeaderStaging+12
+    ; --- Phase G4 (plan_game.md 4): seek the BG directory record for
+    ; Bg_LoadScene_StageIndex, not always record 0 -- add
+    ; StageIndex*BG_RECORD_SIZE(40) to the 24-bit bg_directory_offset
+    ; (+12/13/14, a .msu never reaches 16MB) before seeking. Same clean
+    ; 2-term 16-bit-add-then-hi8-carry-propagate idiom Msu1_LoadFrame
+    ; already uses (see that routine's header comment on why a SINGLE
+    ; carry-producing add, not two chained ones, is required here). ---
+    sep #$20
+.a8
+    lda.l Bg_LoadScene_StageIndex
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    asl a
+    asl a
+    asl a                       ; index*8
+    sta.l BgDirSeekTmp
+    asl a
+    asl a                       ; index*32
+    clc
+    adc.l BgDirSeekTmp          ; index*32 + index*8 = index*40
+    clc
+    adc.l BgHeaderStaging+12    ; + bg_directory_offset lo16
+    sta.l BgDirSeekLo
+    sep #$20
+.a8
+    lda.l BgHeaderStaging+14    ; bg_directory_offset byte 2
+    adc #0                       ; propagate the 16-bit add's carry
+    sta.l BgDirSeekHi
+
+    lda.l BgDirSeekLo
     sta $2000
-    lda.l BgHeaderStaging+13
+    lda.l BgDirSeekLo+1
     sta $2001
-    lda.l BgHeaderStaging+14
+    lda.l BgDirSeekHi
     sta $2002
     lda #0
     sta $2003
@@ -6095,8 +6140,26 @@ Bg_LoadScene__dir_read:
 .a16
 .i16
     inx
-    cpx #$0020
+    cpx #$0028
     bcc Bg_LoadScene__dir_read
+
+    ; --- Phase G4: this stage's own spawn-table info, hung off its bg
+    ; record (v6 fields +32 spawn_offset u32 / +36 spawn_count u16 -- see
+    ; pack_msu_roster.py's build_bg_record and core/spawn.pasm's header).
+    ; Copied into Spawn_MsuOffsetLo/Hi/Spawn_Count for Spawn_Init (called
+    ; later in scpu_boot/Stage_Load) to consume -- top byte of the 32-bit
+    ; spawn_offset (+35) is never read, same "a .msu never reaches 16MB"
+    ; assumption every other MSU offset in this file already makes. Only
+    ; spawn_count's low byte (+36) is read: Spawn_Count is a .db, and no
+    ; packed stage comes close to 256 records. ---
+    lda.l BgRecordStaging+32
+    sta.l Spawn_MsuOffsetLo
+    sep #$20
+.a8
+    lda.l BgRecordStaging+34
+    sta.l Spawn_MsuOffsetHi
+    lda.l BgRecordStaging+36
+    sta.l Spawn_Count
 
     ; --- seek this screen's blob (record +12/13/14 -- v3 data_offset moved
     ; from +8 to +12 when the record grew from 16 to 20 bytes; see
@@ -9603,6 +9666,23 @@ msu1_done:
     ; for its own reads and would otherwise strand a half-finished character
     ; load. Still under forced blank here, which is what lets it pump the
     ; data port straight into the PPU with no WRAM staging. ---
+    ; Phase G4 (plan_game.md 4): boot always loads stage 0 -- Game_StageIndex/
+    ; Bg_LoadScene_StageIndex are both explicit zeros here rather than relying
+    ; on WRAM's power-on state (same "don't trust cold WRAM" discipline as
+    ; every other boot-time zero-init in this file).
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l Game_StageIndex        ; .dw -- 16-bit zero, not a narrowed 8-bit
+                                   ; store, so its high byte is never left
+                                   ; holding boot-time WRAM garbage
+    sep #$20
+.a8
+    lda #0
+    sta.l Bg_LoadScene_StageIndex
+    sta.l Stage_Cleared
+    sta.l Stage_LoadPending
     rep #$31
 .a16
 .i16
@@ -9795,6 +9875,17 @@ Boot_LoadFp__done:
     ; Streaming just above -- not a per-frame streaming consumer, so this
     ; doesn't compete with Msu1_LoadFrame's one-entity-per-frame rule. ---
     jsr Spawn_Init
+
+    ; --- Phase G4 (plan_game.md 4): stage 0's own win-condition setup,
+    ; a shared jsr (core/game_state.pasm's Stage_ApplyWinClamp) rather than
+    ; an inline copy -- this region sits ahead of nmi_handler's fixed .org
+    ; and has no byte budget to spare for a second copy (see CLAUDE.md's
+    ; ".org truncation" note; a first inline draft here overflowed it).
+    ; Needed at boot because Screen_MaxX/WorldMaxX were already computed
+    ; above (Boot_SetPlayfieldBorder__go) while Spawn_LastTriggerX (just
+    ; cached by Spawn_Init directly above) wasn't ready yet -- see that
+    ; routine's own header for why the two can't simply be reordered. ---
+    jsr Stage_ApplyWinClamp
 
     ; --- Gate 0a (plan_vm.md 1): boot-time MSU -> WRAM load of the script
     ; VM's bytecode module, plus header validation. Placed here for two

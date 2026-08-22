@@ -113,7 +113,6 @@ src/main.pasm:Bg_LoadSceneFp_Streaming__row_done
 src/main.pasm:Bg_LoadSceneFp_Streaming__row_no_vflip
 src/main.pasm:Bg_LoadScene_Streaming__row_done
 src/main.pasm:Bg_LoadScene_Streaming__row_no_vflip
-src/main.pasm:Bg_LoadScene__have_bg
 src/main.pasm:Boot_SetPlayfieldBorder__go
 src/main.pasm:CharacterEntity_OnCommand__camera
 src/main.pasm:Character_HitApply_VsEntity1__dx_have

@@ -272,6 +272,56 @@ a sampling stride that divided a character's animation cycle period.
 
 ## §4 — Phase G4: win condition and stage transition
 
+> **Status: DONE** (2026-08-21). `GATE G4: PASS` (`tools/verify/game_g4_transition.py`).
+> A real second stage now exists: `BG_SCREENS`/`FP_SCREENS`/`SPAWN_TABLES`
+> (`build_rom.py`) are parallel lists — index 0 is stage 1B ("The bar",
+> unchanged since Phase 14), index 1 is stage 1A ("The street", the level
+> Phase 14 replaced as the shipped default; its converted assets stayed
+> committed the whole time for exactly this). The hand-synced
+> `SPAWN_MSU_OFFSET`/`SPAWN_COUNT` constants this section's own "watch out"
+> flagged are gone entirely — `pack_msu_roster.py`'s bg record grew a v6
+> spawn_offset/spawn_count pair (hung off the record it belongs to, same
+> pattern v5 used for `fp_offset`), and `core/spawn.pasm`'s `Spawn_Init` now
+> reads its stage's own offset/count from WRAM cells `Bg_LoadScene`
+> populates every load, boot and transition alike — no build-time
+> `check_spawn_constants()` needed any more (deleted). Win condition: queue
+> exhausted (`Spawn_Index == Spawn_Count`) AND all three AI entities'
+> `CHAR_HP == 0` unlocks the camera's `Screen_MaxX` from a pre-clear soft
+> hold (derived from `Spawn_LastTriggerX`, the stage's own last spawn
+> record's trigger position — not a hand-authored "combat zone" table);
+> reaching that newly-unlocked true edge is the real stage-clear trigger.
+> `Stage_Load` (`core/game_state.pasm`) is a full, blocking, boot-style
+> reload — deliberately NOT the live per-frame streaming path, which is
+> designed for small per-frame deltas, not swapping an entire level at
+> once.
+>
+> **Real bug found and fixed via this gate, not by inspection:**
+> `Bg_LoadSceneFp_Streaming`'s CGRAM palette write (unconditional CGADD=4
+> before a 24-byte loop, unchanged code that works fine at boot) landed
+> scrambled — some colors correct-value-wrong-slot, others simply
+> unwritten — every time it ran via `Stage_Load` instead of only at boot.
+> Root cause: `sei` does **not** mask NMI (memory
+> `nmi_handler_no_register_save_reentrancy` had already flagged this exact
+> gap as "unverified"), and NMI genuinely IS enabled during a live-gameplay
+> stage transition (unlike at boot, where `Core_Nmi_Init` hasn't run yet —
+> the same `sei`-only pattern in `Bg_LoadScene`/`Bg_LoadSceneFp_Streaming`
+> is safe there for that reason alone, not because `sei` itself helps). A
+> real vblank landing mid-load fired `Core_Nmi_Play`, which writes CGRAM
+> color 0 every vblank, scrambling the FP loader's own auto-incrementing
+> CGADD sequence. Fixed with `Core_Nmi_Stop`/`Core_Nmi_Start`
+> (`core/nmi.pasm`) — both already existed, already documented for exactly
+> this ("useful around a sequence that would be corrupted by an NMI firing
+> mid-way through"), and had never had a real caller before this phase.
+> `Stage_Load` also force-blanks the screen for the same VRAM/CGRAM-write-
+> during-active-display reason boot gets for free by having the screen off.
+>
+> Both `tools/verify/phase8.py` and the new `game_g4_transition.py` needed
+> to explicitly work around the new pre-clear camera hold to test what they
+> actually test (raw camera clamp mechanics, not the win condition) — see
+> `phase8.py`'s own comment on why forcing `Stage_Cleared=1` without also
+> overwriting `Stage_TrueMaxX` triggers a REAL stage transition mid-test
+> (reproduced once, then fixed).
+
 The piece that makes a *second* level exist.
 
 ### Scope

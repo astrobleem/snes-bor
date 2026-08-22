@@ -32,7 +32,7 @@ GAME_STATE_TITLE      = 1   ; title screen, waiting for Start
 GAME_STATE_CHARSELECT = 2   ; character select (stub only, see header)
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
 GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (Phase G3 -- real, see below)
-GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (stub)
+GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (Phase G4 -- real, see below)
 GAME_STATE_ENDING     = 6   ; credits (stub)
 
 Game_State     = $7E2750   ; .dw -- current state, see GAME_STATE_* above
@@ -104,6 +104,87 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
                                     ; lazily -- ticking a stale/garbage value
                                     ; down would be wrong on first entry
 
+; ============================================================================
+; Phase G4 (plan_game.md 4): win condition and stage transition.
+;
+; BOR's own win condition is "all spawned enemies defeated and the level's
+; spawn queue exhausted, then reach the right edge." The queue-exhausted/
+; all-dead half is cheap: core/spawn.pasm's Spawn_Index vs Spawn_Count IS
+; "queue exhausted", and CHAR_HP==0 on Entity1/2/3 IS "no AI alive" -- the
+; exact same soft-kill sentinel Phase 11 and the spawn queue's own "slot
+; free" check already use, so this needed no new per-entity state at all.
+;
+; The "reach the right edge" half needed one real design decision (see this
+; session's advisor consult): BOR normally holds the camera back from a
+; level's true end until its current combat wave clears, so simply letting
+; the player walk to Screen_MaxX from frame 1 would make "win" trivial and
+; instant. Rather than hand-author a per-level "combat zone" table this
+; project doesn't have, the hold boundary is DERIVED from data the level
+; already has: core/spawn.pasm's Spawn_LastTriggerX -- the trigger_x of the
+; stage's own LAST spawn record (spawn tables are packed in ascending
+; trigger order, so this is always the highest trigger in the table), which
+; is already expressed in the same Screen_PosX camera-space units Screen_MaxX
+; itself uses. Stage_Load clamps Screen_MaxX down to this value at load
+; time; Game_State_Play__playing's win check raises it back to the stage's
+; TRUE full width (Stage_TrueMaxX, captured once by Stage_Load right after
+; Core_Screen_SetPlayfieldBorder computes it) the instant the queue-
+; exhausted+all-dead condition goes true. Reaching Stage_TrueMaxX after that
+; point (Core_Screen_Play's own existing clamp naturally caps Screen_PosX
+; there as the player keeps walking) is the real stage-clear trigger.
+;
+; Two writers to Screen_MaxX (the hold-clamp and the unlock) is exactly the
+; hazard class the old 79px streaming-level bug (see main.pasm's Boot_Set
+; PlayfieldBorder header) came from -- avoided here by making the unlock an
+; unconditional overwrite from a cached Stage_TrueMaxX, never an in-place
+; adjustment of whatever Screen_MaxX currently holds.
+;
+; Stage_Load is a full, blocking, boot-style reload (Core_StreamCache_Init/
+; Core_StreamCacheFp_Init re-init, Bg_LoadScene, BG3 tilemap clear, the
+; conditional frontpanel load, Spawn_Init, HudDirty force, playfield border
+; recompute) -- deliberately NOT the live per-frame incremental streaming
+; path (Core_StreamScroll_Play's ring-buffer eviction/repair machinery),
+; which has never been exercised for a full level swap and is designed for
+; small per-frame deltas, not replacing an entire tileset+tilemap+palette+
+; spawn-queue at once. Held under sei with the screen already effectively
+; blanked (Core_Nmi_Play's own per-vblank forced-blank bracket, widened here
+; by simply not returning from Stage_Load until the whole reload is done --
+; same "stall everything, nothing runs until this returns" shape scpu_boot's
+; own Bg_LoadScene call already uses, just triggered by a state transition
+; instead of the reset vector). AI entities need NO explicit reset here:
+; the win condition already requires Entity1/2/3_Hp == 0 (all soft-killed),
+; and Spawn_Play already resets position/facing/HP whenever it reuses a
+; freed slot for the NEXT wave -- the exact same mechanism a stage
+; transition's fresh Spawn_Init leans on, no new code path. Only the player
+; needs an explicit reset, via the existing Game_State_RespawnPlayer.
+;
+; STAGE_COUNT must match len(BG_SCREENS) in build_rom.py -- same hand-synced,
+; checked-at-build-time-not-automatically-enforced pattern as this file's
+; own GAME_LIVES_START-adjacent constants and main.pasm's RESET/NMI/IRQ
+; vectors (see CLAUDE.md). build_rom.py's check_stage_count() cross-checks
+; it against the packed bor.msu's real bg_count.
+; ============================================================================
+
+STAGE_COUNT = 2   ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
+
+Game_StageIndex   = $7E2758   ; .dw -- 0-based index of the currently loaded
+                               ; stage; Bg_LoadScene_StageIndex (main.pasm)
+                               ; is set from this (low byte) before every
+                               ; jsr Bg_LoadScene, boot and Stage_Load alike
+Stage_Cleared     = $7E275A   ; .db -- 0 until this stage's win condition
+                               ; has fired once, then 1 until the next
+                               ; Stage_Load resets it back to 0
+Stage_TrueMaxX    = $7E275B   ; .dw -- Screen_MaxX's real, fully-unlocked
+                               ; value for the current stage, cached by
+                               ; Stage_Load right after Core_Screen_
+                               ; SetPlayfieldBorder computes it
+Stage_LoadPending = $7E275D   ; .db -- set the same frame Game_State enters
+                               ; STAGECLEAR; tells Game_State_Play__
+                               ; stageclear to actually run Stage_Load on
+                               ; its own first active frame (the generic
+                               ; transition-edge OAM-hide at the top of
+                               ; Game_State_Play runs first, same discipline
+                               ; as every other PLAYING exit)
+
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
 ; Tad_Process/Tad_FinishLoadingData/Core_Input_Poll (all of which must keep
@@ -165,9 +246,19 @@ Game_State_Play__no_transition:
     beq Game_State_Play__paused
     cmp #GAME_STATE_GAMEOVER
     beq Game_State_Play__gameover
-    ; CHARSELECT/STAGECLEAR/ENDING: explicit no-op stubs for this phase --
-    ; Core_Nmi_WaitFrame (scpu_main_loop) already keeps pacing correct,
-    ; nothing else needs to run yet.
+    cmp #GAME_STATE_STAGECLEAR
+    bne Game_State_Play__not_stageclear
+    brl Game_State_Play__stageclear     ; brl, not beq -- Game_State_Play__
+                                          ; stageclear is now defined well
+                                          ; past the win-check block below,
+                                          ; out of a plain branch's range
+                                          ; (same fix spawn.pasm's own
+                                          ; Spawn_Play__not_yet needed)
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Game_State_Play__not_stageclear:
+    ; CHARSELECT/ENDING: explicit no-op stubs for this phase -- Core_Nmi_
+    ; WaitFrame (scpu_main_loop) already keeps pacing correct, nothing else
+    ; needs to run yet.
     jmp Game_State_Play__done
 
 Game_State_Play__title:
@@ -249,6 +340,58 @@ Game_State_Play__no_death:
     dec a
     sta.l Player_InvulnFrames
 Game_State_Play__invuln_done:
+    ; Phase G4: win condition, checked once per PLAYING frame before the
+    ; gameplay body below -- see this file's own Phase G4 header for the
+    ; full two-step design (queue-exhausted+all-AI-dead unlocks the camera
+    ; clamp; reaching the newly-unlocked true edge is the real trigger).
+    sep #$20
+.a8
+    lda.l Stage_Cleared
+    bne Game_State_Play__stage_check_edge
+    lda.l Spawn_Index
+    cmp.l Spawn_Count
+    bcc Game_State_Play__stage_no_win_a8
+    lda.l Entity1_Hp
+    ora.l Entity2_Hp
+    ora.l Entity3_Hp
+    bne Game_State_Play__stage_no_win_a8
+    lda #1
+    sta.l Stage_Cleared
+    rep #$31
+.a16
+.i16
+    lda.l Stage_TrueMaxX
+    sta Screen_MaxX
+    bra Game_State_Play__stage_check_edge
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Game_State_Play__stage_no_win_a8:
+    rep #$31
+.a16
+.i16
+    bra Game_State_Play__stage_no_win
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Game_State_Play__stage_check_edge:
+    rep #$31
+.a16
+.i16
+    lda Screen_PosX
+    cmp.l Stage_TrueMaxX
+    bcc Game_State_Play__stage_no_win
+    sep #$20
+.a8
+    lda #1
+    sta.l Stage_LoadPending
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_STAGECLEAR
+    sta.l Game_State
+    jmp Game_State_Play__done
+Game_State_Play__stage_no_win:
+    rep #$31
+.a16
+.i16
+
     ; The body every gate today already exercises from boot -- moved
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
@@ -294,6 +437,52 @@ Game_State_Play__invuln_done:
 Game_State_Play__done:
     plp
     rts
+
+; ----------------------------------------------------------------------
+; Phase G4 (plan_game.md 4): GAME_STATE_STAGECLEAR dispatch. Entered via the
+; normal transition-edge path at the top of Game_State_Play (same OAM-hide
+; discipline as any other PLAYING exit -- see that block's own comment).
+; Stage_LoadPending is set the SAME frame Game_State became STAGECLEAR (see
+; the win-check above), so this runs the actual (heavy, blocking) reload on
+; its own very first active frame, then immediately returns to PLAYING.
+; Entry/exit convention: .a16/.i16 (Game_State_Play's).
+; ----------------------------------------------------------------------
+Game_State_Play__stageclear:
+    sep #$20
+.a8
+    lda.l Stage_LoadPending
+    beq Game_State_Play__stageclear_done   ; already loaded -- no-op
+    lda #0
+    sta.l Stage_LoadPending
+
+    rep #$31
+.a16
+.i16
+    lda.l Game_StageIndex
+    inc a
+    cmp #STAGE_COUNT
+    bcc Game_State_Play__stageclear_next
+    ; --- no more stages: this project's content ends here for now -- go to
+    ; the existing ENDING stub rather than looping or crashing. A real
+    ; ending (G10) is out of this phase's scope. ---
+    lda #GAME_STATE_ENDING
+    sta.l Game_State
+    jmp Game_State_Play__stageclear_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Game_State_Play__stageclear_next:
+    sta.l Game_StageIndex
+    sep #$20
+.a8
+    sta.l Bg_LoadScene_StageIndex   ; A's low byte == the new Game_StageIndex
+                                     ; (STAGE_COUNT is tiny; always fits a byte)
+    rep #$31
+.a16
+.i16
+    jsr Stage_Load
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
+Game_State_Play__stageclear_done:
+    jmp Game_State_Play__done
 
 ; ----------------------------------------------------------------------
 ; Phase G3 (plan_game.md 3): called once, the instant PlayerEntity_Hp
@@ -358,4 +547,274 @@ Game_State_RespawnPlayer:
     clc
     adc #PLAYER_RESPAWN_X_MARGIN
     sta.l PlayerEntity_PosX
+    rts
+
+; ----------------------------------------------------------------------
+; Phase G4 (plan_game.md 4): full stage (re)load. See this file's own Phase
+; G4 header for why this is a full blocking boot-style reload rather than
+; the live per-frame streaming path, and why AI entities need no explicit
+; reset here. Caller (Game_State_Play__stageclear) must set
+; Bg_LoadScene_StageIndex to the stage to load BEFORE calling this.
+; Entry/exit convention: .a16/.i16 (Game_State_Play's).
+; ----------------------------------------------------------------------
+Stage_Load:
+    php
+    sei
+
+    ; --- Core_Nmi_Stop: THIS IS THE LOAD-BEARING FIX, not sei above. `sei`
+    ; masks IRQ, but NMI is NON-MASKABLE -- CLAUDE.md/memory nmi_handler_
+    ; no_register_save_reentrancy already flagged this exact gap as
+    ; "unverified since sei can't mask NMI", and this routine is where it
+    ; finally bit: a real vblank landing mid-load fires Core_Nmi_Play (NMI
+    ; is genuinely enabled during live gameplay, unlike at boot, where
+    ; Core_Nmi_Init hasn't run yet and this same sei-only pattern in Bg_
+    ; LoadScene/Bg_LoadSceneFp_Streaming happens to be safe for that
+    ; reason alone). Core_Nmi_Play's own commit bracket writes CGRAM color
+    ; 0 every vblank (core/nmi.pasm) -- interrupting Bg_LoadSceneFp_
+    ; Streaming's own CGADD=4 palette-write loop mid-sequence left CGADD
+    ; wherever Core_Nmi_Play's own write left it, scrambling every
+    ; subsequent color in that loop. Confirmed via a byte-level Mesen2 CGRAM
+    ; dump: some colors landed correct-value-wrong-slot, others simply
+    ; unwritten -- exactly the signature of a stray interleaved write
+    ; corrupting an auto-incrementing hardware pointer mid-sequence, not a
+    ; fixed off-by-N bug. Core_Nmi_Stop/Core_Nmi_Start (core/nmi.pasm)
+    ; already exist for exactly this documented purpose ("useful around a
+    ; sequence that would be corrupted by an NMI firing mid-way through")
+    ; -- this is their first real caller. ---
+    jsr Core_Nmi_Stop
+
+    ; --- force blank too, on top of Core_Nmi_Stop above: writing to CGRAM/
+    ; VRAM outside of vblank or forced blank is independently a real PPU
+    ; hazard (the renderer is concurrently reading the same RAM to draw the
+    ; current scanline) even with NMI fully disabled -- boot gets this for
+    ; free (the screen is genuinely off, Core_Nmi_Init hasn't run yet, for
+    ; every earlier load in this file); a stage transition runs from live
+    ; gameplay with the screen ON, so it has to ask for it explicitly. ---
+    sep #$20
+.a8
+    lda #$80
+    sta $2100
+    rep #$31
+.a16
+.i16
+
+    ; --- re-init both streaming tile caches -- idempotent (Core_StreamCache_
+    ; Init/Core_StreamCacheFp_Init are already re-run-safe: they just refill
+    ; their own Tile2Slot/Slot2Tile/SlotStamp tables with sentinel values,
+    ; same as at boot) so the new stage starts with a genuinely empty cache,
+    ; not the old stage's stale tile residency. ---
+    jsr Core_StreamCache_Init
+    jsr Core_StreamCacheFp_Init
+
+    ; --- StreamScroll_Enabled/StreamScrollFp_Enabled/StreamScrollFp_
+    ; ColPending: unconditionally re-zeroed before Bg_LoadScene runs, same
+    ; reasoning as scpu_boot's own equivalent zeroing (main.pasm, msu1_done
+    ; area) -- Bg_LoadScene_Streaming/Bg_LoadSceneFp_Streaming below will
+    ; re-set these to 1 if and when the new stage actually needs them, but
+    ; a stage transitioning FROM a streaming level TO a static one (or one
+    ; with no frontpanel) would otherwise leave the old stage's flags set. ---
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda #0
+    sta StreamScroll_Enabled
+    sta StreamScrollFp_Enabled
+    sta StreamScrollFp_ColPending
+    rep #$31
+.a16
+.i16
+
+    ; --- load this stage's BG1 tileset/tilemap/palette + BG3 HUD tileset.
+    ; Bg_LoadScene_StageIndex already set by the caller. This also copies
+    ; the new stage's own Spawn_MsuOffsetLo/Hi/Spawn_Count out of its bg
+    ; record (see main.pasm's Bg_LoadScene, and core/spawn.pasm's header). ---
+    jsr Bg_LoadScene
+
+    ; --- BG3 tilemap clear: identical to scpu_boot's own scpu_bg3_map loop
+    ; (main.pasm) -- needed here too, since Bg_LoadScene only ever touches
+    ; BG1 (see that routine's own header); the OLD stage's HUD/frontpanel
+    ; tilemap entries are still sitting in VRAM otherwise. $2115 (VMAIN,
+    ; +1 word after $2119) is already set by Bg_LoadScene's own boot-time-
+    ; style setup right at its own entry, so no need to re-set it here. ---
+    sep #$20
+.a8
+    lda #BG3_TILEMAP_VRAM_WORD
+    rep #$31
+.a16
+.i16
+    sta $2116
+    ldx #BG3_TILEMAP_WORDS
+    lda #$0000
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Stage_Load__bg3_clear:
+    sta $2118
+    dex
+    bne Stage_Load__bg3_clear
+
+    ; --- conditional frontpanel load, same fp_offset-nonzero gate as
+    ; scpu_boot's own Boot_LoadFp block ---
+    sep #$20
+.a8
+    lda.l BgRecordStaging+28
+    ora.l BgRecordStaging+29
+    ora.l BgRecordStaging+30
+    beq Stage_Load__skip_fp
+    rep #$31
+.a16
+.i16
+    jsr Bg_LoadSceneFp_Streaming
+    bra Stage_Load__fp_done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Stage_Load__skip_fp:
+    rep #$31
+.a16
+.i16
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Stage_Load__fp_done:
+
+    ; --- this stage's own spawn queue (Spawn_MsuOffsetLo/Hi/Spawn_Count
+    ; already populated by Bg_LoadScene above) ---
+    jsr Spawn_Init
+
+    ; --- force the next Hud_Play call to redraw unconditionally: the BG3
+    ; clear above just wiped the HUD's own tilemap entries, and the
+    ; player's HP may well be unchanged across the transition (dirty-gating
+    ; on HP alone would then skip the redraw entirely). ---
+    sep #$20
+.a8
+    lda #1
+    sta.l HudDirty
+
+    ; --- playfield border for the new stage: same static-vs-streaming
+    ; width dispatch main.pasm's own Boot_SetPlayfieldBorder uses, kept as
+    ; a separate copy here rather than a shared jsr'd routine -- see this
+    ; file's own Phase G4 header on why a full, independent, boot-style
+    ; reload was chosen; main.pasm's own Msu1_LoadFrame documents this
+    ; project's standing preference for a small duplicated block over a
+    ; parameterized shared one when the two call sites' surrounding state
+    ; differs (there: WRAM scratch cell choice; here: needing to also
+    ; capture Stage_TrueMaxX and apply the win-condition hold-clamp, which
+    ; boot's own copy has no reason to do). ---
+    lda.l StreamScroll_Enabled
+    bne Stage_Load__streaming
+    rep #$31
+.a16
+.i16
+    ldy #WORLD_CONTENT_WIDTH
+    bra Stage_Load__border_go
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Stage_Load__streaming:
+    rep #$31
+.a16
+.i16
+    lda.l StreamScroll_WidthTiles
+    asl a
+    asl a
+    asl a                        ; tiles -> pixels (*8)
+    tay
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Stage_Load__border_go:
+    rep #$31
+.a16
+.i16
+    lda #0
+    ldx #0
+    jsr Core_Screen_SetPlayfieldBorder
+
+    ; --- WorldMaxX (player's own walk clamp, independent of the camera --
+    ; see main.pasm's WorldMaxX declaration): always the stage's TRUE full
+    ; width, never soft-held. Only the camera clamp (Screen_MaxX, below)
+    ; gets the pre-clear hold -- see this file's Phase G4 header for why
+    ; that's enough: a locked camera already reads as "you can't proceed
+    ; further" even though the player can still walk to the current screen's
+    ; own right edge. ---
+    tya
+    sec
+    sbc #(256 - PLAYER_MAX_X)
+    sta.l WorldMaxX
+
+    ; --- Stage_TrueMaxX capture + pre-clear hold-clamp + Stage_Cleared
+    ; reset: shared with boot's own stage-0 setup, see Stage_ApplyWinClamp's
+    ; own header for why this is a jsr, not inlined twice. ---
+    jsr Stage_ApplyWinClamp
+
+    ; --- reset the camera to this stage's left edge. Screen_FocusNum/Id/
+    ; Slot (core/screen.pasm) are untouched -- they already point at the
+    ; player entity (never recreated across a stage transition, still
+    ; entity 0), so Core_Screen_Play's normal per-frame easing picks up
+    ; correctly from here with no explicit re-focus call needed. ---
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l Screen_PosX
+    sta.l Screen_PosXFrac
+
+    ; --- full player reset at the new stage's left edge (HP, hit-stun,
+    ; facing, animation-selection, invuln window, position) -- reuses
+    ; Game_State_RespawnPlayer verbatim; it reads Screen_PosX, which is
+    ; now correctly 0 for the new stage. ---
+    jsr Game_State_RespawnPlayer
+
+    ; --- restore the real screen brightness (Nmi_ScreenBrightness's cached
+    ; value, not a hardcoded constant -- matches whatever boot originally
+    ; configured) now that every VRAM/CGRAM write above is done. See this
+    ; routine's own entry comment for why forced blank was asserted at all. ---
+    sep #$20
+.a8
+    lda.l Nmi_ScreenBrightness
+    sta $2100
+    rep #$31
+.a16
+.i16
+
+    ; --- re-enable NMI (see this routine's own entry comment on Core_Nmi_
+    ; Stop) now that every VRAM/CGRAM write this reload needed is done. ---
+    jsr Core_Nmi_Start
+
+    plp
+    rts
+
+; ----------------------------------------------------------------------
+; Phase G4: captures Stage_TrueMaxX from the just-computed real Screen_MaxX,
+; applies the pre-clear hold-clamp from Spawn_LastTriggerX, and zeroes
+; Stage_Cleared. Shared by BOTH boot (right after its own inline playfield-
+; border computation + Spawn_Init) and Stage_Load (same relative position)
+; -- a jsr, not two inline copies, specifically because boot's own call site
+; sits ahead of nmi_handler's fixed .org with no spare byte budget (an
+; inline first draft here pushed that .org past $FC00-emitted bytes and
+; failed to assemble). Caller must have already run Core_Screen_
+; SetPlayfieldBorder (Screen_MaxX holds the stage's true width) and
+; Spawn_Init (Spawn_LastTriggerX holds this stage's last spawn record's
+; trigger_x, or 0 if it packs no spawn table at all) before calling this.
+; Entry/exit convention: .a16/.i16.
+; ----------------------------------------------------------------------
+Stage_ApplyWinClamp:
+    php
+    rep #$31
+.a16
+.i16
+    lda Screen_MaxX
+    sta.l Stage_TrueMaxX
+
+    ; --- a stage with no spawn table (Spawn_Count == 0) has Spawn_
+    ; LastTriggerX forced to 0 by Spawn_Init -- guard against holding the
+    ; camera at the very start forever by only applying the hold when it's
+    ; nonzero and actually less than the true width. ---
+    lda.l Spawn_LastTriggerX
+    beq Stage_ApplyWinClamp__no_hold
+    cmp.l Stage_TrueMaxX
+    bcs Stage_ApplyWinClamp__no_hold   ; hold point >= true max -- nothing to hold
+    sta Screen_MaxX
+Stage_ApplyWinClamp__no_hold:
+    sep #$20
+.a8
+    lda #0
+    sta.l Stage_Cleared
+    plp
+    rep #$31
+.a16
+.i16
     rts

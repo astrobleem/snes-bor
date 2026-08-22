@@ -32,34 +32,45 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
 #   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1BEASY.TXT" -o out/bg_stage1b --streaming
 #   python tools/bg_converter/make_hud_tiles.py -o out/hud
 #
-# Phase 14 (plan.md 2.14, 2026-08-16): second real level, replacing stage 1A
-# as the shipped default -- same pattern as when 1A replaced the old
-# synthetic out/bg_boss_level. Stage 1B ("The bar") is a genuinely different
-# shape of level than 1A: only 2 distinct panel images (order "aabaabaab...",
-# 14 panels/1120 BOR px = 896 SNES px/140 tiles wide -- narrower than 1A's
-# 408) and, unlike 1A, NO frontpanel layer at all (level.frontpanel is None
-# -- confirmed via level_parse.py). 2347 unique 4bpp tiles, still well past
-# the 1024-tile static-load budget, so streaming mode is still needed even
-# at this narrower width. out/bg_stage1a's data (and out/bg_boss_level's)
-# stays committed and buildable -- only this list changed.
-BG_SCREENS = [("out/bg_stage1b", "out/hud")]
+# Phase G4 (plan_game.md 4, 2026-08-21): a real second stage, so a stage
+# CLEAR can transition into something. Index 0 (stage 1B, "The bar") is
+# unchanged from Phase 14 -- still the level the player starts on. Index 1
+# is stage 1A ("The street"), the level Phase 14 replaced as the shipped
+# default; its own converted assets (out/bg_stage1a, out/fp_stage1a,
+# out/spawn_stage1a) stayed committed and buildable the whole time
+# specifically so this day could reuse them without reconverting anything.
+# BG_SCREENS/FP_SCREENS/SPAWN_TABLES below are now genuinely parallel,
+# same-length, same-order lists -- see core/game_state.pasm's STAGE_COUNT
+# and Stage_Load for the runtime side (main.pasm reads bg_count off the
+# packed file header at boot, same as it already did before this phase --
+# nothing there changed; what changed is there are now 2 records instead
+# of 1, and the engine reads a Game_StageIndex-selected one instead of
+# always record 0). Regenerate 1A's BG (kept committed, no longer the sole
+# shipped level) with:
+#   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1AEASY.TXT" -o out/bg_stage1a --streaming
+BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
 # convert_frontpanel.py output) or None if that BG has no frontpanel packed.
 # Stage 1B has no `frontpanel` keyword in its own level file, so this is
 # genuinely None here (not just unconverted) -- see BG_SCREENS' own comment.
-# Regenerate 1A's (kept committed, no longer shipped) with:
+# Stage 1A DOES have one (out/fp_stage1a, converted back in Phase 10/14 and
+# kept committed) -- shipping it here means the stage transition exercises
+# a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None]
+FP_SCREENS = [None, "out/fp_stage1a"]
 
-# Spawn-table phase (plan.md 2.13)/Phase 14 (plan.md 2.14): the single global
-# spawn queue for BG_SCREENS[0]'s level, built by tools/bg_converter/
-# build_spawn_table.py from the same level script. Regenerate 1B's with:
-#   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1BEASY.TXT" out/spawn_stage1b/spawn_table.bin
-# 1A's spawn table (out/spawn_stage1a, kept committed) was regenerated the
-# same way with "DATA\EASY\1AEASY.TXT" instead.
-SPAWN_TABLE = "out/spawn_stage1b/spawn_table.bin"
+# Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
+# length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
+# global through Phase 14 (see git history), now a real per-stage list
+# packed by pack_msu_roster.pack_roster()'s `spawns` param and discovered by
+# the engine at runtime off each stage's own bg record (see that function's
+# docstring, and core/spawn.pasm). check_spawn_constants() is GONE along
+# with the hand-synced constants it used to cross-check -- there is nothing
+# left in main.pasm for it to check. Regenerate 1A's with:
+#   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
+SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin"]
 
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test
@@ -94,36 +105,31 @@ def assemble():
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)
 
-def check_spawn_constants(roster_sidecar):
-    """Cross-checks src/main.pasm's hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
-    constants (core/spawn.pasm) against what pack_msu_roster.py just
-    actually computed. These can't be computed by main.pasm itself (the
-    spawn blob's file offset depends on every character/BG/FP blob packed
-    before it, all of which can change size independently) so they're baked
-    by hand -- same accepted-risk pattern as this file's own RESET/NMI/IRQ
-    vector constants. This check is the "caught at build time instead of
-    silently reading garbage at runtime" insurance for that pattern.
+def check_stage_count(roster_sidecar):
+    """Phase G4 (plan_game.md 4): cross-checks core/game_state.pasm's
+    hand-synced STAGE_COUNT constant against the packed bor.msu's real
+    bg_count. STAGE_COUNT can't be computed by the engine itself (it gates
+    Game_State_Play__stageclear's "no more stages -> ENDING" check before
+    any MSU read happens that frame) so it's hand-synced, same accepted-
+    risk pattern as this file's other build-time cross-checks.
     """
     import re
-    text = open('src/core/spawn.pasm', encoding='utf-8').read()
-    offset_m = re.search(r'SPAWN_MSU_OFFSET\s*=\s*\$([0-9A-Fa-f]+)', text)
-    count_m = re.search(r'SPAWN_COUNT\s*=\s*(\d+)', text)
-    if not offset_m or not count_m:
-        print("check_spawn_constants: couldn't find SPAWN_MSU_OFFSET/SPAWN_COUNT "
-              "in src/core/spawn.pasm", file=sys.stderr)
+    text = open('src/core/game_state.pasm', encoding='utf-8').read()
+    m = re.search(r'STAGE_COUNT\s*=\s*(\d+)', text)
+    if not m:
+        print("check_stage_count: couldn't find STAGE_COUNT in "
+              "src/core/game_state.pasm", file=sys.stderr)
         sys.exit(1)
-    pasm_offset = int(offset_m.group(1), 16)
-    pasm_count = int(count_m.group(1))
-    real_offset = roster_sidecar["spawn_offset"]
-    real_count = roster_sidecar["spawn_count"]
-    if pasm_offset != real_offset or pasm_count != real_count:
-        print(f"check_spawn_constants: MISMATCH -- src/core/spawn.pasm has "
-              f"SPAWN_MSU_OFFSET=${pasm_offset:06X} SPAWN_COUNT={pasm_count}, "
-              f"but the just-packed bor.msu has spawn_offset=${real_offset:06X} "
-              f"spawn_count={real_count}. Update src/core/spawn.pasm to match "
-              f"and rebuild.", file=sys.stderr)
+    pasm_count = int(m.group(1))
+    real_count = roster_sidecar["bg_count"]
+    if pasm_count != real_count:
+        print(f"check_stage_count: MISMATCH -- src/core/game_state.pasm has "
+              f"STAGE_COUNT={pasm_count}, but the just-packed bor.msu has "
+              f"bg_count={real_count} (BG_SCREENS has {len(BG_SCREENS)} "
+              f"entries). Update src/core/game_state.pasm to match and "
+              f"rebuild.", file=sys.stderr)
         sys.exit(1)
-    print(f"check_spawn_constants: OK (offset=${real_offset:06X}, count={real_count})")
+    print(f"check_stage_count: OK (STAGE_COUNT={pasm_count})")
 
 
 def check_vm_constants(roster_sidecar):
@@ -242,12 +248,12 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
-    spawn_blob = open(SPAWN_TABLE, 'rb').read() if os.path.exists(SPAWN_TABLE) else b""
+    spawn_blobs = [open(p, 'rb').read() if os.path.exists(p) else b"" for p in SPAWN_TABLES]
     vm_blob = open(VM_MODULE, 'rb').read() if os.path.exists(VM_MODULE) else b""
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
-        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawn_blob=spawn_blob,
+        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawns=spawn_blobs,
         vm_blob=vm_blob)
-    check_spawn_constants(roster_sidecar)
+    check_stage_count(roster_sidecar)
     check_vm_constants(roster_sidecar)
     with open('build/bor.msu', 'wb') as f:
         f.write(msu_data)
@@ -262,7 +268,8 @@ def main():
     for b in roster_sidecar["bgs"]:
         print(f"  bg {b['slot']}: {b['bg_dir']} @ offset {b['data_offset']} "
               f"({b['bg_tile_count']} tiles, {b['hud_tile_count']} hud tiles, "
-              f"{b['level_entry']})")
+              f"{b['level_entry']}, spawn_offset={b['spawn_offset']} "
+              f"spawn_count={b['spawn_count']})")
         fp = b.get('fp')
         if fp:
             print(f"    fp: {fp['fp_dir']} @ offset {fp['data_offset']} "

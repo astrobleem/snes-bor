@@ -160,7 +160,7 @@ ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
 MAX_BGS = 4
-BG_RECORD_SIZE = 32         # bumped 16->20 in v3, 20->32 in v4 -- see module docstring
+BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
 SPAWN_RECORD_SIZE = 7       # see build_spawn_table.py's module docstring for the layout
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
@@ -374,7 +374,7 @@ def pack_bg_blob(bg_dir, hud_dir):
     return blob, info
 
 
-def build_bg_record(info, data_offset, fp_offset=0):
+def build_bg_record(info, data_offset, fp_offset=0, spawn_offset=0, spawn_count=0):
     tilemap_offset = data_offset + BG_CGRAM_BYTES
     tiles_offset = tilemap_offset + info["tilemap_bytes"]
     hud_tiles_offset = tiles_offset + info["bg_tile_count"] * BG_BYTES_PER_TILE
@@ -386,8 +386,18 @@ def build_bg_record(info, data_offset, fp_offset=0):
     # shifting every existing absolute offset in the file) -- a frontpanel
     # is level-specific 1:1 with the BG it overlays, so hanging it off the
     # BG record it belongs to is the honest structure, not a workaround.
+    #
+    # v6 (Phase G4, plan_game.md 4): appends spawn_offset (u32, absolute file
+    # offset of this stage's own spawn-table blob) + spawn_count (u16, record
+    # count) + 2 reserved bytes. Same reasoning as fp_offset above: a stage's
+    # spawn queue is 1:1 with the BG it belongs to, so hanging it off this
+    # record (rather than a hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT constant
+    # in src/core/spawn.pasm, which cannot scale past one level -- see
+    # CLAUDE.md's roadmap note and plan_game.md 4's own "watch out") is the
+    # generalization this phase requires. spawn_count is 0 when this stage
+    # packs no spawn table at all (an empty/no-enemy stage).
     record = struct.pack(
-        "<BxHBB2xH2xIIIII",
+        "<BxHBB2xH2xIIIIIIH2x",
         info["mode"],
         info["width_tiles"],
         info["height_tiles"],
@@ -398,6 +408,8 @@ def build_bg_record(info, data_offset, fp_offset=0):
         tiles_offset,
         hud_tiles_offset,
         fp_offset,
+        spawn_offset,
+        spawn_count,
     )
     assert len(record) == BG_RECORD_SIZE
     return record
@@ -501,7 +513,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     return blob, info
 
 
-def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
+def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-8 out/<name> character prefixes; unused
@@ -514,28 +526,33 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
     packed immediately after its owning BG's own blob (see build_fp_blob),
     with its offset threaded into that BG's record (build_bg_record).
 
-    `spawn_blob` (spawn-table phase, 2026-08-16) is an optional raw bytes
-    blob from build_spawn_table.py -- this project's single global spawn
-    queue, not a per-slot directory entry (there is only ever one level's
-    worth of spawn data, same "bake one instance in" pattern as BG_SCREENS/
-    FP_SCREENS). Appended at the very end of the file so it can never move
-    any earlier section's offset. Its absolute file offset and record count
-    (spawn_blob is a flat array of 7-byte records, see build_spawn_table.py)
-    are returned in the sidecar for build_rom.py to cross-check against
-    main.pasm's hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT constants -- same
-    "computed here, hardcoded there, checked at build time" convention as
-    the RESET/NMI/IRQ vector constants CLAUDE.md already documents as a
-    standing, accepted (not automatically enforced) risk.
+    `spawns` (Phase G4, plan_game.md 4 -- was `spawn_blob`, one hand-synced
+    global blob, through Phase 14) is an optional list the SAME LENGTH as
+    `bgs` -- spawns[i] is stage i's own raw spawn_table.bin bytes (or b""/
+    None for a stage with no spawn queue). Generalizing this from a single
+    blob to one per stage is what lets a real multi-stage `bor.msu` exist at
+    all: CLAUDE.md's roadmap note and plan_game.md 4's own "watch out" both
+    call for killing the hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT constants
+    in src/core/spawn.pasm before anything else, since the moment a second
+    stage's spawn blob is packed, both would shift AND become stage-
+    dependent -- two things a single build-time constant can't express.
+    Each stage's spawn blob is appended after ALL bg (+fp) blobs, in stage
+    order, and its absolute file offset + record count (spawn_table.bin is a
+    flat array of 7-byte records) are threaded into THAT STAGE's OWN bg
+    record (build_bg_record's v6 spawn_offset/spawn_count fields) -- same
+    "hang it off the record it belongs to" pattern v5 already used for
+    fp_offset, and it means the engine discovers a stage's spawn data the
+    exact same way it already discovers bg_count/bg_directory_offset: by
+    reading the file at runtime, never by trusting a compile-time constant.
 
     `vm_blob` (Gate 0a, plan_vm.md 1) is the script VM's bytecode module,
-    appended after the spawn section and therefore at the very end of the
-    file -- same reasoning as spawn_blob, one step further along: nothing
-    that already has a hardcoded offset can move. Its absolute file offset
-    and byte length are returned in the sidecar so build_rom.py's
-    check_vm_constants() can cross-check them against vm_load.pasm's
-    hand-synced VM_MSU_OFFSET/VM_MODULE_SIZE. Unlike spawn_blob there is no
-    record size to divide by -- the module is one opaque blob whose internal
-    layout is FORMAT.md's 64-byte header plus 8-byte instruction records.
+    appended after every stage's spawn blob and therefore at the very end of
+    the file -- nothing that already has a hardcoded offset can move. Its
+    absolute file offset and byte length are returned in the sidecar so
+    build_rom.py's check_vm_constants() can cross-check them against
+    vm_load.pasm's hand-synced VM_MSU_OFFSET/VM_MODULE_SIZE -- the VM module
+    is not (yet) per-stage, so this one hand-synced pair is deliberately
+    still in place; see plan_game.md 4's scope note.
     """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
@@ -545,6 +562,9 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
     fps = fps or ([None] * len(bgs))
     if len(fps) != len(bgs):
         raise ValueError(f"fps must be the same length as bgs ({len(bgs)}), got {len(fps)}")
+    spawns = spawns or ([b""] * len(bgs))
+    if len(spawns) != len(bgs):
+        raise ValueError(f"spawns must be the same length as bgs ({len(bgs)}), got {len(spawns)}")
 
     directory = bytearray(RECORD_SIZE * MAX_CHARACTERS)
     blobs = []
@@ -567,12 +587,15 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
     sidecar_bgs = []
     bg_directory_offset = 0
 
+    spawn_blobs = []
+
     if bgs:
         # data_offset currently points just past the last character blob.
         bg_directory_offset = data_offset
         bg_dir_bytes = bytearray(BG_RECORD_SIZE * MAX_BGS)
         bg_data_offset = bg_directory_offset + BG_RECORD_SIZE * MAX_BGS
 
+        per_stage = []
         for slot, (bg_dir, hud_dir) in enumerate(bgs):
             blob, info = pack_bg_blob(bg_dir, hud_dir)
             this_bg_data_offset = bg_data_offset
@@ -588,11 +611,38 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
                 bg_blobs.append(fp_blob)
                 bg_data_offset += len(fp_blob)
 
+            per_stage.append({
+                "info": info, "data_offset": this_bg_data_offset,
+                "fp_offset": fp_offset, "fp_info": fp_info,
+            })
+
+        # --- spawn blobs: appended after ALL bg(+fp) blobs, in stage order,
+        # so no stage's own bg_data_offset above had to account for them.
+        # Each stage's own bg record (built below) gets THIS section's
+        # per-stage offset/count threaded in -- see pack_roster's own
+        # docstring on why this replaced the single hand-synced spawn_blob. ---
+        running_offset = bg_data_offset
+        spawn_info = []
+        for slot in range(len(bgs)):
+            sblob = spawns[slot] or b""
+            if sblob:
+                assert len(sblob) % SPAWN_RECORD_SIZE == 0, \
+                    f"stage {slot} spawn blob is {len(sblob)}B, not a multiple of {SPAWN_RECORD_SIZE}"
+                spawn_info.append((running_offset, len(sblob) // SPAWN_RECORD_SIZE))
+                spawn_blobs.append(sblob)
+                running_offset += len(sblob)
+            else:
+                spawn_info.append((0, 0))
+
+        for slot, ps in enumerate(per_stage):
+            spawn_offset, spawn_count = spawn_info[slot]
             bg_dir_bytes[slot * BG_RECORD_SIZE:(slot + 1) * BG_RECORD_SIZE] = \
-                build_bg_record(info, this_bg_data_offset, fp_offset)
-            sidecar_bg = {"slot": slot, "data_offset": this_bg_data_offset, **info}
-            if fp_info is not None:
-                sidecar_bg["fp"] = {"data_offset": fp_offset, **fp_info}
+                build_bg_record(ps["info"], ps["data_offset"], ps["fp_offset"],
+                                 spawn_offset, spawn_count)
+            sidecar_bg = {"slot": slot, "data_offset": ps["data_offset"], **ps["info"],
+                          "spawn_offset": spawn_offset, "spawn_count": spawn_count}
+            if ps["fp_info"] is not None:
+                sidecar_bg["fp"] = {"data_offset": ps["fp_offset"], **ps["fp_info"]}
             sidecar_bgs.append(sidecar_bg)
 
         bg_directory = bytes(bg_dir_bytes)
@@ -602,16 +652,7 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
     assert len(header) == DIRECTORY_BASE
 
     msu_bytes = (header + bytes(directory) + b"".join(blobs)
-                 + bg_directory + b"".join(bg_blobs))
-
-    spawn_offset = 0
-    spawn_count = 0
-    if spawn_blob:
-        spawn_offset = len(msu_bytes)
-        spawn_count = len(spawn_blob) // SPAWN_RECORD_SIZE
-        assert len(spawn_blob) % SPAWN_RECORD_SIZE == 0, \
-            f"spawn_blob length {len(spawn_blob)} not a multiple of {SPAWN_RECORD_SIZE}"
-        msu_bytes = msu_bytes + spawn_blob
+                 + bg_directory + b"".join(bg_blobs) + b"".join(spawn_blobs))
 
     vm_offset = 0
     vm_size = 0
@@ -629,8 +670,6 @@ def pack_roster(prefixes, bgs=None, fps=None, spawn_blob=None, vm_blob=None):
         "bg_count": len(bgs),
         "bg_directory_offset": bg_directory_offset,
         "bgs": sidecar_bgs,
-        "spawn_offset": spawn_offset,
-        "spawn_count": spawn_count,
         "vm_offset": vm_offset,
         "vm_size": vm_size,
     }

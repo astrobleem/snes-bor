@@ -48,6 +48,27 @@ CHAR_POS_X = pasm_constant('CHAR_POS_X')
 from _harness import pasm_constant_in  # noqa: E402
 PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
 
+# Phase G4 (plan_game.md 4): the camera's own MaxX clamp now starts each
+# stage HELD BACK at Spawn_LastTriggerX (the stage's last spawn record's own
+# trigger_x) until the win condition fires, then unlocks to the stage's true
+# full width -- see core/game_state.pasm's Stage_ApplyWinClamp. That hold is
+# well short of MAX_SCROLL_X for the shipped level, so an unmodified held-
+# right run here would clamp at the hold point instead, failing this gate
+# for a reason that has nothing to do with what it actually tests (camera
+# easing/clamping, not the win condition -- that's game_g4_transition.py's
+# job). This test bypasses the win condition entirely (writes Screen_MaxX
+# directly, see the held-right block below) rather than satisfying it --
+# satisfying it (Stage_Cleared=1 + Stage_TrueMaxX) correctly unlocks the
+# SAME way a real win does, but then a real win condition fires the instant
+# Screen_PosX reaches it, transitioning to stage 1 mid-test.
+# Screen_MaxX is a core/screen.pasm `.enum $7E1600` struct field, not a plain
+# `NAME = value` constant -- pasm_constant_in can't derive it. Computed once
+# here from that same .enum's own field order/sizes (PosXFrac.db, PosX.dw,
+# PosYFrac.db, PosY.dw, SizeX.dw, SizeY.dw, MinX.dw, MinY.dw, MaxX.dw =
+# offset 14), same "not reachable via pasm_constant" carve-out this file's
+# own SCREEN_SIZE_X constant above already documents.
+SCREEN_MAX_X = 0x7E160E
+
 SCREEN_SIZE_X = 256  # core/screen.pasm's SCREEN_DEFAULT_SIZE_X -- not in
                       # main.pasm, so not reachable via pasm_constant; the
                       # value is a Phase 1 constant nothing has changed.
@@ -157,6 +178,23 @@ def main():
         # here from WORLD_CONTENT_WIDTH rather than hardcoded, so a level
         # swap can't silently desync this gate from the engine. ---
         print(f'MAX_SCROLL_X = {MAX_SCROLL_X} (content width {CONTENT_PX}px, WORLD_MAX_X={WORLD_MAX_X})')
+        # Phase G4: the camera's own MaxX clamp starts each stage HELD BACK
+        # at Spawn_LastTriggerX until the win condition fires (see
+        # STAGE_CLEARED's own comment above) -- an unmodified held-right run
+        # below would clamp there instead, well short of MAX_SCROLL_X. This
+        # test is about the camera clamp MECHANISM (Core_Screen_Play), not
+        # the win condition (that's game_g4_transition.py's job), so bypass
+        # the win condition entirely rather than satisfying it: write
+        # Screen_MaxX directly and leave Stage_Cleared at 0. Tried setting
+        # Stage_Cleared=1 (+ Stage_TrueMaxX) instead first -- that correctly
+        # unlocks the SAME way a real win does, but a real win is exactly
+        # what then fires the instant Screen_PosX reaches it, transitioning
+        # to stage 1 mid-test and desyncing every assertion below (confirmed
+        # via a standalone probe: stage flips 0->1 right as screenpos nears
+        # 863). Leaving Stage_Cleared 0 means the per-frame win-check's
+        # queue-exhausted+all-dead condition is never even evaluated, so
+        # nothing overwrites this direct write for the rest of the test.
+        m.write_u16(SCREEN_MAX_X, MAX_SCROLL_X)
         for _ in range(14):
             m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
             m.set_input(m.BTN_RIGHT, 60)
