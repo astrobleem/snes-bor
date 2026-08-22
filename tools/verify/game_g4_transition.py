@@ -118,8 +118,13 @@ def main():
         expected_palette[8:32] = fp_palette[8:32]
     expected_palette = bytes(expected_palette)
 
+    # record size grew 7 -> 8 bytes (health-override slice, follow-up to G8:
+    # added a spawn_hp byte) -- derive from build_spawn_table.py's own
+    # RECORD_SIZE rather than hardcoding it a second time here.
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
+    from build_spawn_table import RECORD_SIZE
     with open(os.path.join(ROOT, 'out', 'spawn_stage1a', 'spawn_table.bin'), 'rb') as f:
-        expected_spawn_count = len(f.read()) // 7
+        expected_spawn_count = len(f.read()) // RECORD_SIZE
 
     with open_session(__file__) as m:
         m.reset_emulator()

@@ -494,6 +494,21 @@ at all. Adding jump forces this to be solved properly.
 > converted at all yet); the `boss` flag (`angel`/stage 1A, `Angel`/stage
 > 1B -- unrelated to props, still spawn as full-HP AI enemies, see G9);
 > weapons.
+>
+> **Follow-up, same day, a sibling level-format-keyword gap (not itself a
+> numbered phase -- `tools/verify/game_health_override.py`, `GATE
+> HEALTH-OVERRIDE: PASS`):** `spawn_parse.py` already parsed each spawn's own
+> `health <n>` line, but `build_spawn_table.py` discarded it -- every enemy
+> spawned at a hardcoded `CHAR_HP_MAX` regardless of the level author's own
+> tuning (real values in the shipped pak run 25-100, a percentage-like
+> scale). Fixed by growing the spawn record to 8 bytes (`+7 spawn_hp`,
+> scaled `health*CHAR_HP_MAX/100`, clamped `[1, CHAR_HP_MAX]`) and having
+> `core/spawn.pasm`'s enemy path read it instead of the old immediate; the
+> prop path deliberately still ignores it (a prop's HP stays the fixed
+> `CHAR_HP_PER_HIT` engine invariant). Both shipped stages' spawn tables
+> were regenerated again; `pack_msu_roster.py`'s `SPAWN_RECORD_SIZE` and
+> `src/core/vm/vm_load.pasm`'s hand-synced `VM_MSU_OFFSET` both needed
+> re-syncing since the record-size change shifted every later MSU offset.
 
 The spawn tables **used to be believed to silently discard non-enemy
 spawns** — that turned out to be false, and the entity-kind gap it pointed

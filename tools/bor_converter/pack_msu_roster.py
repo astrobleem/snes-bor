@@ -162,7 +162,9 @@ ANIM_FRAME_BYTES = 768
 MAX_BGS = 4
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
-SPAWN_RECORD_SIZE = 7       # see build_spawn_table.py's module docstring for the layout
+SPAWN_RECORD_SIZE = 8       # see build_spawn_table.py's module docstring for the layout
+                             # (grew from 7 to 8 -- health-override slice added
+                             # a spawn_hp byte, follow-up to plan_game.md G8)
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
@@ -538,7 +540,7 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     dependent -- two things a single build-time constant can't express.
     Each stage's spawn blob is appended after ALL bg (+fp) blobs, in stage
     order, and its absolute file offset + record count (spawn_table.bin is a
-    flat array of 7-byte records) are threaded into THAT STAGE's OWN bg
+    flat array of 8-byte records) are threaded into THAT STAGE's OWN bg
     record (build_bg_record's v6 spawn_offset/spawn_count fields) -- same
     "hang it off the record it belongs to" pattern v5 already used for
     fp_offset, and it means the engine discovers a stage's spawn data the

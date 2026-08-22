@@ -91,9 +91,31 @@ the already-converted backdrop:
 CHAR_FACING_LEFT convention (0=face right, 1=face left) by simple
 inversion: facing_left = 1 - flip.
 
+## Per-spawn health override (level-format keyword gap, follow-up to G8)
+
+`spawn_parse.py` already parses each spawn block's own `health <n>` line
+into `SpawnEvent.health` (verified against the real pak: stage 1A's values
+are `[25, 30, 30, 25, 30, 45, 40, 25, 40, 40, 40, 60, 60, 30, 30, 35, 70, 30,
+60, 40, 40, 40, 50, 70, 40, 40, 100]`, stage 1B's are `[90, 60, 65, 30, 40,
+40, 70, 60, 70, 90, 40, 60, 80]` -- consistently 0-100, matching BOR's
+documented percentage-of-max-health convention). This module used to
+discard it entirely: every enemy spawned at a hardcoded `CHAR_HP_MAX`
+regardless of what the level author actually specified, so every enemy in
+both shipped stages took more hits to kill than intended.
+
+Fixed by adding a `spawn_hp` byte to the record (see "Binary format" below),
+scaled from BOR's ~0-100 range to this engine's `0..CHAR_HP_MAX` (64) HUD-bar
+range: `spawn_hp = round(health * CHAR_HP_MAX / 100)`, clamped to
+`[1, CHAR_HP_MAX]` (never spawn already-dead; never exceed the bar). A spawn
+with no `health` line (`event.health is None`) gets `CHAR_HP_MAX`, matching
+this module's behavior before this change. `core/spawn.pasm`'s prop path
+(`entity_kind == 1`) does NOT read this byte -- a prop's HP is a fixed
+engine invariant (`CHAR_HP_PER_HIT`, exactly one hit kills), not something a
+level's `health` line should override.
+
 ## Binary format
 
-Flat array of 7-byte little-endian records, in trigger order (already
+Flat array of 8-byte little-endian records, in trigger order (already
 monotonic non-decreasing in the source file -- verified for 1AEASY.TXT):
 
     +0-1  trigger_x   (u16 LE) -- SNES world-px camera position that arms this record
@@ -101,7 +123,10 @@ monotonic non-decreasing in the source file -- verified for 1AEASY.TXT):
     +4    spawn_y     (u8)     -- SNES px initial Y (clamped 0-255)
     +5    facing_left (u8)     -- 0 or 1, CHAR_FACING_LEFT convention
     +6    entity_kind (u8)     -- 0 = enemy, 1 = prop/pickup (plan_game.md G8;
-                                   was "reserved, always 0" before this change)
+                                   was "reserved, always 0" before that change)
+    +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
+                                   (0..CHAR_HP_MAX); ignored for props (see
+                                   above). Was "not modeled" before this change.
 
 No header/count prefix -- the record count is threaded through as a
 separate build-time constant (see pack_msu_roster.py's spawn section and
@@ -112,7 +137,10 @@ import struct
 import sys
 
 SCALE = 256 / 320
-RECORD_SIZE = 7
+RECORD_SIZE = 8
+CHAR_HP_MAX = 64   # == main.pasm's CHAR_HP_MAX; hand-copied here since this
+                    # module has no access to main.pasm's own constant table
+                    # (same pattern PROP_HP below already uses)
 
 # plan_game.md G8, first slice -- see this module's own "Entity kind" section
 # above. Deliberately small and BOR-only for now: stage 1A's `1up`/`trash`
@@ -138,8 +166,13 @@ def convert_events(spawns):
         facing_left = 1 - (e.flip & 1)
         is_prop = e.character.lower() in PROP_CHARACTER_NAMES
         entity_kind = ENTITY_KIND_PROP if is_prop else ENTITY_KIND_ENEMY
-        out += struct.pack('<HHBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
-                            spawn_y, facing_left, entity_kind)
+        if e.health is None:
+            spawn_hp = CHAR_HP_MAX
+        else:
+            spawn_hp = round(e.health * CHAR_HP_MAX / 100)
+            spawn_hp = max(1, min(CHAR_HP_MAX, spawn_hp))
+        out += struct.pack('<HHBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
+                            spawn_y, facing_left, entity_kind, spawn_hp)
     return len(spawns), bytes(out)
 
 

@@ -86,22 +86,25 @@ SPAWN_MAX_RECORDS = 40       ; largest packed stage today is 33 (stage 1A);
                               ; see this file's header for why this isn't
                               ; tied to any one stage's real count
 
-; --- WRAM layout: $7E5500 + SPAWN_MAX_RECORDS*7 bytes (280 for 40 records),
-; first free region after Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block
-; (verified collision-free by grep -- see main.pasm's own $7E53B6 note for
-; the same verification convention). Ends at $7E561D, well clear of any
-; other module's WRAM (grep-verified 2026-08-21: nothing else claims
-; $7E5500-$7E5FFF). ---
+; --- WRAM layout: $7E5500 + SPAWN_MAX_RECORDS*8 bytes (320 for 40 records,
+; grown from *7 by the health-override slice), first free region after
+; Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by
+; grep -- see main.pasm's own $7E53B6 note for the same verification
+; convention). SpawnTable_Wram now ends at $7E564F; Spawn_ScratchKind/
+; Spawn_ScratchHp live past that at $7E5660/$7E5661 (grep-verified clear of
+; any other module's WRAM through $7E56FF). ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..Spawn_Count
 Spawn_Count         = $7E5501   ; .db -- this stage's own record count, read
                                  ; from its bg record by Bg_LoadScene (was a
                                  ; compile-time SPAWN_COUNT constant)
-Spawn_CountX7       = $7E5502   ; .dw -- Spawn_Count*7 cached at Init time,
-                                 ; so Spawn_Play doesn't re-multiply every call
+Spawn_CountX8       = $7E5502   ; .dw -- Spawn_Count*8 cached at Init time
+                                 ; (was *7 before the health-override slice
+                                 ; grew the record to 8 bytes), so Spawn_Play
+                                 ; doesn't re-multiply every call
 Spawn_MsuOffsetLo   = $7E5504   ; .dw -- this stage's spawn blob's 24-bit MSU
 Spawn_MsuOffsetHi   = $7E5506   ; .db    file offset (was SPAWN_MSU_OFFSET),
                                  ; set by Bg_LoadScene before Spawn_Init runs
-Spawn_ScratchIdx    = $7E5507   ; .dw -- zero-extended copy of Spawn_Index for the *7 multiply
+Spawn_ScratchIdx    = $7E5507   ; .dw -- zero-extended copy of Spawn_Index for the *8 multiply
 Spawn_ScratchX      = $7E5509   ; .dw -- captured spawn_x, held across slot search (clobbers X)
 Spawn_ScratchY      = $7E550B   ; .db -- captured spawn_y
 Spawn_ScratchFacing = $7E550C   ; .db -- captured facing_left
@@ -115,17 +118,25 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; boundary derived from the level's own
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
-SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*7 bytes, record layout below
-Spawn_ScratchKind   = $7E5630   ; .db -- captured entity_kind (record+6, see
-                                 ; layout below), plan_game.md G8. Placed
-                                 ; well past SpawnTable_Wram's own reserved
-                                 ; region (ends ~$7E5627 at SPAWN_MAX_RECORDS=
-                                 ; 40) rather than in the tight gap between
-                                 ; the other Scratch* cells above, which has
-                                 ; no slack (Spawn_LastTriggerX sits directly
-                                 ; adjacent to Spawn_ScratchFacing already).
+SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*8 bytes, record layout
+                                 ; below. Grew from *7 to *8 (health-override
+                                 ; slice, follow-up to G8) -- now ends at
+                                 ; $7E550F+$140 = $7E564F, so the two scratch
+                                 ; cells below moved past that (see their own
+                                 ; comment; they used to sit at $7E5630,
+                                 ; which the *7-sized table's slack made safe
+                                 ; but the grown *8 table does not).
+Spawn_ScratchKind   = $7E5660   ; .db -- captured entity_kind (record+6, see
+                                 ; layout below), plan_game.md G8. Relocated
+                                 ; from $7E5630 (health-override slice) --
+                                 ; that address is now inside SpawnTable_Wram's
+                                 ; grown *8 range; $7E5660 is safely past it
+                                 ; (grep-confirmed no other module claims
+                                 ; $7E5650-$7E56FF).
+Spawn_ScratchHp     = $7E5661   ; .db -- captured spawn_hp (record+7, see
+                                 ; layout below), health-override slice.
 
-; Record layout (7 bytes, LE), matches build_spawn_table.py exactly:
+; Record layout (8 bytes, LE), matches build_spawn_table.py exactly:
 ;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this record
 ;   +2-3  spawn_x     (u16) -- SNES world-px initial position
 ;   +4    spawn_y     (u8)
@@ -139,6 +150,15 @@ Spawn_ScratchKind   = $7E5630   ; .db -- captured entity_kind (record+6, see
 ;                              silently ignored; verified against the real
 ;                              shipped stage 1A table that they were NOT --
 ;                              they spawned as ordinary full-HP AI enemies)
+;   +7    spawn_hp    (u8)  -- health-override slice (follow-up to G8): the
+;                              level's own `health` line, scaled to
+;                              0..CHAR_HP_MAX. Read for enemy slots only --
+;                              a prop's HP is always CHAR_HP_PER_HIT
+;                              regardless of this byte (see build_spawn_
+;                              table.py's own "Per-spawn health override"
+;                              section for why every enemy used to spawn at
+;                              a hardcoded CHAR_HP_MAX no matter what the
+;                              level author actually specified).
 
 ; plan_game.md G8: a prop/pickup slot gets CHAR_INPUT_DRIVEN_PROP (main.pasm)
 ; instead of CHAR_INPUT_DRIVEN_AI, and a fixed low HP (== CHAR_HP_PER_HIT, so
@@ -178,7 +198,6 @@ Spawn_Init:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Init__seek_busy:
     lda $2000
     bmi Spawn_Init__seek_busy
@@ -198,12 +217,11 @@ Spawn_Init__seek_busy:
     sta.l Spawn_LastTriggerX
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Init__have_records:
 
     ; --- zero-extend Spawn_Count (a .db) into a 16-bit scratch before the
-    ; *7 shift-sub below -- a 16-bit `lda.l Spawn_Count` here would read
-    ; Spawn_Count's own byte plus whatever follows it in WRAM (Spawn_CountX7
+    ; *8 shift below -- a 16-bit `lda.l Spawn_Count` here would read
+    ; Spawn_Count's own byte plus whatever follows it in WRAM (Spawn_CountX8
     ; itself), not a zero-extended value. Same pattern Spawn_Play__active
     ; already uses for Spawn_Index. ---
     sep #$20
@@ -219,13 +237,12 @@ Spawn_Init__have_records:
     lda.l Spawn_ScratchIdx
     asl a
     asl a
-    asl a                       ; count*8
-    sec
-    sbc.l Spawn_ScratchIdx      ; count*8 - count = count*7
-    sta.l Spawn_CountX7
+    asl a                       ; count*8 (record size grew to 8 bytes,
+                                 ; health-override slice -- was count*8-count
+                                 ; when the record was 7 bytes)
+    sta.l Spawn_CountX8
 
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Init__read:
     sep #$20
 .a8
@@ -235,19 +252,19 @@ Spawn_Init__read:
 .a16
 .i16
     inx
-    ; CPX has no long-addressing form (CLAUDE.md) -- Spawn_CountX7 is a
+    ; CPX has no long-addressing form (CLAUDE.md) -- Spawn_CountX8 is a
     ; runtime WRAM value now, not a compile-time immediate, so this can't
     ; be `cpx #N` anymore. Copy X to A (which DOES have a long CMP form)
     ; instead of comparing X directly.
     txa
-    cmp.l Spawn_CountX7
+    cmp.l Spawn_CountX8
     bcc Spawn_Init__read
 
-    ; --- cache the last record's trigger_x (Spawn_CountX7 - 7 is its base
+    ; --- cache the last record's trigger_x (Spawn_CountX8 - 8 is its base
     ; offset; records are packed in ascending trigger order, see header) ---
-    lda.l Spawn_CountX7
+    lda.l Spawn_CountX8
     sec
-    sbc #7
+    sbc #8
     tax
     lda.l SpawnTable_Wram,x
     sta.l Spawn_LastTriggerX
@@ -269,7 +286,6 @@ Spawn_Play:
     bcc Spawn_Play__active
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Play__active:
     sep #$20
 .a8
@@ -283,10 +299,10 @@ Spawn_Play__active:
     lda.l Spawn_ScratchIdx
     asl a
     asl a
-    asl a                       ; index*8
-    sec
-    sbc.l Spawn_ScratchIdx      ; index*8 - index = index*7
-    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*7
+    asl a                       ; index*8 (record size grew to 8 bytes,
+                                 ; health-override slice -- was index*8-index
+                                 ; when the record was 7 bytes)
+    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*8
 
     lda Screen_PosX
     cmp.l SpawnTable_Wram,x     ; Screen_PosX - trigger_x
@@ -324,6 +340,9 @@ Spawn_Play__triggered:
     inx                         ; X -> record+6 (entity_kind, plan_game.md G8)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchKind
+    inx                         ; X -> record+7 (spawn_hp, health-override slice)
+    lda.l SpawnTable_Wram,x
+    sta.l Spawn_ScratchHp
 
 Spawn_Play__find_slot:
     sep #$20
@@ -369,16 +388,14 @@ Spawn_Play__slot1:
     lda #CHAR_HP_PER_HIT
     sta.l Entity1_Hp
     jmp Spawn_Play__advance
-    nop
 Spawn_Play__slot1_enemy:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity1_InputDriven
-    lda #CHAR_HP_MAX
+    lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity1_Hp
     jmp Spawn_Play__advance
-    nop
 Spawn_Play__slot2:
     rep #$31
 .a16
@@ -398,16 +415,14 @@ Spawn_Play__slot2:
     lda #CHAR_HP_PER_HIT
     sta.l Entity2_Hp
     jmp Spawn_Play__advance
-    nop
 Spawn_Play__slot2_enemy:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity2_InputDriven
-    lda #CHAR_HP_MAX
+    lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity2_Hp
     jmp Spawn_Play__advance
-    nop
 Spawn_Play__slot3:
     rep #$31
 .a16
@@ -427,15 +442,13 @@ Spawn_Play__slot3:
     lda #CHAR_HP_PER_HIT
     sta.l Entity3_Hp
     jmp Spawn_Play__advance
-    nop
 Spawn_Play__slot3_enemy:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity3_InputDriven
-    lda #CHAR_HP_MAX
+    lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity3_Hp
-    nop
 
 Spawn_Play__advance:
     sep #$20
@@ -445,7 +458,6 @@ Spawn_Play__advance:
     sta.l Spawn_Index
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Play__not_yet:
     plp
     rts
