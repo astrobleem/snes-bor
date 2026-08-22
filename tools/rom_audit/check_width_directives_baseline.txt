@@ -189,9 +189,3 @@ src/main.pasm:sa1_clear
 src/main.pasm:sa1_wait
 src/main.pasm:scpu_boot__bg1sc_done
 src/main.pasm:scpu_clear_ppu
-src/main.pasm:scpu_tm_blank
-src/main.pasm:scpu_tm_col
-src/main.pasm:scpu_tm_row
-src/main.pasm:scpu_tm_row_no_bump
-src/main.pasm:scpu_tm_win_ok
-src/main.pasm:scpu_tm_write

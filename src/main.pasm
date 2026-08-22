@@ -343,266 +343,24 @@ sa1_draw_col_loop:
     rts
 
 ; ============================================================================
-; S-CPU side: per-frame CC-DMA canvas pump -- Scpu_CcdmaPump
+; Scpu_CcdmaPump -- REMOVED 2026-08-21 (plan_game.md G5 planning session,
+; ROM-layout debt review). This was the S-CPU-side per-frame consumer of the
+; SA-1 BG2-window compositor (the pre-OAM-sprite character rendering path).
+; Confirmed dead via a plain grep for callers before deletion: zero `jsr`/
+; `jsl Scpu_CcdmaPump` anywhere in this codebase, and its own header comment
+; already said as much ("since the character moved to real OAM sprites").
+; Its counterpart boot-time setup (the BG2 compositor-window tilemap fill
+; loop, formerly `scpu_tm_row`/`scpu_tm_col`/etc. in scpu_boot) was removed
+; in the same pass -- see that call site's own comment. BG2 itself is never
+; enabled on the main/sub screen anywhere in this project (`TM`/`Nmi_
+; MainScreen` never sets bit 1) -- the whole compositor path had been inert,
+; visually, since real OAM sprites replaced it; this just finally removed
+; the dead code that still computed and wrote to it. See git history for the
+; full routine if it's ever needed again (e.g. porting the SA-1 CC-DMA
+; pipeline to some future use); the SA-1-side recomposite loop (sa1_loop,
+; $8000+) and CC-DMA registers/mechanism themselves are untouched by this
+; removal -- only this one dead consumer and its boot-time counterpart.
 ; ============================================================================
-; jsr'd once per frame from scpu_main_loop, immediately after
-; Core_Nmi_WaitFrame, so its VRAM writes land in the vblank tail rather than
-; mid-active-display. Converts and copies ONE 32-byte tile per frame while
-; the SA-1's canvas-ready flag is set (SFR $2300 bit 5 = CharConvIrqFlag),
-; and clears that flag (SIC $2202 bit 5) once the full
-; (COMPOSITOR_BLIT_COUNT*24)-tile canvas (COMPOSITOR_BLIT_COUNT*768 bytes,
-; COMPOSITOR_BLIT_COUNT 4x6 windows) is in VRAM -- releasing the SA-1 to
-; recomposite the next canvas. Full refresh therefore takes
-; 24*COMPOSITOR_BLIT_COUNT frames (96 for the current N=4); a one-tile-
-; per-frame chunk keeps this inside the vblank tail (16 word-reads + 16
-; word-writes ~= 400 cycles), which a full-canvas-at-once pump would blow
-; out by an order of magnitude. NOTE: this cost scales linearly with N and
-; does not improve just by fixing the assembler-wall/`.org` problems that
-; block unrolling -- see the sa1_compositor_scaling_limit project memory.
-; The threshold constant below (Scpu_CcdmaPump_Keep's cmp) is a hand-
-; computed literal, not a COMPOSITOR_BLIT_COUNT*768 expression -- kept that
-; way deliberately (see the comment at the cmp site).
-;
-; The conversion is stateless per read (Mesen2 core: CpuBwRamHandler::Read
-; -> Sa1::ReadCharConvertType1: trigger on (addr & 31) == 0, tile derived
-; from (addr - DmaSrcAddr)), so pumping a 32-byte slice at any
-; 32-byte-aligned offset converts exactly that tile -- no conversion-side
-; chunk state to keep. The read itself returns the already-converted
-; VRAM-format bytes, staged by the hardware in I-RAM at DDA=0.
-;
-; Entry/exit convention: .a16/.i16 (scpu_main_loop's). Wrapped in php/sei ..
-; plp as a defensive convention matching Core_Dma_Enqueue's, but note sei
-; only masks IRQ, not NMI -- it cannot protect the X/Y loop counters below
-; from an NMI landing mid-loop. That protection instead comes from
-; Core_Nmi_Play itself (core/nmi.pasm): it pha/phx/phy/phb/phd at entry and
-; restores them before returning, so X/Y here survive an NMI intact
-; regardless of this wrapper. Verified empirically byte-perfect across a
-; live NMI-interrupted run; see the ccdma_validated_nmi_timing_bug and
-; nmi-handler-no-register-save-reentrancy project memories.
-Scpu_CcdmaPump:
-    php
-    sei
-    sep #$20
-.a8
-    lda $3021               ; SA-1 recomposite cycle counter (I-RAM $21;
-                            ; the old $3000 mirror read the CC-DMA staging
-                            ; band, not the counter)
-    sta.l Sa1LoopCounter    ; debug mirror: proves the SA-1 loop is live
-    lda $2300               ; SFR
-    and #$20                ; CharConvIrqFlag set -> a fresh canvas is armed
-    bne Scpu_CcdmaPump_HasWork
-    brl Scpu_CcdmaPump_Done ; too far for an 8-bit beq now that the fixed
-                             ; 16-word unroll below grew this routine past
-                             ; the +-127 byte range -- see poppy_assembler_bugs
-    nop
-Scpu_CcdmaPump_HasWork:
-    rep #$20
-.a16
-.i16
-    ; PumpScratch is a FIXED 32-byte (16-word) staging buffer -- its size
-    ; never scales with COMPOSITOR_BLIT_COUNT, unlike CanvasChunkOffset's own
-    ; range. It was previously indexed with X (= CanvasChunkOffset, which
-    ; grows across the WHOLE canvas), which swept staging writes straight
-    ; through the NMI shadow block once CanvasChunkOffset exceeded
-    ; $7E5000-PumpScratch ($2CBC), silently corrupting Nmi_InterruptFlags and
-    ; killing NMI (only bit at large enough COMPOSITOR_BLIT_COUNT -- N=4
-    ; never reached it, N=21 did, reproducibly, at CanvasChunkOffset ~$2CE0;
-    ; see sa1_compositor_scaling_limit memory). A ,Y-indexed .l fix was tried
-    ; next but 65816 has no long-addressing ,Y indexed mode at all (only
-    ; ,X) -- Poppy silently accepted the invalid `sta.l Sym,y` and emitted a
-    ; wrong/truncated encoding instead of erroring, corrupting the
-    ; instruction stream. Fixed instead by fully unrolling this FIXED
-    ; 16-word transfer (it never scales with N, so unrolling here doesn't
-    ; reintroduce the branch-range problem the real loops elsewhere in this
-    ; file were written to avoid) -- X stays dedicated to the genuinely
-    ; runtime-variable BW-RAM source offset (long,X is valid), and
-    ; PumpScratch's side uses compile-time `Symbol+K` immediate offsets
-    ; instead of indexing at all (same proven-safe pattern as
-    ; core/nmi.pasm's `Nmi_Bg1ScrollX+1`).
-    lda.l CanvasChunkOffset
-    tax                      ; X = BW-RAM source read offset (CanvasChunkOffset-
-                             ; relative -- must sweep the real canvas position)
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
-Scpu_CcdmaPump_Read:
-    lda.l $403000,x         ; read+trigger-convert via S-CPU BW-RAM window ($40-4F)
-    sta.l PumpScratch+0     ; stage in WRAM -- deliberately OUTSIDE the forced-
-                            ; blank bracket: BW-RAM reads are not PPU accesses,
-                            ; and they can stall for many cycles on SA-1 BW-RAM
-                            ; arbitration, so keeping them out of the bracket
-                            ; keeps the bracket itself short and bounded. (A
-                            ; separate, pre-existing black band at the top of
-                            ; every frame was investigated this session and
-                            ; confirmed present even with this pump's jsr
-                            ; disabled entirely and at the branch's committed
-                            ; HEAD before this pump existed -- it comes from
-                            ; Core_Nmi_Play's own commit bracket in nmi.pasm
-                            ; being outpaced by this branch's larger per-
-                            ; vblank DMA/shadow-commit workload, not from
-                            ; anything in this routine. See the
-                            ; ccdma_validated_nmi_timing_bug project memory.)
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+2
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+4
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+6
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+8
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+10
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+12
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+14
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+16
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+18
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+20
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+22
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+24
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+26
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+28
-    inx
-    inx
-    lda.l $403000,x
-    sta.l PumpScratch+30
-
-    ; --- forced-blank bracket: only the $2116/$2118 writes need it ---
-    sep #$20
-.a8
-    lda #$80
-    sta $2100               ; INIDISP: force blank so the tile writes land
-                            ; regardless of vblank-tail timing (CanAccessVram
-                            ; only admits $2116/$2118 during forced blank or
-                            ; past the NMI scanline, and the pump runs after
-                            ; the NMI handler, in the vblank tail)
-    rep #$20
-.a16
-    lda.l CanvasChunkOffset
-    lsr                     ; byte offset -> VRAM word offset (32 bytes = 16 words)
-    clc
-    adc #$2010              ; VRAM dest word (BG2 char base $2000, tile 1)
-    sta $2116
-    ; Fully unrolled, same rationale as Scpu_CcdmaPump_Read above -- fixed
-    ; 16-word transfer, no indexing needed on either side (source is a
-    ; compile-time PumpScratch+K offset, dest is the fixed $2118 port), so X
-    ; just holds CanvasChunkOffset untouched for the post-loop wrap check.
-    lda.l CanvasChunkOffset
-    tax                      ; X = CanvasChunkOffset, held UNTOUCHED across this
-                             ; block (only needed below, for the next-offset/
-                             ; wrap computation)
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
-Scpu_CcdmaPump_Write:
-    lda.l PumpScratch+0     ; WRAM reads only -- no BW-RAM access inside the
-                            ; bracket, so it cannot stall on SA-1 arbitration
-                            ; (bounded, ~350 cycles for the 16-word transfer)
-    sta $2118               ; write to VRAM $2118/$2119
-    lda.l PumpScratch+2
-    sta $2118
-    lda.l PumpScratch+4
-    sta $2118
-    lda.l PumpScratch+6
-    sta $2118
-    lda.l PumpScratch+8
-    sta $2118
-    lda.l PumpScratch+10
-    sta $2118
-    lda.l PumpScratch+12
-    sta $2118
-    lda.l PumpScratch+14
-    sta $2118
-    lda.l PumpScratch+16
-    sta $2118
-    lda.l PumpScratch+18
-    sta $2118
-    lda.l PumpScratch+20
-    sta $2118
-    lda.l PumpScratch+22
-    sta $2118
-    lda.l PumpScratch+24
-    sta $2118
-    lda.l PumpScratch+26
-    sta $2118
-    lda.l PumpScratch+28
-    sta $2118
-    lda.l PumpScratch+30
-    sta $2118
-    sep #$20
-.a8
-    lda.l Nmi_ScreenBrightness
-    sta $2100               ; restore the screen brightness ($0F, set in boot)
-    rep #$20
-.a16
-    txa                      ; A = CanvasChunkOffset (X untouched by the loop above)
-    clc
-    adc #$0020               ; + 32 bytes just pumped = next offset
-    cmp #$3F00              ; 16128 bytes = 504 tiles (COMPOSITOR_BLIT_COUNT=21 *
-                             ; 24 tiles); hand-computed literal, not a
-                             ; COMPOSITOR_BLIT_COUNT*768 expression -- see
-                             ; poppy_assembler_bugs on computed-operand risk.
-                             ; Re-derive by hand if COMPOSITOR_BLIT_COUNT
-                             ; changes (N*768, in hex).
-    bcc Scpu_CcdmaPump_Keep
-    sep #$20
-.a8
-    lda #$AA
-    sta $3025               ; I-RAM mailbox -> releases the SA-1's wait loop
-                            ; (the SA-1 cannot read SFR $2300 -- its own
-                            ; register window has no 0x2300 case, it reads
-                            ; open bus there -- so the release has to be a
-                            ; byte it CAN see; SIWP $FF set in scpu_boot
-                            ; permits this S-CPU I-RAM write)
-    lda #$20
-    sta $2202               ; SIC: clear CharConvIrqFlag -> pump's own next
-                            ; frame check skips until the SA-1 re-arms
-    rep #$20
-.a16
-    lda #$0000
-    sta.l CanvasChunkOffset
-    bra Scpu_CcdmaPump_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Scpu_CcdmaPump_Keep:
-    sta.l CanvasChunkOffset
-Scpu_CcdmaPump_Done:
-    plp
-    rep #$31
-.a16
-.i16
-    rts
 
 ; ============================================================================
 ; TAD Audio Driver Module (Ported from ca65 to Poppy .pasm)
@@ -2659,7 +2417,6 @@ ANIM_TILEMAP_ROW_BYTES = 8          ; 4 columns * 2 bytes/entry
 ANIM_TILEMAP_ROW_STRIDE = $40       ; byte distance between rows in the 32-
                                      ; column-wide tilemap ($5C00 base, word
                                      ; stride 32 -> byte stride 64 = $40)
-ANIM_TILEMAP_ROW0_BYTE_ADDR = $B800  ; = word $5C00 * 2 (row 0, column 0)
 ANIM_TILEMAP_RIGHT_BASE = ANIM_WALK_BASE   ; walk's old pixel-data blob (which used to
                               ; sit before this) is gone -- see the comment above
                               ; ANIM_WALK_BASE's own definition
@@ -9955,121 +9712,20 @@ Boot_LoadFp__done:
     ; (10-bit tilemap limit, and where OBJ tiles start at $4000) needed
     ; only removing it. See tools/bg_converter/convert_bg.py's docstring.
 
-    ; --- CC-DMA canvas pump: moved out of boot into Scpu_CcdmaPump, called
-    ; once per frame from scpu_main_loop right after Core_Nmi_WaitFrame
-    ; (vblank tail). The boot-time one-shot pump is gone deliberately: the
-    ; SA-1 now runs a PERSISTENT recomposite loop (sa1_loop, $8000+) that
-    ; re-arms CC-DMA for every fresh canvas and waits for the S-CPU to
-    ; consume it, so the pump must be re-runnable every frame -- one 32-
-    ; byte tile per frame, clearing SIC $2202 bit 5 (CharConvIrqFlag)
-    ; once all COMPOSITOR_BLIT_COUNT*24 tiles are in VRAM, releasing the
-    ; SA-1 to recomposite. A boot-time pump would also deadlock the new
-    ; loop: it clears nothing, and the SA-1's first wait would hang on a
-    ; flag only the per-frame pump consumes. The first main-loop frame
-    ; simply pumps the canvas sa1_main armed at boot (flag set at boot).
-
-    ; --- BG2 tilemap at word $5C00: COMPOSITOR_BLIT_COUNT 4x6 sprite windows
-    ; packed in an 8-windows-wide row-major grid (rest blank), generated by
-    ; a REAL indexed loop over (tx,ty) rather than one hand-written branch
-    ; per window -- an earlier session's attempt to keep hand-unrolling
-    ; this same style out to N=21 hit a real 65816 branch-range assembler
-    ; wall (see the sa1_compositor_scaling_limit project memory); this
-    ; version's code size is fixed regardless of N, so it doesn't.
-    ;
-    ; row_band = ty / 6 (which 6-tile-tall band of windows this row is in)
-    ; and col_band = tx / 4 (which 4-tile-wide window within that band) are
-    ; both tracked WITHOUT any divide instruction (65816 has none): col_band
-    ; is tx>>2 since 4 is a power of 2, and row_band is an incrementing
-    ; counter ($0A) bumped whenever a second counter tracking ty-within-
-    ; band ($0C, "row_local") wraps past 5 at the end of a row -- cheaper
-    ; and safer than a runtime division routine for a value that only
-    ; changes once every 6 rows. window_index = row_band*8 + col_band (row-
-    ; major), tile ID = window_index*24 + local_tx + local_ty*4 + 1 (+1
-    ; because tile IDs are 1-based, 0 = blank), where local_ty = row_local
-    ; and local_tx = tx&3 (tx mod 4, again via the power-of-2 shortcut).
-    ; This is a plain arithmetic identity, not a lookup -- reduces to the
-    ; old N<=3 hand-written formulas exactly for row_band=0 (window_index=0
-    ; gives ty*4+tx+1, window_index=1 gives the old "+20" case) without
-    ; spelling either out. A tile is blank whenever window_index >=
-    ; COMPOSITOR_BLIT_COUNT -- this alone also correctly blanks every row
-    ; entirely past the last real row band, since col_band=0 already pushes
-    ; window_index past COMPOSITOR_BLIT_COUNT for a fully-out-of-range band;
-    ; no separate "too many rows" check is needed. All real tiles get
-    ; priority 1 ($2000 bit).
-    rep #$20
-.a16
-    lda #$5C00
-    sta $2116
-    ldy #$0000              ; ty = 0..31
-    stz $0A                 ; row_band = 0
-    stz $0C                 ; row_local = ty within its row band, 0..5
-    nop
-scpu_tm_row:
-    lda $0A
-    asl
-    asl
-    asl                     ; row_band * 8 = this row's window-index base
-    sta $0E
-    ldx #$0000              ; tx = 0..31
-    nop
-scpu_tm_col:
-    txa
-    lsr
-    lsr                     ; A = col_band = tx / 4 (window width = 4 tiles)
-    clc
-    adc $0E                 ; + row_band*8 = window_index
-    cmp #COMPOSITOR_BLIT_COUNT
-    bcc scpu_tm_win_ok       ; window_index < COMPOSITOR_BLIT_COUNT -> real window
-    brl scpu_tm_blank
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-scpu_tm_win_ok:
-    sta $02                 ; $02 = window_index
-    asl
-    asl
-    asl
-    asl                     ; window_index * 16
-    sta $04
-    lda $02
-    asl
-    asl
-    asl                     ; window_index * 8
-    clc
-    adc $04                 ; window_index*16 + window_index*8 = window_index*24
-    sta $04                 ; $04 = this window's tile-ID base
-    lda $0C                 ; row_local (ty within its row band, 0..5)
-    asl
-    asl                     ; row_local * 4
-    clc
-    adc $04                 ; + window base
-    sta $00                 ; $00 = window base + row_local*4
-    txa
-    and #$0003              ; local column = tx & 3 (tx mod 4)
-    clc
-    adc $00
-    inc a                   ; +1 (tile IDs are 1-based)
-    ora #$2000               ; priority 1
-    bra scpu_tm_write
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-scpu_tm_blank:
-    lda #$0000
-    nop
-scpu_tm_write:
-    sta $2118
-    inx
-    cpx #$0020
-    bcc scpu_tm_col
-    iny
-    ; --- row-band bookkeeping: row_local wraps every 6 rows, bumping row_band ---
-    inc $0C
-    lda $0C
-    cmp #$0006
-    bcc scpu_tm_row_no_bump
-    stz $0C
-    inc $0A
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-scpu_tm_row_no_bump:
-    cpy #$0020
-    bcc scpu_tm_row
+    ; --- CC-DMA canvas pump / boot-time BG2 compositor-window tilemap fill:
+    ; REMOVED 2026-08-21 (plan_game.md G5 planning session, ROM-layout debt
+    ; review). This used to build a BG2 tilemap here (a nested (tx,ty) loop,
+    ; `scpu_tm_row`/`scpu_tm_col`/`scpu_tm_win_ok`/`scpu_tm_write`/
+    ; `scpu_tm_blank`/`scpu_tm_row_no_bump`) referencing COMPOSITOR_BLIT_COUNT
+    ; sprite windows, fed once per frame by Scpu_CcdmaPump (also removed --
+    ; see that routine's own former call site). Confirmed dead before
+    ; deletion: BG2 is never enabled on the main or sub screen anywhere in
+    ; this project (`TM`/`Nmi_MainScreen` never sets bit 1 -- see the `TM:
+    ; BG1 + BG3 + OBJ` write below, which already dropped BG2 with a comment
+    ; explaining why), so this loop wrote a tilemap that could never be
+    ; displayed. See git history for the removed loop if the SA-1 BG2-window
+    ; compositor is ever revived; the SA-1-side recomposite loop and CC-DMA
+    ; registers/mechanism themselves are untouched by this removal.
 
     ; --- OAM + NMI shadow-register bring-up ---
     ; Core_Nmi_Init must run FIRST -- its clear loop zeroes the entire
