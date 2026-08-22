@@ -53,8 +53,8 @@ drawn since G1, nothing calls it for a menu yet).
 | Menus (title, char select, pause, options) | Being a product |
 | Score | Arcade structure (lives/continues done in G3) |
 | Jump, throw, grab, specials | BOR's actual moveset |
-| Items / pickups | The `1up` and `trash` the spawn tables already contain |
-| Bosses | Stage climaxes |
+| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
+| Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
 | SFX | Every impact feeling real (blocked on content, §11) |
 
@@ -522,11 +522,55 @@ Cheap and high-value, since the level data is already there.
 
 ---
 
+## §8a — Remaining level-format-keyword gaps (spawn-table/level-parser parity)
+
+**Read this section instead of asking "what's next" for BOR/TMNT parity
+work.** Verified 2026-08-21 against the real BOR and TMNT paks: every
+level-file keyword either parser reads (`level_parse.py`/`spawn_parse.py`)
+but doesn't act on, or doesn't read at all, is listed below in the order to
+close them. Each row is self-contained unless its "Blocked by" column says
+otherwise — pick the first `NOT STARTED` row whose blocker is `—` or
+already `DONE`, plan-mode it (same weight as G8/health-override got), gate
+it, update this table's `Status` column and `README.md`'s Current Status,
+commit. Do not wait to be told which row is next; that is what this table
+is for.
+
+| # | Keyword(s) | What's missing | Blocked by | Status |
+|---|---|---|---|---|
+| 1 | `entity_kind` (props: `1up`/`trash`/`table`/`chair`) | — | — | **DONE** (Phase G8, 2026-08-21, `game_g8_props.py`) |
+| 2 | `health` | — | — | **DONE** (2026-08-21, `game_health_override.py`) |
+| 3 | `map` (per-spawn colormap/palette variant, 0-3) | `spawn_parse.py` already parses it (`SpawnEvent.map`) but it's discarded like `health` used to be. Self-contained: needs a per-instance palette-slot override applied at spawn (today's palette assignment is purely roster-slot-based, set once at boot — see Phase 12's `CHAR_PALETTE_SLOT`). Real value: TMNT's own level (`STREETS.TXT`) uses `map` on nearly every `Foot01`/`foot02`/`foot03` spawn to visually distinguish waves of the same character. | — | NOT STARTED |
+| 4 | `boss` flag | `spawn_parse.py` already parses it (`SpawnEvent.boss`). Per-entity HP override (G9's own first prerequisite) is now DONE via the health-override slice — G9 itself (boss-specific AI, boss health bar) is the real remaining work, not a keyword-parsing gap. Tracked at §9, not here. | G6 (HUD, for a boss health bar) | see §9 |
+| 5 | `blockade <n>` | Fully unparsed and unimplemented. Per `openbor_script_reference.txt` line 271 ("Limit x scroll back"): BOR's own scroll-back prevention, a one-way ratchet that advances as waves clear so the player can't retreat past an already-triggered wave. **Verified this engine has NO equivalent today** — `core/screen.pasm`'s `Screen_MinX` is set once at boot and never written anywhere else (grep-confirmed), so the camera can currently scroll backward to world X=0 at any point in a level, including past wave triggers. Real, self-contained fix: `build_spawn_table.py` gains a `blockade` event type (sibling to today's dropped `wait`/`group`), `core/spawn.pasm` (or `core/screen.pasm`) advances `Screen_MinX` when a blockade record's trigger is reached, same "single global queue, retried each frame" shape `Spawn_Play` already uses. | — | NOT STARTED |
+| 6 | `music` / `bossmusic` | Fully unparsed. Needs a level-scoped music-track-select on top of TAD (today: one hardcoded audio blob loads at boot, no track switching exists at all). Content-gated like G11 (SFX) — only one track is authored/converted today, so there is nothing to switch *to* yet; do not start the code side before at least a second track exists in the pipeline. | Content (a 2nd authored TAD track) | NOT STARTED (blocked on content) |
+| 7 | `alias` (spawn names a display alias; the SAME character resource, e.g. TMNT's `Foot01`/`foot02`/`foot03`, all alias to `Foot_Soldier`) | **Structural, not a small slice.** Every spawn today uses whichever roster character is *already streamed into the AI slot it lands in* — spawn events carry a `character` name but nothing reads it for identity (`build_spawn_table.py`'s own docstring: "position/timing fidelity is the goal; character identity is explicitly not"). `alias` only matters once spawns can select WHICH character to render, which doesn't exist for BOR either. This is a prerequisite for meaningful TMNT conversion (TMNT's whole roster is `alias`-driven) and overlaps G7 (moveset) territory — plan it as its own gated slice once G7 is underway, not before either exists in isolation. | G7 (character-identity spawning is naturally part of "the real BOR moveset" work extending to per-character rosters) | NOT STARTED, blocked |
+| 8 | `direction` (TMNT's `STREETS.TXT`: `direction rightleft`, bidirectional scroll) | **The biggest single blocker to converting TMNT's own levels.** This engine's whole camera model (`core/screen.pasm`) is built for one-directional forward scroll with a soft-hold/unlock (G4's win condition). BOR's own stock levels never need bidirectional scroll (all `SCROLL_RIGHT` or `SCROLL_LEFT`, i.e. one direction each), so this has never had to be solved. Do not attempt inside a "level-format keyword" slice — this is camera-model-rewrite scope, sized like G7's jump/Z-axis item (§7/§13). Tracked here so it's not silently assumed away when TMNT conversion starts. | Its own dedicated phase (not yet named — add one when TMNT conversion is scheduled, see §12) | NOT STARTED, blocked |
+| 9 | `settime` (level time limit) | Needs a HUD timer + a "time over" game-over path (`ATK_TIMEOVER` per `openbor_script_reference.txt`). Natural to fold into G6 (HUD) once that exists, not before. | G6 | NOT STARTED, blocked |
+| 10 | `maxenemy` | **Not a real gap — document and close.** This engine hardcodes exactly 3 AI slots (`CLAUDE.md`'s "don't build a general entity-lookup system" rule); BOR's own `maxenemy` values in the stock/TMNT levels checked (4) are already satisfied trivially by that hardware ceiling. No code change is applicable here; `SPAWN_MAX_RECORDS`/the single-global-queue design (`core/spawn.pasm`'s own header) already reproduces BOR's wave-clustering behavior within that ceiling. | — | N/A — permanent engine constraint, not tracked further |
+| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task, gated on rows 3 (`map`, used pervasively in TMNT's own level), 7 (`alias`, load-bearing for TMNT's entire roster), and 8 (`direction`, TMNT's own level declares `rightleft`). Do not start TMNT asset conversion before at least rows 3 and 7 land — the converted assets would have no way to render correctly. Tracked under §12 (content and scale), not here. | Rows 3, 7, 8 | NOT STARTED, blocked |
+
+**Reading order for "what's next":** rows 3 and 5 are unblocked today — do
+either first (row 3 first is slightly cheaper: no new event-type/record
+kind, just a palette-slot write). Row 6 needs content before code. Rows 7/8
+are real phases in their own right once G7 is scheduled — don't fold them
+into a "quick keyword slice" the way rows 1-3/5 were. Row 9 waits on G6.
+Row 10 is done being tracked. Row 11 (TMNT itself) waits on 3+7+8.
+
+---
+
 ## §9 — Phase G9: bosses
 
-- Per-entity HP override (the spawn table has no HP field today — add one).
+> **Prerequisite update, 2026-08-21:** "per-entity HP override" (this
+> section's own first bullet, below) is now DONE — the health-override
+> slice (§8's own status block) added exactly this to the spawn record.
+> What's left here is boss-specific behavior, not data plumbing.
+
+- ~~Per-entity HP override (the spawn table has no HP field today — add one).~~ **Done, 2026-08-21** (health-override slice, `+7 spawn_hp` in the spawn record).
 - Boss-specific AI beyond "seek and attack."
 - Boss health bar (G6), stage-gating (camera locks until defeated).
+- The `boss` flag itself (`spawn_parse.py`'s `SpawnEvent.boss`, already
+  parsed, not yet threaded into the record or read by the engine) — see
+  §8a row 4.
 
 `out/bg_boss_level` already exists as converted assets from an earlier phase.
 
@@ -578,6 +622,13 @@ The two shortcuts from §0 come due here.
 G1 text  →  G2 states  →  G3 death  →  G4 win/transition  →  G5 menus
          →  G6 HUD  →  G8 items  →  G7 moveset  →  G9 bosses  →  G10 ending
 ```
+
+**§8a's level-format-keyword rows slot in around G8/G9/G12 specifically** —
+see §8a's own table for the exact per-row blockers instead of re-deriving
+them here. Rows 3 (`map`) and 5 (`blockade`) are unblocked *right now* and
+don't need to wait for G7/G9; row 6 (`music`) waits on content; rows 7
+(`alias`)/8 (`direction`) are real phases gated on G7 being scheduled; row
+11 (TMNT conversion) waits on 7+8+3.
 
 G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 
