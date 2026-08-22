@@ -1,0 +1,56 @@
+{
+  "entity": "Jhun",
+  "prefix": "out/jhun",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/jhun_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/jhun_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/jhun_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/jhun_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/jhun_rise",
+      "frames": 6
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/jhun_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "jumpattack",
+      "dir": "out/jhun_jumpattack",
+      "frames": 5
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5
+  }
+}

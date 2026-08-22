@@ -44,10 +44,13 @@ it named.
 Fixed by repurposing the record's previously-always-zero `reserved` byte
 (+6) as `entity_kind`: 0 = enemy (this table's only value before this
 change, so old binary consumers/gates that never inspected byte +6 are
-unaffected), 1 = prop/pickup. `PROP_CHARACTER_NAMES` below is the
-classification list -- deliberately small (BOR's own `1up`/`trash` only;
-TMNT hasn't been converted at all yet, so its own decorative prop names are
-a follow-up once it is, not this slice). A prop's HP is fixed at
+unaffected), 1 = prop/pickup. **Generalized 2026-08-22**: classification
+used to be a hardcoded name list (`PROP_CHARACTER_NAMES = {'1up', 'trash',
+'table', 'chair'}`, explicitly documented as "BOR-only... a follow-up" for
+TMNT). `build_type_lookup()` now reads each spawned character's own real
+`type` line from its entity `.TXT` (`obstacle`/`item` = prop, everything
+else = enemy) -- the same classification OpenBOR itself uses, works for any
+pak's real prop/item roster with zero hardcoded names. A prop's HP is fixed at
 `PROP_HP = CHAR_HP_PER_HIT` (see main.pasm) rather than the enemy default,
 so a single player hit brings it from alive to exactly 0 HP, not partially
 damaged -- `core/spawn.pasm`'s `Spawn_Play` reads both the kind and this HP
@@ -133,8 +136,14 @@ separate build-time constant (see pack_msu_roster.py's spawn section and
 build_rom.py's SPAWN_COUNT cross-check), same convention as this project's
 other single-instance baked assets.
 """
+import ntpath
+import os
 import struct
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bor_converter'))
+from pak_extract import read_entries, extract
+from entity_parse import parse_entity
 
 SCALE = 256 / 320
 RECORD_SIZE = 8
@@ -142,20 +151,59 @@ CHAR_HP_MAX = 64   # == main.pasm's CHAR_HP_MAX; hand-copied here since this
                     # module has no access to main.pasm's own constant table
                     # (same pattern PROP_HP below already uses)
 
-# plan_game.md G8, first slice -- see this module's own "Entity kind" section
-# above. Deliberately small and BOR-only for now: stage 1A's `1up`/`trash`
-# plus stage 1B's `table`/`chair` (1B is the currently-shipped DEFAULT boot
-# level -- confirmed via spawn_parse.py against the real pak that it spawns
-# both as ordinary full-HP AI enemies today, same live bug as stage 1A's).
-PROP_CHARACTER_NAMES = {'1up', 'trash', 'table', 'chair'}
 PROP_HP = 4   # == main.pasm's CHAR_HP_PER_HIT: one hit takes a prop from
               # alive to exactly 0, never partially damaged.
 ENTITY_KIND_ENEMY = 0
 ENTITY_KIND_PROP = 1
 
+# Real OpenBOR entity types that mean "not a fighting enemy" -- everything
+# else (enemy, player, or an unset/unusual type) spawns as ENTITY_KIND_ENEMY.
+PROP_ENTITY_TYPES = {'obstacle', 'item'}
 
-def convert_events(spawns):
-    """spawns: list of spawn_parse.SpawnEvent, in trigger order.
+
+def build_type_lookup(pak_path):
+    """Generalized 2026-08-22 (plan_game.md, "level content" follow-up to the
+    moveset pipeline generalization -- see moveset_pipeline_generalization
+    project memory): entity kind used to be decided by a hardcoded name set
+    (`PROP_CHARACTER_NAMES = {'1up', 'trash', 'table', 'chair'}`), explicitly
+    documented as "BOR-only... TMNT hasn't been converted at all yet, so its
+    own decorative prop names are a follow-up." Real OpenBOR entity files
+    already self-declare this via their own `type` line (`enemy`/`player`/
+    `obstacle`/`item`/unset) -- measured directly against both available
+    paks: BOR has 8 `obstacle` + 6 `item` characters, TMNT has 19 `obstacle`
+    + 7 `item`, neither list resembling the other. Reading each spawned
+    character's real `type` from its own entity file generalizes this to
+    any pak's real prop/item roster with no name list at all.
+
+    Returns {character_name.lower(): type.lower()} for every real character
+    `.TXT` under CHARS\\ in the pak, indexed by both its filename (matches
+    spawn.character values like "1up", "trash") and its self-declared
+    internal `name` field (covers the rare case they differ)."""
+    entries = read_entries(pak_path)
+    lookup = {}
+    for entry in entries:
+        if 'CHARS' not in entry.name.upper() or not entry.name.upper().endswith('.TXT'):
+            continue
+        base = ntpath.basename(entry.name)
+        key = base.rsplit('.', 1)[0].lower()
+        try:
+            entity = parse_entity(extract(pak_path, entry.name).decode('latin1'))
+        except Exception:
+            continue
+        entity_type = str(entity.get('type') or 'enemy').lower()
+        lookup[key] = entity_type
+        if entity.get('name'):
+            lookup.setdefault(str(entity['name']).lower(), entity_type)
+    return lookup
+
+
+def convert_events(spawns, type_lookup):
+    """spawns: list of spawn_parse.SpawnEvent, in trigger order. type_lookup:
+    build_type_lookup(pak_path)'s result -- entity kind is derived from each
+    spawned character's own real `type` field, not a hardcoded name list
+    (see build_type_lookup's docstring). A name absent from the lookup
+    (shouldn't happen for a real pak's own characters) defaults to
+    ENTITY_KIND_ENEMY, matching this module's pre-generalization behavior.
     Returns (record_count, packed_bytes)."""
     out = bytearray()
     for e in spawns:
@@ -164,7 +212,8 @@ def convert_events(spawns):
         spawn_y = round(e.coords[1] * SCALE)
         spawn_y = max(0, min(255, spawn_y))
         facing_left = 1 - (e.flip & 1)
-        is_prop = e.character.lower() in PROP_CHARACTER_NAMES
+        entity_type = type_lookup.get(e.character.lower())
+        is_prop = entity_type in PROP_ENTITY_TYPES
         entity_kind = ENTITY_KIND_PROP if is_prop else ENTITY_KIND_ENEMY
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
@@ -181,7 +230,8 @@ def build_from_pak(pak_path, entry_name):
     from spawn_parse import parse_spawns_from_pak, SpawnEvent
     events = parse_spawns_from_pak(pak_path, entry_name)
     spawns = [e for e in events if isinstance(e, SpawnEvent)]
-    return convert_events(spawns)
+    type_lookup = build_type_lookup(pak_path)
+    return convert_events(spawns, type_lookup)
 
 
 def main():

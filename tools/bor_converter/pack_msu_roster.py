@@ -27,16 +27,23 @@ File format (see the plan for the authoritative spec):
         +3  idle_delay         (u8)
         +4  walk_delay         (u8)
         +5  attack_delay       (u8)
-        +6-7  reserved
+        +6  fall_frame_count   (u8)   [plan_game.md G7 knockdown slice --
+        +7  fall_delay         (u8)    fits the record's own pre-existing
+                                        +6/+7 padding, no data_offset ripple]
         +8-11 data_offset (u32 LE) -- absolute byte offset of this
               character's blob from the start of the file
-        +12-15 reserved
+        +12-13 reserved
+        +14 rise_frame_count   (u8)   [plan_game.md G7 knockdown slice --
+        +15 rise_delay         (u8)    fits the record's own pre-existing
+                                        +12-15 padding]
 
     0x90+      character blobs, packed sequentially:
       +0..31   palette: 16 x BGR555 LE
       +32..    idle_frame_count * 768 bytes
       next     walk_frame_count * 768 bytes
       next     attack_frame_count * 768 bytes
+      next     fall_frame_count * 768 bytes    [G7 knockdown slice]
+      next     rise_frame_count * 768 bytes    [G7 knockdown slice]
 
     then       BG directory (only when bg_count > 0): 4 records x 32 bytes,
                located at bg_directory_offset. Bumped 16->20 in v3 to fit a
@@ -132,8 +139,11 @@ hardware/emulation.
 Usage:
     python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 8]
 
-Each <prefixN> follows the existing out/<name>_{idle,walk,attack}/
-convention (convert_animation.py / convert_character.py output). Emits
+Each <prefixN> must have a <prefixN>_moveset.json (convert_character.py's
+generic per-character manifest -- see _resolve_role_dirs) resolving its
+idle/walk/attack/fall/rise roles to real converted animation directories;
+the character's real animation names/count no longer need to match any
+fixed convention (generalized 2026-08-22, plan_game.md 7). Emits
 <out_msu_path>.manifest.json alongside the .msu file: per-slot name, frame
 counts, delays, and computed data_offset -- the independent ground truth
 verify_msu_roster.py (and any future Mesen2 verification) checks packed
@@ -229,22 +239,86 @@ def bake_anim_bytes(anim_dir):
     return bytes(blob)
 
 
+ENGINE_ROLES = ("idle", "walk", "attack", "fall", "rise")
+
+
+def _resolve_role_dirs(prefix):
+    """Reads <prefix>_moveset.json (convert_character.py's per-character
+    manifest -- generic ordinal-indexed animation list + a role table
+    resolved by NAME once, in Python, at convert time) and returns a dict
+    {role: anim_dir} for the 5 roles this engine's hand-written state
+    machine currently has distinct behavior for (idle/walk/attack/fall/
+    rise -- see main.pasm's Anim_Play__dispatch/CHAR_SELECTED constants).
+
+    Generalized 2026-08-22 (plan_game.md 7, "generalize the moveset
+    pipeline" slice) -- replaces the old fixed `<prefix>_{idle,walk,attack,
+    fall,rise}` directory-name assumption. A character's real animation
+    names/count/ordering no longer matter here; only which ordinal each
+    known role resolved to (by convert_character.py's own name matching)
+    does. Animations beyond these 5 roles (a second real attack move, a
+    distinct `pain` anim, anything else the raw pak declares) are real,
+    converted, and listed in the moveset manifest, but intentionally NOT
+    included in the packed blob below -- nothing downstream reads them yet
+    (multi-move dispatch is deferred, see plan_game.md 7's role-table
+    design note), and shipping their frame bytes would only grow the MSU
+    file for data nothing uses. Raises KeyError with the character's real
+    name if a required role is genuinely absent (no BOR roster character
+    is missing one today, but a future pak's character legitimately might
+    be -- e.g. no `pain` anim -- and this must fail loudly, not silently
+    substitute a wrong directory, since main.pasm has no per-instance
+    "role absent" handling yet)."""
+    moveset_path = f"{prefix}_moveset.json"
+    with open(moveset_path, "r", encoding="utf-8") as f:
+        moveset = json.load(f)
+    anims_by_ordinal = {a["ordinal"]: a for a in moveset["animations"]}
+    roles = moveset["roles"]
+    resolved = {}
+    for role in ENGINE_ROLES:
+        ordinal = roles.get(role)
+        if ordinal is None:
+            raise KeyError(
+                f"{moveset['entity']!r} ({prefix}): required role {role!r} not "
+                f"found among its converted animations {list(anims_by_ordinal.values())} "
+                f"-- main.pasm's fixed idle/walk/attack/fall/rise struct needs all 5")
+        resolved[role] = anims_by_ordinal[ordinal]["dir"]
+    return resolved
+
+
 def pack_character_blob(prefix):
     """Returns (blob_bytes, info_dict) for one character's palette + baked
-    idle/walk/attack frames, sourced from <prefix>_{idle,walk,attack}/."""
-    idle_dir = f"{prefix}_idle"
-    walk_dir = f"{prefix}_walk"
-    attack_dir = f"{prefix}_attack"
+    idle/walk/attack/fall/rise frames, resolved generically via
+    <prefix>_moveset.json's role table (see _resolve_role_dirs) rather than
+    a fixed directory-name convention. Blob layout and field order are
+    UNCHANGED from before this generalization (idle, walk, attack, fall,
+    rise, in that fixed sequence) -- main.pasm's Anim_LoadCharacter chains
+    CHAR_WALK_BASE/CHAR_ATTACK_BASE/CHAR_FALL_BASE/CHAR_RISE_BASE off of
+    each other in exactly this order, so this packer must keep producing
+    that order regardless of a character's real anim declaration order.
+    The palette is shared across all of a character's dirs by construction
+    (convert_character.py quantizes every real animation together, not
+    just the 5 known roles) -- reading idle's copy is correct either way."""
+    role_dirs = _resolve_role_dirs(prefix)
+    idle_dir = role_dirs["idle"]
+    walk_dir = role_dirs["walk"]
+    attack_dir = role_dirs["attack"]
+    fall_dir = role_dirs["fall"]
+    rise_dir = role_dirs["rise"]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
     attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
+    fall_count, fall_delay = gen_pasm_animset.load_manifest(fall_dir)
+    rise_count, rise_delay = gen_pasm_animset.load_manifest(rise_dir)
     palette = gen_pasm_animset.load_palette(idle_dir)
 
-    for count, name in ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack")):
+    counts = ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack"),
+              (fall_count, "fall"), (rise_count, "rise"))
+    for count, name in counts:
         if not (0 <= count <= 255):
             raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
-    for delay, name in ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack")):
+    delays = ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
+              (fall_delay, "fall"), (rise_delay, "rise"))
+    for delay, name in delays:
         if not (0 <= delay <= 255):
             raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
 
@@ -254,35 +328,50 @@ def pack_character_blob(prefix):
     idle_bytes = bake_anim_bytes(idle_dir)
     walk_bytes = bake_anim_bytes(walk_dir)
     attack_bytes = bake_anim_bytes(attack_dir)
+    fall_bytes = bake_anim_bytes(fall_dir)
+    rise_bytes = bake_anim_bytes(rise_dir)
     assert len(idle_bytes) == idle_count * ANIM_FRAME_BYTES
     assert len(walk_bytes) == walk_count * ANIM_FRAME_BYTES
     assert len(attack_bytes) == attack_count * ANIM_FRAME_BYTES
+    assert len(fall_bytes) == fall_count * ANIM_FRAME_BYTES
+    assert len(rise_bytes) == rise_count * ANIM_FRAME_BYTES
 
-    blob = palette_bytes + idle_bytes + walk_bytes + attack_bytes
+    blob = palette_bytes + idle_bytes + walk_bytes + attack_bytes + fall_bytes + rise_bytes
 
     info = {
         "prefix": prefix,
         "idle_frame_count": idle_count,
         "walk_frame_count": walk_count,
         "attack_frame_count": attack_count,
+        "fall_frame_count": fall_count,
+        "rise_frame_count": rise_count,
         "idle_delay": idle_delay,
         "walk_delay": walk_delay,
         "attack_delay": attack_delay,
+        "fall_delay": fall_delay,
+        "rise_delay": rise_delay,
         "blob_size": len(blob),
     }
     return blob, info
 
 
 def build_record(info, data_offset):
+    # RECORD_SIZE stays 16 -- fall/rise's 4 new bytes (frame_count+delay x2)
+    # fit in the record's existing +6/+7 and +12/+13 padding (see the
+    # module docstring's layout comment), no data_offset ripple.
     record = struct.pack(
-        "<BBBBBB2xI4x",
+        "<BBBBBBBBI2xBB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
         info["idle_delay"],
         info["walk_delay"],
         info["attack_delay"],
+        info["fall_frame_count"],
+        info["fall_delay"],
         data_offset,
+        info["rise_frame_count"],
+        info["rise_delay"],
     )
     assert len(record) == RECORD_SIZE
     return record

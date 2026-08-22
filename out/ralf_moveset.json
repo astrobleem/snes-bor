@@ -1,0 +1,56 @@
+{
+  "entity": "Ralf",
+  "prefix": "out/ralf",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/ralf_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/ralf_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/ralf_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/ralf_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/ralf_rise",
+      "frames": 3
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/ralf_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "upper",
+      "dir": "out/ralf_upper",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5
+  }
+}

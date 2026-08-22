@@ -8,9 +8,9 @@
     lda #$1DD4
     lda #$0000
     lda #$0536
+    lda #$212A
     lda #$0016
     lda #$0011
-    lda #$212A
     lda #$0C8A
     lda #$0809
     lda #$0000

@@ -1,0 +1,60 @@
+{
+  "entity": "Yashiro",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.43636363636363634,
+  "hotspot_canvas": [
+    9,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        45,
+        176
+      ],
+      "bbox": [
+        17,
+        76,
+        51,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 50,
+      "offset": [
+        45,
+        176
+      ],
+      "bbox": [
+        17,
+        76,
+        51,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        45,
+        176
+      ],
+      "bbox": [
+        17,
+        76,
+        51,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "entity": "Jhun",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.38095238095238093,
+  "hotspot_canvas": [
+    18,
+    41
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        114
+      ],
+      "bbox": [
+        36,
+        6,
+        31,
+        110
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 25,
+      "offset": [
+        52,
+        114
+      ],
+      "bbox": [
+        19,
+        14,
+        44,
+        102
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        114
+      ],
+      "bbox": [
+        36,
+        6,
+        31,
+        110
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

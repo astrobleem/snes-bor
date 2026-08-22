@@ -1,0 +1,99 @@
+{
+  "entity": "Jhun",
+  "anim": "jumpattack",
+  "loop": 0,
+  "scale": 0.3018867924528302,
+  "hotspot_canvas": [
+    7,
+    40
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        35,
+        138
+      ],
+      "bbox": [
+        22,
+        24,
+        34,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        35,
+        138
+      ],
+      "bbox": [
+        26,
+        34,
+        30,
+        85
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        35,
+        138
+      ],
+      "bbox": [
+        25,
+        45,
+        34,
+        60
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        35,
+        138
+      ],
+      "bbox": [
+        25,
+        45,
+        34,
+        60
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        35,
+        138
+      ],
+      "bbox": [
+        25,
+        45,
+        34,
+        60
+      ],
+      "attack": [
+        51,
+        78,
+        67,
+        35,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

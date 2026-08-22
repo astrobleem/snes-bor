@@ -52,7 +52,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up assets converted (2026-08-22, not yet wired)**; jump/grab/special/block still open, see §7 |
+| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up done (G7 third slice, 2026-08-22)**, gate `game_g7_knockdown.py`; jump/grab/special/block still open, see §7 |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
@@ -621,11 +621,161 @@ frame-load already takes 6.
 > before this ships as a real gameplay feature (roster-record format growth +
 > engine dispatch wiring + a knockdown-trigger design, none done yet).
 >
+> **Struct-growth regression root-caused and fixed, 2026-08-22**: the
+> `CHAR_ZP_LEN` growth regression above (line 579-600) was worked around by
+> avoiding struct growth, not root-caused, at the time. A dedicated
+> prerequisite investigation (see `struct_growth_regression_root_cause`
+> project memory) found the real cause: `core/vm/vm_native_engine.pasm`'s
+> `Vm_NativeEntityByteOff` table was a **hardcoded literal**
+> `.dw 0, 36, 72, 108` — a fourth, previously-unknown hand-synced copy of the
+> entity byte-stride, entirely separate from `EntityN_Base` and invisible to
+> `audit_all.py`'s literal-sync check. The VM's `spawn()`/
+> `changeentityproperty()` natives (driven by the Gate 6 SPAWN000.C test
+> script, which runs unconditionally every frame via `Vm_Run` ahead of
+> `Spawn_Play`) used this stale-stride table to write into the wrong
+> entity's memory whenever `CHAR_ZP_LEN` grew — colliding with
+> `core/spawn.pasm`'s own placement. Fixed by deriving the table from
+> `CHAR_ZP_LEN` symbolically (`.dw 0, CHAR_ZP_LEN, CHAR_ZP_LEN*2,
+> CHAR_ZP_LEN*3`); verified 3x-deterministic PASS on `phase5.py`/`phase6.py`
+> at both a +1 byte and a +10 byte throwaway struct growth, then reverted
+> the throwaway growth and re-ran the full regression suite clean at the
+> shipped 36-byte size. **Struct growth is now verified safe** — the
+> invuln-frames slice's standalone-cell workaround (line 589-600) was a
+> reasonable choice for that slice but is no longer a required pattern; the
+> fall/rise slice below may grow `CHAR_ZP_LEN` directly if that's the
+> better design, without re-triggering this class of bug.
+>
+> **Knockdown/getting-up wired, 2026-08-22.** `GATE G7-KNOCKDOWN: PASS`
+> (`tools/verify/game_g7_knockdown.py`, 3 checks). Reproduces OpenBOR's real
+> `checkdamagedrop()`/`set_fall()`/`common_lie()`/`set_rise()` state machine
+> (traced from `rofl0r/openbor-legacy`'s actual C source, not invented — see
+> that gate's own module docstring for the full sourced derivation and NTSC-
+> frame conversions), NOT a "fatal hit only" or "every hit knocks down" rule
+> the user explicitly rejected mid-slice. `pack_msu_roster.py`'s record grew
+> fall/rise frame-count/delay into its existing spare padding bytes (no
+> `data_offset` ripple); `CharacterEntity` struct grew 36→49 bytes
+> (`CHAR_KNOCKDOWN_COUNT`/`_TIMER`, `CHAR_FALL_STATE_TIMER`, fall/rise
+> fcount/delay/base fields) using the struct-growth fix confirmed safe above.
+> `attack1`'s own real `attack_drop` is authored 0 for all 4 roster
+> characters (confirmed against the source pak) — a killing blow alone still
+> reaches the fall reaction (real OpenBOR: `health<=0` independent of
+> knockdown force), but the *non-fatal* accumulation path is dormant until a
+> future drop-carrying move (Ralf's `upper`, Joe's `grab`, Jhun's
+> `jumpattack` — none implemented) exists; verified via a debug-only forced
+> `CHAR_KNOCKDOWN_COUNT` write in the gate, never a fake in-game trigger.
+> Props (`CHAR_INPUT_DRIVEN_PROP`) are deliberately exempted from the fall
+> reaction — always take ordinary stun instead, since this port's props
+> share the loaded roster character's asset (no separate prop art) and real
+> OpenBOR obstacles have their own death handling.
+>
+> Two real engine bugs found and fixed by this slice, not by inspection:
+> (1) `Anim_Play__ai_seek`'s per-frame attack-trigger re-decision had no
+> concept of "already reacting" — it unconditionally stomped a freshly-set
+> `CHAR_SELECTED=FALL` back to `ATTACK` on the very next frame, so the gate
+> never observed the fall state settle at all until `Anim_Play__not_stunned`
+> was widened to also skip re-triggering while `CHAR_SELECTED` is FALL/RISE
+> (same "already reacting, ignore input" shape the existing attack-latch
+> check already used). (2) `Anim_Play_Fall`'s death-blink state-timer
+> decrement originally sat behind the `Msu1_StreamBusy` early-out, so with
+> 4 entities contending for the one streaming slot the 120-frame blink
+> window and 6-frame blink cycle would stretch under contention instead of
+> staying real-time accurate (real OpenBOR ticks this off `borTime`, not
+> animation progress) — fixed by moving the state-timer maintenance above
+> the streaming gate; only actual frame-streaming still respects the
+> one-entity-per-frame budget.
+>
+> **Structural ROM-budget fix, 2026-08-22** (not specific to this slice, but
+> landed alongside it after 3 repeated bank-0 `$C100`-`$FC00` overflows):
+> `core/spawn.pasm` (its only two entry points, `Spawn_Init`/`Spawn_Play`,
+> both `jsr`'d from bank 0, zero internal `jsr` fan-out of its own) was
+> relocated whole into its own `.bank 3`, reached via `jsl`/`rtl` instead —
+> freed ~1.5KB of bank-0 headroom (previous fixes only bought back tens of
+> bytes at a time via routine-by-routine extraction to bank 1, which was
+> proving to be a treadmill). `game_state.pasm`/`oop.pasm` are the next
+> candidates if bank 0 fills again, but call out to many other bank-0
+> routines each, so moving those is real follow-on work, not a quick repeat
+> of this fix.
+>
+> Full regression suite clean: `audit_all.py`, `check_label_drift.py`,
+> `check_width_directives.py` (zero new violations), `phase5.py`–`phase8.py`,
+> `phase11_damage.py`, `phase12_roster.py`, every `game_g*.py` gate including
+> the new `game_g7_knockdown.py`.
+>
 > **Still fully open** (all need new animation content the converter doesn't
 > produce today — see "Content dependency" below): jump/jump-attack (the
 > largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> grab/throw, special, block. Knockdown/getting-up has its assets now (above)
-> but is not wired into the roster format or engine.
+> grab/throw, special, block.
+>
+> **Moveset pipeline generalized, 2026-08-22** (before any of the above was
+> attempted). User explicitly rejected scoping "give Ralf a real second move
+> (uppercut)" as the next slice: *"no. not just uppercuts. you're being too
+> specific. this should all be generalized... you're also going to be
+> running turtles, and whatever else might get converted by the scripts."*
+> `convert_character.py`'s old `ANIMS` list hardcoded exactly
+> `[idle, walk, attack1, fall, rise]`; real pak data measured directly shows
+> BOR has 20 distinct anim names across 45 characters (max 19/char), TMNT 24
+> names across 81 characters (max 21/char), DDM 80 names across 227
+> characters (max 33/char) — no fixed list can cover this.
+>
+> Fixed: `convert_character.py` now enumerates every `anim <name>` block a
+> character's real `.TXT` declares (via `entity_parse.py`, already generic),
+> converts each to its own ordinal-indexed directory, and writes a
+> `<prefix>_moveset.json` manifest resolving the engine's 6 known roles
+> (`idle`/`walk`/`pain`/`fall`/`rise`/`attack` — `attack` matches the first
+> declared `attack*`-prefixed anim, since OpenBOR's own convention reserves
+> `attack1` for the base attack) to real ordinals, `None` if a character
+> lacks one. No move or animation name appears in any `.pasm` file — name
+> matching happens exactly once, in this Python manifest step.
+> `pack_msu_roster.py` now reads that manifest and resolves role
+> directories generically instead of assuming fixed `<prefix>_{idle,walk,
+> attack,fall,rise}` names.
+>
+> **Scope was deliberately bounded** (see the approved plan and advisor
+> review that shaped it): this slice eliminates the *hardcoding*, not adds
+> multi-move combat. `main.pasm` needed **zero changes** — verified by
+> regenerating all 4 shipped characters with the new converter and diffing
+> every resolved role's `(frame_count, delay)` against the pre-change
+> values: all 20 values (4 chars x 5 roles) matched exactly, so the packed
+> record's existing fixed idle/walk/attack/fall/rise layout (`RECORD_SIZE`
+> still 16) still gets fed the right numbers. Non-role animations each
+> character's real data also has now (`pain` for all 4; `upper` for RALF,
+> `grab` for JOE, `jumpattack` for JHUN — YASHIRO has none) are converted
+> and listed in the moveset manifest but deliberately excluded from the
+> packed MSU blob — nothing downstream reads them yet, and multi-move
+> dispatch is explicitly deferred to whenever `plan_vm.md`'s script VM is
+> wired to drive `CHAR_SELECTED` (or a future scoped slice), not built here
+> as a second hand-written non-VM combat system. Full regression suite
+> clean (`audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> `phase5`–`phase9`, `phase11_damage`, `phase12_roster`, every `game_g*.py`
+> gate). `game_g7_knockdown.py`'s rise->idle check is confirmed flaky
+> independent of this change (reproduced both failing and passing 3/4 runs
+> against byte-identical ROMs, isolated via a throwaway `git worktree` at
+> the pre-generalization commit) — not a regression, see
+> `moveset_pipeline_generalization` project memory.
+>
+> **Level-content prop/item classification generalized, 2026-08-22**
+> (follow-up asked for by name — "what else is not generalized?" /
+> "do 1 now"). `tools/bg_converter/build_spawn_table.py`'s entity-kind
+> classifier was a hardcoded name set, `PROP_CHARACTER_NAMES = {'1up',
+> 'trash', 'table', 'chair'}`, explicitly documented in G8's own status
+> block as "BOR-only... TMNT hasn't been converted at all yet, so its own
+> decorative prop names are a follow-up." Real entity `.TXT` files already
+> self-declare this via their own `type` line (measured directly: BOR has 8
+> `obstacle` + 6 `item` characters, TMNT has 19 `obstacle` + 7 `item`, not
+> overlapping BOR's list at all — e.g. `hydrant`/`mail`/`epole`/`crate`).
+> `build_type_lookup()` now reads each spawned character's real `type` from
+> its own entity file at spawn-table build time (`obstacle`/`item` = prop,
+> everything else = enemy) instead of a name list. Verified zero-regression
+> by regenerating both shipped stages' spawn tables and byte-comparing
+> against the committed `out/spawn_stage1a`/`1b` binaries (identical) before
+> also confirming the lookup correctly classifies TMNT's real prop/item
+> roster (never shipped, never tested before) with no TMNT-specific code.
+> Note: level/stage content's *other* generalization gap — `level_parse.py`
+> discarding real `openborscript` — turned out on investigation to be moot
+> for BOR/TMNT specifically (both have zero script content anywhere, level
+> or entity; only DDM's paks use `script`/`aimove`/`aiattack`, confirmed by
+> direct pak scan), so that part is deferred to `plan_vm.md`'s own gated
+> track rather than duplicated here.
 
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
@@ -638,34 +788,19 @@ this is what separates "tech demo" from "beat-'em-up."
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
   2026-08-22)**, see status block above. Player's own respawn-invuln
   mechanism was already there since G3.
-- **Knockdown, getting up** — currently only hit stun. **Converter now
-  produces the assets (2026-08-22)** — `convert_character.py` converts real
-  `fall`/`rise` animations (BOR's knockdown/getting-up pair) for all 4
-  roster characters (Ralf 4/3 frames, JHUN 4/6, JOE 4/5, Yashiro 3/5, all
-  confirmed against the source `.pak`'s own `entity_parse.py` output),
-  quantized into the SAME shared 16-color palette as idle/walk/attack1
-  (`palette.txt` verified byte-identical across all 5 of a character's
-  `out/<prefix>_*` directories). Previews inspected for Ralf and JHUN — clean
-  poses, no color corruption. **Still not wired**: `pack_msu_roster.py`'s
-  per-character directory record is hardcoded to exactly 3 animation slots
-  (16-byte record, only 2 spare bytes — no room for 2 more frame-count/delay
-  fields without growing the record and re-shifting every downstream offset,
-  same class of ripple as `SPAWN_RECORD_SIZE`'s own growth history), and
-  `main.pasm`'s `Anim_Selected`/`Anim_Play__dispatch` is an unrolled 3-way
-  `cmp`/`beq` chain with no table — each animation is its own hand-copied
-  ~140-line routine, not driven by an animation-count constant. Real
-  knockdown gameplay also needs a still-undesigned trigger (today
-  `Character_HitApply` has no "hit hard enough to knock down vs. merely
-  stun" distinction). This is real follow-on work sized like its own G-phase
-  slice, not attempted yet.
+- ~~**Knockdown, getting up**~~ — **Done, 2026-08-22**, see status block
+  above (`GATE G7-KNOCKDOWN: PASS`). Reproduces OpenBOR's real fall/lie/
+  rise/death-blink state machine; the non-fatal accumulation path is real
+  but currently dormant (today's only move has authored `attack_drop=0`)
+  until a future drop-carrying move exists.
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
-idle/walk/attack1/fall/rise (fall/rise added 2026-08-22, see above — not yet
-wired into the roster format or engine dispatch). Every OTHER move above
-(jump, grab/throw, special, block) still needs its animation converted and
-packed, which grows each roster slot's `bor.msu` footprint and re-shifts
-every downstream offset (§4's note) — same constraint fall/rise itself is
-now blocked on for the engine-wiring half.
+idle/walk/attack1/fall/rise (fall/rise added 2026-08-22, wired into the
+roster format and engine dispatch the same day — see status block above).
+Every OTHER move above (jump, grab/throw, special, block) still needs its
+animation converted and packed, which grows each roster slot's `bor.msu`
+footprint and re-shifts every downstream offset (§4's note) — same
+constraint fall/rise itself was blocked on before this slice.
 
 **Watch out:** a Z axis changes depth sorting. The original spec (§3.6) calls for
 Y-sorted priority; today all four entities are plain OAM sprites with no sorting

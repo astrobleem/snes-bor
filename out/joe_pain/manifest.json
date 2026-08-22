@@ -1,0 +1,92 @@
+{
+  "entity": "Joe",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.46601941747572817,
+  "hotspot_canvas": [
+    12,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 5,
+      "offset": [
+        26,
+        101
+      ],
+      "bbox": [
+        3,
+        3,
+        39,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        26,
+        101
+      ],
+      "bbox": [
+        3,
+        3,
+        39,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 40,
+      "offset": [
+        26,
+        101
+      ],
+      "bbox": [
+        3,
+        3,
+        39,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        26,
+        101
+      ],
+      "bbox": [
+        3,
+        3,
+        39,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        26,
+        101
+      ],
+      "bbox": [
+        3,
+        3,
+        39,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

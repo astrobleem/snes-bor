@@ -1,0 +1,50 @@
+{
+  "entity": "Yashiro",
+  "prefix": "out/yashiro",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/yashiro_idle",
+      "frames": 16
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/yashiro_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/yashiro_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/yashiro_fall",
+      "frames": 3
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/yashiro_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/yashiro_attack1",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5
+  }
+}
