@@ -239,6 +239,27 @@ Stage_LoadPending = $7E275D   ; .db -- set the same frame Game_State enters
                                ; Game_State_Play runs first, same discipline
                                ; as every other PLAYING exit)
 
+; ============================================================================
+; Phase G6 (plan_game.md 6): score.
+;
+; Game_Score is the only new piece of game STATE this phase adds -- the HUD
+; redesign that displays it (dropping the 3 raw AI HP bars for SCORE/LIVES/
+; STAGE text rows) lives in main.pasm's Hud_Play, since that's where the BG3
+; tilemap/DMA machinery already is. Game_Score_Award (also main.pasm, next
+; to Character_HitApply which is its only caller) is the single place score
+; is ever added, so EXTEND_LIFE_SCORE's threshold check has one call site to
+; reason about, not three (one per Character_HitApply_VsEntityN).
+; ============================================================================
+
+Game_Score = $7E2761   ; .dw -- 0..65535, clamped (not wrapped -- a wrap would
+                        ; read as a score DROP, worse than a stuck ceiling).
+                        ; Core_Text_DrawNumber only draws 16-bit values, so
+                        ; this ceiling is a real, documented display limit,
+                        ; not an arbitrary safety margin.
+Game_ScoreAwardScratch      = $7E2763   ; .dw -- Game_Score_Award's own scratch
+Game_ScoreOldQuotientScratch = $7E2765  ; .dw -- ditto (see main.pasm's
+                                         ; Game_Score_Award for both)
+
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
 ; Tad_Process/Tad_FinishLoadingData/Core_Input_Poll (all of which must keep

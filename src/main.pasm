@@ -2708,6 +2708,15 @@ CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
 CHAR_HP_PER_HIT     = 4    ; 16 hits to empty a bar
 
+; Phase G6 (plan_game.md 6): scoring. Arbitrary arcade-style defaults, same
+; "arbitrary, documented as such" convention core/game_state.pasm's own
+; GAME_LIVES_START comment already uses -- tune freely, nothing else derives
+; from these values.
+HIT_SCORE           = 10   ; awarded for any landed player hit
+KILL_SCORE          = 90   ; ADDITIONAL award when that hit also brings the
+                            ; target to exactly 0 HP (10+90 = a round 100 per kill)
+EXTEND_LIFE_SCORE   = 5000 ; crossing a multiple of this awards +1 life
+
 ; Hand-picked fixed offsets inside WramBuffer (core/allocate_wram.pasm,
 ; $7E2000-$7E4FFF, 12KB) -- deliberately NOT routed through
 ; Core_Wram_Allocate (zero call sites anywhere in this codebase today; same
@@ -3106,23 +3115,39 @@ HUD_TILE_FILL_BASE = 1    ; +n = n columns filled, n = 0..8  (tiles 1..9)
 HUD_TILE_CAP_LEFT  = 10
 HUD_TILE_CAP_RIGHT = 11
 HUD_BAR_TILES      = 8    ; body tiles per bar; 8 px each -> CHAR_HP_MAX = 64
-HUD_ROWS           = 4    ; one bar per entity, rows 0-3 of the BG3 tilemap
-HUD_STAGING_BYTES  = 256  ; HUD_ROWS * 32 entries * 2 bytes -- one DMA covers
-                           ; all four bars, so the HUD costs ONE queue slot, not
-                           ; four (DMA_QUEUE_SLOTS is only 8 and one entity's
-                           ; Msu1_LoadFrame already enqueues 6)
+; Phase G6 (plan_game.md 6): dropped the 3 AI HP bars -- no "currently
+; engaged enemy" concept exists without a boss to justify one (see
+; plan_game.md's own G6 status block for the full reasoning). HUD_ROWS/
+; HUD_STAGING_BYTES shrink from 4 rows/256B to 1 row/64B accordingly; rows
+; 1-3 (freed) now hold SCORE/LIVES/STAGE text -- see Hud_Play__text below.
+HUD_ROWS           = 1    ; just the player's own bar, row 0 of the BG3 tilemap
+HUD_STAGING_BYTES  = 64   ; HUD_ROWS * 32 entries * 2 bytes -- one queue slot
 ; Tilemap high byte for every HUD entry: palette 0 (the HUD owns CGRAM
 ; sub-palette 0) with the priority bit (bit 13) set, which is what puts BG3
 ; above the backdrop given BGMODE's BG3-priority bit.
 HUD_ENTRY_HIGH     = $20
 
-HudCachedHp        = $7E2360   ; 4B  -- last HP drawn, per entity (shifted
-                                 ; from $7E2350 -> $7E2354 -> $7E2360 as
-                                 ; BgRecordStaging grew 16B -> 20B -> 32B
-                                 ; across the v3/v4 BG record formats)
+; Phase G6 text rows -- see Hud_Play__text's own header.
+HUD_ROW_SCORE = 1
+HUD_ROW_LIVES = 2
+HUD_ROW_STAGE = 3
+HUD_LABEL_COL = 0   ; "SCORE "/"LIVES "/"STAGE " are each 6 chars; the value
+                     ; starts at column 6 for all three, same fixed layout
+
+HudCachedHp        = $7E2360   ; .db -- last player HP drawn (was 4B/one per
+                                 ; entity before Phase G6 dropped the AI bars;
+                                 ; shifted from $7E2350 -> $7E2354 -> $7E2360
+                                 ; as BgRecordStaging grew across the v3/v4 BG
+                                 ; record formats)
 HudDirty           = $7E2364   ; .db -- nonzero forces a redraw (set at boot)
 HudBarHp           = $7E2365   ; .db -- scratch: HP remaining while drawing a bar
 HudBarFilled       = $7E2366   ; .db -- scratch: filled columns for one tile
+; Phase G6: score/lives/stage-number scoreboard, rows 1-3 (freed by dropping
+; the AI bars above). Placed in the gap between HudBarFilled and
+; StreamStage_SeekLo ($7E2380) -- grep-confirmed clear.
+HudCachedScore      = $7E2367   ; .dw -- last Game_Score drawn
+HudCachedLives      = $7E2369   ; .db -- last Game_Lives drawn
+HudCachedStageIndex = $7E236A   ; .dw -- last Game_StageIndex drawn
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
@@ -4648,6 +4673,86 @@ Character_PlayFrame__not_dead_hide:
     rts
 
 ; ============================================================================
+; Game_Score_Award -- Phase G6 (plan_game.md 6). Adds HIT_SCORE to
+; Game_Score (plus KILL_SCORE if this hit also brought its target to exactly
+; 0 HP), clamped at 65535, then awards +1 Game_Lives if the addition crossed
+; a new EXTEND_LIFE_SCORE multiple. Only caller: Character_HitApply_
+; VsEntity1/2/3 (the player-lands-a-hit leaves) -- Character_HitApply_
+; VsPlayer (AI hits the player) deliberately never calls this, no score for
+; taking damage.
+;
+;   A(8-bit) = 1 if this hit was also a kill, 0 otherwise
+;
+; Entered/exited in .a8, matching its callers' own ambient width. Those
+; callers' own header documents "doesn't touch X/Y" as part of their
+; contract, so X/Y are saved/restored here even though this leaf's own body
+; needs X for Core_Math_Div.
+; ============================================================================
+Game_Score_Award:
+    php
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    beq Game_Score_Award__hit_only
+    lda #HIT_SCORE + KILL_SCORE
+    bra Game_Score_Award__have_award
+Game_Score_Award__hit_only:
+    rep #$31
+.a16
+.i16
+    lda #HIT_SCORE
+Game_Score_Award__have_award:
+    sta.l Game_ScoreAwardScratch
+
+    ; --- old quotient = Game_Score / EXTEND_LIFE_SCORE, BEFORE adding ---
+    ; (ldx.l has no long form in this toolchain -- CLAUDE.md -- so the
+    ; dividend goes through A/tax instead of a direct long load into X)
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsr Core_Math_Div
+    sta.l Game_ScoreOldQuotientScratch
+
+    ; --- add the award, clamped at 65535 (not wrapped) ---
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score
+    clc
+    adc.l Game_ScoreAwardScratch
+    bcc Game_Score_Award__no_overflow
+    lda #$FFFF
+Game_Score_Award__no_overflow:
+    sta.l Game_Score
+
+    ; --- new quotient; a higher value means a threshold was just crossed ---
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsr Core_Math_Div
+    cmp.l Game_ScoreOldQuotientScratch
+    beq Game_Score_Award__done
+    sep #$20
+.a8
+    lda.l Game_Lives
+    inc a
+    sta.l Game_Lives
+Game_Score_Award__done:
+    ply
+    plx
+    plp
+    rts
+
+; ============================================================================
 ; Character_HitApply -- plan.md Phase 4: minimal AABB collision + hit
 ; reaction (SNES-BOR-Engine-Prompt.md's "AABB-only collision... no damage
 ; system required for PoC"). Called once per entity per frame from
@@ -4704,7 +4809,6 @@ Character_PlayFrame__not_dead_hide:
 ;
 ; No caller-convention assumed on entry; exits in .a16/.i16 matching
 ; CharacterEntity_Play's other two calls (Anim_Play/Character_PlayFrame).
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply:
     sep #$20
 .a8
@@ -4717,7 +4821,6 @@ Character_HitApply:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply__attacking:
     ; Reached via the `beq` above, which jumps AROUND the `rep #$31`/.a16/
     ; .i16 a few lines up -- so M is still 1 (8-bit) here at runtime, but
@@ -4763,7 +4866,6 @@ Character_HitApply__done:
 ; ambient width, unchanged) -- every branch target below is a handful of
 ; lines away, well inside 8-bit branch range. No caller-convention assumed
 ; on entry beyond that; doesn't touch X/Y.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsEntity1:
     ; Explicit re-sync, not just a comment this time -- Poppy's linear
     ; tracker will have "seen" Character_HitApply__done's `rep #$31`
@@ -4795,7 +4897,6 @@ Character_HitApply_VsEntity1__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity1__dx_ok
     rts                     ; no overlap on X
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity1__dx_ok:
     sep #$20
 .a8
@@ -4815,7 +4916,6 @@ Character_HitApply_VsEntity1__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity1__dy_ok
     rts                     ; no overlap on Y
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity1__dy_ok:
     ; Damage system: a dead target (HP already 0) takes no further stun or
     ; damage -- HP==0 is a sticky terminal state, not just a display floor.
@@ -4831,9 +4931,22 @@ Character_HitApply_VsEntity1__dy_ok:
     sbc #CHAR_HP_PER_HIT
     bcs Character_HitApply_VsEntity1__hp_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity1__hp_ok:
     sta.l Entity1_Hp
+    ; Phase G6: score the hit (A still holds the just-stored, clamped HP --
+    ; zero means this hit was also a kill).
+    beq Character_HitApply_VsEntity1__killed
+    lda #0
+    jsr Game_Score_Award
+    bra Character_HitApply_VsEntity1__scored
+Character_HitApply_VsEntity1__killed:
+    sep #$20
+.a8
+    lda #1
+    jsr Game_Score_Award
+Character_HitApply_VsEntity1__scored:
+    sep #$20
+.a8
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4845,7 +4958,6 @@ Character_HitApply_VsEntity1__dead_skip:
 ; 4 entities) -- see Character_HitApply__do_vs_all_ai's header comment for
 ; why this is 3 separate leaves rather than one parameterized/inlined
 ; routine.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsEntity2:
     ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
     ; reason (poppy bug #10 -- Poppy's linear width tracker has "seen" an
@@ -4872,7 +4984,6 @@ Character_HitApply_VsEntity2__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity2__dx_ok
     rts                     ; no overlap on X
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity2__dx_ok:
     sep #$20
 .a8
@@ -4892,7 +5003,6 @@ Character_HitApply_VsEntity2__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity2__dy_ok
     rts                     ; no overlap on Y
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity2__dy_ok:
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity2_Hp
@@ -4905,9 +5015,21 @@ Character_HitApply_VsEntity2__dy_ok:
     sbc #CHAR_HP_PER_HIT
     bcs Character_HitApply_VsEntity2__hp_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity2__hp_ok:
     sta.l Entity2_Hp
+    ; Phase G6: score the hit -- see VsEntity1's own comment.
+    beq Character_HitApply_VsEntity2__killed
+    lda #0
+    jsr Game_Score_Award
+    bra Character_HitApply_VsEntity2__scored
+Character_HitApply_VsEntity2__killed:
+    sep #$20
+.a8
+    lda #1
+    jsr Game_Score_Award
+Character_HitApply_VsEntity2__scored:
+    sep #$20
+.a8
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4916,7 +5038,6 @@ Character_HitApply_VsEntity2__dead_skip:
 
 ; Leaf: identical shape again, checked against Entity #3's fixed-address
 ; box.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsEntity3:
     ; Phase 8: dx is 16-bit, dy stays 8-bit -- see VsEntity1's comment.
     rep #$20
@@ -4939,7 +5060,6 @@ Character_HitApply_VsEntity3__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity3__dx_ok
     rts                     ; no overlap on X
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity3__dx_ok:
     sep #$20
 .a8
@@ -4959,7 +5079,6 @@ Character_HitApply_VsEntity3__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity3__dy_ok
     rts                     ; no overlap on Y
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity3__dy_ok:
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity3_Hp
@@ -4972,9 +5091,21 @@ Character_HitApply_VsEntity3__dy_ok:
     sbc #CHAR_HP_PER_HIT
     bcs Character_HitApply_VsEntity3__hp_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsEntity3__hp_ok:
     sta.l Entity3_Hp
+    ; Phase G6: score the hit -- see VsEntity1's own comment.
+    beq Character_HitApply_VsEntity3__killed
+    lda #0
+    jsr Game_Score_Award
+    bra Character_HitApply_VsEntity3__scored
+Character_HitApply_VsEntity3__killed:
+    sep #$20
+.a8
+    lda #1
+    jsr Game_Score_Award
+Character_HitApply_VsEntity3__scored:
+    sep #$20
+.a8
     lda #1
     sta CHAR_HIT_APPLIED
     rts
@@ -4984,7 +5115,6 @@ Character_HitApply_VsEntity3__dead_skip:
 ; Leaf: same shape as Character_HitApply_VsEntity1 above, but checks
 ; against PlayerEntity_PosX/Y/HitStun instead -- used by the AI (Entity
 ; #1) when it's the one attacking.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Character_HitApply_VsPlayer:
     ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
     ; reason. Phase 8: dx is 16-bit, dy stays 8-bit -- see its comment.
@@ -5008,7 +5138,6 @@ Character_HitApply_VsPlayer__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsPlayer__dx_ok
     rts                     ; no overlap on X
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsPlayer__dx_ok:
     sep #$20
 .a8
@@ -8876,9 +9005,6 @@ Core_StreamScrollFp_Play__resume:
 ; tiles, column 10 right cap. Body tile i shows min(hp - i*8, 8) filled columns,
 ; so one HP = one pixel of bar and CHAR_HP_MAX(64) exactly fills all eight.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
-    nop
 Hud_DrawBar:
     sep #$20
 .a8
@@ -8894,7 +9020,6 @@ Hud_DrawBar:
     inx
 
     ldy #HUD_BAR_TILES
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Hud_DrawBar__body:
     sep #$20
 .a8
@@ -8908,14 +9033,12 @@ Hud_DrawBar__body:
     sbc #8
     sta.l HudBarHp
     bra Hud_DrawBar__have
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Hud_DrawBar__partial:
     sep #$20
 .a8
     sta.l HudBarFilled          ; A is still the remaining HP (< 8)
     lda #0
     sta.l HudBarHp
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Hud_DrawBar__have:
     sep #$20
 .a8
@@ -8939,70 +9062,66 @@ Hud_DrawBar__have:
     rts
 
 ; ============================================================================
-; Hud_Play -- per-frame BG3 health-bar HUD (Phase 6).
+; Hud_Play -- per-frame BG3 HUD (Phase 6, redesigned Phase G6).
 ;
 ; Called once per scpu_main_loop iteration, which Core_Nmi_WaitFrame paces to
-; one real frame. DIRTY-FLAG GATED: it compares all four entities' CHAR_HP
-; against HudCachedHp and returns immediately when nothing changed, so in the
-; common frame it enqueues NOTHING.
-;
-; That gating is the whole point, not an optimization. core/nmi.pasm's header
-; and plan.md 2.4 both record that a per-frame subsystem which unconditionally
-; enqueues DMA work is exactly what overran Core_Nmi_Play's forced-blank commit
-; bracket into active display and corrupted the top of every frame. HP changes
-; only on a landed hit, so this redraws a handful of times per second at most.
+; one real frame. Two independent, each self-dirty-gated sub-parts:
+;   Hud_Play__bar  -- row 0, the player's own HP bar (Phase 6's original
+;                     design, now player-only -- see HUD_ROWS's own comment
+;                     for why the 3 AI bars were dropped in Phase G6).
+;   Hud_Play__text -- rows 1-3, SCORE/LIVES/STAGE (Phase G6, new).
+; Split into two leaves rather than one combined dirty check because they
+; draw to completely different tilemap rows via completely different
+; mechanisms (HudStaging's own single big DMA vs. core/text.pasm's
+; TextStaging + Core_Text_DrawLabeledNumber) -- coupling their dirty flags
+; would mean an HP-only change also re-running the text path's own checks
+; for no reason, and vice versa.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
-    nop
 Hud_Play:
     php
+    jsr Hud_Play__bar
+    jsr Hud_Play__text
+    plp
+    rts
+
+; Hud_Play__bar -- row 0 only now (see Hud_Play's header). DIRTY-FLAG GATED:
+; compares PlayerEntity_Hp against HudCachedHp and returns immediately when
+; unchanged, so in the common frame it enqueues NOTHING -- core/nmi.pasm's
+; header and plan.md 2.4 both record that a per-frame subsystem which
+; unconditionally enqueues DMA work is exactly what overran Core_Nmi_Play's
+; forced-blank commit bracket into active display and corrupted the top of
+; every frame.
+Hud_Play__bar:
     sep #$20
 .a8
     lda.l HudDirty
-    bne Hud_Play__rebuild
+    bne Hud_Play__bar_rebuild
     lda.l PlayerEntity_Hp
     cmp.l HudCachedHp
-    bne Hud_Play__rebuild
-    lda.l Entity1_Hp
-    cmp.l HudCachedHp+1
-    bne Hud_Play__rebuild
-    lda.l Entity2_Hp
-    cmp.l HudCachedHp+2
-    bne Hud_Play__rebuild
-    lda.l Entity3_Hp
-    cmp.l HudCachedHp+3
-    bne Hud_Play__rebuild
-    plp
-    rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Hud_Play__rebuild:
+    beq Hud_Play__bar_clean
+Hud_Play__bar_rebuild:
     sep #$20
 .a8
     lda #0
     sta.l HudDirty
     lda.l PlayerEntity_Hp
     sta.l HudCachedHp
-    lda.l Entity1_Hp
-    sta.l HudCachedHp+1
-    lda.l Entity2_Hp
-    sta.l HudCachedHp+2
-    lda.l Entity3_Hp
-    sta.l HudCachedHp+3
 
-    ; --- blank the whole staging block, then draw the four bars over it ---
+    ; --- blank the staging row, then draw the bar over it ---
     rep #$31
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-Hud_Play__clear:
+Hud_Play__bar_clear:
+    rep #$31
+.a16
+.i16
     lda #$0000
     sta.l HudStaging,x
     inx
     inx
     cpx #HUD_STAGING_BYTES
-    bcc Hud_Play__clear
+    bcc Hud_Play__bar_clear
 
     sep #$20
 .a8
@@ -9011,23 +9130,8 @@ Hud_Play__clear:
 .i16
     ldx #$0000              ; row 0
     jsr Hud_DrawBar
-    sep #$20
-.a8
-    lda.l HudCachedHp+1
-    ldx #$0040              ; row 1 (32 entries * 2 bytes)
-    jsr Hud_DrawBar
-    sep #$20
-.a8
-    lda.l HudCachedHp+2
-    ldx #$0080              ; row 2
-    jsr Hud_DrawBar
-    sep #$20
-.a8
-    lda.l HudCachedHp+3
-    ldx #$00C0              ; row 3
-    jsr Hud_DrawBar
 
-    ; --- one queued VRAM DMA for all four rows ---
+    ; --- one queued VRAM DMA for the one row ---
     ; DmaRequest_TargetAddr is a BYTE address (Core_Dma_TransferVram halves it
     ; into $2116), so the BG3 tilemap's word $6800 is byte $D000.
     rep #$31
@@ -9049,8 +9153,84 @@ Hud_Play__clear:
 .a16
 .i16
     jsr Core_Dma_Enqueue
+    rts
+Hud_Play__bar_clean:
+    rts
 
-    plp
+; ============================================================================
+; Hud_Play__text -- Phase G6 (plan_game.md 6): SCORE/LIVES/STAGE, rows 1-3.
+;
+; Checked in that priority order, and redraws AT MOST ONE row per frame --
+; Core_Text_DrawLabeledNumber shares core/text.pasm's ONE TextStaging buffer
+; and queues its DMA (Text_FlushRow -> Core_Dma_Enqueue), so two calls in the
+; same frame would corrupt each other exactly like two DrawString/DrawNumber
+; calls would (that file's own documented hazard). Checking score first means
+; the common case (score changes on every hit) draws immediately; if lives
+; or stage also changed the same frame, they're simply caught on the very
+; next frame's check instead -- self-correcting, no explicit step machine
+; needed (unlike G5's title screen, which had to draw multiple ROWS on a
+; single one-way transition with no later frame to catch up on).
+; ============================================================================
+Hud_Play__text:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score
+    cmp.l HudCachedScore
+    beq Hud_Play__text_check_lives
+    sta.l HudCachedScore
+    sta.l Text_LabelValue
+    sep #$20
+.a8
+    lda #HUD_ROW_SCORE
+    rep #$10
+.i16
+    ldx #HUD_LABEL_COL
+    ldy #(Text_Str_HudScore - Text_StringPool)
+    jsr Core_Text_DrawLabeledNumber
+    rts
+
+Hud_Play__text_check_lives:
+    sep #$20
+.a8
+    lda.l Game_Lives
+    cmp.l HudCachedLives
+    beq Hud_Play__text_check_stage
+    sta.l HudCachedLives
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l Text_LabelValue
+    sep #$20
+.a8
+    lda #HUD_ROW_LIVES
+    rep #$10
+.i16
+    ldx #HUD_LABEL_COL
+    ldy #(Text_Str_HudLives - Text_StringPool)
+    jsr Core_Text_DrawLabeledNumber
+    rts
+
+Hud_Play__text_check_stage:
+    rep #$31
+.a16
+.i16
+    lda.l Game_StageIndex
+    inc a                    ; 1-based for display
+    cmp.l HudCachedStageIndex
+    beq Hud_Play__text_done
+    sta.l HudCachedStageIndex
+    sta.l Text_LabelValue
+    sep #$20
+.a8
+    lda #HUD_ROW_STAGE
+    rep #$10
+.i16
+    ldx #HUD_LABEL_COL
+    ldy #(Text_Str_HudStage - Text_StringPool)
+    jsr Core_Text_DrawLabeledNumber
+Hud_Play__text_done:
     rts
 
 ; ============================================================================
@@ -9845,8 +10025,14 @@ Boot_LoadFp__done:
     ; title text into TITLE_STEP_WAIT or worse.
     lda #TITLE_STEP_DRAW_MAIN
     sta.l Title_Step
+    ; Phase G6 (plan_game.md 6): Game_Score must not rely on WRAM power-on-
+    ; zero either -- a nonzero garbage value would make the very first
+    ; HUD redraw show a bogus score, and could spuriously fire the extend-
+    ; life threshold on the very first hit.
     rep #$31
 .a16
+    lda #0
+    sta.l Game_Score
 
     jsr Core_Nmi_Init
 
@@ -10181,4 +10367,17 @@ Text_Str_TitlePress:
     .db "PRESS START                     ", $00
 Text_Str_TitleBlank:
     .db "                                ", $00
+
+; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
+; columns -- unlike the title strings above, these are drawn by
+; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
+; row itself after the label+value, so no stale-column hazard applies here.
+; All three are exactly 6 characters, so the value always starts at column
+; HUD_LABEL_COL+6 regardless of which row is being redrawn.
+Text_Str_HudScore:
+    .db "SCORE ", $00
+Text_Str_HudLives:
+    .db "LIVES ", $00
+Text_Str_HudStage:
+    .db "STAGE ", $00
 

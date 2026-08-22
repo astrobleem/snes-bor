@@ -51,7 +51,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Win condition | Any reason to finish a level |
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
-| Score | Arcade structure (lives/continues done in G3) |
+| ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
 | Jump, throw, grab, specials | BOR's actual moveset |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
@@ -422,15 +422,78 @@ selected index and the resulting state transition.
 
 ## §6 — Phase G6: score, lives, and a real HUD
 
-The current HUD is four raw HP bars — a debug view, not a game HUD.
+> **Status: DONE, 2026-08-21.** `GATE G6: PASS`
+> (`tools/verify/game_g6_hud.py`). The 3 raw AI HP bars are gone -- no
+> "currently engaged enemy" concept exists without a boss to justify one
+> (deferred to G9, whose own first prerequisite, per-entity HP override,
+> was already satisfied by the health-override slice between G8 and G6).
+> Row 0 keeps the player's own bar unchanged; rows 1-3 (freed by dropping
+> the AI bars) now show SCORE/LIVES/STAGE, each independently dirty-gated
+> and redrawn at most one row per frame (checked in that priority order --
+> the common case, score changing on every hit, draws immediately; a
+> same-frame lives/stage change is simply caught the very next frame,
+> self-correcting with no explicit step machine needed).
+>
+> New primitive `Core_Text_DrawLabeledNumber` (`core/text.pasm`) draws a
+> short label immediately followed by a decimal value (no leading zeros)
+> then blanks every remaining column through 32, all in ONE
+> `Text_FlushRow` -- built specifically so a scoreboard row never needs
+> the 2-calls-across-2-frames drip plain `DrawString`+`DrawNumber` would
+> require (that file's own documented TextStaging-sharing hazard), and so
+> a shrinking value can never leave a stale trailing digit from a longer
+> previous draw.
+>
+> Scoring: `Character_HitApply_VsEntity1/2/3` (the player-lands-a-hit
+> leaves) now `jsr Game_Score_Award` right after their existing HP-clamp
+> step -- `HIT_SCORE` (10) always, `+KILL_SCORE` (90, a round 100 total)
+> when that hit also brings the target to exactly 0 HP. `Game_Score_Award`
+> also checks whether the addition crossed a new `EXTEND_LIFE_SCORE`
+> (5000) multiple and, if so, awards +1 `Game_Lives` -- reuses
+> `Core_Math_Div` (already used by `Text_DrawNumber__digit`) rather than a
+> new divide routine. `Character_HitApply_VsPlayer` (AI hits the player)
+> deliberately never calls this -- no score for taking damage. `Game_Score`
+> is a real, new piece of game state (`core/game_state.pasm`, alongside
+> `Game_Lives`/`Game_StageIndex`), clamped at 65535 (not wrapped --
+> `Core_Text_DrawNumber` only draws 16-bit values, a real documented
+> display ceiling), persists across a GAMEOVER continue (only zeroed at
+> boot, matching classic arcade convention of keeping score but resetting
+> lives on continue).
+>
+> **Real gate-writing lesson, not an engine bug**: an early version of
+> `game_g6_hud.py` tried forcing `CHAR_SELECTED=2` directly via WRAM write
+> to simulate "the player is attacking" -- silently never worked, because
+> `Anim_Play` (which runs before `Character_HitApply` every frame, per
+> that routine's own header) recomputes `CHAR_SELECTED` from real button
+> state and clobbers a forced value before `Character_HitApply` ever sees
+> it. Fixed by driving a REAL `m.set_input(m.BTN_Y, ...)` Y-press instead
+> (the player's own attack trigger has no proximity check, unlike the AI's
+> seek/attack range, so overlapping position + a real press reliably
+> lands a hit). A second, separate gate-writing pitfall: real background
+> AI combat is already underway by the time any gate reaches frame 300,
+> and a stunned player (`CHAR_HIT_STUN > 0`) ignores the attack-button
+> trigger entirely -- the gate now neutralizes entities 2/3
+> (`CHAR_HP := 0`, sticky per the soft-kill design) once and clears the
+> player's own `CHAR_HIT_STUN` before every forced attack.
+>
+> **Deliberately not done** (see this session's plan file for the full
+> reasoning): a specific `1up`-named prop granting an extra life directly
+> (needs the spawn record to distinguish `1up` from `trash`/`table`/
+> `chair`, which it doesn't today -- natural small G8 follow-up now that
+> a score/lives system exists to award into); a boss health bar and the
+> `boss` flag itself (G9); a currently-engaged-enemy indicator.
+>
+> Full regression suite passes, including a real fix in
+> `game_g4_transition.py` and `pack_msu_roster.py`/`vm_load.pasm`
+> resyncing needed by the earlier health-override slice's own record-size
+> growth (unrelated to this phase, caught in the same session).
 
-- Player HP bar, lives, score, stage name/number.
-- Enemy HP shown only for the currently-engaged enemy or a boss, not all four.
-- Score on hits/kills/pickups; extend-life thresholds.
-
-Uses G1's text renderer throughout. `Hud_Play`'s dirty-gating (it enqueues nothing
-on a frame where nothing changed) is the right pattern — keep it, since the DMA
-queue has 8 slots and one entity frame-load already takes 6.
+The HUD used to be four raw HP bars — a debug view, not a game HUD. Player
+HP bar, lives, score, stage number, and score-on-hit/kill with an
+extend-life threshold are now real (see the status block above). Uses G1's
+text renderer throughout; `Hud_Play`'s dirty-gating (it enqueues nothing on
+a frame where nothing changed) is the right pattern and was kept and
+extended, not replaced, since the DMA queue has 8 slots and one entity
+frame-load already takes 6.
 
 ---
 

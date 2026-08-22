@@ -90,6 +90,14 @@ Text_DigitScratch     = $7E274A   ; .db
 ; its own use site in main.pasm's scpu_main_loop for why it exists (the
 ; queue-drain hazard below).
 Text_G1DemoDrawn      = $7E274B   ; .db
+Text_LabelValue       = $7E274C   ; .dw -- Core_Text_DrawLabeledNumber's 4th
+                                    ; parameter (row/col/label already fill
+                                    ; A/X/Y; the value doesn't fit a 4th
+                                    ; register, so the caller sets this cell
+                                    ; immediately before the jsr, same
+                                    ; before-the-call-parameter-cell pattern
+                                    ; DmaRequest_* already uses for Core_Dma_
+                                    ; Enqueue)
 
 ; TextStaging is ONE shared buffer reused by every DrawString/DrawNumber
 ; call, and Text_FlushRow's DMA is QUEUED, not synchronous (core/dma.pasm:
@@ -454,6 +462,144 @@ Core_Text_DrawNumber:
     sta.l Text_PlaceValue
     jsr Text_DrawNumber__digit
 
+    jsr Text_FlushRow
+    plp
+    rts
+
+; ============================================================================
+; Core_Text_DrawLabeledNumber -- Phase G6 (plan_game.md 6): draw a short
+; label followed immediately by a decimal number (no leading zeros), then
+; blank every remaining column through 32, all in ONE Text_FlushRow -- built
+; specifically so callers never need the 2-calls-across-2-frames drip
+; DrawString+DrawNumber would otherwise require (see this file's own
+; TextStaging-hazard note above): unlike calling DrawString then DrawNumber
+; back to back, this composes both column ranges into a single TextStaging
+; pass before its one flush, so it is exactly as safe to call once per frame
+; as either primitive alone -- the existing "don't call any Draw* twice in
+; the same frame" rule still applies to THIS routine as a whole, but it only
+; costs one call (and one queued DMA) to draw a full label+value row.
+;
+; Always redraws every column through 32, including ones the number itself
+; didn't touch -- this is what makes it safe to call again with a SHORTER
+; number later (e.g. this project's own scoreboard rows, which only ever
+; grow, but a future caller might not): unlike Core_Text_DrawNumber alone,
+; a shrinking value here can't leave a stale trailing digit, because nothing
+; past the label is ever left unwritten.
+;
+;   A(8-bit)  = row (0-31)
+;   X(16-bit) = column the label starts at (0-31)
+;   Y(16-bit) = offset into Text_StringPool of the label (short -- must
+;               leave room for the widest value this call site will ever
+;               draw, plus at least one column of separation; callers are
+;               responsible for this, same as any other fixed-width HUD
+;               layout in this codebase)
+;   Text_LabelValue (.dw, set by caller before this jsr) = the number
+; Clobbers A/X/Y.
+; ============================================================================
+Core_Text_DrawLabeledNumber:
+    php
+    sep #$20
+.a8
+    sta.l Text_Row
+    rep #$31
+.a16
+.i16
+    txa
+    asl a
+    sta.l Text_StagingOffset
+    tya
+    sta.l Text_StringIndex
+Core_Text_DrawLabeledNumber__label_loop:
+    rep #$31
+.a16
+.i16
+    lda.l Text_StringIndex
+    tax
+    sep #$20
+.a8
+    lda.l Text_StringPool,x
+    beq Core_Text_DrawLabeledNumber__label_done
+    pha
+    rep #$31
+.a16
+.i16
+    inx
+    txa
+    sta.l Text_StringIndex
+    sep #$20
+.a8
+    pla
+    jsr Text_EmitGlyph
+    bra Core_Text_DrawLabeledNumber__label_loop
+Core_Text_DrawLabeledNumber__label_done:
+    ; --- number: same digit-place loop Core_Text_DrawNumber uses, sharing
+    ; Text_NumberValue/Text_PlaceValue/Text_Started/Text_DigitScratch and
+    ; Text_DrawNumber__digit itself (no leading zeros; continues from
+    ; wherever the label left Text_StagingOffset). ---
+    rep #$31
+.a16
+.i16
+    lda.l Text_LabelValue
+    sta.l Text_NumberValue
+    sep #$20
+.a8
+    lda #0
+    sta.l Text_Started
+    rep #$31
+.a16
+.i16
+    lda #10000
+    sta.l Text_PlaceValue
+    jsr Text_DrawNumber__digit
+    rep #$31
+.a16
+.i16
+    lda #1000
+    sta.l Text_PlaceValue
+    jsr Text_DrawNumber__digit
+    rep #$31
+.a16
+.i16
+    lda #100
+    sta.l Text_PlaceValue
+    jsr Text_DrawNumber__digit
+    rep #$31
+.a16
+.i16
+    lda #10
+    sta.l Text_PlaceValue
+    jsr Text_DrawNumber__digit
+    rep #$31
+.a16
+.i16
+    lda #1
+    sta.l Text_PlaceValue
+    jsr Text_DrawNumber__digit
+
+    ; --- blank every remaining column through 32, so a shorter value never
+    ; leaves a longer previous draw's trailing digit behind. ---
+    rep #$31
+.a16
+.i16
+    lda.l Text_StagingOffset
+    lsr a                    ; byte offset -> column
+    tax
+Core_Text_DrawLabeledNumber__pad_loop:
+    rep #$31
+.a16
+.i16
+    cpx #TEXT_ROW_ENTRIES
+    bcs Core_Text_DrawLabeledNumber__pad_done
+    sep #$20
+.a8
+    lda #32                  ; ASCII space
+    jsr Text_EmitGlyph
+    rep #$31
+.a16
+.i16
+    inx
+    bra Core_Text_DrawLabeledNumber__pad_loop
+Core_Text_DrawLabeledNumber__pad_done:
     jsr Text_FlushRow
     plp
     rts

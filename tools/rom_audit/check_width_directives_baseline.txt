@@ -154,7 +154,6 @@ src/main.pasm:Core_StreamScroll_ResolveRows__col_free
 src/main.pasm:Core_StreamScroll_ResolveRows__commit
 src/main.pasm:Core_StreamScroll_ResolveRows__not_new_lo
 src/main.pasm:Core_StreamScroll_ResolveRows__page_a
-src/main.pasm:Hud_Play__clear
 src/main.pasm:LoadAudioData
 src/main.pasm:TadPrivate_Loader_CheckReadyAndSendLoaderDataType
 src/main.pasm:TadPrivate_Loader_GotoNextBank
