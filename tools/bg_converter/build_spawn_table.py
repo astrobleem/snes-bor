@@ -23,15 +23,45 @@ Two further, deliberate simplifications, not oversights:
   - `wait`/`group` events are parsed by spawn_parse.py but NOT emitted into
     this table -- this phase does not implement scroll-blocking-until-clear
     or respawn-pool sizing.
-  - Every record spawns as a generic AI-seeking enemy using whichever
-    roster character is already wired to the slot it lands in (JHUN/JOE/
-    JHUN -- see main.pasm's roster). The source level's specific character
-    names (Shermie, Yashiro, ...), the `health` override, and non-enemy
-    spawns (the `1up` pickup, `trash` breakable prop) are NOT modeled --
-    this engine has no pickup/prop entity class, only CharacterEntity, and
-    building one is out of scope here. Every record always spawns at full
-    HP (CHAR_HP_MAX). Position/timing fidelity is the goal; character/
-    entity-kind identity is explicitly not.
+  - Every record spawns using whichever roster character is already wired
+    to the slot it lands in (JHUN/JOE/JHUN -- see main.pasm's roster). The
+    source level's specific character names (Shermie, Yashiro, ...) and the
+    source level's own `health` override are NOT modeled. Position/timing
+    fidelity is the goal; character identity is explicitly not.
+
+## Entity kind (plan_game.md G8, first slice)
+
+**CORRECTION, 2026-08-21**: this docstring used to claim non-enemy spawns
+(BOR's own `1up` pickup, `trash` breakable prop) were silently ignored "by
+design." That was false -- verified against the real, currently-shipped
+`out/spawn_stage1a/spawn_table.bin`: it byte-for-byte matches regenerating
+this table fresh from the pak, and that table's 33 records genuinely include
+`1up`/`trash`/`angel` (a boss) as ordinary full-HP, AI-seeking, attacking
+enemies, because this module had no concept of entity *kind* at all -- every
+parsed `SpawnEvent` became an identical record regardless of what character
+it named.
+
+Fixed by repurposing the record's previously-always-zero `reserved` byte
+(+6) as `entity_kind`: 0 = enemy (this table's only value before this
+change, so old binary consumers/gates that never inspected byte +6 are
+unaffected), 1 = prop/pickup. `PROP_CHARACTER_NAMES` below is the
+classification list -- deliberately small (BOR's own `1up`/`trash` only;
+TMNT hasn't been converted at all yet, so its own decorative prop names are
+a follow-up once it is, not this slice). A prop's HP is fixed at
+`PROP_HP = CHAR_HP_PER_HIT` (see main.pasm) rather than the enemy default,
+so a single player hit brings it from alive to exactly 0 HP, not partially
+damaged -- `core/spawn.pasm`'s `Spawn_Play` reads both the kind and this HP
+value and sets `CHAR_INPUT_DRIVEN`/`CHAR_HP` accordingly for whichever AI
+slot the record lands in. See that file's own header for the runtime half
+(props never seek/attack, but DO get hit/stunned/soft-killed exactly like
+an AI enemy -- `CHAR_INPUT_DRIVEN_PROP` mode 3 in main.pasm).
+
+Deliberately still NOT modeled: real prop/pickup sprite art (a prop renders
+using whichever character is already streamed into its slot -- visually
+wrong, functionally real, see main.pasm's CHAR_INPUT_DRIVEN_PROP comment),
+score/life/item-reveal reward effects (no score system exists yet), and the
+`boss` flag (`angel` in stage 1A -- unrelated to this slice, still spawns as
+an ordinary full-HP AI enemy).
 
 ## Coordinate conversion
 
@@ -70,7 +100,8 @@ monotonic non-decreasing in the source file -- verified for 1AEASY.TXT):
     +2-3  spawn_x     (u16 LE) -- SNES world-px initial position
     +4    spawn_y     (u8)     -- SNES px initial Y (clamped 0-255)
     +5    facing_left (u8)     -- 0 or 1, CHAR_FACING_LEFT convention
-    +6    reserved    (u8, always 0)
+    +6    entity_kind (u8)     -- 0 = enemy, 1 = prop/pickup (plan_game.md G8;
+                                   was "reserved, always 0" before this change)
 
 No header/count prefix -- the record count is threaded through as a
 separate build-time constant (see pack_msu_roster.py's spawn section and
@@ -83,6 +114,17 @@ import sys
 SCALE = 256 / 320
 RECORD_SIZE = 7
 
+# plan_game.md G8, first slice -- see this module's own "Entity kind" section
+# above. Deliberately small and BOR-only for now: stage 1A's `1up`/`trash`
+# plus stage 1B's `table`/`chair` (1B is the currently-shipped DEFAULT boot
+# level -- confirmed via spawn_parse.py against the real pak that it spawns
+# both as ordinary full-HP AI enemies today, same live bug as stage 1A's).
+PROP_CHARACTER_NAMES = {'1up', 'trash', 'table', 'chair'}
+PROP_HP = 4   # == main.pasm's CHAR_HP_PER_HIT: one hit takes a prop from
+              # alive to exactly 0, never partially damaged.
+ENTITY_KIND_ENEMY = 0
+ENTITY_KIND_PROP = 1
+
 
 def convert_events(spawns):
     """spawns: list of spawn_parse.SpawnEvent, in trigger order.
@@ -94,8 +136,10 @@ def convert_events(spawns):
         spawn_y = round(e.coords[1] * SCALE)
         spawn_y = max(0, min(255, spawn_y))
         facing_left = 1 - (e.flip & 1)
+        is_prop = e.character.lower() in PROP_CHARACTER_NAMES
+        entity_kind = ENTITY_KIND_PROP if is_prop else ENTITY_KIND_ENEMY
         out += struct.pack('<HHBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
-                            spawn_y, facing_left, 0)
+                            spawn_y, facing_left, entity_kind)
     return len(spawns), bytes(out)
 
 

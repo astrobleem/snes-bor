@@ -458,13 +458,50 @@ at all. Adding jump forces this to be solved properly.
 
 ## §8 — Phase G8: items and pickups
 
-The spawn tables **already contain these and already silently discard them** —
-stage 1A has a `1up` and a `trash` prop; 1B has `Table` and `Chair`. `spawn_parse.py`
-ignores non-enemy spawns by design.
+> **Status: PARTIAL (first slice DONE, 2026-08-21).** `GATE G8: PASS`
+> (`tools/verify/game_g8_props.py`). This section's own opening claim above
+> was **false** and got corrected as part of landing this slice: the spawn
+> tables didn't "already silently discard" `1up`/`trash`/`Table`/`Chair` --
+> verified against the real, previously-shipped `out/spawn_stage1a/
+> spawn_table.bin` (byte-identical to a fresh regeneration from the pak)
+> that they were spawning as ordinary full-HP, AI-seeking, attacking
+> enemies. Stage 1B (the currently-shipped DEFAULT level) had the same live
+> bug with `Table`/`Chair`, both at `trigger_x==0` -- i.e. one was fighting
+> the player from frame one of the game everyone actually boots into.
+>
+> Fixed with a real third `CHAR_INPUT_DRIVEN` mode (`CHAR_INPUT_DRIVEN_PROP
+> = 3`, main.pasm): idle-only and never-attacking for free (`Anim_Play`'s
+> and `Character_HitApply`'s existing mode-dispatch chains already treat
+> anything that isn't mode 1/2 as "static" / "no attack"), but widened to
+> get the SAME soft-kill/sprite-hide-at-HP==0 treatment mode 2 (AI) already
+> has (`Anim_Play`/`Character_PlayFrame`'s two dead-check gates: `cmp #2 /
+> bne` -> `cmp #2 / bcc`, i.e. "mode >= 2" instead of "mode == 2"). The spawn
+> record's previously-always-zero "reserved" byte (+6) is now `entity_kind`
+> (0=enemy, 1=prop -- fully backward compatible, no format version bump);
+> `build_spawn_table.py` classifies `{'1up', 'trash', 'table', 'chair'}` by
+> name and gives props a fixed HP of `CHAR_HP_PER_HIT` (one hit kills, never
+> partially damaged) instead of `CHAR_HP_MAX`; `core/spawn.pasm`'s
+> `Spawn_Play` now writes `CHAR_INPUT_DRIVEN` per-slot (it never did before
+> -- every AI slot kept whatever `CharacterEntity_Init` set at boot forever)
+> alongside the existing HP write. Both shipped stages' spawn tables
+> (`out/spawn_stage1a`, `out/spawn_stage1b`) were regenerated with the fix.
+>
+> **Deliberately still not done** (see this session's plan file for the
+> full reasoning): real prop/pickup sprite art -- a prop renders using
+> whichever roster character is already streamed into its slot (visually
+> wrong, behaviorally real); score/life/item-reveal reward effects (no score
+> system exists yet, G6); TMNT's own decorative prop names (TMNT hasn't been
+> converted at all yet); the `boss` flag (`angel`/stage 1A, `Angel`/stage
+> 1B -- unrelated to props, still spawn as full-HP AI enemies, see G9);
+> weapons.
 
-- Extend the spawn table format with an entity-kind field.
-- Breakable props that drop items; health/score/1up pickups.
+The spawn tables **used to be believed to silently discard non-enemy
+spawns** — that turned out to be false, and the entity-kind gap it pointed
+at is now half-closed (see the status block above). Still open:
+
+- Breakable props that drop items; health/score/1up pickups (reward effects).
 - Weapons (BOR has knives/bats) if the moveset work in G7 lands.
+- Real prop/pickup sprite art, converted from the source pak.
 
 Cheap and high-value, since the level data is already there.
 

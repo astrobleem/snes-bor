@@ -23,6 +23,7 @@ CHAR_HP = 35
 # addresses the moment Phase 6 added CHAR_HP and grew CHAR_ZP_LEN to 36.
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 
 # Character_BlankPadding's per-slice VRAM byte addresses (see that routine's
@@ -194,7 +195,14 @@ def main():
         # happens to have at least one trigger_x==0 record; assert that
         # directly, and check the other two AI slots permissively (0 or
         # CHAR_HP_MAX, matching phase6.py's own already-generalized check)
-        # rather than assuming a specific level's trigger layout. ---
+        # rather than assuming a specific level's trigger layout.
+        #
+        # plan_game.md G8: stage 1B's own trigger_x==0 records are Table and
+        # Chair -- now classified as props (build_spawn_table.py), which
+        # spawn at CHAR_HP_PER_HIT, not CHAR_HP_MAX (see core/spawn.pasm's
+        # Spawn_Play). A third permissible value, not a loosened check --
+        # CHAR_HP_MAX and 0 are still the only valid values for whichever
+        # slot(s) a REAL enemy record lands in. ---
         samples = [[entity_frame_index(m, b) for b in ENTITY_BASES]]
         for _ in range(5):
             m.run_frames(48)
@@ -205,8 +213,8 @@ def main():
             values_seen = {s[i] for s in samples}
             r.check(f'entity {i} CHAR_FRAME_INDEX varies across 240 frames',
                      len(values_seen) > 1)
-        r.check('AI entities 2/3 are either unspawned or fully spawned (0 or CHAR_HP_MAX)',
-                 all(entity_hp(m, b) in (0, CHAR_HP_MAX) for b in ENTITY_BASES[2:4]))
+        r.check('AI entities 2/3 are either unspawned, a prop, or fully spawned (0, CHAR_HP_PER_HIT, or CHAR_HP_MAX)',
+                 all(entity_hp(m, b) in (0, CHAR_HP_PER_HIT, CHAR_HP_MAX) for b in ENTITY_BASES[2:4]))
 
         # --- no vblank overrun: Nmi_FrameCounter still advancing after
         # 700 frames with 4 entities streaming/moving/colliding at once. ---

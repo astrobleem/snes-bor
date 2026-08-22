@@ -28,14 +28,22 @@
 ; Deliberate scope cuts (see build_spawn_table.py's own docstring for the
 ; full reasoning): `wait`/`group` events are parsed but not emitted into
 ; this table (no scroll-blocking-until-clear, no respawn-pool sizing).
-; Every record always spawns at full HP (CHAR_HP_MAX) -- the source
-; level's per-spawn `health` override is not modeled. Every record spawns
-; a generic AI-seeking enemy using whichever roster character is already
-; wired to the slot it lands in -- the source level's specific character
-; identity (Shermie, Yashiro, ...) and non-enemy spawns (the `1up` pickup,
-; the `trash` breakable prop -- this engine has no pickup/prop entity
-; class) are not modeled either. Position/timing fidelity is the goal;
-; character/entity-kind identity is explicitly not.
+; Every record spawns using whichever roster character is already wired to
+; the slot it lands in -- the source level's specific character identity
+; (Shermie, Yashiro, ...) and per-spawn `health` override are not modeled.
+; Position/timing fidelity is the goal; character identity is explicitly
+; not.
+;
+; **CORRECTION, plan_game.md G8 (2026-08-21)**: this header used to also
+; claim non-enemy spawns (BOR's `1up` pickup, `trash` breakable prop) were
+; "not modeled" / silently ignored -- that was false, see
+; build_spawn_table.py's own "Entity kind" section for the real story (they
+; were spawning as ordinary full-HP AI enemies in the shipped ROM). Entity
+; *kind* IS now modeled, via the record's `entity_kind` byte (below) and
+; `Spawn_Play`'s per-slot `CHAR_INPUT_DRIVEN`/HP write -- see
+; `CHAR_INPUT_DRIVEN_PROP` in main.pasm for the runtime behavior (props
+; never seek/attack, but get the same soft-kill/hide-at-HP==0 treatment an
+; AI enemy does).
 ;
 ; The table itself is NOT a ROM .incbin read via indexed addressing --
 ; CLAUDE.md documents a confirmed Poppy bug where indexed-long addressing
@@ -108,13 +116,38 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
 SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*7 bytes, record layout below
+Spawn_ScratchKind   = $7E5630   ; .db -- captured entity_kind (record+6, see
+                                 ; layout below), plan_game.md G8. Placed
+                                 ; well past SpawnTable_Wram's own reserved
+                                 ; region (ends ~$7E5627 at SPAWN_MAX_RECORDS=
+                                 ; 40) rather than in the tight gap between
+                                 ; the other Scratch* cells above, which has
+                                 ; no slack (Spawn_LastTriggerX sits directly
+                                 ; adjacent to Spawn_ScratchFacing already).
 
 ; Record layout (7 bytes, LE), matches build_spawn_table.py exactly:
 ;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this record
 ;   +2-3  spawn_x     (u16) -- SNES world-px initial position
 ;   +4    spawn_y     (u8)
 ;   +5    facing_left (u8)  -- CHAR_FACING_LEFT convention (0=right,1=left)
-;   +6    reserved
+;   +6    entity_kind (u8)  -- SPAWN_KIND_ENEMY (0) or SPAWN_KIND_PROP (1),
+;                              plan_game.md G8 (was "reserved, always 0"
+;                              before that phase -- see build_spawn_table.py's
+;                              own "Entity kind" section for the full story:
+;                              this project's own docs used to claim non-
+;                              enemy spawns like BOR's `1up`/`trash` were
+;                              silently ignored; verified against the real
+;                              shipped stage 1A table that they were NOT --
+;                              they spawned as ordinary full-HP AI enemies)
+
+; plan_game.md G8: a prop/pickup slot gets CHAR_INPUT_DRIVEN_PROP (main.pasm)
+; instead of CHAR_INPUT_DRIVEN_AI, and a fixed low HP (== CHAR_HP_PER_HIT, so
+; one hit takes it from alive to exactly 0) instead of CHAR_HP_MAX. Both are
+; compile-time constants, not record fields -- every prop today behaves
+; identically (one-hit, generic-looking), so there's nothing per-record to
+; carry yet.
+SPAWN_KIND_ENEMY = 0
+SPAWN_KIND_PROP  = 1
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -288,19 +321,30 @@ Spawn_Play__triggered:
     inx                         ; X -> record+5 (facing_left)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchFacing
+    inx                         ; X -> record+6 (entity_kind, plan_game.md G8)
+    lda.l SpawnTable_Wram,x
+    sta.l Spawn_ScratchKind
 
 Spawn_Play__find_slot:
     sep #$20
 .a8
     lda.l Entity1_Hp
-    beq Spawn_Play__slot1
+    bne Spawn_Play__find_slot_check2
+    jmp Spawn_Play__slot1
+Spawn_Play__find_slot_check2:
     lda.l Entity2_Hp
-    beq Spawn_Play__slot2
+    bne Spawn_Play__find_slot_check3
+    jmp Spawn_Play__slot2
+Spawn_Play__find_slot_check3:
+    ; plan_game.md G8 grew slot1/slot2's own bodies (kind-conditional
+    ; CHAR_INPUT_DRIVEN/HP) past this chain's original beq range -- jmp has
+    ; no such limit, same fix as game_state.pasm's own G5 dispatch chain.
     lda.l Entity3_Hp
-    beq Spawn_Play__slot3
+    bne Spawn_Play__find_slot_none
+    jmp Spawn_Play__slot3
+Spawn_Play__find_slot_none:
     plp
     rts                         ; no free slot -- record stays pending
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Spawn_Play__slot1:
     rep #$31
 .a16
@@ -313,9 +357,27 @@ Spawn_Play__slot1:
     sta.l Entity1_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity1_FacingLeft
+    ; plan_game.md G8: CHAR_INPUT_DRIVEN and starting HP both now depend on
+    ; the record's own entity_kind -- a slot that alternates between an
+    ; enemy record and a prop record across two different waves must be
+    ; re-set correctly every time, not left at whatever the boot default
+    ; (CHAR_INPUT_DRIVEN_AI) or a PREVIOUS record here left it.
+    lda.l Spawn_ScratchKind
+    beq Spawn_Play__slot1_enemy
+    lda #CHAR_INPUT_DRIVEN_PROP
+    sta.l Entity1_InputDriven
+    lda #CHAR_HP_PER_HIT
+    sta.l Entity1_Hp
+    jmp Spawn_Play__advance
+    nop
+Spawn_Play__slot1_enemy:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_AI
+    sta.l Entity1_InputDriven
     lda #CHAR_HP_MAX
     sta.l Entity1_Hp
-    bra Spawn_Play__advance
+    jmp Spawn_Play__advance
     nop
 Spawn_Play__slot2:
     rep #$31
@@ -329,9 +391,22 @@ Spawn_Play__slot2:
     sta.l Entity2_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity2_FacingLeft
+    lda.l Spawn_ScratchKind
+    beq Spawn_Play__slot2_enemy
+    lda #CHAR_INPUT_DRIVEN_PROP
+    sta.l Entity2_InputDriven
+    lda #CHAR_HP_PER_HIT
+    sta.l Entity2_Hp
+    jmp Spawn_Play__advance
+    nop
+Spawn_Play__slot2_enemy:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_AI
+    sta.l Entity2_InputDriven
     lda #CHAR_HP_MAX
     sta.l Entity2_Hp
-    bra Spawn_Play__advance
+    jmp Spawn_Play__advance
     nop
 Spawn_Play__slot3:
     rep #$31
@@ -345,6 +420,19 @@ Spawn_Play__slot3:
     sta.l Entity3_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity3_FacingLeft
+    lda.l Spawn_ScratchKind
+    beq Spawn_Play__slot3_enemy
+    lda #CHAR_INPUT_DRIVEN_PROP
+    sta.l Entity3_InputDriven
+    lda #CHAR_HP_PER_HIT
+    sta.l Entity3_Hp
+    jmp Spawn_Play__advance
+    nop
+Spawn_Play__slot3_enemy:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_AI
+    sta.l Entity3_InputDriven
     lda #CHAR_HP_MAX
     sta.l Entity3_Hp
     nop

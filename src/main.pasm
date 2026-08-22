@@ -2526,6 +2526,12 @@ Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
 Entity1_FacingLeft = Entity1_Base + 8 ; Entity #1's CHAR_FACING_LEFT (spawn-table phase)
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
 Entity1_Hp      = Entity1_Base + 35   ; Entity #1's CHAR_HP
+Entity1_InputDriven = Entity1_Base + 15   ; Entity #1's CHAR_INPUT_DRIVEN
+                                            ; (plan_game.md G8 -- Spawn_Play
+                                            ; now needs to WRITE this per
+                                            ; spawn-kind, not just leave
+                                            ; whatever CharacterEntity_Init
+                                            ; set at boot)
 Entity2_Base    = $7E0a00 + 72        ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
@@ -2533,6 +2539,7 @@ Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
 Entity2_FacingLeft = Entity2_Base + 8 ; Entity #2's CHAR_FACING_LEFT (spawn-table phase)
 Entity2_HitStun = Entity2_Base + 33   ; Entity #2's CHAR_HIT_STUN
 Entity2_Hp      = Entity2_Base + 35   ; Entity #2's CHAR_HP
+Entity2_InputDriven = Entity2_Base + 15   ; Entity #2's CHAR_INPUT_DRIVEN (plan_game.md G8)
 Entity3_Base    = $7E0a00 + 108       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
@@ -2540,6 +2547,7 @@ Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
 Entity3_FacingLeft = Entity3_Base + 8 ; Entity #3's CHAR_FACING_LEFT (spawn-table phase)
 Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
 Entity3_Hp      = Entity3_Base + 35   ; Entity #3's CHAR_HP
+Entity3_InputDriven = Entity3_Base + 15   ; Entity #3's CHAR_INPUT_DRIVEN (plan_game.md G8)
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
 ; Phase G3 (plan_game.md 3): respawn must reset facing/animation-selection,
@@ -2643,6 +2651,26 @@ CHAR_ROSTER_INDEX   = 12   ; .db -- which bor.msu slot this instance loaded (Ste
 CHAR_PALETTE_SLOT   = 13   ; .db -- 0-7, this instance's OBJ palette (Step 3)
 CHAR_TILE_COLUMN    = 14   ; .db -- 0-3, this instance's OBJ tile-block-0 column slice (Step 3)
 CHAR_INPUT_DRIVEN   = 15   ; .db -- nonzero = read dpad (Step 2/3)
+                            ;   0 = static (idle-only, never attacks/hit-dispatches)
+                            ;   1 = player (dpad-driven)
+                            ;   2 = AI (seeks + attacks the player)
+                            ;   3 = prop/pickup (plan_game.md G8, first slice --
+                            ;       CHAR_INPUT_DRIVEN_PROP below): idle-only like
+                            ;       mode 0 (Anim_Play__check_attack_trigger's
+                            ;       dispatch chain already falls through to
+                            ;       "always idle" for anything that isn't 1 or 2,
+                            ;       so this needs no change there), never attacks
+                            ;       (Character_HitApply__attacking's dispatch
+                            ;       likewise falls through to "no attack" for
+                            ;       anything that isn't 1 or 2) -- but DOES get
+                            ;       the same dead-at-HP==0 soft-kill/sprite-hide
+                            ;       treatment as mode 2 (see the two `cmp #2`
+                            ;       gates below, both widened to `bcs`/`>=2`)
+CHAR_INPUT_DRIVEN_AI   = 2   ; named for the first time in G8 -- core/spawn.pasm
+                              ; needs to WRITE this now (Spawn_Play), not just
+                              ; imply it via a bare `cmp #2` like every other
+                              ; site in this file still does
+CHAR_INPUT_DRIVEN_PROP = 3
 CHAR_IDLE_FCOUNT    = 16   ; .db
 CHAR_WALK_FCOUNT    = 17   ; .db
 CHAR_ATTACK_FCOUNT  = 18   ; .db
@@ -3194,20 +3222,25 @@ Anim_Play__loaded:
     ; sep is a harmless no-op at runtime but re-syncs Poppy's tracker.
     sep #$20
 .a8
-    ; --- Damage system: a dead AI entity (CHAR_INPUT_DRIVEN==2, CHAR_HP==0
-    ; -- see Character_HitApply_VsEntityN's own dead-skip check, which is
-    ; what makes CHAR_HP==0 a sticky terminal state instead of something
-    ; that could tick back up) stops acting entirely: no AI seek/attack
-    ; dispatch below, and critically no Anim_Play_Idle/Walk/Attack call, so
-    ; it never reaches Msu1_LoadFrame again -- Msu1_StreamBusy's one-
-    ; entity-per-frame budget (CLAUDE.md) is never spent on an invisible
-    ; corpse. The player (CHAR_INPUT_DRIVEN==1) is deliberately exempt --
-    ; player death/game-over is out of scope, see plan.md. Checked before
-    ; the hit-stun block below so a killing blow's stun doesn't need to
-    ; run out first. ---
+    ; --- Damage system: a dead AI entity or prop (CHAR_INPUT_DRIVEN>=2,
+    ; CHAR_HP==0 -- see Character_HitApply_VsEntityN's own dead-skip check,
+    ; which is what makes CHAR_HP==0 a sticky terminal state instead of
+    ; something that could tick back up) stops acting entirely: no AI
+    ; seek/attack dispatch below, and critically no Anim_Play_Idle/Walk/
+    ; Attack call, so it never reaches Msu1_LoadFrame again --
+    ; Msu1_StreamBusy's one-entity-per-frame budget (CLAUDE.md) is never
+    ; spent on an invisible corpse. The player (CHAR_INPUT_DRIVEN==1) is
+    ; deliberately exempt -- player death/game-over is out of scope, see
+    ; plan.md. Checked before the hit-stun block below so a killing blow's
+    ; stun doesn't need to run out first.
+    ;
+    ; `bcs` (mode >= 2), not `beq` (mode == 2): plan_game.md G8 added mode 3
+    ; (CHAR_INPUT_DRIVEN_PROP, a prop/pickup) and it must get the exact same
+    ; dead treatment as mode 2 (AI) -- modes 0/1 (static/player) are always
+    ; < 2, so this widening cannot change their behavior. ---
     lda CHAR_INPUT_DRIVEN
     cmp #2
-    bne Anim_Play__not_dead
+    bcc Anim_Play__not_dead
     lda CHAR_HP
     bne Anim_Play__not_dead
     rep #$31
@@ -4586,16 +4619,22 @@ Character_PlayFrame__hi_xlow:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_PlayFrame__hi_store:
     sta.l OamSetSprite_Hi
-    ; --- Damage system: a dead AI entity's sprite is hidden the same way
-    ; the OAM layer already understands a slot as "clean" -- Y=$F0, not a
-    ; large/offscreen X (Phase 8 made X a 16-bit world coordinate with an
-    ; AI-seek distance math that assumes real positions; a sentinel X would
-    ; perturb that). See memory: ccdma_validated_nmi_timing_bug. Overrides
-    ; OamSetSprite_Y only, after every other field above is already set --
-    ; CHAR_POS_Y itself (and OamSetSprite_X/Tile/Attr/Hi) are left alone. ---
+    ; --- Damage system: a dead AI entity or prop's sprite is hidden the
+    ; same way the OAM layer already understands a slot as "clean" -- Y=$F0,
+    ; not a large/offscreen X (Phase 8 made X a 16-bit world coordinate with
+    ; an AI-seek distance math that assumes real positions; a sentinel X
+    ; would perturb that). See memory: ccdma_validated_nmi_timing_bug.
+    ; Overrides OamSetSprite_Y only, after every other field above is
+    ; already set -- CHAR_POS_Y itself (and OamSetSprite_X/Tile/Attr/Hi) are
+    ; left alone.
+    ;
+    ; `bcs` (mode >= 2), not `beq` (mode == 2) -- same widening as Anim_
+    ; Play's own dead-check, for the same reason: plan_game.md G8's mode 3
+    ; (prop/pickup) needs the same hide-at-HP==0 treatment mode 2 (AI) has,
+    ; and modes 0/1 are always < 2 so this can't change their behavior. ---
     lda CHAR_INPUT_DRIVEN
     cmp #2
-    bne Character_PlayFrame__not_dead_hide
+    bcc Character_PlayFrame__not_dead_hide
     lda CHAR_HP
     bne Character_PlayFrame__not_dead_hide
     lda #$F0
