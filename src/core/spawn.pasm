@@ -25,14 +25,49 @@
 ; reason (see its own comment) -- entities stay hidden/inert until this
 ; table places them, instead of standing fully alive from frame 1.
 ;
-; Deliberate scope cuts (see build_spawn_table.py's own docstring for the
-; full reasoning): `wait`/`group` events are parsed but not emitted into
-; this table (no scroll-blocking-until-clear, no respawn-pool sizing).
-; Every record spawns using whichever roster character is already wired to
-; the slot it lands in -- the source level's specific character identity
-; (Shermie, Yashiro, ...) and per-spawn `health` override are not modeled.
-; Position/timing fidelity is the goal; character identity is explicitly
-; not.
+; Deliberate scope cut, not an oversight: every record spawns using
+; whichever roster character is already wired to the slot it lands in --
+; the source level's specific character identity (Shermie, Yashiro, ...) is
+; not modeled. Position/timing fidelity is the goal; character identity is
+; explicitly not.
+;
+; **`wait`/`group`/`boss`, 2026-08-22** (follow-up to "level content"
+; generalization -- see build_spawn_table.py's own header for the real
+; data behind this: BOR's own two shipped stages use `wait`/`group` for
+; real, but neither uses `boss`; TMNT, not yet converted/buildable, has 6
+; real `boss` spawns and no `group` usage). Real semantics, read directly
+; from Plombo/beatsofrage's BOR.C (`update_scroller()`, ~line 4749-4786),
+; not assumed:
+;
+;   - `wait`/`group`/`spawn` are ONE single ordered queue -- exactly this
+;     file's existing Spawn_Index design, just with two more record kinds
+;     walking the same index.
+;   - `group min max` sets GLOBAL mutable pool-size state (Spawn_GroupMin/
+;     Max below), default 100/100 (effectively unlimited), reset every
+;     stage load. It gates ALL further queue advancement, not just
+;     spawns: once `count_ents(TYPE_ENEMY) >= Spawn_GroupMin`, NOTHING
+;     in the queue is even looked at (not spawns, not the next wait/group
+;     marker) until enough enemies die to drop back under it. This is what
+;     makes `group 1-2`/`group 3-3` read as real wave gates.
+;   - "enemy count" excludes props, matching BOR.C's own `TYPE_ENEMY`
+;     filter -- free here via `EntityN_InputDriven != CHAR_INPUT_DRIVEN_
+;     PROP`, no new state needed to track it.
+;   - `wait` blocks camera scroll entirely until ZERO enemies (not props)
+;     remain alive, then releases. Implemented by reusing the existing G4
+;     win-condition hold-clamp on Screen_MaxX (core/game_state.pasm's
+;     Stage_ApplyWinClamp) as the single owner of that clamp, rather than
+;     adding a second independent scroll-block path -- see Spawn_Play's
+;     own wait-handling block below for why.
+;   - `boss` is real DATA plumbing only in this slice (record_kind==4,
+;     EntityN_IsBoss below) -- no distinct HUD or win-condition behavior
+;     reads it yet, since no buildable pak here exercises it end-to-end
+;     (see this file's own SPAWN_KIND_BOSS comment and build_spawn_
+;     table.py's header for the full caveat).
+;
+; One record is still processed per Spawn_Play call (per frame), matching
+; this file's existing one-record-per-frame grain, rather than BOR.C's own
+; same-frame multi-dequeue while-loop -- the smallest change that preserves
+; this architecture and stays easy to verify; invisible at 60fps.
 ;
 ; **CORRECTION, plan_game.md G8 (2026-08-21)**: this header used to also
 ; claim non-enemy spawns (BOR's `1up` pickup, `trash` breakable prop) were
@@ -82,17 +117,21 @@
 ; other core/*.pasm file (see core/random.pasm's header for why).
 ; ============================================================================
 
-SPAWN_MAX_RECORDS = 40       ; largest packed stage today is 33 (stage 1A);
-                              ; see this file's header for why this isn't
-                              ; tied to any one stage's real count
+SPAWN_MAX_RECORDS = 48       ; largest packed stage today is stage 1A's 41
+                              ; (33 spawn + 6 wait + 2 group, grown from 33
+                              ; spawn-only records by the wait/group/boss
+                              ; slice); see this file's header for why this
+                              ; isn't tied to any one stage's real count
 
-; --- WRAM layout: $7E5500 + SPAWN_MAX_RECORDS*8 bytes (320 for 40 records,
-; grown from *7 by the health-override slice), first free region after
+; --- WRAM layout: $7E5500 + SPAWN_MAX_RECORDS*8 bytes (384 for 48 records,
+; grown from 40 by the wait/group/boss slice), first free region after
 ; Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by
 ; grep -- see main.pasm's own $7E53B6 note for the same verification
-; convention). SpawnTable_Wram now ends at $7E564F; Spawn_ScratchKind/
-; Spawn_ScratchHp live past that at $7E5660/$7E5661 (grep-verified clear of
-; any other module's WRAM through $7E56FF). ---
+; convention). SpawnTable_Wram now ends at $7E568F; Spawn_ScratchKind/
+; Spawn_ScratchHp live past that at $7E5690/$7E5691, and the wait/group/
+; boss slice's own new cells (Spawn_GroupMin/Max/Waiting/PreClearHoldX,
+; Entity1/2/3_IsBoss) immediately after at $7E5692-$7E5699 (grep-verified
+; clear of any other module's WRAM through $7E56FF). ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..Spawn_Count
 Spawn_Count         = $7E5501   ; .db -- this stage's own record count, read
                                  ; from its bg record by Bg_LoadScene (was a
@@ -119,46 +158,86 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
 SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*8 bytes, record layout
-                                 ; below. Grew from *7 to *8 (health-override
-                                 ; slice, follow-up to G8) -- now ends at
-                                 ; $7E550F+$140 = $7E564F, so the two scratch
-                                 ; cells below moved past that (see their own
-                                 ; comment; they used to sit at $7E5630,
-                                 ; which the *7-sized table's slack made safe
-                                 ; but the grown *8 table does not).
-Spawn_ScratchKind   = $7E5660   ; .db -- captured entity_kind (record+6, see
-                                 ; layout below), plan_game.md G8. Relocated
-                                 ; from $7E5630 (health-override slice) --
-                                 ; that address is now inside SpawnTable_Wram's
-                                 ; grown *8 range; $7E5660 is safely past it
-                                 ; (grep-confirmed no other module claims
+                                 ; below. Grew from 40*8 to 48*8 records
+                                 ; (wait/group/boss slice) -- now ends at
+                                 ; $7E550F+$180 = $7E568F, so the scratch/
+                                 ; state cells below moved past that (they
+                                 ; used to sit at $7E5660, which the smaller
+                                 ; table's slack made safe but the grown
+                                 ; table does not).
+Spawn_ScratchKind   = $7E5690   ; .db -- captured record_kind (record+6, see
+                                 ; layout below), plan_game.md G8, relocated
+                                 ; by the wait/group/boss slice (was $7E5660
+                                 ; -- now inside SpawnTable_Wram's grown
+                                 ; range; $7E5690 is safely past it,
+                                 ; grep-confirmed no other module claims
                                  ; $7E5650-$7E56FF).
-Spawn_ScratchHp     = $7E5661   ; .db -- captured spawn_hp (record+7, see
+Spawn_ScratchHp     = $7E5691   ; .db -- captured spawn_hp (record+7, see
                                  ; layout below), health-override slice.
+Spawn_GroupMin      = $7E5692   ; .db -- BOR.C's global `groupmin`, default
+                                 ; 100 (effectively unlimited). Gates ALL
+                                 ; queue advancement (spawn/wait/group
+                                 ; alike) -- see this file's own header.
+Spawn_GroupMax      = $7E5693   ; .db -- BOR.C's global `groupmax`, default 100.
+Spawn_Waiting       = $7E5694   ; .db -- BOR.C's `level_waiting`: nonzero
+                                 ; while a `wait` record has armed and at
+                                 ; least one enemy (not prop) is still alive.
+Spawn_PreClearHoldX = $7E5695   ; .dw -- what to restore Screen_MaxX to when
+                                 ; a wait releases and the stage isn't
+                                 ; cleared yet -- the same value core/
+                                 ; game_state.pasm's Stage_ApplyWinClamp
+                                 ; already computes (min(Stage_TrueMaxX,
+                                 ; Spawn_LastTriggerX)), cached here so
+                                 ; Spawn_Play doesn't need to re-derive it.
+Entity1_IsBoss      = $7E5697   ; .db -- plan_game.md wait/group/boss slice:
+Entity2_IsBoss      = $7E5698   ; .db    sticky per-slot boss flag, set/
+Entity3_IsBoss      = $7E5699   ; .db    cleared whenever Spawn_Play (re)uses
+                                 ; that slot. Standalone WRAM cells, NOT a
+                                 ; CharacterEntity struct field -- see
+                                 ; phase_g7_invuln_frames_second_slice
+                                 ; project memory: growing CHAR_ZP_LEN broke
+                                 ; spawn-slot assignment even with
+                                 ; audit_all.py green. Nothing reads these
+                                 ; yet (no boss HUD/win-condition logic
+                                 ; exists) -- real, sourced, verified data
+                                 ; plumbing ahead of a consumer, same pattern
+                                 ; moveset_pipeline_generalization's non-role
+                                 ; animation ordinals used.
+Spawn_ScratchEnemyCount = $7E569A ; .db -- running EnemyCount total (0-3),
+                                 ; used by both the wait-release check and
+                                 ; the group gate below (kept as a WRAM
+                                 ; scratch, not a register, so A stays free
+                                 ; for the per-slot Hp/InputDriven checks).
 
-; Record layout (8 bytes, LE), matches build_spawn_table.py exactly:
-;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this record
-;   +2-3  spawn_x     (u16) -- SNES world-px initial position
-;   +4    spawn_y     (u8)
-;   +5    facing_left (u8)  -- CHAR_FACING_LEFT convention (0=right,1=left)
-;   +6    entity_kind (u8)  -- SPAWN_KIND_ENEMY (0) or SPAWN_KIND_PROP (1),
-;                              plan_game.md G8 (was "reserved, always 0"
-;                              before that phase -- see build_spawn_table.py's
-;                              own "Entity kind" section for the full story:
-;                              this project's own docs used to claim non-
-;                              enemy spawns like BOR's `1up`/`trash` were
-;                              silently ignored; verified against the real
-;                              shipped stage 1A table that they were NOT --
-;                              they spawned as ordinary full-HP AI enemies)
+; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
+; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
+; discriminator instead of the record growing, specifically to avoid
+; touching the four hand-synced *8/record-size sites this file's header
+; already calls out (Spawn_CountX8, SPAWN_MAX_RECORDS*8, the last-record
+; seek, Spawn_Play's own shift):
+;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this
+;                              record. Meaningful for every record kind.
+;   +2-3  spawn_x     (u16) -- SNES world-px initial position, kind==enemy/
+;                              prop/boss only. kind==SPAWN_KIND_GROUP
+;                              repurposes these two bytes as group_min (+2)
+;                              / group_max (+3), single bytes each (real
+;                              values are always <=100). 0 for kind==wait.
+;   +4    spawn_y     (u8)  -- 0 for wait/group records.
+;   +5    facing_left (u8)  -- CHAR_FACING_LEFT convention (0=right,1=left).
+;                              0 for wait/group records.
+;   +6    record_kind (u8)  -- SPAWN_KIND_ENEMY (0), SPAWN_KIND_PROP (1),
+;                              SPAWN_KIND_WAIT (2), SPAWN_KIND_GROUP (3), or
+;                              SPAWN_KIND_BOSS (4) -- was `entity_kind`,
+;                              0/1 only, before the wait/group/boss slice
+;                              (plan_game.md G8: "reserved, always 0" before
+;                              THAT phase -- see build_spawn_table.py's own
+;                              "Entity kind" section for that history).
 ;   +7    spawn_hp    (u8)  -- health-override slice (follow-up to G8): the
 ;                              level's own `health` line, scaled to
-;                              0..CHAR_HP_MAX. Read for enemy slots only --
-;                              a prop's HP is always CHAR_HP_PER_HIT
-;                              regardless of this byte (see build_spawn_
-;                              table.py's own "Per-spawn health override"
-;                              section for why every enemy used to spawn at
-;                              a hardcoded CHAR_HP_MAX no matter what the
-;                              level author actually specified).
+;                              0..CHAR_HP_MAX. Read for enemy/boss slots
+;                              only -- a prop's HP is always CHAR_HP_PER_HIT
+;                              regardless of this byte, and it's 0/unused
+;                              for wait/group records.
 
 ; plan_game.md G8: a prop/pickup slot gets CHAR_INPUT_DRIVEN_PROP (main.pasm)
 ; instead of CHAR_INPUT_DRIVEN_AI, and a fixed low HP (== CHAR_HP_PER_HIT, so
@@ -168,6 +247,9 @@ Spawn_ScratchHp     = $7E5661   ; .db -- captured spawn_hp (record+7, see
 ; carry yet.
 SPAWN_KIND_ENEMY = 0
 SPAWN_KIND_PROP  = 1
+SPAWN_KIND_WAIT  = 2   ; wait/group/boss slice: scroll-block-until-clear marker
+SPAWN_KIND_GROUP = 3   ; wait/group/boss slice: respawn-pool-size marker
+SPAWN_KIND_BOSS  = 4   ; wait/group/boss slice: enemy + sets EntityN_IsBoss
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -187,6 +269,22 @@ Spawn_Init:
 .a8
     lda #0
     sta.l Spawn_Index
+
+    ; --- wait/group/boss slice: reset the global group pool state to
+    ; BOR.C's own `unload_level()` defaults (groupmin=groupmax=100,
+    ; level_waiting=0) every stage load -- a stage that narrowed the pool
+    ; (e.g. `group 1-2`) must not leave that narrowing active for the NEXT
+    ; stage's own queue. Boss flags reset defensively too, even though a
+    ; stale flag on an HP==0 (unspawned) slot is never observed before the
+    ; next real spawn corrects it. ---
+    lda #100
+    sta.l Spawn_GroupMin
+    sta.l Spawn_GroupMax
+    lda #0
+    sta.l Spawn_Waiting
+    sta.l Entity1_IsBoss
+    sta.l Entity2_IsBoss
+    sta.l Entity3_IsBoss
 
     ; --- seek to this stage's spawn blob (Spawn_MsuOffsetLo/Hi, already
     ; populated by Bg_LoadScene) ---
@@ -277,19 +375,143 @@ Spawn_Init__read:
 ; trigger hasn't been reached, or if no AI slot is currently free (CHAR_HP
 ; nonzero for all of Entity1/2/3) -- in every no-op case, Spawn_Index does
 ; NOT advance, so the same record is retried next frame.
+;
+; wait/group/boss slice: also handles the release side of a `wait` block
+; (unconditionally, every call -- see below) and gates ALL queue
+; advancement (spawns AND wait/group markers alike) behind Spawn_GroupMin/
+; Max, matching BOR.C's real algorithm -- see this file's own header.
 Spawn_Play:
     php
     sep #$20
 .a8
+
+    ; --- wait-release check: runs every call regardless of queue/group
+    ; state, since a wait's release condition (enemy count, not props, hits
+    ; zero) must be checked even while the group gate below would otherwise
+    ; block further queue processing. Screen_MaxX is the SAME clamp cell
+    ; core/game_state.pasm's Stage_ApplyWinClamp/win-check already own (see
+    ; this file's header) -- this is the third and last writer, and only
+    ; ever restores what Stage_ApplyWinClamp already computed, never a
+    ; separately-derived value. ---
+    lda.l Spawn_Waiting
+    beq Spawn_Play__wait_check_done
+    lda #0
+    sta.l Spawn_ScratchEnemyCount
+    lda.l Entity1_Hp
+    beq Spawn_Play__wc_slot2
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_slot2
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__wc_slot2:
+    sep #$20
+.a8
+    lda.l Entity2_Hp
+    beq Spawn_Play__wc_slot3
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_slot3
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__wc_slot3:
+    sep #$20
+.a8
+    lda.l Entity3_Hp
+    beq Spawn_Play__wc_sum_done
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_sum_done
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__wc_sum_done:
+    sep #$20
+.a8
+    lda.l Spawn_ScratchEnemyCount
+    bne Spawn_Play__wait_check_done   ; still >=1 real enemy alive -- stay blocked
+    lda #0
+    sta.l Spawn_Waiting
+    lda.l Stage_Cleared
+    bne Spawn_Play__wait_check_done   ; already cleared -- win-check owns Screen_MaxX now
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_PreClearHoldX
+    sta Screen_MaxX
+    sep #$20
+.a8
+Spawn_Play__wait_check_done:
+
     lda.l Spawn_Index
     cmp.l Spawn_Count
-    bcc Spawn_Play__active
+    bcc Spawn_Play__have_queue
+    plp
+    rtl
+Spawn_Play__have_queue:
+    sep #$20
+.a8
+
+    ; --- group gate: matches BOR.C's outer `count_ents(TYPE_ENEMY) <
+    ; groupmin` check exactly -- blocks ALL further queue advancement
+    ; (spawns AND wait/group markers) until enough real enemies (not
+    ; props) have died. Same EnemyCount computation as the wait-release
+    ; check above, duplicated rather than factored into a shared
+    ; subroutine (this file's own calling-convention note: Spawn_Play is
+    ; entered via jsl/rtl from a different bank, and 65816_calling_
+    ; convention_bugs project memory flags jsl/rtl-vs-jsr/rts mismatches
+    ; as a real recurring bug class -- a few duplicated instructions is
+    ; cheaper than risking that here). ---
+    lda #0
+    sta.l Spawn_ScratchEnemyCount
+    lda.l Entity1_Hp
+    beq Spawn_Play__gc_slot2
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_slot2
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__gc_slot2:
+    sep #$20
+.a8
+    lda.l Entity2_Hp
+    beq Spawn_Play__gc_slot3
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_slot3
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__gc_slot3:
+    sep #$20
+.a8
+    lda.l Entity3_Hp
+    beq Spawn_Play__gc_sum_done
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_sum_done
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__gc_sum_done:
+    lda.l Spawn_ScratchEnemyCount
+    cmp.l Spawn_GroupMin
+    bcc Spawn_Play__group_ok        ; EnemyCount < GroupMin -- proceed
+    plp
+    rtl
+Spawn_Play__group_ok:
+    cmp.l Spawn_GroupMax
+    bcc Spawn_Play__active          ; EnemyCount < GroupMax -- proceed
     plp
     rtl
 Spawn_Play__active:
     sep #$20
 .a8
-    sta.l Spawn_ScratchIdx      ; A already holds the index from the cmp above
+    lda.l Spawn_Index
+    sta.l Spawn_ScratchIdx      ; zero-extend Spawn_Index the same way Spawn_Init does
     lda #0
     sta.l Spawn_ScratchIdx+1
 
@@ -344,6 +566,40 @@ Spawn_Play__triggered:
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchHp
 
+    ; --- wait/group/boss slice: wait/group markers dequeue unconditionally
+    ; once triggered+group-gated (matching BOR.C -- they don't wait on a
+    ; free AI slot, unlike an actual spawn), so dispatch them BEFORE
+    ; find_slot below. ---
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_WAIT
+    beq Spawn_Play__do_wait
+    cmp #SPAWN_KIND_GROUP
+    beq Spawn_Play__do_group
+    jmp Spawn_Play__find_slot
+
+Spawn_Play__do_wait:
+    sep #$20
+.a8
+    lda #1
+    sta.l Spawn_Waiting
+    rep #$31
+.a16
+.i16
+    lda Screen_PosX
+    sta Screen_MaxX
+    sep #$20
+.a8
+    jmp Spawn_Play__advance
+
+Spawn_Play__do_group:
+    ; Spawn_ScratchX's low byte is group_min (record+2), high byte is
+    ; group_max (record+3) -- see this file's own record-layout comment.
+    lda.l Spawn_ScratchX
+    sta.l Spawn_GroupMin
+    lda.l Spawn_ScratchX+1
+    sta.l Spawn_GroupMax
+    jmp Spawn_Play__advance
+
 Spawn_Play__find_slot:
     sep #$20
 .a8
@@ -389,24 +645,41 @@ Spawn_Play__slot1:
     sep #$20
 .a8
     ; plan_game.md G8: CHAR_INPUT_DRIVEN and starting HP both now depend on
-    ; the record's own entity_kind -- a slot that alternates between an
+    ; the record's own record_kind -- a slot that alternates between an
     ; enemy record and a prop record across two different waves must be
     ; re-set correctly every time, not left at whatever the boot default
-    ; (CHAR_INPUT_DRIVEN_AI) or a PREVIOUS record here left it.
+    ; (CHAR_INPUT_DRIVEN_AI) or a PREVIOUS record here left it. wait/group/
+    ; boss slice: also resets/sets Entity1_IsBoss every time, so a slot
+    ; that alternates between a boss record and a plain enemy/prop record
+    ; doesn't inherit a stale flag from its previous occupant.
     lda.l Spawn_ScratchKind
-    beq Spawn_Play__slot1_enemy
+    cmp #SPAWN_KIND_PROP
+    bne Spawn_Play__slot1_not_prop
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity1_InputDriven
     lda #CHAR_HP_PER_HIT
     sta.l Entity1_Hp
+    lda #0
+    sta.l Entity1_IsBoss
     jmp Spawn_Play__advance
-Spawn_Play__slot1_enemy:
+Spawn_Play__slot1_not_prop:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity1_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity1_Hp
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS
+    bne Spawn_Play__slot1_not_boss
+    lda #1
+    sta.l Entity1_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot1_not_boss:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity1_IsBoss
     jmp Spawn_Play__advance
 Spawn_Play__slot2:
     rep #$31
@@ -429,19 +702,33 @@ Spawn_Play__slot2:
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
-    beq Spawn_Play__slot2_enemy
+    cmp #SPAWN_KIND_PROP
+    bne Spawn_Play__slot2_not_prop
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity2_InputDriven
     lda #CHAR_HP_PER_HIT
     sta.l Entity2_Hp
+    lda #0
+    sta.l Entity2_IsBoss
     jmp Spawn_Play__advance
-Spawn_Play__slot2_enemy:
+Spawn_Play__slot2_not_prop:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity2_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity2_Hp
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS
+    bne Spawn_Play__slot2_not_boss
+    lda #1
+    sta.l Entity2_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot2_not_boss:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity2_IsBoss
     jmp Spawn_Play__advance
 Spawn_Play__slot3:
     rep #$31
@@ -464,19 +751,33 @@ Spawn_Play__slot3:
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
-    beq Spawn_Play__slot3_enemy
+    cmp #SPAWN_KIND_PROP
+    bne Spawn_Play__slot3_not_prop
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity3_InputDriven
     lda #CHAR_HP_PER_HIT
     sta.l Entity3_Hp
+    lda #0
+    sta.l Entity3_IsBoss
     jmp Spawn_Play__advance
-Spawn_Play__slot3_enemy:
+Spawn_Play__slot3_not_prop:
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
     sta.l Entity3_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity3_Hp
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS
+    bne Spawn_Play__slot3_not_boss
+    lda #1
+    sta.l Entity3_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot3_not_boss:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity3_IsBoss
 
 Spawn_Play__advance:
     sep #$20

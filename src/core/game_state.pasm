@@ -1112,6 +1112,15 @@ Stage_ApplyWinClamp:
     bcs Stage_ApplyWinClamp__no_hold   ; hold point >= true max -- nothing to hold
     sta Screen_MaxX
 Stage_ApplyWinClamp__no_hold:
+    ; --- wait/group/boss slice: cache whatever Screen_MaxX now holds (the
+    ; hold-clamp value, or the true width if no hold applies) so
+    ; core/spawn.pasm's Spawn_Play can restore it when a `wait` block
+    ; releases and the stage isn't cleared yet -- this is the ONLY other
+    ; writer of Spawn_PreClearHoldX; Spawn_Play only ever restores what was
+    ; computed here, never derives its own value (see spawn.pasm's own
+    ; header for why that matters). ---
+    lda Screen_MaxX
+    sta.l Spawn_PreClearHoldX
     sep #$20
 .a8
     lda #0

@@ -19,15 +19,38 @@ slots, holds the rest pending, and drains them as kills free slots) without
 partitioning events across slots, which would scatter a wave into
 unrelated trickle spawns (see this session's advisor consult).
 
-Two further, deliberate simplifications, not oversights:
-  - `wait`/`group` events are parsed by spawn_parse.py but NOT emitted into
-    this table -- this phase does not implement scroll-blocking-until-clear
-    or respawn-pool sizing.
+One further, deliberate simplification, not an oversight:
   - Every record spawns using whichever roster character is already wired
     to the slot it lands in (JHUN/JOE/JHUN -- see main.pasm's roster). The
-    source level's specific character names (Shermie, Yashiro, ...) and the
-    source level's own `health` override are NOT modeled. Position/timing
-    fidelity is the goal; character identity is explicitly not.
+    source level's specific character names (Shermie, Yashiro, ...) are NOT
+    modeled. Position/timing fidelity is the goal; character identity is
+    explicitly not.
+
+## `wait`/`group`/`boss` (2026-08-22, follow-up to "level content" generalization)
+
+**Previously** `wait`/`group` events were parsed by spawn_parse.py but not
+emitted into this table at all, and `boss` was dropped even though the
+record already carried an unused byte. Real data (verified, not assumed):
+BOR's own two shipped stages have 6+2 (`wait`+`group`) events in 1A, 5+2 in
+1B, but ZERO `boss` lines in either. TMNT's pak (present in repo root, not
+yet converted/buildable) has 6 real `boss 1` spawns and 44 more `wait`
+events, but no `group` usage. So `wait`/`group` are implemented against
+real, buildable, gate-able BOR data; `boss` is real data plumbing sourced
+from spawn_parse.py's already-correct `SpawnEvent.boss` field, but has no
+buildable pak to verify it end-to-end today (see core/spawn.pasm's own
+header for the same caveat on the runtime side).
+
+Real semantics, read directly from Plombo/beatsofrage's `BOR.C`
+(`update_scroller()`, ~line 4749-4786), not assumed: `wait`/`group`/`spawn`
+are ONE single ordered queue (this module's `events` list, already in
+correct order) walked by a single running index. `group min max` sets
+GLOBAL mutable pool-size state (default 100/100 = effectively unlimited,
+reset every level load) that gates ALL further queue advancement --
+spawning pauses entirely once `count_ents(TYPE_ENEMY) >= groupmin`, and
+resumes (refilling up to `groupmax`) once it drops below `groupmin` again.
+`wait` blocks camera scroll until zero enemies (not props) remain alive,
+then releases. See core/spawn.pasm's own header for the runtime half of
+this algorithm.
 
 ## Entity kind (plan_game.md G8, first slice)
 
@@ -119,17 +142,32 @@ level's `health` line should override.
 ## Binary format
 
 Flat array of 8-byte little-endian records, in trigger order (already
-monotonic non-decreasing in the source file -- verified for 1AEASY.TXT):
+monotonic non-decreasing in the source file -- verified for 1AEASY.TXT).
+The record layout is UNCHANGED in size from before the wait/group/boss
+slice -- byte +6 (`record_kind`, was `entity_kind`) is generalized to a
+5-way discriminator instead of widening the record, specifically to avoid
+touching the four hand-synced *8/record-size sites core/spawn.pasm's own
+header calls out (Spawn_CountX8, SPAWN_MAX_RECORDS*8, the last-record seek,
+Spawn_Play's own shift):
 
     +0-1  trigger_x   (u16 LE) -- SNES world-px camera position that arms this record
-    +2-3  spawn_x     (u16 LE) -- SNES world-px initial position
-    +4    spawn_y     (u8)     -- SNES px initial Y (clamped 0-255)
-    +5    facing_left (u8)     -- 0 or 1, CHAR_FACING_LEFT convention
-    +6    entity_kind (u8)     -- 0 = enemy, 1 = prop/pickup (plan_game.md G8;
-                                   was "reserved, always 0" before that change)
+    +2-3  spawn_x     (u16 LE) -- SNES world-px initial position.
+                                   record_kind==3 (group) repurposes these
+                                   two bytes as group_min (+2) / group_max
+                                   (+3) instead (single bytes, real values
+                                   are always <=100).
+    +4    spawn_y     (u8)     -- SNES px initial Y (clamped 0-255). 0 for
+                                   wait/group records.
+    +5    facing_left (u8)     -- 0 or 1, CHAR_FACING_LEFT convention. 0 for
+                                   wait/group records.
+    +6    record_kind (u8)     -- 0 = enemy, 1 = prop/pickup, 2 = wait,
+                                   3 = group, 4 = boss enemy (was
+                                   `entity_kind`, 0/1 only, before this
+                                   slice -- see this module's own "wait/
+                                   group/boss" section above)
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
-                                   (0..CHAR_HP_MAX); ignored for props (see
-                                   above). Was "not modeled" before this change.
+                                   (0..CHAR_HP_MAX); ignored for props and
+                                   wait/group records.
 
 No header/count prefix -- the record count is threaded through as a
 separate build-time constant (see pack_msu_roster.py's spawn section and
@@ -153,11 +191,14 @@ CHAR_HP_MAX = 64   # == main.pasm's CHAR_HP_MAX; hand-copied here since this
 
 PROP_HP = 4   # == main.pasm's CHAR_HP_PER_HIT: one hit takes a prop from
               # alive to exactly 0, never partially damaged.
-ENTITY_KIND_ENEMY = 0
-ENTITY_KIND_PROP = 1
+RECORD_KIND_ENEMY = 0
+RECORD_KIND_PROP = 1
+RECORD_KIND_WAIT = 2
+RECORD_KIND_GROUP = 3
+RECORD_KIND_BOSS = 4
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
-# else (enemy, player, or an unset/unusual type) spawns as ENTITY_KIND_ENEMY.
+# else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
 PROP_ENTITY_TYPES = {'obstacle', 'item'}
 
 
@@ -197,16 +238,37 @@ def build_type_lookup(pak_path):
     return lookup
 
 
-def convert_events(spawns, type_lookup):
-    """spawns: list of spawn_parse.SpawnEvent, in trigger order. type_lookup:
-    build_type_lookup(pak_path)'s result -- entity kind is derived from each
-    spawned character's own real `type` field, not a hardcoded name list
-    (see build_type_lookup's docstring). A name absent from the lookup
-    (shouldn't happen for a real pak's own characters) defaults to
-    ENTITY_KIND_ENEMY, matching this module's pre-generalization behavior.
-    Returns (record_count, packed_bytes)."""
+def convert_events(events, type_lookup):
+    """events: list of spawn_parse.SpawnEvent/WaitEvent/GroupEvent, in
+    trigger order (spawn_parse.py already interleaves all three correctly --
+    see core/spawn.pasm's own header for why this single ordered queue
+    matters: BOR.C's `group`/`wait` markers are walked in the SAME queue as
+    spawns, not separate tables). type_lookup: build_type_lookup(pak_path)'s
+    result -- entity kind is derived from each spawned character's own real
+    `type` field, not a hardcoded name list (see build_type_lookup's
+    docstring). A name absent from the lookup (shouldn't happen for a real
+    pak's own characters) defaults to RECORD_KIND_ENEMY, matching this
+    module's pre-generalization behavior. Returns (record_count,
+    packed_bytes)."""
+    sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent))
+    from spawn_parse import SpawnEvent, WaitEvent, GroupEvent
+
     out = bytearray()
-    for e in spawns:
+    for e in events:
+        if isinstance(e, WaitEvent):
+            trigger_x = round(e.at * SCALE)
+            out += struct.pack('<HHBBBB', trigger_x & 0xFFFF, 0, 0, 0,
+                                RECORD_KIND_WAIT, 0)
+            continue
+        if isinstance(e, GroupEvent):
+            trigger_x = round(e.at * SCALE)
+            group_min = max(0, min(255, e.group_min))
+            group_max = max(0, min(255, e.group_max))
+            out += struct.pack('<HBBBBBB', trigger_x & 0xFFFF, group_min,
+                                group_max, 0, 0, RECORD_KIND_GROUP, 0)
+            continue
+
+        assert isinstance(e, SpawnEvent)
         trigger_x = round(e.at * SCALE)
         spawn_x = round((e.at + e.coords[0]) * SCALE)
         spawn_y = round(e.coords[1] * SCALE)
@@ -214,24 +276,28 @@ def convert_events(spawns, type_lookup):
         facing_left = 1 - (e.flip & 1)
         entity_type = type_lookup.get(e.character.lower())
         is_prop = entity_type in PROP_ENTITY_TYPES
-        entity_kind = ENTITY_KIND_PROP if is_prop else ENTITY_KIND_ENEMY
+        if is_prop:
+            record_kind = RECORD_KIND_PROP
+        elif e.boss:
+            record_kind = RECORD_KIND_BOSS
+        else:
+            record_kind = RECORD_KIND_ENEMY
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:
             spawn_hp = round(e.health * CHAR_HP_MAX / 100)
             spawn_hp = max(1, min(CHAR_HP_MAX, spawn_hp))
         out += struct.pack('<HHBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
-                            spawn_y, facing_left, entity_kind, spawn_hp)
-    return len(spawns), bytes(out)
+                            spawn_y, facing_left, record_kind, spawn_hp)
+    return len(events), bytes(out)
 
 
 def build_from_pak(pak_path, entry_name):
     sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent))
-    from spawn_parse import parse_spawns_from_pak, SpawnEvent
+    from spawn_parse import parse_spawns_from_pak
     events = parse_spawns_from_pak(pak_path, entry_name)
-    spawns = [e for e in events if isinstance(e, SpawnEvent)]
     type_lookup = build_type_lookup(pak_path)
-    return convert_events(spawns, type_lookup)
+    return convert_events(events, type_lookup)
 
 
 def main():
