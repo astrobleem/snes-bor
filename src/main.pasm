@@ -2293,7 +2293,6 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/oam.pasm"
 .include "core/stream_cache.pasm"
 .include "core/stream_cache_fp.pasm"
-.include "core/spawn.pasm"
 .include "core/game_state.pasm"
 
 ; ============================================================================
@@ -2519,34 +2518,52 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 36        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 49        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
 Entity1_FacingLeft = Entity1_Base + 8 ; Entity #1's CHAR_FACING_LEFT (spawn-table phase)
+Entity1_FrameIndex  = Entity1_Base + 9    ; Entity #1's CHAR_FRAME_INDEX
+Entity1_TickCounter = Entity1_Base + 10   ; Entity #1's CHAR_TICK_COUNTER
+Entity1_Selected    = Entity1_Base + 11   ; Entity #1's CHAR_SELECTED
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
 Entity1_Hp      = Entity1_Base + 35   ; Entity #1's CHAR_HP
+Entity1_KnockdownCount = Entity1_Base + 46 ; Entity #1's CHAR_KNOCKDOWN_COUNT
+Entity1_KnockdownTimer = Entity1_Base + 47 ; Entity #1's CHAR_KNOCKDOWN_TIMER
+Entity1_FallStateTimer = Entity1_Base + 48 ; Entity #1's CHAR_FALL_STATE_TIMER
 Entity1_InputDriven = Entity1_Base + 15   ; Entity #1's CHAR_INPUT_DRIVEN
                                             ; (plan_game.md G8 -- Spawn_Play
                                             ; now needs to WRITE this per
                                             ; spawn-kind, not just leave
                                             ; whatever CharacterEntity_Init
                                             ; set at boot)
-Entity2_Base    = $7E0a00 + 72        ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 98        ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
 Entity2_FacingLeft = Entity2_Base + 8 ; Entity #2's CHAR_FACING_LEFT (spawn-table phase)
+Entity2_FrameIndex  = Entity2_Base + 9    ; Entity #2's CHAR_FRAME_INDEX
+Entity2_TickCounter = Entity2_Base + 10   ; Entity #2's CHAR_TICK_COUNTER
+Entity2_Selected    = Entity2_Base + 11   ; Entity #2's CHAR_SELECTED
 Entity2_HitStun = Entity2_Base + 33   ; Entity #2's CHAR_HIT_STUN
 Entity2_Hp      = Entity2_Base + 35   ; Entity #2's CHAR_HP
+Entity2_KnockdownCount = Entity2_Base + 46 ; Entity #2's CHAR_KNOCKDOWN_COUNT
+Entity2_KnockdownTimer = Entity2_Base + 47 ; Entity #2's CHAR_KNOCKDOWN_TIMER
+Entity2_FallStateTimer = Entity2_Base + 48 ; Entity #2's CHAR_FALL_STATE_TIMER
 Entity2_InputDriven = Entity2_Base + 15   ; Entity #2's CHAR_INPUT_DRIVEN (plan_game.md G8)
-Entity3_Base    = $7E0a00 + 108       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 147       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
 Entity3_FacingLeft = Entity3_Base + 8 ; Entity #3's CHAR_FACING_LEFT (spawn-table phase)
+Entity3_FrameIndex  = Entity3_Base + 9    ; Entity #3's CHAR_FRAME_INDEX
+Entity3_TickCounter = Entity3_Base + 10   ; Entity #3's CHAR_TICK_COUNTER
+Entity3_Selected    = Entity3_Base + 11   ; Entity #3's CHAR_SELECTED
 Entity3_HitStun = Entity3_Base + 33   ; Entity #3's CHAR_HIT_STUN
 Entity3_Hp      = Entity3_Base + 35   ; Entity #3's CHAR_HP
+Entity3_KnockdownCount = Entity3_Base + 46 ; Entity #3's CHAR_KNOCKDOWN_COUNT
+Entity3_KnockdownTimer = Entity3_Base + 47 ; Entity #3's CHAR_KNOCKDOWN_TIMER
+Entity3_FallStateTimer = Entity3_Base + 48 ; Entity #3's CHAR_FALL_STATE_TIMER
 Entity3_InputDriven = Entity3_Base + 15   ; Entity #3's CHAR_INPUT_DRIVEN (plan_game.md G8)
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
@@ -2653,7 +2670,9 @@ CHAR_POS_Y           = 6    ; .dw -- screen Y (Step 2)
 CHAR_FACING_LEFT    = 8    ; .db
 CHAR_FRAME_INDEX    = 9    ; .db
 CHAR_TICK_COUNTER   = 10   ; .db
-CHAR_SELECTED       = 11   ; .db -- 0=idle/1=walk/2=attack, mirrors old Anim_Selected
+CHAR_SELECTED       = 11   ; .db -- 0=idle/1=walk/2=attack/3=fall/4=rise (fall/
+                            ; rise added plan_game.md G7 knockdown slice),
+                            ; mirrors old Anim_Selected
 CHAR_ROSTER_INDEX   = 12   ; .db -- which bor.msu slot this instance loaded (Step 4)
 CHAR_PALETTE_SLOT   = 13   ; .db -- 0-7, this instance's OBJ palette (Step 3)
 CHAR_TILE_COLUMN    = 14   ; .db -- 0-3, this instance's OBJ tile-block-0 column slice (Step 3)
@@ -2709,11 +2728,54 @@ CHAR_HIT_APPLIED    = 34   ; .db -- 1 once this attack cycle already landed a hi
 ; behaviour at 0; the value just clamps there. Decremented in the same place
 ; CHAR_HIT_STUN is stamped, so it tracks landed hits exactly.
 CHAR_HP             = 35   ; .db -- 0..CHAR_HP_MAX, drives the HUD bars
-CHAR_ZP_LEN         = 36   ; total -- pass as OopRegStaging_ZpLen
+; --- plan_game.md G7 knockdown/getting-up slice: fields mirror OpenBOR's
+; real checkdamagedrop()/set_fall()/common_lie()/set_rise() state machine
+; (see that slice's plan for the sourced derivation, not invented). ---
+CHAR_FALL_FCOUNT    = 36   ; .db
+CHAR_RISE_FCOUNT    = 37   ; .db
+CHAR_FALL_DELAY     = 38   ; .db
+CHAR_RISE_DELAY     = 39   ; .db
+CHAR_FALL_BASE_LO   = 40   ; .dw
+CHAR_FALL_BASE_HI   = 42   ; .db
+CHAR_RISE_BASE_LO   = 43   ; .dw
+CHAR_RISE_BASE_HI   = 45   ; .db
+CHAR_KNOCKDOWN_COUNT = 46  ; .db -- signed; mirrors self->knockdowncount
+CHAR_KNOCKDOWN_TIMER = 47  ; .db -- mirrors self->knockdowntime; 0 = expired/regen-ready
+CHAR_FALL_STATE_TIMER = 48 ; .db -- reused for the lying-hold then the
+                            ; post-death blink window (never both active)
+CHAR_ZP_LEN         = 49   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
 CHAR_HP_PER_HIT     = 4    ; 16 hits to empty a bar
+CHAR_SELECTED_FALL  = 3    ; Anim_Play__dispatch value; subsumes the real
+                            ; engine's fall+lie (no separate lie animation
+                            ; exists in source -- lying is a hold on fall's
+                            ; last frame, see that slice's plan)
+CHAR_SELECTED_RISE  = 4
+; Real OpenBOR: attack.attack_drop is authored per attack FRAME; this port
+; has exactly one attack (attack1), and its real frames (RALF/JOE/JHUN/
+; YASHIRO.TXT, all verified this slice) all omit the drop argument -> 0.
+; Flat constant, same precedent as CHAR_HP_PER_HIT already being flat
+; despite per-character real force values existing in source. A future
+; multi-move slice must NOT reuse this constant for a new move's own drop.
+CHAR_ATTACK_DROP     = 0
+; Real OpenBOR: modeldata.knockdowncount (max resistance), calloc'd to 0;
+; none of the 4 roster characters override it in their real .TXT.
+CHAR_KNOCKDOWN_MAX   = 0
+; Real GAME_SPEED=200 borTime-units/sec (openbor.h); knockdowntime resets
+; after GAME_SPEED units = 1 real second = 60 frames @ NTSC 60fps.
+KNOCKDOWN_REGEN_FRAMES = 60
+; Real: GAME_SPEED - risetime[0]; risetime[0] defaults to GAME_SPEED for
+; type=enemy (all 4 roster chars, verified in their real .TXT) -> 0.
+FALL_LIE_EXTRA_FRAMES = 0
+; Real: GAME_SPEED*2 borTime-units = 2 real seconds = 120 frames @ NTSC
+; 60fps (nodieblink defaults unset for all 4 -> the blink path is taken).
+DEATH_BLINK_FRAMES   = 120
+; Real: borTime % (GAME_SPEED/10) < (GAME_SPEED/20) -> a 20-unit cycle
+; (100ms = 6 frames @ 60fps), hidden for the first 10 units (3 frames).
+DEATH_BLINK_PERIOD   = 6
+DEATH_BLINK_HIDDEN_FRAMES = 3
 
 ; Phase G6 (plan_game.md 6): scoring. Arbitrary arcade-style defaults, same
 ; "arbitrary, documented as such" convention core/game_state.pasm's own
@@ -3275,6 +3337,16 @@ Anim_Play__loaded:
     bcc Anim_Play__not_dead
     lda CHAR_HP
     bne Anim_Play__not_dead
+    ; plan_game.md G7 knockdown slice: a freshly-killed entity must still
+    ; run its fall sequence (Anim_Play_Fall) instead of freezing instantly
+    ; -- CHAR_SELECTED==3 subsumes the whole fall+lie+blink tail (see that
+    ; slice's plan). Anim_Play_Fall's own state machine self-limits its
+    ; Msu1_LoadFrame calls once truly finished (CHAR_FALL_STATE_TIMER==$FF),
+    ; re-establishing the same one-entity-per-frame streaming-budget
+    ; discipline this gate exists to protect, without this gate's own help.
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_FALL
+    beq Anim_Play__not_dead
     rep #$31
 .a16
 .i16
@@ -3316,8 +3388,27 @@ Anim_Play__stunned_reset:
 Anim_Play__not_stunned:
     lda CHAR_SELECTED
     cmp #2
-    bne Anim_Play__check_attack_trigger
+    bne Anim_Play__not_attacking
     brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__not_attacking:
+.a8
+    ; plan_game.md G7 knockdown slice: a fall/rise reaction (CHAR_SELECTED
+    ; 3/4) must run to completion untouched by AI/input re-triggering, same
+    ; "already reacting, ignore input, let it finish" shape as the attack
+    ; check just above -- without this, Anim_Play__ai_seek below
+    ; unconditionally re-decides CHAR_SELECTED every single frame (it has
+    ; no concept of "already reacting"), so a knocked-down AI entity within
+    ; attack range of the player got its CHAR_SELECTED stomped back to 2
+    ; (attack) on the very next frame after Character_HitApply__ApplyDamage
+    ; set it to 3 (fall) -- found by this slice's own gate never seeing
+    ; CHAR_SELECTED settle on FALL/RISE at all.
+    cmp #CHAR_SELECTED_FALL
+    beq Anim_Play__reacting
+    cmp #CHAR_SELECTED_RISE
+    bne Anim_Play__check_attack_trigger
+Anim_Play__reacting:
+    brl Anim_Play__dispatch
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__check_attack_trigger:
     ; --- plan.md Phase 3: route animation-selection by movement source
@@ -3468,6 +3559,10 @@ Anim_Play__dispatch:
     sep #$20
 .a8
     lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_FALL
+    beq Anim_Play__fall
+    cmp #CHAR_SELECTED_RISE
+    beq Anim_Play__rise
     cmp #2
     beq Anim_Play__attack
     cmp #1
@@ -3481,6 +3576,14 @@ Anim_Play__walk:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__attack:
     jsr Anim_Play_Attack
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__fall:
+    jsr Anim_Play_Fall
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__rise:
+    jsr Anim_Play_Rise
     rts
 
 ; Checks currently-held dpad Left/Right (Input_press, not Input_trigger --
@@ -3704,6 +3807,166 @@ Anim_Play_Attack__frame_ok:
     sep #$20
 .a8
     lda CHAR_ATTACK_BASE_HI
+    sta.l AnimHeaderStaging+2
+    lda CHAR_FRAME_INDEX
+    jsr Msu1_LoadFrame
+    rts
+
+; plan_game.md G7 knockdown slice. Anim_Play_Fall plays CHAR_FALL_FCOUNT
+; frames non-looping (same shape as Anim_Play_Attack), then holds the last
+; frame and counts CHAR_FALL_STATE_TIMER down through a state machine that
+; reproduces OpenBOR's real common_fall/common_lie/set_rise/set_death chain
+; (see that slice's plan for the sourced derivation):
+;   CHAR_FALL_STATE_TIMER == 0   -- still playing frames 0..FCOUNT-1
+;   1 <= timer <= 120            -- holding: lying (CHAR_HP>0, transitions
+;                                   to rise after FALL_LIE_EXTRA_FRAMES, real
+;                                   value 0 for this roster) or dying-blink
+;                                   (CHAR_HP==0, DEATH_BLINK_FRAMES window;
+;                                   Character_PlayFrame's own hide-check
+;                                   reads this same field to blink the OAM
+;                                   sprite, not this routine)
+;   timer == $FF                 -- terminal: blink window finished, entity
+;                                   permanently parked (today's existing
+;                                   sticky-HP==0 convention, reached via a
+;                                   real fall sequence instead of an instant
+;                                   freeze)
+Anim_Play_Fall:
+    sep #$20
+.a8
+    ; plan_game.md G7 knockdown slice (post-review fix): the state-timer
+    ; hold/blink sub-phase must decay every frame regardless of streaming
+    ; contention -- real OpenBOR's knockdowntime/lying-delay/blink window
+    ; are borTime deadlines, not tied to animation-frame progress. Checked
+    ; BEFORE Msu1_StreamBusy so with 4 entities contending for the single
+    ; stream slot, the 120-frame death-blink window (and the 6-frame blink
+    ; cycle Character_PlayFrame reads from this same field) stay real-time
+    ; accurate instead of stretching under contention. Only the ==0
+    ; "still streaming fall frames" path below needs the busy gate.
+    lda CHAR_FALL_STATE_TIMER
+    beq Anim_Play_Fall__stream_gate
+    cmp #$FF
+    beq Anim_Play_Fall__still_holding  ; terminal: re-stores $FF, harmless
+    dec a
+    bne Anim_Play_Fall__still_holding
+    ; Reached 0 this tick -- resolve to rise (alive) or the terminal parked
+    ; state (dead, shares the still_holding tail below to store $FF).
+    lda CHAR_HP
+    bne Anim_Play_Fall__to_rise
+    lda #$FF
+Anim_Play_Fall__still_holding:
+    sta CHAR_FALL_STATE_TIMER
+    brl Anim_Done
+Anim_Play_Fall__to_rise:
+    sep #$20
+.a8
+    lda #0
+    sta CHAR_FALL_STATE_TIMER
+    lda #CHAR_SELECTED_RISE
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Done
+Anim_Play_Fall__stream_gate:
+.a8
+    lda.l Msu1_StreamBusy
+    beq Anim_Play_Fall__playing_frames
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Fall__playing_frames:
+.a8
+    lda CHAR_TICK_COUNTER
+    dec a
+    sta CHAR_TICK_COUNTER
+    beq Anim_Play_Fall__advance
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Fall__advance:
+    sep #$20
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_FALL_FCOUNT
+    bcc Anim_Play_Fall__frame_ok
+    ; Fall animation finished -- enter the hold sub-phase. CHAR_FRAME_INDEX
+    ; stays parked at its last valid value; no more streaming until the
+    ; state timer resolves.
+    lda CHAR_HP
+    bne Anim_Play_Fall__hold_alive
+    lda #DEATH_BLINK_FRAMES+1
+    sta CHAR_FALL_STATE_TIMER
+    brl Anim_Done
+Anim_Play_Fall__hold_alive:
+    sep #$20
+.a8
+    lda #FALL_LIE_EXTRA_FRAMES+1
+    sta CHAR_FALL_STATE_TIMER
+    brl Anim_Done
+Anim_Play_Fall__frame_ok:
+    sta CHAR_FRAME_INDEX
+    lda CHAR_FALL_DELAY
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda CHAR_FALL_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_FALL_BASE_HI
+    sta.l AnimHeaderStaging+2
+    lda CHAR_FRAME_INDEX
+    jsr Msu1_LoadFrame
+    rts
+
+; plan_game.md G7 knockdown slice. Anim_Play_Rise plays CHAR_RISE_FCOUNT
+; frames non-looping (same shape as Anim_Play_Attack); on the last frame,
+; reverts CHAR_SELECTED to idle -- matches real OpenBOR's set_idle() at the
+; end of common_rise(). Real riseinv (post-rise invulnerability) exists in
+; source but none of the 4 roster characters set it -- correctly omitted.
+Anim_Play_Rise:
+    sep #$20
+.a8
+    lda.l Msu1_StreamBusy
+    beq Anim_Play_Rise__not_busy
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Rise__not_busy:
+    lda CHAR_TICK_COUNTER
+    dec a
+    sta CHAR_TICK_COUNTER
+    beq Anim_Play_Rise__advance
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Rise__advance:
+    sep #$20
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_RISE_FCOUNT
+    bcc Anim_Play_Rise__frame_ok
+    ; Rise animation finished -- revert to idle instead of wrapping.
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Rise__frame_ok:
+    sta CHAR_FRAME_INDEX
+    lda CHAR_RISE_DELAY
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda CHAR_RISE_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_RISE_BASE_HI
     sta.l AnimHeaderStaging+2
     lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
@@ -4772,6 +5035,29 @@ Character_PlayFrame__hi_store:
     bcc Character_PlayFrame__not_dead_hide
     lda CHAR_HP
     bne Character_PlayFrame__not_dead_hide
+    ; Dead. plan_game.md G7 knockdown slice: visibility now depends on the
+    ; fall/blink state machine (Anim_Play_Fall) instead of an unconditional
+    ; hide -- see that slice's plan for the sourced blink formula.
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_FALL
+    bne Character_PlayFrame__hide_now  ; not in the fall machine -- defensive fallback
+    lda CHAR_FALL_STATE_TIMER
+    beq Character_PlayFrame__not_dead_hide  ; ==0: still playing fall frames -- stay visible
+    cmp #$FF
+    beq Character_PlayFrame__hide_now       ; terminal -- permanently hidden
+    ; 1..DEATH_BLINK_FRAMES: blink window -- hidden iff (timer-1) mod
+    ; DEATH_BLINK_PERIOD < DEATH_BLINK_HIDDEN_FRAMES (real: borTime %
+    ; (GAME_SPEED/10) < GAME_SPEED/20, see that slice's plan derivation).
+    ; Relocated to bank 1 (AnimBlink_ShouldHide, vm_native_engine.pasm) to
+    ; fit bank 0's C100-FC00 budget -- same jsl/rtl precedent as
+    ; AnimBase_ComputeFallBase/ComputeRiseBase.
+    jsl AnimBlink_ShouldHide
+    sep #$20
+.a8
+    cmp #1
+    bne Character_PlayFrame__not_dead_hide  ; 0 = visible
+Character_PlayFrame__hide_now:
+.a8
     lda #$F0
     sta.l OamSetSprite_Y
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
@@ -4973,6 +5259,31 @@ Character_HitApply__done:
 ; Leaf: overlap-test this entity (own DP window, CHAR_POS_X/Y) against
 ; Entity #1's fixed-address box; on overlap, stamps Entity1_HitStun and
 ; this entity's own CHAR_HIT_APPLIED. Entered and exited in .a8 (caller's
+; plan_game.md G7 knockdown slice: shared score-and-finish tail, factored
+; out of VsEntity1/2/3 (was 3 duplicate copies, pushed bank 0 over its
+; C100-FC00 budget). Entered in .a8; A = Character_HitApply__ApplyDamage's
+; own return value (1 = this hit was a kill, 0 = not). Same
+; Game_Score_Award contract as before this slice (jsr, same-bank leaf).
+Character_HitApply__ScoreAndFinish:
+.a8
+    cmp #1
+    beq Character_HitApply__ScoreAndFinish__killed
+    lda #0
+    jsr Game_Score_Award
+    bra Character_HitApply__ScoreAndFinish__scored
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Character_HitApply__ScoreAndFinish__killed:
+    sep #$20
+.a8
+    lda #1
+    jsr Game_Score_Award
+Character_HitApply__ScoreAndFinish__scored:
+    sep #$20
+.a8
+    lda #1
+    sta CHAR_HIT_APPLIED
+    rts
+
 ; ambient width, unchanged) -- every branch target below is a handful of
 ; lines away, well inside 8-bit branch range. No caller-convention assumed
 ; on entry beyond that; doesn't touch X/Y.
@@ -5038,34 +5349,21 @@ Character_HitApply_VsEntity1__dy_ok:
     ; "no hit landed" early-out as the dead-target skip above.
     lda.l Entity1_InvulnFrames
     bne Character_HitApply_VsEntity1__dead_skip
-    lda #CHAR_HIT_STUN_FRAMES
-    sta.l Entity1_HitStun
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity1_InvulnFrames
-    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    lda.l Entity1_Hp
-    sec
-    sbc #CHAR_HP_PER_HIT
-    bcs Character_HitApply_VsEntity1__hp_ok
-    lda #0
-Character_HitApply_VsEntity1__hp_ok:
-    sta.l Entity1_Hp
-    ; Phase G6: score the hit (A still holds the just-stored, clamped HP --
-    ; zero means this hit was also a kill).
-    beq Character_HitApply_VsEntity1__killed
-    lda #0
-    jsr Game_Score_Award
-    bra Character_HitApply_VsEntity1__scored
-Character_HitApply_VsEntity1__killed:
+    ; plan_game.md G7 knockdown slice: knockdown-counter/HP-clamp/fall-vs-
+    ; stun/score logic is shared across all 3 entities via X-indexed .l
+    ; addressing (base+CHAR_* field, X = the entity's own EntityN_Base
+    ; delta from $7E0a00) -- kept out of these 3 leaves to fit the tight
+    ; C100-FC00 ROM budget; see Character_HitApply__ApplyDamage's header.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsl Character_HitApply__ApplyDamage
     sep #$20
 .a8
-    lda #1
-    jsr Game_Score_Award
-Character_HitApply_VsEntity1__scored:
-    sep #$20
-.a8
-    lda #1
-    sta CHAR_HIT_APPLIED
+    jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity1__dead_skip:
     rts
@@ -5127,33 +5425,17 @@ Character_HitApply_VsEntity2__dy_ok:
     ; G7 second slice: see VsEntity1's comment.
     lda.l Entity2_InvulnFrames
     bne Character_HitApply_VsEntity2__dead_skip
-    lda #CHAR_HIT_STUN_FRAMES
-    sta.l Entity2_HitStun
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity2_InvulnFrames
-    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    lda.l Entity2_Hp
-    sec
-    sbc #CHAR_HP_PER_HIT
-    bcs Character_HitApply_VsEntity2__hp_ok
-    lda #0
-Character_HitApply_VsEntity2__hp_ok:
-    sta.l Entity2_Hp
-    ; Phase G6: score the hit -- see VsEntity1's own comment.
-    beq Character_HitApply_VsEntity2__killed
-    lda #0
-    jsr Game_Score_Award
-    bra Character_HitApply_VsEntity2__scored
-Character_HitApply_VsEntity2__killed:
+    ; plan_game.md G7 knockdown slice: see VsEntity1's own comment.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsl Character_HitApply__ApplyDamage
     sep #$20
 .a8
-    lda #1
-    jsr Game_Score_Award
-Character_HitApply_VsEntity2__scored:
-    sep #$20
-.a8
-    lda #1
-    sta CHAR_HIT_APPLIED
+    jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity2__dead_skip:
     rts
@@ -5208,33 +5490,17 @@ Character_HitApply_VsEntity3__dy_ok:
     ; G7 second slice: see VsEntity1's comment.
     lda.l Entity3_InvulnFrames
     bne Character_HitApply_VsEntity3__dead_skip
-    lda #CHAR_HIT_STUN_FRAMES
-    sta.l Entity3_HitStun
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity3_InvulnFrames
-    ; Phase 6: same landed hit also costs the target HP, clamped at 0.
-    lda.l Entity3_Hp
-    sec
-    sbc #CHAR_HP_PER_HIT
-    bcs Character_HitApply_VsEntity3__hp_ok
-    lda #0
-Character_HitApply_VsEntity3__hp_ok:
-    sta.l Entity3_Hp
-    ; Phase G6: score the hit -- see VsEntity1's own comment.
-    beq Character_HitApply_VsEntity3__killed
-    lda #0
-    jsr Game_Score_Award
-    bra Character_HitApply_VsEntity3__scored
-Character_HitApply_VsEntity3__killed:
+    ; plan_game.md G7 knockdown slice: see VsEntity1's own comment.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsl Character_HitApply__ApplyDamage
     sep #$20
 .a8
-    lda #1
-    jsr Game_Score_Award
-Character_HitApply_VsEntity3__scored:
-    sep #$20
-.a8
-    lda #1
-    sta CHAR_HIT_APPLIED
+    jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity3__dead_skip:
     rts
@@ -5540,6 +5806,20 @@ Anim_LoadCharacter__record_read:
     sta CHAR_WALK_DELAY
     lda.l AnimHeaderStaging+5
     sta CHAR_ATTACK_DELAY
+    ; plan_game.md G7 knockdown slice: fall/rise's frame_count/delay live in
+    ; the record's own +6/+7 and +14/+15 padding (pack_msu_roster.py's
+    ; build_record) -- MUST be read here, before ANY of the base-offset
+    ; scratch math below reuses AnimHeaderStaging+12..+15 (it does, for
+    ; walk_base's own n*768 computation), or these bytes would already be
+    ; clobbered by the time this routine got around to them.
+    lda.l AnimHeaderStaging+6
+    sta CHAR_FALL_FCOUNT
+    lda.l AnimHeaderStaging+7
+    sta CHAR_FALL_DELAY
+    lda.l AnimHeaderStaging+14
+    sta CHAR_RISE_FCOUNT
+    lda.l AnimHeaderStaging+15
+    sta CHAR_RISE_DELAY
 
     ; Packer leaves unused slots fully zeroed -- a zero idle_frame_count is
     ; a cheap free validity check (see the plan's Phase 5). Nothing to
@@ -5642,6 +5922,19 @@ Anim_LoadCharacter__slot_ok:
     lda CHAR_WALK_BASE_HI
     adc.l AnimHeaderStaging+15
     sta CHAR_ATTACK_BASE_HI
+
+    ; --- fall_base/rise_base (24-bit): relocated to bank 1
+    ; (core/vm/vm_native_engine.pasm's AnimBase_ComputeFallBase/
+    ; ComputeRiseBase) purely to free bank 0's tight $C100-$FC00 ROM
+    ; budget -- pure WRAM arithmetic, safe across jsl/rtl (D unchanged,
+    ; no MSU register access). See that file's own header for why this
+    ; differs from Msu1_LoadFrame's same-bank-only constraint. ---
+    jsl AnimBase_ComputeFallBase
+    sep #$20
+.a8
+    jsl AnimBase_ComputeRiseBase
+    sep #$20
+.a8
 
     ; --- Palette (Phase 2 step 2): seek to this character's data_offset
     ; (AnimHeaderStaging+8/9/10 -- still the raw record bytes here, untouched
@@ -9977,7 +10270,7 @@ Boot_LoadFp__done:
     ; the per-frame Msu1_StreamBusy budget" shape as Bg_LoadSceneFp_
     ; Streaming just above -- not a per-frame streaming consumer, so this
     ; doesn't compete with Msu1_LoadFrame's one-entity-per-frame rule. ---
-    jsr Spawn_Init
+    jsl Spawn_Init
 
     ; --- Phase G4 (plan_game.md 4): stage 0's own win-condition setup,
     ; a shared jsr (core/game_state.pasm's Stage_ApplyWinClamp) rather than
@@ -10507,4 +10800,31 @@ Text_Str_HudLives:
     .db "LIVES ", $00
 Text_Str_HudStage:
     .db "STAGE ", $00
+
+; ============================================================================
+; core/spawn.pasm -- relocated to its own bank (2026-08-22, the structural
+; fix behind the repeated bank-0 $C100-$FC00 overflow: that window is a
+; fixed-size arena shared by every `.include`d core module, and new gameplay
+; logic keeps landing in it by default because that's where the entity
+; state it touches has always lived -- see this session's discussion for
+; the full reasoning). spawn.pasm has exactly two external entry points
+; (Spawn_Init, Spawn_Play, both `jsr`'d from bank 0 previously) and made NO
+; internal `jsr` calls of its own (grep-confirmed before this move) -- the
+; single cleanest module to pull out whole. Both entry points now end in
+; `rtl` and are reached via `jsl` from game_state.pasm/main.pasm; nothing
+; else about the file changed. This removes the ENTIRE ~400-line module
+; from bank 0's budget (versus the call-site-only savings a routine-by-
+; routine extraction gives), trading it for one `jsl` per call site instead
+; of N bytes of inline body.
+;
+; WRAM struct access (CHAR_*/EntityN_*/Spawn_*) is address-based and bank-
+; agnostic, so none of that needed to change. Poppy assembles textually in
+; one pass, so as long as this `.include` appears somewhere after the
+; CHAR_*/EntityN_* constant definitions (it does -- those are defined early
+; in bank 0, well before this point), the constants resolve identically
+; regardless of which bank the *code* using them lives in.
+; ============================================================================
+.bank 3
+.org $8000
+.include "core/spawn.pasm"
 

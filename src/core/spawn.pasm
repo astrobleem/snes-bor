@@ -216,7 +216,7 @@ Spawn_Init__seek_busy:
     lda #0
     sta.l Spawn_LastTriggerX
     plp
-    rts
+    rtl
 Spawn_Init__have_records:
 
     ; --- zero-extend Spawn_Count (a .db) into a 16-bit scratch before the
@@ -270,7 +270,7 @@ Spawn_Init__read:
     sta.l Spawn_LastTriggerX
 
     plp
-    rts
+    rtl
 
 ; Spawn_Play -- call once per scpu_main_loop iteration. Walks the single
 ; global queue: no-ops if the queue is exhausted, if the pending record's
@@ -285,7 +285,7 @@ Spawn_Play:
     cmp.l Spawn_Count
     bcc Spawn_Play__active
     plp
-    rts
+    rtl
 Spawn_Play__active:
     sep #$20
 .a8
@@ -363,7 +363,7 @@ Spawn_Play__find_slot_check3:
     jmp Spawn_Play__slot3
 Spawn_Play__find_slot_none:
     plp
-    rts                         ; no free slot -- record stays pending
+    rtl                         ; no free slot -- record stays pending
 Spawn_Play__slot1:
     rep #$31
 .a16
@@ -376,6 +376,18 @@ Spawn_Play__slot1:
     sta.l Entity1_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity1_FacingLeft
+    ; plan_game.md G7 knockdown slice: reset this slot's fall/knockdown
+    ; state BEFORE the enemy-vs-prop branch below -- a reused slot's
+    ; previous occupant may have died parked in the fall machine's terminal
+    ; state (CHAR_SELECTED==3, hidden); see Spawn_ResetKnockdownFall's own
+    ; header for the full reasoning.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsl Spawn_ResetKnockdownFall
+    sep #$20
+.a8
     ; plan_game.md G8: CHAR_INPUT_DRIVEN and starting HP both now depend on
     ; the record's own entity_kind -- a slot that alternates between an
     ; enemy record and a prop record across two different waves must be
@@ -408,6 +420,14 @@ Spawn_Play__slot2:
     sta.l Entity2_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity2_FacingLeft
+    ; plan_game.md G7 knockdown slice: see slot1's own comment.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsl Spawn_ResetKnockdownFall
+    sep #$20
+.a8
     lda.l Spawn_ScratchKind
     beq Spawn_Play__slot2_enemy
     lda #CHAR_INPUT_DRIVEN_PROP
@@ -435,6 +455,14 @@ Spawn_Play__slot3:
     sta.l Entity3_PosY
     lda.l Spawn_ScratchFacing
     sta.l Entity3_FacingLeft
+    ; plan_game.md G7 knockdown slice: see slot1's own comment.
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsl Spawn_ResetKnockdownFall
+    sep #$20
+.a8
     lda.l Spawn_ScratchKind
     beq Spawn_Play__slot3_enemy
     lda #CHAR_INPUT_DRIVEN_PROP
@@ -457,7 +485,7 @@ Spawn_Play__advance:
     inc a
     sta.l Spawn_Index
     plp
-    rts
+    rtl
 Spawn_Play__not_yet:
     plp
-    rts
+    rtl

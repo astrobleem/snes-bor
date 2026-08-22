@@ -118,15 +118,12 @@ src/main.pasm:CharacterEntity_OnCommand__camera
 src/main.pasm:Character_HitApply_VsEntity1__dx_have
 src/main.pasm:Character_HitApply_VsEntity1__dy_have
 src/main.pasm:Character_HitApply_VsEntity1__dy_ok
-src/main.pasm:Character_HitApply_VsEntity1__hp_ok
 src/main.pasm:Character_HitApply_VsEntity2__dx_have
 src/main.pasm:Character_HitApply_VsEntity2__dy_have
 src/main.pasm:Character_HitApply_VsEntity2__dy_ok
-src/main.pasm:Character_HitApply_VsEntity2__hp_ok
 src/main.pasm:Character_HitApply_VsEntity3__dx_have
 src/main.pasm:Character_HitApply_VsEntity3__dy_have
 src/main.pasm:Character_HitApply_VsEntity3__dy_ok
-src/main.pasm:Character_HitApply_VsEntity3__hp_ok
 src/main.pasm:Character_HitApply_VsPlayer__dx_have
 src/main.pasm:Character_HitApply_VsPlayer__dy_have
 src/main.pasm:Character_HitApply_VsPlayer__hp_ok

@@ -624,6 +624,29 @@ Game_State_Play__invuln2_done:
     dec a
     sta.l Entity3_InvulnFrames
 Game_State_Play__invuln3_done:
+    ; plan_game.md G7 knockdown slice: tick each AI entity's knockdown-regen
+    ; timer down once per frame too, same unconditional-if-nonzero shape --
+    ; real OpenBOR's knockdowntime is a free-running borTime deadline, not
+    ; something only checked on the next landed hit; without this decay it
+    ; would only ever expire once (Character_HitApply__ApplyDamage stamps
+    ; it to KNOCKDOWN_REGEN_FRAMES on every hit but nothing else here ticks
+    ; it down), leaving a future drop-carrying move's accumulated knockdown
+    ; permanently un-regenerated after the first hit ever lands.
+    lda.l Entity1_KnockdownTimer
+    beq Game_State_Play__kdtimer1_done
+    dec a
+    sta.l Entity1_KnockdownTimer
+Game_State_Play__kdtimer1_done:
+    lda.l Entity2_KnockdownTimer
+    beq Game_State_Play__kdtimer2_done
+    dec a
+    sta.l Entity2_KnockdownTimer
+Game_State_Play__kdtimer2_done:
+    lda.l Entity3_KnockdownTimer
+    beq Game_State_Play__kdtimer3_done
+    dec a
+    sta.l Entity3_KnockdownTimer
+Game_State_Play__kdtimer3_done:
     sep #$20
 .a8
     lda.l Stage_Cleared
@@ -706,7 +729,7 @@ Game_State_Play__stage_no_win:
     ; Spawn-table phase: runs before Hud_Play so a spawn landing this frame
     ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
     ; redraw instead of lagging one frame behind.
-    jsr Spawn_Play
+    jsl Spawn_Play
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
@@ -956,7 +979,7 @@ Stage_Load__fp_done:
 
     ; --- this stage's own spawn queue (Spawn_MsuOffsetLo/Hi/Spawn_Count
     ; already populated by Bg_LoadScene above) ---
-    jsr Spawn_Init
+    jsl Spawn_Init
 
     ; --- force the next Hud_Play call to redraw unconditionally: the BG3
     ; clear above just wiped the HUD's own tilemap entries, and the
