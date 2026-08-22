@@ -201,8 +201,8 @@ def main():
 
     # Vectors — fixed by .org directives in main.pasm
     RESET = 0xFC00   # scpu_boot
-    NMI = 0xFF90     # nmi_handler (rti stub)
-    IRQ = 0xFFA0     # irq_handler (rti stub)
+    NMI = 0xFFA0     # nmi_handler (rti stub)
+    IRQ = 0xFFB0     # irq_handler (rti stub)
 
     # COP/BRK/ABORT never fire intentionally in this codebase, but leaving
     # their vectors unset means they point at ROM offset 0 (zero-filled

@@ -356,6 +356,47 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
+> **Status: PARTIAL** (2026-08-21) — title screen only. `GATE G5: PASS`
+> (`tools/verify/game_g5_menus.py`). Per an advisor consult for this phase:
+> `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
+> every existing gate to press Start/force-write `Game_State` first); TITLE
+> is exercised the same way `game_g2_states.py` already does, a forced
+> `Game_State` write, and is organically reachable via a real GAME OVER
+> timeout (Phase G3) — this phase gives that stop actual content without
+> changing when it's entered. `core/game_state.pasm`'s `Game_State_Play__title`
+> is a `Title_Step`-driven multi-frame drip (draw title row → draw "PRESS
+> START" row → wait for Start → clear both rows → PLAYING), **not** a
+> single draw-everything-on-entry routine — `core/text.pasm`'s
+> `Core_Text_DrawString` shares one WRAM staging buffer with a QUEUED (not
+> synchronous) DMA, so two calls in the same frame corrupt each other (the
+> documented "1024-BOR" bug). Every string drawn fills the full 32-column
+> BG3 row (real text padded with trailing spaces), sidestepping a related
+> hazard: TextStaging's untouched columns hold whatever a *previous*
+> DrawString call (to a different row) left there, so a short string alone
+> would leave stale garbage in the columns past its own text.
+>
+> Character select was explicitly **not** built here — CLAUDE.md and G2's own
+> header both say the hard-coded `CharSelect_Index` roster is to be phased
+> out as `plan_vm.md` gates land, not invested in further. Pause menu content
+> is also deferred (the state already freezes correctly since G2; it
+> collides with `core/text.pasm`'s own documented BG3-frontpanel-vs-text
+> unresolved question, so it isn't bundled with a phase that didn't need to
+> touch that). Options (SRAM persistence) untouched.
+>
+> **ROM budget note:** this phase's ~6-byte boot-time `Title_Step` zero-init
+> in `scpu_boot` overflowed the fixed `$FC00`-region budget by exactly 6
+> bytes (Poppy's overlap error caught it immediately, per CLAUDE.md's
+> "errors now instead of silently truncating"). Fixed the same way four
+> prior pushes in this file's history did: `nmi_handler`/`irq_handler` moved
+> `$FF90`/`$FFA0` → `$FFA0`/`$FFB0` (`build_rom.py`'s NMI/IRQ vector
+> constants updated to match — still comfortably below `$FFE4`). Separately,
+> the title dispatch's own code size pushed several existing `Game_State_Play`
+> top-level `beq`s (to `__playing`/`__paused`/`__gameover`) out of the real
+> 65816 ±127-byte conditional-branch range — fixed by converting every
+> top-level state check (and the title step-machine's own inner dispatch) to
+> a short `bne`-past-a-`jmp` pattern instead of a direct `beq`, since `jmp`
+> has no range limit.
+
 Now that text exists (G1) and states exist (G2), these are mostly content.
 
 - **Title screen** — logo (convert BOR's own title art through `convert_bg.py`),

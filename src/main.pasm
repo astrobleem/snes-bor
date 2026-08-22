@@ -10143,6 +10143,13 @@ scpu_tm_row_no_bump:
 .a8
     lda #GAME_LIVES_START
     sta.l Game_Lives
+    ; Phase G5 (plan_game.md 5): Title_Step must not rely on WRAM
+    ; power-on-zero either (same rule as every other boot-time zero-init in
+    ; this block) -- a nonzero garbage value here would make the very first
+    ; TITLE entry (a later GAME OVER timeout) skip straight past drawing the
+    ; title text into TITLE_STEP_WAIT or worse.
+    lda #TITLE_STEP_DRAW_MAIN
+    sta.l Title_Step
     rep #$31
 .a16
 
@@ -10384,12 +10391,17 @@ scpu_main_loop:
 ; cooperative-budget jsr into scpu_main_loop (plan_vm.md §8 step 4) -- the
 ; prior push left only 3 bytes of margin, exactly enough to silently
 ; truncate a single new call site and reproduce this same bug a fifth time.
-.org $FF90
+; Pushed AGAIN, $FF90/$FFA0 -> $FFA0/$FFB0, for Phase G5's (plan_game.md 5)
+; boot-time Title_Step zero-init in scpu_boot (6 bytes, right alongside
+; Game_Lives) -- the prior push again left only a few bytes of margin.
+; build_rom.py's NMI/IRQ vector constants updated to match; still
+; comfortably below $FFE4 (native vector table).
+.org $FFA0
 nmi_handler:
     jsr Core_Nmi_Play
     rti
 
-.org $FFA0
+.org $FFB0
 irq_handler:
     rti
 
@@ -10459,4 +10471,19 @@ Font_PaletteData:
 Text_StringPool:
 Text_Str_Hello:
     .db "SNES-BOR", $00
+
+; Phase G5 (plan_game.md 5): title screen strings. Each fills the FULL
+; 32-column BG3 row (real text padded with trailing spaces to exactly 32
+; characters), not just the visible text -- see core/game_state.pasm's own
+; Phase G5 header for why: TextStaging is one buffer reused across every
+; DrawString call with no clearing of untouched columns, so a short string
+; would leave whatever a PREVIOUS call (to a different row) left in the
+; columns it doesn't touch. A full-row string always overwrites all 64
+; bytes of the shared buffer, so there's never a stale-column gap.
+Text_Str_TitleMain:
+    .db "SNES-BOR                        ", $00
+Text_Str_TitlePress:
+    .db "PRESS START                     ", $00
+Text_Str_TitleBlank:
+    .db "                                ", $00
 

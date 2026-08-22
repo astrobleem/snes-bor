@@ -42,6 +42,60 @@ Game_StatePrev = $7E2752   ; .dw -- last frame's state, used only to detect
                            ; stops being called for the rest of that state)
 
 ; ============================================================================
+; Phase G5 (plan_game.md 5): title screen.
+;
+; Per the advisor consult for this phase: GAME_STATE_PLAYING stays the boot
+; default (=0) -- every existing gate (phase5/6/8/9/11_damage/12_roster,
+; game_g1-g4, plus the two non-routine wall-clock scripts) drives the ROM
+; from boot expecting gameplay already running, and flipping the boot state
+; to TITLE would mean touching every one of them. TITLE was already
+; organically reachable (Game_State_Play__gameover_timeout, Phase G3) with
+; no drawn content; this phase gives it content without changing when it's
+; entered.
+;
+; Core_Text_DrawString shares ONE WRAM staging buffer (TextStaging,
+; core/text.pasm) and its DMA is QUEUED, not synchronous -- two DrawString
+; calls in the same frame silently corrupt each other (the confirmed
+; "1024-BOR" bug, see text.pasm's own header). A title screen needs two rows
+; drawn (and later, two cleared), so this cannot be a single "draw everything
+; on the transition edge" routine -- it has to be a one-DrawString-per-frame
+; drip driven by Title_Step, exactly like Core_Text_G1Demo's own one-shot
+; pattern but with more than one step.
+;
+; Every string drawn here fills the FULL 32-column row (padded with trailing
+; spaces), not just the visible text -- see Text_Str_TitleMain/TitlePress/
+; TitleBlank in main.pasm's Text_StringPool. This sidesteps a real hazard:
+; TextStaging is reused across calls with no clearing of untouched columns,
+; so a short string leaves whatever a PREVIOUS DrawString call (to a
+; different row/column) left in the columns it didn't touch. A full-row
+; string always overwrites all 64 bytes of the shared buffer, so there is
+; never a stale-column gap regardless of call history.
+;
+; Rows 10/12: clear of the HUD (rows 0-3) and the frontpanel streaming cache
+; (rows 21-27, when a stage with one is loaded) -- see text.pasm's own
+; tilemap-ownership comment. Column 0 always (full-row strings need no
+; centering logic).
+; ============================================================================
+
+TITLE_ROW_MAIN  = 10
+TITLE_ROW_PRESS = 12
+
+TITLE_STEP_DRAW_MAIN  = 0   ; draw the title row this frame, then advance
+TITLE_STEP_DRAW_PRESS = 1   ; draw "PRESS START" this frame, then advance
+TITLE_STEP_WAIT       = 2   ; idle, polling Start, until pressed
+TITLE_STEP_CLEAR_MAIN = 3   ; blank the title row this frame, then advance
+TITLE_STEP_CLEAR_PRESS = 4  ; blank "PRESS START" this frame, then advance
+                             ; -- anything >= 5 falls through to entering
+                             ; PLAYING (see Game_State_Play__title below)
+
+Title_Step = $7E2760   ; .db -- see TITLE_STEP_* above; zeroed at boot
+                        ; (main.pasm, alongside Game_Lives) and reset back
+                        ; to TITLE_STEP_DRAW_MAIN right before this phase's
+                        ; code sets Game_State back to PLAYING, so TITLE is
+                        ; always ready to redraw from scratch the next time
+                        ; it's entered (e.g. a later GAME OVER timeout)
+
+; ============================================================================
 ; Phase G3 (plan_game.md 3): player death, lives, continues, game over.
 ;
 ; The player (entity 0, CHAR_INPUT_DRIVEN==1) was previously exempt from the
@@ -238,14 +292,34 @@ Game_State_Play__no_transition:
     rep #$31
 .a16
     lda Game_State
+    ; Phase G5: bne-past-a-jmp instead of beq for every case here now --
+    ; the title screen's own block (below) pushed several of these targets
+    ; out of a plain branch's +-127-byte range; jmp has no such limit, and
+    ; the bne only ever needs to skip one instruction.
     cmp #GAME_STATE_PLAYING
-    beq Game_State_Play__playing
+    bne Game_State_Play__check_title
+    jmp Game_State_Play__playing
+Game_State_Play__check_title:
+    rep #$30
+.a16
     cmp #GAME_STATE_TITLE
-    beq Game_State_Play__title
+    bne Game_State_Play__check_paused
+    jmp Game_State_Play__title
+Game_State_Play__check_paused:
+    rep #$30
+.a16
     cmp #GAME_STATE_PAUSED
-    beq Game_State_Play__paused
+    bne Game_State_Play__check_gameover
+    jmp Game_State_Play__paused
+Game_State_Play__check_gameover:
+    rep #$30
+.a16
     cmp #GAME_STATE_GAMEOVER
-    beq Game_State_Play__gameover
+    bne Game_State_Play__check_stageclear
+    jmp Game_State_Play__gameover
+Game_State_Play__check_stageclear:
+    rep #$30
+.a16
     cmp #GAME_STATE_STAGECLEAR
     bne Game_State_Play__not_stageclear
     brl Game_State_Play__stageclear     ; brl, not beq -- Game_State_Play__
@@ -261,10 +335,166 @@ Game_State_Play__not_stageclear:
     ; needs to run yet.
     jmp Game_State_Play__done
 
+; ----------------------------------------------------------------------
+; Phase G5: title screen step dispatch. See this file's own Phase G5 header
+; above for why this is a multi-frame drip instead of a single draw. Entry/
+; exit convention: .a16/.i16 (Game_State_Play's).
+; ----------------------------------------------------------------------
 Game_State_Play__title:
-    ; No title content yet (that's G5) -- just don't run gameplay. A
-    ; forced Game_State write (debugger, or a future gate) can already
-    ; land here safely: no entity/HUD/streaming call runs in this state.
+    sep #$20
+.a8
+    lda.l Title_Step
+    ; Each check below uses a short bne-past-a-jmp instead of a direct beq:
+    ; the target routines are spread out enough across this file (several
+    ; full DrawString call sites apart) that a plain beq risks the real
+    ; 65816 +-127-byte conditional-branch limit -- jmp has no such limit,
+    ; and the bne itself only ever has to skip one instruction.
+    cmp #TITLE_STEP_WAIT
+    bne Game_State_Play__title_check_draw_main
+    jmp Game_State_Play__title_wait
+Game_State_Play__title_check_draw_main:
+    sep #$20
+.a8
+    cmp #TITLE_STEP_DRAW_MAIN
+    bne Game_State_Play__title_check_draw_press
+    jmp Game_State_Play__title_draw_main
+Game_State_Play__title_check_draw_press:
+    sep #$20
+.a8
+    cmp #TITLE_STEP_DRAW_PRESS
+    bne Game_State_Play__title_check_clear_main
+    jmp Game_State_Play__title_draw_press
+Game_State_Play__title_check_clear_main:
+    sep #$20
+.a8
+    cmp #TITLE_STEP_CLEAR_MAIN
+    bne Game_State_Play__title_check_clear_press
+    jmp Game_State_Play__title_clear_main
+Game_State_Play__title_check_clear_press:
+    sep #$20
+.a8
+    cmp #TITLE_STEP_CLEAR_PRESS
+    bne Game_State_Play__title_check_done
+    jmp Game_State_Play__title_clear_press
+Game_State_Play__title_check_done:
+    ; Title_Step >= 5 (TITLE_STEP_CLEAR_PRESS done) -- both rows are clean,
+    ; finish the transition into PLAYING.
+    jmp Game_State_Play__title_enter_playing
+
+Game_State_Play__title_draw_main:
+    sep #$20
+.a8
+    lda #TITLE_ROW_MAIN
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_TitleMain - Text_StringPool)
+    jsr Core_Text_DrawString
+    sep #$20
+.a8
+    lda #TITLE_STEP_DRAW_PRESS
+    sta.l Title_Step
+    rep #$31
+.a16
+.i16
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+
+Game_State_Play__title_draw_press:
+    sep #$20
+.a8
+    lda #TITLE_ROW_PRESS
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_TitlePress - Text_StringPool)
+    jsr Core_Text_DrawString
+    sep #$20
+.a8
+    lda #TITLE_STEP_WAIT
+    sta.l Title_Step
+    rep #$31
+.a16
+.i16
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+
+Game_State_Play__title_wait:
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger+1
+    and #$0010                     ; Start -- same high-byte layout as
+                                    ; Game_State_Play__gameover's own check
+    bne Game_State_Play__title_wait_pressed
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Game_State_Play__title_wait_pressed:
+    sep #$20
+.a8
+    lda #TITLE_STEP_CLEAR_MAIN
+    sta.l Title_Step
+    rep #$31
+.a16
+.i16
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+
+Game_State_Play__title_clear_main:
+    sep #$20
+.a8
+    lda #TITLE_ROW_MAIN
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_TitleBlank - Text_StringPool)
+    jsr Core_Text_DrawString
+    sep #$20
+.a8
+    lda #TITLE_STEP_CLEAR_PRESS
+    sta.l Title_Step
+    rep #$31
+.a16
+.i16
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+
+Game_State_Play__title_clear_press:
+    sep #$20
+.a8
+    lda #TITLE_ROW_PRESS
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_TitleBlank - Text_StringPool)
+    jsr Core_Text_DrawString
+    sep #$20
+.a8
+    lda #5                          ; any value >= TITLE_STEP_CLEAR_PRESS+1
+                                    ; works; this falls through to
+                                    ; Game_State_Play__title_enter_playing
+                                    ; the very next frame this state runs
+    sta.l Title_Step
+    rep #$31
+.a16
+.i16
+    jmp Game_State_Play__done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+
+Game_State_Play__title_enter_playing:
+    sep #$20
+.a8
+    lda #TITLE_STEP_DRAW_MAIN
+    sta.l Title_Step            ; reset for the next time TITLE is entered
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
     jmp Game_State_Play__done
 
 Game_State_Play__paused:
