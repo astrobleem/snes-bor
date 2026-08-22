@@ -2574,6 +2574,13 @@ CHAR_HIT_STUN_FRAMES = 24   ; ~0.4s @ 60Hz -- long enough to read as a
                               ; deliberate freeze, short enough not to feel
                               ; like a stall
 
+; G7 second slice: AI-only post-hit invulnerability, armed alongside HitStun
+; in Character_HitApply_VsEntity1/2/3 (Entity1/2/3_InvulnFrames, standalone
+; WRAM cells in core/game_state.pasm -- NOT a CharacterEntity struct field,
+; see that file's own header comment for why). Outlasts CHAR_HIT_STUN by a
+; fixed grace window so a target can't be re-hit the instant it recovers.
+AI_POST_HIT_INVULN_FRAMES = CHAR_HIT_STUN_FRAMES + 12
+
 ; --- Runtime character selection (MSU-1 streaming), see the plan at
 ; temporal-swinging-hartmanis.md. Last cell any core/*.pasm file defines is
 ; OamSetSprite_Hi = $7E53AF; main.pasm's own Anim_FrameIndex..Player_Y run
@@ -5026,8 +5033,15 @@ Character_HitApply_VsEntity1__dy_ok:
     ; acting, sprite hides).
     lda.l Entity1_Hp
     beq Character_HitApply_VsEntity1__dead_skip
+    ; G7 second slice: still in the post-hit grace window (outlasts
+    ; CHAR_HIT_STUN -- see AI_POST_HIT_INVULN_FRAMES's own comment). Same
+    ; "no hit landed" early-out as the dead-target skip above.
+    lda.l Entity1_InvulnFrames
+    bne Character_HitApply_VsEntity1__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity1_HitStun
+    lda #AI_POST_HIT_INVULN_FRAMES
+    sta.l Entity1_InvulnFrames
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
     lda.l Entity1_Hp
     sec
@@ -5110,8 +5124,13 @@ Character_HitApply_VsEntity2__dy_ok:
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity2_Hp
     beq Character_HitApply_VsEntity2__dead_skip
+    ; G7 second slice: see VsEntity1's comment.
+    lda.l Entity2_InvulnFrames
+    bne Character_HitApply_VsEntity2__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity2_HitStun
+    lda #AI_POST_HIT_INVULN_FRAMES
+    sta.l Entity2_InvulnFrames
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
     lda.l Entity2_Hp
     sec
@@ -5186,8 +5205,13 @@ Character_HitApply_VsEntity3__dy_ok:
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity3_Hp
     beq Character_HitApply_VsEntity3__dead_skip
+    ; G7 second slice: see VsEntity1's comment.
+    lda.l Entity3_InvulnFrames
+    bne Character_HitApply_VsEntity3__dead_skip
     lda #CHAR_HIT_STUN_FRAMES
     sta.l Entity3_HitStun
+    lda #AI_POST_HIT_INVULN_FRAMES
+    sta.l Entity3_InvulnFrames
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
     lda.l Entity3_Hp
     sec

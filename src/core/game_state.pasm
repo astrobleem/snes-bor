@@ -260,6 +260,21 @@ Game_ScoreAwardScratch      = $7E2763   ; .dw -- Game_Score_Award's own scratch
 Game_ScoreOldQuotientScratch = $7E2765  ; .dw -- ditto (see main.pasm's
                                          ; Game_Score_Award for both)
 
+; G7 second slice: post-hit invulnerability frames for AI entities, mirroring
+; Player_InvulnFrames above but kept as standalone scalar bytes rather than a
+; new CharacterEntity struct field -- growing CHAR_ZP_LEN shifts every
+; entity's absolute WRAM address, which was found (this session) to flip
+; which physical slot the boot-time spawn table lands an AI in, breaking
+; phase5/phase6. Standalone cells sidestep that entirely: no struct change,
+; no EntityN_Base literal changes, no WRAM layout shift for anything else.
+; Armed by Character_HitApply_VsEntity1/2/3 (main.pasm) alongside HitStun,
+; decremented once per PLAYING frame below (same shape as Player_InvulnFrames
+; itself, NOT the per-entity Anim_Play site CHAR_HIT_STUN uses -- there is no
+; per-entity dispatch context out here, so all three are ticked in a row).
+Entity1_InvulnFrames = $7E2767   ; .db
+Entity2_InvulnFrames = $7E2768   ; .db
+Entity3_InvulnFrames = $7E2769   ; .db
+
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
 ; Tad_Process/Tad_FinishLoadingData/Core_Input_Poll (all of which must keep
@@ -589,6 +604,26 @@ Game_State_Play__invuln_done:
     ; gameplay body below -- see this file's own Phase G4 header for the
     ; full two-step design (queue-exhausted+all-AI-dead unlocks the camera
     ; clamp; reaching the newly-unlocked true edge is the real trigger).
+    sep #$20
+.a8
+    ; G7 second slice: tick each AI entity's post-hit invulnerability window
+    ; down once per frame, same unconditional-if-nonzero shape as
+    ; Player_InvulnFrames above. Harmless no-op while 0 (the common case).
+    lda.l Entity1_InvulnFrames
+    beq Game_State_Play__invuln1_done
+    dec a
+    sta.l Entity1_InvulnFrames
+Game_State_Play__invuln1_done:
+    lda.l Entity2_InvulnFrames
+    beq Game_State_Play__invuln2_done
+    dec a
+    sta.l Entity2_InvulnFrames
+Game_State_Play__invuln2_done:
+    lda.l Entity3_InvulnFrames
+    beq Game_State_Play__invuln3_done
+    dec a
+    sta.l Entity3_InvulnFrames
+Game_State_Play__invuln3_done:
     sep #$20
 .a8
     lda.l Stage_Cleared

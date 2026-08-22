@@ -52,7 +52,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; jump/grab/special/block/knockdown all still open, see §7 |
+| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; jump/grab/special/block/knockdown still open, see §7 |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
@@ -499,8 +499,9 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-> **Status: PARTIAL (first slice DONE, 2026-08-22).** `GATE G7-RUN: PASS`
-> (`tools/verify/game_g7_run.py`). Run/dash shipped first, deliberately,
+> **Status: PARTIAL (first two slices DONE, 2026-08-22).** `GATE G7-RUN:
+> PASS` (`tools/verify/game_g7_run.py`), `GATE G7-INVULN: PASS`
+> (`tools/verify/game_g7_invuln.py`). Run/dash shipped first, deliberately,
 > because it's the only item below that needs no new animation content —
 > OpenBOR's own reference (`openbor_script_reference.txt:982`) treats run as
 > walk/idle frames driven at higher velocity, not a distinct move, so this
@@ -560,10 +561,63 @@ frame-load already takes 6.
 > `check_width_directives.py` — zero new violations, `phase5.py`–`phase8.py`,
 > `phase11_damage.py`, `phase12_roster.py`).
 >
+> **Second slice DONE, 2026-08-22: post-hit invulnerability frames (AI
+> entities).** `GATE G7-INVULN: PASS` (`tools/verify/game_g7_invuln.py`).
+> Generalizes the "brief can't-be-re-hit window" concept BOR's own combat
+> has, but as a **parallel, AI-only** mechanism — the player's existing
+> `Player_InvulnFrames` (`core/game_state.pasm`, armed only on respawn) is
+> deliberately untouched; five existing gates depend on its exact semantics
+> as a manually-armable "god mode" knob. `Character_HitApply_VsEntity1/2/3`
+> previously had no invuln check at all, only a dead-target (`HP==0`) skip —
+> a landed hit now also stamps a new per-entity invuln cell to
+> `AI_POST_HIT_INVULN_FRAMES` (`CHAR_HIT_STUN_FRAMES + 12`, i.e. it
+> deliberately outlasts stun by a fixed grace window) alongside the existing
+> `HitStun` stamp, and a subsequent hit is suppressed (reuses the
+> `__dead_skip` label's bare-`rts` "no hit landed" shape) for as long as that
+> cell is nonzero.
+>
+> **Real regression found and fixed mid-implementation, not by design
+> review:** the first implementation added this as a new `CharacterEntity`
+> struct field (`CHAR_INVULN`, struct offset 36, `CHAR_ZP_LEN` 36→37) —
+> exactly the same kind of change Phase 6 made once before adding `CHAR_HP`,
+> and `audit_all.py` already auto-verifies the three hand-synced
+> `EntityN_Base` literals against `CHAR_ZP_LEN`, so this looked safe. Build
+> was clean and every static check passed. But `phase5.py`/`phase6.py`
+> failed at runtime: growing `CHAR_ZP_LEN` shifts every entity's *absolute*
+> WRAM address, and this flipped which physical slot the boot-time spawn
+> table landed an AI in — entity 1 stayed a "prop" instead of becoming a
+> live AI enemy, entity 3 never spawned. **Fix: don't grow the struct.**
+> Reimplemented as three standalone WRAM scalar bytes
+> (`Entity1/2/3_InvulnFrames`, `core/game_state.pasm`, declared and
+> decremented the same way `Player_InvulnFrames` already is — decrement
+> lives in `Game_State_Play__playing`, NOT in `Anim_Play`'s per-entity
+> dispatch, since there's no per-entity DP context out there) — zero WRAM
+> layout change for anything else, and the regression disappeared. General
+> lesson: in this codebase, growing the entity struct is not safe by
+> default even with the audit's literal-sync check passing; prefer a
+> standalone cell (mirroring how `Player_InvulnFrames` itself already lives
+> outside the struct) for anything that doesn't need per-entity DP-relative
+> addressing.
+>
+> New gate's own timing lesson: `set_input(BTN, N)`'s wall-clock/sleep-based
+> overrun (`mesen_set_input_wall_clock` project memory) easily burns more
+> real frames than the 24/36-frame stun/invuln windows this gate needs to
+> observe mid-decay — a first version using `set_input(BTN_Y, 10)` +
+> `run_frames(20)` settle windows saw the invuln cell already decayed by the
+> time it read state. Fixed by throwing each attack with a single minimal
+> `set_input(BTN_Y, 1)` (just enough to register the edge-triggered press)
+> followed by frame-exact `run_frames(1)` polling every single frame until
+> the hit visibly lands. Full regression suite passes (`audit_all.py`,
+> `check_label_drift.py`, `check_width_directives.py` — zero new violations,
+> `phase5.py`–`phase8.py`, `phase11_damage.py`, `phase12_roster.py`,
+> `game_g1_text.py`, `game_g2_states.py`, `game_g3_death.py`,
+> `game_g4_transition.py`, `game_g5_menus.py`, `game_g6_hud.py`,
+> `game_g7_run.py`, `game_g8_props.py`).
+>
 > **Still fully open** (all need new animation content the converter doesn't
 > produce today — see "Content dependency" below): jump/jump-attack (the
 > largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> grab/throw, special, block, knockdown/getting-up/invulnerability-frames.
+> grab/throw, special, block, knockdown/getting-up.
 
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
@@ -573,7 +627,10 @@ this is what separates "tech demo" from "beat-'em-up."
 - **Grab / throw** — proximity grab state, mutual entity locking.
 - **Special** (HP-cost screen-clear), **block** if the char has it.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
-- **Knockdown, getting up, invulnerability frames** — currently only hit stun.
+- ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
+  2026-08-22)**, see status block above. Player's own respawn-invuln
+  mechanism was already there since G3.
+- **Knockdown, getting up** — currently only hit stun.
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
 idle/walk/attack only. Every move above needs its animation converted and packed,
