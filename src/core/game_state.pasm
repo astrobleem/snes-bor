@@ -399,7 +399,6 @@ Game_State_Play__title_draw_main:
 .a16
 .i16
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Game_State_Play__title_draw_press:
     sep #$20
@@ -419,7 +418,6 @@ Game_State_Play__title_draw_press:
 .a16
 .i16
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Game_State_Play__title_wait:
     rep #$31
@@ -430,7 +428,6 @@ Game_State_Play__title_wait:
                                     ; Game_State_Play__gameover's own check
     bne Game_State_Play__title_wait_pressed
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__title_wait_pressed:
     sep #$20
 .a8
@@ -440,7 +437,6 @@ Game_State_Play__title_wait_pressed:
 .a16
 .i16
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Game_State_Play__title_clear_main:
     sep #$20
@@ -460,7 +456,6 @@ Game_State_Play__title_clear_main:
 .a16
 .i16
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Game_State_Play__title_clear_press:
     sep #$20
@@ -483,7 +478,6 @@ Game_State_Play__title_clear_press:
 .a16
 .i16
     jmp Game_State_Play__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Game_State_Play__title_enter_playing:
     sep #$20
