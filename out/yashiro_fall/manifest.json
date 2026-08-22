@@ -1,0 +1,59 @@
+{
+  "entity": "Yashiro",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.21768707482993196,
+  "hotspot_canvas": [
+    9,
+    21
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        170
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        170
+      ],
+      "bbox": null,
+      "attack": [
+        41,
+        99,
+        47,
+        48,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        170
+      ],
+      "bbox": null,
+      "attack": [
+        18,
+        150,
+        82,
+        27,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

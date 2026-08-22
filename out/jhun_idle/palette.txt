@@ -1,9 +1,9 @@
     lda #$0000
-    lda #$7B9C
+    lda #$7B9D
     lda #$5B5C
     lda #$433F
     lda #$6718
-    lda #$325B
+    lda #$325A
     lda #$4A10
     lda #$2DD1
     lda #$0000

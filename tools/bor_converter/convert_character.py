@@ -1,22 +1,32 @@
 #!/usr/bin/env python3
-"""Convert a character's idle/walk/attack1 animations through
+"""Convert a character's idle/walk/attack1/fall/rise animations through
 convert_animation.py's own per-animation pipeline (shared scale, per-frame
 placement -- see that module's docstring), but quantize ALL of them into
-ONE shared 16-color palette instead of three independent ones.
+ONE shared 16-color palette instead of five independent ones.
 
 Why this exists: convert_animation.py already shares a palette *within*
 one animation (all of idle's frames quantize together), but each
-animation is converted in its own separate CLI invocation, so idle/walk/
-attack each end up with their own independently-chosen 16 colors.
-main.pasm (via gen_pasm_animset.py) only ever loads ONE of those three
-palettes into CGRAM -- today, idle's -- so walk and attack render through
-whatever colors idle happened to pick, which is wrong whenever a
-character's walk/attack use meaningfully different colors than its idle
-(confirmed with both Ralf and JHUN -- see handoff.md). Quantizing all
-three animations' frames together fixes this at the source: `palette.txt`
-ends up identical across `<prefix>_idle/_walk/_attack`, so
-gen_pasm_animset.py's existing `load_palette(idle_dir)` (unchanged) is
-already reading the right, now-shared, answer.
+animation is converted in its own separate CLI invocation, so each of a
+character's animations would otherwise end up with its own independently-
+chosen 16 colors. main.pasm (via gen_pasm_animset.py, or a future
+engine-side consumer of fall/rise) only ever loads ONE palette into CGRAM
+-- today, idle's -- so every other animation renders through whatever
+colors idle happened to pick, which is wrong whenever a character's other
+animations use meaningfully different colors than its idle (confirmed with
+both Ralf and JHUN -- see handoff.md). Quantizing every animation's frames
+together fixes this at the source: `palette.txt` ends up identical across
+`<prefix>_idle/_walk/_attack/_fall/_rise`, so gen_pasm_animset.py's existing
+`load_palette(idle_dir)` (unchanged) is already reading the right,
+now-shared, answer.
+
+fall/rise (BOR's knockdown/getting-up pair) were added to this shared set
+2026-08-22 (plan_game.md 7, "extend the converter" slice) -- confirmed
+present in all 4 currently-converted roster characters' source .TXT entity
+files, unlike e.g. `grab` (JOE only) or `jumpattack` (JHUN only). This
+script produces the converted asset directories only; wiring them into
+`pack_msu_roster.py`'s per-character record and `main.pasm`'s animation
+dispatch (both currently hardcoded to exactly 3 animation slots -- see
+plan_game.md 7) is separate, not-yet-done follow-on work.
 
 Per-animation scale/placement is intentionally left independent (each
 animation's geometry is legitimately different -- a walk cycle's stride
@@ -29,8 +39,9 @@ Usage:
 Example:
     python convert_character.py "Beats of Rage Original [v.3.0 Build 4086].pak" \\
         "DATA\\CHARS\\RALF\\RALF.TXT" out/ralf
-    # -> out/ralf_idle/, out/ralf_walk/, out/ralf_attack/ (frameNN.bin,
-    #    palette.txt identical across all three, manifest.json, preview.png)
+    # -> out/ralf_idle/, out/ralf_walk/, out/ralf_attack/, out/ralf_fall/,
+    #    out/ralf_rise/ (frameNN.bin, palette.txt identical across all
+    #    five, manifest.json, preview.png)
 """
 import sys
 import os
@@ -40,7 +51,8 @@ from convert_animation import _load_anim_frames, _quantize_shared, _write_anim_o
 
 # (entity anim name, output dir suffix) -- matches the existing out/ralf_*
 # / out/jhun_* naming convention already used by convert_animation.py's CLI.
-ANIMS = [('idle', '_idle'), ('walk', '_walk'), ('attack1', '_attack')]
+ANIMS = [('idle', '_idle'), ('walk', '_walk'), ('attack1', '_attack'),
+         ('fall', '_fall'), ('rise', '_rise')]
 
 
 def convert_character(pak_path, entity_entry_name, out_prefix):

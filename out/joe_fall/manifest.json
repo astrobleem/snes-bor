@@ -1,0 +1,84 @@
+{
+  "entity": "Joe",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.2601626016260163,
+  "hotspot_canvas": [
+    18,
+    24
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        94
+      ],
+      "bbox": null,
+      "attack": [
+        51,
+        9,
+        44,
+        49,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        94
+      ],
+      "bbox": null,
+      "attack": [
+        42,
+        17,
+        54,
+        34,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        94
+      ],
+      "bbox": null,
+      "attack": [
+        32,
+        50,
+        78,
+        30,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        94
+      ],
+      "bbox": null,
+      "attack": [
+        30,
+        76,
+        78,
+        24,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

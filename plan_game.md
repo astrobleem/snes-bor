@@ -52,7 +52,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Level transition | Stage 2 existing |
 | Menus (title, char select, pause, options) | Being a product |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; jump/grab/special/block/knockdown still open, see §7 |
+| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up assets converted (2026-08-22, not yet wired)**; jump/grab/special/block still open, see §7 |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
@@ -614,10 +614,18 @@ frame-load already takes 6.
 > `game_g4_transition.py`, `game_g5_menus.py`, `game_g6_hud.py`,
 > `game_g7_run.py`, `game_g8_props.py`).
 >
+> **Converter extended, 2026-08-22 (asset-pipeline only, no gameplay yet)**:
+> `convert_character.py` now also converts `fall`/`rise` (knockdown/getting-up)
+> for all 4 roster characters, sharing the same unified palette idle/walk/
+> attack1 already use. See the bullet list below for what's still needed
+> before this ships as a real gameplay feature (roster-record format growth +
+> engine dispatch wiring + a knockdown-trigger design, none done yet).
+>
 > **Still fully open** (all need new animation content the converter doesn't
 > produce today — see "Content dependency" below): jump/jump-attack (the
 > largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> grab/throw, special, block, knockdown/getting-up.
+> grab/throw, special, block. Knockdown/getting-up has its assets now (above)
+> but is not wired into the roster format or engine.
 
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
@@ -630,12 +638,34 @@ this is what separates "tech demo" from "beat-'em-up."
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
   2026-08-22)**, see status block above. Player's own respawn-invuln
   mechanism was already there since G3.
-- **Knockdown, getting up** — currently only hit stun.
+- **Knockdown, getting up** — currently only hit stun. **Converter now
+  produces the assets (2026-08-22)** — `convert_character.py` converts real
+  `fall`/`rise` animations (BOR's knockdown/getting-up pair) for all 4
+  roster characters (Ralf 4/3 frames, JHUN 4/6, JOE 4/5, Yashiro 3/5, all
+  confirmed against the source `.pak`'s own `entity_parse.py` output),
+  quantized into the SAME shared 16-color palette as idle/walk/attack1
+  (`palette.txt` verified byte-identical across all 5 of a character's
+  `out/<prefix>_*` directories). Previews inspected for Ralf and JHUN — clean
+  poses, no color corruption. **Still not wired**: `pack_msu_roster.py`'s
+  per-character directory record is hardcoded to exactly 3 animation slots
+  (16-byte record, only 2 spare bytes — no room for 2 more frame-count/delay
+  fields without growing the record and re-shifting every downstream offset,
+  same class of ripple as `SPAWN_RECORD_SIZE`'s own growth history), and
+  `main.pasm`'s `Anim_Selected`/`Anim_Play__dispatch` is an unrolled 3-way
+  `cmp`/`beq` chain with no table — each animation is its own hand-copied
+  ~140-line routine, not driven by an animation-count constant. Real
+  knockdown gameplay also needs a still-undesigned trigger (today
+  `Character_HitApply` has no "hit hard enough to knock down vs. merely
+  stun" distinction). This is real follow-on work sized like its own G-phase
+  slice, not attempted yet.
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
-idle/walk/attack only. Every move above needs its animation converted and packed,
-which grows each roster slot's `bor.msu` footprint and re-shifts every downstream
-offset (§4's note).
+idle/walk/attack1/fall/rise (fall/rise added 2026-08-22, see above — not yet
+wired into the roster format or engine dispatch). Every OTHER move above
+(jump, grab/throw, special, block) still needs its animation converted and
+packed, which grows each roster slot's `bor.msu` footprint and re-shifts
+every downstream offset (§4's note) — same constraint fall/rise itself is
+now blocked on for the engine-wiring half.
 
 **Watch out:** a Z axis changes depth sorting. The original spec (§3.6) calls for
 Y-sorted priority; today all four entities are plain OAM sprites with no sorting
