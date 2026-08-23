@@ -11378,6 +11378,24 @@ CharSelect_NamePtrs:
     .dw (Text_Str_CharJoe - Text_StringPool)
     .dw (Text_Str_CharYashiro - Text_StringPool)
 
+; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
+; padded convention, real OpenBOR-sourced content: engine/openbor.c's own
+; pausemenu() draws exactly "Pause" plus two selectable rows, "Continue"/
+; "End Game", toggled by Up/Down with Start committing -- reproduced here
+; as a cursor prefix ("> "/"  ") baked into two string variants per option
+; row rather than a real sprite cursor, matching this project's existing
+; text-only menu style (title/charselect).
+Text_Str_PauseHeader:
+    .db "PAUSE                           ", $00
+Text_Str_PauseContinueSel:
+    .db "> CONTINUE                      ", $00
+Text_Str_PauseContinueUnsel:
+    .db "  CONTINUE                      ", $00
+Text_Str_PauseEndGameSel:
+    .db "> END GAME                      ", $00
+Text_Str_PauseEndGameUnsel:
+    .db "  END GAME                      ", $00
+
 ; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
 ; columns -- unlike the title strings above, these are drawn by
 ; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
@@ -11431,4 +11449,10 @@ Text_Str_HudStage:
 .bank 5
 .org $8000
 .include "core/hud_boss.pasm"
+
+; Phase G5 (plan_game.md 5): pause menu body, own bank for the same
+; ROM-budget reason -- see core/pausemenu.pasm's own header.
+.bank 6
+.org $8000
+.include "core/pausemenu.pasm"
 

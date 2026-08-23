@@ -363,7 +363,8 @@ Game_State_Play__transition_done:
     lda Game_State
     sta Game_StatePrev
 Game_State_Play__no_transition:
-    rep #$31
+    ; width already .a16 on both paths in here (the beq above and the
+    ; transition-done fallthrough, both still under line 326's real rep).
 .a16
     lda Game_State
     ; Phase G5: bne-past-a-jmp instead of beq for every case here now --
@@ -572,8 +573,12 @@ Game_State_Play__paused:
     ; Frozen: gameplay subsystems below simply don't run. Music keeps
     ; playing (scpu_main_loop's Tad_Process/Tad_FinishLoadingData calls
     ; are outside this dispatch, unconditional every state) and input
-    ; keeps being polled (also outside this dispatch), so a future pause
-    ; menu can read Start/Select to resume without any change here.
+    ; keeps being polled (also outside this dispatch), so the pause menu
+    ; below can read Start/Up/Down to resume/quit with no change needed
+    ; here. Game_State_Play__pausemenu lives in its own bank
+    ; (core/pausemenu.pasm) -- ROM budget, see that file's own header.
+    ; jsl/rtl, not jsr/rts.
+    jsl Game_State_Play__pausemenu
     jmp Game_State_Play__done
 
 Game_State_Play__gameover:
@@ -612,6 +617,17 @@ Game_State_Play__playing:
     ; itself reached with .a16 already active (see check_title's own
     ; comment on this chain never changing width in between).
 .a16
+    ; Phase G5: Start (edge-triggered, real BOR's own pausemenu() entry
+    ; condition) freezes into PAUSED before anything else this frame runs.
+    ; Checked via a bank-6 jsl (core/pausemenu.pasm) to keep this hot
+    ; bank-0 routine's own footprint minimal -- see that file's own
+    ; Game_State_Pause_CheckEntry for the full check/set logic; carry
+    ; comes back set only if PAUSED was just entered this frame.
+    jsl Game_State_Pause_CheckEntry
+    bcc Game_State_Play__no_pause_press
+    jmp Game_State_Play__done
+Game_State_Play__no_pause_press:
+.a16
     ; Phase G3 (plan_game.md 3): player death check, before this frame's
     ; Core_Oop_Play pass -- see this file's Phase G3 header for why this
     ; is handled entirely here rather than in the AI-shaped dead-check
@@ -632,7 +648,8 @@ Game_State_Play__playing:
     ; OAM next call, same as any other PLAYING exit.
     jmp Game_State_Play__done
 Game_State_Play__no_death:
-    rep #$31
+    ; width already .a16 on both paths in here (neither the bne above nor
+    ; the beq above it changes width) -- no rep needed.
 .a16
     ; Phase G3: tick the post-respawn invulnerability window down once per
     ; frame regardless of whether a hit actually lands this frame --
@@ -690,7 +707,7 @@ Game_State_Play__kdtimer2_done:
     dec a
     sta.l Entity3_KnockdownTimer
 Game_State_Play__kdtimer3_done:
-    sep #$20
+    ; width already .a8 -- no rep since line 662's real sep #$20 above.
 .a8
     lda.l Stage_Cleared
     bne Game_State_Play__stage_check_edge
@@ -734,7 +751,8 @@ Game_State_Play__stage_check_edge:
     sta.l Game_State
     jmp Game_State_Play__done
 Game_State_Play__stage_no_win:
-    rep #$31
+    ; width already .a16 on both paths in here (the bcc above and the bra
+    ; from __stage_no_win_a8) -- no rep needed.
 .a16
 .i16
 
@@ -854,7 +872,8 @@ Game_State_HandlePlayerDeath:
     rts
 
 Game_State_HandlePlayerDeath__gameover:
-    rep #$31
+    ; width already .a16 -- reached only via the beq above, still under
+    ; this routine's own entry rep #$31 with no sep in between.
 .a16
     lda #GAME_OVER_CONTINUE_FRAMES
     sta.l GameOver_ContinueTimer

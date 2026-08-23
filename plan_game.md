@@ -24,12 +24,13 @@ renderer (G1), a game state machine (G2), and player death/lives/continues/game
 over (G3).
 
 **What that adds up to (updated 2026-08-23):** two levels, a real win condition
-and stage transition (G4), and a title→character-select→playing menu flow with
-real drawn content (G5, pause/options still stubs). Boss data plumbing and a
-boss health bar exist (G9) but are not reachable through any shipped level —
-only a hand-authored synthetic force exercises them. Still missing: ending/
-credits (G10), pause menu content, options (SRAM persistence), real grab/throw
-mutual-lock semantics, jump/special/block, and SFX (content-blocked).
+and stage transition (G4), and a full title→character-select→playing menu flow
+plus a real pause menu with real drawn content (G5, only options/SRAM still a
+stub). Boss data plumbing and a boss health bar exist (G9) but are not
+reachable through any shipped level — only a hand-authored synthetic force
+exercises them. Still missing: ending/credits (G10), options (SRAM
+persistence), real grab/throw mutual-lock semantics, jump/special/block, and
+SFX (content-blocked).
 
 **The honest gap list**, updated as phases land:
 
@@ -39,7 +40,7 @@ mutual-lock semantics, jump/special/block, and SFX (content-blocked).
 | ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
 | ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
-| Menus (title, char select, pause, options) | **Partial (G5)** — title + char select done, gate `game_g5_menus.py`; pause content and options (SRAM) still open, see §5 |
+| Menus (title, char select, pause, options) | **Partial (G5)** — title, char select, and pause menu all done, gates `game_g5_menus.py`/`game_g5_pause.py`; only options (SRAM) still open, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
 | Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, and a generic second attack (attack2) all done (G7, see §7 for gate names); jump/special/block and real grab mutual-lock semantics still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
@@ -336,9 +337,11 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: PARTIAL** (2026-08-23) — title screen (2026-08-21) and character
-> select (2026-08-23) both shipped; pause menu content and options remain.
-> `GATE G5: PASS` (`tools/verify/game_g5_menus.py`). Per an advisor consult
+> **Status: PARTIAL** (2026-08-23) — title screen (2026-08-21), character
+> select (2026-08-23), and the pause menu (2026-08-23) all shipped; only
+> options (SRAM persistence) remains. `GATE G5: PASS`
+> (`tools/verify/game_g5_menus.py`), `GATE G5-PAUSE: PASS`
+> (`tools/verify/game_g5_pause.py`). Per an advisor consult
 > for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
@@ -375,11 +378,37 @@ the streaming caches are consistent after reload.
 > player's own window (`OopDp`, slot 0) before calling it, same
 > `phd`/`tcd`/`pld` pattern `Core_Oop_Play` itself uses. `GATE G5: PASS`
 > (21 checks) exercises the full title → charselect (draw/cycle/wrap) →
-> playing round trip, not just the title screen. Pause menu content is
-> still deferred (the state already freezes correctly since G2; it
-> collides with `core/text.pasm`'s own documented BG3-frontpanel-vs-text
-> unresolved question, so it isn't bundled with a phase that didn't need to
-> touch that). Options (SRAM persistence) untouched.
+> playing round trip, not just the title screen.
+>
+> **Pause menu shipped 2026-08-23** (`core/pausemenu.pasm`, new, its own
+> ROM bank for the same `$C100`-`$FC00` budget reason charselect got one).
+> Real-OpenBOR-sourced content (fetched `engine/openbor.c`'s own
+> `pausemenu()` rather than inventing a menu shape): a "PAUSE" header plus
+> exactly two selectable rows, "CONTINUE"/"END GAME", toggled by Up/Down
+> (a "> "/"  " cursor prefix baked into two string variants per row, this
+> project's existing text-only menu style — no cheap way to recolor a
+> single BG3 tile). Start commits: Continue resumes PLAYING untouched; End
+> Game zeroes `Game_Lives` and returns to `GAME_STATE_TITLE` (real BOR's
+> End Game is an intentional quit — it hard-tears the session down with no
+> continue offered — and this project has no "quit to system" state beyond
+> TITLE, G2's own "nothing is running" holding state). Entered from
+> `Game_State_Play__playing` via an edge-triggered Start check, itself
+> moved into the new bank (`Game_State_Pause_CheckEntry`, called via a
+> `jsl`+`bcs` — only 6 bytes in the hot bank-0 routine — rather than
+> inlining the check there) once the inline version alone overflowed the
+> region by 19 bytes. Found and fixed two real bugs along the way: (1) the
+> Up/Down redraw originally issued two `Core_Text_DrawString` calls in the
+> same frame, hitting the exact "1024-BOR" shared-staging-buffer hazard
+> this file's own header warns about elsewhere — both rows read back
+> showing the second call's string; fixed with a two-frame drip
+> (`PAUSE_STEP_REDRAW_ENDGAME`), same one-DrawString-per-frame discipline
+> as every other menu here. (2) `Pause_Selector` was first left sticky
+> across sessions; real BOR's `pausemenu()` resets `pauselector = 0` on
+> every call, so a second pause entry after selecting End Game (aborted by
+> re-entering rather than committing) would silently commit End Game again
+> on a bare Continue press — fixed by resetting the selector in
+> `Game_State_Pause_CheckEntry` on every entry. `GATE G5-PAUSE: PASS`
+> (18 checks). Options (SRAM persistence) is the only G5 item left open.
 >
 > **ROM budget note:** this phase's ~6-byte boot-time `Title_Step` zero-init
 > in `scpu_boot` overflowed the fixed `$FC00`-region budget by exactly 6
@@ -403,7 +432,7 @@ Now that text exists (G1) and states exist (G2), these are mostly content.
 - **Character select** — done (2026-08-23, `core/charselect.pasm`). Portraits
   (a real character sprite/thumbnail on the screen, not just the name) are
   the one piece not built — text-only for now.
-- **Pause menu** — freeze on Start during play; resume / restart / quit.
+- **Pause menu** — done (2026-08-23, `core/pausemenu.pasm`). Freeze on Start, CONTINUE/END GAME, real BOR-sourced content.
 - **Options** — music/SFX volume (MSU-1 volume is `$2006`; TAD has its own),
   difficulty (the pak ships EASY/NORMAL/HARD variants of every stage, so this maps
   directly onto which level file the converter packs), controls.
