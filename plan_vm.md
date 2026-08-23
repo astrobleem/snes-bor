@@ -1388,6 +1388,36 @@ Only after Gate 6 is green and *measured*. In order:
 **Always keep an interpreter-only correctness fallback.** Any native escape must
 be diffable against the plain interpreter path.
 
+**Step 1 measured for real, 2026-08-23 (`tools/verify/vm_gate7.py`, `GATE
+VM7: PASS`).** Booted the actual shipped ROM (not an injected fixture) and
+read `VmState_Status`/`VmState_Budget` at boot and after 600+ real frames
+of held movement+combat input. Result: the currently-shipped content
+(`boot_spawn_wave1_module.bin`, a synthetic zero-argument entry script —
+see `vm_gate6_native_wiring_and_gate3_harness_bug` memory) executes **11
+opcodes total**, once, in the frame after boot, reaches `VMSTAT_DONE`, and
+then `Vm_Run`'s own terminal-state guard makes every later call a
+zero-cost no-op for the rest of the session — confirmed unchanged across
+600 real frames of sustained gameplay. Worst-case frame: 11/200 opcodes
+(5.5% of budget). `Nmi_FrameCounter` kept advancing throughout (Gate 6's
+own explicit requirement, re-checked here under sustained load, not just
+boot).
+
+**Conclusion: steps 2 and 3 are not justified by real measurement today.**
+Zero organic per-frame VM load with current content means there is nothing
+to optimize — a dispatch-table rewrite or SA-1 offload would be
+premature-optimization against a script that doesn't run long enough to
+need it. **This is a real gate result, not a deferral**: it's measured and
+documented so a future session doesn't have to re-derive it, and so the
+next time shipped VM content changes (a longer script, a real boss-AI
+loop, a `for`-driven level script — see `openbor_script_coverage_gap_data`
+memory), re-running `vm_gate7.py` immediately shows whether steps 2/3 have
+become live. The actual next VM-track work is **more real content**, not
+performance work — either a second real script for broader native
+coverage, or `compiler.py`'s missing script-to-script `CALL` codegen
+(`TARGET_KIND_SCRIPT` doesn't exist yet — that's the real reason today's
+shipped script has to be a synthesized zero-argument entry point instead
+of an unmodified extracted one).
+
 ---
 
 ## §10 — Host tooling checklist
