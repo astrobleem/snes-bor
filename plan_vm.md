@@ -1585,6 +1585,57 @@ between (a) mechanical additional arity-shapes of already-covered
 properties, and (b) new engine WRAM state plus a real upstream-source
 sourcing pass for constant values, neither of which should be guessed.
 
+**Real OpenBOR source fetched, 2026-08-23** — DCurrent/openbor
+(github.com/DCurrent/openbor), the current actively-maintained engine
+repo. This project has no local copy of the exact ~2013-vintage source
+DDM (build 4432) was built against, but `openborscript`'s `ANI_*`/`ATK_*`/
+`TYPE_*` enum orderings and bitflag values are a long-standing engine ABI
+mod authors depend on for cross-version script compatibility, not
+expected to have drifted. Two real findings from reading
+`engine/openborscript.c`'s native implementations directly:
+
+1. **Real `NULL()` is `ScriptVariant_Clear` → `VT_EMPTY`, not an integer.**
+   Real OpenBOR's own EQ/NE comparison is dynamically typed and tolerates
+   comparing EMPTY against any other type. This project's VM is
+   deliberately stricter (`Vm_LoadAndCompare` requires a numeric-or-STR
+   pair, faults `VMERR_BAD_TYPE` on EMPTY) — a real, disclosed VM-design
+   divergence from real OpenBOR, not a bug in either. The `VT_INTEGER 0`
+   compile-time choice made in the `NULL()` slice above stays the right
+   call FOR THIS PROJECT (matches its own plain-integer entity-handle
+   representation, passes its own stricter type check) — now confirmed
+   as a deliberate adaptation with a known real-semantics difference,
+   not an accidental one.
+2. **`getglobalvar`/`setglobalvar` are backed by a real dynamic, string-
+   keyed variable store** (`global_var_list`, a `Varlist` — arbitrarily
+   many named `ScriptVariant` entries, looked up by name OR by index,
+   persisting for the life of the running game/level). This is
+   genuinely new engine state this project's WRAM-based VM has no
+   representation for at all — implementing it needs a real design
+   decision (fixed-size slot array with linear string-handle comparison
+   is the natural WRAM-budget-bounded shape, mirroring how `getlocalvar`/
+   `setlocalvar` already work per-script) before any code, not a
+   `natives.py` entry. **Not scoped or started this slice** — flagged
+   for a future slice's own sizing/design pass.
+
+**`openborconstant()`: DONE, 2026-08-23.** Real values extracted
+programmatically (not hand-counted) from `engine/openbor.h`'s
+`e_animations`/`e_attack_types`/`e_entity_type` enums into
+`tools/bor_converter/openbor_script/openbor_constants_table.py` (294
+entries). `compile_call` folds `openborconstant("NAME")` to a compile-time
+`VT_INTEGER` literal — zero runtime instructions — for any name in the
+table; a name outside it (real per-model dynamic lookups like
+`ANI_FOLLOW57`, which indexes a SPECIFIC model's own `animfollows[]` array
+in real OpenBOR and isn't a fixed enum member at all, or mutable runtime
+globals like `PLAYER_MIN_Z`/`PLAYER_MAX_Z`) raises `CompileError` with the
+real reason rather than returning a guessed number. Proven on real
+hardware by `tools/verify/vm_openbor_constant.py` (7 checks,
+`GATE VM-OPENBORCONSTANT: PASS`) — sums three constants from three
+different real enums into one result and confirms the compiler emitted
+zero runtime instructions for them (pure link-time fold). Re-ran
+`vm_null_sentinel.py`/`vm_for_loops.py`/`vm_script_call.py`/`vm_gate6.py`
+clean (one `vm_script_call.py` mid-run `FrameTop` check reproduced as a
+known timing flake on rerun, unrelated to this change).
+
 Same scope boundary as script-to-script CALL: this is compiler plumbing,
 not a claim that DDM's own `for`-using scripts compile yet — they also
 call ~30 engine natives this VM doesn't implement (
