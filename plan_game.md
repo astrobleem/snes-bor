@@ -336,8 +336,10 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: PARTIAL** (2026-08-21) — title screen only. `GATE G5: PASS`
-> (`tools/verify/game_g5_menus.py`). Per an advisor consult for this phase:
+> **Status: PARTIAL** (2026-08-23) — title screen (2026-08-21) and character
+> select (2026-08-23) both shipped; pause menu content and options remain.
+> `GATE G5: PASS` (`tools/verify/game_g5_menus.py`). Per an advisor consult
+> for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
 > is exercised the same way `game_g2_states.py` already does, a forced
@@ -355,9 +357,26 @@ the streaming caches are consistent after reload.
 > DrawString call (to a different row) left there, so a short string alone
 > would leave stale garbage in the columns past its own text.
 >
-> Character select was explicitly **not** built here -- the hard-coded
-> `CharSelect_Index` roster stays as-is (no VM, no phase-out plan). Pause menu content
-> is also deferred (the state already freezes correctly since G2; it
+> **Character select shipped 2026-08-23** (`core/charselect.pasm`, new
+> `GAME_STATE_CHARSELECT`, entered from title's own teardown instead of
+> going straight to PLAYING): a header row, the current roster character's
+> name, an instructions row, and Left/Right cycling that re-skins the
+> existing `CharSelect_Index`/`Anim_LoadCharacter` machinery (the same
+> live-reselect path the Select button already used) rather than inventing
+> new roster logic. Moved to its own ROM bank (`.bank 4`, same reason
+> `core/spawn.pasm` got one) purely for `$C100`-`$FC00` budget — see that
+> file's own header for the two small bank-0 trampolines this needed
+> (`Anim_LoadCharacter_Long`/`Core_Text_DrawString_Long`) since both real
+> routines end in `rts`, same-bank-only. Found and fixed a real bug along
+> the way: `Anim_LoadCharacter` writes Direct-Page-relative `CHAR_*`
+> fields, and this code runs outside any per-entity `Core_Oop_Play`
+> dispatch (which is what normally points DP at the right entity) — the
+> fix (`Game_State_CharSelect_ReloadPlayer`) explicitly switches DP to the
+> player's own window (`OopDp`, slot 0) before calling it, same
+> `phd`/`tcd`/`pld` pattern `Core_Oop_Play` itself uses. `GATE G5: PASS`
+> (21 checks) exercises the full title → charselect (draw/cycle/wrap) →
+> playing round trip, not just the title screen. Pause menu content is
+> still deferred (the state already freezes correctly since G2; it
 > collides with `core/text.pasm`'s own documented BG3-frontpanel-vs-text
 > unresolved question, so it isn't bundled with a phase that didn't need to
 > touch that). Options (SRAM persistence) untouched.
@@ -378,11 +397,12 @@ the streaming caches are consistent after reload.
 
 Now that text exists (G1) and states exist (G2), these are mostly content.
 
-- **Title screen** — logo (convert BOR's own title art through `convert_bg.py`),
-  "PRESS START", attract-mode timeout optional.
-- **Character select** — the roster already supports 8 slots, loads at runtime
-  from the `.msu` header, and Select already cycles it live. This is largely
-  re-skinning existing machinery as a proper screen with portraits and names.
+- **Title screen** — done (2026-08-21). Real logo art (convert BOR's own title
+  art through `convert_bg.py`) and an attract-mode timeout are still optional
+  polish, not required.
+- **Character select** — done (2026-08-23, `core/charselect.pasm`). Portraits
+  (a real character sprite/thumbnail on the screen, not just the name) are
+  the one piece not built — text-only for now.
 - **Pause menu** — freeze on Start during play; resume / restart / quit.
 - **Options** — music/SFX volume (MSU-1 volume is `$2006`; TAD has its own),
   difficulty (the pak ships EASY/NORMAL/HARD variants of every stage, so this maps

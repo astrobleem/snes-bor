@@ -6370,6 +6370,22 @@ Anim_LoadCharacter__palette_read:
 .i16
     rts
 
+; Anim_LoadCharacter_Long -- bank-0 trampoline so core/charselect.pasm (its
+; own bank, see that file's header) can reach Anim_LoadCharacter with `jsl`
+; without changing Anim_LoadCharacter itself (which ends in `rts`, same-bank
+; only -- every other caller here still uses a plain same-bank `jsr`).
+Anim_LoadCharacter_Long:
+    jsr Anim_LoadCharacter
+    rtl
+
+; Core_Text_DrawString_Long -- same trampoline pattern as Anim_LoadCharacter_
+; Long immediately above, for core/charselect.pasm's other bank-0
+; cross-bank dependency (core/text.pasm's Core_Text_DrawString, also
+; same-bank-only, ends in `rts`).
+Core_Text_DrawString_Long:
+    jsr Core_Text_DrawString
+    rtl
+
 ; ----------------------------------------------------------------------------
 ; plan_game.md 8a row 3 (`map`): MapApply_Index/PaletteBaseLo/PaletteBaseHi/
 ; MapBaseLo/MapBaseHi/PaletteSlot are WRAM constants owned and declared by
@@ -11290,6 +11306,35 @@ Text_Str_TitlePress:
 Text_Str_TitleBlank:
     .db "                                ", $00
 
+; Phase G5 (plan_game.md 5): character-select screen strings. Same
+; full-32-column-padded convention as the title strings above (this screen
+; reuses Text_Str_TitleBlank for clearing, since blank is blank regardless
+; of which screen wrote the row). Names are hand-synced to build_rom.py's
+; ROSTER_PREFIXES order (RALF, JHUN, JOE, YASHIRO) -- see
+; CharSelect_NamePtrs below, same accepted hand-sync pattern as
+; tools/verify/phase12_roster.py's own ENTITY_ROSTER_SLOTS.
+Text_Str_CharSelectHeader:
+    .db "CHARACTER SELECT                ", $00
+Text_Str_CharSelectInstr:
+    .db "LEFT/RIGHT SELECT  START GO     ", $00
+Text_Str_CharRalf:
+    .db "RALF                            ", $00
+Text_Str_CharJhun:
+    .db "JHUN                            ", $00
+Text_Str_CharJoe:
+    .db "JOE                             ", $00
+Text_Str_CharYashiro:
+    .db "YASHIRO                         ", $00
+
+; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
+; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
+; order in build_rom.py; a 5th roster slot needs a 5th entry here too.
+CharSelect_NamePtrs:
+    .dw (Text_Str_CharRalf - Text_StringPool)
+    .dw (Text_Str_CharJhun - Text_StringPool)
+    .dw (Text_Str_CharJoe - Text_StringPool)
+    .dw (Text_Str_CharYashiro - Text_StringPool)
+
 ; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
 ; columns -- unlike the title strings above, these are drawn by
 ; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
@@ -11329,4 +11374,12 @@ Text_Str_HudStage:
 .bank 3
 .org $8000
 .include "core/spawn.pasm"
+
+; Phase G5 (plan_game.md 5): character-select screen body, own bank for the
+; same ROM-budget reason spawn.pasm above got one -- see core/charselect.
+; pasm's own header for the full story (jsl/rtl entry, and why it needs two
+; small bank-0 trampolines to reach Anim_LoadCharacter/Core_Text_DrawString).
+.bank 4
+.org $8000
+.include "core/charselect.pasm"
 
