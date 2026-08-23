@@ -229,6 +229,23 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     attack_ordinal = next((i for i, n in enumerate(lower_names) if n.startswith('attack')), None)
     roles['attack'] = attack_ordinal
 
+    # plan_game.md 7 (G7 remaining: a real second attack move, generic --
+    # not hardcoded to any one character's real move name). Real per-
+    # character second moves in this roster are NOT named 'attack2'/'attack3'
+    # (OpenBOR's own numbered-attack convention, checked directly -- none of
+    # RALF/JOE/JHUN's second moves use it); they're distinctly-named combo/
+    # special moves (upper, grab, jumpattack). So 'attack2' here is an
+    # ENGINE role name, not a pak anim name: the first declared anim that
+    # isn't one of the 5 known roles and isn't the anim already chosen as
+    # 'attack' above. None if no such anim exists (YASHIRO has no second
+    # move in real data). Only the first extra move is resolved -- this
+    # roster never has more than one (a future character with 2+ would
+    # need this generalized further, not needed by real data today).
+    known_ordinals = {v for v in roles.values() if v is not None}
+    attack2_ordinal = next(
+        (i for i in range(len(lower_names)) if i not in known_ordinals), None)
+    roles['attack2'] = attack2_ordinal
+
     # plan_game.md 8a row 3 (`map`): derive one alt palette per real `remap`
     # line this character declares (see _derive_remap_palettes' own header).
     # Every remap is keyed off the character's own idle-frame-1 image in all

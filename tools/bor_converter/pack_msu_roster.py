@@ -32,7 +32,11 @@ File format (see the plan for the authoritative spec):
                                         +6/+7 padding, no data_offset ripple]
         +8-11 data_offset (u32 LE) -- absolute byte offset of this
               character's blob from the start of the file
-        +12-13 reserved
+        +12 attack2_frame_count (u8)  [plan_game.md 7, G7 remaining --
+        +13 attack2_delay       (u8)   0 if this character has no real
+                                        second attack move (YASHIRO);
+                                        fits the record's own last
+                                        remaining +12/+13 padding]
         +14 rise_frame_count   (u8)   [plan_game.md G7 knockdown slice --
         +15 rise_delay         (u8)    fits the record's own pre-existing
                                         +12-15 padding]
@@ -44,6 +48,9 @@ File format (see the plan for the authoritative spec):
       next     attack_frame_count * 768 bytes
       next     fall_frame_count * 768 bytes    [G7 knockdown slice]
       next     rise_frame_count * 768 bytes    [G7 knockdown slice]
+      next     attack2_frame_count * 768 bytes [G7 remaining, "attack2" --
+                                                 0 bytes if this character
+                                                 has no second move]
       next     0-3 alt palettes, 32 bytes each [plan_game.md 8a row 3, `map`
                                                  -- see pack_character_blob's
                                                  own comment for why this
@@ -246,6 +253,12 @@ def bake_anim_bytes(anim_dir):
 
 ENGINE_ROLES = ("idle", "walk", "attack", "fall", "rise")
 
+# plan_game.md 7 (G7 remaining: a real second attack move). Optional --
+# unlike ENGINE_ROLES, a character may legitimately have no second move
+# (YASHIRO, real data). Resolved separately so pack_character_blob can
+# tolerate its absence instead of raising like a missing required role.
+OPTIONAL_ROLE_ATTACK2 = "attack2"
+
 
 def _resolve_role_dirs(prefix):
     """Reads <prefix>_moveset.json (convert_character.py's per-character
@@ -286,6 +299,12 @@ def _resolve_role_dirs(prefix):
                 f"found among its converted animations {list(anims_by_ordinal.values())} "
                 f"-- main.pasm's fixed idle/walk/attack/fall/rise struct needs all 5")
         resolved[role] = anims_by_ordinal[ordinal]["dir"]
+
+    # Optional: a real second attack move (plan_game.md 7, G7 remaining).
+    # None (not KeyError) if this character has none -- real data (YASHIRO).
+    attack2_ordinal = roles.get(OPTIONAL_ROLE_ATTACK2)
+    resolved[OPTIONAL_ROLE_ATTACK2] = (
+        anims_by_ordinal[attack2_ordinal]["dir"] if attack2_ordinal is not None else None)
     return resolved
 
 
@@ -308,21 +327,26 @@ def pack_character_blob(prefix):
     attack_dir = role_dirs["attack"]
     fall_dir = role_dirs["fall"]
     rise_dir = role_dirs["rise"]
+    attack2_dir = role_dirs[OPTIONAL_ROLE_ATTACK2]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
     attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
     fall_count, fall_delay = gen_pasm_animset.load_manifest(fall_dir)
     rise_count, rise_delay = gen_pasm_animset.load_manifest(rise_dir)
+    if attack2_dir is not None:
+        attack2_count, attack2_delay = gen_pasm_animset.load_manifest(attack2_dir)
+    else:
+        attack2_count, attack2_delay = 0, 0
     palette = gen_pasm_animset.load_palette(idle_dir)
 
     counts = ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack"),
-              (fall_count, "fall"), (rise_count, "rise"))
+              (fall_count, "fall"), (rise_count, "rise"), (attack2_count, "attack2"))
     for count, name in counts:
         if not (0 <= count <= 255):
             raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
     delays = ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
-              (fall_delay, "fall"), (rise_delay, "rise"))
+              (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"))
     for delay, name in delays:
         if not (0 <= delay <= 255):
             raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
@@ -335,16 +359,28 @@ def pack_character_blob(prefix):
     attack_bytes = bake_anim_bytes(attack_dir)
     fall_bytes = bake_anim_bytes(fall_dir)
     rise_bytes = bake_anim_bytes(rise_dir)
+    attack2_bytes = bake_anim_bytes(attack2_dir) if attack2_dir is not None else b""
     assert len(idle_bytes) == idle_count * ANIM_FRAME_BYTES
     assert len(walk_bytes) == walk_count * ANIM_FRAME_BYTES
     assert len(attack_bytes) == attack_count * ANIM_FRAME_BYTES
     assert len(fall_bytes) == fall_count * ANIM_FRAME_BYTES
     assert len(rise_bytes) == rise_count * ANIM_FRAME_BYTES
+    assert len(attack2_bytes) == attack2_count * ANIM_FRAME_BYTES
+
+    # plan_game.md 7 (G7 remaining, "attack2"): 0 or 1 real second attack
+    # move, appended right after the rise frames and BEFORE the remap
+    # section below -- main.pasm's Anim_LoadCharacter now derives
+    # attack2_base the same way map_base always has (rise_base +
+    # rise_frame_count*768), and map_base itself becomes one more hop
+    # (attack2_base + attack2_frame_count*768). This ordering is what lets
+    # attack2 slot in WITHOUT growing RECORD_SIZE or moving any existing
+    # absolute offset -- see build_record's own comment.
 
     # plan_game.md 8a row 3 (`map`): 0-3 extra 32-byte alt palettes, appended
-    # right after the rise frames -- main.pasm's AnimBase_ComputeMapBase
-    # derives this exact same offset (rise_base + rise_frame_count*768) at
-    # load time, so this packer's own ordering is load-bearing, not cosmetic.
+    # right after the rise+attack2 frames -- main.pasm's Anim_LoadCharacter
+    # derives this exact same offset (attack2_base + attack2_frame_count*768,
+    # collapsing to rise_base + rise_frame_count*768 when attack2_count==0)
+    # at load time, so this packer's own ordering is load-bearing, not cosmetic.
     # Real remap counts confirmed across all 4 shipped roster characters
     # (RALF/JOE/YASHIRO=3, JHUN=2), sourced from convert_character.py's
     # <prefix>_moveset.json (its own remap_palettes field, [] if the
@@ -363,7 +399,7 @@ def pack_character_blob(prefix):
     assert len(remap_bytes) == len(remap_palettes) * PALETTE_BYTES
 
     blob = (palette_bytes + idle_bytes + walk_bytes + attack_bytes
-            + fall_bytes + rise_bytes + remap_bytes)
+            + fall_bytes + rise_bytes + attack2_bytes + remap_bytes)
 
     info = {
         "prefix": prefix,
@@ -372,22 +408,28 @@ def pack_character_blob(prefix):
         "attack_frame_count": attack_count,
         "fall_frame_count": fall_count,
         "rise_frame_count": rise_count,
+        "attack2_frame_count": attack2_count,
         "idle_delay": idle_delay,
         "walk_delay": walk_delay,
         "attack_delay": attack_delay,
         "fall_delay": fall_delay,
         "rise_delay": rise_delay,
+        "attack2_delay": attack2_delay,
         "blob_size": len(blob),
     }
     return blob, info
 
 
 def build_record(info, data_offset):
-    # RECORD_SIZE stays 16 -- fall/rise's 4 new bytes (frame_count+delay x2)
-    # fit in the record's existing +6/+7 and +12/+13 padding (see the
-    # module docstring's layout comment), no data_offset ripple.
+    # RECORD_SIZE stays 16. fall/rise already used the record's +6/+7
+    # padding; plan_game.md 7 (G7 remaining, "attack2") repurposes the
+    # LAST remaining reserved bytes, +12/+13 (previously `2x` padding), for
+    # attack2_frame_count/attack2_delay -- zero bytes left unused, but also
+    # zero ripple into HEADER_SIZE/data_offset/VM_MSU_OFFSET (attack2's own
+    # frame data is addressed by chaining off rise_base at load time, not
+    # by a stored offset -- see pack_character_blob's own comment).
     record = struct.pack(
-        "<BBBBBBBBI2xBB",
+        "<BBBBBBBBIBBBB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
@@ -397,6 +439,8 @@ def build_record(info, data_offset):
         info["fall_frame_count"],
         info["fall_delay"],
         data_offset,
+        info["attack2_frame_count"],
+        info["attack2_delay"],
         info["rise_frame_count"],
         info["rise_delay"],
     )

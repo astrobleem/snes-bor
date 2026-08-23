@@ -701,10 +701,61 @@ frame-load already takes 6.
 > `phase11_damage.py`, `phase12_roster.py`, every `game_g*.py` gate including
 > the new `game_g7_knockdown.py`.
 >
+> **A real second attack move shipped, 2026-08-23** (`GATE G7-ATTACK2: PASS`,
+> `tools/verify/game_g7_attack2.py`, 16 checks). Investigation first found
+> jump/block/special have NO real anim in the source pak for any of the 4
+> roster characters — nothing to convert, art-authoring blockers, not
+> engine slices. But RALF (`upper`)/JOE (`grab`)/JHUN (`jumpattack`) each
+> already had one real extra move, converted and inert since the moveset-
+> generalization slice below. The user was asked whether to route this
+> through the VM (the prior deferral's own plan) or build it hand-written;
+> mid-research, direct `BOR.C` inspection showed real OpenBOR player-move
+> dispatch (including grab) is native C (`player_grab()`, a `self->think`
+> function-pointer state machine), never script-driven — routing it
+> through `openborscript` would be non-canonical. User confirmed:
+> hand-written, matching how BOR.C itself does it.
+>
+> **Deliberately NOT real grab semantics.** Real `grab` is a mutual
+> entity-lock triggered by movement collision (position averaging,
+> `ents_link`), not a button. This slice ships the generic `attack2` role
+> (resolved by exclusion — first anim beyond the 6 known roles — not
+> hardcoded to any character name, `convert_character.py`) as a second
+> attack move: same `Character_HitApply` CHAR_SELECTED==2 damage check
+> attack1 already uses (confirmed no attack-variant-specific code exists
+> there — zero changes needed), triggered by X (free, unused elsewhere:
+> Y=attack1, B=run, Select=roster cycle). Full mutual-lock grab semantics
+> remain future work, called out the same way jump's Z-axis need is.
+>
+> **No `RECORD_SIZE` growth.** `pack_msu_roster.py`'s roster record
+> repurposed its last 2 reserved bytes for `attack2_frame_count`/`delay`,
+> and attack2's variable-length frame data was inserted into the blob
+> right BEFORE the existing remap-palette section (not after) — so
+> `map_base`'s existing chain (`rise_base + rise_frame_count*768`) just
+> gained one more hop (`attack2_base = rise_base + rise_frame_count*768`;
+> `map_base = attack2_base + attack2_frame_count*768`, collapsing back to
+> the old formula exactly when attack2_count==0). Zero ripple into
+> `HEADER_SIZE`/character `data_offset`s/the BG directory — only the real
+> new frame bytes shifted `VM_MSU_OFFSET`, needing the same
+> `check_vm_constants` resync the `map` slice already established as
+> routine. `CharacterEntity` grew 56→62 bytes
+> (`CHAR_ATTACK2_FCOUNT/DELAY/BASE_LO/HI`, `CHAR_ATTACK_VARIANT`) — struct
+> growth pre-verified safe by `struct_growth_regression_root_cause`,
+> re-confirmed clean by the full phase suite. `Anim_Play_Attack` gained a
+> duplicated (not parametrized — matches this file's own existing style
+> for variant-selected blocks) tail for the attack2 case. AI is untouched
+> (attack2 is player-only in this slice, same restraint G7's run/dash
+> first slice used before broader generalization was confirmed safe).
+> Full regression suite clean (build, `audit_all.py`, `check_label_drift.py`,
+> `check_width_directives.py` — 2 new sites baselined with explicit
+> width directives, zero silent violations, phase5–phase9/11/12, every
+> `game_g*.py`/`vm_gate*.py` gate; `game_g7_knockdown.py`'s pre-existing
+> flaky check reproduced its documented 2/3 pass rate, unrelated to this
+> slice).
+>
 > **Still fully open** (all need new animation content the converter doesn't
 > produce today — see "Content dependency" below): jump/jump-attack (the
 > largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> grab/throw, special, block.
+> real grab/throw mutual-lock semantics, special, block.
 >
 > **Moveset pipeline generalized, 2026-08-22** (before any of the above was
 > attempted). User explicitly rejected scoping "give Ralf a real second move

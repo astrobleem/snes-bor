@@ -2376,6 +2376,12 @@ ANIM_VRAM_DEST_BYTE = $4020  ; = word $2010 * 2 -- same BG2 window the
 ; 0000"). Edge-triggered (Input_trigger, not Input_press) so holding Y
 ; doesn't re-trigger every frame -- checked in Anim_Play's dispatcher below.
 ANIM_ATTACK_BUTTON_MASK = $40
+; plan_game.md 7 (G7 remaining, "attack2"): X button. Same $4218 layout
+; comment above, other byte: "A X L R 0000" (no `+1`) -- bit6 of that byte
+; is X, free and unused elsewhere in this project today (Y=attack1,
+; B=run/dash [G7 first slice], Select=roster cycle). Edge-triggered
+; (Input_trigger, not Input_press), same reasoning as ANIM_ATTACK_BUTTON_MASK.
+ANIM_ATTACK2_BUTTON_MASK = $40
 ; Frame counts/delays (idle/walk/attack) used to be compile-time constants
 ; here (ANIM_FRAME_COUNT/DELAY, WALK_FRAME_COUNT/DELAY, ATTACK_FRAME_COUNT/
 ; DELAY), baked for the one character shipped in ROM. Now runtime WRAM
@@ -2518,7 +2524,7 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 56        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 62        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2543,7 +2549,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 112       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 124       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2563,7 +2569,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 168       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 186       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2774,7 +2780,19 @@ CHAR_PALETTE_BASE_HI = 51  ; .db
 CHAR_MAP_INDEX       = 52  ; .db -- 0 = no remap (render base palette); 1-3 = alt index
 CHAR_MAP_BASE_LO     = 53  ; .dw
 CHAR_MAP_BASE_HI     = 55  ; .db
-CHAR_ZP_LEN         = 56   ; total -- pass as OopRegStaging_ZpLen
+; plan_game.md 7 (G7 remaining, "attack2"): a real second attack move
+; (RALF=upper, JOE=grab, JHUN=jumpattack; YASHIRO has none -- FCOUNT==0).
+; Generic role, not a hardcoded character name -- see convert_character.py's
+; own comment. attack2_base = rise_base + rise_frame_count*768 (same
+; shift-add idiom as every other *_base field); CHAR_MAP_BASE_LO/HI above
+; now chains off THIS instead of rise_base directly, one more hop in the
+; same pattern -- see Anim_LoadCharacter__slot_ok's own comment.
+CHAR_ATTACK2_FCOUNT  = 56  ; .db -- 0 = no second move for this character
+CHAR_ATTACK2_DELAY   = 57  ; .db
+CHAR_ATTACK2_BASE_LO = 58  ; .dw
+CHAR_ATTACK2_BASE_HI = 60  ; .db
+CHAR_ATTACK_VARIANT  = 61  ; .db -- 0=attack1 selected/playing, 1=attack2
+CHAR_ZP_LEN         = 62   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -3466,11 +3484,36 @@ Anim_Play__check_attack_trigger:
                                   ; already used elsewhere in this routine
     nop
 Anim_Play__player_input:
+    ; plan_game.md 7 (G7 remaining, "attack2"): checked before the existing
+    ; Y-attack trigger below, X button (Input_trigger, no +1, mask $40 --
+    ; see ANIM_ATTACK2_BUTTON_MASK's own comment). CHAR_ATTACK2_FCOUNT==0
+    ; (YASHIRO -- no second move for this character) must no-op here, not
+    ; stream from a zero-length region.
+    lda CHAR_ATTACK2_FCOUNT
+    beq Anim_Play__no_attack2_trigger
+    lda.l Input_trigger
+    and #ANIM_ATTACK2_BUTTON_MASK
+    beq Anim_Play__no_attack2_trigger
+    lda #2
+    sta CHAR_SELECTED
+    lda #1
+    sta CHAR_ATTACK_VARIANT
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Play__dispatch
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__no_attack2_trigger:
+    sep #$20
+.a8
     lda.l Input_trigger+1
     and #ANIM_ATTACK_BUTTON_MASK
     beq Anim_Play__no_attack_trigger
     lda #2
     sta CHAR_SELECTED
+    lda #0
+    sta CHAR_ATTACK_VARIANT
     lda #$FF
     sta CHAR_FRAME_INDEX
     lda #1
@@ -3812,6 +3855,17 @@ Anim_Play_Attack__not_busy:
     brl Anim_Done   ; too far for an 8-bit bne from here
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__advance:
+    ; plan_game.md 7 (G7 remaining, "attack2"): CHAR_ATTACK_VARIANT selects
+    ; which of the two independent frame-count/delay/base field sets this
+    ; attack cycle reads -- set once, at trigger time (Anim_Play__player_
+    ; input), and left alone for the rest of this cycle. Duplicated tail
+    ; (not a shared parametrized routine) matches this file's own existing
+    ; style for this kind of variant-selected block (e.g. Character_
+    ; PlayFrame's per-direction blocks) -- branch-range/addressing
+    ; constraints in this codebase make a data-driven single path costlier
+    ; than a plain duplicate.
+    lda CHAR_ATTACK_VARIANT
+    bne Anim_Play_Attack2__advance
 
     lda CHAR_FRAME_INDEX
     inc a
@@ -3838,6 +3892,39 @@ Anim_Play_Attack__frame_ok:
     sep #$20
 .a8
     lda CHAR_ATTACK_BASE_HI
+    sta.l AnimHeaderStaging+2
+    lda CHAR_FRAME_INDEX
+    jsr Msu1_LoadFrame
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack2__advance:
+    sep #$20
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_ATTACK2_FCOUNT
+    bcc Anim_Play_Attack2__frame_ok
+    ; Animation finished -- same revert-to-idle shape as attack1's own.
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    brl Anim_Done
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play_Attack2__frame_ok:
+    sta CHAR_FRAME_INDEX
+    lda CHAR_ATTACK2_DELAY
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda CHAR_ATTACK2_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_ATTACK2_BASE_HI
     sta.l AnimHeaderStaging+2
     lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
@@ -5851,6 +5938,14 @@ Anim_LoadCharacter__record_read:
     sta CHAR_RISE_FCOUNT
     lda.l AnimHeaderStaging+15
     sta CHAR_RISE_DELAY
+    ; plan_game.md 7 (G7 remaining, "attack2"): same reasoning as fall/rise
+    ; just above -- must be read before the scratch math below reuses
+    ; AnimHeaderStaging+12/13. 0/0 for a character with no second move
+    ; (YASHIRO) -- pack_msu_roster.py's build_record leaves it zeroed.
+    lda.l AnimHeaderStaging+12
+    sta CHAR_ATTACK2_FCOUNT
+    lda.l AnimHeaderStaging+13
+    sta CHAR_ATTACK2_DELAY
 
     ; Packer leaves unused slots fully zeroed -- a zero idle_frame_count is
     ; a cheap free validity check (see the plan's Phase 5). Nothing to
@@ -5981,9 +6076,13 @@ Anim_LoadCharacter__slot_ok:
     sep #$20
 .a8
 
-    ; --- map_base (24-bit) = rise_base + rise_frame_count*768 (plan_game.md
-    ; 8a row 3, `map`) -- same shift-add-by-768 idiom as every other *_base
-    ; field above, kept inline here (not jsl'd to bank 1) deliberately. ---
+    ; --- attack2_base (24-bit) = rise_base + rise_frame_count*768
+    ; (plan_game.md 7, G7 remaining, "attack2") -- same shift-add-by-768
+    ; idiom as every other *_base field above. This is the same formula
+    ; map_base used to use directly; map_base below now chains off THIS
+    ; instead, one more hop (see pack_msu_roster.py's blob-ordering
+    ; comment: attack2's 0-or-N frames now sit between rise and the remap
+    ; palette section it used to sit immediately after). ---
     lda CHAR_RISE_FCOUNT
     rep #$31
 .a16
@@ -6008,10 +6107,48 @@ Anim_LoadCharacter__slot_ok:
     lda CHAR_RISE_BASE_LO
     clc
     adc.l AnimHeaderStaging+12
-    sta CHAR_MAP_BASE_LO
+    sta CHAR_ATTACK2_BASE_LO
     sep #$20
 .a8
     lda CHAR_RISE_BASE_HI
+    adc.l AnimHeaderStaging+15
+    sta CHAR_ATTACK2_BASE_HI
+
+    ; --- map_base (24-bit) = attack2_base + attack2_frame_count*768
+    ; (plan_game.md 8a row 3, `map`) -- same shift-add-by-768 idiom, now
+    ; chained one hop further than before (was rise_base + rise_frame_
+    ; count*768; collapses back to that exact value when attack2_fcount==0,
+    ; i.e. every character without a second move -- unchanged behavior for
+    ; them). Kept inline here (not jsl'd to bank 1) deliberately, same as
+    ; before. ---
+    lda CHAR_ATTACK2_FCOUNT
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l AnimHeaderStaging+12
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l AnimHeaderStaging+14
+
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12
+    lda.l AnimHeaderStaging+14
+    sta.l AnimHeaderStaging+13
+
+    rep #$31
+.a16
+.i16
+    lda CHAR_ATTACK2_BASE_LO
+    clc
+    adc.l AnimHeaderStaging+12
+    sta CHAR_MAP_BASE_LO
+    sep #$20
+.a8
+    lda CHAR_ATTACK2_BASE_HI
     adc.l AnimHeaderStaging+15
     sta CHAR_MAP_BASE_HI
 

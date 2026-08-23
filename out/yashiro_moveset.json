@@ -45,7 +45,8 @@
     "pain": 2,
     "fall": 3,
     "rise": 4,
-    "attack": 5
+    "attack": 5,
+    "attack2": null
   },
   "remap_palettes": [
     [
