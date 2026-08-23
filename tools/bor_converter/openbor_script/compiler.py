@@ -2,15 +2,43 @@
 (plan_vm.md §8, FORMAT.md). Produces plain Python structures; module.py packs
 them into the actual binary per FORMAT.md.
 
-Scope: compiles exactly one function (the first FuncDecl in the program) as
-the module's entry_main, treating it as a root program -- no CALL/PARAM
-frame is synthesized for the function's own parameters. A standalone test
-harness (vm_gate6.py) instead bakes fixed test values directly into those
+Scope: the FIRST FuncDecl in the program compiles as the module's
+entry_main, treating it as a root program -- no CALL/PARAM frame is
+synthesized for the function's own parameters. A standalone test harness
+(vm_gate6.py) instead bakes fixed test values directly into those
 parameter slots' *initial* values, the same pattern Gate 0-5's own fixtures
 already use for CONSTINT-style preinitialized slots. This sidesteps
 synthesizing a fake outer caller for a script that, in a real mod, would be
 invoked by the engine with real arguments -- the compiled instruction
 stream for the function body itself is unmodified/real either way.
+
+Every OTHER FuncDecl in the program compiles as a real, in-script-callable
+function: a PARAM prologue reads its declared parameters out of the active
+call frame (vm_call.pasm's Vm_Op_Param -- faults with VMERR_NO_CALL_FRAME
+if FrameTop==0, which is exactly why entry_main itself is exempt), and
+every `return` desugars to a JUMPR-to-epilogue (value-carrying) or an
+unconditional branch-to-epilogue (value-less) followed by a single trailing
+RET -- see compile_return. A call to another script-declared function
+resolves BEFORE native-specialization lookup (compile_call) and emits a
+TARGET_KIND_SCRIPT callsite; the CALL instruction's own operand A (the
+callee's entry IP) can only be known once the callee itself has been
+compiled, so it is left 0 and backpatched in a final pass exactly like
+compile_if's own forward-branch patches (see compile_program's tail).
+
+Each function's local variables (params + VarDecls) live in their OWN
+`slot_names` scope -- module.slots stays one flat, physically shared array
+(matches the real WRAM-backed VmSlots_Wram, one bank for the whole loaded
+script), but the NAME namespace is reset per function so two functions can
+each declare a local called e.g. `i` without colliding. See
+compile_program's save/restore of self.m.slot_names around each function.
+
+Scope boundary, stated plainly: this makes script-to-script CALL/PARAM/
+RET/JUMPR reachable from real compiled openborscript source for the first
+time. It does NOT make any real extracted pak script compile -- BOR/TMNT
+have zero script content and DDM's real scripts also need `for` loops and
+~30 more natives (openbor_script_coverage_gap_data project memory). This
+is compiler/runtime plumbing, proven with a small synthetic fixture, not a
+claim that real mod scripts now run.
 
 Slot type tags (FORMAT.md, Q16.16 profile): 0 EMPTY, 1 INTEGER, 2 DECIMAL,
 5 PTR, 6 STR. Entity handles (self/vSpawn) are represented as VT_INTEGER,
@@ -59,7 +87,9 @@ OP_XOR = 31
 OP_BIT_AND = 32
 OP_BRANCH_FALSE = 36
 OP_BRANCH_TRUE = 37
+OP_PARAM = 40
 OP_RET = 43
+OP_JUMPR = 46
 
 BINOP_OPCODE = {
     '+': OP_ADD, '-': OP_SUB, '*': OP_MUL, '/': OP_DIV, '%': OP_MOD,
@@ -126,6 +156,11 @@ class Module:
 class Compiler:
     def __init__(self):
         self.m = Module()
+        self.local_functions = {}       # name -> FuncDecl (declared, all funcs)
+        self.func_entry_ip = {}         # name -> entry IP (filled as each compiles)
+        self.pending_script_calls = []  # [(instr_idx, callee_name)] -- CALL.a backpatch
+        self.is_entry_function = True   # False while compiling a non-entry function
+        self.epilogue_patches = []      # pending JUMPR/branch targets for current fn
 
     def new_slot(self, vtype=VT_EMPTY, value=0, aux=0, flags=0, name=None):
         idx = len(self.m.slots)
@@ -160,14 +195,58 @@ class Compiler:
     def compile_program(self, program):
         if not program.functions:
             raise CompileError('no functions in source')
-        fn = program.functions[0]
+        # Declare pass: every function's name+params known before ANY body
+        # compiles, so forward references (a func calling one declared
+        # later in the file) resolve -- same reason compile_if/compile_while
+        # patch branch targets after the fact rather than requiring them
+        # known up front.
+        for fn in program.functions:
+            if fn.name in self.local_functions:
+                raise CompileError(f'duplicate function {fn.name!r}')
+            self.local_functions[fn.name] = fn
+
+        entry_fn = program.functions[0]
         self.m.entry_main = 0
-        for ptype, pname in fn.params:
+        self.is_entry_function = True
+        for ptype, pname in entry_fn.params:
             slot = self.new_slot(vtype=self._default_type_for(ptype), name=pname)
             self.m.param_names.append((pname, slot, ptype))
-        self.compile_block(fn.body)
+        self.func_entry_ip[entry_fn.name] = 0
+        self.compile_block(entry_fn.body)
         if not self.m.instructions or self.m.instructions[-1].op != OP_RET:
             self.emit(OP_RET)
+
+        # Every other function: real PARAM prologue (needs an active call
+        # frame -- entry_main above is exempt, see module docstring), a
+        # fresh local-name scope, and a single epilogue all early returns
+        # funnel through.
+        for fn in program.functions[1:]:
+            self.is_entry_function = False
+            self.func_entry_ip[fn.name] = len(self.m.instructions)
+            saved_slot_names = self.m.slot_names
+            self.m.slot_names = {}
+            self.epilogue_patches = []
+            for ptype, pname in fn.params:
+                pslot = self.new_slot(vtype=self._default_type_for(ptype), name=pname)
+                self.emit(OP_PARAM, a=pslot)
+            self.compile_block(fn.body)
+            epilogue_ip = len(self.m.instructions)
+            for idx in self.epilogue_patches:
+                self.m.instructions[idx].a = epilogue_ip
+            self.emit(OP_RET)
+            self.m.slot_names = saved_slot_names
+        self.is_entry_function = True
+
+        # Backpatch every script callsite now that all entry IPs are known;
+        # keep callsite.target_id in agreement with CALL's own operand A,
+        # matching vm_call.pasm's own documented exporter convention (the
+        # runtime only ever trusts the instruction, but a real exporter
+        # keeps both fields consistent).
+        for instr_idx, callee_name in self.pending_script_calls:
+            entry_ip = self.func_entry_ip[callee_name]
+            instr = self.m.instructions[instr_idx]
+            instr.a = entry_ip
+            self.m.callsites[instr.c].target_id = entry_ip
         return self.m
 
     @staticmethod
@@ -194,15 +273,37 @@ class Compiler:
         elif isinstance(node, ast.Assign):
             self.compile_assign(node)
         elif isinstance(node, ast.Return):
-            if node.value is not None:
-                self.compile_expr(node.value, dest=None)
-            self.emit(OP_RET)
+            self.compile_return(node)
         elif isinstance(node, ast.If):
             self.compile_if(node)
         elif isinstance(node, ast.While):
             self.compile_while(node)
         else:
             raise CompileError(f'unsupported statement {type(node).__name__}')
+
+    def compile_return(self, node):
+        if self.is_entry_function:
+            # Root return: nothing outside the VM reads a "return value"
+            # from entry_main, so this stays exactly the pre-existing
+            # behavior (Gate 0-7 already depend on it byte-for-byte).
+            if node.value is not None:
+                self.compile_expr(node.value, dest=None)
+            self.emit(OP_RET)
+            return
+        # Non-entry function: every return -- early or trailing -- funnels
+        # through ONE epilogue (patched to the real IP once the whole body
+        # is compiled, in compile_program), which then falls into a single
+        # trailing RET. A value-carrying return stages it via JUMPR
+        # (vm_call.pasm's only path that sets VMFRAME_RETURN_SRC); a
+        # value-less return reuses the same unconditional-branch idiom
+        # compile_while already uses for its back-edge (BRANCH_FALSE on
+        # the constant-false slot always taken).
+        if node.value is not None:
+            vslot = self.compile_expr(node.value, dest=None)
+            idx = self.emit(OP_JUMPR, a=0, b=vslot)
+        else:
+            idx = self.emit(OP_BRANCH_FALSE, a=0, b=self._false_slot())
+        self.epilogue_patches.append(idx)
 
     def compile_vardecl(self, node):
         home = self.new_slot(vtype=self._default_type_for(node.var_type), name=node.name)
@@ -212,11 +313,44 @@ class Compiler:
     def compile_assign(self, node):
         home = self.lookup(node.target.name)
         if node.op == '=':
-            self.compile_expr(node.value, dest=home)
+            self.compile_assign_value(node.value, home)
         else:
             op_char = node.op[0]
             synthetic = ast.BinOp(op=op_char, left=node.target, right=node.value)
             self.compile_expr(synthetic, dest=home)
+
+    def compile_assign_value(self, value_node, home):
+        """Assign an expression's value into an EXISTING, already-declared
+        slot (`home`) -- as opposed to compile_vardecl, where `home` is a
+        brand-new slot nothing has touched yet.
+
+        A literal (IntLit/FloatLit/StringLit) is a real bug trap here:
+        compile_expr's own dest-threading for literals BAKES the constant
+        into the destination slot's *compile-time initial value* (matching
+        CONSTINT's real "link/no-op, materialized by the host linker"
+        semantics -- see opcode_manifest.csv) rather than emitting any
+        runtime instruction. That is correct ONLY the first time a slot is
+        ever written (compile_vardecl's init, which still calls
+        compile_expr directly, unchanged) -- for a REASSIGNMENT to a slot
+        that may already hold a real runtime value (a param, a previous
+        loop iteration, ...), baking a compile-time constant into "initial
+        state" has NO runtime effect at all: the statement silently
+        no-ops. Found via vm_script_call.py's fixture (`i = 0;` reassigning
+        a PARAM'd value) -- confirmed on real hardware AND the oracle
+        before this fix, both showing the reset simply didn't happen.
+        Fix: route literals through a dedicated, freshly-allocated constant
+        slot (compile_expr's own dest=None path, always safe -- a new slot
+        is by definition never touched before this) and copy it in with a
+        REAL runtime SAVE, exactly the same pattern the Ident branch below
+        already uses for `x = y;`. Non-literal expressions (BinOp/UnaryOp/
+        Call/Ident/nested Assign) already emit a genuine runtime
+        instruction when given an existing dest, so they're unaffected.
+        """
+        if isinstance(value_node, (ast.IntLit, ast.FloatLit, ast.StringLit)):
+            const_slot = self.compile_expr(value_node, dest=None)
+            self.emit(OP_SAVE, a=home, b=const_slot)
+            return home
+        return self.compile_expr(value_node, dest=home)
 
     def compile_if(self, node):
         cond_slot = self.compile_expr(node.cond, dest=None)
@@ -232,6 +366,11 @@ class Compiler:
             self.m.instructions[branch_idx].a = len(self.m.instructions)
 
     def _false_slot(self):
+        # Deliberately module-global, NOT per-function-scoped like ordinary
+        # locals: it's a constant-0 slot, never named (no slot_names entry,
+        # so no cross-function lookup collision is possible) and never
+        # written after creation, so every function sharing one physical
+        # slot is safe.
         if getattr(self, '_false_slot_cache', None) is None:
             self._false_slot_cache = self.new_slot(vtype=VT_INTEGER, value=0)
         return self._false_slot_cache
@@ -292,7 +431,7 @@ class Compiler:
         if isinstance(node, ast.Assign):
             home = self.lookup(node.target.name)
             if node.op == '=':
-                result = self.compile_expr(node.value, dest=home)
+                result = self.compile_assign_value(node.value, home)
             else:
                 op_char = node.op[0]
                 synthetic = ast.BinOp(op=op_char, left=node.target, right=node.value)
@@ -304,6 +443,8 @@ class Compiler:
         raise CompileError(f'unsupported expression {type(node).__name__}')
 
     def compile_call(self, node, dest):
+        if node.name in self.local_functions:
+            return self.compile_script_call(node, dest)
         specs = CALL_SPECIALIZATIONS.get(node.name)
         if not specs:
             raise CompileError(f'no native specialization registered for {node.name}()')
@@ -331,6 +472,27 @@ class Compiler:
         callsite_idx = len(self.m.callsites) - 1
         self.emit(OP_CALL, a=0, b=result_slot, c=callsite_idx)
         self.m.natives_used.add(stable_id)
+        return result_slot
+
+    def compile_script_call(self, node, dest):
+        callee = self.local_functions[node.name]
+        if len(node.args) != len(callee.params):
+            raise CompileError(
+                f'{node.name}() expects {len(callee.params)} arg(s), got {len(node.args)}')
+        # Evaluated in the CALLER's own (already-active) scope, exactly
+        # like a native call's args -- PARAM in the callee reads them back
+        # out of the frame's arg-slot table, not by name.
+        arg_slots = [self.compile_expr(a, dest=None) for a in node.args]
+        result_slot = dest if dest is not None else self.new_slot()
+        arg_list_index = len(self._arg_slot_flat())
+        callsite = Callsite(TARGET_KIND_SCRIPT, len(arg_slots), 0, result_slot,
+                             arg_slots, arg_list_index)
+        self.m.callsites.append(callsite)
+        callsite_idx = len(self.m.callsites) - 1
+        # operand a (entry IP) is unknown until the callee itself compiles;
+        # backpatched in compile_program's final pass.
+        instr_idx = self.emit(OP_CALL, a=0, b=result_slot, c=callsite_idx)
+        self.pending_script_calls.append((instr_idx, node.name))
         return result_slot
 
     def _arg_slot_flat(self):

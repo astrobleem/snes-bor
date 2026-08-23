@@ -9,6 +9,11 @@ rather than re-derived -- advisor's own recommendation, so a hand-rolled
 decimal model can't produce a trace diff that looks like an interpreter bug
 but is actually oracle drift).
 
+Also interprets real script-to-script CALL/PARAM/JUMPR/RET (TARGET_KIND_SCRIPT
+callsites) via a plain Python list-of-dicts call stack mirroring
+vm_call.pasm's WRAM frame record fields 1:1 -- added alongside compiler.py's
+first codegen path for calls between two script-declared functions.
+
 The six real natives (natives.py) are given a small stand-in "world": a
 dict of per-entity CHAR_POS_X/CHAR_POS_Y/CHAR_FACING_LEFT/CHAR_HP, mirroring
 the real engine's EntityN_Base struct fields (main.pasm). vm_gate6.py pokes
@@ -21,7 +26,8 @@ from .compiler import (
     VT_EMPTY, VT_INTEGER, VT_DECIMAL, VT_STR,
     OP_CALL, OP_SAVE, OP_NEG, OP_NOT, OP_MUL, OP_DIV, OP_MOD, OP_ADD, OP_SUB,
     OP_SHL, OP_SHR, OP_GE, OP_LE, OP_LT, OP_GT, OP_EQ, OP_NE, OP_OR, OP_AND,
-    OP_BIT_OR, OP_XOR, OP_BIT_AND, OP_BRANCH_FALSE, OP_BRANCH_TRUE, OP_RET,
+    OP_BIT_OR, OP_XOR, OP_BIT_AND, OP_BRANCH_FALSE, OP_BRANCH_TRUE, OP_PARAM,
+    OP_RET, OP_JUMPR, TARGET_KIND_SCRIPT,
 )
 from .natives import BY_ID as NATIVE_BY_ID
 
@@ -71,6 +77,9 @@ class Oracle:
                 self.slots[slot] = [vtype, 0, 0, u32(value)]
         self.trace = []  # list of dict(native, args=[...], result=(type,value))
         self.ip = module.entry_main
+        self.frames = []  # list of dict(return_ip, result_slot, callsite_id,
+                           #              arg_cursor, return_src) -- mirrors
+                           # vm_call.pasm's WRAM frame record fields 1:1
 
     def get(self, slot):
         return self.slots[slot][0], self.slots[slot][3]
@@ -89,7 +98,30 @@ class Oracle:
             ins = self.m.instructions[self.ip]
             nextip = self.ip + 1
             if ins.op == OP_RET:
-                return
+                if not self.frames:
+                    return
+                frame = self.frames.pop()
+                if frame['return_src'] is not None:
+                    vt, v = self.get(frame['return_src'])
+                    self.set(frame['result_slot'], vt, v)
+                nextip = frame['return_ip']
+            elif ins.op == OP_JUMPR:
+                if not self.frames:
+                    raise OracleFault('VMERR_NO_CALL_FRAME')
+                self.frames[-1]['return_src'] = ins.b
+                nextip = ins.a
+            elif ins.op == OP_PARAM:
+                if not self.frames:
+                    raise OracleFault('VMERR_NO_CALL_FRAME')
+                frame = self.frames[-1]
+                cs = self.m.callsites[frame['callsite_id']]
+                if frame['arg_cursor'] < cs.argc:
+                    arg_slot = cs.arg_slot_ids[frame['arg_cursor']]
+                    vt, v = self.get(arg_slot)
+                    self.set(ins.a, vt, v)
+                else:
+                    self.set(ins.a, VT_EMPTY, 0)
+                frame['arg_cursor'] += 1
             elif ins.op == OP_SAVE:
                 vt, v = self.get(ins.b)
                 aux = self.slots[ins.b][2]
@@ -110,7 +142,18 @@ class Oracle:
                 if q16_truthy(vt, v):
                     nextip = ins.a
             elif ins.op == OP_CALL:
-                self._call(ins)
+                cs = self.m.callsites[ins.c]
+                if cs.target_kind == TARGET_KIND_SCRIPT:
+                    self.frames.append({
+                        'return_ip': self.ip + 1,
+                        'result_slot': ins.b,
+                        'callsite_id': ins.c,
+                        'arg_cursor': 0,
+                        'return_src': None,
+                    })
+                    nextip = ins.a
+                else:
+                    self._call(ins)
             else:
                 raise OracleFault(f'UNIMPLEMENTED_OP_{ins.op}')
             self.ip = nextip

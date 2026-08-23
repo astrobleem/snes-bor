@@ -1418,6 +1418,63 @@ coverage, or `compiler.py`'s missing script-to-script `CALL` codegen
 shipped script has to be a synthesized zero-argument entry point instead
 of an unmodified extracted one).
 
+**Script-to-script `CALL` codegen: DONE, 2026-08-23.** The runtime
+(`vm_call.pasm`) already fully implemented real call frames since Gate 3 —
+what was missing was entirely host-side. `compiler.py` now compiles EVERY
+function in a source file, not just `program.functions[0]`: the first
+function stays `entry_main` (root program, no synthesized outer CALL,
+unchanged behavior — Gate 0-7 depend on this byte-for-byte); every other
+function gets a real `PARAM` prologue and every `return` (early or
+trailing, from any nesting depth) funnels through one epilogue via `JUMPR`
+(value-carrying) or an unconditional branch (value-less), matching
+`compile_if`/`compile_while`'s existing forward-patch idiom. A call to
+another script-declared function now resolves before native-specialization
+lookup and emits a real `TARGET_KIND_SCRIPT` callsite; `CALL`'s operand A
+(the callee's entry IP, unknowable until the callee itself compiles) is
+backpatched in a final pass once every function has compiled, so forward
+references work. Each function's locals live in an isolated `slot_names`
+scope (verified with a fixture where caller and callee both declare `x`/
+`i`/`total`) while `module.slots` stays one flat, physically shared array,
+matching the real WRAM-backed `VmSlots_Wram`.
+
+Along the way, found and fixed a real, previously-latent compiler bug:
+`compile_expr`'s literal (IntLit/FloatLit/StringLit) dest-threading bakes
+the constant into the destination slot's *compile-time initial value*
+(correct for `CONSTINT`'s real "link/no-op, materialized by the host
+linker" semantics — `opcode_manifest.csv`) — which is only safe the FIRST
+time a slot is ever written (`compile_vardecl`'s init). Reassigning an
+EXISTING slot to a literal (e.g. `i = 0;` resetting a value a `PARAM`
+prologue just populated) silently no-opped at runtime, since nothing
+outside compile time ever executed a copy. Fixed via a new
+`compile_assign_value` that routes literal reassignment through a fresh
+constant slot plus a real runtime `SAVE`, leaving `compile_vardecl`'s
+already-proven init-time optimization untouched. `vm_gate6.py`'s
+SPAWN000.C never hits this pattern (straight-line, no reassignment), so
+Gate 6 couldn't have caught it — confirmed unaffected by this fix
+(re-ran, still PASS, byte-identical compiled output).
+
+`oracle.py` extended alongside — a plain Python call-stack (list of dicts
+mirroring `vm_call.pasm`'s WRAM frame-record fields 1:1) now interprets
+`TARGET_KIND_SCRIPT` callsites and `PARAM`/`JUMPR` opcodes, previously
+unimplemented (every prior gate's fixtures were single-function).
+
+Proven on real hardware by the new `tools/verify/vm_script_call.py` gate
+(11 checks, `GATE VM-SCRIPT-CALL: PASS`) — a small synthetic two-function
+fixture (colliding param/local names between caller and callee, a forward
+reference from the entry function to a function declared later in the
+file, an early return from inside a nested `if`+`while`) compiled through
+the real pipeline, run on real SA-1 hardware via the same direct-WRAM-
+injection mechanism `vm_gate1.py`-`vm_gate6.py` use, diffed slot-for-slot
+against the extended oracle. **Scope boundary, stated plainly**: this
+makes script-to-script `CALL`/`PARAM`/`RET`/`JUMPR` reachable from real
+compiled openborscript source for the first time. It does NOT make any
+real extracted pak script compile — BOR/TMNT ship zero script content,
+and DDM's real scripts also need `for` loops and ~30 more natives
+(`openbor_script_coverage_gap_data` memory) before they'd compile at all.
+This was proven with a synthetic fixture sourced from this project's own
+compiler/runtime semantics, not invented pak content masquerading as real
+content.
+
 ---
 
 ## §10 — Host tooling checklist
