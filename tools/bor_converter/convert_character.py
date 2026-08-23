@@ -54,11 +54,15 @@ import sys
 import os
 import re
 import json
+from PIL import Image
 
 sys.path.append(os.path.dirname(__file__))
-from convert_animation import _load_anim_frames, _quantize_shared, _write_anim_outputs
+from convert_animation import (_load_anim_frames, _quantize_shared,
+                                _write_anim_outputs, _frame_bbox_and_bg,
+                                TARGET_W, TARGET_H)
 from pak_extract import extract
 from entity_parse import parse_entity
+from convert_sprite import to_bgr555
 
 # The ONLY animation names any .pasm/engine code is allowed to know about --
 # see main.pasm's ROLE_IDLE/WALK/PAIN/ATTACK/FALL/RISE constants. Matched
@@ -99,6 +103,96 @@ def _enumerate_anims(pak_path, entity_entry_name):
     return entity, anim_names
 
 
+def _derive_remap_palettes(pak_path, base_dir, remaps, idle_loaded,
+                            idle_frame0_indices, base_palette, out_dir):
+    """plan_game.md 8a row 3 (`map`). OpenBOR's real colourmap mechanism
+    (BOR.C's load_colourmap()) is a per-pixel-index substitution table built
+    by diffing a base image against a same-shape `remap` image -- confirmed
+    directly against this project's real pak data (RALF's idle1.gif vs
+    map1.gif: 0 of 11049 pixels differ in transparency/shape, 1609 differ in
+    color) that every shipped remap is the SAME pose recolored, never a
+    distinct sprite. That means this project's existing per-frame tile/index
+    data needs no separate conversion per remap -- only a new 16-color
+    palette, derived by re-running idle frame 0's own crop/scale/placement
+    transform (computed once by `_load_anim_frames` for the whole idle
+    animation) against each alt GIF, then mode-voting the alt image's color
+    at every canvas coordinate idle frame 0's own (already-quantized) index
+    grid assigned to each of the 16 shared palette slots. An index idle
+    frame 0 never used (it's covered by a different animation/frame in the
+    character's shared palette) falls back to that index's base color rather
+    than guessing.
+
+    Returns a list of 16-int BGR555 lists, one per (base, alt) pair in
+    `remaps`, in order."""
+    scale = idle_loaded['scale']
+    hx_canvas, hy_canvas = idle_loaded['hotspot_canvas']
+    idle_frame0_meta = idle_loaded['frames_meta'][0]
+
+    results = []
+    for base_gif, alt_gif in remaps:
+        base_path = base_gif.replace('/', '\\')
+        if '\\' not in base_path:
+            base_path = base_dir + '\\' + base_path
+        alt_path = alt_gif.replace('/', '\\')
+        if '\\' not in alt_path:
+            alt_path = base_dir + '\\' + alt_path
+
+        def _load_rgb(entry_path, tmp_name):
+            data = extract(pak_path, entry_path)
+            tmp_path = os.path.join(out_dir, tmp_name)
+            with open(tmp_path, 'wb') as f:
+                f.write(data)
+            im = Image.open(tmp_path).convert('RGB')
+            os.remove(tmp_path)
+            return im
+
+        base_im = _load_rgb(base_path, '_tmp_remap_base.gif')
+        alt_im = _load_rgb(alt_path, '_tmp_remap_alt.gif')
+
+        # Same bbox/hotspot _load_anim_frames derives for any single frame --
+        # reused here (not recomputed against the alt image) because the
+        # base and alt GIFs are confirmed pixel-shape-identical, so the
+        # base's own bbox/hotspot apply unchanged.
+        bbox = _frame_bbox_and_bg(base_im)
+        hotspot = idle_frame0_meta['offset'] if idle_frame0_meta['offset'] is not None else (
+            (bbox[0] + bbox[2]) // 2, bbox[3])
+        minx, miny, maxx, maxy = bbox
+        hx, hy = hotspot
+
+        crop = alt_im.crop((minx, miny, maxx + 1, maxy + 1))
+        cw, ch = crop.size
+        new_w, new_h = max(1, round(cw * scale)), max(1, round(ch * scale))
+        resized = crop.resize((new_w, new_h), Image.NEAREST)
+
+        alt_canvas = Image.new('RGB', (TARGET_W, TARGET_H), alt_im.getpixel((0, 0)))
+        px_pos = hx_canvas + round((minx - hx) * scale)
+        py_pos = hy_canvas + round((miny - hy) * scale)
+        alt_canvas.paste(resized, (px_pos, py_pos))
+        apx = alt_canvas.load()
+
+        buckets = {}
+        for y in range(TARGET_H):
+            for x in range(TARGET_W):
+                idx = idle_frame0_indices[y][x]
+                if idx == 0:
+                    continue
+                buckets.setdefault(idx, []).append(apx[x, y])
+
+        alt_palette = [0] * 16
+        for idx in range(1, 16):
+            votes = buckets.get(idx)
+            if votes:
+                counts = {}
+                for c in votes:
+                    counts[c] = counts.get(c, 0) + 1
+                winner = max(counts.items(), key=lambda kv: kv[1])[0]
+                alt_palette[idx] = to_bgr555(winner)
+            else:
+                alt_palette[idx] = to_bgr555(base_palette.get(idx, (0, 0, 0)))
+        results.append(alt_palette)
+    return results
+
+
 def convert_character(pak_path, entity_entry_name, out_prefix):
     entity, anim_names = _enumerate_anims(pak_path, entity_entry_name)
 
@@ -113,11 +207,13 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     palette, all_frame_indices = _quantize_shared(all_canvases, all_masks)
 
     results = []
+    per_anim_frame_indices = []
     cursor = 0
     for anim_name, L in zip(anim_names, loaded):
         n = len(L['canvases'])
         frame_indices = all_frame_indices[cursor:cursor + n]
         cursor += n
+        per_anim_frame_indices.append(frame_indices)
         out_dir = out_prefix + '_' + _sanitize(anim_name)
         result = _write_anim_outputs(
             out_dir, L['frames_meta'], frame_indices, palette,
@@ -133,6 +229,22 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     attack_ordinal = next((i for i, n in enumerate(lower_names) if n.startswith('attack')), None)
     roles['attack'] = attack_ordinal
 
+    # plan_game.md 8a row 3 (`map`): derive one alt palette per real `remap`
+    # line this character declares (see _derive_remap_palettes' own header).
+    # Every remap is keyed off the character's own idle-frame-1 image in all
+    # 4 shipped roster characters (verified directly against real pak data),
+    # so this needs idle's own frame-0 canvas transform/index grid -- skipped
+    # (empty list) if the character has no `remap` lines or no idle role at
+    # all (shouldn't happen for a real playable/AI roster character, but a
+    # future pak's non-idle-having entity legitimately might).
+    remap_palettes = []
+    idle_ord = roles.get('idle')
+    if entity.get('remaps') and idle_ord is not None:
+        base_dir = entity_entry_name.replace('/', '\\').rsplit('\\', 1)[0]
+        remap_palettes = _derive_remap_palettes(
+            pak_path, base_dir, entity['remaps'], loaded[idle_ord],
+            per_anim_frame_indices[idle_ord][0], palette, out_prefix + '_idle')
+
     moveset = {
         'entity': entity['name'],
         'prefix': out_prefix,
@@ -141,6 +253,8 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
             for i, (anim_name, out_dir, result) in enumerate(results)
         ],
         'roles': roles,
+        # plan_game.md 8a row 3 -- list of 16-int BGR555 lists, [] if none
+        'remap_palettes': remap_palettes,
     }
     moveset_path = out_prefix + '_moveset.json'
     with open(moveset_path, 'w') as f:

@@ -208,6 +208,14 @@ Spawn_ScratchEnemyCount = $7E569A ; .db -- running EnemyCount total (0-3),
                                  ; the group gate below (kept as a WRAM
                                  ; scratch, not a register, so A stays free
                                  ; for the per-slot Hp/InputDriven checks).
+Spawn_ScratchMap    = $7E569B   ; .db -- plan_game.md 8a row 3: decoded
+                                 ; map index (0-3), see SPAWN_MAP_SHIFT above.
+MapApply_Index          = $7E569C  ; .db -- Anim_ApplyMapPalette's own param
+MapApply_PaletteBaseLo  = $7E569D  ; .dw    block, filled by each slot's
+MapApply_PaletteBaseHi  = $7E569F  ; .db    spawn dispatch below before the
+MapApply_MapBaseLo      = $7E56A0  ; .dw    jsl call.
+MapApply_MapBaseHi      = $7E56A2  ; .db
+MapApply_PaletteSlot    = $7E56A3  ; .db
 
 ; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
 ; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
@@ -250,6 +258,14 @@ SPAWN_KIND_PROP  = 1
 SPAWN_KIND_WAIT  = 2   ; wait/group/boss slice: scroll-block-until-clear marker
 SPAWN_KIND_GROUP = 3   ; wait/group/boss slice: respawn-pool-size marker
 SPAWN_KIND_BOSS  = 4   ; wait/group/boss slice: enemy + sets EntityN_IsBoss
+
+; plan_game.md 8a row 3 (`map`): record_kind's spare high bits (values 0-4
+; only need 3 bits) carry the spawn's remap-palette index (0-3), packed by
+; build_spawn_table.py as `record_kind |= (map_value << 3)` -- avoids
+; growing the fixed 8-byte record, same technique the wait/group/boss slice
+; used for group_min/max.
+SPAWN_KIND_MASK  = $07
+SPAWN_MAP_SHIFT  = 3
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -561,6 +577,16 @@ Spawn_Play__triggered:
     sta.l Spawn_ScratchFacing
     inx                         ; X -> record+6 (entity_kind, plan_game.md G8)
     lda.l SpawnTable_Wram,x
+    ; plan_game.md 8a row 3 (`map`): the same byte's high bits carry the
+    ; map index -- decode it before masking Spawn_ScratchKind down to just
+    ; the low 3 (real kind) bits.
+    pha
+    lsr a
+    lsr a
+    lsr a
+    sta.l Spawn_ScratchMap
+    pla
+    and #SPAWN_KIND_MASK
     sta.l Spawn_ScratchKind
     inx                         ; X -> record+7 (spawn_hp, health-override slice)
     lda.l SpawnTable_Wram,x
@@ -669,6 +695,31 @@ Spawn_Play__slot1_not_prop:
     sta.l Entity1_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity1_Hp
+    ; plan_game.md 8a row 3 (`map`): apply this spawn's remap palette (0 =
+    ; the character's own base palette) -- fill Anim_ApplyMapPalette's param
+    ; block from this slot's own struct fields (set once at character load,
+    ; see main.pasm's Anim_LoadCharacter) and call it now, every spawn, so a
+    ; reused slot's previous palette never lingers.
+    lda.l Spawn_ScratchMap
+    sta.l MapApply_Index
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot1_not_boss
@@ -718,6 +769,27 @@ Spawn_Play__slot2_not_prop:
     sta.l Entity2_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity2_Hp
+    ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
+    lda.l Spawn_ScratchMap
+    sta.l MapApply_Index
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot2_not_boss
@@ -767,6 +839,27 @@ Spawn_Play__slot3_not_prop:
     sta.l Entity3_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity3_Hp
+    ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
+    lda.l Spawn_ScratchMap
+    sta.l MapApply_Index
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot3_not_boss

@@ -2518,7 +2518,7 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 49        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 56        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2537,7 +2537,13 @@ Entity1_InputDriven = Entity1_Base + 15   ; Entity #1's CHAR_INPUT_DRIVEN
                                             ; spawn-kind, not just leave
                                             ; whatever CharacterEntity_Init
                                             ; set at boot)
-Entity2_Base    = $7E0a00 + 98        ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity1_PaletteSlot   = Entity1_Base + 13 ; Entity #1's CHAR_PALETTE_SLOT
+Entity1_PaletteBaseLo = Entity1_Base + 49 ; Entity #1's CHAR_PALETTE_BASE_LO
+Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
+Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
+Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
+Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
+Entity2_Base    = $7E0a00 + 112       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2551,7 +2557,13 @@ Entity2_KnockdownCount = Entity2_Base + 46 ; Entity #2's CHAR_KNOCKDOWN_COUNT
 Entity2_KnockdownTimer = Entity2_Base + 47 ; Entity #2's CHAR_KNOCKDOWN_TIMER
 Entity2_FallStateTimer = Entity2_Base + 48 ; Entity #2's CHAR_FALL_STATE_TIMER
 Entity2_InputDriven = Entity2_Base + 15   ; Entity #2's CHAR_INPUT_DRIVEN (plan_game.md G8)
-Entity3_Base    = $7E0a00 + 147       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity2_PaletteSlot   = Entity2_Base + 13 ; Entity #2's CHAR_PALETTE_SLOT
+Entity2_PaletteBaseLo = Entity2_Base + 49 ; Entity #2's CHAR_PALETTE_BASE_LO
+Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
+Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
+Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
+Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
+Entity3_Base    = $7E0a00 + 168       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2565,6 +2577,12 @@ Entity3_KnockdownCount = Entity3_Base + 46 ; Entity #3's CHAR_KNOCKDOWN_COUNT
 Entity3_KnockdownTimer = Entity3_Base + 47 ; Entity #3's CHAR_KNOCKDOWN_TIMER
 Entity3_FallStateTimer = Entity3_Base + 48 ; Entity #3's CHAR_FALL_STATE_TIMER
 Entity3_InputDriven = Entity3_Base + 15   ; Entity #3's CHAR_INPUT_DRIVEN (plan_game.md G8)
+Entity3_PaletteSlot   = Entity3_Base + 13 ; Entity #3's CHAR_PALETTE_SLOT
+Entity3_PaletteBaseLo = Entity3_Base + 49 ; Entity #3's CHAR_PALETTE_BASE_LO
+Entity3_PaletteBaseHi = Entity3_Base + 51 ; Entity #3's CHAR_PALETTE_BASE_HI
+Entity3_MapIndex      = Entity3_Base + 52 ; Entity #3's CHAR_MAP_INDEX
+Entity3_MapBaseLo     = Entity3_Base + 53 ; Entity #3's CHAR_MAP_BASE_LO
+Entity3_MapBaseHi     = Entity3_Base + 55 ; Entity #3's CHAR_MAP_BASE_HI
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
 ; Phase G3 (plan_game.md 3): respawn must reset facing/animation-selection,
@@ -2743,7 +2761,20 @@ CHAR_KNOCKDOWN_COUNT = 46  ; .db -- signed; mirrors self->knockdowncount
 CHAR_KNOCKDOWN_TIMER = 47  ; .db -- mirrors self->knockdowntime; 0 = expired/regen-ready
 CHAR_FALL_STATE_TIMER = 48 ; .db -- reused for the lying-hold then the
                             ; post-death blink window (never both active)
-CHAR_ZP_LEN         = 49   ; total -- pass as OopRegStaging_ZpLen
+; plan_game.md 8a row 3 (`map`): per-instance remap-palette state. Palette
+; base is data_offset (record bytes 8,9,10, before Anim_LoadCharacter's own
+; +32 idle_base offset), copied here because AnimHeaderStaging is scratch
+; that later base-offset computations in the same routine reuse/clobber.
+; map_base = rise_base + rise_frame_count*768 (same shift-add idiom used for
+; every other *_base field in Anim_LoadCharacter) -- it's the file offset of
+; this character's PACKED ALT-PALETTE TABLE (pack_msu_roster.py appends 0-3
+; 32-byte palettes right after the rise frames), not itself a frame base.
+CHAR_PALETTE_BASE_LO = 49  ; .dw
+CHAR_PALETTE_BASE_HI = 51  ; .db
+CHAR_MAP_INDEX       = 52  ; .db -- 0 = no remap (render base palette); 1-3 = alt index
+CHAR_MAP_BASE_LO     = 53  ; .dw
+CHAR_MAP_BASE_HI     = 55  ; .db
+CHAR_ZP_LEN         = 56   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -5834,6 +5865,20 @@ Anim_LoadCharacter__record_read:
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__slot_ok:
 
+    ; plan_game.md 8a row 3 (`map`): stash raw data_offset (record bytes
+    ; 8,9,10) as CHAR_PALETTE_BASE before idle_base's own +32 computation
+    ; below -- AnimHeaderStaging+8/9/10 aren't clobbered by that computation
+    ; today, but this copy must happen before ANY future change that might.
+    rep #$31
+.a16
+.i16
+    lda.l AnimHeaderStaging+8
+    sta CHAR_PALETTE_BASE_LO
+    sep #$20
+.a8
+    lda.l AnimHeaderStaging+10
+    sta CHAR_PALETTE_BASE_HI
+
     ; idle_base (24-bit) = data_offset (24-bit, record bytes 8,9,10) + 32
     ; (the palette). Record byte 11 (data_offset's top byte) is assumed 0 --
     ; pack_msu_roster.py's rosters stay well under 16MB.
@@ -5935,6 +5980,40 @@ Anim_LoadCharacter__slot_ok:
     jsl AnimBase_ComputeRiseBase
     sep #$20
 .a8
+
+    ; --- map_base (24-bit) = rise_base + rise_frame_count*768 (plan_game.md
+    ; 8a row 3, `map`) -- same shift-add-by-768 idiom as every other *_base
+    ; field above, kept inline here (not jsl'd to bank 1) deliberately. ---
+    lda CHAR_RISE_FCOUNT
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l AnimHeaderStaging+12
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l AnimHeaderStaging+14
+
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12
+    lda.l AnimHeaderStaging+14
+    sta.l AnimHeaderStaging+13
+
+    rep #$31
+.a16
+.i16
+    lda CHAR_RISE_BASE_LO
+    clc
+    adc.l AnimHeaderStaging+12
+    sta CHAR_MAP_BASE_LO
+    sep #$20
+.a8
+    lda CHAR_RISE_BASE_HI
+    adc.l AnimHeaderStaging+15
+    sta CHAR_MAP_BASE_HI
 
     ; --- Palette (Phase 2 step 2): seek to this character's data_offset
     ; (AnimHeaderStaging+8/9/10 -- still the raw record bytes here, untouched
@@ -6053,6 +6132,125 @@ Anim_LoadCharacter__palette_read:
 .a16
 .i16
     rts
+
+; ----------------------------------------------------------------------------
+; plan_game.md 8a row 3 (`map`): MapApply_Index/PaletteBaseLo/PaletteBaseHi/
+; MapBaseLo/MapBaseHi/PaletteSlot are WRAM constants owned and declared by
+; core/spawn.pasm (.include'd below at $7E569B-$7E56A3, right after that
+; file's own Spawn_ScratchEnemyCount) -- referenced here as plain address
+; operands, which resolve fine forward-declared (unlike a `Symbol = OtherSymbol
+; + N` constant-expression definition, an address OPERAND like `lda.l Symbol`
+; doesn't need Symbol's value known yet at this point in the file -- same as
+; every other forward jsr/jsl target in this codebase).
+; ----------------------------------------------------------------------------
+
+; @param  MapApply_Index/PaletteBaseLo/PaletteBaseHi/MapBaseLo/MapBaseHi/
+;         PaletteSlot -- caller-filled scratch (mirrors Anim_LoadCharacter's
+;         own palette-load section: seek+busy-poll+read-loop+queued-CGRAM-
+;         DMA). If MapApply_Index==0, seeks to PaletteBase (the character's
+;         own base palette); otherwise seeks to MapBase + (index-1)*32 (the
+;         packed alt-palette table pack_msu_roster.py appends after rise).
+; @return none (queues a CGRAM DMA, drained by Core_Nmi_Play like every
+;         other queued request in this file)
+Anim_ApplyMapPalette:
+    php
+    sei
+    rep #$31
+.a16
+.i16
+    lda MapApply_Index
+    and #$00FF
+    beq Anim_ApplyMapPalette__use_base
+
+    ; alt palette: seek = MapBase + (index-1)*32
+    sec
+    sbc #1
+    sta.l AnimHeaderStaging+12   ; scratch = (index-1)
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a                        ; x32
+    clc
+    adc MapApply_MapBaseLo
+    sta.l AnimHeaderStaging+8
+    sep #$20
+.a8
+    lda MapApply_MapBaseHi
+    adc #0
+    sta.l AnimHeaderStaging+10
+    bra Anim_ApplyMapPalette__seek
+
+Anim_ApplyMapPalette__use_base:
+    lda MapApply_PaletteBaseLo
+    sta.l AnimHeaderStaging+8
+    sep #$20
+.a8
+    lda MapApply_PaletteBaseHi
+    sta.l AnimHeaderStaging+10
+
+Anim_ApplyMapPalette__seek:
+.a8
+    lda.l AnimHeaderStaging+8
+    sta $2000
+    lda.l AnimHeaderStaging+9
+    sta $2001
+    lda.l AnimHeaderStaging+10
+    sta $2002
+    lda #0
+    sta $2003
+Anim_ApplyMapPalette__seek_busy:
+    lda $2000
+    bmi Anim_ApplyMapPalette__seek_busy
+
+    rep #$31
+.a16
+.i16
+    ldx #$0000
+Anim_ApplyMapPalette__read:
+    sep #$20
+.a8
+    lda $2001
+    sta.l AnimPaletteStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    cpx #$0020
+    bcc Anim_ApplyMapPalette__read
+
+    lda #AnimPaletteStaging
+    sta.l DmaRequest_SourceAddrLow
+    sep #$20
+.a8
+    lda MapApply_PaletteSlot
+    rep #$31
+.a16
+.i16
+    and #$00ff
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc #$0100
+    sta.l DmaRequest_TargetAddr
+    lda #32
+    sta.l DmaRequest_Length
+    sep #$20
+.a8
+    lda #$7E
+    sta.l DmaRequest_SourceBank
+    lda #DMA_TYPE_CGRAM
+    sta.l DmaRequest_TypeFlags
+    rep #$31
+.a16
+.i16
+    jsr Core_Dma_Enqueue
+
+    plp
+    rtl
 
 ; ----------------------------------------------------------------------------
 ; CharacterEntity -- core/oop.pasm class registered at boot. Phase 1a proved

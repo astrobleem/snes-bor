@@ -160,11 +160,17 @@ Spawn_Play's own shift):
                                    wait/group records.
     +5    facing_left (u8)     -- 0 or 1, CHAR_FACING_LEFT convention. 0 for
                                    wait/group records.
-    +6    record_kind (u8)     -- 0 = enemy, 1 = prop/pickup, 2 = wait,
-                                   3 = group, 4 = boss enemy (was
-                                   `entity_kind`, 0/1 only, before this
-                                   slice -- see this module's own "wait/
-                                   group/boss" section above)
+    +6    record_kind (u8)     -- low 3 bits: 0 = enemy, 1 = prop/pickup,
+                                   2 = wait, 3 = group, 4 = boss enemy (was
+                                   `entity_kind`, 0/1 only, before the wait/
+                                   group/boss slice -- see this module's own
+                                   "wait/group/boss" section above). Bits
+                                   3-4 (plan_game.md 8a row 3, `map`): the
+                                   spawn's remap-palette index (0-3, clamped
+                                   from the level's own `map` line), same
+                                   spare-bits technique used for group's
+                                   min/max -- see core/spawn.pasm's
+                                   SPAWN_KIND_MASK/SPAWN_MAP_SHIFT.
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
                                    (0..CHAR_HP_MAX); ignored for props and
                                    wait/group records.
@@ -282,6 +288,11 @@ def convert_events(events, type_lookup):
             record_kind = RECORD_KIND_BOSS
         else:
             record_kind = RECORD_KIND_ENEMY
+        # plan_game.md 8a row 3 (`map`): pack into record_kind's spare high
+        # bits (values 0-4 only need 3), same technique used for group's
+        # min/max -- see core/spawn.pasm's SPAWN_KIND_MASK/SPAWN_MAP_SHIFT.
+        map_value = max(0, min(3, e.map))
+        record_kind |= (map_value << 3)
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:

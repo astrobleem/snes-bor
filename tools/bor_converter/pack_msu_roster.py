@@ -44,6 +44,11 @@ File format (see the plan for the authoritative spec):
       next     attack_frame_count * 768 bytes
       next     fall_frame_count * 768 bytes    [G7 knockdown slice]
       next     rise_frame_count * 768 bytes    [G7 knockdown slice]
+      next     0-3 alt palettes, 32 bytes each [plan_game.md 8a row 3, `map`
+                                                 -- see pack_character_blob's
+                                                 own comment for why this
+                                                 exact position is load-
+                                                 bearing, not cosmetic]
 
     then       BG directory (only when bg_count > 0): 4 records x 32 bytes,
                located at bg_directory_offset. Bumped 16->20 in v3 to fit a
@@ -336,7 +341,29 @@ def pack_character_blob(prefix):
     assert len(fall_bytes) == fall_count * ANIM_FRAME_BYTES
     assert len(rise_bytes) == rise_count * ANIM_FRAME_BYTES
 
-    blob = palette_bytes + idle_bytes + walk_bytes + attack_bytes + fall_bytes + rise_bytes
+    # plan_game.md 8a row 3 (`map`): 0-3 extra 32-byte alt palettes, appended
+    # right after the rise frames -- main.pasm's AnimBase_ComputeMapBase
+    # derives this exact same offset (rise_base + rise_frame_count*768) at
+    # load time, so this packer's own ordering is load-bearing, not cosmetic.
+    # Real remap counts confirmed across all 4 shipped roster characters
+    # (RALF/JOE/YASHIRO=3, JHUN=2), sourced from convert_character.py's
+    # <prefix>_moveset.json (its own remap_palettes field, [] if the
+    # character has no `remap` lines).
+    moveset_path = f"{prefix}_moveset.json"
+    with open(moveset_path, "r", encoding="utf-8") as f:
+        moveset = json.load(f)
+    remap_palettes = moveset.get("remap_palettes", [])
+    if len(remap_palettes) > 3:
+        raise ValueError(f"{prefix}: {len(remap_palettes)} remap palettes, "
+                          f"more than this packer's 2-bit `map` field (0-3) "
+                          f"can address -- see build_spawn_table.py's "
+                          f"record_kind bit-packing")
+    remap_bytes = b"".join(
+        b"".join(struct.pack("<H", v) for v in pal) for pal in remap_palettes)
+    assert len(remap_bytes) == len(remap_palettes) * PALETTE_BYTES
+
+    blob = (palette_bytes + idle_bytes + walk_bytes + attack_bytes
+            + fall_bytes + rise_bytes + remap_bytes)
 
     info = {
         "prefix": prefix,
