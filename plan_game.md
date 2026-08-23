@@ -53,7 +53,7 @@ drawn since G1, nothing calls it for a menu yet).
 | Menus (title, char select, pause, options) | Being a product |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
 | Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up done (G7 third slice, 2026-08-22)**, gate `game_g7_knockdown.py`; jump/grab/special/block still open, see §7 |
-| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. Remaining level-format keyword gaps (`map`, `blockade`, `alias`, `direction`, `settime`, TMNT conversion itself) are fully enumerated, ordered, and gate-named in §8a — **read that table instead of asking what's next** |
+| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted — every row DONE, a permanent no-op, or waiting on a real dependency outside the table (see §8a's own "Conclusion" for what's actually next) — **read that table instead of asking what's next** |
 | Bosses | Stage climaxes; HP-override prerequisite done (§9) |
 | Ending / credits | Finishing |
 | SFX | Every impact feeling real (blocked on content, §11) |
@@ -944,39 +944,47 @@ is for.
 | 2 | `health` | — | — | **DONE** (2026-08-21, `game_health_override.py`) |
 | 3 | `map` (per-spawn colormap/palette variant, 0-3) | — | — | **DONE** (2026-08-22, gate `game_map_remap.py`, GATE MAP-REMAP: PASS — see `map_keyword_palette_data_done_runtime_hang` project memory for the full story, including a real boot-hang scare that turned out to be a contaminated bisection state, not a real bug). Converter: `convert_character.py`'s `_derive_remap_palettes` derives one real 16-color BGR555 palette per `remap` pair via mode-voting (RALF=3, JOE=3, JHUN=2, YASHIRO=3, matching real pak data); `pack_msu_roster.py` appends them per character blob. Runtime: `CharacterEntity` grew `CHAR_PALETTE_BASE`/`CHAR_MAP_BASE`/`CHAR_MAP_INDEX` (`CHAR_ZP_LEN` 49→56), `Anim_LoadCharacter` computes `map_base` inline, a new `Anim_ApplyMapPalette` (mirrors `Anim_LoadCharacter`'s own palette-load section) is called by `core/spawn.pasm`'s slot1/2/3 dispatch on every spawn (`record_kind`'s spare bits 3-4 carry the map index, same technique `group`'s min/max used). **Verified against ground truth, not just "didn't crash"**: `game_map_remap.py` forces synthetic spawn records (including a JHUN map=1/2 pair, JOE's highest index map=3, a map==0 restore-to-base check, and a combined `SPAWN_KIND_BOSS`+map decode check) and reads back live CGRAM, comparing byte-for-byte against each character's own `<char>_moveset.json` `remap_palettes` — all 10 checks PASS. Full regression suite (build, `audit_all.py`, `check_label_drift.py`, `check_width_directives.py`, phase5/6/7/8/9/11/12) also all PASS. |
 | 4 | `boss` flag | `spawn_parse.py` already parses it (`SpawnEvent.boss`). Per-entity HP override (G9's own first prerequisite) is now DONE via the health-override slice. **The flag itself is now real DATA plumbing too** (2026-08-22, "wait/group/boss" slice): `record_kind==4` in the spawn record, read at spawn time into a new sticky `EntityN_IsBoss` WRAM cell — see `core/spawn.pasm`'s own header. Nothing reads that flag yet (no boss HUD, no boss-specific AI, no stage-gating), and it's verified only via a hand-authored synthetic record (`game_g9_wait_group_boss.py`) since neither shipped BOR stage uses `boss` at all — real end-to-end coverage needs TMNT conversion (row 11). G9 itself (boss-specific AI, boss health bar) is the real remaining work. | G6 (HUD, for a boss health bar) | data plumbing DONE, behavior see §9 |
-| 5 | `blockade <n>` | Fully unparsed and unimplemented. Per `openbor_script_reference.txt` line 271 ("Limit x scroll back"): BOR's own scroll-back prevention, a one-way ratchet that advances as waves clear so the player can't retreat past an already-triggered wave. **Verified this engine has NO equivalent today** — `core/screen.pasm`'s `Screen_MinX` is set once at boot and never written anywhere else (grep-confirmed), so the camera can currently scroll backward to world X=0 at any point in a level, including past wave triggers. Real, self-contained fix: `build_spawn_table.py` gains a `blockade` event type (sibling to today's dropped `wait`/`group`), `core/spawn.pasm` (or `core/screen.pasm`) advances `Screen_MinX` when a blockade record's trigger is reached, same "single global queue, retried each frame" shape `Spawn_Play` already uses. **Re-verified 2026-08-21: neither of this project's two currently-shipped levels (`1AEASY.TXT`, `1BEASY.TXT`) use `blockade` at all — only TMNT's `STREETS.TXT` does.** Building this today has zero observable effect on the shipped game; its payoff is entirely gated on TMNT conversion (row 11), which itself waits on rows 3+7+8. Also note: the exact `<n>` semantics (offset from the triggering `at` position? an absolute world bound?) haven't been confirmed against BOR.C source in this codebase the way `levelpos`'s formula was (`spawn_parse.py`'s own header) — don't guess it into an unverified gate the way a wrong guess here couldn't be caught by any real content. | Real value blocked on row 11 (TMNT); semantics unconfirmed | NOT STARTED, low current priority |
+| 5 | `blockade` | **Row's own premise was wrong, corrected 2026-08-23.** There is no `blockade` keyword in real `BOR.C` (Plombo/beatsofrage) at all — grep-confirmed, zero hits. The real keyword in the level-header switch (~line 1966) is **`blocked`**, one letter off, and it is NOT scroll-back prevention: `else if(stricmp(command, "blocked")==0){ level->exit_blocked = atoi(...); }`, part of an entirely different `hole`/`blocked`/`endhole` trio (~line 1961-1971) that implements level PIT HAZARDS (`level->holes[]`, drawn as sprites at runtime ~line 4925-4926, checked for player fall-through ~line 2606-2607) with an exit gated shut until a numeric condition (`exit_blocked`, checked ~line 3105/3998) — not a camera scroll-back ratchet at all. This engine has no pit/hole/fall-through mechanic of any kind today (separate from anything `core/screen.pasm` does), so implementing the REAL `hole`/`blocked`/`endhole` trio is a new hazard-entity feature, not a `Screen_MinX` one-liner. Re-verified 2026-08-23: neither shipped BOR level (`1AEASY.TXT`, `1BEASY.TXT`) uses `hole`/`blocked` at all — real value is entirely gated on TMNT conversion. | Row 11 (TMNT); real semantics need re-deriving as a hole/pit system, not scroll-back | NOT STARTED, premise corrected, low current priority |
 | 6 | `music` / `bossmusic` | Fully unparsed. Needs a level-scoped music-track-select on top of TAD (today: one hardcoded audio blob loads at boot, no track switching exists at all). Content-gated like G11 (SFX) — only one track is authored/converted today, so there is nothing to switch *to* yet; do not start the code side before at least a second track exists in the pipeline. | Content (a 2nd authored TAD track) | NOT STARTED (blocked on content) |
 | 7 | `alias` | **Not a real gap — document and close, 2026-08-23. This row's own premise was wrong.** Read `BOR.C` directly (Plombo/beatsofrage, repo root, not `engine/`): `smartspawn()` (~line 4589) spawns the entity using the REAL `spawn <name>` argument (`props->name`) first — that's what selects the character model/moveset. Only *after* that does it do `if(props->alias[0]) strncpy(e->name, props->alias, MAX_NAME_LEN);` (line 4593) — `alias` purely overwrites the spawned *instance's* display-name string, for on-screen name UI (`font_printf(... player[i].ent->name ...)` at line 2116, HUD player-select at 2130) — it never redirects which resource is spawned. Confirmed against real TMNT pak data too: `data\CHARS\FOOT01\FOOT01.TXT`/`FOOT02.TXT`/`FOOT03.TXT` are three genuinely distinct character models (own `health`/`speed`/`type` each), each spawned via its own real `spawn Foot01`/`spawn Foot02`/etc. line; `alias Foot_Soldier` just gives all three the same *displayed* name for narrative consistency — there is no `Foot_Soldier` model anywhere in the pak. This project's engine has **no per-entity name display anywhere** (grep-confirmed: `spawn_parse.py` already parses `alias` and its own comment calls it "display name override (cosmetic, unused here)"), so there is nothing for it to attach to — `alias` is a genuine no-op here, same call as row 10 (`maxenemy`). **The real gap row 7 was actually gesturing at — spawns never reading their own `character`/model-name field, always rendering whichever roster character is already streamed into the landing AI slot — is real, but has nothing to do with `alias` and is NOT keyword-slice scope**: `Anim_LoadCharacter` is a blocking boot-time MSU seek+read under forced blank (`CharacterEntity_Init`), `Msu1_StreamBusy`'s one-stream-per-frame budget is load-bearing (CLAUDE.md), and OBJ tile columns are statically per-slot — per-spawn character identity means re-streaming both tiles and palette mid-gameplay, not a small addition. That's `§12` (content and scale) territory, tracked there, not resurrected under this row. | — | N/A — permanent no-op in this engine, not tracked further |
-| 8 | `direction` (TMNT's `STREETS.TXT`: `direction rightleft`, bidirectional scroll) | **The biggest single blocker to converting TMNT's own levels.** This engine's whole camera model (`core/screen.pasm`) is built for one-directional forward scroll with a soft-hold/unlock (G4's win condition). BOR's own stock levels never need bidirectional scroll (all `SCROLL_RIGHT` or `SCROLL_LEFT`, i.e. one direction each), so this has never had to be solved. Do not attempt inside a "level-format keyword" slice — this is camera-model-rewrite scope, sized like G7's jump/Z-axis item (§7/§13). Tracked here so it's not silently assumed away when TMNT conversion starts. | Its own dedicated phase (not yet named — add one when TMNT conversion is scheduled, see §12) | NOT STARTED, blocked |
-| 9 | `settime` (level time limit) | Needs a HUD timer + a "time over" game-over path (`ATK_TIMEOVER` per `openbor_script_reference.txt`). Natural to fold into G6 (HUD) once that exists, not before. | G6 | NOT STARTED, blocked |
+| 8 | `direction` | **Row's own premise was wrong, corrected 2026-08-23 — this is NOT a camera-model-rewrite blocker.** Real `BOR.C`'s parser (~line 1904-1909): `value = findarg(...); if("up") SCROLL_UP; else if("down") SCROLL_DOWN; else if("left") SCROLL_LEFT; else SCROLL_RIGHT;` — exactly 4 recognized values (up/down/left, default right), no "rightleft"/bidirectional case exists anywhere in this source (grep-confirmed: the literal string `rightleft` appears NOWHERE else in `BOR.C`, and `scrolldir` is read as a strict `==SCROLL_LEFT`/`==SCROLL_RIGHT`/etc. comparison everywhere it's used, ~15 call sites checked). TMNT's real `STREETS.TXT` does say `direction rightleft` (confirmed directly against the pak) — but run through THIS engine's actual parser, an unrecognized value silently falls through to the `else` branch: plain `SCROLL_RIGHT`. **TMNT's own `direction rightleft` line is therefore a no-op in this specific engine version** (possibly meaningful in some other/newer OpenBOR fork, but not the Plombo/beatsofrage source this project sources from) — real gameplay is ordinary one-directional right-scroll, which this project's existing camera model (`core/screen.pasm`) already implements. **This row is not a blocker for row 11 (TMNT conversion) at all.** | — | N/A — TMNT's real behavior is plain one-directional scroll this engine already supports; not tracked further |
+| 9 | `settime` | **Not a real gap today — corrected 2026-08-23, document and close (same call as row 10 `maxenemy`).** `settime` IS a real keyword (unlike `blockade`/row 5) — it's just not in `BOR.C`'s own level-header parser at all (grep-confirmed: zero hits for `settime`/`maxtime` in the source), meaning this specific engine version doesn't act on it even where a level declares it; the real timer mechanism that exists (`timeleft`/`time_over()`, ~line 4701-4714) always hardcodes a fixed 100-second reset at stage load, never reads a per-level value. **More importantly: real content never actually enables it.** Checked every `settime` occurrence across every available pak — zero in either shipped BOR level, and all 4 real TMNT occurrences (`SEWER.TXT`, `SEWER0.TXT`, `STREETS.TXT`, `STREETS2.TXT`) are `settime 0` (disabled). There is no real content anywhere this project has access to that would ever exercise an enabled time limit — building the HUD timer/time-over path described here would have zero real data to build toward or verify against, a worse case than `blockade`'s "gated on TMNT" (TMNT disables it too). | — | N/A — no real enabled usage exists in any available pak; not tracked further |
 | 10 | `maxenemy` | **Not a real gap — document and close.** This engine hardcodes exactly 3 AI slots (`CLAUDE.md`'s "don't build a general entity-lookup system" rule); BOR's own `maxenemy` values in the stock/TMNT levels checked (4) are already satisfied trivially by that hardware ceiling. No code change is applicable here; `SPAWN_MAX_RECORDS`/the single-global-queue design (`core/spawn.pasm`'s own header) already reproduces BOR's wave-clustering behavior within that ceiling. | — | N/A — permanent engine constraint, not tracked further |
-| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task, gated on row 8 (`direction`, TMNT's own level declares `rightleft`) and on §12's per-spawn character-identity gap (real, but not a keyword row — see row 7's corrected entry above: TMNT's whole roster needs spawns to select which character streams into a slot, which today doesn't exist for BOR either). Row 3 (`map`) is done and no longer a blocker. Tracked under §12 (content and scale), not here. | Row 8; §12 character-identity spawning | NOT STARTED, blocked |
+| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **Row 8 (`direction`) is cleared, 2026-08-23** (its real behavior for TMNT is plain one-directional scroll this engine already supports — see row 8's corrected entry). Row 3 (`map`) is done. The one real remaining blocker is §12's per-spawn character-identity gap (see row 7's corrected entry): TMNT's whole roster needs spawns to select which character streams into a slot, which doesn't exist for BOR either. Tracked under §12 (content and scale), not here. | §12 character-identity spawning | NOT STARTED, blocked on §12 only |
 | 12 | `wait` | — | — | **DONE** (2026-08-22, "wait/group/boss" slice, `game_g9_wait_group_boss.py`) |
 | 13 | `group` | — | — | **DONE** (2026-08-22, same slice) |
 
-**Reading order for "what's next" — updated 2026-08-23, rows 3 (`map`) and
-7 (`alias`) are both now DONE/closed (see their own table entries above;
-row 7 turned out to be a permanent no-op, not deferred work).** Row 5
-(`blockade`) is cheap to build but has **zero observable effect on either
-currently-shipped level** — its payoff is entirely gated on TMNT conversion
-(row 11), and its exact `<n>` semantics aren't even confirmed yet. Row 6
-needs content before code. Row 8 (`direction`) is a real phase in its own
-right, camera-model-rewrite scope. Row 9 waits on G6 (done) — actually
-unblocked, just not written up as its own phase yet. Row 10 is done being
-tracked. Row 11 (TMNT itself) now waits on row 8 plus §12's real
-character-identity-spawning gap (see row 7's entry), not on row 7 directly.
+**Reading order for "what's next" — rewritten 2026-08-23 after re-sourcing
+every remaining row directly against `BOR.C`.** Rows 3 (`map`) and 7
+(`alias`) were already DONE/closed. This pass found rows 5, 8, and 9 were
+ALL built on premises that don't match the real engine source (same class
+of error `alias` had): row 5's keyword doesn't exist (real one is
+`blocked`, a pit-hazard flag, not scroll-back — closed, needs
+re-deriving, not tracked as ready work); row 8 (`direction`) is NOT a
+camera-model-rewrite blocker — TMNT's `rightleft` value isn't recognized
+by the real parser and silently resolves to plain `SCROLL_RIGHT`, which
+this engine already supports (cleared entirely, removed as a row 11
+blocker); row 9 (`settime`) is a real keyword but every actual occurrence
+across every available pak disables it (`settime 0`) — building a time
+limit feature would have zero real content to verify against, closed the
+same way row 10 (`maxenemy`) was. Row 6 (`music`) checks out as originally
+scoped (real, simple, content-gated — no correction needed). Row 11
+(TMNT itself) now only waits on §12's character-identity-spawning gap.
 
-**Conclusion, updated 2026-08-23:** §8a is now genuinely exhausted of
-unblocked, self-contained rows — row 5 is low-value (zero effect on either
-shipped level), row 9 (`settime`) is a small real slice now that G6 is
-done, and everything else (6, 8, 11) is content- or scope-gated. This is
-the point where the row-by-row table runs out and the next slice is a
-roadmap-priority choice rather than a table lookup: either G7's remaining
-jump/grab/special items (each blocked on new animation conversion first),
-row 9 (`settime`, small, self-contained, unblocked), or `plan_vm.md` Gate
-7 (the VM track carries the explicit roadmap priority per `CLAUDE.md`'s
-2026-08-19 roadmap update). Surface this choice rather than picking
-unilaterally.
+**Conclusion, updated 2026-08-23:** §8a is now genuinely, fully exhausted
+— every row is either DONE, a permanent no-op (7, 9, 10), correctly
+content-gated (6), or waiting on real remaining work outside this table's
+scope (5's real hole/pit system needs re-deriving before it's buildable;
+11 waits on §12). There is no more unblocked, self-contained row left to
+pick. The next slice is a roadmap-priority choice, not a table lookup:
+G7's remaining jump/grab/special items (each blocked on new animation
+conversion, real grab needing full mutual-entity-lock semantics), row 5's
+real hole/pit hazard system (needs its own semantics re-derivation first),
+or `plan_vm.md`'s content-breadth work (script-to-script `CALL` codegen —
+the runtime already supports it per Gate 6/7's own header notes; only the
+compiler's codegen path is missing, and it's a genuinely large addition,
+not a small slice — see `vm_gate7_measured_no_action_needed` memory).
+Surface this choice rather than picking unilaterally.
 
 ---
 
@@ -1051,11 +1059,13 @@ G1 text  →  G2 states  →  G3 death  →  G4 win/transition  →  G5 menus
 
 **§8a's level-format-keyword rows slot in around G8/G9/G12 specifically** —
 see §8a's own table for the exact per-row blockers instead of re-deriving
-them here. Rows 3 (`map`) and 7 (`alias`) are DONE/closed. Row 5
-(`blockade`) is unblocked but low-value; row 9 (`settime`) is unblocked
-now that G6 is done; row 6 (`music`) waits on content; row 8 (`direction`)
-is its own camera-model-rewrite phase; row 11 (TMNT conversion) waits on
-row 8 plus §12's real character-identity-spawning gap.
+them here. §8a is now fully exhausted (re-sourced against `BOR.C`
+2026-08-23): rows 3/7 DONE; rows 7/9/10 are permanent no-ops; row 5's real
+keyword is `blocked` (a pit-hazard flag, not scroll-back) and needs its
+own semantics re-derivation before it's buildable; row 6 (`music`) waits
+on content; row 8 (`direction`) turned out to be a no-op for TMNT under
+this engine's real parser, not a camera-model blocker — cleared; row 11
+(TMNT conversion) now only waits on §12's character-identity-spawning gap.
 
 G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 
