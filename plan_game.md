@@ -4,17 +4,6 @@
 > current ROM into something a person could sit down and play from title screen
 > to ending.
 >
-> **None of the menu/HUD/game-state machinery in this file requires the script
-> VM** (`plan_vm.md`) to be *implemented* — but as of 2026-08-19, `plan_vm.md`
-> is required and prioritized project-wide: the goal is the full converted
-> OpenBOR content library (14 stages, ~24 characters), and hand-written
-> stand-ins for VM-driven content (the fixed spawn table, hard-coded roster)
-> are to be phased out as VM gates land, not kept forever. This file's own
-> "text gets the low end because it is on the critical path and the VM is not"
-> byte-budget framing (below) is from before that decision — re-check
-> `plan_vm.md` §0.3 rather than assuming the VM still yields priority in their
-> shared ROM region.
->
 > Read `README.md`'s "Current Status" first — it is the authoritative list of
 > what actually works today. This file assumes it.
 
@@ -106,20 +95,11 @@ dropped it.
   overlap the frontpanel case** and need a decided answer. Simplest: pause menu
   draws on BG1 under forced-blank-free conditions, or the frontpanel resolver is
   suspended while paused.
-- **ROM budget — the gap is divided, use your half.** `$C100`–`$FC00` has only
-  ~1913 bytes free, so `core/text.pasm` goes in the bank-0 gap instead. That gap
-  (`$8C60`–`$AC00`, 8096 bytes) is **shared with `plan_vm.md` and already
-  allocated**:
-
-  | Range | Size | Owner |
-  |---|---|---|
-  | **`$8C60`–`$9000`** | **928 B** | **`core/text.pasm` — this phase** |
-  | `$9000`–`$AC00` | 7168 B | the script VM (`plan_vm.md`) |
-
-  Text gets the low end because it is on the critical path and the VM is not.
-  **`.org $8C60`, and keep `core/text.pasm` under 928 bytes.** If it doesn't fit,
-  take the space from the VM's half and update `plan_vm.md` §0.3 in the same
-  change — do not silently grow past `$9000`. Overflow here is silent (Poppy
+- **ROM budget.** `$C100`-`$FC00` has only ~1913 bytes free, so
+  `core/text.pasm` goes in the bank-0 gap instead: `$8C60`-`$AC00`, 8096
+  bytes, all of it free (a since-dropped script VM plan once reserved part
+  of this gap; that reservation no longer applies). `.org $8C60`;
+  `core/text.pasm` shipped under 928 bytes. Overflow here is silent (Poppy
   truncates `.org` regions without error) and lands on `LoadAudioData`, so it
   presents as an *audio* bug.
 
@@ -375,9 +355,8 @@ the streaming caches are consistent after reload.
 > DrawString call (to a different row) left there, so a short string alone
 > would leave stale garbage in the columns past its own text.
 >
-> Character select was explicitly **not** built here — CLAUDE.md and G2's own
-> header both say the hard-coded `CharSelect_Index` roster is to be phased
-> out as `plan_vm.md` gates land, not invested in further. Pause menu content
+> Character select was explicitly **not** built here -- the hard-coded
+> `CharSelect_Index` roster stays as-is (no VM, no phase-out plan). Pause menu content
 > is also deferred (the state already freezes correctly since G2; it
 > collides with `core/text.pasm`'s own documented BG3-frontpanel-vs-text
 > unresolved question, so it isn't bundled with a phase that didn't need to
@@ -793,10 +772,8 @@ frame-load already takes 6.
 > `grab` for JOE, `jumpattack` for JHUN — YASHIRO has none) are converted
 > and listed in the moveset manifest but deliberately excluded from the
 > packed MSU blob — nothing downstream reads them yet, and multi-move
-> dispatch is explicitly deferred to whenever `plan_vm.md`'s script VM is
-> wired to drive `CHAR_SELECTED` (or a future scoped slice), not built here
-> as a second hand-written non-VM combat system. Full regression suite
-> clean (`audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> dispatch is not built here; a future scoped slice can pick this up. Full
+> regression suite clean (`audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
 > `phase5`–`phase9`, `phase11_damage`, `phase12_roster`, every `game_g*.py`
 > gate). `game_g7_knockdown.py`'s rise->idle check is confirmed flaky
 > independent of this change (reproduced both failing and passing 3/4 runs
@@ -825,8 +802,8 @@ frame-load already takes 6.
 > discarding real `openborscript` — turned out on investigation to be moot
 > for BOR/TMNT specifically (both have zero script content anywhere, level
 > or entity; only DDM's paks use `script`/`aimove`/`aiattack`, confirmed by
-> direct pak scan), so that part is deferred to `plan_vm.md`'s own gated
-> track rather than duplicated here.
+> direct pak scan), so that part is simply out of scope for this project
+> (no script VM exists or is planned).
 
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
@@ -977,14 +954,11 @@ content-gated (6), or waiting on real remaining work outside this table's
 scope (5's real hole/pit system needs re-deriving before it's buildable;
 11 waits on §12). There is no more unblocked, self-contained row left to
 pick. The next slice is a roadmap-priority choice, not a table lookup:
-G7's remaining jump/grab/special items (each blocked on new animation
-conversion, real grab needing full mutual-entity-lock semantics), row 5's
-real hole/pit hazard system (needs its own semantics re-derivation first),
-or `plan_vm.md`'s content-breadth work (script-to-script `CALL` codegen —
-the runtime already supports it per Gate 6/7's own header notes; only the
-compiler's codegen path is missing, and it's a genuinely large addition,
-not a small slice — see `vm_gate7_measured_no_action_needed` memory).
-Surface this choice rather than picking unilaterally.
+G7's remaining jump/special items (blocked on new animation conversion --
+no real anim exists in the source pak for any roster character; grab is
+done, see the grab mutual-lock slice), or row 5's real hole/pit hazard
+system (needs its own semantics re-derivation first). Surface this
+choice rather than picking unilaterally.
 
 ---
 
@@ -1112,8 +1086,8 @@ not optional.
    and `.l Symbol,y` are still correct style (neither addressing mode is valid
    on real 65816 regardless of Poppy), but Poppy now hard-errors on both
    instead of silently mis-assembling, so a mistake here is now a loud build
-   failure, not a silent landmine. `plan_vm.md` §0.6 has the full current list
-   with rationale.
+   failure, not a silent landmine. `CLAUDE.md`'s Poppy toolchain section has
+   the full current list with rationale.
 4. **Watch `.org` region occupancy.** `$C100`–`$FC00` had ~1913 bytes free as
    of 2026-08-16 (re-measure, don't trust this number). Overflow used to be
    silent and corrupt the next region — the current fork now errors on it

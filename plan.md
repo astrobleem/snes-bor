@@ -1,18 +1,11 @@
 # Plan: multiple simultaneous on-screen characters
 
 > **⚠️ THIS FILE IS NOW HISTORY. Phases 0–15 are all DONE.**
-> **New work lives in one of two files, and which one depends on your goal:**
+> **New work lives in `plan_game.md`**, the only roadmap (critical path to a
+> playable, releasable game — menus, stages, win condition, death, score,
+> ending). There is no script VM in this project.
 >
-> | Goal | File |
-> |---|---|
-> | **Make this a playable, releasable game** (menus, stages, win condition, death, score, ending) | **`plan_game.md`** ← the critical path |
-> | Run real OpenBOR `openborscript` mods (bytecode VM) | `plan_vm.md` |
->
-> **The VM is not required to ship a game**, and its first five gates produce
-> zero user-visible change. If someone tells you the VM is how you get menus or
-> level progression, they are wrong — see `plan_vm.md`'s own banner.
->
-> Both new plans assume `README.md`'s "Current Status" as ground truth. Part Two
+> `plan_game.md` assumes `README.md`'s "Current Status" as ground truth. Part Two
 > below (§§2.0–2.15) remains the historical record of Phases 5–15 and is still
 > worth reading for *why* the code is shaped as it is, but it is no longer a
 > to-do list.
