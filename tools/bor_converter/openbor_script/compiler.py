@@ -59,6 +59,7 @@ not VT_PTR -- see natives.py's module docstring for why.
 import struct
 from . import ast_nodes as ast
 from .natives import NATIVES, BY_NAME as NATIVE_BY_NAME, CALL_SPECIALIZATIONS
+from .openbor_constants_table import OPENBOR_CONSTANTS
 
 VT_EMPTY = 0
 VT_INTEGER = 1
@@ -525,6 +526,26 @@ class Compiler:
             # as a deliberate scope limit in natives.py, not new here.
             slot = dest if dest is not None else self.new_slot()
             self.set_slot(slot, VT_INTEGER, 0)
+            return slot
+        if node.name == 'openborconstant' and len(node.args) == 1 and isinstance(node.args[0], ast.StringLit):
+            # Real openborconstant(name) is a RUNTIME string lookup against
+            # the engine's compiled-in constant table in real OpenBOR
+            # (engine/source/openborscript/constants.c) -- but every name
+            # this project's table covers is a FIXED enum member/bitflag
+            # (openbor_constants_table.py), so folding it to a compile-time
+            # literal is exact, not an approximation, for those names.
+            # Names outside the table are refused rather than guessed --
+            # see that module's docstring for the two real reasons a name
+            # can be unrepresentable here (per-model dynamic lookup, or a
+            # mutable runtime global like PLAYER_MIN_Z/MAX_Z).
+            constname = node.args[0].value
+            if constname not in OPENBOR_CONSTANTS:
+                raise CompileError(
+                    f'openborconstant({constname!r}) is not a fixed constant this project can '
+                    f'compile-time-fold -- see openbor_constants_table.py\'s scope boundary '
+                    f'(per-model dynamic lookup or a mutable runtime global)')
+            slot = dest if dest is not None else self.new_slot()
+            self.set_slot(slot, VT_INTEGER, OPENBOR_CONSTANTS[constname] & 0xFFFFFFFF)
             return slot
         if node.name in self.local_functions:
             return self.compile_script_call(node, dest)
