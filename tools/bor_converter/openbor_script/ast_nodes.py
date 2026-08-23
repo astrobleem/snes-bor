@@ -35,6 +35,18 @@ class While(Node):
     pass  # cond, body
 
 
+class For(Node):
+    pass  # init: VarDecl|ExprStmt|None, cond: Node|None, post: Node|None, body
+
+
+class Break(Node):
+    pass  # no fields
+
+
+class Continue(Node):
+    pass  # no fields
+
+
 class Return(Node):
     pass  # value: Node|None
 

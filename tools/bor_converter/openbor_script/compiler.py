@@ -40,6 +40,18 @@ have zero script content and DDM's real scripts also need `for` loops and
 is compiler/runtime plumbing, proven with a small synthetic fixture, not a
 claim that real mod scripts now run.
 
+`for`/`break`/`continue` (compile_for, and break/continue support added to
+compile_while) are the next real gap closed here -- 8/21 (38%) of Double
+Dragon Moto's real scripts use `for` loops (openbor_script_coverage_gap_data
+project memory), the single most common missing construct after
+script-to-script CALL. `for`'s `continue` target is the post-expression
+(real C semantics -- NOT the condition check, which is `while`'s own
+`continue` target), tracked per-loop via a `loop_stack` of pending
+break/continue patch lists so nested loops target the correct innermost
+loop. No new opcodes needed -- both desugar entirely into the same
+BRANCH_FALSE-on-constant-false "unconditional jump" idiom every other
+control-flow construct here already uses.
+
 Slot type tags (FORMAT.md, Q16.16 profile): 0 EMPTY, 1 INTEGER, 2 DECIMAL,
 5 PTR, 6 STR. Entity handles (self/vSpawn) are represented as VT_INTEGER,
 not VT_PTR -- see natives.py's module docstring for why.
@@ -161,6 +173,7 @@ class Compiler:
         self.pending_script_calls = []  # [(instr_idx, callee_name)] -- CALL.a backpatch
         self.is_entry_function = True   # False while compiling a non-entry function
         self.epilogue_patches = []      # pending JUMPR/branch targets for current fn
+        self.loop_stack = []            # stack of {'break_patches':[...], 'continue_patches':[...]}
 
     def new_slot(self, vtype=VT_EMPTY, value=0, aux=0, flags=0, name=None):
         idx = len(self.m.slots)
@@ -226,6 +239,7 @@ class Compiler:
             saved_slot_names = self.m.slot_names
             self.m.slot_names = {}
             self.epilogue_patches = []
+            self.loop_stack = []
             for ptype, pname in fn.params:
                 pslot = self.new_slot(vtype=self._default_type_for(ptype), name=pname)
                 self.emit(OP_PARAM, a=pslot)
@@ -278,6 +292,18 @@ class Compiler:
             self.compile_if(node)
         elif isinstance(node, ast.While):
             self.compile_while(node)
+        elif isinstance(node, ast.For):
+            self.compile_for(node)
+        elif isinstance(node, ast.Break):
+            if not self.loop_stack:
+                raise CompileError('break outside a loop')
+            idx = self.emit(OP_BRANCH_FALSE, a=0, b=self._false_slot())
+            self.loop_stack[-1]['break_patches'].append(idx)
+        elif isinstance(node, ast.Continue):
+            if not self.loop_stack:
+                raise CompileError('continue outside a loop')
+            idx = self.emit(OP_BRANCH_FALSE, a=0, b=self._false_slot())
+            self.loop_stack[-1]['continue_patches'].append(idx)
         else:
             raise CompileError(f'unsupported statement {type(node).__name__}')
 
@@ -379,10 +405,47 @@ class Compiler:
         loop_start = len(self.m.instructions)
         cond_slot = self.compile_expr(node.cond, dest=None)
         branch_idx = self.emit(OP_BRANCH_FALSE, a=0, b=cond_slot)
+        self.loop_stack.append({'break_patches': [], 'continue_patches': []})
         self.compile_stmt(node.body)
+        loop_ctx = self.loop_stack.pop()
+        # `continue` lands here -- one hop before the back-edge, which then
+        # re-checks the condition. A harmless extra jump, not an extra
+        # condition check; keeps while/for sharing one continue-target shape.
+        continue_ip = len(self.m.instructions)
+        for idx in loop_ctx['continue_patches']:
+            self.m.instructions[idx].a = continue_ip
         # unconditional back-edge: Branch_FALSE on the constant-false slot
         self.emit(OP_BRANCH_FALSE, a=loop_start, b=self._false_slot())
-        self.m.instructions[branch_idx].a = len(self.m.instructions)
+        loop_end = len(self.m.instructions)
+        self.m.instructions[branch_idx].a = loop_end
+        for idx in loop_ctx['break_patches']:
+            self.m.instructions[idx].a = loop_end
+
+    def compile_for(self, node):
+        if node.init is not None:
+            self.compile_stmt(node.init)
+        loop_start = len(self.m.instructions)
+        branch_idx = None
+        if node.cond is not None:
+            cond_slot = self.compile_expr(node.cond, dest=None)
+            branch_idx = self.emit(OP_BRANCH_FALSE, a=0, b=cond_slot)
+        self.loop_stack.append({'break_patches': [], 'continue_patches': []})
+        self.compile_stmt(node.body)
+        loop_ctx = self.loop_stack.pop()
+        # `continue` in a for-loop must still run the post-expression before
+        # re-checking the condition (real C semantics) -- unlike while, this
+        # target is NOT loop_start itself.
+        post_ip = len(self.m.instructions)
+        for idx in loop_ctx['continue_patches']:
+            self.m.instructions[idx].a = post_ip
+        if node.post is not None:
+            self.compile_expr(node.post, dest=None)
+        self.emit(OP_BRANCH_FALSE, a=loop_start, b=self._false_slot())
+        loop_end = len(self.m.instructions)
+        if branch_idx is not None:
+            self.m.instructions[branch_idx].a = loop_end
+        for idx in loop_ctx['break_patches']:
+            self.m.instructions[idx].a = loop_end
 
     # --- expressions -----------------------------------------------------
 

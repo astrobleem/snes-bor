@@ -1475,6 +1475,44 @@ This was proven with a synthetic fixture sourced from this project's own
 compiler/runtime semantics, not invented pak content masquerading as real
 content.
 
+**`for`/`break`/`continue` codegen: DONE, 2026-08-23.** Next real parser
+gap per `openbor_script_coverage_gap_data`'s scan — 8/21 (38%) of DDM's
+real scripts use `for` loops, the most common missing construct after
+script-to-script CALL (just shipped). The lexer already tokenized `for`/
+`break`/`continue` as keywords; nothing downstream (parser, compiler)
+handled them. Added `ast_nodes.For`/`Break`/`Continue`, `parser.parse_for`,
+and `compiler.compile_for` plus real break/continue support added to
+`compile_while` (which previously had none at all). No new VM opcode
+needed — both desugar into the same BRANCH_FALSE-on-constant-false
+"unconditional jump" idiom every other control-flow construct here already
+uses, forward-patched via a `loop_stack` of pending break/continue targets
+per active loop so nested loops target the correct innermost loop.
+`for`'s `continue` target is the post-expression (real C semantics,
+genuinely different from `while`'s continue target, which is the
+condition check) — verified directly, not assumed.
+
+Proven on real hardware by `tools/verify/vm_for_loops.py` (6 checks,
+`GATE VM-FOR-LOOPS: PASS`) — a fixture with a `for` loop's continue/break,
+a `while` loop's own continue/break, and a `for` nested inside a `while`
+(to catch wrong innermost-loop targeting), diffed slot-for-slot against
+the oracle (no oracle changes needed — for/break/continue are pure
+codegen, no new opcode semantics to interpret). Along the way, this
+fixture's real nested loops were the first script long enough to exceed
+`VM_BUDGET_PER_FRAME` (200 opcodes) within one frame and genuinely yield
+mid-run (`VMSTAT_YIELDED`) — the gate script's own poll loop, copied from
+`vm_gate6.py`'s shorter single-frame fixtures, only knew about READY/
+RUNNING and treated YIELDED as terminal, causing a real false FAIL on
+first run (VM hadn't finished, harness just stopped watching). Fixed in
+the harness, not the compiler — a useful reminder that `VMSTAT_YIELDED`
+is a real, expected, non-terminal state any FUTURE gate with a long-
+running script needs to poll through, not just DONE/FAULT.
+
+Same scope boundary as script-to-script CALL: this is compiler plumbing,
+not a claim that DDM's own `for`-using scripts compile yet — they also
+call ~30 engine natives this VM doesn't implement (
+`openbor_script_coverage_gap_data`), so none compile end-to-end
+regardless of `for` support. Natives coverage is the next real gap.
+
 ---
 
 ## §10 — Host tooling checklist

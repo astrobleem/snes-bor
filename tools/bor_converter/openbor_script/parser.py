@@ -9,8 +9,9 @@ no switch, no ternary, no bitwise-NOT since BIT_NOT is outside the Build
     funcdecl   := type IDENT '(' (param (',' param)*)? ')' block
     param      := type IDENT
     block      := '{' stmt* '}'
-    stmt       := vardecl ';' | if_stmt | while_stmt | return_stmt ';'
-                | expr_stmt ';' | block | ';'
+    stmt       := vardecl ';' | if_stmt | while_stmt | for_stmt | return_stmt ';'
+                | 'break' ';' | 'continue' ';' | expr_stmt ';' | block | ';'
+    for_stmt   := 'for' '(' (vardecl | expr)? ';' expr? ';' expr? ')' stmt
     vardecl    := type IDENT ('=' expr)? (',' IDENT ('=' expr)?)*
     if_stmt    := 'if' '(' expr ')' stmt ('else' stmt)?
     while_stmt := 'while' '(' expr ')' stmt
@@ -118,6 +119,16 @@ class Parser:
             return self.parse_if()
         if t.kind == 'while':
             return self.parse_while()
+        if t.kind == 'for':
+            return self.parse_for()
+        if t.kind == 'break':
+            self.advance()
+            self.expect(';')
+            return ast.Break()
+        if t.kind == 'continue':
+            self.advance()
+            self.expect(';')
+            return ast.Continue()
         if t.kind == 'return':
             self.advance()
             value = None
@@ -173,6 +184,27 @@ class Parser:
         self.expect(')')
         body = self.parse_stmt()
         return ast.While(cond=cond, body=body)
+
+    def parse_for(self):
+        self.expect('for')
+        self.expect('(')
+        init = None
+        if not self.at(';'):
+            if self.at_type_kw():
+                init = self.parse_vardecl()
+            else:
+                init = ast.ExprStmt(expr=self.parse_expr())
+        self.expect(';')
+        cond = None
+        if not self.at(';'):
+            cond = self.parse_expr()
+        self.expect(';')
+        post = None
+        if not self.at(')'):
+            post = self.parse_expr()
+        self.expect(')')
+        body = self.parse_stmt()
+        return ast.For(init=init, cond=cond, post=post, body=body)
 
     def parse_expr(self):
         return self.parse_assignment()
