@@ -506,6 +506,26 @@ class Compiler:
         raise CompileError(f'unsupported expression {type(node).__name__}')
 
     def compile_call(self, node, dest):
+        if node.name == 'NULL' and len(node.args) == 0:
+            # Real OpenBOR scripts use NULL() as a zero-arg sentinel compared
+            # via ==/!= (DODGE.C, PLAYER.C) against entity-handle-typed
+            # values. VT_EMPTY looks like the obvious encoding but is WRONG:
+            # Vm_LoadAndCompare (vm_string.pasm) only accepts a numeric pair
+            # or a STR pair for EQ/NE -- comparing EMPTY against anything
+            # faults VMERR_BAD_TYPE on real hardware (found running this
+            # gate; the Python oracle doesn't enforce the same type check,
+            # so this diverged silently there). Real OpenBOR's NULL is a C
+            # NULL pointer (== 0); this project already represents entity
+            # handles as plain VT_INTEGER (natives.py's own documented
+            # scope decision, no VT_PTR), so NULL() must match that: a
+            # VT_INTEGER 0, not VT_EMPTY. Same compile-time link/materialize
+            # as any other literal, no native ID, no runtime instruction.
+            # Caveat: this makes NULL() == entity index 0 (the player,
+            # "self") -- same integer-vs-pointer collision already flagged
+            # as a deliberate scope limit in natives.py, not new here.
+            slot = dest if dest is not None else self.new_slot()
+            self.set_slot(slot, VT_INTEGER, 0)
+            return slot
         if node.name in self.local_functions:
             return self.compile_script_call(node, dest)
         specs = CALL_SPECIALIZATIONS.get(node.name)

@@ -1507,6 +1507,84 @@ the harness, not the compiler — a useful reminder that `VMSTAT_YIELDED`
 is a real, expected, non-terminal state any FUTURE gate with a long-
 running script needs to poll through, not just DONE/FAULT.
 
+**Natives-coverage scoping (2026-08-23): re-measured, not guessed — the
+"~30 missing natives" estimate needed a real property-string × arity
+breakdown before any implementation, per this project's own standing
+rule.** Re-scanned all 21 DDM scripts, this time extracting every literal
+string/arity SHAPE at each `getentityproperty`/`changeentityproperty`/
+`openborconstant`/`openborvariant`/`getlocalvar`/`setlocalvar` callsite
+(not just call names). Result: the shape space is bigger than "~30
+natives" suggested — e.g. `changeentityproperty(..., "position", ...)`
+alone appears with arity 3, 4, AND 5 across real scripts (52/10/6 calls
+respectively) and only the 5-arg (SPAWN000.C's own) shape is currently
+specialized; `getentityproperty`/`changeentityproperty` together already
+cover `x`/`z`/`a`/`direction`(read) and `position`(5-arg write) — the
+easy, already-existing-CHAR_*-field reads were already done in Gate 6, not
+a remaining gap. What's actually still missing splits into two real
+categories, not one:
+  - **New arity variants of already-covered properties** (more
+    `changeentityproperty("position", ...)` shapes, etc.) — same
+    engine-side plumbing, just more specializations. Mechanical, no new
+    design.
+  - **State this engine's WRAM layout has no representation for at all**:
+    `velocity` (CHAR struct has no velocity field, only position),
+    per-entity script vars (`setentityvar`/`getentityvar`, distinct from
+    the already-covered `getlocalvar`/`setlocalvar` scope), persistent
+    global vars (`getglobalvar`/`setglobalvar`), `elapsed_time`
+    (`openborvariant`), and `openborconstant`'s actual named-constant
+    VALUES (`ATK_NORMAL`, `ANI_FOLLOW57`, `PLAYER_MIN_Z`, ...) — this
+    project has no local copy of real OpenBOR engine source (checked: no
+    `BOR.C`/`globals.h`/constants header present anywhere under `E:\gh`),
+    so these values cannot be implemented without a sourcing pass first
+    (fetching the real upstream OpenBOR header) — inventing plausible-
+    looking constant values would violate this project's own standing
+    "never trust without sourcing against ground truth" rule. **Not done
+    this slice; needs a dedicated sourcing pass before it's safe to
+    implement.**
+
+**What WAS done this slice: `NULL()` support, DONE, 2026-08-23.** Reading
+the 4 smallest real DDM scripts (`SPAWN1.C`, `NOSCPOS.C`,
+`COMMON/DODGE.C`, `PLAYER.C`) surfaced `NULL()` — a zero-arg sentinel
+compared via `==`/`!=` (`if (etime==NULL())`, `if (Vx!=NULL())`) — as a
+real, cheap, self-contained gap distinct from the natives-with-engine-
+state problem above: it needed zero new engine state, just compiler
+codegen. First attempt compiled `NULL()` to a fresh `VT_EMPTY` slot (the
+VM's existing "no value" type) — **this faulted `VMERR_BAD_TYPE` on real
+hardware** (`Vm_LoadAndCompare` in `vm_string.pasm` only accepts a
+numeric pair or a STR pair for EQ/NE; EMPTY matches neither). The Python
+oracle did NOT catch this — it has no equivalent type-strictness check for
+EQ/NE, so it silently produced a plausible-looking answer while real
+hardware faulted, **a genuine oracle/hardware divergence found only by
+testing on real hardware**, not something a "logic looks right" review
+would have caught. Fixed by compiling `NULL()` to `VT_INTEGER` value `0`
+instead — real OpenBOR's `NULL` is a C null pointer (`== 0`), and this
+project already represents entity handles as plain `VT_INTEGER` (no
+`VT_PTR`, per `natives.py`'s own documented scope decision), so `VT_INTEGER
+0` is the representation-correct choice, not just the one that happens to
+pass the type check. Caveat: this makes `NULL() == 0` collide with entity
+index 0 (the player/`self`) — the same integer-vs-pointer ambiguity
+`natives.py` already flagged as a deliberate scope limit, not a new one.
+
+Proven on real hardware by `tools/verify/vm_null_sentinel.py` (6 checks,
+`GATE VM-NULL-SENTINEL: PASS`) — a fixture comparing a real nonzero value
+against `NULL()` both ways (`!=` must be true, `==` must be false),
+diffed against the oracle. `vm_for_loops.py`/`vm_script_call.py`/
+`vm_gate6.py` all re-run clean after this change (no regression in
+existing literal/comparison codegen).
+
+**Scope boundary, same as the two slices before it**: `NULL()` support
+does not make any real DDM script compile end-to-end — `COMMON/DODGE.C`
+and `PLAYER.C` (the two scripts that use it) still need `setentityvar`/
+`getentityvar`/`velocity`/`elapsed_time`, none of which exist in this
+engine's WRAM layout yet. **The honest state of "VM: DDM script breadth"
+after this slice**: script-to-script CALL, `for`/`break`/`continue`, and
+`NULL()` are all real, hardware-proven compiler capability now. The
+remaining gap to a first real compiling DDM script is no longer
+"~30 natives" as a vague number — it's a specific, now-enumerated split
+between (a) mechanical additional arity-shapes of already-covered
+properties, and (b) new engine WRAM state plus a real upstream-source
+sourcing pass for constant values, neither of which should be guessed.
+
 Same scope boundary as script-to-script CALL: this is compiler plumbing,
 not a claim that DDM's own `for`-using scripts compile yet — they also
 call ~30 engine natives this VM doesn't implement (
