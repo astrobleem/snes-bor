@@ -984,21 +984,28 @@ choice rather than picking unilaterally.
 
 ## §9 — Phase G9: bosses
 
-> **Prerequisite update, 2026-08-22:** both "per-entity HP override" and
-> "the `boss` flag itself" (this section's own first two bullets, below)
-> are now DONE — the health-override slice and the "wait/group/boss" slice
-> respectively. What's left here is boss-SPECIFIC BEHAVIOR only: nothing
-> today reads `EntityN_IsBoss` for anything other than existing as a
-> correctly-set flag. See `core/spawn.pasm`'s own header and the
-> `wait_group_boss_spawn_mechanics` project memory for what's already real
-> vs. still missing, and its explicit synthetic-only-verification caveat
-> (no buildable pak exercises `boss` end-to-end yet — only TMNT, not
-> converted).
+> **Corrected premise, 2026-08-23:** the previous version of this section
+> (below, both now-struck bullets) assumed real OpenBOR has boss-specific AI
+> and a boss-exclusive health bar. It doesn't. Fetched the real source
+> (`DCurrent/openbor`, `engine/openbor.c`) to check: `boss` only (a) fires
+> `bossmusic` on spawn and (b) decrements `level->bossescount` toward the
+> win condition on death — no boss-specific behavior tree exists anywhere
+> in `combat.c`/`openbor.c`. The "boss health bar" in real BOR
+> (`drawstatus()`'s `elife`) isn't boss-exclusive either — it's a generic
+> "current opponent" bar shown for whatever entity `player[i].ent->opponent`
+> points at, gated on that entity not having `nolife` set. This project has
+> neither an opponent-pointer nor a `nolife` concept, and building the
+> generic mechanic has no other use here, so the health bar ships gated
+> directly on the existing `EntityN_IsBoss` flag instead (lowest-numbered
+> *living* boss-flagged entity wins). "Stage-gating" needed no new code:
+> G4's win condition (all AI dead + spawn queue exhausted before the camera
+> unlocks) already covers a boss stage with the exact same mechanism as any
+> other stage.
 
 - ~~Per-entity HP override (the spawn table has no HP field today — add one).~~ **Done, 2026-08-21** (health-override slice, `+7 spawn_hp` in the spawn record).
 - ~~The `boss` flag itself (`spawn_parse.py`'s `SpawnEvent.boss`, already parsed, not yet threaded into the record or read by the engine).~~ **Done, 2026-08-22** (`record_kind==4`, `EntityN_IsBoss` sticky flag) — real data plumbing, verified only via a hand-authored synthetic record (no shipped BOR stage uses `boss`).
-- Boss-specific AI beyond "seek and attack" — still not built, and `EntityN_IsBoss` is not read anywhere yet.
-- Boss health bar (G6), stage-gating (camera locks until defeated) — still not built.
+- ~~Boss-specific AI beyond "seek and attack".~~ **Cleared, 2026-08-23** — not a real OpenBOR concept (see corrected premise above); no code needed.
+- ~~Boss health bar, stage-gating (camera locks until defeated).~~ **Done, 2026-08-23** (`core/hud_boss.pasm`, `Hud_Play__boss_bar`, own bank for ROM budget, entered `jsl` from `main.pasm`'s `Hud_Play`) — gates directly on `EntityN_IsBoss`+HP>0, lowest-numbered living boss wins, blank row when none. Found and fixed two real bugs along the way: `HUD_ROW_BOSS` initially collided with the pre-existing boot-time G1 text demo on row 4 (moved to row 6), and `Hud_DrawBar` (the existing player-bar routine) hardcodes its target buffer as `HudStaging` with no parameter, so an earlier version that called it directly for the boss bar silently drew into the player's own buffer — fixed by duplicating the draw body into `Hud_Play__boss_bar_drawbar` against its own `HudBossStaging`/DMA, per this project's own "small duplicated block over a parameterized shared one" precedent. Stage-gating needed no new code — see corrected premise above. **GATE G9-BOSSBAR: PASS** (`tools/verify/game_g9_boss_bar.py`, 11 checks, hand-authored synthetic force since no shipped BOR stage uses `boss`).
 
 `out/bg_boss_level` already exists as converted assets from an earlier phase.
 

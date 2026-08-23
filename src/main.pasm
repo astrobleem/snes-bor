@@ -3299,6 +3299,29 @@ HUD_ROW_STAGE = 3
 HUD_LABEL_COL = 0   ; "SCORE "/"LIVES "/"STAGE " are each 6 chars; the value
                      ; starts at column 6 for all three, same fixed layout
 
+; Phase G9 (plan_game.md 9): boss health bar. Real OpenBOR (engine/openbor.c
+; drawstatus()) shows an "opponent" bar (`elife`) for whatever entity the
+; player is currently fighting, gated on that entity NOT having the
+; `nolife` flag -- there is no boss-exclusive bar in the stock engine, and
+; (per the same source, drawenemystatus()/combat.c) no boss-exclusive AI
+; either: `boss` only (a) triggers `bossmusic` on spawn and (b) makes that
+; entity's death check against `level->bossescount` for the win condition.
+; This project has no general "current opponent" tracking (BOR's ent->
+; opponent pointer, updated on every hit exchange) and no `nolife` concept
+; for fodder enemies, so building the real generic mechanic is out of scope
+; here -- EntityN_IsBoss (real, sourced, already-shipped data from the
+; wait/group/boss slice) is used directly as the gate instead: the lowest-
+; numbered living boss-flagged entity gets the bar, and the row goes blank
+; when none is. The G4 win condition already requires all AI dead before
+; the camera unlocks (Spawn_LastTriggerX hold-clamp), so a boss stage is
+; already camera-gated with no separate code needed -- see plan_game.md 9's
+; corrected status note.
+HUD_ROW_BOSS = 6   ; NOT 4/5 -- those are permanently owned by scpu_main_loop's
+                    ; own boot-time Core_Text_G1Demo/DrawString("SNES-BOR")/
+                    ; DrawNumber(1024) proof (found the hard way: a verify
+                    ; gate caught real "SNES-BOR" text where a blank/bar was
+                    ; expected after picking row 4 first)
+
 HudCachedHp        = $7E2360   ; .db -- last player HP drawn (was 4B/one per
                                  ; entity before Phase G6 dropped the AI bars;
                                  ; shifted from $7E2350 -> $7E2354 -> $7E2360
@@ -3313,6 +3336,15 @@ HudBarFilled       = $7E2366   ; .db -- scratch: filled columns for one tile
 HudCachedScore      = $7E2367   ; .dw -- last Game_Score drawn
 HudCachedLives      = $7E2369   ; .db -- last Game_Lives drawn
 HudCachedStageIndex = $7E236A   ; .dw -- last Game_StageIndex drawn
+; Phase G9: boss bar cache + its own staging row -- $7E276C onward,
+; grep-confirmed clear (past CharSelect_NextStep at $7E276B, the highest
+; prior use in this range; Entity1/2/3_InvulnFrames/Game_Score/etc. above
+; it are all lower addresses). $FF is the "no boss" sentinel (CHAR_HP_MAX
+; is 64, so it can never collide with a real HP value).
+HudBossCachedHp    = $7E276C   ; .db -- last boss HP drawn, or $FF ("no boss")
+HudBossStaging     = $7E276D   ; 64B -- one BG3 tilemap row, pre-DMA (own
+                                 ; buffer, not shared with HudStaging -- see
+                                 ; Hud_Play__boss_bar's own header)
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
@@ -6384,6 +6416,14 @@ Anim_LoadCharacter_Long:
 ; same-bank-only, ends in `rts`).
 Core_Text_DrawString_Long:
     jsr Core_Text_DrawString
+    rtl
+
+; Core_Dma_Enqueue_Long -- same trampoline pattern, for core/hud_boss.pasm's
+; (Phase G9) bank-0 cross-bank dependency. (Hud_DrawBar itself is NOT
+; reused this way -- see core/hud_boss.pasm's own Hud_Play__boss_bar_
+; drawbar header for why a duplicated block was needed instead.)
+Core_Dma_Enqueue_Long:
+    jsr Core_Dma_Enqueue
     rtl
 
 ; ----------------------------------------------------------------------------
@@ -10019,6 +10059,9 @@ Hud_Play:
     php
     jsr Hud_Play__bar
     jsr Hud_Play__text
+    ; Hud_Play__boss_bar lives in its own bank (core/hud_boss.pasm) -- ROM
+    ; budget, see that file's own header. jsl/rtl, not jsr/rts.
+    jsl Hud_Play__boss_bar
     plp
     rts
 
@@ -11382,4 +11425,10 @@ Text_Str_HudStage:
 .bank 4
 .org $8000
 .include "core/charselect.pasm"
+
+; Phase G9 (plan_game.md 9): boss health bar body, own bank for the same
+; ROM-budget reason -- see core/hud_boss.pasm's own header.
+.bank 5
+.org $8000
+.include "core/hud_boss.pasm"
 

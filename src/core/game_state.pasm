@@ -374,7 +374,8 @@ Game_State_Play__no_transition:
     bne Game_State_Play__check_title
     jmp Game_State_Play__playing
 Game_State_Play__check_title:
-    rep #$30
+    ; width still .a16 -- Game_State_Play__no_transition's own real
+    ; `rep #$31` just above runs unconditionally before this is reached.
 .a16
     cmp #GAME_STATE_TITLE
     bne Game_State_Play__check_charselect
@@ -398,13 +399,13 @@ Game_State_Play__check_paused:
     bne Game_State_Play__check_gameover
     jmp Game_State_Play__paused
 Game_State_Play__check_gameover:
-    rep #$30
+    ; width still .a16 -- see check_charselect's own comment above.
 .a16
     cmp #GAME_STATE_GAMEOVER
     bne Game_State_Play__check_stageclear
     jmp Game_State_Play__gameover
 Game_State_Play__check_stageclear:
-    rep #$30
+    ; width still .a16 -- see check_charselect's own comment above.
 .a16
     cmp #GAME_STATE_STAGECLEAR
     bne Game_State_Play__not_stageclear
@@ -576,7 +577,7 @@ Game_State_Play__paused:
     jmp Game_State_Play__done
 
 Game_State_Play__gameover:
-    rep #$31
+    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
     ; Phase G3: continue countdown. Start before GameOver_ContinueTimer
     ; hits 0 continues (fresh lives, full respawn, back to PLAYING);
@@ -600,14 +601,16 @@ Game_State_Play__gameover_no_continue:
     sta.l GameOver_ContinueTimer
     jmp Game_State_Play__done
 Game_State_Play__gameover_timeout:
-    rep #$31
+    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
     lda #GAME_STATE_TITLE
     sta.l Game_State
     jmp Game_State_Play__done
 
 Game_State_Play__playing:
-    rep #$31
+    ; width still .a16 -- reached only via the unconditional jmp above,
+    ; itself reached with .a16 already active (see check_title's own
+    ; comment on this chain never changing width in between).
 .a16
     ; Phase G3 (plan_game.md 3): player death check, before this frame's
     ; Core_Oop_Play pass -- see this file's Phase G3 header for why this
