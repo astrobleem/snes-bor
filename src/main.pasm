@@ -2524,7 +2524,7 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
-Entity1_Base    = $7E0a00 + 62        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 67        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2549,7 +2549,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 124       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 134       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2569,7 +2569,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 186       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 201       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2591,6 +2591,11 @@ Entity3_MapBaseLo     = Entity3_Base + 53 ; Entity #3's CHAR_MAP_BASE_LO
 Entity3_MapBaseHi     = Entity3_Base + 55 ; Entity #3's CHAR_MAP_BASE_HI
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
+PlayerEntity_GrabTarget = $7E0a00 + 63 ; Entity #0's CHAR_GRAB_TARGET (grab
+                                         ; mutual-lock slice; own named
+                                         ; constant, not inline `$7E0a00+N`
+                                         ; arithmetic in an operand -- see
+                                         ; CHAR_POS_X_HI's comment on why)
 ; Phase G3 (plan_game.md 3): respawn must reset facing/animation-selection,
 ; not just HP/hit-stun -- same ABSOLUTE-address caveat as every alias above
 ; (written from Game_State_Play, outside entity 0's own DP window).
@@ -2792,7 +2797,35 @@ CHAR_ATTACK2_DELAY   = 57  ; .db
 CHAR_ATTACK2_BASE_LO = 58  ; .dw
 CHAR_ATTACK2_BASE_HI = 60  ; .db
 CHAR_ATTACK_VARIANT  = 61  ; .db -- 0=attack1 selected/playing, 1=attack2
-CHAR_ZP_LEN         = 62   ; total -- pass as OopRegStaging_ZpLen
+; plan_game.md 7 (grab mutual-lock slice): real BOR.C grab semantics
+; (dograb/adjust_grabposition/check_link_move, sourced from DCurrent/
+; openbor's engine/openbor.c, not invented) -- position averaging once at
+; grab start, then rigid offset-following every frame while held, mutual
+; link cleared by an auto-release timer. Only a character whose real
+; attack2 anim is literally named `grab` (converter-derived, never
+; hardcoded by name here) ever sets CHAR_GRAB_TARGET.
+CHAR_ATTACK2_IS_GRAB = 62  ; .db -- 1 = this character's attack2 IS a real
+                            ; grab (JOE); 0 = ordinary second attack
+                            ; (RALF/JHUN unchanged instant-damage move)
+CHAR_GRAB_TARGET     = 63  ; .db -- BYTE OFFSET ($7E0a00+N, i.e. one of
+                            ; Entity1/2/3_Base's own 0/66/132/198 values --
+                            ; not a compact 0-3 index) of the entity this
+                            ; entity is currently grabbing, $FF = none
+                            ; (grabber side -- only ever the player this
+                            ; slice). Storing the real byte offset directly
+                            ; avoids an index<->offset conversion anywhere
+                            ; downstream.
+CHAR_GRABBED_BY      = 64  ; .db -- byte offset of the grabber, $FF = none
+                            ; (grabbed side)
+CHAR_GRAB_TIMER      = 65  ; .db -- frames remaining until auto-release,
+                            ; lives on the GRABBED entity (matches real
+                            ; BOR.C's target->stalltime, not attacker-side)
+CHAR_GRAB_OFFSET     = 66  ; .db -- SIGNED X offset from the grabber,
+                            ; frozen once at grab-init (real check_link_
+                            ; move's rigid-follow behavior: NOT re-averaged
+                            ; every frame, just re-applied against the
+                            ; grabber's current position); grabbed side only
+CHAR_ZP_LEN         = 67   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -2870,6 +2903,20 @@ Bg_LoadScene_StageIndex = $7E268E  ; .db -- which bg record Bg_LoadScene loads
 BgDirSeekLo = $7E268F   ; .dw -- scratch: stage-adjusted bg directory seek addr
 BgDirSeekHi = $7E2691   ; .db
 BgDirSeekTmp = $7E2692  ; .dw -- scratch: Bg_LoadScene_StageIndex * BG_RECORD_SIZE
+CharDirSeekTmp = $7E2694 ; .db -- scratch: CharSelect_Index * RECORD_SIZE(17), same
+                          ; index*16+index idiom BgDirSeekTmp uses for *40 above --
+                          ; grab mutual-lock slice (RECORD_SIZE 16->17, no longer a
+                          ; power of 2). Stays .a8 throughout (unlike BgDirSeekTmp's
+                          ; .a16 context) -- max value 7*17=119, always fits one byte.
+GrabDragOffset = $7E2695 ; .dw -- scratch: Character_Grab_Play's sign-extended
+                          ; CHAR_GRAB_OFFSET, ready for a 16-bit add against
+                          ; PlayerEntity_PosX. Grep-confirmed free right after
+                          ; CharDirSeekTmp.
+GrabDragOffsetHi = $7E2696 ; high byte of GrabDragOffset, its OWN named
+                            ; constant rather than `GrabDragOffset+1` in an
+                            ; instruction operand -- same standing rule as
+                            ; CHAR_POS_X_HI's comment (Poppy estimation-vs-
+                            ; encoding mismatch on `Symbol+N` expressions).
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
 ; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
@@ -3435,11 +3482,38 @@ Anim_Play__stunned_reset:
     brl Anim_Play__dispatch
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__not_stunned:
+    ; plan_game.md 7 (grab mutual-lock slice): grab state overrides the
+    ; "already attacking -- let it finish" latch below, on BOTH sides of a
+    ; grab, same priority as the hit-stun check above:
+    ;   - grabbed side (CHAR_GRABBED_BY != $FF): forced idle immediately,
+    ;     even if it was mid-swing on its own attack at the exact moment
+    ;     the grab landed -- real BOR.C's common_grabbed sets takeaction=
+    ;     NULL unconditionally. Without this, Anim_Play__ai_seek's own
+    ;     grab gate (further down) is never reached again: the latch below
+    ;     re-dispatches CHAR_SELECTED==2 every frame first.
+    ;   - grabber side (CHAR_GRAB_TARGET != $FF): the grab was itself
+    ;     established via this entity's OWN attack2 swing, which would
+    ;     otherwise keep CHAR_SELECTED==2 (and this latch would keep
+    ;     ignoring dpad input) for as long as that attack animation is
+    ;     still considered "in progress" -- but real BOR.C lets the
+    ;     grabber walk around while dragging. Falling through to the
+    ;     normal check_attack_trigger/player_input dispatch below (instead
+    ;     of hard-forcing idle, unlike the grabbed side) lets real dpad
+    ;     input drive walk/idle immediately.
+    lda CHAR_GRABBED_BY
+    cmp #$FF
+    beq Anim_Play__not_grabbed_early
+    lda #0
+    brl Anim_Play__want_got
+Anim_Play__not_grabbed_early:
+.a8
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    bne Anim_Play__not_attacking
     lda CHAR_SELECTED
     cmp #2
     bne Anim_Play__not_attacking
     brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__not_attacking:
 .a8
     ; plan_game.md G7 knockdown slice: a fall/rise reaction (CHAR_SELECTED
@@ -3543,6 +3617,15 @@ Anim_Play__want_idle:
     ; trigger condition) since it must set CHAR_SELECTED directly, not
     ; via want_got (which only handles idle/walk toggling, not attack). ---
 Anim_Play__ai_seek:
+    ; plan_game.md 7 (grab mutual-lock slice): the CHAR_GRABBED_BY gate
+    ; used to live here, but that let an attack already mid-swing at the
+    ; exact moment the grab landed keep re-dispatching forever (this label
+    ; is unreachable while CHAR_SELECTED==2, per Anim_Play__not_stunned's
+    ; own "already attacking" latch) -- moved to Anim_Play__not_stunned
+    ; itself, at the same priority as hit-stun, so it actually overrides
+    ; an in-progress attack instead of only gating a NEW one. See that
+    ; label's own comment for the full reasoning.
+.a8
     ; X only (Phase 8: CHAR_POS_X is now a real 16-bit world coordinate,
     ; since a level can be wider than one 256px screen -- Y stays 8-bit,
     ; there is no vertical scroll). Every branch target in this X portion
@@ -3706,23 +3789,13 @@ Anim_UpdateFacing__done:
 .i16
     rts
 
-; Shared tail for Anim_UpdateFacing's 12 row-transfer sites above: caller
-; sets DmaRequest_TargetAddr/Length (Length is constant across all of them,
-; set once), passes the row's source address in the (16-bit) accumulator.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
-Anim_EnqueueTilemapRow:
-    sta.l DmaRequest_SourceAddrLow
-    sep #$20
-.a8
-    lda #0
-    sta.l DmaRequest_SourceBank   ; both tilemap blobs live in bank 0
-    lda #DMA_TYPE_VRAM
-    sta.l DmaRequest_TypeFlags
-    rep #$31
-.a16
-.i16
-    jsr Core_Dma_Enqueue
-    rts
+; Anim_EnqueueTilemapRow (the old BG2-tilemap-window facing-flip DMA
+; helper) used to live here -- confirmed zero real callers (the comment
+; above Anim_UpdateFacing already flagged it dead when the OAM-sprite
+; conversion landed) and deleted outright, not left as documented dead
+; weight, to reclaim real C100-FC00 ROM budget for plan_game.md 7's grab
+; mutual-lock slice (same "delete, don't relocate" precedent as
+; rom_layout_debt_dead_bg2_compositor's own removal).
 
 ; Advances the loaded character's idle animation by one tick per call and,
 ; on frame-change, streams the new frame from the MSU-1 roster into VRAM via
@@ -5469,18 +5542,27 @@ Character_HitApply_VsEntity1__dy_ok:
     bne Character_HitApply_VsEntity1__dead_skip
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity1_InvulnFrames
-    ; plan_game.md G7 knockdown slice: knockdown-counter/HP-clamp/fall-vs-
-    ; stun/score logic is shared across all 3 entities via X-indexed .l
-    ; addressing (base+CHAR_* field, X = the entity's own EntityN_Base
-    ; delta from $7E0a00) -- kept out of these 3 leaves to fit the tight
-    ; C100-FC00 ROM budget; see Character_HitApply__ApplyDamage's header.
+
+    ; plan_game.md 7 (grab mutual-lock slice): a landed attack2 hit from a
+    ; real-grab-role attacker locks instead of dealing instant damage,
+    ; fully handled by Character_HitApply__TryGrab (bank 1, ROM budget --
+    ; a single jsl now handles the grab decision AND, when the conditions
+    ; aren't met, internally jsr's to the unchanged ApplyDamage leaf
+    ; itself (same bank, rts-terminated -- see that routine's own header)
+    ; before rtl'ing back here, so this leaf only ever pays for ONE
+    ; width-switch/jsl round trip instead of two).
     rep #$30
 .a16
 .i16
     ldx #CHAR_ZP_LEN
-    jsl Character_HitApply__ApplyDamage
-    sep #$20
+    jsl Character_HitApply__TryGrab   ; always returns .a8 (both exit
+                                        ; paths) -- no re-sync sep needed
 .a8
+    bcs Character_HitApply_VsEntity1__dead_skip   ; grab fully handled it --
+                                                      ; reuse this leaf's own
+                                                      ; trailing rts (ROM
+                                                      ; budget) instead of a
+                                                      ; separate empty label
     jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity1__dead_skip:
@@ -5545,14 +5627,15 @@ Character_HitApply_VsEntity2__dy_ok:
     bne Character_HitApply_VsEntity2__dead_skip
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity2_InvulnFrames
-    ; plan_game.md G7 knockdown slice: see VsEntity1's own comment.
+
+    ; plan_game.md 7 (grab mutual-lock slice): see VsEntity1's own comment.
     rep #$30
 .a16
 .i16
     ldx #CHAR_ZP_LEN*2
-    jsl Character_HitApply__ApplyDamage
-    sep #$20
+    jsl Character_HitApply__TryGrab   ; see VsEntity1's comment -- no re-sync sep
 .a8
+    bcs Character_HitApply_VsEntity2__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity2__dead_skip:
@@ -5610,14 +5693,15 @@ Character_HitApply_VsEntity3__dy_ok:
     bne Character_HitApply_VsEntity3__dead_skip
     lda #AI_POST_HIT_INVULN_FRAMES
     sta.l Entity3_InvulnFrames
-    ; plan_game.md G7 knockdown slice: see VsEntity1's own comment.
+
+    ; plan_game.md 7 (grab mutual-lock slice): see VsEntity1's own comment.
     rep #$30
 .a16
 .i16
     ldx #CHAR_ZP_LEN*3
-    jsl Character_HitApply__ApplyDamage
-    sep #$20
+    jsl Character_HitApply__TryGrab   ; see VsEntity1's comment -- no re-sync sep
 .a8
+    bcs Character_HitApply_VsEntity3__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
     rts
 Character_HitApply_VsEntity3__dead_skip:
@@ -5873,13 +5957,19 @@ Anim_LoadCharacter__header_read:
     lda.l AnimHeaderStaging+9
     sta.l CharSelect_RosterCount
 
-    ; --- Seek to this slot's directory record: offset = 0x10 + (index<<4).
-    ; Fits in one byte (index 0-7 -> max offset 0x80) -- no carry needed. ---
+    ; --- Seek to this slot's directory record: offset = 0x10 + index*17.
+    ; RECORD_SIZE grew 16->17 in the grab mutual-lock slice -- no longer a
+    ; power of 2, so this needs the same index*16+index idiom
+    ; BgDirSeekTmp/Bg_LoadScene already use for *40 (see that routine).
+    ; Fits in one byte (index 0-7 -> max offset 0x87) -- no carry needed. ---
     lda.l CharSelect_Index
+    sta.l CharDirSeekTmp
     asl a
     asl a
     asl a
-    asl a
+    asl a                       ; index*16
+    clc
+    adc.l CharDirSeekTmp        ; index*16 + index = index*17
     clc
     adc #$10
     sta $2000
@@ -5909,9 +5999,19 @@ Anim_LoadCharacter__record_read:
     cpx #$0010
     bcc Anim_LoadCharacter__record_read
 
-    ; --- Parse record into WRAM cells ---
+    ; --- Grab mutual-lock slice: record grew 16->17 bytes (+16
+    ; attack2_is_grab). AnimHeaderStaging is a fixed 16-byte buffer
+    ; ($7E2320-$232F) immediately followed by Msu1_StreamBusy at
+    ; $7E2330 -- growing the buffer itself would silently overwrite
+    ; that cell, so this 17th byte is read as one more sequential MSU
+    ; port read (auto-increments off the loop above, no re-seek needed)
+    ; straight into its own WRAM cell instead of through the buffer. ---
     sep #$20
 .a8
+    lda $2001
+    sta CHAR_ATTACK2_IS_GRAB
+
+    ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0
     sta CHAR_IDLE_FCOUNT
     lda.l AnimHeaderStaging+1
@@ -6596,6 +6696,26 @@ CharacterEntity_Init__load_hp_set:
                                    ; fields since DP is still switched here
                                    ; -- exits .a16/.i16 on both its rts paths
 
+    ; plan_game.md 7 (grab mutual-lock slice): no entity boots linked. $FF
+    ; is the "none" sentinel for both grab-link fields (never a real byte
+    ; offset -- those are 0/67/134/201). Timer/offset start at 0; only
+    ; meaningful once CHAR_GRABBED_BY != $FF. MUST run here, after Anim_
+    ; LoadCharacter -- a real bug found the hard way: this used to sit
+    ; right after `sta.l CharSelect_Index` above, where its own `lda #$FF`
+    ; clobbered A between that store and the `pha`/`pla` pair (further up
+    ; this routine) that saves the roster index across the HP-setting
+    ; branch for Anim_LoadCharacter to consume -- silently loading roster
+    ; slot $FF for every entity (garbage MSU seek, corrupted WRAM well
+    ; beyond this object's own window, including CHAR_INPUT_DRIVEN).
+    ; Nothing below here reads A afterward, so clobbering it is safe now.
+    sep #$20
+.a8
+    lda #$FF
+    sta CHAR_GRAB_TARGET
+    sta CHAR_GRABBED_BY
+    stz CHAR_GRAB_TIMER
+    stz CHAR_GRAB_OFFSET
+
     rep #$31
 .a16
 .i16
@@ -6614,6 +6734,53 @@ CharacterEntity_Play:
     jsr Character_PlayFrame
     jsr Character_HitApply   ; plan.md Phase 4: AABB hit check, after this
                                ; frame's real animation/position are known
+    ; REAL BUG found the hard way: Character_HitApply's own exit width
+    ; depends on which internal path fired (attacking/not, hit landed via
+    ; TryGrab's two differently-widthed exits, etc) -- Poppy's linear
+    ; width tracker can't see any of that, so whatever it assumed here
+    ; textually is not a reliable guarantee of the REAL runtime width.
+    ; Character_Grab_Play's entry is a bare `.a8` (`lda CHAR_GRABBED_BY`
+    ; then `cmp #$FF`, an IMMEDIATE) -- if the real CPU were still 16-bit
+    ; here, that `cmp #$FF` would consume the following byte as part of a
+    ; 16-bit immediate, desyncing every instruction after it. A real,
+    ; always-reproducible instance of this exact bug shipped once already
+    ; (Character_HitApply__TryGrab's __no exit) and manifested as every
+    ; ordinary landed hit eventually corrupting CharacterEntity_Play's own
+    ; return value into something the OOP dispatcher misread as OBJR_KILL,
+    ; deleting all 4 entities in the same frame -- confirmed via a Mesen2
+    ; OopFlags trace. Force the REAL width here explicitly rather than
+    ; trusting the incoming state.
+    sep #$20
+.a8
+    jsl Character_Grab_Play  ; plan_game.md 7 (grab mutual-lock slice): rigid
+                               ; follow-drag + auto-release for whichever
+                               ; entity this call is playing -- no-op unless
+                               ; this entity's own CHAR_GRABBED_BY != $FF.
+                               ; Runs last so it has final say over this
+                               ; frame's position (Anim_Play's own AI-seek
+                               ; gate already skips movement entirely while
+                               ; held, so there's nothing to override in
+                               ; practice, but ordering it last keeps that
+                               ; guarantee explicit rather than incidental).
+                               ; Relocated to bank 1 (vm_native_engine.pasm)
+                               ; purely for bank 0 ROM budget, same reason
+                               ; as Character_HitApply__ApplyDamage/
+                               ; ApplyGrab -- DP-local addressing works
+                               ; unchanged across jsl (D is preserved).
+    ; Character_Grab_Play's real exit width is .a8 (both its paths) -- this
+    ; routine's own @return contract (see its header above) is a<16-bit>,
+    ; and Core_Oop_Play's dispatcher (core/oop.pasm) compares the return
+    ; value with a REAL 16-bit `cmp #OBJR_NOERR` right after this `rts`, so
+    ; the accumulator must genuinely be 16-bit here, not just textually
+    ; assumed to be -- same fix CharacterEntity_Init's own ending already
+    ; applies for the same reason. REAL BUG found the hard way: without
+    ; this, the real 8-bit `lda #OBJR_NOERR` byte-desynced Core_Oop_Play's
+    ; very next (16-bit-assembled) `cmp #OBJR_NOERR` instruction, corrupting
+    ; execution into an unrelated busy-wait loop and freezing the whole
+    ; entity's animation while NMI kept ticking normally.
+    rep #$31
+.a16
+.i16
     lda #OBJR_NOERR
     rts
 

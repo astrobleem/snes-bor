@@ -67,6 +67,10 @@ CHAR_RISE_BASE_HI = pasm_constant('CHAR_RISE_BASE_HI')
 CharSelect_Index = 0x7E53B6
 CharSelect_Loaded = 0x7E53B8
 PlayerEntity = 0x7E0A00
+Entity1 = PlayerEntity + CHAR_ZP_LEN
+Entity2 = PlayerEntity + CHAR_ZP_LEN * 2
+Entity3 = PlayerEntity + CHAR_ZP_LEN * 3
+CHAR_HP = pasm_constant('CHAR_HP')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 JOE_MOVESET = os.path.join(ROOT, 'out', 'joe_moveset.json')
@@ -123,6 +127,18 @@ def main():
         m.run_frames(120)
         m.pause()
 
+        # This gate is about attack2 DISPATCH mechanics (animation/state
+        # selection), not combat outcomes -- neutralize the AI entities so
+        # the X/Y button checks below can't incidentally land a real hit
+        # or (since the grab mutual-lock slice) establish a real grab
+        # against a nearby AI, which would leave CHAR_GRAB_TARGET set and
+        # confuse the LATER Y-press (attack1) check via this file's own
+        # grabber-can-walk-while-holding behavior (Anim_Play__not_stunned).
+        # Same convention as game_g7_knockdown.py's own entity-neutralizing.
+        m.write_u8(Entity1 + CHAR_HP, 0)
+        m.write_u8(Entity2 + CHAR_HP, 0)
+        m.write_u8(Entity3 + CHAR_HP, 0)
+
         # --- Select to JOE (roster slot 2: RALF->JHUN->JOE). ---
         press_select(m)
         press_select(m)
@@ -160,7 +176,14 @@ def main():
         # --- 3. X triggers attack2: CHAR_SELECTED=2, CHAR_ATTACK_VARIANT=1,
         # runs to completion within bounds, reverts to idle. ---
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
-        states = press_and_poll(m, m.BTN_X, max_frames=60)
+        # max_frames bumped from 60: fcount(17)*delay(12)=204 real
+        # frames are needed for a full natural revert-to-idle, and
+        # run_frames(1)'s wall-clock lower-bound semantics means how
+        # many real frames fit in N poll iterations isn't fixed --
+        # 60 was already marginal against the baseline engine and a
+        # few extra per-frame instructions (grab mutual-lock slice)
+        # pushed it over. 250 gives real margin above the 204 needed.
+        states = press_and_poll(m, m.BTN_X, max_frames=250)
         triggered = next((s for s in states if s['selected'] == 2), None)
         r.check('X press triggers CHAR_SELECTED=2', triggered is not None)
         r.check('X press sets CHAR_ATTACK_VARIANT=1',

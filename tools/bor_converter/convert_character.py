@@ -246,6 +246,16 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
         (i for i in range(len(lower_names)) if i not in known_ordinals), None)
     roles['attack2'] = attack2_ordinal
 
+    # plan_game.md 7 (grab mutual-lock slice): whether attack2's real anim
+    # name is literally 'grab' -- derived from real converted data, never
+    # hardcoded per character (moveset_pipeline_generalization's standing
+    # rule). Only a character whose second move IS a real grab animation
+    # (currently JOE) gets real mutual-lock semantics; RALF's 'upper' and
+    # JHUN's 'jumpattack' are not grabs and must keep today's instant-
+    # damage attack2 behavior unchanged.
+    roles['attack2_is_grab'] = (
+        attack2_ordinal is not None and lower_names[attack2_ordinal] == 'grab')
+
     # plan_game.md 8a row 3 (`map`): derive one alt palette per real `remap`
     # line this character declares (see _derive_remap_palettes' own header).
     # Every remap is keyed off the character's own idle-frame-1 image in all

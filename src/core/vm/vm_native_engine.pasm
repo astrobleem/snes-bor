@@ -84,6 +84,14 @@ VmNativeEng_ScanIndex = $7FF4FE   ; .dw -- SPAWN's free-slot scan cursor, 1..3
 ; reused (with CHAR_* added in) for each individual field address.
 HitApply_EntityBase = $7FF500     ; .dw
 
+; plan_game.md 7 (grab mutual-lock slice): Character_HitApply__ApplyGrab's
+; own scratch, placed directly after HitApply_EntityBase ($7FF502,
+; grep-confirmed free). All 16-bit -- CHAR_POS_X is world X (Phase 8).
+GrabScratch_SelfX    = $7FF502   ; .dw
+GrabScratch_OtherX   = $7FF504   ; .dw
+GrabScratch_Mid      = $7FF506   ; .dw
+GrabScratch_NewOtherX = $7FF508  ; .dw
+
 Vm_NativeEntityByteOff:
     .dw 0, CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3
 
@@ -663,12 +671,17 @@ AnimBlink_ShouldHide__visible:
 
 ; ============================================================================
 ; Character_HitApply__ApplyDamage -- plan_game.md G7 knockdown slice. Shared
-; knockdown-counter/HP-clamp/fall-vs-stun decision, called by
-; Character_HitApply_VsEntity1/2/3 (bank 0, main.pasm) via jsl, once per
-; landed hit that isn't already gated out (dead target, target still
-; invuln). Relocated here (rather than kept inline x3 in bank 0) purely for
-; bank-0 ROM budget -- pure WRAM arithmetic, safe across jsl/rtl (D
-; unchanged), same reasoning as every other routine in this file.
+; knockdown-counter/HP-clamp/fall-vs-stun decision.
+;
+; plan_game.md 7 (grab mutual-lock slice): NO LONGER called directly from
+; bank 0 -- Character_HitApply_VsEntity1/2/3 now reach this exclusively
+; through Character_HitApply__TryGrab's own `__no` path (same bank,
+; jsr/rts), which merges the grab decision and the damage fallback into a
+; single jsl round trip for bank-0 ROM budget. This routine's own exits are
+; `rts`, not `rtl` -- do NOT add a jsl caller back without changing them
+; (see 65816_calling_convention_bugs project memory: jsr into an
+; rtl-terminated routine, or jsl into an rts-terminated one, corrupts the
+; return address on the stack).
 ;
 ; Deliberately does NOT call Game_Score_Award (bank 0, jsr/rts-only leaf) --
 ; same cross-bank constraint as Core_Math_Div above. Instead returns whether
@@ -871,11 +884,11 @@ Character_HitApply__ApplyDamage__reaction_done:
     lda.l $7E0a00,x
     bne Character_HitApply__ApplyDamage__not_kill
     lda #1
-    rtl
+    rts
 Character_HitApply__ApplyDamage__not_kill:
 .a8
     lda #0
-    rtl
+    rts
 
 ; ============================================================================
 ; Spawn_ResetKnockdownFall -- plan_game.md G7 knockdown slice. Called from
@@ -948,4 +961,359 @@ Spawn_ResetKnockdownFall:
 .a8
     lda #0
     sta.l $7E0a00,x
+
+    ; plan_game.md 7 (grab mutual-lock slice): same reasoning as the fields
+    ; above -- a respawned slot must not inherit a stale grab link from
+    ; its previous occupant (e.g. killed by other means while linked, an
+    ; edge case this slice's own gating tries to prevent but shouldn't be
+    ; relied on alone). $FF is the "none" sentinel (never a real byte
+    ; offset). Does not touch CHAR_GRAB_TARGET -- an AI entity is never a
+    ; grabber in this slice, so it's always already $FF; only the player
+    ; could stay stuck "holding" a despawned slot, which CHAR_GRABBED_BY's
+    ; own reset here can't fix from this side -- acceptable for this
+    ; slice's scope (respawn only ever happens to a dead, never-grabbed,
+    ; AI slot; a grabbed AI slot's CHAR_HP never reaches 0 while linked).
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRAB_TIMER
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l $7E0a00,x
+    rtl
+
+; ============================================================================
+; Character_HitApply__TryGrab -- plan_game.md 7 (grab mutual-lock slice,
+; first real slice; see project memory for the BOR.C derivation). Called
+; by Character_HitApply_VsEntity1/2/3 (bank 0) via jsl -- now the ONLY
+; entry point those leaves use; ApplyDamage is no longer called from bank 0
+; directly (see its own header). Merges three things that used to cost
+; separate ROM: a ShouldGrab check, an ApplyGrab action, AND (on the `__no`
+; path, real conditions not met) a same-bank jsr straight into
+; ApplyDamage's own body before rtl'ing back -- so every bank-0 leaf pays
+; for exactly one width-switch/jsl round trip regardless of which path is
+; taken. The tight C100-FC00 window overflowed repeatedly before this
+; final shape landed (first with two separate jsl's, then with a jsl-per-
+; leaf-and-ApplyDamage-jsl'd-separately-again split) -- see this slice's
+; own project memory for the ROM-budget history. Real semantics
+; (adjust_grabposition, grabin==0 path, DCurrent/openbor's engine/
+; openbor.c): only when the attacker (self -- always the player here; AI
+; never grabs, see Character_HitApply's own player-vs-AI/AI-vs-player
+; split) has CHAR_ATTACK2_IS_GRAB set, attack2 is the active move, and
+; neither side is already linked, snap both entities' X to the AVERAGE of
+; their current positions, then separate by a fixed distance around that
+; midpoint -- computed ONCE here. The ongoing per-frame rigid follow-drag
+; is Character_Grab_Play's job (bank 0, self-only DP-local addressing, no
+; cross-entity access needed there).
+;
+; This project has no per-model grabdistance/stalltime config (real
+; BOR.C's are per-model-configurable); GRAB_HALF_DIST/GRAB_HOLD_FRAMES
+; below are single fixed values instead, documented as the simplification
+; they are.
+;
+;   in:  X(16-bit) = target entity's byte offset (CHAR_ZP_LEN, *2, or *3)
+;   out: carry SET if a grab happened (caller should skip its own damage
+;        path -- the hit is fully handled), CLEAR if the conditions
+;        weren't met (caller should fall through to its normal
+;        ApplyDamage path unchanged). Clobbers A/X either way. Caller
+;        re-asserts its own width after jsl, same convention as
+;        Character_HitApply__ApplyDamage's caller.
+; ============================================================================
+GRAB_HALF_DIST = 8     ; px each side of the midpoint -- comfortably inside
+                        ; CHAR_HITBOX_W(32)'s already-passed overlap check
+GRAB_HOLD_FRAMES = 240  ; ~4s @ 60fps before auto-release -- bumped from
+                         ; 90 (~1.5s) when game_g7_grab.py's own held-
+                         ; state check showed the timer occasionally
+                         ; expiring mid-check under the Mesen2 harness's
+                         ; real per-call wall-clock overhead (dozens of
+                         ; real MCP round trips between grab-init and
+                         ; the gate's own explicit forced-release step)
+
+Character_HitApply__TryGrab:
+.a16
+.i16
+    txa
+    sta.l HitApply_EntityBase
+
+    ; --- conditions (formerly a separate ShouldGrab routine) ---
+    sep #$20
+.a8
+    lda CHAR_ATTACK2_IS_GRAB
+    beq Character_HitApply__TryGrab__no
+    lda CHAR_ATTACK_VARIANT
+    cmp #1
+    bne Character_HitApply__TryGrab__no
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    bne Character_HitApply__TryGrab__no
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda.l $7E0a00,x
+    cmp #$FF
+    beq Character_HitApply__TryGrab__do
+Character_HitApply__TryGrab__no:
+.a8
+    ; ROM budget (main.pasm's C100-FC00 window): rather than making every
+    ; bank-0 leaf pay for a second width-switch/ldx/jsl round trip to reach
+    ; ApplyDamage, reach it from here instead via a same-bank jsr/rts (NOT
+    ; jsl/rtl -- ApplyDamage's own two exits are `rts` now, precisely so
+    ; this call is same-bank-safe; see 65816_calling_convention_bugs
+    ; project memory on why jsr-into-an-rtl-terminated-routine corrupts the
+    ; stack). X was clobbered by the CHAR_GRABBED_BY probe above --
+    ; restore it from HitApply_EntityBase (this leaf's own saved copy) so
+    ; ApplyDamage's entry sees the same entity offset TryGrab was called
+    ; with.
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    tax
+    jsr Character_HitApply__ApplyDamage   ; both its own exits are real .a8
+                                            ; (see its own trailing `rts`
+                                            ; sites) -- re-assert here too so
+                                            ; this path's `rtl` genuinely
+                                            ; matches the __do path's real
+                                            ; .a8 exit width, not just the
+                                            ; textual/Poppy-tracked one. REAL
+                                            ; BUG found the hard way: this
+                                            ; exit used to fall straight from
+                                            ; the rep #$31/.a16/.i16 above
+                                            ; into `clc`/`rtl` with NO sep,
+                                            ; so the CPU was actually still
+                                            ; 16-bit here even though every
+                                            ; caller (Character_HitApply_
+                                            ; VsEntity1/2/3) assumed .a8
+                                            ; immediately after the jsl --
+                                            ; silently desyncing every
+                                            ; ordinary (non-grab) landed hit,
+                                            ; corrupting execution until
+                                            ; CharacterEntity_Play's return
+                                            ; value came back garbled and
+                                            ; the OOP dispatcher misread it
+                                            ; as OBJR_KILL, deleting all 4
+                                            ; entities in the same frame.
+    sep #$20
+.a8
+    clc
+    rtl
+Character_HitApply__TryGrab__do:
+.a8
+    rep #$31
+.a16
+.i16
+    ; self.CHAR_POS_X (DP-local, player -- D is still the player's OopDp
+    ; window here, same as the caller's own dx computation already relies
+    ; on for bare CHAR_POS_X reads)
+    lda CHAR_POS_X
+    sta.l GrabScratch_SelfX
+
+    ; target.CHAR_POS_X
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l $7E0a00,x
+    sta.l GrabScratch_OtherX
+
+    ; midpoint = (self_x + other_x) / 2, unsigned
+    lda.l GrabScratch_SelfX
+    clc
+    adc.l GrabScratch_OtherX
+    lsr a
+    sta.l GrabScratch_Mid
+
+    ; side decision (real adjust_grabposition): self_x >= other_x -> self
+    ; gets the +half side, other gets -half; else swapped.
+    lda.l GrabScratch_SelfX
+    cmp.l GrabScratch_OtherX
+    bcs Character_HitApply__ApplyGrab__self_ge
+.a16
+.i16
+    lda.l GrabScratch_Mid
+    sec
+    sbc #GRAB_HALF_DIST
+    sta CHAR_POS_X
+    lda.l GrabScratch_Mid
+    clc
+    adc #GRAB_HALF_DIST
+    sta.l GrabScratch_NewOtherX
+    bra Character_HitApply__ApplyGrab__sides_done
+.a16
+.i16
+Character_HitApply__ApplyGrab__self_ge:
+.a16
+.i16
+    lda.l GrabScratch_Mid
+    clc
+    adc #GRAB_HALF_DIST
+    sta CHAR_POS_X
+    lda.l GrabScratch_Mid
+    sec
+    sbc #GRAB_HALF_DIST
+    sta.l GrabScratch_NewOtherX
+Character_HitApply__ApplyGrab__sides_done:
+.a16
+.i16
+    ; write target's new X
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l GrabScratch_NewOtherX
+    sta.l $7E0a00,x
+
+    ; target.CHAR_GRABBED_BY = player's own byte offset (always 0)
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l $7E0a00,x
+
+    ; target.CHAR_GRAB_TIMER = GRAB_HOLD_FRAMES
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRAB_TIMER
+    tax
+    sep #$20
+.a8
+    lda #GRAB_HOLD_FRAMES
+    sta.l $7E0a00,x
+
+    ; target.CHAR_GRAB_OFFSET = new_other_x - self's new X (CHAR_POS_X was
+    ; already overwritten with self's new X above) -- signed, small range
+    ; (|GRAB_HALF_DIST*2|), fits one byte.
+    rep #$31
+.a16
+.i16
+    lda.l GrabScratch_NewOtherX
+    sec
+    sbc CHAR_POS_X
+    sta.l GrabScratch_Mid          ; reuse as scratch, no longer needed
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRAB_OFFSET
+    tax
+    sep #$20
+.a8
+    lda.l GrabScratch_Mid
+    sta.l $7E0a00,x
+
+    ; self.CHAR_GRAB_TARGET = target's byte offset (fits one byte, max
+    ; 201; HitApply_EntityBase's high byte is always 0, X's own source)
+    lda.l HitApply_EntityBase
+    sta CHAR_GRAB_TARGET
+
+    ; latch this attack cycle, same as a landed normal hit
+    lda #1
+    sta CHAR_HIT_APPLIED
+
+    sec
+    rtl
+
+; ============================================================================
+; Character_Grab_Play -- plan_game.md 7 (grab mutual-lock slice). Called
+; from CharacterEntity_Play (bank 0) via jsl once per entity's own turn,
+; DP-local (self) addressing only -- unlike Character_HitApply__TryGrab
+; above, this never needs to know WHICH entity it's playing, and D is
+; preserved across jsl (same reasoning every other routine in this file
+; already relies on). Relocated here purely for bank 0 ROM budget
+; (main.pasm's C100-FC00 window overflowed once this slice's other
+; additions landed), same as ApplyDamage/ApplyGrab before it -- not a
+; cross-entity routine, so no X-indexing needed, just a plain jsl/rtl leaf.
+;
+; A no-op for any entity whose own CHAR_GRABBED_BY is $FF (every entity,
+; every frame, except a currently-held one). Real check_link_move
+; semantics: rigid offset-follow every frame, NOT re-averaged -- the
+; offset itself was frozen once at grab-init (CHAR_GRAB_OFFSET,
+; Character_HitApply__ApplyGrab above). The grabber is always the player
+; in this slice (AI never grabs), so "follow the grabber" is always
+; PlayerEntity_PosX, no lookup needed.
+;
+;   in:  none (DP-local self).
+;   out: none. Clobbers A.
+; ============================================================================
+Character_Grab_Play:
+    ; Defensive real sep here (not just the .a8 directive) -- this is
+    ; called via jsl from CharacterEntity_Play once per entity per frame,
+    ; and Poppy's linear width tracker has no way to verify the caller's
+    ; real runtime width actually matches what's assumed textually at this
+    ; label (a jsl target is invisible to poppy#386's own diagnostic, same
+    ; class of gap that let Character_HitApply__TryGrab's __no path ship
+    ; with a genuinely mismatched exit width). Forcing it here makes this
+    ; routine correct regardless of what the caller's own real state is.
+    sep #$20
+.a8
+    lda CHAR_GRABBED_BY
+    cmp #$FF
+    beq Character_Grab_Play__done
+
+    ; --- sign-extend CHAR_GRAB_OFFSET into GrabDragOffset (.dw) ---
+    lda CHAR_GRAB_OFFSET
+    sta.l GrabDragOffset
+    bpl Character_Grab_Play__off_pos
+    lda #$FF
+    bra Character_Grab_Play__off_hi_set
+Character_Grab_Play__off_pos:
+.a8
+    lda #$00
+Character_Grab_Play__off_hi_set:
+.a8
+    sta.l GrabDragOffsetHi
+
+    ; --- self.CHAR_POS_X = PlayerEntity_PosX + GrabDragOffset ---
+    rep #$20
+.a16
+    lda.l PlayerEntity_PosX
+    clc
+    adc.l GrabDragOffset
+    sta CHAR_POS_X
+
+    ; --- decrement hold timer; release both sides at 0 ---
+    sep #$20
+.a8
+    lda CHAR_GRAB_TIMER
+    beq Character_Grab_Play__release   ; already expired (shouldn't happen
+                                         ; given the -1-then-check order
+                                         ; below, but a defensive check
+                                         ; costs nothing)
+    dec a
+    sta CHAR_GRAB_TIMER
+    bne Character_Grab_Play__done
+Character_Grab_Play__release:
+.a8
+    lda #$FF
+    sta CHAR_GRABBED_BY
+    sta.l PlayerEntity_GrabTarget   ; grabber is always the player
+    rtl
+Character_Grab_Play__done:
+.a8
     rtl

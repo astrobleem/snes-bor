@@ -19,8 +19,9 @@ File format (see the plan for the authoritative spec):
     0x0B       reserved
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
-    0x10       directory: 8 records x 16 bytes = 128 bytes (0x10-0x8F)
-      record N at 0x10 + (N<<4):
+    0x10       directory: 8 records x 17 bytes = 136 bytes (0x10-0x97)
+                [grew 16->17 in the grab mutual-lock slice -- see +16 below]
+      record N at 0x10 + N*17:
         +0  idle_frame_count   (u8)
         +1  walk_frame_count   (u8)
         +2  attack_frame_count (u8)
@@ -40,8 +41,14 @@ File format (see the plan for the authoritative spec):
         +14 rise_frame_count   (u8)   [plan_game.md G7 knockdown slice --
         +15 rise_delay         (u8)    fits the record's own pre-existing
                                         +12-15 padding]
+        +16 attack2_is_grab    (u8)   [grab mutual-lock slice -- 1 if this
+                                        character's real attack2 anim is
+                                        literally named `grab` (JOE), else
+                                        0. First real RECORD_SIZE growth
+                                        (16->17); all prior second-move
+                                        work fit inside existing padding]
 
-    0x90+      character blobs, packed sequentially:
+    0x98+      character blobs, packed sequentially:
       +0..31   palette: 16 x BGR555 LE
       +32..    idle_frame_count * 768 bytes
       next     walk_frame_count * 768 bytes
@@ -173,7 +180,7 @@ import bake_vram_frames
 MAGIC = b"BORMSU1\x00"
 FORMAT_VERSION = 4
 MAX_CHARACTERS = 8
-RECORD_SIZE = 16
+RECORD_SIZE = 17  # grab mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)
 DIRECTORY_BASE = 0x10
 HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
 
@@ -305,6 +312,9 @@ def _resolve_role_dirs(prefix):
     attack2_ordinal = roles.get(OPTIONAL_ROLE_ATTACK2)
     resolved[OPTIONAL_ROLE_ATTACK2] = (
         anims_by_ordinal[attack2_ordinal]["dir"] if attack2_ordinal is not None else None)
+    # plan_game.md 7 (grab mutual-lock slice): real, converter-derived --
+    # never hardcoded by character name here either.
+    resolved["attack2_is_grab"] = bool(roles.get("attack2_is_grab", False))
     return resolved
 
 
@@ -328,6 +338,7 @@ def pack_character_blob(prefix):
     fall_dir = role_dirs["fall"]
     rise_dir = role_dirs["rise"]
     attack2_dir = role_dirs[OPTIONAL_ROLE_ATTACK2]
+    attack2_is_grab = role_dirs["attack2_is_grab"]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
@@ -415,21 +426,28 @@ def pack_character_blob(prefix):
         "fall_delay": fall_delay,
         "rise_delay": rise_delay,
         "attack2_delay": attack2_delay,
+        "attack2_is_grab": attack2_is_grab,
         "blob_size": len(blob),
     }
     return blob, info
 
 
 def build_record(info, data_offset):
-    # RECORD_SIZE stays 16. fall/rise already used the record's +6/+7
-    # padding; plan_game.md 7 (G7 remaining, "attack2") repurposes the
-    # LAST remaining reserved bytes, +12/+13 (previously `2x` padding), for
-    # attack2_frame_count/attack2_delay -- zero bytes left unused, but also
-    # zero ripple into HEADER_SIZE/data_offset/VM_MSU_OFFSET (attack2's own
-    # frame data is addressed by chaining off rise_base at load time, not
-    # by a stored offset -- see pack_character_blob's own comment).
+    # plan_game.md 7 (grab mutual-lock slice): RECORD_SIZE grows 16->17,
+    # the record's first byte-count growth since fall/rise/attack2 filled
+    # every remaining padding byte. +16 attack2_is_grab (u8, 1 = this
+    # character's real attack2 anim is literally named `grab` -- JOE
+    # today, 0 for RALF/JHUN/YASHIRO). Real, converter-derived, never
+    # hardcoded by character name (see convert_character.py). This grows
+    # HEADER_SIZE (0x90->0x98); main.pasm reads bg_directory_offset/
+    # data_offset from the file's own header fields rather than
+    # recomputing them from RECORD_SIZE, so nothing else needs manual
+    # resync there EXCEPT Anim_LoadCharacter's own directory-seek
+    # arithmetic, which hardcodes the record stride as a `<<4` (assumes
+    # RECORD_SIZE==16, a power of 2) -- must change to `(index<<4)+index`
+    # (index*17) there.
     record = struct.pack(
-        "<BBBBBBBBIBBBB",
+        "<BBBBBBBBIBBBBB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
@@ -443,6 +461,7 @@ def build_record(info, data_offset):
         info["attack2_delay"],
         info["rise_frame_count"],
         info["rise_delay"],
+        1 if info["attack2_is_grab"] else 0,
     )
     assert len(record) == RECORD_SIZE
     return record
