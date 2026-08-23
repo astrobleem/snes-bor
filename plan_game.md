@@ -23,28 +23,28 @@ Select-cycling, convert-time spawn tables driving real enemy waves, a font/text
 renderer (G1), a game state machine (G2), and player death/lives/continues/game
 over (G3).
 
-**What that adds up to:** one level that boots, scrolls, and lets you punch three
-enemies until they die back at you — and if they win, you get a game-over screen
-and a continue, not a soft freeze. There is still no win condition, no second
-level reachable from the first, and no menus with real content (title/char-select/
-pause all exist as state-machine stops with no drawn screen yet — text CAN be
-drawn since G1, nothing calls it for a menu yet).
+**What that adds up to (updated 2026-08-23):** two levels, a real win condition
+and stage transition (G4), and a title→character-select→playing menu flow with
+real drawn content (G5, pause/options still stubs). Boss data plumbing and a
+boss health bar exist (G9) but are not reachable through any shipped level —
+only a hand-authored synthetic force exercises them. Still missing: ending/
+credits (G10), pause menu content, options (SRAM persistence), real grab/throw
+mutual-lock semantics, jump/special/block, and SFX (content-blocked).
 
-**The honest gap list**, none of which is started (past G1–G3, done above):
+**The honest gap list**, updated as phases land:
 
 | Missing | Blocks |
 |---|---|
 | ~~Font / text renderer~~ | **Done (G1, 2026-08-21)** — `core/text.pasm`, gate `game_g1_text.py` |
 | ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
 | ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
-| Win condition | Any reason to finish a level |
-| Level transition | Stage 2 existing |
-| Menus (title, char select, pause, options) | Being a product |
+| ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
+| Menus (title, char select, pause, options) | **Partial (G5)** — title + char select done, gate `game_g5_menus.py`; pause content and options (SRAM) still open, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up done (G7 third slice, 2026-08-22)**, gate `game_g7_knockdown.py`; jump/grab/special/block still open, see §7 |
-| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted — every row DONE, a permanent no-op, or waiting on a real dependency outside the table (see §8a's own "Conclusion" for what's actually next) — **read that table instead of asking what's next** |
-| Bosses | Stage climaxes; HP-override prerequisite done (§9) |
-| Ending / credits | Finishing |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, and a generic second attack (attack2) all done (G7, see §7 for gate names); jump/special/block and real grab mutual-lock semantics still fully open |
+| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
+| Bosses | **Code done, not reachable in play (G9)** — `EntityN_IsBoss` + boss health bar exist and are gated (`game_g9_boss_bar.py`, `game_g9_wait_group_boss.py`), but no shipped level sets `boss`; needs a real pak (only TMNT does, not converted here) |
+| Ending / credits | **Not started (G10)** — finishing the game |
 | SFX | Every impact feeling real (blocked on content, §11) |
 
 **One structural constraint that shapes everything below.** Two deliberate
@@ -498,9 +498,14 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-> **Status: PARTIAL (first two slices DONE, 2026-08-22).** `GATE G7-RUN:
+> **Status: PARTIAL (four slices DONE as of 2026-08-23).** `GATE G7-RUN:
 > PASS` (`tools/verify/game_g7_run.py`), `GATE G7-INVULN: PASS`
-> (`tools/verify/game_g7_invuln.py`). Run/dash shipped first, deliberately,
+> (`tools/verify/game_g7_invuln.py`), `GATE G7-KNOCKDOWN: PASS`
+> (`tools/verify/game_g7_knockdown.py`, one known-flaky check documented
+> below — retry once), `GATE G7-ATTACK2: PASS`
+> (`tools/verify/game_g7_attack2.py`). Jump/special/block and real
+> grab/throw mutual-lock semantics remain fully open (see "Still fully
+> open" below). Run/dash shipped first, deliberately,
 > because it's the only item below that needs no new animation content —
 > OpenBOR's own reference (`openbor_script_reference.txt:982`) treats run as
 > walk/idle frames driven at higher velocity, not a distinct move, so this
@@ -975,14 +980,24 @@ scope (5's real hole/pit system needs re-deriving before it's buildable;
 11 waits on §12). There is no more unblocked, self-contained row left to
 pick. The next slice is a roadmap-priority choice, not a table lookup:
 G7's remaining jump/special items (blocked on new animation conversion --
-no real anim exists in the source pak for any roster character; grab is
-done, see the grab mutual-lock slice), or row 5's real hole/pit hazard
+no real anim exists in the source pak for any roster character; note that
+`grab` here means only the generic attack2 move that happens to use JOE's
+`grab`-named animation role -- real grab mutual-lock semantics are, per
+§7's own text, still fully open, not done), or row 5's real hole/pit hazard
 system (needs its own semantics re-derivation first). Surface this
 choice rather than picking unilaterally.
 
 ---
 
 ## §9 — Phase G9: bosses
+
+> **Status: CODE DONE, NOT REACHABLE IN PLAY.** Every bullet below is
+> implemented and gated, but no shipped level in this repo sets the `boss`
+> flag — `EntityN_IsBoss` and the health bar it drives are exercised only
+> by a hand-authored synthetic force in `game_g9_boss_bar.py`/
+> `game_g9_wait_group_boss.py`, never by playing the actual game. Real
+> end-to-end coverage needs a converted pak that uses `boss` for real (only
+> TMNT does; not converted in this repo — see §8a row 4).
 
 > **Corrected premise, 2026-08-23:** the previous version of this section
 > (below, both now-struck bullets) assumed real OpenBOR has boss-specific AI
@@ -1012,6 +1027,8 @@ choice rather than picking unilaterally.
 ---
 
 ## §10 — Phase G10: ending and credits
+
+> **Status: NOT STARTED.**
 
 Stage table exhausted → ending sequence → credits → back to title. Uses G1's text
 renderer and G2's state machine; mostly content once those exist.
