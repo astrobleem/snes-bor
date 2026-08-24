@@ -1,0 +1,29 @@
+{
+  "level_entry": "data\\levels\\sewer.txt",
+  "background": "data\\bgs\\sewer\\sewerbg.gif",
+  "panels": [
+    "data\\bgs\\sewer\\wall.gif",
+    "data\\bgs\\sewer\\ladder.gif",
+    "data\\bgs\\sewer\\hole.gif",
+    "data\\bgs\\sewer\\end.gif",
+    "data\\bgs\\sewer\\outside.gif",
+    "data\\bgs\\sewer\\pipe.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 3040,
+  "height_px": 224,
+  "width_tiles": 380,
+  "height_tiles": 28,
+  "content_width_tiles": 380,
+  "unique_tiles": 1361,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 43552,
+  "tilemap_bytes": 31920,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

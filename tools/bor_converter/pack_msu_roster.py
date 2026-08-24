@@ -15,7 +15,9 @@ File format (see the plan for the authoritative spec):
     0x00-0x07  magic "BORMSU1\0"
     0x08       format_version = 4               [was 2 -- see BG record v3/v4 below]
     0x09       roster_count (1-8)
-    0x0A       bg_count (0-4)              [v2]
+    0x0A       bg_count (0-MAX_BGS, a plain runtime byte -- MAX_BGS is this
+               module's own soft Python-side sanity cap, bumped as real
+               content grows, not a format limit like roster_count's 1-8)   [v2]
     0x0B       reserved
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
@@ -188,9 +190,10 @@ PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 5   # bumped 4->5 adding the 2 remaining real TMNT standalone boss
-              # stages (Rock.txt/Leather.txt) alongside Bebop's -- directory
-              # table grows by one more BG_RECORD_SIZE (40B), no format
+MAX_BGS = 9   # bumped 5->9 adding the real 4-level TMNT main campaign
+              # (sewer0/streets/streets2/sewer) alongside the 3 standalone
+              # TMNT boss stages and the 2 original BOR levels -- directory
+              # table grows by more BG_RECORD_SIZE (40B) entries, no format
               # version bump (bg_count is a runtime byte read off the file
               # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring

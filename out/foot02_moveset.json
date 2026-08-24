@@ -1,0 +1,108 @@
+{
+  "entity": "Foot02",
+  "prefix": "out/foot02",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/foot02_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/foot02_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/foot02_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/foot02_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/foot02_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/foot02_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/foot02_attack2",
+      "frames": 5
+    },
+    {
+      "ordinal": 7,
+      "name": "attack3",
+      "dir": "out/foot02_attack3",
+      "frames": 5
+    },
+    {
+      "ordinal": 8,
+      "name": "upper",
+      "dir": "out/foot02_upper",
+      "frames": 5
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5,
+    "attack2": 6,
+    "attack2_is_grab": false
+  },
+  "remap_palettes": [
+    [
+      0,
+      31775,
+      11595,
+      20843,
+      31775,
+      15628,
+      0,
+      3229,
+      0,
+      10502,
+      31775,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      31775,
+      11595,
+      16615,
+      31775,
+      10376,
+      0,
+      3229,
+      0,
+      7232,
+      31775,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}

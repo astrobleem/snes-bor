@@ -1,0 +1,29 @@
+{
+  "level_entry": "data\\levels\\sewer0.txt",
+  "background": "data\\bgs\\sewer0\\holebg2.gif",
+  "panels": [
+    "data\\bgs\\sewer0\\middle.gif",
+    "data\\bgs\\sewer0\\arcade.gif",
+    "data\\bgs\\sewer0\\hole.gif",
+    "data\\bgs\\sewer0\\carpet.gif",
+    "data\\bgs\\sewer0\\oneway.gif",
+    "data\\bgs\\sewer0\\stop.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 1920,
+  "height_px": 224,
+  "width_tiles": 240,
+  "height_tiles": 28,
+  "content_width_tiles": 240,
+  "unique_tiles": 3428,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 109696,
+  "tilemap_bytes": 20160,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

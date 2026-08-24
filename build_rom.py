@@ -22,7 +22,25 @@ import pack_msu_roster
 # enemy in the shipped level's (stage 1B) own spawn table. Entity #3 now
 # loads this slot instead of reusing JHUN a second time (see main.pasm's
 # Entity #3 Core_Oop_Create call, init param changed $0301 -> $0303).
-ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
+# Follow-up (TMNT campaign, same day as Rock/Leather): the packed file
+# format's roster directory is a hard 1-8 slot format (pack_msu_roster.py's
+# byte 0x09, roster_count). 4 slots already used; the real TMNT campaign
+# levels (sewer0/streets/streets2/sewer) reference 5 distinct real `enemy`-
+# type fighters not yet in any roster (MOUSER, FOOT01-04, all converted --
+# see out/mouser_*, out/foot0{1,2,3,4}_*) -- one more than the 4 remaining
+# slots. FOOT01-04 are mechanically identical clones in the source data
+# (same anim set, same health=70) -- picked FOOT01 as the one added to the
+# roster; FOOT02-04's converted assets are real and committed but sit
+# unused in out/ pending either a roster-capacity rework or a per-spawn
+# identity mechanism (see plan_game.md's TMNT campaign section for why
+# spawns don't yet render as their own character regardless of roster
+# membership -- CharacterEntity_Init's per-instance CHAR_ROSTER_INDEX is
+# only ever set once, at boot; Spawn_Play recycles the same 3 fixed AI
+# entities rather than re-creating them, by design, see core/oop.pasm's
+# fixed-address EntityN_Base scheme -- so today EVERY enemy, TMNT or BOR,
+# renders as whichever of these 6 roster members already occupies its AI
+# slot, never its own sprite).
+ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output
@@ -53,9 +71,23 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
 # -- same real `boss 1` flag/pipeline as stage 2 (Bebop). Regenerate with:
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Rock.txt" -o out/bg_stage3rock --streaming
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Leather.txt" -o out/bg_stage4leather --streaming
+# Follow-up (same day): the real 4-level TMNT main campaign (data\LEVELS00.TXT's
+# "Play_Demo" set), in its own real order -- sewer0 -> streets -> streets2 ->
+# sewer -- appended AFTER the standalone boss stages (indices 5-8) rather than
+# renumbered in front of them: the standalone bosses were already shipped/
+# gated at indices 2-4 in earlier commits on this branch, and inserting the
+# campaign ahead of them would silently break anything that hardcoded those
+# indices (nothing currently does, but there's no upside to reordering
+# already-shipped, already-gated content). Regenerate with:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\sewer0.txt" -o out/bg_stage5sewer0 --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets.txt" -o out/bg_stage6streets --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets2.txt" -o out/bg_stage7streets2 --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\sewer.txt" -o out/bg_stage8sewer --streaming
 BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
               ("out/bg_stage2boss", "out/hud"), ("out/bg_stage3rock", "out/hud"),
-              ("out/bg_stage4leather", "out/hud")]
+              ("out/bg_stage4leather", "out/hud"), ("out/bg_stage5sewer0", "out/hud"),
+              ("out/bg_stage6streets", "out/hud"), ("out/bg_stage7streets2", "out/hud"),
+              ("out/bg_stage8sewer", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
@@ -66,7 +98,7 @@ BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
 # kept committed) -- shipping it here means the stage transition exercises
 # a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None, "out/fp_stage1a", None, None, None]
+FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None]
 
 # Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
 # length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
@@ -79,7 +111,9 @@ FP_SCREENS = [None, "out/fp_stage1a", None, None, None]
 #   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
 SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin",
                 "out/spawn_stage2boss/spawn_table.bin", "out/spawn_stage3rock/spawn_table.bin",
-                "out/spawn_stage4leather/spawn_table.bin"]
+                "out/spawn_stage4leather/spawn_table.bin", "out/spawn_stage5sewer0/spawn_table.bin",
+                "out/spawn_stage6streets/spawn_table.bin", "out/spawn_stage7streets2/spawn_table.bin",
+                "out/spawn_stage8sewer/spawn_table.bin"]
 
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test
