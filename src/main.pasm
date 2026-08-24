@@ -11456,15 +11456,18 @@ Text_Str_CharFoot03:
     .db "FOOT SOLDIER                    ", $00
 Text_Str_CharFoot04:
     .db "FOOT SOLDIER                    ", $00
+Text_Str_CharLeo:
+    .db "LEO                             ", $00
 
 ; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
 ; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
 ; order in build_rom.py; a new roster slot needs a new entry here too.
-; BEBOP/FOOT02-04 added by the roster-growth slice (pack_msu_roster.py's
-; MAX_CHARACTERS 8->15) -- see this project's own "real bug hit here once
-; already" note above (grew 4->6, then 6->8, both times this exact table
-; was the thing left behind): this table MUST grow every time
-; ROSTER_PREFIXES does, no exceptions.
+; LEO added the same day as the roster-growth slice (slot 12, the pak's
+; own only actively-loaded playable turtle) -- see this project's own
+; "real bug hit here once already" note above (grew 4->6, then 6->8, both
+; times this exact table was the thing left behind -- caught a THIRD time
+; by game_g5_menus.py before this entry was added): this table MUST grow
+; every time ROSTER_PREFIXES does, no exceptions.
 CharSelect_NamePtrs:
     .dw (Text_Str_CharRalf - Text_StringPool)
     .dw (Text_Str_CharJhun - Text_StringPool)
@@ -11478,6 +11481,7 @@ CharSelect_NamePtrs:
     .dw (Text_Str_CharFoot02 - Text_StringPool)
     .dw (Text_Str_CharFoot03 - Text_StringPool)
     .dw (Text_Str_CharFoot04 - Text_StringPool)
+    .dw (Text_Str_CharLeo - Text_StringPool)
 
 ; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
 ; padded convention, real OpenBOR-sourced content: engine/openbor.c's own

@@ -87,15 +87,16 @@ EXPECT_RALF = 'RALF'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
 # The roster's last slot -- was YASHIRO (index 3) through Phase 15; grew to
 # 6 (MOUSER, FOOT01) for the TMNT campaign, 8 (ROCK, LEATHER) for the
-# spawn-driven roster-reassignment slice, and 12 (BEBOP, FOOT02-04) for the
-# roster-growth slice (pack_msu_roster.py's MAX_CHARACTERS 8->15), so the
-# wrap-from-slot-0 target is now roster_count-1 == 11 (FOOT04, displayed as
-# "FOOT SOLDIER" -- same real display name as FOOT01-03, they're mechanical
-# clones in the source pak -- see main.pasm's CharSelect_NamePtrs). Real bug
-# caught by this exact check TWICE already: CharSelect_NamePtrs hadn't grown
-# to match ROSTER_PREFIXES and read garbage past its own end -- this
-# constant must be updated every time the roster's real last slot changes.
-EXPECT_LAST_SLOT = 'FOOT SOLDIER'.ljust(TEXT_ROW_ENTRIES)
+# spawn-driven roster-reassignment slice, 12 (BEBOP, FOOT02-04) for the
+# roster-growth slice (pack_msu_roster.py's MAX_CHARACTERS 8->15), and now
+# 13 (LEO, the TMNT pak's own only actively-loaded playable turtle). Real
+# bug caught by this exact check THREE times now: CharSelect_NamePtrs
+# hadn't grown to match ROSTER_PREFIXES and read garbage past its own end
+# -- this constant must be updated every time the roster's real last slot
+# changes. This hand-sync trap has now bitten 3 separate roster growths;
+# if a 4th happens, consider deriving this from main.pasm's own
+# CharSelect_NamePtrs table instead of hand-typing it again.
+EXPECT_LAST_SLOT = 'LEO'.ljust(TEXT_ROW_ENTRIES)
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):

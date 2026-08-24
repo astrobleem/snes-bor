@@ -53,8 +53,45 @@ triggers. **Follow-up, same day (roster-growth slice)**: the roster format's
 main.pasm's existing 8-bit directory-seek arithmetic, not a round number),
 and Bebop was converted fresh and added as roster slot 8, so its own boss
 stage now identifies for real too (`GATE G9-TMNT-BOSS` updated accordingly).
+**Follow-up, same day (LEO slice)**: added LEO (TMNT) as roster slot 12 —
+`data\MODELS.TXT` shows this pak's own author only actively loads Leo as a
+playable turtle (`load leo ...`; `don`/`mike` are real character data but
+commented out in the pak's own config, and no Raphael file exists in this
+pak at all — checked directly). Leo's real `.TXT` declares 21 anims; only
+the 7 this engine's role table knows (idle/walk/attack1/attack2/pain/fall/
+rise) are wired to behavior — jump/slide/grab-throw/special are real
+OpenBOR mechanics this engine doesn't implement (plan_game.md's own
+long-standing gap, not invented here). Verified via `phase12_roster.py`,
+already fully generalized from earlier roster growths: Leo cycles in via
+the real Select-button mechanism and matches his own converted
+`palette.txt` ground truth.
+
+Converting Leo surfaced two real bugs, both fixed:
+1. **`convert_character.py`'s "second attack" role heuristic** picked the
+   first declared anim not already claimed by another role as a
+   character's `attack2` — correct for RALF/JOE/JHUN (whose real second
+   moves are distinctly-named, not literally "attack2"), but wrong for any
+   character declaring a non-combat anim earlier in the file than its real
+   second attack. Leo declares `waiting` (a menu-select pose) before his
+   real `attack2`, so the old heuristic wired the second-attack input to a
+   menu pose. Checked the already-shipped roster for the same shape and
+   found it twice more: **Bebop and Rock were both shipped with their
+   attack2 input wired to `riseattack` (a getup-only move) instead of their
+   real `attack2` anim**, since both declare `riseattack` earlier in the
+   file. Fixed by preferring a literal anim named `attack2` before falling
+   back to the old heuristic; re-verified RALF/JOE/JHUN/YASHIRO unaffected
+   (none declare a literal `attack2`). Bebop and Rock were reconverted with
+   the fix and now play their real second attack.
+2. **`CharSelect_NamePtrs`** (main.pasm) — the same hand-synced table that
+   already broke twice before (roster growing past its length) broke a
+   third time: it simply had no entry for Leo. Caught by
+   `game_g5_menus.py`'s wrap-to-last-slot check, fixed by adding Leo's
+   entry. This table has now needed a manual fix at every roster growth;
+   noted in-file as a candidate for a future generalization if a 4th
+   growth needs it.
+
 What's still a reskin: every ordinary non-boss enemy — only characters
-deliberately added to the roster (currently 12 of 15 slots used) have
+deliberately added to the roster (currently 13 of 15 slots used) have
 anything real to identify against; most spawned names in these levels still
 aren't roster members, and that's a content decision, not a remaining code
 gap. See §9/§12 for the precise remaining scope. Still missing: ending/
@@ -1057,7 +1094,7 @@ is for.
 | 8 | `direction` | **Row's own premise was wrong, corrected 2026-08-23 — this is NOT a camera-model-rewrite blocker.** Real `BOR.C`'s parser (~line 1904-1909): `value = findarg(...); if("up") SCROLL_UP; else if("down") SCROLL_DOWN; else if("left") SCROLL_LEFT; else SCROLL_RIGHT;` — exactly 4 recognized values (up/down/left, default right), no "rightleft"/bidirectional case exists anywhere in this source (grep-confirmed: the literal string `rightleft` appears NOWHERE else in `BOR.C`, and `scrolldir` is read as a strict `==SCROLL_LEFT`/`==SCROLL_RIGHT`/etc. comparison everywhere it's used, ~15 call sites checked). TMNT's real `STREETS.TXT` does say `direction rightleft` (confirmed directly against the pak) — but run through THIS engine's actual parser, an unrecognized value silently falls through to the `else` branch: plain `SCROLL_RIGHT`. **TMNT's own `direction rightleft` line is therefore a no-op in this specific engine version** (possibly meaningful in some other/newer OpenBOR fork, but not the Plombo/beatsofrage source this project sources from) — real gameplay is ordinary one-directional right-scroll, which this project's existing camera model (`core/screen.pasm`) already implements. **This row is not a blocker for row 11 (TMNT conversion) at all.** | — | N/A — TMNT's real behavior is plain one-directional scroll this engine already supports; not tracked further |
 | 9 | `settime` | **Not a real gap today — corrected 2026-08-23, document and close (same call as row 10 `maxenemy`).** `settime` IS a real keyword (unlike `blockade`/row 5) — it's just not in `BOR.C`'s own level-header parser at all (grep-confirmed: zero hits for `settime`/`maxtime` in the source), meaning this specific engine version doesn't act on it even where a level declares it; the real timer mechanism that exists (`timeleft`/`time_over()`, ~line 4701-4714) always hardcodes a fixed 100-second reset at stage load, never reads a per-level value. **More importantly: real content never actually enables it.** Checked every `settime` occurrence across every available pak — zero in either shipped BOR level, and all 4 real TMNT occurrences (`SEWER.TXT`, `SEWER0.TXT`, `STREETS.TXT`, `STREETS2.TXT`) are `settime 0` (disabled). There is no real content anywhere this project has access to that would ever exercise an enabled time limit — building the HUD timer/time-over path described here would have zero real data to build toward or verify against, a worse case than `blockade`'s "gated on TMNT" (TMNT disables it too). | — | N/A — no real enabled usage exists in any available pak; not tracked further |
 | 10 | `maxenemy` | **Not a real gap — document and close.** This engine hardcodes exactly 3 AI slots (`CLAUDE.md`'s "don't build a general entity-lookup system" rule); BOR's own `maxenemy` values in the stock/TMNT levels checked (4) are already satisfied trivially by that hardware ceiling. No code change is applicable here; `SPAWN_MAX_RECORDS`/the single-global-queue design (`core/spawn.pasm`'s own header) already reproduces BOR's wave-clustering behavior within that ceiling. | — | N/A — permanent engine constraint, not tracked further |
-| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **DONE, 2026-08-23/24**: the full real TMNT pak converted — 10 real stages, full campaign, standalone boss stages, real roster growth to 8 slots, then genuinely grown further to 15 (roster-growth slice, same week) with Bebop/FOOT02-04 added — 12 of 15 slots now used. **Follow-up**: the per-spawn character-identity gap this row used to cite as still-blocking is now closed for every identified boss (Rock/Leather/Bebop all render as themselves via spawn-driven roster reassignment, see §9's own follow-ups) — not universally (ordinary non-boss enemies still reskin, since only characters deliberately given a roster slot have anything real to identify against), but the specific blocker this row named is resolved. | — | DONE (full pak, real roster/campaign, real boss-identity reassignment for every roster-identified boss) |
+| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **DONE, 2026-08-23/24**: the full real TMNT pak converted — 10 real stages, full campaign, standalone boss stages, real roster growth to 8 slots, then genuinely grown further to 15 (roster-growth slice, same week) with Bebop/FOOT02-04 added, then LEO added the same day — 13 of 15 slots now used. **Follow-up**: the per-spawn character-identity gap this row used to cite as still-blocking is now closed for every identified boss (Rock/Leather/Bebop all render as themselves via spawn-driven roster reassignment, see §9's own follow-ups) — not universally (ordinary non-boss enemies still reskin, since only characters deliberately given a roster slot have anything real to identify against), but the specific blocker this row named is resolved. | — | DONE (full pak, real roster/campaign, real boss-identity reassignment for every roster-identified boss) |
 | 12 | `wait` | — | — | **DONE** (2026-08-22, "wait/group/boss" slice, `game_g9_wait_group_boss.py`) |
 | 13 | `group` | — | — | **DONE** (2026-08-22, same slice) |
 
@@ -1436,15 +1473,19 @@ The two shortcuts from §0 come due here.
   openborscript VM, explicitly shelved. BOR's own remaining ~12 stages
   were never a priority once TMNT proved the pipeline is level-agnostic
   across paks — this is throughput, not research, whenever it's wanted.
-- **Characters.** 12 of ~24+ converted and in the roster (RALF/JHUN/JOE/
-  YASHIRO from BOR; MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02/FOOT03/FOOT04
-  from TMNT) — the roster format's cap was grown 8→15 (roster-growth
+- **Characters.** 13 of ~24+ converted and in the roster (RALF/JHUN/JOE/
+  YASHIRO from BOR; MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02/FOOT03/FOOT04/
+  LEO from TMNT) — the roster format's cap was grown 8→15 (roster-growth
   slice, a real hardware-arithmetic ceiling of `main.pasm`'s existing
   8-bit directory-seek math, not an arbitrary number — see
-  `pack_msu_roster.py`'s `MAX_CHARACTERS`), so 3 slots remain free today.
-  Adding more real characters past 15 total would need that seek routine
-  rewritten to carry into a second byte first, not just another
-  conversion pass.
+  `pack_msu_roster.py`'s `MAX_CHARACTERS`), so 2 slots remain free today.
+  A frequency/shape analysis of every real spawn across all 9 TMNT levels
+  (`mouser` 67×, the Foot Soldier family 130× combined, Rock/Bebop/Leather
+  1-3× each as named bosses) confirms every recurring enemy shape already
+  has a dedicated slot — there is no hidden 6th fighter archetype to spend
+  the remaining 2 on. Adding more real characters past 15 total would need
+  the seek routine rewritten to carry into a second byte first, not just
+  another conversion pass.
 - **Enemies on screen.** The `Msu1_StreamBusy` one-stream-per-frame rule caps
   effective animation rate at 1/N. Six enemies means ~10fps animation. Options,
   roughly in order of cost: keep frequently-used frames VRAM-resident instead of

@@ -1,0 +1,78 @@
+{
+  "entity": "LEO",
+  "anim": "grabattack",
+  "loop": 0,
+  "scale": 0.23703703703703705,
+  "hotspot_canvas": [
+    15,
+    42
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": [
+        40,
+        50,
+        70,
+        150
+      ],
+      "attack": [
+        100,
+        110,
+        40,
+        35,
+        10
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": [
+        40,
+        50,
+        70,
+        150
+      ],
+      "attack": [
+        100,
+        110,
+        40,
+        35,
+        10
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": [
+        40,
+        50,
+        70,
+        150
+      ],
+      "attack": [
+        100,
+        110,
+        40,
+        35,
+        10
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

@@ -64,7 +64,7 @@
     "fall": 3,
     "rise": 4,
     "attack": 6,
-    "attack2": 5,
+    "attack2": 7,
     "attack2_is_grab": false
   },
   "remap_palettes": []

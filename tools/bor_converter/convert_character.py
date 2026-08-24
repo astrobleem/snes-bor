@@ -231,19 +231,34 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
 
     # plan_game.md 7 (G7 remaining: a real second attack move, generic --
     # not hardcoded to any one character's real move name). Real per-
-    # character second moves in this roster are NOT named 'attack2'/'attack3'
-    # (OpenBOR's own numbered-attack convention, checked directly -- none of
-    # RALF/JOE/JHUN's second moves use it); they're distinctly-named combo/
-    # special moves (upper, grab, jumpattack). So 'attack2' here is an
-    # ENGINE role name, not a pak anim name: the first declared anim that
-    # isn't one of the 5 known roles and isn't the anim already chosen as
-    # 'attack' above. None if no such anim exists (YASHIRO has no second
-    # move in real data). Only the first extra move is resolved -- this
-    # roster never has more than one (a future character with 2+ would
-    # need this generalized further, not needed by real data today).
+    # character second moves in RALF/JOE/JHUN/YASHIRO are NOT named
+    # 'attack2'/'attack3' (OpenBOR's own numbered-attack convention, checked
+    # directly -- none of those four use it); they're distinctly-named
+    # combo/special moves (upper, grab, jumpattack). So the fallback below
+    # ("first anim not already claimed by another role") was written for
+    # that shape and verified safe for those four characters specifically.
+    #
+    # REAL BUG, found and fixed converting LEO (TMNT): that fallback treats
+    # "first declared, otherwise-unclaimed anim" as "the second attack",
+    # which silently breaks for any character whose file declares a
+    # non-role anim EARLIER than its real second attack. LEO declares
+    # 'waiting' (a menu-select pose, not a combat move) before its real
+    # 'attack2'; the fallback picked 'waiting'. Checked the currently-
+    # shipped roster for the same shape and found it twice more, already
+    # shipped: BEBOP and ROCK both declare 'riseattack' (a getup-only move,
+    # not a combat attack -- distinct from the 'rise' role itself) before
+    # their real 'attack2', so both were shipped with 'riseattack' wired to
+    # the attack2 input instead of their real second attack. Fixed by
+    # preferring a literal anim named 'attack2' (same exact-name-match
+    # convention every other role above already uses) before falling back
+    # to the old heuristic -- verified this doesn't change RALF/JOE/JHUN/
+    # YASHIRO (none declare a literal 'attack2', per the paragraph above).
     known_ordinals = {v for v in roles.values() if v is not None}
-    attack2_ordinal = next(
-        (i for i in range(len(lower_names)) if i not in known_ordinals), None)
+    if 'attack2' in lower_names and lower_names.index('attack2') not in known_ordinals:
+        attack2_ordinal = lower_names.index('attack2')
+    else:
+        attack2_ordinal = next(
+            (i for i in range(len(lower_names)) if i not in known_ordinals), None)
     roles['attack2'] = attack2_ordinal
 
     # plan_game.md 7 (grab mutual-lock slice): whether attack2's real anim

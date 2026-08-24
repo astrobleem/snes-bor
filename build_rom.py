@@ -49,8 +49,20 @@ import pack_msu_roster
 # this roster have anything real to identify against, and most spawned
 # names in these levels still aren't roster members -- that's a content
 # decision (which characters are "real"), not a remaining code gap.
+# Slot 12 (2026-08-24): LEO (TMNT), the one playable turtle this pak's own
+# data/MODELS.TXT actually loads (`load leo ...`; `don`/`mike` are present
+# as real character data but commented out by the pak's own author, and no
+# Raphael file exists in this pak at all -- checked directly, not assumed).
+# Leo's real .TXT declares 21 anims (waiting/idle/slide/walk/get/jump/
+# jumpattack/jumpattack2/attack1-4/grab/throw/pain/fall/rise/special/
+# freespecial/grabattack/land); convert_character.py converts all of them
+# (real frame data, inert ordinals) but only idle/walk/attack1/attack2/
+# pain/fall/rise resolve to a known engine role -- jump/slide/grab-throw/
+# special are real OpenBOR mechanics this engine doesn't implement
+# (plan_game.md's own long-standing gap), not something invented here.
 ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
-                   "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04"]
+                   "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04",
+                   "out/leo"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output
