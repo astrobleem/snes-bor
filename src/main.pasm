@@ -11419,9 +11419,15 @@ Text_Str_TitleBlank:
 ; full-32-column-padded convention as the title strings above (this screen
 ; reuses Text_Str_TitleBlank for clearing, since blank is blank regardless
 ; of which screen wrote the row). Names are hand-synced to build_rom.py's
-; ROSTER_PREFIXES order (RALF, JHUN, JOE, YASHIRO) -- see
+; ROSTER_PREFIXES order (RALF, JHUN, JOE, YASHIRO, MOUSER, FOOT01 -- the
+; last two added the same day as the TMNT campaign) -- see
 ; CharSelect_NamePtrs below, same accepted hand-sync pattern as
-; tools/verify/phase12_roster.py's own ENTITY_ROSTER_SLOTS.
+; tools/verify/phase12_roster.py's own ENTITY_ROSTER_SLOTS. A real bug hit
+; here once already: ROSTER_PREFIXES grew 4->6 without this table growing
+; to match, so CharSelect_Index==4/5 (wrapping Left from slot 0, or
+; cycling Right past YASHIRO) read 2 words of garbage past this table's
+; end as a string pointer -- caught by game_g5_menus.py's own wrap check
+; failing, not silently.
 Text_Str_CharSelectHeader:
     .db "CHARACTER SELECT                ", $00
 Text_Str_CharSelectInstr:
@@ -11434,15 +11440,21 @@ Text_Str_CharJoe:
     .db "JOE                             ", $00
 Text_Str_CharYashiro:
     .db "YASHIRO                         ", $00
+Text_Str_CharMouser:
+    .db "MOUSER                          ", $00
+Text_Str_CharFoot01:
+    .db "FOOT SOLDIER                    ", $00
 
 ; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
 ; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
-; order in build_rom.py; a 5th roster slot needs a 5th entry here too.
+; order in build_rom.py; a new roster slot needs a new entry here too.
 CharSelect_NamePtrs:
     .dw (Text_Str_CharRalf - Text_StringPool)
     .dw (Text_Str_CharJhun - Text_StringPool)
     .dw (Text_Str_CharJoe - Text_StringPool)
     .dw (Text_Str_CharYashiro - Text_StringPool)
+    .dw (Text_Str_CharMouser - Text_StringPool)
+    .dw (Text_Str_CharFoot01 - Text_StringPool)
 
 ; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
 ; padded convention, real OpenBOR-sourced content: engine/openbor.c's own

@@ -85,7 +85,13 @@ EXPECT_HEADER = 'CHARACTER SELECT'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_INSTR = 'LEFT/RIGHT SELECT  START GO'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_RALF = 'RALF'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
-EXPECT_YASHIRO = 'YASHIRO'.ljust(TEXT_ROW_ENTRIES)
+# The roster's last slot -- was YASHIRO (index 3) through Phase 15; the TMNT
+# campaign work grew ROSTER_PREFIXES to 6 (added MOUSER, FOOT01), so the
+# wrap-from-slot-0 target is now roster_count-1 == 5 (FOOT01, displayed as
+# "FOOT SOLDIER" -- see main.pasm's CharSelect_NamePtrs). Real bug caught by
+# this exact check before this fix: CharSelect_NamePtrs itself hadn't grown
+# to match and read 2 words of garbage past its own end for indices 4/5.
+EXPECT_LAST_SLOT = 'FOOT SOLDIER'.ljust(TEXT_ROW_ENTRIES)
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):
@@ -204,8 +210,8 @@ def main():
         got_name = decode_row(m, CHARSELECT_ROW_NAME)
         r.check(f'Left from slot 0 wraps to roster_count-1 ({idx} == {roster_count - 1})',
                  idx == roster_count - 1)
-        r.check(f'name row redrawn to YASHIRO after wrap ({got_name!r})',
-                 got_name == EXPECT_YASHIRO)
+        r.check(f'name row redrawn to the roster\'s real last slot after wrap ({got_name!r})',
+                 got_name == EXPECT_LAST_SLOT)
 
         # --- Start at charselect: teardown drip (blank all three rows),
         # then GAME_STATE_PLAYING. ---
