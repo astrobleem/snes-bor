@@ -11444,10 +11444,18 @@ Text_Str_CharMouser:
     .db "MOUSER                          ", $00
 Text_Str_CharFoot01:
     .db "FOOT SOLDIER                    ", $00
+Text_Str_CharRock:
+    .db "ROCKSTEADY                      ", $00
+Text_Str_CharLeather:
+    .db "LEATHERHEAD                     ", $00
 
 ; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
 ; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
 ; order in build_rom.py; a new roster slot needs a new entry here too.
+; ROCK/LEATHER added the same day as the spawn-driven roster-reassignment
+; slice below (core/spawn.pasm's SPAWN_KIND_BOSS_IDENTIFIED) -- see this
+; project's own "real bug hit here once already" note above: this table
+; MUST grow every time ROSTER_PREFIXES does.
 CharSelect_NamePtrs:
     .dw (Text_Str_CharRalf - Text_StringPool)
     .dw (Text_Str_CharJhun - Text_StringPool)
@@ -11455,6 +11463,8 @@ CharSelect_NamePtrs:
     .dw (Text_Str_CharYashiro - Text_StringPool)
     .dw (Text_Str_CharMouser - Text_StringPool)
     .dw (Text_Str_CharFoot01 - Text_StringPool)
+    .dw (Text_Str_CharRock - Text_StringPool)
+    .dw (Text_Str_CharLeather - Text_StringPool)
 
 ; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
 ; padded convention, real OpenBOR-sourced content: engine/openbor.c's own

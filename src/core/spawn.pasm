@@ -25,11 +25,25 @@
 ; reason (see its own comment) -- entities stay hidden/inert until this
 ; table places them, instead of standing fully alive from frame 1.
 ;
-; Deliberate scope cut, not an oversight: every record spawns using
-; whichever roster character is already wired to the slot it lands in --
-; the source level's specific character identity (Shermie, Yashiro, ...) is
-; not modeled. Position/timing fidelity is the goal; character identity is
-; explicitly not.
+; Deliberate scope cut, ORIGINALLY: every record spawned using whichever
+; roster character was already wired to the slot it landed in -- the source
+; level's specific character identity was not modeled, position/timing
+; fidelity was the goal, character identity was not.
+;
+; **Real spawn-driven roster reassignment, real user instruction, same
+; day as the TMNT campaign**: that cut is now closed for records the build
+; pipeline can actually identify against the shipped roster --
+; `SPAWN_KIND_BOSS_IDENTIFIED` (below) carries a real roster index in the
+; record's own spare bits, and `Spawn_Play` re-runs `Anim_LoadCharacter`
+; (see `Spawn_DoRosterReassign` at the bottom of this file) so that slot
+; actually streams and renders as ITS OWN real converted character, not a
+; reskin. Still cut, and still deliberate: a spawn whose character was
+; never added to the roster (most ordinary enemies -- the roster format
+; caps at 8 total slots, `pack_msu_roster.py`) still falls back to the
+; original behavior (`SPAWN_KIND_BOSS`, no identity, or plain
+; `SPAWN_KIND_ENEMY`/`SPAWN_KIND_PROP`) -- there was never a way to give
+; every possible spawned name its own roster slot without a fundamentally
+; different (unbounded) roster design, which stays out of scope.
 ;
 ; **`wait`/`group`/`boss`, 2026-08-22** (follow-up to "level content"
 ; generalization -- see build_spawn_table.py's own header for the real
@@ -216,6 +230,14 @@ MapApply_PaletteBaseHi  = $7E569F  ; .db    spawn dispatch below before the
 MapApply_MapBaseLo      = $7E56A0  ; .dw    jsl call.
 MapApply_MapBaseHi      = $7E56A2  ; .db
 MapApply_PaletteSlot    = $7E56A3  ; .db
+Spawn_ScratchRosterIdx  = $7E56A4  ; .db -- roster-reassignment slice:
+                                   ; captured record_kind bits 5-7 (record+6,
+                                   ; see layout below), real only when
+                                   ; Spawn_ScratchKind==SPAWN_KIND_BOSS_
+                                   ; IDENTIFIED. Grep-confirmed clear of any
+                                   ; other module's WRAM (same $7E5650-
+                                   ; $7E56FF range this file's header already
+                                   ; verified for its neighbors).
 
 ; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
 ; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
@@ -233,13 +255,19 @@ MapApply_PaletteSlot    = $7E56A3  ; .db
 ;   +4    spawn_y     (u8)  -- 0 for wait/group records.
 ;   +5    facing_left (u8)  -- CHAR_FACING_LEFT convention (0=right,1=left).
 ;                              0 for wait/group records.
-;   +6    record_kind (u8)  -- SPAWN_KIND_ENEMY (0), SPAWN_KIND_PROP (1),
-;                              SPAWN_KIND_WAIT (2), SPAWN_KIND_GROUP (3), or
-;                              SPAWN_KIND_BOSS (4) -- was `entity_kind`,
-;                              0/1 only, before the wait/group/boss slice
-;                              (plan_game.md G8: "reserved, always 0" before
-;                              THAT phase -- see build_spawn_table.py's own
-;                              "Entity kind" section for that history).
+;   +6    record_kind (u8)  -- low 3 bits: SPAWN_KIND_ENEMY (0),
+;                              SPAWN_KIND_PROP (1), SPAWN_KIND_WAIT (2),
+;                              SPAWN_KIND_GROUP (3), SPAWN_KIND_BOSS (4), or
+;                              SPAWN_KIND_BOSS_IDENTIFIED (5) -- was
+;                              `entity_kind`, 0/1 only, before the wait/
+;                              group/boss slice (plan_game.md G8: "reserved,
+;                              always 0" before THAT phase -- see
+;                              build_spawn_table.py's own "Entity kind"
+;                              section for that history). Bits 3-4: map
+;                              index (0-3, SPAWN_MAP_SHIFT/SPAWN_MAP_MASK).
+;                              Bits 5-7: roster index (0-7,
+;                              SPAWN_ROSTER_SHIFT/SPAWN_ROSTER_MASK), real
+;                              only when kind==SPAWN_KIND_BOSS_IDENTIFIED.
 ;   +7    spawn_hp    (u8)  -- health-override slice (follow-up to G8): the
 ;                              level's own `health` line, scaled to
 ;                              0..CHAR_HP_MAX. Read for enemy/boss slots
@@ -258,14 +286,40 @@ SPAWN_KIND_PROP  = 1
 SPAWN_KIND_WAIT  = 2   ; wait/group/boss slice: scroll-block-until-clear marker
 SPAWN_KIND_GROUP = 3   ; wait/group/boss slice: respawn-pool-size marker
 SPAWN_KIND_BOSS  = 4   ; wait/group/boss slice: enemy + sets EntityN_IsBoss
+SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
+                              ; same as SPAWN_KIND_BOSS (sets EntityN_IsBoss)
+                              ; PLUS the record carries a real roster index
+                              ; (record_kind bits 5-7, see SPAWN_ROSTER_SHIFT
+                              ; below) for a character build_spawn_table.py
+                              ; found in the actual shipped roster -- this
+                              ; slot's Anim_LoadCharacter gets re-run so the
+                              ; entity actually renders as ITS OWN character
+                              ; instead of whatever the slot already had
+                              ; loaded (the previous, deliberate "identity
+                              ; not modeled" shortcut this file's header used
+                              ; to document -- see Spawn_DoRosterReassign
+                              ; below for the real mechanism and its real
+                              ; per-frame streaming-budget guard).
 
-; plan_game.md 8a row 3 (`map`): record_kind's spare high bits (values 0-4
-; only need 3 bits) carry the spawn's remap-palette index (0-3), packed by
-; build_spawn_table.py as `record_kind |= (map_value << 3)` -- avoids
-; growing the fixed 8-byte record, same technique the wait/group/boss slice
-; used for group_min/max.
-SPAWN_KIND_MASK  = $07
-SPAWN_MAP_SHIFT  = 3
+; plan_game.md 8a row 3 (`map`): record_kind's spare high bits carry the
+; spawn's remap-palette index (0-3), packed by build_spawn_table.py as
+; `record_kind |= (map_value << 3)` -- avoids growing the fixed 8-byte
+; record, same technique the wait/group/boss slice used for group_min/max.
+; Roster-reassignment slice: the map field only ever used 2 of the 5 spare
+; bits (map_value is 0-3) -- bits 5-7 were provably always 0 (Python never
+; set them), so they're real, previously-unused space for a roster index
+; (0-7, matching the roster format's own real 1-8 slot cap, pack_msu_
+; roster.py) with ZERO record-size growth, same "spare bits" technique.
+SPAWN_KIND_MASK   = $07
+SPAWN_MAP_SHIFT   = 3
+SPAWN_MAP_MASK    = $03   ; explicit mask AFTER the >>3 shift -- needed now
+                          ; that bits 5-7 (>>3 puts them at result bits 2-4)
+                          ; carry real roster-index data; leaving this
+                          ; unmasked would leak roster-index bits into
+                          ; MapApply_Index, which plan_game.md 8a's `map`
+                          ; slice never needed to guard against before this.
+SPAWN_ROSTER_SHIFT = 5
+SPAWN_ROSTER_MASK  = $07   ; explicit mask AFTER the >>5 shift (3 bits, 0-7)
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -577,14 +631,27 @@ Spawn_Play__triggered:
     sta.l Spawn_ScratchFacing
     inx                         ; X -> record+6 (entity_kind, plan_game.md G8)
     lda.l SpawnTable_Wram,x
-    ; plan_game.md 8a row 3 (`map`): the same byte's high bits carry the
-    ; map index -- decode it before masking Spawn_ScratchKind down to just
-    ; the low 3 (real kind) bits.
+    ; plan_game.md 8a row 3 (`map`) + roster-reassignment slice: this one
+    ; byte packs THREE fields now (kind: bits 0-2, map: bits 3-4, roster
+    ; index: bits 5-7) -- decode each with its own shift+mask before
+    ; touching A again, rather than relying on incidental zero bits the way
+    ; the map-only version of this code could (roster-index bits are real
+    ; data now, not always 0).
     pha
     lsr a
     lsr a
     lsr a
+    and #SPAWN_MAP_MASK
     sta.l Spawn_ScratchMap
+    pla
+    pha
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    and #SPAWN_ROSTER_MASK
+    sta.l Spawn_ScratchRosterIdx
     pla
     and #SPAWN_KIND_MASK
     sta.l Spawn_ScratchKind
@@ -601,7 +668,25 @@ Spawn_Play__triggered:
     beq Spawn_Play__do_wait
     cmp #SPAWN_KIND_GROUP
     beq Spawn_Play__do_group
-    jmp Spawn_Play__find_slot
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    bne Spawn_Play__find_slot
+
+    ; --- roster-reassignment slice: gate the WHOLE record (not just the
+    ; reassignment step below) on Msu1_StreamBusy, BEFORE find_slot runs
+    ; and BEFORE any of this record's HP/position/palette writes touch a
+    ; slot. If this deferred instead, after find_slot had already picked a
+    ; slot and slot1/2/3's body had already set that slot's HP nonzero, a
+    ; retry next frame would see the target slot as "occupied" (Hp!=0) and
+    ; misroute to a DIFFERENT free slot -- or spuriously report "no free
+    ; slot" if none else is free -- rather than finishing this same
+    ; record's placement. Deferring here instead, before ANY state
+    ; mutation, keeps the retry byte-for-byte identical to this frame's
+    ; attempt (matches this file's existing "stay pending" convention for
+    ; trigger-not-reached/no-free-slot). ---
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__find_slot
+    plp
+    rtl
 
 Spawn_Play__do_wait:
     sep #$20
@@ -721,10 +806,27 @@ Spawn_Play__slot1_not_prop:
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    beq Spawn_Play__slot1_boss_identified
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot1_not_boss
     lda #1
     sta.l Entity1_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot1_boss_identified:
+.a8
+    ; roster-reassignment slice: Msu1_StreamBusy already confirmed clear
+    ; by the dispatch-time gate above, before find_slot even ran -- safe
+    ; to stream now, nothing else can have set it since (single-threaded).
+    lda #1
+    sta.l Entity1_IsBoss
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_boss:
     sep #$20
@@ -791,10 +893,24 @@ Spawn_Play__slot2_not_prop:
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    beq Spawn_Play__slot2_boss_identified
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot2_not_boss
     lda #1
     sta.l Entity2_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot2_boss_identified:
+.a8
+    lda #1
+    sta.l Entity2_IsBoss
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_boss:
     sep #$20
@@ -861,10 +977,24 @@ Spawn_Play__slot3_not_prop:
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    beq Spawn_Play__slot3_boss_identified
     cmp #SPAWN_KIND_BOSS
     bne Spawn_Play__slot3_not_boss
     lda #1
     sta.l Entity3_IsBoss
+    jmp Spawn_Play__advance
+Spawn_Play__slot3_boss_identified:
+.a8
+    lda #1
+    sta.l Entity3_IsBoss
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_boss:
     sep #$20
@@ -883,3 +1013,63 @@ Spawn_Play__advance:
 Spawn_Play__not_yet:
     plp
     rtl
+
+; ============================================================================
+; Spawn_DoRosterReassign -- roster-reassignment slice (real, user-requested
+; follow-up to the "deliberate scope cut" this file's header used to
+; document: every spawn used to render using whichever roster character was
+; already wired to its slot, never its own real converted character).
+;
+; Switches the Direct Page register (phd/tcd/pld) to the AI entity at byte
+; offset X within OopObjRam ($7E0A00 + X), sets the global CharSelect_Index
+; to Spawn_ScratchRosterIdx, and re-runs Anim_LoadCharacter (main.pasm,
+; reached here via its existing Anim_LoadCharacter_Long bank-0 jsl
+; trampoline -- added earlier for core/charselect.pasm's own identical
+; cross-bank need). This is NOT new streaming machinery: it is the exact
+; same live mid-game character (re)load Anim_Play already runs for the
+; player's own Select-button reselect (main.pasm ~6796, `sta.l
+; CharSelect_Index` then `jsr Anim_LoadCharacter`) -- already proven safe to
+; call mid-gameplay, with NMI active, competing with other entities' normal
+; per-frame animation streaming. This routine is DP-targeted at whichever
+; AI slot the caller names instead of always slot 0.
+;
+; Why phd/tcd is safe here even though Anim_LoadCharacter's body uses bare
+; (DP-relative) CHAR_* addressing throughout: WRAM $7E0000-$7E1FFF is
+; mirrored at bank $00 $0000-$1FFF (standard LoROM shadow-WRAM mapping), and
+; $7E0A00+X falls inside that mirrored window for every real entity offset
+; (X = CHAR_ZP_LEN, *2, or *3) -- so D = $0A00+X makes every subsequent bare
+; DP-relative write inside Anim_LoadCharacter land on the exact same
+; physical byte core/oop.pasm's own Core_Oop_Play would reach for that slot
+; via its OopDp table (same value, computed directly here from the byte
+; offset the caller already has, instead of re-reading OopDp).
+;
+;   in:  X (16-bit) = entity byte offset (CHAR_ZP_LEN, *2, or *3)
+;        Spawn_ScratchRosterIdx = target roster slot (0-7)
+;   out: none. Clobbers A/X. D is saved/restored (phd/pld) -- caller's own D
+;        is unaffected.
+;
+; Caller's responsibility, not this routine's: confirm Msu1_StreamBusy==0
+; before calling (CLAUDE.md: at most one entity may stream an animation
+; frame per frame -- Anim_LoadCharacter's own blocking seek+read+CGRAM-DMA-
+; enqueue is exactly that per-frame streaming-budget-consuming work). See
+; Spawn_Play's SPAWN_KIND_BOSS_IDENTIFIED dispatch above for the real
+; gate/defer logic -- gated once, before find_slot even runs, not here.
+; ============================================================================
+Spawn_DoRosterReassign:
+.a16
+.i16
+    phd
+    txa
+    clc
+    adc #$0A00
+    tcd
+    sep #$20
+.a8
+    lda.l Spawn_ScratchRosterIdx
+    sta.l CharSelect_Index
+    jsl Anim_LoadCharacter_Long
+    rep #$31
+.a16
+.i16
+    pld
+    rts

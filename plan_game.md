@@ -33,11 +33,25 @@ despite its name) — a real win condition and stage transition generalized
 across all of them (G4), and a full title→character-select→playing menu
 flow plus a real pause menu with real drawn content and SRAM-persisted
 options (G5, fully done). Real boss fights are reachable in play (G9,
-fully done) — every boss/enemy reuses whichever roster character already
-occupies its AI slot rather than rendering as its own sprite art; this
-was investigated for real this session (not just assumed) and found to be
-a genuine architectural fork, not a quick data-plumbing fix — see §9 and
-§12's character-identity gap. Still missing: ending/credits (G10), real
+fully done), and the per-spawn character-identity gap this file used to
+describe as a genuine architectural fork is now CLOSED for the case that
+actually matters: **spawn-driven roster reassignment** (real user
+instruction, same day as the TMNT campaign) — a boss spawn whose real
+character is in the actual shipped roster (Rock and Leather were added as
+real roster members specifically for this, indices 6/7) now re-streams
+that AI slot with its own real converted character
+(`core/spawn.pasm`'s `SPAWN_KIND_BOSS_IDENTIFIED`/`Spawn_DoRosterReassign`,
+reusing the exact same live mid-game `Anim_LoadCharacter` reload the
+player's own Select-button reselect already used), proven end-to-end by
+`tools/verify/game_spawn_roster_reassign.py` (`GATE SPAWN-ROSTER-REASSIGN:
+PASS`) — a live entity's real (idle,walk,attack) frame-count triple
+measurably changes from whatever roster member it booted with to the
+boss's own real converted numbers, the moment its real spawn record
+triggers. What's still a reskin: any spawn whose character was never
+added to the roster (Bebop, and every ordinary non-boss enemy) — the
+roster format caps at 8 total slots (`pack_msu_roster.py`), so most
+spawned names still have nothing real to identify against; see §9/§12 for
+the precise remaining scope. Still missing: ending/credits (G10), real
 grab/throw mutual-lock semantics, jump/special/block, and SFX
 (content-blocked). Double Dragon Moto (the third pak in this repo) stays
 unconverted — its levels need the openborscript VM, which remains
@@ -1036,7 +1050,7 @@ is for.
 | 8 | `direction` | **Row's own premise was wrong, corrected 2026-08-23 — this is NOT a camera-model-rewrite blocker.** Real `BOR.C`'s parser (~line 1904-1909): `value = findarg(...); if("up") SCROLL_UP; else if("down") SCROLL_DOWN; else if("left") SCROLL_LEFT; else SCROLL_RIGHT;` — exactly 4 recognized values (up/down/left, default right), no "rightleft"/bidirectional case exists anywhere in this source (grep-confirmed: the literal string `rightleft` appears NOWHERE else in `BOR.C`, and `scrolldir` is read as a strict `==SCROLL_LEFT`/`==SCROLL_RIGHT`/etc. comparison everywhere it's used, ~15 call sites checked). TMNT's real `STREETS.TXT` does say `direction rightleft` (confirmed directly against the pak) — but run through THIS engine's actual parser, an unrecognized value silently falls through to the `else` branch: plain `SCROLL_RIGHT`. **TMNT's own `direction rightleft` line is therefore a no-op in this specific engine version** (possibly meaningful in some other/newer OpenBOR fork, but not the Plombo/beatsofrage source this project sources from) — real gameplay is ordinary one-directional right-scroll, which this project's existing camera model (`core/screen.pasm`) already implements. **This row is not a blocker for row 11 (TMNT conversion) at all.** | — | N/A — TMNT's real behavior is plain one-directional scroll this engine already supports; not tracked further |
 | 9 | `settime` | **Not a real gap today — corrected 2026-08-23, document and close (same call as row 10 `maxenemy`).** `settime` IS a real keyword (unlike `blockade`/row 5) — it's just not in `BOR.C`'s own level-header parser at all (grep-confirmed: zero hits for `settime`/`maxtime` in the source), meaning this specific engine version doesn't act on it even where a level declares it; the real timer mechanism that exists (`timeleft`/`time_over()`, ~line 4701-4714) always hardcodes a fixed 100-second reset at stage load, never reads a per-level value. **More importantly: real content never actually enables it.** Checked every `settime` occurrence across every available pak — zero in either shipped BOR level, and all 4 real TMNT occurrences (`SEWER.TXT`, `SEWER0.TXT`, `STREETS.TXT`, `STREETS2.TXT`) are `settime 0` (disabled). There is no real content anywhere this project has access to that would ever exercise an enabled time limit — building the HUD timer/time-over path described here would have zero real data to build toward or verify against, a worse case than `blockade`'s "gated on TMNT" (TMNT disables it too). | — | N/A — no real enabled usage exists in any available pak; not tracked further |
 | 10 | `maxenemy` | **Not a real gap — document and close.** This engine hardcodes exactly 3 AI slots (`CLAUDE.md`'s "don't build a general entity-lookup system" rule); BOR's own `maxenemy` values in the stock/TMNT levels checked (4) are already satisfied trivially by that hardware ceiling. No code change is applicable here; `SPAWN_MAX_RECORDS`/the single-global-queue design (`core/spawn.pasm`'s own header) already reproduces BOR's wave-clustering behavior within that ceiling. | — | N/A — permanent engine constraint, not tracked further |
-| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **First real slice landed 2026-08-23**: one real TMNT level (`data\LEVELS\BEBOP.TXT`, the `boss` gate's own content, see §9) is converted and shipped as stage index 2 — proof the converter pipeline generalizes across paks, not just within BOR. Full TMNT roster/campaign conversion (real Bebop/turtle sprite art, not a BOR-roster reskin) is still blocked on §12's per-spawn character-identity gap (see row 7's corrected entry): TMNT's whole roster needs spawns to select which character streams into a slot, which doesn't exist for BOR either. Tracked under §12 (content and scale), not here. | §12 character-identity spawning | ONE LEVEL DONE (stage-reachable, roster-reskinned); full roster conversion blocked on §12 |
+| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **DONE, 2026-08-23/24**: the full real TMNT pak converted — 10 real stages, full campaign, standalone boss stages, real roster growth to 8 slots. **Follow-up, same day**: the per-spawn character-identity gap this row used to cite as still-blocking is now closed for identified bosses (Rock/Leather actually render as themselves via spawn-driven roster reassignment, see §9's own follow-up) — not universally (Bebop and ordinary enemies still reskin, roster format caps at 8 slots), but the specific blocker this row named is resolved. | — | DONE (full pak, real roster/campaign, real boss-identity reassignment for roster-identified bosses) |
 | 12 | `wait` | — | — | **DONE** (2026-08-22, "wait/group/boss" slice, `game_g9_wait_group_boss.py`) |
 | 13 | `group` | — | — | **DONE** (2026-08-22, same slice) |
 
@@ -1257,6 +1271,74 @@ choice rather than picking unilaterally.
 > openborscript VM for real level logic — explicitly out of scope, the
 > VM stays shelved per standing instruction); scene cutscenes.
 
+> **Follow-up, same day: the per-spawn character-identity gap above is now
+> CLOSED for the case that's actually real — real user instruction, not a
+> re-investigation that changed its mind.** The "architectural fork" framing
+> two paragraphs up was about a GENERAL mechanism (every possible spawned
+> name gets its own live sprite); what actually shipped is narrower and
+> real: **spawn-driven roster reassignment**. Rock and Leather were added as
+> genuine roster members (indices 6/7, `build_rom.py`'s `ROSTER_PREFIXES`,
+> same `convert_character.py` pipeline as every prior roster addition — no
+> new conversion work, their assets already existed from the standalone
+> boss stages). `tools/bg_converter/build_spawn_table.py` now emits
+> `RECORD_KIND_BOSS_IDENTIFIED` (record_kind==5) instead of the plain
+> `RECORD_KIND_BOSS` (4) for any `boss 1` spawn whose real character name IS
+> in the actual shipped roster, carrying that roster index in the record's
+> own previously-always-zero spare bits (bits 5-7 of byte +6 — the `map`
+> slice already proved bits 3-4 were real, reusable spare space the same
+> way; bits 5-7 were provably always zero before this). `core/spawn.pasm`'s
+> `Spawn_Play` gates the WHOLE record (not just the reassignment step) on
+> `Msu1_StreamBusy` BEFORE `find_slot` even runs and before any HP/position
+> write touches a slot — deferring cleanly, with zero side effects, exactly
+> like the existing "no free slot"/"trigger not reached" cases, if another
+> entity already streamed this frame (a real ordering hazard caught by
+> tracing the actual per-frame call order, `Core_Oop_Play` then `Spawn_Play`
+> in `game_state.pasm`, not assumed). `Spawn_DoRosterReassign` then
+> DP-switches (`phd`/`tcd`/`pld`) to the target AI entity's own window and
+> re-runs `Anim_LoadCharacter` (via its existing `Anim_LoadCharacter_Long`
+> bank-0 trampoline) — the EXACT SAME live mid-game character reload the
+> player's own Select-button reselect already used, just DP-targeted at an
+> AI slot instead of always the player. This is not new streaming
+> machinery and does not touch the one-entity-streams-per-frame invariant's
+> mechanism, only its scheduling.
+>
+> **Real proof, not a flag check**: `tools/verify/game_spawn_roster_reassign.py`
+> (`GATE SPAWN-ROSTER-REASSIGN: PASS`) reaches Rock's and Leather's real
+> standalone stages via the real force-win chain, snapshots a live entity's
+> (idle,walk,attack) frame-count triple BEFORE the boss's real spawn record
+> triggers, then again after — and shows it actually changing from whatever
+> roster member the slot booted with (e.g. Joe's real `(10,7,11)`) to the
+> boss's own real converted numbers (Rock's real `(6,12,9)`, Leather's real
+> `(2,12,5)`), sourced directly from `out/rock_moveset.json`/
+> `out/leather_moveset.json`, never invented. `game_tmnt_campaign.py`'s own
+> byte-level boss-record check was updated to treat `RECORD_KIND_BOSS` and
+> `RECORD_KIND_BOSS_IDENTIFIED` as one family (both still set
+> `EntityN_IsBoss`) — Rock's story-boss record in `streets.txt` (stage 6)
+> and its standalone record (stage 3) were both regenerated with the real
+> identification; Bebop's two boss records (stages 2 and 7) are unchanged
+> (`RECORD_KIND_BOSS`, no identification) since Bebop was never added to the
+> roster — verified byte-identical before/after regenerating with the
+> `--roster` flag, not assumed.
+>
+> **What is still, correctly, a reskin**: any spawn whose character was
+> never added to the roster — Bebop (no `out/bebop_*` character assets
+> exist at all), and every ordinary non-boss enemy in every level. The
+> roster format's real 8-slot cap (`pack_msu_roster.py` byte 0x09) means
+> most spawned names still have nothing real to identify against; this was
+> never "give every enemy its own sprite," it was "let an identified boss
+> render as itself," and that's what shipped.
+>
+> Full regression suite re-verified clean after this change (all of
+> `build_rom.py`/`audit_all.py`/`check_label_drift.py`/
+> `check_width_directives.py`/phases 5-12/every `game_g1`-`game_g9`/
+> `game_health_override`/`game_map_remap`/`game_tmnt_campaign` gate, plus
+> the new gate above) — including one real, unrelated pre-existing test
+> constant that needed updating for the new 8-slot roster:
+> `game_g5_menus.py`'s hardcoded "roster's last slot" expectation (was
+> `FOOT SOLDIER`, now genuinely `LEATHERHEAD`) — same class of hand-sync
+> gap this file already documents having been bitten by once before,
+> caught the same way (a gate failing loudly, not silently).
+
 ---
 
 ## §10 — Phase G10: ending and credits
@@ -1283,13 +1365,20 @@ anything else.
 
 The two shortcuts from §0 come due here.
 
-- **Stages.** 3 of 14 BOR stages + 1 real TMNT stage converted (stage 1A, 1B,
-  TMNT's `BEBOP.TXT` boss stage), all 3 shipped and reachable via G4's stage
-  transition. The converter pipeline is proven and level-agnostic across
-  paks now, not just within BOR — Phase 14 swapped levels and G9 added a
-  3rd, cross-pak stage with *zero* engine changes each time — so this is
-  throughput, not research.
-- **Characters.** 4 of ~24 converted. Same story.
+- **Stages.** 10 real stages shipped (2 BOR + the full real TMNT pak: 3
+  standalone boss stages, the real 4-level TMNT campaign, and TMNT's last
+  standalone level), all reachable via G4's stage transition, generalized
+  to N stages with no hand-synced per-stage constants. Double Dragon Moto
+  (the third pak in this repo) stays unconverted — its levels need the
+  openborscript VM, explicitly shelved. BOR's own remaining ~12 stages
+  were never a priority once TMNT proved the pipeline is level-agnostic
+  across paks — this is throughput, not research, whenever it's wanted.
+- **Characters.** 8 of ~24+ converted (RALF/JHUN/JOE/YASHIRO from BOR;
+  MOUSER/FOOT01/ROCK/LEATHER from TMNT) — the roster format's real 8-slot
+  cap (`pack_msu_roster.py` byte 0x09) is now fully spent. FOOT02-04 are
+  real, converted, committed, and unused (no free slot); adding any more
+  real character would need a roster-capacity format change first, not
+  just another conversion pass.
 - **Enemies on screen.** The `Msu1_StreamBusy` one-stream-per-frame rule caps
   effective animation rate at 1/N. Six enemies means ~10fps animation. Options,
   roughly in order of cost: keep frequently-used frames VRAM-resident instead of
@@ -1319,7 +1408,9 @@ keyword is `blocked` (a pit-hazard flag, not scroll-back) and needs its
 own semantics re-derivation before it's buildable; row 6 (`music`) waits
 on content; row 8 (`direction`) turned out to be a no-op for TMNT under
 this engine's real parser, not a camera-model blocker — cleared; row 11
-(TMNT conversion) now only waits on §12's character-identity-spawning gap.
+(TMNT conversion) is DONE, including spawn-driven roster reassignment for
+identified bosses — see §9's own follow-up for exactly what's still a
+reskin (unidentified bosses, ordinary enemies, roster-capacity-capped).
 
 G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 

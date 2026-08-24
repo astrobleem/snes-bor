@@ -86,12 +86,16 @@ EXPECT_INSTR = 'LEFT/RIGHT SELECT  START GO'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_RALF = 'RALF'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
 # The roster's last slot -- was YASHIRO (index 3) through Phase 15; the TMNT
-# campaign work grew ROSTER_PREFIXES to 6 (added MOUSER, FOOT01), so the
-# wrap-from-slot-0 target is now roster_count-1 == 5 (FOOT01, displayed as
-# "FOOT SOLDIER" -- see main.pasm's CharSelect_NamePtrs). Real bug caught by
-# this exact check before this fix: CharSelect_NamePtrs itself hadn't grown
-# to match and read 2 words of garbage past its own end for indices 4/5.
-EXPECT_LAST_SLOT = 'FOOT SOLDIER'.ljust(TEXT_ROW_ENTRIES)
+# campaign work grew ROSTER_PREFIXES to 6 (added MOUSER, FOOT01); the
+# spawn-driven roster-reassignment slice (same day) grew it again to 8
+# (added ROCK, LEATHER, both real roster members now so a boss spawn can
+# reassign an AI slot to its own real character), so the wrap-from-slot-0
+# target is now roster_count-1 == 7 (LEATHER, displayed as "LEATHERHEAD" --
+# see main.pasm's CharSelect_NamePtrs). Real bug caught by this exact check
+# once already: CharSelect_NamePtrs hadn't grown to match ROSTER_PREFIXES
+# and read 2 words of garbage past its own end for indices 4/5 -- this
+# constant must be updated every time the roster's real last slot changes.
+EXPECT_LAST_SLOT = 'LEATHERHEAD'.ljust(TEXT_ROW_ENTRIES)
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):

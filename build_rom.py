@@ -40,7 +40,8 @@ import pack_msu_roster
 # fixed-address EntityN_Base scheme -- so today EVERY enemy, TMNT or BOR,
 # renders as whichever of these 6 roster members already occupies its AI
 # slot, never its own sprite).
-ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01"]
+ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
+                   "out/rock", "out/leather"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output

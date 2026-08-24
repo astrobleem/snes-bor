@@ -202,6 +202,21 @@ RECORD_KIND_PROP = 1
 RECORD_KIND_WAIT = 2
 RECORD_KIND_GROUP = 3
 RECORD_KIND_BOSS = 4
+RECORD_KIND_BOSS_IDENTIFIED = 5   # real spawn-driven roster-reassignment
+                                  # slice: same as RECORD_KIND_BOSS, but the
+                                  # spawned character name was found in the
+                                  # ACTUAL shipped roster (--roster) -- the
+                                  # real roster index (0-7) is packed into
+                                  # this same byte's spare high bits (see
+                                  # ROSTER_SHIFT below), and
+                                  # core/spawn.pasm's Spawn_Play re-streams
+                                  # that slot's own real character instead
+                                  # of leaving it as a reskin.
+
+MAP_SHIFT = 3
+ROSTER_SHIFT = 5   # core/spawn.pasm's SPAWN_ROSTER_SHIFT/SPAWN_ROSTER_MASK
+                    # -- 3 spare bits, matches the roster format's own real
+                    # 1-8 slot cap (pack_msu_roster.py).
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
 # else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
@@ -244,7 +259,7 @@ def build_type_lookup(pak_path):
     return lookup
 
 
-def convert_events(events, type_lookup):
+def convert_events(events, type_lookup, roster_lookup=None):
     """events: list of spawn_parse.SpawnEvent/WaitEvent/GroupEvent, in
     trigger order (spawn_parse.py already interleaves all three correctly --
     see core/spawn.pasm's own header for why this single ordered queue
@@ -282,8 +297,17 @@ def convert_events(events, type_lookup):
         facing_left = 1 - (e.flip & 1)
         entity_type = type_lookup.get(e.character.lower())
         is_prop = entity_type in PROP_ENTITY_TYPES
+        roster_idx = (roster_lookup or {}).get(e.character.lower()) if e.boss else None
         if is_prop:
             record_kind = RECORD_KIND_PROP
+        elif e.boss and roster_idx is not None:
+            # roster-reassignment slice: this boss's real character IS in
+            # the actual shipped roster -- carry its index so core/
+            # spawn.pasm can re-stream this slot as its own real character
+            # instead of a reskin. Only bosses get this: ordinary enemies
+            # are never individually added to the (8-slot-capped) roster,
+            # so there is nothing real to identify them against.
+            record_kind = RECORD_KIND_BOSS_IDENTIFIED
         elif e.boss:
             record_kind = RECORD_KIND_BOSS
         else:
@@ -291,8 +315,18 @@ def convert_events(events, type_lookup):
         # plan_game.md 8a row 3 (`map`): pack into record_kind's spare high
         # bits (values 0-4 only need 3), same technique used for group's
         # min/max -- see core/spawn.pasm's SPAWN_KIND_MASK/SPAWN_MAP_SHIFT.
+        # Roster-reassignment slice: bits 5-7 (ROSTER_SHIFT) are a SEPARATE
+        # spare-bits field, real only when record_kind ==
+        # RECORD_KIND_BOSS_IDENTIFIED -- see core/spawn.pasm's
+        # SPAWN_ROSTER_SHIFT/SPAWN_ROSTER_MASK for the runtime decode.
+        is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
-        record_kind |= (map_value << 3)
+        record_kind |= (map_value << MAP_SHIFT)
+        if is_boss_identified:
+            # checked BEFORE the map bits are OR'd in above -- record_kind
+            # would no longer equal the bare RECORD_KIND_BOSS_IDENTIFIED
+            # constant once map_value is nonzero.
+            record_kind |= ((roster_idx & 0x07) << ROSTER_SHIFT)
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:
@@ -303,20 +337,32 @@ def convert_events(events, type_lookup):
     return len(events), bytes(out)
 
 
-def build_from_pak(pak_path, entry_name):
+def build_from_pak(pak_path, entry_name, roster_lookup=None):
     sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent))
     from spawn_parse import parse_spawns_from_pak
     events = parse_spawns_from_pak(pak_path, entry_name)
     type_lookup = build_type_lookup(pak_path)
-    return convert_events(events, type_lookup)
+    return convert_events(events, type_lookup, roster_lookup)
 
 
 def main():
     if len(sys.argv) < 4:
-        print('usage: build_spawn_table.py <pak_path> <level_txt_entry> <out.bin>',
-              file=sys.stderr)
+        print('usage: build_spawn_table.py <pak_path> <level_txt_entry> <out.bin> '
+              '[--roster name1,name2,...]', file=sys.stderr)
+        print('  --roster: the ACTUAL shipped roster order (build_rom.py\'s '
+              'ROSTER_PREFIXES basenames, e.g. ralf,jhun,joe,yashiro,mouser,'
+              'foot01,rock,leather) -- lets a boss spawn whose character is '
+              'really in that list carry a real roster index (record_kind '
+              '== RECORD_KIND_BOSS_IDENTIFIED) instead of falling back to '
+              'the plain no-identity RECORD_KIND_BOSS. Omit for a level '
+              'with no identified bosses -- same output as before this '
+              'flag existed.', file=sys.stderr)
         raise SystemExit(1)
-    count, blob = build_from_pak(sys.argv[1], sys.argv[2])
+    roster_lookup = None
+    if len(sys.argv) >= 6 and sys.argv[4] == '--roster':
+        names = sys.argv[5].split(',')
+        roster_lookup = {name.strip().lower(): i for i, name in enumerate(names)}
+    count, blob = build_from_pak(sys.argv[1], sys.argv[2], roster_lookup)
     with open(sys.argv[3], 'wb') as f:
         f.write(blob)
     print(f'{count} spawn records, {len(blob)} bytes -> {sys.argv[3]}')

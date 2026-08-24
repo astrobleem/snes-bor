@@ -76,7 +76,7 @@ ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_Z
                 PLAYER_BASE + 3 * CHAR_ZP_LEN]
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
-from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS  # noqa: E402
+from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
 
 _bg_last_dir, _hud_dir = build_rom.BG_SCREENS[9]
 BG_LAST_DIR = os.path.join(ROOT, _bg_last_dir)
@@ -142,10 +142,20 @@ def main():
     for stage, (relpath, expected_count, expected_boss) in EXPECTED.items():
         data = _read(os.path.join(ROOT, relpath))
         n = len(data) // RECORD_SIZE
-        boss_at = [i for i in range(n) if (data[i * RECORD_SIZE + 6] & 0x07) == RECORD_KIND_BOSS]
+        # Roster-reassignment slice (same day, real user instruction): Rock
+        # and Leather are now real roster members (build_rom.py's
+        # ROSTER_PREFIXES), so their boss records were regenerated as
+        # RECORD_KIND_BOSS_IDENTIFIED (5), not plain RECORD_KIND_BOSS (4) --
+        # both still mean "this is a boss" to core/spawn.pasm (both set
+        # EntityN_IsBoss), so this check treats them as one family. Bebop's
+        # own boss records (stages 2 and 7) stay plain RECORD_KIND_BOSS --
+        # Bebop was never added to the roster (no out/bebop_* character
+        # assets exist), so there is nothing real to identify it against.
+        boss_at = [i for i in range(n)
+                   if (data[i * RECORD_SIZE + 6] & 0x07) in (RECORD_KIND_BOSS, RECORD_KIND_BOSS_IDENTIFIED)]
         r.check(f'stage {stage} ({relpath}): {n} records (expected {expected_count})',
                  n == expected_count)
-        r.check(f'stage {stage}: RECORD_KIND_BOSS at {boss_at} (expected {expected_boss})',
+        r.check(f'stage {stage}: boss record(s) at {boss_at} (expected {expected_boss})',
                  boss_at == expected_boss)
 
     expected_palette = bytearray(_read(os.path.join(BG_LAST_DIR, 'palette.bin')))
