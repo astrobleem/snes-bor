@@ -83,11 +83,21 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets.txt" -o out/bg_stage6streets --streaming
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets2.txt" -o out/bg_stage7streets2 --streaming
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\sewer.txt" -o out/bg_stage8sewer --streaming
+#
+# Follow-up (same day): data\levels\foot.txt, the last standalone TMNT
+# level -- real content, but NOT a boss record despite its "Foot Soldier
+# Test" framing: `spawn Foot3 / alias Foot_Soldier / health 500` has no
+# `boss 1` line at all (verified by reading the extracted level text, same
+# as every other stage here -- `alias` is cosmetic in this engine, already
+# established when converting the health-override slice). It's a single
+# reinforced-HP (500 vs the normal 70) Foot Soldier encounter, nothing
+# more -- shipped as stage 9, not part of G9's boss coverage. Regenerate:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\foot.txt" -o out/bg_stage9foot --streaming
 BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
               ("out/bg_stage2boss", "out/hud"), ("out/bg_stage3rock", "out/hud"),
               ("out/bg_stage4leather", "out/hud"), ("out/bg_stage5sewer0", "out/hud"),
               ("out/bg_stage6streets", "out/hud"), ("out/bg_stage7streets2", "out/hud"),
-              ("out/bg_stage8sewer", "out/hud")]
+              ("out/bg_stage8sewer", "out/hud"), ("out/bg_stage9foot", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
@@ -98,7 +108,7 @@ BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
 # kept committed) -- shipping it here means the stage transition exercises
 # a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None]
+FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None, None]
 
 # Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
 # length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
@@ -113,7 +123,7 @@ SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_ta
                 "out/spawn_stage2boss/spawn_table.bin", "out/spawn_stage3rock/spawn_table.bin",
                 "out/spawn_stage4leather/spawn_table.bin", "out/spawn_stage5sewer0/spawn_table.bin",
                 "out/spawn_stage6streets/spawn_table.bin", "out/spawn_stage7streets2/spawn_table.bin",
-                "out/spawn_stage8sewer/spawn_table.bin"]
+                "out/spawn_stage8sewer/spawn_table.bin", "out/spawn_stage9foot/spawn_table.bin"]
 
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test

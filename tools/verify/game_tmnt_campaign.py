@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """plan_game.md TMNT campaign gate: the real 4-level main campaign
-(sewer0 -> streets -> streets2 -> sewer, stages 5-8) plus the two
-standalone boss stages added alongside it in the same session (Rock/
-Leather, stages 3-4) -- game_g9_tmnt_boss.py already covers stage 2
-(Bebop) end-to-end; this gate is the rest of that TMNT conversion.
+(sewer0 -> streets -> streets2 -> sewer, stages 5-8), the standalone
+boss stages added alongside it in the same session (Rock/Leather, stages
+3-4), and the last standalone TMNT level (foot.txt, stage 9) --
+game_g9_tmnt_boss.py already covers stage 2 (Bebop) end-to-end; this gate
+is the rest of that TMNT conversion.
 
 Real, verified-from-the-pak content facts this gate checks against (see
 build_rom.py's BG_SCREENS/SPAWN_TABLES comments and the commit that added
@@ -14,21 +15,25 @@ story boss, not just the standalone practice stage at index 3); `streets2.txt`
 separately from the standalone stage 2 encounter); `sewer0.txt`/`sewer.txt`
 (stages 5/8) have none. Rock/Leather's own standalone stages (3/4) each
 have exactly one, matching game_g9_tmnt_boss.py's already-proven pattern.
+`foot.txt` (stage 9) has NONE despite its "Foot Soldier Test" framing --
+`spawn Foot3 / alias Foot_Soldier / health 500` is a real, single
+reinforced-HP encounter, not a `boss` record; verified directly, not
+assumed (this project already knows `alias` is cosmetic, not identity).
 
 Checks:
   1. Byte-level ground truth (the committed spawn_table.bin files
-     themselves, not an engine self-report): each of the 6 new stages'
+     themselves, not an engine self-report): each of the 7 new stages'
      RECORD_KIND_BOSS record count/position matches the real pak content
      above, and record counts match build_spawn_table.py's own printed
-     counts at conversion time (3/2/63/67/86/46).
-  2. Live engine: force-win sequentially from stage 0 through stage 8 (the
-     full real chain today), confirming Game_StageIndex reaches 8 and
-     Game_State returns to PLAYING -- exercises every one of the 8 stage-
+     counts at conversion time (3/2/63/67/86/46/1).
+  2. Live engine: force-win sequentially from stage 0 through stage 9 (the
+     full real chain today), confirming Game_StageIndex reaches 9 and
+     Game_State returns to PLAYING -- exercises every one of the 9 stage-
      transition edges this project's stage list now has, not just the ones
      game_g4_transition.py/game_g9_tmnt_boss.py already covered (0->1,1->2).
-  3. Stage 8's CGRAM matches out/bg_stage8sewer's own converter output
+  3. Stage 9's CGRAM matches out/bg_stage9foot's own converter output
      (ground truth the engine did not produce).
-  4. Not hung after the full 8-stage transition chain.
+  4. Not hung after the full 9-stage transition chain.
 
 Deliberately NOT checked live: stage 6's own real boss (Rock) firing
 mid-level. Measured directly: reaching its real trigger_x (2240) plateaus
@@ -73,8 +78,8 @@ ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_Z
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS  # noqa: E402
 
-_bg8_dir, _hud_dir = build_rom.BG_SCREENS[8]
-BG8_DIR = os.path.join(ROOT, _bg8_dir)
+_bg_last_dir, _hud_dir = build_rom.BG_SCREENS[9]
+BG_LAST_DIR = os.path.join(ROOT, _bg_last_dir)
 HUD_DIR = os.path.join(ROOT, _hud_dir)
 
 EXPECTED = {
@@ -84,6 +89,7 @@ EXPECTED = {
     6: ('out/spawn_stage6streets/spawn_table.bin', 67, [65]),
     7: ('out/spawn_stage7streets2/spawn_table.bin', 86, [85]),
     8: ('out/spawn_stage8sewer/spawn_table.bin', 46, []),
+    9: ('out/spawn_stage9foot/spawn_table.bin', 1, []),
 }
 
 
@@ -142,7 +148,7 @@ def main():
         r.check(f'stage {stage}: RECORD_KIND_BOSS at {boss_at} (expected {expected_boss})',
                  boss_at == expected_boss)
 
-    expected_palette = bytearray(_read(os.path.join(BG8_DIR, 'palette.bin')))
+    expected_palette = bytearray(_read(os.path.join(BG_LAST_DIR, 'palette.bin')))
     expected_palette[:32] = _read(os.path.join(HUD_DIR, 'hud_palette.bin'))
     expected_palette = bytes(expected_palette)
 
@@ -180,7 +186,7 @@ def main():
         # standalone encounter) below. What THIS gate adds for stage 6 is
         # the byte-level proof above that its real, converted spawn table
         # -- a second, different RECORD_KIND_BOSS site -- is correct.
-        for target in range(1, 9):
+        for target in range(1, 10):
             force_win_and_wait(m, r, from_stage=target - 1, label=f'{target-1}->{target}')
             got = word_at(m, GAME_STAGE_INDEX)
             r.check(f'Game_StageIndex advances {target-1} -> {target} ({got})', got == target)
@@ -189,18 +195,18 @@ def main():
         r.check(f'Game_State returns to PLAYING on the final stage ({final_state})',
                  final_state == GAME_STATE_PLAYING)
 
-        # --- 3. Stage 8's CGRAM matches its own converter output. ---
+        # --- 3. Stage 9's CGRAM matches its own converter output. ---
         got_palette = bytes(read_block(m, 0x000, 256, mem_type='snesCgRam'))
-        r.check("stage 8's CGRAM (BG1 backdrop + merged HUD sub-palette) "
-                "matches out/bg_stage8sewer's own converter output",
+        r.check("stage 9's CGRAM (BG1 backdrop + merged HUD sub-palette) "
+                "matches out/bg_stage9foot's own converter output",
                 got_palette == expected_palette)
 
-        # --- 5. Not hung after 8 real stage transitions. ---
+        # --- 4. Not hung after 9 real stage transitions. ---
         fc0 = word_at(m, 0x7E5023)
         m.run_frames(60)
         m.pause()
         fc1 = word_at(m, 0x7E5023)
-        r.check(f'Nmi_FrameCounter still advancing after all 8 transitions ({fc0} -> {fc1})',
+        r.check(f'Nmi_FrameCounter still advancing after all 9 transitions ({fc0} -> {fc1})',
                 fc1 > fc0)
 
     r.finish()

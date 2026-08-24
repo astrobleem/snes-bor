@@ -80,7 +80,7 @@ VmLoad_Crc2    = $7FE0C5   ; .db -- accumulator byte 2
 VmLoad_Crc3    = $7FE0C6   ; .db -- accumulator byte 3 (MSB)
 VmLoad_Cursor  = $7FE0C7   ; .dw -- module byte offset being folded in
 
-VM_MSU_OFFSET   = $135500   ; from build_rom.py's check_vm_constants -- re-sync
+VM_MSU_OFFSET   = $145C30   ; from build_rom.py's check_vm_constants -- re-sync
                             ; (rerun the build, paste its reported value) any
                             ; time an earlier roster/BG/FP/spawn asset changes
                             ; size, or the shipped level changes.

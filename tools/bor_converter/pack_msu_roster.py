@@ -190,9 +190,10 @@ PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 9   # bumped 5->9 adding the real 4-level TMNT main campaign
+MAX_BGS = 10  # bumped 5->9 adding the real 4-level TMNT main campaign
               # (sewer0/streets/streets2/sewer) alongside the 3 standalone
-              # TMNT boss stages and the 2 original BOR levels -- directory
+              # TMNT boss stages and the 2 original BOR levels, then 9->10
+              # for foot.txt (the last standalone TMNT level) -- directory
               # table grows by more BG_RECORD_SIZE (40B) entries, no format
               # version bump (bg_count is a runtime byte read off the file
               # header, main.pasm has no MAX_BGS-shaped hardcode to update)
