@@ -188,7 +188,11 @@ PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 4
+MAX_BGS = 5   # bumped 4->5 adding the 2 remaining real TMNT standalone boss
+              # stages (Rock.txt/Leather.txt) alongside Bebop's -- directory
+              # table grows by one more BG_RECORD_SIZE (40B), no format
+              # version bump (bg_count is a runtime byte read off the file
+              # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
 SPAWN_RECORD_SIZE = 8       # see build_spawn_table.py's module docstring for the layout

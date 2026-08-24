@@ -256,7 +256,7 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
 ; it against the packed bor.msu's real bg_count.
 ; ============================================================================
 
-STAGE_COUNT = 3   ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
+STAGE_COUNT = 5   ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
 
 Game_StageIndex   = $7E2758   ; .dw -- 0-based index of the currently loaded
                                ; stage; Bg_LoadScene_StageIndex (main.pasm)

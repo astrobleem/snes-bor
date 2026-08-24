@@ -48,8 +48,14 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
 # always record 0). Regenerate 1A's BG (kept committed, no longer the sole
 # shipped level) with:
 #   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1AEASY.TXT" -o out/bg_stage1a --streaming
+# Follow-up (same day): the two remaining real standalone TMNT boss levels,
+# data\levels\Rock.txt and data\levels\Leather.txt (Rocksteady, Leatherhead)
+# -- same real `boss 1` flag/pipeline as stage 2 (Bebop). Regenerate with:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Rock.txt" -o out/bg_stage3rock --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Leather.txt" -o out/bg_stage4leather --streaming
 BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
-              ("out/bg_stage2boss", "out/hud")]
+              ("out/bg_stage2boss", "out/hud"), ("out/bg_stage3rock", "out/hud"),
+              ("out/bg_stage4leather", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
@@ -60,7 +66,7 @@ BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
 # kept committed) -- shipping it here means the stage transition exercises
 # a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None, "out/fp_stage1a", None]
+FP_SCREENS = [None, "out/fp_stage1a", None, None, None]
 
 # Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
 # length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
@@ -72,7 +78,8 @@ FP_SCREENS = [None, "out/fp_stage1a", None]
 # left in main.pasm for it to check. Regenerate 1A's with:
 #   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
 SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin",
-                "out/spawn_stage2boss/spawn_table.bin"]
+                "out/spawn_stage2boss/spawn_table.bin", "out/spawn_stage3rock/spawn_table.bin",
+                "out/spawn_stage4leather/spawn_table.bin"]
 
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test

@@ -1,0 +1,71 @@
+{
+  "entity": "Rock",
+  "prefix": "out/rock",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/rock_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/rock_walk",
+      "frames": 12
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/rock_pain",
+      "frames": 2
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/rock_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/rock_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "riseattack",
+      "dir": "out/rock_riseattack",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "attack1",
+      "dir": "out/rock_attack1",
+      "frames": 9
+    },
+    {
+      "ordinal": 7,
+      "name": "attack2",
+      "dir": "out/rock_attack2",
+      "frames": 4
+    },
+    {
+      "ordinal": 8,
+      "name": "upper",
+      "dir": "out/rock_upper",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 6,
+    "attack2": 5,
+    "attack2_is_grab": false
+  },
+  "remap_palettes": []
+}
