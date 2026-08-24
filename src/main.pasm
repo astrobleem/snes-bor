@@ -4080,7 +4080,8 @@ Anim_Play_Fall__still_holding:
     sta CHAR_FALL_STATE_TIMER
     brl Anim_Done
 Anim_Play_Fall__to_rise:
-    sep #$20
+    ; still .a8 from this routine's own opening sep -- only reached via the
+    ; bne above, with no rep in between.
 .a8
     lda #0
     sta CHAR_FALL_STATE_TIMER
@@ -4106,7 +4107,8 @@ Anim_Play_Fall__playing_frames:
     brl Anim_Done
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Fall__advance:
-    sep #$20
+    ; still .a8 -- unbroken chain of .a8-only ops back to this routine's own
+    ; opening sep, no rep anywhere in between.
 .a8
     lda CHAR_FRAME_INDEX
     inc a
@@ -5496,12 +5498,15 @@ Character_HitApply__ScoreAndFinish:
     bra Character_HitApply__ScoreAndFinish__scored
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply__ScoreAndFinish__killed:
-    sep #$20
+    ; Game_Score_Award is documented "Entered/exited in .a8" (its own php
+    ; restores the caller's exact width) -- still .a8 from this block's own
+    ; entry, so no sep needed here.
 .a8
     lda #1
     jsr Game_Score_Award
 Character_HitApply__ScoreAndFinish__scored:
-    sep #$20
+    ; same reasoning -- still .a8 either way it's reached (the bra above,
+    ; or falling through Game_Score_Award's own .a8 return).
 .a8
     lda #1
     sta CHAR_HIT_APPLIED
@@ -6424,6 +6429,47 @@ Core_Text_DrawString_Long:
 ; drawbar header for why a duplicated block was needed instead.)
 Core_Dma_Enqueue_Long:
     jsr Core_Dma_Enqueue
+    rtl
+
+; Core_Text_DrawLabeledNumber_Long -- same trampoline pattern, for
+; core/pausemenu.pasm's Phase G5 volume row (Core_Text_DrawLabeledNumber,
+; also same-bank-only, ends in `rts`). MUST be genuine bank-0 code, same as
+; every other "_Long" trampoline here -- an earlier version of this file
+; tried moving these two trampolines past scpu_boot/scpu_main_loop instead,
+; to dodge this exact $C100-$FC00 budget crunch, and landed them inside
+; `.bank 2` (Font_TilesData/Text_StringPool's own dedicated bank) by
+; mistake -- `jsr`/`jsr`-only routines (Core_Text_DrawLabeledNumber,
+; Tad_QueueCommand) are genuinely bank-0 code, so a same-bank `jsr` issued
+; from bank-2 code resolves against BANK 2's own $8xxx space instead and
+; runs off into unrelated font/string data. Caught by
+; tools/verify/game_g5_sram.py's very first pause-menu check (Start no
+; longer even reached GAME_STATE_PAUSED) -- not a subtle bug, but worth
+; this note so it isn't reintroduced by the same reasoning next time.
+Core_Text_DrawLabeledNumber_Long:
+    jsr Core_Text_DrawLabeledNumber
+    rtl
+
+; Options_ApplyMusicVolume_Long -- Phase G5: queue the current
+; Options_MusicVolume (core/options.pasm, its own bank) to TAD via the
+; existing Tad_QueueCommand, also same-bank-only (`rts`). Called once from
+; core/pausemenu.pasm's Game_State_Pause_CheckEntry on the very first
+; PLAYING frame ever (see that routine's own header for why there, not
+; scpu_boot) and again on every Left/Right volume change from the pause
+; menu. Every call site is already .a8/.i16 at the jsl and none depends on
+; this routine's width on return (CheckEntry re-widens itself right after;
+; the pause-menu WAIT site's very next call, DrawVolumeRow, narrows to .a8
+; itself first thing) -- no php/plp bracket needed. Y (Tad_QueueCommand's
+; "second parameter") is left whatever it already holds, not zeroed --
+; SET_GLOBAL_MUSIC_VOLUME's own doc (tad-audio.inc) only reads parameter0,
+; so the stored parameter1 byte is genuinely dead, never read back by the
+; driver for this command.
+Options_ApplyMusicVolume_Long:
+.a8
+.i16
+    lda.l Options_MusicVolume
+    tax
+    lda #SET_GLOBAL_MUSIC_VOLUME
+    jsr Tad_QueueCommand
     rtl
 
 ; ----------------------------------------------------------------------------
@@ -10018,7 +10064,9 @@ Hud_DrawBar__partial:
     lda #0
     sta.l HudBarHp
 Hud_DrawBar__have:
-    sep #$20
+    ; both incoming paths (the bcc-not-taken fallthrough above, and
+    ; __partial's own bra) are already .a8 -- no rep between either path
+    ; and here, so no sep needed.
 .a8
     lda.l HudBarFilled
     clc
@@ -10081,7 +10129,9 @@ Hud_Play__bar:
     cmp.l HudCachedHp
     beq Hud_Play__bar_clean
 Hud_Play__bar_rebuild:
-    sep #$20
+    ; both incoming paths (the bne above, and falling through from the cmp)
+    ; are already .a8 from this routine's own opening sep -- no rep between
+    ; either path and here, so no second sep needed.
 .a8
     lda #0
     sta.l HudDirty
@@ -10094,7 +10144,8 @@ Hud_Play__bar_rebuild:
 .i16
     ldx #$0000
 Hud_Play__bar_clear:
-    rep #$31
+    ; still .a16/.i16 -- this label's only entry (fallthrough) and only
+    ; jump (the bcc below) are both already in that width, so no rep here.
 .a16
 .i16
     lda #$0000
@@ -10377,6 +10428,18 @@ scpu_boot:
     sta $2226               ; SBWE: S-CPU BW-RAM writes enabled
     stz $2228               ; BWPA: no BW-RAM write protect
     stz $2224               ; BMAPS: S-CPU BW-RAM window $00:6000 = BW-RAM bank 0
+
+    ; Phase G5: BW-RAM's classic $6000-$7FFF window is real battery-backed
+    ; save RAM (see core/options.pasm's own header), now writable by the
+    ; three pokes just above -- but reading it (Options_Init) and applying
+    ; the result to TAD are NOT done here. Both are deferred to the first
+    ; ever Game_State_Pause_CheckEntry call (core/pausemenu.pasm, bank 6,
+    ; already jsl'd from Game_State_Play__playing every PLAYING frame with
+    ; zero additional bank-0 cost) instead of two more jsl's living
+    ; permanently in this chronically-tight $C100-$FC00 bank -- see that
+    ; routine's own header for why this is equivalent in practice (still
+    ; well before the very first player action) and not a shortcut.
+
     stz $2203               ; CRV low
     lda #$80
     sta $2204               ; CRV high -> SA-1 reset vector $8000
@@ -10391,7 +10454,9 @@ scpu_boot:
     ; symbol+N one — the referencing instruction's own computed address was a
     ; constant few bytes off, independent of where the label itself sits, so
     ; padding at the label site could not fix it). See poppy bug #4/#5 notes.
-    sep #$20
+    ; (still .a8 from the SA-1 bringup pokes above -- Options_Init's own
+    ; body never touches width -- so no sep #$20 needed here; bare
+    ; directive only, 0 bytes.)
 .a8
     lda $2002
     cmp #$53                ; 'S'
@@ -11191,8 +11256,9 @@ scpu_main_loop:
     sep #$20
 .a8
     jsl Tad_Process
-    ; Drain active transfers each frame (from proven SM reference)
-    sep #$20
+    ; Drain active transfers each frame (from proven SM reference) -- still
+    ; .a8 from the sep above (Tad_Process's own .a8/rtl contract doesn't
+    ; change tracked width), so no second sep #$20 needed.
 .a8
     jsl Tad_FinishLoadingData
     rep #$31
@@ -11396,6 +11462,17 @@ Text_Str_PauseEndGameSel:
 Text_Str_PauseEndGameUnsel:
     .db "  END GAME                      ", $00
 
+; Phase G5: pause-menu volume row label, drawn by Core_Text_DrawLabeledNumber
+; (not DrawString -- see that routine's own header), so short and NOT padded
+; to 32 columns, matching the HUD labels below it. Kept to the bare minimum
+; this chronically-tight bank can afford (real ROM-budget constraint, not a
+; style choice) -- the row's own fixed position in the pause menu (between
+; CONTINUE and END GAME) plus the numeric readout are enough context.
+Text_Str_PauseVolumeSel:
+    .db "> V ", $00
+Text_Str_PauseVolumeUnsel:
+    .db "  V ", $00
+
 ; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
 ; columns -- unlike the title strings above, these are drawn by
 ; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
@@ -11455,4 +11532,10 @@ Text_Str_HudStage:
 .bank 6
 .org $8000
 .include "core/pausemenu.pasm"
+
+; Phase G5 (plan_game.md 5): real SRAM-backed options (music volume), own
+; bank for the same ROM-budget reason -- see core/options.pasm's own header.
+.bank 7
+.org $8000
+.include "core/options.pasm"
 

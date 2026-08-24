@@ -25,12 +25,11 @@ over (G3).
 
 **What that adds up to (updated 2026-08-23):** two levels, a real win condition
 and stage transition (G4), and a full title→character-select→playing menu flow
-plus a real pause menu with real drawn content (G5, only options/SRAM still a
-stub). Boss data plumbing and a boss health bar exist (G9) but are not
-reachable through any shipped level — only a hand-authored synthetic force
-exercises them. Still missing: ending/credits (G10), options (SRAM
-persistence), real grab/throw mutual-lock semantics, jump/special/block, and
-SFX (content-blocked).
+plus a real pause menu with real drawn content and SRAM-persisted options
+(G5, fully done). Boss data plumbing and a boss health bar exist (G9) but are
+not reachable through any shipped level — only a hand-authored synthetic
+force exercises them. Still missing: ending/credits (G10), real grab/throw
+mutual-lock semantics, jump/special/block, and SFX (content-blocked).
 
 **The honest gap list**, updated as phases land:
 
@@ -40,7 +39,7 @@ SFX (content-blocked).
 | ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
 | ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
-| Menus (title, char select, pause, options) | **Partial (G5)** — title, char select, and pause menu all done, gates `game_g5_menus.py`/`game_g5_pause.py`; only options (SRAM) still open, see §5 |
+| Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
 | Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, and a generic second attack (attack2) all done (G7, see §7 for gate names); jump/special/block and real grab mutual-lock semantics still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
@@ -337,11 +336,12 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: PARTIAL** (2026-08-23) — title screen (2026-08-21), character
-> select (2026-08-23), and the pause menu (2026-08-23) all shipped; only
-> options (SRAM persistence) remains. `GATE G5: PASS`
+> **Status: DONE** (2026-08-23) — title screen (2026-08-21), character
+> select (2026-08-23), the pause menu (2026-08-23), and options/SRAM
+> persistence (2026-08-23) all shipped. `GATE G5: PASS`
 > (`tools/verify/game_g5_menus.py`), `GATE G5-PAUSE: PASS`
-> (`tools/verify/game_g5_pause.py`). Per an advisor consult
+> (`tools/verify/game_g5_pause.py`), `GATE G5-SRAM: PASS`
+> (`tools/verify/game_g5_sram.py`). Per an advisor consult
 > for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
@@ -408,7 +408,52 @@ the streaming caches are consistent after reload.
 > re-entering rather than committing) would silently commit End Game again
 > on a bare Continue press — fixed by resetting the selector in
 > `Game_State_Pause_CheckEntry` on every entry. `GATE G5-PAUSE: PASS`
-> (18 checks). Options (SRAM persistence) is the only G5 item left open.
+> (18 checks).
+>
+> **Options/SRAM persistence shipped 2026-08-23** (`core/options.pasm`, new,
+> own ROM bank for the same budget reason). Real-OpenBOR-sourced scope:
+> `engine/openbor.c`'s `savedata` struct persists several settings, but this
+> project ships exactly one — music volume — because everything else (key
+> remap, gamma/brightness, SFX volume, difficulty) has no real content to
+> attach to here (same closure logic as §8a's `settime`/`maxenemy`: no
+> control-remap infrastructure exists; gamma/brightness are a CRT concept,
+> meaningless on a fixed-palette cart; SFX volume would control zero real
+> SFX content with G11 blocked; difficulty picks between mod-defined content
+> sets and only the EASY variant of any level has ever been converted).
+> Folded into the existing pause list as a third "VOLUME" row (real BOR
+> reaches its own options via a dedicated `FLAG_SCREENSHOT` key/screen this
+> hardware has no spare button for) rather than inventing an unreachable
+> second screen; Left/Right adjust ±32 with saturating clamp and persist to
+> SRAM immediately, matching real BOR's own `menu_options_sound()` (no
+> separate "save" step). Uses TAD's `SET_GLOBAL_MUSIC_VOLUME` (=16), not
+> `SET_MAIN_VOLUME` (=10) — the latter's own doc says it resets on every
+> song load, which would silently revert a persisted setting.
+>
+> **Real bug found and fixed**: the classic S-CPU SRAM window
+> (`$6000-$7FFF`) turned out to be unreadable in this project's own
+> architecture. Verified straight from Mesen2's C++ core:
+> `Sa1::UpdateSaveRamMappings()` registers that window with the *same*
+> `CpuBwRamHandler` class used for the `$40-$4F` CC-DMA window, and
+> `CpuBwRamHandler::Read` unconditionally diverts through Type-1 character
+> conversion whenever `CharConvDmaActive` is set — for any address reached
+> through that handler, not just the CC-DMA range. This project's
+> persistent SA-1 recomposite loop (`sa1_loop`) arms `CharConvDmaActive`
+> once, early in boot, and never clears it again, so every SRAM read from
+> that point on silently returned bogus converted-tile bytes instead of
+> real save data — writes were unaffected (`CpuBwRamHandler::Write` has no
+> such check), which is why the write/persist-to-disk half worked
+> immediately while every read-back came back zeroed. Fixed in
+> `Options_Init` by briefly ending character conversion (shared register
+> `$2231`, writable by either CPU) around the 4-byte SRAM read, then
+> restoring it and re-arming via `$2236` exactly like `sa1_loop`'s own
+> steady-state re-arm — safe against the SA-1's own loop because it only
+> writes `$2231` once, in its pre-loop setup, never per-iteration. Caught
+> because the gate genuinely spans two separate Mesen2 *processes*
+> (`reset_emulator()` alone never flushes/reloads the `.srm` file, so a
+> weaker single-session check would have missed this entirely) —
+> `GATE G5-SRAM: PASS` (12 checks: default-on-fresh-boot, in-menu lower,
+> on-disk `.srm` byte-exact, then a second process load, WRAM ground truth,
+> and the on-screen row, all against the persisted, non-default value).
 >
 > **ROM budget note:** this phase's ~6-byte boot-time `Title_Step` zero-init
 > in `scpu_boot` overflowed the fixed `$FC00`-region budget by exactly 6
@@ -433,15 +478,13 @@ Now that text exists (G1) and states exist (G2), these are mostly content.
   (a real character sprite/thumbnail on the screen, not just the name) are
   the one piece not built — text-only for now.
 - **Pause menu** — done (2026-08-23, `core/pausemenu.pasm`). Freeze on Start, CONTINUE/END GAME, real BOR-sourced content.
-- **Options** — music/SFX volume (MSU-1 volume is `$2006`; TAD has its own),
-  difficulty (the pak ships EASY/NORMAL/HARD variants of every stage, so this maps
-  directly onto which level file the converter packs), controls.
+- **Options** — done (2026-08-23, `core/options.pasm`). Music volume only,
+  SRAM-persisted; see the write-up above for why SFX volume/difficulty/
+  controls are explicitly out of scope rather than unbuilt.
 
-**Watch out:** persisting options across a reset needs SRAM. The ROM header
-already declares battery-backed RAM (`$35`, RAM size `$08`) but nothing uses it.
 Note: **roster-slot persistence specifically was declined and is not wanted** —
 it is not part of Beats of Rage. Options persistence is a different question and
-is genuinely expected.
+was genuinely expected, and is now shipped.
 
 **Gate** (`game_g5_menus.py`): navigate each menu via `set_input`, assert the
 selected index and the resulting state transition.
