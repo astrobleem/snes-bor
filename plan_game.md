@@ -23,16 +23,25 @@ Select-cycling, convert-time spawn tables driving real enemy waves, a font/text
 renderer (G1), a game state machine (G2), and player death/lives/continues/game
 over (G3).
 
-**What that adds up to (updated 2026-08-23):** three levels (the 3rd a real
-converted TMNT boss stage), a real win condition and stage transition (G4),
-and a full title→character-select→playing menu flow plus a real pause menu
-with real drawn content and SRAM-persisted options (G5, fully done). A real
-boss fight is now reachable in play (G9, fully done) — the boss entity
-reuses whichever roster character already occupies its AI slot rather than
-rendering as Bebop's own sprite art (a deliberate scope call, see §9 and
-§12's character-identity gap). Still missing: ending/credits (G10), real
+**What that adds up to (updated 2026-08-24):** ten real stages (indices
+0-9) — the original 2 BOR levels, the full real TMNT pak converted on top
+of them: 3 standalone TMNT boss stages (Bebop/Rock/Leatherhead), the real
+4-level TMNT main campaign (`sewer0`→`streets`→`streets2`→`sewer`, with
+Rock and Bebop fought again as *story* bosses on top of their standalone
+encounters), and the last standalone TMNT level (`foot.txt`, no boss
+despite its name) — a real win condition and stage transition generalized
+across all of them (G4), and a full title→character-select→playing menu
+flow plus a real pause menu with real drawn content and SRAM-persisted
+options (G5, fully done). Real boss fights are reachable in play (G9,
+fully done) — every boss/enemy reuses whichever roster character already
+occupies its AI slot rather than rendering as its own sprite art; this
+was investigated for real this session (not just assumed) and found to be
+a genuine architectural fork, not a quick data-plumbing fix — see §9 and
+§12's character-identity gap. Still missing: ending/credits (G10), real
 grab/throw mutual-lock semantics, jump/special/block, and SFX
-(content-blocked).
+(content-blocked). Double Dragon Moto (the third pak in this repo) stays
+unconverted — its levels need the openborscript VM, which remains
+explicitly shelved.
 
 **The honest gap list**, updated as phases land:
 
@@ -46,7 +55,7 @@ grab/throw mutual-lock semantics, jump/special/block, and SFX
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
 | Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, and a generic second attack (attack2) all done (G7, see §7 for gate names); jump/special/block and real grab mutual-lock semantics still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
-| ~~Bosses~~ | **Done (G9, 2026-08-23)** — real TMNT `BEBOP.TXT` boss stage shipped as stage index 2, `EntityN_IsBoss` + boss health bar reachable in play, gate `game_g9_tmnt_boss.py` (12 checks); synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
+| ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
 | SFX | Every impact feeling real (blocked on content, §11) |
 
@@ -1149,6 +1158,104 @@ choice rather than picking unilaterally.
 - ~~Boss health bar, stage-gating (camera locks until defeated).~~ **Done, 2026-08-23** (`core/hud_boss.pasm`, `Hud_Play__boss_bar`, own bank for ROM budget, entered `jsl` from `main.pasm`'s `Hud_Play`) — gates directly on `EntityN_IsBoss`+HP>0, lowest-numbered living boss wins, blank row when none. Found and fixed two real bugs along the way: `HUD_ROW_BOSS` initially collided with the pre-existing boot-time G1 text demo on row 4 (moved to row 6), and `Hud_DrawBar` (the existing player-bar routine) hardcodes its target buffer as `HudStaging` with no parameter, so an earlier version that called it directly for the boss bar silently drew into the player's own buffer — fixed by duplicating the draw body into `Hud_Play__boss_bar_drawbar` against its own `HudBossStaging`/DMA, per this project's own "small duplicated block over a parameterized shared one" precedent. Stage-gating needed no new code — see corrected premise above. **GATE G9-BOSSBAR: PASS** (`tools/verify/game_g9_boss_bar.py`, 11 checks, hand-authored synthetic force since no shipped BOR stage uses `boss`).
 
 `out/bg_boss_level` already exists as converted assets from an earlier phase.
+
+> **Follow-up, 2026-08-23/24: the full TMNT pak converted, not just one
+> boss stage.** The user asked directly why G9 wasn't fully closed out if
+> its only real gap was "no shipped level uses `boss`" — the honest answer
+> was that this project had only ever converted a single BOR pak's two
+> levels; TMNT (a full separate pak already sitting in this repo) had
+> real, playable boss content nobody had converted. Rather than declare
+> the gap permanently content-blocked, converted the whole real TMNT pak.
+> Ten real stages ship now (indices 0-9): the original 2 BOR levels
+> (0-1), Bebop's standalone boss stage (2, done first, see above), Rock's
+> and Leatherhead's standalone boss stages (3-4), the real 4-level TMNT
+> main campaign in its real `Play_Demo` order — `sewer0` → `streets` →
+> `streets2` → `sewer` (5-8) — and `foot.txt`, the last standalone TMNT
+> level (9). Scene cutscenes (`STORY.TXT`/`ENDING.TXT`) were left out —
+> this project has no cutscene-image renderer and building one wasn't in
+> scope here.
+>
+> **Real content facts, verified by extracting and reading every level
+> file directly, not assumed:** `streets.txt` and `streets2.txt` each
+> have their own real `boss 1` line — Rock and Bebop are fought again as
+> *story* bosses, separate spawn tables from their standalone practice
+> stages. `sewer0.txt`/`sewer.txt` have none (waves of `mouser`/`foot0X`
+> only). `foot.txt`, despite its "Foot Soldier Test" framing, has **no**
+> `boss 1` line at all — `spawn Foot3 / alias Foot_Soldier / health 500`
+> is just a single reinforced-HP encounter (`alias` was already known to
+> be cosmetic here, not identity — see §12). Every prop/decoration name
+> in the campaign levels (`Epole`/`Hydrant`/`Plant`/`Tree`/`trash*`/
+> `Parkm`/`Pipef*`/`car`/`guy`/`mail`/`Pizza`/`White*`/`Light*`/`Smoke`/
+> `Wdrop`) is real TMNT data with `type` = `panel`/`obstacle`/`none`/
+> `item` — genuine background scenery or a pickup, not a combatant —
+> skipped the same way `Hydrany` was skipped in the Bebop stage.
+>
+> **Character roster:** converted every real `enemy`-type fighter the
+> campaign actually references — `MOUSER` and `FOOT01`-`FOOT04` (5
+> characters, same `convert_character.py` pipeline as every prior roster
+> addition). Hit a real, hard format limit doing this: the packed
+> roster directory is capped at 8 slots (`pack_msu_roster.py` byte
+> 0x09), and 4 were already spent (RALF/JHUN/JOE/YASHIRO) — only 4 more
+> fit, not 5. FOOT01-04 are mechanically identical in the source data
+> (same anim set, same HP=70), so FOOT01 was added as the roster's 6th
+> member; FOOT02-04's converted assets are real, committed, and unused
+> pending either a roster-capacity rework or the identity fix below.
+>
+> **A real, load-bearing architectural finding, not a code fix**: per-
+> spawn character identity — every enemy, TMNT or BOR, rendering as
+> *itself* rather than whatever roster member already occupies its AI
+> slot — is not simply unwired data plumbing. `CharacterEntity_Init`'s
+> `(role<<8)|roster_index` param and the per-instance `CHAR_ROSTER_INDEX`
+> field already exist, but they're only ever set ONCE, at boot — the 3 AI
+> entities are created at boot with a fixed roster index each, and
+> `Spawn_Play` only ever recycles them (new HP/position/flags), by
+> design: the fixed-address `EntityN_Base` scheme can't survive the
+> generic OOP kill/GC path (see [[phase11_damage_system_softkill]]).
+> Making a spawn load its own character would mean re-triggering
+> `Anim_LoadCharacter` — a real asset stream with its own busy-wait/DMA-
+> queue sequencing — from inside `Spawn_Play`'s per-frame call, risking
+> the one-entity-streams-per-frame invariant this project has broken and
+> fixed before. Not attempted; every enemy still renders as whichever
+> roster member already occupies its AI slot. This is the same gap §9's
+> Bebop section and §12 both already flag — now confirmed, not just
+> assumed, to be a real architectural fork rather than a quick slice.
+>
+> **A real regression found and fixed while running the full suite** (not
+> by the new content itself, but by the roster growing past what a
+> hand-synced table anticipated): `main.pasm`'s `CharSelect_NamePtrs` —
+> one word-pointer entry per roster slot, indexed by `CharSelect_Index`
+> — still only had 4 entries after the roster grew to 6. Wrapping to
+> slot 4/5 read 2 words of garbage past the table's own end as a string
+> pointer. Caught by `game_g5_menus.py`'s own wrap check failing loudly,
+> not silently; fixed by adding the 2 missing entries. Two verify
+> scripts that hardcoded the old 4-slot roster (and would have masked
+> the same bug shape again later) were also fixed: `game_g5_menus.py`'s
+> wrap-target name, and `game_g7_grab.py`'s "2 Select presses wraps JOE
+> back to RALF" (now derives the press count from the real
+> `CharSelect_RosterCount`, never a hardcoded roster size).
+>
+> **Gate**: `tools/verify/game_tmnt_campaign.py`, `GATE TMNT-CAMPAIGN:
+> PASS` — byte-level `RECORD_KIND_BOSS` verification against every new
+> stage's real converted spawn table, plus a live force-win walk through
+> all 9 real stage-transition edges (0→9), plus CGRAM ground truth on
+> the final stage. Deliberately does NOT force stage 6's own story-boss
+> (Rock) to fire live in-gate: measured directly that its real
+> `trigger_x` (2240) is gated by a real, already-verified `wait` scroll-
+> lock mechanic that a quick gate isn't worth fighting to push past — the
+> byte-level check plus the already-passing Bebop/Rock-standalone live
+> gates already prove the mechanism end-to-end. `game_g9_tmnt_boss.py`
+> and the two synthetic G9 gates were kept and still pass.
+>
+> Full regression suite verified clean at each commit: `build_rom.py`,
+> `audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> phases 5-12, and every `game_g1`-`game_g9`/`game_health_override`/
+> `game_map_remap`/`game_tmnt_campaign` gate.
+>
+> **Explicitly still open, not silently dropped**: FOOT02-04's converted
+> assets sit unused (roster-capacity-capped); the per-spawn character-
+> identity gap above; Double Dragon Moto (a separate pak, needs the
+> openborscript VM for real level logic — explicitly out of scope, the
+> VM stays shelved per standing instruction); scene cutscenes.
 
 ---
 
