@@ -1,0 +1,23 @@
+{
+  "entity": "Bebop",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.16842105263157894,
+  "hotspot_canvas": [
+    13,
+    18
+  ],
+  "frames": [
+    {
+      "delay": 30,
+      "offset": [
+        100,
+        165
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

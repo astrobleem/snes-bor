@@ -100,7 +100,9 @@ def moveset_remap_bytes(char_name):
 
 def record(trigger_x, spawn_x, kind, map_value, spawn_hp=64):
     record_kind = (kind & 0x07) | ((map_value & 0x03) << SPAWN_MAP_SHIFT)
-    return struct.pack('<HHBBBB', trigger_x, spawn_x, 100, 0, record_kind, spawn_hp)
+    # roster-growth slice: record grew 8->9 bytes (dedicated +8 roster_idx
+    # byte); 0 here, this gate never uses RECORD_KIND_BOSS_IDENTIFIED.
+    return struct.pack('<HHBBBBB', trigger_x, spawn_x, 100, 0, record_kind, spawn_hp, 0)
 
 
 def load_one_record(m, rec):
@@ -214,7 +216,7 @@ def main():
         # test that SPAWN_KIND_MASK didn't change kind decode for non-spawn
         # records.
         force_free(m, jhun_base)
-        wait_rec = struct.pack('<HHBBBB', 0, 0, 0, 0, SPAWN_KIND_WAIT, 0)
+        wait_rec = struct.pack('<HHBBBBB', 0, 0, 0, 0, SPAWN_KIND_WAIT, 0, 0)
         load_one_record(m, wait_rec)
         m.run_frames(6)
         m.pause()

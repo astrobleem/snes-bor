@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Packs up to 8 characters' idle/walk/attack animation data into a single
+"""Packs up to 15 characters' idle/walk/attack animation data into a single
 bor.msu file for runtime selection over MSU-1 (see the plan at
 `temporal-swinging-hartmanis.md`), replacing the old flow of baking exactly
 one character's data into the ROM at build time via gen_pasm_animset.py +
@@ -14,15 +14,21 @@ File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
     0x08       format_version = 4               [was 2 -- see BG record v3/v4 below]
-    0x09       roster_count (1-8)
+    0x09       roster_count (1-15)   [cap bumped 8->15, roster-growth slice --
+               15 is a real hardware-arithmetic ceiling, not a round number,
+               see MAX_CHARACTERS's own comment]
     0x0A       bg_count (0-MAX_BGS, a plain runtime byte -- MAX_BGS is this
                module's own soft Python-side sanity cap, bumped as real
-               content grows, not a format limit like roster_count's 1-8)   [v2]
+               content grows, not a format limit like roster_count's 1-15)   [v2]
     0x0B       reserved
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
-    0x10       directory: 8 records x 17 bytes = 136 bytes (0x10-0x97)
-                [grew 16->17 in the grab mutual-lock slice -- see +16 below]
+    0x10       directory: MAX_CHARACTERS records x 17 bytes = 255 bytes
+               (0x10-0x10E) [grew 16->17 in the grab mutual-lock slice, see
+               +16 below; grew 8->15 *records* in the roster-growth slice --
+               main.pasm's seek math (index*17+0x10) is unaffected, since it
+               was already per-record, not directory-length-dependent; only
+               this packer's own HEADER_SIZE/blob-start offset moves]
       record N at 0x10 + N*17:
         +0  idle_frame_count   (u8)
         +1  walk_frame_count   (u8)
@@ -50,7 +56,10 @@ File format (see the plan for the authoritative spec):
                                         (16->17); all prior second-move
                                         work fit inside existing padding]
 
-    0x98+      character blobs, packed sequentially:
+    HEADER_SIZE+  character blobs, packed sequentially (HEADER_SIZE = 0x10 +
+               MAX_CHARACTERS*17 = 0x10F today; was the literal 0x98 before
+               the roster-growth slice bumped MAX_CHARACTERS 8->15 -- always
+               computed from MAX_CHARACTERS, never a hardcoded literal):
       +0..31   palette: 16 x BGR555 LE
       +32..    idle_frame_count * 768 bytes
       next     walk_frame_count * 768 bytes
@@ -142,13 +151,14 @@ The BG section is appended AFTER the character blobs so that adding it does not
 move any character data_offset -- a v1-era reader that ignores the new header
 fields still finds every character exactly where it used to be.
 
-Unused directory slots (roster_count <= N < 8) are left fully zeroed --
-main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as "no
-character here" (see the plan's Phase 5, MSU-absent / zero-frame-count path).
+Unused directory slots (roster_count <= N < MAX_CHARACTERS) are left fully
+zeroed -- main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as
+"no character here" (see the plan's Phase 5, MSU-absent / zero-frame-count
+path).
 
 data_offset is a full 32-bit field even though realistic rosters stay under
 16MB, because a real multi-character roster can push it past 65536 well
-before 8 slots are full -- every WRAM quantity derived from it in
+before all 15 slots are full -- every WRAM quantity derived from it in
 Anim_LoadCharacter must be handled as 24-bit (lo16+hi8) with explicit carry
 propagation, not a bare 16-bit add. This packer itself has no 16-bit
 limitation (Python ints are arbitrary precision), so verify_msu_roster.py's
@@ -158,7 +168,7 @@ the real 65816 carry-add logic Phase 2 has to write and test on real
 hardware/emulation.
 
 Usage:
-    python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 8]
+    python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 15]
 
 Each <prefixN> must have a <prefixN>_moveset.json (convert_character.py's
 generic per-character manifest -- see _resolve_role_dirs) resolving its
@@ -181,7 +191,16 @@ import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
 FORMAT_VERSION = 4
-MAX_CHARACTERS = 8
+# Bumped 8->15 (roster-growth slice): NOT an arbitrary round number -- 15 is
+# the real ceiling of main.pasm's existing directory-seek arithmetic
+# (Anim_LoadCharacter: `offset = index*17 + 0x10`, done entirely in an 8-bit
+# accumulator with no carry, see that routine's own comment). index=15 gives
+# 15*17+16=271, which silently wraps mod 256 to 15 -- wrong, not a crash.
+# index=14 gives 254, the largest index that still fits, so 15 total slots
+# (0-14) is the real hardware-arithmetic wall today. Going past 15 needs that
+# seek routine rewritten to carry into a second byte first; it does not
+# today, so MAX_CHARACTERS must not exceed 15 without that follow-up change.
+MAX_CHARACTERS = 15
 RECORD_SIZE = 17  # grab mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)
 DIRECTORY_BASE = 0x10
 HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
@@ -199,9 +218,11 @@ MAX_BGS = 10  # bumped 5->9 adding the real 4-level TMNT main campaign
               # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
-SPAWN_RECORD_SIZE = 8       # see build_spawn_table.py's module docstring for the layout
+SPAWN_RECORD_SIZE = 9       # see build_spawn_table.py's module docstring for the layout
                              # (grew from 7 to 8 -- health-override slice added
-                             # a spawn_hp byte, follow-up to plan_game.md G8)
+                             # a spawn_hp byte, follow-up to plan_game.md G8;
+                             # 8 to 9 -- roster-growth slice added a dedicated
+                             # roster_idx byte)
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
@@ -705,7 +726,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
 def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
-    `prefixes` is a list of 1-8 out/<name> character prefixes; unused
+    `prefixes` is a list of 1-15 out/<name> character prefixes; unused
     directory slots stay zeroed. `bgs` is an optional list of
     (bg_dir, hud_dir) pairs, appended as the v2 BG section after the
     character blobs so no character data_offset moves. `fps` (v5, Phase 10,

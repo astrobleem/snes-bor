@@ -70,7 +70,9 @@ def force_one_spawn(m, entity_kind, spawn_hp):
     """Craft a single 8-byte record at SpawnTable_Wram record 0, arm the
     queue for exactly one entry, and free entity 1's slot -- then run a
     few frames so Spawn_Play claims it."""
-    record = struct.pack('<HHBBBB', 0, 100, 100, 0, entity_kind, spawn_hp)
+    # roster-growth slice: record grew 8->9 bytes (dedicated +8 roster_idx
+    # byte); 0 here, this gate never uses RECORD_KIND_BOSS_IDENTIFIED.
+    record = struct.pack('<HHBBBBB', 0, 100, 100, 0, entity_kind, spawn_hp, 0)
     m.write_memory('snesMemory', SpawnTable_Wram, record.hex())
     m.write_memory('snesMemory', Spawn_Count, '01')
     m.write_memory('snesMemory', Spawn_Index, '00')

@@ -12,32 +12,30 @@ converted straight from `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`,
 record, plus a decorative `spawn Hydrany` (`type obstacle`, converts to
 RECORD_KIND_PROP) and a closing `wait`.
 
-Real, deliberate scope decision (grounded in this project's own established
-precedent, not invented for this slice): the boss entity renders using
-WHICHEVER roster character already occupies the AI slot the real spawn
-record lands on -- build_spawn_table.py's own header has documented this as
-current, intended, unchanged behavior for every stage since Phase 8
-("every record spawns using whichever roster character is already wired to
-the slot it lands in"); stage 1A's own `angel` spawns already do this today.
-Adding a new roster character for Bebop's own sprite art was considered and
-rejected: the fixed 4-entity/roster-slot model assigns each entity's roster
-character once at boot (see phase15_fourth_character/phase12_roster_expansion
-project memory), not per-stage, so there is no existing mechanism to swap an
-AI entity's sprite specifically for this one stage without new, real,
-per-stage roster-reassignment engine code -- out of scope for "make the
-already-built G9 plumbing reachable," which needs zero new S-CPU code at all
-(confirmed: this gate required no .pasm changes, only build_rom.py's
-BG_SCREENS/FP_SCREENS/SPAWN_TABLES lists and game_state.pasm's STAGE_COUNT,
-both already-generalized per-stage mechanisms from G4/G14).
+**UPDATED (roster-growth slice, same session)**: the paragraph that used to
+live here documented Bebop's boss rendering as a reskin (whichever roster
+character already occupied the AI slot) as a deliberate, load-bearing scope
+cut. That was overturned for real, not just re-labeled: Bebop was converted
+fresh from the TMNT pak and added as roster slot 8, and this stage's real
+spawn record now carries RECORD_KIND_BOSS_IDENTIFIED with roster_idx=8, so
+Spawn_Play actually re-streams the AI slot with Bebop's own real converted
+character (see core/spawn.pasm's Spawn_DoRosterReassign and
+game_spawn_roster_reassign.py, which proves the same mechanism end-to-end
+for Rock/Leather). Stage 1A's own `angel` spawn still reskins -- ordinary
+(non-boss) enemies never got individual roster slots, so there is nothing
+real to identify them against; that part of the old scope cut still stands,
+just no longer for Bebop specifically.
 
 Checks:
-  1. The real spawn table's boss record decodes to record_kind==4 (RECORD_
-     KIND_BOSS) at the pipeline level (byte-level, ground truth off the
-     committed out/spawn_stage2boss/spawn_table.bin, not an engine self-
-     report) -- proves build_spawn_table.py's already-existing `elif
-     e.boss: record_kind = RECORD_KIND_BOSS` branch fired for real TMNT
-     data, not just the hand-authored synthetic record the other two G9
-     gates use.
+  1. The real spawn table's boss record decodes to RECORD_KIND_BOSS_IDENTIFIED
+     with roster_idx==8 (Bebop's real roster slot) at the pipeline level
+     (byte-level, ground truth off the committed
+     out/spawn_stage2boss/spawn_table.bin, not an engine self-report) --
+     proves build_spawn_table.py's real roster-lookup path fired for this
+     stage now that Bebop is a real roster member, not the plain
+     no-identity RECORD_KIND_BOSS the other two G9 gates still use for
+     their hand-authored synthetic record (predates any roster membership
+     for that record's fictional character).
   2. Driving the real win condition twice (stage 0->1, proven mechanism
      already covered by game_g4_transition.py; then 1->2, the untested
      direction into the new boss stage) lands on Game_StageIndex==2,
@@ -101,7 +99,8 @@ ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_Z
 ENTITY_ISBOSS = [None, Entity1_IsBoss, Entity2_IsBoss, Entity3_IsBoss]
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
-from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS  # noqa: E402
+from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
+BEBOP_ROSTER_IDX = build_rom.ROSTER_PREFIXES.index('out/bebop')
 
 _bg2_dir, _hud_dir = build_rom.BG_SCREENS[2]
 BG2_DIR = os.path.join(ROOT, _bg2_dir)
@@ -184,12 +183,13 @@ def main():
     boss_records = []
     for i in range(record_count):
         rec = spawn_bytes[i * RECORD_SIZE:(i + 1) * RECORD_SIZE]
-        _trig, _sx, _sy, _facing, kind, _hp = struct.unpack('<HHBBBB', rec[:8])
-        if (kind & 0x07) == RECORD_KIND_BOSS:
-            boss_records.append(i)
+        _trig, _sx, _sy, _facing, kind, _hp, roster_idx = struct.unpack('<HHBBBBB', rec[:9])
+        if (kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED:
+            boss_records.append((i, roster_idx))
     r.check(f'out/spawn_stage2boss/spawn_table.bin has exactly one real '
-            f'RECORD_KIND_BOSS record (found at {boss_records})',
-            boss_records == [0])
+            f'RECORD_KIND_BOSS_IDENTIFIED record with roster_idx={BEBOP_ROSTER_IDX} '
+            f'(found {boss_records})',
+            boss_records == [(0, BEBOP_ROSTER_IDX)])
 
     expected_palette = bytearray(_read(os.path.join(BG2_DIR, 'palette.bin')))
     expected_palette[:32] = _read(os.path.join(HUD_DIR, 'hud_palette.bin'))

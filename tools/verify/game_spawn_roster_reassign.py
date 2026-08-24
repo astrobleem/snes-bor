@@ -82,7 +82,11 @@ ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_Z
 ENTITY_ISBOSS = [None, Entity1_IsBoss, Entity2_IsBoss, Entity3_IsBoss]
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
-from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED, ROSTER_SHIFT  # noqa: E402
+from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
+# roster-growth slice: roster_idx moved from record_kind's spare bits (was
+# ROSTER_SHIFT=5) to its own dedicated +8 byte once the roster cap (8) grew
+# past what 3 spare bits could hold -- see build_spawn_table.py's RECORD_SIZE
+# comment and core/spawn.pasm's record-layout comment for the real history.
 
 
 def _read(path):
@@ -142,7 +146,7 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
     for i in range(n):
         kind = data[i * RECORD_SIZE + 6]
         if (kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED:
-            found = (i, (kind >> ROSTER_SHIFT) & 0x07)
+            found = (i, data[i * RECORD_SIZE + 8])
     r.check(f'{roster_prefix}: {spawn_relpath} has a RECORD_KIND_BOSS_IDENTIFIED '
              f'record with roster_idx={expected_roster_idx} (found {found})',
              found is not None and found[1] == expected_roster_idx)

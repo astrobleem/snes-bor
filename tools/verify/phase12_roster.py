@@ -31,16 +31,54 @@ Checks, all against a live Mesen2 session:
    (see main.pasm's own comment there) -- there's no way to derive this
    from the ROM automatically, same accepted-risk hand-sync pattern as
    other build-time-computed-but-hand-copied constants in this project.
+
+**Fixed (roster-growth slice, real bug in this GATE, not the engine):**
+this used to assert every pair of roster slots has a DISTINCT CGRAM
+palette, as a proxy for "loading slot N really loaded slot N's own data."
+That proxy broke once the roster grew to include TMNT's own FOOT01-04 --
+real, separately-converted characters, but literal mechanical clones in
+the source pak (same sprite, same recolor), so several of them really do
+share byte-identical palettes. That is correct converted content, not a
+bug. Replaced with the actually-meaningful check: each snapshot must match
+that slot's OWN real converted `palette.txt` (ground truth this project
+did not compute at test time), not merely differ from its neighbors --
+this still catches a real "wrong slot loaded" bug (the snapshot would
+match a DIFFERENT prefix's ground truth, not just "look the same as
+another slot") while tolerating real duplicate content.
 """
+import json
 import os
+import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import open_session, pasm_constant, read_block, Reporter  # noqa: E402
 
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+sys.path.insert(0, REPO_ROOT)
+sys.path.insert(0, os.path.join(REPO_ROOT, 'tools', 'bor_converter'))
+import build_rom  # noqa: E402 -- real ROSTER_PREFIXES, not re-typed here
+from gen_pasm_animset import load_palette  # noqa: E402
+from pack_msu_roster import MAX_CHARACTERS  # noqa: E402
+
 CharSelect_Index = 0x7E53B6
 CharSelect_RosterCount = 0x7E53B7
 CharSelect_Loaded = 0x7E53B8
+
+
+def real_palette_bytes(prefix):
+    """Ground truth: this roster slot's own real converted palette, read
+    straight from convert_character.py's own output -- never a value this
+    test computed. Every real character has an `idle` role (see
+    moveset_pipeline_generalization); its palette.txt is shared across all
+    of that character's anims by construction (convert_character.py quantizes
+    every animation together), so `idle` is as good as any other role here."""
+    with open(os.path.join(REPO_ROOT, f'{prefix}_moveset.json'), 'r', encoding='utf-8') as f:
+        moveset = json.load(f)
+    idle_ordinal = moveset['roles']['idle']
+    idle_dir = next(e['dir'] for e in moveset['animations'] if e['ordinal'] == idle_ordinal)
+    colors = load_palette(os.path.join(REPO_ROOT, idle_dir))
+    return b''.join(struct.pack('<H', c) for c in colors)
 
 # CGRAM OBJ palette slots (byte $100 + slot*32) -- same layout phase5.py uses.
 PLAYER_PALETTE_ADDR = 0x100          # CHAR_PALETTE_SLOT=0, Entity #0
@@ -75,7 +113,10 @@ def main():
 
         roster_count = read_block(m, CharSelect_RosterCount, 32)[0]
         print(f'CharSelect_RosterCount: {roster_count}')
-        r.check(f'roster count reads a sane value (1-8)', 1 <= roster_count <= 8)
+        r.check(f'roster count reads a sane value (1-{MAX_CHARACTERS})',
+                 1 <= roster_count <= MAX_CHARACTERS)
+        r.check(f'roster count matches build_rom.py\'s real ROSTER_PREFIXES ({len(build_rom.ROSTER_PREFIXES)})',
+                 roster_count == len(build_rom.ROSTER_PREFIXES))
 
         palette_snapshots = []
         index_snapshots = []
@@ -99,9 +140,10 @@ def main():
         r.check('palette at index 0 == palette at wrapped index 0 (same character reloads identically)',
                  palette_snapshots[0] == palette_snapshots[roster_count])
         for i in range(roster_count):
-            for j in range(i + 1, roster_count):
-                r.check(f'palette at index {i} != index {j} (distinct character loaded)',
-                         palette_snapshots[i] != palette_snapshots[j])
+            prefix = build_rom.ROSTER_PREFIXES[i]
+            ground_truth = real_palette_bytes(prefix)
+            r.check(f'palette at index {i} ({prefix}) matches its own real converted palette.txt',
+                     palette_snapshots[i] == ground_truth)
 
         # --- Every non-player entity loaded its assigned roster slot at
         # boot -- its own CGRAM slot should match the player's own

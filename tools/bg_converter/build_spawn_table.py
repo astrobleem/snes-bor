@@ -190,7 +190,18 @@ from pak_extract import read_entries, extract
 from entity_parse import parse_entity
 
 SCALE = 256 / 320
-RECORD_SIZE = 8
+RECORD_SIZE = 9   # grew 8->9, roster-growth slice: RECORD_KIND_BOSS_IDENTIFIED's
+                  # roster index used to be packed into record_kind's spare
+                  # bits 5-7 (3 bits, 0-7) -- that byte is now fully packed
+                  # (3 kind + 2 map + 3 roster = 8/8, zero bits left), and the
+                  # roster cap grew 8->15 (pack_msu_roster.py, MAX_CHARACTERS),
+                  # which needs 4 bits. Rather than steal map's bits (map and
+                  # boss-identity are independent, real levels can want both),
+                  # +8 is a new, dedicated roster_idx byte -- same
+                  # spawn-record-growth pattern already used for entity_kind
+                  # (+6) and health (+7). 0 when unused (every non-
+                  # RECORD_KIND_BOSS_IDENTIFIED record); core/spawn.pasm only
+                  # reads it when record_kind == RECORD_KIND_BOSS_IDENTIFIED.
 CHAR_HP_MAX = 64   # == main.pasm's CHAR_HP_MAX; hand-copied here since this
                     # module has no access to main.pasm's own constant table
                     # (same pattern PROP_HP below already uses)
@@ -206,17 +217,17 @@ RECORD_KIND_BOSS_IDENTIFIED = 5   # real spawn-driven roster-reassignment
                                   # slice: same as RECORD_KIND_BOSS, but the
                                   # spawned character name was found in the
                                   # ACTUAL shipped roster (--roster) -- the
-                                  # real roster index (0-7) is packed into
-                                  # this same byte's spare high bits (see
-                                  # ROSTER_SHIFT below), and
+                                  # real roster index (0-14, roster-growth
+                                  # slice) is carried in the record's
+                                  # dedicated +8 roster_idx byte (see
+                                  # RECORD_SIZE's own comment -- used to be
+                                  # 3 spare bits in this byte, outgrew that
+                                  # when MAX_CHARACTERS went 8->15), and
                                   # core/spawn.pasm's Spawn_Play re-streams
                                   # that slot's own real character instead
                                   # of leaving it as a reskin.
 
 MAP_SHIFT = 3
-ROSTER_SHIFT = 5   # core/spawn.pasm's SPAWN_ROSTER_SHIFT/SPAWN_ROSTER_MASK
-                    # -- 3 spare bits, matches the roster format's own real
-                    # 1-8 slot cap (pack_msu_roster.py).
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
 # else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
@@ -278,15 +289,15 @@ def convert_events(events, type_lookup, roster_lookup=None):
     for e in events:
         if isinstance(e, WaitEvent):
             trigger_x = round(e.at * SCALE)
-            out += struct.pack('<HHBBBB', trigger_x & 0xFFFF, 0, 0, 0,
-                                RECORD_KIND_WAIT, 0)
+            out += struct.pack('<HHBBBBB', trigger_x & 0xFFFF, 0, 0, 0,
+                                RECORD_KIND_WAIT, 0, 0)
             continue
         if isinstance(e, GroupEvent):
             trigger_x = round(e.at * SCALE)
             group_min = max(0, min(255, e.group_min))
             group_max = max(0, min(255, e.group_max))
-            out += struct.pack('<HBBBBBB', trigger_x & 0xFFFF, group_min,
-                                group_max, 0, 0, RECORD_KIND_GROUP, 0)
+            out += struct.pack('<HBBBBBBB', trigger_x & 0xFFFF, group_min,
+                                group_max, 0, 0, RECORD_KIND_GROUP, 0, 0)
             continue
 
         assert isinstance(e, SpawnEvent)
@@ -302,11 +313,12 @@ def convert_events(events, type_lookup, roster_lookup=None):
             record_kind = RECORD_KIND_PROP
         elif e.boss and roster_idx is not None:
             # roster-reassignment slice: this boss's real character IS in
-            # the actual shipped roster -- carry its index so core/
-            # spawn.pasm can re-stream this slot as its own real character
-            # instead of a reskin. Only bosses get this: ordinary enemies
-            # are never individually added to the (8-slot-capped) roster,
-            # so there is nothing real to identify them against.
+            # the actual shipped roster -- carry its index (own byte, +8
+            # below) so core/spawn.pasm can re-stream this slot as its own
+            # real character instead of a reskin. Only bosses get this:
+            # ordinary enemies are never individually added to the
+            # (15-slot-capped) roster, so there is nothing real to identify
+            # them against.
             record_kind = RECORD_KIND_BOSS_IDENTIFIED
         elif e.boss:
             record_kind = RECORD_KIND_BOSS
@@ -315,25 +327,18 @@ def convert_events(events, type_lookup, roster_lookup=None):
         # plan_game.md 8a row 3 (`map`): pack into record_kind's spare high
         # bits (values 0-4 only need 3), same technique used for group's
         # min/max -- see core/spawn.pasm's SPAWN_KIND_MASK/SPAWN_MAP_SHIFT.
-        # Roster-reassignment slice: bits 5-7 (ROSTER_SHIFT) are a SEPARATE
-        # spare-bits field, real only when record_kind ==
-        # RECORD_KIND_BOSS_IDENTIFIED -- see core/spawn.pasm's
-        # SPAWN_ROSTER_SHIFT/SPAWN_ROSTER_MASK for the runtime decode.
         is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
-        if is_boss_identified:
-            # checked BEFORE the map bits are OR'd in above -- record_kind
-            # would no longer equal the bare RECORD_KIND_BOSS_IDENTIFIED
-            # constant once map_value is nonzero.
-            record_kind |= ((roster_idx & 0x07) << ROSTER_SHIFT)
+        roster_idx_byte = (roster_idx & 0xFF) if is_boss_identified else 0
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:
             spawn_hp = round(e.health * CHAR_HP_MAX / 100)
             spawn_hp = max(1, min(CHAR_HP_MAX, spawn_hp))
-        out += struct.pack('<HHBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
-                            spawn_y, facing_left, record_kind, spawn_hp)
+        out += struct.pack('<HHBBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
+                            spawn_y, facing_left, record_kind, spawn_hp,
+                            roster_idx_byte)
     return len(events), bytes(out)
 
 

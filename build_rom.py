@@ -23,25 +23,34 @@ import pack_msu_roster
 # loads this slot instead of reusing JHUN a second time (see main.pasm's
 # Entity #3 Core_Oop_Create call, init param changed $0301 -> $0303).
 # Follow-up (TMNT campaign, same day as Rock/Leather): the packed file
-# format's roster directory is a hard 1-8 slot format (pack_msu_roster.py's
+# format's roster directory was a hard 1-8 slot format (pack_msu_roster.py's
 # byte 0x09, roster_count). 4 slots already used; the real TMNT campaign
 # levels (sewer0/streets/streets2/sewer) reference 5 distinct real `enemy`-
 # type fighters not yet in any roster (MOUSER, FOOT01-04, all converted --
 # see out/mouser_*, out/foot0{1,2,3,4}_*) -- one more than the 4 remaining
 # slots. FOOT01-04 are mechanically identical clones in the source data
-# (same anim set, same health=70) -- picked FOOT01 as the one added to the
-# roster; FOOT02-04's converted assets are real and committed but sit
-# unused in out/ pending either a roster-capacity rework or a per-spawn
-# identity mechanism (see plan_game.md's TMNT campaign section for why
-# spawns don't yet render as their own character regardless of roster
-# membership -- CharacterEntity_Init's per-instance CHAR_ROSTER_INDEX is
-# only ever set once, at boot; Spawn_Play recycles the same 3 fixed AI
-# entities rather than re-creating them, by design, see core/oop.pasm's
-# fixed-address EntityN_Base scheme -- so today EVERY enemy, TMNT or BOR,
-# renders as whichever of these 6 roster members already occupies its AI
-# slot, never its own sprite).
+# (same anim set, same health=70) -- picked FOOT01 as the one added first.
+#
+# Roster-growth slice (same session, real user-requested follow-up -- see
+# core/spawn.pasm's Spawn_DoRosterReassign): the per-spawn character-
+# identity gap this comment used to describe as a hard architectural wall
+# was real but not a wall -- main.pasm's Anim_LoadCharacter is a reusable,
+# already-mid-game-callable routine (the player's own Select-button
+# reselect already called it live), so Spawn_Play now re-runs it for a
+# specific AI slot when that spawn's real character is in the roster (see
+# spawn.pasm's SPAWN_KIND_BOSS_IDENTIFIED). That made the roster's OWN
+# 8-slot cap the real remaining limiter -- grown to 15 (pack_msu_
+# roster.py's MAX_CHARACTERS; 15 is a real hardware-arithmetic ceiling of
+# main.pasm's existing 8-bit directory-seek math, not an arbitrary number,
+# see that constant's own comment), and BEBOP converted fresh (it was never
+# actually converted before -- Bebop's own boss stage always rendered a
+# reskin) plus FOOT02-04 added using the new headroom. Ordinary (non-boss)
+# enemies still render as a reskin: only characters deliberately added to
+# this roster have anything real to identify against, and most spawned
+# names in these levels still aren't roster members -- that's a content
+# decision (which characters are "real"), not a remaining code gap.
 ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
-                   "out/rock", "out/leather"]
+                   "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output
