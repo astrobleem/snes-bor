@@ -130,6 +130,20 @@ def enter_pause_and_select_volume(m, r, label):
 def main():
     r = Reporter('G5-SRAM', kind='GATE')
 
+    # This gate's session 1 assumes a genuinely blank cart (no prior .srm) so
+    # its "fresh boot initializes the default" check means what it says.
+    # Mesen2's Saves/ folder lives next to the shared Mesen2.exe, not inside
+    # this worktree, so a PRIOR run of this same gate (or of any other
+    # session's SRAM work against the same ROM name) leaves a real,
+    # correctly-persisted non-default volume there -- re-running the gate
+    # without clearing it would then load that real leftover value and fail
+    # checks 1/3/5/6 for a reason that has nothing to do with a regression
+    # (found exactly this way, re-running the gate after later G9 content
+    # work landed). Removing it here makes the gate idempotent/re-runnable,
+    # matching every other phaseN/game_gN gate's own fresh-boot assumption.
+    if os.path.isfile(SRM_PATH):
+        os.remove(SRM_PATH)
+
     # --- Session 1: real input lowers the volume; clean shutdown flushes it. ---
     with open_session(__file__) as m:
         m.reset_emulator()
