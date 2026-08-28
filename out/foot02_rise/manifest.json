@@ -1,0 +1,23 @@
+{
+  "entity": "Foot02",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.2191780821917808,
+  "hotspot_canvas": [
+    14,
+    19
+  ],
+  "frames": [
+    {
+      "delay": 30,
+      "offset": [
+        75,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

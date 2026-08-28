@@ -1,0 +1,48 @@
+{
+  "entity": "Foot01",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.17777777777777778,
+  "hotspot_canvas": [
+    13,
+    26
+  ],
+  "frames": [
+    {
+      "delay": 75,
+      "offset": [
+        75,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        10,
+        50,
+        70,
+        90,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        75,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        10,
+        50,
+        70,
+        90,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

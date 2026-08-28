@@ -1,0 +1,34 @@
+{
+  "entity": "LEO",
+  "anim": "throw",
+  "loop": 0,
+  "scale": 0.20915032679738563,
+  "hotspot_canvas": [
+    14,
+    30
+  ],
+  "frames": [
+    {
+      "delay": 30,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 40,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

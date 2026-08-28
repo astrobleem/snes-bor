@@ -1,0 +1,16 @@
+    lda #$0000
+    lda #$7BFF
+    lda #$5B1A
+    lda #$2B1A
+    lda #$4A94
+    lda #$4A10
+    lda #$4D41
+    lda #$2D4B
+    lda #$3D0C
+    lda #$0000
+    lda #$0C9D
+    lda #$2042
+    lda #$3080
+    lda #$0000
+    lda #$0000
+    lda #$0000

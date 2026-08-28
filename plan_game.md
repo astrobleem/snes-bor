@@ -4,17 +4,6 @@
 > current ROM into something a person could sit down and play from title screen
 > to ending.
 >
-> **None of the menu/HUD/game-state machinery in this file requires the script
-> VM** (`plan_vm.md`) to be *implemented* — but as of 2026-08-19, `plan_vm.md`
-> is required and prioritized project-wide: the goal is the full converted
-> OpenBOR content library (14 stages, ~24 characters), and hand-written
-> stand-ins for VM-driven content (the fixed spawn table, hard-coded roster)
-> are to be phased out as VM gates land, not kept forever. This file's own
-> "text gets the low end because it is on the critical path and the VM is not"
-> byte-budget framing (below) is from before that decision — re-check
-> `plan_vm.md` §0.3 rather than assuming the VM still yields priority in their
-> shared ROM region.
->
 > Read `README.md`'s "Current Status" first — it is the authoritative list of
 > what actually works today. This file assumes it.
 
@@ -34,28 +23,98 @@ Select-cycling, convert-time spawn tables driving real enemy waves, a font/text
 renderer (G1), a game state machine (G2), and player death/lives/continues/game
 over (G3).
 
-**What that adds up to:** one level that boots, scrolls, and lets you punch three
-enemies until they die back at you — and if they win, you get a game-over screen
-and a continue, not a soft freeze. There is still no win condition, no second
-level reachable from the first, and no menus with real content (title/char-select/
-pause all exist as state-machine stops with no drawn screen yet — text CAN be
-drawn since G1, nothing calls it for a menu yet).
+**What that adds up to (updated 2026-08-24):** ten real stages (indices
+0-9) — the original 2 BOR levels, the full real TMNT pak converted on top
+of them: 3 standalone TMNT boss stages (Bebop/Rock/Leatherhead), the real
+4-level TMNT main campaign (`sewer0`→`streets`→`streets2`→`sewer`, with
+Rock and Bebop fought again as *story* bosses on top of their standalone
+encounters), and the last standalone TMNT level (`foot.txt`, no boss
+despite its name) — a real win condition and stage transition generalized
+across all of them (G4), and a full title→character-select→playing menu
+flow plus a real pause menu with real drawn content and SRAM-persisted
+options (G5, fully done). Real boss fights are reachable in play (G9,
+fully done), and the per-spawn character-identity gap this file used to
+describe as a genuine architectural fork is now CLOSED for the case that
+actually matters: **spawn-driven roster reassignment** (real user
+instruction, same day as the TMNT campaign) — a boss spawn whose real
+character is in the actual shipped roster (Rock and Leather were added as
+real roster members specifically for this, indices 6/7) now re-streams
+that AI slot with its own real converted character
+(`core/spawn.pasm`'s `SPAWN_KIND_BOSS_IDENTIFIED`/`Spawn_DoRosterReassign`,
+reusing the exact same live mid-game `Anim_LoadCharacter` reload the
+player's own Select-button reselect already used), proven end-to-end by
+`tools/verify/game_spawn_roster_reassign.py` (`GATE SPAWN-ROSTER-REASSIGN:
+PASS`) — a live entity's real (idle,walk,attack) frame-count triple
+measurably changes from whatever roster member it booted with to the
+boss's own real converted numbers, the moment its real spawn record
+triggers. **Follow-up, same day (roster-growth slice)**: the roster format's
+8-slot cap was investigated and genuinely grown, not re-flagged as blocked —
+`pack_msu_roster.py`'s `MAX_CHARACTERS` is now 15 (a real hardware ceiling of
+main.pasm's existing 8-bit directory-seek arithmetic, not a round number),
+and Bebop was converted fresh and added as roster slot 8, so its own boss
+stage now identifies for real too (`GATE G9-TMNT-BOSS` updated accordingly).
+**Follow-up, same day (LEO slice)**: added LEO (TMNT) as roster slot 12 —
+`data\MODELS.TXT` shows this pak's own author only actively loads Leo as a
+playable turtle (`load leo ...`; `don`/`mike` are real character data but
+commented out in the pak's own config, and no Raphael file exists in this
+pak at all — checked directly). Leo's real `.TXT` declares 21 anims; only
+the 7 this engine's role table knows (idle/walk/attack1/attack2/pain/fall/
+rise) are wired to behavior — jump/slide/grab-throw/special are real
+OpenBOR mechanics this engine doesn't implement (plan_game.md's own
+long-standing gap, not invented here). Verified via `phase12_roster.py`,
+already fully generalized from earlier roster growths: Leo cycles in via
+the real Select-button mechanism and matches his own converted
+`palette.txt` ground truth.
 
-**The honest gap list**, none of which is started (past G1–G3, done above):
+Converting Leo surfaced two real bugs, both fixed:
+1. **`convert_character.py`'s "second attack" role heuristic** picked the
+   first declared anim not already claimed by another role as a
+   character's `attack2` — correct for RALF/JOE/JHUN (whose real second
+   moves are distinctly-named, not literally "attack2"), but wrong for any
+   character declaring a non-combat anim earlier in the file than its real
+   second attack. Leo declares `waiting` (a menu-select pose) before his
+   real `attack2`, so the old heuristic wired the second-attack input to a
+   menu pose. Checked the already-shipped roster for the same shape and
+   found it twice more: **Bebop and Rock were both shipped with their
+   attack2 input wired to `riseattack` (a getup-only move) instead of their
+   real `attack2` anim**, since both declare `riseattack` earlier in the
+   file. Fixed by preferring a literal anim named `attack2` before falling
+   back to the old heuristic; re-verified RALF/JOE/JHUN/YASHIRO unaffected
+   (none declare a literal `attack2`). Bebop and Rock were reconverted with
+   the fix and now play their real second attack.
+2. **`CharSelect_NamePtrs`** (main.pasm) — the same hand-synced table that
+   already broke twice before (roster growing past its length) broke a
+   third time: it simply had no entry for Leo. Caught by
+   `game_g5_menus.py`'s wrap-to-last-slot check, fixed by adding Leo's
+   entry. This table has now needed a manual fix at every roster growth;
+   noted in-file as a candidate for a future generalization if a 4th
+   growth needs it.
+
+What's still a reskin: every ordinary non-boss enemy — only characters
+deliberately added to the roster (currently 13 of 15 slots used) have
+anything real to identify against; most spawned names in these levels still
+aren't roster members, and that's a content decision, not a remaining code
+gap. See §9/§12 for the precise remaining scope. Still missing: ending/
+credits (G10), real
+grab/throw mutual-lock semantics, special/block, and SFX
+(content-blocked). Real jump (LEO only) shipped 2026-08-28, see §7. Double Dragon Moto (the third pak in this repo) stays
+unconverted — its levels need the openborscript VM, which remains
+explicitly shelved.
+
+**The honest gap list**, updated as phases land:
 
 | Missing | Blocks |
 |---|---|
 | ~~Font / text renderer~~ | **Done (G1, 2026-08-21)** — `core/text.pasm`, gate `game_g1_text.py` |
 | ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
 | ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
-| Win condition | Any reason to finish a level |
-| Level transition | Stage 2 existing |
-| Menus (title, char select, pause, options) | Being a product |
+| ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
+| Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — **run/dash done (G7 first slice, 2026-08-22)**, gate `game_g7_run.py`; **AI invuln frames done (G7 second slice, 2026-08-22)**, gate `game_g7_invuln.py`; **knockdown/getting-up done (G7 third slice, 2026-08-22)**, gate `game_g7_knockdown.py`; jump/grab/special/block still open, see §7 |
-| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted — every row DONE, a permanent no-op, or waiting on a real dependency outside the table (see §8a's own "Conclusion" for what's actually next) — **read that table instead of asking what's next** |
-| Bosses | Stage climaxes; HP-override prerequisite done (§9) |
-| Ending / credits | Finishing |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), and real jump/jumpattack/jumpattack2 (LEO only) all done (G7, see §7 for gate names); special/block and real grab mutual-lock semantics still fully open |
+| ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
+| ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
+| Ending / credits | **Not started (G10)** — finishing the game |
 | SFX | Every impact feeling real (blocked on content, §11) |
 
 **One structural constraint that shapes everything below.** Two deliberate
@@ -106,20 +165,11 @@ dropped it.
   overlap the frontpanel case** and need a decided answer. Simplest: pause menu
   draws on BG1 under forced-blank-free conditions, or the frontpanel resolver is
   suspended while paused.
-- **ROM budget — the gap is divided, use your half.** `$C100`–`$FC00` has only
-  ~1913 bytes free, so `core/text.pasm` goes in the bank-0 gap instead. That gap
-  (`$8C60`–`$AC00`, 8096 bytes) is **shared with `plan_vm.md` and already
-  allocated**:
-
-  | Range | Size | Owner |
-  |---|---|---|
-  | **`$8C60`–`$9000`** | **928 B** | **`core/text.pasm` — this phase** |
-  | `$9000`–`$AC00` | 7168 B | the script VM (`plan_vm.md`) |
-
-  Text gets the low end because it is on the critical path and the VM is not.
-  **`.org $8C60`, and keep `core/text.pasm` under 928 bytes.** If it doesn't fit,
-  take the space from the VM's half and update `plan_vm.md` §0.3 in the same
-  change — do not silently grow past `$9000`. Overflow here is silent (Poppy
+- **ROM budget.** `$C100`-`$FC00` has only ~1913 bytes free, so
+  `core/text.pasm` goes in the bank-0 gap instead: `$8C60`-`$AC00`, 8096
+  bytes, all of it free (a since-dropped script VM plan once reserved part
+  of this gap; that reservation no longer applies). `.org $8C60`;
+  `core/text.pasm` shipped under 928 bytes. Overflow here is silent (Poppy
   truncates `.org` regions without error) and lands on `LoadAudioData`, so it
   presents as an *audio* bug.
 
@@ -356,8 +406,13 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: PARTIAL** (2026-08-21) — title screen only. `GATE G5: PASS`
-> (`tools/verify/game_g5_menus.py`). Per an advisor consult for this phase:
+> **Status: DONE** (2026-08-23) — title screen (2026-08-21), character
+> select (2026-08-23), the pause menu (2026-08-23), and options/SRAM
+> persistence (2026-08-23) all shipped. `GATE G5: PASS`
+> (`tools/verify/game_g5_menus.py`), `GATE G5-PAUSE: PASS`
+> (`tools/verify/game_g5_pause.py`), `GATE G5-SRAM: PASS`
+> (`tools/verify/game_g5_sram.py`). Per an advisor consult
+> for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
 > is exercised the same way `game_g2_states.py` already does, a forced
@@ -375,13 +430,100 @@ the streaming caches are consistent after reload.
 > DrawString call (to a different row) left there, so a short string alone
 > would leave stale garbage in the columns past its own text.
 >
-> Character select was explicitly **not** built here — CLAUDE.md and G2's own
-> header both say the hard-coded `CharSelect_Index` roster is to be phased
-> out as `plan_vm.md` gates land, not invested in further. Pause menu content
-> is also deferred (the state already freezes correctly since G2; it
-> collides with `core/text.pasm`'s own documented BG3-frontpanel-vs-text
-> unresolved question, so it isn't bundled with a phase that didn't need to
-> touch that). Options (SRAM persistence) untouched.
+> **Character select shipped 2026-08-23** (`core/charselect.pasm`, new
+> `GAME_STATE_CHARSELECT`, entered from title's own teardown instead of
+> going straight to PLAYING): a header row, the current roster character's
+> name, an instructions row, and Left/Right cycling that re-skins the
+> existing `CharSelect_Index`/`Anim_LoadCharacter` machinery (the same
+> live-reselect path the Select button already used) rather than inventing
+> new roster logic. Moved to its own ROM bank (`.bank 4`, same reason
+> `core/spawn.pasm` got one) purely for `$C100`-`$FC00` budget — see that
+> file's own header for the two small bank-0 trampolines this needed
+> (`Anim_LoadCharacter_Long`/`Core_Text_DrawString_Long`) since both real
+> routines end in `rts`, same-bank-only. Found and fixed a real bug along
+> the way: `Anim_LoadCharacter` writes Direct-Page-relative `CHAR_*`
+> fields, and this code runs outside any per-entity `Core_Oop_Play`
+> dispatch (which is what normally points DP at the right entity) — the
+> fix (`Game_State_CharSelect_ReloadPlayer`) explicitly switches DP to the
+> player's own window (`OopDp`, slot 0) before calling it, same
+> `phd`/`tcd`/`pld` pattern `Core_Oop_Play` itself uses. `GATE G5: PASS`
+> (21 checks) exercises the full title → charselect (draw/cycle/wrap) →
+> playing round trip, not just the title screen.
+>
+> **Pause menu shipped 2026-08-23** (`core/pausemenu.pasm`, new, its own
+> ROM bank for the same `$C100`-`$FC00` budget reason charselect got one).
+> Real-OpenBOR-sourced content (fetched `engine/openbor.c`'s own
+> `pausemenu()` rather than inventing a menu shape): a "PAUSE" header plus
+> exactly two selectable rows, "CONTINUE"/"END GAME", toggled by Up/Down
+> (a "> "/"  " cursor prefix baked into two string variants per row, this
+> project's existing text-only menu style — no cheap way to recolor a
+> single BG3 tile). Start commits: Continue resumes PLAYING untouched; End
+> Game zeroes `Game_Lives` and returns to `GAME_STATE_TITLE` (real BOR's
+> End Game is an intentional quit — it hard-tears the session down with no
+> continue offered — and this project has no "quit to system" state beyond
+> TITLE, G2's own "nothing is running" holding state). Entered from
+> `Game_State_Play__playing` via an edge-triggered Start check, itself
+> moved into the new bank (`Game_State_Pause_CheckEntry`, called via a
+> `jsl`+`bcs` — only 6 bytes in the hot bank-0 routine — rather than
+> inlining the check there) once the inline version alone overflowed the
+> region by 19 bytes. Found and fixed two real bugs along the way: (1) the
+> Up/Down redraw originally issued two `Core_Text_DrawString` calls in the
+> same frame, hitting the exact "1024-BOR" shared-staging-buffer hazard
+> this file's own header warns about elsewhere — both rows read back
+> showing the second call's string; fixed with a two-frame drip
+> (`PAUSE_STEP_REDRAW_ENDGAME`), same one-DrawString-per-frame discipline
+> as every other menu here. (2) `Pause_Selector` was first left sticky
+> across sessions; real BOR's `pausemenu()` resets `pauselector = 0` on
+> every call, so a second pause entry after selecting End Game (aborted by
+> re-entering rather than committing) would silently commit End Game again
+> on a bare Continue press — fixed by resetting the selector in
+> `Game_State_Pause_CheckEntry` on every entry. `GATE G5-PAUSE: PASS`
+> (18 checks).
+>
+> **Options/SRAM persistence shipped 2026-08-23** (`core/options.pasm`, new,
+> own ROM bank for the same budget reason). Real-OpenBOR-sourced scope:
+> `engine/openbor.c`'s `savedata` struct persists several settings, but this
+> project ships exactly one — music volume — because everything else (key
+> remap, gamma/brightness, SFX volume, difficulty) has no real content to
+> attach to here (same closure logic as §8a's `settime`/`maxenemy`: no
+> control-remap infrastructure exists; gamma/brightness are a CRT concept,
+> meaningless on a fixed-palette cart; SFX volume would control zero real
+> SFX content with G11 blocked; difficulty picks between mod-defined content
+> sets and only the EASY variant of any level has ever been converted).
+> Folded into the existing pause list as a third "VOLUME" row (real BOR
+> reaches its own options via a dedicated `FLAG_SCREENSHOT` key/screen this
+> hardware has no spare button for) rather than inventing an unreachable
+> second screen; Left/Right adjust ±32 with saturating clamp and persist to
+> SRAM immediately, matching real BOR's own `menu_options_sound()` (no
+> separate "save" step). Uses TAD's `SET_GLOBAL_MUSIC_VOLUME` (=16), not
+> `SET_MAIN_VOLUME` (=10) — the latter's own doc says it resets on every
+> song load, which would silently revert a persisted setting.
+>
+> **Real bug found and fixed**: the classic S-CPU SRAM window
+> (`$6000-$7FFF`) turned out to be unreadable in this project's own
+> architecture. Verified straight from Mesen2's C++ core:
+> `Sa1::UpdateSaveRamMappings()` registers that window with the *same*
+> `CpuBwRamHandler` class used for the `$40-$4F` CC-DMA window, and
+> `CpuBwRamHandler::Read` unconditionally diverts through Type-1 character
+> conversion whenever `CharConvDmaActive` is set — for any address reached
+> through that handler, not just the CC-DMA range. This project's
+> persistent SA-1 recomposite loop (`sa1_loop`) arms `CharConvDmaActive`
+> once, early in boot, and never clears it again, so every SRAM read from
+> that point on silently returned bogus converted-tile bytes instead of
+> real save data — writes were unaffected (`CpuBwRamHandler::Write` has no
+> such check), which is why the write/persist-to-disk half worked
+> immediately while every read-back came back zeroed. Fixed in
+> `Options_Init` by briefly ending character conversion (shared register
+> `$2231`, writable by either CPU) around the 4-byte SRAM read, then
+> restoring it and re-arming via `$2236` exactly like `sa1_loop`'s own
+> steady-state re-arm — safe against the SA-1's own loop because it only
+> writes `$2231` once, in its pre-loop setup, never per-iteration. Caught
+> because the gate genuinely spans two separate Mesen2 *processes*
+> (`reset_emulator()` alone never flushes/reloads the `.srm` file, so a
+> weaker single-session check would have missed this entirely) —
+> `GATE G5-SRAM: PASS` (12 checks: default-on-fresh-boot, in-menu lower,
+> on-disk `.srm` byte-exact, then a second process load, WRAM ground truth,
+> and the on-screen row, all against the persisted, non-default value).
 >
 > **ROM budget note:** this phase's ~6-byte boot-time `Title_Step` zero-init
 > in `scpu_boot` overflowed the fixed `$FC00`-region budget by exactly 6
@@ -399,21 +541,20 @@ the streaming caches are consistent after reload.
 
 Now that text exists (G1) and states exist (G2), these are mostly content.
 
-- **Title screen** — logo (convert BOR's own title art through `convert_bg.py`),
-  "PRESS START", attract-mode timeout optional.
-- **Character select** — the roster already supports 8 slots, loads at runtime
-  from the `.msu` header, and Select already cycles it live. This is largely
-  re-skinning existing machinery as a proper screen with portraits and names.
-- **Pause menu** — freeze on Start during play; resume / restart / quit.
-- **Options** — music/SFX volume (MSU-1 volume is `$2006`; TAD has its own),
-  difficulty (the pak ships EASY/NORMAL/HARD variants of every stage, so this maps
-  directly onto which level file the converter packs), controls.
+- **Title screen** — done (2026-08-21). Real logo art (convert BOR's own title
+  art through `convert_bg.py`) and an attract-mode timeout are still optional
+  polish, not required.
+- **Character select** — done (2026-08-23, `core/charselect.pasm`). Portraits
+  (a real character sprite/thumbnail on the screen, not just the name) are
+  the one piece not built — text-only for now.
+- **Pause menu** — done (2026-08-23, `core/pausemenu.pasm`). Freeze on Start, CONTINUE/END GAME, real BOR-sourced content.
+- **Options** — done (2026-08-23, `core/options.pasm`). Music volume only,
+  SRAM-persisted; see the write-up above for why SFX volume/difficulty/
+  controls are explicitly out of scope rather than unbuilt.
 
-**Watch out:** persisting options across a reset needs SRAM. The ROM header
-already declares battery-backed RAM (`$35`, RAM size `$08`) but nothing uses it.
 Note: **roster-slot persistence specifically was declined and is not wanted** —
 it is not part of Beats of Rage. Options persistence is a different question and
-is genuinely expected.
+was genuinely expected, and is now shipped.
 
 **Gate** (`game_g5_menus.py`): navigate each menu via `set_input`, assert the
 selected index and the resulting state transition.
@@ -499,9 +640,15 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-> **Status: PARTIAL (first two slices DONE, 2026-08-22).** `GATE G7-RUN:
+> **Status: PARTIAL (five slices DONE as of 2026-08-28).** `GATE G7-RUN:
 > PASS` (`tools/verify/game_g7_run.py`), `GATE G7-INVULN: PASS`
-> (`tools/verify/game_g7_invuln.py`). Run/dash shipped first, deliberately,
+> (`tools/verify/game_g7_invuln.py`), `GATE G7-KNOCKDOWN: PASS`
+> (`tools/verify/game_g7_knockdown.py`, one known-flaky check documented
+> below — retry once), `GATE G7-ATTACK2: PASS`
+> (`tools/verify/game_g7_attack2.py`), `GATE G7-JUMP: PASS`
+> (`tools/verify/game_g7_jump.py`, fifth slice, 2026-08-28 — see its own
+> writeup below). Special/block and real grab/throw mutual-lock semantics
+> remain fully open (see "Still fully open" below). Run/dash shipped first, deliberately,
 > because it's the only item below that needs no new animation content —
 > OpenBOR's own reference (`openbor_script_reference.txt:982`) treats run as
 > walk/idle frames driven at higher velocity, not a distinct move, so this
@@ -752,10 +899,107 @@ frame-load already takes 6.
 > flaky check reproduced its documented 2/3 pass rate, unrelated to this
 > slice).
 >
-> **Still fully open** (all need new animation content the converter doesn't
-> produce today — see "Content dependency" below): jump/jump-attack (the
-> largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> real grab/throw mutual-lock semantics, special, block.
+> **Fifth slice DONE, 2026-08-28: real jump, jumpattack, jumpattack2.**
+> `GATE G7-JUMP: PASS` (`tools/verify/game_g7_jump.py`, 15 checks). Sourced
+> directly from real OpenBOR (DCurrent/openbor, `engine/openbor.c`) per this
+> project's own behavioral source-of-truth rule (distinguish real-BOR vs.
+> later-OpenBOR vs. PAK-content vs. SNES-adaptation vs. deliberate
+> simplification, don't invent):
+> - **Real BOR.C-sourced**: `tryjump()/dojump()/toss()` — jumpheight IS the
+>   initial upward velocity directly (`toss(self, jumpheight)` sets
+>   `velocity.y = jumpheight`), not a peak-height requiring a physics solve.
+>   `check_gravity()` — `position.y += velocity.y` every tick, `velocity.y +=
+>   gravity` every tick (real default `-0.1`), land when `position.y <= 0 AND
+>   velocity.y <= 0` — a two-part condition, not position alone (a large
+>   downward velocity can step position past 0 in one tick). Ground-jump
+>   trigger is `FLAG_JUMP && notinair`, edge-triggered-then-consumed — this
+>   project's A button (the one genuinely free button left) plays that role.
+>   A jump-attack button press while airborne (mode 0 only) plays a
+>   jump-attack instead of a ground attack — real BOR.C behavior, mapped here
+>   to this project's existing Y=attack1/X=attack2 buttons.
+> - **PAK-content-confirmed**: LEO (TMNT pak, `data\CHARS\LEO\LEO.TXT`) is
+>   the ONLY roster member with real `jump`/`jumpattack`/`jumpattack2` anim
+>   data and a real `jumpheight 5`. Every other roster slot's A-button press
+>   is a real no-op (`Player_JumpFCount==0` for anyone but LEO) — not a bug,
+>   there is no real source data for anyone else to jump with.
+> - **SNES-specific adaptation**: Q8.8 fixed point (16-bit signed, 8
+>   fractional bits) stands in for BOR.C's float `position.y`/`velocity.y`
+>   (SNES has no float unit); `JUMP_INITIAL_VEL`/`JUMP_GRAVITY` are the
+>   literal real BOR.C magnitudes (5.0, -0.1) scaled by 256, not a
+>   feel-tuned conversion.
+> - **Deliberate simplifications (explicitly NOT sourced claims)**: (1) real
+>   BOR.C's height-vs-depth split (`position.z` height, separate from
+>   `position.y` depth/lane) is translated here onto a **visual-only OAM Y
+>   offset** against the already-computed sprite Y — this project has no
+>   ground-plane/lane axis at all (see the resolved "G7's jump / Z axis"
+>   item in §13), so no depth sort was built or is needed; jump only moves
+>   the sprite up on screen while airborne, `CHAR_POS_Y` itself (collision/
+>   world position) is untouched. (2) horizontal movement while airborne
+>   reuses the existing continuous per-frame dpad-read walk code rather than
+>   porting BOR.C's one-shot ballistic X-velocity model — this project has
+>   no parallel X-velocity system and building one would be a redundant,
+>   imperceptible change. (3) landing falls through to normal ground
+>   dispatch the SAME frame for responsiveness, a control-feel choice. (4)
+>   AI jump was never built — real BOR.C AI think loops don't autonomously
+>   jump either, so this is not a missing feature.
+>
+> **Implementation**: new `src/core/jump.pasm`, own bank (`.bank 8`,
+> jsl-entry/rtl-exit, same ROM-budget pattern as `core/pausemenu.pasm`/
+> `core/options.pasm` — `$C100-$FC00` is chronically near zero free bytes).
+> `Jump_ComputeBases` (called from `Anim_LoadCharacter`, every entity load)
+> chains 3 new base offsets (jump/jumpattack/jumpattack2, player-only) onto
+> the existing `rise_base`/`attack2_base` chain. `Jump_PlayerTick` (called
+> from `Anim_Play__player_input`) owns the grounded-trigger and airborne-
+> integration/landing state machine; `Anim_Play_Jump` (called from
+> `Anim_Play__dispatch`) owns the per-frame `Msu1_StreamBusy`-gated frame
+> advance for all 3 jump-family anims, same shape as `Anim_Play_Attack`/
+> `Attack2`. `Jump_ApplyOamYOffset` (called from `Character_PlayFrame`,
+> right after `OamSetSprite_Y` is set from `CHAR_POS_Y`, for every entity —
+> no-ops for anyone but the airborne player) applies the visual offset; also
+> moved to its own bank after an initial inline version overflowed bank 0's
+> ROM budget by 88 bytes. `RECORD_SIZE` in `pack_msu_roster.py` grew 17→23
+> (6 new bytes: jump/jumpattack/jumpattack2 frame_count/delay pairs), which
+> in turn forced `Anim_LoadCharacter`'s directory-seek arithmetic off its old
+> 8-bit-only scheme (its safe ceiling would have dropped below LEO's own
+> slot 12) into a real 16-bit accumulate-by-repeated-add loop — removing the
+> seek ceiling entirely, not just patching around LEO. No `CHAR_ZP_LEN`
+> struct growth (`Player_Jump*` are standalone WRAM globals, matching the
+> `Player_InvulnFrames` precedent — growing the shared struct for
+> player-only state has broken spawn-slot assignment before).
+>
+> New gate `tools/verify/game_g7_jump.py` (`GATE G7-JUMP: PASS`, 15 checks):
+> loads LEO onto the player via the real in-game Select-button reselect path
+> (not a synthetic memory write); confirms a real A press arms
+> `CHAR_SELECTED_JUMP` and, since `set_input`'s own wall-clock sleep
+> (`mesen_set_input_wall_clock` project memory) makes the exact arm frame
+> unobservable, confirms the observed `(Player_JumpZPos, Player_JumpZVel)`
+> exactly matches a from-scratch simulation of the real integration formula
+> from `JUMP_INITIAL_VEL`/`JUMP_GRAVITY` at some small elapsed tick count;
+> confirms height genuinely rises then falls (not static); confirms landing
+> within a bounded frame count resets both Z cells to 0 and returns
+> `CHAR_SELECTED` to idle/walk; confirms a real, nonzero OAM Y offset while
+> airborne that disappears on landing; confirms jump and jumpattack stream
+> from genuinely different MSU base offsets; confirms a Y-button press
+> mid-air (mode 0) really enters jumpattack (`Player_JumpAnimMode=1`)
+> without leaving `CHAR_SELECTED_JUMP`. AI entities 1-3 are neutralized
+> (HP=0, hit-stun cleared every polled frame) throughout, same reasoning as
+> `game_g6_hud.py`/`game_g7_invuln.py` — background AI combat is already
+> live by frame 300 and a stray hit landing mid-flight would force
+> `CHAR_SELECTED` back to 0 via the unrelated hit-stun path, which would
+> look like a broken landing to this gate but has nothing to do with jump.
+>
+> Full regression suite clean: build, `audit_all.py`, `check_label_drift.py`,
+> `check_width_directives.py` (0 new violations, 1 baseline entry cleaned up
+> for `Anim_Play__player_input` gaining an explicit `.a8`), `phase5`–`phase9`/
+> `11`/`12`, every `game_g*.py` gate including a from-clean-baseline-isolated
+> re-confirmation that `game_g7_knockdown.py`'s intermittent failure is
+> genuinely pre-existing and unrelated to this slice (stashed all jump
+> changes, rebuilt the last-committed baseline, reproduced the identical
+> failure there too).
+>
+> **Still fully open**: real grab/throw mutual-lock semantics, special,
+> block — all still need new animation content the converter doesn't
+> produce today for any roster character (see "Content dependency" below).
 >
 > **Moveset pipeline generalized, 2026-08-22** (before any of the above was
 > attempted). User explicitly rejected scoping "give Ralf a real second move
@@ -793,10 +1037,8 @@ frame-load already takes 6.
 > `grab` for JOE, `jumpattack` for JHUN — YASHIRO has none) are converted
 > and listed in the moveset manifest but deliberately excluded from the
 > packed MSU blob — nothing downstream reads them yet, and multi-move
-> dispatch is explicitly deferred to whenever `plan_vm.md`'s script VM is
-> wired to drive `CHAR_SELECTED` (or a future scoped slice), not built here
-> as a second hand-written non-VM combat system. Full regression suite
-> clean (`audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> dispatch is not built here; a future scoped slice can pick this up. Full
+> regression suite clean (`audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
 > `phase5`–`phase9`, `phase11_damage`, `phase12_roster`, every `game_g*.py`
 > gate). `game_g7_knockdown.py`'s rise->idle check is confirmed flaky
 > independent of this change (reproduced both failing and passing 3/4 runs
@@ -825,15 +1067,40 @@ frame-load already takes 6.
 > discarding real `openborscript` — turned out on investigation to be moot
 > for BOR/TMNT specifically (both have zero script content anywhere, level
 > or entity; only DDM's paks use `script`/`aimove`/`aiattack`, confirmed by
-> direct pak scan), so that part is deferred to `plan_vm.md`'s own gated
-> track rather than duplicated here.
+> direct pak scan), so that part is simply out of scope for this project
+> (no script VM exists or is planned).
 
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
 
-- **Jump** (and jump attack) — needs a Z axis / ground-plane model the engine does
-  not have. This is the largest single combat item.
-- **Grab / throw** — proximity grab state, mutual entity locking.
+- ~~**Jump** (and jumpattack/jumpattack2)~~ — **Done (G7 fifth slice,
+  2026-08-28)**, see status block above (`GATE G7-JUMP: PASS`,
+  `tools/verify/game_g7_jump.py`). Sourced directly from real OpenBOR
+  (DCurrent/openbor, `engine/openbor.c`: `tryjump()/dojump()/toss()` —
+  jumpheight IS the initial upward velocity, not a peak-height solve —
+  and `check_gravity()` — position += velocity, velocity += gravity every
+  tick, land when position<=0 AND velocity<=0, a two-part condition).
+  LEO (TMNT pak) is the only roster member with real jump/jumpattack/
+  jumpattack2 anim data (`jumpheight 5`); every other roster slot no-ops
+  the A-button trigger (`Player_JumpFCount==0`). Q8.8 fixed point for
+  height/velocity (`JUMP_INITIAL_VEL`/`JUMP_GRAVITY`, literal 256x-scaled
+  real BOR.C constants). **What this is NOT**: no Z-axis/depth-sort system
+  was built — this project has no ground-plane/lane axis at all (§3.6's
+  Y-sorted-priority spec item remains unbuilt, see §12/below), so the real
+  BOR.C `position.z` (height) vs `position.y` (depth) split was translated
+  onto a single 2D sprite Y as a **visual-only OAM offset** (subtract the
+  Q8.8 height's integer byte from the already-computed `OamSetSprite_Y`),
+  not a new gameplay axis. Horizontal movement while airborne deliberately
+  reuses the existing continuous per-frame dpad-read walk code rather than
+  porting BOR.C's one-shot ballistic X-velocity model — a **deliberate
+  simplification** (this project has no parallel X-velocity system and one
+  would be imperceptible here), not a sourced behavior. Landing the same
+  frame falls through to normal ground dispatch immediately — a **control-
+  feel choice**, not a real-source claim. AI jump was never built (real
+  BOR.C AI think loops don't autonomously jump either — not a missing
+  feature). Player only (slot 0), matching every other G7 slice.
+- **Grab / throw** — proximity grab state, mutual entity locking. Next
+  planned slice.
 - **Special** (HP-cost screen-clear), **block** if the char has it.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
@@ -847,15 +1114,20 @@ this is what separates "tech demo" from "beat-'em-up."
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
 idle/walk/attack1/fall/rise (fall/rise added 2026-08-22, wired into the
-roster format and engine dispatch the same day — see status block above).
-Every OTHER move above (jump, grab/throw, special, block) still needs its
+roster format and engine dispatch the same day — see status block above),
+plus jump/jumpattack/jumpattack2 (added 2026-08-28, see the jump bullet
+above — LEO is the only roster member with real data for these). Every
+remaining move above (grab/throw, special, block) still needs its
 animation converted and packed, which grows each roster slot's `bor.msu`
 footprint and re-shifts every downstream offset (§4's note) — same
-constraint fall/rise itself was blocked on before this slice.
+constraint fall/rise and jump were both blocked on before their slices.
 
-**Watch out:** a Z axis changes depth sorting. The original spec (§3.6) calls for
-Y-sorted priority; today all four entities are plain OAM sprites with no sorting
-at all. Adding jump forces this to be solved properly.
+**Watch out (historical — resolved by scoping, not by solving):** this
+section originally warned that a Z axis would change depth sorting and
+that jump would force §3.6's Y-sorted-priority spec item to be solved. The
+shipped jump slice avoided that entirely by not building a Z axis or depth
+sort — see the jump bullet above. §3.6's real sorting gap, if it matters
+later, is still open independent of jump.
 
 ---
 
@@ -943,14 +1215,14 @@ is for.
 | 1 | `entity_kind` (props: `1up`/`trash`/`table`/`chair`) | — | — | **DONE** (Phase G8, 2026-08-21, `game_g8_props.py`) |
 | 2 | `health` | — | — | **DONE** (2026-08-21, `game_health_override.py`) |
 | 3 | `map` (per-spawn colormap/palette variant, 0-3) | — | — | **DONE** (2026-08-22, gate `game_map_remap.py`, GATE MAP-REMAP: PASS — see `map_keyword_palette_data_done_runtime_hang` project memory for the full story, including a real boot-hang scare that turned out to be a contaminated bisection state, not a real bug). Converter: `convert_character.py`'s `_derive_remap_palettes` derives one real 16-color BGR555 palette per `remap` pair via mode-voting (RALF=3, JOE=3, JHUN=2, YASHIRO=3, matching real pak data); `pack_msu_roster.py` appends them per character blob. Runtime: `CharacterEntity` grew `CHAR_PALETTE_BASE`/`CHAR_MAP_BASE`/`CHAR_MAP_INDEX` (`CHAR_ZP_LEN` 49→56), `Anim_LoadCharacter` computes `map_base` inline, a new `Anim_ApplyMapPalette` (mirrors `Anim_LoadCharacter`'s own palette-load section) is called by `core/spawn.pasm`'s slot1/2/3 dispatch on every spawn (`record_kind`'s spare bits 3-4 carry the map index, same technique `group`'s min/max used). **Verified against ground truth, not just "didn't crash"**: `game_map_remap.py` forces synthetic spawn records (including a JHUN map=1/2 pair, JOE's highest index map=3, a map==0 restore-to-base check, and a combined `SPAWN_KIND_BOSS`+map decode check) and reads back live CGRAM, comparing byte-for-byte against each character's own `<char>_moveset.json` `remap_palettes` — all 10 checks PASS. Full regression suite (build, `audit_all.py`, `check_label_drift.py`, `check_width_directives.py`, phase5/6/7/8/9/11/12) also all PASS. |
-| 4 | `boss` flag | `spawn_parse.py` already parses it (`SpawnEvent.boss`). Per-entity HP override (G9's own first prerequisite) is now DONE via the health-override slice. **The flag itself is now real DATA plumbing too** (2026-08-22, "wait/group/boss" slice): `record_kind==4` in the spawn record, read at spawn time into a new sticky `EntityN_IsBoss` WRAM cell — see `core/spawn.pasm`'s own header. Nothing reads that flag yet (no boss HUD, no boss-specific AI, no stage-gating), and it's verified only via a hand-authored synthetic record (`game_g9_wait_group_boss.py`) since neither shipped BOR stage uses `boss` at all — real end-to-end coverage needs TMNT conversion (row 11). G9 itself (boss-specific AI, boss health bar) is the real remaining work. | G6 (HUD, for a boss health bar) | data plumbing DONE, behavior see §9 |
+| 4 | `boss` flag | **DONE, 2026-08-23 — including real end-to-end coverage.** `record_kind==4`/`EntityN_IsBoss` (2026-08-22) plus the boss health bar (2026-08-23) were already gated against a synthetic record; a real TMNT level (`data\LEVELS\BEBOP.TXT`, one real `boss 1` line) is now converted and shipped as stage index 2, proving the exact same code path against real pak data with zero engine changes — see §9. | — | DONE, see §9 |
 | 5 | `blockade` | **Row's own premise was wrong, corrected 2026-08-23.** There is no `blockade` keyword in real `BOR.C` (Plombo/beatsofrage) at all — grep-confirmed, zero hits. The real keyword in the level-header switch (~line 1966) is **`blocked`**, one letter off, and it is NOT scroll-back prevention: `else if(stricmp(command, "blocked")==0){ level->exit_blocked = atoi(...); }`, part of an entirely different `hole`/`blocked`/`endhole` trio (~line 1961-1971) that implements level PIT HAZARDS (`level->holes[]`, drawn as sprites at runtime ~line 4925-4926, checked for player fall-through ~line 2606-2607) with an exit gated shut until a numeric condition (`exit_blocked`, checked ~line 3105/3998) — not a camera scroll-back ratchet at all. This engine has no pit/hole/fall-through mechanic of any kind today (separate from anything `core/screen.pasm` does), so implementing the REAL `hole`/`blocked`/`endhole` trio is a new hazard-entity feature, not a `Screen_MinX` one-liner. Re-verified 2026-08-23: neither shipped BOR level (`1AEASY.TXT`, `1BEASY.TXT`) uses `hole`/`blocked` at all — real value is entirely gated on TMNT conversion. | Row 11 (TMNT); real semantics need re-deriving as a hole/pit system, not scroll-back | NOT STARTED, premise corrected, low current priority |
 | 6 | `music` / `bossmusic` | Fully unparsed. Needs a level-scoped music-track-select on top of TAD (today: one hardcoded audio blob loads at boot, no track switching exists at all). Content-gated like G11 (SFX) — only one track is authored/converted today, so there is nothing to switch *to* yet; do not start the code side before at least a second track exists in the pipeline. | Content (a 2nd authored TAD track) | NOT STARTED (blocked on content) |
 | 7 | `alias` | **Not a real gap — document and close, 2026-08-23. This row's own premise was wrong.** Read `BOR.C` directly (Plombo/beatsofrage, repo root, not `engine/`): `smartspawn()` (~line 4589) spawns the entity using the REAL `spawn <name>` argument (`props->name`) first — that's what selects the character model/moveset. Only *after* that does it do `if(props->alias[0]) strncpy(e->name, props->alias, MAX_NAME_LEN);` (line 4593) — `alias` purely overwrites the spawned *instance's* display-name string, for on-screen name UI (`font_printf(... player[i].ent->name ...)` at line 2116, HUD player-select at 2130) — it never redirects which resource is spawned. Confirmed against real TMNT pak data too: `data\CHARS\FOOT01\FOOT01.TXT`/`FOOT02.TXT`/`FOOT03.TXT` are three genuinely distinct character models (own `health`/`speed`/`type` each), each spawned via its own real `spawn Foot01`/`spawn Foot02`/etc. line; `alias Foot_Soldier` just gives all three the same *displayed* name for narrative consistency — there is no `Foot_Soldier` model anywhere in the pak. This project's engine has **no per-entity name display anywhere** (grep-confirmed: `spawn_parse.py` already parses `alias` and its own comment calls it "display name override (cosmetic, unused here)"), so there is nothing for it to attach to — `alias` is a genuine no-op here, same call as row 10 (`maxenemy`). **The real gap row 7 was actually gesturing at — spawns never reading their own `character`/model-name field, always rendering whichever roster character is already streamed into the landing AI slot — is real, but has nothing to do with `alias` and is NOT keyword-slice scope**: `Anim_LoadCharacter` is a blocking boot-time MSU seek+read under forced blank (`CharacterEntity_Init`), `Msu1_StreamBusy`'s one-stream-per-frame budget is load-bearing (CLAUDE.md), and OBJ tile columns are statically per-slot — per-spawn character identity means re-streaming both tiles and palette mid-gameplay, not a small addition. That's `§12` (content and scale) territory, tracked there, not resurrected under this row. | — | N/A — permanent no-op in this engine, not tracked further |
 | 8 | `direction` | **Row's own premise was wrong, corrected 2026-08-23 — this is NOT a camera-model-rewrite blocker.** Real `BOR.C`'s parser (~line 1904-1909): `value = findarg(...); if("up") SCROLL_UP; else if("down") SCROLL_DOWN; else if("left") SCROLL_LEFT; else SCROLL_RIGHT;` — exactly 4 recognized values (up/down/left, default right), no "rightleft"/bidirectional case exists anywhere in this source (grep-confirmed: the literal string `rightleft` appears NOWHERE else in `BOR.C`, and `scrolldir` is read as a strict `==SCROLL_LEFT`/`==SCROLL_RIGHT`/etc. comparison everywhere it's used, ~15 call sites checked). TMNT's real `STREETS.TXT` does say `direction rightleft` (confirmed directly against the pak) — but run through THIS engine's actual parser, an unrecognized value silently falls through to the `else` branch: plain `SCROLL_RIGHT`. **TMNT's own `direction rightleft` line is therefore a no-op in this specific engine version** (possibly meaningful in some other/newer OpenBOR fork, but not the Plombo/beatsofrage source this project sources from) — real gameplay is ordinary one-directional right-scroll, which this project's existing camera model (`core/screen.pasm`) already implements. **This row is not a blocker for row 11 (TMNT conversion) at all.** | — | N/A — TMNT's real behavior is plain one-directional scroll this engine already supports; not tracked further |
 | 9 | `settime` | **Not a real gap today — corrected 2026-08-23, document and close (same call as row 10 `maxenemy`).** `settime` IS a real keyword (unlike `blockade`/row 5) — it's just not in `BOR.C`'s own level-header parser at all (grep-confirmed: zero hits for `settime`/`maxtime` in the source), meaning this specific engine version doesn't act on it even where a level declares it; the real timer mechanism that exists (`timeleft`/`time_over()`, ~line 4701-4714) always hardcodes a fixed 100-second reset at stage load, never reads a per-level value. **More importantly: real content never actually enables it.** Checked every `settime` occurrence across every available pak — zero in either shipped BOR level, and all 4 real TMNT occurrences (`SEWER.TXT`, `SEWER0.TXT`, `STREETS.TXT`, `STREETS2.TXT`) are `settime 0` (disabled). There is no real content anywhere this project has access to that would ever exercise an enabled time limit — building the HUD timer/time-over path described here would have zero real data to build toward or verify against, a worse case than `blockade`'s "gated on TMNT" (TMNT disables it too). | — | N/A — no real enabled usage exists in any available pak; not tracked further |
 | 10 | `maxenemy` | **Not a real gap — document and close.** This engine hardcodes exactly 3 AI slots (`CLAUDE.md`'s "don't build a general entity-lookup system" rule); BOR's own `maxenemy` values in the stock/TMNT levels checked (4) are already satisfied trivially by that hardware ceiling. No code change is applicable here; `SPAWN_MAX_RECORDS`/the single-global-queue design (`core/spawn.pasm`'s own header) already reproduces BOR's wave-clustering behavior within that ceiling. | — | N/A — permanent engine constraint, not tracked further |
-| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **Row 8 (`direction`) is cleared, 2026-08-23** (its real behavior for TMNT is plain one-directional scroll this engine already supports — see row 8's corrected entry). Row 3 (`map`) is done. The one real remaining blocker is §12's per-spawn character-identity gap (see row 7's corrected entry): TMNT's whole roster needs spawns to select which character streams into a slot, which doesn't exist for BOR either. Tracked under §12 (content and scale), not here. | §12 character-identity spawning | NOT STARTED, blocked on §12 only |
+| 11 | TMNT pak conversion itself | Not a keyword gap — a content-pipeline task. **DONE, 2026-08-23/24**: the full real TMNT pak converted — 10 real stages, full campaign, standalone boss stages, real roster growth to 8 slots, then genuinely grown further to 15 (roster-growth slice, same week) with Bebop/FOOT02-04 added, then LEO added the same day — 13 of 15 slots now used. **Follow-up**: the per-spawn character-identity gap this row used to cite as still-blocking is now closed for every identified boss (Rock/Leather/Bebop all render as themselves via spawn-driven roster reassignment, see §9's own follow-ups) — not universally (ordinary non-boss enemies still reskin, since only characters deliberately given a roster slot have anything real to identify against), but the specific blocker this row named is resolved. | — | DONE (full pak, real roster/campaign, real boss-identity reassignment for every roster-identified boss) |
 | 12 | `wait` | — | — | **DONE** (2026-08-22, "wait/group/boss" slice, `game_g9_wait_group_boss.py`) |
 | 13 | `group` | — | — | **DONE** (2026-08-22, same slice) |
 
@@ -977,40 +1249,329 @@ content-gated (6), or waiting on real remaining work outside this table's
 scope (5's real hole/pit system needs re-deriving before it's buildable;
 11 waits on §12). There is no more unblocked, self-contained row left to
 pick. The next slice is a roadmap-priority choice, not a table lookup:
-G7's remaining jump/grab/special items (each blocked on new animation
-conversion, real grab needing full mutual-entity-lock semantics), row 5's
-real hole/pit hazard system (needs its own semantics re-derivation first),
-or `plan_vm.md`'s content-breadth work (script-to-script `CALL` codegen —
-the runtime already supports it per Gate 6/7's own header notes; only the
-compiler's codegen path is missing, and it's a genuinely large addition,
-not a small slice — see `vm_gate7_measured_no_action_needed` memory).
-Surface this choice rather than picking unilaterally.
+G7's remaining jump/special items (blocked on new animation conversion --
+no real anim exists in the source pak for any roster character; note that
+`grab` here means only the generic attack2 move that happens to use JOE's
+`grab`-named animation role -- real grab mutual-lock semantics are, per
+§7's own text, still fully open, not done), or row 5's real hole/pit hazard
+system (needs its own semantics re-derivation first). Surface this
+choice rather than picking unilaterally.
 
 ---
 
 ## §9 — Phase G9: bosses
 
-> **Prerequisite update, 2026-08-22:** both "per-entity HP override" and
-> "the `boss` flag itself" (this section's own first two bullets, below)
-> are now DONE — the health-override slice and the "wait/group/boss" slice
-> respectively. What's left here is boss-SPECIFIC BEHAVIOR only: nothing
-> today reads `EntityN_IsBoss` for anything other than existing as a
-> correctly-set flag. See `core/spawn.pasm`'s own header and the
-> `wait_group_boss_spawn_mechanics` project memory for what's already real
-> vs. still missing, and its explicit synthetic-only-verification caveat
-> (no buildable pak exercises `boss` end-to-end yet — only TMNT, not
-> converted).
+> **Status: DONE, reachable in play, 2026-08-23.** A real TMNT boss stage
+> is now converted and shipped as stage index 2: `Teenage Mutant Ninja
+> Turtles [v.3.0 Build 4153].pak`'s `data\LEVELS\BEBOP.TXT` (`out/
+> bg_stage2boss`, `out/spawn_stage2boss`), verified straight from the
+> extracted pak text to contain exactly one real `boss 1` line (on `spawn
+> Bebop`) plus a decorative `spawn Hydrany` (`type obstacle` → converts to
+> `RECORD_KIND_PROP`) and a closing `wait`. `build_spawn_table.py`'s
+> `elif e.boss: record_kind = RECORD_KIND_BOSS` branch — already built and
+> gated 2026-08-22 against a hand-authored synthetic record — needed **zero
+> code changes** to fire correctly against this real data; the only changes
+> anywhere were `build_rom.py`'s `BG_SCREENS`/`FP_SCREENS`/`SPAWN_TABLES`
+> lists (a 3rd entry) and `core/game_state.pasm`'s `STAGE_COUNT` (2 → 3),
+> both already-generalized per-stage mechanisms from G4/Phase 14 — no new
+> `.pasm` logic anywhere. `GATE G9-TMNT-BOSS: PASS`
+> (`tools/verify/game_g9_tmnt_boss.py`, 12 checks): the real spawn table's
+> boss record decodes to `record_kind==4` at the byte level; driving the
+> real win condition twice (stage 0→1→2, the untested has-frontpanel →
+> no-frontpanel direction) lands cleanly on stage 2 with CGRAM matching
+> `out/bg_stage2boss`'s own converter output; the real level's own trigger
+> then sets some entity's `EntityN_IsBoss` from actual gameplay advancement
+> (a short real held-Right past Bebop's small real `trigger_x`, not a WRAM
+> poke); the boss health bar renders a real, non-blank, non-sentinel bar
+> for it. The two pre-existing synthetic gates (`game_g9_boss_bar.py`,
+> `game_g9_wait_group_boss.py`) were kept, not retired — they still pass
+> and still isolate the HUD/flag mechanics from level-conversion variables.
+>
+> **Real bugs found while building the gate, not the engine** (the engine
+> side needed no fixes at all): (1) the first attempt drove the 1→2
+> transition by holding Right the same way `game_g4_transition.py` does
+> for 0→1 — but stage 1A is 408 tiles wide (real converted data), and a
+> real held-Right walk across it never reached the camera-clamp edge
+> within a reasonable gate runtime. Fixed by writing `Screen_PosX :=
+> Stage_TrueMaxX` directly once `Stage_Cleared` is set, the same "safe to
+> write directly" precedent already used for `Spawn_Index`/`CHAR_HP`,
+> applied to the other side of the same edge check instead of walking to
+> it. (2) `Spawn_Play` arms on `Screen_PosX` (the camera), not player
+> position — after landing on the fresh stage 2, the camera sat at 0 and
+> Bebop's boss record (real `trigger_x`) never fired until the gate
+> actually moved the camera; fixed by holding Right briefly post-landing
+> (genuine gameplay, since this specific check exists to prove the real
+> trigger fires under real advancement, not another direct write).
+>
+> **Deliberate scope decision, grounded in this project's own existing
+> precedent, not invented for this slice:** the boss entity renders using
+> whichever roster character already occupies the AI slot its real spawn
+> record lands on (confirmed here: slot 1) — `build_spawn_table.py`'s own
+> header has documented this as intended, unchanged behavior since Phase 8
+> ("every record spawns using whichever roster character is already wired
+> to the slot it lands in"); stage 1A's own `angel` spawns already do
+> this today. Converting Bebop's own sprite art and adding it as a new
+> roster character was considered and rejected: the fixed 4-entity/roster-
+> slot model assigns each entity's roster character once at boot (see
+> [[phase15_fourth_character]]/[[phase12_roster_expansion]]), not per-
+> stage, so making a boss visually *be* Bebop specifically would need new,
+> real per-stage roster-reassignment engine code — a materially bigger,
+> riskier slice than "make the already-built G9 plumbing reachable," which
+> is now done with zero new `.pasm`. This is the same character-identity
+> gap §12 already tracks, not a new one.
+
+> **Corrected premise, 2026-08-23:** the previous version of this section
+> (below, both now-struck bullets) assumed real OpenBOR has boss-specific AI
+> and a boss-exclusive health bar. It doesn't. Fetched the real source
+> (`DCurrent/openbor`, `engine/openbor.c`) to check: `boss` only (a) fires
+> `bossmusic` on spawn and (b) decrements `level->bossescount` toward the
+> win condition on death — no boss-specific behavior tree exists anywhere
+> in `combat.c`/`openbor.c`. The "boss health bar" in real BOR
+> (`drawstatus()`'s `elife`) isn't boss-exclusive either — it's a generic
+> "current opponent" bar shown for whatever entity `player[i].ent->opponent`
+> points at, gated on that entity not having `nolife` set. This project has
+> neither an opponent-pointer nor a `nolife` concept, and building the
+> generic mechanic has no other use here, so the health bar ships gated
+> directly on the existing `EntityN_IsBoss` flag instead (lowest-numbered
+> *living* boss-flagged entity wins). "Stage-gating" needed no new code:
+> G4's win condition (all AI dead + spawn queue exhausted before the camera
+> unlocks) already covers a boss stage with the exact same mechanism as any
+> other stage.
 
 - ~~Per-entity HP override (the spawn table has no HP field today — add one).~~ **Done, 2026-08-21** (health-override slice, `+7 spawn_hp` in the spawn record).
 - ~~The `boss` flag itself (`spawn_parse.py`'s `SpawnEvent.boss`, already parsed, not yet threaded into the record or read by the engine).~~ **Done, 2026-08-22** (`record_kind==4`, `EntityN_IsBoss` sticky flag) — real data plumbing, verified only via a hand-authored synthetic record (no shipped BOR stage uses `boss`).
-- Boss-specific AI beyond "seek and attack" — still not built, and `EntityN_IsBoss` is not read anywhere yet.
-- Boss health bar (G6), stage-gating (camera locks until defeated) — still not built.
+- ~~Boss-specific AI beyond "seek and attack".~~ **Cleared, 2026-08-23** — not a real OpenBOR concept (see corrected premise above); no code needed.
+- ~~Boss health bar, stage-gating (camera locks until defeated).~~ **Done, 2026-08-23** (`core/hud_boss.pasm`, `Hud_Play__boss_bar`, own bank for ROM budget, entered `jsl` from `main.pasm`'s `Hud_Play`) — gates directly on `EntityN_IsBoss`+HP>0, lowest-numbered living boss wins, blank row when none. Found and fixed two real bugs along the way: `HUD_ROW_BOSS` initially collided with the pre-existing boot-time G1 text demo on row 4 (moved to row 6), and `Hud_DrawBar` (the existing player-bar routine) hardcodes its target buffer as `HudStaging` with no parameter, so an earlier version that called it directly for the boss bar silently drew into the player's own buffer — fixed by duplicating the draw body into `Hud_Play__boss_bar_drawbar` against its own `HudBossStaging`/DMA, per this project's own "small duplicated block over a parameterized shared one" precedent. Stage-gating needed no new code — see corrected premise above. **GATE G9-BOSSBAR: PASS** (`tools/verify/game_g9_boss_bar.py`, 11 checks, hand-authored synthetic force since no shipped BOR stage uses `boss`).
 
 `out/bg_boss_level` already exists as converted assets from an earlier phase.
+
+> **Follow-up, 2026-08-23/24: the full TMNT pak converted, not just one
+> boss stage.** The user asked directly why G9 wasn't fully closed out if
+> its only real gap was "no shipped level uses `boss`" — the honest answer
+> was that this project had only ever converted a single BOR pak's two
+> levels; TMNT (a full separate pak already sitting in this repo) had
+> real, playable boss content nobody had converted. Rather than declare
+> the gap permanently content-blocked, converted the whole real TMNT pak.
+> Ten real stages ship now (indices 0-9): the original 2 BOR levels
+> (0-1), Bebop's standalone boss stage (2, done first, see above), Rock's
+> and Leatherhead's standalone boss stages (3-4), the real 4-level TMNT
+> main campaign in its real `Play_Demo` order — `sewer0` → `streets` →
+> `streets2` → `sewer` (5-8) — and `foot.txt`, the last standalone TMNT
+> level (9). Scene cutscenes (`STORY.TXT`/`ENDING.TXT`) were left out —
+> this project has no cutscene-image renderer and building one wasn't in
+> scope here.
+>
+> **Real content facts, verified by extracting and reading every level
+> file directly, not assumed:** `streets.txt` and `streets2.txt` each
+> have their own real `boss 1` line — Rock and Bebop are fought again as
+> *story* bosses, separate spawn tables from their standalone practice
+> stages. `sewer0.txt`/`sewer.txt` have none (waves of `mouser`/`foot0X`
+> only). `foot.txt`, despite its "Foot Soldier Test" framing, has **no**
+> `boss 1` line at all — `spawn Foot3 / alias Foot_Soldier / health 500`
+> is just a single reinforced-HP encounter (`alias` was already known to
+> be cosmetic here, not identity — see §12). Every prop/decoration name
+> in the campaign levels (`Epole`/`Hydrant`/`Plant`/`Tree`/`trash*`/
+> `Parkm`/`Pipef*`/`car`/`guy`/`mail`/`Pizza`/`White*`/`Light*`/`Smoke`/
+> `Wdrop`) is real TMNT data with `type` = `panel`/`obstacle`/`none`/
+> `item` — genuine background scenery or a pickup, not a combatant —
+> skipped the same way `Hydrany` was skipped in the Bebop stage.
+>
+> **Character roster:** converted every real `enemy`-type fighter the
+> campaign actually references — `MOUSER` and `FOOT01`-`FOOT04` (5
+> characters, same `convert_character.py` pipeline as every prior roster
+> addition). Hit a real, hard format limit doing this: the packed
+> roster directory is capped at 8 slots (`pack_msu_roster.py` byte
+> 0x09), and 4 were already spent (RALF/JHUN/JOE/YASHIRO) — only 4 more
+> fit, not 5. FOOT01-04 are mechanically identical in the source data
+> (same anim set, same HP=70), so FOOT01 was added as the roster's 6th
+> member; FOOT02-04's converted assets are real, committed, and unused
+> pending either a roster-capacity rework or the identity fix below.
+>
+> **A real, load-bearing architectural finding, not a code fix**: per-
+> spawn character identity — every enemy, TMNT or BOR, rendering as
+> *itself* rather than whatever roster member already occupies its AI
+> slot — is not simply unwired data plumbing. `CharacterEntity_Init`'s
+> `(role<<8)|roster_index` param and the per-instance `CHAR_ROSTER_INDEX`
+> field already exist, but they're only ever set ONCE, at boot — the 3 AI
+> entities are created at boot with a fixed roster index each, and
+> `Spawn_Play` only ever recycles them (new HP/position/flags), by
+> design: the fixed-address `EntityN_Base` scheme can't survive the
+> generic OOP kill/GC path (see [[phase11_damage_system_softkill]]).
+> Making a spawn load its own character would mean re-triggering
+> `Anim_LoadCharacter` — a real asset stream with its own busy-wait/DMA-
+> queue sequencing — from inside `Spawn_Play`'s per-frame call, risking
+> the one-entity-streams-per-frame invariant this project has broken and
+> fixed before. Not attempted; every enemy still renders as whichever
+> roster member already occupies its AI slot. This is the same gap §9's
+> Bebop section and §12 both already flag — now confirmed, not just
+> assumed, to be a real architectural fork rather than a quick slice.
+>
+> **A real regression found and fixed while running the full suite** (not
+> by the new content itself, but by the roster growing past what a
+> hand-synced table anticipated): `main.pasm`'s `CharSelect_NamePtrs` —
+> one word-pointer entry per roster slot, indexed by `CharSelect_Index`
+> — still only had 4 entries after the roster grew to 6. Wrapping to
+> slot 4/5 read 2 words of garbage past the table's own end as a string
+> pointer. Caught by `game_g5_menus.py`'s own wrap check failing loudly,
+> not silently; fixed by adding the 2 missing entries. Two verify
+> scripts that hardcoded the old 4-slot roster (and would have masked
+> the same bug shape again later) were also fixed: `game_g5_menus.py`'s
+> wrap-target name, and `game_g7_grab.py`'s "2 Select presses wraps JOE
+> back to RALF" (now derives the press count from the real
+> `CharSelect_RosterCount`, never a hardcoded roster size).
+>
+> **Gate**: `tools/verify/game_tmnt_campaign.py`, `GATE TMNT-CAMPAIGN:
+> PASS` — byte-level `RECORD_KIND_BOSS` verification against every new
+> stage's real converted spawn table, plus a live force-win walk through
+> all 9 real stage-transition edges (0→9), plus CGRAM ground truth on
+> the final stage. Deliberately does NOT force stage 6's own story-boss
+> (Rock) to fire live in-gate: measured directly that its real
+> `trigger_x` (2240) is gated by a real, already-verified `wait` scroll-
+> lock mechanic that a quick gate isn't worth fighting to push past — the
+> byte-level check plus the already-passing Bebop/Rock-standalone live
+> gates already prove the mechanism end-to-end. `game_g9_tmnt_boss.py`
+> and the two synthetic G9 gates were kept and still pass.
+>
+> Full regression suite verified clean at each commit: `build_rom.py`,
+> `audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> phases 5-12, and every `game_g1`-`game_g9`/`game_health_override`/
+> `game_map_remap`/`game_tmnt_campaign` gate.
+>
+> **Explicitly still open, not silently dropped**: FOOT02-04's converted
+> assets sit unused (roster-capacity-capped); the per-spawn character-
+> identity gap above; Double Dragon Moto (a separate pak, needs the
+> openborscript VM for real level logic — explicitly out of scope, the
+> VM stays shelved per standing instruction); scene cutscenes.
+>
+> **Follow-up, same day (roster-growth slice): the "architectural fork"
+> above was real, but not a wall — it got built, not re-deferred.**
+> `Anim_LoadCharacter` was already a reusable, mid-game-callable routine
+> (the player's own Select-button reselect already invoked it live) —
+> `core/spawn.pasm`'s `Spawn_DoRosterReassign` DP-switches to the target AI
+> slot and re-runs it, proven end-to-end by
+> `tools/verify/game_spawn_roster_reassign.py` (Rock/Leather really render
+> as themselves now). That made the roster's OWN 8-slot format cap
+> (`pack_msu_roster.py`'s `MAX_CHARACTERS`) the real remaining limiter, not
+> the streaming/entity architecture — grown to 15 (a real ceiling of
+> `main.pasm`'s existing 8-bit directory-seek arithmetic, `index*17+0x10` in
+> one accumulator with no carry; 15 is the largest index that doesn't
+> silently wrap, not an arbitrary number). The spawn record itself also
+> grew 8→9 bytes: `record_kind`'s 3 spare bits (0-7) couldn't address 15
+> slots, so `roster_idx` moved to its own dedicated byte. Bebop was
+> converted fresh (it never had real character art before — its boss stage
+> always rendered a reskin) and added as roster slot 8; `game_g9_tmnt_boss.py`
+> updated accordingly (RECORD_KIND_BOSS_IDENTIFIED, roster_idx=8, same
+> mechanism as Rock/Leather). FOOT02-04 also added (slots 9-11), closing out
+> the "converted but unused" note above. **Real bugs found while doing
+> this**: `SPAWN_MAX_RECORDS` was still 48 — stale since before the TMNT
+> campaign shipped — while `streets2` alone real-packs 86 records; every
+> stage with >48 records (`sewer0`/`streets`/`streets2`/`sewer`) was
+> silently overrunning `SpawnTable_Wram`'s WRAM allocation by hundreds of
+> bytes into whatever followed it. Grown to 90. Also: `game_g5_menus.py`'s
+> wrap-to-last-slot check caught `CharSelect_NamePtrs` falling behind the
+> roster size a *third* time (this exact bug class, twice previously
+> documented above) — fixed, and `phase12_roster.py`'s own all-pairs
+> palette-distinctness check was found to be the wrong invariant once real
+> content included genuine duplicate art (FOOT01-04 are literal palette-
+> identical clones in the source pak) — replaced with a ground-truth check
+> against each slot's own real converted `palette.txt` instead of a
+> pairwise comparison. What's still, correctly, a reskin: every ordinary
+> non-boss enemy — only characters deliberately added to the roster (12 of
+> 15 slots now used) have anything real to identify against.
+>
+> Full regression suite re-verified clean after this slice: `build_rom.py`,
+> `audit_all.py`, `check_label_drift.py`, `check_width_directives.py`,
+> phases 5-12, and every `game_g1`-`game_g9`/`game_health_override`/
+> `game_map_remap`/`game_tmnt_campaign`/`game_spawn_roster_reassign`/
+> `game_g5_sram`/`game_g5_pause` gate.
+
+> **Follow-up, same day: the per-spawn character-identity gap above is now
+> CLOSED for the case that's actually real — real user instruction, not a
+> re-investigation that changed its mind.** The "architectural fork" framing
+> two paragraphs up was about a GENERAL mechanism (every possible spawned
+> name gets its own live sprite); what actually shipped is narrower and
+> real: **spawn-driven roster reassignment**. Rock and Leather were added as
+> genuine roster members (indices 6/7, `build_rom.py`'s `ROSTER_PREFIXES`,
+> same `convert_character.py` pipeline as every prior roster addition — no
+> new conversion work, their assets already existed from the standalone
+> boss stages). `tools/bg_converter/build_spawn_table.py` now emits
+> `RECORD_KIND_BOSS_IDENTIFIED` (record_kind==5) instead of the plain
+> `RECORD_KIND_BOSS` (4) for any `boss 1` spawn whose real character name IS
+> in the actual shipped roster, carrying that roster index in the record's
+> own previously-always-zero spare bits (bits 5-7 of byte +6 — the `map`
+> slice already proved bits 3-4 were real, reusable spare space the same
+> way; bits 5-7 were provably always zero before this). `core/spawn.pasm`'s
+> `Spawn_Play` gates the WHOLE record (not just the reassignment step) on
+> `Msu1_StreamBusy` BEFORE `find_slot` even runs and before any HP/position
+> write touches a slot — deferring cleanly, with zero side effects, exactly
+> like the existing "no free slot"/"trigger not reached" cases, if another
+> entity already streamed this frame (a real ordering hazard caught by
+> tracing the actual per-frame call order, `Core_Oop_Play` then `Spawn_Play`
+> in `game_state.pasm`, not assumed). `Spawn_DoRosterReassign` then
+> DP-switches (`phd`/`tcd`/`pld`) to the target AI entity's own window and
+> re-runs `Anim_LoadCharacter` (via its existing `Anim_LoadCharacter_Long`
+> bank-0 trampoline) — the EXACT SAME live mid-game character reload the
+> player's own Select-button reselect already used, just DP-targeted at an
+> AI slot instead of always the player. This is not new streaming
+> machinery and does not touch the one-entity-streams-per-frame invariant's
+> mechanism, only its scheduling.
+>
+> **Real proof, not a flag check**: `tools/verify/game_spawn_roster_reassign.py`
+> (`GATE SPAWN-ROSTER-REASSIGN: PASS`) reaches Rock's and Leather's real
+> standalone stages via the real force-win chain, snapshots a live entity's
+> (idle,walk,attack) frame-count triple BEFORE the boss's real spawn record
+> triggers, then again after — and shows it actually changing from whatever
+> roster member the slot booted with (e.g. Joe's real `(10,7,11)`) to the
+> boss's own real converted numbers (Rock's real `(6,12,9)`, Leather's real
+> `(2,12,5)`), sourced directly from `out/rock_moveset.json`/
+> `out/leather_moveset.json`, never invented. `game_tmnt_campaign.py`'s own
+> byte-level boss-record check was updated to treat `RECORD_KIND_BOSS` and
+> `RECORD_KIND_BOSS_IDENTIFIED` as one family (both still set
+> `EntityN_IsBoss`) — Rock's story-boss record in `streets.txt` (stage 6)
+> and its standalone record (stage 3) were both regenerated with the real
+> identification; Bebop's two boss records (stages 2 and 7) are unchanged
+> (`RECORD_KIND_BOSS`, no identification) since Bebop was never added to the
+> roster — verified byte-identical before/after regenerating with the
+> `--roster` flag, not assumed.
+>
+> **What is still, correctly, a reskin**: any spawn whose character was
+> never added to the roster — Bebop (no `out/bebop_*` character assets
+> exist at all), and every ordinary non-boss enemy in every level. The
+> roster format's real 8-slot cap (`pack_msu_roster.py` byte 0x09) means
+> most spawned names still have nothing real to identify against; this was
+> never "give every enemy its own sprite," it was "let an identified boss
+> render as itself," and that's what shipped.
+>
+> Full regression suite re-verified clean after this change (all of
+> `build_rom.py`/`audit_all.py`/`check_label_drift.py`/
+> `check_width_directives.py`/phases 5-12/every `game_g1`-`game_g9`/
+> `game_health_override`/`game_map_remap`/`game_tmnt_campaign` gate, plus
+> the new gate above) — including one real, unrelated pre-existing test
+> constant that needed updating for the new 8-slot roster:
+> `game_g5_menus.py`'s hardcoded "roster's last slot" expectation (was
+> `FOOT SOLDIER`, now genuinely `LEATHERHEAD`) — same class of hand-sync
+> gap this file already documents having been bitten by once before,
+> caught the same way (a gate failing loudly, not silently).
+>
+> **Follow-up, same day (roster-growth slice): "Bebop was never added to
+> the roster" above is no longer true — see this file's roster-growth
+> paragraph a few blocks up for the full story.** Bebop was converted fresh
+> and added as roster slot 8 once the format's 8-slot cap was grown to 15;
+> `game_g9_tmnt_boss.py` now expects `RECORD_KIND_BOSS_IDENTIFIED` with
+> `roster_idx=8` for stage 2's boss record, same mechanism proven here for
+> Rock/Leather. The roster's real cap is no longer 8 — it's 15, with 12
+> slots currently used (RALF/JHUN/JOE/YASHIRO/MOUSER/FOOT01/ROCK/LEATHER/
+> BEBOP/FOOT02/FOOT03/FOOT04). What is STILL correctly a reskin, unchanged
+> by that slice: every ordinary non-boss enemy — the identification
+> mechanism only ever applied to bosses whose real character got a roster
+> slot, and most spawned names across these levels still aren't roster
+> members. That was a content/scope decision, not a code gap.
 
 ---
 
 ## §10 — Phase G10: ending and credits
+
+> **Status: NOT STARTED.**
 
 Stage table exhausted → ending sequence → credits → back to title. Uses G1's text
 renderer and G2's state machine; mostly content once those exist.
@@ -1032,10 +1593,27 @@ anything else.
 
 The two shortcuts from §0 come due here.
 
-- **Stages.** 2 of 14 converted (stage 1A, 1B), 1 shipped at a time. The converter
-  pipeline is proven and level-agnostic — Phase 14 swapped levels with *zero*
-  engine changes — so this is throughput, not research.
-- **Characters.** 4 of ~24 converted. Same story.
+- **Stages.** 10 real stages shipped (2 BOR + the full real TMNT pak: 3
+  standalone boss stages, the real 4-level TMNT campaign, and TMNT's last
+  standalone level), all reachable via G4's stage transition, generalized
+  to N stages with no hand-synced per-stage constants. Double Dragon Moto
+  (the third pak in this repo) stays unconverted — its levels need the
+  openborscript VM, explicitly shelved. BOR's own remaining ~12 stages
+  were never a priority once TMNT proved the pipeline is level-agnostic
+  across paks — this is throughput, not research, whenever it's wanted.
+- **Characters.** 13 of ~24+ converted and in the roster (RALF/JHUN/JOE/
+  YASHIRO from BOR; MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02/FOOT03/FOOT04/
+  LEO from TMNT) — the roster format's cap was grown 8→15 (roster-growth
+  slice, a real hardware-arithmetic ceiling of `main.pasm`'s existing
+  8-bit directory-seek math, not an arbitrary number — see
+  `pack_msu_roster.py`'s `MAX_CHARACTERS`), so 2 slots remain free today.
+  A frequency/shape analysis of every real spawn across all 9 TMNT levels
+  (`mouser` 67×, the Foot Soldier family 130× combined, Rock/Bebop/Leather
+  1-3× each as named bosses) confirms every recurring enemy shape already
+  has a dedicated slot — there is no hidden 6th fighter archetype to spend
+  the remaining 2 on. Adding more real characters past 15 total would need
+  the seek routine rewritten to carry into a second byte first, not just
+  another conversion pass.
 - **Enemies on screen.** The `Msu1_StreamBusy` one-stream-per-frame rule caps
   effective animation rate at 1/N. Six enemies means ~10fps animation. Options,
   roughly in order of cost: keep frequently-used frames VRAM-resident instead of
@@ -1065,12 +1643,19 @@ keyword is `blocked` (a pit-hazard flag, not scroll-back) and needs its
 own semantics re-derivation before it's buildable; row 6 (`music`) waits
 on content; row 8 (`direction`) turned out to be a no-op for TMNT under
 this engine's real parser, not a camera-model blocker — cleared; row 11
-(TMNT conversion) now only waits on §12's character-identity-spawning gap.
+(TMNT conversion) is DONE, including spawn-driven roster reassignment for
+every identified boss (Rock/Leather/Bebop) and a genuinely grown roster
+format (8→15 slots, 12 used) — see §9's own follow-ups for exactly what's
+still a reskin (ordinary non-boss enemies only — every character
+deliberately given a roster slot now identifies for real).
 
 G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 
 **Genuinely hard** (expect real research and real bugs):
-- **G7's jump / Z axis** — changes movement, collision, and depth sorting at once.
+- ~~**G7's jump / Z axis**~~ — **Done, 2026-08-28** (see §7's jump bullet).
+  Turned out not to need real depth sorting after all — the real BOR.C
+  height-vs-depth split was translated onto a visual-only 2D OAM offset
+  instead, since this project has no ground-plane axis to sort on.
 - **G4's cache teardown/reload** — never exercised; two streaming caches.
 - **G12's enemy scaling** — a real hardware bandwidth wall, not a code smell.
 - **2-player co-op** — breaks a load-bearing architectural shortcut.
@@ -1112,8 +1697,8 @@ not optional.
    and `.l Symbol,y` are still correct style (neither addressing mode is valid
    on real 65816 regardless of Poppy), but Poppy now hard-errors on both
    instead of silently mis-assembling, so a mistake here is now a loud build
-   failure, not a silent landmine. `plan_vm.md` §0.6 has the full current list
-   with rationale.
+   failure, not a silent landmine. `CLAUDE.md`'s Poppy toolchain section has
+   the full current list with rationale.
 4. **Watch `.org` region occupancy.** `$C100`–`$FC00` had ~1913 bytes free as
    of 2026-08-16 (re-measure, don't trust this number). Overflow used to be
    silent and corrupt the next region — the current fork now errors on it

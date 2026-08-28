@@ -1,0 +1,95 @@
+{
+  "entity": "Bebop",
+  "anim": "riseattack",
+  "loop": 0,
+  "scale": 0.12749003984063745,
+  "hotspot_canvas": [
+    10,
+    24
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        100,
+        165
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": null,
+      "attack": [
+        120,
+        30,
+        120,
+        45,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": null,
+      "attack": [
+        120,
+        30,
+        120,
+        45,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": null,
+      "attack": [
+        120,
+        30,
+        120,
+        45,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": null,
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

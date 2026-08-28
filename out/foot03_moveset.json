@@ -1,0 +1,96 @@
+{
+  "entity": "Foot03",
+  "prefix": "out/foot03",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/foot03_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/foot03_walk",
+      "frames": 6
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/foot03_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/foot03_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/foot03_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/foot03_attack1",
+      "frames": 4
+    },
+    {
+      "ordinal": 6,
+      "name": "upper",
+      "dir": "out/foot03_upper",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5,
+    "attack2": 6,
+    "attack2_is_grab": false
+  },
+  "remap_palettes": [
+    [
+      0,
+      15628,
+      0,
+      10502,
+      0,
+      31775,
+      0,
+      3229,
+      31775,
+      10502,
+      31775,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      10376,
+      0,
+      7232,
+      0,
+      31775,
+      0,
+      3229,
+      31775,
+      7232,
+      31775,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "entity": "Leather",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.14545454545454545,
+  "hotspot_canvas": [
+    14,
+    26
+  ],
+  "frames": [
+    {
+      "delay": 60,
+      "offset": [
+        90,
+        215
+      ],
+      "bbox": null,
+      "attack": [
+        10,
+        50,
+        70,
+        90,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        95,
+        225
+      ],
+      "bbox": null,
+      "attack": [
+        10,
+        50,
+        70,
+        90,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

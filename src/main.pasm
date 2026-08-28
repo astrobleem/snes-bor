@@ -2835,6 +2835,11 @@ CHAR_SELECTED_FALL  = 3    ; Anim_Play__dispatch value; subsumes the real
                             ; exists in source -- lying is a hold on fall's
                             ; last frame, see that slice's plan)
 CHAR_SELECTED_RISE  = 4
+CHAR_SELECTED_JUMP  = 5    ; real jump slice -- player-only (Jump_CheckEntry,
+                            ; core/jump.pasm), real Z-axis height/gravity/
+                            ; landing, distinct from fall/rise (those are
+                            ; the hit-reaction knockdown, not a voluntary
+                            ; jump; both real, separate OpenBOR mechanics)
 ; Real OpenBOR: attack.attack_drop is authored per attack FRAME; this port
 ; has exactly one attack (attack1), and its real frames (RALF/JOE/JHUN/
 ; YASHIRO.TXT, all verified this slice) all omit the drop argument -> 0.
@@ -2903,11 +2908,17 @@ Bg_LoadScene_StageIndex = $7E268E  ; .db -- which bg record Bg_LoadScene loads
 BgDirSeekLo = $7E268F   ; .dw -- scratch: stage-adjusted bg directory seek addr
 BgDirSeekHi = $7E2691   ; .db
 BgDirSeekTmp = $7E2692  ; .dw -- scratch: Bg_LoadScene_StageIndex * BG_RECORD_SIZE
-CharDirSeekTmp = $7E2694 ; .db -- scratch: CharSelect_Index * RECORD_SIZE(17), same
-                          ; index*16+index idiom BgDirSeekTmp uses for *40 above --
-                          ; grab mutual-lock slice (RECORD_SIZE 16->17, no longer a
-                          ; power of 2). Stays .a8 throughout (unlike BgDirSeekTmp's
-                          ; .a16 context) -- max value 7*17=119, always fits one byte.
+CharDirSeekTmp = $7E2694 ; .db -- UNUSED as of the real jump slice (see
+                          ; CharDirSeek16 below) -- kept declared, not
+                          ; reclaimed, so nothing else silently drifts into
+                          ; this byte; was: scratch for CharSelect_Index *
+                          ; RECORD_SIZE(17) via the 8-bit index*16+index
+                          ; idiom, safe only up to index 14. RECORD_SIZE
+                          ; grew to 23 in the real jump slice, which would
+                          ; drop that ceiling to index 11 -- already too
+                          ; small for LEO (slot 12) -- so the seek is now a
+                          ; real 16-bit accumulate loop instead (see
+                          ; Anim_LoadCharacter_SeekRecord).
 GrabDragOffset = $7E2695 ; .dw -- scratch: Character_Grab_Play's sign-extended
                           ; CHAR_GRAB_OFFSET, ready for a 16-bit add against
                           ; PlayerEntity_PosX. Grep-confirmed free right after
@@ -2917,6 +2928,110 @@ GrabDragOffsetHi = $7E2696 ; high byte of GrabDragOffset, its OWN named
                             ; instruction operand -- same standing rule as
                             ; CHAR_POS_X_HI's comment (Poppy estimation-vs-
                             ; encoding mismatch on `Symbol+N` expressions).
+
+; --- Real jump slice (plan_game.md 7) -- grep-confirmed free $7E27B6-$7E27CA. ---
+CharDirSeek16 = $7E27B6  ; .dw -- 0x10 + CharSelect_Index*RECORD_SIZE(23), a
+                          ; real 16-bit accumulate-by-repeated-add result
+                          ; (see Anim_LoadCharacter_SeekRecord) -- replaces
+                          ; CharDirSeekTmp's retired 8-bit-only scheme.
+
+; Player-only (slot 0), standalone WRAM cells, NOT a CHAR_ZP_LEN struct
+; field -- same reasoning as Player_InvulnFrames (project memory: growing
+; the shared per-instance struct for state only the player ever uses once
+; broke spawn-slot assignment despite audit_all.py passing clean). AI
+; entities never jump today; nothing reads these for them.
+Player_JumpZPos = $7E27B8   ; .dw -- Q8.8 fixed-point height above ground,
+                              ; SIGNED (can transiently overshoot negative
+                              ; for one frame -- large downward velocity vs.
+                              ; a small remaining height -- Jump_PlayerTick's
+                              ; landing check treats <=0, not ==0, and clamps
+                              ; to exactly 0 on landing; see real BOR.C
+                              ; check_gravity()'s own position.y<=base test).
+                              ; 0 == grounded. High byte (>>8) is the real
+                              ; pixel offset subtracted from the player's
+                              ; drawn OAM Y (Character_PlayFrame's visual-
+                              ; only override -- CHAR_POS_Y itself, the real
+                              ; ground/collision Y, is untouched).
+Player_JumpZVel = $7E27BA   ; .dw -- Q8.8 fixed-point vertical velocity,
+                              ; signed. Real OpenBOR semantics (BOR.C
+                              ; check_gravity()/toss()/dojump(), sourced this
+                              ; slice): position.y += velocity.y each tick,
+                              ; velocity.y += gravity each tick, land when
+                              ; position.y <= base (0 here) AND velocity.y <=
+                              ; 0. jumpheight IS the initial upward velocity
+                              ; directly (toss(self, jumpheight)), not a
+                              ; peak-height value requiring a physics solve.
+JUMP_INITIAL_VEL = $0500     ; LEO's real `jumpheight 5` (BOR.C's own units),
+                              ; Q8.8: 5.0*256 = 1280 = $0500. Ratio-matched
+                              ; to real source, not byte-identical to real
+                              ; OpenBOR's own screen scale -- OpenBOR's
+                              ; internal Y-units don't map 1:1 onto SNES
+                              ; pixels/60fps, so this project keeps the same
+                              ; literal jumpheight/gravity magnitudes (see
+                              ; JUMP_GRAVITY) rather than inventing a
+                              ; feel-tuned conversion factor.
+JUMP_GRAVITY = $FFE6         ; real OpenBOR default_level_gravity = -0.1,
+                              ; Q8.8: -0.1*256 = -25.6, rounded to -26 =
+                              ; -$1A = $FFE6 as a 16-bit signed value.
+Player_JumpFCount        = $7E27BC  ; .db -- CHAR_JUMP_FCOUNT equivalent,
+                                      ; player-only. 0 == this roster
+                                      ; character has no real jump anim
+                                      ; (every character except LEO today).
+Player_JumpDelay         = $7E27BD  ; .db
+Player_JumpAttackFCount  = $7E27BE  ; .db
+Player_JumpAttackDelay   = $7E27BF  ; .db
+Player_JumpAttack2FCount = $7E27C0  ; .db
+Player_JumpAttack2Delay  = $7E27C1  ; .db
+Player_JumpBaseLo        = $7E27C2  ; .dw -- 24-bit MSU byte offset of this
+                                      ; character's jump frames, chained off
+                                      ; attack2_base the same way every
+                                      ; other *_base already chains (see
+                                      ; Anim_LoadCharacter).
+Player_JumpBaseHi        = $7E27C4  ; .db
+Player_JumpAttackBaseLo  = $7E27C5  ; .dw
+Player_JumpAttackBaseHi  = $7E27C7  ; .db
+Player_JumpAttack2BaseLo = $7E27C8  ; .dw
+Player_JumpAttack2BaseHi = $7E27CA  ; .db
+Player_JumpAnimMode      = $7E27DA  ; .db -- which of the 3 real jump-family
+                                      ; anims Anim_Play_Jump is currently
+                                      ; streaming: 0=plain jump (rise/fall
+                                      ; pose), 1=jumpattack (Y, real BOR.C
+                                      ; attack-button-while-airborne), 2=
+                                      ; jumpattack2 (X). Deliberate
+                                      ; simplification vs. real OpenBOR's
+                                      ; separate modelanim indices: one
+                                      ; CHAR_SELECTED value (JUMP) covers all
+                                      ; three, this byte picks which frame
+                                      ; data -- avoids 2 extra Anim_Play__
+                                      ; dispatch arms for a state that's
+                                      ; visually and mechanically "still
+                                      ; airborne" either way. Reset to 0 by
+                                      ; Jump_StartGround on takeoff; a
+                                      ; landing also implicitly ends it
+                                      ; (CHAR_SELECTED leaves JUMP entirely).
+
+; Generic (not player-only), transient, valid only for the CURRENT
+; Anim_LoadCharacter call in progress -- real per-load jump/jumpattack/
+; jumpattack2 frame_count/delay, needed by the map_base chain regardless of
+; which entity is loading (see that read site's own comment).
+JumpRecFCount        = $7E27CB  ; .db
+JumpRecDelay         = $7E27CC  ; .db
+JumpAttackRecFCount  = $7E27CD  ; .db
+JumpAttackRecDelay   = $7E27CE  ; .db
+JumpAttack2RecFCount = $7E27CF  ; .db
+JumpAttack2RecDelay  = $7E27D0  ; .db
+
+; Generic (not player-only), transient 24-bit chained bases -- computed on
+; EVERY Anim_LoadCharacter call (needed for CHAR_MAP_BASE's own chain to be
+; correct for any entity, LEO included), then copied into the real
+; Player_Jump*Base cells above ONLY when CHAR_INPUT_DRIVEN==1.
+JumpBaseTmpLo        = $7E27D1  ; .dw
+JumpBaseTmpHi        = $7E27D3  ; .db
+JumpAttackBaseTmpLo  = $7E27D4  ; .dw
+JumpAttackBaseTmpHi  = $7E27D6  ; .db
+JumpAttack2BaseTmpLo = $7E27D7  ; .dw
+JumpAttack2BaseTmpHi = $7E27D9  ; .db
+
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
 ; -- but CPX has NO long addressing mode on the 65816, and Poppy assembles it
@@ -3299,6 +3414,29 @@ HUD_ROW_STAGE = 3
 HUD_LABEL_COL = 0   ; "SCORE "/"LIVES "/"STAGE " are each 6 chars; the value
                      ; starts at column 6 for all three, same fixed layout
 
+; Phase G9 (plan_game.md 9): boss health bar. Real OpenBOR (engine/openbor.c
+; drawstatus()) shows an "opponent" bar (`elife`) for whatever entity the
+; player is currently fighting, gated on that entity NOT having the
+; `nolife` flag -- there is no boss-exclusive bar in the stock engine, and
+; (per the same source, drawenemystatus()/combat.c) no boss-exclusive AI
+; either: `boss` only (a) triggers `bossmusic` on spawn and (b) makes that
+; entity's death check against `level->bossescount` for the win condition.
+; This project has no general "current opponent" tracking (BOR's ent->
+; opponent pointer, updated on every hit exchange) and no `nolife` concept
+; for fodder enemies, so building the real generic mechanic is out of scope
+; here -- EntityN_IsBoss (real, sourced, already-shipped data from the
+; wait/group/boss slice) is used directly as the gate instead: the lowest-
+; numbered living boss-flagged entity gets the bar, and the row goes blank
+; when none is. The G4 win condition already requires all AI dead before
+; the camera unlocks (Spawn_LastTriggerX hold-clamp), so a boss stage is
+; already camera-gated with no separate code needed -- see plan_game.md 9's
+; corrected status note.
+HUD_ROW_BOSS = 6   ; NOT 4/5 -- those are permanently owned by scpu_main_loop's
+                    ; own boot-time Core_Text_G1Demo/DrawString("SNES-BOR")/
+                    ; DrawNumber(1024) proof (found the hard way: a verify
+                    ; gate caught real "SNES-BOR" text where a blank/bar was
+                    ; expected after picking row 4 first)
+
 HudCachedHp        = $7E2360   ; .db -- last player HP drawn (was 4B/one per
                                  ; entity before Phase G6 dropped the AI bars;
                                  ; shifted from $7E2350 -> $7E2354 -> $7E2360
@@ -3313,6 +3451,15 @@ HudBarFilled       = $7E2366   ; .db -- scratch: filled columns for one tile
 HudCachedScore      = $7E2367   ; .dw -- last Game_Score drawn
 HudCachedLives      = $7E2369   ; .db -- last Game_Lives drawn
 HudCachedStageIndex = $7E236A   ; .dw -- last Game_StageIndex drawn
+; Phase G9: boss bar cache + its own staging row -- $7E276C onward,
+; grep-confirmed clear (past CharSelect_NextStep at $7E276B, the highest
+; prior use in this range; Entity1/2/3_InvulnFrames/Game_Score/etc. above
+; it are all lower addresses). $FF is the "no boss" sentinel (CHAR_HP_MAX
+; is 64, so it can never collide with a real HP value).
+HudBossCachedHp    = $7E276C   ; .db -- last boss HP drawn, or $FF ("no boss")
+HudBossStaging     = $7E276D   ; 64B -- one BG3 tilemap row, pre-DMA (own
+                                 ; buffer, not shared with HudStaging -- see
+                                 ; Hud_Play__boss_bar's own header)
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
@@ -3381,13 +3528,11 @@ Anim_Play__check_reselect:
     cmp.l CharSelect_RosterCount
     bcc Anim_Play__reselect_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__reselect_ok:
     sta.l CharSelect_Index
     jsr Anim_LoadCharacter        ; sets/restores its own widths, see its header
     sep #$20
 .a8
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__no_reselect:
     ; Nothing loaded (MSU-1 absent, or the current slot's data is invalid --
     ; see Anim_LoadCharacter) -- skip the whole dispatch below rather than
@@ -3447,7 +3592,6 @@ Anim_Play__loaded:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__not_dead:
     sep #$20
 .a8
@@ -3471,7 +3615,6 @@ Anim_Play__not_dead:
     lda CHAR_SELECTED
     bne Anim_Play__stunned_reset
     brl Anim_Play__dispatch     ; already idle -- let it keep looping, just hold
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__stunned_reset:
     lda #0
     sta CHAR_SELECTED
@@ -3558,6 +3701,26 @@ Anim_Play__check_attack_trigger:
                                   ; already used elsewhere in this routine
     nop
 Anim_Play__player_input:
+.a8
+    ; Real jump slice: real BOR.C's ground-jump/notinair gating (A button
+    ; while grounded starts a jump; while airborne, ground attack2/attack1/
+    ; dpad-idle-walk below must NOT run -- real OpenBOR blocks normal
+    ; ground actions while notinair) -- all handled in bank 8 (Jump_
+    ; PlayerTick, core/jump.pasm) for ROM budget. Returns carry SET
+    ; whenever CHAR_SELECTED is CHAR_SELECTED_JUMP after this call (jump
+    ; just started, or still airborne) -- skip straight to dispatch so the
+    ; code below never re-picks attack2/attack1/idle/walk out from under
+    ; it. Carry CLEAR covers both "grounded, no jump button" (fall through
+    ; unchanged) and "just landed this frame" (deliberately falls through
+    ; too, so a held dpad registers walk immediately on landing instead of
+    ; waiting a frame -- real games commonly do this, not a game-rule
+    ; invention, just a control-feel choice with no real-source objection).
+    jsl Jump_PlayerTick
+    bcs Anim_Play__reacting        ; reuse this existing brl-to-dispatch
+                                     ; landing pad (a few lines up) instead
+                                     ; of writing a second one -- ROM budget
+Anim_Play__no_jump_this_frame:
+.a8
     ; plan_game.md 7 (G7 remaining, "attack2"): checked before the existing
     ; Y-attack trigger below, X button (Input_trigger, no +1, mask $40 --
     ; see ANIM_ATTACK2_BUTTON_MASK's own comment). CHAR_ATTACK2_FCOUNT==0
@@ -3579,7 +3742,10 @@ Anim_Play__player_input:
     brl Anim_Play__dispatch
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__no_attack2_trigger:
-    sep #$20
+    ; Real jump slice ROM-budget find: reached only via the two `beq`s
+    ; above, both already .a8 (no intervening rep) -- this `sep #$20` was
+    ; provably redundant, same class of pre-existing dead width-reassert
+    ; this session already found/removed a few times in game_state.pasm.
 .a8
     lda.l Input_trigger+1
     and #ANIM_ATTACK_BUTTON_MASK
@@ -3716,6 +3882,8 @@ Anim_Play__dispatch:
     sep #$20
 .a8
     lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_JUMP
+    beq Anim_Play__jump
     cmp #CHAR_SELECTED_FALL
     beq Anim_Play__fall
     cmp #CHAR_SELECTED_RISE
@@ -3725,6 +3893,13 @@ Anim_Play__dispatch:
     cmp #1
     beq Anim_Play__walk
     jsr Anim_Play_Idle
+    rts
+    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__jump:
+    ; Real jump slice -- frame-advance/streaming logic lives in bank 8
+    ; (Anim_Play_Jump, core/jump.pasm) for ROM budget, same jsl-stub shape
+    ; as every other bank-8 module this session.
+    jsl Anim_Play_Jump
     rts
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__walk:
@@ -3762,7 +3937,6 @@ Anim_Play__rise:
 ; the ANIM_TILEMAP_* constants and Anim_EnqueueTilemapRow itself are now
 ; unused dead code, left in place rather than torn out along with this
 ; change (harmless, no per-frame cost).
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_UpdateFacing:
     sep #$20
 .a8
@@ -3770,19 +3944,15 @@ Anim_UpdateFacing:
     and #$03
     bne Anim_UpdateFacing__have_input
     brl Anim_UpdateFacing__done   ; neither held -- keep current facing (too far for an 8-bit beq from here)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__have_input:
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte
     beq Anim_UpdateFacing__want_right
     lda #1
     bra Anim_UpdateFacing__want_got
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__want_right:
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__want_got:
     sta CHAR_FACING_LEFT
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_UpdateFacing__done:
     rep #$31
 .a16
@@ -3808,7 +3978,6 @@ Anim_UpdateFacing__done:
 ; not a ROM label, so that workaround no longer applies. Only called while
 ; Anim_Selected == 0 (see Anim_Play above); exits in .a16/.i16, same
 ; convention as Anim_Play.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_Play_Idle:
     sep #$20
 .a8
@@ -3859,7 +4028,6 @@ Anim_Play_Idle__frame_ok:
 
 ; Same structure as Anim_Play_Idle above, using Anim_WalkFrameCount/Delay/
 ; MsuBase. Only called while Anim_Selected == 1 (see Anim_Play above).
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_Play_Walk:
     sep #$20
 .a8
@@ -4048,7 +4216,8 @@ Anim_Play_Fall__still_holding:
     sta CHAR_FALL_STATE_TIMER
     brl Anim_Done
 Anim_Play_Fall__to_rise:
-    sep #$20
+    ; still .a8 from this routine's own opening sep -- only reached via the
+    ; bne above, with no rep in between.
 .a8
     lda #0
     sta CHAR_FALL_STATE_TIMER
@@ -4074,7 +4243,8 @@ Anim_Play_Fall__playing_frames:
     brl Anim_Done
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Fall__advance:
-    sep #$20
+    ; still .a8 -- unbroken chain of .a8-only ops back to this routine's own
+    ; opening sep, no rep anywhere in between.
 .a8
     lda CHAR_FRAME_INDEX
     inc a
@@ -5148,6 +5318,18 @@ Character_PlayFrame__store_y:
     sta CHAR_POS_Y
     sta.l OamSetSprite_Y
 
+    ; --- Real jump slice: visual-only OAM Y offset while airborne. Real
+    ; OpenBOR keeps a separate position.z (height above ground) from
+    ; position.y (depth/lane) -- draws the sprite at screen Y = position.y -
+    ; position.z, i.e. rising height moves the sprite UP on screen without
+    ; touching the actual y/depth used for collision or facing. This project
+    ; has no depth/lane axis (CLAUDE.md: no z-sort), so Player_JumpZPos is
+    ; used purely as that same visual offset against CHAR_POS_Y -- a direct,
+    ; sourced translation of the real height-vs-depth split onto a 2D-only
+    ; sprite Y, not an invented mechanic. Player only, airborne only; own
+    ; bank (jump.pasm) for ROM budget. ---
+    jsl Jump_ApplyOamYOffset
+
     ; --- OBJ base tile: this instance's CHAR_TILE_COLUMN*4 (each entity
     ; occupies a 4-tile-wide column slice of the 16-tile-wide OBJ sheet --
     ; see Msu1_LoadFrame's row-DMA comment for the (tileRow<<4)|tileColumn
@@ -5464,12 +5646,15 @@ Character_HitApply__ScoreAndFinish:
     bra Character_HitApply__ScoreAndFinish__scored
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply__ScoreAndFinish__killed:
-    sep #$20
+    ; Game_Score_Award is documented "Entered/exited in .a8" (its own php
+    ; restores the caller's exact width) -- still .a8 from this block's own
+    ; entry, so no sep needed here.
 .a8
     lda #1
     jsr Game_Score_Award
 Character_HitApply__ScoreAndFinish__scored:
-    sep #$20
+    ; same reasoning -- still .a8 either way it's reached (the bra above,
+    ; or falling through Game_Score_Award's own .a8 return).
 .a8
     lda #1
     sta CHAR_HIT_APPLIED
@@ -5957,24 +6142,41 @@ Anim_LoadCharacter__header_read:
     lda.l AnimHeaderStaging+9
     sta.l CharSelect_RosterCount
 
-    ; --- Seek to this slot's directory record: offset = 0x10 + index*17.
-    ; RECORD_SIZE grew 16->17 in the grab mutual-lock slice -- no longer a
-    ; power of 2, so this needs the same index*16+index idiom
-    ; BgDirSeekTmp/Bg_LoadScene already use for *40 (see that routine).
-    ; Fits in one byte (index 0-7 -> max offset 0x87) -- no carry needed. ---
+    ; --- Seek to this slot's directory record: offset = 0x10 +
+    ; index*RECORD_SIZE(23, pack_msu_roster.py). Real jump slice: replaced
+    ; the old 8-bit-only index*16+index idiom (safe ceiling index<=14 at the
+    ; prior RECORD_SIZE==17, which would have dropped to index<=11 at 23 --
+    ; already too small for LEO, slot 12) with a real 16-bit accumulate-by-
+    ; repeated-add loop. roster_count is a u8 (max 255 iterations), and this
+    ; runs only at character-load time (boot + live reselect), never the
+    ; per-frame hot path, so the loop cost is irrelevant. ---
+    rep #$31
+.a16
+.i16
     lda.l CharSelect_Index
-    sta.l CharDirSeekTmp
-    asl a
-    asl a
-    asl a
-    asl a                       ; index*16
+    and #$00FF
+    tax
+    lda #$0010
+    sta.l CharDirSeek16
+    cpx #$0000
+    beq Anim_LoadCharacter__seek_computed
+Anim_LoadCharacter__seek_loop:
+.a16
+    lda.l CharDirSeek16
     clc
-    adc.l CharDirSeekTmp        ; index*16 + index = index*17
-    clc
-    adc #$10
+    adc #23                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+    sta.l CharDirSeek16
+    dex
+    bne Anim_LoadCharacter__seek_loop
+Anim_LoadCharacter__seek_computed:
+.a16
+    sep #$20
+.a8
+    lda.l CharDirSeek16
     sta $2000
-    lda #0
+    lda.l CharDirSeek16+1
     sta $2001
+    lda #0
     sta $2002
     sta $2003
     nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
@@ -6010,6 +6212,32 @@ Anim_LoadCharacter__record_read:
 .a8
     lda $2001
     sta CHAR_ATTACK2_IS_GRAB
+
+    ; --- Real jump slice: 6 more sequential MSU port reads (+17..+22,
+    ; RECORD_SIZE 17->23) -- jump/jumpattack/jumpattack2 frame_count/delay,
+    ; into 6 CONSECUTIVE WRAM cells (JumpRecFCount..JumpAttack2RecDelay,
+    ; $7E27CB-$7E27D0 -- see their declaration above), so a small X-indexed
+    ; loop replaces 6x straight-line lda/sta.l pairs (ROM budget: this
+    ; routine is at its $C100-$FC00 ceiling). X is already .i16 here (last
+    ; touched by the seek loop above, never narrowed since) and untouched
+    ; until the "Parse record" block below re-purposes it much later, so no
+    ; extra width directive is needed around this loop. ALWAYS read into
+    ; generic (not player-only) transient scratch: the map_base chain a
+    ; little further below needs these real per-CURRENT-LOAD values
+    ; regardless of which entity is loading (LEO has a real `remap` line,
+    ; so his own CHAR_MAP_BASE must correctly skip past his nonzero jump/
+    ; jumpattack/jumpattack2 bytes, not just assume 0 because most
+    ; characters have 0) -- only the FINAL copy into the standalone
+    ; Player_Jump* cells (further below, after map_base) is player-gated. ---
+    ldx #0
+Anim_LoadCharacter__jumprecs_loop:
+.a8
+.i16
+    lda $2001
+    sta.l JumpRecFCount,x
+    inx
+    cpx #6
+    bne Anim_LoadCharacter__jumprecs_loop
 
     ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0
@@ -6214,43 +6442,14 @@ Anim_LoadCharacter__slot_ok:
     adc.l AnimHeaderStaging+15
     sta CHAR_ATTACK2_BASE_HI
 
-    ; --- map_base (24-bit) = attack2_base + attack2_frame_count*768
-    ; (plan_game.md 8a row 3, `map`) -- same shift-add-by-768 idiom, now
-    ; chained one hop further than before (was rise_base + rise_frame_
-    ; count*768; collapses back to that exact value when attack2_fcount==0,
-    ; i.e. every character without a second move -- unchanged behavior for
-    ; them). Kept inline here (not jsl'd to bank 1) deliberately, same as
-    ; before. ---
-    lda CHAR_ATTACK2_FCOUNT
-    rep #$31
-.a16
-.i16
-    and #$00FF
-    sta.l AnimHeaderStaging+12
-    asl a
-    clc
-    adc.l AnimHeaderStaging+12
-    sta.l AnimHeaderStaging+14
-
-    sep #$20
-.a8
-    lda #0
-    sta.l AnimHeaderStaging+12
-    lda.l AnimHeaderStaging+14
-    sta.l AnimHeaderStaging+13
-
-    rep #$31
-.a16
-.i16
-    lda CHAR_ATTACK2_BASE_LO
-    clc
-    adc.l AnimHeaderStaging+12
-    sta CHAR_MAP_BASE_LO
-    sep #$20
-.a8
-    lda CHAR_ATTACK2_BASE_HI
-    adc.l AnimHeaderStaging+15
-    sta CHAR_MAP_BASE_HI
+    ; --- Real jump slice: map_base (every entity) and the 3 individual
+    ; chained player-only bases (jump_base/jumpattack_base/jumpattack2_base)
+    ; are BOTH computed in their own bank (Jump_ComputeBases, bank 8 -- see
+    ; that routine's own header) rather than inline here: this bank-0
+    ; routine is already at its $C100-$FC00 ROM-budget ceiling. map_base is
+    ; computed there unconditionally, before that routine's player-only
+    ; early-return. ---
+    jsl Jump_ComputeBases
 
     ; --- Palette (Phase 2 step 2): seek to this character's data_offset
     ; (AnimHeaderStaging+8/9/10 -- still the raw record bytes here, untouched
@@ -6369,6 +6568,78 @@ Anim_LoadCharacter__palette_read:
 .a16
 .i16
     rts
+
+; Anim_LoadCharacter_Long -- bank-0 trampoline so core/charselect.pasm (its
+; own bank, see that file's header) can reach Anim_LoadCharacter with `jsl`
+; without changing Anim_LoadCharacter itself (which ends in `rts`, same-bank
+; only -- every other caller here still uses a plain same-bank `jsr`).
+Anim_LoadCharacter_Long:
+    jsr Anim_LoadCharacter
+    rtl
+
+; Msu1_LoadFrame_Long -- same trampoline pattern as Anim_LoadCharacter_Long,
+; for core/jump.pasm's Anim_Play_Jump (bank 8) to reach Msu1_LoadFrame
+; (bank 0, `rts`-terminated) via `jsl`.
+Msu1_LoadFrame_Long:
+    jsr Msu1_LoadFrame
+    rtl
+
+; Core_Text_DrawString_Long -- same trampoline pattern as Anim_LoadCharacter_
+; Long immediately above, for core/charselect.pasm's other bank-0
+; cross-bank dependency (core/text.pasm's Core_Text_DrawString, also
+; same-bank-only, ends in `rts`).
+Core_Text_DrawString_Long:
+    jsr Core_Text_DrawString
+    rtl
+
+; Core_Dma_Enqueue_Long -- same trampoline pattern, for core/hud_boss.pasm's
+; (Phase G9) bank-0 cross-bank dependency. (Hud_DrawBar itself is NOT
+; reused this way -- see core/hud_boss.pasm's own Hud_Play__boss_bar_
+; drawbar header for why a duplicated block was needed instead.)
+Core_Dma_Enqueue_Long:
+    jsr Core_Dma_Enqueue
+    rtl
+
+; Core_Text_DrawLabeledNumber_Long -- same trampoline pattern, for
+; core/pausemenu.pasm's Phase G5 volume row (Core_Text_DrawLabeledNumber,
+; also same-bank-only, ends in `rts`). MUST be genuine bank-0 code, same as
+; every other "_Long" trampoline here -- an earlier version of this file
+; tried moving these two trampolines past scpu_boot/scpu_main_loop instead,
+; to dodge this exact $C100-$FC00 budget crunch, and landed them inside
+; `.bank 2` (Font_TilesData/Text_StringPool's own dedicated bank) by
+; mistake -- `jsr`/`jsr`-only routines (Core_Text_DrawLabeledNumber,
+; Tad_QueueCommand) are genuinely bank-0 code, so a same-bank `jsr` issued
+; from bank-2 code resolves against BANK 2's own $8xxx space instead and
+; runs off into unrelated font/string data. Caught by
+; tools/verify/game_g5_sram.py's very first pause-menu check (Start no
+; longer even reached GAME_STATE_PAUSED) -- not a subtle bug, but worth
+; this note so it isn't reintroduced by the same reasoning next time.
+Core_Text_DrawLabeledNumber_Long:
+    jsr Core_Text_DrawLabeledNumber
+    rtl
+
+; Options_ApplyMusicVolume_Long -- Phase G5: queue the current
+; Options_MusicVolume (core/options.pasm, its own bank) to TAD via the
+; existing Tad_QueueCommand, also same-bank-only (`rts`). Called once from
+; core/pausemenu.pasm's Game_State_Pause_CheckEntry on the very first
+; PLAYING frame ever (see that routine's own header for why there, not
+; scpu_boot) and again on every Left/Right volume change from the pause
+; menu. Every call site is already .a8/.i16 at the jsl and none depends on
+; this routine's width on return (CheckEntry re-widens itself right after;
+; the pause-menu WAIT site's very next call, DrawVolumeRow, narrows to .a8
+; itself first thing) -- no php/plp bracket needed. Y (Tad_QueueCommand's
+; "second parameter") is left whatever it already holds, not zeroed --
+; SET_GLOBAL_MUSIC_VOLUME's own doc (tad-audio.inc) only reads parameter0,
+; so the stored parameter1 byte is genuinely dead, never read back by the
+; driver for this command.
+Options_ApplyMusicVolume_Long:
+.a8
+.i16
+    lda.l Options_MusicVolume
+    tax
+    lda #SET_GLOBAL_MUSIC_VOLUME
+    jsr Tad_QueueCommand
+    rtl
 
 ; ----------------------------------------------------------------------------
 ; plan_game.md 8a row 3 (`map`): MapApply_Index/PaletteBaseLo/PaletteBaseHi/
@@ -9962,7 +10233,9 @@ Hud_DrawBar__partial:
     lda #0
     sta.l HudBarHp
 Hud_DrawBar__have:
-    sep #$20
+    ; both incoming paths (the bcc-not-taken fallthrough above, and
+    ; __partial's own bra) are already .a8 -- no rep between either path
+    ; and here, so no sep needed.
 .a8
     lda.l HudBarFilled
     clc
@@ -10003,6 +10276,9 @@ Hud_Play:
     php
     jsr Hud_Play__bar
     jsr Hud_Play__text
+    ; Hud_Play__boss_bar lives in its own bank (core/hud_boss.pasm) -- ROM
+    ; budget, see that file's own header. jsl/rtl, not jsr/rts.
+    jsl Hud_Play__boss_bar
     plp
     rts
 
@@ -10022,7 +10298,9 @@ Hud_Play__bar:
     cmp.l HudCachedHp
     beq Hud_Play__bar_clean
 Hud_Play__bar_rebuild:
-    sep #$20
+    ; both incoming paths (the bne above, and falling through from the cmp)
+    ; are already .a8 from this routine's own opening sep -- no rep between
+    ; either path and here, so no second sep needed.
 .a8
     lda #0
     sta.l HudDirty
@@ -10035,7 +10313,8 @@ Hud_Play__bar_rebuild:
 .i16
     ldx #$0000
 Hud_Play__bar_clear:
-    rep #$31
+    ; still .a16/.i16 -- this label's only entry (fallthrough) and only
+    ; jump (the bcc below) are both already in that width, so no rep here.
 .a16
 .i16
     lda #$0000
@@ -10318,6 +10597,18 @@ scpu_boot:
     sta $2226               ; SBWE: S-CPU BW-RAM writes enabled
     stz $2228               ; BWPA: no BW-RAM write protect
     stz $2224               ; BMAPS: S-CPU BW-RAM window $00:6000 = BW-RAM bank 0
+
+    ; Phase G5: BW-RAM's classic $6000-$7FFF window is real battery-backed
+    ; save RAM (see core/options.pasm's own header), now writable by the
+    ; three pokes just above -- but reading it (Options_Init) and applying
+    ; the result to TAD are NOT done here. Both are deferred to the first
+    ; ever Game_State_Pause_CheckEntry call (core/pausemenu.pasm, bank 6,
+    ; already jsl'd from Game_State_Play__playing every PLAYING frame with
+    ; zero additional bank-0 cost) instead of two more jsl's living
+    ; permanently in this chronically-tight $C100-$FC00 bank -- see that
+    ; routine's own header for why this is equivalent in practice (still
+    ; well before the very first player action) and not a shortcut.
+
     stz $2203               ; CRV low
     lda #$80
     sta $2204               ; CRV high -> SA-1 reset vector $8000
@@ -10332,7 +10623,9 @@ scpu_boot:
     ; symbol+N one — the referencing instruction's own computed address was a
     ; constant few bytes off, independent of where the label itself sits, so
     ; padding at the label site could not fix it). See poppy bug #4/#5 notes.
-    sep #$20
+    ; (still .a8 from the SA-1 bringup pokes above -- Options_Init's own
+    ; body never touches width -- so no sep #$20 needed here; bare
+    ; directive only, 0 bytes.)
 .a8
     lda $2002
     cmp #$53                ; 'S'
@@ -11132,8 +11425,9 @@ scpu_main_loop:
     sep #$20
 .a8
     jsl Tad_Process
-    ; Drain active transfers each frame (from proven SM reference)
-    sep #$20
+    ; Drain active transfers each frame (from proven SM reference) -- still
+    ; .a8 from the sep above (Tad_Process's own .a8/rtl contract doesn't
+    ; change tracked width), so no second sep #$20 needed.
 .a8
     jsl Tad_FinishLoadingData
     rep #$31
@@ -11290,6 +11584,103 @@ Text_Str_TitlePress:
 Text_Str_TitleBlank:
     .db "                                ", $00
 
+; Phase G5 (plan_game.md 5): character-select screen strings. Same
+; full-32-column-padded convention as the title strings above (this screen
+; reuses Text_Str_TitleBlank for clearing, since blank is blank regardless
+; of which screen wrote the row). Names are hand-synced to build_rom.py's
+; ROSTER_PREFIXES order (RALF, JHUN, JOE, YASHIRO, MOUSER, FOOT01 -- the
+; last two added the same day as the TMNT campaign) -- see
+; CharSelect_NamePtrs below, same accepted hand-sync pattern as
+; tools/verify/phase12_roster.py's own ENTITY_ROSTER_SLOTS. A real bug hit
+; here once already: ROSTER_PREFIXES grew 4->6 without this table growing
+; to match, so CharSelect_Index==4/5 (wrapping Left from slot 0, or
+; cycling Right past YASHIRO) read 2 words of garbage past this table's
+; end as a string pointer -- caught by game_g5_menus.py's own wrap check
+; failing, not silently.
+Text_Str_CharSelectHeader:
+    .db "CHARACTER SELECT                ", $00
+Text_Str_CharSelectInstr:
+    .db "LEFT/RIGHT SELECT  START GO     ", $00
+Text_Str_CharRalf:
+    .db "RALF                            ", $00
+Text_Str_CharJhun:
+    .db "JHUN                            ", $00
+Text_Str_CharJoe:
+    .db "JOE                             ", $00
+Text_Str_CharYashiro:
+    .db "YASHIRO                         ", $00
+Text_Str_CharMouser:
+    .db "MOUSER                          ", $00
+Text_Str_CharFoot01:
+    .db "FOOT SOLDIER                    ", $00
+Text_Str_CharRock:
+    .db "ROCKSTEADY                      ", $00
+Text_Str_CharLeather:
+    .db "LEATHERHEAD                     ", $00
+Text_Str_CharBebop:
+    .db "BEBOP                           ", $00
+Text_Str_CharFoot02:
+    .db "FOOT SOLDIER                    ", $00
+Text_Str_CharFoot03:
+    .db "FOOT SOLDIER                    ", $00
+Text_Str_CharFoot04:
+    .db "FOOT SOLDIER                    ", $00
+Text_Str_CharLeo:
+    .db "LEO                             ", $00
+
+; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
+; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
+; order in build_rom.py; a new roster slot needs a new entry here too.
+; LEO added the same day as the roster-growth slice (slot 12, the pak's
+; own only actively-loaded playable turtle) -- see this project's own
+; "real bug hit here once already" note above (grew 4->6, then 6->8, both
+; times this exact table was the thing left behind -- caught a THIRD time
+; by game_g5_menus.py before this entry was added): this table MUST grow
+; every time ROSTER_PREFIXES does, no exceptions.
+CharSelect_NamePtrs:
+    .dw (Text_Str_CharRalf - Text_StringPool)
+    .dw (Text_Str_CharJhun - Text_StringPool)
+    .dw (Text_Str_CharJoe - Text_StringPool)
+    .dw (Text_Str_CharYashiro - Text_StringPool)
+    .dw (Text_Str_CharMouser - Text_StringPool)
+    .dw (Text_Str_CharFoot01 - Text_StringPool)
+    .dw (Text_Str_CharRock - Text_StringPool)
+    .dw (Text_Str_CharLeather - Text_StringPool)
+    .dw (Text_Str_CharBebop - Text_StringPool)
+    .dw (Text_Str_CharFoot02 - Text_StringPool)
+    .dw (Text_Str_CharFoot03 - Text_StringPool)
+    .dw (Text_Str_CharFoot04 - Text_StringPool)
+    .dw (Text_Str_CharLeo - Text_StringPool)
+
+; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
+; padded convention, real OpenBOR-sourced content: engine/openbor.c's own
+; pausemenu() draws exactly "Pause" plus two selectable rows, "Continue"/
+; "End Game", toggled by Up/Down with Start committing -- reproduced here
+; as a cursor prefix ("> "/"  ") baked into two string variants per option
+; row rather than a real sprite cursor, matching this project's existing
+; text-only menu style (title/charselect).
+Text_Str_PauseHeader:
+    .db "PAUSE                           ", $00
+Text_Str_PauseContinueSel:
+    .db "> CONTINUE                      ", $00
+Text_Str_PauseContinueUnsel:
+    .db "  CONTINUE                      ", $00
+Text_Str_PauseEndGameSel:
+    .db "> END GAME                      ", $00
+Text_Str_PauseEndGameUnsel:
+    .db "  END GAME                      ", $00
+
+; Phase G5: pause-menu volume row label, drawn by Core_Text_DrawLabeledNumber
+; (not DrawString -- see that routine's own header), so short and NOT padded
+; to 32 columns, matching the HUD labels below it. Kept to the bare minimum
+; this chronically-tight bank can afford (real ROM-budget constraint, not a
+; style choice) -- the row's own fixed position in the pause menu (between
+; CONTINUE and END GAME) plus the numeric readout are enough context.
+Text_Str_PauseVolumeSel:
+    .db "> V ", $00
+Text_Str_PauseVolumeUnsel:
+    .db "  V ", $00
+
 ; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
 ; columns -- unlike the title strings above, these are drawn by
 ; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
@@ -11329,4 +11720,37 @@ Text_Str_HudStage:
 .bank 3
 .org $8000
 .include "core/spawn.pasm"
+
+; Phase G5 (plan_game.md 5): character-select screen body, own bank for the
+; same ROM-budget reason spawn.pasm above got one -- see core/charselect.
+; pasm's own header for the full story (jsl/rtl entry, and why it needs two
+; small bank-0 trampolines to reach Anim_LoadCharacter/Core_Text_DrawString).
+.bank 4
+.org $8000
+.include "core/charselect.pasm"
+
+; Phase G9 (plan_game.md 9): boss health bar body, own bank for the same
+; ROM-budget reason -- see core/hud_boss.pasm's own header.
+.bank 5
+.org $8000
+.include "core/hud_boss.pasm"
+
+; Phase G5 (plan_game.md 5): pause menu body, own bank for the same
+; ROM-budget reason -- see core/pausemenu.pasm's own header.
+.bank 6
+.org $8000
+.include "core/pausemenu.pasm"
+
+; Phase G5 (plan_game.md 5): real SRAM-backed options (music volume), own
+; bank for the same ROM-budget reason -- see core/options.pasm's own header.
+.bank 7
+.org $8000
+.include "core/options.pasm"
+
+; Real jump slice (plan_game.md 7): jump/jumpattack/jumpattack2 base-offset
+; chaining, own bank for the same ROM-budget reason -- see core/jump.pasm's
+; own header.
+.bank 8
+.org $8000
+.include "core/jump.pasm"
 

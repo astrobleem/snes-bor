@@ -1,0 +1,34 @@
+{
+  "entity": "Mouser",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.6037735849056604,
+  "hotspot_canvas": [
+    16,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 60,
+      "offset": [
+        50,
+        65
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        50,
+        65
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

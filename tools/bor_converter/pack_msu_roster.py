@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Packs up to 8 characters' idle/walk/attack animation data into a single
+"""Packs up to 15 characters' idle/walk/attack animation data into a single
 bor.msu file for runtime selection over MSU-1 (see the plan at
 `temporal-swinging-hartmanis.md`), replacing the old flow of baking exactly
 one character's data into the ROM at build time via gen_pasm_animset.py +
@@ -14,13 +14,21 @@ File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
     0x08       format_version = 4               [was 2 -- see BG record v3/v4 below]
-    0x09       roster_count (1-8)
-    0x0A       bg_count (0-4)              [v2]
+    0x09       roster_count (1-15)   [cap bumped 8->15, roster-growth slice --
+               15 is a real hardware-arithmetic ceiling, not a round number,
+               see MAX_CHARACTERS's own comment]
+    0x0A       bg_count (0-MAX_BGS, a plain runtime byte -- MAX_BGS is this
+               module's own soft Python-side sanity cap, bumped as real
+               content grows, not a format limit like roster_count's 1-15)   [v2]
     0x0B       reserved
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
-    0x10       directory: 8 records x 17 bytes = 136 bytes (0x10-0x97)
-                [grew 16->17 in the grab mutual-lock slice -- see +16 below]
+    0x10       directory: MAX_CHARACTERS records x 17 bytes = 255 bytes
+               (0x10-0x10E) [grew 16->17 in the grab mutual-lock slice, see
+               +16 below; grew 8->15 *records* in the roster-growth slice --
+               main.pasm's seek math (index*17+0x10) is unaffected, since it
+               was already per-record, not directory-length-dependent; only
+               this packer's own HEADER_SIZE/blob-start offset moves]
       record N at 0x10 + N*17:
         +0  idle_frame_count   (u8)
         +1  walk_frame_count   (u8)
@@ -47,8 +55,21 @@ File format (see the plan for the authoritative spec):
                                         0. First real RECORD_SIZE growth
                                         (16->17); all prior second-move
                                         work fit inside existing padding]
+        +17 jump_frame_count       (u8)  [real jump slice -- 0 for every
+        +18 jump_delay             (u8)   character without a real `jump`
+        +19 jumpattack_frame_count (u8)   anim (12 of 13 roster members
+        +20 jumpattack_delay       (u8)   today; only LEO has real jump/
+        +21 jumpattack2_frame_count(u8)   jumpattack/jumpattack2 content).
+        +22 jumpattack2_delay      (u8)   Second real RECORD_SIZE growth
+                                           (17->23) -- forced the engine-side
+                                           directory-seek arithmetic to stop
+                                           being 8-bit-only, see MAX_CHARACTERS'
+                                           own comment above.]
 
-    0x98+      character blobs, packed sequentially:
+    HEADER_SIZE+  character blobs, packed sequentially (HEADER_SIZE = 0x10 +
+               MAX_CHARACTERS*23 = 0x159 today; was 0x10F before this slice
+               bumped RECORD_SIZE 17->23 -- always computed from
+               MAX_CHARACTERS*RECORD_SIZE, never a hardcoded literal):
       +0..31   palette: 16 x BGR555 LE
       +32..    idle_frame_count * 768 bytes
       next     walk_frame_count * 768 bytes
@@ -56,6 +77,13 @@ File format (see the plan for the authoritative spec):
       next     fall_frame_count * 768 bytes    [G7 knockdown slice]
       next     rise_frame_count * 768 bytes    [G7 knockdown slice]
       next     attack2_frame_count * 768 bytes [G7 remaining, "attack2" --
+      next     jump_frame_count * 768 bytes         [real jump slice -- 0
+      next     jumpattack_frame_count * 768 bytes    bytes for every
+      next     jumpattack2_frame_count * 768 bytes   character without the
+                                                       real anim, LEO only
+                                                       today; appended right
+                                                       after attack2, before
+                                                       the remap section]
                                                  0 bytes if this character
                                                  has no second move]
       next     0-3 alt palettes, 32 bytes each [plan_game.md 8a row 3, `map`
@@ -140,13 +168,14 @@ The BG section is appended AFTER the character blobs so that adding it does not
 move any character data_offset -- a v1-era reader that ignores the new header
 fields still finds every character exactly where it used to be.
 
-Unused directory slots (roster_count <= N < 8) are left fully zeroed --
-main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as "no
-character here" (see the plan's Phase 5, MSU-absent / zero-frame-count path).
+Unused directory slots (roster_count <= N < MAX_CHARACTERS) are left fully
+zeroed -- main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as
+"no character here" (see the plan's Phase 5, MSU-absent / zero-frame-count
+path).
 
 data_offset is a full 32-bit field even though realistic rosters stay under
 16MB, because a real multi-character roster can push it past 65536 well
-before 8 slots are full -- every WRAM quantity derived from it in
+before all 15 slots are full -- every WRAM quantity derived from it in
 Anim_LoadCharacter must be handled as 24-bit (lo16+hi8) with explicit carry
 propagation, not a bare 16-bit add. This packer itself has no 16-bit
 limitation (Python ints are arbitrary precision), so verify_msu_roster.py's
@@ -156,7 +185,7 @@ the real 65816 carry-add logic Phase 2 has to write and test on real
 hardware/emulation.
 
 Usage:
-    python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 8]
+    python pack_msu_roster.py <out_msu_path> <prefix1> [<prefix2> ... up to 15]
 
 Each <prefixN> must have a <prefixN>_moveset.json (convert_character.py's
 generic per-character manifest -- see _resolve_role_dirs) resolving its
@@ -179,8 +208,29 @@ import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
 FORMAT_VERSION = 4
-MAX_CHARACTERS = 8
-RECORD_SIZE = 17  # grab mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)
+# Bumped 8->15 (roster-growth slice): NOT an arbitrary round number -- 15 is
+# Real jump slice (plan_game.md 7): Anim_LoadCharacter's directory-seek
+# arithmetic was an 8-bit-only `offset = index*17 + 0x10` with no carry --
+# the comment that used to live here documented index=14 (254) as the real
+# wall, index=15 wrapping mod 256 to 15 (silently wrong, not a crash). That
+# was already dangerously close: this slice grows RECORD_SIZE 17->23 for
+# real jump/jumpattack/jumpattack2 fields, which would have dropped the safe
+# ceiling to index=10 (11*23+16=269 wraps) -- below the 13 real roster
+# members already shipped (indices 0-12, LEO among them). Rather than ship
+# a record growth that immediately breaks the just-added LEO slot, the
+# engine side's seek got rewritten to a real 16-bit accumulate-by-repeated-
+# add loop (see main.pasm's Anim_LoadCharacter_SeekRecord) -- no more 8-bit
+# ceiling at all. MAX_CHARACTERS is kept at 15 here anyway: it's still a
+# real, sane sanity cap (roster_count's own field is a u8, 1-255), and nothing
+# today needs more than 15.
+MAX_CHARACTERS = 15
+RECORD_SIZE = 23  # real jump slice: +6 bytes -- jump_frame_count/delay,
+                   # jumpattack_frame_count/delay, jumpattack2_frame_count/
+                   # delay (+17..+22). 0/0 for every character without real
+                   # jump content (12 of 13 roster members today -- only LEO
+                   # has real jump/jumpattack/jumpattack2 anims, see
+                   # convert_character.py's ROLE_NAMES). Was 17 (grab
+                   # mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)).
 DIRECTORY_BASE = 0x10
 HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
 
@@ -188,12 +238,20 @@ PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 4
+MAX_BGS = 10  # bumped 5->9 adding the real 4-level TMNT main campaign
+              # (sewer0/streets/streets2/sewer) alongside the 3 standalone
+              # TMNT boss stages and the 2 original BOR levels, then 9->10
+              # for foot.txt (the last standalone TMNT level) -- directory
+              # table grows by more BG_RECORD_SIZE (40B) entries, no format
+              # version bump (bg_count is a runtime byte read off the file
+              # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
-SPAWN_RECORD_SIZE = 8       # see build_spawn_table.py's module docstring for the layout
+SPAWN_RECORD_SIZE = 9       # see build_spawn_table.py's module docstring for the layout
                              # (grew from 7 to 8 -- health-override slice added
-                             # a spawn_hp byte, follow-up to plan_game.md G8)
+                             # a spawn_hp byte, follow-up to plan_game.md G8;
+                             # 8 to 9 -- roster-growth slice added a dedicated
+                             # roster_idx byte)
 BG_CGRAM_BYTES = 256        # 8 sub-palettes x 16 colors x 2 bytes
 BG_WIDTH_TILES = 32         # historical Phase 6 single-screen width
 BG_HEIGHT_TILES = 28
@@ -266,6 +324,15 @@ ENGINE_ROLES = ("idle", "walk", "attack", "fall", "rise")
 # tolerate its absence instead of raising like a missing required role.
 OPTIONAL_ROLE_ATTACK2 = "attack2"
 
+# Real jump slice (plan_game.md 7): jump/jumpattack/jumpattack2 are real
+# OpenBOR anim names (exact-match, same convention idle/walk/pain/fall/rise
+# already use -- see convert_character.py's ROLE_NAMES), all optional like
+# attack2 -- only LEO (TMNT) has real data for any of them today; every
+# other roster member packs 0/0 for all three.
+OPTIONAL_ROLE_JUMP = "jump"
+OPTIONAL_ROLE_JUMPATTACK = "jumpattack"
+OPTIONAL_ROLE_JUMPATTACK2 = "jumpattack2"
+
 
 def _resolve_role_dirs(prefix):
     """Reads <prefix>_moveset.json (convert_character.py's per-character
@@ -315,6 +382,13 @@ def _resolve_role_dirs(prefix):
     # plan_game.md 7 (grab mutual-lock slice): real, converter-derived --
     # never hardcoded by character name here either.
     resolved["attack2_is_grab"] = bool(roles.get("attack2_is_grab", False))
+
+    # Real jump slice: same optional-role shape as attack2. None for every
+    # character without real jump/jumpattack/jumpattack2 content (12 of 13
+    # roster members today).
+    for role in (OPTIONAL_ROLE_JUMP, OPTIONAL_ROLE_JUMPATTACK, OPTIONAL_ROLE_JUMPATTACK2):
+        ordinal = roles.get(role)
+        resolved[role] = anims_by_ordinal[ordinal]["dir"] if ordinal is not None else None
     return resolved
 
 
@@ -339,6 +413,9 @@ def pack_character_blob(prefix):
     rise_dir = role_dirs["rise"]
     attack2_dir = role_dirs[OPTIONAL_ROLE_ATTACK2]
     attack2_is_grab = role_dirs["attack2_is_grab"]
+    jump_dir = role_dirs[OPTIONAL_ROLE_JUMP]
+    jumpattack_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK]
+    jumpattack2_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK2]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
@@ -349,15 +426,31 @@ def pack_character_blob(prefix):
         attack2_count, attack2_delay = gen_pasm_animset.load_manifest(attack2_dir)
     else:
         attack2_count, attack2_delay = 0, 0
+    if jump_dir is not None:
+        jump_count, jump_delay = gen_pasm_animset.load_manifest(jump_dir)
+    else:
+        jump_count, jump_delay = 0, 0
+    if jumpattack_dir is not None:
+        jumpattack_count, jumpattack_delay = gen_pasm_animset.load_manifest(jumpattack_dir)
+    else:
+        jumpattack_count, jumpattack_delay = 0, 0
+    if jumpattack2_dir is not None:
+        jumpattack2_count, jumpattack2_delay = gen_pasm_animset.load_manifest(jumpattack2_dir)
+    else:
+        jumpattack2_count, jumpattack2_delay = 0, 0
     palette = gen_pasm_animset.load_palette(idle_dir)
 
     counts = ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack"),
-              (fall_count, "fall"), (rise_count, "rise"), (attack2_count, "attack2"))
+              (fall_count, "fall"), (rise_count, "rise"), (attack2_count, "attack2"),
+              (jump_count, "jump"), (jumpattack_count, "jumpattack"),
+              (jumpattack2_count, "jumpattack2"))
     for count, name in counts:
         if not (0 <= count <= 255):
             raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
     delays = ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
-              (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"))
+              (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"),
+              (jump_delay, "jump"), (jumpattack_delay, "jumpattack"),
+              (jumpattack2_delay, "jumpattack2"))
     for delay, name in delays:
         if not (0 <= delay <= 255):
             raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
@@ -371,12 +464,18 @@ def pack_character_blob(prefix):
     fall_bytes = bake_anim_bytes(fall_dir)
     rise_bytes = bake_anim_bytes(rise_dir)
     attack2_bytes = bake_anim_bytes(attack2_dir) if attack2_dir is not None else b""
+    jump_bytes = bake_anim_bytes(jump_dir) if jump_dir is not None else b""
+    jumpattack_bytes = bake_anim_bytes(jumpattack_dir) if jumpattack_dir is not None else b""
+    jumpattack2_bytes = bake_anim_bytes(jumpattack2_dir) if jumpattack2_dir is not None else b""
     assert len(idle_bytes) == idle_count * ANIM_FRAME_BYTES
     assert len(walk_bytes) == walk_count * ANIM_FRAME_BYTES
     assert len(attack_bytes) == attack_count * ANIM_FRAME_BYTES
     assert len(fall_bytes) == fall_count * ANIM_FRAME_BYTES
     assert len(rise_bytes) == rise_count * ANIM_FRAME_BYTES
     assert len(attack2_bytes) == attack2_count * ANIM_FRAME_BYTES
+    assert len(jump_bytes) == jump_count * ANIM_FRAME_BYTES
+    assert len(jumpattack_bytes) == jumpattack_count * ANIM_FRAME_BYTES
+    assert len(jumpattack2_bytes) == jumpattack2_count * ANIM_FRAME_BYTES
 
     # plan_game.md 7 (G7 remaining, "attack2"): 0 or 1 real second attack
     # move, appended right after the rise frames and BEFORE the remap
@@ -409,8 +508,16 @@ def pack_character_blob(prefix):
         b"".join(struct.pack("<H", v) for v in pal) for pal in remap_palettes)
     assert len(remap_bytes) == len(remap_palettes) * PALETTE_BYTES
 
+    # Real jump slice: jump/jumpattack/jumpattack2 appended right after
+    # attack2, BEFORE remap -- main.pasm's map_base now chains off
+    # jumpattack2_base (attack2_base+attack2_count*768, then +jump_count*768,
+    # +jumpattack_count*768, +jumpattack2_count*768), collapsing back to the
+    # old attack2_base+attack2_count*768 when all three counts are 0 (every
+    # roster member except LEO). Same "append before remap" discipline
+    # attack2 itself established.
     blob = (palette_bytes + idle_bytes + walk_bytes + attack_bytes
-            + fall_bytes + rise_bytes + attack2_bytes + remap_bytes)
+            + fall_bytes + rise_bytes + attack2_bytes
+            + jump_bytes + jumpattack_bytes + jumpattack2_bytes + remap_bytes)
 
     info = {
         "prefix": prefix,
@@ -427,27 +534,32 @@ def pack_character_blob(prefix):
         "rise_delay": rise_delay,
         "attack2_delay": attack2_delay,
         "attack2_is_grab": attack2_is_grab,
+        "jump_frame_count": jump_count,
+        "jump_delay": jump_delay,
+        "jumpattack_frame_count": jumpattack_count,
+        "jumpattack_delay": jumpattack_delay,
+        "jumpattack2_frame_count": jumpattack2_count,
+        "jumpattack2_delay": jumpattack2_delay,
         "blob_size": len(blob),
     }
     return blob, info
 
 
 def build_record(info, data_offset):
-    # plan_game.md 7 (grab mutual-lock slice): RECORD_SIZE grows 16->17,
-    # the record's first byte-count growth since fall/rise/attack2 filled
-    # every remaining padding byte. +16 attack2_is_grab (u8, 1 = this
-    # character's real attack2 anim is literally named `grab` -- JOE
-    # today, 0 for RALF/JHUN/YASHIRO). Real, converter-derived, never
-    # hardcoded by character name (see convert_character.py). This grows
-    # HEADER_SIZE (0x90->0x98); main.pasm reads bg_directory_offset/
-    # data_offset from the file's own header fields rather than
-    # recomputing them from RECORD_SIZE, so nothing else needs manual
-    # resync there EXCEPT Anim_LoadCharacter's own directory-seek
-    # arithmetic, which hardcodes the record stride as a `<<4` (assumes
-    # RECORD_SIZE==16, a power of 2) -- must change to `(index<<4)+index`
-    # (index*17) there.
+    # Real jump slice: RECORD_SIZE grows 17->23, +17..+22 jump_frame_count/
+    # jump_delay/jumpattack_frame_count/jumpattack_delay/jumpattack2_
+    # frame_count/jumpattack2_delay (all u8, 0/0/0/0/0/0 for every roster
+    # member except LEO). This grows HEADER_SIZE (0x10F->0x159); main.pasm
+    # reads bg_directory_offset/data_offset from the file's own header
+    # fields rather than recomputing them from RECORD_SIZE, so nothing else
+    # needs manual resync there EXCEPT Anim_LoadCharacter's own directory-
+    # seek arithmetic -- which, unlike the two prior RECORD_SIZE growths
+    # (16->17, this one 17->23), is no longer a hand-adjusted `index*N+0x10`
+    # immediate-multiply at all: it's a real 16-bit accumulate-by-repeated-
+    # add loop now (Anim_LoadCharacter_SeekRecord), so it needs no resync
+    # for this or any future RECORD_SIZE change.
     record = struct.pack(
-        "<BBBBBBBBIBBBBB",
+        "<BBBBBBBBIBBBBBBBBBBB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
@@ -462,6 +574,12 @@ def build_record(info, data_offset):
         info["rise_frame_count"],
         info["rise_delay"],
         1 if info["attack2_is_grab"] else 0,
+        info["jump_frame_count"],
+        info["jump_delay"],
+        info["jumpattack_frame_count"],
+        info["jumpattack_delay"],
+        info["jumpattack2_frame_count"],
+        info["jumpattack2_delay"],
     )
     assert len(record) == RECORD_SIZE
     return record
@@ -697,7 +815,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
 def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
-    `prefixes` is a list of 1-8 out/<name> character prefixes; unused
+    `prefixes` is a list of 1-15 out/<name> character prefixes; unused
     directory slots stay zeroed. `bgs` is an optional list of
     (bg_dir, hud_dir) pairs, appended as the v2 BG section after the
     character blobs so no character data_offset moves. `fps` (v5, Phase 10,

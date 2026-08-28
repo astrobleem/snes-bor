@@ -1,0 +1,23 @@
+{
+  "entity": "Leather",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.15841584158415842,
+  "hotspot_canvas": [
+    12,
+    18
+  ],
+  "frames": [
+    {
+      "delay": 30,
+      "offset": [
+        95,
+        220
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

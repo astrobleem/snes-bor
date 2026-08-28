@@ -1,0 +1,48 @@
+{
+  "entity": "LEO",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.19631901840490798,
+  "hotspot_canvas": [
+    13,
+    27
+  ],
+  "frames": [
+    {
+      "delay": 60,
+      "offset": [
+        70,
+        165
+      ],
+      "bbox": null,
+      "attack": [
+        38,
+        16,
+        44,
+        49,
+        17,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 60,
+      "offset": [
+        70,
+        165
+      ],
+      "bbox": null,
+      "attack": [
+        13,
+        48,
+        107,
+        26,
+        17,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

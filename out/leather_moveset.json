@@ -1,0 +1,65 @@
+{
+  "entity": "Leather",
+  "prefix": "out/leather",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/leather_idle",
+      "frames": 2
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/leather_walk",
+      "frames": 12
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/leather_pain",
+      "frames": 2
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/leather_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/leather_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "riseattack",
+      "dir": "out/leather_riseattack",
+      "frames": 6
+    },
+    {
+      "ordinal": 6,
+      "name": "attack1",
+      "dir": "out/leather_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 7,
+      "name": "upper",
+      "dir": "out/leather_upper",
+      "frames": 5
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 6,
+    "attack2": 5,
+    "attack2_is_grab": false
+  },
+  "remap_palettes": []
+}

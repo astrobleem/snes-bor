@@ -21,10 +21,9 @@
 ; TITLE/PLAYING/PAUSED for real, and make every other state an explicit
 ; no-op Play routine (never a state that spins without Core_Nmi_WaitFrame --
 ; that still happens unconditionally in scpu_main_loop, once per iteration,
-; regardless of Game_State). CHARSELECT is deliberately NOT wired to the
-; existing CharSelect_Index roster logic here -- CLAUDE.md says that
-; hard-coded roster is to be phased out as VM gates land, so this phase
-; does not invest in it.
+; regardless of Game_State). CHARSELECT started as a no-op stub in this
+; phase; it got real content (wired to the existing CharSelect_Index roster
+; logic) later in the same phase -- see the CHARSELECT header below.
 ; ============================================================================
 
 GAME_STATE_PLAYING    = 0   ; current behavior -- also the boot default, see above
@@ -94,6 +93,45 @@ Title_Step = $7E2760   ; .db -- see TITLE_STEP_* above; zeroed at boot
                         ; code sets Game_State back to PLAYING, so TITLE is
                         ; always ready to redraw from scratch the next time
                         ; it's entered (e.g. a later GAME OVER timeout)
+
+; ============================================================================
+; Phase G5 (plan_game.md 5): character select. Entered from the title
+; screen's own teardown (Game_State_Play__title_enter_playing sets
+; GAME_STATE_CHARSELECT instead of PLAYING directly). Re-skins the roster
+; machinery that already exists (CharSelect_Index/RosterCount/Loaded,
+; Anim_LoadCharacter -- the same live-reselect path the Select button has
+; used since plan.md Phase 5) as a real screen, rather than inventing new
+; roster logic. Same one-DrawString-per-frame drip discipline as the title
+; screen (see this file's own Phase G5 header above) -- a Left/Right press
+; while waiting redraws the name row immediately (one DrawString call,
+; same as any other step), never in the same frame as another draw.
+; ============================================================================
+
+CHARSELECT_ROW_HEADER = 8
+CHARSELECT_ROW_NAME   = 10
+CHARSELECT_ROW_INSTR  = 12
+
+CHARSELECT_STEP_DRAW_HEADER  = 0
+CHARSELECT_STEP_DRAW_NAME    = 1
+CHARSELECT_STEP_DRAW_INSTR   = 2
+CHARSELECT_STEP_WAIT         = 3
+CHARSELECT_STEP_CLEAR_HEADER = 4
+CHARSELECT_STEP_CLEAR_NAME   = 5
+CHARSELECT_STEP_CLEAR_INSTR  = 6
+                               ; anything >= 7 falls through to entering
+                               ; PLAYING (see Game_State_Play__charselect_
+                               ; enter_playing below)
+
+CharSelect_Step = $7E276A   ; .db -- see CHARSELECT_STEP_* above; zeroed at
+                             ; boot alongside Title_Step, and reset back to
+                             ; CHARSELECT_STEP_DRAW_HEADER right before this
+                             ; phase's code enters PLAYING, same self-
+                             ; resetting discipline Title_Step already uses
+CharSelect_NextStep = $7E276B   ; .db -- before-the-call parameter cell for
+                                 ; Game_State_CharSelect_DrawStepRow below,
+                                 ; same pattern Text_LabelValue (core/text.pasm)
+                                 ; already uses for a 4th DrawLabeledNumber
+                                 ; parameter that doesn't fit A/X/Y
 
 ; ============================================================================
 ; Phase G3 (plan_game.md 3): player death, lives, continues, game over.
@@ -218,7 +256,7 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
 ; it against the packed bor.msu's real bg_count.
 ; ============================================================================
 
-STAGE_COUNT = 2   ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
+STAGE_COUNT = 10  ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
 
 Game_StageIndex   = $7E2758   ; .dw -- 0-based index of the currently loaded
                                ; stage; Bg_LoadScene_StageIndex (main.pasm)
@@ -325,7 +363,8 @@ Game_State_Play__transition_done:
     lda Game_State
     sta Game_StatePrev
 Game_State_Play__no_transition:
-    rep #$31
+    ; width already .a16 on both paths in here (the beq above and the
+    ; transition-done fallthrough, both still under line 326's real rep).
 .a16
     lda Game_State
     ; Phase G5: bne-past-a-jmp instead of beq for every case here now --
@@ -336,25 +375,38 @@ Game_State_Play__no_transition:
     bne Game_State_Play__check_title
     jmp Game_State_Play__playing
 Game_State_Play__check_title:
-    rep #$30
+    ; width still .a16 -- Game_State_Play__no_transition's own real
+    ; `rep #$31` just above runs unconditionally before this is reached.
 .a16
     cmp #GAME_STATE_TITLE
-    bne Game_State_Play__check_paused
+    bne Game_State_Play__check_charselect
     jmp Game_State_Play__title
+Game_State_Play__check_charselect:
+    ; width already .a16 here -- check_title's own `rep #$30` just above
+    ; runs unconditionally before either branch reaches this label.
+.a16
+    cmp #GAME_STATE_CHARSELECT
+    bne Game_State_Play__check_paused
+    ; Game_State_Play__charselect lives in its own bank (core/charselect.pasm)
+    ; -- ROM budget, see that file's own header. jsl/rtl, not jsr/rts.
+    jsl Game_State_Play__charselect
+    jmp Game_State_Play__done
 Game_State_Play__check_paused:
-    rep #$30
+    ; width still .a16 here too -- ROM-budget trim (see check_charselect
+    ; just above): neither branch path between check_title's own real
+    ; `rep #$30` and here ever changes width.
 .a16
     cmp #GAME_STATE_PAUSED
     bne Game_State_Play__check_gameover
     jmp Game_State_Play__paused
 Game_State_Play__check_gameover:
-    rep #$30
+    ; width still .a16 -- see check_charselect's own comment above.
 .a16
     cmp #GAME_STATE_GAMEOVER
     bne Game_State_Play__check_stageclear
     jmp Game_State_Play__gameover
 Game_State_Play__check_stageclear:
-    rep #$30
+    ; width still .a16 -- see check_charselect's own comment above.
 .a16
     cmp #GAME_STATE_STAGECLEAR
     bne Game_State_Play__not_stageclear
@@ -431,9 +483,6 @@ Game_State_Play__title_draw_main:
 .a8
     lda #TITLE_STEP_DRAW_PRESS
     sta.l Title_Step
-    rep #$31
-.a16
-.i16
     jmp Game_State_Play__done
 
 Game_State_Play__title_draw_press:
@@ -450,9 +499,6 @@ Game_State_Play__title_draw_press:
 .a8
     lda #TITLE_STEP_WAIT
     sta.l Title_Step
-    rep #$31
-.a16
-.i16
     jmp Game_State_Play__done
 
 Game_State_Play__title_wait:
@@ -469,9 +515,6 @@ Game_State_Play__title_wait_pressed:
 .a8
     lda #TITLE_STEP_CLEAR_MAIN
     sta.l Title_Step
-    rep #$31
-.a16
-.i16
     jmp Game_State_Play__done
 
 Game_State_Play__title_clear_main:
@@ -488,9 +531,6 @@ Game_State_Play__title_clear_main:
 .a8
     lda #TITLE_STEP_CLEAR_PRESS
     sta.l Title_Step
-    rep #$31
-.a16
-.i16
     jmp Game_State_Play__done
 
 Game_State_Play__title_clear_press:
@@ -510,9 +550,6 @@ Game_State_Play__title_clear_press:
                                     ; Game_State_Play__title_enter_playing
                                     ; the very next frame this state runs
     sta.l Title_Step
-    rep #$31
-.a16
-.i16
     jmp Game_State_Play__done
 
 Game_State_Play__title_enter_playing:
@@ -520,10 +557,15 @@ Game_State_Play__title_enter_playing:
 .a8
     lda #TITLE_STEP_DRAW_MAIN
     sta.l Title_Step            ; reset for the next time TITLE is entered
+    ; Phase G5: go to CHARSELECT next, not straight to PLAYING -- see this
+    ; file's own Phase G5 header above. No need to reset CharSelect_Step
+    ; here too -- it's already 0 (DRAW_HEADER) from boot the first time,
+    ; and core/charselect.pasm's own enter_playing resets it for every
+    ; time after that (same self-resetting discipline as Title_Step).
     rep #$31
 .a16
 .i16
-    lda #GAME_STATE_PLAYING
+    lda #GAME_STATE_CHARSELECT
     sta.l Game_State
     jmp Game_State_Play__done
 
@@ -531,12 +573,16 @@ Game_State_Play__paused:
     ; Frozen: gameplay subsystems below simply don't run. Music keeps
     ; playing (scpu_main_loop's Tad_Process/Tad_FinishLoadingData calls
     ; are outside this dispatch, unconditional every state) and input
-    ; keeps being polled (also outside this dispatch), so a future pause
-    ; menu can read Start/Select to resume without any change here.
+    ; keeps being polled (also outside this dispatch), so the pause menu
+    ; below can read Start/Up/Down to resume/quit with no change needed
+    ; here. Game_State_Play__pausemenu lives in its own bank
+    ; (core/pausemenu.pasm) -- ROM budget, see that file's own header.
+    ; jsl/rtl, not jsr/rts.
+    jsl Game_State_Play__pausemenu
     jmp Game_State_Play__done
 
 Game_State_Play__gameover:
-    rep #$31
+    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
     ; Phase G3: continue countdown. Start before GameOver_ContinueTimer
     ; hits 0 continues (fresh lives, full respawn, back to PLAYING);
@@ -560,14 +606,27 @@ Game_State_Play__gameover_no_continue:
     sta.l GameOver_ContinueTimer
     jmp Game_State_Play__done
 Game_State_Play__gameover_timeout:
-    rep #$31
+    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
     lda #GAME_STATE_TITLE
     sta.l Game_State
     jmp Game_State_Play__done
 
 Game_State_Play__playing:
-    rep #$31
+    ; width still .a16 -- reached only via the unconditional jmp above,
+    ; itself reached with .a16 already active (see check_title's own
+    ; comment on this chain never changing width in between).
+.a16
+    ; Phase G5: Start (edge-triggered, real BOR's own pausemenu() entry
+    ; condition) freezes into PAUSED before anything else this frame runs.
+    ; Checked via a bank-6 jsl (core/pausemenu.pasm) to keep this hot
+    ; bank-0 routine's own footprint minimal -- see that file's own
+    ; Game_State_Pause_CheckEntry for the full check/set logic; carry
+    ; comes back set only if PAUSED was just entered this frame.
+    jsl Game_State_Pause_CheckEntry
+    bcc Game_State_Play__no_pause_press
+    jmp Game_State_Play__done
+Game_State_Play__no_pause_press:
 .a16
     ; Phase G3 (plan_game.md 3): player death check, before this frame's
     ; Core_Oop_Play pass -- see this file's Phase G3 header for why this
@@ -589,7 +648,8 @@ Game_State_Play__playing:
     ; OAM next call, same as any other PLAYING exit.
     jmp Game_State_Play__done
 Game_State_Play__no_death:
-    rep #$31
+    ; width already .a16 on both paths in here (neither the bne above nor
+    ; the beq above it changes width) -- no rep needed.
 .a16
     ; Phase G3: tick the post-respawn invulnerability window down once per
     ; frame regardless of whether a hit actually lands this frame --
@@ -647,7 +707,7 @@ Game_State_Play__kdtimer2_done:
     dec a
     sta.l Entity3_KnockdownTimer
 Game_State_Play__kdtimer3_done:
-    sep #$20
+    ; width already .a8 -- no rep since line 662's real sep #$20 above.
 .a8
     lda.l Stage_Cleared
     bne Game_State_Play__stage_check_edge
@@ -691,7 +751,8 @@ Game_State_Play__stage_check_edge:
     sta.l Game_State
     jmp Game_State_Play__done
 Game_State_Play__stage_no_win:
-    rep #$31
+    ; width already .a16 on both paths in here (the bcc above and the bra
+    ; from __stage_no_win_a8) -- no rep needed.
 .a16
 .i16
 
@@ -811,7 +872,8 @@ Game_State_HandlePlayerDeath:
     rts
 
 Game_State_HandlePlayerDeath__gameover:
-    rep #$31
+    ; width already .a16 -- reached only via the beq above, still under
+    ; this routine's own entry rep #$31 with no sep in between.
 .a16
     lda #GAME_OVER_CONTINUE_FRAMES
     sta.l GameOver_ContinueTimer

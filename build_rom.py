@@ -22,7 +22,47 @@ import pack_msu_roster
 # enemy in the shipped level's (stage 1B) own spawn table. Entity #3 now
 # loads this slot instead of reusing JHUN a second time (see main.pasm's
 # Entity #3 Core_Oop_Create call, init param changed $0301 -> $0303).
-ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
+# Follow-up (TMNT campaign, same day as Rock/Leather): the packed file
+# format's roster directory was a hard 1-8 slot format (pack_msu_roster.py's
+# byte 0x09, roster_count). 4 slots already used; the real TMNT campaign
+# levels (sewer0/streets/streets2/sewer) reference 5 distinct real `enemy`-
+# type fighters not yet in any roster (MOUSER, FOOT01-04, all converted --
+# see out/mouser_*, out/foot0{1,2,3,4}_*) -- one more than the 4 remaining
+# slots. FOOT01-04 are mechanically identical clones in the source data
+# (same anim set, same health=70) -- picked FOOT01 as the one added first.
+#
+# Roster-growth slice (same session, real user-requested follow-up -- see
+# core/spawn.pasm's Spawn_DoRosterReassign): the per-spawn character-
+# identity gap this comment used to describe as a hard architectural wall
+# was real but not a wall -- main.pasm's Anim_LoadCharacter is a reusable,
+# already-mid-game-callable routine (the player's own Select-button
+# reselect already called it live), so Spawn_Play now re-runs it for a
+# specific AI slot when that spawn's real character is in the roster (see
+# spawn.pasm's SPAWN_KIND_BOSS_IDENTIFIED). That made the roster's OWN
+# 8-slot cap the real remaining limiter -- grown to 15 (pack_msu_
+# roster.py's MAX_CHARACTERS; 15 is a real hardware-arithmetic ceiling of
+# main.pasm's existing 8-bit directory-seek math, not an arbitrary number,
+# see that constant's own comment), and BEBOP converted fresh (it was never
+# actually converted before -- Bebop's own boss stage always rendered a
+# reskin) plus FOOT02-04 added using the new headroom. Ordinary (non-boss)
+# enemies still render as a reskin: only characters deliberately added to
+# this roster have anything real to identify against, and most spawned
+# names in these levels still aren't roster members -- that's a content
+# decision (which characters are "real"), not a remaining code gap.
+# Slot 12 (2026-08-24): LEO (TMNT), the one playable turtle this pak's own
+# data/MODELS.TXT actually loads (`load leo ...`; `don`/`mike` are present
+# as real character data but commented out by the pak's own author, and no
+# Raphael file exists in this pak at all -- checked directly, not assumed).
+# Leo's real .TXT declares 21 anims (waiting/idle/slide/walk/get/jump/
+# jumpattack/jumpattack2/attack1-4/grab/throw/pain/fall/rise/special/
+# freespecial/grabattack/land); convert_character.py converts all of them
+# (real frame data, inert ordinals) but only idle/walk/attack1/attack2/
+# pain/fall/rise resolve to a known engine role -- jump/slide/grab-throw/
+# special are real OpenBOR mechanics this engine doesn't implement
+# (plan_game.md's own long-standing gap), not something invented here.
+ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
+                   "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04",
+                   "out/leo"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output
@@ -48,7 +88,38 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro"]
 # always record 0). Regenerate 1A's BG (kept committed, no longer the sole
 # shipped level) with:
 #   python tools/bg_converter/convert_bg.py --level "DATA\EASY\1AEASY.TXT" -o out/bg_stage1a --streaming
-BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud")]
+# Follow-up (same day): the two remaining real standalone TMNT boss levels,
+# data\levels\Rock.txt and data\levels\Leather.txt (Rocksteady, Leatherhead)
+# -- same real `boss 1` flag/pipeline as stage 2 (Bebop). Regenerate with:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Rock.txt" -o out/bg_stage3rock --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\Leather.txt" -o out/bg_stage4leather --streaming
+# Follow-up (same day): the real 4-level TMNT main campaign (data\LEVELS00.TXT's
+# "Play_Demo" set), in its own real order -- sewer0 -> streets -> streets2 ->
+# sewer -- appended AFTER the standalone boss stages (indices 5-8) rather than
+# renumbered in front of them: the standalone bosses were already shipped/
+# gated at indices 2-4 in earlier commits on this branch, and inserting the
+# campaign ahead of them would silently break anything that hardcoded those
+# indices (nothing currently does, but there's no upside to reordering
+# already-shipped, already-gated content). Regenerate with:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\sewer0.txt" -o out/bg_stage5sewer0 --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets.txt" -o out/bg_stage6streets --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\streets2.txt" -o out/bg_stage7streets2 --streaming
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\sewer.txt" -o out/bg_stage8sewer --streaming
+#
+# Follow-up (same day): data\levels\foot.txt, the last standalone TMNT
+# level -- real content, but NOT a boss record despite its "Foot Soldier
+# Test" framing: `spawn Foot3 / alias Foot_Soldier / health 500` has no
+# `boss 1` line at all (verified by reading the extracted level text, same
+# as every other stage here -- `alias` is cosmetic in this engine, already
+# established when converting the health-override slice). It's a single
+# reinforced-HP (500 vs the normal 70) Foot Soldier encounter, nothing
+# more -- shipped as stage 9, not part of G9's boss coverage. Regenerate:
+#   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\foot.txt" -o out/bg_stage9foot --streaming
+BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
+              ("out/bg_stage2boss", "out/hud"), ("out/bg_stage3rock", "out/hud"),
+              ("out/bg_stage4leather", "out/hud"), ("out/bg_stage5sewer0", "out/hud"),
+              ("out/bg_stage6streets", "out/hud"), ("out/bg_stage7streets2", "out/hud"),
+              ("out/bg_stage8sewer", "out/hud"), ("out/bg_stage9foot", "out/hud")]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
@@ -59,7 +130,7 @@ BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud")]
 # kept committed) -- shipping it here means the stage transition exercises
 # a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None, "out/fp_stage1a"]
+FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None, None]
 
 # Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
 # length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
@@ -70,7 +141,11 @@ FP_SCREENS = [None, "out/fp_stage1a"]
 # with the hand-synced constants it used to cross-check -- there is nothing
 # left in main.pasm for it to check. Regenerate 1A's with:
 #   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
-SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin"]
+SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin",
+                "out/spawn_stage2boss/spawn_table.bin", "out/spawn_stage3rock/spawn_table.bin",
+                "out/spawn_stage4leather/spawn_table.bin", "out/spawn_stage5sewer0/spawn_table.bin",
+                "out/spawn_stage6streets/spawn_table.bin", "out/spawn_stage7streets2/spawn_table.bin",
+                "out/spawn_stage8sewer/spawn_table.bin", "out/spawn_stage9foot/spawn_table.bin"]
 
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test

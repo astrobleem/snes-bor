@@ -85,6 +85,7 @@ Entity1_ByteOff = CHAR_ZP_LEN  # X register offset TryGrab/HitApply use for Enti
 
 CharSelect_Index = 0x7E53B6
 CharSelect_Loaded = 0x7E53B8
+CharSelect_RosterCount = 0x7E53B7
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RALF_MOVESET = os.path.join(ROOT, 'out', 'ralf_moveset.json')
@@ -272,10 +273,21 @@ def main():
         r.check('entity1 resumes independent behavior after release', resumed)
 
         # --- 6. Regression: RALF's attack2 (upper) is unchanged instant damage. ---
-        press_select(m)  # JOE(2) -> YASHIRO(3)
-        press_select(m)  # YASHIRO(3) -> RALF(0), wraps
+        # Never hardcode a press count that assumes a specific roster size
+        # (see phase5.py's own docstring on this class of drift) -- read the
+        # real roster_count and press Select however many times wraps JOE
+        # (index 2) back around to RALF (index 0). This project's roster grew
+        # 4->6 the same day this gate was last touched (MOUSER/FOOT01 added
+        # for the TMNT campaign); a hardcoded "2 presses" here silently
+        # landed on a different character instead of failing loudly, until
+        # the RALF-specific checks below caught it.
+        roster_count = read_u8(m, CharSelect_RosterCount)
+        presses_to_ralf = (roster_count - 2) % roster_count
+        for _ in range(presses_to_ralf):
+            press_select(m)
         idx_ralf = read_u8(m, CharSelect_Index)
-        r.check('roster wrapped back to RALF (index 0)', idx_ralf == 0)
+        r.check(f'roster wrapped back to RALF (index 0) after {presses_to_ralf} Select '
+                f'presses from JOE (roster_count={roster_count})', idx_ralf == 0)
         ralf_is_grab = read_u8(m, PlayerEntity + CHAR_ATTACK2_IS_GRAB)
         r.check('RALF CHAR_ATTACK2_IS_GRAB==0 (upper is not a real grab)', ralf_is_grab == 0)
 

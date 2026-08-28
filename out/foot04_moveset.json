@@ -1,0 +1,59 @@
+{
+  "entity": "Foot04",
+  "prefix": "out/foot04",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/foot04_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/foot04_walk",
+      "frames": 6
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/foot04_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/foot04_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/foot04_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/foot04_attack1",
+      "frames": 7
+    },
+    {
+      "ordinal": 6,
+      "name": "upper",
+      "dir": "out/foot04_upper",
+      "frames": 7
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "attack": 5,
+    "attack2": 6,
+    "attack2_is_grab": false
+  },
+  "remap_palettes": []
+}
