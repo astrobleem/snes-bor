@@ -277,6 +277,124 @@ def main():
         r.check('post-landing depth-sort order matches grounded baseline exactly (landing does not reorder)',
                 order_landed == EXPECTED_FRONT_TO_BACK)
 
+        # ====================================================================
+        # 5. Dynamic crossover: entity 2 (JOE) walks its ground Y across the
+        # player's ground Y while the player is airborne (mid-jump). This is
+        # the scenario the two static snapshots above (#1 and the landed
+        # re-check) can't catch on their own -- a bug that only shows up
+        # *during* a live rank transition (e.g. an off-by-one in the
+        # selection sort's tie-break, or Z-altitude leaking into the sort
+        # key) would pass both endpoints and still be wrong mid-crossover.
+        # Also confirms JOE's presence in this test carries no roster-
+        # specific meaning: it is exercised here purely as "some other
+        # entity with attack2 in its moveset" (see g7_attack2_second_move
+        # memory), and depth rank must be indifferent to that -- nothing
+        # below reads or asserts CHAR_SELECTED's attack2 value at all.
+        # ====================================================================
+        JOE_ENTITY = 2
+        CROSS_X = [40, 41, 140, 190]  # unique X, close to original so no
+                                       # slot's expected screen X collides
+                                       # with another slot's during the walk
+        start_y = TEST_Y[:]
+        # JOE starts behind the player (lower Y = further back, per this
+        # slice's own selection-sort convention) and walks past it: 30 -> 110
+        # while the player sits still at TEST_Y[0]=70. Crosses at ~30 steps in.
+        joe_y_steps = list(range(30, 111, 4))  # 30,34,...,110 (21 steps)
+
+        set_positions(m, CROSS_X, start_y)
+        freeze_ai(m)
+        m.run_frames(2)
+        m.pause()
+
+        # Put the player airborne again so the crossover happens while the
+        # player's *visual* Y is actively being offset by jump -- if Z-
+        # altitude ever leaked into the sort key (instead of staying purely
+        # a Character_RenderFrame-local OAM-Y perturbation), this is exactly
+        # the condition that would surface it: the rank flip would either
+        # not happen, or happen at the wrong step.
+        m.write_u8(PlayerEntity + CHAR_INPUT_DRIVEN, 1)
+        m.set_input(m.BTN_A, 1)
+        m.run_frames(1)
+        for _ in range(40):
+            m.pause()
+            if read_byte(m, PlayerEntity + CHAR_SELECTED) == CHAR_SELECTED_JUMP:
+                break
+            m.run_frames(1)
+        else:
+            raise AssertionError('player never entered CHAR_SELECTED_JUMP for the crossover test')
+
+        observed_ranks = []  # (joe_y, joe_ahead_of_player: bool, zpos)
+        rank_flip_step = None
+        for step, joe_y in enumerate(joe_y_steps):
+            # Re-pin every non-JOE entity's ground Y and X each frame; only
+            # JOE's Y is left to walk. Keep the player's real X/Y struct
+            # fields (CHAR_POS_X/Y) pinned too -- jump perturbs OAM Y only,
+            # never CHAR_POS_Y, so pinning it is just baseline-noise control,
+            # same as section 2-4 above.
+            xs = CROSS_X[:]
+            ys = [start_y[0], start_y[1], joe_y, start_y[3]]
+            set_positions(m, xs, ys)
+            for i in (1, 3):
+                m.write_u8(ENTITY_BASES[i] + CHAR_INPUT_DRIVEN, 0)
+                m.write_u8(ENTITY_BASES[i] + CHAR_HIT_STUN, 0)
+                m.write_u8(ENTITY_BASES[i] + CHAR_HP, CHAR_HP_MAX)
+            # 2 frames, not 1 -- m.run_frames() is a wall-clock lower bound,
+            # not an exact frame count (memory mesen_set_input_wall_clock),
+            # and a 1-frame margin here was observed to occasionally read
+            # back JOE's real OAM Y one step stale, producing a false rank
+            # mismatch unrelated to the engine (verified via a standalone
+            # debug dump before landing on this fix).
+            m.run_frames(2)
+            m.pause()
+
+            zpos = read_i16(m, Player_JumpZPos)
+            ground_y_now = [read_byte(m, b + CHAR_POS_Y) for b in ENTITY_BASES]
+            expected_ground = [start_y[0], start_y[1], joe_y, start_y[3]]
+            if ground_y_now != expected_ground:
+                raise AssertionError(
+                    f'CHAR_POS_Y perturbed during crossover at step {step} (joe_y={joe_y}): '
+                    f'{ground_y_now} != {expected_ground}')
+
+            exp_x_now = {i: (xs[i] - (read_i16(m, Screen_PosX) & 0xFFFF)) & 0xFFFF for i in range(4)}
+            by_entity_now = read_oam_by_entity_x(m, exp_x_now)
+            joe_slot = by_entity_now[JOE_ENTITY][0]
+            player_slot = by_entity_now[0][0]
+            joe_ahead = joe_slot < player_slot  # lower OAM slot == drawn in front
+            observed_ranks.append((joe_y, joe_ahead, zpos))
+            if rank_flip_step is None and joe_ahead and joe_y > start_y[0]:
+                rank_flip_step = step
+
+            # Cross-check: for every step, whichever of {JOE, player} has the
+            # strictly higher ground Y must be the one with the lower OAM
+            # slot -- this is the real, general depth-order invariant (not
+            # just "matches a precomputed EXPECTED_FRONT_TO_BACK list"),
+            # checked fresh every single sampled frame of the walk.
+            if joe_y != start_y[0]:
+                expect_joe_ahead = joe_y > start_y[0]
+                if joe_ahead != expect_joe_ahead:
+                    raise AssertionError(
+                        f'depth rank wrong at step {step}: joe_y={joe_y} player_y={start_y[0]} '
+                        f'joe_slot={joe_slot} player_slot={player_slot} '
+                        f'(expected joe_ahead={expect_joe_ahead}, got {joe_ahead}); zpos={zpos}')
+
+        print(f'crossover observed (joe_y, joe_ahead_of_player, player_zpos): {observed_ranks}')
+        r.check('JOE started behind the player and ended ahead (real crossover occurred)',
+                observed_ranks[0][1] is False and observed_ranks[-1][1] is True)
+        r.check('depth rank flip tracked ground Y continuously across every sampled step (no lag/skip)',
+                True)  # the per-step raise above is the real assertion; reaching here means it held
+        r.check('at least one crossover step was sampled while the player was airborne (zpos>0), proving Z does not affect rank',
+                any(zpos > 0 for _, _, zpos in observed_ranks))
+
+        # --- OAM-slot-equals-entity-index guard: a real rank flip means
+        # JOE's and the player's real OAM slots swapped relative order mid-
+        # test -- this is only possible to observe at all if the gate is
+        # genuinely reading slot-by-content (X-match) rather than assuming
+        # a fixed slot per entity, which is exactly the regression class
+        # this whole slice exists to prevent (see phase8/phase11/game_g2/
+        # g7_knockdown/g8's own fixes for the same class of bug). ---
+        r.check('a real rank flip (OAM slot order change) was observed during the crossover, not just at the two static endpoints',
+                rank_flip_step is not None)
+
     r.finish()
 
 
