@@ -64,10 +64,29 @@ def entity_hp_and_frame(m, base):
     return block[CHAR_HP], block[CHAR_FRAME_INDEX]
 
 
-def oam_slot(m, slot):
+Screen_PosX = 0x7E1601
+
+
+def screen_pos_x(m):
+    b = read_block(m, Screen_PosX, 32)
+    return b[0] | (b[1] << 8)
+
+
+def oam_slot_for_entity(m, entity_i, world_x, cam):
+    """Actor depth-sort slice (plan_game.md 7): real hardware OAM slot
+    order is now ground-depth-sorted (Character_RenderPass), not fixed
+    dispatch order matching entity index -- a dead entity's OAM Y is
+    overridden to $F0, but its OAM X is left alone (still real, computed
+    fresh every frame -- see Character_RenderFrame's own dead-hide comment),
+    so entities are identified by real on-screen X instead of by assuming
+    OAM slot N holds entity N's data."""
+    expected_x = (world_x - cam) & 0xFF
     block = read_block(m, 0, 32, mem_type='snesSpriteRam')
-    off = slot * 4
-    return block[off], block[off + 1]  # X, Y
+    for slot in range(4):
+        if block[slot * 4] == expected_x:
+            return block[slot * 4], block[slot * 4 + 1]  # X, Y
+    raise AssertionError(f'entity {entity_i}: no OAM sprite found at expected screen X={expected_x:#x} '
+                          f'(real OAM X bytes present: {[block[s * 4] for s in range(4)]})')
 
 
 def main():
@@ -118,8 +137,9 @@ def main():
         hitstun_after = read_block(m, Entity1_HitStun, 32)[0]
         r.check('dead entity 1 takes no further hit stun', hitstun_after == 0)
 
-        ox, oy = oam_slot(m, 1)
-        print(f'OAM slot1 (entity1): X={ox} Y={oy}')
+        cam = screen_pos_x(m)
+        ox, oy = oam_slot_for_entity(m, 1, posx_after[1], cam)
+        print(f'real OAM sprite for entity1: X={ox} Y={oy}')
         r.check('dead entity 1 hardware OAM sprite hidden (Y=$F0)', oy == DEAD_OAM_Y)
 
         fc_after = read_block(m, Nmi_FrameCounter, 32)
@@ -129,7 +149,7 @@ def main():
 
         # --- controls: entities 0/2/3 unaffected ---
         for i in (0, 2, 3):
-            ox, oy = oam_slot(m, i)
+            ox, oy = oam_slot_for_entity(m, i, posx_after[i], cam)
             r.check(f'live entity {i} OAM not hidden', oy != DEAD_OAM_Y)
         # HP-untouched-by-entity-1-dying is only meaningful for the OTHER AI
         # (2, 3) -- the player's own HP is expected to keep dropping over

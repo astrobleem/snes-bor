@@ -69,9 +69,42 @@ def frame_counter(m):
     return b[0] | (b[1] << 8)
 
 
-def entity0_oam_y(m):
+Screen_PosX = 0x7E1601
+CHAR_POS_X = 4
+
+
+def entity0_oam_hidden(m):
+    """Actor depth-sort slice (plan_game.md 7): real hardware OAM slot
+    order is now ground-depth-sorted (Character_RenderPass), not fixed
+    dispatch order -- "the player is always slot 0" (CLAUDE.md) is still
+    true of the ENTITY struct layout, but no longer of real OAM emission
+    order, so ENTITY0_OAM_SLOT alone can't identify entity 0's real sprite
+    any more.
+
+    The PLAYING -> non-PLAYING transition hides everything via a full
+    Core_Oam_ClearAll (X reset to 0 too, not just Y=$F0 -- see core/
+    oam.pasm), not a per-entity dead-hide, so X-matching can't identify
+    entity 0 there (nothing has entity 0's real X once cleared) -- but
+    every slot reads hidden in that state regardless, so checking "all 4
+    slots hidden" is both simpler and correct. While PLAYING, entity 0 IS
+    identified by its real on-screen X (same technique phase11_damage.py/
+    game_g8_props.py use), since real per-entity rendering is what's under
+    test there.
+
+    Returns True iff entity 0's real sprite (or, when nothing real-X
+    matches, every OAM slot) reads Y==OAM_DEFAULT_Y."""
     block = read_block(m, 0, 32, mem_type='snesSpriteRam')
-    return block[ENTITY0_OAM_SLOT * 4 + 1]
+    posx_block = read_block(m, ENTITY_BASES[0], 32)
+    world_x = posx_block[CHAR_POS_X] | (posx_block[CHAR_POS_X + 1] << 8)
+    cam = read_block(m, Screen_PosX, 32)
+    cam_x = cam[0] | (cam[1] << 8)
+    expected_x = (world_x - cam_x) & 0xFF
+    for slot in range(4):
+        if block[slot * 4] == expected_x:
+            return block[slot * 4 + 1] == OAM_DEFAULT_Y
+    # No slot's X matched (post-ClearAll state, X reset too) -- fall back
+    # to "every slot hidden", which is exactly what ClearAll guarantees.
+    return all(block[slot * 4 + 1] == OAM_DEFAULT_Y for slot in range(4))
 
 
 def dma_queue_has_free_slot(m):
@@ -121,7 +154,7 @@ def main():
         r.check(f'boot Game_State == GAME_STATE_PLAYING ({boot_state})',
                 boot_state == GAME_STATE_PLAYING)
         r.check('entity 0 OAM visible (not hidden) while PLAYING',
-                entity0_oam_y(m) != OAM_DEFAULT_Y)
+                not entity0_oam_hidden(m))
 
         assert_frame_counter_advances(r, m, 'PLAYING')
 
@@ -133,7 +166,7 @@ def main():
         r.check(f'Game_State reads back as GAME_STATE_TITLE ({got_state})',
                 got_state == GAME_STATE_TITLE)
         r.check('entity 0 OAM hidden (Y=$F0) after PLAYING -> TITLE transition',
-                entity0_oam_y(m) == OAM_DEFAULT_Y)
+                entity0_oam_hidden(m))
         r.check('DMA queue has a free slot in TITLE (not saturated)',
                 dma_queue_has_free_slot(m))
 
@@ -149,7 +182,7 @@ def main():
         r.check(f'Game_State reads back as GAME_STATE_PAUSED ({got_state})',
                 got_state == GAME_STATE_PAUSED)
         r.check('entity 0 OAM still hidden in PAUSED (no new upload needed)',
-                entity0_oam_y(m) == OAM_DEFAULT_Y)
+                entity0_oam_hidden(m))
         r.check('DMA queue has a free slot in PAUSED (not saturated)',
                 dma_queue_has_free_slot(m))
 
@@ -164,7 +197,7 @@ def main():
         r.check(f'Game_State reads back as GAME_STATE_PLAYING ({got_state})',
                 got_state == GAME_STATE_PLAYING)
         r.check('entity 0 OAM visible again after PAUSED -> PLAYING transition',
-                entity0_oam_y(m) != OAM_DEFAULT_Y)
+                not entity0_oam_hidden(m))
 
         # Prove gameplay actually resumed, not just that OAM positions got
         # re-uploaded once -- sample a living AI entity's CHAR_FRAME_INDEX

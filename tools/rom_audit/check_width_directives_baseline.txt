@@ -134,8 +134,6 @@ src/main.pasm:Character_PlayFrame__dpad_y
 src/main.pasm:Character_PlayFrame__hi_store
 src/main.pasm:Character_PlayFrame__not_stunned_x
 src/main.pasm:Character_PlayFrame__not_stunned_y
-src/main.pasm:Character_PlayFrame__store_x
-src/main.pasm:Character_PlayFrame__store_y
 src/main.pasm:Character_PlayFrame__up
 src/main.pasm:Core_StreamScrollFp_CommitColumn__row
 src/main.pasm:Core_StreamScrollFp_ResolveRows__col_free

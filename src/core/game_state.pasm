@@ -760,6 +760,17 @@ Game_State_Play__stage_no_win:
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
     jsr Core_Oop_Play
+    ; Actor depth-sort slice (plan_game.md 7): emits this frame's OAM
+    ; entries for all 4 fixed entities in real ground-depth order, now that
+    ; Core_Oop_Play has resolved every entity's movement/anim/hit/grab for
+    ; the frame. Inserted at the exact point OAM emission used to happen
+    ; inline inside Core_Oop_Play's own per-entity dispatch (Character_
+    ; PlayFrame no longer emits OAM itself -- see its own header) so nothing
+    ; below (Core_Screen_Play/Hud_Play/Core_Oam_Play) changes timing
+    ; relative to it. jsl (not jsr) -- Character_RenderPass lives in
+    ; core/depth_sort.pasm's own bank (.bank 9), same ROM-budget reason as
+    ; the other .bank-N modules; ends in rtl.
+    jsl Character_RenderPass
     jsr Core_Screen_Play
     ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
     ; call per frame, same as the two lines above. Vm_Run itself is a

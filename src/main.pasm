@@ -2524,6 +2524,22 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; ever changes; `tools/rom_audit/audit_all.py` asserts this automatically.
 ; These are ABSOLUTE addresses, always read/written via `.l`, same caveat
 ; as PlayerEntity_PosX/Y above. ---
+; --- Actor depth-sort slice: low-16 DP-window bases for the same 4 fixed
+; entity slots above, matching core/oop.pasm's own OopDp phd/tcd pattern
+; (`lda.l OopDp,x` / `phd` / `tcd`) but as compile-time literals -- same
+; "player is always slot 0, fixed literal per slot" shortcut this file
+; already uses throughout, not a runtime "compute base from slot number"
+; routine. Used by Character_RenderPass (below) to switch D to entity N's
+; window when rendering entities out of dispatch order (depth-sorted, not
+; slot order). MUST match PlayerEntity_PosY/Entity1_Base/Entity2_Base/
+; Entity3_Base's bank ($7E) and low-16 offset exactly -- these are the same
+; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
+; value and this project's DBR stays $7E throughout gameplay code anyway. ---
+PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
+Entity1_DpBase      = $0a43        ; low16 of $7E0a00+67  ($43=67 dec)
+Entity2_DpBase      = $0a86        ; low16 of $7E0a00+134 ($86=134 dec)
+Entity3_DpBase      = $0ac9        ; low16 of $7E0a00+201 ($C9=201 dec)
+
 Entity1_Base    = $7E0a00 + 67        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
@@ -3031,6 +3047,26 @@ JumpAttackBaseTmpLo  = $7E27D4  ; .dw
 JumpAttackBaseTmpHi  = $7E27D6  ; .db
 JumpAttack2BaseTmpLo = $7E27D7  ; .dw
 JumpAttack2BaseTmpHi = $7E27D9  ; .db
+
+; --- Actor depth-sort slice (plan_game.md 7, sixth slice): per-frame ground-
+; depth render order over the 4 fixed entity slots. Depth_Y/Depth_Used/
+; Depth_BestVal/Idx/Found are Depth_Sort_ComputeOrder's (core/depth_sort.pasm,
+; .bank 9) own scratch -- Depth_Y is a snapshot of each entity's real ground
+; CHAR_POS_Y (NEVER Player_JumpZPos-adjusted OamSetSprite_Y -- jump altitude
+; must not perturb the sort key, see depth_sort.pasm's header). Depth_
+; RenderOrder is the PUBLIC output: 4 entity indices (0-3), front-to-back,
+; consumed by Character_RenderPass below to decide OAM emission order (lower
+; OAM index = higher SNES display priority at equal priority bits, which
+; every entity here always has -- see Character_PlayFrame's attribute-byte
+; comment). All bytes, no struct growth (see struct_growth_regression_root_
+; cause project memory for why CHAR_ZP_LEN growth is dangerous) -- this is
+; global per-frame scratch, not per-instance state.
+Depth_Y              = $7E27DB  ; .db x4 (27DB-27DE) -- ground Y, index = entity id
+Depth_Used           = $7E27DF  ; .db x4 (27DF-27E2) -- FindMax scratch
+Depth_BestVal        = $7E27E3  ; .db -- FindMax scratch
+Depth_BestIdx        = $7E27E4  ; .db -- FindMax scratch
+Depth_BestFound      = $7E27E5  ; .db -- FindMax scratch
+Depth_RenderOrder    = $7E27E6  ; .db x4 (27E6-27E9) -- PUBLIC: front-to-back entity id order
 
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
@@ -4979,29 +5015,17 @@ Character_BlankPadding_Guarded:
     nop
     nop
 Character_PlayFrame:
-    ; --- OAM cursor reset: only the FIRST entity dispatched this frame
-    ; resets Oam_CurrentSlot to 0; later entities leave it where the prior
-    ; entity's Core_Oam_SetSprite call left it, so they append into the next
-    ; free slot instead of overwriting slot 0 (plan.md Phase 1b Step 3; see
-    ; Oam_CursorResetDone's own comment). Explicitly NOT keyed on
-    ; OopObjIndex. ---
-    sep #$20
-.a8
-    lda.l Oam_CursorResetDone
-    bne Character_PlayFrame__cursor_done
-    lda #1
-    sta.l Oam_CursorResetDone
-    rep #$31
 .a16
-    lda #0
-    sta Oam_CurrentSlot
-    bra Character_PlayFrame__cursor_next
-    nop
-Character_PlayFrame__cursor_done:
-    rep #$31
-.a16
-    nop
-Character_PlayFrame__cursor_next:
+    ; --- Actor depth-sort slice: OAM emission (tile/attr/hi/jump-visual-
+    ; offset/dead-hide/Core_Oam_SetSprite) no longer happens inline here --
+    ; it moved to Character_RenderFrame, called by Character_RenderPass
+    ; (main.pasm, below) in ground-depth-sorted order AFTER every entity's
+    ; movement/anim/hit/grab has resolved for this frame (Core_Oop_Play
+    ; finishes first). Oam_CursorResetDone/Oam_CurrentSlot reset moved with
+    ; it -- Character_RenderPass resets the cursor exactly once per frame,
+    ; unconditionally, since it is now the ONLY place OAM entries are
+    ; emitted (see its own header). This routine now only ever updates this
+    ; entity's real CHAR_POS_X/CHAR_POS_Y (the ground-truth depth key). ---
 
     ; --- X: held-dpad Left/Right movement (mode 1) or AI seek-toward-player
     ; (mode 2, plan.md Phase 3) or hold (mode 0). Unchanged from the old
@@ -5190,18 +5214,19 @@ Character_PlayFrame__hold:
     nop
 Character_PlayFrame__store_x:
     sta CHAR_POS_X
-    ; Screen-relative X for OAM = world X - camera scroll. Uses Screen_PosX
-    ; as of the END of last frame (Core_Screen_Play, which re-eases it from
-    ; THIS frame's just-stored CHAR_POS_X, runs later in scpu_main_loop,
-    ; after Core_Oop_Play finishes every entity) -- a one-frame lag between
-    ; camera and sprite render position that is not visible at this scroll
-    ; speed. See plan.md Phase 8.
-    sec
-    sbc Screen_PosX
-    and #$00ff
+    ; Screen-relative X for OAM (world X - camera scroll) is no longer
+    ; computed here -- Character_RenderFrame recomputes it fresh at render
+    ; time instead (same formula, moved). This used to write straight into
+    ; the single shared OamSetSprite_X WRAM-staging cell right after each
+    ; entity's own X was known, safe back when movement and OAM emission
+    ; were the same per-entity pass; now that OAM emission is a separate,
+    ; later, depth-sorted pass over all 4 entities, a write here would be
+    ; stale-and-shared by the time that pass runs for any entity but the
+    ; last one Core_Oop_Play happened to dispatch (a real bug this refactor
+    ; introduced and caught via tools/verify/game_g7_depth_sort.py's OAM-X
+    ; identification check -- every entity showed the SAME OAM X).
     sep #$20
 .a8
-    sta.l OamSetSprite_X
 
     ; --- Y: held-dpad Up/Down movement, mirroring the X block (same three
     ; CHAR_INPUT_DRIVEN modes, plus the same Phase 4 hit-stun check). ---
@@ -5316,18 +5341,70 @@ Character_PlayFrame__hold_y:
     nop
 Character_PlayFrame__store_y:
     sta CHAR_POS_Y
+    ; Real ground/depth position committed -- see this routine's header for
+    ; why OAM emission (previously right here) is now deferred to Character_
+    ; RenderFrame, called later in depth-sorted order.
+    rep #$31
+.a16
+.i16
+    rts
+
+; ============================================================================
+; Character_RenderFrame -- Actor depth-sort slice (plan_game.md 7, sixth
+; slice). The OAM-emission tail that used to run inline at the end of
+; Character_PlayFrame, split out so Character_RenderPass (core/depth_sort.
+; pasm, .bank 9) can invoke it per entity in ground-depth-sorted order
+; instead of fixed dispatch order. jsl-entry/rtl-exit (not jsr/rts) since
+; its only caller now lives in a different bank -- bank 0's own $C100-$FC00
+; region has no spare bytes for Character_RenderPass's dispatch loop itself
+; (measured: build fails "overlaps previously emitted bytes" with it here),
+; same ROM-budget reason every other .bank-N module in this file exists.
+; Entered with D already switched to the target entity's DP window
+; (Character_RenderPass's phd/tcd, same convention core/oop.pasm's Core_
+; Oop_Play/Core_Oop_Call already use) -- every CHAR_* reference below is
+; still a plain DP offset, unchanged from when this lived inside Character_
+; PlayFrame.
+;
+; Entry: .a8 (matches the old fall-through point exactly -- Character_
+; PlayFrame__store_y's `sta CHAR_POS_Y` ran in .a8). Exit: .a16/.i16 (rtl).
+; ============================================================================
+Character_RenderFrame:
+.a8
+    ; Screen-relative X for OAM = world X - camera scroll (same formula
+    ; Character_PlayFrame__store_x used to compute inline -- moved here so
+    ; it's fresh for whichever entity is being rendered right now, not
+    ; whichever one Core_Oop_Play's movement pass happened to dispatch
+    ; last). Screen_PosX here is still "as of the end of last frame" the
+    ; same way it always was (Core_Screen_Play re-eases it from THIS
+    ; frame's just-stored CHAR_POS_X but runs later in Game_State_Play,
+    ; after Character_RenderPass -- see plan.md Phase 8's own note, and
+    ; game_state.pasm's call-order comment for why this refactor preserved
+    ; that exact relative ordering).
+    rep #$20
+.a16
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    and #$00ff
+    sep #$20
+.a8
+    sta.l OamSetSprite_X
+
+    lda CHAR_POS_Y
     sta.l OamSetSprite_Y
 
     ; --- Real jump slice: visual-only OAM Y offset while airborne. Real
     ; OpenBOR keeps a separate position.z (height above ground) from
     ; position.y (depth/lane) -- draws the sprite at screen Y = position.y -
     ; position.z, i.e. rising height moves the sprite UP on screen without
-    ; touching the actual y/depth used for collision or facing. This project
-    ; has no depth/lane axis (CLAUDE.md: no z-sort), so Player_JumpZPos is
-    ; used purely as that same visual offset against CHAR_POS_Y -- a direct,
+    ; touching the actual y/depth used for collision or facing. Player_
+    ; JumpZPos is that same visual offset against CHAR_POS_Y -- a direct,
     ; sourced translation of the real height-vs-depth split onto a 2D-only
-    ; sprite Y, not an invented mechanic. Player only, airborne only; own
-    ; bank (jump.pasm) for ROM budget. ---
+    ; sprite Y, not an invented mechanic. CHAR_POS_Y itself (the real ground/
+    ; depth key Character_RenderPass already sorted by, before this routine
+    ; ever runs) is never touched here -- only the WRAM-staging OamSetSprite_Y
+    ; cell is. Player only, airborne only; own bank (jump.pasm) for ROM
+    ; budget. ---
     jsl Jump_ApplyOamYOffset
 
     ; --- OBJ base tile: this instance's CHAR_TILE_COLUMN*4 (each entity
@@ -5439,7 +5516,7 @@ Character_PlayFrame__not_dead_hide:
 .a16
 .i16
     jsr Core_Oam_SetSprite        ; slot 0, cursor -> 4
-    rts
+    rtl
 
 ; ============================================================================
 ; Game_Score_Award -- Phase G6 (plan_game.md 6). Adds HIT_SCORE to
@@ -11753,4 +11830,13 @@ Text_Str_HudStage:
 .bank 8
 .org $8000
 .include "core/jump.pasm"
+
+; Actor depth-sort slice (plan_game.md 7, sixth slice): pure ground-Y sort
+; computation, own bank for the same ROM-budget reason -- see core/
+; depth_sort.pasm's own header. The render-order-driven OAM emission loop
+; itself (phd/tcd + Character_RenderFrame dispatch) stays in bank 0
+; (Character_RenderPass) since it needs to jsr a bank-0 routine per entity.
+.bank 9
+.org $8000
+.include "core/depth_sort.pasm"
 

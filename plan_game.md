@@ -111,7 +111,7 @@ explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), and real jump/jumpattack/jumpattack2 (LEO only) all done (G7, see §7 for gate names); special/block and real grab mutual-lock semantics still fully open |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), and actor ground-depth sort all done (G7, see §7 for gate names); throw and special/block still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -1084,21 +1084,50 @@ this is what separates "tech demo" from "beat-'em-up."
   jumpattack2 anim data (`jumpheight 5`); every other roster slot no-ops
   the A-button trigger (`Player_JumpFCount==0`). Q8.8 fixed point for
   height/velocity (`JUMP_INITIAL_VEL`/`JUMP_GRAVITY`, literal 256x-scaled
-  real BOR.C constants). **What this is NOT**: no Z-axis/depth-sort system
-  was built — this project has no ground-plane/lane axis at all (§3.6's
-  Y-sorted-priority spec item remains unbuilt, see §12/below), so the real
-  BOR.C `position.z` (height) vs `position.y` (depth) split was translated
-  onto a single 2D sprite Y as a **visual-only OAM offset** (subtract the
-  Q8.8 height's integer byte from the already-computed `OamSetSprite_Y`),
-  not a new gameplay axis. Horizontal movement while airborne deliberately
-  reuses the existing continuous per-frame dpad-read walk code rather than
-  porting BOR.C's one-shot ballistic X-velocity model — a **deliberate
-  simplification** (this project has no parallel X-velocity system and one
-  would be imperceptible here), not a sourced behavior. Landing the same
-  frame falls through to normal ground dispatch immediately — a **control-
-  feel choice**, not a real-source claim. AI jump was never built (real
-  BOR.C AI think loops don't autonomously jump either — not a missing
-  feature). Player only (slot 0), matching every other G7 slice.
+  real BOR.C constants). **What this slice alone was NOT**: no Z-axis/
+  depth-sort system was built in it — the real BOR.C `position.z` (height)
+  vs `position.y` (depth) split was translated onto a single 2D sprite Y as
+  a **visual-only OAM offset** (subtract the Q8.8 height's integer byte
+  from the already-computed `OamSetSprite_Y`), not a new gameplay axis (the
+  depth-sort axis itself shipped one slice later — see the next bullet).
+  Horizontal movement while airborne deliberately reuses the existing
+  continuous per-frame dpad-read walk code rather than porting BOR.C's
+  one-shot ballistic X-velocity model — a **deliberate simplification**
+  (this project has no parallel X-velocity system and one would be
+  imperceptible here), not a sourced behavior. Landing the same frame falls
+  through to normal ground dispatch immediately — a **control-feel
+  choice**, not a real-source claim. AI jump was never built (real BOR.C AI
+  think loops don't autonomously jump either — not a missing feature).
+  Player only (slot 0), matching every other G7 slice.
+- ~~**Actor ground-depth sort**~~ — **Done (G7 sixth slice, 2026-08-28)**,
+  `GATE G7-DEPTH-SORT: PASS`, `tools/verify/game_g7_depth_sort.py`. Closes
+  the gap the jump slice above (and §3.6/§12) flagged: real hardware always
+  draws the lower-OAM-index sprite in front at equal priority, and every
+  entity here always shares the same fixed priority, so OAM emission order
+  IS depth order. `src/core/depth_sort.pasm` (own bank) sorts the 4 fixed
+  entities by real ground `CHAR_POS_Y` (a selection sort, N=4 fixed, read
+  strictly before jump's own OAM-Y offset is applied to anyone this frame);
+  `main.pasm`'s old `Character_PlayFrame` (movement + inline OAM emission)
+  splits into a pure movement routine and `Character_RenderFrame` (the OAM-
+  emission tail), the latter driven by `Character_RenderPass` once per
+  frame in depth-sorted order via real per-entity `phd`/`tcd` DP-window
+  switching (same convention `core/oop.pasm`'s dispatcher already uses).
+  Splitting movement from render surfaced two real pre-existing-shape bugs
+  the split itself introduced (`OamSetSprite_X`/`OamSetSprite_Hi` are
+  single shared per-frame WRAM cells that used to be safely written mid-
+  movement only because movement and OAM emission were one interleaved
+  pass; both are now recomputed fresh inside `Character_RenderFrame`
+  instead). The gate inspects only real hardware OAM (never the internal
+  `Depth_RenderOrder` array, never assumes OAM slot N == entity N) to prove
+  static depth order, that jump altitude never perturbs anyone's rank, and
+  that landing restores the exact pre-jump baseline. Updating several
+  existing gates that had assumed OAM-slot-equals-entity-index (`phase8.py`,
+  `phase11_damage.py`, `game_g2_states.py`, `game_g7_knockdown.py`,
+  `game_g8_props.py`) to identify entities by real on-screen X/palette
+  instead was part of this slice, not scope creep — those assumptions were
+  silently false the moment depth-sorted OAM order shipped. AI jumping,
+  throw, special, block, pits, multiplayer, arbitrary entity-count scaling,
+  and SA-1 compositor changes are explicitly out of scope for this slice.
 - **Grab / throw** — proximity grab state, mutual entity locking. Next
   planned slice.
 - **Special** (HP-cost screen-clear), **block** if the char has it.
@@ -1653,9 +1682,12 @@ G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 
 **Genuinely hard** (expect real research and real bugs):
 - ~~**G7's jump / Z axis**~~ — **Done, 2026-08-28** (see §7's jump bullet).
-  Turned out not to need real depth sorting after all — the real BOR.C
-  height-vs-depth split was translated onto a visual-only 2D OAM offset
-  instead, since this project has no ground-plane axis to sort on.
+  The real BOR.C height-vs-depth split was translated onto a visual-only 2D
+  OAM offset, not a new gameplay axis.
+- ~~**G7's actor ground-depth sort**~~ — **Done, 2026-08-28** (see §7's
+  depth-sort bullet, the slice right after jump). Revises the line above --
+  real depth sorting WAS needed and was built the very next slice, closing
+  the gap the jump slice's own header had flagged.
 - **G4's cache teardown/reload** — never exercised; two streaming caches.
 - **G12's enemy scaling** — a real hardware bandwidth wall, not a code smell.
 - **2-player co-op** — breaks a load-bearing architectural shortcut.

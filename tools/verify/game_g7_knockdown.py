@@ -58,6 +58,7 @@ CHAR_SELECTED_FALL = pasm_constant('CHAR_SELECTED_FALL')
 CHAR_SELECTED_RISE = pasm_constant('CHAR_SELECTED_RISE')
 KNOCKDOWN_REGEN_FRAMES = pasm_constant('KNOCKDOWN_REGEN_FRAMES')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
+CHAR_PALETTE_SLOT = pasm_constant('CHAR_PALETTE_SLOT')
 
 GS_PATH = 'src/core/game_state.pasm'
 Entity1_InvulnFrames = pasm_constant_in(GS_PATH, 'Entity1_InvulnFrames')
@@ -92,6 +93,29 @@ def oam_slot(m, slot):
     block = read_block(m, 0, 32, mem_type='snesSpriteRam')
     off = slot * 4
     return block[off], block[off + 1]  # X, Y
+
+
+def oam_entity1_by_palette(m):
+    """Actor depth-sort slice (plan_game.md 7): real hardware OAM slot
+    order is now ground-depth-sorted (Character_RenderPass), not fixed
+    dispatch order matching entity index -- and this test's own overlap_
+    entity1_with_player() deliberately makes entity1's on-screen X AND Y
+    exactly equal to the player's (so their hitboxes overlap), which rules
+    out identifying entity1's real OAM slot by X the way phase11_damage.py/
+    phase8.py do elsewhere in this regression pass. Entity1's real
+    CHAR_PALETTE_SLOT (1, distinct from the player's 0) still ends up in
+    the real OAM attribute byte's palette field ($30|(palette<<1)|hflip --
+    see Character_RenderFrame's own attribute-byte comment) even while
+    hidden ($F0 only overrides Y, not attr), so that's what identifies it
+    here instead."""
+    expected_palette = read_block(m, Entity1 + CHAR_PALETTE_SLOT, 32)[0]
+    block = read_block(m, 0, 32, mem_type='snesSpriteRam')
+    for slot in range(4):
+        attr = block[slot * 4 + 3]
+        if ((attr >> 1) & 0x07) == expected_palette:
+            return block[slot * 4], block[slot * 4 + 1]  # X, Y
+    raise AssertionError(f'no real OAM sprite found with palette field == {expected_palette} '
+                          f'(real OAM attr bytes present: {[block[s * 4 + 3] for s in range(4)]})')
 
 
 def overlap_entity1_with_player(m):
@@ -194,7 +218,7 @@ def main():
         for _ in range(30):
             m.run_frames(2)
             m.pause()
-            _, y = oam_slot(m, 1)
+            _, y = oam_entity1_by_palette(m)
             blink_ys.append(y)
         hidden_seen = any(y == DEAD_OAM_Y for y in blink_ys)
         visible_seen = any(y != DEAD_OAM_Y for y in blink_ys)
@@ -212,7 +236,7 @@ def main():
         frame_idx_before = entity1_state(m)[2]
         m.run_frames(30)
         m.pause()
-        _, oy_terminal = oam_slot(m, 1)
+        _, oy_terminal = oam_entity1_by_palette(m)
         frame_idx_after = entity1_state(m)[2]
         print(f'terminal hold: OAM Y={oy_terminal}, frame_idx {frame_idx_before} -> {frame_idx_after}')
         r.check('terminal state stays permanently hidden (OAM Y==$F0)', oy_terminal == DEAD_OAM_Y)

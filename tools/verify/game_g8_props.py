@@ -86,6 +86,31 @@ def oam_slot(m, slot):
     return block[off], block[off + 1]  # X, Y
 
 
+Screen_PosX = 0x7E1601
+
+
+def screen_pos_x(m):
+    b = read_block(m, Screen_PosX, 32)
+    return b[0] | (b[1] << 8)
+
+
+def oam_slot_for_entity(m, world_x, cam):
+    """Actor depth-sort slice (plan_game.md 7): real hardware OAM slot
+    order is now ground-depth-sorted (Character_RenderPass), not fixed
+    dispatch order matching entity index -- see phase11_damage.py's
+    identical fix/comment. A hidden entity's OAM Y is overridden to $F0,
+    but its X is left alone (still real, computed fresh every frame), so
+    entities are identified by real on-screen X instead of by assuming OAM
+    slot N holds entity N's data."""
+    expected_x = (world_x - cam) & 0xFF
+    block = read_block(m, 0, 32, mem_type='snesSpriteRam')
+    for slot in range(4):
+        if block[slot * 4] == expected_x:
+            return block[slot * 4], block[slot * 4 + 1]  # X, Y
+    raise AssertionError(f'no OAM sprite found at expected screen X={expected_x:#x} '
+                          f'(real OAM X bytes present: {[block[s * 4] for s in range(4)]})')
+
+
 def main():
     r = Reporter('G8', kind='GATE')
     with open_session(__file__) as m:
@@ -135,14 +160,16 @@ def main():
         hp_after = read_block(m, Entity_Hp[PROP_ENTITY], 32)[0]
         r.check('prop entity CHAR_HP stays 0', hp_after == 0)
 
-        ox, oy = oam_slot(m, PROP_ENTITY)
+        cam = screen_pos_x(m)
+        ox, oy = oam_slot_for_entity(m, prop_posx_before, cam)
         print(f'prop entity {PROP_ENTITY} OAM: X={ox} Y={oy}')
         r.check('prop entity hardware OAM sprite hidden (Y=$F0) at HP==0',
                 oy == DEAD_OAM_Y)
 
         # --- control: a normal AI entity (mode 2) must be unaffected by the
         # widened `cmp #2 / bcs` gate -- still alive, sprite visible. ---
-        control_ox, control_oy = oam_slot(m, CONTROL_ENTITY)
+        control_posx = entity_posx(m, ENTITY_BASES[CONTROL_ENTITY])
+        control_ox, control_oy = oam_slot_for_entity(m, control_posx, cam)
         r.check(f'control entity {CONTROL_ENTITY} (AI) OAM not hidden',
                 control_oy != DEAD_OAM_Y)
         control_hp = read_block(m, Entity_Hp[CONTROL_ENTITY], 32)[0]
