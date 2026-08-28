@@ -103,7 +103,6 @@ src/main.pasm:Anim_Play__check_attack_trigger
 src/main.pasm:Anim_Play__check_reselect
 src/main.pasm:Anim_Play__no_attack_trigger
 src/main.pasm:Anim_Play__not_stunned
-src/main.pasm:Anim_Play__player_input
 src/main.pasm:Anim_Play__stunned_reset
 src/main.pasm:Anim_Play__want_got
 src/main.pasm:Anim_Play__want_idle

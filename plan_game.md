@@ -96,8 +96,8 @@ anything real to identify against; most spawned names in these levels still
 aren't roster members, and that's a content decision, not a remaining code
 gap. See §9/§12 for the precise remaining scope. Still missing: ending/
 credits (G10), real
-grab/throw mutual-lock semantics, jump/special/block, and SFX
-(content-blocked). Double Dragon Moto (the third pak in this repo) stays
+grab/throw mutual-lock semantics, special/block, and SFX
+(content-blocked). Real jump (LEO only) shipped 2026-08-28, see §7. Double Dragon Moto (the third pak in this repo) stays
 unconverted — its levels need the openborscript VM, which remains
 explicitly shelved.
 
@@ -111,7 +111,7 @@ explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, and a generic second attack (attack2) all done (G7, see §7 for gate names); jump/special/block and real grab mutual-lock semantics still fully open |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), and real jump/jumpattack/jumpattack2 (LEO only) all done (G7, see §7 for gate names); special/block and real grab mutual-lock semantics still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -640,14 +640,15 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-> **Status: PARTIAL (four slices DONE as of 2026-08-23).** `GATE G7-RUN:
+> **Status: PARTIAL (five slices DONE as of 2026-08-28).** `GATE G7-RUN:
 > PASS` (`tools/verify/game_g7_run.py`), `GATE G7-INVULN: PASS`
 > (`tools/verify/game_g7_invuln.py`), `GATE G7-KNOCKDOWN: PASS`
 > (`tools/verify/game_g7_knockdown.py`, one known-flaky check documented
 > below — retry once), `GATE G7-ATTACK2: PASS`
-> (`tools/verify/game_g7_attack2.py`). Jump/special/block and real
-> grab/throw mutual-lock semantics remain fully open (see "Still fully
-> open" below). Run/dash shipped first, deliberately,
+> (`tools/verify/game_g7_attack2.py`), `GATE G7-JUMP: PASS`
+> (`tools/verify/game_g7_jump.py`, fifth slice, 2026-08-28 — see its own
+> writeup below). Special/block and real grab/throw mutual-lock semantics
+> remain fully open (see "Still fully open" below). Run/dash shipped first, deliberately,
 > because it's the only item below that needs no new animation content —
 > OpenBOR's own reference (`openbor_script_reference.txt:982`) treats run as
 > walk/idle frames driven at higher velocity, not a distinct move, so this
@@ -898,10 +899,107 @@ frame-load already takes 6.
 > flaky check reproduced its documented 2/3 pass rate, unrelated to this
 > slice).
 >
-> **Still fully open** (all need new animation content the converter doesn't
-> produce today — see "Content dependency" below): jump/jump-attack (the
-> largest remaining item, needs a Z axis and forces Y-sorted depth priority),
-> real grab/throw mutual-lock semantics, special, block.
+> **Fifth slice DONE, 2026-08-28: real jump, jumpattack, jumpattack2.**
+> `GATE G7-JUMP: PASS` (`tools/verify/game_g7_jump.py`, 15 checks). Sourced
+> directly from real OpenBOR (DCurrent/openbor, `engine/openbor.c`) per this
+> project's own behavioral source-of-truth rule (distinguish real-BOR vs.
+> later-OpenBOR vs. PAK-content vs. SNES-adaptation vs. deliberate
+> simplification, don't invent):
+> - **Real BOR.C-sourced**: `tryjump()/dojump()/toss()` — jumpheight IS the
+>   initial upward velocity directly (`toss(self, jumpheight)` sets
+>   `velocity.y = jumpheight`), not a peak-height requiring a physics solve.
+>   `check_gravity()` — `position.y += velocity.y` every tick, `velocity.y +=
+>   gravity` every tick (real default `-0.1`), land when `position.y <= 0 AND
+>   velocity.y <= 0` — a two-part condition, not position alone (a large
+>   downward velocity can step position past 0 in one tick). Ground-jump
+>   trigger is `FLAG_JUMP && notinair`, edge-triggered-then-consumed — this
+>   project's A button (the one genuinely free button left) plays that role.
+>   A jump-attack button press while airborne (mode 0 only) plays a
+>   jump-attack instead of a ground attack — real BOR.C behavior, mapped here
+>   to this project's existing Y=attack1/X=attack2 buttons.
+> - **PAK-content-confirmed**: LEO (TMNT pak, `data\CHARS\LEO\LEO.TXT`) is
+>   the ONLY roster member with real `jump`/`jumpattack`/`jumpattack2` anim
+>   data and a real `jumpheight 5`. Every other roster slot's A-button press
+>   is a real no-op (`Player_JumpFCount==0` for anyone but LEO) — not a bug,
+>   there is no real source data for anyone else to jump with.
+> - **SNES-specific adaptation**: Q8.8 fixed point (16-bit signed, 8
+>   fractional bits) stands in for BOR.C's float `position.y`/`velocity.y`
+>   (SNES has no float unit); `JUMP_INITIAL_VEL`/`JUMP_GRAVITY` are the
+>   literal real BOR.C magnitudes (5.0, -0.1) scaled by 256, not a
+>   feel-tuned conversion.
+> - **Deliberate simplifications (explicitly NOT sourced claims)**: (1) real
+>   BOR.C's height-vs-depth split (`position.z` height, separate from
+>   `position.y` depth/lane) is translated here onto a **visual-only OAM Y
+>   offset** against the already-computed sprite Y — this project has no
+>   ground-plane/lane axis at all (see the resolved "G7's jump / Z axis"
+>   item in §13), so no depth sort was built or is needed; jump only moves
+>   the sprite up on screen while airborne, `CHAR_POS_Y` itself (collision/
+>   world position) is untouched. (2) horizontal movement while airborne
+>   reuses the existing continuous per-frame dpad-read walk code rather than
+>   porting BOR.C's one-shot ballistic X-velocity model — this project has
+>   no parallel X-velocity system and building one would be a redundant,
+>   imperceptible change. (3) landing falls through to normal ground
+>   dispatch the SAME frame for responsiveness, a control-feel choice. (4)
+>   AI jump was never built — real BOR.C AI think loops don't autonomously
+>   jump either, so this is not a missing feature.
+>
+> **Implementation**: new `src/core/jump.pasm`, own bank (`.bank 8`,
+> jsl-entry/rtl-exit, same ROM-budget pattern as `core/pausemenu.pasm`/
+> `core/options.pasm` — `$C100-$FC00` is chronically near zero free bytes).
+> `Jump_ComputeBases` (called from `Anim_LoadCharacter`, every entity load)
+> chains 3 new base offsets (jump/jumpattack/jumpattack2, player-only) onto
+> the existing `rise_base`/`attack2_base` chain. `Jump_PlayerTick` (called
+> from `Anim_Play__player_input`) owns the grounded-trigger and airborne-
+> integration/landing state machine; `Anim_Play_Jump` (called from
+> `Anim_Play__dispatch`) owns the per-frame `Msu1_StreamBusy`-gated frame
+> advance for all 3 jump-family anims, same shape as `Anim_Play_Attack`/
+> `Attack2`. `Jump_ApplyOamYOffset` (called from `Character_PlayFrame`,
+> right after `OamSetSprite_Y` is set from `CHAR_POS_Y`, for every entity —
+> no-ops for anyone but the airborne player) applies the visual offset; also
+> moved to its own bank after an initial inline version overflowed bank 0's
+> ROM budget by 88 bytes. `RECORD_SIZE` in `pack_msu_roster.py` grew 17→23
+> (6 new bytes: jump/jumpattack/jumpattack2 frame_count/delay pairs), which
+> in turn forced `Anim_LoadCharacter`'s directory-seek arithmetic off its old
+> 8-bit-only scheme (its safe ceiling would have dropped below LEO's own
+> slot 12) into a real 16-bit accumulate-by-repeated-add loop — removing the
+> seek ceiling entirely, not just patching around LEO. No `CHAR_ZP_LEN`
+> struct growth (`Player_Jump*` are standalone WRAM globals, matching the
+> `Player_InvulnFrames` precedent — growing the shared struct for
+> player-only state has broken spawn-slot assignment before).
+>
+> New gate `tools/verify/game_g7_jump.py` (`GATE G7-JUMP: PASS`, 15 checks):
+> loads LEO onto the player via the real in-game Select-button reselect path
+> (not a synthetic memory write); confirms a real A press arms
+> `CHAR_SELECTED_JUMP` and, since `set_input`'s own wall-clock sleep
+> (`mesen_set_input_wall_clock` project memory) makes the exact arm frame
+> unobservable, confirms the observed `(Player_JumpZPos, Player_JumpZVel)`
+> exactly matches a from-scratch simulation of the real integration formula
+> from `JUMP_INITIAL_VEL`/`JUMP_GRAVITY` at some small elapsed tick count;
+> confirms height genuinely rises then falls (not static); confirms landing
+> within a bounded frame count resets both Z cells to 0 and returns
+> `CHAR_SELECTED` to idle/walk; confirms a real, nonzero OAM Y offset while
+> airborne that disappears on landing; confirms jump and jumpattack stream
+> from genuinely different MSU base offsets; confirms a Y-button press
+> mid-air (mode 0) really enters jumpattack (`Player_JumpAnimMode=1`)
+> without leaving `CHAR_SELECTED_JUMP`. AI entities 1-3 are neutralized
+> (HP=0, hit-stun cleared every polled frame) throughout, same reasoning as
+> `game_g6_hud.py`/`game_g7_invuln.py` — background AI combat is already
+> live by frame 300 and a stray hit landing mid-flight would force
+> `CHAR_SELECTED` back to 0 via the unrelated hit-stun path, which would
+> look like a broken landing to this gate but has nothing to do with jump.
+>
+> Full regression suite clean: build, `audit_all.py`, `check_label_drift.py`,
+> `check_width_directives.py` (0 new violations, 1 baseline entry cleaned up
+> for `Anim_Play__player_input` gaining an explicit `.a8`), `phase5`–`phase9`/
+> `11`/`12`, every `game_g*.py` gate including a from-clean-baseline-isolated
+> re-confirmation that `game_g7_knockdown.py`'s intermittent failure is
+> genuinely pre-existing and unrelated to this slice (stashed all jump
+> changes, rebuilt the last-committed baseline, reproduced the identical
+> failure there too).
+>
+> **Still fully open**: real grab/throw mutual-lock semantics, special,
+> block — all still need new animation content the converter doesn't
+> produce today for any roster character (see "Content dependency" below).
 >
 > **Moveset pipeline generalized, 2026-08-22** (before any of the above was
 > attempted). User explicitly rejected scoping "give Ralf a real second move
@@ -975,9 +1073,34 @@ frame-load already takes 6.
 Currently: walk, run, and one attack. BOR Original has considerably more, and
 this is what separates "tech demo" from "beat-'em-up."
 
-- **Jump** (and jump attack) — needs a Z axis / ground-plane model the engine does
-  not have. This is the largest single combat item.
-- **Grab / throw** — proximity grab state, mutual entity locking.
+- ~~**Jump** (and jumpattack/jumpattack2)~~ — **Done (G7 fifth slice,
+  2026-08-28)**, see status block above (`GATE G7-JUMP: PASS`,
+  `tools/verify/game_g7_jump.py`). Sourced directly from real OpenBOR
+  (DCurrent/openbor, `engine/openbor.c`: `tryjump()/dojump()/toss()` —
+  jumpheight IS the initial upward velocity, not a peak-height solve —
+  and `check_gravity()` — position += velocity, velocity += gravity every
+  tick, land when position<=0 AND velocity<=0, a two-part condition).
+  LEO (TMNT pak) is the only roster member with real jump/jumpattack/
+  jumpattack2 anim data (`jumpheight 5`); every other roster slot no-ops
+  the A-button trigger (`Player_JumpFCount==0`). Q8.8 fixed point for
+  height/velocity (`JUMP_INITIAL_VEL`/`JUMP_GRAVITY`, literal 256x-scaled
+  real BOR.C constants). **What this is NOT**: no Z-axis/depth-sort system
+  was built — this project has no ground-plane/lane axis at all (§3.6's
+  Y-sorted-priority spec item remains unbuilt, see §12/below), so the real
+  BOR.C `position.z` (height) vs `position.y` (depth) split was translated
+  onto a single 2D sprite Y as a **visual-only OAM offset** (subtract the
+  Q8.8 height's integer byte from the already-computed `OamSetSprite_Y`),
+  not a new gameplay axis. Horizontal movement while airborne deliberately
+  reuses the existing continuous per-frame dpad-read walk code rather than
+  porting BOR.C's one-shot ballistic X-velocity model — a **deliberate
+  simplification** (this project has no parallel X-velocity system and one
+  would be imperceptible here), not a sourced behavior. Landing the same
+  frame falls through to normal ground dispatch immediately — a **control-
+  feel choice**, not a real-source claim. AI jump was never built (real
+  BOR.C AI think loops don't autonomously jump either — not a missing
+  feature). Player only (slot 0), matching every other G7 slice.
+- **Grab / throw** — proximity grab state, mutual entity locking. Next
+  planned slice.
 - **Special** (HP-cost screen-clear), **block** if the char has it.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
@@ -991,15 +1114,20 @@ this is what separates "tech demo" from "beat-'em-up."
 
 **Content dependency:** `tools/bor_converter/convert_character.py` converts
 idle/walk/attack1/fall/rise (fall/rise added 2026-08-22, wired into the
-roster format and engine dispatch the same day — see status block above).
-Every OTHER move above (jump, grab/throw, special, block) still needs its
+roster format and engine dispatch the same day — see status block above),
+plus jump/jumpattack/jumpattack2 (added 2026-08-28, see the jump bullet
+above — LEO is the only roster member with real data for these). Every
+remaining move above (grab/throw, special, block) still needs its
 animation converted and packed, which grows each roster slot's `bor.msu`
 footprint and re-shifts every downstream offset (§4's note) — same
-constraint fall/rise itself was blocked on before this slice.
+constraint fall/rise and jump were both blocked on before their slices.
 
-**Watch out:** a Z axis changes depth sorting. The original spec (§3.6) calls for
-Y-sorted priority; today all four entities are plain OAM sprites with no sorting
-at all. Adding jump forces this to be solved properly.
+**Watch out (historical — resolved by scoping, not by solving):** this
+section originally warned that a Z axis would change depth sorting and
+that jump would force §3.6's Y-sorted-priority spec item to be solved. The
+shipped jump slice avoided that entirely by not building a Z axis or depth
+sort — see the jump bullet above. §3.6's real sorting gap, if it matters
+later, is still open independent of jump.
 
 ---
 
@@ -1524,7 +1652,10 @@ deliberately given a roster slot now identifies for real).
 G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
 
 **Genuinely hard** (expect real research and real bugs):
-- **G7's jump / Z axis** — changes movement, collision, and depth sorting at once.
+- ~~**G7's jump / Z axis**~~ — **Done, 2026-08-28** (see §7's jump bullet).
+  Turned out not to need real depth sorting after all — the real BOR.C
+  height-vs-depth split was translated onto a visual-only 2D OAM offset
+  instead, since this project has no ground-plane axis to sort on.
 - **G4's cache teardown/reload** — never exercised; two streaming caches.
 - **G12's enemy scaling** — a real hardware bandwidth wall, not a code smell.
 - **2-player co-op** — breaks a load-bearing architectural shortcut.

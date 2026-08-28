@@ -81,6 +81,16 @@ from convert_sprite import to_bgr555
 # not an exact-name match like the other four roles.
 ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 
+# Real jump slice (plan_game.md 7): 'jump'/'jumpattack'/'jumpattack2' are
+# real, unambiguous OpenBOR anim names (confirmed in LEO's real .TXT data --
+# no BOR-roster character declares any of them, so this is a pure addition,
+# not a behavior change for RALF/JOE/JHUN/YASHIRO/MOUSER/FOOT01-04/ROCK/
+# BEBOP/LEATHER). Matched the exact same case-insensitive exact-name way as
+# ROLE_NAMES above -- resolved as OPTIONAL roles downstream (pack_msu_
+# roster.py's OPTIONAL_ROLE_JUMP/JUMPATTACK/JUMPATTACK2), same shape as
+# 'attack2'/'attack2_is_grab', not required like ROLE_NAMES' own five.
+OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2']
+
 
 def _sanitize(anim_name):
     """Filesystem-safe directory suffix for a real (possibly odd) anim
@@ -225,6 +235,8 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     lower_names = [n.lower() for n in anim_names]
     roles = {}
     for role in ROLE_NAMES:
+        roles[role] = lower_names.index(role) if role in lower_names else None
+    for role in OPTIONAL_ROLE_NAMES:
         roles[role] = lower_names.index(role) if role in lower_names else None
     attack_ordinal = next((i for i, n in enumerate(lower_names) if n.startswith('attack')), None)
     roles['attack'] = attack_ordinal
