@@ -147,7 +147,6 @@ Depth_Sort_ComputeOrder__FindMax__loop:
     lda #1
     sta.l Depth_BestFound
     bra Depth_Sort_ComputeOrder__FindMax__skip
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Depth_Sort_ComputeOrder__FindMax__compare:
     lda.l Depth_Y,x
     cmp.l Depth_BestVal

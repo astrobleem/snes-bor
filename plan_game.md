@@ -111,7 +111,7 @@ explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), and actor ground-depth sort all done (G7, see §7 for gate names); throw and special/block still fully open |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, and real throw all done (G7, see §7 for gate names); special/block still fully open |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -1128,8 +1128,67 @@ this is what separates "tech demo" from "beat-'em-up."
   silently false the moment depth-sorted OAM order shipped. AI jumping,
   throw, special, block, pits, multiplayer, arbitrary entity-count scaling,
   and SA-1 compositor changes are explicitly out of scope for this slice.
-- **Grab / throw** — proximity grab state, mutual entity locking. Next
-  planned slice.
+- ~~**Grab**~~ — **Done**, `GATE G7-GRAB: PASS`, `tools/verify/game_g7_grab.py`.
+  Real mutual-lock semantics (`adjust_grabposition`'s one-time X-average-
+  then-separate snap, `check_link_move`'s per-frame rigid offset-follow,
+  fixed-timer auto-release), sourced from `engine/openbor.c`
+  (DCurrent/openbor), for JOE only (the only roster member whose real
+  attack2 anim is literally named `grab`, converter-derived via
+  `attack2_is_grab`, never hardcoded per character). Player-initiated only
+  (AI never grabs, matching real BOR.C's own player-only `player_grab()`
+  dispatch). This docs entry was itself stale until the throw slice below
+  touched it -- grab shipped earlier and was never updated here.
+- ~~**Throw**~~ — **Done (G7 seventh slice)**, `GATE G7-THROW: PASS`,
+  `tools/verify/game_g7_throw.py`. Real `common_throw()`/`toss()` semantics
+  (same `engine/openbor.c` fetch the jump slice already sourced from):
+  release the mutual link, apply real damage/knockdown/HP-clamp/kill
+  decision through the SAME `Character_HitApply__ApplyDamage` leaf every
+  landed hit uses, then -- unless that hit was a kill -- override its
+  stun-or-fall pick with an airborne launch (real `toss()` always results
+  in airborne motion, never a mere stun). Landing enters the SAME fall/
+  rise knockdown pipeline a landed hit produces; no unique "thrown" art
+  exists in any roster pak (same "no unique art" precedent jump's own
+  jumpattack2 reuse established), so no new animation content was needed.
+  **Real prerequisite found and built, not invented around**: the
+  player-only, single-global-cell Z-axis system `core/jump.pasm` shipped
+  (`Player_JumpZPos`/`ZVel`) can't represent a non-player victim's
+  airborne height -- grew `CHAR_ZP_LEN` 67→71 for two new per-instance
+  fields (`CHAR_THROW_ZPOS`/`ZVEL`, identical Q8.8 physics to jump's own)
+  instead, plus a new `CHAR_SELECTED_THROWN` state reachable from AI
+  dispatch (not just player input). `Jump_ApplyOamYOffset` (bank 8)
+  generalized to apply either the player's jump offset or any entity's own
+  throw offset. New `Character_Grab_Throw`/`Character_Throw_Play`
+  (`vm_native_engine.pasm`, same bank as grab) own the cross-entity launch
+  and the per-entity gravity tick (twin of `Jump_PlayerTick__airborne`).
+  Depth sort needed zero new code -- it already keys purely off
+  `CHAR_POS_Y`, which no Z-system ever touches, so "depth stays
+  ground-based during an airborne throw" was already structurally
+  guaranteed; the gate proves it, not the implementation. **Real bugs found
+  the hard way**: (1) `ApplyDamage`'s own stun branch can stamp
+  `CHAR_HIT_STUN` nonzero, and `Anim_Play`'s hit-stun check runs BEFORE
+  this slice's own THROWN-aware gate and unconditionally resets
+  `CHAR_SELECTED` back to 0 on the victim's very next frame -- silently
+  wiping the THROWN state within a frame; fixed by clearing `CHAR_HIT_STUN`
+  when throw overrides ApplyDamage's own reaction pick. (2) The
+  depth-sort slice's own hand-synced `Entity{1,2,3}_DpBase` literals
+  (`Character_RenderPass`'s per-entity DP-window switch) silently went
+  stale the moment `CHAR_ZP_LEN` grew -- not caught by
+  `check_entity_base_sync`, a SEPARATE literal covering the same offsets;
+  `Character_RenderPass` switched DP to the wrong window for every AI
+  entity, rendering garbage struct bytes as position/tile data, confirmed
+  via `phase11_damage.py`/`game_g7_knockdown.py` both losing entity 1's
+  real OAM position. Fixed, and closed structurally (not just the
+  instance) with a new `check_dp_base_sync` in `tools/rom_audit/audit_all.py`
+  so this class of drift fails loudly next time `CHAR_ZP_LEN` changes.
+  Attacker (thrower) returns to idle immediately after throwing -- no
+  unique throw-swing animation in any pak, same simplification precedent.
+  Killing via throw takes the existing sticky-`CHAR_HP==0` soft-kill path
+  (no real OOP kill/GC, preserving the fixed-address `EntityN_Base`
+  scheme) -- a lethal throw still runs its real fall sequence to
+  completion before the dead-hide blink gate hides it, exactly like any
+  other killing hit. AI throwing, special, block, pits, multiplayer,
+  arbitrary entity-count scaling, and SA-1 compositor changes are
+  explicitly out of scope for this slice.
 - **Special** (HP-cost screen-clear), **block** if the char has it.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,

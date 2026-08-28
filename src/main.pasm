@@ -2536,11 +2536,21 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a43        ; low16 of $7E0a00+67  ($43=67 dec)
-Entity2_DpBase      = $0a86        ; low16 of $7E0a00+134 ($86=134 dec)
-Entity3_DpBase      = $0ac9        ; low16 of $7E0a00+201 ($C9=201 dec)
+Entity1_DpBase      = $0a47        ; low16 of $7E0a00+71  ($47=71 dec)
+Entity2_DpBase      = $0a8e        ; low16 of $7E0a00+142 ($8e=142 dec)
+Entity3_DpBase      = $0ad5        ; low16 of $7E0a00+213 ($d5=213 dec)
+; G7 throw slice: these 3 literals are THE hand-synced site that broke
+; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
+; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
+; track of entity 1's real OAM position after this slice's rebuild
+; (Character_RenderPass was switching DP to the OLD, now-wrong offset for
+; every AI entity, rendering garbage struct bytes as position/tile data).
+; audit_all.py's Entity1/2/3_Base cross-check does NOT cover these (they're
+; a separate low16-of-the-same-address literal, not compared against
+; anything) -- no static check catches a drift here; re-derive by hand
+; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 67        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 71        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2565,7 +2575,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 134       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 142       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2585,7 +2595,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 201       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 213       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2841,7 +2851,18 @@ CHAR_GRAB_OFFSET     = 66  ; .db -- SIGNED X offset from the grabber,
                             ; move's rigid-follow behavior: NOT re-averaged
                             ; every frame, just re-applied against the
                             ; grabber's current position); grabbed side only
-CHAR_ZP_LEN         = 67   ; total -- pass as OopRegStaging_ZpLen
+; --- G7 throw slice: real toss()-sourced airborne Z state, per-instance
+; (DP-local, like every other CHAR_* field) rather than the player-only
+; global Player_Jump* cells core/jump.pasm uses -- a thrown victim is
+; always an AI entity (grabber is always the player, see CHAR_GRAB_TARGET's
+; own comment), so it needs its OWN height/velocity, not a shared cell.
+; Same Q8.8 fixed-point shape, same JUMP_INITIAL_VEL/JUMP_GRAVITY real
+; BOR.C-sourced magnitudes -- toss()'s physics are identical regardless of
+; who's airborne, only the storage needs to be per-entity here.
+CHAR_THROW_ZPOS      = 67  ; .dw -- Q8.8 height above ground while
+                            ; CHAR_SELECTED==CHAR_SELECTED_THROWN, 0 otherwise
+CHAR_THROW_ZVEL      = 69  ; .dw -- Q8.8 vertical velocity, same state
+CHAR_ZP_LEN         = 71   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -2856,6 +2877,17 @@ CHAR_SELECTED_JUMP  = 5    ; real jump slice -- player-only (Jump_CheckEntry,
                             ; landing, distinct from fall/rise (those are
                             ; the hit-reaction knockdown, not a voluntary
                             ; jump; both real, separate OpenBOR mechanics)
+CHAR_SELECTED_THROWN = 6   ; G7 throw slice -- real toss()-sourced airborne
+                            ; launch of a grabbed victim (common_throw ->
+                            ; toss(), DCurrent/openbor engine/openbor.c).
+                            ; Distinct from JUMP (voluntary, player-only,
+                            ; global cells) and from FALL (hit-reaction,
+                            ; grounded from frame 0) -- THROWN is
+                            ; involuntary, any AI entity, per-instance Z
+                            ; cells (CHAR_THROW_ZPOS/ZVEL above), and always
+                            ; transitions into FALL on landing (real BOR
+                            ; lands a thrown victim into the same knockdown
+                            ; reaction a landed hit would).
 ; Real OpenBOR: attack.attack_drop is authored per attack FRAME; this port
 ; has exactly one attack (attack1), and its real frames (RALF/JOE/JHUN/
 ; YASHIRO.TXT, all verified this slice) all omit the drop argument -> 0.
@@ -3708,10 +3740,15 @@ Anim_Play__not_attacking:
     cmp #CHAR_SELECTED_FALL
     beq Anim_Play__reacting
     cmp #CHAR_SELECTED_RISE
+    beq Anim_Play__reacting
+    ; G7 throw slice: THROWN is the same "already reacting, ignore
+    ; input/AI-seek, let it finish" class as FALL/RISE above -- an airborne
+    ; thrown victim must not have Anim_Play__ai_seek re-decide its
+    ; CHAR_SELECTED back to attack/walk mid-flight.
+    cmp #CHAR_SELECTED_THROWN
     bne Anim_Play__check_attack_trigger
 Anim_Play__reacting:
     brl Anim_Play__dispatch
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__check_attack_trigger:
     ; --- plan.md Phase 3: route animation-selection by movement source
     ; instead of always reading the real controller -- CHAR_INPUT_DRIVEN
@@ -3738,20 +3775,20 @@ Anim_Play__check_attack_trigger:
     nop
 Anim_Play__player_input:
 .a8
-    ; Real jump slice: real BOR.C's ground-jump/notinair gating (A button
-    ; while grounded starts a jump; while airborne, ground attack2/attack1/
-    ; dpad-idle-walk below must NOT run -- real OpenBOR blocks normal
-    ; ground actions while notinair) -- all handled in bank 8 (Jump_
-    ; PlayerTick, core/jump.pasm) for ROM budget. Returns carry SET
-    ; whenever CHAR_SELECTED is CHAR_SELECTED_JUMP after this call (jump
-    ; just started, or still airborne) -- skip straight to dispatch so the
-    ; code below never re-picks attack2/attack1/idle/walk out from under
-    ; it. Carry CLEAR covers both "grounded, no jump button" (fall through
-    ; unchanged) and "just landed this frame" (deliberately falls through
-    ; too, so a held dpad registers walk immediately on landing instead of
-    ; waiting a frame -- real games commonly do this, not a game-rule
-    ; invention, just a control-feel choice with no real-source objection).
-    jsl Jump_PlayerTick
+    ; Real jump slice + G7 throw slice, merged into one bank-8 gate
+    ; (Jump_PlayerInputGate, core/jump.pasm) for ROM budget -- this leaf
+    ; grew too large to stay inline once throw's grab-vs-jump branch was
+    ; added directly here. Real BOR.C: common_throw is reached from the
+    ; SAME attack buttons that would otherwise start attack1/attack2 while
+    ; holding a grab; ground-jump (A while grounded) is real BOR.C's
+    ; FLAG_JUMP && notinair, edge-triggered-then-consumed. Returns carry
+    ; SET whenever this frame's action should skip straight to dispatch
+    ; (jump just started/still airborne, OR a throw was just executed) --
+    ; carry CLEAR covers grounded-no-action, just-landed-this-frame, and
+    ; grab-hold-no-throw-button (all three deliberately fall through to
+    ; normal ground dispatch the same frame, matching this project's
+    ; existing landing/no-op control-feel choices).
+    jsl Jump_PlayerInputGate
     bcs Anim_Play__reacting        ; reuse this existing brl-to-dispatch
                                      ; landing pad (a few lines up) instead
                                      ; of writing a second one -- ROM budget
@@ -3920,6 +3957,8 @@ Anim_Play__dispatch:
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_JUMP
     beq Anim_Play__jump
+    cmp #CHAR_SELECTED_THROWN
+    beq Anim_Play__thrown
     cmp #CHAR_SELECTED_FALL
     beq Anim_Play__fall
     cmp #CHAR_SELECTED_RISE
@@ -3930,7 +3969,17 @@ Anim_Play__dispatch:
     beq Anim_Play__walk
     jsr Anim_Play_Idle
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
+Anim_Play__thrown:
+    ; G7 throw slice: no unique "airborne while thrown" art exists in any
+    ; roster pak (same "no unique art" precedent jump.pasm's own header
+    ; documents for jumpattack2 -- a deliberate simplification, not
+    ; invented behavior) -- leave whatever frame was already showing the
+    ; instant the throw began untouched; Character_Throw_Play (bank 1)
+    ; owns the real Z-height/gravity/landing tick, and Jump_ApplyOamYOffset
+    ; (bank 8) applies the visual OAM offset every frame while airborne.
+    ; Landing transitions CHAR_SELECTED to FALL, which resumes real frame
+    ; streaming via the existing Anim_Play_Fall path below.
+    rts
 Anim_Play__jump:
     ; Real jump slice -- frame-advance/streaming logic lives in bank 8
     ; (Anim_Play_Jump, core/jump.pasm) for ROM budget, same jsl-stub shape
@@ -7046,7 +7095,7 @@ CharacterEntity_Init__load_hp_set:
 
     ; plan_game.md 7 (grab mutual-lock slice): no entity boots linked. $FF
     ; is the "none" sentinel for both grab-link fields (never a real byte
-    ; offset -- those are 0/67/134/201). Timer/offset start at 0; only
+    ; offset -- those are 0/71/142/213). Timer/offset start at 0; only
     ; meaningful once CHAR_GRABBED_BY != $FF. MUST run here, after Anim_
     ; LoadCharacter -- a real bug found the hard way: this used to sit
     ; right after `sta.l CharSelect_Index` above, where its own `lda #$FF`
@@ -7115,6 +7164,24 @@ CharacterEntity_Play:
                                ; as Character_HitApply__ApplyDamage/
                                ; ApplyGrab -- DP-local addressing works
                                ; unchanged across jsl (D is preserved).
+    sep #$20                  ; Character_Grab_Play's real exit is .a8 (both
+.a8                            ; paths) -- force it explicitly rather than
+                               ; trust the textually-tracked state, same
+                               ; defensive reasoning as every other jsl
+                               ; boundary in this routine (see the REAL BUG
+                               ; note below).
+    jsl Character_Throw_Play  ; G7 throw slice: real Z-height/gravity/
+                               ; landing tick for whichever entity this call
+                               ; is playing -- no-op unless this entity's
+                               ; own CHAR_SELECTED==CHAR_SELECTED_THROWN.
+                               ; Same bank/DP-local shape as Character_
+                               ; Grab_Play immediately above; ordering after
+                               ; it is inert in practice (a THROWN entity's
+                               ; own CHAR_GRABBED_BY is already $FF by the
+                               ; time it's airborne -- Character_Grab_Throw
+                               ; releases both link fields before setting
+                               ; THROWN) but keeps the same "most-recent-
+                               ; state-machine-wins" ordering explicit.
     ; Character_Grab_Play's real exit width is .a8 (both its paths) -- this
     ; routine's own @return contract (see its header above) is a<16-bit>,
     ; and Core_Oop_Play's dispatcher (core/oop.pasm) compares the return

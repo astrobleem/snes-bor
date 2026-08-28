@@ -244,10 +244,76 @@ Jump_ComputeBases__is_player:
 .i16
     rtl
 
-; --- Jump_PlayerTick -- called via jsl from bank 0's hot per-frame player-
-; input path (Anim_Play__player_input), same "keep the bank-0 call site
-; minimal" shape as Game_State_Pause_CheckEntry. Player-only; the bank-0
-; call site only reaches this from the player-input branch, never AI.
+; --- Jump_PlayerInputGate -- G7 throw slice. Called via jsl from bank 0's
+; hot per-frame player-input path (Anim_Play__player_input) -- the ONLY
+; entry point that leaf uses now; both this gate's own grab/throw check
+; AND Jump_PlayerTick (below) are reached from here so bank 0 pays for
+; exactly one jsl/bcs round trip, same "keep the bank-0 call site minimal"
+; shape as Game_State_Pause_CheckEntry.
+;
+; Real BOR.C: a grabbing player can't jump (ground-jump and grab are
+; mutually exclusive player states), and common_throw is reached from the
+; SAME attack buttons that would otherwise start a ground attack1/attack2
+; -- so this checks CHAR_GRAB_TARGET first and only falls through to
+; Jump_PlayerTick when NOT currently grabbing (there's also no roster
+; member with both real jump AND real grab data to make the ordering
+; matter in practice today, but the real-source rule holds regardless).
+;
+;   in:  none (DP-local self -- always the player, grabber-only precondit-
+;        ion matches Character_HitApply__TryGrab's own restriction).
+;   out: carry SET whenever this frame's action should skip straight to
+;        dispatch (jump just started/still airborne, OR a throw was just
+;        executed this frame); CLEAR covers grounded-no-jump, just-landed,
+;        and grab-hold-no-throw-button (all fall through to normal ground
+;        dispatch). Clobbers A/X.
+; ============================================================================
+Jump_PlayerInputGate:
+.a8
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    beq Jump_PlayerInputGate__not_grabbing
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK    ; Y
+    bne Jump_PlayerInputGate__do_throw
+    lda.l Input_trigger
+    and #ANIM_ATTACK2_BUTTON_MASK   ; X
+    bne Jump_PlayerInputGate__do_throw
+    clc                              ; grab-hold, no throw button pressed --
+    rtl                               ; caller falls through to normal
+                                       ; ground dispatch (walk-only, matches
+                                       ; Character_Grab_Play's own rigid
+                                       ; follow-drag)
+Jump_PlayerInputGate__do_throw:
+.a8
+    ; X(16-bit) = CHAR_GRAB_TARGET, zero-extended -- the real byte offset
+    ; of whichever AI slot (1/2/3) this player is currently holding.
+    rep #$30
+.a16
+.i16
+    lda CHAR_GRAB_TARGET
+    and #$00FF
+    tax
+    jsl Character_Grab_Throw
+    sep #$20
+.a8
+    lda #0
+    sta CHAR_SELECTED           ; thrower returns to idle immediately -- no
+    lda #$FF                     ; unique throw-swing art in any roster pak
+    sta CHAR_FRAME_INDEX         ; (same "no unique art" simplification as
+    lda #1                       ; this file's own jumpattack2 reuse)
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_PlayerInputGate__not_grabbing:
+.a8
+    jsl Jump_PlayerTick   ; same-bank; its own carry convention (see its
+                            ; header below) passes straight through this
+                            ; rtl unchanged
+    rtl
+
+; --- Jump_PlayerTick -- called via jsl from Jump_PlayerInputGate above
+; (moved off the bank-0 hot path along with the grab/throw gate itself),
+; only ever reached when the player is NOT currently grabbing.
 ;
 ; Two disjoint paths, selected by whether CHAR_SELECTED is already
 ; CHAR_SELECTED_JUMP:
@@ -553,23 +619,45 @@ Anim_Play_Jump__mode2_ok:
 ; --- Jump_ApplyOamYOffset: visual-only OAM Y offset while airborne. Real
 ; OpenBOR keeps position.z (height) separate from position.y (depth/lane),
 ; drawing at screen Y = position.y - position.z (engine/openbor.c). This
-; project has no depth axis, so Player_JumpZPos is applied directly against
-; the already-computed OamSetSprite_Y as that same visual offset -- a
-; sourced translation, not an invented mechanic. Player only, airborne only.
-; Called from Character_PlayFrame right after OamSetSprite_Y is set from
-; CHAR_POS_Y, for every entity -- moved to its own bank for main.pasm ROM
-; budget (see file header). ---
+; project has no depth axis, so the airborne entity's own Z height is
+; applied directly against the already-computed OamSetSprite_Y as that same
+; visual offset -- a sourced translation, not an invented mechanic. Called
+; from Character_RenderFrame (main.pasm) right after OamSetSprite_Y is set
+; from CHAR_POS_Y, once per entity per Character_RenderPass (plan_game.md 7
+; actor depth-sort slice) -- moved to its own bank for main.pasm ROM budget
+; (see file header).
+;
+; Two disjoint airborne cases, checked in DP-local (self) fields only:
+;   - JUMP: player only (Jump_PlayerTick, this file), height in the
+;     player-only global Player_JumpZPos cell.
+;   - THROWN (G7 throw slice): any entity (always an AI slot in practice --
+;     the grabber is always the player, see CHAR_GRAB_TARGET's own
+;     comment), height in this entity's own per-instance CHAR_THROW_ZPOS
+;     field (Character_Grab_Throw/Character_Throw_Play, vm_native_engine.
+;     pasm) -- IDENTICAL toss()-sourced Q8.8 physics to jump's own, just
+;     per-entity storage instead of a shared global cell. ---
 Jump_ApplyOamYOffset:
 .a8
     lda CHAR_INPUT_DRIVEN
     cmp #1
-    bne Jump_ApplyOamYOffset__done
+    bne Jump_ApplyOamYOffset__check_thrown
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_JUMP
-    bne Jump_ApplyOamYOffset__done
+    bne Jump_ApplyOamYOffset__check_thrown
     lda.l OamSetSprite_Y
     sec
     sbc.l Player_JumpZPos+1        ; high byte = integer pixel part of Q8.8
+    sta.l OamSetSprite_Y
+    rtl
+Jump_ApplyOamYOffset__check_thrown:
+.a8
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_THROWN
+    bne Jump_ApplyOamYOffset__done
+    lda.l OamSetSprite_Y
+    sec
+    sbc CHAR_THROW_ZPOS+1          ; DP-local (self) -- high byte, same
+                                     ; Q8.8-integer-part convention as jump
     sta.l OamSetSprite_Y
 Jump_ApplyOamYOffset__done:
     rtl

@@ -241,6 +241,52 @@ def check_entity_base_sync(pasm_path):
     return ok
 
 
+def check_dp_base_sync(pasm_path):
+    """Entity{1,2,3}_DpBase (core/depth_sort.pasm's EntityDpBaseTable feed --
+    the low16-of-$7E0a00+N literals Character_RenderPass uses to switch DP
+    per entity) are a SEPARATE hand-maintained copy of the same offsets
+    check_entity_base_sync checks above -- not covered by that check, since
+    these are low16 values (e.g. $0a47), not $7E0a00+N expressions. Found
+    drifted the hard way (G7 throw slice): CHAR_ZP_LEN grew 67->71 but
+    these 3 literals were left at the old 67/134/201-based values, so
+    Character_RenderPass silently switched DP to the WRONG window for every
+    AI entity -- confirmed via phase11_damage.py/game_g7_knockdown.py both
+    losing track of entity 1's real OAM position, not caught by any static
+    check until this one was added. PlayerEntity_DpBase ($0a00, slot 0) is
+    always correct by construction (0*anything=0), so only slots 1-3 need
+    checking here."""
+    dpbase_literals = {}
+    char_zp_len = None
+    with open(pasm_path, encoding='utf-8') as f:
+        for line in f:
+            m = re.match(r'\s*Entity([123])_DpBase\s*=\s*\$([0-9a-fA-F]+)', line)
+            if m:
+                dpbase_literals[int(m.group(1))] = int(m.group(2), 16)
+            m2 = re.match(r'\s*CHAR_ZP_LEN\s*=\s*(\d+)', line)
+            if m2:
+                char_zp_len = int(m2.group(1))
+    if char_zp_len is None:
+        print('FAIL: could not find CHAR_ZP_LEN = N in main.pasm')
+        return False
+    ok = True
+    for slot in (1, 2, 3):
+        expected = (0x0a00 + slot * char_zp_len) & 0xFFFF
+        actual = dpbase_literals.get(slot)
+        if actual is None:
+            print(f'FAIL: could not find Entity{slot}_DpBase = $NNNN in main.pasm')
+            ok = False
+        elif actual != expected:
+            print(f'FAIL: Entity{slot}_DpBase is ${actual:04x} but low16 of '
+                  f'$7E0a00+{slot}*CHAR_ZP_LEN is ${expected:04x} -- these have '
+                  f'drifted apart. Update the literal in Entity{slot}_DpBase\'s '
+                  f'definition (main.pasm).')
+            ok = False
+        else:
+            print(f'Entity{slot}_DpBase literal (${actual:04x}) matches low16 of '
+                  f'$7E0a00+{slot}*CHAR_ZP_LEN (${expected:04x}). OK.')
+    return ok
+
+
 def check_main_loop_margin(sym_by_name, real_addrs):
     loop_addr = sym_by_name.get('scpu_main_loop')
     nmi_addr = sym_by_name.get('nmi_handler')
@@ -300,6 +346,7 @@ def main():
     all_ok &= run_verify_layout()
     all_ok &= run_width_directive_check()
     all_ok &= check_entity_base_sync(PASM_PATH)
+    all_ok &= check_dp_base_sync(PASM_PATH)
     all_ok &= check_main_loop_margin(sym_by_name, real_addrs_boot | real_addrs_oop)
 
     print()

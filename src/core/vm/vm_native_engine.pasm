@@ -92,6 +92,23 @@ GrabScratch_OtherX   = $7FF504   ; .dw
 GrabScratch_Mid      = $7FF506   ; .dw
 GrabScratch_NewOtherX = $7FF508  ; .dw
 
+; G7 throw slice: THROW_KNOCK_DIST is the only new scratch this slice
+; needs beyond the grab cells above -- reuses GrabScratch_OtherX/
+; NewOtherX (same free-once-computed shape, no lifetime overlap with the
+; grab-init use since throw only ever runs after a grab is already fully
+; established). $7FF50A, directly after GrabScratch_NewOtherX.
+THROW_KNOCK_DIST = 24  ; px, instant horizontal displacement away from the
+                         ; thrower. This project has no ballistic X-velocity
+                         ; model for ANY airborne entity -- jump.pasm's own
+                         ; header documents the identical simplification for
+                         ; the PLAYER's own horizontal movement while
+                         ; jumping (continuous dpad-read walk code reused
+                         ; instead of a one-shot velocity); an instant kick
+                         ; is the same simplification applied to a thrown
+                         ; victim (who has no controller driving it at all
+                         ; while airborne) instead of inventing a new
+                         ; velocity system this project has nowhere else.
+
 Vm_NativeEntityByteOff:
     .dw 0, CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3
 
@@ -996,6 +1013,29 @@ Spawn_ResetKnockdownFall:
 .a8
     lda #0
     sta.l $7E0a00,x
+
+    ; G7 throw slice: same "no stale state" reasoning as the grab fields
+    ; above -- a respawned slot's CHAR_SELECTED is already reset to 0 at
+    ; the top of this routine (so a stale THROWN value alone could never
+    ; make Jump_ApplyOamYOffset misfire), but zeroing the Z cells too keeps
+    ; a freshly-spawned entity's state genuinely clean rather than relying
+    ; on that ordering alone.
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZPOS
+    tax
+    lda #0
+    sta.l $7E0a00,x
+
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZVEL
+    tax
+    lda #0
+    sta.l $7E0a00,x
     rtl
 
 ; ============================================================================
@@ -1228,7 +1268,7 @@ Character_HitApply__ApplyGrab__sides_done:
     sta.l $7E0a00,x
 
     ; self.CHAR_GRAB_TARGET = target's byte offset (fits one byte, max
-    ; 201; HitApply_EntityBase's high byte is always 0, X's own source)
+    ; 213; HitApply_EntityBase's high byte is always 0, X's own source)
     lda.l HitApply_EntityBase
     sta CHAR_GRAB_TARGET
 
@@ -1237,6 +1277,164 @@ Character_HitApply__ApplyGrab__sides_done:
     sta CHAR_HIT_APPLIED
 
     sec
+    rtl
+
+; ============================================================================
+; Character_Grab_Throw -- G7 throw slice. Real common_throw()/toss()
+; semantics (DCurrent/openbor, engine/openbor.c, same fetch this project's
+; jump slice already sourced from): release the mutual link immediately,
+; apply the victim's damage through the SAME Character_HitApply__
+; ApplyDamage leaf every other landed hit uses (real HP clamp/knockdown-
+; counter/kill decision, not a parallel damage rule), then -- UNLESS that
+; hit was a kill -- override ApplyDamage's own stun-vs-fall pick with
+; CHAR_SELECTED_THROWN: real toss() always results in an airborne launch,
+; never a mere stun, regardless of the knockdown counter ApplyDamage just
+; consulted for an ordinary hit. A killing throw needs no airborne Z at
+; all -- the existing CHAR_HP==0 sticky dead-hide (Anim_Play's/Character_
+; RenderFrame's own gate, G8-generalized to >=2) already takes over
+; instantly, same as any other kill.
+;
+; Called from Anim_Play__player_input (bank 0) via jsl -- grabber is always
+; the player (self, DP-local), matching every other grab routine's own
+; documented restriction (AI never grabs).
+;
+;   in:  X(16-bit) = victim's byte offset (CHAR_GRAB_TARGET, zero-extended)
+;   out: none. Clobbers A/X.
+; ============================================================================
+Character_Grab_Throw:
+.a16
+.i16
+    txa
+    sta.l HitApply_EntityBase
+
+    ; --- release both link fields immediately (real common_throw clears
+    ; the link before toss() runs) ---
+    sep #$20
+.a8
+    lda #$FF
+    sta CHAR_GRAB_TARGET      ; self (player, DP-local)
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+
+    ; --- knockback direction: away from the thrower, same side-decision
+    ; idiom Character_HitApply__ApplyGrab already uses at grab-init
+    ; (self_x >= other_x -> push other further away on the low side, else
+    ; the high side). ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l $7E0a00,x
+    sta.l GrabScratch_OtherX
+    lda CHAR_POS_X             ; self (player)
+    cmp.l GrabScratch_OtherX
+    bcs Character_Grab_Throw__self_ge
+    lda.l GrabScratch_OtherX   ; self < other -- push other further right
+    clc
+    adc #THROW_KNOCK_DIST
+    bra Character_Grab_Throw__knock_have
+Character_Grab_Throw__self_ge:
+.a16
+    lda.l GrabScratch_OtherX   ; self >= other -- push other further left
+    sec
+    sbc #THROW_KNOCK_DIST
+Character_Grab_Throw__knock_have:
+.a16
+    sta.l GrabScratch_NewOtherX
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l GrabScratch_NewOtherX
+    sta.l $7E0a00,x
+
+    ; --- apply real damage/knockdown-counter/HP-clamp/kill decision via
+    ; the shared leaf every other landed hit uses (same-bank jsr/rts --
+    ; ApplyDamage's own two exits are rts, see its header). ---
+    lda.l HitApply_EntityBase
+    tax
+    jsr Character_HitApply__ApplyDamage
+.a8
+    cmp #1
+    beq Character_Grab_Throw__done   ; killed -- dead-hide path (elsewhere)
+                                       ; takes over, no airborne Z needed
+
+    ; --- not killed: override ApplyDamage's stun-or-fall pick with real
+    ; throw semantics -- always airborne. REAL BUG found the hard way:
+    ; ApplyDamage's own stun branch may have just stamped this victim's
+    ; CHAR_HIT_STUN nonzero (Character_HitApply__ApplyDamage__stun) --
+    ; Anim_Play's hit-stun check runs BEFORE this slice's own THROWN gate
+    ; (Anim_Play__not_attacking, further down that dispatch chain) and
+    ; unconditionally resets CHAR_SELECTED back to 0 the moment CHAR_
+    ; HIT_STUN is nonzero, on the victim's very next Anim_Play call --
+    ; silently wiping the CHAR_SELECTED_THROWN write below within a frame,
+    ; confirmed via a standalone debug trace showing entity1.CHAR_SELECTED
+    ; going 0/0/0 (stunned, decaying) then straight to 1/2 (AI resumed)
+    ; with THROWN never once observed. Toss() always supersedes any stun
+    ; reaction in real BOR too (the victim's movement is now driven
+    ; entirely by the airborne Z tick, not a stun timer) -- clear CHAR_
+    ; HIT_STUN here so the THROWN state actually survives to the next
+    ; frame's dispatch. ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_HIT_STUN
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l $7E0a00,x
+
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_SELECTED
+    tax
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_THROWN
+    sta.l $7E0a00,x
+
+    ; --- ZPos=0, ZVel=JUMP_INITIAL_VEL (identical real toss()-sourced
+    ; Q8.8 magnitude jump.pasm's own Player_JumpZVel uses -- toss()'s
+    ; physics don't change based on who's airborne). Single 16-bit store
+    ; each, matching ApplyGrab's own $7E0a00,x .a16 store convention. ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZPOS
+    tax
+    lda #0
+    sta.l $7E0a00,x
+
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZVEL
+    tax
+    lda #JUMP_INITIAL_VEL
+    sta.l $7E0a00,x
+    sep #$20
+.a8
+Character_Grab_Throw__done:
+.a8
     rtl
 
 ; ============================================================================
@@ -1315,5 +1513,80 @@ Character_Grab_Play__release:
     sta.l PlayerEntity_GrabTarget   ; grabber is always the player
     rtl
 Character_Grab_Play__done:
+.a8
+    rtl
+
+; ============================================================================
+; Character_Throw_Play -- G7 throw slice. Called from CharacterEntity_Play
+; (bank 0) via jsl once per entity's own turn, right alongside Character_
+; Grab_Play (same call site, DP-local self-addressing, D preserved across
+; jsl) -- a no-op for any entity whose own CHAR_SELECTED isn't THROWN.
+;
+; Real check_gravity() semantics (DCurrent/openbor, engine/openbor.c) --
+; IDENTICAL integration to Jump_PlayerTick__airborne (core/jump.pasm):
+; position += velocity, velocity += gravity, every tick; land when
+; position<=0 AND velocity<=0 (not position==0 alone). The only difference
+; from jump's own copy is WHERE the state lives (CHAR_THROW_ZPOS/ZVEL,
+; per-instance DP fields, vs. jump's player-only global cells) and what
+; happens on landing: jump returns to idle/walk, a thrown victim lands
+; into CHAR_SELECTED_FALL -- real BOR lands a tossed entity into the same
+; knockdown reaction a landed hit would, reusing the existing fall/rise
+; pipeline (Anim_Play_Fall, CHAR_FALL_STATE_TIMER machine) unchanged.
+;
+;   in:  none (DP-local self).
+;   out: none. Clobbers A.
+; ============================================================================
+Character_Throw_Play:
+    ; Same defensive real sep as Character_Grab_Play's own entry -- a jsl
+    ; target is invisible to poppy#386's own diagnostic, so this routine
+    ; must be correct regardless of the caller's actual real width.
+    sep #$20
+.a8
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_THROWN
+    bne Character_Throw_Play__done
+
+    rep #$31
+.a16
+.i16
+    lda CHAR_THROW_ZPOS
+    clc
+    adc CHAR_THROW_ZVEL
+    sta CHAR_THROW_ZPOS
+    lda CHAR_THROW_ZVEL
+    clc
+    adc #JUMP_GRAVITY
+    sta CHAR_THROW_ZVEL
+
+    ; --- land check: position<=0 AND velocity<=0 ---
+    lda CHAR_THROW_ZPOS
+    beq Character_Throw_Play__zpos_le0
+    bmi Character_Throw_Play__zpos_le0
+    bra Character_Throw_Play__still_air
+Character_Throw_Play__zpos_le0:
+.a16
+    lda CHAR_THROW_ZVEL
+    beq Character_Throw_Play__land
+    bmi Character_Throw_Play__land
+Character_Throw_Play__still_air:
+.a16
+    sep #$20
+.a8
+    rtl
+Character_Throw_Play__land:
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_FALL
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rtl
+Character_Throw_Play__done:
 .a8
     rtl
