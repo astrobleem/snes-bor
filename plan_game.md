@@ -95,11 +95,15 @@ deliberately added to the roster (currently 13 of 15 slots used) have
 anything real to identify against; most spawned names in these levels still
 aren't roster members, and that's a content decision, not a remaining code
 gap. See §9/§12 for the precise remaining scope. Still missing: ending/
-credits (G10), real
-grab/throw mutual-lock semantics, special/block, and SFX
-(content-blocked). Real jump (LEO only) shipped 2026-08-28, see §7. Double Dragon Moto (the third pak in this repo) stays
-unconverted — its levels need the openborscript VM, which remains
-explicitly shelved.
+credits (G10) and SFX (content-blocked, §11). **G7 (BOR's real moveset) is
+now fully exhausted as of 2026-08-28** — run/dash, AI invuln, knockdown/
+getting-up, attack2, real jump/jumpattack/jumpattack2 (LEO only), real
+grab (JOE only), actor ground-depth sort, real throw, and real special
+(LEO only) are all done; block was investigated exhaustively against
+every character in both shipped paks and found to have zero real anim
+data anywhere — permanently content-blocked, not an open code task; see
+§7. Double Dragon Moto (the third pak in this repo) stays unconverted —
+its levels need the openborscript VM, which remains explicitly shelved.
 
 **The honest gap list**, updated as phases land:
 
@@ -111,7 +115,7 @@ explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, real throw, and real special (LEO only) all done (G7, see §7 for gate names); block still fully open (no roster member has real `block` data — content-blocked, not a code gap) |
+| Jump, throw, grab, specials | **G7 fully exhausted, 2026-08-28.** BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, real throw, and real special (LEO only) all done (see §7 for gate names). Block investigated exhaustively (every real character `.TXT` in both shipped paks — 24 BOR, 13 TMNT, 37 total — grepped directly for a `block` animation line): zero exist anywhere. Real BOR.C's own `check_blocking_rules()` hard-requires `validanim(ent, ANI_BLOCK)` before any blocking logic runs at all, so this isn't a partial gap — block is entirely unbuildable with real sourced data today. Permanently content-blocked, not a code gap; revisit only if a future pak with real block anims is converted. |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -1230,15 +1234,26 @@ this is what separates "tech demo" from "beat-'em-up."
   LEO before triggering), not as a claim about LEO's own real data. No
   smartbomb/screen-clear/AoE behavior exists anywhere in this slice — LEO's
   model declares none, and inventing one would be exactly the
-  never-sourced guess this entry used to carry. **Block** still has no
-  real roster data anywhere (RALF/JHUN/JOE/YASHIRO/LEO's real `.TXT`
-  files, all PAK-verified this slice: zero `block` roles) — content-
-  blocked, not a code gap. Special-vs-block was the last open item in this
-  row; §7 is now fully exhausted except block (content-blocked) and AI-
-  side jump/special (no roster member's AI think-loop uses either in real
-  source). AI use of special/jump, block, pits, multiplayer, arbitrary
-  entity-count scaling, and SA-1 compositor changes are explicitly out of
-  scope for this slice.
+  never-sourced guess this entry used to carry. **Block investigated
+  exhaustively immediately after this slice, not deferred** (2026-08-28):
+  every real character `.TXT` in BOTH shipped paks — all 24 BOR characters
+  (RALF/JOE/JHUN/YASHIRO plus every other fighter in the pak, not just
+  this project's converted roster) and all 13 TMNT characters (BEBOP/LEO/
+  MOUSER/FOOT01-05/LEATHER/ROCK/DON/MIKE) — grepped directly for a `block`
+  animation line: zero exist anywhere, in either pak, on any character.
+  Real BOR.C's own `check_blocking_rules()` (`engine/openbor.c`) hard-gates
+  ALL blocking logic on `validanim(ent, ANI_BLOCK)` returning true first —
+  no anim, no blocking, full stop, regardless of `blockodds`/guard-point
+  settings — so this is not a partial or borderline gap, it's completely
+  unbuildable with real sourced data today. Permanently content-blocked;
+  revisit only if a future pak with real `block` animation data is
+  converted. **§7 is now genuinely, fully exhausted** — every mechanic
+  with real, buildable data has real, gated, sourced engine code; block is
+  the sole remaining item, and it's a content wall, not an open code task.
+  AI use of jump/special (no roster member's AI think-loop uses either in
+  real source), pits, multiplayer, arbitrary entity-count scaling, and
+  SA-1 compositor changes remain explicitly out of scope for G7 as a
+  whole, not just this slice.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
   2026-08-22)**, see status block above. Player's own respawn-invuln
