@@ -339,48 +339,57 @@ def main():
                 m.write_u8(ENTITY_BASES[i] + CHAR_HIT_STUN, 0)
                 m.write_u8(ENTITY_BASES[i] + CHAR_HP, CHAR_HP_MAX)
             # m.run_frames() is a wall-clock lower bound, not an exact frame
-            # count (memory mesen_set_input_wall_clock) -- a fixed 1- or
-            # 2-frame margin here was observed to still occasionally read
-            # back JOE's real OAM slot one Character_RenderPass behind the
-            # just-written Y (a real, reproducible harness race, not an
-            # engine defect -- verified via a git-stash A/B rebuild showing
-            # the identical failure on the pre-this-session baseline, and
-            # via direct inspection of core/depth_sort.pasm's selection-sort
-            # showing no tie/off-by-one bug for these well-separated Y
-            # values). Hardened here: poll until the OAM slot order is
-            # STABLE across two consecutive reads (proving Character_
-            # RenderPass has actually settled on this frame's data), instead
-            # of trusting a fixed frame count.
-            # Real hardware-visible OAM lags a fresh CHAR_POS_Y write by a
-            # full frame: Depth_Sort_ComputeOrder/Character_RenderPass write
-            # only the WRAM OAM SHADOW buffer for this frame's game logic;
-            # Core_Nmi_Play doesn't DMA that shadow buffer into real hardware
-            # OAM until the NEXT vblank. So "OAM order stable across two
-            # consecutive reads" can converge on a STALE (previous step's)
-            # committed order if both reads land before the fresh write has
-            # propagated through that one-frame shadow->NMI-commit pipeline
-            # -- exactly what caused a real flake here (step 11, joe_y=74:
-            # both polled reads still showed step 10's Y=70 tie order,
-            # looking "stable" while actually just stale). Force a settle
-            # long enough for at least one full shadow-buffer/NMI commit
-            # cycle before starting the stability check.
+            # count (memory mesen_set_input_wall_clock). Real hardware-
+            # visible OAM lags a fresh CHAR_POS_Y write by a full frame:
+            # Depth_Sort_ComputeOrder/Character_RenderPass write only the
+            # WRAM OAM SHADOW buffer for this frame's game logic; Core_Nmi_
+            # Play doesn't DMA that shadow buffer into real hardware OAM
+            # until the NEXT vblank.
+            #
+            # A fixed frame-count settle (2, then 3) was tried and both
+            # still flaked under machine load (proven directly: running two
+            # Mesen-driven jobs in parallel reproduced a stale read even
+            # after the 3-frame version, see memory mesen_mcp... parallel-
+            # job contention). Any fixed magic number is load-sensitive by
+            # construction. The deterministic fix: poll frame-by-frame,
+            # each time re-deriving the SAME real ground-truth expectation
+            # the post-loop cross-check below uses (whichever of {JOE,
+            # player} has the strictly greater CHAR_POS_Y is expected to be
+            # drawn in front), and stop as soon as the observed OAM order
+            # matches it. This is not circular: the expectation is derived
+            # from CHAR_POS_Y (the authoritative game-logic value, written
+            # this same frame, never lagged), while what's being polled is
+            # OAM (the separately-lagged, DMA-committed hardware mirror) --
+            # convergence proves the shadow buffer has actually propagated
+            # through NMI commit, not just that two reads happened to
+            # match each other. At a real Y tie (joe_y == start_y[0]) there
+            # is no expected order to converge on, so just take a fixed
+            # small settle in that case -- the post-loop cross-check is
+            # skipped for ties too (see `if joe_y != start_y[0]` below).
             exp_x_now = {i: (xs[i] - (read_i16(m, Screen_PosX) & 0xFFFF)) & 0xFFFF for i in range(4)}
-            m.run_frames(3)
-            m.pause()
-            prev_order = None
+            is_tie = (joe_y == start_y[0])
+            expect_joe_ahead_now = None if is_tie else (joe_y > start_y[0])
             by_entity_now = None
-            for _ in range(8):
+            converged = False
+            for poll in range(20):
                 m.run_frames(1)
                 m.pause()
                 by_entity_now = read_oam_by_entity_x(m, exp_x_now)
-                order_now = tuple(by_entity_now[i][0] for i in range(4))
-                if order_now == prev_order:
+                joe_slot_now = by_entity_now[JOE_ENTITY][0]
+                player_slot_now = by_entity_now[0][0]
+                joe_ahead_now = joe_slot_now < player_slot_now
+                if is_tie:
+                    if poll >= 2:
+                        converged = True
+                        break
+                elif joe_ahead_now == expect_joe_ahead_now:
+                    converged = True
                     break
-                prev_order = order_now
-            else:
+            if not converged:
                 raise AssertionError(
-                    f'step {step} (joe_y={joe_y}): OAM slot order never '
-                    f'stabilized across two consecutive frame reads')
+                    f'step {step} (joe_y={joe_y}): OAM slot order never converged on the '
+                    f'real CHAR_POS_Y-derived expectation (joe_ahead={expect_joe_ahead_now}) '
+                    f'within 20 polled frames -- last observed order {by_entity_now}')
 
             zpos = read_i16(m, PlayerEntity + CHAR_THROW_ZPOS)
             ground_y_now = [read_byte(m, b + CHAR_POS_Y) for b in ENTITY_BASES]

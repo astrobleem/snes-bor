@@ -36,6 +36,21 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bor_converter'))
+from gen_pasm_animset import load_palette  # noqa: E402
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def real_palette_bytes(moveset):
+    """Ground truth: apple's own real converted CGRAM palette, read straight
+    from convert_prop.py's own output (out/apple_idle/palette.txt) -- never
+    a value this gate computed. Same idiom phase12_roster.py's own
+    real_palette_bytes() uses for fighters."""
+    idle_ordinal = moveset['roles']['idle']
+    idle_dir = next(e['dir'] for e in moveset['animations'] if e['ordinal'] == idle_ordinal)
+    colors = load_palette(os.path.join(REPO_ROOT, idle_dir))
+    return b''.join(struct.pack('<H', c) for c in colors)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
@@ -45,6 +60,7 @@ CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
 CHAR_IDLE_FCOUNT = pasm_constant('CHAR_IDLE_FCOUNT')
 CHAR_WALK_FCOUNT = pasm_constant('CHAR_WALK_FCOUNT')
 CHAR_ATTACK_FCOUNT = pasm_constant('CHAR_ATTACK_FCOUNT')
+CHAR_PALETTE_SLOT = pasm_constant('CHAR_PALETTE_SLOT')
 CHAR_INPUT_DRIVEN_PROP = pasm_constant_in('src/main.pasm', 'CHAR_INPUT_DRIVEN_PROP')
 PICKUP_TYPE_APPLE = pasm_constant('PICKUP_TYPE_APPLE')
 
@@ -209,13 +225,7 @@ def main():
         # calls it "Step 4", apparently never implemented); it reads back 0
         # for every entity regardless of which roster slot actually loaded.
         # Pre-existing gap, unrelated to this slice -- not something to
-        # silently paper over, but also not this gate's real proof. The
-        # (idle,walk,attack) frame-count triple below is: apple's real
-        # converted moveset is (1,1,1), which no real fighter roster member
-        # has (the smallest real fighter triple, MOUSER/FOOT03/FOOT04, is
-        # (1,8,9) -- still distinct in walk/attack), so a triple match here
-        # is conclusive proof of the real reassignment, independent of the
-        # dead CHAR_ROSTER_INDEX byte.
+        # silently paper over, but also not this gate's real proof.
         after_triple = entity_triple(m, ENTITY_BASES[apple_slot])
         print(f'slot {apple_slot} triple before={before.get(apple_slot)} '
               f'after={after_triple} expected={expected_triple}')
@@ -223,6 +233,36 @@ def main():
                  f'(idle,walk,attack) triple {expected_triple} (got {after_triple}) '
                  f'-- real sprite art, not a borrowed character\'s',
                  after_triple == expected_triple)
+
+        # --- Real hardware-visible tile/palette identity, not just a
+        # frame-count triple: apple's slot's own CGRAM OBJ palette (CHAR_
+        # PALETTE_SLOT-indexed, same $100+slot*32 layout phase12_roster.py
+        # already establishes) must match APPLE's own real converted
+        # palette.txt byte-for-byte. Props skip the `map` remap-palette
+        # path entirely (Anim_ApplyMapPalette only runs on the non-prop
+        # branch -- see main.pasm's CHAR_INPUT_DRIVEN_PROP dispatch), so
+        # the base converted palette should land completely unperturbed;
+        # this check verifies that rather than assuming it. ---
+        # CGRAM, like OAM, is committed via a WRAM-shadow-buffer -> NMI DMA
+        # pipeline (Core_Nmi_Play) -- a fixed short settle after the slot
+        # is first detected can still read back a stale/in-flight palette.
+        # Poll (deterministic bound, not a magic fixed count) until CGRAM
+        # actually matches the real ground truth, same idiom as the
+        # depth-sort gate's OAM-order convergence poll.
+        expected_pal = real_palette_bytes(apple_moveset)
+        pal_slot = None
+        actual_pal = None
+        for _ in range(30):
+            pal_slot = byte_at(m, ENTITY_BASES[apple_slot] + CHAR_PALETTE_SLOT)
+            actual_pal = bytes(read_block(m, 0x100 + pal_slot * 32, 32, mem_type='snesCgRam'))
+            if actual_pal == expected_pal:
+                break
+            m.run_frames(1)
+            m.pause()
+        r.check(f"slot {apple_slot}'s CGRAM palette (slot {pal_slot}) matches apple's own "
+                 f"real converted palette.txt byte-for-byte -- real tile/palette identity, "
+                 f"not just animation metadata",
+                 actual_pal == expected_pal)
 
     r.finish()
 
