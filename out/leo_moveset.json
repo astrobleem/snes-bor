@@ -140,9 +140,23 @@
     "jumpattack2": 7,
     "special": 17,
     "attack": 8,
+    "attack3": 10,
+    "attack4": 11,
+    "slide": 2,
+    "riseattack": null,
+    "grabattack": 19,
     "attack2": 9,
-    "attack2_is_grab": false
+    "attack2_is_grab": false,
+    "grab": 12
   },
+  "atchain": [
+    1,
+    2,
+    3,
+    1,
+    2,
+    4
+  ],
   "remap_palettes": [
     [
       0,

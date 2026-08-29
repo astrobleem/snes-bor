@@ -83,6 +83,14 @@ CHAR_SPECIAL_BASE_LO = pasm_constant('CHAR_SPECIAL_BASE_LO')
 CHAR_SPECIAL_BASE_HI = pasm_constant('CHAR_SPECIAL_BASE_HI')
 CHAR_MAP_BASE_LO = pasm_constant('CHAR_MAP_BASE_LO')
 CHAR_MAP_BASE_HI = pasm_constant('CHAR_MAP_BASE_HI')
+# G7 content-audit slice: map_base now chains 6 more hops past special_base
+# (NEW_MOVE_SLOT_NAMES order) before landing on its final value.
+CHAR_ATTACK3_FCOUNT = pasm_constant('CHAR_ATTACK3_FCOUNT')
+CHAR_ATTACK4_FCOUNT = pasm_constant('CHAR_ATTACK4_FCOUNT')
+CHAR_GRABMOVE_FCOUNT = pasm_constant('CHAR_GRABMOVE_FCOUNT')
+CHAR_SLIDE_FCOUNT = pasm_constant('CHAR_SLIDE_FCOUNT')
+CHAR_RISEATTACK_FCOUNT = pasm_constant('CHAR_RISEATTACK_FCOUNT')
+CHAR_GRABATTACK_FCOUNT = pasm_constant('CHAR_GRABATTACK_FCOUNT')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
 CHAR_GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
@@ -212,13 +220,32 @@ def main():
         r.check('CHAR_SPECIAL_BASE matches independent recomputation',
                 actual_special_base == expected_special_base)
 
-        # --- 3. map_base now chains one more hop off special_base. ---
-        expected_map_base = actual_special_base + leo_sp_fc * 768
+        # --- 3. map_base now chains 7 hops total off special_base: the 6
+        # new generic move slots (G7 content-audit slice, NEW_MOVE_SLOT_
+        # NAMES order), then map_base itself. LEO is the only roster member
+        # with real data in ALL 6 new slots (attack3/attack4/grab/slide/
+        # grabattack -- not riseattack, that's BEBOP/ROCK/LEATHER's), so
+        # this independent recomputation exercises the full real chain.
+        leo_a3_fc = read_u8(m, PlayerEntity + CHAR_ATTACK3_FCOUNT)
+        leo_a4_fc = read_u8(m, PlayerEntity + CHAR_ATTACK4_FCOUNT)
+        leo_gm_fc = read_u8(m, PlayerEntity + CHAR_GRABMOVE_FCOUNT)
+        leo_sl_fc = read_u8(m, PlayerEntity + CHAR_SLIDE_FCOUNT)
+        leo_ra_fc = read_u8(m, PlayerEntity + CHAR_RISEATTACK_FCOUNT)
+        leo_ga_fc = read_u8(m, PlayerEntity + CHAR_GRABATTACK_FCOUNT)
+        expected_map_base = actual_special_base + (
+            leo_sp_fc + leo_a3_fc + leo_a4_fc + leo_gm_fc + leo_sl_fc
+            + leo_ra_fc + leo_ga_fc) * 768
         actual_map_base = read_u24(m, PlayerEntity + CHAR_MAP_BASE_LO,
                                     PlayerEntity + CHAR_MAP_BASE_HI)
-        print(f'map_base: actual={actual_map_base} '
-              f'expected(special_base+special_fc*768)={expected_map_base}')
-        r.check('CHAR_MAP_BASE matches independent recomputation (special hop)',
+        print(f'map_base: actual={actual_map_base} expected='
+              f'(special_base+sum(special/attack3/attack4/grab/slide/'
+              f'riseattack/grabattack fc)*768)={expected_map_base} '
+              f'(fcounts sp={leo_sp_fc} a3={leo_a3_fc} a4={leo_a4_fc} '
+              f'gm={leo_gm_fc} sl={leo_sl_fc} ra={leo_ra_fc} ga={leo_ga_fc})')
+        r.check('LEO has real content in every new move slot but riseattack',
+                leo_a3_fc > 0 and leo_a4_fc > 0 and leo_gm_fc > 0
+                and leo_sl_fc > 0 and leo_ga_fc > 0 and leo_ra_fc == 0)
+        r.check('CHAR_MAP_BASE matches independent recomputation (7-hop chain)',
                 actual_map_base == expected_map_base)
 
         # --- 4. L triggers special: CHAR_SELECTED=2, CHAR_ATTACK_VARIANT=2,

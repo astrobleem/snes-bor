@@ -127,39 +127,129 @@ Jump_ComputeBases:
     adc.l AnimHeaderStaging+15
     sta CHAR_SPECIAL_BASE_HI
 
-    ; --- G7 special slice: map_base now chains off special_base (one more
-    ; hop, same shift-add-by-768 idiom) instead of directly off the 4-way
-    ; sum above -- special's 0-or-6 frames (LEO) sit between jumpattack2 and
-    ; remap in the blob (pack_msu_roster.py's layout), so map_base must skip
-    ; past them too. Collapses back to the pre-special-slice value when
-    ; special_fcount is 0 (every character but LEO). ---
+    ; --- G7 content-audit slice: 6 more chained hops (attack3, attack4,
+    ; grabmove, slide, riseattack, grabattack -- NEW_MOVE_SLOT_NAMES' own
+    ; order, matching pack_msu_roster.py's blob layout), THEN CHAR_MAP_BASE
+    ; itself as a 7th final hop -- all computed for EVERY entity
+    ; unconditionally (any entity, including an AI-driven roster slot,
+    ; needs its own correct CHAR_MAP_BASE, which must skip past all 6 new
+    ; slots regardless of who's driving; this replaces the old special-
+    ; slice map_base=special_base+special_fcount*768 single hop). Uses the
+    ; shared Jump_HopBase subroutine (below) instead of 7 more hand-unrolled
+    ; shift-add blocks -- this slice's own "generic table, not more
+    ; copy-paste" directive. Collapses back to the pre-this-slice value
+    ; when all 6 new slots' fcount are 0 (every roster member but LEO/
+    ; BEBOP/ROCK/LEATHER/FOOT01/FOOT02). ---
     lda CHAR_SPECIAL_FCOUNT
-    rep #$31
-.a16
-.i16
-    and #$00FF
-    sta.l AnimHeaderStaging+12
-    asl a
-    clc
-    adc.l AnimHeaderStaging+12
-    sta.l AnimHeaderStaging+14
-    sep #$20
-.a8
-    lda #0
-    sta.l AnimHeaderStaging+12
-    lda.l AnimHeaderStaging+14
-    sta.l AnimHeaderStaging+13
-    rep #$31
-.a16
-.i16
+    sta.l JumpHopFCount
     lda CHAR_SPECIAL_BASE_LO
-    clc
-    adc.l AnimHeaderStaging+12
-    sta CHAR_MAP_BASE_LO
-    sep #$20
-.a8
+    sta.l JumpHopBaseLo
+    lda CHAR_SPECIAL_BASE_LO+1
+    sta.l JumpHopBaseLo+1
     lda CHAR_SPECIAL_BASE_HI
-    adc.l AnimHeaderStaging+15
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_ATTACK3_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_ATTACK3_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_ATTACK3_BASE_HI
+
+    lda CHAR_ATTACK3_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_ATTACK3_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_ATTACK3_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_ATTACK3_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_ATTACK4_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_ATTACK4_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_ATTACK4_BASE_HI
+
+    lda CHAR_ATTACK4_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_ATTACK4_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_ATTACK4_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_ATTACK4_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_GRABMOVE_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_GRABMOVE_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_GRABMOVE_BASE_HI
+
+    lda CHAR_GRABMOVE_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_GRABMOVE_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_GRABMOVE_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_GRABMOVE_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_SLIDE_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_SLIDE_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_SLIDE_BASE_HI
+
+    lda CHAR_SLIDE_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_SLIDE_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_SLIDE_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_SLIDE_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_RISEATTACK_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_RISEATTACK_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_RISEATTACK_BASE_HI
+
+    lda CHAR_RISEATTACK_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_RISEATTACK_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_RISEATTACK_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_RISEATTACK_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_GRABATTACK_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_GRABATTACK_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_GRABATTACK_BASE_HI
+
+    lda CHAR_GRABATTACK_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_GRABATTACK_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_GRABATTACK_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_GRABATTACK_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
+    sta CHAR_MAP_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_MAP_BASE_LO+1
+    lda.l JumpHopBaseHi
     sta CHAR_MAP_BASE_HI
 
     lda CHAR_INPUT_DRIVEN
@@ -279,6 +369,49 @@ Jump_ComputeBases__is_player:
 .i16
     rtl
 
+; --- Jump_HopBase -- G7 content-audit slice. Shared subroutine: new_base =
+; prev_base + prev_fcount*768 (the same shift-add-by-768 idiom every other
+; *_base field in this project chains with), factored out so the 7 new
+; chain hops above are ~14-line call sites instead of ~25-line hand-unrolled
+; blocks each. Same-bank jsr (called only from within Jump_ComputeBases).
+;
+;   in:  .a8 -- JumpHopFCount (frame count of the PREVIOUS slot),
+;        JumpHopBaseLo/JumpHopBaseHi (PREVIOUS slot's 24-bit base).
+;   out: JumpHopBaseLo/JumpHopBaseHi overwritten with prev_base +
+;        prev_fcount*768. Clobbers A. Width in/out: .a8/.i16 (matches every
+;        call site above, which is always mid-Jump_ComputeBases at .a8).
+Jump_HopBase:
+.a8
+    lda.l JumpHopFCount
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l AnimHeaderStaging+12
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l AnimHeaderStaging+14
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12
+    lda.l AnimHeaderStaging+14
+    sta.l AnimHeaderStaging+13
+    rep #$31
+.a16
+.i16
+    lda.l JumpHopBaseLo
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l JumpHopBaseLo
+    sep #$20
+.a8
+    lda.l JumpHopBaseHi
+    adc.l AnimHeaderStaging+15
+    sta.l JumpHopBaseHi
+    rts
+
 ; --- Jump_PlaySpecialAdvance -- G7 special slice. Called via jsl from bank
 ; 0's Anim_Play_Special__jsl (moved here for ROM budget, same reasoning as
 ; every other bank-8 relocation in this file). Mirrors Anim_Play_Attack2's
@@ -325,6 +458,197 @@ Jump_PlaySpecialAdvance__frame_ok:
     lda CHAR_SPECIAL_BASE_HI
     sta.l AnimHeaderStaging+2
     sec
+    rtl
+
+; --- Jump_PlayMoveSlotAdvance -- G7 content-audit slice. The real generic
+; animation descriptor table this slice's own directive calls for: ONE
+; shared routine for all 6 new move slots (attack3/attack4/grab/slide/
+; riseattack/grabattack), instead of a 6th, 7th, 8th... hand-copied
+; Anim_Play_Attack2__advance-style block. Works because the 6 slots'
+; DP fields are laid out with a fixed 5-byte stride (CHAR_ATTACK3_FCOUNT=76,
+; CHAR_ATTACK4_FCOUNT=81, ... CHAR_GRABATTACK_FCOUNT=101 -- see main.pasm's
+; CHAR_* struct comment) -- direct-page-indexed-by-X addressing (`lda
+; CHAR_ATTACK3_FCOUNT,x`) reaches any of the 6 slots' fields from ONE set of
+; instructions, X = (CHAR_ATTACK_VARIANT-3)*5.
+;
+;   in:  none (DP-local self) -- computes X = (CHAR_ATTACK_VARIANT-3)*5
+;        itself (ROM budget: bank 0 was at its $C100-$FC00 ceiling, so this
+;        multiply moved here instead of staying a bank-0 stub computation).
+;   out: carry SET = caller must jsr Msu1_LoadFrame (CHAR_FRAME_INDEX/
+;        AnimHeaderStaging+0/+2 ready); carry CLEAR = animation finished,
+;        already reverted to idle. Clobbers A/X. Entry .a8, exit
+;        .a8-equivalent (matches Jump_PlaySpecialAdvance's own convention).
+Jump_PlayMoveSlotAdvance:
+.a8
+    lda CHAR_ATTACK_VARIANT
+    sec
+    sbc #3
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l JumpHopBaseLo             ; scratch reuse (Jump_ComputeBases only
+    asl a                            ; uses this mid-load-character, never
+    asl a                            ; concurrently with attack dispatch)
+    clc
+    adc.l JumpHopBaseLo
+    tax
+    sep #$20
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_ATTACK3_FCOUNT,x
+    bcc Jump_PlayMoveSlotAdvance__frame_ok
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    clc
+    rtl
+Jump_PlayMoveSlotAdvance__frame_ok:
+.a8
+    sta CHAR_FRAME_INDEX
+    lda CHAR_ATTACK3_DELAY,x
+    sta CHAR_TICK_COUNTER
+    lda CHAR_ATTACK3_BASE_LO,x
+    sta.l AnimHeaderStaging+0
+    lda CHAR_ATTACK3_BASE_LO+1,x
+    sta.l AnimHeaderStaging+1
+    lda CHAR_ATTACK3_BASE_HI,x
+    sta.l AnimHeaderStaging+2
+    sec
+    rtl
+
+; --- Jump_AtchainTrigger -- G7 content-audit slice. Real perform_atchain()
+; (DCurrent/openbor engine/openbor.c, called from player_think()): a SINGLE
+; attack button cycles the character's declared attack1-4 sequence --
+; repeated presses within a combo-timer window advance CHAR_COMBOSTEP;
+; letting the window lapse resets to step 0. Only ever called (from bank
+; 0's Anim_Play__no_jump_this_frame) when CHAR_CHAINLENGTH!=0 -- LEO
+; (`atchain 1 2 3 1 2 4`), FOOT01/FOOT02 (`atchain 1 2 3`) today.
+;
+; ATCHAIN_COMBO_WINDOW is a feel-tuned frame count (real BOR.C's own combo
+; window is derived from each move's `attack.time`/animation delay, not a
+; single fixed constant) -- not a re-derived real magnitude, same class of
+; deliberate simplification this project already applies to jump's X-
+; velocity model (see core/jump.pasm's file header). CHAR_ATCHAIN0-5 are
+; PRE-TRANSLATED at pack time (pack_msu_roster.py's ATCHAIN_RAW_TO_VARIANT)
+; from real BOR attack-numbers into this engine's own CHAR_ATTACK_VARIANT
+; values (0/1/3/4 only -- atchain never references special or the other 4
+; new move slots), so this routine only ever writes a variant Anim_Play_
+; Attack already understands.
+;
+;   in:  none (DP-local self, always the player -- CHAR_CHAINLENGTH!=0 is
+;        only ever set on the CURRENTLY LOADED character's own struct, and
+;        this is only reached via the player-input path).
+;   out: carry SET = a new attack step was triggered this frame (CHAR_
+;        SELECTED/CHAR_ATTACK_VARIANT/CHAR_FRAME_INDEX/CHAR_TICK_COUNTER
+;        all set, same shape as attack1/attack2's own trigger code) --
+;        caller dispatches immediately. Carry CLEAR = no press this frame
+;        (COMBOTIMER decayed if running) -- caller falls through to
+;        idle/walk dispatch. Clobbers A/X.
+ATCHAIN_COMBO_WINDOW = 40
+Jump_AtchainTrigger:
+.a8
+    lda CHAR_COMBOTIMER
+    beq Jump_AtchainTrigger__no_decay
+    dec a
+    sta CHAR_COMBOTIMER
+Jump_AtchainTrigger__no_decay:
+.a8
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK    ; Y -- the sole real chain button
+    bne Jump_AtchainTrigger__pressed
+    clc
+    rtl
+Jump_AtchainTrigger__pressed:
+.a8
+    lda CHAR_COMBOTIMER
+    beq Jump_AtchainTrigger__reset
+    lda CHAR_COMBOSTEP
+    inc a
+    cmp CHAR_CHAINLENGTH
+    bcc Jump_AtchainTrigger__step_set
+    lda #0
+    bra Jump_AtchainTrigger__step_set
+Jump_AtchainTrigger__reset:
+.a8
+    lda #0
+Jump_AtchainTrigger__step_set:
+    sta CHAR_COMBOSTEP
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    tax
+    sep #$20
+.a8
+    lda CHAR_ATCHAIN0,x
+    sta CHAR_ATTACK_VARIANT
+    lda #ATCHAIN_COMBO_WINDOW
+    sta CHAR_COMBOTIMER
+    lda #2
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+
+; --- Jump_RiseattackTrigger -- G7 content-audit slice. Real
+; player_lie_check() (DCurrent/openbor engine/openbor.c): UP(held)+attack
+; (Y, edge) while lying (HP>0, not still playing the fall animation, not
+; the terminal dead-blink state) plays riseattack instead of the ordinary
+; rise. Player-only (every other G7 trigger in this project is
+; deliberately player-only -- jump/special/throw all share this scope
+; boundary), gated on CHAR_RISEATTACK_FCOUNT!=0 (BEBOP/ROCK/LEATHER only,
+; real converted `riseattack` data). Reuses the existing CHAR_SELECTED==2
+; attack pathway (variant 7 = riseattack's move slot) so Character_
+; HitApply's hit check needs no dedicated per-move code, matching this
+; project's established attack2/special precedent. Only ever called (from
+; bank 0's Anim_Play__player_input) when CHAR_SELECTED==CHAR_SELECTED_FALL.
+;
+;   in:  none (DP-local self).
+;   out: carry SET = riseattack triggered this frame (CHAR_SELECTED/
+;        CHAR_ATTACK_VARIANT/CHAR_FRAME_INDEX/CHAR_TICK_COUNTER/CHAR_
+;        FALL_STATE_TIMER all set) -- caller dispatches immediately. Carry
+;        CLEAR = no trigger (caller's existing FALL/RISE reaction-lock
+;        continues unchanged). Clobbers A.
+Jump_RiseattackTrigger:
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Jump_RiseattackTrigger__no
+    lda CHAR_RISEATTACK_FCOUNT
+    beq Jump_RiseattackTrigger__no
+    lda CHAR_FALL_STATE_TIMER
+    beq Jump_RiseattackTrigger__no
+    cmp #$FF
+    beq Jump_RiseattackTrigger__no
+    lda.l Input_press+1
+    and #$08                        ; Up held
+    beq Jump_RiseattackTrigger__no
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK    ; Y edge
+    beq Jump_RiseattackTrigger__no
+    lda #0
+    sta CHAR_FALL_STATE_TIMER
+    lda #2
+    sta CHAR_SELECTED
+    lda #7                           ; riseattack's move-slot variant
+    sta CHAR_ATTACK_VARIANT
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_RiseattackTrigger__no:
+.a8
+    clc
     rtl
 
 ; --- Jump_PlayerInputGate -- G7 throw slice. Called via jsl from bank 0's
@@ -386,6 +710,84 @@ Jump_PlayerInputGate__special_trigger:
     sec
     rtl
 Jump_PlayerInputGate__no_special:
+.a8
+    ; G7 content-audit slice: LEO's real, separate `grab` anim (distinct
+    ; from JOE's attack2-is-grab mutual lock just below -- see CHAR_
+    ; GRABMOVE_FCOUNT's own comment in main.pasm). R button (Input_trigger,
+    ; mask $10 -- the last genuinely free button per this file's own map).
+    ; Shipped the SAME way this project's own precedent already treats
+    ; "grab" for a character without the mutual-lock struct fields set up
+    ; (see game_g7_attack2.py's docstring: JOE's own `grab` role was
+    ; deliberately shipped as a generic one-shot attack move, not real
+    ; dograb()/adjust_grabposition() mutual-lock semantics, for the exact
+    ; same "no collision/link machinery built" reason) -- plays the grab
+    ; anim through the ordinary CHAR_SELECTED==2 attack pathway, dealing
+    ; damage via the existing hit check, no CHAR_GRAB_TARGET link. R+Y
+    ; (grabattack, held R + Y edge) takes priority over plain R (grab
+    ; alone) when this character also has real grabattack data (LEO) --
+    ; real BOR.C's grabattack requires an active grab hold; this project's
+    ; simplified non-link grab has no "holding" state to gate on, so R+Y
+    ; is this slice's own stand-in trigger shape for "attack while
+    ; grabbing" instead. No-ops entirely (falls through unchanged) if this
+    ; roster character has neither real move (CHAR_GRABMOVE_FCOUNT==0 --
+    ; every roster member but LEO).
+    lda CHAR_GRABMOVE_FCOUNT
+    beq Jump_PlayerInputGate__no_grabmove
+    lda.l Input_trigger
+    and #$10                        ; R
+    beq Jump_PlayerInputGate__no_grabmove
+    lda CHAR_GRABATTACK_FCOUNT
+    beq Jump_PlayerInputGate__grab_trigger
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK     ; Y
+    beq Jump_PlayerInputGate__grab_trigger
+    lda #8                           ; grabattack's move-slot variant
+    bra Jump_PlayerInputGate__grabmove_apply
+Jump_PlayerInputGate__grab_trigger:
+.a8
+    lda #5                           ; grab's move-slot variant
+Jump_PlayerInputGate__grabmove_apply:
+.a8
+    sta CHAR_ATTACK_VARIANT
+    lda #2
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_PlayerInputGate__no_grabmove:
+.a8
+    ; G7 content-audit slice: real slide trigger (player_think(), DCurrent/
+    ; openbor engine/openbor.c) -- A(jump button)+DOWN while grounded (real
+    ; BOR also requires "not already running"; this project's B-button run
+    ; state doesn't gate movement-anim selection today, so this slice
+    ; doesn't add that precondition either -- LEO is the only roster member
+    ; with real slide data, and nothing exercises the interaction). Checked
+    ; here (same gate as jump/grab/special) so it takes priority over a
+    ; plain ground-jump when Down is also held. No-ops if this roster
+    ; character has no real `slide` anim (CHAR_SLIDE_FCOUNT==0 -- everyone
+    ; but LEO).
+    lda CHAR_SLIDE_FCOUNT
+    beq Jump_PlayerInputGate__no_slide
+    lda.l Input_press+1
+    and #$04                         ; Down held
+    beq Jump_PlayerInputGate__no_slide
+    lda.l Input_trigger
+    and #$80                         ; A edge
+    beq Jump_PlayerInputGate__no_slide
+    lda #6                           ; slide's move-slot variant
+    sta CHAR_ATTACK_VARIANT
+    lda #2
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_PlayerInputGate__no_slide:
 .a8
     lda CHAR_GRAB_TARGET
     cmp #$FF

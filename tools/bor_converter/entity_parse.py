@@ -30,6 +30,14 @@ def parse_entity(text):
         'name': None, 'health': None, 'speed': None, 'type': None,
         'shadow': None, 'icon': None, 'diesound': None,
         'remaps': [], 'animations': {},
+        # G7 content-audit slice: real BOR.C `atchain <n1> <n2> ...` --
+        # each value is a 1-based index into the real attack-number family
+        # (1=attack1, 2=attack2, 3=attack3, 4=attack4); perform_atchain()
+        # (engine/openbor.c) cycles the player's own attack button through
+        # this sequence on repeated presses within a combo window. Empty if
+        # the character declares no `atchain` line (most of this project's
+        # roster) -- real per-character data, not invented.
+        'atchain': [],
     }
 
     SCALAR_KEYS = {'name', 'health', 'speed', 'type', 'shadow', 'icon', 'diesound'}
@@ -61,6 +69,8 @@ def parse_entity(text):
                 entity[key] = int(args[0]) if args and args[0].lstrip('-').isdigit() else (args[0] if args else None)
             elif key == 'remap':
                 entity['remaps'].append((args[0], args[1]))
+            elif key == 'atchain':
+                entity['atchain'] = [int(a) for a in args if a.lstrip('-').isdigit()]
             continue
 
         # inside an anim block

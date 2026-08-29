@@ -96,14 +96,18 @@ anything real to identify against; most spawned names in these levels still
 aren't roster members, and that's a content decision, not a remaining code
 gap. See §9/§12 for the precise remaining scope. Still missing: ending/
 credits (G10) and SFX (content-blocked, §11). **G7 (BOR's real moveset) is
-now fully exhausted as of 2026-08-28** — run/dash, AI invuln, knockdown/
-getting-up, attack2, real jump/jumpattack/jumpattack2 (LEO only), real
-grab (JOE only), actor ground-depth sort, real throw, and real special
-(LEO only) are all done; block was investigated exhaustively against
-every character in both shipped paks and found to have zero real anim
-data anywhere — permanently content-blocked, not an open code task; see
-§7. Double Dragon Moto (the third pak in this repo) stays unconverted —
-its levels need the openborscript VM, which remains explicitly shelved.
+complete as of the 2026-08-28 content-audit slice** — the earlier same-day
+"fully exhausted" claim was premature (it checked its own existing
+checklist, not the raw converted source content); a real source-content
+audit found real, already-converted, still-inert animations (LEO's
+`atchain` combo/`grab`/`slide`/`grabattack`, BEBOP/ROCK/LEATHER's
+`riseattack`, FOOT01/FOOT02's `atchain`/`attack3`), all now implemented
+and gated (`GATE G7-CONTENT-AUDIT`). Every real G7 mechanic across both
+shipped paks is now implemented / content-inapplicable / assigned to
+another phase, each with real sourcing — see §7's own coverage ledger for
+the definitive per-mechanic table. Double Dragon Moto (the third pak in
+this repo) stays unconverted — its levels need the openborscript VM,
+which remains explicitly shelved.
 
 **The honest gap list**, updated as phases land:
 
@@ -115,7 +119,7 @@ its levels need the openborscript VM, which remains explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | **G7 fully exhausted, 2026-08-28.** BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, real throw, and real special (LEO only) all done (see §7 for gate names). Block investigated exhaustively (every real character `.TXT` in both shipped paks — 24 BOR, 13 TMNT, 37 total — grepped directly for a `block` animation line): zero exist anywhere. Real BOR.C's own `check_blocking_rules()` hard-requires `validanim(ent, ANI_BLOCK)` before any blocking logic runs at all, so this isn't a partial gap — block is entirely unbuildable with real sourced data today. Permanently content-blocked, not a code gap; revisit only if a future pak with real block anims is converted. |
+| Jump, throw, grab, specials | **G7 complete, 2026-08-28 content-audit slice.** BOR's actual moveset, source-content-audited (not just checklist-checked): run/dash, AI invuln, knockdown/getting-up, attack2, jump/jumpattack/jumpattack2 (LEO), grab mutual-lock (JOE), depth sort, throw, special (LEO) — plus this slice's real `atchain` combo (LEO/FOOT01/FOOT02), generic `grab`/`slide`/`grabattack` (LEO), and `riseattack` (BEBOP/ROCK/LEATHER), all reached via a real generic move-slot table, not per-move copy-paste. See §7's coverage ledger for the definitive table. `block`/`freespecial`(player)/`land` remain content-inapplicable (zero real config anywhere in either pak, sourced against `engine/openbor.c`); `waiting`→G5, `get`→G8. |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -644,7 +648,15 @@ frame-load already takes 6.
 
 ## §7 — Phase G7: the real BOR moveset
 
-> **Status: PARTIAL (five slices DONE as of 2026-08-28).** `GATE G7-RUN:
+> **Status: COMPLETE as of the 2026-08-28 content-audit slice.** See "G7
+> content-audit slice (Reopen G7)" at the end of this section for the
+> definitive per-mechanic coverage ledger — the prior "G7 fully exhausted"
+> claim (same-day, earlier commit `8c3fa69`) was premature: it checked its
+> own existing checklist, not the raw converted source content, and real,
+> already-converted animations (LEO's atchain combo/grab/slide/grabattack,
+> BEBOP/ROCK/LEATHER's riseattack, FOOT01/FOOT02's atchain/attack3) sat
+> inert. That gap is now closed; the ledger below is what makes this
+> status trustworthy going forward, not the sentence itself. `GATE G7-RUN:
 > PASS` (`tools/verify/game_g7_run.py`), `GATE G7-INVULN: PASS`
 > (`tools/verify/game_g7_invuln.py`), `GATE G7-KNOCKDOWN: PASS`
 > (`tools/verify/game_g7_knockdown.py`, one known-flaky check documented
@@ -1280,6 +1292,153 @@ that jump would force §3.6's Y-sorted-priority spec item to be solved. The
 shipped jump slice avoided that entirely by not building a Z axis or depth
 sort — see the jump bullet above. §3.6's real sorting gap, if it matters
 later, is still open independent of jump.
+
+### G7 content-audit slice (Reopen G7), 2026-08-28
+
+**Why this reopened a "done" phase.** The prior "G7 fully exhausted" claim
+checked this file's own existing checklist (jump/special/grab/throw/run/
+invuln/knockdown/attack2/depth-sort) but never re-audited the raw source
+content itself. A real audit — every character `.TXT` in both shipped
+paks, cross-referenced against `DCurrent/openbor`'s real `engine/
+openbor.c` for exact trigger semantics, not assumed ones — found real,
+already-converted-and-sitting-in-`out/*_moveset.json` animations with zero
+runtime code: LEO's real `atchain` combo, `grab` (a role distinct from
+JOE's attack2-is-grab), `slide`, `grabattack`; BEBOP/ROCK/LEATHER's real
+`riseattack`; FOOT01/FOOT02's `atchain`/`attack3`. Per the reopening
+instruction, "no gameplay-relevant converted animation remains inert
+merely because the SNES role/runtime layer never wired it" — this section
+is the proof that is now true.
+
+**Architecture — a real generic move-slot table, not more copy-paste.**
+Every prior G7 slice added one full field-set (`CHAR_X_FCOUNT/DELAY/
+BASE_LO/BASE_HI`) per move, by hand. This slice's own scope (6 more real
+moves at once) made that pattern untenable, so it was replaced:
+`NEW_MOVE_SLOT_NAMES = [attack3, attack4, grab, slide, riseattack,
+grabattack]` (`pack_msu_roster.py`) is a fixed-order table — the packer
+resolves and bakes all 6 generically (one loop, not 6 hand-written
+blocks), `RECORD_SIZE` grew 25→44 (+19 bytes: 12 fcount/delay + 6
+`atchain` steps + 1 `chainlength`), and the engine mirrors this with a
+real generic dispatcher: `CHAR_ATTACK3_FCOUNT`..`CHAR_GRABATTACK_BASE_HI`
+are 6 identically-shaped 5-byte structs at consecutive DP offsets (main
+.pasm, `CHAR_ZP_LEN` 76→115), and ONE shared bank-8 routine
+(`Jump_PlayMoveSlotAdvance`, `core/jump.pasm`) plays whichever slot
+`CHAR_ATTACK_VARIANT` (3-8) selects via direct-page-indexed-by-X
+addressing (`lda CHAR_ATTACK3_FCOUNT,x`), not six copies of `Anim_Play_
+Attack2__advance`. The `CHAR_MAP_BASE` offset chain (`plan_game.md` 8a
+row 3, `map`) now runs 7 hops instead of 1 through a second shared
+subroutine, `Jump_HopBase` (`new_base = prev_base + prev_fcount*768`),
+also to avoid re-duplicating that arithmetic per slot.
+
+**Real triggers wired** (all reusing the existing `CHAR_SELECTED==2`
+attack hit-check unmodified, matching this project's own attack2/special
+precedent — no new per-move damage code anywhere):
+- **atchain combo** (`perform_atchain()`, real `engine/openbor.c`): Y is
+  the sole chain button for a chain-bearing character (`CHAR_CHAINLENGTH
+  !=0` — LEO, FOOT01, FOOT02); repeated presses **during** the in-progress
+  swing (not just after it finishes — the actual point of a combo chain)
+  advance `CHAR_COMBOSTEP` through the character's real declared sequence
+  (`CHAR_ATCHAIN0-5`, pre-translated at pack time from real BOR attack-
+  numbers to local `CHAR_ATTACK_VARIANT` values); a lapsed `CHAR_COMBOTIMER`
+  window resets to step 0. The independent X-attack2 trigger is
+  unreachable for these characters (real BOR has no separate attack2
+  button either) — every other roster member is untouched.
+- **Generic `grab`** (R button) and **`grabattack`** (R+Y, takes priority
+  over plain R): LEO-only. Real BOR.C grabattack requires an active grab
+  *hold*; this project's `grab` role is deliberately shipped the same way
+  this project's own precedent already treats a second move without full
+  mutual-lock machinery (see `game_g7_attack2.py`'s own docstring on
+  JOE's `grab`-as-generic-attack2 choice) — a one-shot attack move, no
+  `CHAR_GRAB_TARGET` link — so R+Y is this slice's own stand-in trigger
+  shape for "attack while grabbing," not real dograb()/adjust_
+  grabposition() semantics. JOE's existing real mutual-lock (attack2-is-
+  grab) is completely untouched and non-conflicting (LEO's `attack2` role
+  and `grab` role are always disjoint by construction — see
+  `convert_character.py`'s resolution order).
+- **`slide`** (A+Down, real `player_think()` trigger): LEO-only.
+- **`riseattack`** (`player_lie_check()`: UP-held+Y-edge while lying, HP>0,
+  not mid-fall-animation, not the terminal dead-park state): BEBOP/ROCK/
+  LEATHER-only, player-only scope (matches every other G7 trigger's
+  established player-only boundary).
+
+**A real bug found and fixed mid-implementation** (not by design review):
+the first riseattack wiring replaced the FALL-state's unconditional
+`beq Anim_Play__reacting` (the pre-existing "already reacting, ignore
+input/AI-seek, let it finish" lock — see its own long-standing comment)
+with a conditional path that, when the trigger declined, fell through to
+the RISE/THROWN checks instead of the lock. For an AI-driven lying entity
+(riseattack always declines for `CHAR_INPUT_DRIVEN!=1`) this let `Anim_
+Play__ai_seek` re-decide its `CHAR_SELECTED` mid-fall — exactly the bug
+that lock exists to prevent, per its own comment. Caught by `GATE
+G7-KNOCKDOWN` regressing from 1 flaky check to 8 hard failures (fatal
+hits no longer even entering the FALL animation). Fixed: FALL state now
+*always* unconditionally lands on `Anim_Play__dispatch` regardless of the
+riseattack trigger's outcome (dispatch reads live `CHAR_SELECTED`, so
+either a newly-triggered riseattack or the still-lying state is handled
+correctly either way).
+
+**Content classified INAPPLICABLE or belonging to another phase** (not
+gated — no runtime code exists for them, confirmed absent by this
+audit, not merely unbuilt):
+- **`freespecial`**: real `engine/openbor.c` confirms this move is
+  AI-exclusive in this source version — `player_check_special()` never
+  references `animspecials[]`/`ANI_FREESPECIAL` at all. Consistent with
+  (an inversion of) this project's own repeatedly-established "every G7
+  attack trigger is player-only" scope: this one is the AI-only mirror of
+  that same boundary, and no roster AI currently uses it, so it is
+  genuinely unreachable today, not deferred.
+- **`land`/`ANI_LAND`** (`doland()`): gated in real source on
+  `BLAST_TOSS`+specific `attack_force` flags; zero configuration
+  anywhere in either shipped pak (`forcedirection`/`projectile`/`blast`/
+  `autoland`/`ATTACK_FORCE` all absent from every roster character's real
+  `.TXT`, grepped directly) — content-inapplicable, same class as
+  `block`'s own permanent content-block above, not a missing feature.
+- **`waiting`/`ANI_SELECT`**: real char-select portrait pose — G5 scope
+  (already implemented there as cosmetic; not a G7 gameplay mechanic).
+- **`get`**: real item-pickup pose — G8 scope, matching the reopening
+  instruction's own explicit example of a semantic reassignment.
+- **`alias`**: real cosmetic no-op per BOR.C (see
+  `alias_keyword_is_cosmetic_not_identity` project memory) — not an
+  animation at all, nothing to gate.
+
+**Definitive coverage ledger** (every real animation/mechanic this
+audit's own full-roster pak grep found, roster-wide):
+
+| Mechanic | Real source characters | Status |
+|---|---|---|
+| `attack1` | every roster member | Done (pre-existing) |
+| `attack2` (generic second move) | RALF/JOE/JHUN/LEATHER/LEO/BEBOP/ROCK/FOOT01-04 (varies) | Done (pre-existing, `GATE G7-ATTACK2`) |
+| `fall`/`rise` (knockdown) | every roster member | Done (pre-existing, `GATE G7-KNOCKDOWN`) |
+| `jump`/`jumpattack`/`jumpattack2` | LEO only | Done (pre-existing, `GATE G7-JUMP`) |
+| `special` | LEO only | Done (pre-existing, `GATE G7-SPECIAL`) |
+| grab mutual-lock (attack2-is-grab) | JOE only | Done (pre-existing, `GATE G7-GRAB`) |
+| `throw` | JOE only (grabber-side) | Done (pre-existing, `GATE G7-THROW`) |
+| run/dash | every roster member | Done (pre-existing, `GATE G7-RUN`) |
+| AI post-hit invulnerability | every AI entity | Done (pre-existing, `GATE G7-INVULN`) |
+| actor ground-depth sort | every roster member | Done (pre-existing, `GATE G7-DEPTH-SORT`) |
+| **`atchain` combo (attack1-4 cycling)** | LEO, FOOT01, FOOT02 | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
+| **`attack3`/`attack4`** | LEO (both), FOOT01/FOOT02 (`attack3` only) | **Done (this slice, reached via atchain), `GATE G7-CONTENT-AUDIT`** |
+| **generic `grab` role (R button)** | LEO only | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
+| **`grabattack` (R+Y)** | LEO only | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
+| **`slide` (A+Down)** | LEO only | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
+| **`riseattack` (UP+Y while lying)** | BEBOP, ROCK, LEATHER | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
+| `block` | none (zero real anim data in either pak) | Content-inapplicable (pre-existing finding, unchanged) |
+| `freespecial` | LEO (data exists, AI-exclusive in real source) | Content-inapplicable — AI-only per real `engine/openbor.c` |
+| `land`/`ANI_LAND` | none configured | Content-inapplicable — zero `attack_force`/`blast` config anywhere |
+| `waiting` | most roster members | Assigned to G5 (char-select portrait, already implemented there) |
+| `get` | some roster members | Assigned to G8 (item-pickup pose) |
+| `alias` | some roster members | Cosmetic no-op, not an animation |
+
+**No known G7 caveats.**
+
+Full regression after this slice: `build_rom.py`, `audit_all.py`,
+`check_label_drift.py`, `check_width_directives.py` (0 new violations),
+`phase5.py`-`phase9.py`, `phase11_damage.py`, `phase12_roster.py`, every
+`game_g7_*.py` (including the pre-existing nine), `game_g1_text.py`
+through `game_g9_wait_group_boss.py` — all PASS (two individually-known-
+flaky Mesen timing checks, `GATE G7-JUMP`'s OAM-Y-on-landing and `GATE
+G7-KNOCKDOWN`'s rise-completes-to-idle, each reproduced the identical
+flakiness on the pre-slice codebase too, confirmed by direct A/B testing
+before attributing either to this slice).
 
 ---
 

@@ -2534,9 +2534,9 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a4c        ; low16 of $7E0a00+76  ($4c=76 dec)
-Entity2_DpBase      = $0a98        ; low16 of $7E0a00+152 ($98=152 dec)
-Entity3_DpBase      = $0ae4        ; low16 of $7E0a00+228 ($e4=228 dec)
+Entity1_DpBase      = $0a73        ; low16 of $7E0a00+115 ($73=115 dec)
+Entity2_DpBase      = $0ae6        ; low16 of $7E0a00+230 ($e6=230 dec)
+Entity3_DpBase      = $0b59        ; low16 of $7E0a00+345 ($159=345 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2548,7 +2548,7 @@ Entity3_DpBase      = $0ae4        ; low16 of $7E0a00+228 ($e4=228 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 76        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 115       ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2573,7 +2573,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 152       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 230       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2593,7 +2593,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 228       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 345       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2871,7 +2871,76 @@ CHAR_SPECIAL_FCOUNT  = 71  ; .db -- 0 = no special move for this character
 CHAR_SPECIAL_DELAY   = 72  ; .db
 CHAR_SPECIAL_BASE_LO = 73  ; .dw
 CHAR_SPECIAL_BASE_HI = 75  ; .db
-CHAR_ZP_LEN         = 76   ; total -- pass as OopRegStaging_ZpLen
+; --- G7 content-audit slice (Reopen G7): real, previously-inert converted
+; source content (LEO's real atchain/attack3/attack4/grab/slide/grabattack,
+; BEBOP/ROCK/LEATHER's real riseattack, FOOT01/FOOT02's real atchain/
+; attack3 -- see plan_game.md's coverage ledger, DCurrent/openbor engine/
+; openbor.c perform_atchain()/player_lie_check() sourced). A single generic
+; 6-slot move descriptor table (fcount/delay/base_lo/base_hi per slot, same
+; 4-byte shape as CHAR_SPECIAL_* above) replaces the old one-field-set-per-
+; move growth pattern -- NEW_MOVE_SLOT_NAMES (pack_msu_roster.py) fixes the
+; slot order: attack3, attack4, grab(generic), slide, riseattack,
+; grabattack. All fcount==0 (slot inert) for every roster member without
+; the real source anim -- same "collapses to pre-slice value" discipline as
+; every prior *_BASE chain hop.
+;
+; CHAR_GRABMOVE_* is deliberately a DISTINCT field from CHAR_ATTACK2_IS_GRAB
+; /CHAR_GRAB_TARGET (JOE's existing mutual-lock grab, itself attack2). LEO's
+; real `grab` anim is a SEPARATE, unclaimed move (attack2 for LEO is his
+; real named `attack2` anim, not `grab` -- convert_character.py's grab role
+; resolution runs AFTER attack2 and excludes whatever attack2 already
+; claimed, so JOE and LEO never collide). Naming it CHAR_GRABMOVE_* (not
+; CHAR_GRAB_*) avoids any reader confusion with the pre-existing grab-hold
+; state fields just above.
+CHAR_ATTACK3_FCOUNT   = 76  ; .db
+CHAR_ATTACK3_DELAY    = 77  ; .db
+CHAR_ATTACK3_BASE_LO  = 78  ; .dw
+CHAR_ATTACK3_BASE_HI  = 80  ; .db
+CHAR_ATTACK4_FCOUNT   = 81  ; .db
+CHAR_ATTACK4_DELAY    = 82  ; .db
+CHAR_ATTACK4_BASE_LO  = 83  ; .dw
+CHAR_ATTACK4_BASE_HI  = 85  ; .db
+CHAR_GRABMOVE_FCOUNT  = 86  ; .db -- LEO's real `grab` anim (distinct from
+CHAR_GRABMOVE_DELAY   = 87  ; .db    JOE's attack2-is-grab mutual lock above)
+CHAR_GRABMOVE_BASE_LO = 88  ; .dw
+CHAR_GRABMOVE_BASE_HI = 90  ; .db
+CHAR_SLIDE_FCOUNT     = 91  ; .db
+CHAR_SLIDE_DELAY      = 92  ; .db
+CHAR_SLIDE_BASE_LO    = 93  ; .dw
+CHAR_SLIDE_BASE_HI    = 95  ; .db
+CHAR_RISEATTACK_FCOUNT  = 96  ; .db -- real player_lie_check(): UP+attack
+CHAR_RISEATTACK_DELAY   = 97  ; .db    while lying (BEBOP/ROCK/LEATHER)
+CHAR_RISEATTACK_BASE_LO = 98  ; .dw
+CHAR_RISEATTACK_BASE_HI = 100 ; .db
+CHAR_GRABATTACK_FCOUNT  = 101 ; .db -- LEO's real grabattack (Y while
+CHAR_GRABATTACK_DELAY   = 102 ; .db    holding a grab, distinct from throw)
+CHAR_GRABATTACK_BASE_LO = 103 ; .dw
+CHAR_GRABATTACK_BASE_HI = 105 ; .db
+; Real perform_atchain() (DCurrent/openbor engine/openbor.c): a SINGLE
+; attack button cycles a declared attack-number sequence on repeated
+; presses within a combo window; letting it lapse resets to step 1. Each
+; CHAR_ATCHAIN_N byte is a 1-based real-BOR attack-number (1=attack1,
+; 2=attack2, 3=attack3, 4=attack4) exactly as declared in the character's
+; own `atchain` line (LEO: 1 2 3 1 2 4; FOOT01/FOOT02: 1 2 3) -- translated
+; to a local CHAR_ATTACK_VARIANT value at pack time (pack_msu_roster.py's
+; ATCHAIN_RAW_TO_VARIANT), so this engine only ever dispatches variants it
+; already understands (0/1/3/4), never a raw BOR attack-number. Unused
+; trailing slots are 0 (=attack1, but CHAR_CHAINLENGTH gates how many are
+; real). CHAR_CHAINLENGTH==0 means "no real atchain" (every roster member
+; but LEO/FOOT01/FOOT02) -- the ordinary independent-button attack2 trigger
+; stays live for everyone else, unchanged.
+CHAR_ATCHAIN0        = 106 ; .db
+CHAR_ATCHAIN1        = 107 ; .db
+CHAR_ATCHAIN2        = 108 ; .db
+CHAR_ATCHAIN3        = 109 ; .db
+CHAR_ATCHAIN4        = 110 ; .db
+CHAR_ATCHAIN5        = 111 ; .db
+CHAR_CHAINLENGTH     = 112 ; .db -- 0-6, how many CHAR_ATCHAIN_N are real
+CHAR_COMBOSTEP       = 113 ; .db -- 0-based index into CHAR_ATCHAIN, resets
+                             ; to 0 on trigger-press after COMBOTIMER lapses
+CHAR_COMBOTIMER      = 114 ; .db -- frames remaining in the current combo
+                             ; window; 0 = chain lapsed, next press restarts
+CHAR_ZP_LEN         = 115  ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -3113,6 +3182,26 @@ Depth_BestVal        = $7E27E3  ; .db -- FindMax scratch
 Depth_BestIdx        = $7E27E4  ; .db -- FindMax scratch
 Depth_BestFound      = $7E27E5  ; .db -- FindMax scratch
 Depth_RenderOrder    = $7E27E6  ; .db x4 (27E6-27E9) -- PUBLIC: front-to-back entity id order
+
+; --- G7 content-audit slice: the 12 new-slot fcount/delay bytes and the 7
+; atchain/chainlength bytes are written STRAIGHT to their own DP fields at
+; record-read time (CHAR_ATTACK3_FCOUNT.. / CHAR_ATCHAIN0-5 / CHAR_
+; CHAINLENGTH) -- same "no generic transient copy needed" reasoning as
+; CHAR_SPECIAL_FCOUNT/DELAY's own comment just above: nothing outside this
+; entity's own struct ever needs a copy of these; Jump_ComputeBases' hop
+; chain and the combo trigger both read the DP fields directly. Only the
+; *_BASE_LO/HI halves are computed (not read from the record), via the
+; shared hop subroutine below.
+;
+; Jump_HopBase (core/jump.pasm, .bank 8) generic base-chain staging: caller
+; copies the previous slot's fcount/base_lo/base_hi here, jsr's, then copies
+; JumpHopBaseLo/Hi (now holding prev_base + fcount*768) into the next slot's
+; own DP field. Replaces what would otherwise be 7 more hand-unrolled ~20-
+; line shift-add blocks (matches this slice's own "generic table, not more
+; copy-paste" directive) -- one shared subroutine, 7 short call sites.
+JumpHopFCount        = $7E27FD  ; .db -- in: fcount
+JumpHopBaseLo        = $7E27FE  ; .dw -- in: prev base lo; out: new base lo
+JumpHopBaseHi        = $7E2800  ; .db -- in: prev base hi; out: new base hi
 
 ; No word-count cell: the streaming loops count DOWN in X instead. An earlier
 ; version kept the count in WRAM and ended each loop with `cpx.l BgWordCount`
@@ -3736,6 +3825,23 @@ Anim_Play__not_grabbed_early:
     lda CHAR_SELECTED
     cmp #2
     bne Anim_Play__not_attacking
+    ; G7 content-audit slice: real perform_atchain() lets a repeated press
+    ; DURING an in-progress swing buffer/link the next chain step (that is
+    ; the entire point of a combo chain -- see Jump_AtchainTrigger's own
+    ; header) -- CHAR_CHAINLENGTH!=0 characters get one extra check here,
+    ; bypassing the "already attacking, ignore input" lock ONLY to look for
+    ; a chain-advancing press; declining (no press, or the window already
+    ; lapsed) still falls through to that same lock unchanged. Every
+    ; non-chain character (CHAR_CHAINLENGTH==0) skips straight past this,
+    ; identical to before this slice.
+    lda CHAR_CHAINLENGTH
+    beq Anim_Play__no_midswing_chain
+    jsl Jump_AtchainTrigger    ; carry ignored -- either outcome falls to the
+                                 ; same dispatch below (triggered: new step's
+                                 ; state just set; declined: still-in-
+                                 ; progress attack continues unchanged)
+Anim_Play__no_midswing_chain:
+.a8
     brl Anim_Play__dispatch     ; already attacking -- ignore input, let it finish
 Anim_Play__not_attacking:
 .a8
@@ -3750,7 +3856,22 @@ Anim_Play__not_attacking:
     ; set it to 3 (fall) -- found by this slice's own gate never seeing
     ; CHAR_SELECTED settle on FALL/RISE at all.
     cmp #CHAR_SELECTED_FALL
-    beq Anim_Play__reacting
+    bne Anim_Play__not_riseattack_check
+    ; G7 content-audit slice: real player_lie_check() (DCurrent/openbor
+    ; engine/openbor.c) -- UP+Y while lying triggers riseattack instead of
+    ; the ordinary rise. Moved to bank 8 (Jump_RiseattackTrigger) for ROM
+    ; budget, same "relocate, don't shrink" precedent as every other
+    ; bank-8 gate in this file. CRITICAL: whether or not it actually
+    ; triggers, CHAR_SELECTED==FALL must ALWAYS land on Anim_Play__reacting
+    ; (the existing "already reacting, ignore input/AI-seek, let it finish"
+    ; lock just above) -- falling through to the RISE/THROWN checks below
+    ; on decline would let Anim_Play__ai_seek re-decide a lying AI entity's
+    ; CHAR_SELECTED out from under it, exactly the bug that lock exists to
+    ; prevent (see its own comment).
+    jsl Jump_RiseattackTrigger
+    brl Anim_Play__dispatch
+Anim_Play__not_riseattack_check:
+.a8
     cmp #CHAR_SELECTED_RISE
     beq Anim_Play__reacting
     ; G7 throw slice: THROWN is the same "already reacting, ignore
@@ -3805,6 +3926,21 @@ Anim_Play__player_input:
                                      ; landing pad (a few lines up) instead
                                      ; of writing a second one -- ROM budget
 Anim_Play__no_jump_this_frame:
+.a8
+    ; G7 content-audit slice: real perform_atchain() (DCurrent/openbor
+    ; engine/openbor.c) -- a chain-bearing character (LEO/FOOT01/FOOT02,
+    ; CHAR_CHAINLENGTH!=0) cycles its whole attack1-4 family off the SAME
+    ; Y button; the independent X-attack2 trigger below is unreachable for
+    ; them (real BOR has no separate attack2 button either -- see Jump_
+    ; AtchainTrigger's own header). Every other roster character
+    ; (CHAR_CHAINLENGTH==0) falls straight through to the existing,
+    ; unmodified X/Y dispatch untouched.
+    lda CHAR_CHAINLENGTH
+    beq Anim_Play__no_atchain
+    jsl Jump_AtchainTrigger
+    bcs Anim_Play__reacting
+    brl Anim_Play__no_attack_trigger
+Anim_Play__no_atchain:
 .a8
     ; plan_game.md 7 (G7 remaining, "attack2"): checked before the existing
     ; Y-attack trigger below, X button (Input_trigger, no +1, mask $40 --
@@ -4189,7 +4325,17 @@ Anim_Play_Attack__advance:
     ; fields) -- checked before the plain not-equal-zero branch below so
     ; variant 0 (attack1, fallthrough) and 1 (attack2) keep their existing
     ; encoding unchanged.
+    ; G7 content-audit slice: variants 3-8 = attack3/attack4/grab/slide/
+    ; riseattack/grabattack (NEW_MOVE_SLOT_NAMES order), all dispatched
+    ; through ONE shared bank-8 routine (Jump_PlayMoveSlotAdvance) instead
+    ; of 6 more hand-copied blocks -- checked first so variant 0/1/2's
+    ; existing encoding (just below) is untouched.
     lda CHAR_ATTACK_VARIANT
+    cmp #3
+    bcc Anim_Play_Attack__not_new_slot
+    brl Anim_Play_MoveSlot__jsl
+Anim_Play_Attack__not_new_slot:
+.a8
     cmp #2
     beq Anim_Play_Special__jsl
     bne Anim_Play_Attack2__advance
@@ -4272,6 +4418,26 @@ Anim_Play_Special__jsl:
 .i16
     rts
 Anim_Play_Special__load:
+.a8
+    lda CHAR_FRAME_INDEX
+    jsr Msu1_LoadFrame
+    rts
+
+; --- Anim_Play_MoveSlot__jsl -- G7 content-audit slice. Same "bank-0 stub,
+; bank-8 does the real work" shape as Anim_Play_Special__jsl just above.
+; ROM budget: the X=(variant-3)*5 slot-offset computation itself also
+; moved to bank 8 (Jump_PlayMoveSlotAdvance now does it internally, reading
+; CHAR_ATTACK_VARIANT itself) so this stub is just the jsl/bcs/load shape,
+; not a second copy of the multiply.
+Anim_Play_MoveSlot__jsl:
+.a8
+    jsl Jump_PlayMoveSlotAdvance
+    bcs Anim_Play_MoveSlot__load
+    rep #$31
+.a16
+.i16
+    rts
+Anim_Play_MoveSlot__load:
 .a8
     lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
@@ -6295,7 +6461,8 @@ Anim_LoadCharacter__seek_loop:
 .a16
     lda.l CharDirSeek16
     clc
-    adc #25                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+    adc #44                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+                             ; (G7 content-audit slice: 25->44, +19 bytes)
     sta.l CharDirSeek16
     dex
     bne Anim_LoadCharacter__seek_loop
@@ -6379,6 +6546,55 @@ Anim_LoadCharacter__jumprecs_loop:
     sta CHAR_SPECIAL_FCOUNT
     lda $2001
     sta CHAR_SPECIAL_DELAY
+
+    ; --- G7 content-audit slice: 19 more sequential MSU port reads (+25..
+    ; +43, RECORD_SIZE 25->44) -- the 6 new generic move slots' fcount/delay
+    ; (12 bytes, NEW_MOVE_SLOT_NAMES order: attack3/attack4/grab/slide/
+    ; riseattack/grabattack) then the 6 atchain bytes then chainlength (7
+    ; bytes), written straight to their own DP fields, same discipline as
+    ; CHAR_SPECIAL_FCOUNT/DELAY just above. DP is already switched to this
+    ; entity here.
+    lda $2001
+    sta CHAR_ATTACK3_FCOUNT
+    lda $2001
+    sta CHAR_ATTACK3_DELAY
+    lda $2001
+    sta CHAR_ATTACK4_FCOUNT
+    lda $2001
+    sta CHAR_ATTACK4_DELAY
+    lda $2001
+    sta CHAR_GRABMOVE_FCOUNT
+    lda $2001
+    sta CHAR_GRABMOVE_DELAY
+    lda $2001
+    sta CHAR_SLIDE_FCOUNT
+    lda $2001
+    sta CHAR_SLIDE_DELAY
+    lda $2001
+    sta CHAR_RISEATTACK_FCOUNT
+    lda $2001
+    sta CHAR_RISEATTACK_DELAY
+    lda $2001
+    sta CHAR_GRABATTACK_FCOUNT
+    lda $2001
+    sta CHAR_GRABATTACK_DELAY
+    lda $2001
+    sta CHAR_ATCHAIN0
+    lda $2001
+    sta CHAR_ATCHAIN1
+    lda $2001
+    sta CHAR_ATCHAIN2
+    lda $2001
+    sta CHAR_ATCHAIN3
+    lda $2001
+    sta CHAR_ATCHAIN4
+    lda $2001
+    sta CHAR_ATCHAIN5
+    lda $2001
+    sta CHAR_CHAINLENGTH
+    lda #0
+    sta CHAR_COMBOSTEP
+    sta CHAR_COMBOTIMER
 
     ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0
