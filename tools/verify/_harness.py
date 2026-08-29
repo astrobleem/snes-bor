@@ -41,6 +41,22 @@ def rom_path(verify_script_file):
     return os.path.join(repo_root_from(verify_script_file), 'distribution', 'bor.sfc')
 
 
+def roster():
+    """Gate/test hygiene (notjustfreespecial.txt): the authoritative roster
+    order/count/index, derived from build_rom.py's own ROSTER_PREFIXES
+    rather than a hand-copied literal list duplicated across every gate
+    file. A future roster addition then only requires editing build_rom.py
+    -- every gate that calls this picks the change up automatically.
+    Returns a list of lowercase names in real build/roster-select order,
+    e.g. ['ralf', 'jhun', ..., 'leo']."""
+    import importlib.util
+    root = repo_root_from(__file__)
+    spec = importlib.util.spec_from_file_location('build_rom', os.path.join(root, 'build_rom.py'))
+    build_rom = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_rom)
+    return [p.rsplit('/', 1)[-1] for p in build_rom.ROSTER_PREFIXES]
+
+
 def open_session(verify_script_file, boot_wait=2.0):
     return McpSession(rom=rom_path(verify_script_file), mesen=MESEN_EXE, boot_wait=boot_wait)
 

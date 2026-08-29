@@ -67,7 +67,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, read_block, Reporter, roster  # noqa: E402
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
@@ -104,9 +104,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 LEO_MOVESET = os.path.join(ROOT, 'out', 'leo_moveset.json')
 BEBOP_MOVESET = os.path.join(ROOT, 'out', 'bebop_moveset.json')
 
-# build_rom.py's own printed roster slot order.
-ROSTER = ['ralf', 'jhun', 'joe', 'yashiro', 'mouser', 'foot01', 'rock',
-          'leather', 'bebop', 'foot02', 'foot03', 'foot04', 'leo']
+# Gate/test hygiene (notjustfreespecial.txt): derived from build_rom.py's
+# own ROSTER_PREFIXES, not a hand-copied literal -- a future roster
+# addition then needs no edit here.
+ROSTER = roster()
 LEO_INDEX = ROSTER.index('leo')
 BEBOP_INDEX = ROSTER.index('bebop')
 RALF_INDEX = ROSTER.index('ralf')

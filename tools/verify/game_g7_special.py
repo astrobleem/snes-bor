@@ -72,7 +72,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, read_block, Reporter, roster  # noqa: E402
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
@@ -123,9 +123,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 LEO_MOVESET = os.path.join(ROOT, 'out', 'leo_moveset.json')
 RALF_MOVESET = os.path.join(ROOT, 'out', 'ralf_moveset.json')
 
-LEO_ROSTER_INDEX = 12  # ralf jhun joe yashiro mouser foot01 rock leather
-                        # bebop foot02 foot03 foot04 leo -- build_rom.py's
-                        # own printed slot order, PAK-verified.
+LEO_ROSTER_INDEX = roster().index('leo')  # derived, not hand-copied.
 
 
 def load_role_frames(moveset_path, role):

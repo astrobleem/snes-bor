@@ -31,6 +31,8 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bor_converter'))
 from pak_extract import extract  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _harness import roster as _roster  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -39,10 +41,17 @@ PAKS = {
     'tmnt': 'Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak',
 }
 
-# build_rom.py's own printed roster order, grouped by source pak.
+# build_rom.py's own printed roster order (single authoritative source,
+# gate/test hygiene per notjustfreespecial.txt), split into its two
+# source paks -- the first 4 slots are BOR-original characters, the rest
+# TMNT; that split point is a fact about this project's own roster
+# composition, not something ROSTER_PREFIXES itself encodes, so it is
+# recorded here explicitly rather than re-derived.
+_BOR_ORIGINAL_COUNT = 4
+_full_roster = [name.upper() for name in _roster()]
 ROSTER = {
-    'bor': ['RALF', 'JHUN', 'JOE', 'YASHIRO'],
-    'tmnt': ['MOUSER', 'FOOT01', 'ROCK', 'LEATHER', 'BEBOP', 'FOOT02', 'FOOT03', 'FOOT04', 'LEO'],
+    'bor': _full_roster[:_BOR_ORIGINAL_COUNT],
+    'tmnt': _full_roster[_BOR_ORIGINAL_COUNT:],
 }
 
 # Every real BOR.C keyword that can gate doland()/ANI_LAND, plus the
