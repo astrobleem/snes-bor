@@ -31,7 +31,8 @@
 ; Entity1_PosY/Entity2_PosY/Entity3_PosY, all already defined in main.pasm
 ; for AI-seek/hit-apply). This is read BEFORE Character_RenderFrame's jsl
 ; Jump_ApplyOamYOffset ever runs for anyone this frame -- jump altitude
-; (Player_JumpZPos) only ever perturbs the separate WRAM-staging
+; (CHAR_THROW_ZPOS, shared by jump and throw -- notjustfreespecial.txt
+; item 4) only ever perturbs the separate WRAM-staging
 ; OamSetSprite_Y cell inside Character_RenderFrame, never CHAR_POS_Y itself
 ; (core/jump.pasm's own header already documents that split; this file
 ; relies on it, doesn't re-implement it). So a jumping actor's ground-depth
@@ -59,7 +60,7 @@ Depth_Sort_ComputeOrder:
     sep #$30
 .a8
 .i8
-    ; Snapshot ground Y (NOT OamSetSprite_Y, NOT Player_JumpZPos-adjusted --
+    ; Snapshot ground Y (NOT OamSetSprite_Y, NOT CHAR_THROW_ZPOS-adjusted --
     ; the real CHAR_POS_Y ground/collision key) for all 4 fixed entity
     ; slots, and mark all 4 as not-yet-placed.
     lda.l PlayerEntity_PosY

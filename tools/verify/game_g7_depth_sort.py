@@ -38,7 +38,7 @@ CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
 CHAR_SELECTED_JUMP = pasm_constant('CHAR_SELECTED_JUMP')
 
-Player_JumpZPos = pasm_constant('Player_JumpZPos')
+CHAR_THROW_ZPOS = pasm_constant('CHAR_THROW_ZPOS')
 Player_JumpFCount = pasm_constant('Player_JumpFCount')
 CharSelect_Index = pasm_constant('CharSelect_Index')
 
@@ -231,7 +231,7 @@ def main():
             set_positions(m, TEST_X, TEST_Y)
             m.run_frames(1)
             m.pause()
-            zpos = read_i16(m, Player_JumpZPos)
+            zpos = read_i16(m, PlayerEntity + CHAR_THROW_ZPOS)
             max_zpos = max(max_zpos, zpos)
             ground_y_now = [read_byte(m, b + CHAR_POS_Y) for b in ENTITY_BASES]
             if ground_y_now != TEST_Y:
@@ -243,8 +243,8 @@ def main():
                 airborne_orders.append(order_now)
                 airborne_player_ys.append(by_entity_now[0][1])
 
-        print(f'max Player_JumpZPos observed: {max_zpos:#x}')
-        r.check('player actually left the ground during this test (Player_JumpZPos > 0 observed)',
+        print(f'max CHAR_THROW_ZPOS observed: {max_zpos:#x}')
+        r.check('player actually left the ground during this test (CHAR_THROW_ZPOS > 0 observed)',
                 max_zpos > 0)
         r.check('CHAR_POS_Y (ground/depth key) never changed for anyone while airborne (checked every sampled frame)',
                 True)  # the loop above raises on any violation -- reaching here means it held
@@ -253,7 +253,7 @@ def main():
         r.check("player's real OAM Y actually moved while airborne (visual jump offset still applies)",
                 len(airborne_player_ys) > 0 and any(y != TEST_Y[0] for y in airborne_player_ys))
 
-        # --- landing: wait for Player_JumpZPos to return to 0 (real
+        # --- landing: wait for CHAR_THROW_ZPOS to return to 0 (real
         # check_gravity() landing condition, see core/jump.pasm), then
         # re-verify both Y and order are back to the exact grounded baseline. ---
         for _ in range(120):
@@ -261,10 +261,10 @@ def main():
             set_positions(m, TEST_X, TEST_Y)
             m.run_frames(1)
             m.pause()
-            if read_i16(m, Player_JumpZPos) == 0 and read_byte(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_JUMP:
+            if read_i16(m, PlayerEntity + CHAR_THROW_ZPOS) == 0 and read_byte(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_JUMP:
                 break
         else:
-            raise AssertionError('player never landed (Player_JumpZPos never returned to 0) within 120 frames')
+            raise AssertionError('player never landed (CHAR_THROW_ZPOS never returned to 0) within 120 frames')
 
         m.run_frames(2)
         m.pause()
@@ -347,7 +347,7 @@ def main():
             m.run_frames(2)
             m.pause()
 
-            zpos = read_i16(m, Player_JumpZPos)
+            zpos = read_i16(m, PlayerEntity + CHAR_THROW_ZPOS)
             ground_y_now = [read_byte(m, b + CHAR_POS_Y) for b in ENTITY_BASES]
             expected_ground = [start_y[0], start_y[1], joe_y, start_y[3]]
             if ground_y_now != expected_ground:

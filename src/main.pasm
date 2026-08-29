@@ -3080,32 +3080,21 @@ CharDirSeek16 = $7E27B6  ; .dw -- 0x10 + CharSelect_Index*RECORD_SIZE(25), a
                           ; (see Anim_LoadCharacter_SeekRecord) -- replaces
                           ; CharDirSeekTmp's retired 8-bit-only scheme.
 
-; Player-only (slot 0), standalone WRAM cells, NOT a CHAR_ZP_LEN struct
-; field -- same reasoning as Player_InvulnFrames (project memory: growing
-; the shared per-instance struct for state only the player ever uses once
-; broke spawn-slot assignment despite audit_all.py passing clean). AI
-; entities never jump today; nothing reads these for them.
-Player_JumpZPos = $7E27B8   ; .dw -- Q8.8 fixed-point height above ground,
-                              ; SIGNED (can transiently overshoot negative
-                              ; for one frame -- large downward velocity vs.
-                              ; a small remaining height -- Jump_PlayerTick's
-                              ; landing check treats <=0, not ==0, and clamps
-                              ; to exactly 0 on landing; see real BOR.C
-                              ; check_gravity()'s own position.y<=base test).
-                              ; 0 == grounded. High byte (>>8) is the real
-                              ; pixel offset subtracted from the player's
-                              ; drawn OAM Y (Character_PlayFrame's visual-
-                              ; only override -- CHAR_POS_Y itself, the real
-                              ; ground/collision Y, is untouched).
-Player_JumpZVel = $7E27BA   ; .dw -- Q8.8 fixed-point vertical velocity,
-                              ; signed. Real OpenBOR semantics (BOR.C
-                              ; check_gravity()/toss()/dojump(), sourced this
-                              ; slice): position.y += velocity.y each tick,
-                              ; velocity.y += gravity each tick, land when
-                              ; position.y <= base (0 here) AND velocity.y <=
-                              ; 0. jumpheight IS the initial upward velocity
-                              ; directly (toss(self, jumpheight)), not a
-                              ; peak-height value requiring a physics solve.
+; notjustfreespecial.txt item 4: the player's jump used to keep its own
+; standalone Player_JumpZPos/Player_JumpZVel WRAM cells here, separate from
+; CHAR_THROW_ZPOS/CHAR_THROW_ZVEL (the per-entity fields Character_Grab_
+; Throw/Character_Throw_Play already used for exactly the same real
+; toss()-sourced Q8.8 height/velocity physics) -- two copies of identical
+; state for what is really one airborne representation. Jump_PlayerTick
+; (core/jump.pasm) now stores the player's own jump height/velocity in
+; PlayerEntity's own CHAR_THROW_ZPOS/CHAR_THROW_ZVEL (DP-local self) like
+; every other entity's throw state, and Jump_ApplyOamYOffset reads that
+; same field for both JUMP and THROWN. This project's other player-only-
+; standalone-cell precedent (Player_InvulnFrames, project memory: growing
+; the shared struct for state only the player uses once broke spawn-slot
+; assignment) does NOT apply here -- CHAR_THROW_ZPOS/ZVEL were already
+; real CHAR_ZP_LEN struct fields before this change, just previously
+; unused by jump.
 JUMP_INITIAL_VEL = $0500     ; LEO's real `jumpheight 5` (BOR.C's own units),
                               ; Q8.8: 5.0*256 = 1280 = $0500. Ratio-matched
                               ; to real source, not byte-identical to real
@@ -3186,7 +3175,7 @@ JumpAttack2BaseTmpHi = $7E27D9  ; .db
 ; depth render order over the 4 fixed entity slots. Depth_Y/Depth_Used/
 ; Depth_BestVal/Idx/Found are Depth_Sort_ComputeOrder's (core/depth_sort.pasm,
 ; .bank 9) own scratch -- Depth_Y is a snapshot of each entity's real ground
-; CHAR_POS_Y (NEVER Player_JumpZPos-adjusted OamSetSprite_Y -- jump altitude
+; CHAR_POS_Y (NEVER CHAR_THROW_ZPOS-adjusted OamSetSprite_Y -- jump altitude
 ; must not perturb the sort key, see depth_sort.pasm's header). Depth_
 ; RenderOrder is the PUBLIC output: 4 entity indices (0-3), front-to-back,
 ; consumed by Character_RenderPass below to decide OAM emission order (lower

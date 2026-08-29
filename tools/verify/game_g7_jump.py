@@ -33,8 +33,8 @@ CHAR_SELECTED_JUMP = pasm_constant('CHAR_SELECTED_JUMP')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 
-Player_JumpZPos = pasm_constant('Player_JumpZPos')
-Player_JumpZVel = pasm_constant('Player_JumpZVel')
+CHAR_THROW_ZPOS = pasm_constant('CHAR_THROW_ZPOS')
+CHAR_THROW_ZVEL = pasm_constant('CHAR_THROW_ZVEL')
 Player_JumpFCount = pasm_constant('Player_JumpFCount')
 Player_JumpAttackFCount = pasm_constant('Player_JumpAttackFCount')
 Player_JumpAttack2FCount = pasm_constant('Player_JumpAttack2FCount')
@@ -100,8 +100,8 @@ def player_oam_y(m):
 
 
 def player_state(m):
-    zpos = read_i16(m, Player_JumpZPos)
-    zvel = read_i16(m, Player_JumpZVel)
+    zpos = read_i16(m, (PlayerEntity + CHAR_THROW_ZPOS))
+    zvel = read_i16(m, (PlayerEntity + CHAR_THROW_ZVEL))
     selected = read_byte(m, PlayerEntity + CHAR_SELECTED)
     oam_y = player_oam_y(m)
     mode = read_byte(m, Player_JumpAnimMode)
@@ -175,11 +175,11 @@ def main():
         r.check('LEO has real jump frame data loaded (Player_JumpFCount != 0)', jump_fcount != 0)
 
         # --- 1. Grounded, A press starts a real jump: CHAR_SELECTED becomes
-        # JUMP and Player_JumpZVel is set to the real JUMP_INITIAL_VEL
+        # JUMP and CHAR_THROW_ZVEL is set to the real JUMP_INITIAL_VEL
         # (LEO's real jumpheight=5, Q8.8 -> $0500), not an arbitrary value. ---
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
-        m.write_u16(Player_JumpZPos, 0)
-        m.write_u16(Player_JumpZVel, 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZPOS), 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZVEL), 0)
         m.set_input(m.BTN_A, 1)
         m.pause()
         zpos1, zvel1, sel1, oamy1, mode1, frame1 = player_state(m)
@@ -235,8 +235,8 @@ def main():
         zpos_f, zvel_f, sel_f, oamy_f, mode_f, frame_f = player_state(m)
         print(f'landed={landed} final: zpos={zpos_f} zvel={zvel_f} selected={sel_f}')
         r.check('lands within a bounded frame count', landed)
-        r.check('Player_JumpZPos resets to 0 on landing', zpos_f == 0)
-        r.check('Player_JumpZVel resets to 0 on landing', zvel_f == 0)
+        r.check('CHAR_THROW_ZPOS resets to 0 on landing', zpos_f == 0)
+        r.check('CHAR_THROW_ZVEL resets to 0 on landing', zvel_f == 0)
         r.check('CHAR_SELECTED returns to idle(0) or walk(1) on landing', sel_f in (0, 1))
 
         # --- 4. OAM Y offset: nonzero (sprite drawn higher) at/near the
@@ -244,8 +244,8 @@ def main():
         # airborne-gated, not a permanent shift. ---
         neutralize_ai(m)
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
-        m.write_u16(Player_JumpZPos, 0)
-        m.write_u16(Player_JumpZVel, 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZPOS), 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZVEL), 0)
         m.run_frames(1)
         m.pause()
         base_y = player_oam_y(m)
@@ -296,8 +296,8 @@ def main():
 
         neutralize_ai(m)
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
-        m.write_u16(Player_JumpZPos, 0)
-        m.write_u16(Player_JumpZVel, 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZPOS), 0)
+        m.write_u16((PlayerEntity + CHAR_THROW_ZVEL), 0)
         m.set_input(m.BTN_A, 1)
         m.pause()
         neutralize_ai(m)

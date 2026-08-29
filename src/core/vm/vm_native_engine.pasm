@@ -1544,7 +1544,7 @@ Character_Grab_Throw__knock_have:
     sta.l $7E0a00,x
 
     ; --- ZPos=0, ZVel=JUMP_INITIAL_VEL (identical real toss()-sourced
-    ; Q8.8 magnitude jump.pasm's own Player_JumpZVel uses -- toss()'s
+    ; Q8.8 magnitude jump.pasm's own CHAR_THROW_ZVEL use uses -- toss()'s
     ; physics don't change based on who's airborne). Single 16-bit store
     ; each, matching ApplyGrab's own $7E0a00,x .a16 store convention. ---
     rep #$31

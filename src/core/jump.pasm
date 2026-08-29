@@ -41,7 +41,7 @@
 ;   - Visual-only OAM Y offset while airborne -- CHAR_POS_Y itself (the real
 ;     ground/collision Y) is never touched, matching real OpenBOR's own
 ;     separation of position.z (ground/depth, this project's CHAR_POS_Y) and
-;     position.y (pure jump height, this project's Player_JumpZPos). This
+;     position.y (pure jump height, this project's CHAR_THROW_ZPOS). This
 ;     project has no dynamic OAM draw-order/priority sort for ANYTHING
 ;     today (core/oam.pasm confirmed, grep-checked this slice) -- CHAR_POS_Y
 ;     movement already doesn't get one, so jump doesn't need to invent one
@@ -1029,7 +1029,7 @@ Jump_PlayerInputGate__not_grabbing:
 ; AIRBORNE (CHAR_SELECTED == JUMP): real BOR.C check_gravity() -- position
 ; += velocity, velocity += gravity, every tick, land when position<=0 AND
 ; velocity<=0 (NOT position==0 alone -- a large downward velocity can step
-; position past 0 in one frame, see Player_JumpZPos's own comment). Also
+; position past 0 in one frame, see CHAR_THROW_ZPOS's own comment). Also
 ; checks for a jump-attack trigger (real BOR.C: attack button while
 ; notinair plays a jump-attack instead of a ground attack) -- Y for
 ; jumpattack (Player_JumpAnimMode=1), X for jumpattack2 (mode=2), same
@@ -1065,9 +1065,16 @@ Jump_PlayerTick:
 .a16
 .i16
     lda #JUMP_INITIAL_VEL
-    sta.l Player_JumpZVel
+    sta CHAR_THROW_ZVEL    ; notjustfreespecial.txt item 4: DP-local (self)
+                             ; -- jump now shares the SAME per-entity Z
+                             ; storage throw already uses (Character_Grab_
+                             ; Throw/Character_Throw_Play, vm_native_engine.
+                             ; pasm), not a separate player-only global.
+                             ; Both are the identical real toss()-sourced
+                             ; Q8.8 height/velocity; the old duplication was
+                             ; storage only, not physics.
     lda #0
-    sta.l Player_JumpZPos
+    sta CHAR_THROW_ZPOS
     sep #$20
 .a8
     lda #0
@@ -1090,14 +1097,14 @@ Jump_PlayerTick__airborne:
     rep #$31
 .a16
 .i16
-    lda.l Player_JumpZPos
+    lda CHAR_THROW_ZPOS
     clc
-    adc.l Player_JumpZVel
-    sta.l Player_JumpZPos
-    lda.l Player_JumpZVel
+    adc CHAR_THROW_ZVEL
+    sta CHAR_THROW_ZPOS
+    lda CHAR_THROW_ZVEL
     clc
     adc #JUMP_GRAVITY
-    sta.l Player_JumpZVel
+    sta CHAR_THROW_ZVEL
 
     sep #$20
 .a8
@@ -1135,21 +1142,21 @@ Jump_PlayerTick__land_check:
     rep #$31
 .a16
 .i16
-    lda.l Player_JumpZPos
+    lda CHAR_THROW_ZPOS
     beq Jump_PlayerTick__zpos_le0
     bmi Jump_PlayerTick__zpos_le0
     bra Jump_PlayerTick__still_airborne
 Jump_PlayerTick__zpos_le0:
 .a16
-    lda.l Player_JumpZVel
+    lda CHAR_THROW_ZVEL
     beq Jump_PlayerTick__do_land
     bmi Jump_PlayerTick__do_land
     bra Jump_PlayerTick__still_airborne
 Jump_PlayerTick__do_land:
 .a16
     lda #0
-    sta.l Player_JumpZPos
-    sta.l Player_JumpZVel
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
     sep #$20
 .a8
     lda.l Input_press+1
@@ -1321,37 +1328,28 @@ Anim_Play_Jump__mode2_ok:
 ; actor depth-sort slice) -- moved to its own bank for main.pasm ROM budget
 ; (see file header).
 ;
-; Two disjoint airborne cases, checked in DP-local (self) fields only:
-;   - JUMP: player only (Jump_PlayerTick, this file), height in the
-;     player-only global Player_JumpZPos cell.
-;   - THROWN (G7 throw slice): any entity (always an AI slot in practice --
-;     the grabber is always the player, see CHAR_GRAB_TARGET's own
-;     comment), height in this entity's own per-instance CHAR_THROW_ZPOS
-;     field (Character_Grab_Throw/Character_Throw_Play, vm_native_engine.
-;     pasm) -- IDENTICAL toss()-sourced Q8.8 physics to jump's own, just
-;     per-entity storage instead of a shared global cell. ---
+; notjustfreespecial.txt item 4: JUMP (player only, Jump_PlayerTick) and
+; THROWN (any entity, Character_Grab_Throw/Character_Throw_Play) now share
+; the SAME per-entity CHAR_THROW_ZPOS field (DP-local self) -- there is no
+; longer a separate player-only global to branch on; both real states are
+; just "this entity is airborne, its height lives in CHAR_THROW_ZPOS" now.
+; Two different CHAR_SELECTED values still gate whether the offset applies
+; (JUMP vs THROWN are genuinely distinct animation/game states -- only the
+; underlying Z storage and gravity tick were ever duplicated). ---
 Jump_ApplyOamYOffset:
 .a8
-    lda CHAR_INPUT_DRIVEN
-    cmp #1
-    bne Jump_ApplyOamYOffset__check_thrown
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_JUMP
-    bne Jump_ApplyOamYOffset__check_thrown
-    lda.l OamSetSprite_Y
-    sec
-    sbc.l Player_JumpZPos+1        ; high byte = integer pixel part of Q8.8
-    sta.l OamSetSprite_Y
-    rtl
-Jump_ApplyOamYOffset__check_thrown:
-.a8
-    lda CHAR_SELECTED
+    beq Jump_ApplyOamYOffset__apply
     cmp #CHAR_SELECTED_THROWN
     bne Jump_ApplyOamYOffset__done
+Jump_ApplyOamYOffset__apply:
+.a8
     lda.l OamSetSprite_Y
     sec
-    sbc CHAR_THROW_ZPOS+1          ; DP-local (self) -- high byte, same
-                                     ; Q8.8-integer-part convention as jump
+    sbc CHAR_THROW_ZPOS+1          ; DP-local (self) -- high byte = integer
+                                     ; pixel part of Q8.8, same field/
+                                     ; convention for both JUMP and THROWN
     sta.l OamSetSprite_Y
 Jump_ApplyOamYOffset__done:
     rtl

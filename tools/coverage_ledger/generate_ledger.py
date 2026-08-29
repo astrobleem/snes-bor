@@ -163,18 +163,13 @@ ROLE_RUNTIME = {
                               'own docstring as structural/plumbing, not an organic '
                               'sequence. Once `grab` above is fixed to a real link, this '
                               'should become an organic grab-then-special sequence.'),
-    'jump': dict(handler='Player-only jump state machine (Jump_PlayerTick), '
-                         'Player_JumpZPos/ZVel WRAM cells (NOT part of the CHAR_ZP_LEN '
-                         'per-entity struct)',
-                  gates=['game_g7_jump.py'],
-                  status='partial',
-                  evidence='notjustfreespecial.txt item 4: jump keeps a separate, '
-                           'player-global altitude/velocity representation while throw '
-                           'keeps its own per-entity CHAR_THROW_ZPOS/ZVEL and its own '
-                           'second gravity-integration copy (Character_Grab_Throw / '
-                           'Character_Throw_Play) -- two physics systems for what should '
-                           'be one shared per-entity airborne representation. Not '
-                           'unified.'),
+    'jump': dict(handler='Player-only jump state machine (Jump_PlayerTick) now stores its '
+                         'height/velocity in the SAME per-entity CHAR_THROW_ZPOS/ZVEL '
+                         'struct fields throw already used -- no more separate player-'
+                         'global Player_JumpZPos/ZVel cells. Jump_ApplyOamYOffset reads '
+                         'one shared field for both JUMP and THROWN.',
+                  gates=['game_g7_jump.py', 'game_g7_throw.py', 'game_g7_depth_sort.py'],
+                  status='implemented-and-gated', evidence=''),
     'jumpattack': dict(handler='Y button mid-air (Player_JumpAnimMode=1), reuses JUMP state',
                         gates=['game_g7_jump.py'], status='implemented-and-gated', evidence=''),
     'jumpattack2': dict(handler='X button mid-air (Player_JumpAnimMode=2), reuses JUMP state',
@@ -188,14 +183,12 @@ ROLE_RUNTIME = {
                           '(this project reuses the same hit-stun path regardless of the '
                           'raw `pain` anim\'s own ordinal)',
                  gates=['phase5.py'], status='implemented-and-gated', evidence=''),
-    'throw': dict(handler='JOE (grabber-side) only: Character_Grab_Throw, per-entity '
-                           'CHAR_THROW_ZPOS/ZVEL, own gravity integration copy',
-                   gates=['game_g7_throw.py'], status='partial',
-                   evidence='Real and gated for JOE, but see `jump` row above -- shares '
-                            'the physics-duplication defect (notjustfreespecial.txt item '
-                            '4). AI-side throw reachability is now real and gated (see '
-                            '`attack2_is_grab` row below, game_g7_throw.py section 8) -- '
-                            'only the physics-duplication defect remains open here.'),
+    'throw': dict(handler='Character_Grab_Throw, generic on its grabber (player or AI), '
+                           'per-entity CHAR_THROW_ZPOS/ZVEL -- now the SAME storage/tick '
+                           'jump uses (notjustfreespecial.txt item 4), no more duplicate '
+                           'gravity-integration copy.',
+                   gates=['game_g7_throw.py', 'game_g7_jump.py'],
+                   status='implemented-and-gated', evidence=''),
     'attack2_is_grab': dict(
         handler='Real mutual-lock reachable from BOTH directions, both grab AND throw: '
                 'player-vs-AI (Character_HitApply__TryGrab) and AI-vs-player (Character_ '
