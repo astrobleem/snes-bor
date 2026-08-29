@@ -175,17 +175,33 @@ def drive_atchain_and_check_damage(m, r, prefix, char_label):
     clear_stun(m, Entity1)
     hp_before = 64
 
+    # mesen_set_input_wall_clock harness gap (project memory): a real,
+    # deterministic repro was found where this exact sequence (FOOT02, the
+    # LAST chain-bearing character reached in this long-running session's
+    # own long chain of prior set_input calls) landed variant 3 on every
+    # press instead of advancing 0,1,3 -- while a fresh, short standalone
+    # session running the identical logic passed cleanly every time. Same
+    # class of finding as game_g7_riseattack.py's own documented call-count
+    # starvation. Retry each step with a real release gap before giving up,
+    # same established fix pattern.
     observed_variants = []
-    for _ in real_atchain:
+    for expected_step in expected_variants:
         pos = read_block(m, PlayerEntity + 4, 32)
         world_x = pos[0] | (pos[1] << 8)
         world_y = pos[2]
         m.write_u16(Entity1 + 4, world_x)
         m.write_u8(Entity1 + 6, world_y)
-        m.set_input(m.BTN_Y, 1)
-        m.run_frames(1)
-        m.pause()
-        observed_variants.append(read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT))
+        var = None
+        for attempt in range(3):
+            m.set_input(m.BTN_Y, 1)
+            m.run_frames(1)
+            m.pause()
+            var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+            if var == expected_step:
+                break
+            m.run_frames(20)
+            m.pause()
+        observed_variants.append(var)
         m.run_frames(3)
         m.pause()
     print(f'{char_label} atchain observed variants={observed_variants} '
