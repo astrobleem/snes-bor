@@ -219,16 +219,24 @@ ROLE_RUNTIME = {
                            'stricter bar (raw-content search cited, but the exact grep '
                            'command/output is not re-attached here -- should be before '
                            'this classification is trusted again).'),
-    'land': dict(handler=None, gates=[], status='content-inapplicable',
-                 evidence='notjustfreespecial.txt item 7: NOT YET RE-AUDITED against '
-                          'the stricter bar this reopening demands (global autoland '
-                          'behavior, model configuration, throw/attack-force flags, '
-                          'blast/toss configuration, every shipped model containing '
-                          '`land`). Prior classification was "zero forcedirection/ '
-                          'projectile/blast/autoland/ATTACK_FORCE config anywhere" -- a '
-                          'grep-level check, not the full source-path audit item 7 '
-                          'requires. Flagged here as needing re-verification, not '
-                          'trusted as-is.'),
+    'land': dict(handler='Character_Throw_Play__land (vm_native_engine.pasm). '
+                         'notjustfreespecial.txt item 7 re-audit (sourced from real '
+                         'DCurrent/openbor engine/openbor.c): the prior "zero '
+                         'forcedirection/projectile/blast/autoland/ATTACK_FORCE config '
+                         'anywhere" claim was WRONG -- LEO ships a real, uncommented '
+                         '`anim land` entry (1 frame, reuses rise01.gif); JHUN\'s `#anim '
+                         'land` is genuinely disabled/commented data. Real doland() is '
+                         'normally gated on BLAST_TOSS attack-force config (none shipped '
+                         'here), but player_fall_check() is a SEPARATE, player-only '
+                         'trigger: holding UP+JUMP while CHAR_SELECTED_THROWN lands via '
+                         'ANI_LAND instead of the ordinary FALL reaction, gated only on '
+                         'the real global autoland default (0 == enabled) -- independent '
+                         'of any per-model flag. Reuses the existing idle transition, no '
+                         'new streaming pathway, matching this project\'s jumpattack2/'
+                         'throw "no unique art" precedent. Cross-checked against raw pak '
+                         'source by the standalone game_g7_land_audit.py finding-reporter.',
+                 gates=['game_g7_throw.py'],
+                 status='implemented-and-gated', evidence=''),
     'alias': dict(handler=None, gates=[], status='content-inapplicable',
                   evidence='Real BOR.C: alias is a cosmetic display-name override with '
                            'no gameplay effect (see alias_keyword_is_cosmetic_not_'

@@ -1180,8 +1180,9 @@
 01:9CF7 Character_Throw_Play__land
 00:9D00 Vm_TruthySlot__str
 00:9D0B Vm_TruthySlot__falsy
-01:9D0D Character_Throw_Play__done
 00:9D10 Vm_SlotCopy
+01:9D23 Character_Throw_Play__ordinary_land
+01:9D30 Character_Throw_Play__done
 00:9DB9 Vm_Op_Load
 00:9DBF Vm_Op_Save
 00:9DC5 Vm_Op_Inc

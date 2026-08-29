@@ -1815,6 +1815,47 @@ Character_Throw_Play__land:
     sta CHAR_THROW_ZVEL
     sep #$20
 .a8
+    ; notjustfreespecial.txt item 7 (land/autoland re-audit): real BOR.C
+    ; doland() (engine/openbor.c) -- common_fall()'s own doland() trigger
+    ; needs BLAST_TOSS (dothrow() always sets it) plus either autoland==1
+    ; (neither shipped pak's MODELS.TXT sets this global -- confirmed
+    ; absent, stays real default 0) OR damage_on_landing.attack_force==
+    ; ATTACK_FORCE_LAND_COMMAND, which player_fall_check() (player-only,
+    ; keys-based) sets every frame the PLAYER holds UP+JUMP while falling.
+    ; So the one real, currently-reachable path in this project's shipped
+    ; content is: the PLAYER, while THROWN (now reachable both ways since
+    ; item 3's AI-throw), holding UP+A at the moment of landing. doland()'s
+    ; own body (both its validanim and its no-anim-data branches) always
+    ; ends in a SAFE landing -- straight to idle, skipping the ordinary
+    ; knockdown/fall reaction common_fall() would otherwise give it. LEO
+    ; is the only roster character with real `anim land` data (a single
+    ; frame reusing his own rise01.gif sprite, `loop 0`) -- this project
+    ; deliberately reuses the existing idle transition rather than
+    ; building a new one-shot streaming/dispatch pathway for a single
+    ; reused-art frame, same class of "no unique art, reuses an existing
+    ; pathway" simplification already established for jumpattack2/throw's
+    ; own swing art. The real, gameplay-relevant difference (a safe
+    ; landing with no knockdown-vulnerability window, vs. an ordinary
+    ; FALL landing) is preserved; the unique cosmetic frame is not
+    ; rendered.
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_Throw_Play__ordinary_land
+    lda.l Input_press+1
+    and #$08                        ; Up held
+    beq Character_Throw_Play__ordinary_land
+    lda.l Input_press
+    and #$80                        ; A (jump) held
+    beq Character_Throw_Play__ordinary_land
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rtl
+Character_Throw_Play__ordinary_land:
+.a8
     lda #CHAR_SELECTED_FALL
     sta CHAR_SELECTED
     lda #$FF

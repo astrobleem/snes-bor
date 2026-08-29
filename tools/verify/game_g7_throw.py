@@ -566,6 +566,72 @@ def main():
         reset_combat_state(m)
         m.write_u8(Entity1 + CHAR_INPUT_DRIVEN, 2)
 
+        # ====================================================================
+        # 9. notjustfreespecial.txt item 7 (land/autoland re-audit): real
+        # BOR.C player_fall_check()/doland() -- the PLAYER, while THROWN,
+        # holding UP+A (jump) at the moment of landing gets a safe landing
+        # (straight to idle) instead of the ordinary FALL/knockdown
+        # reaction. Only reachable path in this project's shipped content
+        # (autoland global stays its real default 0 in both paks -- grep-
+        # confirmed absent from both MODELS.TXT). Forces the player
+        # directly into CHAR_SELECTED_THROWN with real Z values (the
+        # AI-trigger mechanism is already proven above; this isolates the
+        # landing transition itself).
+        # ====================================================================
+        # Neutralize every AI entity for the whole section -- real bug found
+        # the hard way: reset_combat_state() restores Entity1/2/3 to full
+        # HP, and a real unrelated AI attack landing on the player mid-
+        # flight sets CHAR_HIT_STUN nonzero, which forces CHAR_SELECTED
+        # back to idle on the player's very next frame regardless of Z
+        # (Character_Grab_Throw's own header comment documents this exact
+        # class of interaction) -- looked exactly like a landing that
+        # never happened, at an arbitrary frame unrelated to Z-physics.
+        reset_combat_state(m)
+        for base in (Entity1, Entity2, Entity3):
+            m.write_u8(base + CHAR_HP, 0)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, CHAR_SELECTED_THROWN)
+        m.write_u16(PlayerEntity + CHAR_THROW_ZPOS, 0)
+        m.write_u16(PlayerEntity + CHAR_THROW_ZVEL, JUMP_INITIAL_VEL)
+
+        def held_up_a_and_check():
+            m.set_input(m.BTN_UP | m.BTN_A, 1)
+            return read_u8(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_THROWN
+
+        landed = poll_until(m, held_up_a_and_check, max_frames=120)
+        sel_after_land_command = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        print(f'land-command landing: player.CHAR_SELECTED={sel_after_land_command} '
+              f'(landed={landed})')
+        r.check('holding UP+A while THROWN gives a safe landing (CHAR_SELECTED='
+                'idle, not FALL) -- real doland()/player_fall_check() semantics',
+                landed and sel_after_land_command == 0)
+
+        # Regression: the SAME throw, WITHOUT the land command held, still
+        # lands into the ordinary FALL/knockdown reaction (already the
+        # default behavior every earlier section in this file exercises,
+        # re-confirmed here as a direct A/B against the land-command path
+        # just above). The previous section's set_input(UP|A, 60) can
+        # still be "scripted held" for the remainder of its own window at
+        # the wall-clock layer -- release_gap() (this file's own helper,
+        # already used elsewhere for the same reason) forces a real gap
+        # with no input before starting this sub-test.
+        release_gap(m, frames=20)
+        reset_combat_state(m)
+        for base in (Entity1, Entity2, Entity3):
+            m.write_u8(base + CHAR_HP, 0)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, CHAR_SELECTED_THROWN)
+        m.write_u16(PlayerEntity + CHAR_THROW_ZPOS, 0)
+        m.write_u16(PlayerEntity + CHAR_THROW_ZVEL, JUMP_INITIAL_VEL)
+        landed_ordinary = poll_until(
+            m, lambda: read_u8(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_THROWN,
+            max_frames=120)
+        sel_ordinary = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        print(f'ordinary landing (no land command): player.CHAR_SELECTED='
+              f'{sel_ordinary} (landed={landed_ordinary})')
+        r.check('the SAME throw without UP+A held still lands into the ordinary '
+                'FALL reaction (regression against the land-command path above)',
+                landed_ordinary and sel_ordinary == CHAR_SELECTED_FALL)
+        reset_combat_state(m)
+
     r.finish()
 
 
