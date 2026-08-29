@@ -284,11 +284,24 @@ def main():
                 'not a permanent park', ok)
         r.check('HP unaffected by the fall/rise transition itself', hp == hp_after_hit)
 
+        # Real, pre-existing flake root-caused (project memory already
+        # flagged this check "confirmed flaky, unrelated to this slice" --
+        # this is that root cause): Entity1 is AI-controlled and
+        # immediately resumes seeking/attacking the player once rise
+        # finishes, so CHAR_SELECTED can pass through 0 (idle) for as
+        # little as a single real frame before becoming 2 (attack) again --
+        # a real hardware race between this poll's own per-frame sampling
+        # and the AI's own per-frame decision, not an engine defect. The
+        # actual invariant this check cares about is "recovery completed,
+        # rise did not permanently park the entity" -- CHAR_SELECTED no
+        # longer being FALL/RISE proves that regardless of which single
+        # frame the poll happens to land on; requiring the exact transient
+        # idle value was testing timing, not behavior.
         ok, (hp, selected, frame_idx, fall_timer, kd_count) = poll_until(
-            m, lambda s: s[1] == 0, max_frames=120)
-        print(f'rise finished, back to idle: selected={selected} hp={hp}')
-        r.check('rise animation completes and returns to normal idle control (CHAR_SELECTED==0)',
-                ok)
+            m, lambda s: s[1] not in (CHAR_SELECTED_FALL, CHAR_SELECTED_RISE), max_frames=120)
+        print(f'rise finished, back to normal control: selected={selected} hp={hp}')
+        r.check('rise animation completes and returns to normal idle/attack control '
+                '(CHAR_SELECTED no longer FALL/RISE)', ok)
         r.check('HP still unaffected after the full fall->rise recovery cycle',
                 hp == hp_after_hit)
 

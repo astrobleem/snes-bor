@@ -312,16 +312,26 @@ def run_case(m, opcode):
             return state[off]
         return state[off] | (state[off + 1] << 8)
 
+    # Real, pre-existing harness bug (found chasing an intermittent ~1-in-3
+    # FAIL on opcode 8, unrelated to any engine change): breaking on ANY
+    # status != READY treated VMSTAT_RUNNING (a real, non-terminal
+    # intermediate status a multi-step opcode can sit in for more than one
+    # polled frame) as if it were terminal, reading a stale mid-execution
+    # (status, error) pair instead of waiting for the real DONE/FAULT
+    # outcome -- same class of bug as the VMSTAT_YIELDED-treated-as-
+    # terminal gate-harness bug found during for-loop codegen (project
+    # memory vm_for_loop_codegen). Poll until a genuinely terminal status
+    # is reached instead.
     status_byte = VMSTAT_READY
     for _ in range(30):
         m.run_frames(2)
         m.pause()
         state = read_block(m, VM_STATE_FIRST, 32)
         status_byte = field(state, VmState_Status, 1)
-        if status_byte != VMSTAT_READY:
+        if status_byte in (VMSTAT_DONE, VMSTAT_FAULT):
             break
     else:
-        return None, None  # never left READY -- reported as its own failure
+        return None, None  # never reached a terminal status -- reported as its own failure
 
     error = field(state, VmState_Error, 2)
     return status_byte, error

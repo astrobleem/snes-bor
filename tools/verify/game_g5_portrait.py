@@ -46,7 +46,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, read_block, Reporter, roster  # noqa: E402
+from _harness import open_session, pasm_constant, read_block, Reporter, roster, playable_roster  # noqa: E402
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bor_converter'))
 import pack_msu_roster  # noqa: E402
@@ -64,6 +64,7 @@ PlayerEntity = 0x7E0A00
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ROSTER = roster()
+PLAYABLE_ROSTER = playable_roster()
 
 # Msu1_LoadFrame's own row-DMA layout (main.pasm's own header comment,
 # "row 0: word $4000 (tileRow0,col0)*2" etc.): 6 rows of 128 bytes, byte
@@ -83,10 +84,17 @@ def select_to(m, name):
     NOT the Select button -- Select is a separate, PLAYING-state-only live
     reselect path (Anim_Play's own check_reselect) that never runs
     CharSelect_PortraitUpdate. Must drive the real Right-press path to
-    exercise the actual screen this gate is testing."""
+    exercise the actual screen this gate is testing.
+
+    The wrap modulo must be the PLAYABLE roster count, not the full
+    ROSTER_PREFIXES length -- char-select's own Right/Left wrap is bounded
+    by CharSelect_RosterCount (the file header's playable_count byte, see
+    pack_msu_roster.py's own comment), which excludes real props like
+    out/apple. Indices themselves are unaffected (RALF is still index 0
+    either way); only the step-count computation needs the playable bound."""
     idx = read_u8(m, CharSelect_Index)
     target = ROSTER.index(name)
-    steps = (target - idx) % len(ROSTER)
+    steps = (target - idx) % len(PLAYABLE_ROSTER)
     for _ in range(steps):
         m.set_input(m.BTN_RIGHT, 10)
         m.run_frames(40)

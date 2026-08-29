@@ -67,7 +67,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, read_block, Reporter, roster  # noqa: E402
+from _harness import open_session, pasm_constant, read_block, Reporter, roster, playable_roster  # noqa: E402
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
@@ -532,7 +532,11 @@ def main():
         #    plain Y/X attack1/attack2 exactly as before this slice.
         # ================================================================
         idx = read_u8(m, CharSelect_Index)
-        roster_count = len(ROSTER)
+        # Select-button wrap (main.pasm's own live-reselect path, same
+        # mechanism as char-select's Right) is bounded by CharSelect_
+        # RosterCount == playable_count, not the full ROSTER_PREFIXES
+        # length -- real props (out/apple) are excluded from this wrap.
+        roster_count = len(playable_roster())
         steps = (RALF_INDEX - idx) % roster_count
         select_to(m, steps)
         idx = read_u8(m, CharSelect_Index)
