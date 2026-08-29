@@ -1560,7 +1560,7 @@
       "game_g7_throw.py"
     ],
     "classification": "partial",
-    "evidence": "Real and gated for JOE, but see `jump` row above -- shares the physics-duplication defect (notjustfreespecial.txt item 4). AI-side grab/throw reachability also unresolved -- see the `attack2_is_grab` row below."
+    "evidence": "Real and gated for JOE, but see `jump` row above -- shares the physics-duplication defect (notjustfreespecial.txt item 4). AI-side throw reachability is now real and gated (see `attack2_is_grab` row below, game_g7_throw.py section 8) -- only the physics-duplication defect remains open here."
   },
   {
     "character": "leo",

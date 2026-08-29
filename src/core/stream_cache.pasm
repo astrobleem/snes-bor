@@ -256,14 +256,12 @@ Core_StreamCache_AllocateSlot__evictable:
 	sta StreamCache_Chosen
 	bra Core_StreamCache_AllocateSlot__allocate
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__protected:
 	rep #$31
 .a16
 .i16
 	bra Core_StreamCache_AllocateSlot__advance
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__found:
 	rep #$31
 .a16
@@ -272,7 +270,6 @@ Core_StreamCache_AllocateSlot__found:
 	sta StreamCache_Chosen
 	bra Core_StreamCache_AllocateSlot__allocate
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__advance:
 	rep #$31
 .a16
@@ -282,7 +279,6 @@ Core_StreamCache_AllocateSlot__advance:
 	cmp #STREAM_CACHE_USABLE+1
 	bcc Core_StreamCache_AllocateSlot__advance_ok
 	lda #1
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__advance_ok:
 	sta StreamCache_Candidate
 
@@ -294,7 +290,6 @@ Core_StreamCache_AllocateSlot__advance_ok:
 	lda StreamCache_Candidate
 	sta StreamCache_Chosen
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__allocate:
 	rep #$31
 .a16
@@ -315,7 +310,6 @@ Core_StreamCache_AllocateSlot__allocate:
 	lda #$FFFF
 	sta.l StreamCache_Tile2Slot,x
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__no_evict:
 	lda StreamCache_Chosen
 	asl a
@@ -357,7 +351,6 @@ Core_StreamCache_AllocateSlot__no_evict:
 ; tile IDs and stores each result into StreamCache_Test_Results for
 ; external (Mesen2) inspection. Not called from the real boot path.
 ; ----------------------------------------------------------------------
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Test:
 	php
 	sei
@@ -369,7 +362,6 @@ Core_StreamCache_Test:
 	; sta`, not `stz` -- see Core_StreamCache_Init's header note.
 	lda #0
 	sta StreamCache_Test_Index
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Test__loop:
 	lda StreamCache_Test_Index
 	tax                              ; tile_id = loop index (0..7)

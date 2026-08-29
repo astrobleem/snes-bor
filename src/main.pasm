@@ -3912,7 +3912,7 @@ Anim_Play__check_attack_trigger:
     ; to drive from distance-to-player instead. ---
     lda CHAR_INPUT_DRIVEN
     cmp #2
-    beq Anim_Play__ai_seek
+    beq Anim_Play__ai_seek_gate
     cmp #1
     beq Anim_Play__player_input
     ; --- mode 0: static -- always idle, ignore real controller state. ---
@@ -4018,6 +4018,31 @@ Anim_Play__want_idle:
     ; the button-driven attack-trigger block above (same shape, different
     ; trigger condition) since it must set CHAR_SELECTED directly, not
     ; via want_got (which only handles idle/walk toggling, not attack). ---
+Anim_Play__ai_seek_gate:
+.a8
+    ; notjustfreespecial.txt item 3 (AI throw reachability): an AI entity
+    ; currently HOLDING a grab (CHAR_GRAB_TARGET != $FF, this entity is the
+    ; grabber -- see CHAR_GRAB_TARGET's own struct comment) must not fall
+    ; into the ordinary distance-to-player walk/attack decision below --
+    ; Character_Grab_Play already owns its position every frame (rigid
+    ; follow-drag), and letting ai_seek also re-decide CHAR_SELECTED here
+    ; would fight it. Real BOR's AI has no literal "throw button" either;
+    ; this is the same class of flat-chance simplification as Anim_Play__
+    ; ai_attack's own attack2 roll -- a real per-frame chance to execute a
+    ; real Character_Grab_Throw while holding, instead of throw being
+    ; permanently unreachable for an AI grabber regardless of content.
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    beq Anim_Play__ai_seek
+    jsr Core_Random_Get                    ; .a8 result in A (same not-jsl-
+                                             ; reachable-from-bank-1 reasoning
+                                             ; as Anim_Play__ai_attack's own
+                                             ; caller-side Core_Random_Get)
+    jsl Anim_Play__AiGrabHoldDecide         ; bank 1; may call Character_
+                                             ; Grab_Throw internally
+    lda #0
+    brl Anim_Play__want_got                 ; stay idle either way -- the
+                                             ; drag/throw is handled inside
 Anim_Play__ai_seek:
     ; plan_game.md 7 (grab mutual-lock slice): the CHAR_GRABBED_BY gate
     ; used to live here, but that let an attack already mid-swing at the

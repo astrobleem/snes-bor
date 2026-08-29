@@ -512,6 +512,60 @@ def main():
                      f'(HP={hp} <= {CHAR_HP_MAX}, CHAR_INPUT_DRIVEN={indriven} <= 3)',
                     hp <= CHAR_HP_MAX and indriven <= 3)
 
+        # ====================================================================
+        # 8. notjustfreespecial.txt item 3: AI-initiated throw reachability.
+        # Character_Grab_Throw was previously only ever called from the
+        # player-input path (Jump_PlayerInputGate's do_throw block) -- an
+        # AI-controlled grabber had no way to reach it regardless of
+        # content. Anim_Play__ai_seek_gate (main.pasm) now routes an AI
+        # entity that is the grabber (CHAR_GRAB_TARGET != $FF) into
+        # Anim_Play__AiGrabHoldDecide (vm_native_engine.pasm) instead of
+        # ordinary ai_seek; that decides via a real per-frame AI_THROW_
+        # CHANCE=8/256 roll (Core_Random_Get-driven, same simplification
+        # class as Anim_Play__ai_attack's own attack2 roll) whether to
+        # execute a real Character_Grab_Throw. The link here is established
+        # directly (not via a button press -- there's no AI input path to
+        # drive) but Character_Grab_Throw itself, and the real per-frame AI
+        # decision that reaches it, are exercised exactly as shipped.
+        # ====================================================================
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_ATTACK2_IS_GRAB, 1)
+        m.write_u8(Entity1 + CHAR_INPUT_DRIVEN, 2)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        m.write_u8(PlayerEntity + CHAR_HP, CHAR_HP_MAX)
+        m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
+        overlap_entity_with_player(m, Entity1)
+        # Entity1 is the grabber: its own CHAR_GRAB_TARGET holds the
+        # player's byte offset (0); the player's CHAR_GRABBED_BY holds
+        # Entity1's real byte offset -- same convention as game_g7_grab.py's
+        # own AI-grab section (test 7 there), reversed from every player-
+        # initiated grab in this file.
+        m.write_u8(Entity1 + CHAR_GRAB_TARGET, 0)
+        m.write_u8(PlayerEntity + CHAR_GRABBED_BY, Entity1_ByteOff)
+
+        def still_holding_no_throw():
+            overlap_entity_with_player(m, Entity1)
+            return read_u8(m, PlayerEntity + CHAR_SELECTED) == CHAR_SELECTED_THROWN
+
+        # AI_THROW_CHANCE=8/256 per frame -- (1 - 8/256)^400 is astronomically
+        # small, so 400 real polled frames is a comfortable margin, not a
+        # tight race.
+        threw = poll_until(m, still_holding_no_throw, max_frames=400)
+        player_after = entity_block(m, PlayerEntity)
+        entity1_after = entity_block(m, Entity1)
+        print(f'AI-initiated throw: player.CHAR_SELECTED={player_after[CHAR_SELECTED]} '
+              f'entity1.CHAR_GRAB_TARGET={entity1_after[CHAR_GRAB_TARGET]} '
+              f'player.CHAR_GRABBED_BY={player_after[CHAR_GRABBED_BY]}')
+        r.check('an AI grabber\'s own per-frame decision really executes a '
+                'real Character_Grab_Throw (player CHAR_SELECTED reaches '
+                'CHAR_SELECTED_THROWN)', threw)
+        r.check('the throw releases both link fields (entity1.CHAR_GRAB_TARGET '
+                'and player.CHAR_GRABBED_BY both back to $FF)',
+                entity1_after[CHAR_GRAB_TARGET] == 0xFF
+                and player_after[CHAR_GRABBED_BY] == 0xFF)
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_INPUT_DRIVEN, 2)
+
     r.finish()
 
 

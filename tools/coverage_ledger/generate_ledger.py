@@ -193,23 +193,22 @@ ROLE_RUNTIME = {
                    gates=['game_g7_throw.py'], status='partial',
                    evidence='Real and gated for JOE, but see `jump` row above -- shares '
                             'the physics-duplication defect (notjustfreespecial.txt item '
-                            '4). AI-side grab/throw reachability also unresolved -- see '
-                            'the `attack2_is_grab` row below.'),
+                            '4). AI-side throw reachability is now real and gated (see '
+                            '`attack2_is_grab` row below, game_g7_throw.py section 8) -- '
+                            'only the physics-duplication defect remains open here.'),
     'attack2_is_grab': dict(
-        handler='Real mutual-lock reachable from BOTH directions: player-vs-AI '
-                '(Character_HitApply__TryGrab) and AI-vs-player (Character_HitApply__ '
-                'TryGrabVsPlayer, vm_native_engine.pasm) -- the latter previously did not '
-                'exist at all (Character_HitApply_VsPlayer never called any grab-check). '
-                'Anim_Play__AiSelectAttackVariant gives every AI entity a real (64/256) '
-                'chance to select attack2, a structural gap fixed alongside this (AI '
-                'never set CHAR_ATTACK_VARIANT at all before).',
+        handler='Real mutual-lock reachable from BOTH directions, both grab AND throw: '
+                'player-vs-AI (Character_HitApply__TryGrab) and AI-vs-player (Character_ '
+                'HitApply__TryGrabVsPlayer); throw for both directions is the same real '
+                'Character_Grab_Throw, reached by the player via Jump_PlayerInputGate\'s '
+                'do_throw block and by an AI grabber via a new real per-frame decision '
+                '(Anim_Play__ai_seek_gate -> Anim_Play__AiGrabHoldDecide, AI_THROW_ '
+                'CHANCE=8/256, same simplification class as Anim_Play__ai_attack\'s own '
+                'attack2 roll). Anim_Play__AiSelectAttackVariant gives every AI entity a '
+                'real chance to select attack2 in the first place (previously AI never '
+                'set CHAR_ATTACK_VARIANT at all).',
         gates=['game_g7_grab.py', 'game_g7_throw.py'],
-        status='partial',
-        evidence='notjustfreespecial.txt item 3, AI-side grab reachability now real and '
-                 'gated (game_g7_grab.py section 7). AI-side THROW reachability remains '
-                 'unresolved: Character_Grab_Throw is still only ever called from the '
-                 'player-input path (Jump_PlayerInputGate\'s do_throw block) -- no AI '
-                 'throw-trigger exists.'),
+        status='implemented-and-gated', evidence=''),
     'get': dict(handler=None, gates=[], status='partial',
                 evidence='Converted (real frame data exists per-character where '
                          'authored) but not resolved to any engine role at all -- '

@@ -1569,14 +1569,58 @@ Character_Grab_Throw__done:
 .a8
     rtl
 
+AI_THROW_CHANCE = 8   ; 8/256 per frame -- notjustfreespecial.txt item 3: a
+                       ; flat per-frame chance for an AI grabber to execute
+                       ; a real throw while holding, same simplification
+                       ; class as Anim_Play__ai_attack's own AI_ATTACK2_
+                       ; CHANCE roll. ~once every 32 frames on average
+                       ; (well inside GRAB_HOLD_FRAMES=240's own auto-
+                       ; release window, so a real throw is reachable
+                       ; before the hold ever times out on its own).
+
+; ============================================================================
+; Anim_Play__AiGrabHoldDecide -- notjustfreespecial.txt item 3 (AI throw
+; reachability). Called once per frame for an AI entity that is the
+; GRABBER (self.CHAR_GRAB_TARGET != $FF) instead of letting Anim_Play__
+; ai_seek re-decide its CHAR_SELECTED (see main.pasm's Anim_Play__ai_seek_
+; gate). A in = a real random byte (Core_Random_Get, called by the bank-0
+; caller for the same reason Anim_Play__AiSelectAttackVariant's own caller
+; does). Below AI_THROW_CHANCE: throws (X = self.CHAR_GRAB_TARGET, the real
+; byte offset of whoever is being held -- Character_Grab_Throw is fully
+; generic on its grabber, DP-local self, same as Character_Grab_Play; no
+; player-only restriction). Otherwise a no-op -- the hold just continues
+; (Character_Grab_Play's own per-frame drag still runs regardless, and the
+; GRAB_HOLD_FRAMES timer still auto-releases if this never rolls a throw).
+; Always .a8 in, .a8 out.
+; ============================================================================
+Anim_Play__AiGrabHoldDecide:
+.a8
+    cmp #AI_THROW_CHANCE
+    bcs Anim_Play__AiGrabHoldDecide__no
+    rep #$30
+.a16
+.i16
+    lda CHAR_GRAB_TARGET
+    and #$00FF
+    tax
+    jsl Character_Grab_Throw
+    sep #$20
+.a8
+Anim_Play__AiGrabHoldDecide__no:
+.a8
+    rtl
+
 ; ============================================================================
 ; Character_Special_ReleaseGrab -- G7 special slice. Real BOR.C
 ; player_check_special() calls dograb-release before triggering (a special
 ; move ends any active grab the SAME frame it fires -- sourced from
-; DCurrent/openbor engine/openbor.c). Only ever called on the player (self,
-; DP-local, matching Character_Grab_Throw's own grabber-is-always-player
-; restriction) when CHAR_GRAB_TARGET != $FF; a no-op call would silently
-; write $FF into a real held target's own CHAR_GRABBED_BY at a garbage
+; DCurrent/openbor engine/openbor.c). Only ever called on the player today
+; (LEO is the only roster member with real `special` data) -- generic on
+; its grabber, DP-local self, same as Character_Grab_Throw/Character_Grab_
+; Play; nothing here is actually player-only, it's simply unreached by an
+; AI entity because no AI character has real special data yet. Called when
+; CHAR_GRAB_TARGET != $FF; a no-op call would silently write $FF into a
+; real held target's own CHAR_GRABBED_BY at a garbage
 ; offset, so the caller MUST check first -- not re-checked here (bank-0 call
 ; site already gates on it, same "trust the one caller" convention as
 ; Character_Grab_Throw's own X-in precondition).
