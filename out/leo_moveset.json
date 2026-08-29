@@ -145,6 +145,7 @@
     "slide": 2,
     "riseattack": null,
     "grabattack": 19,
+    "freespecial": 18,
     "attack2": 9,
     "attack2_is_grab": false,
     "grab": 12

@@ -48,7 +48,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant_in, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -64,6 +64,9 @@ CharSelect_Index = 0x7E53B6
 CharSelect_RosterCount = 0x7E53B7
 CharSelect_Loaded = 0x7E53B8
 PLAYER_PALETTE_ADDR = 0x100   # CHAR_PALETTE_SLOT==0, same layout phase12_roster.py uses
+CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
+PlayerEntity = 0x7E0A00
+DEAD_OAM_Y = 0xF0
 
 FONT_TILES_VRAM_WORD = pasm_constant_in('src/core/text.pasm', 'FONT_TILES_VRAM_WORD')
 BG3_TILES_VRAM_WORD = pasm_constant_in('src/main.pasm', 'BG3_TILES_VRAM_WORD')
@@ -197,6 +200,30 @@ def main():
         r.check(f'CharSelect_Loaded still 1 after Right reselect ({loaded})', loaded == 1)
         r.check('CGRAM palette changed after Right reselect (real reload, not just the index)',
                  pal_after != pal_before)
+
+        # Reopening directive (2026-08-28): "verify actual OAM/frame/
+        # palette results, not just the roster index." Palette is already
+        # covered just above -- add real hardware OAM visibility and real
+        # CHAR_FRAME_INDEX animation on top, so a reload that silently left
+        # the sprite hidden or animation frozen (both real historical bug
+        # shapes in this project -- see boot_nmi_race_before_oam_init and
+        # phase15's fourth-character memory) can't hide behind a
+        # palette-only/index-only check again.
+        oam = read_block(m, 0, 128, mem_type='snesSpriteRam')
+        player_oam_y = oam[1]   # slot 0 (player) -- only live entity on
+                                  # screen at charselect, AI unspawned
+        r.check('player hardware OAM sprite visible after Right reselect '
+                '(not hidden, Y != $F0)', player_oam_y != DEAD_OAM_Y)
+
+        frame_samples = []
+        for _ in range(6):
+            m.run_frames(8)
+            m.pause()
+            frame_samples.append(read_block(m, PlayerEntity + CHAR_FRAME_INDEX, 32)[0])
+        print(f'CHAR_FRAME_INDEX samples after reselect: {frame_samples}')
+        r.check('player animation actually advances after reselect '
+                '(CHAR_FRAME_INDEX varies, not frozen on one frame)',
+                len(set(frame_samples)) > 1)
 
         # --- Left from slot 1 goes back to slot 0 (RALF). ---
         m.set_input(m.BTN_LEFT, 10)

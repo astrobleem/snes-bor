@@ -246,6 +246,22 @@ Jump_ComputeBases:
     sta.l JumpHopBaseHi
     jsr Jump_HopBase
     lda.l JumpHopBaseLo
+    sta CHAR_FREESPECIAL_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_FREESPECIAL_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_FREESPECIAL_BASE_HI
+
+    lda CHAR_FREESPECIAL_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_FREESPECIAL_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_FREESPECIAL_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_FREESPECIAL_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
     sta CHAR_MAP_BASE_LO
     lda.l JumpHopBaseLo+1
     sta CHAR_MAP_BASE_LO+1
@@ -460,15 +476,19 @@ Jump_PlaySpecialAdvance__frame_ok:
     sec
     rtl
 
-; --- Jump_PlayMoveSlotAdvance -- G7 content-audit slice. The real generic
+; --- Jump_PlayMoveSlotAdvance -- G7 content-audit slice (extended by the
+; reopened-again slice's `freespecial` addition). The real generic
 ; animation descriptor table this slice's own directive calls for: ONE
-; shared routine for all 6 new move slots (attack3/attack4/grab/slide/
-; riseattack/grabattack), instead of a 6th, 7th, 8th... hand-copied
-; Anim_Play_Attack2__advance-style block. Works because the 6 slots'
-; DP fields are laid out with a fixed 5-byte stride (CHAR_ATTACK3_FCOUNT=76,
-; CHAR_ATTACK4_FCOUNT=81, ... CHAR_GRABATTACK_FCOUNT=101 -- see main.pasm's
-; CHAR_* struct comment) -- direct-page-indexed-by-X addressing (`lda
-; CHAR_ATTACK3_FCOUNT,x`) reaches any of the 6 slots' fields from ONE set of
+; shared routine for all 7 new move slots (attack3/attack4/grab/slide/
+; riseattack/grabattack/freespecial), instead of a 6th, 7th, 8th...
+; hand-copied Anim_Play_Attack2__advance-style block. Works because the 7
+; slots' DP fields are laid out with a fixed 5-byte stride (CHAR_ATTACK3_
+; FCOUNT=76, CHAR_ATTACK4_FCOUNT=81, ... CHAR_GRABATTACK_FCOUNT=101,
+; CHAR_FREESPECIAL_FCOUNT=106 -- see main.pasm's CHAR_* struct comment;
+; freespecial was deliberately placed immediately after grabattack, NOT
+; after the unrelated atchain/combo block, specifically to preserve this
+; stride) -- direct-page-indexed-by-X addressing (`lda CHAR_ATTACK3_
+; FCOUNT,x`) reaches any of the 7 slots' fields from ONE set of
 ; instructions, X = (CHAR_ATTACK_VARIANT-3)*5.
 ;
 ;   in:  none (DP-local self) -- computes X = (CHAR_ATTACK_VARIANT-3)*5
@@ -651,6 +671,125 @@ Jump_RiseattackTrigger__no:
     clc
     rtl
 
+; --- Jump_LoadFreespecialRecord -- G7 reopened-again slice. Moved off the
+; bank-0 Anim_LoadCharacter hot path for ROM budget (main.pasm was at its
+; $C100-$FC00 ceiling) -- reads the 2 sequential MSU port bytes (freespecial
+; fcount/delay, RECORD_SIZE 44->46) straight to DP and zeroes the FSM
+; tracking fields, same discipline as every other new-slot fcount/delay
+; pair, just relocated. DP is already switched to this entity at the call
+; site (mid Anim_LoadCharacter).
+;
+;   in:  none. out: none. Clobbers A.
+Jump_LoadFreespecialRecord:
+.a8
+    lda $2001
+    sta CHAR_FREESPECIAL_FCOUNT
+    lda $2001
+    sta CHAR_FREESPECIAL_DELAY
+    lda #0
+    sta CHAR_FREESPECIAL_STEP
+    sta CHAR_FREESPECIAL_TIMER
+    rtl
+
+; --- Jump_FreespecialTrigger -- G7 reopened-again slice. Real
+; model_init_defaultreadme() (DCurrent/openbor engine/openbor.c, ~line
+; 21039) auto-installs a default 3-step command (forward,forward,attack)
+; into model->special[] for any character declaring ANI_FREESPECIAL without
+; an explicit `special` command override, consumed via player_preinput()->
+; check_combo() (player_think(), BEFORE player_check_special()) -- a real,
+; player-reachable trigger, not the "AI-exclusive" classification the prior
+; content-audit slice wrongly gave it (see CHAR_FREESPECIAL_FCOUNT's own
+; comment in main.pasm). FREESPECIAL_TAP_WINDOW is a feel-tuned frame count
+; (real BOR.C uses command_input_hold_trigger_collect()/command_input_
+; history_grace_time_get(), COMMAND_TIME_DEFAULT=GAME_SPEED_DEFAULT/4=50,
+; against a full input-history ring buffer, not a single FSM timer) -- not
+; a re-derived real magnitude, same class of deliberate simplification this
+; project already applies to atchain's own combo window (ATCHAIN_COMBO_
+; WINDOW just above). LEO is the only roster member with real freespecial
+; data (CHAR_FREESPECIAL_FCOUNT!=0) -- every other character's forward-tap
+; presses harmlessly advance/decay CHAR_FREESPECIAL_STEP/TIMER (both stay
+; unread since Jump_PlayMoveSlotAdvance never dispatches variant 9 for
+; them, CHAR_FREESPECIAL_FCOUNT==0 makes Jump_PlayerInputGate skip the
+; trigger check itself -- see below).
+;
+;   in:  none (DP-local self, always the player -- only ever called from
+;        Jump_PlayerInputGate, which only runs for CHAR_INPUT_DRIVEN==1).
+;   out: carry SET = freespecial just triggered (CHAR_SELECTED/CHAR_ATTACK_
+;        VARIANT/CHAR_FRAME_INDEX/CHAR_TICK_COUNTER all set, same shape as
+;        every other move-slot trigger in this file) -- caller dispatches
+;        immediately. Carry CLEAR = no trigger this frame (STEP/TIMER
+;        updated/decayed as needed) -- caller falls through. Clobbers A.
+FREESPECIAL_TAP_WINDOW = 20
+Jump_FreespecialTrigger:
+.a8
+    lda CHAR_FREESPECIAL_TIMER
+    beq Jump_FreespecialTrigger__no_decay
+    dec a
+    sta CHAR_FREESPECIAL_TIMER
+    bne Jump_FreespecialTrigger__no_decay
+    lda #0
+    sta CHAR_FREESPECIAL_STEP
+Jump_FreespecialTrigger__no_decay:
+.a8
+    lda CHAR_FACING_LEFT
+    beq Jump_FreespecialTrigger__facing_right
+    lda #$02                        ; Left is forward when facing left
+    bra Jump_FreespecialTrigger__have_mask
+Jump_FreespecialTrigger__facing_right:
+.a8
+    lda #$01                        ; Right is forward when facing right
+Jump_FreespecialTrigger__have_mask:
+.a8
+    sta.l JumpHopBaseLo              ; scratch reuse (Jump_ComputeBases only
+                                       ; uses this mid-load-character, never
+                                       ; concurrently with player input)
+    lda.l Input_trigger+1            ; direction bits live in the HIGH byte
+                                       ; (Up/Down/Left/Right -- see this
+                                       ; file's own Jump_PlayerTick header
+                                       ; comment for the full bit map), NOT
+                                       ; the low byte -- a real bug found by
+                                       ; game_g7_content_audit.py's own new
+                                       ; freespecial checks (STEP never
+                                       ; advanced on a real Right press).
+    and.l JumpHopBaseLo
+    beq Jump_FreespecialTrigger__no_forward
+    lda CHAR_FREESPECIAL_STEP
+    cmp #2
+    beq Jump_FreespecialTrigger__no_step_advance
+    inc a
+    sta CHAR_FREESPECIAL_STEP
+    lda #FREESPECIAL_TAP_WINDOW
+    sta CHAR_FREESPECIAL_TIMER
+Jump_FreespecialTrigger__no_step_advance:
+.a8
+    clc
+    rtl
+Jump_FreespecialTrigger__no_forward:
+.a8
+    lda CHAR_FREESPECIAL_STEP
+    cmp #2
+    bne Jump_FreespecialTrigger__no_trigger
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK    ; Y -- same button real check_combo()'s
+    beq Jump_FreespecialTrigger__no_trigger  ; default command ends on
+    lda #0
+    sta CHAR_FREESPECIAL_STEP
+    sta CHAR_FREESPECIAL_TIMER
+    lda #9                           ; freespecial's move-slot variant
+    sta CHAR_ATTACK_VARIANT
+    lda #2
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_FreespecialTrigger__no_trigger:
+.a8
+    clc
+    rtl
+
 ; --- Jump_PlayerInputGate -- G7 throw slice. Called via jsl from bank 0's
 ; hot per-frame player-input path (Anim_Play__player_input) -- the ONLY
 ; entry point that leaf uses now; both this gate's own grab/throw check
@@ -675,6 +814,23 @@ Jump_RiseattackTrigger__no:
 ;        dispatch). Clobbers A/X.
 ; ============================================================================
 Jump_PlayerInputGate:
+.a8
+    ; G7 reopened-again slice: freespecial checked FIRST, before special/
+    ; grab/slide -- real player_preinput()->check_combo() runs BEFORE
+    ; player_check_special() in player_think() (see Jump_FreespecialTrigger's
+    ; own header). No-ops entirely (falls through, STEP/TIMER left alone)
+    ; if this roster character has no real freespecial anim (CHAR_
+    ; FREESPECIAL_FCOUNT==0 -- every roster member but LEO).
+    lda CHAR_FREESPECIAL_FCOUNT
+    beq Jump_PlayerInputGate__no_freespecial
+    jsl Jump_FreespecialTrigger
+    bcs Jump_PlayerInputGate__freespecial_triggered
+    bra Jump_PlayerInputGate__no_freespecial
+Jump_PlayerInputGate__freespecial_triggered:
+.a8
+    sec
+    rtl
+Jump_PlayerInputGate__no_freespecial:
 .a8
     ; G7 special slice: real check_special()/player_check_special()
     ; (DCurrent/openbor engine/openbor.c) -- checked first, before the

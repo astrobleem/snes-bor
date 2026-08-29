@@ -42,7 +42,7 @@ The chain-link fence renders **in front of** the characters (compare against `sc
 
 ---
 
-## Current Status (2026-08-16, roadmap/status corrections 2026-08-19, Phase G4 2026-08-21, Phase G5 (title screen) 2026-08-21, Phase G8 (prop entity kind, first slice) 2026-08-21, per-spawn health override 2026-08-21, Phase G6 (score/lives/real HUD) 2026-08-21, Phase G7 (run/dash, first slice) 2026-08-22, Phase G7 (AI invulnerability frames, second slice) 2026-08-22, converter extended for fall/rise (knockdown/getting-up assets) 2026-08-22, Phase G7 (knockdown/getting-up wired, third slice) 2026-08-22, Phase G7 (attack2, fourth slice) 2026-08-23, Phase G5 (character select) 2026-08-23, Phase G9 (boss health bar) 2026-08-23, Phase G5 (pause menu) 2026-08-23, Phase G5 (options/SRAM persistence, G5 now fully done) 2026-08-23, Phase G9 (real TMNT boss stage, G9 now fully done) 2026-08-23, full TMNT pak converted — 10 real stages total 2026-08-24, spawn-driven roster reassignment for identified bosses 2026-08-24, roster format grown 8->15 slots + Bebop identified 2026-08-24, LEO added as roster slot 12 + a real attack2 role-assignment bug fixed for Bebop/Rock 2026-08-24, Phase G7 (real jump/jumpattack/jumpattack2, fifth slice) 2026-08-28, Phase G7 (actor ground-depth sort, sixth slice) 2026-08-28, Phase G7 (real throw, seventh slice) 2026-08-28, Phase G7 (real special, eighth slice) 2026-08-28, G7 content-audit slice — real atchain combo/grab/slide/grabattack/riseattack, G7 now genuinely complete 2026-08-28 — see "Not built" below)
+## Current Status (2026-08-16, roadmap/status corrections 2026-08-19, Phase G4 2026-08-21, Phase G5 (title screen) 2026-08-21, Phase G8 (prop entity kind, first slice) 2026-08-21, per-spawn health override 2026-08-21, Phase G6 (score/lives/real HUD) 2026-08-21, Phase G7 (run/dash, first slice) 2026-08-22, Phase G7 (AI invulnerability frames, second slice) 2026-08-22, converter extended for fall/rise (knockdown/getting-up assets) 2026-08-22, Phase G7 (knockdown/getting-up wired, third slice) 2026-08-22, Phase G7 (attack2, fourth slice) 2026-08-23, Phase G5 (character select) 2026-08-23, Phase G9 (boss health bar) 2026-08-23, Phase G5 (pause menu) 2026-08-23, Phase G5 (options/SRAM persistence, G5 now fully done) 2026-08-23, Phase G9 (real TMNT boss stage, G9 now fully done) 2026-08-23, full TMNT pak converted — 10 real stages total 2026-08-24, spawn-driven roster reassignment for identified bosses 2026-08-24, roster format grown 8->15 slots + Bebop identified 2026-08-24, LEO added as roster slot 12 + a real attack2 role-assignment bug fixed for Bebop/Rock 2026-08-24, Phase G7 (real jump/jumpattack/jumpattack2, fifth slice) 2026-08-28, Phase G7 (actor ground-depth sort, sixth slice) 2026-08-28, Phase G7 (real throw, seventh slice) 2026-08-28, Phase G7 (real special, eighth slice) 2026-08-28, G7 content-audit slice — real atchain combo/grab/slide/grabattack/riseattack 2026-08-28, G7 reopened-again slice — real freespecial (double-tap-forward+attack, LEO), G7 now genuinely complete 2026-08-28; G5 status corrected to PARTIAL 2026-08-28 (real `waiting`/char-select-portrait presentation was never built, despite an earlier "G5 now fully done" claim) — see "Not built" below)
 
 ### Working and verified
 
@@ -197,6 +197,23 @@ The chain-link fence renders **in front of** the characters (compare against `sc
 Scheduled — see [plan_game.md](plan_game.md) for the step-by-step plan:
 - **No SFX are wired to gameplay.** Music now plays (see Phase 7 above), but nothing triggers a sound on an attack or a hit. This is no longer blocked — it is just unstarted, and it needs content before it needs code: `soundwork/tad/build/audio-enums.inc` currently exports exactly one song (`s02_coin`) and one placeholder effect (`sfx_stub = 0`), so a punch sound has to be authored in the Terrific Audio Driver project first.
 - **Real-play scroll-lag under sustained held-dpad input** for the streaming path (plan.md §2.8, historical) is covered by the committed `tools/verify/phase9.py` gate (part of the routine suite — see CLAUDE.md's Testing section); the two `phase9_*.py` scripts remain separate, non-routine, real-wall-clock-time checks for byte-exact tile-cache consistency. The old static whole-level path (`out/bg_boss_level`, plan.md §2.7) is fully intact and still buildable if needed.
+
+G5 (menus) is **PARTIAL, not done**, despite an earlier "G5 now fully done"
+claim (corrected 2026-08-28 after re-reading actual `main.pasm` content,
+not just re-reading the checklist):
+- **Real `waiting`/`ANI_SELECT` (the char-select portrait pose most real
+  BOR/TMNT characters declare) is NOT implemented.** Char-select just plays
+  each roster member's ordinary idle animation while browsing — grepped
+  `src/main.pasm` and confirmed there is no `ANI_SELECT`/portrait code
+  anywhere. `game_g5_menus.py` doesn't assert anything about this, so its
+  PASS doesn't cover the gap. `plan_game.md` §5 has the full account.
+- **Title logo art is unbuilt.** The title screen is real drawn text
+  ("SNES-BOR" + "PRESS START", `core/text.pasm`) on BG3, not graphical
+  logo art — explicitly listed here as optional polish, not silently
+  claimed as implemented.
+- **Attract mode (an idle-timeout demo loop) is unbuilt.** No such
+  timeout/demo state exists in `core/game_state.pasm` — listed here as
+  optional polish/unfinished scope, not implemented.
 
 Not scheduled, and not blocking anything above:
 - Nothing persists a previously-selected roster slot across a reset — boot always loads slot 0. **Declined (2026-08-16): this is not a Beats of Rage feature and is not wanted — do not propose it as a quick win.** (Also: Select now only affects the player, slot 0 — AI entities ignore it, since `CharSelect_Index` is a single global cell, not per-instance.)

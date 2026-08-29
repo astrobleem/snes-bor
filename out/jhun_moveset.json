@@ -61,6 +61,7 @@
     "slide": null,
     "riseattack": null,
     "grabattack": null,
+    "freespecial": null,
     "attack2": 6,
     "attack2_is_grab": false,
     "grab": null

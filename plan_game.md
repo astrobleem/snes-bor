@@ -32,7 +32,10 @@ encounters), and the last standalone TMNT level (`foot.txt`, no boss
 despite its name) — a real win condition and stage transition generalized
 across all of them (G4), and a full title→character-select→playing menu
 flow plus a real pause menu with real drawn content and SRAM-persisted
-options (G5, fully done). Real boss fights are reachable in play (G9,
+options (G5, **PARTIAL — corrected 2026-08-28**: navigation/pause/SRAM
+work and are gated, but the real `waiting`/char-select portrait pose is
+unimplemented, and title logo art/attract mode remain unbuilt polish — see
+§5). Real boss fights are reachable in play (G9,
 fully done), and the per-spawn character-identity gap this file used to
 describe as a genuine architectural fork is now CLOSED for the case that
 actually matters: **spawn-driven roster reassignment** (real user
@@ -117,9 +120,9 @@ which remains explicitly shelved.
 | ~~Game state machine~~ | **Done (G2, 2026-08-21)** — `core/game_state.pasm`, gate `game_g2_states.py` |
 | ~~Player death~~ | **Done (G3, 2026-08-21)** — lives/continues/game over, gate `game_g3_death.py` |
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
-| Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
+| Menus (title, char select, pause, options) | **PARTIAL (G5). CORRECTED 2026-08-28**: title, char select navigation, pause menu, and options/SRAM all work (gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py` pass), but the real `waiting`/`ANI_SELECT` char-select portrait pose is NOT implemented — char-select plays each character's ordinary idle animation, not a distinct select pose — and title logo art / attract mode are unbuilt polish (see README.md's Current Status). See §5. |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | **G7 complete, 2026-08-28 content-audit slice.** BOR's actual moveset, source-content-audited (not just checklist-checked): run/dash, AI invuln, knockdown/getting-up, attack2, jump/jumpattack/jumpattack2 (LEO), grab mutual-lock (JOE), depth sort, throw, special (LEO) — plus this slice's real `atchain` combo (LEO/FOOT01/FOOT02), generic `grab`/`slide`/`grabattack` (LEO), and `riseattack` (BEBOP/ROCK/LEATHER), all reached via a real generic move-slot table, not per-move copy-paste. See §7's coverage ledger for the definitive table. `block`/`freespecial`(player)/`land` remain content-inapplicable (zero real config anywhere in either pak, sourced against `engine/openbor.c`); `waiting`→G5, `get`→G8. |
+| Jump, throw, grab, specials | **G7 complete, 2026-08-28 reopened-again slice.** BOR's actual moveset, source-content-audited (not just checklist-checked): run/dash, AI invuln, knockdown/getting-up, attack2, jump/jumpattack/jumpattack2 (LEO), grab mutual-lock (JOE), depth sort, throw, special (LEO) — plus the content-audit slice's real `atchain` combo (LEO/FOOT01/FOOT02), generic `grab`/`slide`/`grabattack` (LEO), `riseattack` (BEBOP/ROCK/LEATHER) — plus this reopening's `freespecial` (double-tap-forward+attack, LEO), all reached via a real generic move-slot table, not per-move copy-paste. See §7's coverage ledger for the definitive table. `block`/`land` remain content-inapplicable (zero real config anywhere in either pak, sourced against `engine/openbor.c`); `waiting`→G5 (still PARTIAL, not actually implemented — see G5 row above), `get`→G8. |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -414,13 +417,25 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: DONE** (2026-08-23) — title screen (2026-08-21), character
-> select (2026-08-23), the pause menu (2026-08-23), and options/SRAM
-> persistence (2026-08-23) all shipped. `GATE G5: PASS`
-> (`tools/verify/game_g5_menus.py`), `GATE G5-PAUSE: PASS`
-> (`tools/verify/game_g5_pause.py`), `GATE G5-SRAM: PASS`
-> (`tools/verify/game_g5_sram.py`). Per an advisor consult
-> for this phase:
+> **Status: PARTIAL. CORRECTED 2026-08-28** (was wrongly marked DONE) —
+> title screen (2026-08-21), character select navigation (2026-08-23), the
+> pause menu (2026-08-23), and options/SRAM persistence (2026-08-23) all
+> shipped and gated (`GATE G5: PASS` via `tools/verify/game_g5_menus.py`,
+> `GATE G5-PAUSE: PASS` via `tools/verify/game_g5_pause.py`, `GATE G5-SRAM:
+> PASS` via `tools/verify/game_g5_sram.py`). **What's still missing, found
+> during the 2026-08-28 re-audit**: real `waiting`/`ANI_SELECT` — the
+> char-select portrait pose real BOR characters declare for their
+> select-screen appearance — is NOT implemented; grepped `src/main.pasm`
+> and found no `ANI_SELECT`/portrait code at all, char-select just plays
+> each roster member's ordinary idle animation while browsing. Title logo
+> art and attract mode (an idle-timeout demo loop) are also unbuilt —
+> listed here explicitly as optional polish/unfinished scope, not silently
+> treated as implemented. None of `game_g5_menus.py`/`game_g5_pause.py`/
+> `game_g5_sram.py` assert anything about a distinct select pose, logo art,
+> or attract mode, so their PASS does not cover this gap. G5 stays PARTIAL
+> until a real `waiting` presentation is built and gated (title logo/
+> attract mode are lower priority — cosmetic polish, not a missing
+> gameplay mechanic). Per an advisor consult for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
 > is exercised the same way `game_g2_states.py` already does, a forced
@@ -1392,8 +1407,14 @@ audit, not merely unbuilt):
   `autoland`/`ATTACK_FORCE` all absent from every roster character's real
   `.TXT`, grepped directly) — content-inapplicable, same class as
   `block`'s own permanent content-block above, not a missing feature.
-- **`waiting`/`ANI_SELECT`**: real char-select portrait pose — G5 scope
-  (already implemented there as cosmetic; not a G7 gameplay mechanic).
+- **`waiting`/`ANI_SELECT`**: real char-select portrait pose. **CORRECTED
+  2026-08-28: NOT actually implemented anywhere.** The prior claim that G5
+  "already implements" this was false — grepped `src/main.pasm` and found
+  no `ANI_SELECT`/portrait/waiting-pose code at all; char-select
+  (`core/charselect.pasm`-era logic, now inline in `main.pasm`) just plays
+  each roster member's ordinary idle animation while browsing, not a
+  distinct select-screen pose. G5 status is therefore **PARTIAL**, not
+  done, until a real `waiting` presentation is built and gated. See §5.
 - **`get`**: real item-pickup pose — G8 scope, matching the reopening
   instruction's own explicit example of a semantic reassignment.
 - **`alias`**: real cosmetic no-op per BOR.C (see
@@ -1422,13 +1443,20 @@ audit's own full-roster pak grep found, roster-wide):
 | **`slide` (A+Down)** | LEO only | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
 | **`riseattack` (UP+Y while lying)** | BEBOP, ROCK, LEATHER | **Done (this slice), `GATE G7-CONTENT-AUDIT`** |
 | `block` | none (zero real anim data in either pak) | Content-inapplicable (pre-existing finding, unchanged) |
-| `freespecial` | LEO (data exists, AI-exclusive in real source) | Content-inapplicable — AI-only per real `engine/openbor.c` |
+| **`freespecial` (double-tap-forward + attack)** | LEO only | **Done (reopened-again slice), `GATE G7-CONTENT-AUDIT`. CORRECTED 2026-08-28: the prior "AI-exclusive" classification was wrong — real `player_preinput()`->`check_combo()` (openbor.c, BEFORE `player_check_special()`) makes this genuinely player-reachable via a `model_init_defaultreadme()`-installed default command.** |
 | `land`/`ANI_LAND` | none configured | Content-inapplicable — zero `attack_force`/`blast` config anywhere |
-| `waiting` | most roster members | Assigned to G5 (char-select portrait, already implemented there) |
+| `waiting` | most roster members | **NOT implemented. CORRECTED 2026-08-28** — see this section's own `waiting`/`ANI_SELECT` entry above; G5 is PARTIAL until this is built and gated. |
 | `get` | some roster members | Assigned to G8 (item-pickup pose) |
 | `alias` | some roster members | Cosmetic no-op, not an animation |
 
-**No known G7 caveats.**
+**G7 caveats as of 2026-08-28: none known in the attack/move dispatch
+system itself** (freespecial closed this reopening's flagged gap; the
+generated ledger above has zero `partial`/`unhandled-error` rows and
+`GATE G7-CONTENT-AUDIT` covers every row marked Done). This claim is scoped
+to G7 only — it does NOT cover G5 (`waiting`, genuinely PARTIAL, see
+above) or title-logo-art/attract-mode (unbuilt polish, see README.md's
+Current Status). Prior "G7 fully exhausted, no known caveats" language
+mixed those in; this line intentionally does not repeat that mistake.
 
 Full regression after this slice: `build_rom.py`, `audit_all.py`,
 `check_label_drift.py`, `check_width_directives.py` (0 new violations),

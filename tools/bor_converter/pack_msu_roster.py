@@ -228,7 +228,12 @@ FORMAT_VERSION = 4
 # real, sane sanity cap (roster_count's own field is a u8, 1-255), and nothing
 # today needs more than 15.
 MAX_CHARACTERS = 15
-RECORD_SIZE = 44  # G7 content-audit slice: +19 bytes -- a generic 6-slot
+RECORD_SIZE = 46  # G7 reopened-again slice: +2 bytes -- `freespecial` added
+                   # as a 7th generic move slot (fcount/delay only, no
+                   # atchain steps needed) after being wrongly classified
+                   # "AI-exclusive" in the prior content-audit slice; see
+                   # NEW_MOVE_SLOT_NAMES' own comment for the real sourcing.
+                   # Was 25->44 (G7 content-audit slice): +19 bytes -- a generic 6-slot
                    # move-descriptor table (NEW_MOVE_SLOT_NAMES: attack3/
                    # attack4/grab/slide/riseattack/grabattack, 2 bytes each
                    # = 12 bytes) plus a real BOR.C `atchain` array (6 bytes,
@@ -389,8 +394,21 @@ OPTIONAL_ROLE_SPECIAL = "special"
 # main.pasm's own CHAR_ATTACK_VARIANT encoding: variant 3=attack3,
 # 4=attack4, 5=grab, 6=slide, 7=riseattack, 8=grabattack (variants 0-2 stay
 # attack1/attack2/special, unchanged from before this slice).
-NEW_MOVE_SLOT_NAMES = ["attack3", "attack4", "grab", "slide", "riseattack", "grabattack"]
+NEW_MOVE_SLOT_NAMES = ["attack3", "attack4", "grab", "slide", "riseattack", "grabattack", "freespecial"]
 NEW_MOVE_SLOT_FIRST_VARIANT = 3  # variant = NEW_MOVE_SLOT_FIRST_VARIANT + index
+# G7 reopened-again slice: `freespecial` was WRONGLY classified as
+# "AI-exclusive, content-inapplicable" in the prior content-audit slice --
+# that check only scanned player_check_special()/check_special() for a
+# direct animspecials[] reference and found none, but real freespecial
+# reachability is a SEPARATE mechanism entirely: model_init_defaultreadme()
+# (DCurrent/openbor engine/openbor.c, ~line 21039) auto-installs a default
+# 3-step command (forward,forward,attack -> ANI_FREESPECIAL) into every
+# character's own model->special[] array whenever it declares that anim
+# without an explicit `special` command override, and that array IS
+# consumed for the real player via player_preinput()->check_combo()
+# (called from player_think(), before player_check_special() even runs).
+# LEO is the only roster member with real `freespecial` data (5 frames,
+# real attack hitbox, PAK-verified) -- everyone else's fcount is 0.
 
 # Real BOR.C `atchain` (engine/openbor.c's perform_atchain()) declares raw
 # 1-based ATTACK NUMBERS (1=attack1, 2=attack2, 3=attack3, 4=attack4), not

@@ -2534,9 +2534,9 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a73        ; low16 of $7E0a00+115 ($73=115 dec)
-Entity2_DpBase      = $0ae6        ; low16 of $7E0a00+230 ($e6=230 dec)
-Entity3_DpBase      = $0b59        ; low16 of $7E0a00+345 ($159=345 dec)
+Entity1_DpBase      = $0a7a        ; low16 of $7E0a00+122 ($7a=122 dec)
+Entity2_DpBase      = $0af4        ; low16 of $7E0a00+244 ($f4=244 dec)
+Entity3_DpBase      = $0b6e        ; low16 of $7E0a00+366 ($16e=366 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2548,7 +2548,7 @@ Entity3_DpBase      = $0b59        ; low16 of $7E0a00+345 ($159=345 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 115       ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 122       ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2573,7 +2573,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 230       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 244       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2593,7 +2593,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 345       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 366       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2916,6 +2916,28 @@ CHAR_GRABATTACK_FCOUNT  = 101 ; .db -- LEO's real grabattack (Y while
 CHAR_GRABATTACK_DELAY   = 102 ; .db    holding a grab, distinct from throw)
 CHAR_GRABATTACK_BASE_LO = 103 ; .dw
 CHAR_GRABATTACK_BASE_HI = 105 ; .db
+; G7 reopened-again slice: `freespecial` -- real model_init_defaultreadme()
+; (DCurrent/openbor engine/openbor.c, ~line 21039) auto-installs a default
+; 3-step command (forward,forward,attack) into model->special[] for any
+; character declaring ANI_FREESPECIAL without an explicit `special`
+; command override, and that array IS consumed for the real player via
+; player_preinput()->check_combo() (player_think(), BEFORE player_check_
+; special()) -- this was wrongly classified "AI-exclusive" in the prior
+; content-audit slice, which only checked player_check_special()/
+; check_special() (the ANI_SPECIAL path, unrelated) and never found this
+; separate command-sequence mechanism. LEO is the only roster member with
+; real `freespecial` data (5 frames, real attack hitbox, PAK-verified).
+; A 7th generic move slot (fcount/delay/base_lo/base_hi, same 4-byte shape
+; as every other new-slot field) -- placed immediately after grabattack
+; (not after the atchain/combo block below) so it stays inside
+; Jump_PlayMoveSlotAdvance's uniform CHAR_ATTACK3_FCOUNT+(variant-3)*5
+; indexed-addressing stride; no atchain step needed (freespecial is reached
+; via a distinct double-tap-forward+attack sequence, not the ordinary
+; attack-button combo chain).
+CHAR_FREESPECIAL_FCOUNT  = 106 ; .db
+CHAR_FREESPECIAL_DELAY   = 107 ; .db
+CHAR_FREESPECIAL_BASE_LO = 108 ; .dw
+CHAR_FREESPECIAL_BASE_HI = 110 ; .db
 ; Real perform_atchain() (DCurrent/openbor engine/openbor.c): a SINGLE
 ; attack button cycles a declared attack-number sequence on repeated
 ; presses within a combo window; letting it lapse resets to step 1. Each
@@ -2929,18 +2951,26 @@ CHAR_GRABATTACK_BASE_HI = 105 ; .db
 ; real). CHAR_CHAINLENGTH==0 means "no real atchain" (every roster member
 ; but LEO/FOOT01/FOOT02) -- the ordinary independent-button attack2 trigger
 ; stays live for everyone else, unchanged.
-CHAR_ATCHAIN0        = 106 ; .db
-CHAR_ATCHAIN1        = 107 ; .db
-CHAR_ATCHAIN2        = 108 ; .db
-CHAR_ATCHAIN3        = 109 ; .db
-CHAR_ATCHAIN4        = 110 ; .db
-CHAR_ATCHAIN5        = 111 ; .db
-CHAR_CHAINLENGTH     = 112 ; .db -- 0-6, how many CHAR_ATCHAIN_N are real
-CHAR_COMBOSTEP       = 113 ; .db -- 0-based index into CHAR_ATCHAIN, resets
+CHAR_ATCHAIN0        = 111 ; .db
+CHAR_ATCHAIN1        = 112 ; .db
+CHAR_ATCHAIN2        = 113 ; .db
+CHAR_ATCHAIN3        = 114 ; .db
+CHAR_ATCHAIN4        = 115 ; .db
+CHAR_ATCHAIN5        = 116 ; .db
+CHAR_CHAINLENGTH     = 117 ; .db -- 0-6, how many CHAR_ATCHAIN_N are real
+CHAR_COMBOSTEP       = 118 ; .db -- 0-based index into CHAR_ATCHAIN, resets
                              ; to 0 on trigger-press after COMBOTIMER lapses
-CHAR_COMBOTIMER      = 114 ; .db -- frames remaining in the current combo
+CHAR_COMBOTIMER      = 119 ; .db -- frames remaining in the current combo
                              ; window; 0 = chain lapsed, next press restarts
-CHAR_ZP_LEN         = 115  ; total -- pass as OopRegStaging_ZpLen
+; Simplified (not full real command-history-matching engine, same class of
+; deliberate simplification this project already applies to atchain's own
+; feel-tuned combo window -- see Jump_FreespecialTrigger's own header for
+; the exact FSM this stands in for) double-tap-forward-then-attack tracker.
+CHAR_FREESPECIAL_STEP  = 120 ; .db -- 0=none, 1=saw first forward press,
+                               ; 2=saw second forward press (ready for attack)
+CHAR_FREESPECIAL_TIMER = 121 ; .db -- grace frames remaining; 0 = lapsed,
+                               ; next forward press restarts at step 1
+CHAR_ZP_LEN         = 122  ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -3786,8 +3816,7 @@ Anim_Play__not_dead:
     bne Anim_Play__stunned_reset
     brl Anim_Play__dispatch     ; already idle -- let it keep looping, just hold
 Anim_Play__stunned_reset:
-    lda #0
-    sta CHAR_SELECTED
+    stz CHAR_SELECTED
     lda #$FF
     sta CHAR_FRAME_INDEX
     lda #1
@@ -6461,8 +6490,9 @@ Anim_LoadCharacter__seek_loop:
 .a16
     lda.l CharDirSeek16
     clc
-    adc #44                 ; RECORD_SIZE -- pack_msu_roster.py's own value
-                             ; (G7 content-audit slice: 25->44, +19 bytes)
+    adc #46                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+                             ; (G7 reopened-again slice: 44->46, +2 bytes;
+                             ; content-audit slice before it: 25->44)
     sta.l CharDirSeek16
     dex
     bne Anim_LoadCharacter__seek_loop
@@ -6578,6 +6608,20 @@ Anim_LoadCharacter__jumprecs_loop:
     sta CHAR_GRABATTACK_FCOUNT
     lda $2001
     sta CHAR_GRABATTACK_DELAY
+
+    ; G7 reopened-again slice: 2 more sequential MSU port reads (+44/+45,
+    ; RECORD_SIZE 44->46) -- freespecial fcount/delay -- moved to a bank-8
+    ; jsl helper (Jump_LoadFreespecialRecord) for ROM budget, same
+    ; "relocate, don't shrink" precedent as Jump_PlayerInputGate/Jump_
+    ; AtchainTrigger. MUST land here, right after grabattack_delay and
+    ; BEFORE the atchain bytes -- pack_msu_roster.py's build_record() packs
+    ; new_slot_fields (NEW_MOVE_SLOT_NAMES order, freespecial LAST in that
+    ; list) immediately before atchain_variants/chainlength, not after; a
+    ; real (found-by-gate) bug had this jsl positioned after CHAR_
+    ; CHAINLENGTH instead, which silently shifted every subsequent field's
+    ; interpretation by 2 bytes.
+    jsl Jump_LoadFreespecialRecord
+
     lda $2001
     sta CHAR_ATCHAIN0
     lda $2001
@@ -6592,9 +6636,8 @@ Anim_LoadCharacter__jumprecs_loop:
     sta CHAR_ATCHAIN5
     lda $2001
     sta CHAR_CHAINLENGTH
-    lda #0
-    sta CHAR_COMBOSTEP
-    sta CHAR_COMBOTIMER
+    stz CHAR_COMBOSTEP
+    stz CHAR_COMBOTIMER
 
     ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0

@@ -110,7 +110,7 @@ OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special']
 # involved logic: attack2 has a real fallback heuristic, special has none)
 # but occupy slots 0/1 of this SAME table for base-offset-chain purposes.
 MOVE_SLOT_NAMES = ['attack2', 'special', 'attack3', 'attack4', 'grab',
-                    'slide', 'riseattack', 'grabattack']
+                    'slide', 'riseattack', 'grabattack', 'freespecial']
 
 
 def _sanitize(anim_name):

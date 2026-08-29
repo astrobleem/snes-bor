@@ -32,13 +32,22 @@ slice newly wired:
    engine's own claim), for every roster member with real data in ANY new
    slot (LEO, BEBOP, ROCK, LEATHER, FOOT01, FOOT02).
 
+8. `freespecial` (G7 reopened-again slice): the prior "AI-exclusive,
+   content-inapplicable" classification was WRONG -- it only checked
+   check_special()/player_check_special() (the ANI_SPECIAL path) and missed
+   the real, separate model_init_defaultreadme() default-command mechanism
+   (openbor.c ~line 21039) consumed via player_preinput()->check_combo()
+   (player_think(), BEFORE player_check_special()), which IS player-
+   reachable via a double-tap-forward-then-attack sequence. LEO is the only
+   roster member with real freespecial data. Verified via real converted
+   frame-count ground truth AND real WRAM dispatch state from an actual
+   double-tap-forward+Y input sequence, AND a lapsed-window regression (a
+   single forward tap that lapses must NOT trigger on a later lone attack
+   press), AND that RALF (CHAR_FREESPECIAL_FCOUNT==0) never triggers it
+   regardless of input.
+
 Content classified INAPPLICABLE or OUT OF SCOPE (not gated here -- no
 runtime code exists for them, confirmed absent by this slice's own audit):
-  - `freespecial`: real engine/openbor.c confirms AI-exclusive in this
-    source version (player_check_special() never references it) -- matches
-    this project's own established "every G7 attack trigger is player-only"
-    scope, just inverted (this one move is AI-only, so genuinely unreachable
-    for a player-controlled entity, and no roster AI currently uses it).
   - `land`/ANI_LAND (doland()): gated on BLAST_TOSS + attack_force flags;
     zero configuration anywhere in either shipped pak (forcedirection/
     projectile/blast/autoland/ATTACK_FORCE all absent from every roster
@@ -73,6 +82,9 @@ CHAR_GRABMOVE_FCOUNT = pasm_constant('CHAR_GRABMOVE_FCOUNT')
 CHAR_SLIDE_FCOUNT = pasm_constant('CHAR_SLIDE_FCOUNT')
 CHAR_RISEATTACK_FCOUNT = pasm_constant('CHAR_RISEATTACK_FCOUNT')
 CHAR_GRABATTACK_FCOUNT = pasm_constant('CHAR_GRABATTACK_FCOUNT')
+CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
+CHAR_FREESPECIAL_STEP = pasm_constant('CHAR_FREESPECIAL_STEP')
+CHAR_FREESPECIAL_TIMER = pasm_constant('CHAR_FREESPECIAL_TIMER')
 
 CharSelect_Index = 0x7E53B6
 PlayerEntity = 0x7E0A00
@@ -353,7 +365,119 @@ def main():
                 attack2_fc == real_attack2_frames)
 
         # ================================================================
-        # 7. Base-chain ground truth -- FOOT01's real atchain (attack1-3,
+        # 8. freespecial (double-tap-forward + Y) -- LEO-only, real
+        #    player-reachable trigger (reopened-again slice; see this
+        #    file's own module docstring for the sourcing correction).
+        # ================================================================
+        idx = read_u8(m, CharSelect_Index)
+        steps = (LEO_INDEX - idx) % roster_count
+        select_to(m, steps)
+        idx = read_u8(m, CharSelect_Index)
+        r.check(f'roster selected to LEO (index {LEO_INDEX})', idx == LEO_INDEX)
+
+        real_freespecial_frames = load_role_frames('leo', 'freespecial')
+        freespecial_fc = read_u8(m, PlayerEntity + CHAR_FREESPECIAL_FCOUNT)
+        r.check('LEO CHAR_FREESPECIAL_FCOUNT matches its real converted '
+                '`freespecial` frame count',
+                freespecial_fc == real_freespecial_frames and freespecial_fc > 0)
+
+        clear_stun(m, PlayerEntity)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_STEP, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_TIMER, 0)
+
+        # Double-tap forward (Right -- LEO faces right by default at boot,
+        # matching phase8.py's own convention), each tap a discrete
+        # trigger-edge press well inside the FSM's grace window, then a
+        # separate attack press.
+        m.set_input(m.BTN_RIGHT, 1)
+        m.run_frames(3)
+        m.pause()
+        step1 = read_u8(m, PlayerEntity + CHAR_FREESPECIAL_STEP)
+        m.set_input(m.BTN_RIGHT, 1)
+        m.run_frames(3)
+        m.pause()
+        step2 = read_u8(m, PlayerEntity + CHAR_FREESPECIAL_STEP)
+        print(f'freespecial FSM steps: {step1} -> {step2}')
+        r.check('double-tap-forward advances the freespecial FSM to step 2 '
+                '(ready)', step1 == 1 and step2 == 2)
+
+        m.set_input(m.BTN_Y, 1)
+        m.run_frames(2)
+        m.pause()
+        sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+        print(f'double-tap-forward+Y: selected={sel} variant={var}')
+        r.check('double-tap-forward then Y triggers freespecial '
+                '(CHAR_SELECTED=2, CHAR_ATTACK_VARIANT=9)',
+                sel == 2 and var == 9)
+        m.run_frames(60)
+        m.pause()
+
+        # Regression: a single forward tap that lapses (no second tap
+        # within the grace window) must NOT leave the FSM ready to fire on
+        # a later, unrelated attack press.
+        clear_stun(m, PlayerEntity)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_STEP, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_TIMER, 0)
+        m.set_input(m.BTN_RIGHT, 1)
+        m.run_frames(3)
+        m.pause()
+        m.run_frames(80)  # let the tap window lapse
+        m.pause()
+        lapsed_step = read_u8(m, PlayerEntity + CHAR_FREESPECIAL_STEP)
+        m.set_input(m.BTN_Y, 1)
+        m.run_frames(2)
+        m.pause()
+        sel_after_lapse = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        var_after_lapse = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+        print(f'lapsed single-tap then Y: fsm_step={lapsed_step} '
+              f'selected={sel_after_lapse} variant={var_after_lapse}')
+        r.check('a lapsed single forward-tap resets the FSM (step back to 0)',
+                lapsed_step == 0)
+        r.check('a lone attack press after a lapsed tap plays ordinary '
+                'attack1, NOT freespecial (CHAR_ATTACK_VARIANT=0)',
+                sel_after_lapse == 2 and var_after_lapse == 0)
+        m.run_frames(60)
+        m.pause()
+
+        # Regression: RALF (no real freespecial data) never triggers it
+        # regardless of the same double-tap-forward+Y input sequence.
+        idx = read_u8(m, CharSelect_Index)
+        steps = (RALF_INDEX - idx) % roster_count
+        select_to(m, steps)
+        idx = read_u8(m, CharSelect_Index)
+        r.check(f'roster selected to RALF (index {RALF_INDEX})', idx == RALF_INDEX)
+        ralf_freespecial_fc = read_u8(m, PlayerEntity + CHAR_FREESPECIAL_FCOUNT)
+        r.check('RALF has no real freespecial data (CHAR_FREESPECIAL_FCOUNT==0)',
+                ralf_freespecial_fc == 0)
+
+        clear_stun(m, PlayerEntity)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_STEP, 0)
+        m.write_u8(PlayerEntity + CHAR_FREESPECIAL_TIMER, 0)
+        m.set_input(m.BTN_RIGHT, 1)
+        m.run_frames(3)
+        m.pause()
+        m.set_input(m.BTN_RIGHT, 1)
+        m.run_frames(3)
+        m.pause()
+        m.set_input(m.BTN_Y, 1)
+        m.run_frames(2)
+        m.pause()
+        ralf_sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        ralf_var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+        print(f'RALF double-tap-forward+Y: selected={ralf_sel} variant={ralf_var}')
+        r.check('RALF (CHAR_FREESPECIAL_FCOUNT==0): double-tap-forward+Y '
+                'still plays ordinary attack1 (CHAR_ATTACK_VARIANT=0), '
+                'freespecial gate is a true no-op for this character',
+                ralf_sel == 2 and ralf_var == 0)
+        m.run_frames(60)
+        m.pause()
+
+        # ================================================================
+        # 9. Base-chain ground truth -- FOOT01's real atchain (attack1-3,
         #    no attack4/grab/slide/riseattack/grabattack) matches its
         #    converted moveset.
         # ================================================================
