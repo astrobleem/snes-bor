@@ -1558,27 +1558,66 @@ before attributing either to this slice).
 > slice -- breaking a real item source nets both the fight-score and the
 > item's own value).
 >
-> **Deliberately still not done** (unchanged from the first slice, plus
-> one now-obsolete item removed): real prop/pickup sprite art -- a prop
+> **Third slice DONE, same day: value-matched classification + full TMNT
+> item/weapon audit.** `classify_pickup` used to name-match `apple`/`meat`/
+> `money` -- a real per-pak hardcoding smell. Generalized to match by REAL
+> `health`/`score` VALUE instead (health=30 -> APPLE-equivalent, health=100
+> -> MEAT-equivalent, score=1000 -> MONEY-equivalent, name=="1up" -> extra
+> life), verified against a full spawn-data scan of BOTH shipped paks: **all
+> 29 BOR level files** (not just the 2 shipped ones) and **all 10 TMNT level
+> files** (8 shipped + `streets3.txt`/`test.txt`, not currently converted).
+>
+> Real finding from that scan: TMNT's own `data\CHARS\MISC\PIZZA.TXT`
+> (`type item`, `health 100`, `subtype touch`) is spawned for real in 3 TMNT
+> levels (`streets.txt`, `streets2.txt`, `streets3.txt`) -- a genuinely
+> different item name from BOR's roster, previously unhandled by name-based
+> matching. The value-based rule above picks it up automatically (same real
+> heal value as MEAT) with zero TMNT-specific code. Both shipped TMNT
+> stages that spawn it (`out/spawn_stage6streets`, `out/spawn_stage7streets2`)
+> were regenerated with `--roster` (preserving their existing
+> `RECORD_KIND_BOSS_IDENTIFIED` records, verified unchanged) and now carry
+> real pickup bits for it; `GATE G8-PICKUP` and every TMNT boss/roster-
+> reassignment gate (`game_g9_tmnt_boss.py`, `game_spawn_roster_reassign.py`,
+> `game_g9_wait_group_boss.py`) re-verified clean against the regenerated
+> tables.
+>
+> **Weapons (KNIFE/STAR), resolved, not deferred by assumption:** both are
+> real MISC entities in BOTH paks (`type enemy`, an attack hitbox on their
+> own idle frame -- a "thrown projectile acting as a fake enemy" trick, not
+> `type weapon`; real DCurrent/openbor source confirms `type weapon` exists
+> as a distinct, unrelated subtype this pak's data never uses). Verified via
+> a direct spawn-data scan, not assumption: **KNIFE/STAR/GOLD are spawned by
+> ZERO levels in either pak** (all 29 BOR + all 10 TMNT level files
+> checked). This is genuinely content-inapplicable -- there is no real,
+> reachable spawn data anywhere in either pak for a weapon/projectile
+> mechanic to implement against, so there is nothing to gate. If a future
+> pak or a currently-unconverted level ever spawns one, this classification
+> must be re-checked, not assumed to still hold.
+>
+> **TIME**, also a real MISC entity (`type item`) in both paks: genuinely
+> spawned by real level data (`DATA\EASY\5AEASY.TXT`/`5AHARD.TXT`, BOR), but
+> that level is not currently converted/shipped (only 1A/1B are). Real
+> OpenBOR's own TIME semantics add to a level countdown timer this engine
+> doesn't have (no G10 pacing/timer system exists) -- correctly
+> `unshipped-source-content`, not implemented, not silently ignored.
+>
+> **Deliberately still not done:** real prop/pickup sprite art -- a prop
 > still renders using whichever roster character is already streamed into
 > its slot (visually wrong, behaviorally real; the converter's ROLE_NAMES
 > architecture requires idle/walk/pain/fall/rise, which single-frame item
 > entities like APPLE/MONEY don't have at all, so this isn't a quick
 > extension of the existing character pipeline -- it needs its own,
-> smaller asset path); TMNT's own decorative prop names (TMNT still hasn't
-> been converted at all); the `boss` flag (unrelated to props, see G9);
-> weapons (BOR's real `KNIFE`/`STAR` MISC entities are `type enemy` with
-> their own attack box -- a thrown-weapon mechanic, not a pickup, genuinely
-> out of this slice's scope); `GOLD`/`TIME` (real MISC entities, but used
-> by neither shipped/buildable level, so there's no real spawn data to
-> verify a mapping against yet).
+> smaller asset path); the `boss` flag (unrelated to props, see G9, already
+> real and gated).
 
 Still open, in priority order:
 
 - Real prop/pickup sprite art, converted from the source pak (needs its
   own small non-fighter asset pipeline, not a reuse of convert_character.py).
-- Weapons (BOR has knives/bats) if the moveset work in G7 lands.
-- TMNT's own decorative prop/item roster (TMNT conversion hasn't started).
+- Real breakable->authored-drop->reveal->pickup chain trace/gate (today: a
+  prop's contained item's pickup EFFECT is real and gated, but there is no
+  gate proving the full source->conversion->packed->spawn->break->reveal->
+  pickup->removal chain end-to-end for one representative real example).
 
 ---
 

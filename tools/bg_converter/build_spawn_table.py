@@ -243,21 +243,42 @@ PICKUP_SHIFT = 5   # G8 item/pickup slice: record_kind bits 5-7 (spare --
 PROP_ENTITY_TYPES = {'obstacle', 'item'}
 
 # G8 item/pickup slice (notjustfreespecial.txt): real values sourced
-# straight from the BOR pak's own DATA\CHARS\MISC .TXT files, matching
+# straight from each pak's own DATA\CHARS\MISC .TXT files, matching
 # main.pasm's PICKUP_TYPE_*/PICKUP_HEAL_*/PICKUP_SCORE_* constants exactly
-# (APPLE health=30, MEAT health=100, MONEY score=1000; "1up" is real
-# OpenBOR's own name-based special case for an extra life, not a generic
-# item stat). Scoped to exactly the pickup types real, buildable BOR spawn
-# data actually uses (verified against both shipped/buildable levels'
-# `item <name>` lines and their own standalone `spawn 1up`) -- GOLD/TIME/
-# STAR/KNIFE are real MISC entities too but appear in neither shipped
-# level, so they're deliberately not mapped here (see plan_game.md G8 for
-# the full accounting of what's still open).
+# (health=30 -> APPLE-equivalent heal, health=100 -> MEAT-equivalent full
+# heal, score=1000 -> MONEY-equivalent score; "1up" is real OpenBOR's own
+# name-based special case for an extra life, not a generic item stat).
+#
+# VALUE-matched, not name-matched (generalized 2026-08-29,
+# notjustfreespecial.txt reopening audit): matching by real health/score
+# VALUE instead of a per-pak item name list means this covers any pak's own
+# differently-named item sharing the same real stat, with zero new
+# hardcoding -- verified against BOTH shipped paks' full level rosters
+# (BOR: all 29 level files; TMNT: all 10, including the 2 not currently
+# converted) via a direct spawn-data scan: BOR only ever spawns apple/meat/
+# money/1up; TMNT ALSO spawns a real, differently-named `Pizza` (data/CHARS/
+# MISC/PIZZA.TXT: `type item`, `health 100`, `subtype touch`) in 3 of its
+# own levels (streets.txt, streets2.txt, streets3.txt) -- same real heal
+# value as MEAT, so it correctly falls out of this value match with no
+# TMNT-specific code. GOLD/TIME/STAR/KNIFE/ORANGE are real MISC entities in
+# one or both paks but are spawned by NO level in either pak (verified
+# across all 39 level files checked, not just the shipped/buildable ones)
+# -- see plan_game.md G8 for the full accounting.
 PICKUP_TYPE_NONE = 0
 PICKUP_TYPE_APPLE = 1
 PICKUP_TYPE_MEAT = 2
 PICKUP_TYPE_MONEY = 3
 PICKUP_TYPE_ONEUP = 4
+
+# RAW (unscaled) real pak values matched against each item's own parsed
+# `health`/`score` field -- distinct from main.pasm's own PICKUP_HEAL_*
+# constants, which are the ENGINE-side value already scaled by
+# health*CHAR_HP_MAX/100 (same scale build_record's spawn_hp uses). These
+# three are the real numbers read straight out of APPLE.TXT/MEAT.TXT/
+# MONEY.TXT (and TMNT's own PIZZA.TXT, which shares MEAT's raw value).
+PICKUP_HEAL_APPLE_RAW = 30
+PICKUP_HEAL_MEAT = 100
+PICKUP_SCORE_MONEY = 1000
 
 
 def classify_pickup(name, entity_type_lookup_entry):
@@ -266,19 +287,23 @@ def classify_pickup(name, entity_type_lookup_entry):
     character in this pak. Returns one of the PICKUP_TYPE_* constants
     above, derived from the SAME real fields OpenBOR itself uses for an
     item pickup (name=="1up" special case; else health=heal amount,
-    score=score amount) -- never invented."""
+    score=score amount) -- matched by real VALUE, not by this project's own
+    name list, so any pak's differently-named item sharing a real stat
+    (e.g. TMNT's Pizza, health=100, same as MEAT) is covered automatically."""
     if entity_type_lookup_entry is None:
         return PICKUP_TYPE_NONE
     entity = entity_type_lookup_entry
     real_name = str(entity.get('name') or name).strip().lower()
     if real_name == '1up':
         return PICKUP_TYPE_ONEUP
-    if str(name).strip().lower() == 'apple':
-        return PICKUP_TYPE_APPLE
-    if str(name).strip().lower() == 'meat':
-        return PICKUP_TYPE_MEAT
-    if str(name).strip().lower() == 'money':
+    score = entity.get('score') or 0
+    health = entity.get('health') or 0
+    if score == PICKUP_SCORE_MONEY:
         return PICKUP_TYPE_MONEY
+    if health == PICKUP_HEAL_MEAT:
+        return PICKUP_TYPE_MEAT
+    if health == PICKUP_HEAL_APPLE_RAW:
+        return PICKUP_TYPE_APPLE
     return PICKUP_TYPE_NONE
 
 

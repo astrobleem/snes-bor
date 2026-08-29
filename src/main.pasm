@@ -2015,18 +2015,17 @@ Tad_IsSongPlaying:
 ; AUDIO_DATA_BANK -- the SNES bank the audio blob lives in, provided by
 ; `../soundwork/tad/build/tad_blob_syms.pasm` (this file's own `.include`,
 ; near the top of main.pasm) as a literal generated constant, NOT computed
-; here via `^(__Tad_AudioData_0)`. That matters because of a separate,
-; still-live Poppy bug found while making this change (2026-08-19): the `^`
-; (bank-byte-of-label) operator always resolves to $00 regardless of a
-; label's real bank -- confirmed with an isolated repro
-; (`lda #^(Bank1Label)` / `lda #^(Bank2Label)` both assembled as `lda #$00`)
-; -- distinct from, and not fixed by, the cross-bank jsl/`.sym` fix
-; (poppy_assembler_bugs.md bug 9). `jsl`/`.l` addressing to a non-zero-bank
-; label both resolve correctly; only this standalone `^` expression operator
-; doesn't. Don't use `^(Label)` on a non-zero-bank label anywhere in this
-; codebase without re-verifying first -- use a literal/generated constant
-; instead, same as this file already does for Tad_Loader_Bin/
-; Tad_AudioDriver_Bin/Tad_DataTable.
+; here via `^(__Tad_AudioData_0)`. HISTORICAL, RESOLVED: a separate Poppy bug
+; found while making this change (2026-08-19) -- the `^` (bank-byte-of-label)
+; operator always resolved to $00 regardless of a label's real bank
+; (confirmed with an isolated repro: `lda #^(Bank1Label)` / `lda
+; #^(Bank2Label)` both assembled as `lda #$00`), distinct from the
+; cross-bank jsl/`.sym` fix (poppy_assembler_bugs.md bug 9). **Fixed the same
+; day** (poppy#389, see CLAUDE.md's toolchain section) -- `^(Label)` now
+; correctly resolves a non-zero-bank label's real bank byte. This literal
+; constant was NOT reverted back to `^(Label)` after the fix (no need to --
+; see CLAUDE.md's own note), so this comment stays for history, not as a
+; live workaround warning.
 
 LoadAudioData:
     cmp #N_DATA_ITEMS
