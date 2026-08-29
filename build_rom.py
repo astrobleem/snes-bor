@@ -62,7 +62,22 @@ import pack_msu_roster
 # (plan_game.md's own long-standing gap), not something invented here.
 ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
                    "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04",
-                   "out/leo"]
+                   "out/leo",
+                   # Real prop/pickup sprite art (notjustfreespecial.txt
+                   # follow-up to G8's own "deliberately still not done"
+                   # item): APPLE is a real MISC item entity (DATA\CHARS\
+                   # MISC\APPLE.TXT), converted via tools/bor_converter/
+                   # convert_prop.py (its own idle-only pipeline, NOT
+                   # convert_character.py -- see that script's docstring for
+                   # why). A representative single real converted prop, not
+                   # every pickup type -- build_spawn_table.py's roster_
+                   # lookup-by-item-name mechanism (same one bosses already
+                   # use) picks this up automatically for any spawn whose
+                   # real item name is "apple", with zero engine-side
+                   # per-item-type code; other pickup types (money/meat/
+                   # 1up) still render using a borrowed roster character
+                   # until they get their own convert_prop.py pass too.
+                   "out/apple"]
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output

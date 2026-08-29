@@ -256,10 +256,15 @@ MapApply_PaletteSlot    = $7E584C  ; .db
 Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
                                    ; captured record's dedicated +8
                                    ; roster_idx byte (see layout below), real
-                                   ; only when Spawn_ScratchKind==SPAWN_KIND_
-                                   ; BOSS_IDENTIFIED. Grep-confirmed clear of
-                                   ; any other module's WRAM through at
-                                   ; least $7E5850.
+                                   ; when Spawn_ScratchKind==SPAWN_KIND_
+                                   ; BOSS_IDENTIFIED, OR (real prop/pickup
+                                   ; sprite art follow-up) when Spawn_
+                                   ; ScratchKind==SPAWN_KIND_PROP and this
+                                   ; item's own converted sprite has a real
+                                   ; roster slot -- 0 ("no reassign") for
+                                   ; every prop without one yet. Grep-
+                                   ; confirmed clear of any other module's
+                                   ; WRAM through at least $7E5850.
 Spawn_ScratchPickupType = $7E584E ; .db -- G8 item/pickup slice: decoded
                                    ; record_kind bits 5-7 (SPAWN_PICKUP_
                                    ; SHIFT/MASK below), real only when
@@ -708,8 +713,19 @@ Spawn_Play__triggered:
     cmp #SPAWN_KIND_GROUP
     beq Spawn_Play__do_group
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    beq Spawn_Play__gate_stream
+    ; Real prop/pickup sprite art (notjustfreespecial.txt follow-up): a
+    ; SPAWN_KIND_PROP record with a real +8 roster_idx (build_spawn_table.py
+    ; found this item's own real converted sprite in the actual shipped
+    ; roster) needs the exact same Msu1_StreamBusy gate as a boss
+    ; reassignment, for the exact same reason -- Spawn_DoRosterReassign
+    ; streams a frame. roster_idx==0 (no matching converted prop slot yet)
+    ; skips this gate entirely, unchanged pre-existing behavior.
+    cmp #SPAWN_KIND_PROP
     bne Spawn_Play__find_slot
-
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__find_slot
+Spawn_Play__gate_stream:
     ; --- roster-reassignment slice: gate the WHOLE record (not just the
     ; reassignment step below) on Msu1_StreamBusy, BEFORE find_slot runs
     ; and BEFORE any of this record's HP/position/palette writes touch a
@@ -813,6 +829,20 @@ Spawn_Play__slot1:
     sta.l Entity1_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity1_PickupType
+    ; Real prop/pickup sprite art: Msu1_StreamBusy already confirmed clear
+    ; by the dispatch-time gate above (before find_slot ran) whenever
+    ; Spawn_ScratchRosterIdx != 0 -- safe to stream now, same reasoning as
+    ; Spawn_Play__slot1_boss_identified below.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot1_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot1_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_prop:
     sep #$20
@@ -911,6 +941,17 @@ Spawn_Play__slot2:
     sta.l Entity2_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity2_PickupType
+    ; Real prop/pickup sprite art -- see slot1's own identical comment.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot2_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot2_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_prop:
     sep #$20
@@ -999,6 +1040,17 @@ Spawn_Play__slot3:
     sta.l Entity3_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity3_PickupType
+    ; Real prop/pickup sprite art -- see slot1's own identical comment.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot3_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot3_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_prop:
     sep #$20

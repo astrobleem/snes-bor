@@ -406,6 +406,30 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         roster_idx = (roster_lookup or {}).get(e.character.lower()) if e.boss else None
         if is_prop:
             record_kind = RECORD_KIND_PROP
+            # Real prop/pickup sprite art (notjustfreespecial.txt follow-up
+            # to the G8 "deliberately still not done" item): reuses the
+            # EXACT SAME roster-reassignment mechanism already built for
+            # SPAWN_KIND_BOSS_IDENTIFIED (core/spawn.pasm's Spawn_Do
+            # RosterReassign) rather than inventing a parallel one -- if
+            # this prop's real item name (standalone `spawn <item>`) or its
+            # contained item's name (`obstacle` + `item <name>`) is ALSO in
+            # the actual shipped --roster list (i.e. a real converted prop
+            # sprite, e.g. tools/bor_converter/convert_prop.py's output, was
+            # added as its own roster slot), carry that slot's real index so
+            # core/spawn.pasm re-streams it as its own real art instead of
+            # whatever generic character already happened to be loaded into
+            # that AI slot. None (byte 0, "no reassign") for every pickup
+            # type without a converted roster slot yet -- same honest
+            # partial-coverage pattern classify_pickup already uses; a prop
+            # with no matching roster slot keeps today's pre-existing
+            # borrowed-sprite behavior, unchanged.
+            prop_item_name = None
+            if entity_type == 'item':
+                prop_item_name = e.character
+            elif entity_type == 'obstacle' and e.item:
+                prop_item_name = e.item
+            if prop_item_name and roster_lookup:
+                roster_idx = roster_lookup.get(prop_item_name.lower())
         elif e.boss and roster_idx is not None:
             # roster-reassignment slice: this boss's real character IS in
             # the actual shipped roster -- carry its index (own byte, +8
@@ -425,7 +449,16 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
-        roster_idx_byte = (roster_idx & 0xFF) if is_boss_identified else 0
+        # Real prop/pickup sprite art: a prop record now ALSO carries a real
+        # +8 roster_idx when its item name resolved above -- core/spawn.pasm
+        # (SPAWN_KIND_PROP branch) reassigns using it, exactly the same as
+        # SPAWN_KIND_BOSS_IDENTIFIED already does. roster_idx==0 always means
+        # "no reassign" for both cases (roster slot 0 is RALF -- never a
+        # boss's own identified slot in practice, and never a converted
+        # prop's slot either, since props are always appended after the
+        # fighter roster).
+        roster_idx_byte = (roster_idx & 0xFF) if (
+            is_boss_identified or (is_prop and roster_idx is not None)) else 0
 
         # G8 item/pickup slice: a prop record's real contained/standalone
         # item, packed into record_kind's remaining spare bits (5-7). Two

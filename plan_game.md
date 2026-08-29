@@ -1621,10 +1621,67 @@ verifies score award + OAM hide + pickup-type consumption -- proving
 source->conversion->packed data->runtime spawn->break->reveal->reward->
 removal end-to-end, not just the isolated effect.
 
-Still open, in priority order:
+**Fifth slice DONE, same day: real prop/pickup sprite art (a representative
+real example).** `GATE G8-PROP-ART: PASS`. Closes the last "still open"
+item below. New `tools/bor_converter/convert_prop.py` -- a real, minimal,
+idle-only converter for MISC item entities (`type item`, e.g. `APPLE.TXT`),
+NOT a reuse of `convert_character.py` (verified directly: APPLE/MEAT/MONEY/
+1UP all declare exactly one `anim idle`, 1 frame, no walk/pain/fall/rise at
+all -- `convert_character.py` hard-requires all 5 and raises loudly if one
+is missing, which is the real, sourced reason this needed its own pipeline
+rather than a quick extension). Converts the item's real (and only) frame
+through the exact same crop/scale/palette-quantize pipeline every fighter
+uses, then replicates that real converted directory across the other 4
+struct-required roles (walk/attack/fall/rise) -- documented as the correct
+representation of "this entity has no distinct animation in the source
+data," not fabricated content; `CHAR_INPUT_DRIVEN_PROP` never dispatches
+into walk/attack/fall/rise playback anyway, so that data is real but
+structurally inert, same rationale already established for a prop's other
+struct-required-but-unused fields.
 
-- Real prop/pickup sprite art, converted from the source pak (needs its
-  own small non-fighter asset pipeline, not a reuse of convert_character.py).
+APPLE (a real MISC item, `DATA\CHARS\MISC\APPLE.TXT`) added as roster slot
+13 (`build_rom.py`'s `ROSTER_PREFIXES`) -- one representative real example,
+not every pickup type (money/meat/1up still render via the pre-existing
+borrowed-character behavior until they get their own `convert_prop.py`
+pass). Wiring reuses the EXACT SAME mechanism `SPAWN_KIND_BOSS_IDENTIFIED`
+already built for real boss character reassignment (`core/spawn.pasm`'s
+`Spawn_DoRosterReassign`) rather than inventing a parallel one:
+`build_spawn_table.py` now also resolves a prop's real item name (`spawn
+apple` standalone, or an `obstacle`'s `item <name>` line) against the
+`--roster` list the exact same way a boss's name already is, packing a real
+roster_idx into the same +8 byte (0 = "no converted sprite yet," backward
+compatible); `core/spawn.pasm`'s dispatch-time `Msu1_StreamBusy` gate and
+each slot's prop branch were widened to also call `Spawn_DoRosterReassign`
+when a prop record carries a nonzero roster_idx. Both shipped BOR spawn
+tables (`out/spawn_stage1a`, `out/spawn_stage1b`) regenerated with the full
+14-name `--roster` list; stage 1A's real `item apple` record (index 36)
+now carries `roster_idx=13`.
+
+`tools/verify/game_g8_prop_art.py` reaches stage 1A via the same real
+force-win idiom `game_spawn_roster_reassign.py` already established (no
+direct stage-load path exists in this engine), drives the real single
+global spawn queue to the real apple record, and proves the reassignment
+against real hardware-visible state: the landing slot's (idle,walk,attack)
+frame-count triple becomes `(1,1,1)` -- apple's own real converted moveset,
+distinct from every real fighter's triple -- not whatever generic character
+the slot had loaded before. (A secondary check against `CHAR_ROSTER_INDEX`,
+main.pasm struct offset 12, was dropped after this gate's own development
+found it dead: grep-confirmed nothing in main.pasm ever writes it, a
+pre-existing gap unrelated to this slice, not a regression it caused.)
+Adding a 14th roster slot shifted the packed VM module's MSU offset;
+`src/core/vm/vm_load.pasm`'s hand-synced `VM_MSU_OFFSET` was re-synced
+(`build_rom.py`'s own `check_vm_constants` catches this class of drift
+automatically). Full regression re-verified clean after this slice: `audit_
+all.py`, `check_label_drift.py`, `check_width_directives.py`, phase5,
+phase11, phase12, `game_g8_pickup.py`, `game_g8_pickup_chain.py`, and
+`game_spawn_roster_reassign.py` (the shared boss-reassignment path this
+slice's own code sits next to) all still pass.
+
+Still open:
+
+- Real prop/pickup sprite art for money/meat/1up (the same `convert_prop.py`
+  pipeline, just not yet run for those three item names -- apple is the
+  one converted, gated, representative example this slice added).
 
 ---
 
