@@ -1524,15 +1524,61 @@ before attributing either to this slice).
 > `src/core/vm/vm_load.pasm`'s hand-synced `VM_MSU_OFFSET` both needed
 > re-syncing since the record-size change shifted every later MSU offset.
 
-The spawn tables **used to be believed to silently discard non-enemy
-spawns** — that turned out to be false, and the entity-kind gap it pointed
-at is now half-closed (see the status block above). Still open:
+> **Second slice DONE, 2026-08-29 (notjustfreespecial.txt audit).** `GATE
+> G8-PICKUP: PASS` (`tools/verify/game_g8_pickup.py`, 12 checks). Real
+> health/score/1-up pickup effects, sourced from a direct pak scan (`DATA\
+> CHARS\MISC` in the BOR pak has genuine, previously-unconverted item
+> content the plan above didn't even enumerate: `APPLE.TXT` `health 30`,
+> `MEAT.TXT` `health 100`, `MONEY.TXT` `score 1000`, `1UP.TXT`, real
+> OpenBOR's own name=="1up" special case for an extra life), wired to the
+> real spawn data that already references them (`DATA\EASY\1AEASY.TXT`'s
+> own `spawn 1up` and `item meat`/`item apple`/`item money` lines,
+> `1BEASY.TXT`'s own `item Apple`/`item Money`; verified byte-exact
+> against a fresh regeneration of both shipped spawn tables, including
+> genuinely reproducing a real typo in the pak's own data -- 1BEASY's
+> Table spawn writes `2pitem Apple` instead of `item Apple`, so real
+> OpenBOR itself would also fail to parse that line and Table correctly
+> carries no pickup in this engine either).
+>
+> Implementation: a new `CHAR_PICKUP_TYPE` struct field (main.pasm, grew
+> `CHAR_ZP_LEN` 127->128 -- `Entity1/2/3_Base`/`DpBase` literals updated,
+> caught clean by `audit_all.py`'s existing hand-sync guards), packed into
+> the spawn record's `record_kind` byte's last 3 spare bits (5-7 -- all 8
+> bits of that byte are now in use) by `build_spawn_table.py`'s new
+> `classify_pickup`, written by `core/spawn.pasm`'s `Spawn_Play` alongside
+> the existing prop HP/mode writes (and explicitly zeroed on the non-prop
+> path, so a slot reused later for an ordinary enemy can't inherit a stale
+> pickup), and consumed exactly once -- at the real moment a
+> `CHAR_INPUT_DRIVEN_PROP` entity's HP reaches 0 from a landed player hit
+> -- by a new `Character_HitApply__ApplyPickup` leaf (`core/jump.pasm`,
+> bank 8 for ROM budget, same pattern as this file's other routines).
+> Effects reuse this project's existing HP-clamp and `Game_Score`-clamp
+> idioms; a killing hit still also awards the ordinary combat
+> `HIT_SCORE+KILL_SCORE` on top (pre-existing behavior, unchanged by this
+> slice -- breaking a real item source nets both the fight-score and the
+> item's own value).
+>
+> **Deliberately still not done** (unchanged from the first slice, plus
+> one now-obsolete item removed): real prop/pickup sprite art -- a prop
+> still renders using whichever roster character is already streamed into
+> its slot (visually wrong, behaviorally real; the converter's ROLE_NAMES
+> architecture requires idle/walk/pain/fall/rise, which single-frame item
+> entities like APPLE/MONEY don't have at all, so this isn't a quick
+> extension of the existing character pipeline -- it needs its own,
+> smaller asset path); TMNT's own decorative prop names (TMNT still hasn't
+> been converted at all); the `boss` flag (unrelated to props, see G9);
+> weapons (BOR's real `KNIFE`/`STAR` MISC entities are `type enemy` with
+> their own attack box -- a thrown-weapon mechanic, not a pickup, genuinely
+> out of this slice's scope); `GOLD`/`TIME` (real MISC entities, but used
+> by neither shipped/buildable level, so there's no real spawn data to
+> verify a mapping against yet).
 
-- Breakable props that drop items; health/score/1up pickups (reward effects).
+Still open, in priority order:
+
+- Real prop/pickup sprite art, converted from the source pak (needs its
+  own small non-fighter asset pipeline, not a reuse of convert_character.py).
 - Weapons (BOR has knives/bats) if the moveset work in G7 lands.
-- Real prop/pickup sprite art, converted from the source pak.
-
-Cheap and high-value, since the level data is already there.
+- TMNT's own decorative prop/item roster (TMNT conversion hasn't started).
 
 ---
 

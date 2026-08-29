@@ -260,6 +260,14 @@ Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
                                    ; BOSS_IDENTIFIED. Grep-confirmed clear of
                                    ; any other module's WRAM through at
                                    ; least $7E5850.
+Spawn_ScratchPickupType = $7E584E ; .db -- G8 item/pickup slice: decoded
+                                   ; record_kind bits 5-7 (SPAWN_PICKUP_
+                                   ; SHIFT/MASK below), real only when
+                                   ; Spawn_ScratchKind==SPAWN_KIND_PROP.
+                                   ; Written to the landing slot's own
+                                   ; CHAR_PICKUP_TYPE (main.pasm) by slot1/
+                                   ; slot2/slot3 below, same pattern as
+                                   ; Spawn_ScratchMap/MapApply_*.
 
 ; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
 ; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
@@ -342,6 +350,10 @@ SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
 SPAWN_KIND_MASK   = $07
 SPAWN_MAP_SHIFT   = 3
 SPAWN_MAP_MASK    = $03   ; explicit mask AFTER the >>3 shift
+SPAWN_PICKUP_SHIFT = 5    ; G8 item/pickup slice: record_kind bits 5-7 (3
+                          ; bits, 0-7, PICKUP_TYPE_* in main.pasm only use
+                          ; 0-4) -- real only when kind==SPAWN_KIND_PROP.
+SPAWN_PICKUP_MASK  = $07  ; explicit mask AFTER the >>5 shift
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -665,6 +677,15 @@ Spawn_Play__triggered:
     lsr a
     lsr a
     lsr a
+    lsr a
+    lsr a
+    and #SPAWN_PICKUP_MASK
+    sta.l Spawn_ScratchPickupType
+    pla
+    pha
+    lsr a
+    lsr a
+    lsr a
     and #SPAWN_MAP_MASK
     sta.l Spawn_ScratchMap
     pla
@@ -790,6 +811,8 @@ Spawn_Play__slot1:
     sta.l Entity1_Hp
     lda #0
     sta.l Entity1_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity1_PickupType
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_prop:
     sep #$20
@@ -798,6 +821,11 @@ Spawn_Play__slot1_not_prop:
     sta.l Entity1_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity1_Hp
+    ; G8 item/pickup slice: an enemy record never carries a real pickup
+    ; effect -- clear a previous prop occupant's stale CHAR_PICKUP_TYPE so
+    ; this slot can't re-trigger it later.
+    lda #0
+    sta.l Entity1_PickupType
     ; plan_game.md 8a row 3 (`map`): apply this spawn's remap palette (0 =
     ; the character's own base palette) -- fill Anim_ApplyMapPalette's param
     ; block from this slot's own struct fields (set once at character load,
@@ -881,6 +909,8 @@ Spawn_Play__slot2:
     sta.l Entity2_Hp
     lda #0
     sta.l Entity2_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity2_PickupType
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_prop:
     sep #$20
@@ -889,6 +919,8 @@ Spawn_Play__slot2_not_prop:
     sta.l Entity2_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity2_Hp
+    lda #0                      ; G8 item/pickup slice -- see slot1's own comment
+    sta.l Entity2_PickupType
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index
@@ -965,6 +997,8 @@ Spawn_Play__slot3:
     sta.l Entity3_Hp
     lda #0
     sta.l Entity3_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity3_PickupType
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_prop:
     sep #$20
@@ -973,6 +1007,8 @@ Spawn_Play__slot3_not_prop:
     sta.l Entity3_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity3_Hp
+    lda #0                      ; G8 item/pickup slice -- see slot1's own comment
+    sta.l Entity3_PickupType
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index

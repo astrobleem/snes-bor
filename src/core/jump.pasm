@@ -1503,3 +1503,86 @@ CharSelect_PortraitUpdate__set:
     pld
     plp
     rtl
+
+; ============================================================================
+; Character_HitApply__ApplyPickup -- G8 item/pickup slice
+; (notjustfreespecial.txt). Called from main.pasm's Character_HitApply_
+; VsEntity1/2/3 (bank 0, jsl) the moment a CHAR_INPUT_DRIVEN_PROP slot's HP
+; reaches 0 with a nonzero CHAR_PICKUP_TYPE -- i.e. a real breakable's
+; contained item (Table->Apple, Chair->Money, per BOR's own DATA\EASY\
+; 1BEASY.TXT) or a standalone item spawn (DATA\EASY\1AEASY.TXT's own
+; `spawn 1up`) has just been revealed/collected. Own bank, same ROM-budget
+; reason as this file's other routines.
+;
+; Entered in .a8 (caller's own ambient width): A = the entity's
+; CHAR_PICKUP_TYPE value (PICKUP_TYPE_* in main.pasm), already read by the
+; caller. DP is still the PLAYER's own window (this leaf runs inside the
+; player's own Character_HitApply call chain -- see Character_HitApply__
+; do_vs_all_ai's header), so CHAR_HP below is the PLAYER's own HP, not the
+; dying prop's -- exactly the entity a pickup effect should apply to.
+; Doesn't touch X/Y. Exits in .a8 via rtl, matching every other _Long-style
+; leaf in this file.
+; ============================================================================
+Character_HitApply__ApplyPickup:
+    php
+    sep #$20
+.a8
+    cmp #PICKUP_TYPE_APPLE
+    beq Character_HitApply__ApplyPickup__heal_apple
+    cmp #PICKUP_TYPE_MEAT
+    beq Character_HitApply__ApplyPickup__heal_meat
+    cmp #PICKUP_TYPE_MONEY
+    beq Character_HitApply__ApplyPickup__money
+    cmp #PICKUP_TYPE_ONEUP
+    beq Character_HitApply__ApplyPickup__oneup
+    bra Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
+Character_HitApply__ApplyPickup__heal_apple:
+    sep #$20
+.a8
+    lda #PICKUP_HEAL_APPLE
+    bra Character_HitApply__ApplyPickup__heal
+Character_HitApply__ApplyPickup__heal_meat:
+    sep #$20
+.a8
+    lda #PICKUP_HEAL_MEAT
+Character_HitApply__ApplyPickup__heal:
+    sep #$20
+.a8
+    ; CHAR_HP += A, clamped at CHAR_HP_MAX (never past the HUD bar's own
+    ; max -- same clamp-not-wrap idiom Game_Score_Award uses for Game_Score).
+    clc
+    adc CHAR_HP
+    cmp #CHAR_HP_MAX + 1
+    bcc Character_HitApply__ApplyPickup__heal_store
+    lda #CHAR_HP_MAX
+Character_HitApply__ApplyPickup__heal_store:
+    sta CHAR_HP
+    bra Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__oneup:
+    lda.l Game_Lives
+    inc a
+    sta.l Game_Lives
+    bra Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__money:
+    ; Game_Score += PICKUP_SCORE_MONEY, clamped at 65535 -- same idiom
+    ; Game_Score_Award uses, but this leaf doesn't also re-check the
+    ; EXTEND_LIFE_SCORE crossing Game_Score_Award does for combat score;
+    ; deliberately deferred (money pickups are rare in real shipped spawn
+    ; data -- 3 total across both stages -- not worth duplicating that
+    ; whole quotient-compare dance for here; a life-extend triggered purely
+    ; by picking up money is real OpenBOR behavior this slice doesn't yet
+    ; reproduce).
+    rep #$20
+.a16
+    lda.l Game_Score
+    clc
+    adc #PICKUP_SCORE_MONEY
+    bcc Character_HitApply__ApplyPickup__money_store
+    lda #$FFFF
+Character_HitApply__ApplyPickup__money_store:
+    sta.l Game_Score
+    sep #$20
+.a8
+Character_HitApply__ApplyPickup__done:
+    plp
+    rtl

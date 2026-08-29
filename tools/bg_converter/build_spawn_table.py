@@ -170,7 +170,13 @@ Spawn_Play's own shift):
                                    from the level's own `map` line), same
                                    spare-bits technique used for group's
                                    min/max -- see core/spawn.pasm's
-                                   SPAWN_KIND_MASK/SPAWN_MAP_SHIFT.
+                                   SPAWN_KIND_MASK/SPAWN_MAP_SHIFT. Bits 5-7
+                                   (G8 item/pickup slice): PICKUP_TYPE_*
+                                   (0-4), real only when kind==
+                                   RECORD_KIND_PROP -- see classify_pickup's
+                                   own docstring and core/spawn.pasm's
+                                   SPAWN_PICKUP_SHIFT/MASK. All 8 bits of
+                                   this byte are now in use.
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
                                    (0..CHAR_HP_MAX); ignored for props and
                                    wait/group records.
@@ -228,10 +234,52 @@ RECORD_KIND_BOSS_IDENTIFIED = 5   # real spawn-driven roster-reassignment
                                   # of leaving it as a reskin.
 
 MAP_SHIFT = 3
+PICKUP_SHIFT = 5   # G8 item/pickup slice: record_kind bits 5-7 (spare --
+                   # kind uses 0-2, map uses 3-4). See core/spawn.pasm's
+                   # SPAWN_PICKUP_SHIFT/MASK and main.pasm's PICKUP_TYPE_*.
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
 # else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
 PROP_ENTITY_TYPES = {'obstacle', 'item'}
+
+# G8 item/pickup slice (notjustfreespecial.txt): real values sourced
+# straight from the BOR pak's own DATA\CHARS\MISC .TXT files, matching
+# main.pasm's PICKUP_TYPE_*/PICKUP_HEAL_*/PICKUP_SCORE_* constants exactly
+# (APPLE health=30, MEAT health=100, MONEY score=1000; "1up" is real
+# OpenBOR's own name-based special case for an extra life, not a generic
+# item stat). Scoped to exactly the pickup types real, buildable BOR spawn
+# data actually uses (verified against both shipped/buildable levels'
+# `item <name>` lines and their own standalone `spawn 1up`) -- GOLD/TIME/
+# STAR/KNIFE are real MISC entities too but appear in neither shipped
+# level, so they're deliberately not mapped here (see plan_game.md G8 for
+# the full accounting of what's still open).
+PICKUP_TYPE_NONE = 0
+PICKUP_TYPE_APPLE = 1
+PICKUP_TYPE_MEAT = 2
+PICKUP_TYPE_MONEY = 3
+PICKUP_TYPE_ONEUP = 4
+
+
+def classify_pickup(name, entity_type_lookup_entry):
+    """entity_type_lookup_entry: the raw parsed entity dict for `name`
+    (from build_pickup_lookup below), or None if `name` isn't a real
+    character in this pak. Returns one of the PICKUP_TYPE_* constants
+    above, derived from the SAME real fields OpenBOR itself uses for an
+    item pickup (name=="1up" special case; else health=heal amount,
+    score=score amount) -- never invented."""
+    if entity_type_lookup_entry is None:
+        return PICKUP_TYPE_NONE
+    entity = entity_type_lookup_entry
+    real_name = str(entity.get('name') or name).strip().lower()
+    if real_name == '1up':
+        return PICKUP_TYPE_ONEUP
+    if str(name).strip().lower() == 'apple':
+        return PICKUP_TYPE_APPLE
+    if str(name).strip().lower() == 'meat':
+        return PICKUP_TYPE_MEAT
+    if str(name).strip().lower() == 'money':
+        return PICKUP_TYPE_MONEY
+    return PICKUP_TYPE_NONE
 
 
 def build_type_lookup(pak_path):
@@ -270,7 +318,29 @@ def build_type_lookup(pak_path):
     return lookup
 
 
-def convert_events(events, type_lookup, roster_lookup=None):
+def build_entity_lookup(pak_path):
+    """Same traversal as build_type_lookup, but keeps each character's full
+    parsed entity dict (not just its `type` string) -- G8 item/pickup slice
+    needs `health`/`score`/`name` too, to classify a real pickup effect
+    (see classify_pickup above)."""
+    entries = read_entries(pak_path)
+    lookup = {}
+    for entry in entries:
+        if 'CHARS' not in entry.name.upper() or not entry.name.upper().endswith('.TXT'):
+            continue
+        base = ntpath.basename(entry.name)
+        key = base.rsplit('.', 1)[0].lower()
+        try:
+            entity = parse_entity(extract(pak_path, entry.name).decode('latin1'))
+        except Exception:
+            continue
+        lookup[key] = entity
+        if entity.get('name'):
+            lookup.setdefault(str(entity['name']).lower(), entity)
+    return lookup
+
+
+def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
     """events: list of spawn_parse.SpawnEvent/WaitEvent/GroupEvent, in
     trigger order (spawn_parse.py already interleaves all three correctly --
     see core/spawn.pasm's own header for why this single ordered queue
@@ -331,6 +401,21 @@ def convert_events(events, type_lookup, roster_lookup=None):
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
         roster_idx_byte = (roster_idx & 0xFF) if is_boss_identified else 0
+
+        # G8 item/pickup slice: a prop record's real contained/standalone
+        # item, packed into record_kind's remaining spare bits (5-7). Two
+        # real sources, both verified against the shipped/buildable pak
+        # data: (a) an `obstacle`-type prop's own `item <name>` line
+        # (Table->Apple, Chair->Money -- DATA\EASY\1BEASY.TXT); (b) an
+        # `item`-type character spawned directly, standalone (`spawn 1up`
+        # -- DATA\EASY\1AEASY.TXT). Zero for every non-prop record.
+        pickup_type = PICKUP_TYPE_NONE
+        if is_prop and entity_lookup is not None:
+            if entity_type == 'item':
+                pickup_type = classify_pickup(e.character, entity_lookup.get(e.character.lower()))
+            elif entity_type == 'obstacle' and e.item:
+                pickup_type = classify_pickup(e.item, entity_lookup.get(e.item.lower()))
+        record_kind |= (pickup_type << PICKUP_SHIFT)
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:
@@ -347,7 +432,8 @@ def build_from_pak(pak_path, entry_name, roster_lookup=None):
     from spawn_parse import parse_spawns_from_pak
     events = parse_spawns_from_pak(pak_path, entry_name)
     type_lookup = build_type_lookup(pak_path)
-    return convert_events(events, type_lookup, roster_lookup)
+    entity_lookup = build_entity_lookup(pak_path)
+    return convert_events(events, type_lookup, roster_lookup, entity_lookup)
 
 
 def main():

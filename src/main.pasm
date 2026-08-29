@@ -2455,9 +2455,9 @@ AI_ATTACK2_CHANCE = 64            ; notjustfreespecial.txt item 3: 64/256
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a7f        ; low16 of $7E0a00+127 ($7f=127 dec)
-Entity2_DpBase      = $0afe        ; low16 of $7E0a00+254 ($fe=254 dec)
-Entity3_DpBase      = $0b7d        ; low16 of $7E0a00+381 ($17d=381 dec)
+Entity1_DpBase      = $0a80        ; low16 of $7E0a00+128 ($80=128 dec)
+Entity2_DpBase      = $0b00        ; low16 of $7E0a00+256 ($100=256 dec)
+Entity3_DpBase      = $0b80        ; low16 of $7E0a00+384 ($180=384 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2469,7 +2469,7 @@ Entity3_DpBase      = $0b7d        ; low16 of $7E0a00+381 ($17d=381 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 127       ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 128       ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2488,13 +2488,14 @@ Entity1_InputDriven = Entity1_Base + 15   ; Entity #1's CHAR_INPUT_DRIVEN
                                             ; spawn-kind, not just leave
                                             ; whatever CharacterEntity_Init
                                             ; set at boot)
+Entity1_PickupType  = Entity1_Base + 127  ; Entity #1's CHAR_PICKUP_TYPE (G8)
 Entity1_PaletteSlot   = Entity1_Base + 13 ; Entity #1's CHAR_PALETTE_SLOT
 Entity1_PaletteBaseLo = Entity1_Base + 49 ; Entity #1's CHAR_PALETTE_BASE_LO
 Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 254       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 256       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2508,13 +2509,14 @@ Entity2_KnockdownCount = Entity2_Base + 46 ; Entity #2's CHAR_KNOCKDOWN_COUNT
 Entity2_KnockdownTimer = Entity2_Base + 47 ; Entity #2's CHAR_KNOCKDOWN_TIMER
 Entity2_FallStateTimer = Entity2_Base + 48 ; Entity #2's CHAR_FALL_STATE_TIMER
 Entity2_InputDriven = Entity2_Base + 15   ; Entity #2's CHAR_INPUT_DRIVEN (plan_game.md G8)
+Entity2_PickupType  = Entity2_Base + 127  ; Entity #2's CHAR_PICKUP_TYPE (G8)
 Entity2_PaletteSlot   = Entity2_Base + 13 ; Entity #2's CHAR_PALETTE_SLOT
 Entity2_PaletteBaseLo = Entity2_Base + 49 ; Entity #2's CHAR_PALETTE_BASE_LO
 Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 381       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 384       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2528,6 +2530,7 @@ Entity3_KnockdownCount = Entity3_Base + 46 ; Entity #3's CHAR_KNOCKDOWN_COUNT
 Entity3_KnockdownTimer = Entity3_Base + 47 ; Entity #3's CHAR_KNOCKDOWN_TIMER
 Entity3_FallStateTimer = Entity3_Base + 48 ; Entity #3's CHAR_FALL_STATE_TIMER
 Entity3_InputDriven = Entity3_Base + 15   ; Entity #3's CHAR_INPUT_DRIVEN (plan_game.md G8)
+Entity3_PickupType  = Entity3_Base + 127  ; Entity #3's CHAR_PICKUP_TYPE (G8)
 Entity3_PaletteSlot   = Entity3_Base + 13 ; Entity #3's CHAR_PALETTE_SLOT
 Entity3_PaletteBaseLo = Entity3_Base + 49 ; Entity #3's CHAR_PALETTE_BASE_LO
 Entity3_PaletteBaseHi = Entity3_Base + 51 ; Entity #3's CHAR_PALETTE_BASE_HI
@@ -2906,11 +2909,37 @@ CHAR_WAITING_FCOUNT  = 122 ; .db -- 0 = no real char-select portrait
 CHAR_WAITING_DELAY   = 123 ; .db
 CHAR_WAITING_BASE_LO = 124 ; .dw
 CHAR_WAITING_BASE_HI = 126 ; .db
-CHAR_ZP_LEN         = 127  ; total -- pass as OopRegStaging_ZpLen
+; G8 item/pickup slice (notjustfreespecial.txt): sourced from the BOR pak's
+; own DATA\CHARS\MISC .TXT files (APPLE health=30, MEAT health=100,
+; MONEY score=1000, "1up" real OpenBOR name-special-case = extra life) --
+; see PICKUP_TYPE_* constants below. Set only on a CHAR_INPUT_DRIVEN_PROP
+; (mode 3) slot by Spawn_Play, from the spawn record's own record_kind
+; spare bits 5-7 (build_spawn_table.py); consumed once, at the moment this
+; prop/item soft-kills (Character_HitApply__ApplyPickup), then zeroed so a
+; slot later reused for an ordinary enemy never accidentally re-triggers
+; a stale pickup effect.
+CHAR_PICKUP_TYPE     = 127 ; .db
+CHAR_ZP_LEN         = 128  ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
 CHAR_HP_PER_HIT     = 4    ; 16 hits to empty a bar
+
+; G8 pickup effect types (real values sourced from the BOR pak's own
+; DATA\CHARS\MISC .TXT data, verified against the two shipped/buildable
+; levels' real spawn content -- only types that real spawn records
+; actually use, not the full MISC roster): PICKUP_HEAL_* are pre-scaled the
+; same way build_spawn_table.py already scales spawn_hp (health*CHAR_HP_MAX
+; /100), PICKUP_SCORE_MONEY is Money's own real `score 1000` line applied
+; unscaled (Game_Score is already a much larger unit than CHAR_HP).
+PICKUP_TYPE_NONE    = 0
+PICKUP_TYPE_APPLE   = 1     ; APPLE.TXT health=30 -> 30*64/100 = 19
+PICKUP_TYPE_MEAT    = 2     ; MEAT.TXT health=100 -> 100*64/100 = 64 (full)
+PICKUP_TYPE_MONEY   = 3     ; MONEY.TXT score=1000
+PICKUP_TYPE_ONEUP   = 4     ; real OpenBOR name=="1up" special case: +1 life
+PICKUP_HEAL_APPLE   = 19
+PICKUP_HEAL_MEAT    = 64
+PICKUP_SCORE_MONEY  = 1000
 CHAR_SELECTED_FALL  = 3    ; Anim_Play__dispatch value; subsumes the real
                             ; engine's fall+lie (no separate lie animation
                             ; exists in source -- lying is a hold on fall's
@@ -6006,7 +6035,19 @@ Character_HitApply_VsEntity1__dy_ok:
                                                       ; budget) instead of a
                                                       ; separate empty label
     jsr Character_HitApply__ScoreAndFinish
-    rts
+    ; G8 item/pickup slice: this hit may have just killed a
+    ; CHAR_INPUT_DRIVEN_PROP with a real contained/standalone item
+    ; (CHAR_PICKUP_TYPE nonzero) -- apply its effect to the player once,
+    ; then clear it so a slot later reused for an ordinary enemy can never
+    ; re-trigger a stale pickup. See Character_HitApply__ApplyPickup's own
+    ; header (core/jump.pasm) for the real BOR-pak-sourced effect values.
+    lda.l Entity1_Hp
+    bne Character_HitApply_VsEntity1__dead_skip
+    lda.l Entity1_PickupType
+    beq Character_HitApply_VsEntity1__dead_skip
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity1_PickupType
 Character_HitApply_VsEntity1__dead_skip:
     rts
 
@@ -6075,7 +6116,14 @@ Character_HitApply_VsEntity2__dy_ok:
 .a8
     bcs Character_HitApply_VsEntity2__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
-    rts
+    ; G8 item/pickup slice -- see VsEntity1's own comment.
+    lda.l Entity2_Hp
+    bne Character_HitApply_VsEntity2__dead_skip
+    lda.l Entity2_PickupType
+    beq Character_HitApply_VsEntity2__dead_skip
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity2_PickupType
 Character_HitApply_VsEntity2__dead_skip:
     rts
 
@@ -6137,7 +6185,14 @@ Character_HitApply_VsEntity3__dy_ok:
 .a8
     bcs Character_HitApply_VsEntity3__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
-    rts
+    ; G8 item/pickup slice -- see VsEntity1's own comment.
+    lda.l Entity3_Hp
+    bne Character_HitApply_VsEntity3__dead_skip
+    lda.l Entity3_PickupType
+    beq Character_HitApply_VsEntity3__dead_skip
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity3_PickupType
 Character_HitApply_VsEntity3__dead_skip:
     rts
 

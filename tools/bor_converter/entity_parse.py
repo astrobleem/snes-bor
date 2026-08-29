@@ -28,7 +28,7 @@ def parse_entity(text):
     lines = text.splitlines()
     entity = {
         'name': None, 'health': None, 'speed': None, 'type': None,
-        'shadow': None, 'icon': None, 'diesound': None,
+        'shadow': None, 'icon': None, 'diesound': None, 'score': None,
         'remaps': [], 'animations': {},
         # G7 content-audit slice: real BOR.C `atchain <n1> <n2> ...` --
         # each value is a 1-based index into the real attack-number family
@@ -40,7 +40,7 @@ def parse_entity(text):
         'atchain': [],
     }
 
-    SCALAR_KEYS = {'name', 'health', 'speed', 'type', 'shadow', 'icon', 'diesound'}
+    SCALAR_KEYS = {'name', 'health', 'speed', 'type', 'shadow', 'icon', 'diesound', 'score'}
 
     cur_anim = None
     cur_anim_name = None
