@@ -262,6 +262,27 @@ Jump_ComputeBases:
     sta.l JumpHopBaseHi
     jsr Jump_HopBase
     lda.l JumpHopBaseLo
+    sta CHAR_WAITING_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_WAITING_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_WAITING_BASE_HI
+
+    ; notjustfreespecial.txt G5 slice: waiting_base -> map_base, one more
+    ; hop (pack_msu_roster.py appends waiting_bytes right after the
+    ; freespecial/new-slot frames, BEFORE the remap section) -- collapses
+    ; back to the pre-this-slice map_base value when CHAR_WAITING_FCOUNT==0
+    ; (every roster member except LEO).
+    lda CHAR_WAITING_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_WAITING_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_WAITING_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_WAITING_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
     sta CHAR_MAP_BASE_LO
     lda.l JumpHopBaseLo+1
     sta CHAR_MAP_BASE_LO+1
@@ -1352,4 +1373,133 @@ Jump_ApplyOamYOffset__apply:
                                      ; convention for both JUMP and THROWN
     sta.l OamSetSprite_Y
 Jump_ApplyOamYOffset__done:
+    rtl
+
+; ----------------------------------------------------------------------------
+; notjustfreespecial.txt G5 slice: the char-select screen (core/charselect.
+; pasm) never ran Core_Oop_Play/Character_RenderPass/Core_Oam_Play at all
+; (confirmed by inspection: Game_State_Play only dispatches those from the
+; GAME_STATE_PLAYING branch, never from Game_State_Play__charselect) -- a
+; portrait sprite needs its own small, self-contained render path, called
+; via jsl from charselect's own bank. Lives here (bank 8, already jump.pasm's
+; own bank) rather than bank 0 -- that region is at its ROM-budget ceiling
+; (confirmed empirically). Every same-bank-only (`rts`) bank-0 dependency
+; (Msu1_LoadFrame, Core_Oam_SetSprite, Core_Oam_Play) is reached via its own
+; small `_Long` trampoline (main.pasm), same pattern this file already uses
+; for Msu1_LoadFrame_Long elsewhere. Both routines phd/tcd to the PLAYER's
+; own OopDp window first (Game_State_CharSelect_ReloadPlayer precedent --
+; charselect code runs outside any per-entity OOP dispatch, so CHAR_* DP-
+; relative fields are only valid once explicitly switched) and pld back
+; before returning; CLAUDE.md's "player is always slot 0" makes this a
+; plain `lda.l OopDp` with no ,x offset, same as ReloadPlayer.
+;
+; CharSelect_PortraitUpdate -- called once per charselect frame from the top
+; of Game_State_Play__charselect. Two jobs, deliberately NOT split across
+; two call sites the way an earlier version of this slice had them (draw_
+; header/ReloadPlayer calling a stream routine directly, on the SAME frame
+; as Anim_LoadCharacter's own palette DMA): that stacked Msu1_LoadFrame's 6
+; DMA-queue slots on top of Anim_LoadCharacter's palette DMA (1 slot) and
+; whatever else was already queued that frame, in Core_Dma's fixed 8-slot
+; queue -- a real, reproduced regression (game_g5_menus.py's LEO-wrap
+; sequence started failing every check after it, right after Left-wrap
+; selected LEO). Fixed by DEFERRING the stream: draw_header/ReloadPlayer
+; below only set CharSelect_PortraitPending=1 (two cheap instructions, no
+; DMA); THIS routine, called every frame, only actually streams (clearing
+; the flag first) when the flag is set -- always at least one full frame
+; after the reselect that set it, so it never shares a frame with Anim_
+; LoadCharacter's own DMA.
+;
+; Streaming: the player's real CHAR_WAITING_BASE frame 0 into their
+; existing OBJ tile column (Msu1_LoadFrame, same mechanism every other
+; animation uses). No-op if CHAR_WAITING_FCOUNT==0 (12 of 13 roster
+; characters -- only LEO has real `waiting` data).
+;
+; OAM: writes (or hides) the portrait's OAM entry and drains it via Core_
+; Oam_Play every frame regardless (cheap -- no DMA stream, just the same
+; OamSetSprite_*/Core_Oam_SetSprite/Core_Oam_Play sequence Character_
+; PlayFrame's own tile/attr block uses, see that routine's comments for the
+; *4/palette/hi-table derivation this mirrors). Fixed screen position (top-
+; left corner, clear of the header/name/instr text rows below) since char-
+; select has no camera/scroll. Hidden (OamSetSprite_Y=$F0, this project's
+; established "clean slot" sentinel -- see memory: ccdma_validated_nmi_
+; timing_bug) whenever the CURRENTLY selected character has no real
+; waiting data -- this is what makes reselecting away from LEO correctly
+; remove his portrait rather than leaving a stale frame on screen.
+; Overwritten cleanly before real gameplay begins with no explicit tear-
+; down needed: Oam_CursorResetDone is cleared once per frame regardless of
+; Game_State (see scpu_main_loop), so the very first GAME_STATE_PLAYING
+; frame's own Character_RenderPass writes entity 0's real sprite into this
+; exact same OAM slot 0 before that frame's Core_Nmi_Play ever commits it --
+; the portrait never survives a single visible vblank past CHARSELECT.
+;
+; Both jobs phd/tcd to the PLAYER's own OopDp window first (Game_State_
+; CharSelect_ReloadPlayer precedent -- charselect code runs outside any
+; per-entity OOP dispatch, so CHAR_* DP-relative fields are only valid once
+; explicitly switched) and pld back before returning; CLAUDE.md's "player
+; is always slot 0" makes this a plain `lda.l OopDp` with no ,x offset,
+; same as ReloadPlayer. Lives here (bank 8, already jump.pasm's own bank)
+; rather than bank 0 -- that region is at its ROM-budget ceiling (confirmed
+; empirically). Every same-bank-only (`rts`) bank-0 dependency (Msu1_
+; LoadFrame, Core_Oam_SetSprite, Core_Oam_Play) is reached via its own
+; small `_Long` trampoline (main.pasm), same pattern this file already
+; uses for Msu1_LoadFrame_Long elsewhere.
+CharSelect_PortraitUpdate:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l OopDp
+    phd
+    tcd
+    sep #$20
+.a8
+    lda.l CharSelect_PortraitPending
+    beq CharSelect_PortraitUpdate__no_stream
+    lda #0
+    sta.l CharSelect_PortraitPending
+    lda CHAR_WAITING_FCOUNT
+    beq CharSelect_PortraitUpdate__no_stream
+    rep #$31
+.a16
+.i16
+    lda CHAR_WAITING_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_WAITING_BASE_HI
+    sta.l AnimHeaderStaging+2
+    lda #0
+    jsl Msu1_LoadFrame_Long
+CharSelect_PortraitUpdate__no_stream:
+    sep #$20
+.a8
+    lda CHAR_WAITING_FCOUNT
+    bne CharSelect_PortraitUpdate__visible
+    lda #$F0
+    sta.l OamSetSprite_Y
+    bra CharSelect_PortraitUpdate__set
+CharSelect_PortraitUpdate__visible:
+    sep #$20
+.a8
+    lda #16
+    sta.l OamSetSprite_X
+    lda #24
+    sta.l OamSetSprite_Y
+    lda CHAR_TILE_COLUMN
+    asl a
+    asl a
+    sta.l OamSetSprite_Tile
+    lda CHAR_PALETTE_SLOT
+    asl a
+    ora #$30
+    sta.l OamSetSprite_Attr
+    lda #$02
+    sta.l OamSetSprite_Hi
+CharSelect_PortraitUpdate__set:
+    jsl Core_Oam_SetSprite_Long
+    jsl Core_Oam_Play_Long
+    sep #$20
+.a8
+    pld
+    plp
     rtl

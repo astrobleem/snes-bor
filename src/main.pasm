@@ -2455,9 +2455,9 @@ AI_ATTACK2_CHANCE = 64            ; notjustfreespecial.txt item 3: 64/256
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a7a        ; low16 of $7E0a00+122 ($7a=122 dec)
-Entity2_DpBase      = $0af4        ; low16 of $7E0a00+244 ($f4=244 dec)
-Entity3_DpBase      = $0b6e        ; low16 of $7E0a00+366 ($16e=366 dec)
+Entity1_DpBase      = $0a7f        ; low16 of $7E0a00+127 ($7f=127 dec)
+Entity2_DpBase      = $0afe        ; low16 of $7E0a00+254 ($fe=254 dec)
+Entity3_DpBase      = $0b7d        ; low16 of $7E0a00+381 ($17d=381 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2469,7 +2469,7 @@ Entity3_DpBase      = $0b6e        ; low16 of $7E0a00+366 ($16e=366 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 122       ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 127       ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2494,7 +2494,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 244       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 254       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2514,7 +2514,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 366       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 381       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2891,7 +2891,22 @@ CHAR_FREESPECIAL_STEP  = 120 ; .db -- 0=none, 1=saw first forward press,
                                ; 2=saw second forward press (ready for attack)
 CHAR_FREESPECIAL_TIMER = 121 ; .db -- grace frames remaining; 0 = lapsed,
                                ; next forward press restarts at step 1
-CHAR_ZP_LEN         = 122  ; total -- pass as OopRegStaging_ZpLen
+; notjustfreespecial.txt G5 slice: real OpenBOR ANI_SELECT/char-select
+; portrait (only LEO ships real data -- 1 frame, `select.gif`, `loop 1`,
+; `delay 130`; see pack_msu_roster.py's OPTIONAL_ROLE_WAITING). Same
+; fcount/delay/base_lo/base_hi shape as CHAR_SPECIAL_* above; FCOUNT==0 for
+; every other roster member. Chained LAST in Jump_ComputeBases (base =
+; freespecial_base + freespecial_frame_count*768), matching this field's
+; own position at the very end of the packed record/blob. Exists per-entity
+; like every other move-slot field even though only entity 0 (the player,
+; CLAUDE.md's "player is always slot 0") is ever actually rendered from
+; it -- core/charselect.pasm's CharSelect_PortraitStream/Refresh always
+; phd/tcd to the player's own OopDp window before touching these fields.
+CHAR_WAITING_FCOUNT  = 122 ; .db -- 0 = no real char-select portrait
+CHAR_WAITING_DELAY   = 123 ; .db
+CHAR_WAITING_BASE_LO = 124 ; .dw
+CHAR_WAITING_BASE_HI = 126 ; .db
+CHAR_ZP_LEN         = 127  ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -3007,6 +3022,21 @@ GrabDragOffsetHi = $7E2696 ; high byte of GrabDragOffset, its OWN named
                             ; encoding mismatch on `Symbol+N` expressions).
 
 ; --- Real jump slice (plan_game.md 7) -- grep-confirmed free $7E27B6-$7E27CA. ---
+; notjustfreespecial.txt G5 slice: in the small $7E27AD-$7E27B5 gap between
+; HudBossStaging's own 64-byte block (ends $7E27AD) and CharDirSeek16 below.
+CharSelect_PortraitPending = $7E27AD  ; .db -- set (1) by draw_header/
+                                        ; ReloadPlayer, cleared by CharSelect_
+                                        ; PortraitUpdate (core/jump.pasm) the
+                                        ; NEXT frame it streams -- deliberately
+                                        ; NOT streamed same-frame as a reselect
+                                        ; (Anim_LoadCharacter's own palette DMA
+                                        ; already runs that frame; Core_Dma's
+                                        ; queue is a fixed 8 slots and Msu1_
+                                        ; LoadFrame alone needs 6 -- stacking
+                                        ; both in one frame was a real,
+                                        ; reproduced regression, see game_g5_
+                                        ; menus.py's LEO-wrap failure that
+                                        ; caught it).
 CharDirSeek16 = $7E27B6  ; .dw -- 0x10 + CharSelect_Index*RECORD_SIZE(25), a
                           ; real 16-bit accumulate-by-repeated-add result
                           ; (see Anim_LoadCharacter_SeekRecord) -- replaces
@@ -6402,9 +6432,11 @@ Anim_LoadCharacter__seek_loop:
 .a16
     lda.l CharDirSeek16
     clc
-    adc #46                 ; RECORD_SIZE -- pack_msu_roster.py's own value
-                             ; (G7 reopened-again slice: 44->46, +2 bytes;
-                             ; content-audit slice before it: 25->44)
+    adc #48                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+                             ; (notjustfreespecial.txt G5 slice: 46->48, +2
+                             ; bytes, waiting_frame_count/delay; G7
+                             ; reopened-again slice before it: 44->46;
+                             ; content-audit slice before that: 25->44)
     sta.l CharDirSeek16
     dex
     bne Anim_LoadCharacter__seek_loop
@@ -6550,6 +6582,17 @@ Anim_LoadCharacter__jumprecs_loop:
     sta CHAR_CHAINLENGTH
     stz CHAR_COMBOSTEP
     stz CHAR_COMBOTIMER
+
+    ; notjustfreespecial.txt G5 slice: 2 more sequential MSU port reads
+    ; (+46/+47, RECORD_SIZE 46->48) -- waiting fcount/delay, written
+    ; straight to their own DP fields, same discipline as CHAR_SPECIAL_
+    ; FCOUNT/DELAY above. MUST land here, right after CHAR_CHAINLENGTH --
+    ; pack_msu_roster.py's build_record() packs waiting_frame_count/delay
+    ; as the LAST 2 record bytes, immediately after chainlength.
+    lda $2001
+    sta CHAR_WAITING_FCOUNT
+    lda $2001
+    sta CHAR_WAITING_DELAY
 
     ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0
@@ -6894,6 +6937,22 @@ Anim_LoadCharacter_Long:
 ; (bank 0, `rts`-terminated) via `jsl`.
 Msu1_LoadFrame_Long:
     jsr Msu1_LoadFrame
+    rtl
+
+; notjustfreespecial.txt G5 slice: two more tiny bank-0 trampolines (same
+; pattern as Msu1_LoadFrame_Long above) so core/jump.pasm's (bank 8)
+; CharSelect_PortraitStream/Refresh can reach these two same-bank-only
+; (`rts`) OAM routines. The real portrait render logic itself lives in
+; jump.pasm, not here -- this exact region ($C100-$FC00) is already at its
+; ROM-budget ceiling (confirmed empirically: a full copy of that logic
+; placed here overflowed into scpu_boot's fixed $FC00 org), same "relocate,
+; don't shrink" precedent core/spawn.pasm's own header cites.
+Core_Oam_SetSprite_Long:
+    jsr Core_Oam_SetSprite
+    rtl
+
+Core_Oam_Play_Long:
+    jsr Core_Oam_Play
     rtl
 
 ; Core_Text_DrawString_Long -- same trampoline pattern as Anim_LoadCharacter_

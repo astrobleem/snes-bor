@@ -139,16 +139,17 @@ ROLE_RUNTIME = {
                          status='implemented-and-gated', evidence=''),
     'special': dict(handler='LEO only: L-button trigger (Jump_PlayerInputGate), '
                              'CHAR_SPECIAL_* base chain, releases an active grab link '
-                             'first (Character_Special_ReleaseGrab)',
+                             'first (Character_Special_ReleaseGrab). Stale-evidence fix: '
+                             'the grab-release check used to force CHAR_GRAB_TARGET via a '
+                             'raw WRAM write; rewritten to organically establish the link '
+                             'first (real R-press retry loop on LEO\'s own `grab` swing, '
+                             'via the SAME Character_HitApply__TryGrab mutual-lock path '
+                             'JOE\'s attack2 uses) before pressing L to trigger the '
+                             'release, then checking BOTH sides of the lock (self.'
+                             'CHAR_GRAB_TARGET and the victim\'s own CHAR_GRABBED_BY) '
+                             'return to $FF -- verified passing.',
                      gates=['game_g7_special.py'],
-                     status='partial',
-                     evidence='notjustfreespecial.txt item 8: game_g7_special.py\'s '
-                              'grab-release check forces CHAR_GRAB_TARGET via a raw WRAM '
-                              'write (LEO has no real grab role that would establish one '
-                              'organically today) -- explicitly flagged in that gate\'s '
-                              'own docstring as structural/plumbing, not an organic '
-                              'sequence. Once `grab` above is fixed to a real link, this '
-                              'should become an organic grab-then-special sequence.'),
+                     status='implemented-and-gated', evidence=''),
     'jump': dict(handler='Player-only jump state machine (Jump_PlayerTick) now stores its '
                          'height/velocity in the SAME per-entity CHAR_THROW_ZPOS/ZVEL '
                          'struct fields throw already used -- no more separate player-'
@@ -195,20 +196,29 @@ ROLE_RUNTIME = {
                          'OPTIONAL_ROLE_NAMES/MOVE_SLOT_NAMES, so pack_msu_roster.py '
                          'never ships it and nothing in main.pasm references it. G8 '
                          'scope (item pickup pose) -- not started.'),
-    'waiting': dict(handler=None, gates=[], status='partial',
-                    evidence='Converted (real frame data exists, e.g. LEO ordinal 0, 1 '
-                             'frame) but never resolved to any engine role and never '
-                             'referenced anywhere in main.pasm (grep-confirmed, no '
-                             'ANI_SELECT/portrait code exists at all). MEASURED (not '
-                             'just grepped) via game_g5_menus.py, 2026-08-29: GAME_STATE_'
-                             'CHARSELECT (core/charselect.pasm) never calls Core_Oop_Play '
-                             'or any OAM update at all -- during real char-select, '
-                             'nothing is rendered on screen, not even a stale/frozen '
-                             'sprite or the character\'s ordinary idle animation (that '
-                             'was this ledger\'s prior, WRONG assumption -- corrected '
-                             'here). Real hardware OAM stays at the dead-hide Y sentinel '
-                             'and CHAR_FRAME_INDEX never advances across 48 sampled '
-                             'frames after a real reselect. G5 scope -- not started.'),
+    'waiting': dict(
+        handler='CharSelect_PortraitUpdate (core/jump.pasm, called via jsl from '
+                'Game_State_Play__charselect). Real OPTIONAL_ROLE_NAMES role '
+                '(convert_character.py) -> pack_msu_roster.py OPTIONAL_ROLE_WAITING '
+                '(CHAR_WAITING_FCOUNT/DELAY/BASE_LO/BASE_HI, chained last in the '
+                'per-entity base-offset hop). Only LEO ships real data (1 frame, '
+                '`select.gif`, `loop 1`) -- FCOUNT==0 for the other 12 roster '
+                'members is the correctly-measured real-content outcome, not an '
+                'unbuilt gap. CHARSELECT never ran ANY OAM render path before this '
+                '(Game_State_Play only dispatches Core_Oop_Play/Character_'
+                'RenderPass/Core_Oam_Play from GAME_STATE_PLAYING, confirmed by '
+                'inspection) -- added a self-contained portrait render path '
+                '(deferred one frame past a reselect, to avoid stacking Msu1_'
+                'LoadFrame\'s DMA-queue cost on top of Anim_LoadCharacter\'s own '
+                'palette DMA in the same frame, a real regression this slice hit '
+                'and fixed). Streams the real converted frame via the same Msu1_'
+                'LoadFrame mechanism every other animation uses; hides (OAM Y=$F0) '
+                'for every character without real data; torn down automatically on '
+                'the first GAME_STATE_PLAYING frame (same OAM slot 0, no explicit '
+                'teardown code needed -- Character_RenderPass overwrites it before '
+                'that frame\'s vblank commits).',
+        gates=['game_g5_portrait.py', 'game_g5_menus.py'],
+        status='implemented-and-gated', evidence=''),
     'block': dict(handler=None, gates=[], status='content-inapplicable',
                   evidence='Grepped every currently-shipped character .TXT '
                            '(Beats of Rage Original + TMNT paks) for a `block` anim '

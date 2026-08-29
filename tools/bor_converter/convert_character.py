@@ -89,7 +89,19 @@ ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 # ROLE_NAMES above -- resolved as OPTIONAL roles downstream (pack_msu_
 # roster.py's OPTIONAL_ROLE_JUMP/JUMPATTACK/JUMPATTACK2), same shape as
 # 'attack2'/'attack2_is_grab', not required like ROLE_NAMES' own five.
-OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special']
+OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special', 'waiting']
+# 'waiting' (notjustfreespecial.txt G5 finding): real OpenBOR ANI_SELECT/
+# char-select portrait pose. Only LEO ships real data for it (DATA\CHARS\
+# LEO\LEO.TXT: `anim waiting`, 1 frame, `frame data/chars/leo/select.gif`,
+# `loop 1`, `delay 130`, `offset 1 1`) -- confirmed by a direct substring
+# scan of every roster character's raw .TXT across both shipped paks (a
+# naive `startswith('waiting')` line scan misses this: the line is
+# `anim waiting`, i.e. `waiting` is the animation-NAME argument token, not
+# the line's first word). Exact-name match, resolved the same way as
+# 'special' immediately above (independent optional role, not part of the
+# chained MOVE_SLOT_NAMES table) -- fcount is 0 for the other 12 roster
+# members, same "collapses to zero, content-inapplicable" discipline as
+# every other optional role.
 
 # G7 content-audit slice (plan_game.md 7, "no reachable content stays
 # inert" pass): real, buildable, previously-unconverted-to-any-role

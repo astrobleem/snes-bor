@@ -139,6 +139,7 @@
     "jumpattack": 6,
     "jumpattack2": 7,
     "special": 17,
+    "waiting": 0,
     "attack": 8,
     "attack3": 10,
     "attack4": 11,

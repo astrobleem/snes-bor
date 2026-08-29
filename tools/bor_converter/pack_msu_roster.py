@@ -69,6 +69,14 @@ File format (see the plan for the authoritative spec):
         +24 special_delay          (u8)   character without a real `special`
                                            anim (only LEO today). Third real
                                            RECORD_SIZE growth (23->25).]
+        +25..44 -- 6 generic move slots + atchain + chainlength (see
+                   NEW_MOVE_SLOT_NAMES; RECORD_SIZE 25->44)
+        +45 freespecial_frame_count/delay (RECORD_SIZE 44->46)
+        +46 waiting_frame_count    (u8)  [notjustfreespecial.txt G5 slice --
+        +47 waiting_delay          (u8)   real ANI_SELECT/char-select
+                                           portrait. 0 for every character
+                                           without real `waiting` data (only
+                                           LEO today). RECORD_SIZE 46->48.]
 
     HEADER_SIZE+  character blobs, packed sequentially (HEADER_SIZE = 0x10 +
                MAX_CHARACTERS*23 = 0x159 today; was 0x10F before this slice
@@ -228,7 +236,10 @@ FORMAT_VERSION = 4
 # real, sane sanity cap (roster_count's own field is a u8, 1-255), and nothing
 # today needs more than 15.
 MAX_CHARACTERS = 15
-RECORD_SIZE = 46  # G7 reopened-again slice: +2 bytes -- `freespecial` added
+RECORD_SIZE = 48  # notjustfreespecial.txt G5 slice: +2 bytes -- waiting_
+                   # frame_count/waiting_delay appended LAST (+46/+47), 0/0
+                   # for every roster member without real `waiting` data
+                   # (only LEO today). Was 46 (G7 reopened-again slice: +2 bytes -- `freespecial` added
                    # as a 7th generic move slot (fcount/delay only, no
                    # atchain steps needed) after being wrongly classified
                    # "AI-exclusive" in the prior content-audit slice; see
@@ -377,6 +388,17 @@ OPTIONAL_ROLE_JUMPATTACK2 = "jumpattack2"
 # the three are in scope for this slice, only the plain `special` role.
 OPTIONAL_ROLE_SPECIAL = "special"
 
+# notjustfreespecial.txt G5 finding: real OpenBOR ANI_SELECT/char-select
+# portrait pose. Only LEO ships real data (1 frame, `select.gif`, `loop 1`,
+# `delay 130`) -- fcount 0 for the other 12 roster members. Appended LAST
+# in the record/blob (after every existing NEW_MOVE_SLOT_NAMES/atchain/
+# chainlength field), not woven into the generic move-slot table above,
+# because it isn't a combat move (no CHAR_ATTACK_VARIANT dispatch, no
+# atchain reachability) -- it needs its own fcount/delay/base chain hop,
+# same 2-field shape as OPTIONAL_ROLE_SPECIAL, just positioned at the very
+# end so it doesn't perturb any existing offset.
+OPTIONAL_ROLE_WAITING = "waiting"
+
 # G7 content-audit slice: a real, source-content-driven audit (every real
 # character .TXT in both shipped paks, re-read directly, not assumed from
 # the previously-known role set) found 6 more real, buildable, previously-
@@ -482,7 +504,7 @@ def _resolve_role_dirs(prefix):
     # character without real jump/jumpattack/jumpattack2 content (12 of 13
     # roster members today).
     for role in (OPTIONAL_ROLE_JUMP, OPTIONAL_ROLE_JUMPATTACK, OPTIONAL_ROLE_JUMPATTACK2,
-                 OPTIONAL_ROLE_SPECIAL):
+                 OPTIONAL_ROLE_SPECIAL, OPTIONAL_ROLE_WAITING):
         ordinal = roles.get(role)
         resolved[role] = anims_by_ordinal[ordinal]["dir"] if ordinal is not None else None
 
@@ -533,6 +555,7 @@ def pack_character_blob(prefix):
     jumpattack_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK]
     jumpattack2_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK2]
     special_dir = role_dirs[OPTIONAL_ROLE_SPECIAL]
+    waiting_dir = role_dirs[OPTIONAL_ROLE_WAITING]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
@@ -559,6 +582,10 @@ def pack_character_blob(prefix):
         special_count, special_delay = gen_pasm_animset.load_manifest(special_dir)
     else:
         special_count, special_delay = 0, 0
+    if waiting_dir is not None:
+        waiting_count, waiting_delay = gen_pasm_animset.load_manifest(waiting_dir)
+    else:
+        waiting_count, waiting_delay = 0, 0
 
     # G7 content-audit slice: the 6 new generic move-descriptor slots --
     # loop-driven (see NEW_MOVE_SLOT_NAMES' own comment for why), 0/0 for
@@ -574,7 +601,8 @@ def pack_character_blob(prefix):
     counts = ([(idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack"),
               (fall_count, "fall"), (rise_count, "rise"), (attack2_count, "attack2"),
               (jump_count, "jump"), (jumpattack_count, "jumpattack"),
-              (jumpattack2_count, "jumpattack2"), (special_count, "special")]
+              (jumpattack2_count, "jumpattack2"), (special_count, "special"),
+              (waiting_count, "waiting")]
               + [(c, role) for role, (c, _) in zip(NEW_MOVE_SLOT_NAMES, new_slot_counts_delays)])
     for count, name in counts:
         if not (0 <= count <= 255):
@@ -582,7 +610,8 @@ def pack_character_blob(prefix):
     delays = ([(idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
               (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"),
               (jump_delay, "jump"), (jumpattack_delay, "jumpattack"),
-              (jumpattack2_delay, "jumpattack2"), (special_delay, "special")]
+              (jumpattack2_delay, "jumpattack2"), (special_delay, "special"),
+              (waiting_delay, "waiting")]
               + [(d, role) for role, (_, d) in zip(NEW_MOVE_SLOT_NAMES, new_slot_counts_delays)])
     for delay, name in delays:
         if not (0 <= delay <= 255):
@@ -601,6 +630,7 @@ def pack_character_blob(prefix):
     jumpattack_bytes = bake_anim_bytes(jumpattack_dir) if jumpattack_dir is not None else b""
     jumpattack2_bytes = bake_anim_bytes(jumpattack2_dir) if jumpattack2_dir is not None else b""
     special_bytes = bake_anim_bytes(special_dir) if special_dir is not None else b""
+    waiting_bytes = bake_anim_bytes(waiting_dir) if waiting_dir is not None else b""
     new_slot_bytes = [
         bake_anim_bytes(d) if d is not None else b""
         for d in new_slot_dirs
@@ -615,6 +645,7 @@ def pack_character_blob(prefix):
     assert len(jumpattack_bytes) == jumpattack_count * ANIM_FRAME_BYTES
     assert len(jumpattack2_bytes) == jumpattack2_count * ANIM_FRAME_BYTES
     assert len(special_bytes) == special_count * ANIM_FRAME_BYTES
+    assert len(waiting_bytes) == waiting_count * ANIM_FRAME_BYTES
     for role, sbytes, (scount, _) in zip(NEW_MOVE_SLOT_NAMES, new_slot_bytes, new_slot_counts_delays):
         assert len(sbytes) == scount * ANIM_FRAME_BYTES, \
             f"{prefix}: {role} baked {len(sbytes)}B, expected {scount * ANIM_FRAME_BYTES}B"
@@ -670,10 +701,16 @@ def pack_character_blob(prefix):
     # hop per slot, collapsing back to the pre-this-slice value when every
     # new slot's count is 0, which is every roster member except LEO/
     # BEBOP/ROCK/LEATHER/FOOT01/FOOT02).
+    # notjustfreespecial.txt G5 slice: waiting (char-select portrait)
+    # appended right after the 6 new generic move slots, BEFORE remap --
+    # same discipline as every prior hop (map_base = new-slots' own final
+    # base + last slot's frame_count*768, then + waiting_count*768,
+    # collapsing back to the pre-this-slice value when waiting_count==0,
+    # every roster member except LEO).
     blob = (palette_bytes + idle_bytes + walk_bytes + attack_bytes
             + fall_bytes + rise_bytes + attack2_bytes
             + jump_bytes + jumpattack_bytes + jumpattack2_bytes
-            + special_bytes + b"".join(new_slot_bytes) + remap_bytes)
+            + special_bytes + b"".join(new_slot_bytes) + waiting_bytes + remap_bytes)
 
     info = {
         "prefix": prefix,
@@ -698,6 +735,8 @@ def pack_character_blob(prefix):
         "jumpattack2_delay": jumpattack2_delay,
         "special_frame_count": special_count,
         "special_delay": special_delay,
+        "waiting_frame_count": waiting_count,
+        "waiting_delay": waiting_delay,
         "blob_size": len(blob),
     }
     for role, (scount, sdelay) in zip(NEW_MOVE_SLOT_NAMES, new_slot_counts_delays):
@@ -734,7 +773,7 @@ def build_record(info, data_offset):
         new_slot_fields.append(info[f"{role}_frame_count"])
         new_slot_fields.append(info[f"{role}_delay"])
     record = struct.pack(
-        "<BBBBBBBBIBBBBBBBBBBBBB" + "B" * len(new_slot_fields) + "B" * ATCHAIN_MAX_STEPS + "B",
+        "<BBBBBBBBIBBBBBBBBBBBBB" + "B" * len(new_slot_fields) + "B" * ATCHAIN_MAX_STEPS + "B" + "BB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
@@ -760,6 +799,8 @@ def build_record(info, data_offset):
         *new_slot_fields,
         *info["atchain_variants"],
         info["chainlength"],
+        info["waiting_frame_count"],
+        info["waiting_delay"],
     )
     assert len(record) == RECORD_SIZE
     return record

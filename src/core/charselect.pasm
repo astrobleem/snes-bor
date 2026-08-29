@@ -39,6 +39,15 @@
 ; Exit: every path ends via Game_State_Play__charselect_done (rtl).
 ; ----------------------------------------------------------------------
 Game_State_Play__charselect:
+    ; notjustfreespecial.txt G5 slice: this state never ran any OAM render
+    ; path at all before this (see core/jump.pasm's CharSelect_PortraitUpdate
+    ; header for the confirmed-by-inspection finding) -- refresh the real
+    ; char-select portrait sprite every frame this state is dispatched,
+    ; regardless of which step below runs (and stream a pending reselect's
+    ; new frame, deferred one frame past the reselect itself -- see that
+    ; routine's header for why). Self-contained (own php/rep/sep bracket,
+    ; any entry width), exits .a8.
+    jsl CharSelect_PortraitUpdate
     sep #$20
 .a8
     lda.l CharSelect_Step
@@ -87,8 +96,17 @@ Game_State_Play__charselect_check_done:
 ; reuse Text_Str_TitleBlank -- blank is blank regardless of which screen
 ; wrote the row. ---
 Game_State_Play__charselect_draw_header:
+    ; notjustfreespecial.txt G5 slice: DRAW_HEADER runs exactly once per
+    ; fresh charselect entry (CharSelect_Step always resets here -- see
+    ; Game_State_Play__charselect_enter_playing) -- flag the currently-
+    ; loaded player's real waiting portrait (if any) to stream, picked up
+    ; by CharSelect_PortraitUpdate (core/jump.pasm) on ITS next call (a
+    ; cheap flag set, not a direct stream -- see that routine's header for
+    ; why the actual Msu1_LoadFrame call is deliberately deferred a frame).
     sep #$20
 .a8
+    lda #1
+    sta.l CharSelect_PortraitPending
     lda #CHARSELECT_STEP_DRAW_NAME
     sta.l CharSelect_NextStep
     lda #CHARSELECT_ROW_HEADER
@@ -287,8 +305,20 @@ Game_State_CharSelect_ReloadPlayer:
     tcd
     jsl Anim_LoadCharacter_Long
     pld
+    ; notjustfreespecial.txt G5 slice: a live reselect can change whether
+    ; (and which) real waiting-portrait data applies -- flag it to restream
+    ; so Left/Right eventually reflects the NEWLY loaded character, not the
+    ; previous one's stale VRAM tile. NOT streamed directly here (same
+    ; frame as Anim_LoadCharacter's own palette DMA above) -- see
+    ; CharSelect_PortraitUpdate's (core/jump.pasm) header for why that's a
+    ; real DMA-queue-overrun regression, not just style. CharSelect_
+    ; PortraitUpdate (called every charselect frame regardless) picks up
+    ; the FCOUNT==0/!=0 OAM-visibility change on its own immediately;
+    ; only the DMA stream itself needs the deferred flag.
     sep #$20
 .a8
+    lda #1
+    sta.l CharSelect_PortraitPending
     rts
 
 ; ----------------------------------------------------------------------
