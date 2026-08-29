@@ -1610,14 +1610,21 @@ before attributing either to this slice).
 > smaller asset path); the `boss` flag (unrelated to props, see G9, already
 > real and gated).
 
+**Fourth slice DONE, same day: real end-to-end chain gate.**
+`tools/verify/game_g8_pickup_chain.py`, `GATE G8-PICKUP-CHAIN: PASS` (8/8
+checks). Closes the "still open" chain-trace item below using stage 1B's
+own real, unmodified spawn data (its Chair/Money record) with zero forced
+writes to the entity under test: locates the real AI slot Spawn_Play landed
+it in (found empirically, not assumed) by its real CHAR_INPUT_DRIVEN_PROP +
+CHAR_PICKUP_TYPE state, lands a real BTN_Y attack, and independently
+verifies score award + OAM hide + pickup-type consumption -- proving
+source->conversion->packed data->runtime spawn->break->reveal->reward->
+removal end-to-end, not just the isolated effect.
+
 Still open, in priority order:
 
 - Real prop/pickup sprite art, converted from the source pak (needs its
   own small non-fighter asset pipeline, not a reuse of convert_character.py).
-- Real breakable->authored-drop->reveal->pickup chain trace/gate (today: a
-  prop's contained item's pickup EFFECT is real and gated, but there is no
-  gate proving the full source->conversion->packed->spawn->break->reveal->
-  pickup->removal chain end-to-end for one representative real example).
 
 ---
 

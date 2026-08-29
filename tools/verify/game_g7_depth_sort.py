@@ -338,14 +338,49 @@ def main():
                 m.write_u8(ENTITY_BASES[i] + CHAR_INPUT_DRIVEN, 0)
                 m.write_u8(ENTITY_BASES[i] + CHAR_HIT_STUN, 0)
                 m.write_u8(ENTITY_BASES[i] + CHAR_HP, CHAR_HP_MAX)
-            # 2 frames, not 1 -- m.run_frames() is a wall-clock lower bound,
-            # not an exact frame count (memory mesen_set_input_wall_clock),
-            # and a 1-frame margin here was observed to occasionally read
-            # back JOE's real OAM Y one step stale, producing a false rank
-            # mismatch unrelated to the engine (verified via a standalone
-            # debug dump before landing on this fix).
-            m.run_frames(2)
+            # m.run_frames() is a wall-clock lower bound, not an exact frame
+            # count (memory mesen_set_input_wall_clock) -- a fixed 1- or
+            # 2-frame margin here was observed to still occasionally read
+            # back JOE's real OAM slot one Character_RenderPass behind the
+            # just-written Y (a real, reproducible harness race, not an
+            # engine defect -- verified via a git-stash A/B rebuild showing
+            # the identical failure on the pre-this-session baseline, and
+            # via direct inspection of core/depth_sort.pasm's selection-sort
+            # showing no tie/off-by-one bug for these well-separated Y
+            # values). Hardened here: poll until the OAM slot order is
+            # STABLE across two consecutive reads (proving Character_
+            # RenderPass has actually settled on this frame's data), instead
+            # of trusting a fixed frame count.
+            # Real hardware-visible OAM lags a fresh CHAR_POS_Y write by a
+            # full frame: Depth_Sort_ComputeOrder/Character_RenderPass write
+            # only the WRAM OAM SHADOW buffer for this frame's game logic;
+            # Core_Nmi_Play doesn't DMA that shadow buffer into real hardware
+            # OAM until the NEXT vblank. So "OAM order stable across two
+            # consecutive reads" can converge on a STALE (previous step's)
+            # committed order if both reads land before the fresh write has
+            # propagated through that one-frame shadow->NMI-commit pipeline
+            # -- exactly what caused a real flake here (step 11, joe_y=74:
+            # both polled reads still showed step 10's Y=70 tie order,
+            # looking "stable" while actually just stale). Force a settle
+            # long enough for at least one full shadow-buffer/NMI commit
+            # cycle before starting the stability check.
+            exp_x_now = {i: (xs[i] - (read_i16(m, Screen_PosX) & 0xFFFF)) & 0xFFFF for i in range(4)}
+            m.run_frames(3)
             m.pause()
+            prev_order = None
+            by_entity_now = None
+            for _ in range(8):
+                m.run_frames(1)
+                m.pause()
+                by_entity_now = read_oam_by_entity_x(m, exp_x_now)
+                order_now = tuple(by_entity_now[i][0] for i in range(4))
+                if order_now == prev_order:
+                    break
+                prev_order = order_now
+            else:
+                raise AssertionError(
+                    f'step {step} (joe_y={joe_y}): OAM slot order never '
+                    f'stabilized across two consecutive frame reads')
 
             zpos = read_i16(m, PlayerEntity + CHAR_THROW_ZPOS)
             ground_y_now = [read_byte(m, b + CHAR_POS_Y) for b in ENTITY_BASES]
@@ -355,8 +390,6 @@ def main():
                     f'CHAR_POS_Y perturbed during crossover at step {step} (joe_y={joe_y}): '
                     f'{ground_y_now} != {expected_ground}')
 
-            exp_x_now = {i: (xs[i] - (read_i16(m, Screen_PosX) & 0xFFFF)) & 0xFFFF for i in range(4)}
-            by_entity_now = read_oam_by_entity_x(m, exp_x_now)
             joe_slot = by_entity_now[JOE_ENTITY][0]
             player_slot = by_entity_now[0][0]
             joe_ahead = joe_slot < player_slot  # lower OAM slot == drawn in front
