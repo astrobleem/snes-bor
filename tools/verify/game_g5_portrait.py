@@ -34,10 +34,12 @@ see memory: mesen_screenshot_stale_hud_layer):
    sentinel).
 4. Reselecting back to LEO makes it visible again with the SAME real tile
    data (round-trip, not a one-shot fluke).
-5. Entering real gameplay (Start) tears the portrait down cleanly: the same
-   OAM slot 0 now holds the player's real in-game sprite (Y derived from
-   CHAR_POS_Y, not the portrait's fixed screen position), never a stale
-   portrait frame surviving into PLAYING.
+5. Entering real gameplay (Start) tears the portrait down cleanly: no OAM
+   slot anywhere in the low table (not just slot 0 -- depth-sort can move
+   the player to a different OAM slot once PLAYING starts, see
+   game_g7_depth_sort.py) carries the portrait's own signature (X=16,
+   Y=24) or its VRAM tile content, i.e. the portrait sprite is genuinely
+   gone, not merely relocated to another slot.
 """
 import json
 import os
@@ -110,6 +112,18 @@ def settle_portrait(m, frames=30):
 def read_oam_slot0(m):
     b = read_block(m, 0, 32, mem_type='snesSpriteRam')
     return {'x': b[0], 'y': b[1], 'tile': b[2], 'attr': b[3]}
+
+
+def read_oam_all(m, count=8):
+    """Low OAM table: 4 bytes/sprite (x, y, tile, attr). Read `count` real
+    entities' worth (this project's max live sprite count) rather than just
+    slot 0 -- depth-sort can reassign which OAM slot the player occupies
+    once PLAYING starts (see game_g7_depth_sort.py), so a teardown check
+    that only looks at slot 0 can pass vacuously if the portrait's stale
+    frame merely migrated to a different slot."""
+    b = read_block(m, 0, count * 4, mem_type='snesSpriteRam')
+    return [{'x': b[i * 4], 'y': b[i * 4 + 1], 'tile': b[i * 4 + 2],
+             'attr': b[i * 4 + 3]} for i in range(count)]
 
 
 def read_portrait_vram(m):
@@ -218,18 +232,18 @@ def main():
         game_state = read_u8(m, Game_State)
         r.check('GAME_STATE_PLAYING reached after Start', game_state == 0)
 
-        playing_oam = read_oam_slot0(m)
+        playing_oam_all = read_oam_all(m)
         playing_vram = read_portrait_vram(m)
-        print(f'PLAYING reached: OAM slot0 = {playing_oam}, '
+        print(f'PLAYING reached: OAM low table = {playing_oam_all}, '
               f'CHAR_POS_Y={read_u8(m, PlayerEntity + CHAR_POS_Y)}')
-        r.check('after Start: OAM slot0 Y is NOT the portrait\'s fixed '
-                'screen position (24) -- teardown, not a leftover frame',
-                playing_oam['y'] != 24)
-        r.check('after Start: OAM slot0 attribute byte changed from the '
-                'portrait\'s (48, no hflip/priority-3-only) -- real '
-                'Character_PlayFrame render path took over, not a frozen '
-                'copy of the portrait\'s own attribute byte',
-                playing_oam['attr'] != oam['attr'])
+        # The strong teardown claim: no OAM slot ANYWHERE carries the
+        # portrait's own fixed signature (X=16, Y=24 -- set verbatim in
+        # CharSelect_PortraitUpdate's __visible branch). Checking only
+        # slot 0 would pass vacuously if depth-sort simply moved the stale
+        # frame to a different slot instead of it being torn down.
+        r.check('after Start: no OAM slot carries the portrait\'s fixed '
+                'signature (X=16, Y=24) -- real teardown, not relocation',
+                not any(s['x'] == 16 and s['y'] == 24 for s in playing_oam_all))
         r.check('after Start: VRAM tile data at the portrait\'s slot no '
                 'longer matches the static waiting frame -- real gameplay '
                 'animation streaming has overwritten it',

@@ -464,9 +464,6 @@ Core_Oam_Play__done:
 ; (long-indexed-Y store doesn't exist in hardware -- see this file's header
 ; and Core_Oam_TransformHiOam's own bug-1 note); X only, per that same
 ; established pattern.
-    nop
-    nop
-    nop
 Core_Oam_SetSprite:
     php
     rep #$31
