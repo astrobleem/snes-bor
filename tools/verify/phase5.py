@@ -245,11 +245,21 @@ def main():
             m.run_frames(300)
             m.pause()
             seen = []
-            for _ in range(8):
-                m.run_frames(60)
+            # G7 special slice: this project's real, documented recurring
+            # failure mode (see phase15_fourth_character.md memory) --
+            # a fixed sample stride that happens to divide (or nearly
+            # divide) the real combat-cycle period aliases to "always
+            # zero" even though hits are landing throughout. Re-measured
+            # this slice: the real stun-decay cycle here is ~56 frames,
+            # and the old stride (60) was close enough to alias almost
+            # completely. A prime stride can't evenly divide a real cycle
+            # period, so it can't alias this way regardless of what the
+            # engine's own timing happens to be.
+            for _ in range(14):
+                m.run_frames(37)
                 m.pause()
                 seen.append(entity_hit_stun(m, ENTITY_BASES[0]))
-            print(f'  player CHAR_HIT_STUN over 8 samples/480 frames: {seen}')
+            print(f'  player CHAR_HIT_STUN over 14 samples/518 frames: {seen}')
             return any(s != 0 for s in seen)
 
         r.majority_of_3('player CHAR_HIT_STUN goes nonzero from an AI attack', player_got_stunned)

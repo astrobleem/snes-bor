@@ -120,10 +120,45 @@ Jump_ComputeBases:
     lda CHAR_ATTACK2_BASE_LO
     clc
     adc.l AnimHeaderStaging+12
-    sta CHAR_MAP_BASE_LO
+    sta CHAR_SPECIAL_BASE_LO
     sep #$20
 .a8
     lda CHAR_ATTACK2_BASE_HI
+    adc.l AnimHeaderStaging+15
+    sta CHAR_SPECIAL_BASE_HI
+
+    ; --- G7 special slice: map_base now chains off special_base (one more
+    ; hop, same shift-add-by-768 idiom) instead of directly off the 4-way
+    ; sum above -- special's 0-or-6 frames (LEO) sit between jumpattack2 and
+    ; remap in the blob (pack_msu_roster.py's layout), so map_base must skip
+    ; past them too. Collapses back to the pre-special-slice value when
+    ; special_fcount is 0 (every character but LEO). ---
+    lda CHAR_SPECIAL_FCOUNT
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    sta.l AnimHeaderStaging+12
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12
+    sta.l AnimHeaderStaging+14
+    sep #$20
+.a8
+    lda #0
+    sta.l AnimHeaderStaging+12
+    lda.l AnimHeaderStaging+14
+    sta.l AnimHeaderStaging+13
+    rep #$31
+.a16
+.i16
+    lda CHAR_SPECIAL_BASE_LO
+    clc
+    adc.l AnimHeaderStaging+12
+    sta CHAR_MAP_BASE_LO
+    sep #$20
+.a8
+    lda CHAR_SPECIAL_BASE_HI
     adc.l AnimHeaderStaging+15
     sta CHAR_MAP_BASE_HI
 
@@ -244,6 +279,54 @@ Jump_ComputeBases__is_player:
 .i16
     rtl
 
+; --- Jump_PlaySpecialAdvance -- G7 special slice. Called via jsl from bank
+; 0's Anim_Play_Special__jsl (moved here for ROM budget, same reasoning as
+; every other bank-8 relocation in this file). Mirrors Anim_Play_Attack2's
+; own advance/revert-to-idle shape exactly, just reading CHAR_SPECIAL_*
+; fields -- Msu1_LoadFrame itself can't move (same-bank-only constraint,
+; AnimBase_ComputeFallBase's own comment), so this routine only sets up
+; CHAR_FRAME_INDEX/AnimHeaderStaging and signals via carry whether the
+; bank-0 caller still needs to make that call. Only ever reached with
+; CHAR_ATTACK_VARIANT==2, which only Jump_PlayerInputGate's own special
+; trigger ever sets (gated there on CHAR_SPECIAL_FCOUNT!=0), so no zero-
+; frame-count guard is needed here -- matches attack2's own precondition-
+; trusted shape.
+;
+;   in:  none (DP-local self).
+;   out: carry SET = caller must jsr Msu1_LoadFrame (CHAR_FRAME_INDEX/
+;        AnimHeaderStaging+0/+2 ready); carry CLEAR = animation finished,
+;        already reverted to idle. Clobbers A.
+Jump_PlaySpecialAdvance:
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_SPECIAL_FCOUNT
+    bcc Jump_PlaySpecialAdvance__frame_ok
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    clc
+    rtl
+Jump_PlaySpecialAdvance__frame_ok:
+.a8
+    sta CHAR_FRAME_INDEX
+    lda CHAR_SPECIAL_DELAY
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda CHAR_SPECIAL_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_SPECIAL_BASE_HI
+    sta.l AnimHeaderStaging+2
+    sec
+    rtl
+
 ; --- Jump_PlayerInputGate -- G7 throw slice. Called via jsl from bank 0's
 ; hot per-frame player-input path (Anim_Play__player_input) -- the ONLY
 ; entry point that leaf uses now; both this gate's own grab/throw check
@@ -268,6 +351,41 @@ Jump_ComputeBases__is_player:
 ;        dispatch). Clobbers A/X.
 ; ============================================================================
 Jump_PlayerInputGate:
+.a8
+    ; G7 special slice: real check_special()/player_check_special()
+    ; (DCurrent/openbor engine/openbor.c) -- checked first, before the
+    ; grab/jump gate below, since a special move releases any active grab
+    ; link the same frame it triggers (dograb-release happens before
+    ; toss()/anim-set in real source). L button (Input_trigger, mask $20 --
+    ; the other genuinely free button per this file's own map, Jump_
+    ; PlayerTick's header comment). No-ops if this roster character has no
+    ; real special anim (CHAR_SPECIAL_FCOUNT==0 -- every character but
+    ; LEO). LEO's own special has no `energycost` line (PAK-verified) --
+    ; real check_special()/check_energy() is a no-op cost deduction when
+    ; energycost.cost==0, so this project applies none here, matching
+    ; source (not an oversight).
+    lda CHAR_SPECIAL_FCOUNT
+    beq Jump_PlayerInputGate__no_special
+    lda.l Input_trigger
+    and #$20                ; L button
+    beq Jump_PlayerInputGate__no_special
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    beq Jump_PlayerInputGate__special_trigger
+    jsl Character_Special_ReleaseGrab
+Jump_PlayerInputGate__special_trigger:
+.a8
+    lda #2
+    sta CHAR_SELECTED
+    lda #2
+    sta CHAR_ATTACK_VARIANT
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_PlayerInputGate__no_special:
 .a8
     lda CHAR_GRAB_TARGET
     cmp #$FF

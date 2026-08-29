@@ -138,6 +138,7 @@
     "jump": 5,
     "jumpattack": 6,
     "jumpattack2": 7,
+    "special": 17,
     "attack": 8,
     "attack2": 9,
     "attack2_is_grab": false

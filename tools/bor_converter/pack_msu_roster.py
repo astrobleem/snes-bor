@@ -65,6 +65,10 @@ File format (see the plan for the authoritative spec):
                                            directory-seek arithmetic to stop
                                            being 8-bit-only, see MAX_CHARACTERS'
                                            own comment above.]
+        +23 special_frame_count    (u8)  [G7 special slice -- 0 for every
+        +24 special_delay          (u8)   character without a real `special`
+                                           anim (only LEO today). Third real
+                                           RECORD_SIZE growth (23->25).]
 
     HEADER_SIZE+  character blobs, packed sequentially (HEADER_SIZE = 0x10 +
                MAX_CHARACTERS*23 = 0x159 today; was 0x10F before this slice
@@ -224,12 +228,13 @@ FORMAT_VERSION = 4
 # real, sane sanity cap (roster_count's own field is a u8, 1-255), and nothing
 # today needs more than 15.
 MAX_CHARACTERS = 15
-RECORD_SIZE = 23  # real jump slice: +6 bytes -- jump_frame_count/delay,
-                   # jumpattack_frame_count/delay, jumpattack2_frame_count/
-                   # delay (+17..+22). 0/0 for every character without real
-                   # jump content (12 of 13 roster members today -- only LEO
-                   # has real jump/jumpattack/jumpattack2 anims, see
-                   # convert_character.py's ROLE_NAMES). Was 17 (grab
+RECORD_SIZE = 25  # G7 throw+special slice: +2 bytes -- special_frame_count/
+                   # delay (+23..+24). 0/0 for every character without real
+                   # special content (only LEO has a real `special` anim
+                   # today, see convert_character.py's OPTIONAL_ROLE_NAMES).
+                   # Was 23 (real jump slice: +6 bytes -- jump_frame_count/
+                   # delay, jumpattack_frame_count/delay, jumpattack2_
+                   # frame_count/delay, +17..+22). Was 17 before that (grab
                    # mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)).
 DIRECTORY_BASE = 0x10
 HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
@@ -333,6 +338,24 @@ OPTIONAL_ROLE_JUMP = "jump"
 OPTIONAL_ROLE_JUMPATTACK = "jumpattack"
 OPTIONAL_ROLE_JUMPATTACK2 = "jumpattack2"
 
+# G7 throw+special slice: 'special' is a real, unambiguous OpenBOR anim name
+# (confirmed in LEO's real .TXT data -- no other roster member declares it),
+# same exact-name-match convention as jump/jumpattack/jumpattack2. Sourced
+# from DCurrent/openbor engine/openbor.c's check_special(): LEO's own
+# `special` anim has no declared `energycost`, so real BOR.C's cost-
+# deduction step (self->energy_state.health_current -= ...cost) is a real
+# no-op for LEO specifically -- genuinely free, not an invented
+# simplification. `freespecial`/`grabattack`/`throw` (LEO also has real data
+# for these) are separate real OpenBOR mechanics -- freespecial needs the
+# full input-sequence command parser (special_command_parse_sequence, a
+# categorically larger subsystem), grabattack is a move performed while
+# already grabbing (this project's grab is player-only, so an AI-side
+# grabattack has no real caller here), and throw is LEO's own thrower-swing
+# ANIMATION (distinct from this project's already-shipped generic thrown-
+# victim system, which deliberately reuses no unique swing art) -- none of
+# the three are in scope for this slice, only the plain `special` role.
+OPTIONAL_ROLE_SPECIAL = "special"
+
 
 def _resolve_role_dirs(prefix):
     """Reads <prefix>_moveset.json (convert_character.py's per-character
@@ -386,7 +409,8 @@ def _resolve_role_dirs(prefix):
     # Real jump slice: same optional-role shape as attack2. None for every
     # character without real jump/jumpattack/jumpattack2 content (12 of 13
     # roster members today).
-    for role in (OPTIONAL_ROLE_JUMP, OPTIONAL_ROLE_JUMPATTACK, OPTIONAL_ROLE_JUMPATTACK2):
+    for role in (OPTIONAL_ROLE_JUMP, OPTIONAL_ROLE_JUMPATTACK, OPTIONAL_ROLE_JUMPATTACK2,
+                 OPTIONAL_ROLE_SPECIAL):
         ordinal = roles.get(role)
         resolved[role] = anims_by_ordinal[ordinal]["dir"] if ordinal is not None else None
     return resolved
@@ -416,6 +440,7 @@ def pack_character_blob(prefix):
     jump_dir = role_dirs[OPTIONAL_ROLE_JUMP]
     jumpattack_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK]
     jumpattack2_dir = role_dirs[OPTIONAL_ROLE_JUMPATTACK2]
+    special_dir = role_dirs[OPTIONAL_ROLE_SPECIAL]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
@@ -438,19 +463,23 @@ def pack_character_blob(prefix):
         jumpattack2_count, jumpattack2_delay = gen_pasm_animset.load_manifest(jumpattack2_dir)
     else:
         jumpattack2_count, jumpattack2_delay = 0, 0
+    if special_dir is not None:
+        special_count, special_delay = gen_pasm_animset.load_manifest(special_dir)
+    else:
+        special_count, special_delay = 0, 0
     palette = gen_pasm_animset.load_palette(idle_dir)
 
     counts = ((idle_count, "idle"), (walk_count, "walk"), (attack_count, "attack"),
               (fall_count, "fall"), (rise_count, "rise"), (attack2_count, "attack2"),
               (jump_count, "jump"), (jumpattack_count, "jumpattack"),
-              (jumpattack2_count, "jumpattack2"))
+              (jumpattack2_count, "jumpattack2"), (special_count, "special"))
     for count, name in counts:
         if not (0 <= count <= 255):
             raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
     delays = ((idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
               (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"),
               (jump_delay, "jump"), (jumpattack_delay, "jumpattack"),
-              (jumpattack2_delay, "jumpattack2"))
+              (jumpattack2_delay, "jumpattack2"), (special_delay, "special"))
     for delay, name in delays:
         if not (0 <= delay <= 255):
             raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
@@ -467,6 +496,7 @@ def pack_character_blob(prefix):
     jump_bytes = bake_anim_bytes(jump_dir) if jump_dir is not None else b""
     jumpattack_bytes = bake_anim_bytes(jumpattack_dir) if jumpattack_dir is not None else b""
     jumpattack2_bytes = bake_anim_bytes(jumpattack2_dir) if jumpattack2_dir is not None else b""
+    special_bytes = bake_anim_bytes(special_dir) if special_dir is not None else b""
     assert len(idle_bytes) == idle_count * ANIM_FRAME_BYTES
     assert len(walk_bytes) == walk_count * ANIM_FRAME_BYTES
     assert len(attack_bytes) == attack_count * ANIM_FRAME_BYTES
@@ -476,6 +506,7 @@ def pack_character_blob(prefix):
     assert len(jump_bytes) == jump_count * ANIM_FRAME_BYTES
     assert len(jumpattack_bytes) == jumpattack_count * ANIM_FRAME_BYTES
     assert len(jumpattack2_bytes) == jumpattack2_count * ANIM_FRAME_BYTES
+    assert len(special_bytes) == special_count * ANIM_FRAME_BYTES
 
     # plan_game.md 7 (G7 remaining, "attack2"): 0 or 1 real second attack
     # move, appended right after the rise frames and BEFORE the remap
@@ -515,9 +546,16 @@ def pack_character_blob(prefix):
     # old attack2_base+attack2_count*768 when all three counts are 0 (every
     # roster member except LEO). Same "append before remap" discipline
     # attack2 itself established.
+    #
+    # G7 special slice: special appended right after jumpattack2, BEFORE
+    # remap -- same discipline, one more hop (map_base = jumpattack2_base +
+    # jumpattack2_count*768, then + special_count*768), collapsing back to
+    # the pre-special value when special_count==0 (every roster member
+    # except LEO).
     blob = (palette_bytes + idle_bytes + walk_bytes + attack_bytes
             + fall_bytes + rise_bytes + attack2_bytes
-            + jump_bytes + jumpattack_bytes + jumpattack2_bytes + remap_bytes)
+            + jump_bytes + jumpattack_bytes + jumpattack2_bytes
+            + special_bytes + remap_bytes)
 
     info = {
         "prefix": prefix,
@@ -540,6 +578,8 @@ def pack_character_blob(prefix):
         "jumpattack_delay": jumpattack_delay,
         "jumpattack2_frame_count": jumpattack2_count,
         "jumpattack2_delay": jumpattack2_delay,
+        "special_frame_count": special_count,
+        "special_delay": special_delay,
         "blob_size": len(blob),
     }
     return blob, info
@@ -559,7 +599,7 @@ def build_record(info, data_offset):
     # add loop now (Anim_LoadCharacter_SeekRecord), so it needs no resync
     # for this or any future RECORD_SIZE change.
     record = struct.pack(
-        "<BBBBBBBBIBBBBBBBBBBB",
+        "<BBBBBBBBIBBBBBBBBBBBBB",
         info["idle_frame_count"],
         info["walk_frame_count"],
         info["attack_frame_count"],
@@ -580,6 +620,8 @@ def build_record(info, data_offset):
         info["jumpattack_delay"],
         info["jumpattack2_frame_count"],
         info["jumpattack2_delay"],
+        info["special_frame_count"],
+        info["special_delay"],
     )
     assert len(record) == RECORD_SIZE
     return record

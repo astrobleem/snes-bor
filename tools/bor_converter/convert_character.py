@@ -89,7 +89,7 @@ ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 # ROLE_NAMES above -- resolved as OPTIONAL roles downstream (pack_msu_
 # roster.py's OPTIONAL_ROLE_JUMP/JUMPATTACK/JUMPATTACK2), same shape as
 # 'attack2'/'attack2_is_grab', not required like ROLE_NAMES' own five.
-OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2']
+OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special']
 
 
 def _sanitize(anim_name):

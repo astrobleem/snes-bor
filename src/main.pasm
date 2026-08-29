@@ -1523,7 +1523,6 @@ TadPrivate_Process_WaitingForLoader__LoadData:
         ldy #1
         lda #^(Tad_BlankSongByte)
         ldx #((Tad_BlankSongByte)&$ffff)
-        nop                 ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
         nop
     __anon10:
 
@@ -2120,7 +2119,6 @@ LoadAudioData:
     bcc LoadAudioData__valid
         clc
         rtl
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 LoadAudioData__valid:
     rep #$30
 .a16
@@ -2536,9 +2534,9 @@ ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a47        ; low16 of $7E0a00+71  ($47=71 dec)
-Entity2_DpBase      = $0a8e        ; low16 of $7E0a00+142 ($8e=142 dec)
-Entity3_DpBase      = $0ad5        ; low16 of $7E0a00+213 ($d5=213 dec)
+Entity1_DpBase      = $0a4c        ; low16 of $7E0a00+76  ($4c=76 dec)
+Entity2_DpBase      = $0a98        ; low16 of $7E0a00+152 ($98=152 dec)
+Entity3_DpBase      = $0ae4        ; low16 of $7E0a00+228 ($e4=228 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2550,7 +2548,7 @@ Entity3_DpBase      = $0ad5        ; low16 of $7E0a00+213 ($d5=213 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 71        ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 76        ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2575,7 +2573,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 142       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 152       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2595,7 +2593,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 213       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 228       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2862,7 +2860,18 @@ CHAR_GRAB_OFFSET     = 66  ; .db -- SIGNED X offset from the grabber,
 CHAR_THROW_ZPOS      = 67  ; .dw -- Q8.8 height above ground while
                             ; CHAR_SELECTED==CHAR_SELECTED_THROWN, 0 otherwise
 CHAR_THROW_ZVEL      = 69  ; .dw -- Q8.8 vertical velocity, same state
-CHAR_ZP_LEN         = 71   ; total -- pass as OopRegStaging_ZpLen
+; G7 special slice: LEO's real `special` role (DATA\CHARS\LEO\LEO.TXT, PAK-
+; verified: 6 real frames, real `attack` hitbox line, no `energycost` ->
+; genuinely free per real check_special()/player_check_special() semantics,
+; DCurrent/openbor engine/openbor.c). Same chain-off-attack2_base idiom as
+; attack2 itself (CHAR_ATTACK2_BASE_LO's own comment) -- special_base =
+; attack2_base + attack2_frame_count*768. FCOUNT==0 for every other roster
+; character (pack_msu_roster.py leaves it zeroed when no `special` dir).
+CHAR_SPECIAL_FCOUNT  = 71  ; .db -- 0 = no special move for this character
+CHAR_SPECIAL_DELAY   = 72  ; .db
+CHAR_SPECIAL_BASE_LO = 73  ; .dw
+CHAR_SPECIAL_BASE_HI = 75  ; .db
+CHAR_ZP_LEN         = 76   ; total -- pass as OopRegStaging_ZpLen
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp
@@ -2978,7 +2987,7 @@ GrabDragOffsetHi = $7E2696 ; high byte of GrabDragOffset, its OWN named
                             ; encoding mismatch on `Symbol+N` expressions).
 
 ; --- Real jump slice (plan_game.md 7) -- grep-confirmed free $7E27B6-$7E27CA. ---
-CharDirSeek16 = $7E27B6  ; .dw -- 0x10 + CharSelect_Index*RECORD_SIZE(23), a
+CharDirSeek16 = $7E27B6  ; .dw -- 0x10 + CharSelect_Index*RECORD_SIZE(25), a
                           ; real 16-bit accumulate-by-repeated-add result
                           ; (see Anim_LoadCharacter_SeekRecord) -- replaces
                           ; CharDirSeekTmp's retired 8-bit-only scheme.
@@ -3068,6 +3077,11 @@ JumpAttackRecFCount  = $7E27CD  ; .db
 JumpAttackRecDelay   = $7E27CE  ; .db
 JumpAttack2RecFCount = $7E27CF  ; .db
 JumpAttack2RecDelay  = $7E27D0  ; .db
+; G7 special slice: unlike the jump family above, special_frame_count/delay
+; are written straight to their own DP fields (CHAR_SPECIAL_FCOUNT/DELAY)
+; at record-read time -- no generic transient WRAM copy needed, since
+; nothing outside this entity's own struct ever reads them (Jump_
+; ComputeBases' special_base hop reads the DP field directly).
 
 ; Generic (not player-only), transient 24-bit chained bases -- computed on
 ; EVERY Anim_LoadCharacter call (needed for CHAR_MAP_BASE's own chain to be
@@ -3611,7 +3625,6 @@ Anim_Play__no_reselect:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__loaded:
     ; Reached via the `bne` above, which jumps AROUND the `rep #$31`/.a16/
     ; .i16 a few lines up -- so M is still 1 (8-bit) here at runtime, but
@@ -3691,7 +3704,6 @@ Anim_Play__stunned_reset:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__not_stunned:
     ; plan_game.md 7 (grab mutual-lock slice): grab state overrides the
     ; "already attacking -- let it finish" latch below, on BOTH sides of a
@@ -3813,7 +3825,6 @@ Anim_Play__no_jump_this_frame:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__no_attack2_trigger:
     ; Real jump slice ROM-budget find: reached only via the two `beq`s
     ; above, both already .a8 (no intervening rep) -- this `sep #$20` was
@@ -3832,14 +3843,12 @@ Anim_Play__no_attack2_trigger:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__no_attack_trigger:
     lda.l Input_press+1
     and #$03
     beq Anim_Play__want_idle
     lda #1
     bra Anim_Play__want_got
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__want_idle:
     lda #0
     bra Anim_Play__want_got
@@ -3924,7 +3933,6 @@ Anim_Play__ai_attack:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__want_got:
     cmp CHAR_SELECTED
     beq Anim_Play__dispatch
@@ -3940,7 +3948,6 @@ Anim_Play__want_got:
     sta CHAR_FRAME_INDEX
     lda #1
     sta CHAR_TICK_COUNTER
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__dispatch:
     jsr Anim_UpdateFacing
     ; Anim_UpdateFacing exits in .a16/.i16 (its own external convention,
@@ -3986,19 +3993,15 @@ Anim_Play__jump:
     ; as every other bank-8 module this session.
     jsl Anim_Play_Jump
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__walk:
     jsr Anim_Play_Walk
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__attack:
     jsr Anim_Play_Attack
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__fall:
     jsr Anim_Play_Fall
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play__rise:
     jsr Anim_Play_Rise
     rts
@@ -4073,14 +4076,12 @@ Anim_Play_Idle:
     lda.l Msu1_StreamBusy
     beq Anim_Play_Idle__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__not_busy:
     lda CHAR_TICK_COUNTER
     dec a
     sta CHAR_TICK_COUNTER
     beq Anim_Play_Idle__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__advance:
 
     lda CHAR_IDLE_DELAY
@@ -4093,7 +4094,6 @@ Anim_Play_Idle__advance:
     bcc Anim_Play_Idle__frame_ok
     lda #0
     sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Idle__frame_ok:
     ; Copy this animation's 24-bit MSU base into AnimHeaderStaging+0/1/2 for
     ; Msu1_LoadFrame (see that routine's header for why this scratch reuse
@@ -4121,14 +4121,12 @@ Anim_Play_Walk:
     lda.l Msu1_StreamBusy
     beq Anim_Play_Walk__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__not_busy:
     lda CHAR_TICK_COUNTER
     dec a
     sta CHAR_TICK_COUNTER
     beq Anim_Play_Walk__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__advance:
 
     lda CHAR_WALK_DELAY
@@ -4141,7 +4139,6 @@ Anim_Play_Walk__advance:
     bcc Anim_Play_Walk__frame_ok
     lda #0
     sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Walk__frame_ok:
     rep #$31
 .a16
@@ -4172,14 +4169,12 @@ Anim_Play_Attack:
     lda.l Msu1_StreamBusy
     beq Anim_Play_Attack__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__not_busy:
     lda CHAR_TICK_COUNTER
     dec a
     sta CHAR_TICK_COUNTER
     beq Anim_Play_Attack__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__advance:
     ; plan_game.md 7 (G7 remaining, "attack2"): CHAR_ATTACK_VARIANT selects
     ; which of the two independent frame-count/delay/base field sets this
@@ -4190,7 +4185,13 @@ Anim_Play_Attack__advance:
     ; PlayFrame's per-direction blocks) -- branch-range/addressing
     ; constraints in this codebase make a data-driven single path costlier
     ; than a plain duplicate.
+    ; G7 special slice: variant 2 = special (LEO only today, CHAR_SPECIAL_*
+    ; fields) -- checked before the plain not-equal-zero branch below so
+    ; variant 0 (attack1, fallthrough) and 1 (attack2) keep their existing
+    ; encoding unchanged.
     lda CHAR_ATTACK_VARIANT
+    cmp #2
+    beq Anim_Play_Special__jsl
     bne Anim_Play_Attack2__advance
 
     lda CHAR_FRAME_INDEX
@@ -4205,7 +4206,6 @@ Anim_Play_Attack__advance:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack__frame_ok:
     sta CHAR_FRAME_INDEX
     lda CHAR_ATTACK_DELAY
@@ -4222,7 +4222,6 @@ Anim_Play_Attack__frame_ok:
     lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack2__advance:
     sep #$20
 .a8
@@ -4238,7 +4237,6 @@ Anim_Play_Attack2__advance:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Attack2__frame_ok:
     sta CHAR_FRAME_INDEX
     lda CHAR_ATTACK2_DELAY
@@ -4252,6 +4250,29 @@ Anim_Play_Attack2__frame_ok:
 .a8
     lda CHAR_ATTACK2_BASE_HI
     sta.l AnimHeaderStaging+2
+    lda CHAR_FRAME_INDEX
+    jsr Msu1_LoadFrame
+    rts
+
+; G7 special slice: the frame-advance/revert-to-idle logic itself lives in
+; bank 8 (Jump_PlaySpecialAdvance, core/jump.pasm) -- moved out of bank 0
+; purely for ROM budget ($C100-$FC00 was at its ceiling again, same
+; "relocate, don't shrink" precedent as Jump_ComputeBases/AnimBase_Compute*
+; before it). Msu1_LoadFrame itself MUST stay bank-0 (same-bank-only
+; constraint -- see AnimBase_ComputeFallBase's own comment), so this stub
+; is the one piece that can't move: bank 8 sets up CHAR_FRAME_INDEX/
+; AnimHeaderStaging+0/+2 and signals via carry whether a load is still
+; needed (finished-this-cycle already reverted to idle on the bank-8 side).
+Anim_Play_Special__jsl:
+.a8
+    jsl Jump_PlaySpecialAdvance
+    bcs Anim_Play_Special__load
+    rep #$31
+.a16
+.i16
+    rts
+Anim_Play_Special__load:
+.a8
     lda CHAR_FRAME_INDEX
     jsr Msu1_LoadFrame
     rts
@@ -4318,7 +4339,6 @@ Anim_Play_Fall__stream_gate:
     lda.l Msu1_StreamBusy
     beq Anim_Play_Fall__playing_frames
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Fall__playing_frames:
 .a8
     lda CHAR_TICK_COUNTER
@@ -4326,7 +4346,6 @@ Anim_Play_Fall__playing_frames:
     sta CHAR_TICK_COUNTER
     beq Anim_Play_Fall__advance
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Fall__advance:
     ; still .a8 -- unbroken chain of .a8-only ops back to this routine's own
     ; opening sep, no rep anywhere in between.
@@ -4377,14 +4396,12 @@ Anim_Play_Rise:
     lda.l Msu1_StreamBusy
     beq Anim_Play_Rise__not_busy
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Rise__not_busy:
     lda CHAR_TICK_COUNTER
     dec a
     sta CHAR_TICK_COUNTER
     beq Anim_Play_Rise__advance
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Rise__advance:
     sep #$20
 .a8
@@ -4400,7 +4417,6 @@ Anim_Play_Rise__advance:
     lda #1
     sta CHAR_TICK_COUNTER
     brl Anim_Done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_Play_Rise__frame_ok:
     sta CHAR_FRAME_INDEX
     lda CHAR_RISE_DELAY
@@ -4525,7 +4541,6 @@ Msu1_LoadFrame:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Msu1_LoadFrame__busy:
     lda $2000
     bmi Msu1_LoadFrame__busy
@@ -4535,7 +4550,6 @@ Msu1_LoadFrame__busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Msu1_LoadFrame__read:
     sep #$20
 .a8
@@ -4666,7 +4680,6 @@ Msu1_LoadFrame_EnqueueRow:
     ; inlined shape for the same reason.
     pea Error_DmaQueueFull
     jsr Core_Error_Handler
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Msu1_LoadFrame_EnqueueRow__ok:
     rts
 
@@ -5508,12 +5521,10 @@ Character_PlayFrame__no_flip:
 .a8
     lda #$03
     bra Character_PlayFrame__hi_store
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_PlayFrame__hi_xlow:
     sep #$20
 .a8
     lda #$02
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_PlayFrame__hi_store:
     sta.l OamSetSprite_Hi
     ; --- Damage system: a dead AI entity or prop's sprite is hidden the
@@ -5559,7 +5570,6 @@ Character_PlayFrame__hide_now:
 .a8
     lda #$F0
     sta.l OamSetSprite_Y
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_PlayFrame__not_dead_hide:
     rep #$31
 .a16
@@ -5770,7 +5780,6 @@ Character_HitApply__ScoreAndFinish:
     lda #0
     jsr Game_Score_Award
     bra Character_HitApply__ScoreAndFinish__scored
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply__ScoreAndFinish__killed:
     ; Game_Score_Award is documented "Entered/exited in .a8" (its own php
     ; restores the caller's exact width) -- still .a8 from this block's own
@@ -6063,7 +6072,6 @@ Character_HitApply_VsPlayer__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsPlayer__dy_ok
     rts                     ; no overlap on Y
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsPlayer__dy_ok:
     ; Phase G3 (plan_game.md 3): a just-respawned player is briefly
     ; invulnerable (Player_InvulnFrames, ticked down once per frame by
@@ -6087,7 +6095,6 @@ Character_HitApply_VsPlayer__not_invuln:
     sbc #CHAR_HP_PER_HIT
     bcs Character_HitApply_VsPlayer__hp_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Character_HitApply_VsPlayer__hp_ok:
     sta.l PlayerEntity_Hp
     lda #1
@@ -6179,7 +6186,6 @@ Anim_LoadCharacter:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__msu_ok:
     ; ROOT CAUSE FIX (confirmed via raw-byte ROM inspection, not just a
     ; hunch): reached via the `bne` above, which jumps AROUND the
@@ -6241,7 +6247,6 @@ Anim_LoadCharacter__msu_ok:
     sta $2001
     sta $2002
     sta $2003                 ; A is still 0 here -- triggers seek to offset 0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__header_busy:
     lda $2000
     bmi Anim_LoadCharacter__header_busy
@@ -6250,7 +6255,6 @@ Anim_LoadCharacter__header_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__header_read:
     sep #$20
 .a8
@@ -6269,7 +6273,8 @@ Anim_LoadCharacter__header_read:
     sta.l CharSelect_RosterCount
 
     ; --- Seek to this slot's directory record: offset = 0x10 +
-    ; index*RECORD_SIZE(23, pack_msu_roster.py). Real jump slice: replaced
+    ; index*RECORD_SIZE(25, pack_msu_roster.py -- G7 special slice: was 23,
+    ; +2 for special_frame_count/delay). Real jump slice: replaced
     ; the old 8-bit-only index*16+index idiom (safe ceiling index<=14 at the
     ; prior RECORD_SIZE==17, which would have dropped to index<=11 at 23 --
     ; already too small for LEO, slot 12) with a real 16-bit accumulate-by-
@@ -6290,7 +6295,7 @@ Anim_LoadCharacter__seek_loop:
 .a16
     lda.l CharDirSeek16
     clc
-    adc #23                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+    adc #25                 ; RECORD_SIZE -- pack_msu_roster.py's own value
     sta.l CharDirSeek16
     dex
     bne Anim_LoadCharacter__seek_loop
@@ -6305,7 +6310,6 @@ Anim_LoadCharacter__seek_computed:
     lda #0
     sta $2002
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__record_busy:
     lda $2000
     bmi Anim_LoadCharacter__record_busy
@@ -6314,7 +6318,6 @@ Anim_LoadCharacter__record_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__record_read:
     sep #$20
 .a8
@@ -6365,6 +6368,18 @@ Anim_LoadCharacter__jumprecs_loop:
     cpx #6
     bne Anim_LoadCharacter__jumprecs_loop
 
+    ; G7 special slice: 2 more sequential MSU port reads (+23/+24,
+    ; RECORD_SIZE 23->25) -- special frame_count/delay, written straight to
+    ; their own DP fields (unlike the jump family above, nothing outside
+    ; this entity's own struct ever needs a generic transient copy of
+    ; these -- Jump_ComputeBases' special_base hop reads CHAR_SPECIAL_FCOUNT
+    ; directly). DP is already switched to this entity here (same as
+    ; CHAR_ATTACK2_IS_GRAB's own direct-to-DP read just above).
+    lda $2001
+    sta CHAR_SPECIAL_FCOUNT
+    lda $2001
+    sta CHAR_SPECIAL_DELAY
+
     ; --- Parse record into WRAM cells ---
     lda.l AnimHeaderStaging+0
     sta CHAR_IDLE_FCOUNT
@@ -6400,6 +6415,9 @@ Anim_LoadCharacter__jumprecs_loop:
     sta CHAR_ATTACK2_FCOUNT
     lda.l AnimHeaderStaging+13
     sta CHAR_ATTACK2_DELAY
+    ; CHAR_SPECIAL_FCOUNT/DELAY were already written directly to DP by the
+    ; record-read loop above (see its own comment) -- nothing left to do
+    ; here.
 
     ; Packer leaves unused slots fully zeroed -- a zero idle_frame_count is
     ; a cheap free validity check (see the plan's Phase 5). Nothing to
@@ -6411,7 +6429,6 @@ Anim_LoadCharacter__jumprecs_loop:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__slot_ok:
 
     ; plan_game.md 8a row 3 (`map`): stash raw data_offset (record bytes
@@ -6595,7 +6612,6 @@ Anim_LoadCharacter__slot_ok:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__palette_busy:
     lda $2000
     bmi Anim_LoadCharacter__palette_busy
@@ -6604,7 +6620,6 @@ Anim_LoadCharacter__palette_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Anim_LoadCharacter__palette_read:
     sep #$20
 .a8
@@ -7095,7 +7110,7 @@ CharacterEntity_Init__load_hp_set:
 
     ; plan_game.md 7 (grab mutual-lock slice): no entity boots linked. $FF
     ; is the "none" sentinel for both grab-link fields (never a real byte
-    ; offset -- those are 0/71/142/213). Timer/offset start at 0; only
+    ; offset -- those are 0/76/152/228). Timer/offset start at 0; only
     ; meaningful once CHAR_GRABBED_BY != $FF. MUST run here, after Anim_
     ; LoadCharacter -- a real bug found the hard way: this used to sit
     ; right after `sta.l CharSelect_Index` above, where its own `lda #$FF`
@@ -7211,7 +7226,6 @@ CharacterEntity_Play:
 ; Entered in .a16/.i16 (Core_Screen__SetTargetPosition's own ambient width
 ; when it calls Core_Oop_Call) -- redundant resync anyway per poppy bug #10.
 ; @return carry<bool>  set if OopCall_CommandId was handled
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 CharacterEntity_OnCommand:
     rep #$31
 .a16
@@ -7221,7 +7235,6 @@ CharacterEntity_OnCommand:
     beq CharacterEntity_OnCommand__camera
     clc
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 CharacterEntity_OnCommand__camera:
     ; No jump/airborne state on this entity -- always report grounded, which
     ; keeps Y-axis camera easing live (see screen.pasm's header on why
@@ -7278,7 +7291,6 @@ CharacterEntity_OnCommand__camera:
 ;   $6800-$6BFF  BG3 tilemap (HUD rows 0-3, frontpanel rows 21-27, see
 ;                STREAM_FP_TILEMAP_ROW_START)
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
     nop
     nop
 Bg_LoadScene:
@@ -7312,7 +7324,6 @@ Bg_LoadScene:
     sta $2001
     sta $2002
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__hdr_busy:
     lda $2000
     bmi Bg_LoadScene__hdr_busy
@@ -7321,7 +7332,6 @@ Bg_LoadScene__hdr_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__hdr_read:
     sep #$20
 .a8
@@ -7341,7 +7351,6 @@ Bg_LoadScene__hdr_read:
     bne Bg_LoadScene__have_bg
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__have_bg:
 
     ; --- Phase G4 (plan_game.md 4): seek the BG directory record for
@@ -7383,7 +7392,6 @@ Bg_LoadScene__have_bg:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__dir_busy:
     lda $2000
     bmi Bg_LoadScene__dir_busy
@@ -7392,7 +7400,6 @@ Bg_LoadScene__dir_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__dir_read:
     sep #$20
 .a8
@@ -7436,7 +7443,6 @@ Bg_LoadScene__dir_read:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__blob_busy:
     lda $2000
     bmi Bg_LoadScene__blob_busy
@@ -7453,7 +7459,6 @@ Bg_LoadScene__blob_busy:
 .a16
 .i16
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__cgram:
     sep #$20
 .a8
@@ -7481,7 +7486,6 @@ Bg_LoadScene__cgram:
 .a16
 .i16
     bra Bg_LoadScene__dispatch_static
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__dispatch_streaming:
     rep #$31
 .a16
@@ -7498,7 +7502,6 @@ Bg_LoadScene__dispatch_streaming:
     ; Step 2b and scpu_bg3_map's own comment). BgRecordStaging is still
     ; valid at that later point -- nothing between here and there touches it.
     brl Bg_LoadScene__hud_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__dispatch_static:
 
     ; --- region 2: BG1 tilemap -> VRAM word $6000 ---
@@ -7525,7 +7528,6 @@ Bg_LoadScene__dispatch_static:
     lda #BG1_TILEMAP_VRAM_WORD
     sta $2116
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__tilemap:
     sep #$20
 .a8
@@ -7540,7 +7542,6 @@ Bg_LoadScene__tilemap:
     cpx #BG1_TILEMAP_WORDS
     bcc Bg_LoadScene__tilemap
     bra Bg_LoadScene__tilemap_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__tilemap_wide:
     sep #$20
 .a8
@@ -7551,7 +7552,6 @@ Bg_LoadScene__tilemap_wide:
     lda #BG1_TILEMAP_VRAM_WORD
     sta $2116
     ldx #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__tilemap_w:
     sep #$20
 .a8
@@ -7565,7 +7565,6 @@ Bg_LoadScene__tilemap_w:
     inx
     cpx #BG1_TILEMAP_WORDS_WIDE
     bcc Bg_LoadScene__tilemap_w
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__tilemap_done:
     sep #$20
 .a8
@@ -7586,7 +7585,6 @@ Bg_LoadScene__tilemap_done:
     asl a
     asl a                       ; * 16 words per 4bpp tile
     tax                         ; X = words remaining, counted DOWN
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__tiles:
     sep #$20
 .a8
@@ -7617,7 +7615,6 @@ Bg_LoadScene__tiles:
     tax                         ; X = words remaining, counted DOWN
     beq Bg_LoadScene__hud_done  ; hud_tile_count 0 -> nothing to stream, and
                                  ; dex/bne would otherwise wrap to 65536 words
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__hud:
     sep #$20
 .a8
@@ -7630,7 +7627,6 @@ Bg_LoadScene__hud:
 .i16
     dex
     bne Bg_LoadScene__hud
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene__hud_done:
 
     plp
@@ -7667,7 +7663,6 @@ Bg_LoadScene__hud_done:
 ; the static path -- direct $2118/$2119/$2116 writes, no DMA queue involved
 ; (see Bg_LoadScene's own header for why that's safe here but not per-frame).
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming:
     php
     sei
@@ -7717,7 +7712,6 @@ Bg_LoadScene_Streaming:
 
     lda #0
     sta StreamStage_ColIndex
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__col_loop:
     ; --- seek to this column's tilemap entries ---
     sep #$20
@@ -7730,7 +7724,6 @@ Bg_LoadScene_Streaming__col_loop:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__seek_busy:
     lda $2000
     bmi Bg_LoadScene_Streaming__seek_busy
@@ -7749,7 +7742,6 @@ Bg_LoadScene_Streaming__seek_busy:
     ; the same bug. X counts UP here (compared against ColStrideLo) instead
     ; of down, since X is now the index, not a spare down-counter.
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__read_entry:
     sep #$20
 .a8
@@ -7792,7 +7784,6 @@ Bg_LoadScene_Streaming__read_entry:
     ; --- pass 2: walk this column's decoded entries ---
     lda #0
     sta StreamStage_RowIndex
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_loop:
     ; X (not Y) = row * 3 (entry offset in StreamStage_Entries) -- same
     ; indexed-long-needs-X constraint as the pass-1 read loop above.
@@ -7831,10 +7822,8 @@ Bg_LoadScene_Streaming__row_loop:
     sta StreamStage_Slot                 ; reloaded from WRAM below, so fine)
     jsr StageColumn_FetchTilePixels
     bra Bg_LoadScene_Streaming__row_resolved
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_hit:
     sta StreamStage_Slot            ; A still holds Tile2Slot's value: the slot
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_resolved:
     rep #$31
 .a16
@@ -7884,7 +7873,6 @@ Bg_LoadScene_Streaming__row_resolved:
     lda StreamStage_Word
     ora #$4000
     sta StreamStage_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_no_hflip:
 
     sep #$20
@@ -7899,7 +7887,6 @@ Bg_LoadScene_Streaming__row_no_hflip:
     lda StreamStage_Word
     ora #$8000
     sta StreamStage_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_no_vflip:
 
     ; --- write to VRAM tilemap: word = BG1_TILEMAP_VRAM_WORD + col + row*32
@@ -7947,7 +7934,6 @@ Bg_LoadScene_Streaming__row_no_vflip:
     cmp StreamStage_RowIndex
     beq Bg_LoadScene_Streaming__row_done
     brl Bg_LoadScene_Streaming__row_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__row_done:
 
     ; --- column done: advance to the next one ---
@@ -7957,7 +7943,6 @@ Bg_LoadScene_Streaming__row_done:
     cmp #STREAM_STAGE_VIEWPORT_COLS
     bcs Bg_LoadScene_Streaming__col_finished
     brl Bg_LoadScene_Streaming__col_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__col_finished:
     rep #$31
 .a16
@@ -8018,7 +8003,6 @@ Bg_LoadScene_Streaming__col_finished:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__hud_seek_busy:
     lda $2000
     bmi Bg_LoadScene_Streaming__hud_seek_busy
@@ -8040,7 +8024,6 @@ Bg_LoadScene_Streaming__hud_seek_busy:
     asl a                       ; * 8 words per 2bpp tile
     tax
     beq Bg_LoadScene_Streaming__hud_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__hud_loop:
     sep #$20
 .a8
@@ -8053,7 +8036,6 @@ Bg_LoadScene_Streaming__hud_loop:
 .i16
     dex
     bne Bg_LoadScene_Streaming__hud_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadScene_Streaming__hud_done:
 
     plp
@@ -8070,7 +8052,6 @@ Bg_LoadScene_Streaming__hud_done:
 ;                                     just assigned it
 ; Clobbers A/X. Entry/exit width-agnostic (re-asserts its own widths).
 ; ----------------------------------------------------------------------
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumn_FetchTilePixels:
     rep #$31
 .a16
@@ -8101,7 +8082,6 @@ StageColumn_FetchTilePixels:
     ; both have long forms and are confirmed to auto-select them) instead of
     ; a direct memory read-modify-write.
     ldx #5
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumn_FetchTilePixels__shift:
     lda StreamStage_TileOffLo
     asl a
@@ -8136,7 +8116,6 @@ StageColumn_FetchTilePixels__shift:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumn_FetchTilePixels__seek_busy:
     lda $2000
     bmi StageColumn_FetchTilePixels__seek_busy
@@ -8155,7 +8134,6 @@ StageColumn_FetchTilePixels__seek_busy:
     sta $2116
 
     ldx #16                     ; 16 words = 32 bytes, one tile
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumn_FetchTilePixels__read:
     sep #$20
 .a8
@@ -8203,7 +8181,6 @@ StageColumn_FetchTilePixels__read:
 ; Mode 1) -- that's what puts characters behind the fence, the whole point of
 ; Phase 10. Unconditional on every FP tile, not data-driven.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming:
     php
     sei
@@ -8220,7 +8197,6 @@ Bg_LoadSceneFp_Streaming:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__seek_busy:
     lda $2000
     bmi Bg_LoadSceneFp_Streaming__seek_busy
@@ -8236,7 +8212,6 @@ Bg_LoadSceneFp_Streaming__seek_busy:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__hdr_read:
     sep #$20
 .a8
@@ -8310,7 +8285,6 @@ Bg_LoadSceneFp_Streaming__hdr_read:
 .a16
 .i16
     ldx #24
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__pal_loop:
     sep #$20
 .a8
@@ -8340,7 +8314,6 @@ Bg_LoadSceneFp_Streaming__pal_loop:
 
     lda #0
     sta StreamStageFp_ColIndex
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__col_loop:
     ; --- seek to this column's tilemap entries ---
     sep #$20
@@ -8353,7 +8326,6 @@ Bg_LoadSceneFp_Streaming__col_loop:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__seek_busy2:
     lda $2000
     bmi Bg_LoadSceneFp_Streaming__seek_busy2
@@ -8363,7 +8335,6 @@ Bg_LoadSceneFp_Streaming__seek_busy2:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__read_entry:
     sep #$20
 .a8
@@ -8394,7 +8365,6 @@ Bg_LoadSceneFp_Streaming__read_entry:
     ; --- pass 2: walk this column's decoded entries ---
     lda #0
     sta StreamStageFp_RowIndex
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_loop:
     lda StreamStageFp_RowIndex
     sta StreamStageFp_TileOffLo     ; scratch use #1: row temp only, re-purposed
@@ -8430,10 +8400,8 @@ Bg_LoadSceneFp_Streaming__row_loop:
     sta StreamStageFp_Slot
     jsr StageColumnFp_FetchTilePixels
     bra Bg_LoadSceneFp_Streaming__row_resolved
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_hit:
     sta StreamStageFp_Slot            ; A still holds Tile2Slot's value: the slot
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_resolved:
     rep #$31
 .a16
@@ -8483,7 +8451,6 @@ Bg_LoadSceneFp_Streaming__row_resolved:
     lda StreamStageFp_Word
     ora #$4000
     sta StreamStageFp_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_no_hflip:
 
     sep #$20
@@ -8498,7 +8465,6 @@ Bg_LoadSceneFp_Streaming__row_no_hflip:
     lda StreamStageFp_Word
     ora #$8000
     sta StreamStageFp_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_no_vflip:
 
     ; --- priority bit: same as HUD_ENTRY_HIGH -- renders this FP tile above
@@ -8560,7 +8526,6 @@ Bg_LoadSceneFp_Streaming__row_no_vflip:
     cmp StreamStageFp_RowIndex
     beq Bg_LoadSceneFp_Streaming__row_done
     brl Bg_LoadSceneFp_Streaming__row_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__row_done:
 
     ; --- column done: advance to the next one ---
@@ -8570,7 +8535,6 @@ Bg_LoadSceneFp_Streaming__row_done:
     cmp #STREAM_STAGE_VIEWPORT_COLS
     bcs Bg_LoadSceneFp_Streaming__col_finished
     brl Bg_LoadSceneFp_Streaming__col_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Bg_LoadSceneFp_Streaming__col_finished:
     rep #$31
 .a16
@@ -8610,7 +8574,6 @@ Bg_LoadSceneFp_Streaming__col_finished:
 ; @param StreamStageFp_Slot<16-bit>    the VRAM slot just assigned to it
 ; Clobbers A/X. Entry/exit width-agnostic (re-asserts its own widths).
 ; ----------------------------------------------------------------------
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumnFp_FetchTilePixels:
     rep #$31
 .a16
@@ -8628,7 +8591,6 @@ StageColumnFp_FetchTilePixels:
 .a16
 .i16
     ldx #4
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumnFp_FetchTilePixels__shift:
     lda StreamStageFp_TileOffLo
     asl a
@@ -8663,7 +8625,6 @@ StageColumnFp_FetchTilePixels__shift:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumnFp_FetchTilePixels__seek_busy:
     lda $2000
     bmi StageColumnFp_FetchTilePixels__seek_busy
@@ -8681,7 +8642,6 @@ StageColumnFp_FetchTilePixels__seek_busy:
     sta $2116
 
     ldx #8                      ; 8 words = 16 bytes, one 2bpp tile
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 StageColumnFp_FetchTilePixels__read:
     sep #$20
 .a8
@@ -8714,7 +8674,6 @@ StageColumnFp_FetchTilePixels__read:
 ; via a real multiply: seek = tilemap_offset24 + world_col * ColStrideLo.
 ; @param X<16-bit>  world column index
 ; Clobbers A, X, Y.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_SeekColumn:
     php
     sei
@@ -8762,7 +8721,6 @@ Core_StreamScroll_SeekColumn:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_SeekColumn__seek_busy:
     lda $2000
     bmi Core_StreamScroll_SeekColumn__seek_busy
@@ -8771,7 +8729,6 @@ Core_StreamScroll_SeekColumn__seek_busy:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_SeekColumn__read_entry:
     sep #$20
 .a8
@@ -8798,7 +8755,6 @@ Core_StreamScroll_SeekColumn__read_entry:
 ; frame the PPU is mid-drawing.
 ; @param StreamStage_TileId<16-bit>  the tile ID to fetch
 ; Clobbers A/X.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_FetchTileToBuffer:
     rep #$31
 .a16
@@ -8813,7 +8769,6 @@ Core_StreamScroll_FetchTileToBuffer:
 .a16
 .i16
     ldx #5
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_FetchTileToBuffer__shift:
     lda StreamStage_TileOffLo
     asl a
@@ -8847,7 +8802,6 @@ Core_StreamScroll_FetchTileToBuffer__shift:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_FetchTileToBuffer__seek_busy:
     lda $2000
     bmi Core_StreamScroll_FetchTileToBuffer__seek_busy
@@ -8873,7 +8827,6 @@ Core_StreamScroll_FetchTileToBuffer__seek_busy:
     asl a                   ; A = FetchBufSel * 32
     tax
     ldy #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_FetchTileToBuffer__read:
     sep #$20
 .a8
@@ -8896,7 +8849,6 @@ Core_StreamScroll_FetchTileToBuffer__read:
 ; eviction + scroll reversal).
 ; @return A<16-bit>  world column to stage this tick
 ; Clobbers A, X.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn:
     rep #$31
 .a16
@@ -8911,7 +8863,6 @@ Core_StreamScroll_PickColumn:
     sbc #STREAM_SCROLL_PREFETCH
     bcs Core_StreamScroll_PickColumn__lo_ok
     lda #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__lo_ok:
     sta StreamScroll_DesiredLo
 
@@ -8956,7 +8907,6 @@ Core_StreamScroll_PickColumn__lo_ok:
     lda StreamScroll_StagedLo
     dec a
     rts                             ; extend left
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__check_hi:
     lda StreamScroll_DesiredHi
     cmp StreamScroll_StagedHi
@@ -8965,7 +8915,6 @@ Core_StreamScroll_PickColumn__check_hi:
     lda StreamScroll_StagedHi
     inc a
     rts                             ; extend right
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair:
     ; clamp the cursor into [DesiredLo, DesiredHi] -- NOT [StagedLo,
     ; StagedHi] -- so the repair sweep only ever revisits the camera-
@@ -8998,20 +8947,17 @@ Core_StreamScroll_PickColumn__repair:
     cmp StreamScroll_DesiredLo
     bcs Core_StreamScroll_PickColumn__repair_lo_ok
     lda StreamScroll_DesiredLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_lo_ok:
     cmp StreamScroll_DesiredHi
     bcc Core_StreamScroll_PickColumn__repair_hi_ok
     beq Core_StreamScroll_PickColumn__repair_hi_ok
     lda StreamScroll_DesiredHi
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_hi_ok:
     pha
     inc a
     cmp StreamScroll_DesiredHi
     bcc Core_StreamScroll_PickColumn__repair_adv_ok
     lda StreamScroll_DesiredLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_PickColumn__repair_adv_ok:
     sta StreamScroll_RepairCur
     pla
@@ -9025,18 +8971,15 @@ Core_StreamScroll_PickColumn__repair_adv_ok:
 ; actually processed this call, so nothing double-allocates across resumes.
 ; @return carry<bool>  set if PendCol fully committed (its DMA enqueued,
 ;         PendCol reset to $FFFF); clear if still in progress
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__row:
     lda StreamScroll_PendTile
     cmp StreamScroll_HeightTiles
     bcc Core_StreamScroll_ResolveRows__have_row
     brl Core_StreamScroll_ResolveRows__commit
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__have_row:
 
     lda StreamScroll_PendTile
@@ -9068,7 +9011,6 @@ Core_StreamScroll_ResolveRows__have_row:
     ; out-of-range conditional branch with NO error and it hangs the CPU at
     ; runtime (see CLAUDE.md's Poppy checklist); invert + brl instead.
     brl Core_StreamScroll_ResolveRows__hit
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__is_miss:
     ; StreamScroll_Budget is a .db -- a 16-bit lda/cmp here would silently
     ; fold whatever byte follows it in WRAM into A's high byte, corrupting
@@ -9086,7 +9028,6 @@ Core_StreamScroll_ResolveRows__is_miss:
 .i16
     clc
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__miss_ok:
     ; Must not commit Core_StreamCache_AllocateSlot's Tile2Slot/Slot2Tile
     ; mapping unless Core_Dma_Enqueue below is guaranteed to succeed -- see
@@ -9100,7 +9041,6 @@ Core_StreamScroll_ResolveRows__miss_ok:
 .i16
     clc
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__queue_ok:
     ; Still 8-bit accumulator here (from the Budget cmp above) -- capture
     ; Budget's CURRENT value (0 for this call's 1st miss, 1 for its 2nd,
@@ -9138,7 +9078,6 @@ Core_StreamScroll_ResolveRows__queue_ok:
 .a8
     lda #$7F
     sta DmaRequest_SourceBank
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__src_done:
     rep #$31
 .a16
@@ -9165,7 +9104,6 @@ Core_StreamScroll_ResolveRows__src_done:
     bcs Core_StreamScroll_ResolveRows__enqueued
     clc                             ; queue full -- retry this row later
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__enqueued:
     sep #$20
 .a8
@@ -9176,10 +9114,8 @@ Core_StreamScroll_ResolveRows__enqueued:
 .a16
 .i16
     brl Core_StreamScroll_ResolveRows__resolved
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__hit:
     sta StreamStage_Slot
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__resolved:
 
     ; --- build the remapped hw tilemap word (identical bit layout to
@@ -9221,7 +9157,6 @@ Core_StreamScroll_ResolveRows__resolved:
     lda StreamStage_Word
     ora #$4000
     sta StreamStage_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__no_hflip:
 
     sep #$20
@@ -9236,7 +9171,6 @@ Core_StreamScroll_ResolveRows__no_hflip:
     lda StreamStage_Word
     ora #$8000
     sta StreamStage_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__no_vflip:
 
     ; --- store into StreamScroll_ColBuf[row] (word-indexed) ---
@@ -9250,7 +9184,6 @@ Core_StreamScroll_ResolveRows__no_vflip:
     inc a
     sta StreamScroll_PendTile
     brl Core_StreamScroll_ResolveRows__row
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__commit:
     ; every row resolved -- hand ColBuf (2*height_tiles bytes) off to
     ; Core_Nmi_Play's forced-blank column-write block, which writes it into
@@ -9265,7 +9198,6 @@ Core_StreamScroll_ResolveRows__commit:
     beq Core_StreamScroll_ResolveRows__col_free
     sec                                ; NMI hasn't drained the previous
     rts                                ; column yet -- retry this commit later,
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__col_free:
     lda StreamScroll_PendCol
     and #$3F
@@ -9278,12 +9210,10 @@ Core_StreamScroll_ResolveRows__col_free:
     clc
     adc #BG1_TILEMAP_VRAM_WORD+1024  ; page B base
     bra Core_StreamScroll_ResolveRows__page_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__page_a:
     lda StreamScroll_ProdHi
     clc
     adc #BG1_TILEMAP_VRAM_WORD
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__page_done:
     sta StreamScroll_ColTargetWord
 
@@ -9294,7 +9224,6 @@ Core_StreamScroll_ResolveRows__page_done:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__committed:
     ; extend the resident window to include PendCol, wherever it landed.
     ; PickColumn only ever moves ONE edge, by exactly one column, per call
@@ -9325,7 +9254,6 @@ Core_StreamScroll_ResolveRows__committed:
     clc
     adc #63
     sta StreamScroll_StagedHi
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__not_new_lo:
     lda StreamScroll_PendCol
     cmp StreamScroll_StagedHi
@@ -9340,7 +9268,6 @@ Core_StreamScroll_ResolveRows__not_new_lo:
     sec
     sbc #63
     sta StreamScroll_StagedLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ResolveRows__not_new_hi:
 
     sep #$20
@@ -9366,7 +9293,6 @@ Core_StreamScroll_ResolveRows__not_new_hi:
 ; Entered/left in whatever width Core_Nmi_Play's caller was in (rep #$31);
 ; explicitly resyncs to that on every exit path since it freely switches
 ; width internally.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_CommitColumn:
     ; Called from core/nmi.pasm's Core_Nmi_Play, which forces DBR=0 at its
     ; top ("where all hardware registers live") -- unlike Core_StreamScroll_
@@ -9380,7 +9306,6 @@ Core_StreamScroll_CommitColumn:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_CommitColumn__go:
     ; VMAIN must be freshly set here, not assumed from some earlier boot-time
     ; write -- Bg_LoadScene hit this exact bug already (see its own header
@@ -9397,7 +9322,6 @@ Core_StreamScroll_CommitColumn__go:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_CommitColumn__row:
     ; CPX has no long-addressing mode, so compare via A instead (TXA doesn't
     ; disturb X).
@@ -9460,7 +9384,6 @@ Core_StreamScroll_CommitColumn__row:
     plx                          ; restore the row counter
     inx
     bra Core_StreamScroll_CommitColumn__row
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_CommitColumn__done:
     ; Reached via `bcs` jumping OVER this loop body's internal sep/rep pairs
     ; -- redundant resync per CLAUDE.md's Poppy width-tracking checklist.
@@ -9496,7 +9419,6 @@ Core_StreamScroll_ClampCamera:
     lda StreamScroll_Enabled
     bne Core_StreamScroll_ClampCamera__active
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ClampCamera__active:
     rep #$31
 .a16
@@ -9524,7 +9446,6 @@ Core_StreamScroll_ClampCamera__active:
     lda #0                        ; before the level's first viewport-worth
                                     ; is even staged -- clamp to column 0
                                     ; rather than a negative/huge column
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ClampCamera__have_right_col:
     tax                           ; X = clamped world_col, feeds the
                                     ; leftward check below too
@@ -9532,7 +9453,6 @@ Core_StreamScroll_ClampCamera__have_right_col:
     asl a
     asl a                          ; world_col -> pixels
     sta Screen_PosX
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ClampCamera__right_ok:
 
     ; --- leftward clamp: leftmost visible column can't fall behind
@@ -9546,7 +9466,6 @@ Core_StreamScroll_ClampCamera__right_ok:
     asl a
     asl a
     sta Screen_PosX
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_ClampCamera__left_ok:
     rts
 
@@ -9556,7 +9475,6 @@ Core_StreamScroll_ClampCamera__left_ok:
 ; still has DMAs queued/undrained (Msu1_StreamBusy != 0) -- matches every
 ; other per-frame DMA-queue-consuming subsystem's gating in this file, so
 ; SyncScroll never contends with Msu1_LoadFrame for queue slots.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_Play:
     php
     sei
@@ -9572,7 +9490,6 @@ Core_StreamScroll_Play:
 .i16
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_Play__enabled:
     lda.l Msu1_StreamBusy
     beq Core_StreamScroll_Play__msu_free
@@ -9581,7 +9498,6 @@ Core_StreamScroll_Play__enabled:
 .i16
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_Play__msu_free:
     ; Redundant re-sync -- this label is reached by `beq` from __enabled,
     ; which jumps OVER the rep #$31/.a16 a few lines below __enabled's own
@@ -9606,7 +9522,6 @@ Core_StreamScroll_Play__msu_free:
     jsr Core_StreamScroll_SeekColumn
     lda #0
     sta StreamScroll_PendTile
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScroll_Play__resume:
     jsr Core_StreamScroll_ResolveRows
 
@@ -9636,7 +9551,6 @@ Core_StreamScroll_Play__resume:
 ; height_tiles*3 (84) like the boot loader's own column read.
 ; @param X<16-bit>  world column to seek to
 ; Clobbers A, X, Y.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_SeekColumn:
     php
     sei
@@ -9682,7 +9596,6 @@ Core_StreamScrollFp_SeekColumn:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_SeekColumn__seek_busy:
     lda $2000
     bmi Core_StreamScrollFp_SeekColumn__seek_busy
@@ -9691,7 +9604,6 @@ Core_StreamScrollFp_SeekColumn__seek_busy:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_SeekColumn__read_entry:
     sep #$20
 .a8
@@ -9715,7 +9627,6 @@ Core_StreamScrollFp_SeekColumn__read_entry:
 ; and StreamScrollFp_TileBufN's slots are 16 bytes each, not 32.
 ; @param StreamStageFp_TileId<16-bit>  the tile ID to fetch
 ; Clobbers A/X/Y.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_FetchTileToBuffer:
     rep #$31
 .a16
@@ -9730,7 +9641,6 @@ Core_StreamScrollFp_FetchTileToBuffer:
 .a16
 .i16
     ldx #4                        ; *16 (2bpp 8x8 tile), not BG1's *32
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_FetchTileToBuffer__shift:
     lda StreamStageFp_TileOffLo
     asl a
@@ -9764,7 +9674,6 @@ Core_StreamScrollFp_FetchTileToBuffer__shift:
     sta $2002
     lda #0
     sta $2003
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_FetchTileToBuffer__seek_busy:
     lda $2000
     bmi Core_StreamScrollFp_FetchTileToBuffer__seek_busy
@@ -9785,7 +9694,6 @@ Core_StreamScrollFp_FetchTileToBuffer__seek_busy:
     asl a                   ; A = FetchBufSel * 16 (2bpp slot size)
     tax
     ldy #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_FetchTileToBuffer__read:
     sep #$20
 .a8
@@ -9810,7 +9718,6 @@ Core_StreamScrollFp_FetchTileToBuffer__read:
 ; needing to trim an over-wide window afterward.
 ; @return A<16-bit>  world column to stage this tick
 ; Clobbers A, X.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn:
     rep #$31
 .a16
@@ -9843,7 +9750,6 @@ Core_StreamScrollFp_PickColumn:
     lda StreamScrollFp_StagedLo
     dec a
     rts                             ; extend left
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn__check_hi:
     lda StreamScrollFp_DesiredHi
     cmp StreamScrollFp_StagedHi
@@ -9852,26 +9758,22 @@ Core_StreamScrollFp_PickColumn__check_hi:
     lda StreamScrollFp_StagedHi
     inc a
     rts                             ; extend right
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn__repair:
     lda StreamScrollFp_RepairCur
     cmp StreamScrollFp_DesiredLo
     bcs Core_StreamScrollFp_PickColumn__repair_lo_ok
     lda StreamScrollFp_DesiredLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn__repair_lo_ok:
     cmp StreamScrollFp_DesiredHi
     bcc Core_StreamScrollFp_PickColumn__repair_hi_ok
     beq Core_StreamScrollFp_PickColumn__repair_hi_ok
     lda StreamScrollFp_DesiredHi
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn__repair_hi_ok:
     pha
     inc a
     cmp StreamScrollFp_DesiredHi
     bcc Core_StreamScrollFp_PickColumn__repair_adv_ok
     lda StreamScrollFp_DesiredLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_PickColumn__repair_adv_ok:
     sta StreamScrollFp_RepairCur
     pla
@@ -9886,18 +9788,15 @@ Core_StreamScrollFp_PickColumn__repair_adv_ok:
 ; STREAM_FP_TILEMAP_ROW_START adjustment is needed when reading it here.
 ; @return carry<bool>  set if PendCol fully committed (its DMA enqueued,
 ;         PendCol reset to $FFFF); clear if still in progress
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__row:
     lda StreamScrollFp_PendTile
     cmp #FP_CONTENT_ROW_COUNT
     bcc Core_StreamScrollFp_ResolveRows__have_row
     brl Core_StreamScrollFp_ResolveRows__commit
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__have_row:
 
     lda StreamScrollFp_PendTile
@@ -9926,7 +9825,6 @@ Core_StreamScrollFp_ResolveRows__have_row:
     cmp #$FFFF
     beq Core_StreamScrollFp_ResolveRows__is_miss
     brl Core_StreamScrollFp_ResolveRows__hit
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__is_miss:
     ; StreamScrollFp_Budget is a .db -- an 8-bit compare, same reason as
     ; Core_StreamScroll_ResolveRows' own is_miss (see its comment).
@@ -9940,7 +9838,6 @@ Core_StreamScrollFp_ResolveRows__is_miss:
 .i16
     clc
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__miss_ok:
     ; Must not commit Core_StreamCacheFp_AllocateSlot's Tile2Slot/Slot2Tile
     ; mapping unless Core_Dma_Enqueue below is guaranteed to succeed -- see
@@ -9953,7 +9850,6 @@ Core_StreamScrollFp_ResolveRows__miss_ok:
     bcs Core_StreamScrollFp_ResolveRows__queue_ok
     clc
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__queue_ok:
     sep #$20
 .a8
@@ -10012,7 +9908,6 @@ Core_StreamScrollFp_ResolveRows__queue_ok:
     bcs Core_StreamScrollFp_ResolveRows__enqueued
     clc                             ; queue full -- retry this row later
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__enqueued:
     sep #$20
 .a8
@@ -10023,10 +9918,8 @@ Core_StreamScrollFp_ResolveRows__enqueued:
 .a16
 .i16
     brl Core_StreamScrollFp_ResolveRows__resolved
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__hit:
     sta StreamStageFp_Slot
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__resolved:
 
     ; --- build the remapped hw tilemap word -- identical bit layout to
@@ -10072,7 +9965,6 @@ Core_StreamScrollFp_ResolveRows__resolved:
     lda StreamStageFp_Word
     ora #$4000
     sta StreamStageFp_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__no_hflip:
 
     sep #$20
@@ -10087,7 +9979,6 @@ Core_StreamScrollFp_ResolveRows__no_hflip:
     lda StreamStageFp_Word
     ora #$8000
     sta StreamStageFp_Word
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__no_vflip:
 
     ; --- priority bit: always set, unconditionally -- every frontpanel
@@ -10108,7 +9999,6 @@ Core_StreamScrollFp_ResolveRows__no_vflip:
     inc a
     sta StreamScrollFp_PendTile
     brl Core_StreamScrollFp_ResolveRows__row
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__commit:
     ; every row resolved -- hand ColBuf off to Core_Nmi_Play's forced-blank
     ; column-write block (Core_StreamScrollFp_CommitColumn), same direct-
@@ -10121,7 +10011,6 @@ Core_StreamScrollFp_ResolveRows__commit:
     beq Core_StreamScrollFp_ResolveRows__col_free
     sec                                ; NMI hasn't drained the previous
     rts                                ; column yet -- retry this commit later
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__col_free:
     lda StreamScrollFp_PendCol
     and #$001F
@@ -10158,7 +10047,6 @@ Core_StreamScrollFp_ResolveRows__col_free:
     adc #(STREAM_STAGE_VIEWPORT_COLS-1)
     sta StreamScrollFp_StagedHi
     brl Core_StreamScrollFp_ResolveRows__window_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__not_below:
     lda StreamScrollFp_PendCol
     cmp StreamScrollFp_StagedHi
@@ -10167,7 +10055,6 @@ Core_StreamScrollFp_ResolveRows__not_below:
     sec
     sbc #(STREAM_STAGE_VIEWPORT_COLS-1)
     sta StreamScrollFp_StagedLo
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_ResolveRows__window_done:
 
     lda #$FFFF
@@ -10182,7 +10069,6 @@ Core_StreamScrollFp_ResolveRows__window_done:
 ; comment for why this can't be a DMA. Only walks FP_CONTENT_ROW_COUNT rows
 ; (a fixed constant here, not a variable HeightTiles like BG1's, since FP
 ; never resolves the other 21 blank rows -- see this block's own header).
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_CommitColumn:
     ; Called from core/nmi.pasm's Core_Nmi_Play, which forces DBR=0 -- every
     ; $7Exxxx access in THIS routine must be explicit .l, not bare .w, same
@@ -10195,7 +10081,6 @@ Core_StreamScrollFp_CommitColumn:
 .a16
 .i16
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_CommitColumn__go:
     ; VMAIN must be freshly set here too, not assumed from Core_StreamScroll_
     ; CommitColumn's own write just above this call in Core_Nmi_Play -- see
@@ -10211,7 +10096,6 @@ Core_StreamScrollFp_CommitColumn__go:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_CommitColumn__row:
     txa
     cmp #FP_CONTENT_ROW_COUNT
@@ -10249,7 +10133,6 @@ Core_StreamScrollFp_CommitColumn__row:
     plx                          ; restore the row counter
     inx
     bra Core_StreamScrollFp_CommitColumn__row
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_CommitColumn__done:
     sep #$20
 .a8
@@ -10275,7 +10158,6 @@ Core_StreamScrollFp_CommitColumn__done:
 ; corrupts) makes this safe either way -- see STREAM_SCROLLFP_BUDGET_MAX's
 ; own declaration comment for the real risk this combination carries and
 ; why it must be stress-tested, not just trusted, before shipping.
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_Play:
     php
     sei
@@ -10291,7 +10173,6 @@ Core_StreamScrollFp_Play:
 .i16
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_Play__enabled:
     lda.l Msu1_StreamBusy
     beq Core_StreamScrollFp_Play__msu_free
@@ -10300,7 +10181,6 @@ Core_StreamScrollFp_Play__enabled:
 .i16
     plp
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_Play__msu_free:
     ; Redundant re-sync -- same reason Core_StreamScroll_Play__msu_free's
     ; own comment gives (this label is reached by a `beq` that jumps over a
@@ -10323,7 +10203,6 @@ Core_StreamScrollFp_Play__msu_free:
     jsr Core_StreamScrollFp_SeekColumn
     lda #0
     sta StreamScrollFp_PendTile
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamScrollFp_Play__resume:
     jsr Core_StreamScrollFp_ResolveRows
 
@@ -11038,7 +10917,6 @@ msu1_done:
 .i16
     ldy #WORLD_CONTENT_WIDTH
     bra Boot_SetPlayfieldBorder__go
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Boot_SetPlayfieldBorder__streaming:
     rep #$31
 .a16
@@ -11048,7 +10926,6 @@ Boot_SetPlayfieldBorder__streaming:
     asl a
     asl a                        ; tiles -> pixels (*8)
     tay
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Boot_SetPlayfieldBorder__go:
     lda #0
     ldx #0
@@ -11195,12 +11072,10 @@ scpu_bg3_map:
 .i16
     jsr Bg_LoadSceneFp_Streaming
     bra Boot_LoadFp__done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Boot_LoadFp__skip:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Boot_LoadFp__done:
 
     ; --- Spawn-table phase (2026-08-16): one-time boot read of the level's
@@ -11468,12 +11343,10 @@ Boot_LoadFp__done:
     beq scpu_boot__bg1sc_wide
     lda #$60
     bra scpu_boot__bg1sc_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 scpu_boot__bg1sc_wide:
     sep #$20
 .a8
     lda #$61
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 scpu_boot__bg1sc_done:
     sta.l Nmi_Bg1TilemapVram
 

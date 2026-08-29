@@ -111,7 +111,7 @@ explicitly shelved.
 | ~~Win condition / level transition~~ | **Done (G4, 2026-08-21)** — gate `game_g4_transition.py` |
 | Menus (title, char select, pause, options) | **Done (G5)** — title, char select, pause menu, and options/SRAM all done, gates `game_g5_menus.py`/`game_g5_pause.py`/`game_g5_sram.py`, see §5 |
 | ~~Score / real HUD~~ | **Done (G6, 2026-08-21)** — gate `game_g6_hud.py` |
-| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, and real throw all done (G7, see §7 for gate names); special/block still fully open |
+| Jump, throw, grab, specials | BOR's actual moveset — run/dash, AI invuln, knockdown/getting-up, a generic second attack (attack2), real jump/jumpattack/jumpattack2 (LEO only), real grab mutual-lock (JOE), actor ground-depth sort, real throw, and real special (LEO only) all done (G7, see §7 for gate names); block still fully open (no roster member has real `block` data — content-blocked, not a code gap) |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
 | Ending / credits | **Not started (G10)** — finishing the game |
@@ -1189,7 +1189,56 @@ this is what separates "tech demo" from "beat-'em-up."
   other killing hit. AI throwing, special, block, pits, multiplayer,
   arbitrary entity-count scaling, and SA-1 compositor changes are
   explicitly out of scope for this slice.
-- **Special** (HP-cost screen-clear), **block** if the char has it.
+- ~~**Special**~~ — **Done (G7 eighth slice, 2026-08-28)**, `GATE G7-SPECIAL:
+  PASS`, `tools/verify/game_g7_special.py`. Real `check_special()`/
+  `player_check_special()` semantics (`engine/openbor.c`, DCurrent/openbor,
+  same fetch every G7 slice has sourced from): releases any active grab
+  link before triggering, then plays the special animation, then deducts
+  `energy_cost.cost` from HP/MP only if nonzero (a no-op for a zero cost,
+  not a shortcut this project took). LEO (TMNT pak) is the only roster
+  member with real `special` data — 6 frames, a real `attack` hitbox line,
+  no `energycost` line at all, so genuinely free. Bound to L, the other
+  free button in this project's map (jump already claimed A). This was
+  the "invented guess" the plan carried for months (**"HP-cost
+  screen-clear"** was never sourced from real BOR.C or any roster
+  character's real data — corrected here, not implemented as guessed).
+  Reuses attack1/attack2's exact shape: a third `CHAR_ATTACK_VARIANT`
+  value (2) selecting a new `CHAR_SPECIAL_FCOUNT/DELAY/BASE_LO/BASE_HI`
+  struct quartet (`CHAR_ZP_LEN` 71→76), chained onto the existing
+  `attack2_base + (attack2+jump+jumpattack+jumpattack2 fcount)*768`
+  base-offset math one hop further (`map_base` now chains off
+  `special_base` instead, so it still skips past special's frames to
+  reach the remap-palette table). Damage goes through the SAME
+  `Character_HitApply` `CHAR_SELECTED==2` check every other move already
+  uses — no variant-specific hit code exists there. **Real prerequisite
+  found and built, not invented around**: bank 0 (`$C100-$FC00`) was
+  already at its ROM-budget ceiling, so the frame-advance/revert-to-idle
+  logic itself was moved to a new bank-8 routine (`Jump_PlaySpecialAdvance`,
+  `core/jump.pasm`) that signals via carry whether the bank-0 caller still
+  needs to make the one call that can't move (`Msu1_LoadFrame`, same-bank-
+  only constraint) — mirrors how `Jump_ComputeBases`/`AnimBase_Compute*`
+  were relocated for the same reason in earlier slices. Freed additional
+  budget by finishing the nop-guard cleanup this slice's own interrupt
+  started: removed all 188 remaining stale "Poppy branch-target label
+  misalignment" `nop` guard lines from `main.pasm` (label drift and
+  backward-branch misalignment were both fixed upstream in the astrobleem
+  fork — `check_label_drift.py` confirms `0 nop-guarded, 0 DRIFTED` after
+  removal). **No genuine grab+special interaction exists in any real
+  roster data** — JOE (the only grabber) has no `special` role, LEO (the
+  only character with `special`) has no `grab` role — so the gate verifies
+  the grab-release call structurally (forcing `CHAR_GRAB_TARGET` nonzero on
+  LEO before triggering), not as a claim about LEO's own real data. No
+  smartbomb/screen-clear/AoE behavior exists anywhere in this slice — LEO's
+  model declares none, and inventing one would be exactly the
+  never-sourced guess this entry used to carry. **Block** still has no
+  real roster data anywhere (RALF/JHUN/JOE/YASHIRO/LEO's real `.TXT`
+  files, all PAK-verified this slice: zero `block` roles) — content-
+  blocked, not a code gap. Special-vs-block was the last open item in this
+  row; §7 is now fully exhausted except block (content-blocked) and AI-
+  side jump/special (no roster member's AI think-loop uses either in real
+  source). AI use of special/jump, block, pits, multiplayer, arbitrary
+  entity-count scaling, and SA-1 compositor changes are explicitly out of
+  scope for this slice.
 - ~~**Run/dash**~~ — **Done (G7 first slice, 2026-08-22)**, see status block above.
 - ~~**Invulnerability frames (AI entities)**~~ — **Done (G7 second slice,
   2026-08-22)**, see status block above. Player's own respawn-invuln

@@ -1268,7 +1268,7 @@ Character_HitApply__ApplyGrab__sides_done:
     sta.l $7E0a00,x
 
     ; self.CHAR_GRAB_TARGET = target's byte offset (fits one byte, max
-    ; 213; HitApply_EntityBase's high byte is always 0, X's own source)
+    ; 228; HitApply_EntityBase's high byte is always 0, X's own source)
     lda.l HitApply_EntityBase
     sta CHAR_GRAB_TARGET
 
@@ -1435,6 +1435,40 @@ Character_Grab_Throw__knock_have:
 .a8
 Character_Grab_Throw__done:
 .a8
+    rtl
+
+; ============================================================================
+; Character_Special_ReleaseGrab -- G7 special slice. Real BOR.C
+; player_check_special() calls dograb-release before triggering (a special
+; move ends any active grab the SAME frame it fires -- sourced from
+; DCurrent/openbor engine/openbor.c). Only ever called on the player (self,
+; DP-local, matching Character_Grab_Throw's own grabber-is-always-player
+; restriction) when CHAR_GRAB_TARGET != $FF; a no-op call would silently
+; write $FF into a real held target's own CHAR_GRABBED_BY at a garbage
+; offset, so the caller MUST check first -- not re-checked here (bank-0 call
+; site already gates on it, same "trust the one caller" convention as
+; Character_Grab_Throw's own X-in precondition).
+;
+;   in:  self.CHAR_GRAB_TARGET = victim's byte offset (already valid, non-
+;        $FF -- caller's precondition, matches Character_Grab_Throw's own X
+;        precondition one level up).
+;   out: none. Clobbers A/X.
+; ============================================================================
+Character_Special_ReleaseGrab:
+.a8
+    rep #$30
+.a16
+.i16
+    lda CHAR_GRAB_TARGET
+    and #$00FF
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+    sta CHAR_GRAB_TARGET      ; self (player, DP-local)
     rtl
 
 ; ============================================================================
