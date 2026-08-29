@@ -57,6 +57,22 @@ def roster():
     return [p.rsplit('/', 1)[-1] for p in build_rom.ROSTER_PREFIXES]
 
 
+def playable_roster():
+    """Same authoritative derivation as roster(), but sliced to build_rom.py's
+    PLAYABLE_ROSTER_COUNT -- the real player-selectable subset char-select's
+    own Left/Right wrap cycles through (props like out/apple are real roster
+    members for Spawn_DoRosterReassign's purposes but are never player-
+    selectable; see pack_msu_roster.py's playable_count header-byte comment
+    for the real bug this distinction fixes). Use this, not roster()[-1],
+    for any char-select-wrap ground truth."""
+    import importlib.util
+    root = repo_root_from(__file__)
+    spec = importlib.util.spec_from_file_location('build_rom', os.path.join(root, 'build_rom.py'))
+    build_rom = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_rom)
+    return [p.rsplit('/', 1)[-1] for p in build_rom.ROSTER_PREFIXES[:build_rom.PLAYABLE_ROSTER_COUNT]]
+
+
 def open_session(verify_script_file, boot_wait=2.0):
     return McpSession(rom=rom_path(verify_script_file), mesen=MESEN_EXE, boot_wait=boot_wait)
 

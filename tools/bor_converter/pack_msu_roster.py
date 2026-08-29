@@ -20,7 +20,22 @@ File format (see the plan for the authoritative spec):
     0x0A       bg_count (0-MAX_BGS, a plain runtime byte -- MAX_BGS is this
                module's own soft Python-side sanity cap, bumped as real
                content grows, not a format limit like roster_count's 1-15)   [v2]
-    0x0B       reserved
+    0x0B       playable_count (1-roster_count) -- real prop/pickup slice:
+               props (e.g. out/apple, added via convert_prop.py) are real
+               roster members for Spawn_DoRosterReassign's purposes but
+               MUST NOT be player-selectable at char-select (a 1-frame
+               idle/walk/attack prop has no real playable moveset). Slots
+               playable_count..roster_count-1 are reachable by index for
+               reassignment but char-select's own Left/Right wrap only
+               cycles 0..playable_count-1. Defaults to roster_count
+               (formerly this byte's whole purpose -- "reserved", always 0
+               -- which is why a real bug shipped once: apple became
+               index 13 and was silently player-selectable via char-select
+               wrap until game_g5_menus.py's full-roster wrap check caught
+               it). Requires prefixes[0:playable_count] to be the real
+               fighters and prefixes[playable_count:] to be props, in that
+               order -- build_rom.py's ROSTER_PREFIXES already lists props
+               last for this exact reason.
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
     0x10       directory: MAX_CHARACTERS records x 17 bytes = 255 bytes
@@ -1033,7 +1048,7 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     return blob, info
 
 
-def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
+def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playable_count=None):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-15 out/<name> character prefixes; unused
@@ -1076,6 +1091,10 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     """
     if not (1 <= len(prefixes) <= MAX_CHARACTERS):
         raise ValueError(f"roster must have 1-{MAX_CHARACTERS} characters, got {len(prefixes)}")
+    if playable_count is None:
+        playable_count = len(prefixes)
+    if not (1 <= playable_count <= len(prefixes)):
+        raise ValueError(f"playable_count must be 1-{len(prefixes)}, got {playable_count}")
     bgs = bgs or []
     if len(bgs) > MAX_BGS:
         raise ValueError(f"at most {MAX_BGS} BG screens, got {len(bgs)}")
@@ -1167,8 +1186,8 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
 
         bg_directory = bytes(bg_dir_bytes)
 
-    header = struct.pack("<8sBBBxI", MAGIC, FORMAT_VERSION, len(prefixes),
-                         len(bgs), bg_directory_offset)
+    header = struct.pack("<8sBBBBI", MAGIC, FORMAT_VERSION, len(prefixes),
+                         len(bgs), playable_count, bg_directory_offset)
     assert len(header) == DIRECTORY_BASE
 
     msu_bytes = (header + bytes(directory) + b"".join(blobs)
@@ -1184,6 +1203,7 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None):
     sidecar = {
         "format_version": FORMAT_VERSION,
         "roster_count": len(prefixes),
+        "playable_count": playable_count,
         "header_size": HEADER_SIZE,
         "total_size": len(msu_bytes),
         "characters": sidecar_characters,

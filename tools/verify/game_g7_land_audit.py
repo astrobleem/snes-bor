@@ -32,7 +32,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bor_converter'))
 from pak_extract import extract  # noqa: E402
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import roster as _roster  # noqa: E402
+from _harness import playable_roster as _roster  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -41,12 +41,18 @@ PAKS = {
     'tmnt': 'Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak',
 }
 
-# build_rom.py's own printed roster order (single authoritative source,
-# gate/test hygiene per notjustfreespecial.txt), split into its two
+# build_rom.py's own printed PLAYABLE roster order (single authoritative
+# source, gate/test hygiene per notjustfreespecial.txt), split into its two
 # source paks -- the first 4 slots are BOR-original characters, the rest
 # TMNT; that split point is a fact about this project's own roster
 # composition, not something ROSTER_PREFIXES itself encodes, so it is
-# recorded here explicitly rather than re-derived.
+# recorded here explicitly rather than re-derived. Uses playable_roster(),
+# not the full roster() -- real prop/pickup roster members (out/apple,
+# convert_prop.py) live at `DATA\CHARS\MISC\<name>.TXT` in the BOR pak, not
+# `DATA\CHARS\<NAME>\<NAME>.TXT` in either pak this script's own extract()
+# path assumes, AND structurally cannot declare `land`/`autoland` at all
+# (convert_prop.py's own docstring: real MISC items declare exactly one
+# `idle` anim, nothing else) -- out of scope for this audit either way.
 _BOR_ORIGINAL_COUNT = 4
 _full_roster = [name.upper() for name in _roster()]
 ROSTER = {

@@ -115,8 +115,15 @@ def main():
         print(f'CharSelect_RosterCount: {roster_count}')
         r.check(f'roster count reads a sane value (1-{MAX_CHARACTERS})',
                  1 <= roster_count <= MAX_CHARACTERS)
-        r.check(f'roster count matches build_rom.py\'s real ROSTER_PREFIXES ({len(build_rom.ROSTER_PREFIXES)})',
-                 roster_count == len(build_rom.ROSTER_PREFIXES))
+        # CharSelect_RosterCount is the file header's playable_count (see
+        # pack_msu_roster.py's own header-byte comment) -- the player-
+        # selectable subset, not the full ROSTER_PREFIXES length. Real props
+        # (out/apple, appended after PLAYABLE_ROSTER_COUNT for Spawn_
+        # DoRosterReassign's purposes only) are real roster members but
+        # deliberately excluded from char-select's own wrap bound.
+        expected_playable = getattr(build_rom, 'PLAYABLE_ROSTER_COUNT', len(build_rom.ROSTER_PREFIXES))
+        r.check(f'roster count matches build_rom.py\'s real PLAYABLE_ROSTER_COUNT ({expected_playable})',
+                 roster_count == expected_playable)
 
         palette_snapshots = []
         index_snapshots = []

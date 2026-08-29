@@ -79,6 +79,19 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser
                    # until they get their own convert_prop.py pass too.
                    "out/apple"]
 
+# Real prop/pickup sprite art converted via convert_prop.py (see the
+# ROSTER_PREFIXES comment above) is a real roster member for Spawn_
+# DoRosterReassign's purposes but MUST NOT be player-selectable at char-
+# select -- a 1-frame idle/walk/attack prop has no real playable moveset.
+# PLAYABLE_ROSTER_COUNT is the real, sourced boundary (game_g5_menus.py's
+# own full-roster char-select wrap check caught this as a real regression
+# the same day "out/apple" was added -- char-select's Left-wrap-from-slot-0
+# landed on apple and showed a stale/wrong name row instead of a real
+# character). Requires every prop prefix to be appended AFTER every real
+# fighter prefix in ROSTER_PREFIXES, which is already this list's own
+# convention (props always added last).
+PLAYABLE_ROSTER_COUNT = 13   # ralf..leo (indices 0-12); out/apple (13) is a prop
+
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output
 # dir). Mode (static whole-level vs. streaming) is auto-detected by
@@ -342,7 +355,7 @@ def main():
     vm_blob = open(VM_MODULE, 'rb').read() if os.path.exists(VM_MODULE) else b""
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
         ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawns=spawn_blobs,
-        vm_blob=vm_blob)
+        vm_blob=vm_blob, playable_count=PLAYABLE_ROSTER_COUNT)
     check_stage_count(roster_sidecar)
     check_vm_constants(roster_sidecar)
     with open('build/bor.msu', 'wb') as f:

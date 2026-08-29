@@ -6460,7 +6460,16 @@ Anim_LoadCharacter__header_read:
 
     sep #$20
 .a8
-    lda.l AnimHeaderStaging+9
+    ; CharSelect_RosterCount drives char-select's own Left/Right WRAP bound
+    ; only -- it must be the file header's playable_count (offset 0x0B,
+    ; +11 here), NOT the full roster_count (offset 0x09, +9). A real prop
+    ; (e.g. out/apple, appended last in build_rom.py's ROSTER_PREFIXES for
+    ; Spawn_DoRosterReassign's purposes) is a real roster member but has no
+    ; playable moveset -- reading the full roster_count here let char-select
+    ; wrap onto it (found by game_g5_menus.py's own full-roster wrap check
+    ; the same day out/apple was added: see pack_msu_roster.py's playable_
+    ; count header-byte comment for the fix).
+    lda.l AnimHeaderStaging+11
     sta.l CharSelect_RosterCount
 
     ; --- Seek to this slot's directory record: offset = 0x10 +
@@ -6943,6 +6952,26 @@ Anim_LoadCharacter__palette_read:
     rep #$31
 .a16
 .i16
+    ; Real bug found auditing the G8 prop-reassignment gate under repeated
+    ; runs (game_g8_prop_art.py): Core_Dma_Enqueue's own header documents
+    ; that it returns carry clear on a full queue, but this call site never
+    ; checked it -- a queue-full moment (real, reachable: this same routine
+    ; may have just issued up to 3 Msu1_LoadFrame calls for idle/walk/
+    ; attack, each consuming up to 6 of 8 total DMA queue slots per
+    ; CLAUDE.md's own documented constraint) silently dropped the palette
+    ; DMA forever, leaving CGRAM permanently showing the slot's PREVIOUS
+    ; occupant's colors while every other loaded-character field (frame
+    ; counts, CHAR_INPUT_DRIVEN, etc.) was already correct -- exactly the
+    ; same "commit success before confirming the DMA actually enqueued"
+    ; class of bug already fixed once in the stream-cache resolvers (see
+    ; project memory dma_commit_before_confirm_bug), just never applied
+    ; here. Fixed the same way: spin-wait for a real free slot (Core_Dma_
+    ; HasFreeSlot's own header guarantees nothing else can steal it before
+    ; this single-threaded main-loop code's own Enqueue call runs) before
+    ; enqueueing, instead of enqueueing and hoping.
+Anim_LoadCharacter__palette_dma_wait:
+    jsr Core_Dma_HasFreeSlot
+    bcc Anim_LoadCharacter__palette_dma_wait
     jsr Core_Dma_Enqueue
 
     ; --- Load succeeded: mark loaded, reset to idle, and force an

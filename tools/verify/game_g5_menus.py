@@ -48,7 +48,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter, roster  # noqa: E402
+from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter, roster, playable_roster  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -99,7 +99,16 @@ EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
 # ROSTER_PREFIXES) every other roster-order gate in this project already
 # uses -- so a 4th roster growth can no longer silently desync this
 # constant from reality.
-EXPECT_LAST_SLOT = roster()[-1].upper().ljust(TEXT_ROW_ENTRIES)
+#
+# Real prop/pickup slice regression + fix: char-select's own Left/Right
+# wrap cycles the PLAYABLE subset only (props like out/apple are real
+# roster members for Spawn_DoRosterReassign but have no playable moveset
+# -- see pack_msu_roster.py's playable_count header-byte comment), so the
+# real last WRAP slot is playable_roster()'s own last entry, not roster()'s
+# (this exact FAIL, wrapping onto 'apple' with a stale name row, is what
+# caught the original bug in the first full regression run after out/apple
+# was added).
+EXPECT_LAST_SLOT = playable_roster()[-1].upper().ljust(TEXT_ROW_ENTRIES)
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):
