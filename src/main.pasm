@@ -165,7 +165,6 @@ sa1_loop:
     ; --- real indexed loop over COMPOSITOR_BLIT_COUNT blits, base = i*$600 ---
     stz $08                 ; loop counter i = 0
     stz $06                 ; blit base offset = 0
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_loop_blits:
     jsr sa1_draw_blit
 
@@ -268,7 +267,6 @@ sa1_loop_blits:
     ; pump's next completion (24*COMPOSITOR_BLIT_COUNT frames later) cannot
     ; be mistaken for this one, and the pump still gates on SFR bit 5 for
     ; its own start signal.
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_wait:
     lda $3025               ; I-RAM mailbox: $AA = S-CPU has consumed canvas
     cmp #$AA
@@ -306,7 +304,6 @@ sa1_wait:
 sa1_draw_blit:
     stz $00                 ; row = 0..47
     stz $02                 ; source offset into TestSprite32x48, 0..1535
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_draw_row_loop:
     lda $00
     asl
@@ -319,7 +316,6 @@ sa1_draw_row_loop:
     tax                     ; X = dest byte offset into BW_CANVAS this row
     ldy $02                 ; Y = source byte offset, carried across rows
     stz $04                 ; col = 0..31 (bytes this row)
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
 sa1_draw_col_loop:
     sep #$20
 .a8
@@ -1517,13 +1513,11 @@ TadPrivate_Process_WaitingForLoader__LoadData:
     jsl LoadAudioData
     bcs __anon10
         ; LoadAudioData returned false
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
     TadPrivate_Process_WaitingForLoader__UseBlankSong:
         ; The blank song is a single zero byte.
         ldy #1
         lda #^(Tad_BlankSongByte)
         ldx #((Tad_BlankSongByte)&$ffff)
-        nop
     __anon10:
 
     ; STACK holds next state
@@ -1536,7 +1530,6 @@ TadPrivate_Process_WaitingForLoader__LoadData:
     pla
     sta TadPrivate_state
 
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
 TadPrivate_Process_WaitingForLoader__Return:
     plb
 ; DB restored
@@ -1550,7 +1543,6 @@ TadPrivate_Process_WaitingForLoader__Return:
 .a8
 .i16
 ;; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
 TadPrivate_Process_Loading:
     jsr TadPrivate_Loader_TransferData
     bcc TadPrivate_Process_Loading__Return
@@ -1563,7 +1555,6 @@ TadPrivate_Process_Loading:
             lda #WAITING_FOR_LOADER_SONG
             bra TadPrivate_Process_Loading__EndIf
 
-        nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
         TadPrivate_Process_Loading__Song:
             ; TadPrivate_Process_Loading__Song data was loaded into Audio-RAM
             ; Loader has finished, audio driver is now active
@@ -1587,11 +1578,9 @@ TadPrivate_Process_Loading:
             ora #$80
 
         ; A = new state
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
     TadPrivate_Process_Loading__EndIf:
         sta TadPrivate_state
 
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
 TadPrivate_Process_Loading__Return:
     rtl
 
@@ -1617,8 +1606,6 @@ Tad_FinishLoadingData:
         bcc Tad_FinishLoadingData__EndLoop
             jsl TadPrivate_Process_Loading
         bra Tad_FinishLoadingData__Loop
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-    nop                     ; address estimation, so every label after one drifts
     Tad_FinishLoadingData__EndLoop:
 
     rtl
@@ -1638,14 +1625,10 @@ Tad_FinishLoadingData:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
 Tad_QueueCommand:
     bit.w TadPrivate_nextCommand_id_Lo
     bpl Tad_QueueCommand__ReturnFalse
         ; command queue is empty
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-    nop                     ; address estimation, so every label after one drifts
     Tad_QueueCommand__WriteCommand:
         and #COMMAND_MASK
         sta TadPrivate_nextCommand_id
@@ -1660,8 +1643,6 @@ Tad_QueueCommand:
         sec
         rts
 
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
 Tad_QueueCommand__ReturnFalse:
     clc
     rts
@@ -1683,8 +1664,6 @@ Tad_QueueCommandOverride = WriteCommand
 ; I unknown
 ; DB access lowram
 ; KEEP: X, Y
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
 Tad_QueuePannedSoundEffect:
     cmp Tad_sfxQueue_sfx
     bcs Tad_QueuePannedSoundEffect__EndIf
@@ -1693,8 +1672,6 @@ Tad_QueuePannedSoundEffect:
         txa
         sta Tad_sfxQueue_pan
 
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
 Tad_QueuePannedSoundEffect__EndIf:
     rts
 
@@ -1712,8 +1689,6 @@ Tad_QueueSoundEffect:
 
         lda #TAD_CENTER_PAN
         sta Tad_sfxQueue_pan
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
 Tad_QueueSoundEffect__EndIf:
     rts
 
@@ -1799,7 +1774,6 @@ Tad_LoadSong__Return:
 .a8
 ; I unknown
 ; DB access lowram
-    nop                     ; workaround: Poppy label drift (bug #4). Without
     nop                     ; these the symbol lands on the tail of
                             ; Tad_LoadSong__Return's own guard and resolves onto
                             ; that routine's `rtl`. Inert today -- nothing in
@@ -1812,9 +1786,6 @@ Tad_LoadSongIfChanged:
         jsl Tad_LoadSong
         sec
         rts
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-    nop                     ; address estimation, so every label after one drifts
-    nop                     ; early (poppy bug #4). Guard absorbs the early landing.
     __anon11:
     clc
     rts
@@ -1824,9 +1795,6 @@ Tad_LoadSongIfChanged:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_GetSong:
     ; `TadPrivate_nextSong` is only written to in `Tad_Init` and `Tad_LoadSong`.
     lda TadPrivate_nextSong
@@ -1836,9 +1804,6 @@ Tad_GetSong:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_ReloadCommonAudioData:
     lda #RELOAD_COMMON_AUDIO_DATA
     tsb.w Tad_flags_Lo
@@ -1848,9 +1813,6 @@ Tad_ReloadCommonAudioData:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_SongsStartImmediately:
     lda #PLAY_SONG_IMMEDIATELY
     tsb.w Tad_flags_Lo
@@ -1860,9 +1822,6 @@ Tad_SongsStartImmediately:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_SongsStartPaused:
     lda #PLAY_SONG_IMMEDIATELY
     trb.w Tad_flags_Lo
@@ -1872,9 +1831,6 @@ Tad_SongsStartPaused:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_GlobalVolumesResetOnSongStart:
     lda #RESET_GLOBAL_VOLUMES_ON_SONG_START
     tsb.w Tad_flags_Lo
@@ -1884,9 +1840,6 @@ Tad_GlobalVolumesResetOnSongStart:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_GlobalVolumesPersist:
     lda #RESET_GLOBAL_VOLUMES_ON_SONG_START
     trb.w Tad_flags_Lo
@@ -1897,23 +1850,14 @@ Tad_GlobalVolumesPersist:
 ; A unknown
 .i16
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_SetTransferSize:
     cpx #TAD_MAX_TRANSFER_PER_FRAME
     bcc __anon12
         ldx #TAD_MAX_TRANSFER_PER_FRAME
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-    nop                     ; address estimation, so every label after one drifts
-    nop                     ; early (poppy bug #4). Guard absorbs the early landing.
     __anon12:
     cpx #TAD_MIN_TRANSFER_PER_FRAME
     bcs __anon13
         ldx #TAD_MIN_TRANSFER_PER_FRAME
-    nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-    nop                     ; address estimation, so every label after one drifts
-    nop                     ; early (poppy bug #4). Guard absorbs the early landing.
     __anon13:
     stx.w TadPrivate_bytesToTransferPerFrame_Lo
 
@@ -1925,9 +1869,6 @@ Tad_SetTransferSize:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_IsLoaderActive:
 ; [assert] assert .asize = 8, error
 
@@ -1948,9 +1889,6 @@ Tad_IsLoaderActive:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_IsSongLoaded:
 ; [assert] assert TadState::PLAYING_SFX > TadState::PAUSED, error
 ; [assert] assert TadState::PLAYING > TadState::PAUSED, error
@@ -1966,9 +1904,6 @@ Tad_IsSongLoaded:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_IsSfxPlaying:
 ; [assert] assert TadState::PLAYING > TadState::PLAYING_SFX, error
     ; Assumes PLAYING is the last state
@@ -1983,9 +1918,6 @@ Tad_IsSfxPlaying:
 .a8
 ; I unknown
 ; DB access lowram
-nop                     ; workaround: Poppy sizes `jsl` 1 byte short during
-nop                     ; address estimation, so every label after one drifts
-nop                     ; early (poppy bug #4). Guard absorbs the early landing.
 Tad_IsSongPlaying:
     ; Assumes PLAYING is the last state
 
@@ -3670,10 +3602,10 @@ HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
 ; Play returns) -- this routine exits in the same state, matching that
 ; convention, rather than saving/restoring via php/plp like Core_Dma_Enqueue
 ; does internally.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4 note --
-                             ; confirmed by raw-byte inspection: without this nop, JSR Anim_Play
-                             ; landed 1 byte early, on the previous routine's trailing RTS, and
-                             ; Anim_Play's body never ran)
+    ; HISTORICAL, RESOLVED: this nop guard defended against poppy#4 (label
+    ; address off-by-one), fixed 2026-08-19 in the fork. Without it, JSR
+    ; Anim_Play once landed 1 byte early on the previous routine's trailing
+    ; RTS and Anim_Play's body never ran (raw-byte-verified at the time).
 Anim_Play:
     sep #$20
 .a8
@@ -3689,7 +3621,6 @@ Anim_Play:
     cmp #1
     beq Anim_Play__check_reselect
     bra Anim_Play__no_reselect
-    nop
 Anim_Play__check_reselect:
     ; Live character reselect: Select button, edge-triggered (Input_trigger,
     ; not Input_press, per core/input.pasm's $4218 layout comment "B Y Sel
@@ -3912,7 +3843,6 @@ Anim_Play__check_attack_trigger:
                                   ; silently miscompiling, unlike a bcc/beq
                                   ; over-range -- brl has full range and is
                                   ; already used elsewhere in this routine
-    nop
 Anim_Play__player_input:
 .a8
     ; Real jump slice + G7 throw slice, merged into one bank-8 gate
@@ -4057,13 +3987,11 @@ Anim_Play__ai_seek:
     sec
     sbc.l PlayerEntity_PosX
     bra Anim_Play__ai_dx_have
-    nop
 Anim_Play__ai_dx_playerge:
     rep #$20
 .a16
     sec
     sbc CHAR_POS_X
-    nop
 Anim_Play__ai_dx_have:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Anim_Play__ai_dx_close
@@ -4071,7 +3999,6 @@ Anim_Play__ai_dx_have:
 .a8
     lda #1                          ; farther than range on X alone -- walk,
     bra Anim_Play__want_got         ; no need to also check Y
-    nop
 Anim_Play__ai_dx_close:
     sep #$20
 .a8
@@ -4082,17 +4009,14 @@ Anim_Play__ai_dx_close:
     sec
     sbc.l PlayerEntity_PosY
     bra Anim_Play__ai_dy_have
-    nop
 Anim_Play__ai_dy_playerge:
     sec
     sbc CHAR_POS_Y
-    nop
 Anim_Play__ai_dy_have:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Anim_Play__ai_attack
     lda #1
     bra Anim_Play__want_got
-    nop
 Anim_Play__ai_attack:
     lda #2
     sta CHAR_SELECTED
@@ -4351,7 +4275,6 @@ Anim_Play_Walk__frame_ok:
 ; call -- same "frame -1 forces immediate advance" trick Anim_Play's
 ; top-level selection-change path uses -- rather than wrapping back to
 ; frame 0 of the attack cycle.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_Play_Attack:
     sep #$20
 .a8
@@ -4697,7 +4620,6 @@ Anim_Play_Rise__frame_ok:
 ; program correctness here, but not this routine's own .a16/.i16 exit
 ; contract) -- hence the explicit `rep #$31`/.a16/.i16 re-assert
 ; immediately after `plp`, not relying on `plp` alone for the exit state.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Msu1_LoadFrame:
     php
     sei
@@ -4875,7 +4797,6 @@ Msu1_LoadFrame__read:
 ; SourceBank/TypeFlags fields and enqueues. Same shared-tail pattern as
 ; Anim_EnqueueTilemapRow above. Entry/exit width-agnostic (re-asserts its
 ; own widths), matching that routine's convention.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Msu1_LoadFrame_EnqueueRow:
     sep #$20
 .a8
@@ -4906,7 +4827,6 @@ Msu1_LoadFrame_EnqueueRow__ok:
 
 ; Shared "nothing changed this call" tail for Anim_Play_Idle/Walk/Attack
 ; above -- reached via `brl` (too far for an 8-bit bne from any of them).
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_Done:
     rep #$31
 .a16
@@ -4967,14 +4887,6 @@ Anim_Done:
 ; Y=100, tile=0, attr=$30, hi=$02) every frame for exactly this reason --
 ; don't remove it while only meaning to touch sprite 1 (now Player_PlayFrame).
 ; ============================================================================
-    ; workaround: Poppy label address off-by-one (see poppy bug #4) -- padded
-    ; wider than 1 nop; this project's usual single-nop guard was measured
-    ; insufficient here after an unrelated edit elsewhere in the file shifted
-    ; cumulative address-estimation drift (raw-byte-verify, don't assume).
-    nop
-    nop
-    nop
-    nop
 ; Bare $21xx addresses below (and in TestSprite_WriteSolidTile) switched to
 ; explicit `.l $00xxxx` long addressing while investigating a speckled-noise
 ; rendering bug -- turned out not to be the actual cause (root cause was a
@@ -5062,8 +4974,6 @@ TestSprite_Init:
 ; pixel row), then 8 words of interleaved plane2/plane3. Solid color index
 ; 1 (binary 0001) needs only plane0 set -- word = $00FF (low byte/plane0 =
 ; $FF, high byte/plane1 = $00) for the first 8 words, $0000 for the last 8.
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
-    nop
     nop
     nop
 TestSprite_WriteSolidTile:
@@ -5072,7 +4982,6 @@ TestSprite_WriteSolidTile:
 .i16
     ldx #8
     lda #$00FF
-    nop
 TestSprite_WriteSolidTile__plane01:
     sta.l $002118
     dex
@@ -5080,7 +4989,6 @@ TestSprite_WriteSolidTile__plane01:
 
     ldx #8
     lda #$0000
-    nop
 TestSprite_WriteSolidTile__plane23:
     sta.l $002118
     dex
@@ -5140,7 +5048,6 @@ Character_BlankPadding:
 .i16
     ldx #64                    ; 4 tiles * 16 words/tile
     lda #$0000
-    nop
 Character_BlankPadding__s0_row6:
     sta.l $002118
     dex
@@ -5155,7 +5062,6 @@ Character_BlankPadding__s0_row6:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s0_row7:
     sta.l $002118
     dex
@@ -5170,7 +5076,6 @@ Character_BlankPadding__s0_row7:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s1_row6:
     sta.l $002118
     dex
@@ -5185,7 +5090,6 @@ Character_BlankPadding__s1_row6:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s1_row7:
     sta.l $002118
     dex
@@ -5200,7 +5104,6 @@ Character_BlankPadding__s1_row7:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s2_row6:
     sta.l $002118
     dex
@@ -5215,7 +5118,6 @@ Character_BlankPadding__s2_row6:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s2_row7:
     sta.l $002118
     dex
@@ -5230,7 +5132,6 @@ Character_BlankPadding__s2_row7:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s3_row6:
     sta.l $002118
     dex
@@ -5245,7 +5146,6 @@ Character_BlankPadding__s3_row6:
 .i16
     ldx #64
     lda #$0000
-    nop
 Character_BlankPadding__s3_row7:
     sta.l $002118
     dex
@@ -5287,16 +5187,11 @@ Character_BlankPadding_Guarded:
 ; sequence. Must be called in .a16/.i16 and returns the same way, matching
 ; scpu_main_loop's convention.
 ;
-; workaround: Poppy label address off-by-one (see poppy bug #4 / poppy bug
-; #5's more general form) -- the old Player_PlayFrame at this same rough
-; file position needed this same padding (raw-byte-verified in a prior
-; session: without it, the label resolved 1 byte early onto the preceding
-; routine's `rts`) -- kept here since nothing about the file position that
-; caused it has changed enough to assume it's no longer needed.
-    nop
-    nop
-    nop
-    nop
+; HISTORICAL, RESOLVED: this routine's entry once needed a 4-nop guard for
+; poppy#4 (label address off-by-one), fixed 2026-08-19 in the fork -- the
+; old Player_PlayFrame at this same rough file position had the same
+; problem (raw-byte-verified at the time: without the guard, the label
+; resolved 1 byte early onto the preceding routine's `rts`).
 Character_PlayFrame:
 .a16
     ; --- Actor depth-sort slice: OAM emission (tile/attr/hi/jump-visual-
@@ -5353,7 +5248,6 @@ Character_PlayFrame__dpad_x_have:
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte -- Left wins
     beq Character_PlayFrame__right
     bra Character_PlayFrame__left
-    nop
 Character_PlayFrame__ai_x:
     ; Hold if within ANIM_AI_ATTACK_RANGE on X, matching Anim_Play's own
     ; attack-range decision independently -- deliberately NOT keyed off
@@ -5390,7 +5284,6 @@ Character_PlayFrame__ai_x_not_aligned:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold
     bra Character_PlayFrame__left  ; player is to the left -- reuse __left
-    nop
 Character_PlayFrame__ai_x_playerge:
     ; A is still playerX (cmp doesn't touch it)
     rep #$20
@@ -5400,7 +5293,6 @@ Character_PlayFrame__ai_x_playerge:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold
     bra Character_PlayFrame__right ; player is to the right -- reuse __right
-    nop
 Character_PlayFrame__right:
     rep #$20
 .a16
@@ -5435,7 +5327,6 @@ Character_PlayFrame__right:
     clc
     adc #PLAYER_SPEED
     bra Character_PlayFrame__right_clampcheck
-    nop
 Character_PlayFrame__right_norun8:
 .a8
     rep #$20
@@ -5453,7 +5344,6 @@ Character_PlayFrame__right_clampcheck:
     beq Character_PlayFrame__store_x
     lda.l WorldMaxX
     bra Character_PlayFrame__store_x
-    nop
 Character_PlayFrame__left:
     rep #$20
 .a16
@@ -5477,7 +5367,6 @@ Character_PlayFrame__left:
     sec
     sbc #PLAYER_SPEED
     bra Character_PlayFrame__left_clampcheck
-    nop
 Character_PlayFrame__left_norun8:
 .a8
     rep #$20
@@ -5489,12 +5378,10 @@ Character_PlayFrame__left_clampcheck:
     bcs Character_PlayFrame__store_x
     lda #PLAYER_MIN_X
     bra Character_PlayFrame__store_x
-    nop
 Character_PlayFrame__hold:
     rep #$20
 .a16
     lda CHAR_POS_X
-    nop
 Character_PlayFrame__store_x:
     sta CHAR_POS_X
     ; Screen-relative X for OAM (world X - camera scroll) is no longer
@@ -5539,7 +5426,6 @@ Character_PlayFrame__dpad_y:
     and #$08                       ; bit11 (Up) of the word = bit3 of this byte -- Up wins
     beq Character_PlayFrame__down
     bra Character_PlayFrame__up
-    nop
 Character_PlayFrame__ai_y:
     ; Same distance-recompute fix as __ai_x -- see its comment.
     lda.l PlayerEntity_PosY
@@ -5552,14 +5438,12 @@ Character_PlayFrame__ai_y:
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold_y
     bra Character_PlayFrame__up    ; player is above -- reuse __up
-    nop
 Character_PlayFrame__ai_y_playerge:
     sec
     sbc CHAR_POS_Y
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold_y
     bra Character_PlayFrame__down  ; player is below -- reuse __down
-    nop
 Character_PlayFrame__down:
     lda CHAR_POS_Y
     clc
@@ -5582,7 +5466,6 @@ Character_PlayFrame__down:
     clc
     adc #PLAYER_SPEED
     bra Character_PlayFrame__down_clampcheck
-    nop
 Character_PlayFrame__down_norun:
     pla
 Character_PlayFrame__down_clampcheck:
@@ -5591,7 +5474,6 @@ Character_PlayFrame__down_clampcheck:
     bcc Character_PlayFrame__store_y
     lda #PLAYER_MAX_Y
     bra Character_PlayFrame__store_y
-    nop
 Character_PlayFrame__up:
     lda CHAR_POS_Y
     sec
@@ -5609,7 +5491,6 @@ Character_PlayFrame__up:
     sec
     sbc #PLAYER_SPEED
     bra Character_PlayFrame__up_clampcheck
-    nop
 Character_PlayFrame__up_norun:
     pla
 Character_PlayFrame__up_clampcheck:
@@ -5618,10 +5499,8 @@ Character_PlayFrame__up_clampcheck:
     bcs Character_PlayFrame__store_y
     lda #PLAYER_MIN_Y
     bra Character_PlayFrame__store_y
-    nop
 Character_PlayFrame__hold_y:
     lda CHAR_POS_Y
-    nop
 Character_PlayFrame__store_y:
     sta CHAR_POS_Y
     ; Real ground/depth position committed -- see this routine's header for
@@ -5718,7 +5597,6 @@ Character_RenderFrame:
     lda.l OamSetSprite_Attr
     ora #$40                     ; hflip
     sta.l OamSetSprite_Attr
-    nop
 Character_PlayFrame__no_flip:
     nop
 
@@ -5970,16 +5848,13 @@ Character_HitApply__attacking:
     cmp #2
     beq Character_HitApply__do_vs_player
     bra Character_HitApply__done   ; mode 0 (static) -- no defined "other entity"
-    nop
 Character_HitApply__do_vs_all_ai:
     jsr Character_HitApply_VsEntity1
     jsr Character_HitApply_VsEntity2
     jsr Character_HitApply_VsEntity3
     bra Character_HitApply__done
-    nop
 Character_HitApply__do_vs_player:
     jsr Character_HitApply_VsPlayer
-    nop
 Character_HitApply__done:
     rep #$31
 .a16
@@ -6039,13 +5914,11 @@ Character_HitApply_VsEntity1:
     sec
     sbc.l Entity1_PosX
     bra Character_HitApply_VsEntity1__dx_have
-    nop
 Character_HitApply_VsEntity1__dx_otherge:
     rep #$20
 .a16
     sec
     sbc CHAR_POS_X
-    nop
 Character_HitApply_VsEntity1__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity1__dx_ok
@@ -6060,11 +5933,9 @@ Character_HitApply_VsEntity1__dx_ok:
     sec
     sbc.l Entity1_PosY
     bra Character_HitApply_VsEntity1__dy_have
-    nop
 Character_HitApply_VsEntity1__dy_otherge:
     sec
     sbc CHAR_POS_Y
-    nop
 Character_HitApply_VsEntity1__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity1__dy_ok
@@ -6129,13 +6000,11 @@ Character_HitApply_VsEntity2:
     sec
     sbc.l Entity2_PosX
     bra Character_HitApply_VsEntity2__dx_have
-    nop
 Character_HitApply_VsEntity2__dx_otherge:
     rep #$20
 .a16
     sec
     sbc CHAR_POS_X
-    nop
 Character_HitApply_VsEntity2__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity2__dx_ok
@@ -6150,11 +6019,9 @@ Character_HitApply_VsEntity2__dx_ok:
     sec
     sbc.l Entity2_PosY
     bra Character_HitApply_VsEntity2__dy_have
-    nop
 Character_HitApply_VsEntity2__dy_otherge:
     sec
     sbc CHAR_POS_Y
-    nop
 Character_HitApply_VsEntity2__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity2__dy_ok
@@ -6195,13 +6062,11 @@ Character_HitApply_VsEntity3:
     sec
     sbc.l Entity3_PosX
     bra Character_HitApply_VsEntity3__dx_have
-    nop
 Character_HitApply_VsEntity3__dx_otherge:
     rep #$20
 .a16
     sec
     sbc CHAR_POS_X
-    nop
 Character_HitApply_VsEntity3__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity3__dx_ok
@@ -6216,11 +6081,9 @@ Character_HitApply_VsEntity3__dx_ok:
     sec
     sbc.l Entity3_PosY
     bra Character_HitApply_VsEntity3__dy_have
-    nop
 Character_HitApply_VsEntity3__dy_otherge:
     sec
     sbc CHAR_POS_Y
-    nop
 Character_HitApply_VsEntity3__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity3__dy_ok
@@ -6263,13 +6126,11 @@ Character_HitApply_VsPlayer:
     sec
     sbc.l PlayerEntity_PosX
     bra Character_HitApply_VsPlayer__dx_have
-    nop
 Character_HitApply_VsPlayer__dx_otherge:
     rep #$20
 .a16
     sec
     sbc CHAR_POS_X
-    nop
 Character_HitApply_VsPlayer__dx_have:
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsPlayer__dx_ok
@@ -6284,11 +6145,9 @@ Character_HitApply_VsPlayer__dx_ok:
     sec
     sbc.l PlayerEntity_PosY
     bra Character_HitApply_VsPlayer__dy_have
-    nop
 Character_HitApply_VsPlayer__dy_otherge:
     sec
     sbc CHAR_POS_Y
-    nop
 Character_HitApply_VsPlayer__dy_have:
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsPlayer__dy_ok
@@ -6408,7 +6267,6 @@ Character_HitApply_VsPlayer__grabbed:
 ; a raw hex dump of the assembled ROM (not Mesen2's disassembler) then
 ; pinned down directly.
 ; ============================================================================
-    nop                     ; workaround: Poppy label address off-by-one (see poppy bug #4)
 Anim_LoadCharacter:
     ; php/sei here, plp before each of this routine's two rts below: this
     ; runs at boot (before NMITIMEN is ever enabled, so unprotected was
@@ -7245,7 +7103,6 @@ Anim_ApplyMapPalette__read:
 ; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
 ;                     deletion on the next Play pass if this isn't exactly 0
     nop
-    nop
 CharacterEntity_Init:
     ; Called with DP already switched to this object's window (see Core_
     ; Oop_Create) and .a16/.i16 (its own internal convention at the jsr
@@ -7283,7 +7140,6 @@ CharacterEntity_Init:
     ; starting position placed clear of every other role's spawn box (see
     ; each role's own box below) so the four don't overlap before any of
     ; them start moving. ---
-    nop                             ; workaround: Poppy label drift (bug #4).
     nop                             ; Nothing branches here today -- role 3 is
                                     ; reached only by fall-through -- so this
                                     ; guard is inert at runtime. It is here so
@@ -7309,7 +7165,6 @@ CharacterEntity_Init__role3:
     sta CHAR_PALETTE_SLOT
     sta CHAR_TILE_COLUMN
     bra CharacterEntity_Init__load
-    nop
 CharacterEntity_Init__role2:
     ; --- role 2: AI-seeking, own palette slot 2 / tile-column-slice 2.
     ; [200,232) x [150,214) -- clear of role 1's [40,72) and the player's
@@ -7327,7 +7182,6 @@ CharacterEntity_Init__role2:
     sta CHAR_PALETTE_SLOT
     sta CHAR_TILE_COLUMN
     bra CharacterEntity_Init__load
-    nop
 CharacterEntity_Init__role1:
     ; --- role 1: AI-seeking NPC defaults (plan.md Phase 2 introduced this
     ; entity as static/idle-only; Phase 3 repurposes it to seek the player
@@ -7350,7 +7204,6 @@ CharacterEntity_Init__role1:
     sta CHAR_PALETTE_SLOT
     sta CHAR_TILE_COLUMN
     bra CharacterEntity_Init__load
-    nop
 CharacterEntity_Init__player:
     ; --- role 0: player-controlled defaults (was scpu_boot's inline
     ; Player_X/Y init, moved here in Phase 1b since DP-relative writes are
@@ -7370,7 +7223,6 @@ CharacterEntity_Init__player:
     lda #0
     sta CHAR_PALETTE_SLOT
     sta CHAR_TILE_COLUMN
-    nop
 CharacterEntity_Init__load:
     ; --- Now recover the roster index (saved on the stack by the pha
     ; above, since the role branch above clobbered A) and do the actual
@@ -7405,7 +7257,6 @@ CharacterEntity_Init__load:
     beq CharacterEntity_Init__load_hp_full
     lda #0
     bra CharacterEntity_Init__load_hp_set
-    nop
 CharacterEntity_Init__load_hp_full:
     sep #$20
 .a8
@@ -7452,7 +7303,6 @@ CharacterEntity_Init__load_hp_set:
 ; contract, so no width juggling needed here.
 ; @return a<16-bit>  OBJR_NOERR -- see CharacterEntity_Init; Core_Oop_Play
 ;                     reads this the same way, right after the dispatch call
-    nop
     nop
 CharacterEntity_Play:
     jsr Anim_Play
@@ -7604,7 +7454,6 @@ CharacterEntity_OnCommand__camera:
 ;   $6800-$6BFF  BG3 tilemap (HUD rows 0-3, frontpanel rows 21-27, see
 ;                STREAM_FP_TILEMAP_ROW_START)
 ; ============================================================================
-    nop
     nop
 Bg_LoadScene:
     php
@@ -10995,7 +10844,6 @@ msu1_busy_loop:
 
     ; Read 46 bytes from MSU_DATA ($2001) to WRAM $7E:0300
     ldx #$0000
-    nop
 msu1_read_loop:
     lda $2001               ; read byte from MSU-1 data stream
     sta.l $7E0300,x         ; store in WRAM $7E:0300
@@ -11286,7 +11134,6 @@ Boot_SetPlayfieldBorder__go:
     stz $4200               ; NMITIMEN off
 
     ldx #$2100
-    nop
 scpu_clear_ppu:
     stz $00,x
     inx
@@ -11362,7 +11209,6 @@ scpu_clear_ppu:
     sta $2116
     ldx #BG3_TILEMAP_WORDS
     lda #$0000
-    nop
 scpu_bg3_map:
     sta $2118
     dex
@@ -11710,8 +11556,6 @@ scpu_boot__bg1sc_done:
     jsl Tad_LoadSong
     rep #$31
 .a16
-    nop                     ; workaround: Poppy backward-branch label misalignment (see poppy bug #4)
-    nop
 
 scpu_main_loop:
     ; Core_Nmi_WaitFrame paces this loop to real vblank (60Hz) -- without it,

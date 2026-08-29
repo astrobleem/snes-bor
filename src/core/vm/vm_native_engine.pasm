@@ -678,7 +678,6 @@ AnimBlink_ShouldHide__mod_loop:
     sec
     sbc #DEATH_BLINK_PERIOD
     bra AnimBlink_ShouldHide__mod_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 AnimBlink_ShouldHide__mod_done:
 .a8
     cmp #DEATH_BLINK_HIDDEN_FRAMES
@@ -839,7 +838,6 @@ Character_HitApply__ApplyDamage__hp_ok:
     lda.l $7E0a00,x
     bmi Character_HitApply__ApplyDamage__fall
     bra Character_HitApply__ApplyDamage__stun
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Character_HitApply__ApplyDamage__fall:
     rep #$31
@@ -876,7 +874,6 @@ Character_HitApply__ApplyDamage__fall:
     lda #1
     sta.l $7E0a00,x
     bra Character_HitApply__ApplyDamage__reaction_done
-    nop
 
 Character_HitApply__ApplyDamage__stun:
     rep #$31

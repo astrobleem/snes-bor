@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 """Detect Poppy bug #4 (label address off-by-N) by opcode agreement.
 
+poppy#4 (label-address off-by-N drift) was fixed 2026-08-19 in the fork
+(CLAUDE.md's toolchain section). This script's job today is DOUBLE: it is
+still the regression detector for that fix (a real drift is now evidence
+of a NEW, currently-undocumented miscompile, not the old known bug), and
+it also flags source hygiene left over from when the bug was live --
+lingering `nop`-guard workarounds and their explanatory comments. Neither
+case should be "fixed" by inserting another nop; poppy#4 being fixed means
+a guard is no longer doing anything except reading as a false signal that
+the old bug is still being defended against.
+
+notjustfreespecial.txt's Poppy-workaround audit requires this script to:
+  - never treat a nop-guarded label as a successful normal state -- it is
+    now reported as a hygiene finding (stale guard still in source), not
+    folded silently into a "clean" summary line;
+  - never advise "insert a nop" as the default repair for a real
+    disagreement -- since the bug is fixed, a real drift today means a
+    genuinely new problem, and the repair is a minimal Poppy repro (see
+    CLAUDE.md's "If you suspect a silent miscompile..." procedure), not
+    another guard nop;
+  - detect old `; workaround: Poppy ... (poppy bug #4)`-style comments
+    directly, by text, so a leftover explanation doesn't go unnoticed even
+    where the nop itself was already removed by a sloppy edit.
+
 WHY THIS AND NOT A BOUNDARY CHECK
 ---------------------------------
 tools/rom_audit's other checks verify that decoded bytes land on real
@@ -118,6 +141,35 @@ def load_symbols(sym_path):
 
 
 INCLUDE_RE = re.compile(r'^\s*\.include\s+"([^"]+)"', re.I)
+STALE_COMMENT_RE = re.compile(
+    r';\s*workaround:\s*Poppy\b.*(?:poppy bug #4|poppy#4|label drift|label misalign|'
+    r'label misresolution|sizes `jsl`|backward-branch)', re.I)
+
+
+def find_stale_workaround_comments(pasm_path, _seen=None):
+    """Scan (following .include) for leftover poppy#4-era workaround
+    comments -- fixed-bug hygiene debt independent of whether a nop is
+    still physically present alongside them."""
+    if _seen is None:
+        _seen = set()
+    pasm_path = os.path.abspath(pasm_path)
+    if pasm_path in _seen or not os.path.exists(pasm_path):
+        return []
+    _seen.add(pasm_path)
+    root = repo_root()
+    out = []
+    with open(pasm_path, encoding='utf-8', errors='replace') as f:
+        lines = f.readlines()
+    here = os.path.dirname(pasm_path)
+    rel = os.path.relpath(pasm_path, root).replace('\\', '/')
+    for i, raw in enumerate(lines):
+        inc = INCLUDE_RE.match(raw)
+        if inc:
+            out.extend(find_stale_workaround_comments(os.path.join(here, inc.group(1)), _seen))
+            continue
+        if STALE_COMMENT_RE.search(raw):
+            out.append((rel, i + 1, raw.strip()))
+    return out
 
 
 def source_labels(pasm_path, _seen=None):
@@ -239,19 +291,48 @@ def main():
         bad += 1
         problems.append((label, addr, mnem, got, OPCODES[got], line_no, drift, srcfile))
 
+    stale_comments = find_stale_workaround_comments(args.pasm)
+
     print(f'label-drift check  ${start:04X}-${end:04X}: '
-          f'{checked} code labels, {guarded} nop-guarded, {bad} DRIFTED')
+          f'{checked} code labels, {guarded} nop-guarded, {bad} DRIFTED, '
+          f'{len(stale_comments)} stale workaround comment(s)')
+
+    fail = False
+
+    if guarded:
+        fail = True
+        print(f'\nHYGIENE: {guarded} label(s) still carry a nop guard for the now-'
+              f'fixed poppy#4 bug. A guard is no longer doing anything -- remove the '
+              f'nop(s), rebuild, and re-run this check to confirm the label still '
+              f'resolves correctly without them:')
+        # (label list already implicit in problems/guarded count; guarded labels
+        # by definition passed, so nothing further to enumerate here.)
+
+    if stale_comments:
+        fail = True
+        print(f'\nHYGIENE: {len(stale_comments)} leftover poppy#4-era workaround '
+              f'comment(s) found (bug fixed 2026-08-19, see CLAUDE.md). Remove or '
+              f'rewrite as historical bug-history, not a live workaround:')
+        for rel, line_no, text in stale_comments:
+            print(f'  {rel}:{line_no}: {text}')
+
     if problems:
+        fail = True
         print()
         for label, addr, mnem, got, gotm, line_no, drift, srcfile in problems:
-            d = f'{drift}' if drift is not None else '?'
-            print(f'  DRIFT  {label}  ({srcfile}:{line_no}, needs {d} nop)')
+            print(f'  DRIFT  {label}  ({srcfile}:{line_no})')
             print(f'         .sym says ${addr:04X}, byte there is ${got:02X} ({gotm}); '
                   f'source says `{mnem.lower()}`')
-        print('\nFix: insert `nop` padding immediately BEFORE the label so an '
-              'early-landing\nbranch falls through into the real instruction '
-              '(see poppy bug #4 in CLAUDE.md).')
-    return 1 if problems else 0
+        print('\npoppy#4 (the historical cause of this exact symptom) is fixed. This '
+              'is evidence of a DIFFERENT, currently undocumented miscompile -- do '
+              'NOT paper over it with another guard nop. Instead: extract a minimal '
+              'repro (a dozen lines: .snes/.bank 0/.org $8000 plus the suspect '
+              'construct), assemble it directly with poppy.dll, dump the .bin and '
+              '.sym, and compare against the bytes you expected -- see CLAUDE.md\'s '
+              '"If you suspect a silent miscompile..." procedure. File it upstream '
+              'and fix it in the fork, the same way poppy#382-391 were handled.')
+
+    return 1 if fail else 0
 
 
 if __name__ == '__main__':
