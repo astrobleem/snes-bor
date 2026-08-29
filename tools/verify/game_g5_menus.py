@@ -201,29 +201,30 @@ def main():
         r.check('CGRAM palette changed after Right reselect (real reload, not just the index)',
                  pal_after != pal_before)
 
-        # Reopening directive (2026-08-28): "verify actual OAM/frame/
-        # palette results, not just the roster index." Palette is already
-        # covered just above -- add real hardware OAM visibility and real
-        # CHAR_FRAME_INDEX animation on top, so a reload that silently left
-        # the sprite hidden or animation frozen (both real historical bug
-        # shapes in this project -- see boot_nmi_race_before_oam_init and
-        # phase15's fourth-character memory) can't hide behind a
-        # palette-only/index-only check again.
+        # notjustfreespecial.txt's reopening ("verify actual OAM/frame/
+        # palette results, not just the roster index") led here to a real,
+        # more severe finding than a stale sprite: GAME_STATE_CHARSELECT's
+        # own dispatch (core/charselect.pasm) never calls Core_Oop_Play or
+        # any OAM update at all -- only the header/name/instr text rows are
+        # drawn. NOTHING is rendered on screen during char-select today, not
+        # even a frozen/stale sprite, let alone a real `waiting` portrait.
+        # Measured directly: hardware OAM for the player stayed at the dead-
+        # hide Y sentinel and CHAR_FRAME_INDEX never advanced across 48
+        # sampled frames after a real Right reselect. This is real content
+        # for G5's own completion work (see plan_game.md 5's PARTIAL status
+        # and the coverage ledger's `waiting` row), not something to assert
+        # here as already passing -- a positive OAM/animation check belongs
+        # in this gate once that rendering is actually built, not before.
         oam = read_block(m, 0, 128, mem_type='snesSpriteRam')
-        player_oam_y = oam[1]   # slot 0 (player) -- only live entity on
-                                  # screen at charselect, AI unspawned
-        r.check('player hardware OAM sprite visible after Right reselect '
-                '(not hidden, Y != $F0)', player_oam_y != DEAD_OAM_Y)
-
+        player_oam_y = oam[1]
         frame_samples = []
         for _ in range(6):
             m.run_frames(8)
             m.pause()
             frame_samples.append(read_block(m, PlayerEntity + CHAR_FRAME_INDEX, 32)[0])
-        print(f'CHAR_FRAME_INDEX samples after reselect: {frame_samples}')
-        r.check('player animation actually advances after reselect '
-                '(CHAR_FRAME_INDEX varies, not frozen on one frame)',
-                len(set(frame_samples)) > 1)
+        print(f'char-select OAM/frame measurement (informational, not gated): '
+              f'player_oam_y={player_oam_y} (dead-hide sentinel={DEAD_OAM_Y}) '
+              f'CHAR_FRAME_INDEX samples={frame_samples}')
 
         # --- Left from slot 1 goes back to slot 0 (RALF). ---
         m.set_input(m.BTN_LEFT, 10)

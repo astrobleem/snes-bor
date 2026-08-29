@@ -85,8 +85,10 @@ CHAR_GRABATTACK_FCOUNT = pasm_constant('CHAR_GRABATTACK_FCOUNT')
 CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
 CHAR_FREESPECIAL_STEP = pasm_constant('CHAR_FREESPECIAL_STEP')
 CHAR_FREESPECIAL_TIMER = pasm_constant('CHAR_FREESPECIAL_TIMER')
+CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
 
 CharSelect_Index = 0x7E53B6
+CharSelect_Loaded = 0x7E53B8
 PlayerEntity = 0x7E0A00
 Entity1 = PlayerEntity + CHAR_ZP_LEN
 Entity2 = PlayerEntity + CHAR_ZP_LEN * 2
@@ -166,14 +168,20 @@ def main():
         m.write_u8(PlayerEntity + CHAR_COMBOSTEP, 0)
         m.write_u8(PlayerEntity + CHAR_COMBOTIMER, 0)
 
-        # Real translated sequence: raw 1,2,3 -> local variant 0,1,3
-        # (pack_msu_roster.py's ATCHAIN_RAW_TO_VARIANT). Press Y three
-        # times in quick succession (mid-swing, well inside the combo
-        # window) and confirm the step and variant both advance for real,
-        # not just repeat step 0.
-        expected_variants = [0, 1, 3]
+        # Real translated sequence: raw 1,2,3,1,2,4 -> local variant
+        # 0,1,3,0,1,4 (pack_msu_roster.py's ATCHAIN_RAW_TO_VARIANT). Press Y
+        # six times in quick succession (mid-swing, well inside the combo
+        # window) -- the FULL declared chain, not just its first 3 steps --
+        # and confirm every step's variant advances for real, not just
+        # repeats step 0. notjustfreespecial.txt item 5, explicit: prior
+        # coverage stopped after 3 presses and never proved the repeated
+        # `4` (attack4, the chain's actual final step) is reachable at all;
+        # the coverage-ledger generator's own verifier caught this exact
+        # gap (leo/attack4: partial with a real runtime_handler but no
+        # owning gate cited) before this fix.
+        expected_variants = [0, 1, 3, 0, 1, 4]
         observed_variants = []
-        for step in range(3):
+        for step in range(6):
             m.set_input(m.BTN_Y, 1)
             m.run_frames(1)
             m.pause()
@@ -181,9 +189,44 @@ def main():
             m.run_frames(3)
             m.pause()
         print(f'atchain observed variants={observed_variants} expected={expected_variants}')
-        r.check('atchain combo cycles the real translated attack1->2->3 '
-                'sequence (mid-swing presses advance the step, not just '
+        r.check('atchain combo cycles the real, FULL translated attack1->2->3'
+                '->1->2->4 sequence (mid-swing presses advance the step, not just '
                 'repeat step 0)', observed_variants == expected_variants)
+
+        # Real damage on the attack4 step specifically -- neither attack3
+        # nor attack4 had ever been proven to deal damage before this fix
+        # (only slide got its own dedicated damage check). Overlap entity 1
+        # with the player (still mid-swing on step 6/attack4 from the loop
+        # above) and confirm the shared CHAR_SELECTED==2 hit check fires.
+        pos = read_block(m, PlayerEntity + 4, 32)
+        world_x = pos[0] | (pos[1] << 8)
+        world_y = pos[2]
+        m.write_u16(Entity1 + 4, world_x)
+        m.write_u8(Entity1 + 6, world_y)
+        m.write_u8(Entity1 + CHAR_HP, 64)
+        clear_stun(m, Entity1)
+        hp_before_a4 = 64
+        for _ in range(20):
+            m.run_frames(1)
+            m.pause()
+            if read_u8(m, Entity1 + CHAR_HP) < hp_before_a4:
+                break
+        hp_after_a4 = read_u8(m, Entity1 + CHAR_HP)
+        print(f'entity1 hp after attack4 window: {hp_after_a4} (was {hp_before_a4})')
+        r.check('attack4 (the atchain\'s final step) deals real damage via the '
+                'shared hit check, not just an animation with no effect',
+                hp_after_a4 < hp_before_a4)
+        # Entity1 was given real HP/no-stun for this check, unlike every
+        # other section in this gate -- it can genuinely counter-attack the
+        # player during the run_frames window above. Fully neutralize BOTH
+        # sides afterward (not just entity1's HP) so a real knockdown/stun
+        # the player took here can't silently carry into later sections.
+        m.write_u8(Entity1 + CHAR_HP, 0)
+        clear_stun(m, PlayerEntity)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.write_u8(PlayerEntity + CHAR_FALL_STATE_TIMER, 0)
+        m.run_frames(60)
+        m.pause()
 
         # Let the window lapse and confirm it resets to step 0 on the next
         # fresh press (real perform_atchain(): a lapsed window resets).
@@ -264,11 +307,42 @@ def main():
         m.write_u8(Entity1 + CHAR_HP, 64)
         clear_stun(m, Entity1)
 
-        m.set_input(m.BTN_DOWN | m.BTN_A, 3)
-        m.run_frames(2)
-        m.pause()
-        sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
-        var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+        # CHAR_SLIDE_FCOUNT is 1 for LEO (a single-frame swing) -- sampling
+        # several frames after the press can land after it has already run
+        # to completion and reverted CHAR_SELECTED back to idle (found by
+        # this slice's own debugging: a clean pre-state plus a FAIL here
+        # with no other explanation, root-caused to sampling too late, not
+        # a dispatch bug). Poll every single frame from the press itself so
+        # the trigger is caught on the frame it actually happens, matching
+        # this file's own atchain-loop convention above.
+        # Real harness gap (mesen_set_input_wall_clock project memory, this
+        # slice's own re-confirmation): after enough prior set_input calls
+        # in one long session, an individual set_input can silently fail to
+        # deliver ANY real button state at all -- confirmed here by reading
+        # the real Input_press/Input_trigger WRAM cells directly and seeing
+        # $0000 across 8 full sampled frames despite a clean, correct game
+        # state otherwise (roster/loaded/slide_fc all verified correct at
+        # this exact point). Not an engine bug -- retry the press itself
+        # (this project's own established pattern for harness flakiness,
+        # see Reporter.majority_of_3) rather than trusting one call.
+        sel, var = 0, 0
+        for attempt in range(3):
+            m.set_input(m.BTN_DOWN | m.BTN_A, 5)
+            for fi in range(8):
+                m.run_frames(1)
+                m.pause()
+                sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
+                var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+                if sel == 2:
+                    break
+            if sel == 2:
+                break
+            print(f'  slide input attempt {attempt+1} did not register '
+                  f'(Input_press stayed $0000) -- retrying')
+            sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
+            var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+            if sel == 2:
+                break
         print(f'Down+A press: selected={sel} variant={var}')
         r.check('Down+A triggers slide (CHAR_SELECTED=2, '
                 'CHAR_ATTACK_VARIANT=6)', sel == 2 and var == 6)

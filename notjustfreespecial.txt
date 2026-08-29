@@ -1,0 +1,452 @@
+Work in `astrobleem/snes-bor` on branch `g7-actor-depth-sort`. Fetch the current tip; it should include commit `0e3b8fd`.
+
+STOP before beginning G10 or any later milestone.
+
+The latest report claiming “G7 content-audit complete,” “G7 fully exhausted,” and “no known G7 caveats” is not accepted. It audited the existing checklist and then reassigned unfinished mechanics to other gates without proving those gates implemented them. A green existing test suite only proves the tests that exist. It does not prove that the source content, runtime behavior, and test coverage are complete.
+
+Your task is to perform a comprehensive source-to-runtime-to-gate audit of the entire project, correct every false completion claim, implement the missing behavior in G5/G7/G8, add the necessary regression coverage, and leave every G1–G12 status accurate.
+
+Do not merely edit the plan or produce another review. Audit first, then fix the code, converters, packed formats, gates, audits, and documentation until the claims are defensible.
+
+## Ground-truth hierarchy
+
+Use these sources in this order:
+
+1. Raw character and level `.TXT` content from every PAK currently represented in the shipped ROM.
+2. The actual DCurrent/OpenBOR engine source, especially `engine/openbor.c`, for trigger conditions and semantics.
+3. Converter output and packed ROM/MSU data.
+4. Runtime state and actual SNES hardware-visible results: WRAM, OAM, VRAM, CGRAM, input-driven behavior, damage, positioning and state transitions.
+5. Existing documentation and checklists last.
+
+The plan, README, old commit messages and existing gate names are not evidence that a mechanic is complete.
+
+Audit every relevant character `.TXT` and level `.TXT`, not merely the characters or mechanics already listed in `plan_game.md`. Inventory all animations, commands, AI-relevant properties, item declarations, spawn records and level-control keywords. The current shipped/converted content is the implementation obligation. Raw but intentionally unshipped content must still appear in the audit ledger so it cannot be accidentally used to support a false “absent from the PAK” claim.
+
+Double Dragon Moto and the shelved script VM remain outside this pass unless the current documentation falsely claims they are supported. Do not expand this into that project.
+
+## Non-negotiable completion rules
+
+A mechanic may be marked complete only when all of the following are true:
+
+- Real source content exists and is converted correctly.
+- The packed data preserves what the runtime needs.
+- The runtime implements the actual relevant OpenBOR behavior, not merely animation selection.
+- A live gate proves the trigger, behavior, effect, completion and important negative/regression cases.
+- The gate uses independent ground truth wherever practical.
+- Documentation describes the actual implementation without hiding simplifications.
+
+The following do not count as completion:
+
+- Assigning a mechanic to another gate.
+- Playing its animation through a made-up button combination.
+- Checking only `CHAR_SELECTED`, `CHAR_ATTACK_VARIANT` or frame-count metadata.
+- Calling a one-shot attack “grab” without a real link and hold.
+- Calling a mechanic content-inapplicable without proving both content configuration and source reachability.
+- Declaring something out of scope after previous documentation claimed the phase exhausted the real moveset.
+- A synthetic WRAM setup without a corresponding live behavioral check where the mechanic is supposed to be naturally reachable.
+
+Direct WRAM writes are acceptable for controlled setup and isolation, but they must be clearly identified as setup. They cannot replace the live trigger or the behavior under test.
+
+Do not introduce another stand-in trigger or approximation and then label it as real OpenBOR behavior. A deliberate simplification may remain only when it is explicitly documented as partial and does not support a “phase complete” claim.
+
+Do not stop after finding a gap. Fix it and add a regression gate unless it is genuinely content-inapplicable or externally blocked. When declaring something inapplicable, record the exact raw-content search, relevant OpenBOR source gate, and why no shipped configuration can reach it.
+
+## First deliverable: a machine-enforced coverage ledger
+
+Create a generated, machine-readable coverage ledger and a verifier for it. Do not hand-maintain another prose-only table.
+
+The ledger must connect, at minimum:
+
+- PAK and source path.
+- Character or level name.
+- Animation, command, property or level keyword.
+- Converter role/ordinal and generated output.
+- Packed record/slot.
+- Runtime handler or explicit absence.
+- Owning gate.
+- Completion classification.
+- Evidence for any content-inapplicable or out-of-scope classification.
+
+Use classifications such as:
+
+- `implemented-and-gated`
+- `partial`
+- `content-inapplicable`
+- `externally-blocked`
+- `unshipped-source-content`
+- `unhandled-error`
+
+The verifier must fail when:
+
+- Converted, shipped gameplay content has no runtime handler.
+- A runtime handler has no behavioral gate.
+- A mechanic is assigned to a phase marked complete although that mechanic is not implemented there.
+- Documentation says a phase is complete while its ledger contains `partial` or `unhandled-error`.
+- A gate proves only animation dispatch but the ledger labels full mechanic semantics complete.
+- A roster member or stage is added without corresponding ledger coverage.
+- A packed move slot exists but remains unreachable without a defensible classification.
+
+The ledger must be regenerated from source data rather than copied from `plan_game.md`.
+
+## Audit every phase, G1 through G12
+
+For each phase:
+
+1. Read the intended scope.
+2. Read the actual implementation.
+3. Read every associated gate, including setup assumptions and negative coverage.
+4. Compare against raw PAK content and OpenBOR behavior.
+5. Run the gate.
+6. Classify the phase honestly as complete, partial, blocked, not started or out of scope.
+7. Fix false claims and missing coverage.
+8. Add or update gates before marking it complete.
+
+G1–G4 and G6 appear substantially stronger than the later phases, but do not rubber-stamp them. Confirm them. G9 also appears materially stronger because it has both mechanism gates and real TMNT content coverage, but verify it against the current tip.
+
+G10 remains not started. G11 remains unfinished/content-blocked unless real SFX content has appeared. G12 remains open. Do not implement those later phases as part of this pass unless needed to correct a false current claim.
+
+## Known G5 failure to verify and fix
+
+The current ledger says `waiting` / `ANI_SELECT` belongs to G5 and is “already implemented there as cosmetic.” That is false unless the current tip has changed since the report.
+
+`game_g5_menus.py` currently proves text rows, character names, index changes and palette reloads. That is not a character-select portrait and does not prove the real `waiting` animation.
+
+Complete G5 by implementing and gating the real select presentation:
+
+- Convert and pack the appropriate `waiting` / `ANI_SELECT` content.
+- Display the selected character’s actual sprite or portrait pose on the character-select screen.
+- Advance it correctly if it has multiple frames.
+- Change its graphics and palette when selection changes.
+- Prove the old portrait is gone and the new one is present.
+- Remove or hide the select sprite cleanly before gameplay begins.
+- Verify actual OAM/frame/palette results, not just the roster index.
+
+Keep title logo art and attract mode explicitly listed as optional polish or unfinished scope. Do not silently treat them as implemented.
+
+G5 must remain `PARTIAL` until the real `waiting` presentation is implemented and gated.
+
+## Known G7 failures to verify and fix
+
+The latest G7 completion claim is not defensible. At minimum, audit and resolve all of the following.
+
+### 1. `freespecial`
+
+Do not accept the current “AI-exclusive, content-inapplicable” classification without re-reading OpenBOR’s command initialization and `player_check_special()` path.
+
+The source appears to install a default player command for `ANI_FREESPECIAL` using forward, forward, attack. LEO has real converted `freespecial` data.
+
+Determine the exact source behavior and implement the player-reachable command if confirmed. Add a dedicated gate proving:
+
+- the correct command sequence,
+- timing/reset behavior,
+- the real animation,
+- real damage/effect,
+- no accidental activation from ordinary movement or attack input,
+- completion back to a valid player state.
+
+Do not fold this into the ordinary L-button `special` test.
+
+### 2. LEO `grab` and `grabattack`
+
+The current G7 report itself admits LEO’s R-button `grab` is a one-shot ordinary attack with no `CHAR_GRAB_TARGET` link and that R+Y is a stand-in trigger for grabattack. That is animation reachability, not real grab/grabattack semantics.
+
+Implement the real behavior supported by the source and content:
+
+- establish an actual grab link,
+- position and hold the victim appropriately,
+- suppress incompatible victim behavior while held,
+- execute `grabattack` while a victim is genuinely held,
+- apply the sourced damage/reaction,
+- preserve or release the link at the correct point,
+- recover both entities correctly,
+- cover interruption and failed-grab cases.
+
+Reuse or generalize the already substantive JOE mutual-lock implementation rather than creating another unrelated fake grab system.
+
+Add a live LEO gate. It must prove the link and victim behavior, not merely `CHAR_ATTACK_VARIANT=5/8`.
+
+### 3. AI grab and throw applicability
+
+The existing JOE grab and throw gates explicitly restrict the grabber to the player. OpenBOR contains AI grab/throw paths.
+
+Audit the actual model properties and AI decision paths for all shipped characters that have relevant animation roles. Either:
+
+- implement and gate the reachable AI behavior, or
+- prove from raw model configuration plus OpenBOR source that no shipped AI entity can select it.
+
+“Player-only scope” is not evidence of inapplicability.
+
+### 4. Airborne physics duplication
+
+The project currently appears to retain player-global jump altitude/velocity and separate per-entity throw altitude/velocity, with a second gravity tick described as a twin of jump.
+
+Replace this with one coherent per-entity airborne representation:
+
+- per-entity altitude,
+- per-entity vertical velocity,
+- one gravity integration path,
+- one landing detection path,
+- state-specific animation/reaction around that shared physical state.
+
+Jump and throw gates must continue to pass afterward. Add structural coverage preventing the two-physics-system design from returning.
+
+### 5. Combo-chain coverage
+
+The current content-audit gate does not prove the full claims in the ledger.
+
+Add live end-to-end chain coverage for:
+
+- LEO’s entire declared chain, including actual reachability of attack4.
+- FOOT01’s complete real chain.
+- FOOT02’s complete real chain.
+
+Check real button edges, combo-window reset, complete variant sequence, real frame progression, damage and return to normal control. Metadata/frame-count checks may supplement but not replace execution.
+
+### 6. `riseattack`
+
+The current gate appears to force BEBOP-as-player into a lie state, trigger Up+Y and check selection/timer reset. That does not prove full behavior for every character named in the ledger.
+
+Audit and cover:
+
+- BEBOP,
+- ROCK,
+- LEATHER,
+- complete animation progression,
+- real hit/damage behavior,
+- completion into a valid state,
+- failed trigger outside the valid lie window,
+- dead-state rejection,
+- actual player-vs-AI applicability derived from source/model properties.
+
+Because these characters primarily appear as enemies, explicitly determine whether AI riseattack is reachable. Implement it or prove it cannot be selected.
+
+### 7. `land` / autoland closure
+
+Re-audit `ANI_LAND` using exact source conditions and all relevant content configuration:
+
+- global autoland behavior,
+- model configuration,
+- throw and attack-force flags,
+- blast/toss configuration,
+- every shipped model that contains `land`.
+
+The existing brief grep conclusion is not enough. Keep it content-inapplicable only if the full source and content path proves no shipped situation can reach it.
+
+### 8. Special/grab integration
+
+Once LEO has a real grab link, replace the synthetic forced-link setup in the ordinary special gate with an organic sequence where appropriate:
+
+- establish a real grab,
+- trigger the relevant special,
+- prove the source-required release,
+- prove both entities recover correctly.
+
+Update stale comments claiming LEO has no grab role.
+
+### 9. G7 gate honesty
+
+Review every `game_g7_*.py` docstring and assertion. Remove obsolete statements left behind by later slices.
+
+In particular, distinguish:
+
+- animation dispatch,
+- packed-data correctness,
+- physical mechanic behavior,
+- AI behavior,
+- full integration.
+
+Do not allow one category to stand in for another.
+
+G7 remains `PARTIAL` until all source-backed, shipped behavior is either implemented and gated or conclusively proven inapplicable.
+
+## Known G8 failures to verify and fix
+
+G8 is explicitly partial today. The existing gate primarily proves a static, non-attacking prop mode and one-hit soft kill. That is not an item/pickup system.
+
+Complete the source-backed G8 flow:
+
+- Real source level spawns the correct prop/item identity.
+- Breakable props take damage and break.
+- Authored drop/reveal behavior occurs.
+- The revealed item has its own correct behavior and graphics.
+- Player pickup collision works.
+- Health items affect HP correctly with clamping.
+- Score items affect the existing score system.
+- 1-up items affect lives.
+- The real `get` animation plays where authored and reachable.
+- Item collection removes or consumes the entity correctly.
+- No stale AI, boss or prop flags leak when entity slots are reused.
+- Real prop and pickup art is displayed rather than whichever roster character happens to occupy the slot.
+- Weapons are implemented only where shipped content genuinely uses them; otherwise prove their absence/reachability and classify them honestly.
+
+Add real-content gates based on actual converted level records, not only hand-authored WRAM records. Include negative cases such as full-health pickup behavior, pickup from the wrong distance, reused slots, and multiple reward types.
+
+G8 must remain `PARTIAL` until actual item gameplay—not merely prop classification—works and is gated.
+
+## Poppy workaround audit
+
+The prior report claiming every stale Poppy NOP guard was removed is not trusted.
+
+Audit all assembly and audit scripts for:
+
+- comments describing old label-drift or branch-target NOP workarounds,
+- NOP padding accepted as success,
+- checker output that recommends inserting NOPs,
+- branch-alignment assumptions,
+- stale width-directive suppressions.
+
+Do not blindly remove every NOP. Classify each one as:
+
+- real hardware/timing requirement,
+- workaround for a fixed historical assembler bug,
+- workaround for a still-live assembler bug,
+- ordinary intentional padding,
+- unexplained.
+
+Remove only stale workaround NOPs. Any retained workaround must have a measured byte-level reason and a minimal assembler regression reproducer.
+
+Do not claim Poppy is entirely bug-free. The separate live width-inference problem represented by Poppy issue #391 must not be confused with the old blanket label-padding workarounds. It is not permission to preserve or add arbitrary NOPs.
+
+Rewrite `check_label_drift.py` or its replacement so that:
+
+- stale NOP guards are not considered a successful normal state,
+- it never advises “insert a nop” as the default repair,
+- it detects old workaround comments,
+- it compares emitted labels/bytes where appropriate,
+- a suspected new assembler miscompile requires a minimal reproducer.
+
+Run the full suite after each removal batch.
+
+## Gate and test hygiene
+
+Eliminate hand-synchronized roster assumptions where the project already has authoritative data.
+
+Derive roster order and count from `build_rom.ROSTER_PREFIXES`, the packed directory, or another single authoritative generated source. Fix at least:
+
+- hardcoded “last character” expectations,
+- hardcoded LEO index,
+- hardcoded full roster lists in content-audit gates,
+- any entity-base literals that can be computed from `CHAR_ZP_LEN`,
+- stale stage/content assumptions in old docstrings.
+
+A future roster addition must not require editing several unrelated tests by hand.
+
+Every mechanic gate should normally include:
+
+- positive trigger,
+- negative trigger,
+- real effect,
+- progression/completion,
+- cleanup/recovery,
+- per-entity isolation,
+- at least one regression check for neighboring behavior,
+- independent source or converter ground truth.
+
+Use actual controller input for player-triggered behavior. Avoid testing a trigger solely by writing its resulting state variable.
+
+## Organic vertical-slice gate
+
+The focused mechanism gates are useful and should remain. Add one bounded organic integration gate that proves the systems compose without manufacturing every transition.
+
+Cover as much as reasonably possible of this real flow:
+
+title
+→ character select with real `waiting` portrait
+→ gameplay
+→ real combat
+→ a real breakable/drop/pickup
+→ player death and continue
+→ organic or minimally accelerated wave completion
+→ real boss encounter
+→ stage transition
+
+The gate may accelerate long waits, but it must not directly write the final state for every major event. Clearly distinguish acceleration from replacing the mechanism.
+
+This gate is not a substitute for the focused gates. It is protection against individually green subsystems that do not work together.
+
+## Required test run
+
+At the end, run from a clean build at minimum:
+
+- ROM build.
+- `audit_all.py`.
+- label-drift audit.
+- width-directive audit.
+- all existing phase gates.
+- all existing `game_g*.py` gates.
+- health override, map remap, roster reassignment and TMNT campaign gates.
+- every new coverage-ledger, G5, G7, G8 and vertical-slice gate.
+- SRAM persistence using genuinely separate emulator processes.
+- any new Poppy minimal repro tests required by retained workarounds.
+
+Do not report only “full suite green.” Report the exact commands, each gate’s check count and whether any retry was required. A flaky check is an open defect until either fixed or reduced to a demonstrably emulator-timing-only condition with a robust polling strategy.
+
+## Documentation
+
+Correct `plan_game.md`, README and source headers to match reality.
+
+Until the work above lands, the truthful statuses are:
+
+- G5: PARTIAL
+- G7: PARTIAL
+- G8: PARTIAL
+- G9: verify, likely complete within its defined boss scope
+- G10: NOT STARTED
+- G11: BLOCKED/UNFINISHED
+- G12: OPEN
+
+Do not use strikethrough or “done” wording for a phase that still has partial ledger entries.
+
+Remove stale historical claims from test docstrings. Preserve useful bug history, but clearly label it historical and resolved.
+
+## Work discipline
+
+Work through this audit and correction pass without repeatedly asking me which item to do next.
+
+Only stop for a question when:
+
+- required source/PAK content is actually unavailable,
+- a genuine game-design choice cannot be derived from OpenBOR behavior or current project precedent,
+- or a destructive repository operation needs approval.
+
+Make coherent commits by concern and push them to the branch. Do not hide all corrections in one enormous commit. Suggested sequence:
+
+1. Coverage-ledger generator and truthful status corrections.
+2. Poppy-workaround and gate-hygiene cleanup.
+3. G5 completion.
+4. G7 semantic completion.
+5. G8 completion.
+6. Organic vertical-slice coverage and final documentation.
+
+Re-run relevant regressions after every commit and the complete suite at the end.
+
+## Final report format
+
+The final report must contain:
+
+1. Branch and commit hashes.
+2. A G1–G12 table with one of:
+   - complete,
+   - partial,
+   - blocked,
+   - not started,
+   - deliberately out of scope.
+3. For every non-complete phase, the exact remaining work.
+4. The generated source-content coverage summary.
+5. Every defect found and how it was fixed.
+6. Every new or strengthened gate and its check count.
+7. Exact full-suite commands and results.
+8. Any retained simplification, with an explicit explanation of why it does not invalidate the phase-completion claim.
+9. Any retained Poppy guard, with its minimal reproducer and measured justification.
+10. A clean-working-tree confirmation.
+
+Do not end with “G7 fully exhausted,” “no known caveats,” or an equivalent claim unless the generated ledger has zero shipped `partial` or `unhandled-error` rows and every corresponding behavioral gate passes.
+
+The standard is not “the checklist is green.” The standard is:
+
+raw source content
+→ correct conversion
+→ correct packed data
+→ real runtime semantics
+→ live behavioral proof
+→ truthful documentation.
