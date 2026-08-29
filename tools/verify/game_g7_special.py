@@ -25,12 +25,17 @@ attack1/attack2 already use (CHAR_ATTACK_VARIANT==2 just picks a third
 frame-data source, same shape as attack2's own variant==1) -- confirmed
 no attack-variant-specific code exists in Character_HitApply.
 
-No roster character has both real grab data (attack2_is_grab) AND real
-special data -- JOE (the only grabber) has no `special` role, LEO (the
-only character with `special`) has no `grab` role. Real BOR-source grab-
-release-on-special-trigger is therefore verified here as a structural/
-plumbing check (forcing CHAR_GRAB_TARGET nonzero on LEO before pressing
-L), not a claim that LEO's real data ever produces a genuine grab.
+notjustfreespecial.txt item 8 correction: an earlier slice of this audit
+claimed "no roster character has both real grab data AND real special
+data" and tested grab-release-on-trigger as a synthetic/forced-WRAM
+plumbing check. That claim was WRONG -- LEO's real moveset has BOTH a
+`special` role (17) AND a `grab` role (12), and G7 items 2/3 already
+widened Character_HitApply__TryGrab to treat LEO's own R-triggered grab
+swing (CHAR_GRABMOVE_FCOUNT, variant 5) as a real grab-establishing hit,
+the same mutual-lock path JOE's attack2_is_grab uses. Grab-release-on-
+special-trigger is therefore verified organically below: LEO's own R
+press lands a real mutual lock, then L's release path is checked against
+that real link, not a forced one.
 
 Checks, all against a live Mesen2 session:
 1. Select the roster to LEO (12 Select presses from boot) and confirm
@@ -93,8 +98,12 @@ CHAR_RISEATTACK_FCOUNT = pasm_constant('CHAR_RISEATTACK_FCOUNT')
 CHAR_GRABATTACK_FCOUNT = pasm_constant('CHAR_GRABATTACK_FCOUNT')
 CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
 CHAR_HP = pasm_constant('CHAR_HP')
+CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
 CHAR_GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
+CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
+CHAR_POS_X = pasm_constant('CHAR_POS_X')
+CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 
 # Player-only jump-family transient fields (see core/jump.pasm) that feed
 # the special_base chain -- absolute WRAM cells, not CHAR_ZP_LEN struct
@@ -127,6 +136,14 @@ def load_role_frames(moveset_path, role):
         return None
     anim = next(a for a in moveset['animations'] if a['ordinal'] == ordinal)
     return anim['frames']
+
+
+def overlap_entity1_with_player(m):
+    px = read_block(m, PlayerEntity + CHAR_POS_X, 32)
+    x = px[0] | (px[1] << 8)
+    y = read_u8(m, PlayerEntity + CHAR_POS_Y)
+    m.write_u16(Entity1 + CHAR_POS_X, x)
+    m.write_u8(Entity1 + CHAR_POS_Y, y)
 
 
 def press_select(m):
@@ -275,23 +292,57 @@ def main():
         r.check('using special deducts no HP (real data: no energycost for LEO)',
                 hp_after == hp_before)
 
-        # --- 6. Grab-release-on-trigger (structural check -- LEO has no
-        # real grab data, so this forces CHAR_GRAB_TARGET to exercise the
-        # release path, not a claim LEO's own data ever produces a grab). ---
+        # --- 6. Grab-release-on-trigger, ORGANIC (notjustfreespecial.txt
+        # item 8): LEO's real moveset DOES have a `grab` role (12) --
+        # Character_HitApply__TryGrab was widened (G7 item 2/3) to accept
+        # LEO's CHAR_GRABMOVE_FCOUNT variant (5), not just JOE's attack2_
+        # is_grab, so LEO's own R-triggered grab swing lands a REAL
+        # mutual-lock hit when it connects, exactly like JOE's. Drive it
+        # organically: overlap Entity1 with the player, press R until the
+        # link actually establishes (CHAR_GRAB_TARGET != $FF), THEN press
+        # L and confirm the special's own grab-release path clears it --
+        # no forced WRAM link setup, unlike the prior synthetic version of
+        # this check. ---
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
-        m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, Entity1 - PlayerEntity)
-        m.write_u8(Entity1 + CHAR_GRABBED_BY, 0)  # self (player) offset
+        m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
+        m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, 0xFF)
+        m.write_u8(Entity1 + CHAR_HIT_STUN, 0)
+        m.write_u8(Entity1 + CHAR_GRABBED_BY, 0xFF)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        overlap_entity1_with_player(m)
         m.run_frames(4)
         m.pause()
+
+        grab_target = 0xFF
+        for attempt in range(5):
+            m.set_input(m.BTN_R, 1)
+            m.run_frames(1)
+            m.pause()
+            overlap_entity1_with_player(m)
+            grab_target = read_u8(m, PlayerEntity + CHAR_GRAB_TARGET)
+            if grab_target != 0xFF:
+                break
+            m.run_frames(10)
+            m.pause()
+        grabbed_by = read_u8(m, Entity1 + CHAR_GRABBED_BY)
+        print(f'organic R grab attempt {attempt + 1}/5: player.CHAR_GRAB_TARGET='
+              f'{grab_target} entity1.CHAR_GRABBED_BY={grabbed_by}')
+        r.check("LEO's own R-triggered `grab` swing organically establishes a "
+                'real mutual-lock (player.CHAR_GRAB_TARGET != $FF) via the '
+                'same Character_HitApply__TryGrab path JOE uses',
+                grab_target != 0xFF)
+
         press_and_poll(m, m.BTN_L, max_frames=30)
         grab_target_after = read_u8(m, PlayerEntity + CHAR_GRAB_TARGET)
         grabbed_by_after = read_u8(m, Entity1 + CHAR_GRABBED_BY)
-        print(f'after L with a forced grab link: CHAR_GRAB_TARGET={grab_target_after} '
+        print(f'after L with a real, organically-established grab link: '
+              f'CHAR_GRAB_TARGET={grab_target_after} '
               f'Entity1.CHAR_GRABBED_BY={grabbed_by_after}')
         r.check('special trigger releases self.CHAR_GRAB_TARGET ($FF)',
                 grab_target_after == 0xFF)
         r.check("special trigger releases the victim's own CHAR_GRABBED_BY ($FF)",
                 grabbed_by_after == 0xFF)
+        m.write_u8(Entity1 + CHAR_HP, 0)
 
         # --- 7. Regression: Y still triggers attack1, variant 0, unchanged
         # data. ---
