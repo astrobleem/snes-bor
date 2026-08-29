@@ -123,21 +123,14 @@ ROLE_RUNTIME = {
                   gates=['game_g7_content_audit.py'],
                   status='implemented-and-gated', evidence=''),
     'riseattack': dict(handler='UP+Y while CHAR_SELECTED==FALL (holding phase), '
-                                'Jump_RiseattackTrigger, Jump_PlayMoveSlotAdvance slot',
-                        gates=['game_g7_content_audit.py'],
-                        status='partial',
-                        evidence='notjustfreespecial.txt item 6: only BEBOP is exercised '
-                                 'end-to-end (trigger + CHAR_FALL_STATE_TIMER reset); '
-                                 'ROCK and LEATHER (also real riseattack data per the '
-                                 'ledger below) are never independently driven through '
-                                 'the same gate. No gate proves real hit/damage from a '
-                                 'riseattack swing, rejection outside the lie window, '
-                                 'dead-state rejection, or whether an AI-controlled '
-                                 'BEBOP/ROCK/LEATHER can ever reach this trigger (Jump_ '
-                                 'RiseattackTrigger is only ever called from the player-'
-                                 'input path -- AI entities never call it, and this has '
-                                 'not been checked against real BOR AI decision-making '
-                                 'to confirm that omission is correct rather than a gap).'),
+                                'Jump_RiseattackTrigger, Jump_PlayMoveSlotAdvance slot. '
+                                'Player-only by explicit sourced design: real BOR.C '
+                                'player_lie_check() is called only from the player\'s own '
+                                'think()/playerframe() path, never from any AI think '
+                                'function -- there is no real "AI rise-attacks" mechanism '
+                                'to port (same class of finding as `block`/`land`).',
+                        gates=['game_g7_riseattack.py'],
+                        status='implemented-and-gated', evidence=''),
     'freespecial': dict(handler='LEO only: double-tap-forward+attack FSM '
                                  '(Jump_FreespecialTrigger), Jump_PlayMoveSlotAdvance slot '
                                  '(variant 9), checked before special/grab/slide in '

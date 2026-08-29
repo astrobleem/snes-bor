@@ -21,9 +21,10 @@ slice newly wired:
    dealt to a target entity (Character_HitApply's existing CHAR_SELECTED==2
    hit check, reused unmodified).
 3. `slide` (A+Down): LEO-only, real converted frame data.
-4. `riseattack` (UP+Y while lying, player_lie_check()): BEBOP/ROCK/
-   LEATHER-only, verified via WRAM dispatch state AND that
-   CHAR_FALL_STATE_TIMER is correctly reset (not left dangling).
+4. `riseattack` (UP+Y while lying, player_lie_check()): split into its own
+   standalone gate, game_g7_riseattack.py (see that file's own docstring --
+   BEBOP/ROCK/LEATHER all independently covered there, plus guard/damage/
+   AI-reachability checks notjustfreespecial.txt item 6 added).
 5. Regression: a non-chain character (RALF) still dispatches plain Y/X
    attack1/attack2 exactly as before this slice (chain gate is a true
    no-op for CHAR_CHAINLENGTH==0).
@@ -498,38 +499,13 @@ def main():
         m.run_frames(60)
         m.pause()
 
-        # ================================================================
-        # 5. riseattack (UP+Y while lying) -- BEBOP.
-        # ================================================================
-        idx = read_u8(m, CharSelect_Index)
-        roster_count = len(ROSTER)
-        steps = (BEBOP_INDEX - idx) % roster_count
-        select_to(m, steps)
-        idx = read_u8(m, CharSelect_Index)
-        r.check(f'roster selected to BEBOP (index {BEBOP_INDEX})', idx == BEBOP_INDEX)
-
-        real_riseattack_frames = load_role_frames('bebop', 'riseattack')
-        riseattack_fc = read_u8(m, PlayerEntity + CHAR_RISEATTACK_FCOUNT)
-        r.check('BEBOP CHAR_RISEATTACK_FCOUNT matches its real converted '
-                '`riseattack` frame count',
-                riseattack_fc == real_riseattack_frames and riseattack_fc > 0)
-
-        clear_stun(m, PlayerEntity)
-        m.write_u8(PlayerEntity + CHAR_SELECTED, 3)  # CHAR_SELECTED_FALL
-        m.write_u8(PlayerEntity + CHAR_FALL_STATE_TIMER, 50)  # holding phase
-        m.write_u8(PlayerEntity + CHAR_HP, 60)
-
-        m.set_input(m.BTN_UP | m.BTN_Y, 1)
-        m.run_frames(2)
-        m.pause()
-        sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
-        var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
-        fall_timer = read_u8(m, PlayerEntity + CHAR_FALL_STATE_TIMER)
-        print(f'UP+Y while lying: selected={sel} variant={var} fall_timer={fall_timer}')
-        r.check('UP+Y while lying (holding phase, HP>0) triggers riseattack '
-                '(CHAR_SELECTED=2, CHAR_ATTACK_VARIANT=7)', sel == 2 and var == 7)
-        r.check('riseattack trigger resets CHAR_FALL_STATE_TIMER (no dangling '
-                'fall-hold state left behind)', fall_timer == 0)
+        # riseattack (UP+Y while lying) split into its own standalone gate,
+        # game_g7_riseattack.py -- notjustfreespecial.txt item 6's full
+        # BEBOP/ROCK/LEATHER coverage deterministically starved on this
+        # gate's own already-long chain of set_input calls (mesen_set_
+        # input_wall_clock harness gap), not a per-character bug. See that
+        # file's own docstring for the full coverage list and AI-
+        # reachability sourcing.
 
         # ================================================================
         # 6. Regression -- a non-chain character (RALF) still dispatches
