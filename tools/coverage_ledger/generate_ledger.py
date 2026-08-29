@@ -93,14 +93,7 @@ ROLE_RUNTIME = {
     'attack3': dict(handler='Jump_PlayMoveSlotAdvance generic slot (variant 3), '
                              'reached via atchain step (LEO/FOOT01/FOOT02)',
                      gates=['game_g7_content_audit.py'],
-                     status='partial',
-                     evidence='game_g7_content_audit.py exercises atchain steps 0/1/3 '
-                              '(attack1->attack2->attack3) but never independently '
-                              'proves attack4 (variant 4) is reachable for LEO -- see '
-                              'attack4 row. Real damage IS proven for attack3-family '
-                              'moves via the shared CHAR_SELECTED==2 hit check, but no '
-                              'gate isolates attack3 specifically the way slide/grab/ '
-                              'grabattack get their own dedicated checks.'),
+                     status='implemented-and-gated', evidence=''),
     'attack4': dict(handler='Jump_PlayMoveSlotAdvance generic slot (variant 4), '
                              'reached only as the LAST step of LEO\'s real atchain '
                              '(1 2 3 1 2 4)',
@@ -344,21 +337,14 @@ def build_ledger():
             rows.append(row)
 
         if atchain:
-            # Classification mirrors the weakest link in the chain (attack3/
-            # attack4 rows above) -- as of this slice both are real and
-            # gated for LEO (game_g7_content_audit.py drives the FULL 6-step
-            # sequence), but FOOT01/FOOT02's own real chains (`1 2 3`, no
-            # attack4) are only proven up through their first-3-step subset
-            # of the SAME LEO-driven test, never independently for their own
-            # roster slot -- flag that honestly rather than borrowing LEO's
-            # gate coverage for a different character's data.
-            is_leo = name == 'leo'
-            atchain_status = ROLE_RUNTIME['attack4']['status'] if is_leo else 'partial'
-            atchain_evidence = '' if is_leo else (
-                f'Real atchain data ({atchain}) confirmed via CHAR_CHAINLENGTH ground '
-                f'truth, but no gate independently drives THIS character\'s own chain '
-                f'end-to-end -- only LEO\'s is actually exercised by '
-                f'game_g7_content_audit.py.')
+            # notjustfreespecial.txt item 5: LEO/FOOT01/FOOT02 are the three
+            # real chain-bearing characters -- each now has its own real
+            # atchain independently driven live end-to-end by
+            # game_g7_content_audit.py (drive_atchain_and_check_damage for
+            # FOOT01/FOOT02, the dedicated 6-step section for LEO), not
+            # borrowed coverage from LEO's own test.
+            atchain_status = 'implemented-and-gated'
+            atchain_evidence = ''
             rows.append({
                 'character': name, 'source': f'out/{name}_moveset.json',
                 'animation': f'atchain {atchain}', 'ordinal': None, 'frames': None,

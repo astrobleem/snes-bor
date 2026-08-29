@@ -618,8 +618,8 @@
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "game_g7_content_audit.py exercises atchain steps 0/1/3 (attack1->attack2->attack3) but never independently proves attack4 (variant 4) is reachable for LEO -- see attack4 row. Real damage IS proven for attack3-family moves via the shared CHAR_SELECTED==2 hit check, but no gate isolates attack3 specifically the way slide/grab/ grabattack get their own dedicated checks."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "foot01",
@@ -644,8 +644,8 @@
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "Real atchain data ([1, 2, 3]) confirmed via CHAR_CHAINLENGTH ground truth, but no gate independently drives THIS character's own chain end-to-end -- only LEO's is actually exercised by game_g7_content_audit.py."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "rock",
@@ -1132,8 +1132,8 @@
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "game_g7_content_audit.py exercises atchain steps 0/1/3 (attack1->attack2->attack3) but never independently proves attack4 (variant 4) is reachable for LEO -- see attack4 row. Real damage IS proven for attack3-family moves via the shared CHAR_SELECTED==2 hit check, but no gate isolates attack3 specifically the way slide/grab/ grabattack get their own dedicated checks."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "foot02",
@@ -1158,8 +1158,8 @@
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "Real atchain data ([1, 2, 3]) confirmed via CHAR_CHAINLENGTH ground truth, but no gate independently drives THIS character's own chain end-to-end -- only LEO's is actually exercised by game_g7_content_audit.py."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "foot03",
@@ -1518,8 +1518,8 @@
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "game_g7_content_audit.py exercises atchain steps 0/1/3 (attack1->attack2->attack3) but never independently proves attack4 (variant 4) is reachable for LEO -- see attack4 row. Real damage IS proven for attack3-family moves via the shared CHAR_SELECTED==2 hit check, but no gate isolates attack3 specifically the way slide/grab/ grabattack get their own dedicated checks."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "leo",

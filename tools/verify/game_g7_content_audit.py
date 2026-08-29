@@ -138,6 +138,79 @@ def clear_stun(m, entity):
     m.write_u8(entity + CHAR_HIT_STUN, 0)
 
 
+ATCHAIN_RAW_TO_VARIANT = {1: 0, 2: 1, 3: 3, 4: 4}
+
+
+def drive_atchain_and_check_damage(m, r, prefix, char_label):
+    """notjustfreespecial.txt item 5: real, live, end-to-end chain coverage
+    for a non-LEO chain-bearing character (FOOT01/FOOT02 both ship real
+    atchain data too) -- previously only LEO's chain was actually driven;
+    every other chain-bearing character only had its CHAR_CHAINLENGTH/
+    CHAR_ATTACK3_FCOUNT ground-truth checked statically, never a real
+    button-press sequence. Mirrors the LEO section's own technique (mid-
+    swing presses, real damage check on the final step) at whatever length
+    this character's own real atchain actually is."""
+    real_atchain = load_atchain(prefix)
+    expected_variants = [ATCHAIN_RAW_TO_VARIANT[step] for step in real_atchain]
+    chainlength = read_u8(m, PlayerEntity + CHAR_CHAINLENGTH)
+    r.check(f'{char_label} CHAR_CHAINLENGTH matches its real atchain length',
+            chainlength == len(real_atchain))
+
+    clear_stun(m, PlayerEntity)
+    m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+    m.write_u8(PlayerEntity + CHAR_COMBOSTEP, 0)
+    m.write_u8(PlayerEntity + CHAR_COMBOTIMER, 0)
+
+    # Entity1 is kept overlapped with the player for the ENTIRE chain (not
+    # just snapped in after the final press) -- a real fix found running
+    # this for FOOT01: its own attack3 frame count (5) is short enough that
+    # the hit-active window can pass before a post-loop overlap ever lands,
+    # timing-dependent per character's own real frame counts rather than a
+    # fixed constant every roster member happens to share.
+    m.write_u8(Entity1 + CHAR_HP, 64)
+    clear_stun(m, Entity1)
+    hp_before = 64
+
+    observed_variants = []
+    for _ in real_atchain:
+        pos = read_block(m, PlayerEntity + 4, 32)
+        world_x = pos[0] | (pos[1] << 8)
+        world_y = pos[2]
+        m.write_u16(Entity1 + 4, world_x)
+        m.write_u8(Entity1 + 6, world_y)
+        m.set_input(m.BTN_Y, 1)
+        m.run_frames(1)
+        m.pause()
+        observed_variants.append(read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT))
+        m.run_frames(3)
+        m.pause()
+    print(f'{char_label} atchain observed variants={observed_variants} '
+          f'expected={expected_variants}')
+    r.check(f'{char_label}\'s own real atchain ({real_atchain}) is actually '
+            f'driven live through every step, not just checked statically',
+            observed_variants == expected_variants)
+
+    # Real damage somewhere across the chain -- same technique as LEO's
+    # attack4 check above, generalized to whatever this character's own
+    # frame counts actually allow within a bounded poll.
+    for _ in range(20):
+        m.run_frames(1)
+        m.pause()
+        if read_u8(m, Entity1 + CHAR_HP) < hp_before:
+            break
+    hp_after = read_u8(m, Entity1 + CHAR_HP)
+    print(f'{char_label} entity1 hp after chain window: {hp_after} '
+          f'(was {hp_before})')
+    r.check(f'{char_label}\'s real chain deals real damage via the shared '
+            f'hit check', hp_after < hp_before)
+    m.write_u8(Entity1 + CHAR_HP, 0)
+    clear_stun(m, PlayerEntity)
+    m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+    m.write_u8(PlayerEntity + CHAR_FALL_STATE_TIMER, 0)
+    m.run_frames(60)
+    m.pause()
+
+
 def main():
     r = Reporter('G7-CONTENT-AUDIT', kind='GATE')
     with open_session(__file__) as m:
@@ -641,6 +714,22 @@ def main():
                 foot01_attack3_fc == real_foot01_attack3 and foot01_attack3_fc > 0)
         r.check('FOOT01 has no real attack4 data (CHAR_ATTACK4_FCOUNT==0)',
                 foot01_attack4_fc == 0)
+
+        drive_atchain_and_check_damage(m, r, 'foot01', 'FOOT01')
+
+        # ================================================================
+        # 10. FOOT02's own real atchain, driven live -- the other real
+        #    chain-bearing character besides LEO/FOOT01, same generalization
+        #    as item 5 requires (no hardcoded single-character coverage).
+        # ================================================================
+        idx = read_u8(m, CharSelect_Index)
+        foot02_index = ROSTER.index('foot02')
+        steps = (foot02_index - idx) % roster_count
+        select_to(m, steps)
+        idx = read_u8(m, CharSelect_Index)
+        r.check(f'roster selected to FOOT02 (index {foot02_index})',
+                idx == foot02_index)
+        drive_atchain_and_check_damage(m, r, 'foot02', 'FOOT02')
 
     r.finish()
 
