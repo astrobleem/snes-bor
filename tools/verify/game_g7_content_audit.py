@@ -49,10 +49,13 @@ slice newly wired:
 
 Content classified INAPPLICABLE or OUT OF SCOPE (not gated here -- no
 runtime code exists for them, confirmed absent by this slice's own audit):
-  - `land`/ANI_LAND (doland()): gated on BLAST_TOSS + attack_force flags;
-    zero configuration anywhere in either shipped pak (forcedirection/
-    projectile/blast/autoland/ATTACK_FORCE all absent from every roster
-    character's real .TXT) -- content-inapplicable, not a missing feature.
+  - `land`/ANI_LAND: CORRECTED, no longer inapplicable -- see
+    notjustfreespecial.txt item 7 / game_g7_land_audit.py /
+    game_g7_throw.py section 9. LEO ships real, uncommented `anim land`
+    data, reachable via the real player-only player_fall_check() UP+JUMP-
+    while-falling mechanic (separate from the BLAST_TOSS/attack_force gate
+    doland() normally needs). Implemented as Character_Throw_Play__land.
+    JHUN's `#anim land` remains genuinely disabled/commented data.
   - `waiting`/ANI_SELECT: real char-select portrait pose, G5 scope.
   - `get`: real item-pickup pose, G8 scope (matches the reopening
     instruction's own explicit example).
