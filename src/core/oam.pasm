@@ -362,7 +362,6 @@ Core_Oam_Play__hwm_done:
     nop
 Core_Oam_Play__main_len_partial:
     lda Oam_CurrentSlot
-    nop                     ; workaround: Poppy branch-target label misresolution (see poppy bug #4) --
                              ; every other branch target in this file guards with a nop; this one didn't,
                              ; the sibling bug below (Core_Oam_Play__hi_len_done) proved the risk is real
 Core_Oam_Play__main_len_done:

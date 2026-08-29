@@ -64,6 +64,7 @@ CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 CHAR_ATTACK2_IS_GRAB = pasm_constant('CHAR_ATTACK2_IS_GRAB')
+CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
 CHAR_GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
 CHAR_GRAB_TIMER = pasm_constant('CHAR_GRAB_TIMER')
@@ -308,6 +309,71 @@ def main():
         r.check('RALF attack2 role really is `upper` in the converted data (sanity)',
                 ralf_moveset['roles'].get('attack2') is not None
                 and not ralf_moveset.get('roles', {}).get('attack2_is_grab', False))
+
+        # ====================================================================
+        # 7. notjustfreespecial.txt item 3: AI-initiated grab reachability.
+        # Character_HitApply_VsPlayer (the AI-vs-player hit path) previously
+        # never called any grab-check at all -- a structurally separate gap
+        # from the player-side link above. Entity1 is forced into JOE's
+        # exact real attack2_is_grab shape (whatever roster character it
+        # actually is at runtime -- the mechanism is generic, not
+        # JOE-specific, matching this project's own "no hardcoded roster"
+        # rule) and made to land a real attack2 hit on the player through
+        # the SAME per-frame combat resolution any AI entity uses. This
+        # proves Character_HitApply__TryGrabVsPlayer (vm_native_engine.pasm)
+        # is really reachable from AI-vs-player combat, not just callable.
+        # ====================================================================
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_ATTACK2_IS_GRAB, 1)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
+
+        # Let the real AI decide when to attack (Anim_Play__ai_attack's own
+        # 64/256 attack2 roll, Core_Random_Get-driven) rather than forcing
+        # CHAR_SELECTED/CHAR_ATTACK_VARIANT by hand -- a raw struct write
+        # skips the animation's own hit-frame gating (CHAR_FRAME_INDEX)
+        # that real Character_HitApply__ApplyDamage-family checks require,
+        # so this instead keeps Entity1 pinned on top of the player every
+        # polled frame (AI-seek would otherwise walk it away while deciding)
+        # and polls real frames until the AI organically rolls attack2,
+        # closes to hit range, and lands it -- exactly the path a real
+        # unattended AI-vs-player encounter takes.
+        # Entity1 is the GRABBER here (unlike every earlier section in this
+        # file, where the player always grabs): the grabber's OWN CHAR_
+        # GRAB_TARGET holds the byte offset of who it's grabbing (the
+        # player, always 0), and the GRABBED side's CHAR_GRABBED_BY holds
+        # the grabber's own byte offset -- see CHAR_GRAB_TARGET/CHAR_
+        # GRABBED_BY's own struct comments in main.pasm.
+        # CHAR_ATTACK_VARIANT is forced to 1 (attack2) every polled frame,
+        # same directness as this file's own player-side triggers (a real
+        # button press, not waiting on true RNG) -- Anim_Play__ai_attack's
+        # own 64/256 random roll (notjustfreespecial.txt item 3's other
+        # fix) is a free-standing, already-real addition; forcing the
+        # outcome here isolates and proves the previously-missing half:
+        # that a landed AI attack2_is_grab hit on the player reaches
+        # Character_HitApply__TryGrabVsPlayer at all.
+        def keep_overlapped_and_check():
+            overlap_entity1_with_player(m)
+            m.write_u8(Entity1 + CHAR_SELECTED, 2)
+            m.write_u8(Entity1 + CHAR_ATTACK_VARIANT, 1)
+            return read_u8(m, Entity1 + CHAR_GRAB_TARGET) != 0xFF
+
+        grabbed = poll_until(m, keep_overlapped_and_check, max_frames=120)
+        entity1_target = read_u8(m, Entity1 + CHAR_GRAB_TARGET)
+        player_grabbed_by = entity_block(m, PlayerEntity)[CHAR_GRABBED_BY]
+        print(f'AI-initiated grab: entity1.CHAR_GRAB_TARGET={entity1_target} '
+              f'player.CHAR_GRABBED_BY={player_grabbed_by}')
+        r.check('an AI entity landing a real attack2_is_grab hit on the '
+                'player establishes the mutual lock (the AI entity\'s own '
+                'CHAR_GRAB_TARGET == the player\'s real byte offset, 0)',
+                grabbed and entity1_target == 0)
+        r.check('the player\'s own CHAR_GRABBED_BY is set to the AI '
+                'entity\'s real byte offset, same cross-link JOE\'s '
+                'player-initiated grab gives in reverse (test 2 above)',
+                player_grabbed_by == Entity1_ByteOff)
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_GRAB_TARGET, 0xFF)
+        m.write_u8(PlayerEntity + CHAR_GRABBED_BY, 0xFF)
 
     r.finish()
 

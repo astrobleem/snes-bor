@@ -86,6 +86,8 @@ CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
 CHAR_FREESPECIAL_STEP = pasm_constant('CHAR_FREESPECIAL_STEP')
 CHAR_FREESPECIAL_TIMER = pasm_constant('CHAR_FREESPECIAL_TIMER')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
+CHAR_GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
+CHAR_GRAB_TIMER = pasm_constant('CHAR_GRAB_TIMER')
 
 CharSelect_Index = 0x7E53B6
 CharSelect_Loaded = 0x7E53B8
@@ -263,10 +265,19 @@ def main():
         m.pause()
 
         # ================================================================
-        # 3. grabattack (R+Y) -- LEO-only.
+        # 3. grabattack (R+Y) -- LEO-only. notjustfreespecial.txt item 2:
+        #    now that LEO's `grab` lands through the same real CHAR_GRAB_
+        #    TARGET mutual lock JOE already has (see vm_native_engine.pasm's
+        #    TryGrab condition widening), grabattack has a real BOR.C-
+        #    sourced precondition -- it only fires while ALREADY holding a
+        #    live grab (real dograb()/grabattack() semantics). Plain R+Y
+        #    with no active hold is meaningless and now falls through to a
+        #    no-op (neither grab nor grabattack starts, since R+Y != a
+        #    plain-R press) rather than the old always-fires stand-in.
         # ================================================================
         clear_stun(m, PlayerEntity)
         m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, 0xFF)
         real_grabattack_frames = load_role_frames('leo', 'grabattack')
         grabattack_fc = read_u8(m, PlayerEntity + CHAR_GRABATTACK_FCOUNT)
         r.check('LEO CHAR_GRABATTACK_FCOUNT matches its real converted '
@@ -278,10 +289,63 @@ def main():
         m.pause()
         sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
         var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
-        print(f'R+Y press: selected={sel} variant={var}')
-        r.check('R+Y triggers grabattack instead of plain grab '
-                '(CHAR_ATTACK_VARIANT=8, priority over R alone)',
-                sel == 2 and var == 8)
+        print(f'R+Y with no active hold: selected={sel} variant={var}')
+        r.check('R+Y with no active hold falls through to a plain grab '
+                'attempt (CHAR_ATTACK_VARIANT=5), same as R alone -- real '
+                'grabattack requires an active hold, not shipped as an '
+                'always-fires stand-in)', sel == 2 and var == 5)
+        m.run_frames(60)
+        m.pause()
+
+        # Now establish a real hold (JOE, roster slot 2) and confirm R+Y
+        # triggers real grabattack (variant 8) only while holding. Also set
+        # a live CHAR_GRAB_TIMER -- Character_Grab_Play's own per-frame
+        # auto-release check runs before Jump_PlayerInputGate this same
+        # frame, and would otherwise immediately release a hold whose timer
+        # is still 0 from the manual write below.
+        clear_stun(m, PlayerEntity)
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        joe_off = Entity1 - PlayerEntity  # roster-relative offset, reused below
+        m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, joe_off)
+        m.write_u8(Entity1 + CHAR_GRABBED_BY, 0)
+        m.write_u8(Entity1 + CHAR_GRAB_TIMER, 240)  # timer lives on the
+                                                      # GRABBED entity, not
+                                                      # the grabber (matches
+                                                      # real BOR.C's
+                                                      # target->stalltime)
+        m.set_input(m.BTN_R | m.BTN_Y, 1)
+        m.run_frames(1)     # sample on the trigger frame itself -- while
+                             # holding, Anim_Play__not_attacking deliberately
+                             # bypasses the normal "already attacking, hold
+                             # the latch" lock for the grabber side (see its
+                             # own comment: lets the grabber's dpad drive
+                             # walk/idle immediately, same as real BOR.C), so
+                             # a triggered swing here is only guaranteed live
+                             # for the one frame it was set -- matches this
+                             # file's own R-press-while-not-holding check,
+                             # which instead relies on the ordinary
+                             # already-attacking latch (only active when
+                             # CHAR_GRAB_TARGET==$FF) to still see it 1 frame
+                             # later.
+        m.pause()
+        sel = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        var = read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT)
+        print(f'R+Y while holding: selected={sel} variant={var}')
+        # CHAR_SELECTED itself is NOT asserted here -- set_input is wall-
+        # clock/sleep-based (mesen_set_input_wall_clock project memory), so
+        # "run_frames(1)" is a lower bound, not an exact single frame; if a
+        # second real frame slips in before this read, the trigger edge is
+        # already consumed and the grabber-side "let dpad drive it"
+        # fallthrough (this file's own Anim_Play__not_attacking comment)
+        # can legitimately fall back to ordinary ground dispatch before the
+        # read lands. CHAR_ATTACK_VARIANT==8 alone is what actually proves
+        # the already_holding branch (not grab_trigger, which would leave
+        # variant=5) fired -- confirmed reproducible across runs.
+        r.check('R+Y while already holding a real grab triggers '
+                'grabattack, not plain grab (CHAR_ATTACK_VARIANT=8)',
+                var == 8)
+        m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, 0xFF)
+        m.write_u8(Entity1 + CHAR_GRABBED_BY, 0xFF)
         m.run_frames(60)
         m.pause()
 

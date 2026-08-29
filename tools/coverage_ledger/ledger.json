@@ -296,13 +296,13 @@
     "ordinal": 6,
     "frames": 17,
     "claimed_by_role": true,
-    "runtime_handler": "LEO: Jump_PlayerInputGate R-button dispatch sets CHAR_SELECTED=2/CHAR_ATTACK_VARIANT=5 (Jump_PlayMoveSlotAdvance slot). JOE: real mutual-lock via attack2_is_grab -> Character_Grab_Play (CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-drag, suppresses victim input).",
+    "runtime_handler": "LEO and JOE both now land through the SAME real mutual-lock machinery (Character_HitApply__TryGrab, vm_native_engine.pasm): LEO's R-button `grab` (CHAR_GRABMOVE_FCOUNT, variant 5) and JOE's attack2_is_grab (variant 1) are two real move-slot shapes both accepted by TryGrab's condition check, both establishing the same CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-drag (Character_Grab_Play), and victim-input suppression. Jump_PlayerInputGate's R dispatch is now gated on hold state (CHAR_GRAB_TARGET==$FF) so a new grab attempt cannot restart while already holding.",
     "owning_gates": [
       "game_g7_content_audit.py (LEO)",
       "game_g7_grab.py (JOE)"
     ],
-    "classification": "partial",
-    "evidence": "notjustfreespecial.txt item 2, explicit: LEO's R-button `grab` is a one-shot ordinary attack with NO CHAR_GRAB_ TARGET link -- it does not establish a hold, does not suppress victim behavior, and cannot be followed by a real grabattack-while-held. JOE's real mutual-lock grab (attack2- is-grab) is the one genuine grab in this project. LEO's `grab` role should be generalized onto Character_Grab_Play rather than the generic move-slot dispatcher -- not done."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "yashiro",
@@ -1540,13 +1540,13 @@
     "ordinal": 12,
     "frames": 1,
     "claimed_by_role": true,
-    "runtime_handler": "LEO: Jump_PlayerInputGate R-button dispatch sets CHAR_SELECTED=2/CHAR_ATTACK_VARIANT=5 (Jump_PlayMoveSlotAdvance slot). JOE: real mutual-lock via attack2_is_grab -> Character_Grab_Play (CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-drag, suppresses victim input).",
+    "runtime_handler": "LEO and JOE both now land through the SAME real mutual-lock machinery (Character_HitApply__TryGrab, vm_native_engine.pasm): LEO's R-button `grab` (CHAR_GRABMOVE_FCOUNT, variant 5) and JOE's attack2_is_grab (variant 1) are two real move-slot shapes both accepted by TryGrab's condition check, both establishing the same CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-drag (Character_Grab_Play), and victim-input suppression. Jump_PlayerInputGate's R dispatch is now gated on hold state (CHAR_GRAB_TARGET==$FF) so a new grab attempt cannot restart while already holding.",
     "owning_gates": [
       "game_g7_content_audit.py (LEO)",
       "game_g7_grab.py (JOE)"
     ],
-    "classification": "partial",
-    "evidence": "notjustfreespecial.txt item 2, explicit: LEO's R-button `grab` is a one-shot ordinary attack with NO CHAR_GRAB_ TARGET link -- it does not establish a hold, does not suppress victim behavior, and cannot be followed by a real grabattack-while-held. JOE's real mutual-lock grab (attack2- is-grab) is the one genuine grab in this project. LEO's `grab` role should be generalized onto Character_Grab_Play rather than the generic move-slot dispatcher -- not done."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "leo",
@@ -1639,12 +1639,12 @@
     "ordinal": 19,
     "frames": 3,
     "claimed_by_role": true,
-    "runtime_handler": "LEO only: Jump_PlayerInputGate R+Y dispatch sets CHAR_ATTACK_VARIANT=8 (Jump_PlayMoveSlotAdvance slot) -- takes priority over plain R, but does NOT require or check an actual active grab hold first.",
+    "runtime_handler": "LEO only: Jump_PlayerInputGate R+Y dispatch sets CHAR_ATTACK_VARIANT=8 (Jump_PlayMoveSlotAdvance slot) -- now requires an active hold (CHAR_GRAB_TARGET!=$FF) before it can fire, matching real BOR's grabattack() precondition (previously fired unconditionally on any R+Y press).",
     "owning_gates": [
       "game_g7_content_audit.py"
     ],
-    "classification": "partial",
-    "evidence": "notjustfreespecial.txt item 2: real BOR grabattack requires an established grab hold; this project's R+Y is a button-combo stand-in with no CHAR_GRAB_TARGET precondition, so it can fire on a target that was never actually grabbed. Same fix as `grab` above."
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "leo",

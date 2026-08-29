@@ -106,32 +106,25 @@ ROLE_RUNTIME = {
                              '(1 2 3 1 2 4)',
                      gates=['game_g7_content_audit.py'],
                      status='implemented-and-gated', evidence=''),
-    'grab': dict(handler='LEO: Jump_PlayerInputGate R-button dispatch sets '
-                          'CHAR_SELECTED=2/CHAR_ATTACK_VARIANT=5 (Jump_PlayMoveSlotAdvance '
-                          'slot). JOE: real mutual-lock via attack2_is_grab -> '
-                          'Character_Grab_Play (CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, '
-                          'rigid follow-drag, suppresses victim input).',
+    'grab': dict(handler='LEO and JOE both now land through the SAME real mutual-lock '
+                          'machinery (Character_HitApply__TryGrab, vm_native_engine.pasm): '
+                          'LEO\'s R-button `grab` (CHAR_GRABMOVE_FCOUNT, variant 5) and '
+                          'JOE\'s attack2_is_grab (variant 1) are two real move-slot shapes '
+                          'both accepted by TryGrab\'s condition check, both establishing '
+                          'the same CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-'
+                          'drag (Character_Grab_Play), and victim-input suppression. '
+                          'Jump_PlayerInputGate\'s R dispatch is now gated on hold state '
+                          '(CHAR_GRAB_TARGET==$FF) so a new grab attempt cannot restart '
+                          'while already holding.',
                   gates=['game_g7_content_audit.py (LEO)', 'game_g7_grab.py (JOE)'],
-                  status='partial',
-                  evidence='notjustfreespecial.txt item 2, explicit: LEO\'s R-button '
-                           '`grab` is a one-shot ordinary attack with NO CHAR_GRAB_ '
-                           'TARGET link -- it does not establish a hold, does not '
-                           'suppress victim behavior, and cannot be followed by a real '
-                           'grabattack-while-held. JOE\'s real mutual-lock grab (attack2- '
-                           'is-grab) is the one genuine grab in this project. LEO\'s '
-                           '`grab` role should be generalized onto Character_Grab_Play '
-                           'rather than the generic move-slot dispatcher -- not done.'),
+                  status='implemented-and-gated', evidence=''),
     'grabattack': dict(handler='LEO only: Jump_PlayerInputGate R+Y dispatch sets '
                                 'CHAR_ATTACK_VARIANT=8 (Jump_PlayMoveSlotAdvance slot) -- '
-                                'takes priority over plain R, but does NOT require or '
-                                'check an actual active grab hold first.',
+                                'now requires an active hold (CHAR_GRAB_TARGET!=$FF) before '
+                                'it can fire, matching real BOR\'s grabattack() precondition '
+                                '(previously fired unconditionally on any R+Y press).',
                         gates=['game_g7_content_audit.py'],
-                        status='partial',
-                        evidence='notjustfreespecial.txt item 2: real BOR grabattack '
-                                 'requires an established grab hold; this project\'s R+Y '
-                                 'is a button-combo stand-in with no CHAR_GRAB_TARGET '
-                                 'precondition, so it can fire on a target that was never '
-                                 'actually grabbed. Same fix as `grab` above.'),
+                        status='implemented-and-gated', evidence=''),
     'slide': dict(handler='LEO only: Down+A trigger, Jump_PlayMoveSlotAdvance slot, '
                            'real damage via shared hit check',
                   gates=['game_g7_content_audit.py'],
@@ -203,15 +196,20 @@ ROLE_RUNTIME = {
                             '4). AI-side grab/throw reachability also unresolved -- see '
                             'the `attack2_is_grab` row below.'),
     'attack2_is_grab': dict(
-        handler='JOE only: real mutual-lock (Character_Grab_Play/Character_Grab_Throw)',
+        handler='Real mutual-lock reachable from BOTH directions: player-vs-AI '
+                '(Character_HitApply__TryGrab) and AI-vs-player (Character_HitApply__ '
+                'TryGrabVsPlayer, vm_native_engine.pasm) -- the latter previously did not '
+                'exist at all (Character_HitApply_VsPlayer never called any grab-check). '
+                'Anim_Play__AiSelectAttackVariant gives every AI entity a real (64/256) '
+                'chance to select attack2, a structural gap fixed alongside this (AI '
+                'never set CHAR_ATTACK_VARIANT at all before).',
         gates=['game_g7_grab.py', 'game_g7_throw.py'],
         status='partial',
-        evidence='notjustfreespecial.txt item 3: both existing gates explicitly restrict '
-                 'the grabber to the player. No AI entity has ever been driven through '
-                 'this path, and no audit has been done of real OpenBOR AI grab/throw '
-                 'decision-making (candeal/aicharge-style paths) against JOE\'s or any '
-                 'other shipped character\'s real model properties to determine whether '
-                 'an AI-controlled JOE could organically grab the player. Not resolved.'),
+        evidence='notjustfreespecial.txt item 3, AI-side grab reachability now real and '
+                 'gated (game_g7_grab.py section 7). AI-side THROW reachability remains '
+                 'unresolved: Character_Grab_Throw is still only ever called from the '
+                 'player-input path (Jump_PlayerInputGate\'s do_throw block) -- no AI '
+                 'throw-trigger exists.'),
     'get': dict(handler=None, gates=[], status='partial',
                 evidence='Converted (real frame data exists per-character where '
                          'authored) but not resolved to any engine role at all -- '

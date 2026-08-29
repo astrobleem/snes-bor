@@ -140,7 +140,6 @@ Game_State_Play__charselect_wait:
     lda.l CharSelect_RosterCount
     dec a
     bra Game_State_Play__charselect_left_set
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__charselect_left_dec:
     dec a
 Game_State_Play__charselect_left_set:

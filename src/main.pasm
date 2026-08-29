@@ -1601,10 +1601,6 @@ TadPrivate_Process_Loading__Return:
 .a8
 .i16
 ; DB access lowram
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
-    nop
-    nop
 Tad_FinishLoadingData:
     Tad_FinishLoadingData__Loop:
 ; [assert] assert .asize = 8, error
@@ -1709,10 +1705,6 @@ Tad_QueuePannedSoundEffect__EndIf:
 ; I unknown
 ; DB access lowram
 ; KEEP: X, Y
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
-    nop
-    nop
 Tad_QueueSoundEffect:
     cmp Tad_sfxQueue_sfx
     bcs Tad_QueueSoundEffect__EndIf
@@ -1744,10 +1736,6 @@ Tad_QueueSoundEffect__EndIf:
 ; reset+mute). Verified by disassembling src/main.bin at the exported address,
 ; not inferred. Padding guards the call target so it falls through to the real
 ; first instruction -- re-verify the raw bytes here if surrounding code shifts.
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
-    nop
-    nop
 Tad_LoadSong:
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::NULL, error
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::WAITING_FOR_LOADER_COMMON, error
@@ -1784,8 +1772,6 @@ Tad_LoadSong:
 ; `lda #WAITING_FOR_LOADER_SONG`, so the common-data path's own
 ; `lda #WAITING_FOR_LOADER_COMMON` was overwritten with $7C too -- i.e. this
 ; routine could not reach state $7B by any path.
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
 Tad_LoadSong__SongRequested:
     lda TadPrivate_state
     cmp #TAD__FIRST_LOADING_SONG_STATE
@@ -1794,8 +1780,6 @@ Tad_LoadSong__SongRequested:
 
         lda #WAITING_FOR_LOADER_SONG
 
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
     Tad_LoadSong__SetStateAndSwitchToLoader:
         sta TadPrivate_state
 
@@ -1806,8 +1790,6 @@ Tad_LoadSong__SongRequested:
         ; Send a *switch-to-loader* command to the audio-driver or loader
         lda #SWITCH_TO_LOADER
         sta.l SWITCH_TO_LOADER_PORT
-    nop                     ; workaround: Poppy label address off-by-N (see poppy bug #4)
-    nop
 Tad_LoadSong__Return:
     rtl
 
@@ -2491,6 +2473,13 @@ PlayerEntity_PosY = $7E0a00 + 6   ; Entity #0's CHAR_POS_Y (low byte valid)
 ANIM_AI_ATTACK_RANGE = 30         ; pixels, per-axis (Chebyshev) -- "roughly
                                    ; 30 pixels" per the spec's own wording,
                                    ; doesn't need to be exact/circular
+AI_ATTACK2_CHANCE = 64            ; notjustfreespecial.txt item 3: 64/256
+                                   ; (~25%) chance an AI entity with real
+                                   ; attack2 data uses it instead of
+                                   ; attack1 on any given attack trigger --
+                                   ; feel-tuned, not a re-derived real BOR
+                                   ; magnitude (see Anim_Play__ai_attack's
+                                   ; own header for the sourcing note)
 
 ; --- plan.md Phase 4/5: collision + hit reaction (AABB-only, no HP/damage
 ; tracking, matching the spec's explicit PoC scope). Same "player is always
@@ -4093,6 +4082,29 @@ Anim_Play__ai_dy_have:
 Anim_Play__ai_attack:
     lda #2
     sta CHAR_SELECTED
+    ; notjustfreespecial.txt item 3 (AI grab/throw reachability): real AI
+    ; attack-move selection -- CHAR_ATTACK_VARIANT was never set here at
+    ; all before this (always whatever it last held, effectively always 0/
+    ; attack1 in practice, since nothing else ever wrote it for an AI
+    ; entity either), which meant no AI entity could ever select attack2
+    ; even when its own real character data has one -- structurally dead
+    ; content for JOE's real attack2_is_grab mutual-lock grab specifically.
+    ; A flat random chance is a deliberate simplification of real BOR's
+    ; fuller per-model AI decision tables (candeal/aicharge-style), same
+    ; class as this project's other documented AI simplifications -- but it
+    ; makes every roster member's real attack2 genuinely AI-reachable
+    ; instead of permanently unreachable regardless of content. Core_Random_
+    ; Get stays a same-bank jsr here (it ends in rts, not rtl -- calling it
+    ; via jsl from bank 1 would push a 3-byte return address into a 2-byte
+    ; rts, corrupting the stack, per 65816_calling_convention_bugs project
+    ; memory) -- only the decision logic relocates to a bank-1 jsl helper
+    ; (Anim_Play__AiSelectAttackVariant, core/vm/vm_native_engine.pasm) for
+    ; ROM budget, same "relocate, don't shrink" precedent as this file's
+    ; other bank-0 overflow fixes.
+    jsr Core_Random_Get                     ; .a8 result in A
+    jsl Anim_Play__AiSelectAttackVariant     ; consumes A, sets CHAR_ATTACK_VARIANT
+Anim_Play__ai_attack_selected:
+.a8
     lda #$FF
     sta CHAR_FRAME_INDEX
     lda #1
@@ -6279,6 +6291,28 @@ Character_HitApply_VsPlayer__dy_ok:
 Character_HitApply_VsPlayer__not_invuln:
     sep #$20
 .a8
+    ; notjustfreespecial.txt item 3 (AI grab/throw reachability): an AI
+    ; attacker with real CHAR_ATTACK2_IS_GRAB data (JOE) landing its real
+    ; attack2 swing on the PLAYER now establishes the SAME real mutual-lock
+    ; link Character_HitApply_VsEntity1/2/3 already give the player against
+    ; an AI target -- reuses Character_HitApply__TryGrab's own condition
+    ; check + position-averaging + link-write block (Character_HitApply__
+    ; TryGrabVsPlayer, core/vm/vm_native_engine.pasm) rather than
+    ; duplicating it. Deliberately does NOT route the non-grab fallback
+    ; through the shared ApplyDamage leaf the way VsEntity1/2/3 do -- this
+    ; leaf's own simpler hit-stun-only damage block below is untouched and
+    ; still runs for every ordinary (non-grab) AI attack, exactly as
+    ; before this change.
+    rep #$30
+.a16
+.i16
+    ldx #0                     ; target = the player, always offset 0
+    jsl Character_HitApply__TryGrabVsPlayer   ; always returns .a8 (both exit
+                                                ; paths, same as TryGrab's own
+                                                ; call sites) -- no re-sync
+                                                ; sep needed
+.a8
+    bcs Character_HitApply_VsPlayer__grabbed
     lda #CHAR_HIT_STUN_FRAMES
     sta.l PlayerEntity_HitStun
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
@@ -6294,6 +6328,12 @@ Character_HitApply_VsPlayer__hp_ok:
     sta.l PlayerEntity_Hp
     lda #1
     sta CHAR_HIT_APPLIED
+    rts
+Character_HitApply_VsPlayer__grabbed:
+.a8
+    ; Grab replaces damage, same as the player-vs-AI path (Character_
+    ; HitApply__TryGrab's own __do block already set CHAR_HIT_APPLIED and
+    ; positioned both entities) -- nothing further to do here.
     rts
 
 ; ============================================================================

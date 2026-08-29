@@ -416,7 +416,6 @@ Game_State_Play__check_stageclear:
                                           ; out of a plain branch's range
                                           ; (same fix spawn.pasm's own
                                           ; Spawn_Play__not_yet needed)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__not_stageclear:
     ; CHARSELECT/ENDING: explicit no-op stubs for this phase -- Core_Nmi_
     ; WaitFrame (scpu_main_loop) already keeps pacing correct, nothing else
@@ -726,13 +725,11 @@ Game_State_Play__kdtimer3_done:
     lda.l Stage_TrueMaxX
     sta Screen_MaxX
     bra Game_State_Play__stage_check_edge
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stage_no_win_a8:
     rep #$31
 .a16
 .i16
     bra Game_State_Play__stage_no_win
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stage_check_edge:
     rep #$31
 .a16
@@ -843,7 +840,6 @@ Game_State_Play__stageclear:
     lda #GAME_STATE_ENDING
     sta.l Game_State
     jmp Game_State_Play__stageclear_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stageclear_next:
     sta.l Game_StageIndex
     sep #$20
@@ -1023,7 +1019,6 @@ Stage_Load:
     sta $2116
     ldx #BG3_TILEMAP_WORDS
     lda #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__bg3_clear:
     sta $2118
     dex
@@ -1042,12 +1037,10 @@ Stage_Load__bg3_clear:
 .i16
     jsr Bg_LoadSceneFp_Streaming
     bra Stage_Load__fp_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__skip_fp:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__fp_done:
 
     ; --- this stage's own spawn queue (Spawn_MsuOffsetLo/Hi/Spawn_Count
@@ -1080,7 +1073,6 @@ Stage_Load__fp_done:
 .i16
     ldy #WORLD_CONTENT_WIDTH
     bra Stage_Load__border_go
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__streaming:
     rep #$31
 .a16
@@ -1090,7 +1082,6 @@ Stage_Load__streaming:
     asl a
     asl a                        ; tiles -> pixels (*8)
     tay
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__border_go:
     rep #$31
 .a16

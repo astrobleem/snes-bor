@@ -887,16 +887,34 @@ Jump_PlayerInputGate__no_special:
     ; grabbing" instead. No-ops entirely (falls through unchanged) if this
     ; roster character has neither real move (CHAR_GRABMOVE_FCOUNT==0 --
     ; every roster member but LEO).
+    ;
+    ; notjustfreespecial.txt item 2: now that LEO's grab lands through the
+    ; same CHAR_GRAB_TARGET mutual-lock TryGrab gives JOE (see vm_native_
+    ; engine.pasm's TryGrab condition widening), R and R+Y need real
+    ; hold-state gating too, matching real BOR's dograb()/grabattack()
+    ; precondition (grabattack requires an active hold) -- previously
+    ; neither had any hold check at all, since the grab swing was just a
+    ; plain one-shot attack with nothing to hold. R (plain grab-attempt)
+    ; only starts a new attempt when NOT already holding; R+Y (grabattack)
+    ; only fires when ALREADY holding.
     lda CHAR_GRABMOVE_FCOUNT
     beq Jump_PlayerInputGate__no_grabmove
     lda.l Input_trigger
     and #$10                        ; R
     beq Jump_PlayerInputGate__no_grabmove
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    bne Jump_PlayerInputGate__grabmove_already_holding
+    ; not holding -- plain R starts a new grab attempt; R+Y (grabattack)
+    ; is meaningless without an existing hold, falls through unchanged.
+    bra Jump_PlayerInputGate__grab_trigger
+Jump_PlayerInputGate__grabmove_already_holding:
+.a8
     lda CHAR_GRABATTACK_FCOUNT
-    beq Jump_PlayerInputGate__grab_trigger
+    beq Jump_PlayerInputGate__no_grabmove
     lda.l Input_trigger+1
     and #ANIM_ATTACK_BUTTON_MASK     ; Y
-    beq Jump_PlayerInputGate__grab_trigger
+    beq Jump_PlayerInputGate__no_grabmove
     lda #8                           ; grabattack's move-slot variant
     bra Jump_PlayerInputGate__grabmove_apply
 Jump_PlayerInputGate__grab_trigger:

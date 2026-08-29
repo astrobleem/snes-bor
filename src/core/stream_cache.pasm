@@ -115,7 +115,6 @@ StreamCache_Test_CallCount = $7E251F ; .dw -- counts AllocateSlot entries total
                                        ; kept permanently as a quick sanity
                                        ; check when debugging future callers.
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Init:
 	php
 	sei
@@ -139,7 +138,6 @@ Core_StreamCache_Init:
 
 	lda #$FFFF
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Init__tile2slot:
 	sta.l StreamCache_Tile2Slot,x
 	inx
@@ -149,7 +147,6 @@ Core_StreamCache_Init__tile2slot:
 
 	lda #$FFFF
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Init__slot2tile:
 	sta.l StreamCache_Slot2Tile,x
 	inx
@@ -166,7 +163,6 @@ Core_StreamCache_Init__slot2tile:
 .i16
 	lda #0
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_Init__slotstamp:
 	sep #$20
 .a8
@@ -192,7 +188,6 @@ Core_StreamCache_Init__slotstamp:
 ; @param X<16-bit>  tile_id to allocate a slot for (0..STREAM_MAX_TILE_IDS-1)
 ; @return A<16-bit>  the allocated slot number (1..STREAM_CACHE_USABLE)
 ; Clobbers X, Y.
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot:
 	php
 	sei
@@ -219,12 +214,10 @@ Core_StreamCache_AllocateSlot:
 	bcc Core_StreamCache_AllocateSlot__cursor_ok
 	sec
 	sbc #STREAM_CACHE_USABLE
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__cursor_ok:
 	sta StreamCache_ScanCursor
 
 	ldy #0                          ; scan counter
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__scan:
 	rep #$31
 .a16
@@ -258,7 +251,6 @@ Core_StreamCache_AllocateSlot__scan:
 	rep #$31
 .a16
 .i16
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCache_AllocateSlot__evictable:
 	lda StreamCache_Candidate
 	sta StreamCache_Chosen

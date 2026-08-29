@@ -293,7 +293,6 @@ Core_Nmi_Play__do_oam_reset:
 .a8
     lda #0
     sta.l Oam_UploadFlag
-    nop                       ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Nmi_Play__skip_oam_reset:
 .a8
     ; poppy#386: reached directly via the `beq` a few lines up, which skips
