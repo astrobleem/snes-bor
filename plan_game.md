@@ -1682,6 +1682,28 @@ Still open:
 - Real prop/pickup sprite art for money/meat/1up (the same `convert_prop.py`
   pipeline, just not yet run for those three item names -- apple is the
   one converted, gated, representative example this slice added).
+  **Roster-cap caveat, checked directly against `pack_msu_roster.py`'s own
+  `MAX_CHARACTERS = 15`:** 14 slots are shipped today (indices 0-13,
+  `build_rom.py`'s `ROSTER_PREFIXES`), so exactly ONE slot remains. Adding
+  all three of money/meat/1up as separate roster entries does not fit
+  without first raising `MAX_CHARACTERS` (touches `pack_msu_roster.py`'s
+  directory-size math and the packed header layout) -- not "just run the
+  converter again" for more than one of the three.
+
+Sixth slice (gate hardening, same day): `game_g8_prop_art.py`'s surviving
+proof was an (idle,walk,attack) frame-count triple -- real, but animation
+metadata, not the tile/palette identity check the standing bar calls for.
+Added a real CGRAM OBJ-palette comparison against apple's own converted
+`palette.txt` (same idiom `phase12_roster.py` already established for
+fighters), polled to convergence since CGRAM commits through the same
+WRAM-shadow/NMI-DMA pipeline as OAM (a fixed short settle read back a
+stale in-flight palette once). Separately, `game_g7_depth_sort.py`'s
+crossover-step settle (previously a fixed 3-frame wait, itself a fix for
+an earlier fixed-2-frame flake) was replaced with a real deterministic
+poll against the same CHAR_POS_Y-derived expected-order ground truth the
+gate's own post-loop cross-check already uses -- removing the magic
+number rather than growing it again. Both re-verified clean across
+repeated runs.
 
 ---
 
@@ -1744,6 +1766,50 @@ no real anim exists in the source pak for any roster character; note that
 §7's own text, still fully open, not done), or row 5's real hole/pit hazard
 system (needs its own semantics re-derivation first). Surface this
 choice rather than picking unilaterally.
+
+---
+
+## §8b — Organic vertical-slice integration gate (not a phase, not G10)
+
+`tools/verify/game_vertical_slice.py` chains the real screens and
+subsystems every G1-G9 gate above already proves individually, in the
+same order a player experiences them in a single continuous session, to
+prove they compose -- it adds no new subsystem of its own and is
+explicitly NOT Phase G10 (ending/credits, §10 below, remains untouched
+pending explicit authorization).
+
+Segments, each the same real mechanism its own dedicated gate already
+exercises (reused via direct Python import from
+`game_spawn_roster_reassign.py`/`game_g8_pickup_chain.py` where a segment
+is byte-for-byte the same chain, rather than reimplemented): forced-title
+-> real Start -> char-select (real Right cycles the roster, real Start
+finishes the teardown drip into PLAYING) -> real gameplay combat (a real
+landed Y attack, no forced HP writes) -> the real, unmodified stage 1B
+Chair/Money breakable-prop chain (break -> real `PICKUP_SCORE_MONEY`
+reward -> OAM hide) -> a forced player death with lives remaining
+(auto-respawn) -> every remaining life exhausted (`GAME_STATE_GAMEOVER`,
+continue countdown armed) -> a real Start press continues with fresh
+lives -> the real win-condition chain through stages 1-3 -> Rock's real
+boss reassignment (stage 3, `check_boss_stage()` reused verbatim) ->
+one more real stage transition past the boss. 28 checks, all real
+hardware-visible state, no screenshots.
+
+One real, harness-only bug found building this: the combat segment
+already held `BTN_Y` for the earlier attack; re-pressing it for the
+prop-break segment without an intervening release was invisible to
+`input.pasm`'s press-edge detection (Core_Input_Poll only fires on a
+fresh press, not a still-held button) -- so no new attack landed. Fixed
+by releasing all input for 5 frames before the next press, in the test
+harness only; not an engine defect (every other gate in this project
+either starts each `open_session` fresh or already releases between
+presses).
+
+Run standalone (`python tools/verify/game_vertical_slice.py`); like the
+other multi-stage force-win gates in this project, it is not part of the
+routine CLAUDE.md regression list (it takes real Mesen2 wall-clock time
+comparable to `game_spawn_roster_reassign.py`) -- run it directly after
+touching `core/game_state.pasm`, `core/spawn.pasm`, `core/charselect.pasm`,
+or the Phase G8 pickup-reward path.
 
 ---
 
