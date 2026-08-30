@@ -30,11 +30,22 @@ to the entities this test cares about:
      CHAR_PICKUP_TYPE==PICKUP_TYPE_MONEY, CHAR_HP==CHAR_HP_PER_HIT) with NO
      write from this test.
   5. Damage/break: a real landed player attack (BTN_Y) brings that slot's
-     CHAR_HP to 0.
-  6. Authored reveal/reward: Character_HitApply__ApplyPickup applies the
-     real PICKUP_SCORE_MONEY award (plus the ordinary combat-kill award,
-     same as game_g8_pickup.py's own regression check) to Game_Score.
-  7. Removal/slot reuse: the prop's OAM sprite hides (Y=$F0, this project's
+     CHAR_HP to 1 (claude_close_g7_g8_before_g10.md Part 2's "broken,
+     pending reveal" sentinel -- NOT 0, and NOT an immediate reward: this
+     is the real proof that destruction and collection are separate events
+     now, where the old behavior this gate used to assert was instant
+     reward-on-kill).
+  6. Authored reveal: core/spawn.pasm's Spawn_RevealPendingItems (run once
+     per frame) reassigns this slot to Money's own real converted roster
+     sprite and clears its EntityN_ItemRosterIdx -- checked here as real
+     WRAM state, polled (not assumed same-frame, since it's gated on
+     Msu1_StreamBusy).
+  7. Pickup/reward: overlapping the player with the now-revealed slot
+     (core/jump.pasm's Character_Pickup_CheckOverlap) applies the real
+     PICKUP_SCORE_MONEY award (plus the ordinary combat-kill award already
+     applied at break time, same as game_g8_pickup.py's own regression
+     check) to Game_Score, exactly once.
+  8. Removal/slot reuse: the prop's OAM sprite hides (Y=$F0, this project's
      dead-sentinel) and CHAR_PICKUP_TYPE reads back 0 (consumed, won't
      re-fire if this slot is later reused by a different spawn record).
 
@@ -54,6 +65,15 @@ CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_PICKUP_TYPE = pasm_constant('CHAR_PICKUP_TYPE')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 CHAR_INPUT_DRIVEN_PROP = pasm_constant_in('src/main.pasm', 'CHAR_INPUT_DRIVEN_PROP')
+SPAWN_PATH = 'src/core/spawn.pasm'
+Entity1_ItemRosterIdx = pasm_constant_in(SPAWN_PATH, 'Entity1_ItemRosterIdx')
+Entity2_ItemRosterIdx = pasm_constant_in(SPAWN_PATH, 'Entity2_ItemRosterIdx')
+Entity3_ItemRosterIdx = pasm_constant_in(SPAWN_PATH, 'Entity3_ItemRosterIdx')
+ITEM_ROSTER_IDX_BY_BASE = {
+    0x7E0A00 + 1 * CHAR_ZP_LEN: Entity1_ItemRosterIdx,
+    0x7E0A00 + 2 * CHAR_ZP_LEN: Entity2_ItemRosterIdx,
+    0x7E0A00 + 3 * CHAR_ZP_LEN: Entity3_ItemRosterIdx,
+}
 PICKUP_TYPE_MONEY = pasm_constant('PICKUP_TYPE_MONEY')
 PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
 HIT_SCORE = pasm_constant('HIT_SCORE')
@@ -164,34 +184,95 @@ def main():
         m.write_u8(Entity2 + CHAR_POS_Y, px[CHAR_POS_Y])
 
         score_before = read_u16(m, Game_Score)
+        item_roster_idx_addr = ITEM_ROSTER_IDX_BY_BASE[Entity2]
 
         m.set_input(m.BTN_Y, 1)
-        killed = False
+        broken = False
         for _ in range(30):
             m.run_frames(1)
             m.pause()
-            if read_u8(m, Entity2 + CHAR_HP) == 0:
-                killed = True
+            if read_u8(m, Entity2 + CHAR_HP) == 1:
+                broken = True
+                # Move the broken object away from the player IMMEDIATELY,
+                # same frame it's first observed broken -- it's still
+                # overlapping from the punch setup above, which would let
+                # Character_Pickup_CheckOverlap collect it the instant
+                # Spawn_RevealPendingItems reveals it (possibly within the
+                # very next frame or two), before this gate's own "not yet
+                # rewarded"/"stays visible" assertions below ever get to
+                # observe the real pending-reveal state. Re-overlapped
+                # deliberately later, for the real pickup step.
+                m.write_u16(Entity2 + CHAR_POS_X, 60000)
                 break
         m.run_frames(2)
         m.pause()
 
-        r.check('real landed attack breaks the real prop (CHAR_HP reaches 0)',
-                killed)
+        r.check('real landed attack breaks the real prop into the '
+                '"broken, pending reveal" sentinel (CHAR_HP==1, not 0 -- '
+                'destruction, not yet collection)', broken)
+
+        score_after_break = read_u16(m, Game_Score)
+        print(f'Game_Score after break: {score_before}->{score_after_break} '
+              f'(expect +{COMBAT_KILL_AWARD} combat-kill only, no pickup yet)')
+        r.check('breaking the real prop does NOT yet apply the real '
+                'PICKUP_SCORE_MONEY reward (destruction != collection)',
+                score_after_break == score_before + COMBAT_KILL_AWARD)
+
+        entity_id = (Entity2 - PlayerEntity) // CHAR_ZP_LEN
+        oam_slot = oam_slot_for_entity(m, entity_id)
+        oam = read_oam_slot(m, oam_slot) if oam_slot is not None else None
+        print(f'entity{entity_id} OAM slot right after break: {oam_slot} -> {oam}')
+        r.check('the broken object stays VISIBLE (not hidden) while pending '
+                'reveal -- proves it is not simply soft-killed like an '
+                'ordinary enemy',
+                oam is not None and oam['y'] != 0xF0)
+
+        # --- reveal: Spawn_RevealPendingItems (core/spawn.pasm) reassigns
+        # this slot to Money's own real converted sprite, gated on
+        # Msu1_StreamBusy -- poll rather than assume same-frame. ---
+        revealed = False
+        for _ in range(60):
+            if read_u8(m, item_roster_idx_addr) == 0:
+                revealed = True
+                break
+            m.run_frames(1)
+            m.pause()
+        r.check('the real contained item (Money) gets revealed -- '
+                'EntityN_ItemRosterIdx clears once Spawn_RevealPendingItems '
+                'reassigns this slot to Money\'s own real sprite',
+                revealed)
+        r.check('the revealed slot stays alive (CHAR_HP nonzero) and still '
+                'carries the real PICKUP_TYPE_MONEY effect, waiting for '
+                'player collision',
+                read_u8(m, Entity2 + CHAR_HP) != 0 and
+                read_u8(m, Entity2 + CHAR_PICKUP_TYPE) == PICKUP_TYPE_MONEY)
+
+        # --- pickup: overlap the player with the now-revealed item
+        # (Character_Pickup_CheckOverlap, core/jump.pasm) -- real touch, no
+        # forced HP/PickupType write. ---
+        px = entity_block(m, PlayerEntity)
+        m.write_u16(Entity2 + CHAR_POS_X, pos_x(px))
+        m.write_u8(Entity2 + CHAR_POS_Y, px[CHAR_POS_Y])
+        m.run_frames(2)
+        m.pause()
+        # A couple more frames for the resulting CHAR_HP=0 soft-kill to
+        # propagate through Anim_Play's own dead-check into the hardware
+        # OAM shadow buffer (phase11_damage_system_softkill's own
+        # established margin) before checking the sprite actually hid.
+        m.run_frames(3)
+        m.pause()
 
         score_after = read_u16(m, Game_Score)
         expected_delta = PICKUP_SCORE_MONEY + COMBAT_KILL_AWARD
         print(f'Game_Score {score_before}->{score_after} '
               f'(expect +{expected_delta})')
-        r.check('breaking the real prop awards the real PICKUP_SCORE_MONEY '
-                'on top of the ordinary combat-kill award (authored reveal '
-                '-> reward, end to end from real packed data)',
-                score_after == score_before + expected_delta)
+        r.check('touching the revealed item awards the real '
+                'PICKUP_SCORE_MONEY on top of the earlier combat-kill '
+                'award (authored reveal -> reward, end to end from real '
+                'packed data)', score_after == score_before + expected_delta)
 
-        entity_id = (Entity2 - PlayerEntity) // CHAR_ZP_LEN
-        oam_slot = oam_slot_for_entity(m, entity_id)
         oam = read_oam_slot(m, oam_slot) if oam_slot is not None else None
-        print(f'entity{entity_id} OAM slot after break: {oam_slot} -> {oam}')
+        print(f'entity{entity_id} OAM slot after pickup: {oam_slot} -> {oam}')
         r.check('removal: the real prop\'s OAM sprite hides (Y=$F0)',
                 oam is not None and oam['y'] == 0xF0)
         r.check('removal: CHAR_PICKUP_TYPE consumed (reads back 0, won\'t '

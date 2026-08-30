@@ -112,6 +112,9 @@ SCREEN_POS_X = 0x7E1601
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 PlayerEntity = ENTITY_BASES[0]
 Entity1 = ENTITY_BASES[1]
+Entity1_ItemRosterIdx = pasm_constant_in(SP_PATH, 'Entity1_ItemRosterIdx')
+Entity1_InvulnFrames = pasm_constant_in(GS_PATH, 'Entity1_InvulnFrames')
+Player_InvulnFrames = pasm_constant_in(GS_PATH, 'Player_InvulnFrames')
 
 # --- Real ground truth, read straight from the committed files, never
 # hardcoded independently of them. ---
@@ -120,20 +123,42 @@ with open('out/spawn_stage1a/spawn_table.bin', 'rb') as _f:
 
 
 def _record(idx):
-    rec = _SPAWN_DATA[idx * 9:idx * 9 + 9]
-    trigger_x, spawn_x, spawn_y, facing, kind, hp, roster_idx = struct.unpack('<HHBBBBB', rec)
+    # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10 bytes --
+    # the old single +8 roster_idx (a standalone item's own identity) split
+    # into +8 item_roster_idx (a WRAPPED item's reveal-on-break target,
+    # always 0 for these standalone `spawn <item>` records) and +9
+    # object_roster_idx (the SPAWNED character's own identity -- for a
+    # standalone item, this IS its own roster slot, same meaning the old
+    # +8 had). Read +9 here, matching ITEM_RECORDS' own values below.
+    rec = _SPAWN_DATA[idx * 10:idx * 10 + 10]
+    trigger_x, spawn_x, spawn_y, facing, kind, hp, item_roster_idx, roster_idx = \
+        struct.unpack('<HHBBBBBB', rec)
     return {'trigger_x': trigger_x, 'kind': kind & 7, 'pickup': (kind >> 5) & 7,
-            'hp': hp, 'roster_idx': roster_idx}
+            'hp': hp, 'roster_idx': roster_idx, 'item_roster_idx': item_roster_idx}
 
 
 # Real stage 1A record indices for each item, found by direct inspection
 # of the committed spawn_table.bin (kind==1/PROP, pickup byte identifies
 # which item) -- not invented, verified again below at gate start.
+#
+# claude_close_g7_g8_before_g10.md Part 2/3: re-inspecting the real source
+# (DATA\EASY\1AEASY.TXT) found apple/money/meat are NOT standalone `spawn
+# <item>` records at all -- they're real `spawn Trash` / `item <name>`
+# blocks (an obstacle wrapping a contained item), same shape as stage 1B's
+# Chair/Money the pickup-chain gate already covers. Only 1up is a genuine
+# standalone `spawn 1up`. The old single conflated +8 byte happened to hold
+# the CONTAINED item's roster index either way, so the pre-fix gate's
+# byte-level assertions (and its "instant item art at spawn" behavior)
+# were unknowingly exercising the very bug this slice fixes: a not-yet-
+# broken Trash rendering as floating food/money from the moment it
+# spawned. roster_idx (5th tuple field) is now each record's real +9
+# object_roster_idx (17 == out/trash's own roster slot for the wrapped
+# three; 16 == 1up's own slot, since it has no wrapping object at all).
 ITEM_RECORDS = {
-    'apple': (36, PICKUP_TYPE_APPLE, 13, 'apple'),
-    'money': (6, PICKUP_TYPE_MONEY, 14, 'money'),
-    'meat': (22, PICKUP_TYPE_MEAT, 15, 'meat'),
-    '1up': (0, PICKUP_TYPE_ONEUP, 16, '1up'),
+    'apple': (36, PICKUP_TYPE_APPLE, 17, 'apple', True),
+    'money': (6, PICKUP_TYPE_MONEY, 17, 'money', True),
+    'meat': (22, PICKUP_TYPE_MEAT, 17, 'meat', True),
+    '1up': (0, PICKUP_TYPE_ONEUP, 16, '1up', False),
 }
 # A real ordinary (non-identified) enemy record from the same table --
 # kind==0 (plain enemy), roster_idx==0 (no identity) -- for the slot-reuse
@@ -198,7 +223,7 @@ def land_record_in_slot1(m, r, record_idx, trigger_x, expected_pickup, label):
     m.run_frames(5)
     m.pause()
     landed = False
-    for _ in range(30):
+    for i in range(30):
         m.write_u16(SCREEN_POS_X, trigger_x)  # camera eases back otherwise
         if (byte_at(m, Entity1 + CHAR_INPUT_DRIVEN) == CHAR_INPUT_DRIVEN_PROP
                 and byte_at(m, Entity1 + CHAR_PICKUP_TYPE) == expected_pickup):
@@ -248,12 +273,14 @@ def poll_palette_match(m, base, expected_pal, max_frames=30):
     return actual, pal_slot
 
 
-def land_attack_and_consume(m, r, label):
+def land_attack_and_consume(m, r, label, expect_hp=0):
     """Overlaps the player with entity 1 and lands a real Y attack,
-    returning True if entity 1's CHAR_HP reached 0. Releases input first
-    (game_g8_pickup.py's own root-caused fix for the same class of press-
-    edge bug -- a still-held button from an earlier scenario is invisible
-    to a fresh press)."""
+    returning True if entity 1's CHAR_HP reached `expect_hp` (0 for a
+    standalone item/ordinary kill, 1 for claude_close_g7_g8_before_g10.md
+    Part 2's "broken, pending reveal" sentinel on a wrapped item). Releases
+    input first (game_g8_pickup.py's own root-caused fix for the same class
+    of press-edge bug -- a still-held button from an earlier scenario is
+    invisible to a fresh press)."""
     # CHAR_HIT_APPLIED is a real per-attacker "already landed a hit this
     # attack cycle" latch (main.pasm) -- left set from a PREVIOUS kill
     # (APPLE's, the first item tested), it silently skips re-applying a
@@ -267,6 +294,16 @@ def land_attack_and_consume(m, r, label):
     m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
     m.write_u8(Entity1 + CHAR_SELECTED, 0)
     m.write_u8(Entity1 + CHAR_HIT_STUN, 0)
+    # claude_close_g7_g8_before_g10.md Part 2: a real cross-scenario stale-
+    # state gap found live-tracing MEAT's own break-detection flake -- this
+    # gate reuses entity 1 across 4 back-to-back item scenarios, and
+    # Entity1_InvulnFrames (AI_POST_HIT_INVULN_FRAMES, armed by the
+    # PREVIOUS scenario's own break-hit) is never reset here, unlike
+    # game_g8_pickup.py's own reset_combat_state -- a still-elevated value
+    # silently makes Character_HitApply_VsEntity1's own dead_skip early-out
+    # skip an otherwise-real, correctly-landed attack.
+    m.write_u8(Entity1_InvulnFrames, 0)
+    m.write_u8(Player_InvulnFrames, 0)
     px = word_at(m, PlayerEntity + CHAR_POS_X)
     py = byte_at(m, PlayerEntity + CHAR_POS_Y)
     m.write_u16(Entity1 + CHAR_POS_X, px)
@@ -281,17 +318,24 @@ def land_attack_and_consume(m, r, label):
     # for exactly this reason.
     m.set_input(0, 10)
     m.pause()
-    m.set_input(m.BTN_Y, 6)
+    m.set_input(m.BTN_Y, 1)
     killed = False
-    for _ in range(30):
+    for _ in range(60):
         m.run_frames(1)
         m.pause()
-        if byte_at(m, Entity1 + CHAR_HP) == 0:
+        if byte_at(m, Entity1 + CHAR_HP) == expect_hp:
             killed = True
+            if expect_hp == 1:
+                # claude_close_g7_g8_before_g10.md Part 2: a wrapped item's
+                # "broken, pending reveal" sentinel -- move it away from the
+                # player IMMEDIATELY (still overlapping from the punch),
+                # same race game_g8_pickup_chain.py's own rewrite hit.
+                m.write_u16(Entity1 + CHAR_POS_X, 60000)
             break
     m.run_frames(2)
     m.pause()
-    r.check(f'{label}: a real landed attack breaks the real prop (CHAR_HP reaches 0)', killed)
+    r.check(f'{label}: a real landed attack breaks the real prop '
+             f'(CHAR_HP reaches {expect_hp})', killed)
     return killed
 
 
@@ -301,10 +345,11 @@ def main():
     # --- Ground truth: every item's real record, and the ordinary-enemy
     # record, verified byte-level against the committed spawn table before
     # any emulation starts. ---
-    for name, (idx, pickup, roster_idx, prefix) in ITEM_RECORDS.items():
+    for name, (idx, pickup, roster_idx, prefix, wrapped) in ITEM_RECORDS.items():
         rec = _record(idx)
         r.check(f'stage 1A record #{idx} ({name}) is a real PICKUP prop '
-                 f'(kind={rec["kind"]}, pickup={rec["pickup"]}, roster_idx={rec["roster_idx"]})',
+                 f'(kind={rec["kind"]}, pickup={rec["pickup"]}, roster_idx={rec["roster_idx"]}, '
+                 f'item_roster_idx={rec["item_roster_idx"]})',
                  rec['kind'] == 1 and rec['pickup'] == pickup and rec['roster_idx'] == roster_idx)
     ordinary = _record(ORDINARY_ENEMY_RECORD)
     r.check(f'stage 1A record #{ORDINARY_ENEMY_RECORD} is a real ordinary '
@@ -355,11 +400,48 @@ def main():
 
         pickup_effects = []  # (name, before, after) for the printed summary
 
-        for name, (idx, pickup, roster_idx, prefix) in ITEM_RECORDS.items():
+        for name, (idx, pickup, roster_idx, prefix, wrapped) in ITEM_RECORDS.items():
             for base in (ENTITY_BASES[2], ENTITY_BASES[3]):
                 m.write_u8(base + CHAR_HP, CHAR_HP_MAX)
                 m.write_u8(base + CHAR_INPUT_DRIVEN, 0)
             rec = _record(idx)
+            if name == '1up':
+                # claude_close_g7_g8_before_g10.md Part 2: real finding --
+                # 1up's own trigger_x is 0 (always satisfiable, real source
+                # data), and it's a genuine standalone ground item (no
+                # wrapping object -- ItemRosterIdx starts at 0), so
+                # Character_Pickup_CheckOverlap's real touch-collect can
+                # (and here, does) fire the SAME frame it spawns, before
+                # land_record_in_slot1's own poll ever observes the
+                # intermediate "armed PROP, not yet collected" state --
+                # unlike apple/meat/money, which are wrapped (need a real
+                # break first, so there's a real observable window). This
+                # is correct real behavior (walking over a 1up on the
+                # ground collects it instantly), not a bug -- verify the
+                # real effect (Game_Lives) directly instead of insisting on
+                # an unobservable intermediate state.
+                lives_before = byte_at(m, Game_Lives)
+                m.write_u8(Entity1 + CHAR_HP, 0)
+                m.write_u8(SPAWN_INDEX, idx)
+                m.write_u16(SCREEN_POS_X, rec['trigger_x'])
+                m.run_frames(5)
+                m.pause()
+                collected = False
+                for _ in range(30):
+                    if byte_at(m, Game_Lives) == lives_before + 1:
+                        collected = True
+                        break
+                    m.run_frames(1)
+                    m.pause()
+                r.check(f'1UP: real record #{idx} spawns and is collected (real '
+                         f'trigger_x={rec["trigger_x"]}, a standalone ground item, '
+                         f'no attack needed -- see comment above)', collected)
+                lives_after = byte_at(m, Game_Lives)
+                pickup_effects.append((name, lives_before, lives_after))
+                r.check('1UP: collecting it adds exactly 1 life (real OpenBOR '
+                         f'name=="1up" special case) ({lives_before} -> {lives_after})',
+                         lives_after == lives_before + 1)
+                continue
             if not land_record_in_slot1(m, r, idx, rec['trigger_x'], pickup, name.upper()):
                 continue
 
@@ -368,50 +450,124 @@ def main():
 
             expected_triple = (1, 1, 1)  # every convert_prop.py output
             got_triple = entity_triple(m, Entity1)
-            r.check(f'{name.upper()}: entity 1 now shows its OWN real converted '
-                     f'(idle,walk,attack) triple {expected_triple} (got {got_triple})',
+            spawn_prefix = 'trash' if wrapped else prefix
+            spawn_reason = ('the wrapping object, not the contained item, since it has '
+                             'not broken yet' if wrapped else
+                             'its own real sprite (no wrapping object)')
+            r.check(f'{name.upper()}: entity 1 at spawn shows '
+                     f'{spawn_prefix.upper()}\'s OWN real converted (idle,walk,attack) '
+                     f'triple {expected_triple} (got {got_triple}) -- {spawn_reason}',
                      got_triple == expected_triple)
 
-            expected_pal = real_palette_bytes(prefix)
+            expected_pal = real_palette_bytes(spawn_prefix)
             actual_pal, pal_slot = poll_palette_match(m, Entity1, expected_pal)
             r.check(f"{name.upper()}: entity 1's CGRAM palette (slot {pal_slot}) matches "
-                     f"{name}'s OWN real converted palette.txt byte-for-byte -- distinguishes "
-                     f"it from every other item's own palette, not just animation metadata",
+                     f"{spawn_prefix}'s OWN real converted palette.txt byte-for-byte at spawn",
                      actual_pal == expected_pal)
 
-            if name == 'money':
-                before = word_at(m, Game_Score)
-                land_attack_and_consume(m, r, name.upper())
-                m.run_frames(2)
+            if wrapped:
+                # claude_close_g7_g8_before_g10.md Part 2: break (HP->1,
+                # not 0), wait for the real reveal (EntityN_ItemRosterIdx
+                # clears once Spawn_RevealPendingItems reassigns this slot
+                # to the item's own real sprite), verify the item's OWN
+                # real art/palette actually replaced Trash's, THEN overlap
+                # again to collect the real reward -- same chain game_g8_
+                # pickup_chain.py already proves for Money alone,
+                # generalized here to Apple/Meat/Money.
+                land_attack_and_consume(m, r, name.upper(), expect_hp=1)
+                # Real observed latency here can run well past a handful of
+                # frames (this gate's own busy scenario -- several other
+                # entities' per-frame Anim_Play calls compete for the same
+                # one-stream-per-frame Msu1_StreamBusy budget), so poll a
+                # generous real margin rather than assume a small one.
+                revealed = False
+                for _ in range(60):
+                    if byte_at(m, Entity1_ItemRosterIdx) == 0:
+                        revealed = True
+                        break
+                    m.run_frames(1)
+                    m.pause()
+                r.check(f'{name.upper()}: the real contained item gets revealed -- '
+                         f'EntityN_ItemRosterIdx clears once Spawn_RevealPendingItems '
+                         f'reassigns this slot to {name}\'s own real sprite', revealed)
+                revealed_triple = entity_triple(m, Entity1)
+                r.check(f'{name.upper()}: entity 1 now shows its OWN real converted '
+                         f'(idle,walk,attack) triple {expected_triple} (got {revealed_triple}) '
+                         f'-- the revealed item, not Trash anymore',
+                         revealed_triple == expected_triple)
+                item_pal = real_palette_bytes(prefix)
+                actual_item_pal, item_pal_slot = poll_palette_match(m, Entity1, item_pal)
+                r.check(f"{name.upper()}: entity 1's CGRAM palette (slot {item_pal_slot}) "
+                         f"now matches {name}'s OWN real converted palette.txt -- "
+                         f"distinguishes it from Trash's own palette",
+                         actual_item_pal == item_pal)
+                # For a heal item, set the player's starting HP BEFORE
+                # re-overlapping below -- once overlapped, Character_
+                # Pickup_CheckOverlap can apply the reward the very next
+                # frame, so this must happen first, not after.
+                if name in ('apple', 'meat'):
+                    m.write_u8(PlayerEntity + CHAR_HP, 10)
+
+                # claude_close_g7_g8_before_g10.md Part 2: capture the
+                # score baseline BEFORE re-overlapping, not after -- a real
+                # test bug found live-tracing MONEY's own false "no change"
+                # failure. Character_Pickup_CheckOverlap (core/jump.pasm)
+                # applies the reward the moment the AABB overlaps, which
+                # the very next 3-frame wait below already causes -- a
+                # 'before' sample taken after that wait (the old code) was
+                # already POST-collect, making before==after regardless of
+                # whether the reward genuinely fired.
+                money_score_before = word_at(m, Game_Score) if name == 'money' else None
+
+                # Re-overlap for the real pickup.
+                px = word_at(m, PlayerEntity + CHAR_POS_X)
+                py = byte_at(m, PlayerEntity + CHAR_POS_Y)
+                m.write_u16(Entity1 + CHAR_POS_X, px)
+                m.write_u8(Entity1 + CHAR_POS_Y, py)
+                m.run_frames(3)
                 m.pause()
+
+            if name == 'money':
+                # claude_close_g7_g8_before_g10.md Part 2: same real
+                # finding as game_g8_pickup.py's own MONEY fix -- a
+                # touch-collected item (this is one, once revealed) goes
+                # through Character_Pickup_CheckOverlap, not combat's
+                # ScoreAndFinish, so no combat-kill score stacks on top of
+                # it. The earlier real attack that broke Trash already
+                # awarded its OWN combat-kill score separately (proven by
+                # game_g8_pickup_chain.py) -- not re-counted here since
+                # money_score_before is sampled AFTER that break, right
+                # before the touch-collect.
+                before = money_score_before if wrapped else word_at(m, Game_Score)
+                if not wrapped:
+                    land_attack_and_consume(m, r, name.upper())
+                    m.run_frames(2)
+                    m.pause()
                 after = word_at(m, Game_Score)
-                expected_delta = PICKUP_SCORE_MONEY + COMBAT_KILL_AWARD
+                expected_delta = PICKUP_SCORE_MONEY if wrapped else (
+                    PICKUP_SCORE_MONEY + COMBAT_KILL_AWARD)
                 pickup_effects.append((name, before, after))
-                r.check(f'MONEY: breaking it awards the real PICKUP_SCORE_MONEY on top of '
-                         f'the ordinary combat-kill award ({before} -> {after}, expect '
-                         f'+{expected_delta})', after == before + expected_delta)
+                r.check(f'MONEY: {"touching the revealed item" if wrapped else "breaking it"} '
+                         f'awards the real PICKUP_SCORE_MONEY'
+                         f'{"" if wrapped else " on top of the ordinary combat-kill award"} '
+                         f'({before} -> {after}, expect +{expected_delta})',
+                         after == before + expected_delta)
             elif name in ('apple', 'meat'):
                 heal = PICKUP_HEAL_APPLE if name == 'apple' else PICKUP_HEAL_MEAT
-                m.write_u8(PlayerEntity + CHAR_HP, 10)
                 before = 10
-                land_attack_and_consume(m, r, name.upper())
-                m.run_frames(2)
-                m.pause()
+                if not wrapped:
+                    m.write_u8(PlayerEntity + CHAR_HP, 10)
+                    land_attack_and_consume(m, r, name.upper())
+                    m.run_frames(2)
+                    m.pause()
                 after = byte_at(m, PlayerEntity + CHAR_HP)
                 expected = min(CHAR_HP_MAX, before + heal)
                 pickup_effects.append((name, before, after))
-                r.check(f'{name.upper()}: breaking it heals the player by the real '
+                r.check(f'{name.upper()}: {"touching the revealed item" if wrapped else "breaking it"} '
+                         f'heals the player by the real '
                          f'PICKUP_HEAL_{name.upper()} ({heal}), clamped at CHAR_HP_MAX '
                          f'({before} -> {after}, expect {expected})', after == expected)
-            elif name == '1up':
-                before = byte_at(m, Game_Lives)
-                land_attack_and_consume(m, r, name.upper())
-                m.run_frames(2)
-                m.pause()
-                after = byte_at(m, Game_Lives)
-                pickup_effects.append((name, before, after))
-                r.check(f'1UP: breaking it adds exactly 1 life (real OpenBOR name=="1up" '
-                         f'special case) ({before} -> {after})', after == before + 1)
+
 
         print(f'pickup effects observed: {pickup_effects}')
 

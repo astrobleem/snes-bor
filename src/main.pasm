@@ -6048,18 +6048,19 @@ Character_HitApply_VsEntity1__dy_ok:
                                                       ; separate empty label
     jsr Character_HitApply__ScoreAndFinish
     ; G8 item/pickup slice: this hit may have just killed a
-    ; CHAR_INPUT_DRIVEN_PROP with a real contained/standalone item
-    ; (CHAR_PICKUP_TYPE nonzero) -- apply its effect to the player once,
-    ; then clear it so a slot later reused for an ordinary enemy can never
-    ; re-trigger a stale pickup. See Character_HitApply__ApplyPickup's own
-    ; header (core/jump.pasm) for the real BOR-pak-sourced effect values.
+    ; CHAR_INPUT_DRIVEN_PROP with a real contained/standalone item. Dispatch
+    ; moved to core/jump.pasm's Character_HitApply__RevealOrPickup (bank 0
+    ; ran out of room for 3 near-identical inline copies) -- see that
+    ; routine's own header (claude_close_g7_g8_before_g10.md Part 2) for the
+    ; real break->reveal->pickup logic this now runs.
     lda.l Entity1_Hp
     bne Character_HitApply_VsEntity1__dead_skip
-    lda.l Entity1_PickupType
-    beq Character_HitApply_VsEntity1__dead_skip
-    jsl Character_HitApply__ApplyPickup
-    lda #0
-    sta.l Entity1_PickupType
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsl Character_HitApply__RevealOrPickup
+.a8
 Character_HitApply_VsEntity1__dead_skip:
     rts
 
@@ -6128,14 +6129,16 @@ Character_HitApply_VsEntity2__dy_ok:
 .a8
     bcs Character_HitApply_VsEntity2__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
-    ; G8 item/pickup slice -- see VsEntity1's own comment.
+    ; G8 item/pickup slice -- see VsEntity1's own comment (dispatch moved
+    ; to core/jump.pasm's Character_HitApply__RevealOrPickup).
     lda.l Entity2_Hp
     bne Character_HitApply_VsEntity2__dead_skip
-    lda.l Entity2_PickupType
-    beq Character_HitApply_VsEntity2__dead_skip
-    jsl Character_HitApply__ApplyPickup
-    lda #0
-    sta.l Entity2_PickupType
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsl Character_HitApply__RevealOrPickup
+.a8
 Character_HitApply_VsEntity2__dead_skip:
     rts
 
@@ -6197,14 +6200,16 @@ Character_HitApply_VsEntity3__dy_ok:
 .a8
     bcs Character_HitApply_VsEntity3__dead_skip   ; see VsEntity1's comment
     jsr Character_HitApply__ScoreAndFinish
-    ; G8 item/pickup slice -- see VsEntity1's own comment.
+    ; G8 item/pickup slice -- see VsEntity1's own comment (dispatch moved
+    ; to core/jump.pasm's Character_HitApply__RevealOrPickup).
     lda.l Entity3_Hp
     bne Character_HitApply_VsEntity3__dead_skip
-    lda.l Entity3_PickupType
-    beq Character_HitApply_VsEntity3__dead_skip
-    jsl Character_HitApply__ApplyPickup
-    lda #0
-    sta.l Entity3_PickupType
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsl Character_HitApply__RevealOrPickup
+.a8
 Character_HitApply_VsEntity3__dead_skip:
     rts
 

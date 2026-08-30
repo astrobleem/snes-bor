@@ -1504,3 +1504,137 @@ Spawn_DoRosterReassign:
 .i16
     pld
     rts
+
+; ============================================================================
+; Spawn_RevealPendingItems -- claude_close_g7_g8_before_g10.md Part 2. Called
+; once per frame (core/game_state.pasm's Game_State_Play, right after
+; Spawn_Play) via jsl/rtl. A real breakable object (Chair/Table/Trash) that
+; just broke in combat this frame was left at CHAR_HP==1 (a "broken, pending
+; reveal" sentinel -- see main.pasm's Character_HitApply_VsEntity1/2/3, the
+; only place that ever writes this exact value) with its EntityN_
+; ItemRosterIdx still set to its contained item's real roster slot. This
+; routine finds that slot and, ONLY if Msu1_StreamBusy==0 (the same one-
+; stream-per-frame budget Spawn_Play's own SPAWN_KIND_PROP/BOSS_IDENTIFIED
+; dispatch already respects), reassigns it to the item's own real converted
+; sprite via the exact same Spawn_DoRosterReassign this file already uses
+; for spawn-time identity -- then clears ItemRosterIdx so this slot won't
+; re-trigger a reveal again. If Msu1_StreamBusy is busy (another entity
+; streamed this same frame), this is a clean no-op retry: nothing here
+; mutates any state before the busy check, so next frame tries again with
+; byte-for-byte the same inputs. At most ONE reveal happens per frame, same
+; discipline as everything else touching Msu1_StreamBusy in this project.
+;
+; No caller-convention assumed on entry (jsl/rtl). Clobbers A/X. Exits
+; .a16/.i16 (matches Spawn_Play's own jsl/rtl exit convention, which this
+; routine's caller runs immediately after).
+; ============================================================================
+Spawn_RevealPendingItems:
+    php
+    sep #$20
+.a8
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__check2
+    lda.l Entity1_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__check2
+    lda.l Entity1_ItemRosterIdx
+    beq Spawn_RevealPendingItems__check2
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check2:
+.a8
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__check3
+    lda.l Entity2_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__check3
+    lda.l Entity2_ItemRosterIdx
+    beq Spawn_RevealPendingItems__check3
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check3:
+.a8
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity3_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity3_ItemRosterIdx
+    beq Spawn_RevealPendingItems__done
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_RevealPendingItems__do
+Spawn_RevealPendingItems__done:
+    plp
+    rep #$31
+.a16
+.i16
+    rtl
+
+; Leaf: X (8-bit-range value, still whatever width the caller's `ldx`
+; left it in -- always .i8 range 0..CHAR_ZP_LEN*3 here) selects which
+; EntityN_* set the calling branch above already resolved; A (still .a8,
+; the just-loaded nonzero ItemRosterIdx) is this reveal's real target
+; roster slot. Gates on Msu1_StreamBusy BEFORE touching anything, same
+; "no mutation before the gate" discipline as Spawn_Play__gate_stream.
+Spawn_RevealPendingItems__do:
+    pha
+    lda.l Msu1_StreamBusy
+    bne Spawn_RevealPendingItems__do__busy
+    pla
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    phx                          ; REAL BUG found live-tracing this: Spawn_
+                                  ; DoRosterReassign's own header says
+                                  ; "Clobbers A/X" (its internal jsl Anim_
+                                  ; LoadCharacter_Long call touches X) --
+                                  ; the stale comment this replaces claimed
+                                  ; the opposite ("preserves X, only
+                                  ; clobbers A and D"), so the cpx dispatch
+                                  ; below was comparing X against GARBAGE
+                                  ; after the call, always falling through
+                                  ; to the Entity3 branch regardless of
+                                  ; which slot was really being revealed --
+                                  ; the art reassignment itself worked, but
+                                  ; the WRONG EntityN_ItemRosterIdx got
+                                  ; cleared (or the right one, by
+                                  ; coincidence, only when X happened to
+                                  ; equal CHAR_ZP_LEN*3 already), so the
+                                  ; real target's flag stayed stuck forever,
+                                  ; confirmed via live WRAM polling (100%
+                                  ; reproducible, not a race). Saved/
+                                  ; restored across the call instead.
+    jsr Spawn_DoRosterReassign
+    plx
+    sep #$20
+.a8
+    ; Clear the SPECIFIC slot's own ItemRosterIdx -- X restored above.
+    ; Three-way dispatch on X's value, same idiom this file's record-kind
+    ; checks already use elsewhere.
+    cpx #CHAR_ZP_LEN
+    bne Spawn_RevealPendingItems__do__not1
+    lda #0
+    sta.l Entity1_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not1:
+.i16
+    cpx #CHAR_ZP_LEN*2
+    bne Spawn_RevealPendingItems__do__not2
+.a8
+    lda #0
+    sta.l Entity2_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not2:
+.a8
+    lda #0
+    sta.l Entity3_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__busy:
+    pla
+    rts

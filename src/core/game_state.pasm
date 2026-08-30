@@ -807,6 +807,19 @@ Game_State_Play__stage_no_win:
     ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
     ; redraw instead of lagging one frame behind.
     jsl Spawn_Play
+    ; claude_close_g7_g8_before_g10.md Part 2: once-per-frame scan for a
+    ; broken-but-not-yet-revealed breakable object (CHAR_HP==1 sentinel,
+    ; see Character_HitApply_VsEntity1/2/3's own comment in main.pasm) --
+    ; does the real Msu1_StreamBusy-gated art reassignment to the contained
+    ; item's own roster sprite. Same per-frame streaming-budget discipline
+    ; as Spawn_Play itself (at most one entity's animation may stream per
+    ; frame), so this runs right after it rather than inline inside combat
+    ; hit resolution, which cannot safely defer/retry.
+    jsl Spawn_RevealPendingItems
+    ; claude_close_g7_g8_before_g10.md Part 2: once-per-frame check for the
+    ; player touching an already-revealed collectible item (core/jump.pasm)
+    ; -- separates destruction (above) from collection (this call).
+    jsl Character_Pickup_CheckOverlap
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its

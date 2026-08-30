@@ -91,6 +91,16 @@ GS_PATH = 'src/core/game_state.pasm'
 Game_Score = pasm_constant_in(GS_PATH, 'Game_Score')
 Game_Lives = pasm_constant_in(GS_PATH, 'Game_Lives')
 Entity1_InvulnFrames = pasm_constant_in(GS_PATH, 'Entity1_InvulnFrames')
+# claude_close_g7_g8_before_g10.md Part 2: a standalone WRAM cell (spawn.
+# pasm), not a CHAR_ZP_LEN struct field -- see that file's own comment for
+# why (growing the struct is real-bug-verified dangerous). Must be
+# explicitly zeroed by this gate's own synthetic scenarios below: a nonzero
+# leftover here (e.g. from the real spawn table's own boot-time Chair/
+# Table/Trash placement, which now legitimately sets it) would defer this
+# gate's synthetic pickup into the broken-pending-reveal state instead of
+# the instant-reward path this gate is specifically testing.
+SPAWN_PATH = 'src/core/spawn.pasm'
+Entity2_ItemRosterIdx = pasm_constant_in(SPAWN_PATH, 'Entity2_ItemRosterIdx')
 
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 PlayerEntity = ENTITY_BASES[0]
@@ -161,6 +171,7 @@ def land_hit_on_entity2(m, pickup_type, player_hp=None):
     m.write_u8(Entity2 + CHAR_INPUT_DRIVEN, CHAR_INPUT_DRIVEN_PROP)
     m.write_u8(Entity2 + CHAR_HP, CHAR_HP_PER_HIT)
     m.write_u8(Entity2 + CHAR_PICKUP_TYPE, pickup_type)
+    m.write_u8(Entity2_ItemRosterIdx, 0)  # see this constant's own comment
     if player_hp is not None:
         m.write_u8(PlayerEntity + CHAR_HP, player_hp)
     overlap_entity2_with_player(m)
@@ -223,16 +234,33 @@ def main():
                 'HUD bar\'s own max)', hp_after == CHAR_HP_MAX)
 
         # --- 3. MONEY: real score award. ---
+        # claude_close_g7_g8_before_g10.md Part 2: real bug found live-
+        # tracing this -- land_hit_on_entity2 positions entity 2 directly
+        # overlapping the player BEFORE the attack input even fires, and
+        # Character_Pickup_CheckOverlap (this same slice's new touch-
+        # collect mechanism, core/jump.pasm) runs unconditionally every
+        # frame, gated only on overlap + CHAR_INPUT_DRIVEN_PROP + nonzero
+        # CHAR_PICKUP_TYPE + CHAR_ItemRosterIdx==0 -- exactly the state
+        # this test's own setup creates. So the item is genuinely touch-
+        # collected the very first frame, before Character_HitApply's own
+        # combat path (ScoreAndFinish's HIT_SCORE+KILL_SCORE award) ever
+        # runs -- Entity2_Hp is already 0 by the time a real attack would
+        # reach it, so combat's own dead-target early-out skips it
+        # entirely. This is correct, real OpenBOR behavior (ground items
+        # are walked over, not punched) -- this module's own docstring
+        # (item 3) already only ever claimed the bare PICKUP_SCORE_MONEY
+        # amount, not a combat-score stack; the stacked-award expectation
+        # here was simply wrong, not the engine.
         score_before = read_u16(m, Game_Score)
         killed = land_hit_on_entity2(m, PICKUP_TYPE_MONEY)
         score_after = read_u16(m, Game_Score)
-        expected_money_delta = PICKUP_SCORE_MONEY + COMBAT_KILL_AWARD
         print(f'MONEY: killed={killed} score {score_before}->{score_after} '
-              f'(expect +{expected_money_delta} = pickup {PICKUP_SCORE_MONEY} '
-              f'+ combat-kill award {COMBAT_KILL_AWARD})')
+              f'(expect +{PICKUP_SCORE_MONEY}, touch-collected, no attack '
+              f'landed -- see comment above)')
         r.check(f'MONEY pickup adds PICKUP_SCORE_MONEY ({PICKUP_SCORE_MONEY}) '
-                f'to Game_Score, on top of the pre-existing combat-kill award',
-                score_after == score_before + expected_money_delta)
+                f'to Game_Score via real touch-collect (no combat-kill hit '
+                f'landed since the item was already gone)',
+                score_after == score_before + PICKUP_SCORE_MONEY)
 
         # --- 4. 1UP: real extra life. ---
         lives_before = read_u8(m, Game_Lives)

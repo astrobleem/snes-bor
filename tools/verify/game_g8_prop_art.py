@@ -4,12 +4,23 @@
 slice. Every prop before this slice rendered using whichever roster
 character happened to already be streamed into its AI slot (visually wrong,
 behaviorally real -- see plan_game.md's own "deliberately still not done"
-note). This gate proves a real converted prop sprite (APPLE, converted by
-tools/bor_converter/convert_prop.py from the real DATA\\CHARS\\MISC\\
-APPLE.TXT, added as roster slot 13 in build_rom.py's ROSTER_PREFIXES) is
-what the engine actually streams for a real, unmodified, shipped spawn
-record (stage 1A's own record #36 -- `item apple`, DATA\\EASY\\1AEASY.TXT --
-verified by build_spawn_table.py to carry roster_idx=13).
+note). This gate proves a real converted prop sprite is what the engine
+actually streams for a real, unmodified, shipped spawn record (stage 1A's
+own record #36 -- `item apple`, DATA\\EASY\\1AEASY.TXT).
+
+claude_close_g7_g8_before_g10.md Part 2/3 UPDATE: re-inspecting the real
+source found record #36 is NOT a standalone `spawn Apple` -- it's a real
+`spawn Trash` / `item apple` block (an obstacle wrapping a contained item),
+same shape as stage 1B's own Chair/Money. So the record's own +9
+object_roster_idx is Trash's OWN roster slot (17), not Apple's; Apple's own
+slot (13) lives in the record's new +8 item_roster_idx field instead, only
+consumed once the object actually breaks (core/spawn.pasm's Spawn_
+RevealPendingItems) -- never at spawn. This gate now proves the real AT-
+SPAWN identity is Trash's own converted sprite (the correct, real behavior
+-- rendering Apple's own sprite instantly at spawn, before anything breaks
+it, was itself the bug Part 2 fixed). The full break->reveal->pickup chain
+for this exact record is separately proven byte-for-byte end-to-end by
+game_g8_asset_swapping.py; this gate stays focused on the at-spawn identity.
 
 Mechanism reused, not invented: SPAWN_KIND_BOSS_IDENTIFIED already re-
 streams an AI slot to its own real roster character mid-game (core/
@@ -131,20 +142,29 @@ def force_win_and_wait(m, r, label):
 def main():
     r = Reporter('G8-PROP-ART', kind='GATE')
 
-    with open('out/apple_moveset.json') as f:
-        apple_moveset = json.load(f)
+    with open('out/trash_moveset.json') as f:
+        trash_moveset = json.load(f)
     expected_triple = (1, 1, 1)  # convert_prop.py: idle/walk/attack all
                                   # real-converted single-frame roles
-    print(f"apple moveset entity={apple_moveset['entity']!r}, "
+    print(f"trash moveset entity={trash_moveset['entity']!r}, "
           f"expected (idle,walk,attack) triple={expected_triple}")
 
     with open('out/spawn_stage1a/spawn_table.bin', 'rb') as f:
         data = f.read()
-    rec = data[APPLE_RECORD_INDEX * 9:APPLE_RECORD_INDEX * 9 + 9]
-    trigger_x, spawn_x, spawn_y, facing, kind, hp, roster_idx = struct.unpack('<HHBBBBB', rec)
+    # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10 bytes,
+    # and this record's own real +9 object_roster_idx is Trash's own slot
+    # (17) -- the WRAPPING object spawned/streamed at trigger time -- while
+    # the new +8 item_roster_idx (13, Apple's own slot) is the contained
+    # item, only consumed once the object actually breaks. See this
+    # module's own header comment.
+    rec = data[APPLE_RECORD_INDEX * 10:APPLE_RECORD_INDEX * 10 + 10]
+    trigger_x, spawn_x, spawn_y, facing, kind, hp, item_roster_idx, roster_idx = \
+        struct.unpack('<HHBBBBBB', rec)
     r.check(f'stage 1A record #{APPLE_RECORD_INDEX} is a real PICKUP_TYPE_APPLE prop '
-             f'with a real roster_idx (kind={kind & 7}, pickup={(kind >> 5) & 7}, roster_idx={roster_idx})',
-             (kind & 7) == 1 and ((kind >> 5) & 7) == PICKUP_TYPE_APPLE and roster_idx == 13)
+             f'wrapping Trash (kind={kind & 7}, pickup={(kind >> 5) & 7}, '
+             f'object_roster_idx={roster_idx}, item_roster_idx={item_roster_idx})',
+             (kind & 7) == 1 and ((kind >> 5) & 7) == PICKUP_TYPE_APPLE
+             and roster_idx == 17 and item_roster_idx == 13)
 
     with open_session(__file__) as m:
         m.reset_emulator()
@@ -234,9 +254,10 @@ def main():
         after_triple = entity_triple(m, ENTITY_BASES[apple_slot])
         print(f'slot {apple_slot} triple before_pickup={before_pickup.get(apple_slot)} '
               f'after={after_triple} expected={expected_triple}')
-        r.check(f'slot {apple_slot} now shows apple\'s OWN real converted '
+        r.check(f'slot {apple_slot} now shows TRASH\'s OWN real converted '
                  f'(idle,walk,attack) triple {expected_triple} (got {after_triple}) '
-                 f'-- real sprite art, not a borrowed character\'s',
+                 f'-- real sprite art, not a borrowed character\'s, and correctly '
+                 f'the WRAPPING object at spawn time, not the contained item',
                  after_triple == expected_triple)
 
         # --- Real hardware-visible tile/palette identity, not just a
@@ -254,7 +275,7 @@ def main():
         # Poll (deterministic bound, not a magic fixed count) until CGRAM
         # actually matches the real ground truth, same idiom as the
         # depth-sort gate's OAM-order convergence poll.
-        expected_pal = real_palette_bytes(apple_moveset)
+        expected_pal = real_palette_bytes(trash_moveset)
         pal_slot = None
         actual_pal = None
         for _ in range(30):
@@ -264,7 +285,7 @@ def main():
                 break
             m.run_frames(1)
             m.pause()
-        r.check(f"slot {apple_slot}'s CGRAM palette (slot {pal_slot}) matches apple's own "
+        r.check(f"slot {apple_slot}'s CGRAM palette (slot {pal_slot}) matches trash's own "
                  f"real converted palette.txt byte-for-byte -- real tile/palette identity, "
                  f"not just animation metadata",
                  actual_pal == expected_pal)

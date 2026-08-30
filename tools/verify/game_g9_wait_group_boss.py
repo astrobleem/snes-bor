@@ -64,18 +64,20 @@ def u16(m, addr):
 
 
 def enemy_record(trigger_x, spawn_x, kind, spawn_hp=64):
-    # roster-growth slice: record grew 8->9 bytes (dedicated +8 roster_idx
-    # byte, real only for RECORD_KIND_BOSS_IDENTIFIED) -- 0 here since every
-    # synthetic record this file builds uses the plain, no-identity kinds.
-    return struct.pack('<HHBBBBB', trigger_x, spawn_x, 100, 0, kind, spawn_hp, 0)
+    # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10 bytes --
+    # +8 item_roster_idx (a wrapped item's reveal-on-break target) and +9
+    # object_roster_idx (the spawned character's own identity, real only
+    # for RECORD_KIND_BOSS_IDENTIFIED) -- both 0 here since every synthetic
+    # record this file builds uses the plain, no-identity kinds.
+    return struct.pack('<HHBBBBBB', trigger_x, spawn_x, 100, 0, kind, spawn_hp, 0, 0)
 
 
 def wait_record(trigger_x):
-    return struct.pack('<HHBBBBB', trigger_x, 0, 0, 0, SPAWN_KIND_WAIT, 0, 0)
+    return struct.pack('<HHBBBBBB', trigger_x, 0, 0, 0, SPAWN_KIND_WAIT, 0, 0, 0)
 
 
 def group_record(trigger_x, group_min, group_max):
-    return struct.pack('<HBBBBBBB', trigger_x, group_min, group_max, 0, 0, SPAWN_KIND_GROUP, 0, 0)
+    return struct.pack('<HBBBBBBBB', trigger_x, group_min, group_max, 0, 0, SPAWN_KIND_GROUP, 0, 0, 0)
 
 
 def load_queue(m, records, screen_pos_x=0):

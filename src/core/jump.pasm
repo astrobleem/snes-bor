@@ -1548,15 +1548,24 @@ Character_HitApply__ApplyPickup__heal_meat:
 Character_HitApply__ApplyPickup__heal:
     sep #$20
 .a8
-    ; CHAR_HP += A, clamped at CHAR_HP_MAX (never past the HUD bar's own
-    ; max -- same clamp-not-wrap idiom Game_Score_Award uses for Game_Score).
+    ; PlayerEntity_Hp += A, clamped at CHAR_HP_MAX (never past the HUD
+    ; bar's own max -- same clamp-not-wrap idiom Game_Score_Award uses for
+    ; Game_Score). Real bug found live-tracing this: the bare DP-relative
+    ; `CHAR_HP` offset assumed the current D register was still the
+    ; PLAYER's own OopDp window (this leaf's own header comment claims
+    ; that), but at runtime it silently read/wrote the wrong window --
+    ; heals/clamps never took effect even though the byte-for-byte
+    ; assembled code (sep/clc/adc $23/cmp/bcc/sta $23) was itself
+    ; correct. Use the fixed absolute PlayerEntity_Hp symbol instead,
+    ; matching the proven-reliable style this same routine already uses
+    ; for Game_Score/Game_Lives -- doesn't depend on D at all.
     clc
-    adc CHAR_HP
+    adc.l PlayerEntity_Hp
     cmp #CHAR_HP_MAX + 1
     bcc Character_HitApply__ApplyPickup__heal_store
     lda #CHAR_HP_MAX
 Character_HitApply__ApplyPickup__heal_store:
-    sta CHAR_HP
+    sta.l PlayerEntity_Hp
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__oneup:
     lda.l Game_Lives
@@ -1586,3 +1595,326 @@ Character_HitApply__ApplyPickup__money_store:
 Character_HitApply__ApplyPickup__done:
     plp
     rtl
+
+; ============================================================================
+; Character_HitApply__RevealOrPickup -- claude_close_g7_g8_before_g10.md
+; Part 2. Moved here from main.pasm (bank 0 ran out of its own $C100-$FC00
+; budget -- 3 near-identical inline copies of this dispatch, one per
+; VsEntity1/2/3, no longer fit) -- same ROM-budget reasoning as every other
+; own-bank module in this file.
+;
+; Called via jsl (from main.pasm's Character_HitApply_VsEntity1/2/3, each
+; already having confirmed EntityN_Hp==0 this frame) with X (16-bit) =
+; CHAR_ZP_LEN*N selecting which of the 3 AI slots just died. If that slot's
+; CHAR_PICKUP_TYPE is 0, no-op (ordinary enemy kill). If nonzero: a real
+; converted item sprite exists for it (EntityN_ItemRosterIdx != 0) defers to
+; the broken-pending-reveal sentinel (CHAR_HP=1) instead of rewarding
+; instantly -- core/spawn.pasm's Spawn_RevealPendingItems does the actual
+; art reassignment once Msu1_StreamBusy allows it, and the new overlap-
+; based Character_Pickup_CheckOverlap applies the real reward once the
+; player touches the revealed item. No converted sprite (ItemRosterIdx==0,
+; a bare breakable with no item, or an item name without real art yet)
+; keeps the original instant-reward-on-kill behavior, unchanged.
+;
+; Entered in .a8 (caller's ambient width, matches TryGrab's own contract).
+; Doesn't touch Y. Exits .a8 via rtl.
+; ============================================================================
+Character_HitApply__RevealOrPickup:
+    php
+    rep #$30
+.a16
+.i16
+    cpx #CHAR_ZP_LEN
+    beq Character_HitApply__RevealOrPickup__e1
+    cpx #CHAR_ZP_LEN*2
+    beq Character_HitApply__RevealOrPickup__e2
+    bra Character_HitApply__RevealOrPickup__e3
+Character_HitApply__RevealOrPickup__e1:
+    sep #$20
+.a8
+    lda.l Entity1_PickupType
+    beq Character_HitApply__RevealOrPickup__done
+    lda.l Entity1_ItemRosterIdx
+    beq Character_HitApply__RevealOrPickup__e1_instant
+    lda #1
+    sta.l Entity1_Hp
+    bra Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e1_instant:
+.a8
+    lda.l Entity1_PickupType   ; reload -- clobbered by the ItemRosterIdx
+                                  ; check above; ApplyPickup needs A ==
+                                  ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity1_PickupType
+    bra Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e2:
+    sep #$20
+.a8
+    lda.l Entity2_PickupType
+    beq Character_HitApply__RevealOrPickup__done
+    lda.l Entity2_ItemRosterIdx
+    beq Character_HitApply__RevealOrPickup__e2_instant
+    lda #1
+    sta.l Entity2_Hp
+    bra Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e2_instant:
+.a8
+    lda.l Entity2_PickupType   ; reload -- clobbered by the ItemRosterIdx
+                                  ; check above; ApplyPickup needs A ==
+                                  ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity2_PickupType
+    bra Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e3:
+    sep #$20
+.a8
+    lda.l Entity3_PickupType
+    beq Character_HitApply__RevealOrPickup__done
+    lda.l Entity3_ItemRosterIdx
+    beq Character_HitApply__RevealOrPickup__e3_instant
+    lda #1
+    sta.l Entity3_Hp
+    bra Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e3_instant:
+.a8
+    lda.l Entity3_PickupType   ; reload -- clobbered by the ItemRosterIdx
+                                  ; check above; ApplyPickup needs A ==
+                                  ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity3_PickupType
+Character_HitApply__RevealOrPickup__done:
+    plp
+    rtl
+
+; ============================================================================
+; Character_Pickup_CheckOverlap -- claude_close_g7_g8_before_g10.md Part 2.
+; Called once per frame (core/game_state.pasm's Game_State_Play, right
+; after Spawn_RevealPendingItems) via jsl/rtl. Separates DESTRUCTION from
+; COLLECTION: a revealed item (CHAR_INPUT_DRIVEN_PROP, CHAR_PICKUP_TYPE!=0,
+; EntityN_ItemRosterIdx==0 -- the object phase is over, or this was always a
+; standalone item with no object phase at all) sits in the world showing
+; its own real converted item sprite until the PLAYER's own AABB overlaps
+; it (same per-axis abs-difference test Character_HitApply_VsEntity1/2/3
+; already use for combat, just unconditional -- not gated on CHAR_SELECTED
+; ==2/attacking, and checked here instead of there since this is a passive
+; touch, not a landed hit). On overlap: applies the real reward exactly
+; once (Character_HitApply__ApplyPickup, same leaf combat pickups already
+; use), clears CHAR_PICKUP_TYPE, and sets CHAR_HP=0 (the ordinary soft-kill
+; sentinel -- Anim_Play's own dead-check hides the sprite next frame, same
+; as any other prop's removal).
+;
+; A CHAR_HP==1 "broken, pending reveal" sentinel (ItemRosterIdx still
+; nonzero) is deliberately NOT touched here -- it isn't collectible yet,
+; only visibly broken; Spawn_RevealPendingItems owns that transition.
+;
+; No caller-convention assumed on entry (jsl/rtl). Clobbers A/X. Exits
+; .a16/.i16 (matches its caller's own jsl/rtl convention, called right after
+; Spawn_RevealPendingItems which has the same contract).
+; ============================================================================
+; Three independent leaf routines, not one parameterized by a runtime-
+; computed target address -- same reasoning as Character_HitApply_
+; VsEntity1/2/3's own header (indexed-by-something-other-than-X long
+; addressing has its own confirmed Poppy miscompile risk; a shared branch
+; target risks exceeding +-127 bytes across 3 inlined copies). Each is a
+; near-literal copy of Character_HitApply_VsEntity1/2/3's own dx/dy AABB
+; test against its own EntityN_PosX/Y, gated first on the real pickup-
+; collectible-state check (InputDriven/PickupType/ItemRosterIdx/Hp).
+Character_Pickup_CheckOverlap:
+    php
+    jsr Character_Pickup_CheckOverlap__vs1
+    jsr Character_Pickup_CheckOverlap__vs2
+    jsr Character_Pickup_CheckOverlap__vs3
+    plp
+    rep #$31
+.a16
+.i16
+    rtl
+
+Character_Pickup_CheckOverlap__vs1:
+    sep #$20
+.a8
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Character_Pickup_CheckOverlap__vs1_no
+    lda.l Entity1_PickupType
+    beq Character_Pickup_CheckOverlap__vs1_no
+    lda.l Entity1_ItemRosterIdx
+    bne Character_Pickup_CheckOverlap__vs1_no
+    lda.l Entity1_Hp
+    beq Character_Pickup_CheckOverlap__vs1_no
+    rep #$20
+.a16
+    lda.l Entity1_PosX
+    cmp.l PlayerEntity_PosX
+    bcs Character_Pickup_CheckOverlap__vs1_dx_otherge
+    sec
+    lda.l PlayerEntity_PosX
+    sbc.l Entity1_PosX
+    bra Character_Pickup_CheckOverlap__vs1_dx_have
+Character_Pickup_CheckOverlap__vs1_dx_otherge:
+    rep #$20
+.a16
+    sec
+    sbc.l PlayerEntity_PosX
+Character_Pickup_CheckOverlap__vs1_dx_have:
+.a16
+    cmp #CHAR_HITBOX_W
+    bcc Character_Pickup_CheckOverlap__vs1_dx_ok
+    sep #$20
+.a8
+    rts                         ; no overlap on X
+Character_Pickup_CheckOverlap__vs1_dx_ok:
+    sep #$20
+.a8
+    lda.l Entity1_PosY
+    cmp.l PlayerEntity_PosY
+    bcs Character_Pickup_CheckOverlap__vs1_dy_otherge
+    lda.l PlayerEntity_PosY
+    sec
+    sbc.l Entity1_PosY
+    bra Character_Pickup_CheckOverlap__vs1_dy_have
+Character_Pickup_CheckOverlap__vs1_dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_Pickup_CheckOverlap__vs1_dy_have:
+.a8
+    cmp #CHAR_HITBOX_H
+    bcc Character_Pickup_CheckOverlap__vs1_dy_ok
+    rts                         ; no overlap on Y
+Character_Pickup_CheckOverlap__vs1_dy_ok:
+.a8
+    lda.l Entity1_PickupType
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity1_PickupType
+    sta.l Entity1_Hp
+    rts
+Character_Pickup_CheckOverlap__vs1_no:
+    rts
+
+Character_Pickup_CheckOverlap__vs2:
+    sep #$20
+.a8
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Character_Pickup_CheckOverlap__vs2_no
+    lda.l Entity2_PickupType
+    beq Character_Pickup_CheckOverlap__vs2_no
+    lda.l Entity2_ItemRosterIdx
+    bne Character_Pickup_CheckOverlap__vs2_no
+    lda.l Entity2_Hp
+    beq Character_Pickup_CheckOverlap__vs2_no
+    rep #$20
+.a16
+    lda.l Entity2_PosX
+    cmp.l PlayerEntity_PosX
+    bcs Character_Pickup_CheckOverlap__vs2_dx_otherge
+    sec
+    lda.l PlayerEntity_PosX
+    sbc.l Entity2_PosX
+    bra Character_Pickup_CheckOverlap__vs2_dx_have
+Character_Pickup_CheckOverlap__vs2_dx_otherge:
+    rep #$20
+.a16
+    sec
+    sbc.l PlayerEntity_PosX
+Character_Pickup_CheckOverlap__vs2_dx_have:
+.a16
+    cmp #CHAR_HITBOX_W
+    bcc Character_Pickup_CheckOverlap__vs2_dx_ok
+    sep #$20
+.a8
+    rts
+Character_Pickup_CheckOverlap__vs2_dx_ok:
+    sep #$20
+.a8
+    lda.l Entity2_PosY
+    cmp.l PlayerEntity_PosY
+    bcs Character_Pickup_CheckOverlap__vs2_dy_otherge
+    lda.l PlayerEntity_PosY
+    sec
+    sbc.l Entity2_PosY
+    bra Character_Pickup_CheckOverlap__vs2_dy_have
+Character_Pickup_CheckOverlap__vs2_dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_Pickup_CheckOverlap__vs2_dy_have:
+.a8
+    cmp #CHAR_HITBOX_H
+    bcc Character_Pickup_CheckOverlap__vs2_dy_ok
+    rts
+Character_Pickup_CheckOverlap__vs2_dy_ok:
+.a8
+    lda.l Entity2_PickupType
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity2_PickupType
+    sta.l Entity2_Hp
+    rts
+Character_Pickup_CheckOverlap__vs2_no:
+    rts
+
+Character_Pickup_CheckOverlap__vs3:
+    sep #$20
+.a8
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Character_Pickup_CheckOverlap__vs3_no
+    lda.l Entity3_PickupType
+    beq Character_Pickup_CheckOverlap__vs3_no
+    lda.l Entity3_ItemRosterIdx
+    bne Character_Pickup_CheckOverlap__vs3_no
+    lda.l Entity3_Hp
+    beq Character_Pickup_CheckOverlap__vs3_no
+    rep #$20
+.a16
+    lda.l Entity3_PosX
+    cmp.l PlayerEntity_PosX
+    bcs Character_Pickup_CheckOverlap__vs3_dx_otherge
+    sec
+    lda.l PlayerEntity_PosX
+    sbc.l Entity3_PosX
+    bra Character_Pickup_CheckOverlap__vs3_dx_have
+Character_Pickup_CheckOverlap__vs3_dx_otherge:
+    rep #$20
+.a16
+    sec
+    sbc.l PlayerEntity_PosX
+Character_Pickup_CheckOverlap__vs3_dx_have:
+.a16
+    cmp #CHAR_HITBOX_W
+    bcc Character_Pickup_CheckOverlap__vs3_dx_ok
+    sep #$20
+.a8
+    rts
+Character_Pickup_CheckOverlap__vs3_dx_ok:
+    sep #$20
+.a8
+    lda.l Entity3_PosY
+    cmp.l PlayerEntity_PosY
+    bcs Character_Pickup_CheckOverlap__vs3_dy_otherge
+    lda.l PlayerEntity_PosY
+    sec
+    sbc.l Entity3_PosY
+    bra Character_Pickup_CheckOverlap__vs3_dy_have
+Character_Pickup_CheckOverlap__vs3_dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_Pickup_CheckOverlap__vs3_dy_have:
+.a8
+    cmp #CHAR_HITBOX_H
+    bcc Character_Pickup_CheckOverlap__vs3_dy_ok
+    rts
+Character_Pickup_CheckOverlap__vs3_dy_ok:
+.a8
+    lda.l Entity3_PickupType
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity3_PickupType
+    sta.l Entity3_Hp
+    rts
+Character_Pickup_CheckOverlap__vs3_no:
+    rts
