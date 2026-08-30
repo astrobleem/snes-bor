@@ -223,6 +223,45 @@ def main():
         r.check('X press on YASHIRO never triggers CHAR_SELECTED=2 (no crash, no-op)',
                 all(s['selected'] != 2 for s in states_none))
 
+        # --- 6. claude_close_g7_g8_before_g10.md Part 1 regression proof:
+        # MOUSER's real second attack is 'upper' (9 frames), but MOUSER
+        # ALSO declares 'backwalk' (8 frames, a movement animation)
+        # EARLIER in its raw .TXT than 'upper'. The old converter fallback
+        # ("first otherwise-unclaimed anim") silently picked 'backwalk' as
+        # attack2 -- this check proves the fix at the live hardware level,
+        # not just in the converter's own pure-Python role table.
+        press_select(m)  # YASHIRO(3) -> MOUSER(4)
+        idx_m = read_u8(m, CharSelect_Index)
+        r.check('roster selected to MOUSER (index 4)', idx_m == 4)
+        mouser_moveset = os.path.join(ROOT, 'out', 'mouser_moveset.json')
+        expected_mouser_a2_frames = load_role_frames(mouser_moveset, 'attack2')
+        expected_backwalk_frames = load_role_frames(mouser_moveset, 'backwalk')
+        mouser_a2_fc = read_u8(m, PlayerEntity + CHAR_ATTACK2_FCOUNT)
+        print(f'MOUSER attack2: fcount={mouser_a2_fc} '
+              f'(expected upper={expected_mouser_a2_frames}, '
+              f'backwalk would have been={expected_backwalk_frames})')
+        r.check('MOUSER CHAR_ATTACK2_FCOUNT matches real upper frame count',
+                mouser_a2_fc == expected_mouser_a2_frames)
+        r.check('MOUSER attack2 frame count is NOT backwalk\'s frame count '
+                '(the real bug this checks for)',
+                mouser_a2_fc != expected_backwalk_frames)
+
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        states_mouser = press_and_poll(m, m.BTN_X, max_frames=250)
+        triggered_mouser = next((s for s in states_mouser if s['selected'] == 2), None)
+        r.check('X press triggers MOUSER attack2 (CHAR_SELECTED=2)',
+                triggered_mouser is not None)
+        r.check('X press sets CHAR_ATTACK_VARIANT=1 for MOUSER',
+                triggered_mouser is not None and triggered_mouser['variant'] == 1)
+        max_frame_mouser = max(
+            (s['frame_index'] for s in states_mouser
+             if s['selected'] == 2 and s['frame_index'] != 0xFF),
+            default=-1)
+        r.check('MOUSER attack2 frame index never exceeds its real (upper) frame count',
+                max_frame_mouser < mouser_a2_fc)
+        r.check('MOUSER attack2 completes and reverts to idle',
+                states_mouser[-1]['selected'] == 0)
+
     r.finish()
 
 

@@ -247,6 +247,48 @@ ROLE_RUNTIME = {
                          'source by the standalone game_g7_land_audit.py finding-reporter.',
                  gates=['game_g7_throw.py'],
                  status='implemented-and-gated', evidence=''),
+    'backwalk': dict(
+        handler=None, gates=[], status='content-inapplicable',
+        evidence='claude_close_g7_g8_before_g10.md Part 1 audit: real OpenBOR '
+                 '`backwalk`/ANI_WALKBACK content (only MOUSER ships it, TMNT '
+                 'pak, checked directly against all 13 shipped roster .TXT '
+                 'files -- no other character declares it). This project '
+                 'implements a single generic Walk state with no distinct '
+                 'backward-movement mechanic; adding one is a new AI-movement '
+                 'feature, not part of this converter-role-selection defect '
+                 'class. Was previously the actual DEFECT (silently mis-'
+                 'claimed by the old attack2 fallback heuristic, wiring '
+                 'MOUSER\'s attack2 input to a walking animation instead of '
+                 'his real second attack, `upper`) -- now correctly excluded '
+                 'from that fallback and left honestly unmapped instead of '
+                 'silently wrong.'),
+    'upper': dict(
+        handler=None, gates=[], status='content-inapplicable',
+        evidence='claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is '
+                 'real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/'
+                 'FOOT04/MOUSER declare it with no literal `attack2` -- there '
+                 'it genuinely IS the character\'s one real second attack, '
+                 'shipped as the `attack2` role (see that entry) and gated by '
+                 'game_g7_attack2.py/game_g7_grab.py; this row only appears '
+                 'for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare '
+                 'BOTH a literal `attack2` AND a separate `upper`; source '
+                 'evidence it is not a genuinely distinct third move for '
+                 'these four: FOOT01/FOOT02\'s own real `atchain 1 2 3` '
+                 'explicitly excludes it from OpenBOR\'s real combo-chain '
+                 '(perform_atchain(), DCurrent/openbor engine/openbor.c); '
+                 'ROCK/BEBOP declare no atchain at all and their `upper` '
+                 'stanza is a near byte-identical duplicate of their own '
+                 '`attack2` (same source GIFs/hit coordinates, only cosmetic '
+                 'delay/range/offset drift) -- consistent with `upper` being '
+                 'the same legacy attack2-name convention as shape (a), kept '
+                 'declared rather than removed once the newer literal '
+                 '`attack2` name was authored. This project implements no '
+                 'per-model AI decision table or openborscript content (see '
+                 'openbor_script_vm_gap project memory), so there is no real, '
+                 'source-derived trigger for a genuinely separate third move '
+                 'here; inventing one (a spare button, an unbacked AI-random '
+                 'third choice) would be fabricated behavior, not implemented '
+                 'source content.'),
     'alias': dict(handler=None, gates=[], status='content-inapplicable',
                   evidence='Real BOR.C: alias is a cosmetic display-name override with '
                            'no gameplay effect (see alias_keyword_is_cosmetic_not_'
@@ -298,23 +340,47 @@ def build_ledger():
         claimed_ordinals = {v for v in roles.values() if isinstance(v, int)}
         for anim in moveset['animations']:
             anim_name = anim['name'].lower()
-            role_entry = ROLE_RUNTIME.get(anim_name)
+            ordinal = anim['ordinal']
             row = {
                 'character': name,
                 'source': f'out/{name}_moveset.json (converted; raw PAK path not '
                           f'retained in this artifact -- see convert_character.py '
                           f'call site for the real .pak/.TXT pair used)',
                 'animation': anim['name'],
-                'ordinal': anim['ordinal'],
+                'ordinal': ordinal,
                 'frames': anim['frames'],
-                'claimed_by_role': anim['ordinal'] in claimed_ordinals,
+                'claimed_by_role': ordinal in claimed_ordinals,
             }
+            # claude_close_g7_g8_before_g10.md Part 1/4 fix: some raw anim
+            # NAMES (e.g. 'upper') are genuinely ambiguous -- the SAME
+            # literal name is a real, implemented `attack2` for one
+            # character (RALF/LEATHER/FOOT03/FOOT04/MOUSER, no literal
+            # `attack2` anim of their own) and real, content-inapplicable
+            # standalone content for another (FOOT01/FOOT02/ROCK/BEBOP, who
+            # ALSO declare a literal `attack2`). A literal-name-first lookup
+            # can't distinguish these -- it would misclassify RALF's real,
+            # gated attack2 as content-inapplicable the moment 'upper' also
+            # got its own ROLE_RUNTIME entry. Resolve by OWNING ROLE first
+            # (roles dict insertion order already puts the canonical role
+            # name -- 'attack2' -- before an ambiguous alias like 'upper'
+            # when both map to the same ordinal, per convert_character.py's
+            # own resolution order), falling back to a literal-name lookup
+            # only when no role claims this ordinal at all.
+            owning_role = None
+            if ordinal in claimed_ordinals:
+                owning_role = next((r for r, o in roles.items() if o == ordinal), None)
+            role_entry = ROLE_RUNTIME.get(owning_role) if owning_role else None
+            if role_entry is None:
+                role_entry = ROLE_RUNTIME.get(anim_name)
             if role_entry is not None:
+                ev = role_entry['evidence']
+                if owning_role and owning_role != anim_name and ev:
+                    ev = f'(shipped as role `{owning_role}`) ' + ev
                 row.update(runtime_handler=role_entry['handler'],
                            owning_gates=role_entry['gates'],
                            classification=role_entry['status'],
-                           evidence=role_entry['evidence'])
-            elif anim['ordinal'] not in claimed_ordinals:
+                           evidence=ev)
+            elif ordinal not in claimed_ordinals:
                 # Real content exists, no known role name matches it, and no
                 # role claimed its ordinal -- this is exactly the
                 # "unshipped-source-content stays in the ledger" case, NOT
@@ -326,25 +392,11 @@ def build_ledger():
                                     f'ordinal was not claimed by any role resolution '
                                     f'pass in convert_character.py.')
             else:
-                # Claimed by a role whose name differs from the anim's own
-                # literal name (e.g. RALF's 'upper' anim claimed by the
-                # generic 'attack2' role) -- look up by role name instead.
-                owning_role = next((r for r, o in roles.items() if o == anim['ordinal']), None)
-                role_entry2 = ROLE_RUNTIME.get(owning_role) if owning_role else None
-                if role_entry2 is not None:
-                    ev = role_entry2['evidence']
-                    if ev:
-                        ev = f'(shipped as role `{owning_role}`) ' + ev
-                    row.update(runtime_handler=role_entry2['handler'],
-                               owning_gates=role_entry2['gates'],
-                               classification=role_entry2['status'],
-                               evidence=ev)
-                else:
-                    row.update(runtime_handler=None, owning_gates=[],
-                               classification='unhandled-error',
-                               evidence=f'Claimed by role `{owning_role}` but that role '
-                                        f'has no ROLE_RUNTIME entry -- ledger generator '
-                                        f'needs updating.')
+                row.update(runtime_handler=None, owning_gates=[],
+                           classification='unhandled-error',
+                           evidence=f'Claimed by role `{owning_role}` but that role '
+                                    f'has no ROLE_RUNTIME entry -- ledger generator '
+                                    f'needs updating.')
             rows.append(row)
 
         if atchain:

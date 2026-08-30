@@ -135,6 +135,7 @@
     "pain": 14,
     "fall": 15,
     "rise": 16,
+    "backwalk": null,
     "jump": 5,
     "jumpattack": 6,
     "jumpattack2": 7,

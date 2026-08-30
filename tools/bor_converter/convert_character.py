@@ -81,6 +81,22 @@ from convert_sprite import to_bgr555
 # not an exact-name match like the other four roles.
 ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 
+# claude_close_g7_g8_before_g10.md Part 1: 'backwalk' (OpenBOR's real
+# ANI_WALKBACK) is movement content, not a combat move -- confirmed a real
+# bug converting MOUSER (TMNT), whose file declares 'backwalk' (ordinal 1)
+# BEFORE its real second attack 'upper' (ordinal 7). The old attack2
+# fallback below picked "first otherwise-unclaimed ordinal" with no idea
+# 'backwalk' wasn't a combat move, silently wiring Mouser's attack2 input
+# to a walking animation and leaving 'upper' permanently inert. Resolved
+# into `roles`/`known_ordinals` unconditionally, the same way ROLE_NAMES'
+# five entries already are, so it can never be picked up by any fallback
+# heuristic -- this fixes the defect class (any future character
+# declaring backwalk before its real second move), not just Mouser.
+# roster audit: no other currently-shipped roster member declares
+# 'backwalk' (checked directly against all 13 real .TXT files), so this
+# is a pure regression-free addition for everyone else.
+EXTRA_MOVEMENT_ROLE_NAMES = ['backwalk']
+
 # Real jump slice (plan_game.md 7): 'jump'/'jumpattack'/'jumpattack2' are
 # real, unambiguous OpenBOR anim names (confirmed in LEO's real .TXT data --
 # no BOR-roster character declares any of them, so this is a pure addition,
@@ -236,38 +252,21 @@ def _derive_remap_palettes(pak_path, base_dir, remaps, idle_loaded,
     return results
 
 
-def convert_character(pak_path, entity_entry_name, out_prefix):
-    entity, anim_names = _enumerate_anims(pak_path, entity_entry_name)
-
-    loaded = [
-        _load_anim_frames(pak_path, entity_entry_name, anim_name,
-                           out_prefix + '_' + _sanitize(anim_name))
-        for anim_name in anim_names
-    ]
-
-    all_canvases = [c for L in loaded for c in L['canvases']]
-    all_masks = [m for L in loaded for m in L['masks']]
-    palette, all_frame_indices = _quantize_shared(all_canvases, all_masks)
-
-    results = []
-    per_anim_frame_indices = []
-    cursor = 0
-    for anim_name, L in zip(anim_names, loaded):
-        n = len(L['canvases'])
-        frame_indices = all_frame_indices[cursor:cursor + n]
-        cursor += n
-        per_anim_frame_indices.append(frame_indices)
-        out_dir = out_prefix + '_' + _sanitize(anim_name)
-        result = _write_anim_outputs(
-            out_dir, L['frames_meta'], frame_indices, palette,
-            L['entity_name'], anim_name, L['loop'], L['scale'], L['hotspot_canvas'])
-        results.append((anim_name, out_dir, result))
-
-    # Role assignment: first declared anim whose real name matches a role,
-    # case-insensitively. $FF-equivalent (None) if the character has none.
+def resolve_roles(anim_names):
+    """Pure role-resolution: maps a character's real declared animation
+    NAMES (declaration order, case-sensitive as authored) to the fixed set
+    of engine-known role ordinals this project's runtime understands. No
+    pak/image I/O -- this is the exact logic convert_character() used to
+    run inline, extracted (claude_close_g7_g8_before_g10.md Part 1) so it
+    can be unit-tested directly against a raw anim-name list without
+    needing a real .pak file, per that task's required regression coverage.
+    Returns the same `roles` dict convert_character()'s moveset.json stores.
+    """
     lower_names = [n.lower() for n in anim_names]
     roles = {}
     for role in ROLE_NAMES:
+        roles[role] = lower_names.index(role) if role in lower_names else None
+    for role in EXTRA_MOVEMENT_ROLE_NAMES:
         roles[role] = lower_names.index(role) if role in lower_names else None
     for role in OPTIONAL_ROLE_NAMES:
         roles[role] = lower_names.index(role) if role in lower_names else None
@@ -330,6 +329,52 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
             if ord_ is not None:
                 attack2_fallback_excluded.discard(ord_)
 
+    # claude_close_g7_g8_before_g10.md Part 1: 'upper' is ambiguous by
+    # design in real BOR/TMNT data -- confirmed by reading every shipped
+    # roster member's raw .TXT directly. Two real shapes exist:
+    #
+    #   (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare 'upper' with NO
+    #       literal 'attack2' anim at all -- 'upper' genuinely IS that
+    #       character's one real second attack (an older/alternate
+    #       OpenBOR animation-name convention for the role 'attack2' later
+    #       standardized). This is exactly the shape the fallback below
+    #       already handles correctly; 'upper' must stay eligible for it.
+    #
+    #   (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal 'attack2' AND
+    #       a separate 'upper'. Source evidence that 'upper' is real,
+    #       vestigial, but NOT a genuinely distinct third combat move for
+    #       these four:
+    #         - FOOT01/FOOT02's own real `atchain 1 2 3` explicitly
+    #           enumerates only attack1-3; OpenBOR's real combo-chain
+    #           mechanism (perform_atchain(), DCurrent/openbor engine/
+    #           openbor.c) never reaches 'upper' for them.
+    #         - ROCK/BEBOP declare no atchain at all (bosses), and their
+    #           'upper' stanza is a near byte-identical duplicate of their
+    #           own 'attack2' (same source GIFs, same hit coordinates,
+    #           only cosmetic delay/range/offset drift) -- not meaningfully
+    #           distinct content, consistent with 'upper' being the same
+    #           legacy attack2-alias convention as case (a), just kept
+    #           declared alongside the newer 'attack2' name rather than
+    #           replaced by it.
+    #       Neither shape gives this project (which implements no per-
+    #       model AI decision table or openborscript content -- see
+    #       openbor_script_vm_gap project memory, 0 real scripts needed
+    #       for BOR/TMNT) any real, source-derived condition under which
+    #       'upper' would fire as a genuinely separate move. Inventing one
+    #       (a spare button, an arbitrary AI-random third choice with no
+    #       source backing) would be fabricated behavior, not implemented
+    #       source content -- so for shape (b) 'upper' is recorded (for
+    #       audit/documentation completeness) but deliberately excluded
+    #       from attack2's fallback pool and given no runtime move slot:
+    #       proven content-inapplicable by raw-data and source evidence,
+    #       not merely left unassigned by omission.
+    if 'upper' in lower_names and 'attack2' in lower_names:
+        upper_ordinal = lower_names.index('upper')
+        if upper_ordinal not in known_ordinals:
+            roles['upper'] = upper_ordinal
+            known_ordinals.add(upper_ordinal)
+            attack2_fallback_excluded.add(upper_ordinal)
+
     # plan_game.md 7 (G7 remaining: a real second attack move, generic --
     # not hardcoded to any one character's real move name). Real per-
     # character second moves in RALF/JOE/JHUN/YASHIRO are NOT named
@@ -359,6 +404,19 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     if attack2_ordinal is not None:
         known_ordinals.add(attack2_ordinal)
 
+    # Record 'upper' for audit/documentation completeness in shape (a)
+    # (see the long comment above this fallback): when no literal
+    # 'attack2' existed, 'upper' -- if the character declares it -- IS
+    # whatever the fallback just picked as attack2_ordinal. This is a
+    # pure bookkeeping mirror (roles['upper'] == roles['attack2']), not a
+    # second independent resolution; shape (b) already set roles['upper']
+    # earlier, to a DIFFERENT, excluded ordinal.
+    if 'upper' not in roles and 'upper' in lower_names:
+        roles['upper'] = (
+            attack2_ordinal
+            if attack2_ordinal is not None and lower_names[attack2_ordinal] == 'upper'
+            else None)
+
     # plan_game.md 7 (grab mutual-lock slice): whether attack2's real anim
     # name is literally 'grab' -- derived from real converted data, never
     # hardcoded per character (moveset_pipeline_generalization's standing
@@ -386,6 +444,37 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
     roles['grab'] = grab_ordinal
     if grab_ordinal is not None:
         known_ordinals.add(grab_ordinal)
+    return roles
+
+
+def convert_character(pak_path, entity_entry_name, out_prefix):
+    entity, anim_names = _enumerate_anims(pak_path, entity_entry_name)
+
+    loaded = [
+        _load_anim_frames(pak_path, entity_entry_name, anim_name,
+                           out_prefix + '_' + _sanitize(anim_name))
+        for anim_name in anim_names
+    ]
+
+    all_canvases = [c for L in loaded for c in L['canvases']]
+    all_masks = [m for L in loaded for m in L['masks']]
+    palette, all_frame_indices = _quantize_shared(all_canvases, all_masks)
+
+    results = []
+    per_anim_frame_indices = []
+    cursor = 0
+    for anim_name, L in zip(anim_names, loaded):
+        n = len(L['canvases'])
+        frame_indices = all_frame_indices[cursor:cursor + n]
+        cursor += n
+        per_anim_frame_indices.append(frame_indices)
+        out_dir = out_prefix + '_' + _sanitize(anim_name)
+        result = _write_anim_outputs(
+            out_dir, L['frames_meta'], frame_indices, palette,
+            L['entity_name'], anim_name, L['loop'], L['scale'], L['hotspot_canvas'])
+        results.append((anim_name, out_dir, result))
+
+    roles = resolve_roles(anim_names)
 
     # Real BOR.C `atchain` (engine/openbor.c's perform_atchain()): a real
     # per-character combo-chain sequence over attack1-4 (1-based attack-
