@@ -2243,10 +2243,36 @@ or the Phase G8 pickup-reward path.
 
 ## §10 — Phase G10: ending and credits
 
-> **Status: NOT STARTED.**
+> **Status: PARTIAL (in progress, 2026-08-30, `claude_begin_g10_with_approval.md`).**
 
-Stage table exhausted → ending sequence → credits → back to title. Uses G1's text
-renderer and G2's state machine; mostly content once those exist.
+Stage table exhausted → ending sequence → credits → back to title. Reuses G1's
+text renderer (drip-draw step machine, same pattern as Title/CharSelect/Pause)
+and G2's state machine (new `GAME_STATE_ENDING` case, real body in
+`core/ending.pasm`, own ROM bank). No new subsystem invented.
+
+Source-of-truth: BOR's `DATA\SCENES\ENDING.TXT` plus `DATA\LEVELS.TXT`'s
+scene-after-last-level structure show a `playscene()`/`playgif()`-driven
+sequence — real content, but pixel-art GIF playback with no SNES equivalent.
+Documented adaptation: 3 real text pages stand in for that sequence (credit
+text drawn from the shipped scene copy where practical), any-button skip is
+faithfully ported (`Input_trigger` advance-or-timeout, matching the source's
+skip behavior), no dedicated ending music track since this project's audio
+pipeline only ever loads one song.
+
+Implemented: `Game_State_ENDING` dispatch body (`core/ending.pasm`, bank 10,
+16-step draw/wait/clear machine); real return-to-title; canonical
+`Game_State_NewGameReset` (lives/score/stage-index/spawn/stage reload) called
+from the one real choke point every path into gameplay shares
+(`CharSelect_Game_State_Play__charselect_enter_playing`), replacing the old
+ad hoc per-path reset gaps. Dedicated gate: `tools/verify/game_g10_ending_credits.py`
+(`GATE G10`), 14 checks, drives the real stage-clear → ending → 3 credits
+pages → title → new-game runtime path (not a direct-write shortcut past the
+transition itself), and audits state-reset (score/lives/stage-index cleared
+on the real CharSelect→Playing transition).
+
+Remaining before DONE: final documentation pass (README current-status,
+this file's own final wording) and the mandated one-time full regression
+suite + merge to master.
 
 ---
 

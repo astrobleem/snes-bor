@@ -251,11 +251,16 @@ Game_State_Play__charselect_enter_playing:
 .a8
     lda #CHARSELECT_STEP_DRAW_HEADER
     sta.l CharSelect_Step       ; reset for the next time CHARSELECT is entered
-    rep #$31
-.a16
-.i16
-    lda #GAME_STATE_PLAYING
-    sta.l Game_State
+    ; Phase G10 (plan_game.md 10): CHARSELECT is the one real choke point
+    ; every path into gameplay shares (only ever entered from TITLE -- see
+    ; this file's own header) -- the right place for the single canonical
+    ; "start a genuinely fresh game" reset (Game_Score/Game_StageIndex/
+    ; spawn+entity/player HP-position, via Stage_Load + Game_State_
+    ; RespawnPlayer), not just core/game_state.pasm's own pre-G10 direct
+    ; `Game_State=PLAYING` write. See Game_State_NewGameReset's own header
+    ; (core/game_state.pasm) for the full reasoning -- it sets Game_State
+    ; itself, so nothing further is needed here.
+    jsl Game_State_NewGameReset
     jmp Game_State_Play__charselect_done
 
 ; ----------------------------------------------------------------------

@@ -7191,6 +7191,23 @@ Options_ApplyMusicVolume_Long:
     jsr Tad_QueueCommand
     rtl
 
+; Stage_LoadAndRespawn_Long -- Phase G10: same trampoline pattern as
+; Anim_LoadCharacter_Long above, for core/ending.pasm's (bank 10)
+; Game_State_NewGameReset to reach these two bank-0, same-bank-only
+; (`rts`) core/game_state.pasm routines via one `jsl`. A single combined
+; trampoline (not two separate ones) -- the $C100-$FC00 region had only 4
+; spare bytes at this point (confirmed empirically: two separate
+; trampolines overflowed by exactly 4 bytes), same "relocate, don't
+; shrink" precedent core/spawn.pasm's own header cites, applied here as
+; "combine, don't duplicate" instead. Game_State_RespawnPlayer must run
+; AFTER Stage_Load (it reads the current camera position, which Stage_
+; Load itself resets for the new stage) -- sequencing them in one
+; trampoline is correct, not just smaller.
+Stage_LoadAndRespawn_Long:
+    jsr Stage_Load
+    jsr Game_State_RespawnPlayer
+    rtl
+
 ; ----------------------------------------------------------------------------
 ; plan_game.md 8a row 3 (`map`): MapApply_Index/PaletteBaseLo/PaletteBaseHi/
 ; MapBaseLo/MapBaseHi/PaletteSlot are WRAM constants owned and declared by
@@ -12106,6 +12123,25 @@ Text_Str_HudLives:
 Text_Str_HudStage:
     .db "STAGE ", $00
 
+; Phase G10 (plan_game.md 10): ending/credits screen strings. Same
+; full-32-column-padded convention as the title/pause strings above (see
+; those own comments for why) -- core/ending.pasm's own header documents
+; the real-source finding these map to (BOR's own DATA\SCENES\ENDING.TXT
+; scene script) and the documented SNES text adaptation in place of that
+; scene's real, un-portable pixel-art playback.
+Text_Str_EndingA1:
+    .db "YOU HAVE COMPLETED THE GAME     ", $00
+Text_Str_EndingA2:
+    .db "CONGRATULATIONS                 ", $00
+Text_Str_EndingB1:
+    .db "SNES-BOR: A FAN SA-1 SNES PORT  ", $00
+Text_Str_EndingB2:
+    .db "OF BEATS OF RAGE BY SENILETEAM  ", $00
+Text_Str_EndingC1:
+    .db "THANKS FOR PLAYING              ", $00
+Text_Str_EndingC2:
+    .db "MADE WITH POPPY + TAD + MESEN2  ", $00
+
 ; ============================================================================
 ; core/spawn.pasm -- relocated to its own bank (2026-08-22, the structural
 ; fix behind the repeated bank-0 $C100-$FC00 overflow: that window is a
@@ -12174,4 +12210,10 @@ Text_Str_HudStage:
 .bank 9
 .org $8000
 .include "core/depth_sort.pasm"
+
+; Phase G10 (plan_game.md 10): ending/credits body, own bank for the same
+; ROM-budget reason -- see core/ending.pasm's own header.
+.bank 10
+.org $8000
+.include "core/ending.pasm"
 
