@@ -1475,12 +1475,11 @@ before attributing either to this slice).
 ## §8 — Phase G8: items and pickups
 
 > **Status: item/pickup work COMPLETE as of the seventh slice (2026-08-29,
-> see bottom of this section) -- all 7 targeted gates pass.**
-> `phase12_roster.py`/`phase11_damage.py` are blocked by a separate,
-> pre-existing, root-caused-but-unfixed `AnimHeaderStaging` WRAM-scratch
-> collision (bisected off this slice's own changes -- see bottom of this
-> section and the `animheaderstaging_shared_scratch_collision` project
-> memory) that needs its own follow-up slice.
+> see bottom of this section) -- all 7 targeted gates pass, and
+> `phase12_roster.py`/`phase11_damage.py` are green too (fixed the same
+> day -- see bottom of this section; the "AnimHeaderStaging shared-scratch
+> collision" theory below turned out to be wrong on live tracing and has
+> been corrected).**
 >
 > **Status: PARTIAL (first slice DONE, 2026-08-21).** `GATE G8: PASS`
 > (`tools/verify/game_g8_props.py`). This section's own opening claim above
@@ -1739,30 +1738,63 @@ real bug fixed in this slice too: it compared the generic (idle,walk,attack)
 legitimately-earlier prop spawn could false-positive it. Fixed to check
 `CHAR_PICKUP_TYPE` identity instead.
 
-**Known pre-existing defect blocking `phase12_roster.py`/
-`phase11_damage.py` -- NOT caused by this slice, root-caused not fixed.**
-Bisected by trimming `ROSTER_PREFIXES` back to zero props and then to the
-pre-G8 13-fighter set and rebuilding: `CharSelect_RosterCount` corruption
-(and `phase11_damage.py`'s "entity 3 animation stalled" failure) reproduce
-identically with none of this slice's roster growth present, proving this
-predates and is independent of the item-asset work. Root cause found (see
-`animheaderstaging_shared_scratch_collision` project memory): `main.pasm`'s
-`AnimHeaderStaging` (`$7E2320`, 16 bytes), documented as private scratch for
-`Anim_LoadCharacter`'s own directory/header read, is actually reused as
-live per-frame 16x16-multiply scratch by at least three OTHER, unrelated,
-concurrently-running subsystems (`Anim_Play`'s own frame-offset math,
-`core/jump.pasm`'s parabola math, `core/vm/vm_native_engine.pasm`'s native
-calls) -- any of those running for a different entity while a roster
-reassignment's multi-step MSU-1 seek+read is in flight stomps the shared
-buffer. Three band-aids (bounded retry-on-magic-byte, bounded
-retry-on-range-check, NMI-disable bracket) were each implemented, measured
-live, found NOT to reliably suppress it, and reverted rather than left in
-as unproven complexity burning ROM budget. This item's own G8 checklist
-(item assets, catalog entries, spawn identity, pickup semantics, slot-reuse)
-is complete and independently verified; this defect needs its own follow-up
-slice (give `Anim_LoadCharacter`'s record read a private WRAM region, or
-serialize it against the other three subsystems) before `phase12_roster.py`
-and `phase11_damage.py` can go green again.
+**`phase12_roster.py`/`phase11_damage.py` corruption -- FIXED, 2026-08-29.
+The `AnimHeaderStaging` shared-scratch theory above was a live, honestly
+documented hypothesis at the time (real bisection did show the corruption
+predates this slice's own roster growth), but it did NOT hold up under
+live Mesen2 write-hook tracing and has been corrected. The real root cause
+is unrelated to `AnimHeaderStaging` entirely.**
+
+Real chain, traced instruction-by-instruction: `Anim_LoadCharacter`'s
+documented calling convention requires callers to be in `.a16`/`.i16`, and
+every one of its exit paths re-asserts `rep #$31`/`.a16`/`.i16` before its
+own `rts` to guarantee that on return. `core/spawn.pasm`'s
+`Spawn_DoRosterReassign` calls it via `jsl Anim_LoadCharacter_Long` from
+inside an explicit `sep #$20`/`.a8` region, then -- immediately after the
+call returns -- ran its `CharSelect_Index` save/restore pair
+(`lda.l Spawn_SavedCharSelectIndex` / `sta.l CharSelect_Index`) still
+assuming 8-bit `A`, without re-asserting `.a8` after the callee's `.a16`
+exit. Both instructions silently executed as 16-bit instead: the `lda.l`
+pulled in `Spawn_SavedCharSelectIndex`'s real byte plus one incidental
+adjacent WRAM byte as a bogus high byte, and the `sta.l` then wrote BOTH
+bytes across `CharSelect_Index` ($7E53B6, correct) AND the very next byte,
+`CharSelect_RosterCount` ($7E53B7, incidentally zeroed). This is a
+same-thread, fully synchronous accumulator-width leak across a `jsl`/`rtl`
+boundary -- not NMI interruption, not a deferred/multi-frame load lifetime,
+not another-entity processing, and not a WRAM address/lifetime conflict of
+any kind; `AnimHeaderStaging` was never involved. Fixed with the single
+missing `sep #$20`/`.a8` directive right after the `jsl` return, before the
+restore pair (see `spawn.pasm`'s own comment there for the full trace
+evidence). Verified deterministic (100% reproducible once the width state
+was traced, not a race), and confirmed the fix alone (not any diagnostic
+side effect) resolves it via extended live-frame checks with the fix
+stashed in and out.
+
+Two further, genuinely separate and pre-existing failures surfaced once
+that corruption was gone: `phase11_damage.py`'s "entity 3 still animating"
+and `phase12_roster.py`'s "Entity #3's CGRAM palette matches slot-3"
+checks both failed against stage 1B's real, unmodified spawn table (`git
+stash` of the width-leak fix reproduced both identically, proving they are
+unrelated to it). Root cause: `core/spawn.pasm`'s live spawn-table path
+(`Spawn_Play__slot3`) converts entity slots 2/3 from
+`CHAR_INPUT_DRIVEN_AI` to `CHAR_INPUT_DRIVEN_PROP` by ~frame 60 of stage
+1B's real content -- confirmed by direct WRAM trace, and confirmed for
+entity 3 specifically to also load a genuinely different CGRAM palette at
+that same point (not just a flag flip). Both gates' own test setups
+predated Phase G8's prop spawn path and assumed entities 2/3 stayed live
+AI controls for the whole run; that assumption is simply stale now, not an
+engine bug -- a static, single CGRAM palette and a static single-frame
+moveset are the CORRECT behavior for a real prop. Fixed in the gates
+themselves: `phase11_damage.py` now reads each entity's real
+`CHAR_INPUT_DRIVEN` at sample time and only requires frame-index variation
+from whichever are still genuinely AI (a prop's own static frame index is
+treated as expected, not a failure); `phase12_roster.py` now snapshots
+each non-player entity's boot-time CGRAM palette at frame 30 (after
+`CharSelect_RosterCount`/entity init settle, confirmed stable by frame 20,
+but before the ~frame-60 prop conversion), since its own claim ("each
+entity loaded its assigned roster slot at boot") is a boot-time claim.
+Both gates, the full static-audit pair, and `phase5`-`phase9` all pass
+clean, twice back-to-back, on the fixed tree.
 
 ---
 

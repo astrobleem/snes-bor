@@ -1396,6 +1396,28 @@ Spawn_DoRosterReassign:
     lda.l Spawn_ScratchRosterIdx
     sta.l CharSelect_Index
     jsl Anim_LoadCharacter_Long
+    ; ROOT CAUSE (animheaderstaging_shared_scratch_collision investigation,
+    ; corrected): Anim_LoadCharacter's every exit path re-asserts .a16/.i16
+    ; before its own rts (matches its "caller must be in .a16/.i16" header
+    ; contract) -- so control returns here with M=0 (16-bit A), NOT the M=1
+    ; this routine's own `sep #$20`/.a8 above set before the call. Without
+    ; re-asserting 8-bit here, the two lines below silently became a single
+    ; 16-bit lda.l/sta.l: `lda.l Spawn_SavedCharSelectIndex` pulled in BOTH
+    ; Spawn_SavedCharSelectIndex (low byte, e.g. 0 for the player) AND
+    ; whatever byte happens to follow it in WRAM as the high byte (not
+    ; itself the bug -- just whatever was adjacent), then `sta.l
+    ; CharSelect_Index` wrote BOTH bytes of that 16-bit
+    ; value across CharSelect_Index ($7E53B6, low) AND the very next byte,
+    ; CharSelect_RosterCount ($7E53B7, high) -- confirmed via live write-hook
+    ; evidence: CharSelect_Index/RosterCount corrupted to 0/0 in lockstep,
+    ; every time, deterministically, immediately after a live
+    ; Spawn_DoRosterReassign call (not a race -- 100% reproducible once this
+    ; width state is traced). This single missing directive is the entire
+    ; bug; the previously-committed shared-AnimHeaderStaging-scratch theory
+    ; in plan_game.md/project memory did not hold up under live tracing and
+    ; has been corrected.
+    sep #$20
+.a8
     lda.l Spawn_SavedCharSelectIndex
     sta.l CharSelect_Index
     rep #$31
