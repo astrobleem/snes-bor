@@ -1,0 +1,28 @@
+{
+  "entity": "Meat",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 1.3333333333333333,
+  "hotspot_canvas": [
+    16,
+    25
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        12,
+        19
+      ],
+      "bbox": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

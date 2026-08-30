@@ -14,9 +14,9 @@ File format (see the plan for the authoritative spec):
 
     0x00-0x07  magic "BORMSU1\0"
     0x08       format_version = 4               [was 2 -- see BG record v3/v4 below]
-    0x09       roster_count (1-15)   [cap bumped 8->15, roster-growth slice --
-               15 is a real hardware-arithmetic ceiling, not a round number,
-               see MAX_CHARACTERS's own comment]
+    0x09       roster_count (1-255, a real u8) -- MAX_CHARACTERS below is a
+               soft Python-side sanity cap only (see its own comment for
+               why the OLD 15-as-hardware-ceiling story is stale)
     0x0A       bg_count (0-MAX_BGS, a plain runtime byte -- MAX_BGS is this
                module's own soft Python-side sanity cap, bumped as real
                content grows, not a format limit like roster_count's 1-15)   [v2]
@@ -247,10 +247,13 @@ FORMAT_VERSION = 4
 # a record growth that immediately breaks the just-added LEO slot, the
 # engine side's seek got rewritten to a real 16-bit accumulate-by-repeated-
 # add loop (see main.pasm's Anim_LoadCharacter_SeekRecord) -- no more 8-bit
-# ceiling at all. MAX_CHARACTERS is kept at 15 here anyway: it's still a
-# real, sane sanity cap (roster_count's own field is a u8, 1-255), and nothing
-# today needs more than 15.
-MAX_CHARACTERS = 15
+# ceiling at all. MAX_CHARACTERS is a soft, adjustable Python-side sanity
+# cap only (roster_count's own field is a real u8, 1-255) -- bumped 15->17
+# (finish_g8_with_runtime_asset_swapping.md) to fit MONEY/MEAT/1UP's own
+# real catalog entries alongside the 13 playable fighters + APPLE already
+# shipped. Raise again freely if real content needs more; there is no
+# hardware wall left to hit.
+MAX_CHARACTERS = 17
 RECORD_SIZE = 48  # notjustfreespecial.txt G5 slice: +2 bytes -- waiting_
                    # frame_count/waiting_delay appended LAST (+46/+47), 0/0
                    # for every roster member without real `waiting` data

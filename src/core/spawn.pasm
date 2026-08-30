@@ -273,6 +273,58 @@ Spawn_ScratchPickupType = $7E584E ; .db -- G8 item/pickup slice: decoded
                                    ; CHAR_PICKUP_TYPE (main.pasm) by slot1/
                                    ; slot2/slot3 below, same pattern as
                                    ; Spawn_ScratchMap/MapApply_*.
+Spawn_ScratchPrevWasProp = $7E584F ; .db -- slot-reuse art-leak fix
+                                   ; (finish_g8_with_runtime_asset_swapping.md):
+                                   ; captured at the very top of each slotN
+                                   ; body, BEFORE that slot's own CHAR_
+                                   ; INPUT_DRIVEN is overwritten -- 1 if the
+                                   ; entity THIS RECORD IS ABOUT TO OVERWRITE
+                                   ; was a CHAR_INPUT_DRIVEN_PROP (a real
+                                   ; prop's art -- 1-frame idle/walk/attack,
+                                   ; its own tiny palette -- resident in this
+                                   ; slot's struct fields/CGRAM), 0 otherwise.
+                                   ; An ordinary (non-identified) enemy record
+                                   ; landing in such a slot does NOT normally
+                                   ; call Anim_LoadCharacter at all (ordinary
+                                   ; enemies intentionally render as a reskin
+                                   ; of whatever's already resident -- see
+                                   ; build_rom.py's ROSTER_PREFIXES comment),
+                                   ; so without this flag a real bug ships: an
+                                   ; "enemy" silently keeps a broken 1-frame
+                                   ; prop moveset and CGRAM colors. Consumed
+                                   ; by each slotN_not_boss branch below to
+                                   ; force one real Spawn_DoRosterReassign
+                                   ; back to that slot's own natural boot
+                                   ; default character (CharacterEntity_Init's
+                                   ; role1/2/3 roster index: JHUN=1/JOE=2/
+                                   ; YASHIRO=3) before ordinary AI dispatch
+                                   ; runs, restoring a real playable moveset
+                                   ; instead of leaving prop art in place.
+Spawn_SavedCharSelectIndex = $7E5850 ; .db -- real bug found+fixed
+                                   ; (finish_g8_with_runtime_asset_swapping.md):
+                                   ; Spawn_DoRosterReassign writes its target
+                                   ; roster index into the SAME shared
+                                   ; CharSelect_Index cell Anim_LoadCharacter
+                                   ; always reads its "which slot to load"
+                                   ; parameter from -- the only mechanism it
+                                   ; has. That cell doubles as the PLAYER's
+                                   ; own persistent char-select/Select-button
+                                   ; reselect state (main.pasm), so ANY spawn-
+                                   ; driven reassignment (boss OR the new
+                                   ; slot-restore path above) used to leave
+                                   ; it clobbered at whatever roster index it
+                                   ; last loaded -- invisible until this
+                                   ; slice made it reachable from a stage's
+                                   ; own BOOT-time spawn queue (stage 1B's
+                                   ; own real Money record, trigger_x=8, now
+                                   ; carries a real roster_idx now that MONEY
+                                   ; is a real roster member), corrupting the
+                                   ; player's own char-select state before
+                                   ; the player ever touches Select. Spawn_
+                                   ; DoRosterReassign now saves/restores
+                                   ; CharSelect_Index around its own write,
+                                   ; so no spawn-driven reassignment can ever
+                                   ; observably disturb it again.
 
 ; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
 ; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
@@ -787,6 +839,45 @@ Spawn_Play__find_slot_none:
     plp
     rtl                         ; no free slot -- record stays pending
 Spawn_Play__slot1:
+    ; Capture BEFORE anything below overwrites Entity1_InputDriven -- see
+    ; Spawn_ScratchPrevWasProp's own header comment.
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot1_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot1_prevflag_not_prop:
+    ; Real bug found regression-testing the slot-reuse restore fix
+    ; (finish_g8_with_runtime_asset_swapping.md): this gate used to fire
+    ; ONLY when the outgoing occupant was a real prop (guarding the
+    ; restore-to-default-character reassignment in the not_boss branch
+    ; below). But the not_prop/enemy branch further down ALSO does real,
+    ; unconditional raw MSU-1 hardware I/O every single spawn -- Anim_
+    ; ApplyMapPalette's own seek+read of $2000-$2003, called for every
+    ; enemy/boss record regardless of map value (0 still seeks the
+    ; character's own base palette). That call had NO busy gate at all.
+    ; Landing it while another entity's per-frame stream still has a
+    ; queued CC-DMA transfer in flight (Msu1_StreamBusy!=0) collides two
+    ; independent readers of the single MSU-1 data port ($2001) -- exactly
+    ; the corruption CLAUDE.md's one-stream-per-frame rule exists to
+    ; prevent. Confirmed via live WRAM polling: CharSelect_RosterCount
+    ; (main.pasm's Anim_LoadCharacter, unrelated call) came back reading
+    ; garbage bytes off the MSU port a couple frames after this branch
+    ; started firing every spawn once MONEY/MEAT/1UP made non-prop records
+    ; interleave with prop records much more often. Made this check
+    ; unconditional -- nothing has mutated yet at this point (same "gate
+    ; before touching anything" discipline as the top-level SPAWN_KIND_
+    ; BOSS_IDENTIFIED/PROP dispatch gate above), so bailing is a clean
+    ; no-op retry next frame -- Spawn_Index hasn't advanced.
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot1_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot1_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -888,6 +979,22 @@ Spawn_Play__slot1_not_prop:
     bne Spawn_Play__slot1_not_boss
     lda #1
     sta.l Entity1_IsBoss
+    ; An unidentified SPAWN_KIND_BOSS record is just as real-art-silent as
+    ; an ordinary enemy record (no Spawn_DoRosterReassign call otherwise)
+    ; -- same slot1_not_boss restore-if-prev-was-prop logic applies here
+    ; too, not just the plain-enemy path.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot1_boss_no_restore
+    lda #1
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot1_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_boss_identified:
 .a8
@@ -909,8 +1016,45 @@ Spawn_Play__slot1_not_boss:
 .a8
     lda #0
     sta.l Entity1_IsBoss
+    ; Slot-reuse art-leak fix (finish_g8_with_runtime_asset_swapping.md):
+    ; an ordinary (non-identified) enemy record never calls Anim_
+    ; LoadCharacter on its own -- restore this slot's own natural boot
+    ; default character (JHUN, roster index 1 -- see CharacterEntity_
+    ; Init's role-1 branch) first if the entity being overwritten was a
+    ; real prop. Msu1_StreamBusy already confirmed clear by the prevflag
+    ; block above, before any of this record's own writes landed.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot1_no_restore
+    lda #1
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot1_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2:
+    ; See slot1's own identical comment/pattern (unconditional Msu1_
+    ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
+    ; not just a prop restore; see slot1's full explanation).
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot2_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot2_prevflag_not_prop:
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot2_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot2_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -990,6 +1134,19 @@ Spawn_Play__slot2_not_prop:
     bne Spawn_Play__slot2_not_boss
     lda #1
     sta.l Entity2_IsBoss
+    ; See slot1's identical unidentified-boss restore comment.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot2_boss_no_restore
+    lda #2
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot2_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_boss_identified:
 .a8
@@ -1008,8 +1165,40 @@ Spawn_Play__slot2_not_boss:
 .a8
     lda #0
     sta.l Entity2_IsBoss
+    ; See slot1_not_boss's own identical comment -- restores JOE (roster
+    ; index 2, this slot's own natural boot default).
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot2_no_restore
+    lda #2
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot2_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3:
+    ; See slot1's own identical comment/pattern (unconditional Msu1_
+    ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
+    ; not just a prop restore; see slot1's full explanation).
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot3_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot3_prevflag_not_prop:
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot3_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot3_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -1089,6 +1278,19 @@ Spawn_Play__slot3_not_prop:
     bne Spawn_Play__slot3_not_boss
     lda #1
     sta.l Entity3_IsBoss
+    ; See slot1's identical unidentified-boss restore comment.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot3_boss_no_restore
+    lda #3
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot3_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_boss_identified:
 .a8
@@ -1107,6 +1309,20 @@ Spawn_Play__slot3_not_boss:
 .a8
     lda #0
     sta.l Entity3_IsBoss
+    ; See slot1_not_boss's own identical comment -- restores YASHIRO
+    ; (roster index 3, this slot's own natural boot default).
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot3_no_restore
+    lda #3
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot3_no_restore:
 
 Spawn_Play__advance:
     sep #$20
@@ -1171,9 +1387,17 @@ Spawn_DoRosterReassign:
     tcd
     sep #$20
 .a8
+    ; Save/restore CharSelect_Index around this write -- see Spawn_
+    ; SavedCharSelectIndex's own header comment for the real bug this
+    ; closes (a spawn-driven reassignment must never observably disturb
+    ; the player's own persistent char-select/Select-button state).
+    lda.l CharSelect_Index
+    sta.l Spawn_SavedCharSelectIndex
     lda.l Spawn_ScratchRosterIdx
     sta.l CharSelect_Index
     jsl Anim_LoadCharacter_Long
+    lda.l Spawn_SavedCharSelectIndex
+    sta.l CharSelect_Index
     rep #$31
 .a16
 .i16

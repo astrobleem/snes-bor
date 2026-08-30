@@ -6434,6 +6434,19 @@ Anim_LoadCharacter__msu_ok:
 
     ; --- Seek to file header (offset 0), read 16 bytes, extract
     ; roster_count (byte 9) ---
+    ; NOTE (2026-08-28/29): live WRAM polling during G8 item-asset work
+    ; found CharSelect_RosterCount (derived from byte +11 below) reading
+    ; garbage after a spawn-driven Spawn_DoRosterReassign call in some
+    ; sessions. Three defensive fixes here (bounded retry, magic-byte
+    ; check, range check on +11) were each tried, measured live, and
+    ; found NOT to reliably stop it -- reverted rather than left in as
+    ; unproven complexity burning ROM budget. Root cause is still
+    ; unresolved; see project memory / plan_game.md G8 notes before
+    ; re-attempting a fix here. A plain, unretried seek+read is restored
+    ; below (pre-existing shape) pending that investigation.
+    sep #$20
+.a8
+    lda #0
     sta $2000
     sta $2001
     sta $2002

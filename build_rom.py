@@ -40,9 +40,14 @@ import pack_msu_roster
 # specific AI slot when that spawn's real character is in the roster (see
 # spawn.pasm's SPAWN_KIND_BOSS_IDENTIFIED). That made the roster's OWN
 # 8-slot cap the real remaining limiter -- grown to 15 (pack_msu_
-# roster.py's MAX_CHARACTERS; 15 is a real hardware-arithmetic ceiling of
-# main.pasm's existing 8-bit directory-seek math, not an arbitrary number,
-# see that constant's own comment), and BEBOP converted fresh (it was never
+# roster.py's MAX_CHARACTERS). STALE as of finish_g8_with_runtime_asset_
+# swapping.md: main.pasm's directory-seek was ALREADY rewritten to a real
+# 16-bit accumulate loop by this same slice (see Anim_LoadCharacter_
+# SeekRecord's own comment) -- 15 was never a hardware ceiling after that
+# rewrite, only a soft Python-side sanity cap this comment mis-described;
+# see pack_msu_roster.py's MAX_CHARACTERS for the corrected story. Grown
+# again to 17 in the asset-swapping slice for MONEY/MEAT/1UP. BEBOP
+# converted fresh in this slice too (it was never
 # actually converted before -- Bebop's own boss stage always rendered a
 # reskin) plus FOOT02-04 added using the new headroom. Ordinary (non-boss)
 # enemies still render as a reskin: only characters deliberately added to
@@ -65,19 +70,21 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser
                    "out/leo",
                    # Real prop/pickup sprite art (notjustfreespecial.txt
                    # follow-up to G8's own "deliberately still not done"
-                   # item): APPLE is a real MISC item entity (DATA\CHARS\
-                   # MISC\APPLE.TXT), converted via tools/bor_converter/
-                   # convert_prop.py (its own idle-only pipeline, NOT
-                   # convert_character.py -- see that script's docstring for
-                   # why). A representative single real converted prop, not
-                   # every pickup type -- build_spawn_table.py's roster_
-                   # lookup-by-item-name mechanism (same one bosses already
-                   # use) picks this up automatically for any spawn whose
-                   # real item name is "apple", with zero engine-side
-                   # per-item-type code; other pickup types (money/meat/
-                   # 1up) still render using a borrowed roster character
-                   # until they get their own convert_prop.py pass too.
-                   "out/apple"]
+                   # item, completed in finish_g8_with_runtime_asset_
+                   # swapping.md): every real MISC item entity BOR's own
+                   # shipped levels reference (DATA\CHARS\MISC\*.TXT),
+                   # converted via tools/bor_converter/convert_prop.py (its
+                   # own idle-only pipeline, NOT convert_character.py -- see
+                   # that script's docstring for why). These are real
+                   # catalog entries for Spawn_DoRosterReassign's purposes
+                   # (see PLAYABLE_ROSTER_COUNT below -- they are NOT
+                   # player-selectable), always listed after every real
+                   # fighter for that same reason. build_spawn_table.py's
+                   # roster_lookup-by-item-name mechanism (same one bosses
+                   # already use) picks each of these up automatically for
+                   # any spawn whose real item name matches, with zero
+                   # engine-side per-item-type code.
+                   "out/apple", "out/money", "out/meat", "out/1up"]
 
 # Real prop/pickup sprite art converted via convert_prop.py (see the
 # ROSTER_PREFIXES comment above) is a real roster member for Spawn_

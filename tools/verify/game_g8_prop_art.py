@@ -163,15 +163,20 @@ def main():
             r.finish()
             return
 
-        # --- Before the apple record triggers: no AI slot already shows
-        # apple's own real triple (rules out a false positive from
-        # whatever generic character happened to boot into that slot). ---
+        # --- Before the apple record triggers: no AI slot already carries
+        # PICKUP_TYPE_APPLE specifically. NOTE: comparing the (1,1,1)
+        # animation-triple shape alone is NOT a valid apple-specific guard
+        # -- every convert_prop.py-converted item (apple/money/meat/1up)
+        # shares that identical idle=1/walk=1/attack=1 shape, so a
+        # different, legitimately-earlier prop spawn (e.g. money) in this
+        # level would false-positive here. Check the actual pickup-type
+        # identity instead.
         m.run_frames(10)
         m.pause()
-        before = {slot: entity_triple(m, ENTITY_BASES[slot]) for slot in (1, 2, 3)}
-        r.check(f'no AI slot already shows apple\'s real triple {expected_triple} '
-                 f'before its record triggers (got {before})',
-                 expected_triple not in before.values())
+        before_pickup = {slot: byte_at(m, ENTITY_BASES[slot] + CHAR_PICKUP_TYPE) for slot in (1, 2, 3)}
+        r.check(f'no AI slot already carries PICKUP_TYPE_APPLE ({PICKUP_TYPE_APPLE}) '
+                 f'before its record triggers (got {before_pickup})',
+                 PICKUP_TYPE_APPLE not in before_pickup.values())
 
         # --- Drive the real single global spawn queue directly to record
         # #36 (same "advance Spawn_Index, free AI slots, force the camera"
@@ -227,7 +232,7 @@ def main():
         # Pre-existing gap, unrelated to this slice -- not something to
         # silently paper over, but also not this gate's real proof.
         after_triple = entity_triple(m, ENTITY_BASES[apple_slot])
-        print(f'slot {apple_slot} triple before={before.get(apple_slot)} '
+        print(f'slot {apple_slot} triple before_pickup={before_pickup.get(apple_slot)} '
               f'after={after_triple} expected={expected_triple}')
         r.check(f'slot {apple_slot} now shows apple\'s OWN real converted '
                  f'(idle,walk,attack) triple {expected_triple} (got {after_triple}) '

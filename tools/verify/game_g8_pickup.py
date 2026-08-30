@@ -133,6 +133,15 @@ def reset_combat_state(m):
     m.write_u8(Entity2 + CHAR_SELECTED, 0)
     m.write_u8(Entity2 + CHAR_HIT_STUN, 0)
     m.write_u8(Entity1_InvulnFrames, 0)
+    # Real, pre-existing flake root-caused (found while investigating the
+    # G8 asset-swapping slice): consecutive scenarios in this same Mesen
+    # session each call m.set_input(m.BTN_Y, 1) with no release between
+    # them -- input.pasm's press-edge detection needs a real release
+    # before a fresh press is seen as a new attack (same class of bug
+    # found and fixed in game_vertical_slice.py's own pickup segment), so
+    # a later scenario's attack can silently never land. Release here.
+    m.set_input(0, 5)
+    m.pause()
 
 
 def poll_until(m, predicate, max_frames):

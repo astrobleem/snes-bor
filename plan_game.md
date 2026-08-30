@@ -52,9 +52,11 @@ measurably changes from whatever roster member it booted with to the
 boss's own real converted numbers, the moment its real spawn record
 triggers. **Follow-up, same day (roster-growth slice)**: the roster format's
 8-slot cap was investigated and genuinely grown, not re-flagged as blocked —
-`pack_msu_roster.py`'s `MAX_CHARACTERS` is now 15 (a real hardware ceiling of
-main.pasm's existing 8-bit directory-seek arithmetic, not a round number),
-and Bebop was converted fresh and added as roster slot 8, so its own boss
+`pack_msu_roster.py`'s `MAX_CHARACTERS` was grown to 15 then (STALE as of
+`finish_g8_with_runtime_asset_swapping.md`: this was never actually a
+hardware ceiling after this same slice's own directory-seek rewrite to a
+16-bit accumulate loop — see `MAX_CHARACTERS`'s own corrected comment;
+it's now 17). Bebop was converted fresh and added as roster slot 8, so its own boss
 stage now identifies for real too (`GATE G9-TMNT-BOSS` updated accordingly).
 **Follow-up, same day (LEO slice)**: added LEO (TMNT) as roster slot 12 —
 `data\MODELS.TXT` shows this pak's own author only actively loads Leo as a
@@ -1472,6 +1474,14 @@ before attributing either to this slice).
 
 ## §8 — Phase G8: items and pickups
 
+> **Status: item/pickup work COMPLETE as of the seventh slice (2026-08-29,
+> see bottom of this section) -- all 7 targeted gates pass.**
+> `phase12_roster.py`/`phase11_damage.py` are blocked by a separate,
+> pre-existing, root-caused-but-unfixed `AnimHeaderStaging` WRAM-scratch
+> collision (bisected off this slice's own changes -- see bottom of this
+> section and the `animheaderstaging_shared_scratch_collision` project
+> memory) that needs its own follow-up slice.
+>
 > **Status: PARTIAL (first slice DONE, 2026-08-21).** `GATE G8: PASS`
 > (`tools/verify/game_g8_props.py`). This section's own opening claim above
 > was **false** and got corrected as part of landing this slice: the spawn
@@ -1704,6 +1714,55 @@ poll against the same CHAR_POS_Y-derived expected-order ground truth the
 gate's own post-loop cross-check already uses -- removing the magic
 number rather than growing it again. Both re-verified clean across
 repeated runs.
+
+**Seventh slice DONE (finish_g8_with_runtime_asset_swapping.md): the
+remaining three items get real sprite art, `MAX_CHARACTERS` raised
+15->17.** `out/money`/`out/meat`/`out/1up` converted via the same
+`convert_prop.py` pipeline apple used, added as roster slots 14/15/16
+(`build_rom.py`'s `ROSTER_PREFIXES`); `pack_msu_roster.py`'s `MAX_CHARACTERS`
+raised to accommodate. A real slot-reuse art-leak bug found and fixed along
+the way: when an AI slot previously carrying a prop got reassigned to a
+plain enemy/boss (not another prop), `core/spawn.pasm` never restored it
+off the prop's borrowed art -- fixed via `Spawn_ScratchPrevWasProp` capture
++ restore in `Spawn_Play__slot1/2/3`. A second real bug, `CharSelect_Index`
+corruption across `Spawn_DoRosterReassign` calls, fixed via save/restore
+around the reassignment.
+
+All 7 targeted G8-cluster gates pass clean on the current tree:
+`game_g8_pickup.py`, `game_g8_pickup_chain.py`, `game_g8_props.py`,
+`game_spawn_roster_reassign.py`, `game_g8_prop_art.py`,
+`game_health_override.py`, `game_g8_asset_swapping.py` (new gate for this
+slice's own slot-reuse fix). `game_g8_prop_art.py`'s own pre-check had a
+real bug fixed in this slice too: it compared the generic (idle,walk,attack)
+`(1,1,1)` triple shape, which EVERY `convert_prop.py`-converted item shares
+(apple/money/meat/1up all look identical by that metric) -- a different,
+legitimately-earlier prop spawn could false-positive it. Fixed to check
+`CHAR_PICKUP_TYPE` identity instead.
+
+**Known pre-existing defect blocking `phase12_roster.py`/
+`phase11_damage.py` -- NOT caused by this slice, root-caused not fixed.**
+Bisected by trimming `ROSTER_PREFIXES` back to zero props and then to the
+pre-G8 13-fighter set and rebuilding: `CharSelect_RosterCount` corruption
+(and `phase11_damage.py`'s "entity 3 animation stalled" failure) reproduce
+identically with none of this slice's roster growth present, proving this
+predates and is independent of the item-asset work. Root cause found (see
+`animheaderstaging_shared_scratch_collision` project memory): `main.pasm`'s
+`AnimHeaderStaging` (`$7E2320`, 16 bytes), documented as private scratch for
+`Anim_LoadCharacter`'s own directory/header read, is actually reused as
+live per-frame 16x16-multiply scratch by at least three OTHER, unrelated,
+concurrently-running subsystems (`Anim_Play`'s own frame-offset math,
+`core/jump.pasm`'s parabola math, `core/vm/vm_native_engine.pasm`'s native
+calls) -- any of those running for a different entity while a roster
+reassignment's multi-step MSU-1 seek+read is in flight stomps the shared
+buffer. Three band-aids (bounded retry-on-magic-byte, bounded
+retry-on-range-check, NMI-disable bracket) were each implemented, measured
+live, found NOT to reliably suppress it, and reverted rather than left in
+as unproven complexity burning ROM budget. This item's own G8 checklist
+(item assets, catalog entries, spawn identity, pickup semantics, slot-reuse)
+is complete and independently verified; this defect needs its own follow-up
+slice (give `Anim_LoadCharacter`'s record read a private WRAM region, or
+serialize it against the other three subsystems) before `phase12_roster.py`
+and `phase11_damage.py` can go green again.
 
 ---
 
@@ -2155,19 +2214,24 @@ The two shortcuts from §0 come due here.
   openborscript VM, explicitly shelved. BOR's own remaining ~12 stages
   were never a priority once TMNT proved the pipeline is level-agnostic
   across paks — this is throughput, not research, whenever it's wanted.
-- **Characters.** 13 of ~24+ converted and in the roster (RALF/JHUN/JOE/
-  YASHIRO from BOR; MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02/FOOT03/FOOT04/
-  LEO from TMNT) — the roster format's cap was grown 8→15 (roster-growth
-  slice, a real hardware-arithmetic ceiling of `main.pasm`'s existing
-  8-bit directory-seek math, not an arbitrary number — see
-  `pack_msu_roster.py`'s `MAX_CHARACTERS`), so 2 slots remain free today.
-  A frequency/shape analysis of every real spawn across all 9 TMNT levels
-  (`mouser` 67×, the Foot Soldier family 130× combined, Rock/Bebop/Leather
-  1-3× each as named bosses) confirms every recurring enemy shape already
-  has a dedicated slot — there is no hidden 6th fighter archetype to spend
-  the remaining 2 on. Adding more real characters past 15 total would need
-  the seek routine rewritten to carry into a second byte first, not just
-  another conversion pass.
+- **Characters.** 13 of ~24+ fighters converted and in the roster (RALF/
+  JHUN/JOE/YASHIRO from BOR; MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02/
+  FOOT03/FOOT04/LEO from TMNT), plus 4 real non-playable prop/item records
+  (APPLE/MONEY/MEAT/1UP, `finish_g8_with_runtime_asset_swapping.md`) — 17
+  of `MAX_CHARACTERS`'s current 17-slot cap used. **The old "8→15 is a
+  real hardware ceiling" story was WRONG and is corrected here**: `main.
+  pasm`'s directory-seek was rewritten to a real 16-bit accumulate loop in
+  the very same roster-growth slice that grew the cap, so nothing about
+  the seek arithmetic has capped this since — `MAX_CHARACTERS` (`pack_
+  msu_roster.py`) is a soft, freely-adjustable Python-side sanity number,
+  raised again 15→17 for the two new prop entries with zero engine-side
+  seek changes needed, and can be raised again the same way. A frequency/
+  shape analysis of every real spawn across all 9 TMNT levels (`mouser`
+  67×, the Foot Soldier family 130× combined, Rock/Bebop/Leather 1-3× each
+  as named bosses) confirms every recurring FIGHTER shape already has a
+  dedicated slot — there is no hidden 6th fighter archetype waiting on
+  headroom. Adding more real content past 17 total is a one-line constant
+  bump, not an architecture change.
 - **Enemies on screen.** The `Msu1_StreamBusy` one-stream-per-frame rule caps
   effective animation rate at 1/N. Six enemies means ~10fps animation. Options,
   roughly in order of cost: keep frequently-used frames VRAM-resident instead of
