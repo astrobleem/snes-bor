@@ -306,7 +306,6 @@ Core_Oam_Play:
     ; this session's additions grew it further. jmp is absolute, no range
     ; limit.
     jmp Core_Oam_Play__done
-    nop
 ; Transfers only the ACTIVE sprite range (0..Oam_CurrentSlot for the main
 ; table, ceil(sprite_count/4) bytes for the hi table) instead of the fixed
 ; full 544-byte table every frame. Real hardware OAM slots beyond the
@@ -555,9 +554,13 @@ Core_Oam_SetSprite:
 ; exact file. Still: raw-byte-verify every guarded label in this file after
 ; this change, same as any edit that shifts code size in the $C100-$FC00
 ; window -- see poppy_assembler_bugs.md bug #4.
-    nop
-    nop
-    nop
+    ; G11 ROM-budget note: this label used to carry a 3-byte nop guard
+    ; against the old Poppy jsl-sizing bug (poppy_assembler_bugs.md bug
+    ; #4) -- CLAUDE.md confirms that bug is fixed in this project's fork
+    ; and the guard is unnecessary scar tissue; removed here to make room
+    ; for G11's real-hit-SFX call site elsewhere in this same $C100-$FC00
+    ; region. check_label_drift.py (run every build) is the regression
+    ; detector if this turns out to be wrong.
 Core_Oam_TransformHiOam:
     php
     rep #$31

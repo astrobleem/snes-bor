@@ -2276,14 +2276,46 @@ phase was `partial`, then flips to `done` here.
 
 ---
 
-## §11 — Phase G11: SFX (blocked on content, not code)
+## §11 — Phase G11: real landed-hit SFX (DONE)
 
-`soundwork/tad/build/audio-enums.inc` exports exactly one placeholder effect
-(`sfx_stub = 0`). **A real punch/hit sound must be authored in the Terrific Audio
-Driver project first**; only then is there anything to trigger from
-`Character_HitApply`. The engine side is a few lines. This is a content task
-wearing a code task's clothes — schedule it accordingly, and do not let it block
-anything else.
+One real hit sound (BOR's own `DATA\SOUNDS\BEAT1.WAV`) now plays on every
+accepted, non-grab landed hit — player-vs-AI (`Character_HitApply_VsEntity1/
+2/3` → `Character_HitApply__ScoreAndFinish`) and AI-vs-player
+(`Character_HitApply_VsPlayer`) alike, via `soundwork/tad/build/audio-enums.
+inc`'s `sfx_hit = 1` (additive; `sfx_stub` stays 0).
+
+The blocker this section used to describe — no authoring project existed for
+`soundwork/tad/build/audio-data.bin`, only its compiled outputs survived —
+was resolved by forensic reconstruction, not by treating it as a stop
+condition. `soundwork/tad/project/02_coin.terrificaudio` (real TAD v0.4.2
+project, checked in) was rebuilt from the surviving artifacts: a from-scratch
+bytecode disassembler (grounded in the real `audio-driver/src/bytecode.inc`
+source) decoded the shipped `s02_coin` song's actual note/instrument/timing
+content, re-encoded it back to MML, and recompiling that MML reproduces
+336/341 identical bytes against the original — the remaining 5 bytes are
+isolated to non-melodic echo/pan header settings. The shared BRR sample was
+recovered losslessly (extracted verbatim, not re-encoded) and reused
+byte-for-byte. Adding `sfx_hit` on top is purely additive, verified not to
+perturb a single further byte of `s02_coin`'s own compiled output.
+
+A real, project-specific bug surfaced and got fixed along the way: the new
+SFX call sites run under a `CharacterEntity`'s own per-instance `OopDp`
+window (see CLAUDE.md's entity-system section), but `Tad_QueueSoundEffect`'s
+`Tad_sfxQueue_sfx`/`Tad_sfxQueue_pan` are bare-DP-addressed and assume
+`D=$0000` (true for every pre-G11 caller, which only ever ran at boot or from
+the pause menu). Confirmed via `add_write_hook`/`add_exec_hook`/`trace_log`
+instrumentation (not guesswork) that the write genuinely executed but landed
+on the wrong physical byte; fixed with a shared `Tad_QueueSoundEffect_D0`
+helper (`phd`/`pea $0000`/`pld` ... `pld`/`rts`) both call sites tail-jmp
+into.
+
+Gate: `tools/verify/game_g11_sfx.py` (`GATE G11: PASS`) — whiff→none,
+landed hit→queues once, continued overlap→no re-fire, second hit→fires
+again, AI-vs-player→fires via the `VsPlayer` leaf too, grab-lock (real JOE
+mutual-lock, not simulated state)→none, existing song/DSP state unaffected,
+and real DSP-voice audibility evidence (majority-of-5 hit-vs-no-hit peak
+comparison) distinguishing "command queued" from "driver actually produced
+audible output," per this phase's own original requirement.
 
 ---
 
