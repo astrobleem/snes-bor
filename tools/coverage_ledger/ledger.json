@@ -12,7 +12,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "ralf",
@@ -27,7 +29,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "ralf",
@@ -41,7 +45,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "ralf",
@@ -55,7 +61,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "ralf",
@@ -69,7 +77,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "ralf",
@@ -84,7 +94,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "ralf",
@@ -99,7 +111,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "jhun",
@@ -114,7 +128,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "jhun",
@@ -129,7 +145,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "jhun",
@@ -143,7 +161,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "jhun",
@@ -157,7 +177,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "jhun",
@@ -171,7 +193,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "jhun",
@@ -186,7 +210,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "jhun",
@@ -200,7 +226,9 @@
       "game_g7_jump.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "joe",
@@ -215,7 +243,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "joe",
@@ -230,7 +260,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "joe",
@@ -244,7 +276,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "joe",
@@ -258,7 +292,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "joe",
@@ -272,7 +308,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "joe",
@@ -287,7 +325,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "joe",
@@ -302,7 +342,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "yashiro",
@@ -317,7 +359,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "yashiro",
@@ -332,7 +376,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "yashiro",
@@ -346,7 +392,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "yashiro",
@@ -360,7 +408,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "yashiro",
@@ -374,7 +424,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "yashiro",
@@ -389,7 +441,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "mouser",
@@ -404,7 +458,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "mouser",
@@ -416,7 +472,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit: real OpenBOR `backwalk`/ANI_WALKBACK content (only MOUSER ships it, TMNT pak, checked directly against all 13 shipped roster .TXT files -- no other character declares it). This project implements a single generic Walk state with no distinct backward-movement mechanic; adding one is a new AI-movement feature, not part of this converter-role-selection defect class. Was previously the actual DEFECT (silently mis-claimed by the old attack2 fallback heuristic, wiring MOUSER's attack2 input to a walking animation instead of his real second attack, `upper`) -- now correctly excluded from that fallback and left honestly unmapped instead of silently wrong."
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit: real OpenBOR `backwalk`/ANI_WALKBACK content (only MOUSER ships it, TMNT pak, checked directly against all 13 shipped roster .TXT files -- no other character declares it). This project implements a single generic Walk state with no distinct backward-movement mechanic; adding one is a new AI-movement feature, not part of this converter-role-selection defect class. Was previously the actual DEFECT (silently mis-claimed by the old attack2 fallback heuristic, wiring MOUSER's attack2 input to a walking animation instead of his real second attack, `upper`) -- now correctly excluded from that fallback and left honestly unmapped instead of silently wrong.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "mouser",
@@ -431,7 +489,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "mouser",
@@ -445,7 +505,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "mouser",
@@ -459,7 +521,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "mouser",
@@ -473,7 +537,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "mouser",
@@ -488,7 +554,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "mouser",
@@ -503,7 +571,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -518,7 +588,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot01",
@@ -533,7 +605,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot01",
@@ -547,7 +621,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot01",
@@ -561,7 +637,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -575,7 +653,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -590,7 +670,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -605,7 +687,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -619,7 +703,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot01",
@@ -631,7 +717,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content."
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot01",
@@ -645,7 +733,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -660,7 +750,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "rock",
@@ -675,7 +767,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "rock",
@@ -689,7 +783,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "rock",
@@ -703,7 +799,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -717,7 +815,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -731,7 +831,9 @@
       "game_g7_riseattack.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -746,7 +848,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -761,7 +865,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "rock",
@@ -773,7 +879,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content."
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leather",
@@ -788,7 +896,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leather",
@@ -803,7 +913,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leather",
@@ -817,7 +929,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leather",
@@ -831,7 +945,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leather",
@@ -845,7 +961,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leather",
@@ -859,7 +977,9 @@
       "game_g7_riseattack.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leather",
@@ -874,7 +994,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leather",
@@ -889,7 +1011,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -904,7 +1028,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "bebop",
@@ -919,7 +1045,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "bebop",
@@ -933,7 +1061,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "bebop",
@@ -947,7 +1077,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -961,7 +1093,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -975,7 +1109,9 @@
       "game_g7_riseattack.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -990,7 +1126,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -1005,7 +1143,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "bebop",
@@ -1017,7 +1157,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content."
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot02",
@@ -1032,7 +1174,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot02",
@@ -1047,7 +1191,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot02",
@@ -1061,7 +1207,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot02",
@@ -1075,7 +1223,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot02",
@@ -1089,7 +1239,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot02",
@@ -1104,7 +1256,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot02",
@@ -1119,7 +1273,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot02",
@@ -1133,7 +1289,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot02",
@@ -1145,7 +1303,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content."
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot02",
@@ -1159,7 +1319,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot03",
@@ -1174,7 +1336,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot03",
@@ -1189,7 +1353,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot03",
@@ -1203,7 +1369,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot03",
@@ -1217,7 +1385,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot03",
@@ -1231,7 +1401,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot03",
@@ -1246,7 +1418,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot03",
@@ -1261,7 +1435,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot04",
@@ -1276,7 +1452,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot04",
@@ -1291,7 +1469,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot04",
@@ -1305,7 +1485,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "foot04",
@@ -1319,7 +1501,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot04",
@@ -1333,7 +1517,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot04",
@@ -1348,7 +1534,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "foot04",
@@ -1363,7 +1551,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1378,7 +1568,9 @@
       "game_g5_menus.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G5",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1393,7 +1585,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leo",
@@ -1407,7 +1601,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1422,7 +1618,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leo",
@@ -1437,7 +1635,9 @@
       "game_g7_special.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1453,7 +1653,9 @@
       "game_g7_depth_sort.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1467,7 +1669,9 @@
       "game_g7_jump.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1481,7 +1685,9 @@
       "game_g7_jump.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1496,7 +1702,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1511,7 +1719,9 @@
       "game_g7_grab.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1525,7 +1735,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1539,7 +1751,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1554,7 +1768,9 @@
       "game_g7_grab.py (JOE)"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1569,7 +1785,9 @@
       "game_g7_jump.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1583,7 +1801,9 @@
       "phase5.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "leo",
@@ -1597,7 +1817,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1611,7 +1833,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1625,7 +1849,9 @@
       "game_g7_special.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1639,7 +1865,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1653,7 +1881,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1667,7 +1897,9 @@
       "game_g7_throw.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "leo",
@@ -1681,7 +1913,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "apple",
@@ -1696,7 +1930,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "apple",
@@ -1711,7 +1947,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "apple",
@@ -1726,7 +1964,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "apple",
@@ -1740,7 +1980,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "apple",
@@ -1754,7 +1996,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "money",
@@ -1769,7 +2013,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "money",
@@ -1784,7 +2030,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "money",
@@ -1799,7 +2047,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "money",
@@ -1813,7 +2063,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "money",
@@ -1827,7 +2079,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "meat",
@@ -1842,7 +2096,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "meat",
@@ -1857,7 +2113,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "meat",
@@ -1872,7 +2130,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "meat",
@@ -1886,7 +2146,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "meat",
@@ -1900,7 +2162,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "1up",
@@ -1915,7 +2179,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "1up",
@@ -1930,7 +2196,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "1up",
@@ -1945,7 +2213,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "1up",
@@ -1959,7 +2229,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "1up",
@@ -1973,7 +2245,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "gold",
@@ -1988,7 +2262,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "gold",
@@ -2003,7 +2279,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "gold",
@@ -2018,7 +2296,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "gold",
@@ -2032,7 +2312,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "gold",
@@ -2046,7 +2328,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "trash",
@@ -2061,7 +2345,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "trash",
@@ -2076,7 +2362,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "trash",
@@ -2091,7 +2379,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "trash",
@@ -2105,7 +2395,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "trash",
@@ -2119,7 +2411,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "chair",
@@ -2134,7 +2428,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "chair",
@@ -2149,7 +2445,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "chair",
@@ -2164,7 +2462,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "chair",
@@ -2178,7 +2478,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "chair",
@@ -2192,7 +2494,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "table",
@@ -2207,7 +2511,9 @@
       "phase12_roster.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "table",
@@ -2222,7 +2528,9 @@
       "phase9.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": "table",
@@ -2237,7 +2545,9 @@
       "game_g7_content_audit.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "table",
@@ -2251,7 +2561,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": "table",
@@ -2265,7 +2577,9 @@
       "game_g7_knockdown.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2279,7 +2593,9 @@
       "game_health_override.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2293,7 +2609,9 @@
       "game_map_remap.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2307,7 +2625,9 @@
       "game_g9_wait_group_boss.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2321,7 +2641,9 @@
       "game_g9_wait_group_boss.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2337,7 +2659,9 @@
       "game_g9_wait_group_boss.py"
     ],
     "classification": "implemented-and-gated",
-    "evidence": ""
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
   },
   {
     "character": null,
@@ -2349,7 +2673,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "Real BOR.C keyword is `blocked` (pit hazard), not a scroll-back blockade -- zero real enabled usage in either shipped pak. See 8a_final_audit project memory."
+    "evidence": "Real BOR.C keyword is `blocked` (pit hazard), not a scroll-back blockade -- zero real enabled usage in either shipped pak. See 8a_final_audit project memory.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": null,
@@ -2361,7 +2687,9 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "TMNT's `rightleft` is a real no-op per BOR.C source; no shipped level uses direction-reversal content."
+    "evidence": "TMNT's `rightleft` is a real no-op per BOR.C source; no shipped level uses direction-reversal content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   },
   {
     "character": null,
@@ -2373,6 +2701,8 @@
     "runtime_handler": null,
     "owning_gates": [],
     "classification": "content-inapplicable",
-    "evidence": "Zero real enabled usage anywhere in either shipped pak, per 8a_final_audit's own re-check against real BOR.C."
+    "evidence": "Zero real enabled usage anywhere in either shipped pak, per 8a_final_audit's own re-check against real BOR.C.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
   }
 ]
