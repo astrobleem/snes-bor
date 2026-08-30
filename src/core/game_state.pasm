@@ -313,6 +313,14 @@ Entity1_InvulnFrames = $7E2767   ; .db
 Entity2_InvulnFrames = $7E2768   ; .db
 Entity3_InvulnFrames = $7E2769   ; .db
 
+; claude_close_g7_g8_before_g10.md Part 2: a breakable object's contained
+; item's roster index (build_spawn_table.py's +8 item_roster_idx byte) --
+; see spawn.pasm's Entity1/2/3_ItemRosterIdx (declared there, right after
+; Spawn_SavedCharSelectIndex, grep-confirmed free at $7E58AB+ -- placed
+; there rather than here since $7E276A-$7E276C (the natural next cells
+; after Entity3_InvulnFrames) collide with CharSelect_Step/NextStep/
+; HudBossCachedHp, already real occupants of this exact range).
+
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
 ; Tad_Process/Tad_FinishLoadingData/Core_Input_Poll (all of which must keep

@@ -2919,6 +2919,19 @@ CHAR_WAITING_BASE_HI = 126 ; .db
 ; a stale pickup effect.
 CHAR_PICKUP_TYPE     = 127 ; .db
 CHAR_ZP_LEN         = 128  ; total -- pass as OopRegStaging_ZpLen
+; claude_close_g7_g8_before_g10.md Part 2: a breakable object (SPAWN_KIND_
+; PROP, obstacle+item) needs its contained item's roster index to survive
+; from spawn time until the object actually breaks (HP reaches 0), which can
+; be many frames later and long after Spawn_ScratchKind/RosterIdx (spawn.pasm
+; per-record scratch cells, reused every record) are stale. Deliberately NOT
+; a new CHAR_ZP_LEN struct field -- game_g7_invuln_frames_second_slice's own
+; real, already-hit regression (growing CHAR_ZP_LEN broke spawn-slot
+; assignment despite audit_all.py passing clean; EntityN_Base's own +128/
+; +256/+384 offsets below are hand-written literals, NOT `N*CHAR_ZP_LEN`
+; computed by the assembler, so a struct-size change silently desyncs them)
+; means a standalone WRAM cell per AI slot is the established, safe pattern
+; here (same as Player_InvulnFrames) -- see EntityN_ItemRosterIdx below,
+; declared next to EntityN_PickupType.
 
 CHAR_HP_MAX         = 64   ; = HUD_BAR_TILES(8) * 8 px, so one pixel of bar per
                             ; HP; keep in sync with make_hud_tiles.py's max_hp

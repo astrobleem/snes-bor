@@ -1,0 +1,28 @@
+{
+  "entity": "Table",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 0.3595505617977528,
+  "hotspot_canvas": [
+    16,
+    22
+  ],
+  "frames": [
+    {
+      "delay": 100,
+      "offset": [
+        44,
+        61
+      ],
+      "bbox": [
+        0,
+        -30,
+        89,
+        98
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

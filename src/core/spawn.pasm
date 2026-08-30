@@ -154,12 +154,13 @@ SPAWN_MAX_RECORDS = 90       ; roster-growth slice, REAL BUG found and fixed
 ; see that constant's own comment for why both), first free region after
 ; Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by
 ; grep -- see main.pasm's own $7E53B6 note for the same verification
-; convention). SpawnTable_Wram now ends at $7E5838 (was $7E568F before this
-; slice); every scratch/state cell below moved to $7E5839+ to stay clear of
+; convention). SpawnTable_Wram now ends at $7E5892 (was $7E5838 before the
+; claude_close_g7_g8_before_g10.md Part 2/3 RECORD_SIZE 9->10 growth, $7E568F
+; slice); every scratch/state cell below moved to $7E5893+ to stay clear of
 ; the grown table -- same relocation this file has done twice before as the
 ; table grew (they used to sit at $7E5660, then $7E5690). Freshly grep-
-; verified clear of any other module's WRAM through at least $7E5850 (the
-; new highest cell, Spawn_ScratchRosterIdx, is $7E584D) -- this is NEW
+; verified clear of any other module's WRAM through at least $7E58AA (the
+; new highest cell, Spawn_ScratchRosterIdx, is $7E58A7) -- this is NEW
 ; territory past the old $7E56FF-verified range, not a reuse of the old
 ; "already checked" claim. ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..Spawn_Count
@@ -191,44 +192,49 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; boundary derived from the level's own
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
-SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*9 = 810 bytes, record
+SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*10 = 900 bytes, record
                                  ; layout below. Grew from 48*8=384 to
                                  ; 90*9=810 (roster-growth slice: +1 byte/
                                  ; record for a dedicated roster_idx field,
                                  ; AND SPAWN_MAX_RECORDS 48->90 to fix the
                                  ; real overrun bug that constant's own
-                                 ; comment documents) -- now ends at
-                                 ; $7E550F+$32A = $7E5838, so the scratch/
+                                 ; comment documents), then 90*9=810 ->
+                                 ; 90*10=900 (claude_close_g7_g8_before_g10.md
+                                 ; Part 2/3: split the old conflated +8
+                                 ; roster_idx byte into separate object/item
+                                 ; identity bytes) -- now ends at
+                                 ; $7E550F+$384 = $7E5893, so the scratch/
                                  ; state cells below all moved well past
                                  ; their previous ($7E5690-$7E56A4, then
-                                 ; $7E56C0-$7E56D4) addresses.
-Spawn_ScratchKind   = $7E5839   ; .db -- captured record_kind (record+6, see
+                                 ; $7E56C0-$7E56D4, then $7E5839-$7E5850)
+                                 ; addresses.
+Spawn_ScratchKind   = $7E5893   ; .db -- captured record_kind (record+6, see
                                  ; layout below), plan_game.md G8, relocated
                                  ; twice before (wait/group/boss slice, then
                                  ; the RECORD_SIZE 8->9 roster-growth change)
                                  ; and again here by the SPAWN_MAX_RECORDS
                                  ; 48->90 fix (grep-confirmed no other module
-                                 ; claims through at least $7E5850).
-Spawn_ScratchHp     = $7E583A   ; .db -- captured spawn_hp (record+7, see
+                                 ; claims through at least $7E58AA).
+Spawn_ScratchHp     = $7E5894   ; .db -- captured spawn_hp (record+7, see
                                  ; layout below), health-override slice.
-Spawn_GroupMin      = $7E583B   ; .db -- BOR.C's global `groupmin`, default
+Spawn_GroupMin      = $7E5895   ; .db -- BOR.C's global `groupmin`, default
                                  ; 100 (effectively unlimited). Gates ALL
                                  ; queue advancement (spawn/wait/group
                                  ; alike) -- see this file's own header.
-Spawn_GroupMax      = $7E583C   ; .db -- BOR.C's global `groupmax`, default 100.
-Spawn_Waiting       = $7E583D   ; .db -- BOR.C's `level_waiting`: nonzero
+Spawn_GroupMax      = $7E5896   ; .db -- BOR.C's global `groupmax`, default 100.
+Spawn_Waiting       = $7E5897   ; .db -- BOR.C's `level_waiting`: nonzero
                                  ; while a `wait` record has armed and at
                                  ; least one enemy (not prop) is still alive.
-Spawn_PreClearHoldX = $7E583E   ; .dw -- what to restore Screen_MaxX to when
+Spawn_PreClearHoldX = $7E5898   ; .dw -- what to restore Screen_MaxX to when
                                  ; a wait releases and the stage isn't
                                  ; cleared yet -- the same value core/
                                  ; game_state.pasm's Stage_ApplyWinClamp
                                  ; already computes (min(Stage_TrueMaxX,
                                  ; Spawn_LastTriggerX)), cached here so
                                  ; Spawn_Play doesn't need to re-derive it.
-Entity1_IsBoss      = $7E5840   ; .db -- plan_game.md wait/group/boss slice:
-Entity2_IsBoss      = $7E5841   ; .db    sticky per-slot boss flag, set/
-Entity3_IsBoss      = $7E5842   ; .db    cleared whenever Spawn_Play (re)uses
+Entity1_IsBoss      = $7E589A   ; .db -- plan_game.md wait/group/boss slice:
+Entity2_IsBoss      = $7E589B   ; .db    sticky per-slot boss flag, set/
+Entity3_IsBoss      = $7E589C   ; .db    cleared whenever Spawn_Play (re)uses
                                  ; that slot. Standalone WRAM cells, NOT a
                                  ; CharacterEntity struct field -- see
                                  ; phase_g7_invuln_frames_second_slice
@@ -240,20 +246,20 @@ Entity3_IsBoss      = $7E5842   ; .db    cleared whenever Spawn_Play (re)uses
                                  ; plumbing ahead of a consumer, same pattern
                                  ; moveset_pipeline_generalization's non-role
                                  ; animation ordinals used.
-Spawn_ScratchEnemyCount = $7E5843 ; .db -- running EnemyCount total (0-3),
+Spawn_ScratchEnemyCount = $7E589D ; .db -- running EnemyCount total (0-3),
                                  ; used by both the wait-release check and
                                  ; the group gate below (kept as a WRAM
                                  ; scratch, not a register, so A stays free
                                  ; for the per-slot Hp/InputDriven checks).
-Spawn_ScratchMap    = $7E5844   ; .db -- plan_game.md 8a row 3: decoded
+Spawn_ScratchMap    = $7E589E   ; .db -- plan_game.md 8a row 3: decoded
                                  ; map index (0-3), see SPAWN_MAP_SHIFT above.
-MapApply_Index          = $7E5845  ; .db -- Anim_ApplyMapPalette's own param
-MapApply_PaletteBaseLo  = $7E5846  ; .dw    block, filled by each slot's
-MapApply_PaletteBaseHi  = $7E5848  ; .db    spawn dispatch below before the
-MapApply_MapBaseLo      = $7E5849  ; .dw    jsl call.
-MapApply_MapBaseHi      = $7E584B  ; .db
-MapApply_PaletteSlot    = $7E584C  ; .db
-Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
+MapApply_Index          = $7E589F  ; .db -- Anim_ApplyMapPalette's own param
+MapApply_PaletteBaseLo  = $7E58A0  ; .dw    block, filled by each slot's
+MapApply_PaletteBaseHi  = $7E58A2  ; .db    spawn dispatch below before the
+MapApply_MapBaseLo      = $7E58A3  ; .dw    jsl call.
+MapApply_MapBaseHi      = $7E58A5  ; .db
+MapApply_PaletteSlot    = $7E58A6  ; .db
+Spawn_ScratchRosterIdx  = $7E58A7  ; .db -- roster-reassignment slice:
                                    ; captured record's dedicated +8
                                    ; roster_idx byte (see layout below), real
                                    ; when Spawn_ScratchKind==SPAWN_KIND_
@@ -264,8 +270,8 @@ Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
                                    ; roster slot -- 0 ("no reassign") for
                                    ; every prop without one yet. Grep-
                                    ; confirmed clear of any other module's
-                                   ; WRAM through at least $7E5850.
-Spawn_ScratchPickupType = $7E584E ; .db -- G8 item/pickup slice: decoded
+                                   ; WRAM through at least $7E58AA.
+Spawn_ScratchPickupType = $7E58A8 ; .db -- G8 item/pickup slice: decoded
                                    ; record_kind bits 5-7 (SPAWN_PICKUP_
                                    ; SHIFT/MASK below), real only when
                                    ; Spawn_ScratchKind==SPAWN_KIND_PROP.
@@ -273,7 +279,7 @@ Spawn_ScratchPickupType = $7E584E ; .db -- G8 item/pickup slice: decoded
                                    ; CHAR_PICKUP_TYPE (main.pasm) by slot1/
                                    ; slot2/slot3 below, same pattern as
                                    ; Spawn_ScratchMap/MapApply_*.
-Spawn_ScratchPrevWasProp = $7E584F ; .db -- slot-reuse art-leak fix
+Spawn_ScratchPrevWasProp = $7E58A9 ; .db -- slot-reuse art-leak fix
                                    ; (finish_g8_with_runtime_asset_swapping.md):
                                    ; captured at the very top of each slotN
                                    ; body, BEFORE that slot's own CHAR_
@@ -300,7 +306,7 @@ Spawn_ScratchPrevWasProp = $7E584F ; .db -- slot-reuse art-leak fix
                                    ; YASHIRO=3) before ordinary AI dispatch
                                    ; runs, restoring a real playable moveset
                                    ; instead of leaving prop art in place.
-Spawn_SavedCharSelectIndex = $7E5850 ; .db -- real bug found+fixed
+Spawn_SavedCharSelectIndex = $7E58AA ; .db -- real bug found+fixed
                                    ; (finish_g8_with_runtime_asset_swapping.md):
                                    ; Spawn_DoRosterReassign writes its target
                                    ; roster index into the SAME shared
@@ -326,13 +332,41 @@ Spawn_SavedCharSelectIndex = $7E5850 ; .db -- real bug found+fixed
                                    ; so no spawn-driven reassignment can ever
                                    ; observably disturb it again.
 
-; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
-; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
+; claude_close_g7_g8_before_g10.md Part 2: a breakable object's contained
+; item's roster index (this record's own +8 item_roster_idx byte, see the
+; record layout below), captured here by Spawn_Play at spawn time and held
+; per-slot until the object's HP reaches 0 -- the break->reveal transition
+; (main.pasm's Character_HitApply__ApplyPickup dispatch) reads it to know
+; which real roster slot to reassign the AI slot to. Standalone cells, NOT a
+; new CharacterEntity struct field -- growing CHAR_ZP_LEN is real-bug-
+; verified dangerous (game_state.pasm's own EntityN_InvulnFrames precedent,
+; same reasoning). Grep-confirmed free at $7E58AB+ (right after Spawn_
+; SavedCharSelectIndex above, the previous highest cell in this file).
+Entity1_ItemRosterIdx = $7E58AB  ; .db
+Entity2_ItemRosterIdx = $7E58AC  ; .db
+Entity3_ItemRosterIdx = $7E58AD  ; .db
+Spawn_ScratchItemRosterIdx = $7E58AE ; .db -- captured record+8 (item_roster_
+                                   ; idx), this record's own decode scratch,
+                                   ; parallel to Spawn_ScratchRosterIdx below
+                                   ; (which now captures record+9,
+                                   ; object_roster_idx, consumed AT SPAWN --
+                                   ; this one is stashed into the target
+                                   ; slot's own EntityN_ItemRosterIdx instead,
+                                   ; for later, see slot1/2/3 bodies).
+
+; Record layout (10 bytes, LE), matches build_spawn_table.py exactly. Size
+; was UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
 ; discriminator instead of the record growing, specifically to avoid
 ; touching the hand-synced *9/record-size sites this file's header already
 ; calls out (Spawn_CountX8, SPAWN_MAX_RECORDS*9, the last-record seek,
-; Spawn_Play's own shift) -- roster-growth slice grew this from 8 to 9 bytes
-; (see +8 below), all four sites updated to the shift-and-add index*9 idiom:
+; Spawn_Play's own shift). Roster-growth slice grew this from 8 to 9 bytes
+; (a single +8 roster_idx). claude_close_g7_g8_before_g10.md Part 2/3 grew
+; it again, 9 to 10 bytes: the old single +8 roster_idx conflated an
+; obstacle's OWN identity with its CONTAINED item's identity (a real,
+; currently-shipping bug -- see SpawnTable_Wram's own comment above), split
+; into +8 item_roster_idx (consumed on break) and +9 object_roster_idx
+; (consumed at spawn). All four hand-synced sites updated to the shift-and-
+; add index*10 idiom:
 ;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this
 ;                              record. Meaningful for every record kind.
 ;   +2-3  spawn_x     (u16) -- SNES world-px initial position, kind==enemy/
@@ -363,12 +397,23 @@ Spawn_SavedCharSelectIndex = $7E5850 ; .db -- real bug found+fixed
 ;                              only -- a prop's HP is always CHAR_HP_PER_HIT
 ;                              regardless of this byte, and it's 0/unused
 ;                              for wait/group records.
-;   +8    roster_idx  (u8)  -- roster-growth slice: real roster slot index
-;                              (0-14), real only when record_kind ==
-;                              SPAWN_KIND_BOSS_IDENTIFIED, else 0/unused.
-;                              Own dedicated byte (was 3 spare bits in +6)
-;                              since the roster cap (pack_msu_roster.py's
-;                              MAX_CHARACTERS) grew 8->15, needing 4 bits.
+;   +8    item_roster_idx (u8) -- claude_close_g7_g8_before_g10.md Part 2/3:
+;                              real only when record_kind==SPAWN_KIND_PROP
+;                              AND this is an obstacle+item record (a
+;                              breakable containing a real, roster-converted
+;                              item) -- the CONTAINED item's roster slot,
+;                              consumed by Spawn_Play only once the object's
+;                              HP reaches 0 (break->reveal), never at spawn.
+;                              0/unused for every other record kind.
+;   +9    object_roster_idx (u8) -- roster-growth slice: real roster slot
+;                              index (0-19), real when record_kind ==
+;                              SPAWN_KIND_BOSS_IDENTIFIED (the identified
+;                              boss's own slot, unchanged meaning from the
+;                              old +8) OR record_kind==SPAWN_KIND_PROP (the
+;                              SPAWNED character's own slot -- a standalone
+;                              item's own sprite, or a breakable object's
+;                              own sprite e.g. Chair/Table/Trash), else 0.
+;                              Consumed AT SPAWN TIME, unlike +8 above.
 
 ; plan_game.md G8: a prop/pickup slot gets CHAR_INPUT_DRIVEN_PROP (main.pasm)
 ; instead of CHAR_INPUT_DRIVEN_AI, and a fixed low HP (== CHAR_HP_PER_HIT, so
@@ -383,8 +428,9 @@ SPAWN_KIND_GROUP = 3   ; wait/group/boss slice: respawn-pool-size marker
 SPAWN_KIND_BOSS  = 4   ; wait/group/boss slice: enemy + sets EntityN_IsBoss
 SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
                               ; same as SPAWN_KIND_BOSS (sets EntityN_IsBoss)
-                              ; PLUS the record's dedicated +8 roster_idx
-                              ; byte carries a real roster index for a
+                              ; PLUS the record's dedicated +9
+                              ; object_roster_idx byte carries a real roster
+                              ; index for a
                               ; character build_spawn_table.py found in the
                               ; actual shipped roster -- this slot's
                               ; Anim_LoadCharacter gets re-run so the entity
@@ -497,11 +543,22 @@ Spawn_Init__have_records:
     asl a
     asl a
     asl a                       ; count*8
+    sta.l Spawn_CountX8         ; store *8 directly into the final dest --
+                                 ; Spawn_ScratchIdx itself (source) is
+                                 ; untouched, so it can be re-read below for
+                                 ; the *2 term. Avoids both a new WRAM scratch
+                                 ; cell (which would ripple every hand-synced
+                                 ; address after it -- see this file's own
+                                 ; header on that cost) and stack-relative
+                                 ; addressing (unverified Poppy support).
+    lda.l Spawn_ScratchIdx
+    asl a                       ; count*2
     clc
-    adc.l Spawn_ScratchIdx      ; count*8 + count = count*9 (roster-growth
-                                 ; slice: record size grew 8->9, no longer a
-                                 ; power of 2 -- same shift-and-add idiom
-                                 ; main.pasm's own *17 seek already uses)
+    adc.l Spawn_CountX8         ; count*2 + count*8 = count*10
+                                 ; (claude_close_g7_g8_before_g10.md Part 2/3:
+                                 ; record size grew 9->10, still not a power
+                                 ; of 2 -- same shift-and-add idiom main.pasm's
+                                 ; own *17 seek already uses)
     sta.l Spawn_CountX8
 
     ldx #0
@@ -522,11 +579,11 @@ Spawn_Init__read:
     cmp.l Spawn_CountX8
     bcc Spawn_Init__read
 
-    ; --- cache the last record's trigger_x (Spawn_CountX8 - 9 is its base
+    ; --- cache the last record's trigger_x (Spawn_CountX8 - 10 is its base
     ; offset; records are packed in ascending trigger order, see header) ---
     lda.l Spawn_CountX8
     sec
-    sbc #9
+    sbc #10
     tax
     lda.l SpawnTable_Wram,x
     sta.l Spawn_LastTriggerX
@@ -686,10 +743,18 @@ Spawn_Play__active:
     asl a
     asl a
     asl a                       ; index*8
+    sta.l Spawn_ScratchX        ; temp: index*8 (Spawn_ScratchX is captured
+                                 ; fresh by this same routine below, well
+                                 ; after X is derived here -- safe reuse, not
+                                 ; a new WRAM cell, see Spawn_Init's own note
+                                 ; on why that ripple is avoided)
+    lda.l Spawn_ScratchIdx
+    asl a                       ; index*2
     clc
-    adc.l Spawn_ScratchIdx      ; index*8 + index = index*9 (roster-growth
-                                 ; slice: record size grew 8->9)
-    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*9
+    adc.l Spawn_ScratchX        ; index*2 + index*8 = index*10
+                                 ; (claude_close_g7_g8_before_g10.md Part 2/3:
+                                 ; record size grew 9->10)
+    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*10
 
     lda Screen_PosX
     cmp.l SpawnTable_Wram,x     ; Screen_PosX - trigger_x
@@ -751,7 +816,11 @@ Spawn_Play__triggered:
     inx                         ; X -> record+7 (spawn_hp, health-override slice)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchHp
-    inx                         ; X -> record+8 (roster_idx, roster-growth slice)
+    inx                         ; X -> record+8 (item_roster_idx, claude_
+                                 ; close_g7_g8_before_g10.md Part 2/3)
+    lda.l SpawnTable_Wram,x
+    sta.l Spawn_ScratchItemRosterIdx
+    inx                         ; X -> record+9 (object_roster_idx)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchRosterIdx
 
@@ -920,6 +989,8 @@ Spawn_Play__slot1_prevflag_done:
     sta.l Entity1_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity1_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity1_ItemRosterIdx
     ; Real prop/pickup sprite art: Msu1_StreamBusy already confirmed clear
     ; by the dispatch-time gate above (before find_slot ran) whenever
     ; Spawn_ScratchRosterIdx != 0 -- safe to stream now, same reasoning as
@@ -947,6 +1018,8 @@ Spawn_Play__slot1_not_prop:
     ; this slot can't re-trigger it later.
     lda #0
     sta.l Entity1_PickupType
+    sta.l Entity1_ItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2:
+                                   ; same stale-state guard for the reveal target
     ; plan_game.md 8a row 3 (`map`): apply this spawn's remap palette (0 =
     ; the character's own base palette) -- fill Anim_ApplyMapPalette's param
     ; block from this slot's own struct fields (set once at character load,
@@ -1085,6 +1158,8 @@ Spawn_Play__slot2_prevflag_done:
     sta.l Entity2_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity2_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity2_ItemRosterIdx
     ; Real prop/pickup sprite art -- see slot1's own identical comment.
     lda.l Spawn_ScratchRosterIdx
     beq Spawn_Play__slot2_prop_no_reassign
@@ -1106,6 +1181,7 @@ Spawn_Play__slot2_not_prop:
     sta.l Entity2_Hp
     lda #0                      ; G8 item/pickup slice -- see slot1's own comment
     sta.l Entity2_PickupType
+    sta.l Entity2_ItemRosterIdx  ; claude_close_g7_g8_before_g10.md Part 2
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index
@@ -1229,6 +1305,8 @@ Spawn_Play__slot3_prevflag_done:
     sta.l Entity3_IsBoss
     lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
     sta.l Entity3_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity3_ItemRosterIdx
     ; Real prop/pickup sprite art -- see slot1's own identical comment.
     lda.l Spawn_ScratchRosterIdx
     beq Spawn_Play__slot3_prop_no_reassign
@@ -1250,6 +1328,7 @@ Spawn_Play__slot3_not_prop:
     sta.l Entity3_Hp
     lda #0                      ; G8 item/pickup slice -- see slot1's own comment
     sta.l Entity3_PickupType
+    sta.l Entity3_ItemRosterIdx  ; claude_close_g7_g8_before_g10.md Part 2
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index

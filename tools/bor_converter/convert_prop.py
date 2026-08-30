@@ -94,16 +94,45 @@ def convert_prop(pak_path, entity_entry_name, out_prefix):
         loaded['entity_name'], idle_name, loaded['loop'],
         loaded['scale'], loaded['hotspot_canvas'])
 
+    # claude_close_g7_g8_before_g10.md Part 3: a real breakable object
+    # (TRASH/CHAIR/TABLE) declares a genuinely distinct `fall` anim -- its
+    # broken-object appearance (trashcan.gif -> trashed.gif, chair.gif ->
+    # chair2.gif) -- not a duplicate of idle. Converting that real content
+    # instead of force-copying idle over it is required for Part 3's "object
+    # graphics disappear/change" requirement: the runtime plays this real
+    # `fall` art as the broken-object state before the slot is reassigned to
+    # the contained item. A genuinely idle-only entity (APPLE/MONEY/MEAT/
+    # 1UP -- no `fall` in source) still gets the idle-copy fallback below,
+    # preserving prior behavior for those.
+    lower_anim_names = [n.lower() for n in anim_names]
+    real_fall_name = anim_names[lower_anim_names.index('fall')] if 'fall' in lower_anim_names else None
+
     # Replicate the SAME real converted idle directory for every other
     # required engine role -- see module docstring for why this is the
     # correct representation of a genuinely non-animated source entity,
-    # not invented content.
+    # not invented content. (`fall` uses its own real converted art above
+    # when the source entity has one.)
     animations = [{'ordinal': 0, 'name': idle_name, 'dir': idle_dir, 'frames': idle_result['frames']}]
     roles = {role: (0 if role == 'idle' else None) for role in REQUIRED_ROLES}
     for role in OPTIONAL_ROLE_NAMES:
         roles[role] = None
     for role in REQUIRED_ROLES:
         if role == 'idle':
+            continue
+        if role == 'fall' and real_fall_name is not None:
+            fall_dir = out_prefix + '_fall'
+            fall_loaded = _load_anim_frames(pak_path, entity_entry_name, real_fall_name, fall_dir)
+            for fm in fall_loaded['frames_meta']:
+                if fm['delay'] > 255:
+                    fm['delay'] = 255
+            fall_palette, fall_frame_indices = _quantize_shared(fall_loaded['canvases'], fall_loaded['masks'])
+            fall_result = _write_anim_outputs(
+                fall_dir, fall_loaded['frames_meta'], fall_frame_indices, fall_palette,
+                fall_loaded['entity_name'], real_fall_name, fall_loaded['loop'],
+                fall_loaded['scale'], fall_loaded['hotspot_canvas'])
+            animations.append({'ordinal': len(animations), 'name': real_fall_name, 'dir': fall_dir,
+                                'frames': fall_result['frames']})
+            roles[role] = len(animations) - 1
             continue
         role_dir = f'{out_prefix}_{role}'
         if os.path.exists(role_dir):

@@ -253,7 +253,10 @@ FORMAT_VERSION = 4
 # real catalog entries alongside the 13 playable fighters + APPLE already
 # shipped. Raise again freely if real content needs more; there is no
 # hardware wall left to hit.
-MAX_CHARACTERS = 17
+MAX_CHARACTERS = 20  # claude_close_g7_g8_before_g10.md Part 3: +3 for
+                      # out/trash, out/chair, out/table (real breakable-
+                      # object sprites) -- still a soft Python-side cap
+                      # only, per this comment's own note directly above.
 RECORD_SIZE = 48  # notjustfreespecial.txt G5 slice: +2 bytes -- waiting_
                    # frame_count/waiting_delay appended LAST (+46/+47), 0/0
                    # for every roster member without real `waiting` data
@@ -302,7 +305,10 @@ MAX_BGS = 10  # bumped 5->9 adding the real 4-level TMNT main campaign
               # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
-SPAWN_RECORD_SIZE = 9       # see build_spawn_table.py's module docstring for the layout
+SPAWN_RECORD_SIZE = 10      # claude_close_g7_g8_before_g10.md Part 2/3: grew
+                             # 9->10 (split object_roster_idx/item_roster_idx)
+                             # -- see build_spawn_table.py's module docstring
+                             # for the full record layout
                              # (grew from 7 to 8 -- health-override slice added
                              # a spawn_hp byte, follow-up to plan_game.md G8;
                              # 8 to 9 -- roster-growth slice added a dedicated

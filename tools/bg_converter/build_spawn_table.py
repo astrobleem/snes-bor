@@ -180,6 +180,29 @@ Spawn_Play's own shift):
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
                                    (0..CHAR_HP_MAX); ignored for props and
                                    wait/group records.
+    +8    item_roster_idx (u8) -- claude_close_g7_g8_before_g10.md Part 2/3:
+                                   real only when record_kind==RECORD_KIND_
+                                   PROP AND this is an `obstacle`+`item`
+                                   record (a breakable containing a real,
+                                   roster-converted item) -- the CONTAINED
+                                   item's roster index, consumed by
+                                   core/spawn.pasm only once the object's HP
+                                   reaches 0 (the break->reveal transition),
+                                   never at spawn time. 0 for every other
+                                   record (roster slot 0 is RALF, never a
+                                   real contained-item slot).
+    +9    object_roster_idx (u8) -- the record's OWN real roster index, used
+                                   at spawn time: for RECORD_KIND_BOSS_
+                                   IDENTIFIED, the identified boss's slot
+                                   (unchanged from the old +8 boss behavior);
+                                   for RECORD_KIND_PROP, the SPAWNED
+                                   character's own roster slot if it has a
+                                   real converted sprite (an `item`-type
+                                   standalone pickup's own slot, or an
+                                   `obstacle`-type breakable's own slot,
+                                   e.g. Chair/Table/Trash) -- 0 if unidentified
+                                   (keeps the pre-existing borrowed-sprite
+                                   reskin fallback, unchanged).
 
 No header/count prefix -- the record count is threaded through as a
 separate build-time constant (see pack_msu_roster.py's spawn section and
@@ -196,7 +219,30 @@ from pak_extract import read_entries, extract
 from entity_parse import parse_entity
 
 SCALE = 256 / 320
-RECORD_SIZE = 9   # grew 8->9, roster-growth slice: RECORD_KIND_BOSS_IDENTIFIED's
+RECORD_SIZE = 10  # grew 9->10, claude_close_g7_g8_before_g10.md Part 2/3:
+                  # the existing +8 roster_idx byte conflated TWO distinct
+                  # identities for an `obstacle`+`item` prop (e.g. `spawn
+                  # Chair` / `item Money`) -- the OBJECT's own real sprite
+                  # (Chair) and the CONTAINED ITEM's real sprite (Money).
+                  # Before this slice +8 held the ITEM's roster index and
+                  # Spawn_Play reassigned to it AT SPAWN TIME -- meaning a
+                  # not-yet-broken Chair rendered as a floating Money icon
+                  # from the moment it spawned (verified: apple/money/meat
+                  # were already real roster members, so this was a live,
+                  # currently-shipping bug, not a hypothetical). Fixed by
+                  # giving each identity its own byte: +8 stays the
+                  # CONTAINED item's roster index (now consumed only on
+                  # BREAK, not spawn -- see core/spawn.pasm's Spawn_Play);
+                  # +9 (new) is the OBJECT's OWN real roster index (Chair/
+                  # Table/Trash's own converted sprite -- see
+                  # tools/bor_converter/convert_prop.py), used at spawn
+                  # time so the object renders as itself before breaking.
+                  # A standalone item (`spawn Apple`, entity_type=='item',
+                  # no wrapping object) has no separate "before" state --
+                  # +9 carries that same roster index directly (renders
+                  # immediately, matching pre-existing standalone-item
+                  # behavior) and +8 is 0 (nothing to reveal on break,
+                  # there's no object phase to break out of).
                   # roster index used to be packed into record_kind's spare
                   # bits 5-7 (3 bits, 0-7) -- that byte is now fully packed
                   # (3 kind + 2 map + 3 roster = 8/8, zero bits left), and the
@@ -384,15 +430,15 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
     for e in events:
         if isinstance(e, WaitEvent):
             trigger_x = round(e.at * SCALE)
-            out += struct.pack('<HHBBBBB', trigger_x & 0xFFFF, 0, 0, 0,
-                                RECORD_KIND_WAIT, 0, 0)
+            out += struct.pack('<HHBBBBBB', trigger_x & 0xFFFF, 0, 0, 0,
+                                RECORD_KIND_WAIT, 0, 0, 0)
             continue
         if isinstance(e, GroupEvent):
             trigger_x = round(e.at * SCALE)
             group_min = max(0, min(255, e.group_min))
             group_max = max(0, min(255, e.group_max))
-            out += struct.pack('<HBBBBBBB', trigger_x & 0xFFFF, group_min,
-                                group_max, 0, 0, RECORD_KIND_GROUP, 0, 0)
+            out += struct.pack('<HBBBBBBBB', trigger_x & 0xFFFF, group_min,
+                                group_max, 0, 0, RECORD_KIND_GROUP, 0, 0, 0)
             continue
 
         assert isinstance(e, SpawnEvent)
@@ -403,41 +449,45 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         facing_left = 1 - (e.flip & 1)
         entity_type = type_lookup.get(e.character.lower())
         is_prop = entity_type in PROP_ENTITY_TYPES
-        roster_idx = (roster_lookup or {}).get(e.character.lower()) if e.boss else None
+        # object_roster_idx (+9): the SPAWNED character's own real roster
+        # slot, used at spawn time (renders the record as ITSELF -- a boss's
+        # own identity, a standalone item's own sprite, or a breakable
+        # object's own sprite). item_roster_idx (+8): claude_close_g7_g8_
+        # before_g10.md Part 2/3 -- an `obstacle`+`item` prop's CONTAINED
+        # item's own roster slot, consumed only on break (core/spawn.pasm),
+        # never at spawn. These were a single conflated byte before this
+        # slice -- see RECORD_SIZE's own comment for the real bug that fixed.
+        object_roster_idx = (roster_lookup or {}).get(e.character.lower()) if e.boss else None
+        item_roster_idx = None
         if is_prop:
             record_kind = RECORD_KIND_PROP
             # Real prop/pickup sprite art (notjustfreespecial.txt follow-up
             # to the G8 "deliberately still not done" item): reuses the
             # EXACT SAME roster-reassignment mechanism already built for
             # SPAWN_KIND_BOSS_IDENTIFIED (core/spawn.pasm's Spawn_Do
-            # RosterReassign) rather than inventing a parallel one -- if
-            # this prop's real item name (standalone `spawn <item>`) or its
-            # contained item's name (`obstacle` + `item <name>`) is ALSO in
-            # the actual shipped --roster list (i.e. a real converted prop
-            # sprite, e.g. tools/bor_converter/convert_prop.py's output, was
-            # added as its own roster slot), carry that slot's real index so
-            # core/spawn.pasm re-streams it as its own real art instead of
-            # whatever generic character already happened to be loaded into
-            # that AI slot. None (byte 0, "no reassign") for every pickup
-            # type without a converted roster slot yet -- same honest
-            # partial-coverage pattern classify_pickup already uses; a prop
-            # with no matching roster slot keeps today's pre-existing
-            # borrowed-sprite behavior, unchanged.
-            prop_item_name = None
-            if entity_type == 'item':
-                prop_item_name = e.character
-            elif entity_type == 'obstacle' and e.item:
-                prop_item_name = e.item
-            if prop_item_name and roster_lookup:
-                roster_idx = roster_lookup.get(prop_item_name.lower())
-        elif e.boss and roster_idx is not None:
+            # RosterReassign) rather than inventing a parallel one. If this
+            # prop's OWN name (a standalone `spawn <item>`, or a real
+            # converted breakable object like Chair/Table/Trash) is in the
+            # actual shipped --roster list, object_roster_idx carries that
+            # slot so it renders as itself from spawn. If it's an
+            # `obstacle`+`item` record AND the CONTAINED item's name is
+            # separately in the roster, item_roster_idx carries THAT slot
+            # for core/spawn.pasm to reveal only once the object breaks.
+            # 0/None for anything not covered by a converted roster slot
+            # yet -- same honest partial-coverage pattern classify_pickup
+            # already uses; falls back to today's pre-existing borrowed-
+            # sprite reskin, unchanged.
+            if roster_lookup:
+                object_roster_idx = roster_lookup.get(e.character.lower())
+                if entity_type == 'obstacle' and e.item:
+                    item_roster_idx = roster_lookup.get(e.item.lower())
+        elif e.boss and object_roster_idx is not None:
             # roster-reassignment slice: this boss's real character IS in
-            # the actual shipped roster -- carry its index (own byte, +8
-            # below) so core/spawn.pasm can re-stream this slot as its own
-            # real character instead of a reskin. Only bosses get this:
-            # ordinary enemies are never individually added to the
-            # (15-slot-capped) roster, so there is nothing real to identify
-            # them against.
+            # the actual shipped roster -- carry its index (+9 below) so
+            # core/spawn.pasm can re-stream this slot as its own real
+            # character instead of a reskin. Only bosses get this: ordinary
+            # enemies are never individually added to the (roster-capped)
+            # roster, so there is nothing real to identify them against.
             record_kind = RECORD_KIND_BOSS_IDENTIFIED
         elif e.boss:
             record_kind = RECORD_KIND_BOSS
@@ -449,24 +499,24 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
-        # Real prop/pickup sprite art: a prop record now ALSO carries a real
-        # +8 roster_idx when its item name resolved above -- core/spawn.pasm
-        # (SPAWN_KIND_PROP branch) reassigns using it, exactly the same as
-        # SPAWN_KIND_BOSS_IDENTIFIED already does. roster_idx==0 always means
-        # "no reassign" for both cases (roster slot 0 is RALF -- never a
-        # boss's own identified slot in practice, and never a converted
-        # prop's slot either, since props are always appended after the
-        # fighter roster).
-        roster_idx_byte = (roster_idx & 0xFF) if (
-            is_boss_identified or (is_prop and roster_idx is not None)) else 0
+        # object_roster_idx==0 always means "no reassign, keep whatever
+        # generic character already happened to be loaded" (roster slot 0 is
+        # RALF -- never a real boss/prop identity in practice).
+        object_roster_idx_byte = (object_roster_idx & 0xFF) if (
+            is_boss_identified or (is_prop and object_roster_idx is not None)) else 0
+        item_roster_idx_byte = (item_roster_idx & 0xFF) if (
+            is_prop and item_roster_idx is not None) else 0
 
         # G8 item/pickup slice: a prop record's real contained/standalone
-        # item, packed into record_kind's remaining spare bits (5-7). Two
-        # real sources, both verified against the shipped/buildable pak
+        # item EFFECT, packed into record_kind's remaining spare bits (5-7).
+        # Two real sources, both verified against the shipped/buildable pak
         # data: (a) an `obstacle`-type prop's own `item <name>` line
         # (Table->Apple, Chair->Money -- DATA\EASY\1BEASY.TXT); (b) an
         # `item`-type character spawned directly, standalone (`spawn 1up`
-        # -- DATA\EASY\1AEASY.TXT). Zero for every non-prop record.
+        # -- DATA\EASY\1AEASY.TXT). Zero for every non-prop record. This is
+        # the reward VALUE (independent of whether a converted roster sprite
+        # exists for it) -- item_roster_idx above is the reveal SPRITE, only
+        # populated when one was actually converted.
         pickup_type = PICKUP_TYPE_NONE
         if is_prop and entity_lookup is not None:
             if entity_type == 'item':
@@ -479,9 +529,9 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         else:
             spawn_hp = round(e.health * CHAR_HP_MAX / 100)
             spawn_hp = max(1, min(CHAR_HP_MAX, spawn_hp))
-        out += struct.pack('<HHBBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
+        out += struct.pack('<HHBBBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
                             spawn_y, facing_left, record_kind, spawn_hp,
-                            roster_idx_byte)
+                            item_roster_idx_byte, object_roster_idx_byte)
     return len(events), bytes(out)
 
 
