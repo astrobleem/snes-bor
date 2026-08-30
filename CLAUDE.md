@@ -46,6 +46,10 @@ There is no lint step and no unit-test framework — see Testing below for how c
 
 ## Testing
 
+A/B proof that a failure predates the current change establishes causality only; it does not close the defect. Any known flaky gate discovered during an approved completion audit must be root-caused and fixed before the project is reported clean. Use targeted diagnosis, not repeated full-suite runs.
+
+Run one final complete regression suite after all known targeted failures are resolved. Do not run the complete suite repeatedly while known failures remain.
+
 There's no unit-test framework, but each phase's gate is a committed script and all of them currently pass. Run these after any change:
 
 ```bash

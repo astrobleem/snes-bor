@@ -73,8 +73,34 @@ def playable_roster():
     return [p.rsplit('/', 1)[-1] for p in build_rom.ROSTER_PREFIXES[:build_rom.PLAYABLE_ROSTER_COUNT]]
 
 
+def _free_tcp_port():
+    """Ask the OS for an ephemeral port and immediately release it.
+
+    Every gate previously connected on the same hardcoded default port
+    (7350). In a long sequential run, if a prior session's Mesen.exe was
+    slow to die (see McpSession.__exit__'s kill()-without-wait() fix in
+    the Mesen2 repo), a new session on that same fixed port could either
+    fail to bind or -- worse -- have its client socket's connect() land
+    on the still-alive old process instead of the freshly spawned one,
+    silently handing the new gate stale emulator state from the previous
+    gate's run. A fresh OS-assigned port per session removes the
+    possibility of that collision entirely, rather than papering over it
+    with a longer wait."""
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('127.0.0.1', 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
 def open_session(verify_script_file, boot_wait=2.0):
-    return McpSession(rom=rom_path(verify_script_file), mesen=MESEN_EXE, boot_wait=boot_wait)
+    return McpSession(
+        rom=rom_path(verify_script_file),
+        mesen=MESEN_EXE,
+        boot_wait=boot_wait,
+        port=_free_tcp_port(),
+    )
 
 
 def pasm_constant(name):
@@ -127,6 +153,77 @@ def read_block(m, addr, length=32, mem_type='snesMemory'):
             f'read_block: {hex(addr)} does not look like a full WRAM address'
     assert length >= 32, 'read_block: reads under 32 bytes can be stale in this harness'
     return m.read_memory(mem_type, addr, length)
+
+
+def exact_input_edge(m, buttons, frames, port=0):
+    """Assert `buttons` for EXACTLY `frames` emulated frames, verified
+    against the real emulator frame counter (Mesen's set_input is
+    frame-exact as of the 2026-08-29 McpTools.cs fix -- it used to sleep a
+    wall-clock estimate and hope, so a caller had no way to know the edge
+    was actually delivered for the frame count it expected). Input is
+    guaranteed released before this returns (set_input's own contract).
+    Raises AssertionError if the emulator didn't actually advance exactly
+    `frames` frames while the override was active -- never silently
+    accepts a short/long delivery."""
+    r = m.set_input(buttons, frames, port=port)
+    advanced = r.get('framesAdvanced')
+    assert advanced == frames and not r.get('timedOut'), (
+        f'exact_input_edge: requested {frames} frame(s) of buttons={buttons:#x}, '
+        f'emulator only advanced {advanced} (timedOut={r.get("timedOut")}) -- '
+        f'the input edge was not reliably delivered for the requested duration')
+    return r
+
+
+def held_input_sampled(m, buttons, frames, port=0, sample_fn=None):
+    """Hold `buttons` across `frames` emulated frames, one real frame at a
+    time, calling `sample_fn(i)` (0-based) after each frame while the
+    input is still logically held (each 1-frame slice re-asserts the same
+    override, verified exact via set_input's own framesAdvanced -- see
+    exact_input_edge). Use this instead of a single long set_input() call
+    when a gate needs to inspect state on every frame of a held press
+    (e.g. proving a rigid drag/follow tracks every sampled frame, not just
+    the frame the caller happened to read). Input is released before this
+    returns. Returns the list of sample_fn results (empty if sample_fn is
+    None)."""
+    results = []
+    for i in range(frames):
+        exact_input_edge(m, buttons, 1, port=port)
+        if sample_fn is not None:
+            results.append(sample_fn(i))
+    return results
+
+
+def run_frames_exact(m, count):
+    """run_frames, but asserts the emulator actually advanced exactly
+    `count` frames (Mesen's run_frames has been frame-exact -- polls the
+    real frame counter to the target -- since before this fix; this just
+    makes callers verify that instead of trusting it silently). Raises
+    AssertionError on a stalled/hung emulator instead of letting a caller
+    read stale state past a silent short-advance."""
+    r = m.run_frames(count)
+    assert r.get('framesAdvanced') == count and not r.get('timedOut'), (
+        f'run_frames_exact: requested {count} frames, only advanced '
+        f'{r.get("framesAdvanced")} (timedOut={r.get("timedOut")}) -- '
+        f'emulator may be hung')
+    return r
+
+
+def poll_until(m, predicate, max_frames, step=1):
+    """Poll predicate(m) -> bool, advancing `step` emulated frames between
+    checks (each advance verified exact via run_frames_exact -- a
+    stalled/hung emulator raises here rather than exhausting max_frames
+    and returning a silent False). Returns True the frame predicate first
+    reads true, False if max_frames elapses first. Replaces a fixed
+    "wait N frames and hope the thing you're waiting for finished" pattern
+    with a real state-based convergence check."""
+    advanced = 0
+    while advanced < max_frames:
+        this_step = min(step, max_frames - advanced)
+        run_frames_exact(m, this_step)
+        advanced += this_step
+        if predicate(m):
+            return True
+    return False
 
 
 class Reporter:
