@@ -4,4 +4,4 @@
 
 === sfx_hit ===
     set_instrument beat1
-    play_note c3 12
+    play_note 0 48

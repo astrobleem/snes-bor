@@ -1,0 +1,61 @@
+{
+  "_about": "G11 hardening: deterministic metadata for validating soundwork/tad/project/02_coin.terrificaudio's reconstruction and the beat1/sfx_hit correction. Consumed by soundwork/tad/verify_project.py.",
+  "tad_io_version": 20,
+  "tad_io_version_source": "soundwork/tad/vendor/tad-driver.inc: TAD_IO_VERSION = 20",
+  "compiler_version": "0.3.0",
+  "compiler_version_note": "The project file's own _about.version field tracks the TAD project-file FORMAT version, independent of the compiler CLI version. An earlier draft of this hardening task assumed the CLI itself was 0.4.2; that version was not found on this machine or in any sibling repo (snes-outrun-sa1, SNES-SuperMonkeyIsland both vendor 0.3.0). Ground truth beats an assumed version number -- see rebuild.py's own comment.",
+  "song_ids": {
+    "BLANK": 0,
+    "s02_coin": 1
+  },
+  "sfx_ids": {
+    "sfx_stub": 0,
+    "sfx_hit": 1
+  },
+  "hashes": {
+    "vendor/tad-audio-driver.bin": "96ceef04fba19c9895fb42051a54acf6c45064a4bedf2141c0e2b4997fb99422",
+    "vendor/tad-loader.bin": "fcc4d1be06563d1ab85fb7220afacb5ecbe800701cee50924acde682254ec895",
+    "project/samples/coin_tone.brr": "dc33a94782f0e7832dd0fe948b3e7a65fd04a3a27bbfdddd6d6f540cabfa6402",
+    "build/audio-data.bin": "99d02157465029584f17bd73e405c8ce125434fa6dc4a8a072092479799f11df"
+  },
+  "sample_ordering": {
+    "note": "Index order of brr_samples/instruments as compiled by tad-compiler, s02_coin.mml's @N channel-instrument assignments reference this order directly.",
+    "instruments": ["s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+    "samples": ["beat1"]
+  },
+  "s02_coin_reconstruction": {
+    "method": "From-scratch bytecode disassembler (grounded in the real audio-driver/src/bytecode.inc source) decoded the shipped s02_coin song's actual note/instrument/timing content from the surviving compiled blob (no original MML/project source ever existed in this repo's history); that was re-encoded to soundwork/tad/project/mml/02_coin.mml.",
+    "residual_bytes_vs_original_compiled_blob": 5,
+    "identical_bytes_vs_original_compiled_blob": 336,
+    "total_compared_bytes": 341,
+    "residual_disposition": "Documented in plan_game.md §11 (inherited from the original G11 reconstruction, unchanged by this hardening pass): the 5 residual bytes are isolated to non-melodic echo/pan header settings, not note/instrument/timing content. TAD's MML authoring surface does not expose an exact byte-for-byte echo/pan-register encoding knob for this shape, so these 5 bytes cannot currently be restored exactly from source; they are tracked here so a future build does not silently drift further, per rebuild.py --check.",
+    "unaffected_by_this_hardening_pass": true,
+    "unaffected_reason": "This pass only changed the beat1 BRR-sample entry's pitch model (octave->sample-rate) and its owning SFX bytecode; s0-s6 (the song's own instruments) and mml/02_coin.mml were not touched, so s02_coin's own compiled bytes are unaffected by the beat1/sfx_hit fix."
+  },
+  "beat1_correction": {
+    "before": {
+      "pitch_mode": "octave",
+      "tuning_frequency_hz": 500.0,
+      "note": "c3",
+      "sfx_duration_ticks": 12,
+      "problem": "Treated a recorded ~0.379s impact WAV as a pitched musical instrument tuned to an arbitrary 500 Hz reference and truncated playback to 12 SFX ticks (~96ms @ 125 ticks/sec), well short of the source's real length."
+    },
+    "after": {
+      "pitch_mode": "sample_rate",
+      "sample_rate_hz": 11025,
+      "note": "0 (bare numeric sample-rate-table entry index, not a note name -- sound-effects.txt uses 'play_note 0 48'; TAD's mechanism for a one-shot, non-pitched sample)",
+      "sfx_duration_ticks": 48,
+      "source_duration_ticks_at_125_tick_clock": 47.35,
+      "loop": "none",
+      "envelope": "gain F127 (flat, unenveloped one-shot -- matches a recorded percussive hit, not adsr note-shaping)"
+    },
+    "source_wav": {
+      "path": "samples/beat1.wav",
+      "channels": 1,
+      "sample_format": "unsigned 8-bit PCM",
+      "sample_rate_hz": 11025,
+      "num_samples": 4176,
+      "duration_seconds": 0.3787
+    }
+  }
+}

@@ -1,131 +1,96 @@
 {
   "_about": {
     "file_type": "Terrific Audio Driver project file",
-    "version": "0.4.2"
+    "version": "0.3.0"
   },
-  "brr_samples": [
+  "instruments": [
     {
       "name": "s0",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s1",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s2",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s3",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s4",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s5",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
     },
     {
       "name": "s6",
-      "source": {
-        "type": "brr",
-        "source": "samples/coin_tone.brr"
-      },
+      "source": "samples/coin_tone.brr",
+      "freq": 500.0,
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 0,
-        "last_octave": 6
-      },
+      "first_octave": 0,
+      "last_octave": 6,
       "envelope": "adsr 12 1 1 16"
-    },
+    }
+  ],
+  "samples": [
     {
       "name": "beat1",
-      "source": {
-        "type": "wav",
-        "source": "samples/beat1.wav",
-        "evaluator": "default",
-        "loop_point": 0,
-        "loop_filter": "reset_filter"
-      },
+      "source": "samples/beat1.wav",
+      "sample_rates": [11025],
+      "loop": "none",
+      "evaluator": "default",
       "ignore_gaussian_overflow": false,
-      "pitches": {
-        "type": "octave",
-        "frequency": 500.0,
-        "first_octave": 3,
-        "last_octave": 3
-      },
-      "envelope": "gain 127"
+      "envelope": "gain F127"
     }
   ],
   "default_sfx_flags": {
