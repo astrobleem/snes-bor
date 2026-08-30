@@ -306,15 +306,22 @@ PROP_ENTITY_TYPES = {'obstacle', 'item'}
 # MISC/PIZZA.TXT: `type item`, `health 100`, `subtype touch`) in 3 of its
 # own levels (streets.txt, streets2.txt, streets3.txt) -- same real heal
 # value as MEAT, so it correctly falls out of this value match with no
-# TMNT-specific code. GOLD/TIME/STAR/KNIFE/ORANGE are real MISC entities in
-# one or both paks but are spawned by NO level in either pak (verified
-# across all 39 level files checked, not just the shipped/buildable ones)
-# -- see plan_game.md G8 for the full accounting.
+# TMNT-specific code. TIME/STAR/KNIFE/ORANGE are real MISC entities in one
+# or both paks but are spawned by NO level in either pak. GOLD WAS
+# incorrectly claimed here as unused too -- re-audited
+# (claude_close_g7_g8_before_g10.md Part 3) via a direct pak scan of the
+# real shipped level text, not the stale claim: DATA\EASY\1BEASY.TXT's own
+# `item gold` line (a Table record, line ~186) is real, shipped, buildable
+# content this engine had never converted. GOLD.TXT: `score 5000`, a value
+# distinct from MONEY's 1000 -- its own PICKUP_TYPE_GOLD, not folded into
+# PICKUP_TYPE_MONEY, so the real 5000-point reward isn't silently
+# undercounted to 1000. See plan_game.md G8 for the full accounting.
 PICKUP_TYPE_NONE = 0
 PICKUP_TYPE_APPLE = 1
 PICKUP_TYPE_MEAT = 2
 PICKUP_TYPE_MONEY = 3
 PICKUP_TYPE_ONEUP = 4
+PICKUP_TYPE_GOLD = 5
 
 # RAW (unscaled) real pak values matched against each item's own parsed
 # `health`/`score` field -- distinct from main.pasm's own PICKUP_HEAL_*
@@ -325,6 +332,7 @@ PICKUP_TYPE_ONEUP = 4
 PICKUP_HEAL_APPLE_RAW = 30
 PICKUP_HEAL_MEAT = 100
 PICKUP_SCORE_MONEY = 1000
+PICKUP_SCORE_GOLD = 5000
 
 
 def classify_pickup(name, entity_type_lookup_entry):
@@ -344,6 +352,8 @@ def classify_pickup(name, entity_type_lookup_entry):
         return PICKUP_TYPE_ONEUP
     score = entity.get('score') or 0
     health = entity.get('health') or 0
+    if score == PICKUP_SCORE_GOLD:
+        return PICKUP_TYPE_GOLD
     if score == PICKUP_SCORE_MONEY:
         return PICKUP_TYPE_MONEY
     if health == PICKUP_HEAL_MEAT:

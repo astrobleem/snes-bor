@@ -153,7 +153,10 @@ def main():
         data = f.read()
     # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10 bytes,
     # and this record's own real +9 object_roster_idx is Trash's own slot
-    # (17) -- the WRAPPING object spawned/streamed at trigger time -- while
+    # (18 -- shifted from 17 when out/gold was inserted ahead of trash/
+    # chair/table in build_rom.py's ROSTER_PREFIXES, claude_close_g7_g8_
+    # before_g10.md Part 3) -- the WRAPPING object spawned/streamed at
+    # trigger time -- while
     # the new +8 item_roster_idx (13, Apple's own slot) is the contained
     # item, only consumed once the object actually breaks. See this
     # module's own header comment.
@@ -164,7 +167,7 @@ def main():
              f'wrapping Trash (kind={kind & 7}, pickup={(kind >> 5) & 7}, '
              f'object_roster_idx={roster_idx}, item_roster_idx={item_roster_idx})',
              (kind & 7) == 1 and ((kind >> 5) & 7) == PICKUP_TYPE_APPLE
-             and roster_idx == 17 and item_roster_idx == 13)
+             and roster_idx == 18 and item_roster_idx == 13)
 
     with open_session(__file__) as m:
         m.reset_emulator()

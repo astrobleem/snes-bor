@@ -253,10 +253,13 @@ FORMAT_VERSION = 4
 # real catalog entries alongside the 13 playable fighters + APPLE already
 # shipped. Raise again freely if real content needs more; there is no
 # hardware wall left to hit.
-MAX_CHARACTERS = 20  # claude_close_g7_g8_before_g10.md Part 3: +3 for
-                      # out/trash, out/chair, out/table (real breakable-
-                      # object sprites) -- still a soft Python-side cap
-                      # only, per this comment's own note directly above.
+MAX_CHARACTERS = 21  # claude_close_g7_g8_before_g10.md Part 3: 20->21 for
+                      # out/gold (real GOLD.TXT item, re-audit found it's
+                      # actually used by DATA\EASY\1BEASY.TXT, see build_
+                      # rom.py's ROSTER_PREFIXES comment) on top of the
+                      # earlier +3 for out/trash/chair/table -- still a
+                      # soft Python-side cap only, per this comment's own
+                      # note directly above.
 RECORD_SIZE = 50  # claude_close_g7_g8_before_g10.md Part 2: +2 bytes --
                    # get_frame_count/get_delay, the 8th generic move slot
                    # (NEW_MOVE_SLOT_NAMES' own comment), packed generically

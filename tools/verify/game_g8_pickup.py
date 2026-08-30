@@ -37,6 +37,8 @@ CHAR_HP==CHAR_HP_PER_HIT (one hit kills) and each real pickup type in turn:
    i.e. a full heal from a damaged starting HP -- proves the clamp is real,
    not merely untested, since MEAT alone can't overflow from full HP).
 3. PICKUP_TYPE_MONEY: Game_Score increases by PICKUP_SCORE_MONEY (1000).
+3b. PICKUP_TYPE_GOLD: Game_Score increases by PICKUP_SCORE_GOLD (5000),
+   distinct from MONEY (Part 3 slice).
 4. PICKUP_TYPE_ONEUP: Game_Lives increases by exactly 1.
 5. Regression: CHAR_PICKUP_TYPE reads back 0 after each effect (consumed
    once, doesn't re-fire if the slot happens to get inspected again before
@@ -72,9 +74,11 @@ PICKUP_TYPE_APPLE = pasm_constant('PICKUP_TYPE_APPLE')
 PICKUP_TYPE_MEAT = pasm_constant('PICKUP_TYPE_MEAT')
 PICKUP_TYPE_MONEY = pasm_constant('PICKUP_TYPE_MONEY')
 PICKUP_TYPE_ONEUP = pasm_constant('PICKUP_TYPE_ONEUP')
+PICKUP_TYPE_GOLD = pasm_constant('PICKUP_TYPE_GOLD')
 PICKUP_HEAL_APPLE = pasm_constant('PICKUP_HEAL_APPLE')
 PICKUP_HEAL_MEAT = pasm_constant('PICKUP_HEAL_MEAT')
 PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
+PICKUP_SCORE_GOLD = pasm_constant('PICKUP_SCORE_GOLD')
 HIT_SCORE = pasm_constant('HIT_SCORE')
 KILL_SCORE = pasm_constant('KILL_SCORE')
 # A killing hit on ANY entity (prop or enemy) already awards HIT_SCORE+
@@ -261,6 +265,45 @@ def main():
                 f'to Game_Score via real touch-collect (no combat-kill hit '
                 f'landed since the item was already gone)',
                 score_after == score_before + PICKUP_SCORE_MONEY)
+
+        # --- 3a. GOLD real shipped data: stage 1B's own spawn table
+        # actually contains a real PICKUP_TYPE_GOLD record (a Table
+        # wrapping Gold, DATA\EASY\1BEASY.TXT's own `item gold` line) --
+        # not just a synthetic constant exercised below. ---
+        import struct
+        spawn_bin = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  '..', '..', 'out', 'spawn_stage1b', 'spawn_table.bin')
+        with open(spawn_bin, 'rb') as f:
+            spawn_data = f.read()
+        gold_records = []
+        for i in range(len(spawn_data) // 10):
+            rec = spawn_data[i * 10:i * 10 + 10]
+            _tx, _sx, _sy, _f, kind, _hp, item_idx, obj_idx = struct.unpack('<HHBBBBBB', rec)
+            if (kind & 7) == 1 and ((kind >> 5) & 7) == PICKUP_TYPE_GOLD:
+                gold_records.append((i, obj_idx, item_idx))
+        print(f'out/spawn_stage1b/spawn_table.bin real PICKUP_TYPE_GOLD '
+              f'records: {gold_records}')
+        r.check('stage 1B\'s real packed spawn data contains a genuine '
+                'PICKUP_TYPE_GOLD record (a real Table-wraps-Gold '
+                'spawn, not just a synthetic test scenario)',
+                len(gold_records) >= 1)
+
+        # --- 3b. GOLD: real, distinct score award (claude_close_g7_g8_
+        # before_g10.md Part 3 -- GOLD.TXT score=5000, a real shipped item
+        # (DATA\EASY\1BEASY.TXT's own `item gold` line on a Table record)
+        # that an earlier audit pass wrongly claimed was unused; its own
+        # PICKUP_TYPE_GOLD, not folded into PICKUP_TYPE_MONEY, so this
+        # proves the 5000-point award isn't silently undercounted to
+        # MONEY's 1000). ---
+        score_before = read_u16(m, Game_Score)
+        killed = land_hit_on_entity2(m, PICKUP_TYPE_GOLD)
+        score_after = read_u16(m, Game_Score)
+        print(f'GOLD: killed={killed} score {score_before}->{score_after} '
+              f'(expect +{PICKUP_SCORE_GOLD}, touch-collected)')
+        r.check(f'GOLD pickup adds PICKUP_SCORE_GOLD ({PICKUP_SCORE_GOLD}, '
+                f'distinct from MONEY\'s {PICKUP_SCORE_MONEY}) to Game_Score '
+                f'via real touch-collect',
+                score_after == score_before + PICKUP_SCORE_GOLD)
 
         # --- 4. 1UP: real extra life. ---
         lives_before = read_u8(m, Game_Lives)

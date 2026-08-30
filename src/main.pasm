@@ -2977,6 +2977,13 @@ PICKUP_TYPE_APPLE   = 1     ; APPLE.TXT health=30 -> 30*64/100 = 19
 PICKUP_TYPE_MEAT    = 2     ; MEAT.TXT health=100 -> 100*64/100 = 64 (full)
 PICKUP_TYPE_MONEY   = 3     ; MONEY.TXT score=1000
 PICKUP_TYPE_ONEUP   = 4     ; real OpenBOR name=="1up" special case: +1 life
+; claude_close_g7_g8_before_g10.md Part 3: GOLD.TXT score=5000, real and
+; shipped (DATA\EASY\1BEASY.TXT's own `item gold` line on a Table record)
+; but previously never converted (a stale audit comment wrongly claimed it
+; was unused -- see build_spawn_table.py's own classify_pickup comment for
+; the re-audit). Its own type/score, not folded into PICKUP_TYPE_MONEY,
+; since 5000 != 1000 and folding would silently undercount the reward.
+PICKUP_TYPE_GOLD    = 5     ; GOLD.TXT score=5000
 ; claude_close_g7_g8_before_g10.md Part 2: real ANI_GET move-slot variant
 ; (pack_msu_roster.py's GET_MOVE_VARIANT -- NEW_MOVE_SLOT_FIRST_VARIANT(3)
 ; + NEW_MOVE_SLOT_NAMES.index("get")(7) = 10). Character_HitApply__
@@ -2986,6 +2993,7 @@ GET_MOVE_VARIANT    = 10
 PICKUP_HEAL_APPLE   = 19
 PICKUP_HEAL_MEAT    = 64
 PICKUP_SCORE_MONEY  = 1000
+PICKUP_SCORE_GOLD   = 5000
 CHAR_SELECTED_FALL  = 3    ; Anim_Play__dispatch value; subsumes the real
                             ; engine's fall+lie (no separate lie animation
                             ; exists in source -- lying is a hold on fall's

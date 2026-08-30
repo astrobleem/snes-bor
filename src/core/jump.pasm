@@ -1613,6 +1613,8 @@ Character_HitApply__ApplyPickup:
     beq Character_HitApply__ApplyPickup__money
     cmp #PICKUP_TYPE_ONEUP
     beq Character_HitApply__ApplyPickup__oneup
+    cmp #PICKUP_TYPE_GOLD
+    beq Character_HitApply__ApplyPickup__gold
     bra Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
 Character_HitApply__ApplyPickup__heal_apple:
     sep #$20
@@ -1667,6 +1669,21 @@ Character_HitApply__ApplyPickup__money:
     bcc Character_HitApply__ApplyPickup__money_store
     lda #$FFFF
 Character_HitApply__ApplyPickup__money_store:
+    sta.l Game_Score
+    sep #$20
+.a8
+    bra Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__gold:
+    ; Game_Score += PICKUP_SCORE_GOLD, clamped at 65535 -- same idiom as
+    ; the money branch above, own real value (GOLD.TXT score=5000).
+    rep #$20
+.a16
+    lda.l Game_Score
+    clc
+    adc #PICKUP_SCORE_GOLD
+    bcc Character_HitApply__ApplyPickup__gold_store
+    lda #$FFFF
+Character_HitApply__ApplyPickup__gold_store:
     sta.l Game_Score
     sep #$20
 .a8

@@ -84,7 +84,7 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser
                    # already use) picks each of these up automatically for
                    # any spawn whose real item name matches, with zero
                    # engine-side per-item-type code.
-                   "out/apple", "out/money", "out/meat", "out/1up",
+                   "out/apple", "out/money", "out/meat", "out/1up", "out/gold",
                    # claude_close_g7_g8_before_g10.md Part 3: real breakable-
                    # object sprites, audited against the ACTUAL reachable set
                    # across all 10 shipped stages' own spawn tables (grep for
@@ -93,12 +93,15 @@ ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser
                    # pak but are spawned by NONE of the 10 shipped stages, so
                    # they are deliberately not converted here). Trash/Chair/
                    # Table are real, used (DATA\EASY\1AEASY.TXT: 4 Trash
-                   # spawns with an `item` line; DATA\EASY\1BEASY.TXT: 5
-                   # Chair/Table spawns, 3 with `item`, 2 bare). Converted
-                   # via convert_prop.py's real `fall` art (not an idle
-                   # copy) -- see that script's own comment for why the
-                   # broken-object appearance needs to be real, not
-                   # fabricated.
+                   # spawns, all with an `item` line; DATA\EASY\1BEASY.TXT: 7
+                   # Chair/Table spawns, 5 with `item` [money/gold/apple/
+                   # money/apple], 2 bare -- re-counted directly against the
+                   # real pak text during the Part 3 GOLD re-audit above; an
+                   # earlier pass here under-counted this as "5 spawns, 3
+                   # with item"). Converted via convert_prop.py's real `fall`
+                   # art (not an idle copy) -- see that script's own comment
+                   # for why the broken-object appearance needs to be real,
+                   # not fabricated.
                    "out/trash", "out/chair", "out/table"]
 
 # Real prop/pickup sprite art converted via convert_prop.py (see the

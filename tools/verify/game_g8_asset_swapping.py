@@ -152,12 +152,15 @@ def _record(idx):
 # were unknowingly exercising the very bug this slice fixes: a not-yet-
 # broken Trash rendering as floating food/money from the moment it
 # spawned. roster_idx (5th tuple field) is now each record's real +9
-# object_roster_idx (17 == out/trash's own roster slot for the wrapped
+# object_roster_idx (18 == out/trash's own roster slot for the wrapped
 # three; 16 == 1up's own slot, since it has no wrapping object at all).
 ITEM_RECORDS = {
-    'apple': (36, PICKUP_TYPE_APPLE, 17, 'apple', True),
-    'money': (6, PICKUP_TYPE_MONEY, 17, 'money', True),
-    'meat': (22, PICKUP_TYPE_MEAT, 17, 'meat', True),
+    # roster_idx 18 == out/trash's own roster slot (claude_close_g7_g8_
+    # before_g10.md Part 3: shifted 17->18 when out/gold was inserted
+    # ahead of trash/chair/table in build_rom.py's ROSTER_PREFIXES).
+    'apple': (36, PICKUP_TYPE_APPLE, 18, 'apple', True),
+    'money': (6, PICKUP_TYPE_MONEY, 18, 'money', True),
+    'meat': (22, PICKUP_TYPE_MEAT, 18, 'meat', True),
     '1up': (0, PICKUP_TYPE_ONEUP, 16, '1up', False),
 }
 # A real ordinary (non-identified) enemy record from the same table --
