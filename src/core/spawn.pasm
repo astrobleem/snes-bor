@@ -1049,7 +1049,13 @@ Spawn_Play__slot1_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot1_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot1_not_boss
+    beq Spawn_Play__slot1_is_boss
+    ; claude_close_g7_g8_before_g10.md Part 6: the map-palette-reapply
+    ; block above pushed Spawn_Play__slot1_not_boss out of bne's +-127
+    ; range -- CLAUDE.md's own documented workaround (invert + brl).
+    brl Spawn_Play__slot1_not_boss
+Spawn_Play__slot1_is_boss:
+.a8
     lda #1
     sta.l Entity1_IsBoss
     ; An unidentified SPAWN_KIND_BOSS record is just as real-art-silent as
@@ -1067,6 +1073,39 @@ Spawn_Play__slot1_not_prop:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; claude_close_g7_g8_before_g10.md Part 6: re-apply this record's own
+    ; map palette AFTER Spawn_DoRosterReassign, not just before -- Anim_
+    ; LoadCharacter (called by DoRosterReassign) unconditionally reloads
+    ; this slot's TRUE base palette, silently clobbering the map-index
+    ; write the earlier unconditional Anim_ApplyMapPalette call (above,
+    ; shared by every kind) already made using the PRE-reassignment
+    ; (stale, possibly a totally different character's) MapBase/
+    ; PaletteSlot fields. Real bug found live via game_map_remap.py (JOE
+    ; map=3 landed on JOE's own base palette instead of remap[2] -- masked
+    ; until this closure task's own G2 fix made entity2 a real boot-time
+    ; prop, so no earlier record had ever reassigned identity while also
+    ; requesting a nonzero map). MapApply_Index still holds Spawn_
+    ; ScratchMap from this dispatch's earlier fill -- only the
+    ; PaletteBase/MapBase/PaletteSlot fields need re-reading, now that
+    ; DoRosterReassign has updated them to the NEW identity's real values.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
 Spawn_Play__slot1_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_boss_identified:
@@ -1081,6 +1120,26 @@ Spawn_Play__slot1_boss_identified:
 .i16
     ldx #CHAR_ZP_LEN
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see the boss-restore
+    ; branch's own comment above for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1105,6 +1164,26 @@ Spawn_Play__slot1_not_boss:
 .i16
     ldx #CHAR_ZP_LEN
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1_boss's own
+    ; comment above for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
 Spawn_Play__slot1_no_restore:
@@ -1207,7 +1286,11 @@ Spawn_Play__slot2_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot2_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot2_not_boss
+    beq Spawn_Play__slot2_is_boss
+    ; See slot1's identical branch-range workaround comment.
+    brl Spawn_Play__slot2_not_boss
+Spawn_Play__slot2_is_boss:
+.a8
     lda #1
     sta.l Entity2_IsBoss
     ; See slot1's identical unidentified-boss restore comment.
@@ -1222,6 +1305,27 @@ Spawn_Play__slot2_not_prop:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment (Spawn_Play__slot1_boss_identified's own reassign block) for
+    ; the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
 Spawn_Play__slot2_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_boss_identified:
@@ -1233,6 +1337,26 @@ Spawn_Play__slot2_boss_identified:
 .i16
     ldx #CHAR_ZP_LEN*2
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1252,6 +1376,26 @@ Spawn_Play__slot2_not_boss:
 .i16
     ldx #CHAR_ZP_LEN*2
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
 Spawn_Play__slot2_no_restore:
@@ -1354,7 +1498,11 @@ Spawn_Play__slot3_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot3_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot3_not_boss
+    beq Spawn_Play__slot3_is_boss
+    ; See slot1's identical branch-range workaround comment.
+    brl Spawn_Play__slot3_not_boss
+Spawn_Play__slot3_is_boss:
+.a8
     lda #1
     sta.l Entity3_IsBoss
     ; See slot1's identical unidentified-boss restore comment.
@@ -1369,6 +1517,27 @@ Spawn_Play__slot3_not_prop:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment (Spawn_Play__slot1_boss_identified's own reassign block) for
+    ; the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
 Spawn_Play__slot3_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_boss_identified:
@@ -1380,6 +1549,26 @@ Spawn_Play__slot3_boss_identified:
 .i16
     ldx #CHAR_ZP_LEN*3
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1399,6 +1588,26 @@ Spawn_Play__slot3_not_boss:
 .i16
     ldx #CHAR_ZP_LEN*3
     jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
     sep #$20
 .a8
 Spawn_Play__slot3_no_restore:

@@ -49,7 +49,13 @@ CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_INPUT_DRIVEN_AI = pasm_constant('CHAR_INPUT_DRIVEN_AI')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_PALETTE_SLOT = pasm_constant('CHAR_PALETTE_SLOT')
+CHAR_IDLE_FCOUNT = pasm_constant('CHAR_IDLE_FCOUNT')
+CHAR_WALK_FCOUNT = pasm_constant('CHAR_WALK_FCOUNT')
+CHAR_ATTACK_FCOUNT = pasm_constant('CHAR_ATTACK_FCOUNT')
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
+
+# build_rom.py's ROSTER_PREFIXES order -- JOE is real roster slot 2.
+JOE_ROSTER_IDX = 2
 
 Spawn_Index = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 Spawn_Count = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
@@ -61,6 +67,7 @@ Spawn_ScratchMap = pasm_constant_in('src/core/spawn.pasm', 'Spawn_ScratchMap')
 SPAWN_KIND_ENEMY = pasm_constant_in('src/core/spawn.pasm', 'SPAWN_KIND_ENEMY')
 SPAWN_KIND_WAIT = pasm_constant_in('src/core/spawn.pasm', 'SPAWN_KIND_WAIT')
 SPAWN_KIND_BOSS = pasm_constant_in('src/core/spawn.pasm', 'SPAWN_KIND_BOSS')
+SPAWN_KIND_BOSS_IDENTIFIED = pasm_constant_in('src/core/spawn.pasm', 'SPAWN_KIND_BOSS_IDENTIFIED')
 SPAWN_MAP_SHIFT = pasm_constant_in('src/core/spawn.pasm', 'SPAWN_MAP_SHIFT')
 
 Entity1_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity1_IsBoss')
@@ -98,12 +105,33 @@ def moveset_remap_bytes(char_name):
     return [b''.join(struct.pack('<H', v) for v in pal) for pal in data['remap_palettes']]
 
 
-def record(trigger_x, spawn_x, kind, map_value, spawn_hp=64):
+def moveset_triple(char_name):
+    path = os.path.join(repo_root_from(None), 'out', f'{char_name}_moveset.json')
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    anims_by_ordinal = {a['ordinal']: a['frames'] for a in data['animations']}
+    roles = data['roles']
+    return tuple(anims_by_ordinal[roles[name]] for name in ('idle', 'walk', 'attack'))
+
+
+def entity_triple(m, base):
+    return (u8(m, base + CHAR_IDLE_FCOUNT),
+            u8(m, base + CHAR_WALK_FCOUNT),
+            u8(m, base + CHAR_ATTACK_FCOUNT))
+
+
+def record(trigger_x, spawn_x, kind, map_value, spawn_hp=64, object_roster_idx=0):
     record_kind = (kind & 0x07) | ((map_value & 0x03) << SPAWN_MAP_SHIFT)
     # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10 bytes
-    # (+8 item_roster_idx, +9 object_roster_idx); both 0 here, this gate
-    # never uses RECORD_KIND_BOSS_IDENTIFIED or wrapped items.
-    return struct.pack('<HHBBBBBB', trigger_x, spawn_x, 100, 0, record_kind, spawn_hp, 0, 0)
+    # (+8 item_roster_idx, +9 object_roster_idx). object_roster_idx is only
+    # ever consumed (spawn.pasm +9 field doc) when kind==SPAWN_KIND_BOSS_
+    # IDENTIFIED or kind==SPAWN_KIND_PROP -- for plain SPAWN_KIND_ENEMY
+    # records (this gate's default) it's dead and the slot keeps whatever
+    # roster identity it already had, which for entity2/3 on stage 1B is
+    # the boot-time breakable prop (Table/Chair), NOT the roster character
+    # ENTITY_ROSTER claims -- see the JOE case below for the real fix.
+    return struct.pack('<HHBBBBBB', trigger_x, spawn_x, 100, 0, record_kind,
+                        spawn_hp, 0, object_roster_idx)
 
 
 def load_one_record(m, rec):
@@ -165,12 +193,32 @@ def main():
         # boundary the JHUN-only case above can't reach.
         joe_base, joe_name = ENTITY_ROSTER[2]
         joe_remaps = moveset_remap_bytes(joe_name)
+        joe_expected_triple = moveset_triple(joe_name)
         r.check(f'{joe_name} moveset has 3 real remap palettes (matches pak data)',
                 len(joe_remaps) == 3)
         force_free(m, joe_base)
-        load_one_record(m, record(0, 100, SPAWN_KIND_ENEMY, 3))
+        # claude_close_g7_g8_before_g10.md Part 6 investigation finding:
+        # entity2 (ENTITY_ROSTER[2]) is only JOE by DEFAULT at cold boot on
+        # stages with no boot-time prop at that slot. Stage 1B's own spawn
+        # table legitimately claims entities 2/3 as real breakable props
+        # (Table/Chair) at trigger_x==0 (game_g2_states.py's own fix, same
+        # session) -- so by the time this gate runs, entity2 may already
+        # carry Table's roster identity, not JOE's. A plain SPAWN_KIND_ENEMY
+        # record leaves +9 object_roster_idx unconsumed (spawn.pasm's own
+        # field doc) and does NOT reassign the slot's identity -- it silently
+        # inherits whatever roster character was already loaded there. Force
+        # a real SPAWN_KIND_BOSS_IDENTIFIED record instead, which DOES
+        # consume +9 and calls Spawn_DoRosterReassign, so this slot is
+        # provably JOE before the CGRAM check below trusts it.
+        load_one_record(m, record(0, 100, SPAWN_KIND_BOSS_IDENTIFIED, 3,
+                                   object_roster_idx=JOE_ROSTER_IDX))
         m.run_frames(6)
         m.pause()
+        triple = entity_triple(m, joe_base)
+        r.check(f'entity2 slot is really {joe_name} (idle,walk,attack) frame-count '
+                 f'triple {joe_expected_triple} (got {triple}) before trusting its '
+                 'CGRAM -- proves Spawn_DoRosterReassign actually put JOE in this '
+                 'slot, not a leftover boot-time prop', triple == joe_expected_triple)
         pal_slot = u8(m, joe_base + CHAR_PALETTE_SLOT)
         cgram = cgram_palette(m, pal_slot)
         r.check(f'{joe_name} map=3 (highest index): live CGRAM matches converter '
