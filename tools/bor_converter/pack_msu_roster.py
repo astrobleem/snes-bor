@@ -257,7 +257,12 @@ MAX_CHARACTERS = 20  # claude_close_g7_g8_before_g10.md Part 3: +3 for
                       # out/trash, out/chair, out/table (real breakable-
                       # object sprites) -- still a soft Python-side cap
                       # only, per this comment's own note directly above.
-RECORD_SIZE = 48  # notjustfreespecial.txt G5 slice: +2 bytes -- waiting_
+RECORD_SIZE = 50  # claude_close_g7_g8_before_g10.md Part 2: +2 bytes --
+                   # get_frame_count/get_delay, the 8th generic move slot
+                   # (NEW_MOVE_SLOT_NAMES' own comment), packed generically
+                   # right alongside attack3..freespecial (BEFORE atchain/
+                   # chainlength, unlike waiting which stays LAST) -- 0/0
+                   # for every roster member except LEO. Was 48 (notjustfreespecial.txt G5 slice: +2 bytes -- waiting_
                    # frame_count/waiting_delay appended LAST (+46/+47), 0/0
                    # for every roster member without real `waiting` data
                    # (only LEO today). Was 46 (G7 reopened-again slice: +2 bytes -- `freespecial` added
@@ -440,8 +445,23 @@ OPTIONAL_ROLE_WAITING = "waiting"
 # main.pasm's own CHAR_ATTACK_VARIANT encoding: variant 3=attack3,
 # 4=attack4, 5=grab, 6=slide, 7=riseattack, 8=grabattack (variants 0-2 stay
 # attack1/attack2/special, unchanged from before this slice).
-NEW_MOVE_SLOT_NAMES = ["attack3", "attack4", "grab", "slide", "riseattack", "grabattack", "freespecial"]
+#
+# claude_close_g7_g8_before_g10.md Part 2: 'get' appended LAST (variant
+# 10) -- real OpenBOR ANI_GET (DCurrent/openbor engine/openbor.c's
+# common_pickupitem/player think ANI_GET block), reached at real pickup
+# collision, not a button/atchain input. Reuses this SAME generic move-
+# descriptor table/frame-advance machinery (Jump_PlayMoveSlotAdvance) as
+# attack3-freespecial since it's the identical one-shot-anim-then-revert-
+# to-idle shape, but it is NOT a combat move: Character_HitApply's own
+# entry point explicitly skips hit-application for this one variant (see
+# GET_MOVE_VARIANT below / main.pasm) so playing it can never accidentally
+# deal damage. Only LEO ships real `get` data (DATA\CHARS\LEO\LEO.TXT: 1
+# frame, `still01.gif`, `loop 0`, `delay 1`) -- fcount 0 for the other 12
+# roster members, same "collapses to zero, content-inapplicable"
+# discipline as every other optional/move-slot role.
+NEW_MOVE_SLOT_NAMES = ["attack3", "attack4", "grab", "slide", "riseattack", "grabattack", "freespecial", "get"]
 NEW_MOVE_SLOT_FIRST_VARIANT = 3  # variant = NEW_MOVE_SLOT_FIRST_VARIANT + index
+GET_MOVE_VARIANT = NEW_MOVE_SLOT_FIRST_VARIANT + NEW_MOVE_SLOT_NAMES.index("get")  # 10
 # G7 reopened-again slice: `freespecial` was WRONGLY classified as
 # "AI-exclusive, content-inapplicable" in the prior content-audit slice --
 # that check only scanned player_check_special()/check_special() for a

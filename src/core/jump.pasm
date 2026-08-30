@@ -262,6 +262,28 @@ Jump_ComputeBases:
     sta.l JumpHopBaseHi
     jsr Jump_HopBase
     lda.l JumpHopBaseLo
+    sta CHAR_GET_BASE_LO
+    lda.l JumpHopBaseLo+1
+    sta CHAR_GET_BASE_LO+1
+    lda.l JumpHopBaseHi
+    sta CHAR_GET_BASE_HI
+
+    ; claude_close_g7_g8_before_g10.md Part 2: get_base -> waiting_base, one
+    ; more hop (pack_msu_roster.py's blob appends get_bytes right after
+    ; freespecial's own frames, BEFORE waiting -- new_slot_bytes now
+    ; includes 'get' LAST in NEW_MOVE_SLOT_NAMES) -- collapses back to the
+    ; pre-this-slice waiting_base value when CHAR_GET_FCOUNT==0 (every
+    ; roster member except LEO).
+    lda CHAR_GET_FCOUNT
+    sta.l JumpHopFCount
+    lda CHAR_GET_BASE_LO
+    sta.l JumpHopBaseLo
+    lda CHAR_GET_BASE_LO+1
+    sta.l JumpHopBaseLo+1
+    lda CHAR_GET_BASE_HI
+    sta.l JumpHopBaseHi
+    jsr Jump_HopBase
+    lda.l JumpHopBaseLo
     sta CHAR_WAITING_BASE_LO
     lda.l JumpHopBaseLo+1
     sta CHAR_WAITING_BASE_LO+1
@@ -497,6 +519,49 @@ Jump_PlaySpecialAdvance__frame_ok:
     sec
     rtl
 
+; --- Jump_PlayGetAdvance -- claude_close_g7_g8_before_g10.md Part 2. Same
+; shape as Jump_PlaySpecialAdvance above (its own dedicated fcount/delay/
+; base fields, not the indexed move-slot table -- see CHAR_GET_FCOUNT's own
+; struct comment). Only ever reached with CHAR_ATTACK_VARIANT==GET_MOVE_
+; VARIANT, set by Character_Pickup_CheckOverlap's own trigger (gated there
+; on CHAR_GET_FCOUNT!=0), so no zero-frame-count guard needed, matching
+; special's own precondition-trusted shape.
+;
+;   in:  none (DP-local self -- always the player, same as special's own
+;        contract, since only the player ever collects an item).
+;   out: carry SET = caller must jsr Msu1_LoadFrame; carry CLEAR =
+;        animation finished, already reverted to idle. Clobbers A.
+Jump_PlayGetAdvance:
+.a8
+    lda CHAR_FRAME_INDEX
+    inc a
+    cmp CHAR_GET_FCOUNT
+    bcc Jump_PlayGetAdvance__frame_ok
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    clc
+    rtl
+Jump_PlayGetAdvance__frame_ok:
+.a8
+    sta CHAR_FRAME_INDEX
+    lda CHAR_GET_DELAY
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda CHAR_GET_BASE_LO
+    sta.l AnimHeaderStaging+0
+    sep #$20
+.a8
+    lda CHAR_GET_BASE_HI
+    sta.l AnimHeaderStaging+2
+    sec
+    rtl
+
 ; --- Jump_PlayMoveSlotAdvance -- G7 content-audit slice (extended by the
 ; reopened-again slice's `freespecial` addition). The real generic
 ; animation descriptor table this slice's own directive calls for: ONE
@@ -520,6 +585,19 @@ Jump_PlaySpecialAdvance__frame_ok:
 ;        already reverted to idle. Clobbers A/X. Entry .a8, exit
 ;        .a8-equivalent (matches Jump_PlaySpecialAdvance's own convention).
 Jump_PlayMoveSlotAdvance:
+.a8
+    ; claude_close_g7_g8_before_g10.md Part 2: GET (variant 10) redirected
+    ; here since the bank-0 caller (Anim_Play_Attack) still just checks
+    ; variant>=3 -- own dedicated fields, NOT this indexed table (its own
+    ; X=(variant-3)*5 addressing would land on CHAR_ATCHAIN0 for variant
+    ; 10, not a real move-slot field -- see CHAR_GET_FCOUNT's own struct
+    ; comment). Checked here, bank 8, instead of adding a second bank-0
+    ; dispatch branch (that bank was already at its ROM ceiling).
+    lda CHAR_ATTACK_VARIANT
+    cmp #GET_MOVE_VARIANT
+    bne Jump_PlayMoveSlotAdvance__not_get
+    jmp Jump_PlayGetAdvance
+Jump_PlayMoveSlotAdvance__not_get:
 .a8
     lda CHAR_ATTACK_VARIANT
     sec
@@ -1786,6 +1864,7 @@ Character_Pickup_CheckOverlap__vs1_dy_have:
     rts                         ; no overlap on Y
 Character_Pickup_CheckOverlap__vs1_dy_ok:
 .a8
+    jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity1_PickupType
     jsl Character_HitApply__ApplyPickup
     lda #0
@@ -1848,6 +1927,7 @@ Character_Pickup_CheckOverlap__vs2_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs2_dy_ok:
 .a8
+    jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity2_PickupType
     jsl Character_HitApply__ApplyPickup
     lda #0
@@ -1910,6 +1990,7 @@ Character_Pickup_CheckOverlap__vs3_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs3_dy_ok:
 .a8
+    jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity3_PickupType
     jsl Character_HitApply__ApplyPickup
     lda #0
@@ -1917,4 +1998,44 @@ Character_Pickup_CheckOverlap__vs3_dy_ok:
     sta.l Entity3_Hp
     rts
 Character_Pickup_CheckOverlap__vs3_no:
+    rts
+
+; --- Character_Pickup_CheckOverlap__TriggerGet -- claude_close_g7_g8_
+; before_g10.md Part 2. Real ANI_GET (DCurrent/openbor engine/openbor.c's
+; common_pickupitem/player-think ANI_GET block): where the player's own
+; loaded character has real converted `get` content (CHAR_GET_FCOUNT!=0 --
+; only LEO today), enter the real pickup/get pose instead of the silent
+; instant-collect every other roster member still uses (real "source-
+; defined fallback" for a character with no get anim -- CLAUDE_close_g7_g8
+; _before_g10.md Part 2's own wording: "do not fabricate a required
+; animation"). The reward itself is applied by the caller immediately
+; after this returns, unconditionally, matching real didfind_item()'s own
+; timing (the animation is cosmetic -- it never gates the reward).
+;
+; Deliberately only triggers while the player is idle (CHAR_SELECTED==0)
+; -- real player_think()'s own ANI_GET check sits behind a long chain of
+; higher-priority action checks (turning, ducking, attacking, etc.) this
+; project doesn't fully reproduce; not overwriting an in-progress action
+; (attack/jump/fall/etc.) is a safe, real-behavior-preserving
+; simplification within that scope, not a fabricated mechanic -- it never
+; changes WHETHER or HOW MUCH reward is applied, only whether the cosmetic
+; pose is visible this particular frame.
+;
+;   in:  none. Clobbers A.
+; ============================================================================
+Character_Pickup_CheckOverlap__TriggerGet:
+.a8
+    lda.l PlayerEntity_GetFcount
+    beq Character_Pickup_CheckOverlap__TriggerGet__no
+    lda.l PlayerEntity_Selected
+    bne Character_Pickup_CheckOverlap__TriggerGet__no
+    lda #GET_MOVE_VARIANT
+    sta.l PlayerEntity_AttackVariant
+    lda #2
+    sta.l PlayerEntity_Selected
+    lda #$FF
+    sta.l PlayerEntity_FrameIndex
+    lda #1
+    sta.l PlayerEntity_TickCounter
+Character_Pickup_CheckOverlap__TriggerGet__no:
     rts

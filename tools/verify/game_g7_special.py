@@ -98,6 +98,7 @@ CHAR_RISEATTACK_FCOUNT = pasm_constant('CHAR_RISEATTACK_FCOUNT')
 CHAR_GRABATTACK_FCOUNT = pasm_constant('CHAR_GRABATTACK_FCOUNT')
 CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
 CHAR_WAITING_FCOUNT = pasm_constant('CHAR_WAITING_FCOUNT')
+CHAR_GET_FCOUNT = pasm_constant('CHAR_GET_FCOUNT')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
@@ -253,27 +254,30 @@ def main():
         # notjustfreespecial.txt G5 slice: waiting (char-select portrait) is
         # now the LAST hop in this chain, after freespecial -- LEO has real
         # data here too (only roster member with real `waiting`), so this
-        # independent recomputation exercises the real 9-hop chain.
+        # independent recomputation exercises the real 10-hop chain (the
+        # G8 Part 2 get-animation slice inserted a get hop right before
+        # this one).
         leo_wa_fc = read_u8(m, PlayerEntity + CHAR_WAITING_FCOUNT)
+        leo_get_fc = read_u8(m, PlayerEntity + CHAR_GET_FCOUNT)
         expected_map_base = actual_special_base + (
             leo_sp_fc + leo_a3_fc + leo_a4_fc + leo_gm_fc + leo_sl_fc
-            + leo_ra_fc + leo_ga_fc + leo_fs_fc + leo_wa_fc) * 768
+            + leo_ra_fc + leo_ga_fc + leo_fs_fc + leo_get_fc + leo_wa_fc) * 768
         actual_map_base = read_u24(m, PlayerEntity + CHAR_MAP_BASE_LO,
                                     PlayerEntity + CHAR_MAP_BASE_HI)
         print(f'map_base: actual={actual_map_base} expected='
               f'(special_base+sum(special/attack3/attack4/grab/slide/'
-              f'riseattack/grabattack/freespecial/waiting fc)*768)='
+              f'riseattack/grabattack/freespecial/get/waiting fc)*768)='
               f'{expected_map_base} '
               f'(fcounts sp={leo_sp_fc} a3={leo_a3_fc} a4={leo_a4_fc} '
               f'gm={leo_gm_fc} sl={leo_sl_fc} ra={leo_ra_fc} ga={leo_ga_fc} '
-              f'fs={leo_fs_fc} wa={leo_wa_fc})')
+              f'fs={leo_fs_fc} get={leo_get_fc} wa={leo_wa_fc})')
         r.check('LEO has real content in every new move slot but riseattack',
                 leo_a3_fc > 0 and leo_a4_fc > 0 and leo_gm_fc > 0
                 and leo_sl_fc > 0 and leo_ga_fc > 0 and leo_fs_fc > 0
                 and leo_ra_fc == 0)
         r.check('LEO has real waiting (char-select portrait) data',
                 leo_wa_fc > 0)
-        r.check('CHAR_MAP_BASE matches independent recomputation (9-hop chain)',
+        r.check('CHAR_MAP_BASE matches independent recomputation (10-hop chain)',
                 actual_map_base == expected_map_base)
 
         # --- 4. L triggers special: CHAR_SELECTED=2, CHAR_ATTACK_VARIANT=2,

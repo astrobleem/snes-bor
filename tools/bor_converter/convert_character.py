@@ -105,7 +105,7 @@ EXTRA_MOVEMENT_ROLE_NAMES = ['backwalk']
 # ROLE_NAMES above -- resolved as OPTIONAL roles downstream (pack_msu_
 # roster.py's OPTIONAL_ROLE_JUMP/JUMPATTACK/JUMPATTACK2), same shape as
 # 'attack2'/'attack2_is_grab', not required like ROLE_NAMES' own five.
-OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special', 'waiting']
+OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special', 'waiting', 'get']
 # 'waiting' (notjustfreespecial.txt G5 finding): real OpenBOR ANI_SELECT/
 # char-select portrait pose. Only LEO ships real data for it (DATA\CHARS\
 # LEO\LEO.TXT: `anim waiting`, 1 frame, `frame data/chars/leo/select.gif`,

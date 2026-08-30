@@ -2454,9 +2454,9 @@ AI_ATTACK2_CHANCE = 64            ; notjustfreespecial.txt item 3: 64/256
 ; addresses with the $7E bank byte dropped, since TCD only takes a 16-bit D
 ; value and this project's DBR stays $7E throughout gameplay code anyway. ---
 PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
-Entity1_DpBase      = $0a80        ; low16 of $7E0a00+128 ($80=128 dec)
-Entity2_DpBase      = $0b00        ; low16 of $7E0a00+256 ($100=256 dec)
-Entity3_DpBase      = $0b80        ; low16 of $7E0a00+384 ($180=384 dec)
+Entity1_DpBase      = $0a85        ; low16 of $7E0a00+133 ($85=133 dec)
+Entity2_DpBase      = $0b0a        ; low16 of $7E0a00+266 ($10a=266 dec)
+Entity3_DpBase      = $0b8f        ; low16 of $7E0a00+399 ($18f=399 dec)
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2468,7 +2468,7 @@ Entity3_DpBase      = $0b80        ; low16 of $7E0a00+384 ($180=384 dec)
 ; anything) -- no static check catches a drift here; re-derive by hand
 ; against CHAR_ZP_LEN any time it changes again.
 
-Entity1_Base    = $7E0a00 + 128       ; = $7E0a00 + 1*CHAR_ZP_LEN
+Entity1_Base    = $7E0a00 + 133       ; = $7E0a00 + 1*CHAR_ZP_LEN
 Entity1_PosX    = Entity1_Base + 4    ; Entity #1's CHAR_POS_X
 Entity1_PosXHi  = Entity1_Base + 5    ; Entity #1's CHAR_POS_X_HI (spawn-table phase)
 Entity1_PosY    = Entity1_Base + 6    ; Entity #1's CHAR_POS_Y
@@ -2494,7 +2494,7 @@ Entity1_PaletteBaseHi = Entity1_Base + 51 ; Entity #1's CHAR_PALETTE_BASE_HI
 Entity1_MapIndex      = Entity1_Base + 52 ; Entity #1's CHAR_MAP_INDEX
 Entity1_MapBaseLo     = Entity1_Base + 53 ; Entity #1's CHAR_MAP_BASE_LO
 Entity1_MapBaseHi     = Entity1_Base + 55 ; Entity #1's CHAR_MAP_BASE_HI
-Entity2_Base    = $7E0a00 + 256       ; = $7E0a00 + 2*CHAR_ZP_LEN
+Entity2_Base    = $7E0a00 + 266       ; = $7E0a00 + 2*CHAR_ZP_LEN
 Entity2_PosX    = Entity2_Base + 4    ; Entity #2's CHAR_POS_X
 Entity2_PosXHi  = Entity2_Base + 5    ; Entity #2's CHAR_POS_X_HI (spawn-table phase)
 Entity2_PosY    = Entity2_Base + 6    ; Entity #2's CHAR_POS_Y
@@ -2515,7 +2515,7 @@ Entity2_PaletteBaseHi = Entity2_Base + 51 ; Entity #2's CHAR_PALETTE_BASE_HI
 Entity2_MapIndex      = Entity2_Base + 52 ; Entity #2's CHAR_MAP_INDEX
 Entity2_MapBaseLo     = Entity2_Base + 53 ; Entity #2's CHAR_MAP_BASE_LO
 Entity2_MapBaseHi     = Entity2_Base + 55 ; Entity #2's CHAR_MAP_BASE_HI
-Entity3_Base    = $7E0a00 + 384       ; = $7E0a00 + 3*CHAR_ZP_LEN
+Entity3_Base    = $7E0a00 + 399       ; = $7E0a00 + 3*CHAR_ZP_LEN
 Entity3_PosX    = Entity3_Base + 4    ; Entity #3's CHAR_POS_X
 Entity3_PosXHi  = Entity3_Base + 5    ; Entity #3's CHAR_POS_X_HI (spawn-table phase)
 Entity3_PosY    = Entity3_Base + 6    ; Entity #3's CHAR_POS_Y
@@ -2550,6 +2550,12 @@ PlayerEntity_FacingLeft  = $7E0a00 + 8    ; Entity #0's CHAR_FACING_LEFT
 PlayerEntity_FrameIndex  = $7E0a00 + 9    ; Entity #0's CHAR_FRAME_INDEX
 PlayerEntity_TickCounter = $7E0a00 + 10   ; Entity #0's CHAR_TICK_COUNTER
 PlayerEntity_Selected    = $7E0a00 + 11   ; Entity #0's CHAR_SELECTED
+; claude_close_g7_g8_before_g10.md Part 2: real ANI_GET trigger fields --
+; Character_Pickup_CheckOverlap (core/jump.pasm) writes these from OUTSIDE
+; the player's own DP window (same reasoning as every other PlayerEntity_*
+; absolute alias above), so it needs its own named absolute addresses too.
+PlayerEntity_AttackVariant = $7E0a00 + 61  ; Entity #0's CHAR_ATTACK_VARIANT
+PlayerEntity_GetFcount     = $7E0a00 + 128 ; Entity #0's CHAR_GET_FCOUNT
 
 ; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
 ; Character_PlayFrame's OamSetSprite_Hi comment) -- the AABB hitbox is just
@@ -2918,7 +2924,29 @@ CHAR_WAITING_BASE_HI = 126 ; .db
 ; slot later reused for an ordinary enemy never accidentally re-triggers
 ; a stale pickup effect.
 CHAR_PICKUP_TYPE     = 127 ; .db
-CHAR_ZP_LEN         = 128  ; total -- pass as OopRegStaging_ZpLen
+; claude_close_g7_g8_before_g10.md Part 2: real OpenBOR ANI_GET (DCurrent/
+; openbor engine/openbor.c's common_pickupitem/player-think ANI_GET block)
+; -- only LEO ships real data (1 frame, `still01.gif`, `loop 0`, `delay
+; 1`). Deliberately NOT woven into the CHAR_ATTACK3.. indexed move-slot
+; table (Jump_PlayMoveSlotAdvance's fixed 5-byte-stride addressing) --
+; that table's region (offsets 111-121) is fully packed with atchain/
+; combo/freespecial-tracking fields already, and reshuffling all of them
+; to make room would be a much larger, riskier change for one single-
+; frame pose. Same fcount/delay/base_lo/base_hi shape as CHAR_SPECIAL_*
+; above instead, appended at the very end of the struct (own dedicated
+; Jump_PlayGetAdvance routine, core/jump.pasm, mirrors Jump_
+; PlaySpecialAdvance exactly) -- FCOUNT==0 for every other roster member.
+; Reached via CHAR_SELECTED==2 (the ordinary attack dispatch) with CHAR_
+; ATTACK_VARIANT==GET_MOVE_VARIANT(10, main.pasm), triggered by real
+; pickup collision (core/jump.pasm's Character_Pickup_CheckOverlap), not
+; player input -- Character_HitApply__attacking explicitly skips hit-
+; application for this one variant so playing it can never accidentally
+; deal damage (it isn't a combat move; see that routine's own guard).
+CHAR_GET_FCOUNT      = 128 ; .db
+CHAR_GET_DELAY       = 129 ; .db
+CHAR_GET_BASE_LO     = 130 ; .dw
+CHAR_GET_BASE_HI     = 132 ; .db
+CHAR_ZP_LEN         = 133  ; total -- pass as OopRegStaging_ZpLen
 ; claude_close_g7_g8_before_g10.md Part 2: a breakable object (SPAWN_KIND_
 ; PROP, obstacle+item) needs its contained item's roster index to survive
 ; from spawn time until the object actually breaks (HP reaches 0), which can
@@ -2949,6 +2977,12 @@ PICKUP_TYPE_APPLE   = 1     ; APPLE.TXT health=30 -> 30*64/100 = 19
 PICKUP_TYPE_MEAT    = 2     ; MEAT.TXT health=100 -> 100*64/100 = 64 (full)
 PICKUP_TYPE_MONEY   = 3     ; MONEY.TXT score=1000
 PICKUP_TYPE_ONEUP   = 4     ; real OpenBOR name=="1up" special case: +1 life
+; claude_close_g7_g8_before_g10.md Part 2: real ANI_GET move-slot variant
+; (pack_msu_roster.py's GET_MOVE_VARIANT -- NEW_MOVE_SLOT_FIRST_VARIANT(3)
+; + NEW_MOVE_SLOT_NAMES.index("get")(7) = 10). Character_HitApply__
+; attacking (below) skips hit-application entirely for this one variant --
+; see that routine's own guard comment.
+GET_MOVE_VARIANT    = 10
 PICKUP_HEAL_APPLE   = 19
 PICKUP_HEAL_MEAT    = 64
 PICKUP_SCORE_MONEY  = 1000
@@ -5911,6 +5945,15 @@ Character_HitApply__attacking:
     ; re-syncs Poppy's tracker.
     sep #$20
 .a8
+    ; claude_close_g7_g8_before_g10.md Part 2: the real ANI_GET pickup pose
+    ; reuses this SAME CHAR_SELECTED==2 dispatch (Jump_PlayMoveSlotAdvance's
+    ; generic frame-advance machinery) purely for its animation playback,
+    ; but it is NOT a combat move -- skip hit-application entirely so
+    ; standing in a get pose can never accidentally deal damage to a
+    ; nearby entity.
+    lda CHAR_ATTACK_VARIANT
+    cmp #GET_MOVE_VARIANT
+    beq Character_HitApply__done
     lda CHAR_HIT_APPLIED
     bne Character_HitApply__done   ; already landed a hit this attack cycle
     lda CHAR_INPUT_DRIVEN
@@ -6526,7 +6569,7 @@ Anim_LoadCharacter__seek_loop:
 .a16
     lda.l CharDirSeek16
     clc
-    adc #48                 ; RECORD_SIZE -- pack_msu_roster.py's own value
+    adc #50                 ; RECORD_SIZE -- pack_msu_roster.py's own value
                              ; (notjustfreespecial.txt G5 slice: 46->48, +2
                              ; bytes, waiting_frame_count/delay; G7
                              ; reopened-again slice before it: 44->46;
@@ -6659,6 +6702,20 @@ Anim_LoadCharacter__jumprecs_loop:
     ; CHAINLENGTH instead, which silently shifted every subsequent field's
     ; interpretation by 2 bytes.
     jsl Jump_LoadFreespecialRecord
+
+    ; claude_close_g7_g8_before_g10.md Part 2: 2 more sequential MSU port
+    ; reads -- get fcount/delay, the 8th (LAST) generic move slot
+    ; (NEW_MOVE_SLOT_NAMES' own order: ...,freespecial,get). MUST land
+    ; here, right after Jump_LoadFreespecialRecord and BEFORE the atchain
+    ; bytes -- pack_msu_roster.py's build_record() packs new_slot_fields
+    ; (NEW_MOVE_SLOT_NAMES order, 'get' LAST in that list) immediately
+    ; before atchain_variants/chainlength, same discipline the
+    ; Jump_LoadFreespecialRecord comment just above already documents for
+    ; freespecial itself.
+    lda $2001
+    sta CHAR_GET_FCOUNT
+    lda $2001
+    sta CHAR_GET_DELAY
 
     lda $2001
     sta CHAR_ATCHAIN0
