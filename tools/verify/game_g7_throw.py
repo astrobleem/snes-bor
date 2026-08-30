@@ -422,9 +422,29 @@ def main():
         # gate must stay clear of, same reasoning phase11_damage.py/
         # game_g7_grab.py already apply elsewhere in this project. ---
         reset_combat_state(m)
+        # Real bug found running the final closure-cluster regression: this
+        # loop's own comment already predicted "an unrelated AI attack"
+        # could interfere but only guarded against a respawn wave, not an
+        # ordinary AI hit landing mid-walk -- CHAR_HIT_STUN going nonzero
+        # (confirmed live: 0 before the loop, 5 after) freezes dpad input
+        # for a few frames, which a 10-press loop can net to zero real
+        # movement. Kill every AI entity for this check's own duration,
+        # same neutralize idiom phase11_damage.py/game_g7_grab.py use --
+        # they've already been individually exercised earlier in this file.
+        for base in (Entity1, Entity2, Entity3):
+            m.write_u8(base + CHAR_HP, 0)
         px_pre_walk = pos_x(entity_block(m, PlayerEntity))
         for _ in range(10):
+            for base in (Entity1, Entity2, Entity3):
+                m.write_u8(base + CHAR_HP, 0)
+            m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
             m.set_input(m.BTN_LEFT, 1)
+            m.pause()
+            # Same class of race game_g7_jump.py hit: set_input's own
+            # frame-exact press can land paused before this frame's
+            # main-loop iteration has actually dispatched movement in
+            # response to it -- one settle frame per press.
+            m.run_frames(1)
             m.pause()
         px_post_walk = pos_x(entity_block(m, PlayerEntity))
         print(f'player walk after throw: {px_pre_walk} -> {px_post_walk}')
@@ -593,11 +613,23 @@ def main():
         m.write_u16(PlayerEntity + CHAR_THROW_ZPOS, 0)
         m.write_u16(PlayerEntity + CHAR_THROW_ZVEL, JUMP_INITIAL_VEL)
 
-        def held_up_a_and_check():
-            m.set_input(m.BTN_UP | m.BTN_A, 1)
-            return read_u8(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_THROWN
-
-        landed = poll_until(m, held_up_a_and_check, max_frames=120)
+        # Real bug found running the final closure-cluster regression: a
+        # per-iteration set_input(UP|A, 1) only guarantees the button is
+        # held on SOME frames, not the specific frame Character_Throw_
+        # Play's own gravity tick actually detects the landing (position<=0
+        # AND velocity<=0) -- Input_press must be sampled with UP+A ASSERTED
+        # on that exact frame, since doland()'s real semantics are a
+        # per-frame check, not a "was it pressed recently" latch. hold_input
+        # keeps the override active across every run_frames call until
+        # explicitly released, so it's genuinely held on whichever frame
+        # turns out to be the landing frame.
+        m.hold_input(m.BTN_UP | m.BTN_A)
+        try:
+            landed = poll_until(
+                m, lambda: read_u8(m, PlayerEntity + CHAR_SELECTED) != CHAR_SELECTED_THROWN,
+                max_frames=120)
+        finally:
+            m.release_input()
         sel_after_land_command = read_u8(m, PlayerEntity + CHAR_SELECTED)
         print(f'land-command landing: player.CHAR_SELECTED={sel_after_land_command} '
               f'(landed={landed})')
