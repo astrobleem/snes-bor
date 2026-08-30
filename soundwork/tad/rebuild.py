@@ -84,7 +84,15 @@ def find_compiler(explicit: str | None) -> Path:
     )
 
 
-def check_compiler_version(compiler: Path) -> str:
+def check_compiler_version(compiler: Path, allow_mismatch: bool = False) -> str:
+    """Enforces REQUIRED_COMPILER_VERSION. A mismatch used to be a warning
+    only -- that defeats the whole point of pinning a version, since a
+    silently-different compiler can legitimately produce different bytes
+    for reasons that have nothing to do with a real project edit, and
+    --check would then either false-positive DRIFT against a still-correct
+    commit, or (worse) --update would silently commit output from the wrong
+    compiler. A mismatch is now fatal unless the caller explicitly passes
+    --allow-version-mismatch."""
     result = subprocess.run(
         [str(compiler), "--version"], capture_output=True, text=True, check=True
     )
@@ -92,12 +100,25 @@ def check_compiler_version(compiler: Path) -> str:
     # "tad-compiler 0.3.0"
     version = version_line.rsplit(" ", 1)[-1]
     if version != REQUIRED_COMPILER_VERSION:
-        print(
-            f"WARNING: compiler reports version {version!r}, expected "
-            f"{REQUIRED_COMPILER_VERSION!r} ({compiler}). Proceeding, but "
-            f"outputs may differ from the committed ones for reasons other "
-            f"than a real project edit."
-        )
+        if allow_mismatch:
+            print(
+                f"WARNING: compiler reports version {version!r}, expected "
+                f"{REQUIRED_COMPILER_VERSION!r} ({compiler}). Proceeding "
+                f"ONLY because --allow-version-mismatch was passed -- "
+                f"outputs may differ from the committed ones for reasons "
+                f"other than a real project edit."
+            )
+        else:
+            raise SystemExit(
+                f"FAIL: compiler version mismatch -- {compiler} reports "
+                f"{version!r}, pinned REQUIRED_COMPILER_VERSION is "
+                f"{REQUIRED_COMPILER_VERSION!r}. Refusing to compile with "
+                f"an unpinned compiler (this is exactly the guarantee this "
+                f"tool exists to enforce -- see rebuild.py's own module "
+                f"docstring). Pass --allow-version-mismatch to override "
+                f"explicitly if you have a genuine, deliberate reason to "
+                f"test a different compiler version."
+            )
     return version
 
 
@@ -218,13 +239,17 @@ def main() -> int:
     mode.add_argument("--update", action="store_true",
                        help="regenerate and overwrite committed build/ outputs")
     ap.add_argument("--compiler", default=None, help="path to tad-compiler.exe")
+    ap.add_argument("--allow-version-mismatch", action="store_true",
+                     help="proceed even if the compiler's --version does not match "
+                          "REQUIRED_COMPILER_VERSION (default: fatal). Explicit "
+                          "override only -- never silent.")
     args = ap.parse_args()
 
     if not PROJECT_FILE.exists():
         raise SystemExit(f"FAIL: project file not found: {PROJECT_FILE}")
 
     compiler = find_compiler(args.compiler)
-    version = check_compiler_version(compiler)
+    version = check_compiler_version(compiler, allow_mismatch=args.allow_version_mismatch)
     print(f"Using compiler: {compiler} (version {version})")
 
     with tempfile.TemporaryDirectory() as tmp:

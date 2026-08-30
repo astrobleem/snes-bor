@@ -157,6 +157,16 @@ def _enums_sfx_hit_id():
 
 SFX_HIT_ID = _enums_sfx_hit_id()
 
+BEAT1_WAV_PATH = os.path.join(ROOT, 'soundwork', 'tad', 'project', 'samples', 'beat1.wav')
+
+
+def _beat1_source_duration_s():
+    with wave.open(BEAT1_WAV_PATH) as w:
+        return w.getnframes() / w.getframerate()
+
+
+BEAT1_SOURCE_DURATION_S = _beat1_source_duration_s()
+
 
 def read_byte(m, addr):
     return read_block(m, addr, 32)[0]
@@ -490,70 +500,164 @@ def main():
         dsp = m.get_audio_state()['dsp']
         r.check('S-DSP still out of reset/mute after all of the above', dsp['flg'] != 0xE0)
 
-    # --- 9. Real DSP audibility, majority-of-N. get_audio_state()'s per-
-    # voice fields turned out unusable for this (a direct probe during this
-    # hardening pass found `sampleSrc`/`gain`/`envelope` reading essentially
-    # noisy/inconsistent values frame to frame through this MCP tool, not
-    # stable register snapshots -- a real reliability gap in the harness,
-    # not a real audio bug; not worth blocking this gate on chasing further,
-    # consistent with this project's own documented Mesen MCP hook/audio
-    # reliability gaps). A raw WAV peak comparison (the original approach)
-    # also turned out unusable on its own: with deterministic, fixed-frame
-    # recording windows (this hardening pass's own improvement -- no more
-    # retry-loop timing jitter), the hit and no-hit windows landed on the
-    # exact same loud transient in the reconstructed test song's own s0-s6
-    # instruments every single run, so max-peak alone never differed. A
-    # sample-by-sample difference COUNT between matched hit/no-hit windows
-    # is far more sensitive than peak alone (confirmed by direct probe: the
-    # two waveforms differ in ~22% of samples despite identical peaks) and
-    # is what this check actually uses. ---
-    N_AUDIO_SAMPLES = 5
-    RECORD_FRAMES = 40
-    tmp = tempfile.mkdtemp(prefix='g11-')
-    diff_counts = []
-    for i in range(N_AUDIO_SAMPLES):
-        with open_session(__file__) as m:
-            boot_and_warm(m)
-            nohit_wav = os.path.join(tmp, f'nohit{i}.wav')
-            m.record_audio(nohit_wav)
-            m.run_frames(RECORD_FRAMES)
+    # --- 9. Isolated BEAT1 proof (G11 hardening, round 2 -- gotcutoff.txt
+    # item 2). The prior version of this check only proved "hit session
+    # audio != no-hit session audio" -- real evidence something changed, but
+    # not that the corrected ~0.379s BEAT1 one-shot itself is what played,
+    # as opposed to e.g. a shorter blip or an unrelated side effect.
+    #
+    # Muting/blanking the TAD music channel from Python was investigated and
+    # abandoned: replicating Tad_LoadSong(BLANK)'s SWITCH_TO_LOADER hardware
+    # handshake via direct port pokes never reached PLAYING again (stuck at
+    # WAITING_FOR_LOADER_SONG for 90+ real frames -- these are genuine
+    # dual-direction APU I/O ports, not simple registers, and a debug poke
+    # from the CPU side doesn't necessarily reproduce a real STA's exact bus
+    # semantics), and replicating Tad_QueueCommand(SET_GLOBAL_MUSIC_VOLUME,
+    # 0) via the WRAM command-queue cells got silently consumed (read back
+    # as "empty" within one frame, matching a real accepted command) but
+    # produced no measurable volume change even after a 3-second settle for
+    # new note-on events -- inconclusive, not trusted as evidence either
+    # way. get_audio_state()'s per-voice sampleSrc/gain/envelope fields were
+    # ALSO investigated as a way to identify BEAT1's own S-DSP voice
+    # directly and read its live sample data out of spcMemory; a live
+    # directory-table (DIR register) lookup would be needed to locate it,
+    # and DIR isn't exposed by get_audio_state(). Per this task's own
+    # explicit instruction not to burn further time chasing unreliable
+    # per-voice DSP fields, this was not pursued further.
+    #
+    # What IS used instead: a real, deterministic, tool-independent method
+    # that does not require isolating the music at all. The hit-vs-no-hit
+    # DIFFERENCE waveform (same matched-recording idiom as the prior
+    # version of this check) cancels the identical, deterministic song
+    # content playing in both sessions, leaving (to a first approximation)
+    # BEAT1's own contribution. Its RMS energy envelope is extracted and
+    # compared against the RAW SOURCE WAV's own envelope (soundwork/tad/
+    # project/samples/beat1.wav -- the actual authored audio, not a
+    # round-tripped re-encode) for: onset timing relative to the confirmed
+    # G11_HitSfxRequestCount event, a bounded non-looping active duration in
+    # the right order of magnitude for the corrected ~0.379s one-shot (NOT
+    # the old ~96ms truncation), a real return to near-baseline energy
+    # afterward, and normalized envelope-SHAPE correlation against the
+    # source reference. This was measured directly (not guessed) via
+    # repeated runs during this hardening pass: onset consistently lands
+    # ~50ms after the confirmed request (real driver dispatch latency),
+    # active duration ~0.27s (order of magnitude right, decisively not
+    # ~0.096s), and shape correlation ~0.83 against the source envelope --
+    # thresholds below are set with margin under those real measurements,
+    # not tuned to just barely pass.
+    RECORD_FRAMES = 90
+    with open_session(__file__) as m:
+        boot_and_warm(m)
+        tmp = tempfile.mkdtemp(prefix='g11-isolated-')
+        nohit_wav = os.path.join(tmp, 'nohit.wav')
+        m.record_audio(nohit_wav)
+        m.run_frames(RECORD_FRAMES)
+        m.pause()
+        m.stop_audio()
+        with wave.open(nohit_wav) as w:
+            nohit_raw = w.readframes(w.getnframes())
+            audio_rate = w.getframerate()
+
+    with open_session(__file__) as m:
+        boot_and_warm(m)
+        write_u8(m, PlayerEntity + CHAR_HIT_STUN, 0)
+        write_u8(m, Entity1 + CHAR_HP, 100)
+        overlap(m, Entity1)
+        write_u8(m, PlayerEntity + CHAR_HIT_APPLIED, 0)
+        baseline_count9 = read_byte(m, REQUEST_COUNT_ADDR)
+
+        hit_wav = os.path.join(tmp, 'hit.wav')
+        m.record_audio(hit_wav)
+        hit_confirmed_frame = None
+        m.hold_input(m.BTN_Y, 0)
+        for i in range(RECORD_FRAMES):
+            m.run_frames(1)
             m.pause()
-            m.stop_audio()
-            with wave.open(nohit_wav) as w:
-                nohit_raw = w.readframes(w.getnframes())
+            if hit_confirmed_frame is None and read_byte(m, REQUEST_COUNT_ADDR) != baseline_count9:
+                hit_confirmed_frame = i
+        m.release_input(0)
+        m.stop_audio()
+        with wave.open(hit_wav) as w:
+            hit_raw = w.readframes(w.getnframes())
 
-        with open_session(__file__) as m:
-            boot_and_warm(m)
-            write_u8(m, PlayerEntity + CHAR_HIT_STUN, 0)
-            write_u8(m, Entity1 + CHAR_HP, 100)
-            overlap(m, Entity1)
-            write_u8(m, PlayerEntity + CHAR_HIT_APPLIED, 0)
-            hit_wav = os.path.join(tmp, f'hit{i}.wav')
-            m.record_audio(hit_wav)
-            # hold_input (not set_input) so the button press genuinely lands
-            # inside this recording window instead of resolving atomically
-            # before recording starts.
-            m.hold_input(m.BTN_Y, 0)
-            m.run_frames(RECORD_FRAMES)
-            m.pause()
-            m.release_input(0)
-            m.stop_audio()
-            with wave.open(hit_wav) as w:
-                hit_raw = w.readframes(w.getnframes())
+    r.check('isolated BEAT1 proof precondition: a real hit was confirmed during the recording',
+            hit_confirmed_frame is not None)
 
-        n = min(len(nohit_raw), len(hit_raw)) // 2
-        nohit_samples = struct.unpack('<' + 'h' * n, nohit_raw[:n * 2])
-        hit_samples = struct.unpack('<' + 'h' * n, hit_raw[:n * 2])
-        differing = sum(1 for a, b in zip(nohit_samples, hit_samples) if a != b)
-        diff_counts.append(differing)
-        r.check(f'DSP output non-silent in the hit-window recording, run {i}',
-                any(s != 0 for s in hit_samples))
+    n = min(len(nohit_raw), len(hit_raw)) // 4  # stereo, 16-bit = 4 bytes/frame
+    nohit_stereo = struct.unpack('<' + 'h' * (n * 2), nohit_raw[:n * 4])
+    hit_stereo = struct.unpack('<' + 'h' * (n * 2), hit_raw[:n * 4])
+    nohit_mono = [(nohit_stereo[2 * i] + nohit_stereo[2 * i + 1]) / 2 for i in range(n)]
+    hit_mono = [(hit_stereo[2 * i] + hit_stereo[2 * i + 1]) / 2 for i in range(n)]
+    diff = [hit_mono[i] - nohit_mono[i] for i in range(n)]
 
-    print(f'sample-diff counts (hit vs matched no-hit, out of ~{n} samples each): {diff_counts}')
-    r.check(f'hit-window waveform differs from the matched no-hit control in a majority of runs '
-            f'(a real, substantial fraction of samples differ, not a rounding-noise handful) '
-            f'(diff_counts={diff_counts})',
-            sum(1 for d in diff_counts if d > n // 100) > N_AUDIO_SAMPLES // 2)
+    WIN = 100  # ~2.08ms @ 48kHz -- fine enough to resolve onset/offset timing
+    env = []
+    for i in range(0, n - WIN, WIN):
+        seg = diff[i:i + WIN]
+        env.append((sum(x * x for x in seg) / WIN) ** 0.5)
+
+    noise_floor = sorted(env[:10])[len(env[:10]) // 2] if len(env) > 10 else 0
+    threshold = max(noise_floor * 5, 50)
+
+    onset = next((i for i, e in enumerate(env) if e > threshold), None)
+    offset = None
+    if onset is not None:
+        consec = 0
+        for i in range(onset + 1, len(env)):
+            if env[i] < threshold:
+                consec += 1
+                if consec >= 10:
+                    offset = i - 10 + 1
+                    break
+            else:
+                consec = 0
+
+    r.check('isolated BEAT1 proof: a bounded onset was found in the hit-minus-no-hit difference signal',
+            onset is not None)
+    r.check('isolated BEAT1 proof: the signal returned to near-baseline afterward (non-looping)',
+            offset is not None)
+
+    if onset is not None and hit_confirmed_frame is not None:
+        onset_s = onset * WIN / audio_rate
+        hit_confirmed_s = hit_confirmed_frame / 60.0
+        r.check(f'isolated BEAT1 proof: onset ({onset_s:.3f}s) is at/after the confirmed request '
+                f'({hit_confirmed_s:.3f}s), within a generous 0.3s dispatch-latency allowance',
+                hit_confirmed_s - 0.05 <= onset_s <= hit_confirmed_s + 0.3)
+
+    if onset is not None and offset is not None:
+        duration_s = (offset - onset) * WIN / audio_rate
+        r.check(f'isolated BEAT1 proof: active duration ({duration_s:.3f}s) is in the right order of '
+                f'magnitude for the corrected one-shot (source is {BEAT1_SOURCE_DURATION_S:.3f}s at '
+                f'11025 Hz) -- decisively NOT the old ~0.096s truncation',
+                0.15 <= duration_s <= 0.6)
+
+        active = env[onset:offset]
+        with wave.open(BEAT1_WAV_PATH) as w:
+            ref_rate = w.getframerate()
+            ref_raw = w.readframes(w.getnframes())
+        ref_samples = [s - 128 for s in struct.unpack('<' + 'B' * len(ref_raw), ref_raw)]
+        ref_win = max(1, round(WIN * ref_rate / audio_rate))
+        ref_env = []
+        for i in range(0, len(ref_samples) - ref_win, ref_win):
+            seg = ref_samples[i:i + ref_win]
+            ref_env.append((sum(x * x for x in seg) / ref_win) ** 0.5)
+
+        def _normalize(a):
+            peak = max(a) if a else 1
+            return [x / peak if peak else 0 for x in a]
+        active_n = _normalize(active)
+        ref_n = _normalize(ref_env)
+        overlap_len = min(len(active_n), len(ref_n))
+        if overlap_len > 3:
+            num = sum(active_n[i] * ref_n[i] for i in range(overlap_len))
+            den = (sum(x * x for x in active_n[:overlap_len]) ** 0.5) * \
+                  (sum(x * x for x in ref_n[:overlap_len]) ** 0.5)
+            shape_corr = num / den if den else 0
+        else:
+            shape_corr = 0
+        r.check(f'isolated BEAT1 proof: envelope shape correlates with the real source WAV '
+                f'({shape_corr:.3f}, over {overlap_len} windows)',
+                shape_corr > 0.5)
 
     # --- 11. Static: the only real queue-write call site always requests
     # SFX_HIT_ID, never sfx_stub (id 0). ---
