@@ -161,7 +161,12 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
     for i in range(n):
         kind = data[i * RECORD_SIZE + 6]
         if (kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED:
-            found = (i, data[i * RECORD_SIZE + 8])
+            # +9 object_roster_idx -- the SPAWNED character's own real
+            # roster index (a boss's own identity). +8 is item_roster_idx
+            # (a contained/standalone item's identity), a different field
+            # since the G8 item/pickup slice's record-size split; this was
+            # still reading the old single +8 roster_idx offset, stale.
+            found = (i, data[i * RECORD_SIZE + 9])
     r.check(f'{roster_prefix}: {spawn_relpath} has a RECORD_KIND_BOSS_IDENTIFIED '
              f'record with roster_idx={expected_roster_idx} (found {found})',
              found is not None and found[1] == expected_roster_idx)
