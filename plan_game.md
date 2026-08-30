@@ -2243,7 +2243,7 @@ or the Phase G8 pickup-reward path.
 
 ## §10 — Phase G10: ending and credits
 
-> **Status: PARTIAL (in progress, 2026-08-30, `claude_begin_g10_with_approval.md`).**
+> **Status: DONE, closed 2026-08-30 (`claude_begin_g10_with_approval.md`).**
 
 Stage table exhausted → ending sequence → credits → back to title. Reuses G1's
 text renderer (drip-draw step machine, same pattern as Title/CharSelect/Pause)
@@ -2270,9 +2270,9 @@ pages → title → new-game runtime path (not a direct-write shortcut past the
 transition itself), and audits state-reset (score/lives/stage-index cleared
 on the real CharSelect→Playing transition).
 
-Remaining before DONE: final documentation pass (README current-status,
-this file's own final wording) and the mandated one-time full regression
-suite + merge to master.
+Full G1-G9-plus-G10 gate suite and static audits re-verified clean on this
+build; per-phase ledger verifier confirms G1-G9 remain `done` while this
+phase was `partial`, then flips to `done` here.
 
 ---
 
