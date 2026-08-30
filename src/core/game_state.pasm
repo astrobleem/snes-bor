@@ -313,6 +313,14 @@ Entity1_InvulnFrames = $7E2767   ; .db
 Entity2_InvulnFrames = $7E2768   ; .db
 Entity3_InvulnFrames = $7E2769   ; .db
 
+; claude_close_g7_g8_before_g10.md Part 2: a breakable object's contained
+; item's roster index (build_spawn_table.py's +8 item_roster_idx byte) --
+; see spawn.pasm's Entity1/2/3_ItemRosterIdx (declared there, right after
+; Spawn_SavedCharSelectIndex, grep-confirmed free at $7E58AB+ -- placed
+; there rather than here since $7E276A-$7E276C (the natural next cells
+; after Entity3_InvulnFrames) collide with CharSelect_Step/NextStep/
+; HudBossCachedHp, already real occupants of this exact range).
+
 ; ----------------------------------------------------------------------
 ; Called once per scpu_main_loop iteration, right after Core_Nmi_WaitFrame/
 ; Tad_Process/Tad_FinishLoadingData/Core_Input_Poll (all of which must keep
@@ -416,7 +424,6 @@ Game_State_Play__check_stageclear:
                                           ; out of a plain branch's range
                                           ; (same fix spawn.pasm's own
                                           ; Spawn_Play__not_yet needed)
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__not_stageclear:
     ; CHARSELECT/ENDING: explicit no-op stubs for this phase -- Core_Nmi_
     ; WaitFrame (scpu_main_loop) already keeps pacing correct, nothing else
@@ -726,13 +733,11 @@ Game_State_Play__kdtimer3_done:
     lda.l Stage_TrueMaxX
     sta Screen_MaxX
     bra Game_State_Play__stage_check_edge
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stage_no_win_a8:
     rep #$31
 .a16
 .i16
     bra Game_State_Play__stage_no_win
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stage_check_edge:
     rep #$31
 .a16
@@ -760,6 +765,17 @@ Game_State_Play__stage_no_win:
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
     jsr Core_Oop_Play
+    ; Actor depth-sort slice (plan_game.md 7): emits this frame's OAM
+    ; entries for all 4 fixed entities in real ground-depth order, now that
+    ; Core_Oop_Play has resolved every entity's movement/anim/hit/grab for
+    ; the frame. Inserted at the exact point OAM emission used to happen
+    ; inline inside Core_Oop_Play's own per-entity dispatch (Character_
+    ; PlayFrame no longer emits OAM itself -- see its own header) so nothing
+    ; below (Core_Screen_Play/Hud_Play/Core_Oam_Play) changes timing
+    ; relative to it. jsl (not jsr) -- Character_RenderPass lives in
+    ; core/depth_sort.pasm's own bank (.bank 9), same ROM-budget reason as
+    ; the other .bank-N modules; ends in rtl.
+    jsl Character_RenderPass
     jsr Core_Screen_Play
     ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
     ; call per frame, same as the two lines above. Vm_Run itself is a
@@ -791,6 +807,19 @@ Game_State_Play__stage_no_win:
     ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
     ; redraw instead of lagging one frame behind.
     jsl Spawn_Play
+    ; claude_close_g7_g8_before_g10.md Part 2: once-per-frame scan for a
+    ; broken-but-not-yet-revealed breakable object (CHAR_HP==1 sentinel,
+    ; see Character_HitApply_VsEntity1/2/3's own comment in main.pasm) --
+    ; does the real Msu1_StreamBusy-gated art reassignment to the contained
+    ; item's own roster sprite. Same per-frame streaming-budget discipline
+    ; as Spawn_Play itself (at most one entity's animation may stream per
+    ; frame), so this runs right after it rather than inline inside combat
+    ; hit resolution, which cannot safely defer/retry.
+    jsl Spawn_RevealPendingItems
+    ; claude_close_g7_g8_before_g10.md Part 2: once-per-frame check for the
+    ; player touching an already-revealed collectible item (core/jump.pasm)
+    ; -- separates destruction (above) from collection (this call).
+    jsl Character_Pickup_CheckOverlap
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
@@ -832,7 +861,6 @@ Game_State_Play__stageclear:
     lda #GAME_STATE_ENDING
     sta.l Game_State
     jmp Game_State_Play__stageclear_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Game_State_Play__stageclear_next:
     sta.l Game_StageIndex
     sep #$20
@@ -1012,7 +1040,6 @@ Stage_Load:
     sta $2116
     ldx #BG3_TILEMAP_WORDS
     lda #$0000
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__bg3_clear:
     sta $2118
     dex
@@ -1031,12 +1058,10 @@ Stage_Load__bg3_clear:
 .i16
     jsr Bg_LoadSceneFp_Streaming
     bra Stage_Load__fp_done
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__skip_fp:
     rep #$31
 .a16
 .i16
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__fp_done:
 
     ; --- this stage's own spawn queue (Spawn_MsuOffsetLo/Hi/Spawn_Count
@@ -1069,7 +1094,6 @@ Stage_Load__fp_done:
 .i16
     ldy #WORLD_CONTENT_WIDTH
     bra Stage_Load__border_go
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__streaming:
     rep #$31
 .a16
@@ -1079,7 +1103,6 @@ Stage_Load__streaming:
     asl a
     asl a                        ; tiles -> pixels (*8)
     tay
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Stage_Load__border_go:
     rep #$31
 .a16

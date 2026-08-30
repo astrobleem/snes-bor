@@ -91,6 +91,27 @@ GrabScratch_SelfX    = $7FF502   ; .dw
 GrabScratch_OtherX   = $7FF504   ; .dw
 GrabScratch_Mid      = $7FF506   ; .dw
 GrabScratch_NewOtherX = $7FF508  ; .dw
+GrabScratch_SelfBase = $7FF50A   ; .dw -- notjustfreespecial.txt item 3:
+                                   ; the real attacking entity's own byte
+                                   ; offset (0/CHAR_ZP_LEN/*2/*3), only the
+                                   ; low byte is ever meaningful
+
+; G7 throw slice: THROW_KNOCK_DIST is the only new scratch this slice
+; needs beyond the grab cells above -- reuses GrabScratch_OtherX/
+; NewOtherX (same free-once-computed shape, no lifetime overlap with the
+; grab-init use since throw only ever runs after a grab is already fully
+; established). $7FF50A, directly after GrabScratch_NewOtherX.
+THROW_KNOCK_DIST = 24  ; px, instant horizontal displacement away from the
+                         ; thrower. This project has no ballistic X-velocity
+                         ; model for ANY airborne entity -- jump.pasm's own
+                         ; header documents the identical simplification for
+                         ; the PLAYER's own horizontal movement while
+                         ; jumping (continuous dpad-read walk code reused
+                         ; instead of a one-shot velocity); an instant kick
+                         ; is the same simplification applied to a thrown
+                         ; victim (who has no controller driving it at all
+                         ; while airborne) instead of inventing a new
+                         ; velocity system this project has nowhere else.
 
 Vm_NativeEntityByteOff:
     .dw 0, CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3
@@ -657,7 +678,6 @@ AnimBlink_ShouldHide__mod_loop:
     sec
     sbc #DEATH_BLINK_PERIOD
     bra AnimBlink_ShouldHide__mod_loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 AnimBlink_ShouldHide__mod_done:
 .a8
     cmp #DEATH_BLINK_HIDDEN_FRAMES
@@ -818,7 +838,6 @@ Character_HitApply__ApplyDamage__hp_ok:
     lda.l $7E0a00,x
     bmi Character_HitApply__ApplyDamage__fall
     bra Character_HitApply__ApplyDamage__stun
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 
 Character_HitApply__ApplyDamage__fall:
     rep #$31
@@ -855,7 +874,6 @@ Character_HitApply__ApplyDamage__fall:
     lda #1
     sta.l $7E0a00,x
     bra Character_HitApply__ApplyDamage__reaction_done
-    nop
 
 Character_HitApply__ApplyDamage__stun:
     rep #$31
@@ -996,6 +1014,62 @@ Spawn_ResetKnockdownFall:
 .a8
     lda #0
     sta.l $7E0a00,x
+
+    ; G7 throw slice: same "no stale state" reasoning as the grab fields
+    ; above -- a respawned slot's CHAR_SELECTED is already reset to 0 at
+    ; the top of this routine (so a stale THROWN value alone could never
+    ; make Jump_ApplyOamYOffset misfire), but zeroing the Z cells too keeps
+    ; a freshly-spawned entity's state genuinely clean rather than relying
+    ; on that ordering alone.
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZPOS
+    tax
+    lda #0
+    sta.l $7E0a00,x
+
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZVEL
+    tax
+    lda #0
+    sta.l $7E0a00,x
+    rtl
+
+; ============================================================================
+; Anim_Play__AiSelectAttackVariant -- notjustfreespecial.txt item 3 decision
+; logic, relocated here from main.pasm for bank-0 ROM budget. DP-local (self)
+; addressing only, same as Character_Grab_Play -- caller (Anim_Play__
+; ai_attack) runs with Core_Oop_Play's DP window already set to the acting
+; entity. A in = a real random byte (from Core_Random_Get, called by the
+; bank-0 caller since it ends in rts and can't be reached via jsl -- see the
+; caller's own comment). Sets CHAR_ATTACK_VARIANT to 0 or 1. Always .a8 in,
+; .a8 out.
+; ============================================================================
+Anim_Play__AiSelectAttackVariant:
+.a8
+    pha
+    lda CHAR_ATTACK2_FCOUNT
+    bne Anim_Play__AiSelectAttackVariant__have2
+    pla
+    lda #0
+    sta CHAR_ATTACK_VARIANT
+    rtl
+Anim_Play__AiSelectAttackVariant__have2:
+.a8
+    pla
+    cmp #AI_ATTACK2_CHANCE
+    bcs Anim_Play__AiSelectAttackVariant__no
+    lda #1
+    sta CHAR_ATTACK_VARIANT
+    rtl
+Anim_Play__AiSelectAttackVariant__no:
+.a8
+    lda #0
+    sta CHAR_ATTACK_VARIANT
     rtl
 
 ; ============================================================================
@@ -1043,6 +1117,58 @@ GRAB_HOLD_FRAMES = 240  ; ~4s @ 60fps before auto-release -- bumped from
                          ; expiring mid-check under the Mesen2 harness's
                          ; real per-call wall-clock overhead (dozens of
                          ; real MCP round trips between grab-init and
+
+; ============================================================================
+; Character_HitApply__TryGrabVsPlayer -- AI-vs-player grab-establish check.
+; notjustfreespecial.txt item 3 (AI grab/throw reachability): the AI-vs-
+; player hit path (Character_HitApply_VsPlayer) previously never called any
+; grab-check at all -- an entirely separate hardcoded gap from item 2's
+; player-side link. X = attacker's byte offset (the AI entity landing the
+; hit) on entry. Target is always the player (offset 0), matching
+; Character_HitApply_VsPlayer's own fixed caller context.
+;
+; Unlike Character_HitApply__TryGrab (player-vs-AI), this does NOT fall
+; back into ApplyDamage on decline -- VsPlayer already has its own simpler
+; existing damage block (no knockdown-counter fall reaction), and that path
+; is left completely untouched here. Returns carry SET (and control never
+; returns here -- falls through into the shared __do block, which itself
+; rtl's) if a grab was established; carry CLEAR (.a8) if not, so the caller
+; runs its own ordinary damage block.
+; ============================================================================
+Character_HitApply__TryGrabVsPlayer:
+.a16
+.i16
+    txa
+    sta.l HitApply_EntityBase
+    sep #$20
+.a8
+    lda CHAR_ATTACK2_IS_GRAB
+    beq Character_HitApply__TryGrabVsPlayer__no
+    lda CHAR_ATTACK_VARIANT
+    cmp #1
+    bne Character_HitApply__TryGrabVsPlayer__no
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    bne Character_HitApply__TryGrabVsPlayer__no
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda.l $7E0a00,x
+    cmp #$FF
+    beq Character_HitApply__TryGrabVsPlayer__go
+Character_HitApply__TryGrabVsPlayer__no:
+.a8
+    clc
+    rtl
+Character_HitApply__TryGrabVsPlayer__go:
+.a8
+    jmp Character_HitApply__TryGrab__do
                          ; the gate's own explicit forced-release step)
 
 Character_HitApply__TryGrab:
@@ -1052,13 +1178,34 @@ Character_HitApply__TryGrab:
     sta.l HitApply_EntityBase
 
     ; --- conditions (formerly a separate ShouldGrab routine) ---
+    ; notjustfreespecial.txt item 2: two real move-slot shapes both qualify
+    ; as a grab-establishing hit now -- JOE's original attack2_is_grab
+    ; mutual lock (variant 1), and LEO's real, separate `grab` role
+    ; (CHAR_GRABMOVE_FCOUNT, variant 5 -- see main.pasm's own struct
+    ; comment on why it's a distinct field from CHAR_ATTACK2_IS_GRAB).
+    ; Previously LEO's grab only ever played as a plain one-shot attack
+    ; through the ordinary damage path -- this reuses the exact same
+    ; mutual-lock machinery JOE already has, no new hit-detection call
+    ; site needed (every player-vs-AI landed hit already jsl's here).
     sep #$20
+.a8
+    lda CHAR_ATTACK_VARIANT
+    cmp #1
+    beq Character_HitApply__TryGrab__check_joe
+    cmp #5
+    beq Character_HitApply__TryGrab__check_leo
+    bra Character_HitApply__TryGrab__no
+Character_HitApply__TryGrab__check_joe:
 .a8
     lda CHAR_ATTACK2_IS_GRAB
     beq Character_HitApply__TryGrab__no
-    lda CHAR_ATTACK_VARIANT
-    cmp #1
-    bne Character_HitApply__TryGrab__no
+    bra Character_HitApply__TryGrab__cond_ok
+Character_HitApply__TryGrab__check_leo:
+.a8
+    lda CHAR_GRABMOVE_FCOUNT
+    beq Character_HitApply__TryGrab__no
+Character_HitApply__TryGrab__cond_ok:
+.a8
     lda CHAR_GRAB_TARGET
     cmp #$FF
     bne Character_HitApply__TryGrab__no
@@ -1124,6 +1271,21 @@ Character_HitApply__TryGrab__do:
     rep #$31
 .a16
 .i16
+    ; notjustfreespecial.txt item 3 (AI grab/throw reachability): self's OWN
+    ; byte offset, needed below so CHAR_GRABBED_BY records the REAL
+    ; attacker (grabber may now be an AI entity, not always the player --
+    ; see this slice's own header note). D is already switched to self's
+    ; DP window (Core_Oop_Play's phd/tcd, same as every bare CHAR_* read in
+    ; this routine relies on) -- `tdc` reads it directly, and D always
+    ; equals one of the 4 fixed per-entity DpBase constants (PlayerEntity_
+    ; DpBase + N*CHAR_ZP_LEN), so subtracting PlayerEntity_DpBase recovers
+    ; the same N*CHAR_ZP_LEN byte-offset convention HitApply_EntityBase
+    ; already uses for the target.
+    tdc
+    sec
+    sbc #PlayerEntity_DpBase
+    sta.l GrabScratch_SelfBase
+
     ; self.CHAR_POS_X (DP-local, player -- D is still the player's OopDp
     ; window here, same as the caller's own dx computation already relies
     ; on for bare CHAR_POS_X reads)
@@ -1185,14 +1347,21 @@ Character_HitApply__ApplyGrab__sides_done:
     lda.l GrabScratch_NewOtherX
     sta.l $7E0a00,x
 
-    ; target.CHAR_GRABBED_BY = player's own byte offset (always 0)
+    ; target.CHAR_GRABBED_BY = the REAL attacker's own byte offset --
+    ; notjustfreespecial.txt item 3: this used to be a hardcoded literal 0
+    ; ("grabber is always the player"), which was harmless while attack2/
+    ; grab was structurally unreachable for AI (Anim_Play__ai_attack never
+    ; sets CHAR_ATTACK_VARIANT, always leaving it at 0/attack1) but would
+    ; have silently mis-attributed the grab to the player the moment AI
+    ; attack-move selection existed. Fixed now that it does (see Anim_
+    ; Play__ai_attack's own AI_ATTACK2_CHANCE roll).
     lda.l HitApply_EntityBase
     clc
     adc #CHAR_GRABBED_BY
     tax
     sep #$20
 .a8
-    lda #0
+    lda.l GrabScratch_SelfBase
     sta.l $7E0a00,x
 
     ; target.CHAR_GRAB_TIMER = GRAB_HOLD_FRAMES
@@ -1228,7 +1397,7 @@ Character_HitApply__ApplyGrab__sides_done:
     sta.l $7E0a00,x
 
     ; self.CHAR_GRAB_TARGET = target's byte offset (fits one byte, max
-    ; 201; HitApply_EntityBase's high byte is always 0, X's own source)
+    ; 228; HitApply_EntityBase's high byte is always 0, X's own source)
     lda.l HitApply_EntityBase
     sta CHAR_GRAB_TARGET
 
@@ -1237,6 +1406,242 @@ Character_HitApply__ApplyGrab__sides_done:
     sta CHAR_HIT_APPLIED
 
     sec
+    rtl
+
+; ============================================================================
+; Character_Grab_Throw -- G7 throw slice. Real common_throw()/toss()
+; semantics (DCurrent/openbor, engine/openbor.c, same fetch this project's
+; jump slice already sourced from): release the mutual link immediately,
+; apply the victim's damage through the SAME Character_HitApply__
+; ApplyDamage leaf every other landed hit uses (real HP clamp/knockdown-
+; counter/kill decision, not a parallel damage rule), then -- UNLESS that
+; hit was a kill -- override ApplyDamage's own stun-vs-fall pick with
+; CHAR_SELECTED_THROWN: real toss() always results in an airborne launch,
+; never a mere stun, regardless of the knockdown counter ApplyDamage just
+; consulted for an ordinary hit. A killing throw needs no airborne Z at
+; all -- the existing CHAR_HP==0 sticky dead-hide (Anim_Play's/Character_
+; RenderFrame's own gate, G8-generalized to >=2) already takes over
+; instantly, same as any other kill.
+;
+; Called from Anim_Play__player_input (bank 0) via jsl -- grabber is always
+; the player (self, DP-local), matching every other grab routine's own
+; documented restriction (AI never grabs).
+;
+;   in:  X(16-bit) = victim's byte offset (CHAR_GRAB_TARGET, zero-extended)
+;   out: none. Clobbers A/X.
+; ============================================================================
+Character_Grab_Throw:
+.a16
+.i16
+    txa
+    sta.l HitApply_EntityBase
+
+    ; --- release both link fields immediately (real common_throw clears
+    ; the link before toss() runs) ---
+    sep #$20
+.a8
+    lda #$FF
+    sta CHAR_GRAB_TARGET      ; self (player, DP-local)
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+
+    ; --- knockback direction: away from the thrower, same side-decision
+    ; idiom Character_HitApply__ApplyGrab already uses at grab-init
+    ; (self_x >= other_x -> push other further away on the low side, else
+    ; the high side). ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l $7E0a00,x
+    sta.l GrabScratch_OtherX
+    lda CHAR_POS_X             ; self (player)
+    cmp.l GrabScratch_OtherX
+    bcs Character_Grab_Throw__self_ge
+    lda.l GrabScratch_OtherX   ; self < other -- push other further right
+    clc
+    adc #THROW_KNOCK_DIST
+    bra Character_Grab_Throw__knock_have
+Character_Grab_Throw__self_ge:
+.a16
+    lda.l GrabScratch_OtherX   ; self >= other -- push other further left
+    sec
+    sbc #THROW_KNOCK_DIST
+Character_Grab_Throw__knock_have:
+.a16
+    sta.l GrabScratch_NewOtherX
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l GrabScratch_NewOtherX
+    sta.l $7E0a00,x
+
+    ; --- apply real damage/knockdown-counter/HP-clamp/kill decision via
+    ; the shared leaf every other landed hit uses (same-bank jsr/rts --
+    ; ApplyDamage's own two exits are rts, see its header). ---
+    lda.l HitApply_EntityBase
+    tax
+    jsr Character_HitApply__ApplyDamage
+.a8
+    cmp #1
+    beq Character_Grab_Throw__done   ; killed -- dead-hide path (elsewhere)
+                                       ; takes over, no airborne Z needed
+
+    ; --- not killed: override ApplyDamage's stun-or-fall pick with real
+    ; throw semantics -- always airborne. REAL BUG found the hard way:
+    ; ApplyDamage's own stun branch may have just stamped this victim's
+    ; CHAR_HIT_STUN nonzero (Character_HitApply__ApplyDamage__stun) --
+    ; Anim_Play's hit-stun check runs BEFORE this slice's own THROWN gate
+    ; (Anim_Play__not_attacking, further down that dispatch chain) and
+    ; unconditionally resets CHAR_SELECTED back to 0 the moment CHAR_
+    ; HIT_STUN is nonzero, on the victim's very next Anim_Play call --
+    ; silently wiping the CHAR_SELECTED_THROWN write below within a frame,
+    ; confirmed via a standalone debug trace showing entity1.CHAR_SELECTED
+    ; going 0/0/0 (stunned, decaying) then straight to 1/2 (AI resumed)
+    ; with THROWN never once observed. Toss() always supersedes any stun
+    ; reaction in real BOR too (the victim's movement is now driven
+    ; entirely by the airborne Z tick, not a stun timer) -- clear CHAR_
+    ; HIT_STUN here so the THROWN state actually survives to the next
+    ; frame's dispatch. ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_HIT_STUN
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l $7E0a00,x
+
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_SELECTED
+    tax
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_THROWN
+    sta.l $7E0a00,x
+
+    ; --- ZPos=0, ZVel=JUMP_INITIAL_VEL (identical real toss()-sourced
+    ; Q8.8 magnitude jump.pasm's own CHAR_THROW_ZVEL use uses -- toss()'s
+    ; physics don't change based on who's airborne). Single 16-bit store
+    ; each, matching ApplyGrab's own $7E0a00,x .a16 store convention. ---
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZPOS
+    tax
+    lda #0
+    sta.l $7E0a00,x
+
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_THROW_ZVEL
+    tax
+    lda #JUMP_INITIAL_VEL
+    sta.l $7E0a00,x
+    sep #$20
+.a8
+Character_Grab_Throw__done:
+.a8
+    rtl
+
+AI_THROW_CHANCE = 8   ; 8/256 per frame -- notjustfreespecial.txt item 3: a
+                       ; flat per-frame chance for an AI grabber to execute
+                       ; a real throw while holding, same simplification
+                       ; class as Anim_Play__ai_attack's own AI_ATTACK2_
+                       ; CHANCE roll. ~once every 32 frames on average
+                       ; (well inside GRAB_HOLD_FRAMES=240's own auto-
+                       ; release window, so a real throw is reachable
+                       ; before the hold ever times out on its own).
+
+; ============================================================================
+; Anim_Play__AiGrabHoldDecide -- notjustfreespecial.txt item 3 (AI throw
+; reachability). Called once per frame for an AI entity that is the
+; GRABBER (self.CHAR_GRAB_TARGET != $FF) instead of letting Anim_Play__
+; ai_seek re-decide its CHAR_SELECTED (see main.pasm's Anim_Play__ai_seek_
+; gate). A in = a real random byte (Core_Random_Get, called by the bank-0
+; caller for the same reason Anim_Play__AiSelectAttackVariant's own caller
+; does). Below AI_THROW_CHANCE: throws (X = self.CHAR_GRAB_TARGET, the real
+; byte offset of whoever is being held -- Character_Grab_Throw is fully
+; generic on its grabber, DP-local self, same as Character_Grab_Play; no
+; player-only restriction). Otherwise a no-op -- the hold just continues
+; (Character_Grab_Play's own per-frame drag still runs regardless, and the
+; GRAB_HOLD_FRAMES timer still auto-releases if this never rolls a throw).
+; Always .a8 in, .a8 out.
+; ============================================================================
+Anim_Play__AiGrabHoldDecide:
+.a8
+    cmp #AI_THROW_CHANCE
+    bcs Anim_Play__AiGrabHoldDecide__no
+    rep #$30
+.a16
+.i16
+    lda CHAR_GRAB_TARGET
+    and #$00FF
+    tax
+    jsl Character_Grab_Throw
+    sep #$20
+.a8
+Anim_Play__AiGrabHoldDecide__no:
+.a8
+    rtl
+
+; ============================================================================
+; Character_Special_ReleaseGrab -- G7 special slice. Real BOR.C
+; player_check_special() calls dograb-release before triggering (a special
+; move ends any active grab the SAME frame it fires -- sourced from
+; DCurrent/openbor engine/openbor.c). Only ever called on the player today
+; (LEO is the only roster member with real `special` data) -- generic on
+; its grabber, DP-local self, same as Character_Grab_Throw/Character_Grab_
+; Play; nothing here is actually player-only, it's simply unreached by an
+; AI entity because no AI character has real special data yet. Called when
+; CHAR_GRAB_TARGET != $FF; a no-op call would silently write $FF into a
+; real held target's own CHAR_GRABBED_BY at a garbage
+; offset, so the caller MUST check first -- not re-checked here (bank-0 call
+; site already gates on it, same "trust the one caller" convention as
+; Character_Grab_Throw's own X-in precondition).
+;
+;   in:  self.CHAR_GRAB_TARGET = victim's byte offset (already valid, non-
+;        $FF -- caller's precondition, matches Character_Grab_Throw's own X
+;        precondition one level up).
+;   out: none. Clobbers A/X.
+; ============================================================================
+Character_Special_ReleaseGrab:
+.a8
+    rep #$30
+.a16
+.i16
+    lda CHAR_GRAB_TARGET
+    and #$00FF
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+    sta CHAR_GRAB_TARGET      ; self (player, DP-local)
     rtl
 
 ; ============================================================================
@@ -1254,12 +1659,15 @@ Character_HitApply__ApplyGrab__sides_done:
 ; every frame, except a currently-held one). Real check_link_move
 ; semantics: rigid offset-follow every frame, NOT re-averaged -- the
 ; offset itself was frozen once at grab-init (CHAR_GRAB_OFFSET,
-; Character_HitApply__ApplyGrab above). The grabber is always the player
-; in this slice (AI never grabs), so "follow the grabber" is always
-; PlayerEntity_PosX, no lookup needed.
+; Character_HitApply__ApplyGrab above). notjustfreespecial.txt item 3: the
+; grabber is no longer assumed to always be the player -- CHAR_GRABBED_BY
+; already stores the real grabber's own byte offset (its comment always
+; documented this generic shape; only the code was hardcoded), so "follow
+; the grabber" now does a real lookup through that offset instead of a
+; hardcoded PlayerEntity_PosX read.
 ;
 ;   in:  none (DP-local self).
-;   out: none. Clobbers A.
+;   out: none. Clobbers A/X.
 ; ============================================================================
 Character_Grab_Play:
     ; Defensive real sep here (not just the .a8 directive) -- this is
@@ -1289,10 +1697,18 @@ Character_Grab_Play__off_hi_set:
 .a8
     sta.l GrabDragOffsetHi
 
-    ; --- self.CHAR_POS_X = PlayerEntity_PosX + GrabDragOffset ---
-    rep #$20
+    ; --- self.CHAR_POS_X = grabber.CHAR_POS_X + GrabDragOffset -- real
+    ; lookup through CHAR_GRABBED_BY's own byte offset now (was a hardcoded
+    ; PlayerEntity_PosX read; see this routine's own header). ---
+    rep #$31
 .a16
-    lda.l PlayerEntity_PosX
+.i16
+    lda CHAR_GRABBED_BY
+    and #$00FF
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l $7E0a00,x
     clc
     adc.l GrabDragOffset
     sta CHAR_POS_X
@@ -1310,10 +1726,140 @@ Character_Grab_Play__off_hi_set:
     bne Character_Grab_Play__done
 Character_Grab_Play__release:
 .a8
+    ; Clear the grabber's own CHAR_GRAB_TARGET (real lookup through CHAR_
+    ; GRABBED_BY, same reasoning as the follow-drag above -- was a
+    ; hardcoded PlayerEntity_GrabTarget write, wrong once the grabber can
+    ; be an AI entity).
+    rep #$31
+.a16
+.i16
+    lda CHAR_GRABBED_BY
+    and #$00FF
+    clc
+    adc #CHAR_GRAB_TARGET
+    tax
+    sep #$20
+.a8
     lda #$FF
+    sta.l $7E0a00,x
     sta CHAR_GRABBED_BY
-    sta.l PlayerEntity_GrabTarget   ; grabber is always the player
     rtl
 Character_Grab_Play__done:
+.a8
+    rtl
+
+; ============================================================================
+; Character_Throw_Play -- G7 throw slice. Called from CharacterEntity_Play
+; (bank 0) via jsl once per entity's own turn, right alongside Character_
+; Grab_Play (same call site, DP-local self-addressing, D preserved across
+; jsl) -- a no-op for any entity whose own CHAR_SELECTED isn't THROWN.
+;
+; Real check_gravity() semantics (DCurrent/openbor, engine/openbor.c) --
+; IDENTICAL integration to Jump_PlayerTick__airborne (core/jump.pasm):
+; position += velocity, velocity += gravity, every tick; land when
+; position<=0 AND velocity<=0 (not position==0 alone). The only difference
+; from jump's own copy is WHERE the state lives (CHAR_THROW_ZPOS/ZVEL,
+; per-instance DP fields, vs. jump's player-only global cells) and what
+; happens on landing: jump returns to idle/walk, a thrown victim lands
+; into CHAR_SELECTED_FALL -- real BOR lands a tossed entity into the same
+; knockdown reaction a landed hit would, reusing the existing fall/rise
+; pipeline (Anim_Play_Fall, CHAR_FALL_STATE_TIMER machine) unchanged.
+;
+;   in:  none (DP-local self).
+;   out: none. Clobbers A.
+; ============================================================================
+Character_Throw_Play:
+    ; Same defensive real sep as Character_Grab_Play's own entry -- a jsl
+    ; target is invisible to poppy#386's own diagnostic, so this routine
+    ; must be correct regardless of the caller's actual real width.
+    sep #$20
+.a8
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_THROWN
+    bne Character_Throw_Play__done
+
+    rep #$31
+.a16
+.i16
+    lda CHAR_THROW_ZPOS
+    clc
+    adc CHAR_THROW_ZVEL
+    sta CHAR_THROW_ZPOS
+    lda CHAR_THROW_ZVEL
+    clc
+    adc #JUMP_GRAVITY
+    sta CHAR_THROW_ZVEL
+
+    ; --- land check: position<=0 AND velocity<=0 ---
+    lda CHAR_THROW_ZPOS
+    beq Character_Throw_Play__zpos_le0
+    bmi Character_Throw_Play__zpos_le0
+    bra Character_Throw_Play__still_air
+Character_Throw_Play__zpos_le0:
+.a16
+    lda CHAR_THROW_ZVEL
+    beq Character_Throw_Play__land
+    bmi Character_Throw_Play__land
+Character_Throw_Play__still_air:
+.a16
+    sep #$20
+.a8
+    rtl
+Character_Throw_Play__land:
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    sep #$20
+.a8
+    ; notjustfreespecial.txt item 7 (land/autoland re-audit): real BOR.C
+    ; doland() (engine/openbor.c) -- common_fall()'s own doland() trigger
+    ; needs BLAST_TOSS (dothrow() always sets it) plus either autoland==1
+    ; (neither shipped pak's MODELS.TXT sets this global -- confirmed
+    ; absent, stays real default 0) OR damage_on_landing.attack_force==
+    ; ATTACK_FORCE_LAND_COMMAND, which player_fall_check() (player-only,
+    ; keys-based) sets every frame the PLAYER holds UP+JUMP while falling.
+    ; So the one real, currently-reachable path in this project's shipped
+    ; content is: the PLAYER, while THROWN (now reachable both ways since
+    ; item 3's AI-throw), holding UP+A at the moment of landing. doland()'s
+    ; own body (both its validanim and its no-anim-data branches) always
+    ; ends in a SAFE landing -- straight to idle, skipping the ordinary
+    ; knockdown/fall reaction common_fall() would otherwise give it. LEO
+    ; is the only roster character with real `anim land` data (a single
+    ; frame reusing his own rise01.gif sprite, `loop 0`) -- this project
+    ; deliberately reuses the existing idle transition rather than
+    ; building a new one-shot streaming/dispatch pathway for a single
+    ; reused-art frame, same class of "no unique art, reuses an existing
+    ; pathway" simplification already established for jumpattack2/throw's
+    ; own swing art. The real, gameplay-relevant difference (a safe
+    ; landing with no knockdown-vulnerability window, vs. an ordinary
+    ; FALL landing) is preserved; the unique cosmetic frame is not
+    ; rendered.
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne Character_Throw_Play__ordinary_land
+    lda.l Input_press+1
+    and #$08                        ; Up held
+    beq Character_Throw_Play__ordinary_land
+    lda.l Input_press
+    and #$80                        ; A (jump) held
+    beq Character_Throw_Play__ordinary_land
+    lda #0
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rtl
+Character_Throw_Play__ordinary_land:
+.a8
+    lda #CHAR_SELECTED_FALL
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rtl
+Character_Throw_Play__done:
 .a8
     rtl

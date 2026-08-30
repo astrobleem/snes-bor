@@ -154,12 +154,13 @@ SPAWN_MAX_RECORDS = 90       ; roster-growth slice, REAL BUG found and fixed
 ; see that constant's own comment for why both), first free region after
 ; Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by
 ; grep -- see main.pasm's own $7E53B6 note for the same verification
-; convention). SpawnTable_Wram now ends at $7E5838 (was $7E568F before this
-; slice); every scratch/state cell below moved to $7E5839+ to stay clear of
+; convention). SpawnTable_Wram now ends at $7E5892 (was $7E5838 before the
+; claude_close_g7_g8_before_g10.md Part 2/3 RECORD_SIZE 9->10 growth, $7E568F
+; slice); every scratch/state cell below moved to $7E5893+ to stay clear of
 ; the grown table -- same relocation this file has done twice before as the
 ; table grew (they used to sit at $7E5660, then $7E5690). Freshly grep-
-; verified clear of any other module's WRAM through at least $7E5850 (the
-; new highest cell, Spawn_ScratchRosterIdx, is $7E584D) -- this is NEW
+; verified clear of any other module's WRAM through at least $7E58AA (the
+; new highest cell, Spawn_ScratchRosterIdx, is $7E58A7) -- this is NEW
 ; territory past the old $7E56FF-verified range, not a reuse of the old
 ; "already checked" claim. ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..Spawn_Count
@@ -191,44 +192,49 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; boundary derived from the level's own
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
-SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*9 = 810 bytes, record
+SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*10 = 900 bytes, record
                                  ; layout below. Grew from 48*8=384 to
                                  ; 90*9=810 (roster-growth slice: +1 byte/
                                  ; record for a dedicated roster_idx field,
                                  ; AND SPAWN_MAX_RECORDS 48->90 to fix the
                                  ; real overrun bug that constant's own
-                                 ; comment documents) -- now ends at
-                                 ; $7E550F+$32A = $7E5838, so the scratch/
+                                 ; comment documents), then 90*9=810 ->
+                                 ; 90*10=900 (claude_close_g7_g8_before_g10.md
+                                 ; Part 2/3: split the old conflated +8
+                                 ; roster_idx byte into separate object/item
+                                 ; identity bytes) -- now ends at
+                                 ; $7E550F+$384 = $7E5893, so the scratch/
                                  ; state cells below all moved well past
                                  ; their previous ($7E5690-$7E56A4, then
-                                 ; $7E56C0-$7E56D4) addresses.
-Spawn_ScratchKind   = $7E5839   ; .db -- captured record_kind (record+6, see
+                                 ; $7E56C0-$7E56D4, then $7E5839-$7E5850)
+                                 ; addresses.
+Spawn_ScratchKind   = $7E5893   ; .db -- captured record_kind (record+6, see
                                  ; layout below), plan_game.md G8, relocated
                                  ; twice before (wait/group/boss slice, then
                                  ; the RECORD_SIZE 8->9 roster-growth change)
                                  ; and again here by the SPAWN_MAX_RECORDS
                                  ; 48->90 fix (grep-confirmed no other module
-                                 ; claims through at least $7E5850).
-Spawn_ScratchHp     = $7E583A   ; .db -- captured spawn_hp (record+7, see
+                                 ; claims through at least $7E58AA).
+Spawn_ScratchHp     = $7E5894   ; .db -- captured spawn_hp (record+7, see
                                  ; layout below), health-override slice.
-Spawn_GroupMin      = $7E583B   ; .db -- BOR.C's global `groupmin`, default
+Spawn_GroupMin      = $7E5895   ; .db -- BOR.C's global `groupmin`, default
                                  ; 100 (effectively unlimited). Gates ALL
                                  ; queue advancement (spawn/wait/group
                                  ; alike) -- see this file's own header.
-Spawn_GroupMax      = $7E583C   ; .db -- BOR.C's global `groupmax`, default 100.
-Spawn_Waiting       = $7E583D   ; .db -- BOR.C's `level_waiting`: nonzero
+Spawn_GroupMax      = $7E5896   ; .db -- BOR.C's global `groupmax`, default 100.
+Spawn_Waiting       = $7E5897   ; .db -- BOR.C's `level_waiting`: nonzero
                                  ; while a `wait` record has armed and at
                                  ; least one enemy (not prop) is still alive.
-Spawn_PreClearHoldX = $7E583E   ; .dw -- what to restore Screen_MaxX to when
+Spawn_PreClearHoldX = $7E5898   ; .dw -- what to restore Screen_MaxX to when
                                  ; a wait releases and the stage isn't
                                  ; cleared yet -- the same value core/
                                  ; game_state.pasm's Stage_ApplyWinClamp
                                  ; already computes (min(Stage_TrueMaxX,
                                  ; Spawn_LastTriggerX)), cached here so
                                  ; Spawn_Play doesn't need to re-derive it.
-Entity1_IsBoss      = $7E5840   ; .db -- plan_game.md wait/group/boss slice:
-Entity2_IsBoss      = $7E5841   ; .db    sticky per-slot boss flag, set/
-Entity3_IsBoss      = $7E5842   ; .db    cleared whenever Spawn_Play (re)uses
+Entity1_IsBoss      = $7E589A   ; .db -- plan_game.md wait/group/boss slice:
+Entity2_IsBoss      = $7E589B   ; .db    sticky per-slot boss flag, set/
+Entity3_IsBoss      = $7E589C   ; .db    cleared whenever Spawn_Play (re)uses
                                  ; that slot. Standalone WRAM cells, NOT a
                                  ; CharacterEntity struct field -- see
                                  ; phase_g7_invuln_frames_second_slice
@@ -240,34 +246,127 @@ Entity3_IsBoss      = $7E5842   ; .db    cleared whenever Spawn_Play (re)uses
                                  ; plumbing ahead of a consumer, same pattern
                                  ; moveset_pipeline_generalization's non-role
                                  ; animation ordinals used.
-Spawn_ScratchEnemyCount = $7E5843 ; .db -- running EnemyCount total (0-3),
+Spawn_ScratchEnemyCount = $7E589D ; .db -- running EnemyCount total (0-3),
                                  ; used by both the wait-release check and
                                  ; the group gate below (kept as a WRAM
                                  ; scratch, not a register, so A stays free
                                  ; for the per-slot Hp/InputDriven checks).
-Spawn_ScratchMap    = $7E5844   ; .db -- plan_game.md 8a row 3: decoded
+Spawn_ScratchMap    = $7E589E   ; .db -- plan_game.md 8a row 3: decoded
                                  ; map index (0-3), see SPAWN_MAP_SHIFT above.
-MapApply_Index          = $7E5845  ; .db -- Anim_ApplyMapPalette's own param
-MapApply_PaletteBaseLo  = $7E5846  ; .dw    block, filled by each slot's
-MapApply_PaletteBaseHi  = $7E5848  ; .db    spawn dispatch below before the
-MapApply_MapBaseLo      = $7E5849  ; .dw    jsl call.
-MapApply_MapBaseHi      = $7E584B  ; .db
-MapApply_PaletteSlot    = $7E584C  ; .db
-Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
+MapApply_Index          = $7E589F  ; .db -- Anim_ApplyMapPalette's own param
+MapApply_PaletteBaseLo  = $7E58A0  ; .dw    block, filled by each slot's
+MapApply_PaletteBaseHi  = $7E58A2  ; .db    spawn dispatch below before the
+MapApply_MapBaseLo      = $7E58A3  ; .dw    jsl call.
+MapApply_MapBaseHi      = $7E58A5  ; .db
+MapApply_PaletteSlot    = $7E58A6  ; .db
+Spawn_ScratchRosterIdx  = $7E58A7  ; .db -- roster-reassignment slice:
                                    ; captured record's dedicated +8
                                    ; roster_idx byte (see layout below), real
-                                   ; only when Spawn_ScratchKind==SPAWN_KIND_
-                                   ; BOSS_IDENTIFIED. Grep-confirmed clear of
-                                   ; any other module's WRAM through at
-                                   ; least $7E5850.
+                                   ; when Spawn_ScratchKind==SPAWN_KIND_
+                                   ; BOSS_IDENTIFIED, OR (real prop/pickup
+                                   ; sprite art follow-up) when Spawn_
+                                   ; ScratchKind==SPAWN_KIND_PROP and this
+                                   ; item's own converted sprite has a real
+                                   ; roster slot -- 0 ("no reassign") for
+                                   ; every prop without one yet. Grep-
+                                   ; confirmed clear of any other module's
+                                   ; WRAM through at least $7E58AA.
+Spawn_ScratchPickupType = $7E58A8 ; .db -- G8 item/pickup slice: decoded
+                                   ; record_kind bits 5-7 (SPAWN_PICKUP_
+                                   ; SHIFT/MASK below), real only when
+                                   ; Spawn_ScratchKind==SPAWN_KIND_PROP.
+                                   ; Written to the landing slot's own
+                                   ; CHAR_PICKUP_TYPE (main.pasm) by slot1/
+                                   ; slot2/slot3 below, same pattern as
+                                   ; Spawn_ScratchMap/MapApply_*.
+Spawn_ScratchPrevWasProp = $7E58A9 ; .db -- slot-reuse art-leak fix
+                                   ; (finish_g8_with_runtime_asset_swapping.md):
+                                   ; captured at the very top of each slotN
+                                   ; body, BEFORE that slot's own CHAR_
+                                   ; INPUT_DRIVEN is overwritten -- 1 if the
+                                   ; entity THIS RECORD IS ABOUT TO OVERWRITE
+                                   ; was a CHAR_INPUT_DRIVEN_PROP (a real
+                                   ; prop's art -- 1-frame idle/walk/attack,
+                                   ; its own tiny palette -- resident in this
+                                   ; slot's struct fields/CGRAM), 0 otherwise.
+                                   ; An ordinary (non-identified) enemy record
+                                   ; landing in such a slot does NOT normally
+                                   ; call Anim_LoadCharacter at all (ordinary
+                                   ; enemies intentionally render as a reskin
+                                   ; of whatever's already resident -- see
+                                   ; build_rom.py's ROSTER_PREFIXES comment),
+                                   ; so without this flag a real bug ships: an
+                                   ; "enemy" silently keeps a broken 1-frame
+                                   ; prop moveset and CGRAM colors. Consumed
+                                   ; by each slotN_not_boss branch below to
+                                   ; force one real Spawn_DoRosterReassign
+                                   ; back to that slot's own natural boot
+                                   ; default character (CharacterEntity_Init's
+                                   ; role1/2/3 roster index: JHUN=1/JOE=2/
+                                   ; YASHIRO=3) before ordinary AI dispatch
+                                   ; runs, restoring a real playable moveset
+                                   ; instead of leaving prop art in place.
+Spawn_SavedCharSelectIndex = $7E58AA ; .db -- real bug found+fixed
+                                   ; (finish_g8_with_runtime_asset_swapping.md):
+                                   ; Spawn_DoRosterReassign writes its target
+                                   ; roster index into the SAME shared
+                                   ; CharSelect_Index cell Anim_LoadCharacter
+                                   ; always reads its "which slot to load"
+                                   ; parameter from -- the only mechanism it
+                                   ; has. That cell doubles as the PLAYER's
+                                   ; own persistent char-select/Select-button
+                                   ; reselect state (main.pasm), so ANY spawn-
+                                   ; driven reassignment (boss OR the new
+                                   ; slot-restore path above) used to leave
+                                   ; it clobbered at whatever roster index it
+                                   ; last loaded -- invisible until this
+                                   ; slice made it reachable from a stage's
+                                   ; own BOOT-time spawn queue (stage 1B's
+                                   ; own real Money record, trigger_x=8, now
+                                   ; carries a real roster_idx now that MONEY
+                                   ; is a real roster member), corrupting the
+                                   ; player's own char-select state before
+                                   ; the player ever touches Select. Spawn_
+                                   ; DoRosterReassign now saves/restores
+                                   ; CharSelect_Index around its own write,
+                                   ; so no spawn-driven reassignment can ever
+                                   ; observably disturb it again.
 
-; Record layout (8 bytes, LE), matches build_spawn_table.py exactly. Size is
-; UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
+; claude_close_g7_g8_before_g10.md Part 2: a breakable object's contained
+; item's roster index (this record's own +8 item_roster_idx byte, see the
+; record layout below), captured here by Spawn_Play at spawn time and held
+; per-slot until the object's HP reaches 0 -- the break->reveal transition
+; (main.pasm's Character_HitApply__ApplyPickup dispatch) reads it to know
+; which real roster slot to reassign the AI slot to. Standalone cells, NOT a
+; new CharacterEntity struct field -- growing CHAR_ZP_LEN is real-bug-
+; verified dangerous (game_state.pasm's own EntityN_InvulnFrames precedent,
+; same reasoning). Grep-confirmed free at $7E58AB+ (right after Spawn_
+; SavedCharSelectIndex above, the previous highest cell in this file).
+Entity1_ItemRosterIdx = $7E58AB  ; .db
+Entity2_ItemRosterIdx = $7E58AC  ; .db
+Entity3_ItemRosterIdx = $7E58AD  ; .db
+Spawn_ScratchItemRosterIdx = $7E58AE ; .db -- captured record+8 (item_roster_
+                                   ; idx), this record's own decode scratch,
+                                   ; parallel to Spawn_ScratchRosterIdx below
+                                   ; (which now captures record+9,
+                                   ; object_roster_idx, consumed AT SPAWN --
+                                   ; this one is stashed into the target
+                                   ; slot's own EntityN_ItemRosterIdx instead,
+                                   ; for later, see slot1/2/3 bodies).
+
+; Record layout (10 bytes, LE), matches build_spawn_table.py exactly. Size
+; was UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
 ; discriminator instead of the record growing, specifically to avoid
 ; touching the hand-synced *9/record-size sites this file's header already
 ; calls out (Spawn_CountX8, SPAWN_MAX_RECORDS*9, the last-record seek,
-; Spawn_Play's own shift) -- roster-growth slice grew this from 8 to 9 bytes
-; (see +8 below), all four sites updated to the shift-and-add index*9 idiom:
+; Spawn_Play's own shift). Roster-growth slice grew this from 8 to 9 bytes
+; (a single +8 roster_idx). claude_close_g7_g8_before_g10.md Part 2/3 grew
+; it again, 9 to 10 bytes: the old single +8 roster_idx conflated an
+; obstacle's OWN identity with its CONTAINED item's identity (a real,
+; currently-shipping bug -- see SpawnTable_Wram's own comment above), split
+; into +8 item_roster_idx (consumed on break) and +9 object_roster_idx
+; (consumed at spawn). All four hand-synced sites updated to the shift-and-
+; add index*10 idiom:
 ;   +0-1  trigger_x   (u16) -- SNES world-px camera position that arms this
 ;                              record. Meaningful for every record kind.
 ;   +2-3  spawn_x     (u16) -- SNES world-px initial position, kind==enemy/
@@ -298,12 +397,23 @@ Spawn_ScratchRosterIdx  = $7E584D  ; .db -- roster-reassignment slice:
 ;                              only -- a prop's HP is always CHAR_HP_PER_HIT
 ;                              regardless of this byte, and it's 0/unused
 ;                              for wait/group records.
-;   +8    roster_idx  (u8)  -- roster-growth slice: real roster slot index
-;                              (0-14), real only when record_kind ==
-;                              SPAWN_KIND_BOSS_IDENTIFIED, else 0/unused.
-;                              Own dedicated byte (was 3 spare bits in +6)
-;                              since the roster cap (pack_msu_roster.py's
-;                              MAX_CHARACTERS) grew 8->15, needing 4 bits.
+;   +8    item_roster_idx (u8) -- claude_close_g7_g8_before_g10.md Part 2/3:
+;                              real only when record_kind==SPAWN_KIND_PROP
+;                              AND this is an obstacle+item record (a
+;                              breakable containing a real, roster-converted
+;                              item) -- the CONTAINED item's roster slot,
+;                              consumed by Spawn_Play only once the object's
+;                              HP reaches 0 (break->reveal), never at spawn.
+;                              0/unused for every other record kind.
+;   +9    object_roster_idx (u8) -- roster-growth slice: real roster slot
+;                              index (0-19), real when record_kind ==
+;                              SPAWN_KIND_BOSS_IDENTIFIED (the identified
+;                              boss's own slot, unchanged meaning from the
+;                              old +8) OR record_kind==SPAWN_KIND_PROP (the
+;                              SPAWNED character's own slot -- a standalone
+;                              item's own sprite, or a breakable object's
+;                              own sprite e.g. Chair/Table/Trash), else 0.
+;                              Consumed AT SPAWN TIME, unlike +8 above.
 
 ; plan_game.md G8: a prop/pickup slot gets CHAR_INPUT_DRIVEN_PROP (main.pasm)
 ; instead of CHAR_INPUT_DRIVEN_AI, and a fixed low HP (== CHAR_HP_PER_HIT, so
@@ -318,8 +428,9 @@ SPAWN_KIND_GROUP = 3   ; wait/group/boss slice: respawn-pool-size marker
 SPAWN_KIND_BOSS  = 4   ; wait/group/boss slice: enemy + sets EntityN_IsBoss
 SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
                               ; same as SPAWN_KIND_BOSS (sets EntityN_IsBoss)
-                              ; PLUS the record's dedicated +8 roster_idx
-                              ; byte carries a real roster index for a
+                              ; PLUS the record's dedicated +9
+                              ; object_roster_idx byte carries a real roster
+                              ; index for a
                               ; character build_spawn_table.py found in the
                               ; actual shipped roster -- this slot's
                               ; Anim_LoadCharacter gets re-run so the entity
@@ -342,6 +453,10 @@ SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
 SPAWN_KIND_MASK   = $07
 SPAWN_MAP_SHIFT   = 3
 SPAWN_MAP_MASK    = $03   ; explicit mask AFTER the >>3 shift
+SPAWN_PICKUP_SHIFT = 5    ; G8 item/pickup slice: record_kind bits 5-7 (3
+                          ; bits, 0-7, PICKUP_TYPE_* in main.pasm only use
+                          ; 0-4) -- real only when kind==SPAWN_KIND_PROP.
+SPAWN_PICKUP_MASK  = $07  ; explicit mask AFTER the >>5 shift
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -428,11 +543,22 @@ Spawn_Init__have_records:
     asl a
     asl a
     asl a                       ; count*8
+    sta.l Spawn_CountX8         ; store *8 directly into the final dest --
+                                 ; Spawn_ScratchIdx itself (source) is
+                                 ; untouched, so it can be re-read below for
+                                 ; the *2 term. Avoids both a new WRAM scratch
+                                 ; cell (which would ripple every hand-synced
+                                 ; address after it -- see this file's own
+                                 ; header on that cost) and stack-relative
+                                 ; addressing (unverified Poppy support).
+    lda.l Spawn_ScratchIdx
+    asl a                       ; count*2
     clc
-    adc.l Spawn_ScratchIdx      ; count*8 + count = count*9 (roster-growth
-                                 ; slice: record size grew 8->9, no longer a
-                                 ; power of 2 -- same shift-and-add idiom
-                                 ; main.pasm's own *17 seek already uses)
+    adc.l Spawn_CountX8         ; count*2 + count*8 = count*10
+                                 ; (claude_close_g7_g8_before_g10.md Part 2/3:
+                                 ; record size grew 9->10, still not a power
+                                 ; of 2 -- same shift-and-add idiom main.pasm's
+                                 ; own *17 seek already uses)
     sta.l Spawn_CountX8
 
     ldx #0
@@ -453,11 +579,11 @@ Spawn_Init__read:
     cmp.l Spawn_CountX8
     bcc Spawn_Init__read
 
-    ; --- cache the last record's trigger_x (Spawn_CountX8 - 9 is its base
+    ; --- cache the last record's trigger_x (Spawn_CountX8 - 10 is its base
     ; offset; records are packed in ascending trigger order, see header) ---
     lda.l Spawn_CountX8
     sec
-    sbc #9
+    sbc #10
     tax
     lda.l SpawnTable_Wram,x
     sta.l Spawn_LastTriggerX
@@ -617,10 +743,18 @@ Spawn_Play__active:
     asl a
     asl a
     asl a                       ; index*8
+    sta.l Spawn_ScratchX        ; temp: index*8 (Spawn_ScratchX is captured
+                                 ; fresh by this same routine below, well
+                                 ; after X is derived here -- safe reuse, not
+                                 ; a new WRAM cell, see Spawn_Init's own note
+                                 ; on why that ripple is avoided)
+    lda.l Spawn_ScratchIdx
+    asl a                       ; index*2
     clc
-    adc.l Spawn_ScratchIdx      ; index*8 + index = index*9 (roster-growth
-                                 ; slice: record size grew 8->9)
-    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*9
+    adc.l Spawn_ScratchX        ; index*2 + index*8 = index*10
+                                 ; (claude_close_g7_g8_before_g10.md Part 2/3:
+                                 ; record size grew 9->10)
+    tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*10
 
     lda Screen_PosX
     cmp.l SpawnTable_Wram,x     ; Screen_PosX - trigger_x
@@ -665,6 +799,15 @@ Spawn_Play__triggered:
     lsr a
     lsr a
     lsr a
+    lsr a
+    lsr a
+    and #SPAWN_PICKUP_MASK
+    sta.l Spawn_ScratchPickupType
+    pla
+    pha
+    lsr a
+    lsr a
+    lsr a
     and #SPAWN_MAP_MASK
     sta.l Spawn_ScratchMap
     pla
@@ -673,7 +816,11 @@ Spawn_Play__triggered:
     inx                         ; X -> record+7 (spawn_hp, health-override slice)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchHp
-    inx                         ; X -> record+8 (roster_idx, roster-growth slice)
+    inx                         ; X -> record+8 (item_roster_idx, claude_
+                                 ; close_g7_g8_before_g10.md Part 2/3)
+    lda.l SpawnTable_Wram,x
+    sta.l Spawn_ScratchItemRosterIdx
+    inx                         ; X -> record+9 (object_roster_idx)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchRosterIdx
 
@@ -687,8 +834,19 @@ Spawn_Play__triggered:
     cmp #SPAWN_KIND_GROUP
     beq Spawn_Play__do_group
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    beq Spawn_Play__gate_stream
+    ; Real prop/pickup sprite art (notjustfreespecial.txt follow-up): a
+    ; SPAWN_KIND_PROP record with a real +8 roster_idx (build_spawn_table.py
+    ; found this item's own real converted sprite in the actual shipped
+    ; roster) needs the exact same Msu1_StreamBusy gate as a boss
+    ; reassignment, for the exact same reason -- Spawn_DoRosterReassign
+    ; streams a frame. roster_idx==0 (no matching converted prop slot yet)
+    ; skips this gate entirely, unchanged pre-existing behavior.
+    cmp #SPAWN_KIND_PROP
     bne Spawn_Play__find_slot
-
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__find_slot
+Spawn_Play__gate_stream:
     ; --- roster-reassignment slice: gate the WHOLE record (not just the
     ; reassignment step below) on Msu1_StreamBusy, BEFORE find_slot runs
     ; and BEFORE any of this record's HP/position/palette writes touch a
@@ -750,6 +908,45 @@ Spawn_Play__find_slot_none:
     plp
     rtl                         ; no free slot -- record stays pending
 Spawn_Play__slot1:
+    ; Capture BEFORE anything below overwrites Entity1_InputDriven -- see
+    ; Spawn_ScratchPrevWasProp's own header comment.
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot1_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot1_prevflag_not_prop:
+    ; Real bug found regression-testing the slot-reuse restore fix
+    ; (finish_g8_with_runtime_asset_swapping.md): this gate used to fire
+    ; ONLY when the outgoing occupant was a real prop (guarding the
+    ; restore-to-default-character reassignment in the not_boss branch
+    ; below). But the not_prop/enemy branch further down ALSO does real,
+    ; unconditional raw MSU-1 hardware I/O every single spawn -- Anim_
+    ; ApplyMapPalette's own seek+read of $2000-$2003, called for every
+    ; enemy/boss record regardless of map value (0 still seeks the
+    ; character's own base palette). That call had NO busy gate at all.
+    ; Landing it while another entity's per-frame stream still has a
+    ; queued CC-DMA transfer in flight (Msu1_StreamBusy!=0) collides two
+    ; independent readers of the single MSU-1 data port ($2001) -- exactly
+    ; the corruption CLAUDE.md's one-stream-per-frame rule exists to
+    ; prevent. Confirmed via live WRAM polling: CharSelect_RosterCount
+    ; (main.pasm's Anim_LoadCharacter, unrelated call) came back reading
+    ; garbage bytes off the MSU port a couple frames after this branch
+    ; started firing every spawn once MONEY/MEAT/1UP made non-prop records
+    ; interleave with prop records much more often. Made this check
+    ; unconditional -- nothing has mutated yet at this point (same "gate
+    ; before touching anything" discipline as the top-level SPAWN_KIND_
+    ; BOSS_IDENTIFIED/PROP dispatch gate above), so bailing is a clean
+    ; no-op retry next frame -- Spawn_Index hasn't advanced.
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot1_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot1_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -790,6 +987,24 @@ Spawn_Play__slot1:
     sta.l Entity1_Hp
     lda #0
     sta.l Entity1_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity1_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity1_ItemRosterIdx
+    ; Real prop/pickup sprite art: Msu1_StreamBusy already confirmed clear
+    ; by the dispatch-time gate above (before find_slot ran) whenever
+    ; Spawn_ScratchRosterIdx != 0 -- safe to stream now, same reasoning as
+    ; Spawn_Play__slot1_boss_identified below.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot1_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot1_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_prop:
     sep #$20
@@ -798,6 +1013,13 @@ Spawn_Play__slot1_not_prop:
     sta.l Entity1_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity1_Hp
+    ; G8 item/pickup slice: an enemy record never carries a real pickup
+    ; effect -- clear a previous prop occupant's stale CHAR_PICKUP_TYPE so
+    ; this slot can't re-trigger it later.
+    lda #0
+    sta.l Entity1_PickupType
+    sta.l Entity1_ItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2:
+                                   ; same stale-state guard for the reveal target
     ; plan_game.md 8a row 3 (`map`): apply this spawn's remap palette (0 =
     ; the character's own base palette) -- fill Anim_ApplyMapPalette's param
     ; block from this slot's own struct fields (set once at character load,
@@ -827,9 +1049,64 @@ Spawn_Play__slot1_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot1_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot1_not_boss
+    beq Spawn_Play__slot1_is_boss
+    ; claude_close_g7_g8_before_g10.md Part 6: the map-palette-reapply
+    ; block above pushed Spawn_Play__slot1_not_boss out of bne's +-127
+    ; range -- CLAUDE.md's own documented workaround (invert + brl).
+    brl Spawn_Play__slot1_not_boss
+Spawn_Play__slot1_is_boss:
+.a8
     lda #1
     sta.l Entity1_IsBoss
+    ; An unidentified SPAWN_KIND_BOSS record is just as real-art-silent as
+    ; an ordinary enemy record (no Spawn_DoRosterReassign call otherwise)
+    ; -- same slot1_not_boss restore-if-prev-was-prop logic applies here
+    ; too, not just the plain-enemy path.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot1_boss_no_restore
+    lda #1
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; claude_close_g7_g8_before_g10.md Part 6: re-apply this record's own
+    ; map palette AFTER Spawn_DoRosterReassign, not just before -- Anim_
+    ; LoadCharacter (called by DoRosterReassign) unconditionally reloads
+    ; this slot's TRUE base palette, silently clobbering the map-index
+    ; write the earlier unconditional Anim_ApplyMapPalette call (above,
+    ; shared by every kind) already made using the PRE-reassignment
+    ; (stale, possibly a totally different character's) MapBase/
+    ; PaletteSlot fields. Real bug found live via game_map_remap.py (JOE
+    ; map=3 landed on JOE's own base palette instead of remap[2] -- masked
+    ; until this closure task's own G2 fix made entity2 a real boot-time
+    ; prop, so no earlier record had ever reassigned identity while also
+    ; requesting a nonzero map). MapApply_Index still holds Spawn_
+    ; ScratchMap from this dispatch's earlier fill -- only the
+    ; PaletteBase/MapBase/PaletteSlot fields need re-reading, now that
+    ; DoRosterReassign has updated them to the NEW identity's real values.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot1_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_boss_identified:
 .a8
@@ -845,14 +1122,91 @@ Spawn_Play__slot1_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; Re-apply the map palette after reassignment -- see the boss-restore
+    ; branch's own comment above for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_boss:
     sep #$20
 .a8
     lda #0
     sta.l Entity1_IsBoss
+    ; Slot-reuse art-leak fix (finish_g8_with_runtime_asset_swapping.md):
+    ; an ordinary (non-identified) enemy record never calls Anim_
+    ; LoadCharacter on its own -- restore this slot's own natural boot
+    ; default character (JHUN, roster index 1 -- see CharacterEntity_
+    ; Init's role-1 branch) first if the entity being overwritten was a
+    ; real prop. Msu1_StreamBusy already confirmed clear by the prevflag
+    ; block above, before any of this record's own writes landed.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot1_no_restore
+    lda #1
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1_boss's own
+    ; comment above for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity1_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity1_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity1_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity1_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity1_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot1_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2:
+    ; See slot1's own identical comment/pattern (unconditional Msu1_
+    ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
+    ; not just a prop restore; see slot1's full explanation).
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot2_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot2_prevflag_not_prop:
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot2_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot2_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -881,6 +1235,21 @@ Spawn_Play__slot2:
     sta.l Entity2_Hp
     lda #0
     sta.l Entity2_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity2_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity2_ItemRosterIdx
+    ; Real prop/pickup sprite art -- see slot1's own identical comment.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot2_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot2_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_prop:
     sep #$20
@@ -889,6 +1258,9 @@ Spawn_Play__slot2_not_prop:
     sta.l Entity2_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity2_Hp
+    lda #0                      ; G8 item/pickup slice -- see slot1's own comment
+    sta.l Entity2_PickupType
+    sta.l Entity2_ItemRosterIdx  ; claude_close_g7_g8_before_g10.md Part 2
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index
@@ -914,9 +1286,47 @@ Spawn_Play__slot2_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot2_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot2_not_boss
+    beq Spawn_Play__slot2_is_boss
+    ; See slot1's identical branch-range workaround comment.
+    brl Spawn_Play__slot2_not_boss
+Spawn_Play__slot2_is_boss:
+.a8
     lda #1
     sta.l Entity2_IsBoss
+    ; See slot1's identical unidentified-boss restore comment.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot2_boss_no_restore
+    lda #2
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment (Spawn_Play__slot1_boss_identified's own reassign block) for
+    ; the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot2_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_boss_identified:
 .a8
@@ -929,14 +1339,86 @@ Spawn_Play__slot2_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_boss:
     sep #$20
 .a8
     lda #0
     sta.l Entity2_IsBoss
+    ; See slot1_not_boss's own identical comment -- restores JOE (roster
+    ; index 2, this slot's own natural boot default).
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot2_no_restore
+    lda #2
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity2_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity2_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity2_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity2_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity2_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot2_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3:
+    ; See slot1's own identical comment/pattern (unconditional Msu1_
+    ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
+    ; not just a prop restore; see slot1's full explanation).
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_ScratchPrevWasProp
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_Play__slot3_prevflag_not_prop
+    lda #1
+    sta.l Spawn_ScratchPrevWasProp
+Spawn_Play__slot3_prevflag_not_prop:
+    lda.l Msu1_StreamBusy
+    beq Spawn_Play__slot3_prevflag_done
+    plp
+    rtl
+Spawn_Play__slot3_prevflag_done:
     rep #$31
 .a16
 .i16
@@ -965,6 +1447,21 @@ Spawn_Play__slot3:
     sta.l Entity3_Hp
     lda #0
     sta.l Entity3_IsBoss
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    sta.l Entity3_PickupType
+    lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
+    sta.l Entity3_ItemRosterIdx
+    ; Real prop/pickup sprite art -- see slot1's own identical comment.
+    lda.l Spawn_ScratchRosterIdx
+    beq Spawn_Play__slot3_prop_no_reassign
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot3_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_prop:
     sep #$20
@@ -973,6 +1470,9 @@ Spawn_Play__slot3_not_prop:
     sta.l Entity3_InputDriven
     lda.l Spawn_ScratchHp       ; health-override slice -- was `lda #CHAR_HP_MAX`
     sta.l Entity3_Hp
+    lda #0                      ; G8 item/pickup slice -- see slot1's own comment
+    sta.l Entity3_PickupType
+    sta.l Entity3_ItemRosterIdx  ; claude_close_g7_g8_before_g10.md Part 2
     ; plan_game.md 8a row 3 (`map`): see slot1's own comment.
     lda.l Spawn_ScratchMap
     sta.l MapApply_Index
@@ -998,9 +1498,47 @@ Spawn_Play__slot3_not_prop:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     beq Spawn_Play__slot3_boss_identified
     cmp #SPAWN_KIND_BOSS
-    bne Spawn_Play__slot3_not_boss
+    beq Spawn_Play__slot3_is_boss
+    ; See slot1's identical branch-range workaround comment.
+    brl Spawn_Play__slot3_not_boss
+Spawn_Play__slot3_is_boss:
+.a8
     lda #1
     sta.l Entity3_IsBoss
+    ; See slot1's identical unidentified-boss restore comment.
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot3_boss_no_restore
+    lda #3
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment (Spawn_Play__slot1_boss_identified's own reassign block) for
+    ; the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot3_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_boss_identified:
 .a8
@@ -1013,12 +1551,66 @@ Spawn_Play__slot3_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_boss:
     sep #$20
 .a8
     lda #0
     sta.l Entity3_IsBoss
+    ; See slot1_not_boss's own identical comment -- restores YASHIRO
+    ; (roster index 3, this slot's own natural boot default).
+    lda.l Spawn_ScratchPrevWasProp
+    beq Spawn_Play__slot3_no_restore
+    lda #3
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    ; Re-apply the map palette after reassignment -- see slot1's own
+    ; comment for the real bug this closes.
+    rep #$31
+.a16
+.i16
+    lda.l Entity3_PaletteBaseLo
+    sta.l MapApply_PaletteBaseLo
+    lda.l Entity3_MapBaseLo
+    sta.l MapApply_MapBaseLo
+    sep #$20
+.a8
+    lda.l Entity3_PaletteBaseHi
+    sta.l MapApply_PaletteBaseHi
+    lda.l Entity3_MapBaseHi
+    sta.l MapApply_MapBaseHi
+    lda.l Entity3_PaletteSlot
+    sta.l MapApply_PaletteSlot
+    jsl Anim_ApplyMapPalette
+    sep #$20
+.a8
+Spawn_Play__slot3_no_restore:
 
 Spawn_Play__advance:
     sep #$20
@@ -1083,11 +1675,175 @@ Spawn_DoRosterReassign:
     tcd
     sep #$20
 .a8
+    ; Save/restore CharSelect_Index around this write -- see Spawn_
+    ; SavedCharSelectIndex's own header comment for the real bug this
+    ; closes (a spawn-driven reassignment must never observably disturb
+    ; the player's own persistent char-select/Select-button state).
+    lda.l CharSelect_Index
+    sta.l Spawn_SavedCharSelectIndex
     lda.l Spawn_ScratchRosterIdx
     sta.l CharSelect_Index
     jsl Anim_LoadCharacter_Long
+    ; ROOT CAUSE (animheaderstaging_shared_scratch_collision investigation,
+    ; corrected): Anim_LoadCharacter's every exit path re-asserts .a16/.i16
+    ; before its own rts (matches its "caller must be in .a16/.i16" header
+    ; contract) -- so control returns here with M=0 (16-bit A), NOT the M=1
+    ; this routine's own `sep #$20`/.a8 above set before the call. Without
+    ; re-asserting 8-bit here, the two lines below silently became a single
+    ; 16-bit lda.l/sta.l: `lda.l Spawn_SavedCharSelectIndex` pulled in BOTH
+    ; Spawn_SavedCharSelectIndex (low byte, e.g. 0 for the player) AND
+    ; whatever byte happens to follow it in WRAM as the high byte (not
+    ; itself the bug -- just whatever was adjacent), then `sta.l
+    ; CharSelect_Index` wrote BOTH bytes of that 16-bit
+    ; value across CharSelect_Index ($7E53B6, low) AND the very next byte,
+    ; CharSelect_RosterCount ($7E53B7, high) -- confirmed via live write-hook
+    ; evidence: CharSelect_Index/RosterCount corrupted to 0/0 in lockstep,
+    ; every time, deterministically, immediately after a live
+    ; Spawn_DoRosterReassign call (not a race -- 100% reproducible once this
+    ; width state is traced). This single missing directive is the entire
+    ; bug; the previously-committed shared-AnimHeaderStaging-scratch theory
+    ; in plan_game.md/project memory did not hold up under live tracing and
+    ; has been corrected.
+    sep #$20
+.a8
+    lda.l Spawn_SavedCharSelectIndex
+    sta.l CharSelect_Index
     rep #$31
 .a16
 .i16
     pld
+    rts
+
+; ============================================================================
+; Spawn_RevealPendingItems -- claude_close_g7_g8_before_g10.md Part 2. Called
+; once per frame (core/game_state.pasm's Game_State_Play, right after
+; Spawn_Play) via jsl/rtl. A real breakable object (Chair/Table/Trash) that
+; just broke in combat this frame was left at CHAR_HP==1 (a "broken, pending
+; reveal" sentinel -- see main.pasm's Character_HitApply_VsEntity1/2/3, the
+; only place that ever writes this exact value) with its EntityN_
+; ItemRosterIdx still set to its contained item's real roster slot. This
+; routine finds that slot and, ONLY if Msu1_StreamBusy==0 (the same one-
+; stream-per-frame budget Spawn_Play's own SPAWN_KIND_PROP/BOSS_IDENTIFIED
+; dispatch already respects), reassigns it to the item's own real converted
+; sprite via the exact same Spawn_DoRosterReassign this file already uses
+; for spawn-time identity -- then clears ItemRosterIdx so this slot won't
+; re-trigger a reveal again. If Msu1_StreamBusy is busy (another entity
+; streamed this same frame), this is a clean no-op retry: nothing here
+; mutates any state before the busy check, so next frame tries again with
+; byte-for-byte the same inputs. At most ONE reveal happens per frame, same
+; discipline as everything else touching Msu1_StreamBusy in this project.
+;
+; No caller-convention assumed on entry (jsl/rtl). Clobbers A/X. Exits
+; .a16/.i16 (matches Spawn_Play's own jsl/rtl exit convention, which this
+; routine's caller runs immediately after).
+; ============================================================================
+Spawn_RevealPendingItems:
+    php
+    sep #$20
+.a8
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__check2
+    lda.l Entity1_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__check2
+    lda.l Entity1_ItemRosterIdx
+    beq Spawn_RevealPendingItems__check2
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check2:
+.a8
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__check3
+    lda.l Entity2_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__check3
+    lda.l Entity2_ItemRosterIdx
+    beq Spawn_RevealPendingItems__check3
+    ldx #CHAR_ZP_LEN*2
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check3:
+.a8
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity3_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity3_ItemRosterIdx
+    beq Spawn_RevealPendingItems__done
+    ldx #CHAR_ZP_LEN*3
+    jsr Spawn_RevealPendingItems__do
+Spawn_RevealPendingItems__done:
+    plp
+    rep #$31
+.a16
+.i16
+    rtl
+
+; Leaf: X (8-bit-range value, still whatever width the caller's `ldx`
+; left it in -- always .i8 range 0..CHAR_ZP_LEN*3 here) selects which
+; EntityN_* set the calling branch above already resolved; A (still .a8,
+; the just-loaded nonzero ItemRosterIdx) is this reveal's real target
+; roster slot. Gates on Msu1_StreamBusy BEFORE touching anything, same
+; "no mutation before the gate" discipline as Spawn_Play__gate_stream.
+Spawn_RevealPendingItems__do:
+    pha
+    lda.l Msu1_StreamBusy
+    bne Spawn_RevealPendingItems__do__busy
+    pla
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    phx                          ; REAL BUG found live-tracing this: Spawn_
+                                  ; DoRosterReassign's own header says
+                                  ; "Clobbers A/X" (its internal jsl Anim_
+                                  ; LoadCharacter_Long call touches X) --
+                                  ; the stale comment this replaces claimed
+                                  ; the opposite ("preserves X, only
+                                  ; clobbers A and D"), so the cpx dispatch
+                                  ; below was comparing X against GARBAGE
+                                  ; after the call, always falling through
+                                  ; to the Entity3 branch regardless of
+                                  ; which slot was really being revealed --
+                                  ; the art reassignment itself worked, but
+                                  ; the WRONG EntityN_ItemRosterIdx got
+                                  ; cleared (or the right one, by
+                                  ; coincidence, only when X happened to
+                                  ; equal CHAR_ZP_LEN*3 already), so the
+                                  ; real target's flag stayed stuck forever,
+                                  ; confirmed via live WRAM polling (100%
+                                  ; reproducible, not a race). Saved/
+                                  ; restored across the call instead.
+    jsr Spawn_DoRosterReassign
+    plx
+    sep #$20
+.a8
+    ; Clear the SPECIFIC slot's own ItemRosterIdx -- X restored above.
+    ; Three-way dispatch on X's value, same idiom this file's record-kind
+    ; checks already use elsewhere.
+    cpx #CHAR_ZP_LEN
+    bne Spawn_RevealPendingItems__do__not1
+    lda #0
+    sta.l Entity1_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not1:
+.i16
+    cpx #CHAR_ZP_LEN*2
+    bne Spawn_RevealPendingItems__do__not2
+.a8
+    lda #0
+    sta.l Entity2_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not2:
+.a8
+    lda #0
+    sta.l Entity3_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__busy:
+    pla
     rts

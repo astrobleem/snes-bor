@@ -183,7 +183,11 @@ def main():
     boss_records = []
     for i in range(record_count):
         rec = spawn_bytes[i * RECORD_SIZE:(i + 1) * RECORD_SIZE]
-        _trig, _sx, _sy, _facing, kind, _hp, roster_idx = struct.unpack('<HHBBBBB', rec[:9])
+        # claude_close_g7_g8_before_g10.md Part 2/3: record grew 9->10
+        # bytes -- +9 object_roster_idx is the spawned character's own
+        # identity (same meaning the old +8 had for this record shape).
+        _trig, _sx, _sy, _facing, kind, _hp, _item_roster_idx, roster_idx = \
+            struct.unpack('<HHBBBBBB', rec[:10])
         if (kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED:
             boss_records.append((i, roster_idx))
     r.check(f'out/spawn_stage2boss/spawn_table.bin has exactly one real '

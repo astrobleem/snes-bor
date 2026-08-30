@@ -1,0 +1,53 @@
+{
+  "entity": "Money",
+  "prefix": "out/money",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/money_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/money_walk",
+      "frames": 1
+    },
+    {
+      "ordinal": 2,
+      "name": "attack",
+      "dir": "out/money_attack",
+      "frames": 1
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/money_fall",
+      "frames": 1
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/money_rise",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "attack": 2,
+    "fall": 3,
+    "rise": 4,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

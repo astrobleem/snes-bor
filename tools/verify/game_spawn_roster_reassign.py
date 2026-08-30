@@ -76,6 +76,21 @@ CHAR_IDLE_FCOUNT = pasm_constant('CHAR_IDLE_FCOUNT')
 CHAR_WALK_FCOUNT = pasm_constant('CHAR_WALK_FCOUNT')
 CHAR_ATTACK_FCOUNT = pasm_constant('CHAR_ATTACK_FCOUNT')
 
+# Regression coverage for a real fixed bug (animheaderstaging_shared_scratch_
+# collision project memory, corrected 2026-08-29): Spawn_DoRosterReassign's
+# jsl Anim_LoadCharacter_Long returns with A/X 16-bit (Anim_LoadCharacter's
+# own documented exit convention), and the restore code right after the call
+# used to run its CharSelect_Index save/restore pair still assuming 8-bit A,
+# silently executing both as 16-bit loads/stores and zeroing the adjacent
+# CharSelect_RosterCount byte. This gate already drives two real, live,
+# back-to-back Spawn_DoRosterReassign calls (Rock then Leather) with other
+# entities animating and the player actively moving/attacking -- exactly the
+# overlap shape the bug needs -- so add direct before/after assertions on
+# CharSelect_Index/CharSelect_RosterCount around each reassignment instead of
+# a separate synthetic repro.
+CharSelect_Index = 0x7E53B6
+CharSelect_RosterCount = 0x7E53B7
+
 PLAYER_BASE = 0x7E0A00
 ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_ZP_LEN,
                 PLAYER_BASE + 3 * CHAR_ZP_LEN]
@@ -146,7 +161,12 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
     for i in range(n):
         kind = data[i * RECORD_SIZE + 6]
         if (kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED:
-            found = (i, data[i * RECORD_SIZE + 8])
+            # +9 object_roster_idx -- the SPAWNED character's own real
+            # roster index (a boss's own identity). +8 is item_roster_idx
+            # (a contained/standalone item's identity), a different field
+            # since the G8 item/pickup slice's record-size split; this was
+            # still reading the old single +8 roster_idx offset, stale.
+            found = (i, data[i * RECORD_SIZE + 9])
     r.check(f'{roster_prefix}: {spawn_relpath} has a RECORD_KIND_BOSS_IDENTIFIED '
              f'record with roster_idx={expected_roster_idx} (found {found})',
              found is not None and found[1] == expected_roster_idx)
@@ -204,6 +224,12 @@ def main():
         boot_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'boots on stage 0 ({boot_stage})', boot_stage == 0)
 
+        expected_roster_count = getattr(build_rom, 'PLAYABLE_ROSTER_COUNT', len(build_rom.ROSTER_PREFIXES))
+        roster_count_before = byte_at(m, CharSelect_RosterCount)
+        char_select_index_before = byte_at(m, CharSelect_Index)
+        r.check(f'CharSelect_RosterCount sane before any reassignment ({roster_count_before} == '
+                 f'{expected_roster_count})', roster_count_before == expected_roster_count)
+
         # --- Reach stage 3 (Rock's own standalone boss stage) via the real
         # chain, same force-win idiom as game_g9_tmnt_boss.py/
         # game_tmnt_campaign.py -- there is no direct-load path. ---
@@ -214,6 +240,16 @@ def main():
 
         check_boss_stage(m, r, 3, 'out/spawn_stage3rock/spawn_table.bin', 'rock', 6)
 
+        # --- The actual regression check: Rock's own reassignment must not
+        # have disturbed the player's persistent char-select state (the real
+        # symptom of the bug this closes). ---
+        r.check(f'CharSelect_RosterCount unchanged after Rock\'s reassignment '
+                 f'({byte_at(m, CharSelect_RosterCount)} == {expected_roster_count})',
+                 byte_at(m, CharSelect_RosterCount) == expected_roster_count)
+        r.check(f'CharSelect_Index unchanged after Rock\'s reassignment '
+                 f'({byte_at(m, CharSelect_Index)} == {char_select_index_before})',
+                 byte_at(m, CharSelect_Index) == char_select_index_before)
+
         # --- Continue on to stage 4 (Leather's own standalone boss stage)
         # -- proves this isn't a one-off, and that back-to-back blocking
         # Anim_LoadCharacter reloads (Rock's reassignment, then Leather's)
@@ -223,6 +259,16 @@ def main():
         r.check(f'Game_StageIndex advances 3 -> 4 ({got})', got == 4)
 
         check_boss_stage(m, r, 4, 'out/spawn_stage4leather/spawn_table.bin', 'leather', 7)
+
+        # --- Same regression check after the SECOND back-to-back
+        # reassignment (a different roster identity, Leather not Rock) --
+        # proves the fix holds across repeated reassignments, not just once. ---
+        r.check(f'CharSelect_RosterCount unchanged after Leather\'s reassignment '
+                 f'({byte_at(m, CharSelect_RosterCount)} == {expected_roster_count})',
+                 byte_at(m, CharSelect_RosterCount) == expected_roster_count)
+        r.check(f'CharSelect_Index unchanged after Leather\'s reassignment '
+                 f'({byte_at(m, CharSelect_Index)} == {char_select_index_before})',
+                 byte_at(m, CharSelect_Index) == char_select_index_before)
 
         # --- Not hung after two real, blocking, spawn-driven reloads. ---
         fc0 = word_at(m, 0x7E5023)

@@ -98,7 +98,6 @@ Core_Nmi_Init:
 .a16
     lda #0
     ldx #0
-    nop
 Core_Nmi_Init__clear_loop:
     sta.l NmiShadow_Start,x
     inx
@@ -228,7 +227,6 @@ Core_Nmi_Play:
     ora.l Nmi_Busy
     beq Core_Nmi_Play__do_commit
     bra Core_Nmi_Play__frame_skipped
-    nop
 Core_Nmi_Play__frame_skipped:
     ; previous frame's processing isn't done yet — skip the visual commit,
     ; but keep whatever HDMA channels were already running going
@@ -237,7 +235,6 @@ Core_Nmi_Play__frame_skipped:
     lda.l Nmi_HdmaEnableCurrent
     sta $420C                 ; HDMAEN
     brl Core_Nmi_Play__done   ; too far for an 8-bit bra from here
-    nop
 
 Core_Nmi_Play__do_commit:
     lda #0
@@ -280,7 +277,6 @@ Core_Nmi_Play__do_commit:
     lda.l Oam_UploadFlag
     beq Core_Nmi_Play__skip_oam_reset
     bra Core_Nmi_Play__do_oam_reset
-    nop
 Core_Nmi_Play__do_oam_reset:
     jsr Core_Oam_ClearActive
     ; Core_Oam_ClearActive does `rep #$31` internally and never restores
@@ -293,7 +289,6 @@ Core_Nmi_Play__do_oam_reset:
 .a8
     lda #0
     sta.l Oam_UploadFlag
-    nop                       ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Nmi_Play__skip_oam_reset:
 .a8
     ; poppy#386: reached directly via the `beq` a few lines up, which skips
@@ -428,7 +423,6 @@ Core_Nmi_WaitFrame:
     rep #$31
 .a16
     lda.l Nmi_FrameCounter
-    nop
 Core_Nmi_WaitFrame__loop:
     cmp.l Nmi_FrameCounter
     beq Core_Nmi_WaitFrame__loop

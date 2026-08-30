@@ -115,6 +115,33 @@ def screen_pos_x(m):
     return b[0] | (b[1] << 8)
 
 
+def find_oam_slot_by_screen_x(m, expected_screen_x):
+    """Actor depth-sort slice (plan_game.md 7): real hardware OAM slot
+    order is now ground-depth-sorted (Character_RenderPass), not fixed
+    dispatch order -- entity 3 is no longer guaranteed to be the last one
+    rendered, so the OamSetSprite_Hi shared-scratch trick this test used to
+    rely on (see its call site's own header comment) can't assume entity
+    3's write is still sitting there when read back. Identify the real slot
+    by matching real OAM X instead (same technique tools/verify/
+    game_g7_depth_sort.py's gate uses), independent of render order."""
+    oam = read_block(m, 0, 128, mem_type='snesSpriteRam')
+    key = expected_screen_x & 0xFF
+    for slot in range(4):
+        if oam[slot * 4] == key:
+            return slot
+    raise AssertionError(f'no real OAM sprite found at expected screen X={key:#x} '
+                          f'(real OAM X bytes present: {[oam[s * 4] for s in range(4)]})')
+
+
+def read_oam_hi_bits(m, slot):
+    """Real hardware OAM2 hi-table: 4 sprites/byte, 2 bits each (bit0=
+    X-high, bit1=size), byte 0 covers sprites 0-3 -- see core/oam.pasm's
+    Core_Oam_TransformHiOam header. Returns (x_high, size)."""
+    hi_byte = read_block(m, 512, 32, mem_type='snesSpriteRam')[0]
+    shift = slot * 2
+    return ((hi_byte >> shift) & 1, (hi_byte >> (shift + 1)) & 1)
+
+
 def bg1_hscroll(m):
     return m.get_ppu_state()['layers'][0]['hscroll']
 
@@ -250,27 +277,34 @@ def main():
         # gameplay path with this AI model. Verified instead via the same
         # forced-collision technique Phase 0 used: write a position that
         # DOES require it directly into an entity's DP window, run one
-        # frame, and check Character_PlayFrame's real OAM-X-high input
-        # (OamSetSprite_Hi's bit0) -- not raw hardware OAM (Core_Oam_
-        # SetSprite's own hi-table packing was already verified correct in
-        # an earlier phase; this checks Phase 8's NEW code, the derivation
-        # feeding it). Entity 3 (processed last in Core_Oop_Play's per-
-        # frame loop) is forced so its write is still the one sitting in
-        # the single shared OamSetSprite_Hi scratch when read back. ---
+        # frame, and check the real hardware OAM hi-table bit this entity's
+        # sprite actually shipped with (Core_Oam_SetSprite's own hi-table
+        # packing was already verified correct in an earlier phase; this
+        # checks Phase 8's NEW code, the derivation feeding it). Actor
+        # depth-sort slice (plan_game.md 7): entity 3 is no longer
+        # guaranteed to be the last one Character_RenderPass renders (real
+        # OAM slot order is now ground-depth-sorted, not fixed dispatch
+        # order), so this identifies entity 3's real OAM slot by its real
+        # on-screen X first, then reads that specific slot's real hi-table
+        # bits -- independent of render order, and closer to this project's
+        # own "ground truth" standing rule than the old shared-scratch-cell
+        # read ever was. ---
         m.reset_emulator()
         m.run_frames(60)  # let boot fully finish (character/BG loads) before forcing
         entity3_pos_x = ENTITY_BASES[3] + CHAR_POS_X
         m.write_u16(entity3_pos_x, 400)  # 400 - scroll(~0) >= 256
         m.run_frames(2)
         m.pause()
-        hi = read_block(m, OamSetSprite_Hi, 32)[0]
         forced_wx = world_x(m, ENTITY_BASES[3])
         forced_sx = screen_pos_x(m)
+        expected_sx = (forced_wx - forced_sx) & 0xFF
+        slot = find_oam_slot_by_screen_x(m, expected_sx)
+        x_high, _size = read_oam_hi_bits(m, slot)
         print(f'forced entity 3 to world X={forced_wx} (scroll={forced_sx}), '
-              f'OamSetSprite_Hi={hi:#04x}')
+              f'real OAM slot={slot}, X-high bit={x_high}')
         r.check('forced screen-relative X >= 256 sets the X-high bit '
-                '(OamSetSprite_Hi bit0)',
-                (forced_wx - forced_sx) >= 256 and (hi & 0x01) == 1)
+                '(real hardware OAM hi-table, entity 3\'s actual slot)',
+                (forced_wx - forced_sx) >= 256 and x_high == 1)
 
     r.finish()
 

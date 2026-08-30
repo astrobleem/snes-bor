@@ -128,8 +128,6 @@ Text_LabelValue       = $7E274C   ; .dw -- Core_Text_DrawLabeledNumber's 4th
 ; position, but keeping this after it too is still correct and simpler than
 ; re-deriving the ordering later).
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Core_Text_Init:
     php
@@ -176,7 +174,6 @@ Core_Text_Init:
 .a16
 .i16
     ldx #0
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Text_Init__pal_loop:
     sep #$20
 .a8
@@ -199,8 +196,6 @@ Core_Text_Init__pal_loop:
 ;   A(8-bit) = ASCII code
 ; Clobbers A/X. Out-of-range codes draw as blank (space) rather than garbage.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Text_EmitGlyph:
     sep #$20
@@ -245,7 +240,6 @@ Text_EmitGlyph__have:
     txa
     sta.l Text_StagingOffset
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Text_EmitGlyph__skip:
     rep #$31
 .a16
@@ -260,8 +254,6 @@ Text_EmitGlyph__skip:
 ; 16-bit mode after a width change, silently misaligning the stack).
 ; Clobbers A/X/Y.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Text_FlushRow:
     rep #$31
@@ -302,8 +294,6 @@ Text_FlushRow:
 ;   Y(16-bit) = offset into Text_StringPool (see the pool's own labels below)
 ; Clobbers A/X/Y.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Core_Text_DrawString:
     php
@@ -318,7 +308,6 @@ Core_Text_DrawString:
     sta.l Text_StagingOffset
     tya
     sta.l Text_StringIndex
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Text_DrawString__loop:
     rep #$31
 .a16
@@ -341,7 +330,6 @@ Core_Text_DrawString__loop:
     pla
     jsr Text_EmitGlyph
     bra Core_Text_DrawString__loop
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Text_DrawString__done:
     jsr Text_FlushRow
     plp
@@ -352,8 +340,6 @@ Core_Text_DrawString__done:
 ; emitting the quotient digit unless it's a suppressed leading zero.
 ; Clobbers A/X.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Text_DrawNumber__digit:
     rep #$31
@@ -386,11 +372,9 @@ Text_DrawNumber__digit:
     cmp #1
     beq Text_DrawNumber__digit__force
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Text_DrawNumber__digit__force:
     sep #$20
 .a8
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Text_DrawNumber__digit__show:
     sep #$20
 .a8
@@ -410,8 +394,6 @@ Text_DrawNumber__digit__show:
 ;   Y(16-bit) = value (0-65535)
 ; Clobbers A/X/Y.
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Core_Text_DrawNumber:
     php
@@ -627,8 +609,6 @@ Core_Text_DrawLabeledNumber__pad_done:
 ; digit (not suppressed), the trailing 4 exercises the final always-shown
 ; digit. Clobbers A/X/Y (same as Core_Text_DrawNumber, which does the work).
 ; ============================================================================
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
-    nop
     nop
 Core_Text_G1Demo:
     sep #$20
@@ -645,6 +625,5 @@ Core_Text_G1Demo:
     ldy #1024
     jsr Core_Text_DrawNumber
     rts
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_Text_G1Demo__done:
     rts

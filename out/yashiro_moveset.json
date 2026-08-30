@@ -45,10 +45,24 @@
     "pain": 2,
     "fall": 3,
     "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
     "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
     "attack2": null,
-    "attack2_is_grab": false
+    "attack2_is_grab": false,
+    "grab": null
   },
+  "atchain": [],
   "remap_palettes": [
     [
       0,

@@ -1,0 +1,53 @@
+{
+  "entity": "1up",
+  "prefix": "out/1up",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/1up_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/1up_walk",
+      "frames": 1
+    },
+    {
+      "ordinal": 2,
+      "name": "attack",
+      "dir": "out/1up_attack",
+      "frames": 1
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/1up_fall",
+      "frames": 1
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/1up_rise",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "attack": 2,
+    "fall": 3,
+    "rise": 4,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

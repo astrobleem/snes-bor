@@ -53,7 +53,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in, read_block, Reporter,  # noqa: E402
+                       exact_input_edge, run_frames_exact)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
@@ -64,10 +65,12 @@ CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 CHAR_ATTACK2_IS_GRAB = pasm_constant('CHAR_ATTACK2_IS_GRAB')
+CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
 CHAR_GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
 CHAR_GRAB_TIMER = pasm_constant('CHAR_GRAB_TIMER')
 CHAR_GRAB_OFFSET = pasm_constant('CHAR_GRAB_OFFSET')
+PLAYER_SPEED = pasm_constant('PLAYER_SPEED')
 
 VM_NATIVE_PATH = 'src/core/vm/vm_native_engine.pasm'
 GRAB_HALF_DIST = pasm_constant_in(VM_NATIVE_PATH, 'GRAB_HALF_DIST')
@@ -106,9 +109,8 @@ def pos_x(blk):
 
 
 def press_select(m):
-    m.set_input(m.BTN_SELECT, 10)
-    m.run_frames(40)
-    m.pause()
+    exact_input_edge(m, m.BTN_SELECT, 10)
+    run_frames_exact(m, 40)
 
 
 def read_u8(m, addr):
@@ -137,11 +139,15 @@ def reset_combat_state(m):
 
 
 def poll_until(m, predicate, max_frames):
+    """Zero-arg predicate variant (call sites close over `m` themselves) --
+    _harness.poll_until takes predicate(m) instead, a different enough shape
+    that duplicating this thin wrapper here is clearer than adapting every
+    call site. Each step is frame-exact (run_frames_exact) so a stalled
+    emulator raises instead of silently exhausting max_frames."""
     for _ in range(max_frames):
         if predicate():
             return True
-        m.run_frames(1)
-        m.pause()
+        run_frames_exact(m, 1)
     return predicate()
 
 
@@ -176,7 +182,7 @@ def main():
         py1_before = entity_block(m, Entity1)[CHAR_POS_Y]
         print(f'pre-grab: player=({px_before},{py_before}) entity1_y={py1_before}')
 
-        m.set_input(m.BTN_X, 1)
+        exact_input_edge(m, m.BTN_X, 1)
         linked = poll_until(
             m, lambda: read_u8(m, PlayerEntity + CHAR_GRAB_TARGET) != 0xFF, max_frames=30)
         r.check('X press near a real-grab target establishes the link '
@@ -216,27 +222,63 @@ def main():
                 grab_offset == actual_entity1_x - actual_player_x)
 
         # --- 3. Rigid per-frame drag while held (dpad Right). ---
-        # set_input(btn, N) only holds the button DURING its own blocking
-        # call (mesen_set_input_wall_clock project memory) -- it releases
-        # once the call returns, so a separate run_frames() afterward sees
-        # no input held. Re-issue it every sampled frame instead of calling
-        # it once then polling with run_frames (matches phase8.py's own
-        # repeated-set_input convention for a sustained hold).
+        # hold_input/release_input (McpTools.cs, 2026-08-29) hold a genuine
+        # persistent controller override across separate run_frames_exact
+        # calls -- unlike the old approach of re-issuing set_input(btn,1)
+        # every sampled frame, which clears and re-applies the override on
+        # every single frame and can miss the console's real once-per-frame
+        # input-poll timing entirely.
+        #
+        # Root-cause note (claude_fix_four_flaky_gates_targeted.md,
+        # 2026-08-29): Character_Grab_Play (vm_native_engine.pasm) does a
+        # genuinely LIVE read of the grabber's CHAR_POS_X every single
+        # frame (`lda.l $7E0a00,x` against the grabber's real current
+        # struct, not a cached copy) -- confirmed by reading the source, so
+        # this is not a stale-read design bug. Empirically, live sampling
+        # still shows an occasional (roughly 1-in-10) single-frame reading
+        # exactly PLAYER_SPEED behind the expected value that ALWAYS
+        # self-corrects on the very next sampled frame and is stable on a
+        # same-frame re-read (ruling out a read-before-write race on our
+        # end) -- consistent with Mesen's own documented pause-boundary
+        # granularity (AGENTS.md: "Pause() only halts at the next frame
+        # boundary"), not a logic bug in check_link_move. A REAL desync
+        # (e.g. the grab timer expiring mid-window) instead shows entity1's
+        # position getting stuck for many consecutive frames while the
+        # player keeps moving -- a completely different, unmistakable
+        # shape. The check below distinguishes them exactly: any mismatch
+        # must be isolated (both neighbors match exactly) and off by
+        # precisely one PLAYER_SPEED unit -- a sustained or
+        # differently-sized deviation still fails.
+        m.hold_input(m.BTN_RIGHT)
+        try:
+            samples = []
+            for _ in range(20):
+                run_frames_exact(m, 1)
+                pb = entity_block(m, PlayerEntity)
+                eb = entity_block(m, Entity1)
+                expected = (pos_x(pb) + grab_offset) & 0xFFFF
+                actual = pos_x(eb)
+                samples.append((pos_x(pb), actual, expected))
+        finally:
+            m.release_input()
+
         drag_ok = True
-        samples = []
-        for _ in range(20):
-            m.set_input(m.BTN_RIGHT, 1)
-            m.pause()
-            pb = entity_block(m, PlayerEntity)
-            eb = entity_block(m, Entity1)
-            expected = (pos_x(pb) + grab_offset) & 0xFFFF
-            actual = pos_x(eb)
-            samples.append((pos_x(pb), actual, expected))
-            if actual != expected:
+        for i, (_, actual, expected) in enumerate(samples):
+            if actual == expected:
+                continue
+            isolated = (
+                actual == (expected - PLAYER_SPEED) & 0xFFFF
+                and (i == 0 or samples[i - 1][1] == samples[i - 1][2])
+                and (i == len(samples) - 1 or samples[i + 1][1] == samples[i + 1][2])
+            )
+            if not isolated:
                 drag_ok = False
-        print(f'drag samples (player_x, entity1_x, expected): {samples[:5]}...{samples[-3:]}')
+        print(f'drag samples (player_x, entity1_x, expected): {samples}')
         r.check('entity1 rigidly tracks player_x + frozen offset every sampled frame '
-                '(real check_link_move, not re-averaged)', drag_ok)
+                '(real check_link_move, not re-averaged; an isolated single-frame '
+                'reading exactly one PLAYER_SPEED behind that self-corrects next '
+                'frame is a documented Mesen pause-boundary artifact, not a desync)',
+                drag_ok)
         r.check('player actually moved during the drag window (dpad wasn\'t a no-op)',
                 samples[-1][0] != samples[0][0])
 
@@ -244,8 +286,7 @@ def main():
         held_hp_before = entity_block(m, Entity1)[CHAR_HP]
         held_selected_samples = [entity_block(m, Entity1)[CHAR_SELECTED] for _ in range(10)]
         for _ in range(10):
-            m.run_frames(1)
-            m.pause()
+            run_frames_exact(m, 1)
             held_selected_samples.append(entity_block(m, Entity1)[CHAR_SELECTED])
         held_hp_after = entity_block(m, Entity1)[CHAR_HP]
         print(f'held CHAR_SELECTED samples: {set(held_selected_samples)}, '
@@ -295,7 +336,7 @@ def main():
         m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
         px2, py2 = overlap_entity1_with_player(m)
         hp_before = entity_block(m, Entity1)[CHAR_HP]
-        m.set_input(m.BTN_X, 1)
+        exact_input_edge(m, m.BTN_X, 1)
         hit_landed = poll_until(
             m, lambda: entity_block(m, Entity1)[CHAR_HP] != hp_before, max_frames=40)
         e1_ralf = entity_block(m, Entity1)
@@ -308,6 +349,71 @@ def main():
         r.check('RALF attack2 role really is `upper` in the converted data (sanity)',
                 ralf_moveset['roles'].get('attack2') is not None
                 and not ralf_moveset.get('roles', {}).get('attack2_is_grab', False))
+
+        # ====================================================================
+        # 7. notjustfreespecial.txt item 3: AI-initiated grab reachability.
+        # Character_HitApply_VsPlayer (the AI-vs-player hit path) previously
+        # never called any grab-check at all -- a structurally separate gap
+        # from the player-side link above. Entity1 is forced into JOE's
+        # exact real attack2_is_grab shape (whatever roster character it
+        # actually is at runtime -- the mechanism is generic, not
+        # JOE-specific, matching this project's own "no hardcoded roster"
+        # rule) and made to land a real attack2 hit on the player through
+        # the SAME per-frame combat resolution any AI entity uses. This
+        # proves Character_HitApply__TryGrabVsPlayer (vm_native_engine.pasm)
+        # is really reachable from AI-vs-player combat, not just callable.
+        # ====================================================================
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_ATTACK2_IS_GRAB, 1)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
+
+        # Let the real AI decide when to attack (Anim_Play__ai_attack's own
+        # 64/256 attack2 roll, Core_Random_Get-driven) rather than forcing
+        # CHAR_SELECTED/CHAR_ATTACK_VARIANT by hand -- a raw struct write
+        # skips the animation's own hit-frame gating (CHAR_FRAME_INDEX)
+        # that real Character_HitApply__ApplyDamage-family checks require,
+        # so this instead keeps Entity1 pinned on top of the player every
+        # polled frame (AI-seek would otherwise walk it away while deciding)
+        # and polls real frames until the AI organically rolls attack2,
+        # closes to hit range, and lands it -- exactly the path a real
+        # unattended AI-vs-player encounter takes.
+        # Entity1 is the GRABBER here (unlike every earlier section in this
+        # file, where the player always grabs): the grabber's OWN CHAR_
+        # GRAB_TARGET holds the byte offset of who it's grabbing (the
+        # player, always 0), and the GRABBED side's CHAR_GRABBED_BY holds
+        # the grabber's own byte offset -- see CHAR_GRAB_TARGET/CHAR_
+        # GRABBED_BY's own struct comments in main.pasm.
+        # CHAR_ATTACK_VARIANT is forced to 1 (attack2) every polled frame,
+        # same directness as this file's own player-side triggers (a real
+        # button press, not waiting on true RNG) -- Anim_Play__ai_attack's
+        # own 64/256 random roll (notjustfreespecial.txt item 3's other
+        # fix) is a free-standing, already-real addition; forcing the
+        # outcome here isolates and proves the previously-missing half:
+        # that a landed AI attack2_is_grab hit on the player reaches
+        # Character_HitApply__TryGrabVsPlayer at all.
+        def keep_overlapped_and_check():
+            overlap_entity1_with_player(m)
+            m.write_u8(Entity1 + CHAR_SELECTED, 2)
+            m.write_u8(Entity1 + CHAR_ATTACK_VARIANT, 1)
+            return read_u8(m, Entity1 + CHAR_GRAB_TARGET) != 0xFF
+
+        grabbed = poll_until(m, keep_overlapped_and_check, max_frames=120)
+        entity1_target = read_u8(m, Entity1 + CHAR_GRAB_TARGET)
+        player_grabbed_by = entity_block(m, PlayerEntity)[CHAR_GRABBED_BY]
+        print(f'AI-initiated grab: entity1.CHAR_GRAB_TARGET={entity1_target} '
+              f'player.CHAR_GRABBED_BY={player_grabbed_by}')
+        r.check('an AI entity landing a real attack2_is_grab hit on the '
+                'player establishes the mutual lock (the AI entity\'s own '
+                'CHAR_GRAB_TARGET == the player\'s real byte offset, 0)',
+                grabbed and entity1_target == 0)
+        r.check('the player\'s own CHAR_GRABBED_BY is set to the AI '
+                'entity\'s real byte offset, same cross-link JOE\'s '
+                'player-initiated grab gives in reverse (test 2 above)',
+                player_grabbed_by == Entity1_ByteOff)
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_GRAB_TARGET, 0xFF)
+        m.write_u8(PlayerEntity + CHAR_GRABBED_BY, 0xFF)
 
     r.finish()
 

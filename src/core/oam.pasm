@@ -96,7 +96,6 @@ Core_Oam_Init:
 .a16
     lda #0
     ldx #0
-    nop
 Core_Oam_Init__clear_loop:
     sta.l OamShadow_Start,x
     inx
@@ -180,7 +179,6 @@ Core_Oam_ClearAll:
     sta Oam_CurrentSlot
 
     ldx #0
-    nop
 Core_Oam_ClearAll__loop:
     lda #0
     sta.l Oam_Buffer,x
@@ -196,7 +194,6 @@ Core_Oam_ClearAll__loop:
     bcc Core_Oam_ClearAll__loop
 
     ldx #0
-    nop
 Core_Oam_ClearAll__hi_loop:
     lda #0
     sta.l Oam_ExpandedHi,x
@@ -238,7 +235,6 @@ Core_Oam_ClearActive:
     beq Core_Oam_ClearActive__main_skip
     tay
     ldx #0
-    nop
 Core_Oam_ClearActive__main_loop:
     lda #0
     sta.l Oam_Buffer,x
@@ -252,7 +248,6 @@ Core_Oam_ClearActive__main_loop:
     inx
     dey
     bne Core_Oam_ClearActive__main_loop
-    nop
 Core_Oam_ClearActive__main_skip:
 
     ; --- Hi table: ceil(sprite_count/4) bytes -- identical formula to
@@ -268,7 +263,6 @@ Core_Oam_ClearActive__main_skip:
     beq Core_Oam_ClearActive__hi_skip
     tay
     ldx #0
-    nop
 Core_Oam_ClearActive__hi_loop:
     lda #0
     sta.l Oam_ExpandedHi,x
@@ -276,7 +270,6 @@ Core_Oam_ClearActive__hi_loop:
     inx
     dey
     bne Core_Oam_ClearActive__hi_loop
-    nop
 Core_Oam_ClearActive__hi_skip:
     rts
 
@@ -359,10 +352,8 @@ Core_Oam_Play__hwm_done:
     beq Core_Oam_Play__main_len_partial
     lda #OAM_SLOTS * 4
     bra Core_Oam_Play__main_len_done
-    nop
 Core_Oam_Play__main_len_partial:
     lda Oam_CurrentSlot
-    nop                     ; workaround: Poppy branch-target label misresolution (see poppy bug #4) --
                              ; every other branch target in this file guards with a nop; this one didn't,
                              ; the sibling bug below (Core_Oam_Play__hi_len_done) proved the risk is real
 Core_Oam_Play__main_len_done:
@@ -428,7 +419,6 @@ Core_Oam_Play__queued_main:
     sta.l Oam_NeedFullUpload
     lda #OAM_SLOTS / 4
     bra Core_Oam_Play__hi_len_done
-    nop
 Core_Oam_Play__hi_len_partial:
     lda Oam_CurrentSlot
     clc
@@ -437,17 +427,19 @@ Core_Oam_Play__hi_len_partial:
     lsr a
     lsr a
     lsr a
-    ; workaround: Poppy branch-target label misresolution (see poppy bug #4).
-    ; Root-caused a real bug via this exact spot: Core_Oam_Play__hi_len_done
-    ; had no nop guard, so Poppy resolved the label onto the LAST `lsr a`
-    ; above instead of the `sta` below it -- the one-shot full-upload branch
-    ; (`lda #OAM_SLOTS/4 / bra Core_Oam_Play__hi_len_done`) landed there and
-    ; silently re-executed that lsr, halving the intended 32-byte hi-table
-    ; length to 16 before it ever reached the sta. Root-caused via a WRAM
-    ; ring-log instrumenting Core_Dma_TransferOam's actual DAS7 value (16,
-    ; not 32) cross-checked against a direct disassemble showing the label
-    ; address landing mid-shift-sequence, not raw byte-count guessing.
-    nop
+    ; HISTORICAL, RESOLVED: this exact spot once root-caused a real Poppy
+    ; branch-target label misresolution bug (poppy#4, fixed 2026-08-19 in
+    ; the fork -- see CLAUDE.md's toolchain section). Core_Oam_Play__hi_
+    ; len_done had no nop guard, so Poppy resolved the label onto the LAST
+    ; `lsr a` above instead of the `sta` below it -- the one-shot full-
+    ; upload branch (`lda #OAM_SLOTS/4 / bra Core_Oam_Play__hi_len_done`)
+    ; landed there and silently re-executed that lsr, halving the intended
+    ; 32-byte hi-table length to 16 before it ever reached the sta. Root-
+    ; caused via a WRAM ring-log instrumenting Core_Dma_TransferOam's
+    ; actual DAS7 value (16, not 32) cross-checked against a direct
+    ; disassemble showing the label address landing mid-shift-sequence.
+    ; The nop guards this bug required are no longer needed (poppy#4 fixed
+    ; assembler-side); kept only as bug history, not a live workaround.
 Core_Oam_Play__hi_len_done:
     sta DmaRequest_Length
 
@@ -461,7 +453,6 @@ Core_Oam_Play__hi_len_done:
 .a16
     jsr Core_Dma_Enqueue
     bra Core_Oam_Play__done
-    nop
 Core_Oam_Play__done:
     rts
 
@@ -473,10 +464,6 @@ Core_Oam_Play__done:
 ; (long-indexed-Y store doesn't exist in hardware -- see this file's header
 ; and Core_Oam_TransformHiOam's own bug-1 note); X only, per that same
 ; established pattern.
-    nop
-    nop
-    nop
-    nop
 Core_Oam_SetSprite:
     php
     rep #$31
@@ -571,7 +558,6 @@ Core_Oam_SetSprite:
     nop
     nop
     nop
-    nop
 Core_Oam_TransformHiOam:
     php
     rep #$31
@@ -596,7 +582,6 @@ Core_Oam_TransformHiOam:
     lsr a
     beq Core_Oam_TransformHiOam__done   ; nothing active -- nothing to pack
     tay
-    nop
 Core_Oam_TransformHiOam__loop:
     lda.l OamHiSrcIndex
     tax
@@ -653,7 +638,6 @@ Core_Oam_TransformHiOam__loop:
     sta.l OamHiDstIndex
     dey
     bne Core_Oam_TransformHiOam__loop
-    nop
 Core_Oam_TransformHiOam__done:
     plp
     rts

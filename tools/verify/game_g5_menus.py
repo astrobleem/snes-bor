@@ -48,7 +48,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant_in, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter, roster, playable_roster  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -64,6 +64,9 @@ CharSelect_Index = 0x7E53B6
 CharSelect_RosterCount = 0x7E53B7
 CharSelect_Loaded = 0x7E53B8
 PLAYER_PALETTE_ADDR = 0x100   # CHAR_PALETTE_SLOT==0, same layout phase12_roster.py uses
+CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
+PlayerEntity = 0x7E0A00
+DEAD_OAM_Y = 0xF0
 
 FONT_TILES_VRAM_WORD = pasm_constant_in('src/core/text.pasm', 'FONT_TILES_VRAM_WORD')
 BG3_TILES_VRAM_WORD = pasm_constant_in('src/main.pasm', 'BG3_TILES_VRAM_WORD')
@@ -85,18 +88,27 @@ EXPECT_HEADER = 'CHARACTER SELECT'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_INSTR = 'LEFT/RIGHT SELECT  START GO'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_RALF = 'RALF'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
-# The roster's last slot -- was YASHIRO (index 3) through Phase 15; grew to
-# 6 (MOUSER, FOOT01) for the TMNT campaign, 8 (ROCK, LEATHER) for the
-# spawn-driven roster-reassignment slice, 12 (BEBOP, FOOT02-04) for the
-# roster-growth slice (pack_msu_roster.py's MAX_CHARACTERS 8->15), and now
-# 13 (LEO, the TMNT pak's own only actively-loaded playable turtle). Real
-# bug caught by this exact check THREE times now: CharSelect_NamePtrs
-# hadn't grown to match ROSTER_PREFIXES and read garbage past its own end
-# -- this constant must be updated every time the roster's real last slot
-# changes. This hand-sync trap has now bitten 3 separate roster growths;
-# if a 4th happens, consider deriving this from main.pasm's own
-# CharSelect_NamePtrs table instead of hand-typing it again.
-EXPECT_LAST_SLOT = 'LEO'.ljust(TEXT_ROW_ENTRIES)
+# The roster's last slot -- was a hand-typed name, hand-synced to build_
+# rom.py's ROSTER_PREFIXES by a human every time the roster grew (YASHIRO
+# through Phase 15, then MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02-04/LEO
+# across 3 further growths). Real bug caught by this exact check THREE
+# separate times: CharSelect_NamePtrs (main.pasm) hadn't grown to match
+# ROSTER_PREFIXES and read garbage past its own end. Derived here instead
+# (notjustfreespecial.txt gate/roster-hardcoding cleanup) from
+# _harness.roster() -- the SAME single source of truth (build_rom.py's own
+# ROSTER_PREFIXES) every other roster-order gate in this project already
+# uses -- so a 4th roster growth can no longer silently desync this
+# constant from reality.
+#
+# Real prop/pickup slice regression + fix: char-select's own Left/Right
+# wrap cycles the PLAYABLE subset only (props like out/apple are real
+# roster members for Spawn_DoRosterReassign but have no playable moveset
+# -- see pack_msu_roster.py's playable_count header-byte comment), so the
+# real last WRAP slot is playable_roster()'s own last entry, not roster()'s
+# (this exact FAIL, wrapping onto 'apple' with a stale name row, is what
+# caught the original bug in the first full regression run after out/apple
+# was added).
+EXPECT_LAST_SLOT = playable_roster()[-1].upper().ljust(TEXT_ROW_ENTRIES)
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):
@@ -197,6 +209,31 @@ def main():
         r.check(f'CharSelect_Loaded still 1 after Right reselect ({loaded})', loaded == 1)
         r.check('CGRAM palette changed after Right reselect (real reload, not just the index)',
                  pal_after != pal_before)
+
+        # notjustfreespecial.txt's reopening ("verify actual OAM/frame/
+        # palette results, not just the roster index") led here to a real,
+        # more severe finding than a stale sprite: GAME_STATE_CHARSELECT's
+        # own dispatch (core/charselect.pasm) never calls Core_Oop_Play or
+        # any OAM update at all -- only the header/name/instr text rows are
+        # drawn. NOTHING is rendered on screen during char-select today, not
+        # even a frozen/stale sprite, let alone a real `waiting` portrait.
+        # Measured directly: hardware OAM for the player stayed at the dead-
+        # hide Y sentinel and CHAR_FRAME_INDEX never advanced across 48
+        # sampled frames after a real Right reselect. This is real content
+        # for G5's own completion work (see plan_game.md 5's PARTIAL status
+        # and the coverage ledger's `waiting` row), not something to assert
+        # here as already passing -- a positive OAM/animation check belongs
+        # in this gate once that rendering is actually built, not before.
+        oam = read_block(m, 0, 128, mem_type='snesSpriteRam')
+        player_oam_y = oam[1]
+        frame_samples = []
+        for _ in range(6):
+            m.run_frames(8)
+            m.pause()
+            frame_samples.append(read_block(m, PlayerEntity + CHAR_FRAME_INDEX, 32)[0])
+        print(f'char-select OAM/frame measurement (informational, not gated): '
+              f'player_oam_y={player_oam_y} (dead-hide sentinel={DEAD_OAM_Y}) '
+              f'CHAR_FRAME_INDEX samples={frame_samples}')
 
         # --- Left from slot 1 goes back to slot 0 (RALF). ---
         m.set_input(m.BTN_LEFT, 10)

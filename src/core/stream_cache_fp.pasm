@@ -78,7 +78,6 @@ StreamCacheFp_Candidate    = $7E25A5  ; .dw
 StreamCacheFp_Chosen       = $7E25A7  ; .dw
 StreamCacheFp_OldTile      = $7E25A9  ; .dw
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Init:
 	php
 	sei
@@ -90,7 +89,6 @@ Core_StreamCacheFp_Init:
 
 	lda #$FFFF
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Init__tile2slot:
 	sta.l StreamCacheFp_Tile2Slot,x
 	inx
@@ -100,7 +98,6 @@ Core_StreamCacheFp_Init__tile2slot:
 
 	lda #$FFFF
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Init__slot2tile:
 	sta.l StreamCacheFp_Slot2Tile,x
 	inx
@@ -117,7 +114,6 @@ Core_StreamCacheFp_Init__slot2tile:
 .i16
 	lda #0
 	ldx #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Init__slotstamp:
 	sep #$20
 .a8
@@ -140,7 +136,6 @@ Core_StreamCacheFp_Init__slotstamp:
 ; @param X<16-bit>  tile_id to allocate a slot for (0..STREAM_FP_MAX_TILE_IDS-1)
 ; @return A<16-bit>  the allocated slot number (1..STREAM_FP_CACHE_USABLE)
 ; Clobbers X, Y.
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot:
 	php
 	sei
@@ -158,12 +153,10 @@ Core_StreamCacheFp_AllocateSlot:
 	bcc Core_StreamCacheFp_AllocateSlot__cursor_ok
 	sec
 	sbc #STREAM_FP_CACHE_USABLE
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__cursor_ok:
 	sta StreamCacheFp_ScanCursor
 
 	ldy #0
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__scan:
 	rep #$31
 .a16
@@ -188,20 +181,17 @@ Core_StreamCacheFp_AllocateSlot__scan:
 	rep #$31
 .a16
 .i16
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__evictable:
 	lda StreamCacheFp_Candidate
 	sta StreamCacheFp_Chosen
 	bra Core_StreamCacheFp_AllocateSlot__allocate
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__protected:
 	rep #$31
 .a16
 .i16
 	bra Core_StreamCacheFp_AllocateSlot__advance
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__found:
 	rep #$31
 .a16
@@ -210,7 +200,6 @@ Core_StreamCacheFp_AllocateSlot__found:
 	sta StreamCacheFp_Chosen
 	bra Core_StreamCacheFp_AllocateSlot__allocate
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__advance:
 	rep #$31
 .a16
@@ -220,7 +209,6 @@ Core_StreamCacheFp_AllocateSlot__advance:
 	cmp #STREAM_FP_CACHE_USABLE+1
 	bcc Core_StreamCacheFp_AllocateSlot__advance_ok
 	lda #1
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__advance_ok:
 	sta StreamCacheFp_Candidate
 
@@ -231,7 +219,6 @@ Core_StreamCacheFp_AllocateSlot__advance_ok:
 	lda StreamCacheFp_Candidate
 	sta StreamCacheFp_Chosen
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__allocate:
 	rep #$31
 .a16
@@ -249,7 +236,6 @@ Core_StreamCacheFp_AllocateSlot__allocate:
 	lda #$FFFF
 	sta.l StreamCacheFp_Tile2Slot,x
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_AllocateSlot__no_evict:
 	lda StreamCacheFp_Chosen
 	asl a
@@ -297,7 +283,6 @@ STREAM_FP_CACHE_TEST_RESULTS_COUNT = 8
 StreamCacheFp_Test_Index = $7E25BB    ; .dw
 StreamCacheFp_Test_Slot  = $7E25BD    ; .dw
 
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Test:
 	php
 	sei
@@ -306,7 +291,6 @@ Core_StreamCacheFp_Test:
 .i16
 	lda #0
 	sta StreamCacheFp_Test_Index
-	nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Core_StreamCacheFp_Test__loop:
 	lda StreamCacheFp_Test_Index
 	tax

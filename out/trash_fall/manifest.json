@@ -1,0 +1,23 @@
+{
+  "entity": "Trash",
+  "anim": "fall",
+  "loop": 1,
+  "scale": 0.4155844155844156,
+  "hotspot_canvas": [
+    21,
+    13
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        50,
+        32
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

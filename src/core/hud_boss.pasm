@@ -166,7 +166,6 @@ Hud_Play__boss_bar_drawbar_body:
     sbc #8
     sta.l HudBarHp
     bra Hud_Play__boss_bar_drawbar_have
-    nop                     ; workaround: Poppy branch-target label misalignment (see poppy bug #4)
 Hud_Play__boss_bar_drawbar_partial:
     sep #$20
 .a8

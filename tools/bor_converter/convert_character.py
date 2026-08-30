@@ -81,6 +81,22 @@ from convert_sprite import to_bgr555
 # not an exact-name match like the other four roles.
 ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 
+# claude_close_g7_g8_before_g10.md Part 1: 'backwalk' (OpenBOR's real
+# ANI_WALKBACK) is movement content, not a combat move -- confirmed a real
+# bug converting MOUSER (TMNT), whose file declares 'backwalk' (ordinal 1)
+# BEFORE its real second attack 'upper' (ordinal 7). The old attack2
+# fallback below picked "first otherwise-unclaimed ordinal" with no idea
+# 'backwalk' wasn't a combat move, silently wiring Mouser's attack2 input
+# to a walking animation and leaving 'upper' permanently inert. Resolved
+# into `roles`/`known_ordinals` unconditionally, the same way ROLE_NAMES'
+# five entries already are, so it can never be picked up by any fallback
+# heuristic -- this fixes the defect class (any future character
+# declaring backwalk before its real second move), not just Mouser.
+# roster audit: no other currently-shipped roster member declares
+# 'backwalk' (checked directly against all 13 real .TXT files), so this
+# is a pure regression-free addition for everyone else.
+EXTRA_MOVEMENT_ROLE_NAMES = ['backwalk']
+
 # Real jump slice (plan_game.md 7): 'jump'/'jumpattack'/'jumpattack2' are
 # real, unambiguous OpenBOR anim names (confirmed in LEO's real .TXT data --
 # no BOR-roster character declares any of them, so this is a pure addition,
@@ -89,7 +105,40 @@ ROLE_NAMES = ['idle', 'walk', 'pain', 'fall', 'rise']
 # ROLE_NAMES above -- resolved as OPTIONAL roles downstream (pack_msu_
 # roster.py's OPTIONAL_ROLE_JUMP/JUMPATTACK/JUMPATTACK2), same shape as
 # 'attack2'/'attack2_is_grab', not required like ROLE_NAMES' own five.
-OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2']
+OPTIONAL_ROLE_NAMES = ['jump', 'jumpattack', 'jumpattack2', 'special', 'waiting', 'get']
+# 'waiting' (notjustfreespecial.txt G5 finding): real OpenBOR ANI_SELECT/
+# char-select portrait pose. Only LEO ships real data for it (DATA\CHARS\
+# LEO\LEO.TXT: `anim waiting`, 1 frame, `frame data/chars/leo/select.gif`,
+# `loop 1`, `delay 130`, `offset 1 1`) -- confirmed by a direct substring
+# scan of every roster character's raw .TXT across both shipped paks (a
+# naive `startswith('waiting')` line scan misses this: the line is
+# `anim waiting`, i.e. `waiting` is the animation-NAME argument token, not
+# the line's first word). Exact-name match, resolved the same way as
+# 'special' immediately above (independent optional role, not part of the
+# chained MOVE_SLOT_NAMES table) -- fcount is 0 for the other 12 roster
+# members, same "collapses to zero, content-inapplicable" discipline as
+# every other optional role.
+
+# G7 content-audit slice (plan_game.md 7, "no reachable content stays
+# inert" pass): real, buildable, previously-unconverted-to-any-role
+# animation names, found by re-reading every roster character's real
+# .TXT directly rather than assuming the roster's known-role set was
+# already exhaustive -- it wasn't (LEO alone has 8 more real, baked-but-
+# unwired anims: attack3/attack4/grab/throw/grabattack/slide, TMNT's
+# FOOT01/FOOT02 also have a real attack3). Exact-name match, same
+# convention as every other role above, but each ALSO excludes any
+# ordinal a higher-priority role (this list's own order, then attack2's
+# own heuristic) already claimed -- see MOVE_SLOT_NAMES' own comment for
+# why that matters (JOE's `grab` anim is already his attack2; it must
+# not ALSO become a redundant separate `grab` role for him).
+#
+# Fixed slot order for pack_msu_roster.py's generic move-descriptor table
+# (replaces the old one-hardcoded-struct-field-per-move scheme) -- 'attack2'
+# and 'special' are resolved separately above/below (pre-existing, more
+# involved logic: attack2 has a real fallback heuristic, special has none)
+# but occupy slots 0/1 of this SAME table for base-offset-chain purposes.
+MOVE_SLOT_NAMES = ['attack2', 'special', 'attack3', 'attack4', 'grab',
+                    'slide', 'riseattack', 'grabattack', 'freespecial']
 
 
 def _sanitize(anim_name):
@@ -203,6 +252,201 @@ def _derive_remap_palettes(pak_path, base_dir, remaps, idle_loaded,
     return results
 
 
+def resolve_roles(anim_names):
+    """Pure role-resolution: maps a character's real declared animation
+    NAMES (declaration order, case-sensitive as authored) to the fixed set
+    of engine-known role ordinals this project's runtime understands. No
+    pak/image I/O -- this is the exact logic convert_character() used to
+    run inline, extracted (claude_close_g7_g8_before_g10.md Part 1) so it
+    can be unit-tested directly against a raw anim-name list without
+    needing a real .pak file, per that task's required regression coverage.
+    Returns the same `roles` dict convert_character()'s moveset.json stores.
+    """
+    lower_names = [n.lower() for n in anim_names]
+    roles = {}
+    for role in ROLE_NAMES:
+        roles[role] = lower_names.index(role) if role in lower_names else None
+    for role in EXTRA_MOVEMENT_ROLE_NAMES:
+        roles[role] = lower_names.index(role) if role in lower_names else None
+    for role in OPTIONAL_ROLE_NAMES:
+        roles[role] = lower_names.index(role) if role in lower_names else None
+    attack_ordinal = next((i for i, n in enumerate(lower_names) if n.startswith('attack')), None)
+    roles['attack'] = attack_ordinal
+
+    # G7 content-audit slice: resolve attack3/attack4/slide/riseattack/
+    # grabattack (exact-name match) BEFORE attack2's own fallback heuristic
+    # runs, so that heuristic's "first otherwise-unclaimed anim" scan can
+    # never mistake one of THESE for attack2. This ordering is itself the
+    # fix for a real, previously-undetected instance of the exact bug the
+    # comment below already documents for BEBOP/ROCK: LEATHER declares
+    # 'riseattack' (ordinal 5) with no literal 'attack2' anywhere in its
+    # file, so the OLD code (which resolved attack2's fallback before
+    # checking for a 'riseattack' role at all) silently wired LEATHER's
+    # attack2 input to riseattack -- found via this slice's own re-audit,
+    # not previously caught because LEATHER was never rechecked after the
+    # BEBOP/ROCK fix landed.
+    #
+    # 'grab' is deliberately NOT in this pre-pass -- see its own resolution
+    # after attack2 below for why (JOE's real second attack move IS a real
+    # grab anim, and the existing attack2_is_grab mechanism depends on the
+    # fallback heuristic still being ALLOWED to claim it).
+    PRE_ATTACK2_MOVE_SLOTS = [r for r in MOVE_SLOT_NAMES[2:] if r != 'grab']
+    known_ordinals = {v for v in roles.values() if v is not None}
+    for role in PRE_ATTACK2_MOVE_SLOTS:
+        if role in lower_names and lower_names.index(role) not in known_ordinals:
+            ordinal = lower_names.index(role)
+        else:
+            ordinal = None
+        roles[role] = ordinal
+        if ordinal is not None:
+            known_ordinals.add(ordinal)
+
+    # G7 content-audit slice, second real bug found the same way: JHUN's
+    # real second attack (his own combo continuation) is textually named
+    # 'jumpattack' in the source data -- but JHUN has no real 'jump' anim
+    # at all (jumpheight not declared), so this project's own real jump
+    # slice already established (main.pasm's CHAR_ATTACK2_FCOUNT comment:
+    # "RALF=upper, JOE=grab, JHUN=jumpattack") that his 'jumpattack' anim
+    # is his GROUND attack2, not a real jump-attack -- he can never enter
+    # JUMP state to reach it any other way. `jumpattack`/`jumpattack2`
+    # were added to OPTIONAL_ROLE_NAMES (real jump slice) and, like every
+    # other optional role, resolved into known_ordinals before attack2's
+    # own fallback ever ran -- silently reproducible the moment anyone
+    # reconverted JHUN (found here by doing exactly that as part of this
+    # audit's full-roster regeneration; JHUN's committed moveset.json
+    # predated OPTIONAL_ROLE_NAMES entirely and had never been touched
+    # since, masking this). Fixed the same way as riseattack's own
+    # exclusion above, but conditionally: 'jumpattack'/'jumpattack2' only
+    # block attack2's fallback when the character ALSO has a real 'jump'
+    # anim (meaning those ordinals genuinely serve their real jump-attack
+    # purpose and must stay reserved for it) -- verified this doesn't
+    # affect LEO (has both 'jump' AND a literal 'attack2', so the fallback
+    # branch never runs for him regardless).
+    attack2_fallback_excluded = set(known_ordinals)
+    if roles.get('jump') is None:
+        for jump_role in ('jumpattack', 'jumpattack2'):
+            ord_ = roles.get(jump_role)
+            if ord_ is not None:
+                attack2_fallback_excluded.discard(ord_)
+
+    # claude_close_g7_g8_before_g10.md Part 1: 'upper' is ambiguous by
+    # design in real BOR/TMNT data -- confirmed by reading every shipped
+    # roster member's raw .TXT directly. Two real shapes exist:
+    #
+    #   (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare 'upper' with NO
+    #       literal 'attack2' anim at all -- 'upper' genuinely IS that
+    #       character's one real second attack (an older/alternate
+    #       OpenBOR animation-name convention for the role 'attack2' later
+    #       standardized). This is exactly the shape the fallback below
+    #       already handles correctly; 'upper' must stay eligible for it.
+    #
+    #   (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal 'attack2' AND
+    #       a separate 'upper'. Source evidence that 'upper' is real,
+    #       vestigial, but NOT a genuinely distinct third combat move for
+    #       these four:
+    #         - FOOT01/FOOT02's own real `atchain 1 2 3` explicitly
+    #           enumerates only attack1-3; OpenBOR's real combo-chain
+    #           mechanism (perform_atchain(), DCurrent/openbor engine/
+    #           openbor.c) never reaches 'upper' for them.
+    #         - ROCK/BEBOP declare no atchain at all (bosses), and their
+    #           'upper' stanza is a near byte-identical duplicate of their
+    #           own 'attack2' (same source GIFs, same hit coordinates,
+    #           only cosmetic delay/range/offset drift) -- not meaningfully
+    #           distinct content, consistent with 'upper' being the same
+    #           legacy attack2-alias convention as case (a), just kept
+    #           declared alongside the newer 'attack2' name rather than
+    #           replaced by it.
+    #       Neither shape gives this project (which implements no per-
+    #       model AI decision table or openborscript content -- see
+    #       openbor_script_vm_gap project memory, 0 real scripts needed
+    #       for BOR/TMNT) any real, source-derived condition under which
+    #       'upper' would fire as a genuinely separate move. Inventing one
+    #       (a spare button, an arbitrary AI-random third choice with no
+    #       source backing) would be fabricated behavior, not implemented
+    #       source content -- so for shape (b) 'upper' is recorded (for
+    #       audit/documentation completeness) but deliberately excluded
+    #       from attack2's fallback pool and given no runtime move slot:
+    #       proven content-inapplicable by raw-data and source evidence,
+    #       not merely left unassigned by omission.
+    if 'upper' in lower_names and 'attack2' in lower_names:
+        upper_ordinal = lower_names.index('upper')
+        if upper_ordinal not in known_ordinals:
+            roles['upper'] = upper_ordinal
+            known_ordinals.add(upper_ordinal)
+            attack2_fallback_excluded.add(upper_ordinal)
+
+    # plan_game.md 7 (G7 remaining: a real second attack move, generic --
+    # not hardcoded to any one character's real move name). Real per-
+    # character second moves in RALF/JOE/JHUN/YASHIRO are NOT named
+    # 'attack2'/'attack3' (OpenBOR's own numbered-attack convention, checked
+    # directly -- none of those four use it); they're distinctly-named
+    # combo/special moves (upper, grab, jumpattack). So the fallback below
+    # ("first anim not already claimed by another role") was written for
+    # that shape and verified safe for those four characters specifically.
+    #
+    # REAL BUG, found and fixed converting LEO (TMNT): that fallback treats
+    # "first declared, otherwise-unclaimed anim" as "the second attack",
+    # which silently breaks for any character whose file declares a
+    # non-role anim EARLIER than its real second attack. LEO declares
+    # 'waiting' (a menu-select pose, not a combat move) before its real
+    # 'attack2'; the fallback picked 'waiting'. Fixed by preferring a
+    # literal anim named 'attack2' before falling back to the old
+    # heuristic, AND (this slice) by resolving every other real named role
+    # -- including 'riseattack' -- first, so the fallback's own "first
+    # unclaimed ordinal" scan can't land on one of those either (see the
+    # comment on the loop just above for the LEATHER bug this closes).
+    if 'attack2' in lower_names and lower_names.index('attack2') not in attack2_fallback_excluded:
+        attack2_ordinal = lower_names.index('attack2')
+    else:
+        attack2_ordinal = next(
+            (i for i in range(len(lower_names)) if i not in attack2_fallback_excluded), None)
+    roles['attack2'] = attack2_ordinal
+    if attack2_ordinal is not None:
+        known_ordinals.add(attack2_ordinal)
+
+    # Record 'upper' for audit/documentation completeness in shape (a)
+    # (see the long comment above this fallback): when no literal
+    # 'attack2' existed, 'upper' -- if the character declares it -- IS
+    # whatever the fallback just picked as attack2_ordinal. This is a
+    # pure bookkeeping mirror (roles['upper'] == roles['attack2']), not a
+    # second independent resolution; shape (b) already set roles['upper']
+    # earlier, to a DIFFERENT, excluded ordinal.
+    if 'upper' not in roles and 'upper' in lower_names:
+        roles['upper'] = (
+            attack2_ordinal
+            if attack2_ordinal is not None and lower_names[attack2_ordinal] == 'upper'
+            else None)
+
+    # plan_game.md 7 (grab mutual-lock slice): whether attack2's real anim
+    # name is literally 'grab' -- derived from real converted data, never
+    # hardcoded per character (moveset_pipeline_generalization's standing
+    # rule). Only a character whose second move IS a real grab animation
+    # (currently JOE) gets real mutual-lock semantics; RALF's 'upper' and
+    # JHUN's 'jumpattack' are not grabs and must keep today's instant-
+    # damage attack2 behavior unchanged.
+    roles['attack2_is_grab'] = (
+        attack2_ordinal is not None and lower_names[attack2_ordinal] == 'grab')
+    if attack2_ordinal is not None:
+        known_ordinals.add(attack2_ordinal)
+
+    # G7 content-audit slice: the generic 'grab' role -- resolved AFTER
+    # attack2, excluding whatever ordinal attack2 just claimed. For JOE,
+    # this means 'grab' resolves to None here (his grab anim is already
+    # his attack2, via attack2_is_grab above -- unchanged, no redundant
+    # second grab trigger). For LEO, whose real attack2 is a literal,
+    # different 'attack2' anim, his separate real 'grab'/'throw'/
+    # 'grabattack' data (ordinals 12/13/19) is genuinely unclaimed and
+    # resolves as real, new, generically-detected grab-capability.
+    if 'grab' in lower_names and lower_names.index('grab') not in known_ordinals:
+        grab_ordinal = lower_names.index('grab')
+    else:
+        grab_ordinal = None
+    roles['grab'] = grab_ordinal
+    if grab_ordinal is not None:
+        known_ordinals.add(grab_ordinal)
+    return roles
+
+
 def convert_character(pak_path, entity_entry_name, out_prefix):
     entity, anim_names = _enumerate_anims(pak_path, entity_entry_name)
 
@@ -230,58 +474,18 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
             L['entity_name'], anim_name, L['loop'], L['scale'], L['hotspot_canvas'])
         results.append((anim_name, out_dir, result))
 
-    # Role assignment: first declared anim whose real name matches a role,
-    # case-insensitively. $FF-equivalent (None) if the character has none.
-    lower_names = [n.lower() for n in anim_names]
-    roles = {}
-    for role in ROLE_NAMES:
-        roles[role] = lower_names.index(role) if role in lower_names else None
-    for role in OPTIONAL_ROLE_NAMES:
-        roles[role] = lower_names.index(role) if role in lower_names else None
-    attack_ordinal = next((i for i, n in enumerate(lower_names) if n.startswith('attack')), None)
-    roles['attack'] = attack_ordinal
+    roles = resolve_roles(anim_names)
 
-    # plan_game.md 7 (G7 remaining: a real second attack move, generic --
-    # not hardcoded to any one character's real move name). Real per-
-    # character second moves in RALF/JOE/JHUN/YASHIRO are NOT named
-    # 'attack2'/'attack3' (OpenBOR's own numbered-attack convention, checked
-    # directly -- none of those four use it); they're distinctly-named
-    # combo/special moves (upper, grab, jumpattack). So the fallback below
-    # ("first anim not already claimed by another role") was written for
-    # that shape and verified safe for those four characters specifically.
-    #
-    # REAL BUG, found and fixed converting LEO (TMNT): that fallback treats
-    # "first declared, otherwise-unclaimed anim" as "the second attack",
-    # which silently breaks for any character whose file declares a
-    # non-role anim EARLIER than its real second attack. LEO declares
-    # 'waiting' (a menu-select pose, not a combat move) before its real
-    # 'attack2'; the fallback picked 'waiting'. Checked the currently-
-    # shipped roster for the same shape and found it twice more, already
-    # shipped: BEBOP and ROCK both declare 'riseattack' (a getup-only move,
-    # not a combat attack -- distinct from the 'rise' role itself) before
-    # their real 'attack2', so both were shipped with 'riseattack' wired to
-    # the attack2 input instead of their real second attack. Fixed by
-    # preferring a literal anim named 'attack2' (same exact-name-match
-    # convention every other role above already uses) before falling back
-    # to the old heuristic -- verified this doesn't change RALF/JOE/JHUN/
-    # YASHIRO (none declare a literal 'attack2', per the paragraph above).
-    known_ordinals = {v for v in roles.values() if v is not None}
-    if 'attack2' in lower_names and lower_names.index('attack2') not in known_ordinals:
-        attack2_ordinal = lower_names.index('attack2')
-    else:
-        attack2_ordinal = next(
-            (i for i in range(len(lower_names)) if i not in known_ordinals), None)
-    roles['attack2'] = attack2_ordinal
-
-    # plan_game.md 7 (grab mutual-lock slice): whether attack2's real anim
-    # name is literally 'grab' -- derived from real converted data, never
-    # hardcoded per character (moveset_pipeline_generalization's standing
-    # rule). Only a character whose second move IS a real grab animation
-    # (currently JOE) gets real mutual-lock semantics; RALF's 'upper' and
-    # JHUN's 'jumpattack' are not grabs and must keep today's instant-
-    # damage attack2 behavior unchanged.
-    roles['attack2_is_grab'] = (
-        attack2_ordinal is not None and lower_names[attack2_ordinal] == 'grab')
+    # Real BOR.C `atchain` (engine/openbor.c's perform_atchain()): a real
+    # per-character combo-chain sequence over attack1-4 (1-based attack-
+    # number values, NOT anim ordinals) -- LEO declares `atchain 1 2 3 1 2
+    # 4`, FOOT01/FOOT02 declare `atchain 1 2 3`, no other roster character
+    # declares one at all (PAK-verified, all 13 currently-converted roster
+    # members checked directly). Stored as raw 1-4 values here -- pack_msu_
+    # roster.py, not this converter, owns mapping each value onto this
+    # project's own CHAR_ATTACK_VARIANT encoding (a packing-format detail,
+    # not something the converter should know about).
+    moveset_atchain = list(entity.get('atchain') or [])
 
     # plan_game.md 8a row 3 (`map`): derive one alt palette per real `remap`
     # line this character declares (see _derive_remap_palettes' own header).
@@ -307,6 +511,9 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
             for i, (anim_name, out_dir, result) in enumerate(results)
         ],
         'roles': roles,
+        # G7 content-audit slice -- real `atchain` values (1-4), [] if this
+        # character declares none.
+        'atchain': moveset_atchain,
         # plan_game.md 8a row 3 -- list of 16-int BGR555 lists, [] if none
         'remap_palettes': remap_palettes,
     }

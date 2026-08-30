@@ -108,15 +108,44 @@ def main():
 
     with open_session(__file__) as m:
         m.reset_emulator()
-        m.run_frames(120)
+
+        # Snapshot each non-player entity's own boot-time palette EARLY --
+        # 30 frames in, well after CharSelect_RosterCount/entity init settle
+        # (confirmed stable by frame 20) but before core/spawn.pasm's live
+        # spawn-table path (Spawn_Play__slot3) can convert an entity slot
+        # from CHAR_INPUT_DRIVEN_AI to CHAR_INPUT_DRIVEN_PROP -- confirmed
+        # via direct WRAM trace to happen by ~frame 60 in stage 1B's real
+        # spawn table, and confirmed to genuinely reload a DIFFERENT CGRAM
+        # palette for at least one slot (not just a flag flip). This test's
+        # actual claim is "each entity loaded its assigned roster slot at
+        # boot", which is a boot-time claim -- read it at boot time, not
+        # after the (much later) Select-cycling loop below runs, or a real,
+        # later, unrelated spawn-table event gets misread as a boot bug.
+        m.run_frames(30)
+        m.pause()
+        entity_palette_snapshots = {}
+        entity_palette_slot_snapshots = {}
+        for entity_num, (base, _roster_slot) in ENTITY_ROSTER_SLOTS.items():
+            palette_addr = 0x100 + entity_num * 32
+            entity_palette_snapshots[entity_num] = bytes(read_block(m, palette_addr, 32, mem_type='snesCgRam'))
+            entity_palette_slot_snapshots[entity_num] = read_block(m, base + CHAR_PALETTE_SLOT, 32)[0]
+
+        m.run_frames(90)
         m.pause()
 
         roster_count = read_block(m, CharSelect_RosterCount, 32)[0]
         print(f'CharSelect_RosterCount: {roster_count}')
         r.check(f'roster count reads a sane value (1-{MAX_CHARACTERS})',
                  1 <= roster_count <= MAX_CHARACTERS)
-        r.check(f'roster count matches build_rom.py\'s real ROSTER_PREFIXES ({len(build_rom.ROSTER_PREFIXES)})',
-                 roster_count == len(build_rom.ROSTER_PREFIXES))
+        # CharSelect_RosterCount is the file header's playable_count (see
+        # pack_msu_roster.py's own header-byte comment) -- the player-
+        # selectable subset, not the full ROSTER_PREFIXES length. Real props
+        # (out/apple, appended after PLAYABLE_ROSTER_COUNT for Spawn_
+        # DoRosterReassign's purposes only) are real roster members but
+        # deliberately excluded from char-select's own wrap bound.
+        expected_playable = getattr(build_rom, 'PLAYABLE_ROSTER_COUNT', len(build_rom.ROSTER_PREFIXES))
+        r.check(f'roster count matches build_rom.py\'s real PLAYABLE_ROSTER_COUNT ({expected_playable})',
+                 roster_count == expected_playable)
 
         palette_snapshots = []
         index_snapshots = []
@@ -152,11 +181,10 @@ def main():
         for entity_num, (base, roster_slot) in ENTITY_ROSTER_SLOTS.items():
             if roster_slot >= roster_count:
                 continue
-            palette_addr = 0x100 + entity_num * 32  # CHAR_PALETTE_SLOT == entity_num, this project's convention
-            entity_palette_slot = read_block(m, base + CHAR_PALETTE_SLOT, 32)[0]
+            entity_palette_slot = entity_palette_slot_snapshots[entity_num]
             r.check(f'Entity #{entity_num} CHAR_PALETTE_SLOT == {entity_num}',
                      entity_palette_slot == entity_num)
-            entity_pal = bytes(read_block(m, palette_addr, 32, mem_type='snesCgRam'))
+            entity_pal = entity_palette_snapshots[entity_num]
             r.check(f"Entity #{entity_num}'s CGRAM palette matches the player's "
                      f"slot-{roster_slot} snapshot",
                      entity_pal == palette_snapshots[roster_slot])
