@@ -1683,6 +1683,7 @@ Tad_QueuePannedSoundEffect__EndIf:
 ; DB access lowram
 ; KEEP: X, Y
 Tad_QueueSoundEffect:
+.a8
     cmp Tad_sfxQueue_sfx
     bcs Tad_QueueSoundEffect__EndIf
         sta Tad_sfxQueue_sfx
@@ -1690,6 +1691,25 @@ Tad_QueueSoundEffect:
         lda #TAD_CENTER_PAN
         sta Tad_sfxQueue_pan
 Tad_QueueSoundEffect__EndIf:
+    rts
+
+; G11: shared D=0 bracket for Tad_QueueSoundEffect, for callers that run
+; with D pointed at a CharacterEntity's own per-instance OopDp window
+; (Core_Oop_Play's phd/tcd swap -- CLAUDE.md's entity-system section) --
+; Tad_sfxQueue_sfx above is bare-DP addressed and assumes D=$0000, true for
+; every pre-G11 caller (boot/pause-menu) but not for a hit-confirm call site
+; reached through the entity dispatch chain. Two real callers as of G11
+; (Character_HitApply__ScoreAndFinish and Character_HitApply_VsPlayer),
+; both tail-jmp here instead of jsr+rts -- see either call site's own
+; comment for why (ROM budget in this fixed $C100-$FC00 region).
+; IN: A = sfx_id (unchanged by the D switch)
+.a8
+Tad_QueueSoundEffect_D0:
+    phd
+    pea $0000
+    pld
+    jsr Tad_QueueSoundEffect
+    pld
     rts
 
 
@@ -4038,7 +4058,6 @@ Anim_Play__no_attack_trigger:
 Anim_Play__want_idle:
     lda #0
     bra Anim_Play__want_got
-    nop
     ; --- mode 2: AI seek (plan.md Phase 3) -- walk toward Entity #0
     ; (`PlayerEntity_PosX/Y`, the fixed-slot-0 shortcut) unless within
     ; ANIM_AI_ATTACK_RANGE pixels on BOTH axes, in which case attack
@@ -5087,8 +5106,6 @@ TestSprite_Init:
 ; pixel row), then 8 words of interleaved plane2/plane3. Solid color index
 ; 1 (binary 0001) needs only plane0 set -- word = $00FF (low byte/plane0 =
 ; $FF, high byte/plane1 = $00) for the first 8 words, $0000 for the last 8.
-    nop
-    nop
 TestSprite_WriteSolidTile:
     rep #$31
 .a16
@@ -5136,10 +5153,6 @@ TestSprite_WriteSolidTile__plane23:
 ; word addresses: row 6 = $4600 + slice*$40, row 7 = $4700 + slice*$40
 ; (slice*$40 words = slice*128 bytes = slice*4 tiles*32 bytes, matching
 ; CHAR_TILE_BYTE_OFFSET's own CHAR_TILE_COLUMN*128 derivation elsewhere).
-    nop
-    nop
-    nop
-    nop
 ; Every $21xx write below uses explicit `.l $00xxxx` long addressing instead
 ; of a bare address. This was a first fix attempt (assuming a DBR-uncertainty
 ; issue, the same class already found in core/oam.pasm's Core_Oam_Init this
@@ -5711,8 +5724,6 @@ Character_RenderFrame:
     ora #$40                     ; hflip
     sta.l OamSetSprite_Attr
 Character_PlayFrame__no_flip:
-    nop
-
     ; hi-table: size bit set (large = 32x64 under OBSEL mode 6) always;
     ; X-high (bit0) set when this entity's screen-relative X (world X minus
     ; camera scroll, recomputed here rather than carried from
@@ -6009,9 +6020,44 @@ Character_HitApply__ScoreAndFinish__scored:
     ; same reasoning -- still .a8 either way it's reached (the bra above,
     ; or falling through Game_Score_Award's own .a8 return).
 .a8
+    ; G11: real landed-hit SFX. ScoreAndFinish is the shared bank-0 tail
+    ; every VsEntity1/2/3/VsPlayer leaf reaches ONLY on a real, non-grab
+    ; landed hit (the `bcs ... __dead_skip` check at each call site skips
+    ; straight past this whole routine when TryGrab locked instead of
+    ; damaging -- see those call sites' own comments) -- so this is the
+    ; single correct choke point: never a whiff (no overlap = no jsl into
+    ; TryGrab/ApplyDamage at all), never a grab-lock, never a repeat for
+    ; continued overlap (CHAR_HIT_APPLIED below gates re-entry upstream in
+    ; Character_HitApply__attacking). No trampoline needed -- Tad_
+    ; QueueSoundEffect is bank-0 same as this routine, plain `jsr`; it
+    ; documents itself as KEEP: X, Y so nothing here needs saving.
+    ; SFX::sfx_hit = 1, see soundwork/tad/build/audio-enums.inc (Poppy
+    ; doesn't consume that file directly -- literal ID, same convention as
+    ; main.pasm's own `lda #$01` at its Tad_LoadSong call site). Reuses
+    ; the same #1 for CHAR_HIT_APPLIED below (`sta` doesn't touch A).
+    ;
+    ; REAL BUG found running the G11 gate: CHAR_HIT_APPLIED (bare DP
+    ; addressing) only resolves correctly because D is this caller's own
+    ; per-entity OopDp window (Core_Oop_Play's phd/tcd swap -- see
+    ; CLAUDE.md's entity-system section) -- but Tad_sfxQueue_sfx is ALSO
+    ; bare DP addressing inside Tad_QueueSoundEffect, which assumes D=$0000
+    ; (every pre-G11 caller only ever ran at boot/pause-menu time, before
+    ; any entity's D-window was ever switched in). Calling it here with D
+    ; still pointed at the entity's window silently wrote to (entity DP
+    ; base + $20) instead of the real $7E0020 -- confirmed via add_write_
+    ; hook + add_exec_hook + trace_log instrumentation (not guesswork): the
+    ; STA genuinely executed but landed on the wrong physical byte. Fixed by
+    ; routing through Tad_QueueSoundEffect_D0 (shared with Character_
+    ; HitApply_VsPlayer's own identical need below -- see that routine) --
+    ; CHAR_HIT_APPLIED must be stamped BEFORE the D switch, while D is still
+    ; the entity's own window. Tail-jmp instead of jsr+rts: this whole
+    ; routine's own trailing rts is unreachable code once the D0 helper's
+    ; own rts returns straight to OUR caller instead -- ROM budget, not just
+    ; style (see check_width_directives.py's tight-margin note on $C100-
+    ; $FC00 elsewhere in this file).
     lda #1
     sta CHAR_HIT_APPLIED
-    rts
+    jmp Tad_QueueSoundEffect_D0
 
 ; ambient width, unchanged) -- every branch target below is a handful of
 ; lines away, well inside 8-bit branch range. No caller-convention assumed
@@ -6354,7 +6400,12 @@ Character_HitApply_VsPlayer__hp_ok:
     sta.l PlayerEntity_Hp
     lda #1
     sta CHAR_HIT_APPLIED
-    rts
+    ; G11: this leaf deliberately does NOT route through Character_HitApply__
+    ; ScoreAndFinish (see this routine's own header) -- so it needs its own
+    ; SFX call, same shared Tad_QueueSoundEffect_D0 helper and same tail-jmp
+    ; ROM-budget shape ScoreAndFinish uses (this leaf runs with D = the
+    ; ATTACKING AI's own OopDp window, same reason).
+    jmp Tad_QueueSoundEffect_D0
 Character_HitApply_VsPlayer__grabbed:
 .a8
     ; Grab replaces damage, same as the player-vs-AI path (Character_
@@ -7357,7 +7408,6 @@ Anim_ApplyMapPalette__read:
 ;                    (high byte already 0 = role 0).
 ; @return a<16-bit>  OBJR_NOERR -- Core_Oop_Create schedules the object for
 ;                     deletion on the next Play pass if this isn't exactly 0
-    nop
 CharacterEntity_Init:
     ; Called with DP already switched to this object's window (see Core_
     ; Oop_Create) and .a16/.i16 (its own internal convention at the jsr
@@ -7558,7 +7608,6 @@ CharacterEntity_Init__load_hp_set:
 ; contract, so no width juggling needed here.
 ; @return a<16-bit>  OBJR_NOERR -- see CharacterEntity_Init; Core_Oop_Play
 ;                     reads this the same way, right after the dispatch call
-    nop
 CharacterEntity_Play:
     jsr Anim_Play
     jsr Character_PlayFrame
@@ -7709,7 +7758,6 @@ CharacterEntity_OnCommand__camera:
 ;   $6800-$6BFF  BG3 tilemap (HUD rows 0-3, frontpanel rows 21-27, see
 ;                STREAM_FP_TILEMAP_ROW_START)
 ; ============================================================================
-    nop
 Bg_LoadScene:
     php
     sei

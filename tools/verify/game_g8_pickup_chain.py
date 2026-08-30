@@ -64,6 +64,7 @@ CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_PICKUP_TYPE = pasm_constant('CHAR_PICKUP_TYPE')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
+CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_INPUT_DRIVEN_PROP = pasm_constant_in('src/main.pasm', 'CHAR_INPUT_DRIVEN_PROP')
 SPAWN_PATH = 'src/core/spawn.pasm'
 Entity1_ItemRosterIdx = pasm_constant_in(SPAWN_PATH, 'Entity1_ItemRosterIdx')
@@ -179,6 +180,16 @@ def main():
 
         # --- Land a real attack: overlap the player with this real prop,
         # then a real Y press. ---
+        # Real regression found via A/B testing against pre-this-change
+        # master: this test never clears the player's own CHAR_HIT_STUN, so
+        # a background AI hit landed during the 300-frame boot warmup (real,
+        # not forced -- same class CLAUDE.md/phase_g6 memory already
+        # documents for this project's other combat gates) silently blocks
+        # every subsequent attack attempt if the player is still stunned
+        # when the Y press below fires. Clear it, matching every other
+        # combat gate's own established precedent (game_g7_grab.py's
+        # reset_combat_state, game_g11_sfx.py's force_player_attack).
+        m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
         px = entity_block(m, PlayerEntity)
         m.write_u16(Entity2 + CHAR_POS_X, pos_x(px))
         m.write_u8(Entity2 + CHAR_POS_Y, px[CHAR_POS_Y])
@@ -186,7 +197,18 @@ def main():
         score_before = read_u16(m, Game_Score)
         item_roster_idx_addr = ITEM_ROSTER_IDX_BY_BASE[Entity2]
 
-        m.set_input(m.BTN_Y, 1)
+        # m.set_input(btn, 1) advances its 1 frame ATOMICALLY inside the call
+        # and releases before returning (Mesen's documented set_input
+        # contract) -- since the CHAR_HP==1 "broken" sentinel is itself only
+        # ever visible for a single frame before Spawn_RevealPendingItems
+        # moves it on, a poll loop that starts only after set_input()
+        # returns can miss that exact frame depending on internal timing
+        # alignment, intermittently (confirmed via repeated A/B runs against
+        # this same build: ~40% miss rate, same real Mesen2 set_input race
+        # class documented at game_g11_sfx.py's force_player_attack). Use
+        # hold_input (no atomic pre-advance) so the poll loop's own first
+        # run_frames(1) genuinely observes the first frame after the press.
+        m.hold_input(m.BTN_Y, 0)
         broken = False
         for _ in range(30):
             m.run_frames(1)
@@ -204,6 +226,7 @@ def main():
                 # deliberately later, for the real pickup step.
                 m.write_u16(Entity2 + CHAR_POS_X, 60000)
                 break
+        m.release_input(0)
         m.run_frames(2)
         m.pause()
 

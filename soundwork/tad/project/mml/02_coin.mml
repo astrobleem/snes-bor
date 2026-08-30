@@ -1,0 +1,18 @@
+#Title s02_coin (reconstructed)
+#Tempo 76
+
+
+@0 s0
+@1 s1
+@2 s2
+@3 s3
+@4 s4
+@5 s5
+@6 s6
+
+A r%42 @0 V224 o2 f%6 V176 o3 f%12 f%6 f%6 f%6 o2 f%12 f%12 f%12 o3 d+%6 f%6 f+%6 g%6 g+%6 a%6 a+%6 b%6 o4 c%6 c+%6 d%6 d+%6 e%6 o2 f%24 w%42
+B r%48 @1 V80 o5 c%6 w%6 c%6 c%6 c%6 c%6 w%6 c%6 w%6 c%6 w%6 @2 V160 o4 a+%6 o5 c%6 d%6 d+%6 e%6 f%6 f+%6 g%6 g+%6 a%6 a+%6 b%6 V224 o6 c%24 w%48
+C r%48 @1 V80 o4 a+%6 w%6 a+%6 a+%6 a+%6 a+%6 w%6 a+%6 w%6 a+%6 w%6 @2 V160 g%6 a%6 b%6 o5 c%6 c+%6 d%6 d+%6 e%6 f%6 f+%6 g%6 g+%6 V224 a%24 w%48
+D r%54 @1 V32 o5 c%6 w%6 c%6 c%6 c%6 c%6 w%6 c%6 w%6 c%6 @2 V160 o3 a+%6 o4 c%6 d%6 d+%6 e%6 f%6 f+%6 g%6 g+%6 a%6 a+%6 b%6 V224 o5 c%18 w%54
+E V192 r%42 @3 o4 c%6 c%48 w%12 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%6 c%48 w%30
+F V192 r%42 @5 o4 c%6 @6 c%48 w%12 @5 c%18 c%18 c%12 @4 c%48 w%54

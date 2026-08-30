@@ -1,0 +1,148 @@
+{
+  "_about": {
+    "file_type": "Terrific Audio Driver project file",
+    "version": "0.4.2"
+  },
+  "brr_samples": [
+    {
+      "name": "s0",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s1",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s2",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s3",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s4",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s5",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "s6",
+      "source": {
+        "type": "brr",
+        "source": "samples/coin_tone.brr"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 0,
+        "last_octave": 6
+      },
+      "envelope": "adsr 12 1 1 16"
+    },
+    {
+      "name": "beat1",
+      "source": {
+        "type": "wav",
+        "source": "samples/beat1.wav",
+        "evaluator": "default",
+        "loop_point": 0,
+        "loop_filter": "reset_filter"
+      },
+      "ignore_gaussian_overflow": false,
+      "pitches": {
+        "type": "octave",
+        "frequency": 500.0,
+        "first_octave": 3,
+        "last_octave": 3
+      },
+      "envelope": "gain 127"
+    }
+  ],
+  "default_sfx_flags": {
+    "one_channel": true,
+    "interruptible": true
+  },
+  "high_priority_sound_effects": [],
+  "sound_effects": [
+    "sfx_stub",
+    "sfx_hit"
+  ],
+  "low_priority_sound_effects": [],
+  "sound_effect_file": "sound-effects.txt",
+  "songs": [
+    {
+      "name": "s02_coin",
+      "source": "mml/02_coin.mml"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+=== sfx_stub ===
+    set_instrument s3
+    play_note c4 8
+
+=== sfx_hit ===
+    set_instrument beat1
+    play_note c3 12
