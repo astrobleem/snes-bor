@@ -59,9 +59,18 @@ DMA_OPT_ACTIVE = pasm_constant_in('src/core/dma.pasm', 'DMA_OPT_ACTIVE')
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
+CHAR_INPUT_DRIVEN_AI = pasm_constant_in('src/main.pasm', 'CHAR_INPUT_DRIVEN_AI')
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 CHAR_FRAME_INDEX = 9
-LIVING_AI_ENTITY = 2  # JOE, entity 2 -- see phase11_damage.py/phase15's own choice
+LIVING_AI_ENTITY = 1  # entity 1 -- claude_close_g7_g8_before_g10.md Part 6
+# closure-cluster finding: stage 1B's real boot-time (trigger_x==0) spawn
+# data is two real breakable props (Table/Chair, both `item`-bearing), not
+# ordinary enemies, and real Spawn_Play assignment claims entities 2 AND 3
+# for them at boot -- entity 2 (this constant's old value, matching phase11
+# _damage.py/phase15's own choice made before this real prop content
+# shipped) is no longer a free AI walker by default. Verified live: entity
+# 1 is the one real always-AI slot in stage 1B's actual boot state.
 
 
 def frame_counter(m):
@@ -144,7 +153,18 @@ def main():
         # spawn-table entities start CHAR_HP=0 (unspawned) until the
         # level's trigger_x is reached (memory phase13_spawn_table); this
         # gate never drives the camera, so entity 2 needs the same direct
-        # write phase11_damage.py uses for its own alive controls.
+        # write phase11_damage.py uses for its own alive controls. Also
+        # force CHAR_INPUT_DRIVEN_AI: stage 1B's real boot-time (trigger_x
+        # ==0) spawn records are two real breakable props (Table/Chair),
+        # not ordinary enemies (claude_close_g7_g8_before_g10.md Part 6
+        # closure-cluster finding) -- with only 3 AI slots and 2 boot-time
+        # prop records, entity 2 can legitimately land as a real
+        # CHAR_INPUT_DRIVEN_PROP at boot, which never animates past its
+        # own idle loop and would make this check's premise (a walking AI
+        # entity) false for a real, correct reason, not a bug. Force the
+        # mode this check actually needs, same as forcing CHAR_HP.
+        m.write_memory('snesMemory', ENTITY_BASES[LIVING_AI_ENTITY] + CHAR_INPUT_DRIVEN,
+                        f'{CHAR_INPUT_DRIVEN_AI:02X}')
         m.write_memory('snesMemory', ENTITY_BASES[LIVING_AI_ENTITY] + CHAR_HP, f'{CHAR_HP_MAX:02X}')
         m.run_frames(5)
         m.pause()
@@ -191,6 +211,13 @@ def main():
         # --- PAUSED -> PLAYING: gameplay resumes, Core_Oam_Play uploads
         # real sprite positions again. ---
         set_game_state(m, GAME_STATE_PLAYING)
+        # Re-force AI mode/HP right on the resume edge too -- Spawn_Play
+        # runs every PLAYING frame and could have re-classified this slot
+        # again while GAME_STATE was TITLE/PAUSED (both states still let
+        # main-loop subsystems other than OAM/render run).
+        m.write_memory('snesMemory', ENTITY_BASES[LIVING_AI_ENTITY] + CHAR_INPUT_DRIVEN,
+                        f'{CHAR_INPUT_DRIVEN_AI:02X}')
+        m.write_memory('snesMemory', ENTITY_BASES[LIVING_AI_ENTITY] + CHAR_HP, f'{CHAR_HP_MAX:02X}')
         m.run_frames(30)
         m.pause()
         got_state = read_block(m, GAME_STATE, 32)[0]
