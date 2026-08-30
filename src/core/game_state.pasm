@@ -32,7 +32,8 @@ GAME_STATE_CHARSELECT = 2   ; character select (stub only, see header)
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
 GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (Phase G3 -- real, see below)
 GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (Phase G4 -- real, see below)
-GAME_STATE_ENDING     = 6   ; credits (stub)
+GAME_STATE_ENDING     = 6   ; Phase G10 (plan_game.md 10): real ending/
+                             ; credits sequence -- see core/ending.pasm.
 
 Game_State     = $7E2750   ; .dw -- current state, see GAME_STATE_* above
 Game_StatePrev = $7E2752   ; .dw -- last frame's state, used only to detect
@@ -425,9 +426,19 @@ Game_State_Play__check_stageclear:
                                           ; (same fix spawn.pasm's own
                                           ; Spawn_Play__not_yet needed)
 Game_State_Play__not_stageclear:
-    ; CHARSELECT/ENDING: explicit no-op stubs for this phase -- Core_Nmi_
-    ; WaitFrame (scpu_main_loop) already keeps pacing correct, nothing else
-    ; needs to run yet.
+    ; width still .a16 -- see check_charselect's own comment above.
+.a16
+    cmp #GAME_STATE_ENDING
+    bne Game_State_Play__not_ending
+    ; Phase G10: real ending/credits body, own bank -- see core/ending.pasm's
+    ; own header (same ROM-budget reason as CHARSELECT/PAUSED above). Falls
+    ; through into the shared `jmp done` below on return (ROM-budget trim:
+    ; the $C100-$FC00 region had only 3 spare bytes at this point -- see
+    ; main.pasm's Stage_LoadAndRespawn_Long comment for the same crunch).
+    jsl Game_State_Play__ending
+Game_State_Play__not_ending:
+    ; Nothing else defined yet -- Core_Nmi_WaitFrame (scpu_main_loop)
+    ; already keeps pacing correct, nothing else needs to run here.
     jmp Game_State_Play__done
 
 ; ----------------------------------------------------------------------

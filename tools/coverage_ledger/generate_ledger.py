@@ -335,6 +335,90 @@ LEVEL_KEYWORD_RUNTIME = {
 }
 
 
+# ---------------------------------------------------------------------------
+# claude_begin_g10_with_approval.md: "First: fix the remaining verifier
+# imperfection". Each ledger row needs a deterministic owning phase so
+# verify_phase_status.py can enforce per-phase completeness instead of a
+# single global "no phase may be done while ANY row anywhere is
+# unfinished" check. Kept as a separate lookup (not inline per-entry
+# fields) so this stays a focused, reviewable table instead of touching
+# every ROLE_RUNTIME/LEVEL_KEYWORD_RUNTIME literal.
+#
+# Mapping rule: a role/keyword is owned by the G-numbered phase whose own
+# gate(s) actually prove it (ROLE_RUNTIME/LEVEL_KEYWORD_RUNTIME's own
+# `gates` list, cross-checked against plan_game.md's phase sections). A
+# handful of rows predate the G-numbering entirely -- idle/walk/pain were
+# proven by the old pre-G "Phase 5/8/9" gates, real engine behavior that
+# shipped before G1 existed as a concept -- these map to PHASE_FOUNDATIONAL
+# (no G-phase owns them, and none needs to: they are not what any G-phase
+# gate re-proves, and a G-phase's own completion never depends on them).
+# Every entry below must resolve to either a real 'G'+digits phase tag
+# that also appears in phase_status.json, or PHASE_FOUNDATIONAL -- there is
+# no silent "unmapped" state (see the assertion in build_ledger()).
+PHASE_FOUNDATIONAL = 'foundational'
+
+ROLE_PHASE_MAP = {
+    'idle': PHASE_FOUNDATIONAL,          # phase5.py/phase12_roster.py (pre-G)
+    'walk': PHASE_FOUNDATIONAL,          # phase8.py/phase9.py (pre-G)
+    'pain': PHASE_FOUNDATIONAL,          # phase5.py (pre-G hit-stun reaction)
+    'attack': 'G7',
+    'attack2': 'G7',
+    'attack3': 'G7',
+    'attack4': 'G7',
+    'grab': 'G7',
+    'grabattack': 'G7',
+    'slide': 'G7',
+    'riseattack': 'G7',
+    'freespecial': 'G7',
+    'special': 'G7',
+    'jump': 'G7',
+    'jumpattack': 'G7',
+    'jumpattack2': 'G7',
+    'fall': 'G7',
+    'rise': 'G7',
+    'throw': 'G7',
+    'attack2_is_grab': 'G7',
+    'land': 'G7',
+    'get': 'G8',
+    'waiting': 'G5',
+    # content-inapplicable rows: real per-model/per-pak audit findings, not
+    # runtime behavior any phase implements -- no phase owns these, and
+    # phase_note (below) records why rather than leaving it implicit.
+    'block': PHASE_FOUNDATIONAL,
+    'backwalk': PHASE_FOUNDATIONAL,
+    'upper': PHASE_FOUNDATIONAL,
+    'alias': PHASE_FOUNDATIONAL,
+}
+
+LEVEL_KEYWORD_PHASE_MAP = {
+    'health': 'G8',
+    'map': 'G8',
+    'wait': 'G9',
+    'group': 'G9',
+    'boss': 'G9',
+    'blockade': PHASE_FOUNDATIONAL,
+    'direction': PHASE_FOUNDATIONAL,
+    'settime': PHASE_FOUNDATIONAL,
+}
+
+PHASE_NOTES = {
+    PHASE_FOUNDATIONAL: 'Predates the G-numbered phase system (proven by '
+                         'pre-G "Phase N" gates or a real per-model/per-pak '
+                         'content-inapplicable audit) -- no G-phase\'s own '
+                         'completion depends on this row.',
+}
+
+
+def _owning_phase_for(role_or_kw, phase_map):
+    phase = phase_map.get(role_or_kw)
+    if phase is None:
+        raise KeyError(f'{role_or_kw!r} has no ROLE_PHASE_MAP/LEVEL_KEYWORD_PHASE_MAP '
+                        f'entry -- every ledger-eligible role/keyword must be assigned '
+                        f'a real G-phase or PHASE_FOUNDATIONAL explicitly, no silent '
+                        f'default.')
+    return phase
+
+
 def build_ledger():
     roster = load_roster_prefixes()
     rows = []
@@ -388,27 +472,36 @@ def build_ledger():
                 ev = role_entry['evidence']
                 if owning_role and owning_role != anim_name and ev:
                     ev = f'(shipped as role `{owning_role}`) ' + ev
+                phase_key = owning_role if owning_role in ROLE_PHASE_MAP else anim_name
+                phase = _owning_phase_for(phase_key, ROLE_PHASE_MAP)
                 row.update(runtime_handler=role_entry['handler'],
                            owning_gates=role_entry['gates'],
                            classification=role_entry['status'],
-                           evidence=ev)
+                           evidence=ev, phase=phase,
+                           phase_note=PHASE_NOTES.get(phase, ''))
             elif ordinal not in claimed_ordinals:
                 # Real content exists, no known role name matches it, and no
                 # role claimed its ordinal -- this is exactly the
                 # "unshipped-source-content stays in the ledger" case, NOT
-                # silently dropped.
+                # silently dropped. Not owned by any G-phase (nothing
+                # implements it) -- foundational bucket, phase_note explains.
                 row.update(runtime_handler=None, owning_gates=[],
                            classification='unshipped-source-content',
                            evidence=f'"{anim["name"]}" has real converted frame data '
                                     f'but matches no known engine role name and its '
                                     f'ordinal was not claimed by any role resolution '
-                                    f'pass in convert_character.py.')
+                                    f'pass in convert_character.py.',
+                           phase=PHASE_FOUNDATIONAL,
+                           phase_note='Unshipped/unclaimed source content -- no phase '
+                                      'implements it, so none owns this row.')
             else:
                 row.update(runtime_handler=None, owning_gates=[],
                            classification='unhandled-error',
                            evidence=f'Claimed by role `{owning_role}` but that role '
                                     f'has no ROLE_RUNTIME entry -- ledger generator '
-                                    f'needs updating.')
+                                    f'needs updating.',
+                           phase=PHASE_FOUNDATIONAL,
+                           phase_note='unhandled-error: generator bug, not phase-owned.')
             rows.append(row)
 
         if atchain:
@@ -429,14 +522,18 @@ def build_ledger():
                 'owning_gates': ['game_g7_content_audit.py'],
                 'classification': atchain_status,
                 'evidence': atchain_evidence,
+                'phase': 'G7',
+                'phase_note': '',
             })
 
     for kw, entry in LEVEL_KEYWORD_RUNTIME.items():
+        phase = _owning_phase_for(kw, LEVEL_KEYWORD_PHASE_MAP)
         rows.append({
             'character': None, 'source': 'level .TXT keyword (not a character animation)',
             'animation': kw, 'ordinal': None, 'frames': None, 'claimed_by_role': True,
             'runtime_handler': entry['handler'], 'owning_gates': entry['gates'],
             'classification': entry['status'], 'evidence': entry['evidence'],
+            'phase': phase, 'phase_note': PHASE_NOTES.get(phase, ''),
         })
 
     return rows

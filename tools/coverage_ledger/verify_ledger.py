@@ -22,11 +22,13 @@ tracked as follow-on work, not silently skipped.
 """
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VALID = {'implemented-and-gated', 'partial', 'content-inapplicable',
          'externally-blocked', 'unshipped-source-content', 'unhandled-error'}
+PHASE_TAG_RE = re.compile(r'^G\d+[a-z]?$')
 
 
 def verify(rows):
@@ -43,6 +45,22 @@ def verify(rows):
         if cls not in VALID:
             fail(f'{who}: missing/invalid classification {cls!r}')
             continue
+
+        # claude_begin_g10_with_approval.md: every row must have an owning
+        # phase (a real G-numbered tag) or the explicit 'foundational'
+        # bucket (with a phase_note explaining why) -- no silent default,
+        # so per-phase completion (verify_phase_status.py) has something
+        # real to enforce against.
+        phase = r.get('phase')
+        if not phase:
+            fail(f'{who}: no "phase" field -- every row must cite an owning '
+                 f'G-phase or "foundational"')
+        elif phase != 'foundational' and not PHASE_TAG_RE.match(phase):
+            fail(f'{who}: phase {phase!r} is neither "foundational" nor a real '
+                 f'G-phase tag (e.g. "G7")')
+        elif phase == 'foundational' and not r.get('phase_note'):
+            fail(f'{who}: phase is "foundational" but has no phase_note explaining why '
+                 f'no G-phase owns it')
 
         if cls == 'unhandled-error':
             fail(f'{who}: unhandled-error -- shipped content with no runtime handler '
