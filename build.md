@@ -54,8 +54,9 @@ python soundwork/tad/verify_project.py     # fast, no-compiler-required hash/met
 vendor one — see `rebuild.py`'s own `find_compiler()` for the search order:
 `--compiler` flag, `TAD_COMPILER` env var, then sibling-repo fallback
 paths). It prints which binary/version it used; a version mismatch against
-the pinned `REQUIRED_COMPILER_VERSION` is a warning, not a hard failure,
-but should be investigated.
+the pinned `REQUIRED_COMPILER_VERSION` is a fatal error by default. The
+explicit `--allow-version-mismatch` option is available only for deliberate
+diagnostics and must not be used to update committed outputs.
 
 **A real, previously-silent bug this tooling was built to catch**:
 `tad_blob_syms.pasm` used to be a hand-ported, never-regenerated file — a
