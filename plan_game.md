@@ -419,25 +419,22 @@ the streaming caches are consistent after reload.
 
 ## §5 — Phase G5: menus
 
-> **Status: PARTIAL. CORRECTED 2026-08-28** (was wrongly marked DONE) —
-> title screen (2026-08-21), character select navigation (2026-08-23), the
-> pause menu (2026-08-23), and options/SRAM persistence (2026-08-23) all
-> shipped and gated (`GATE G5: PASS` via `tools/verify/game_g5_menus.py`,
-> `GATE G5-PAUSE: PASS` via `tools/verify/game_g5_pause.py`, `GATE G5-SRAM:
-> PASS` via `tools/verify/game_g5_sram.py`). **What's still missing, found
-> during the 2026-08-28 re-audit**: real `waiting`/`ANI_SELECT` — the
-> char-select portrait pose real BOR characters declare for their
-> select-screen appearance — is NOT implemented; grepped `src/main.pasm`
-> and found no `ANI_SELECT`/portrait code at all, char-select just plays
-> each roster member's ordinary idle animation while browsing. Title logo
-> art and attract mode (an idle-timeout demo loop) are also unbuilt —
-> listed here explicitly as optional polish/unfinished scope, not silently
-> treated as implemented. None of `game_g5_menus.py`/`game_g5_pause.py`/
-> `game_g5_sram.py` assert anything about a distinct select pose, logo art,
-> or attract mode, so their PASS does not cover this gap. G5 stays PARTIAL
-> until a real `waiting` presentation is built and gated (title logo/
-> attract mode are lower priority — cosmetic polish, not a missing
-> gameplay mechanic). Per an advisor consult for this phase:
+> **Status: DONE, corrected again 2026-08-30** (claude_close_g7_g8_before_
+> g10.md Part 4 phase-status audit) — the 2026-08-28 PARTIAL correction
+> below is now itself stale: real `waiting`/`ANI_SELECT` char-select
+> portrait presentation shipped the same day it was flagged missing
+> (commit `ab1b94b`, `CharSelect_PortraitUpdate` in `core/jump.pasm`,
+> `GATE G5-PORTRAIT: PASS` via `tools/verify/game_g5_portrait.py`), but
+> this status block was never updated to say so — exactly the "docs vs.
+> ledger" contradiction `tools/coverage_ledger/verify_phase_status.py` now
+> exists to catch. Title screen (2026-08-21), character select navigation
+> (2026-08-23), the pause menu (2026-08-23), options/SRAM persistence
+> (2026-08-23), and the real select-screen portrait (2026-08-29) are all
+> shipped and gated (`GATE G5: PASS`, `GATE G5-PAUSE: PASS`, `GATE
+> G5-SRAM: PASS`, `GATE G5-PORTRAIT: PASS`). Title logo art and attract
+> mode (an idle-timeout demo loop) remain unbuilt — cosmetic polish, not a
+> missing gameplay mechanic, and were never part of what `verify_ledger.py`
+> tracks as a shipped-content role. Per an advisor consult for this phase:
 > `GAME_STATE_PLAYING` stays the boot default (flipping it would mean editing
 > every existing gate to press Start/force-write `Game_State` first); TITLE
 > is exercised the same way `game_g2_states.py` already does, a forced

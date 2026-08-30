@@ -1430,11 +1430,14 @@
     "animation": "get",
     "ordinal": 4,
     "frames": 1,
-    "claimed_by_role": false,
-    "runtime_handler": null,
-    "owning_gates": [],
-    "classification": "partial",
-    "evidence": "Converted (real frame data exists per-character where authored) but not resolved to any engine role at all -- `get` never appears in convert_character.py's ROLE_NAMES/ OPTIONAL_ROLE_NAMES/MOVE_SLOT_NAMES, so pack_msu_roster.py never ships it and nothing in main.pasm references it. G8 scope (item pickup pose) -- not started."
+    "claimed_by_role": true,
+    "runtime_handler": "Character_Pickup_CheckOverlap__TriggerGet + Jump_PlayGetAdvance (core/jump.pasm), redirected from bank 8's Jump_PlayMoveSlotAdvance (no bank-0 ROM budget left for its own dispatch check). Real OPTIONAL_ROLE_NAMES role (convert_character.py) -> pack_msu_roster.py NEW_MOVE_SLOT_NAMES's \"get\" entry (CHAR_GET_FCOUNT/DELAY/BASE_LO/HI, own dedicated non-indexed struct fields, GET_MOVE_VARIANT=10) -- chained via Jump_ComputeBases right before waiting_base. Real OpenBOR source (player_test_pickable/player_test_touch, didfind_item) traced: GET is a cosmetic pose on touch-collect (constrains movement, excluded from combat damage in Character_HitApply__attacking) with the reward applied instantly, not gated on the animation completing. Only LEO ships real data (1 frame, `still01.gif`) -- GetFcount==0 for every other roster member correctly falls back to the pre-existing silent instant-collect with no animation (RALF etc, the real source-defined fallback for a character with no ANI_GET), not an unbuilt gap.",
+    "owning_gates": [
+      "game_g8_get_leo.py",
+      "game_g7_special.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
   },
   {
     "character": "leo",
@@ -1961,6 +1964,298 @@
   {
     "character": "1up",
     "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
     "animation": "rise",
     "ordinal": 4,
     "frames": 1,

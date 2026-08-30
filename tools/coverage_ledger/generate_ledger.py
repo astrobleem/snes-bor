@@ -189,13 +189,25 @@ ROLE_RUNTIME = {
                 'set CHAR_ATTACK_VARIANT at all).',
         gates=['game_g7_grab.py', 'game_g7_throw.py'],
         status='implemented-and-gated', evidence=''),
-    'get': dict(handler=None, gates=[], status='partial',
-                evidence='Converted (real frame data exists per-character where '
-                         'authored) but not resolved to any engine role at all -- '
-                         '`get` never appears in convert_character.py\'s ROLE_NAMES/ '
-                         'OPTIONAL_ROLE_NAMES/MOVE_SLOT_NAMES, so pack_msu_roster.py '
-                         'never ships it and nothing in main.pasm references it. G8 '
-                         'scope (item pickup pose) -- not started.'),
+    'get': dict(
+        handler='Character_Pickup_CheckOverlap__TriggerGet + Jump_PlayGetAdvance '
+                '(core/jump.pasm), redirected from bank 8\'s Jump_PlayMoveSlotAdvance '
+                '(no bank-0 ROM budget left for its own dispatch check). Real '
+                'OPTIONAL_ROLE_NAMES role (convert_character.py) -> pack_msu_roster.py '
+                'NEW_MOVE_SLOT_NAMES\'s "get" entry (CHAR_GET_FCOUNT/DELAY/BASE_LO/HI, '
+                'own dedicated non-indexed struct fields, GET_MOVE_VARIANT=10) -- '
+                'chained via Jump_ComputeBases right before waiting_base. Real '
+                'OpenBOR source (player_test_pickable/player_test_touch, '
+                'didfind_item) traced: GET is a cosmetic pose on touch-collect '
+                '(constrains movement, excluded from combat damage in '
+                'Character_HitApply__attacking) with the reward applied instantly, '
+                'not gated on the animation completing. Only LEO ships real data '
+                '(1 frame, `still01.gif`) -- GetFcount==0 for every other roster '
+                'member correctly falls back to the pre-existing silent instant-'
+                'collect with no animation (RALF etc, the real source-defined '
+                'fallback for a character with no ANI_GET), not an unbuilt gap.',
+        gates=['game_g8_get_leo.py', 'game_g7_special.py'],
+        status='implemented-and-gated', evidence=''),
     'waiting': dict(
         handler='CharSelect_PortraitUpdate (core/jump.pasm, called via jsl from '
                 'Game_State_Play__charselect). Real OPTIONAL_ROLE_NAMES role '
