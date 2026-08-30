@@ -1478,6 +1478,27 @@ before attributing either to this slice).
 > collision" theory below turned out to be wrong on live tracing and has
 > been corrected).**
 >
+> **Status: DONE, closed 2026-08-30 (claude_close_g7_g8_before_g10.md).**
+> The prior COMPLETE claim above still had two real gaps, both closed the
+> same day: (1) LEO's real converted `get` (item pickup pose) animation
+> was resolved to no engine role at all (real OpenBOR source traced --
+> `player_test_pickable`/`didfind_item` -- GET is a cosmetic pose on
+> touch-collect, reward applied instantly, not gated on the pose
+> completing; `GET_MOVE_VARIANT`, `Character_Pickup_CheckOverlap__
+> TriggerGet`/`Jump_PlayGetAdvance` in `core/jump.pasm`, `GATE
+> G8-GET-LEO: PASS` via the new `tools/verify/game_g8_get_leo.py`); (2)
+> a real shipped item, GOLD (`DATA\EASY\1BEASY.TXT`'s own `item gold`
+> line, score=5000), had never been converted at all -- an earlier audit
+> pass wrongly claimed it was unused by any shipped level. Converted
+> (`out/gold_*`), given its own `PICKUP_TYPE_GOLD`/`PICKUP_SCORE_GOLD`
+> distinct from MONEY's value, and verified live against stage 1B's real
+> packed spawn record (`GATE G8-PICKUP: PASS`, `tools/verify/
+> game_g8_pickup.py`). `tools/coverage_ledger/ledger.json` now has zero
+> `partial`/`unhandled-error` rows anywhere in the G8 scope, and `tools/
+> coverage_ledger/verify_phase_status.py` (new, Part 4 of the same
+> closure doc) mechanically enforces that a phase can't be marked done
+> while an unfinished ledger row still exists under it.
+>
 > **Status: PARTIAL (first slice DONE, 2026-08-21).** `GATE G8: PASS`
 > (`tools/verify/game_g8_props.py`). This section's own opening claim above
 > was **false** and got corrected as part of landing this slice: the spawn
@@ -1840,6 +1861,15 @@ limit feature would have zero real content to verify against, closed the
 same way row 10 (`maxenemy`) was. Row 6 (`music`) checks out as originally
 scoped (real, simple, content-gated — no correction needed). Row 11
 (TMNT itself) now only waits on §12's character-identity-spawning gap.
+
+**Historical note (Part 5 doc reconciliation, 2026-08-30):** the "next
+slice" framing below (jump/special blocked, real grab mutual-lock still
+open) reflects 2026-08-23's real state, before it was resolved -- G7 is
+now COMPLETE (see this section's own top-of-§8 status marker analog at
+§7) and JOE's grab mutual-lock specifically shipped and is gated (`GATE
+G7-GRAB: PASS`, row "grab mutual-lock (attack2-is-grab)" in §7's own
+coverage table above). Left as-is below for the historical record of the
+decision point, not as a current claim.
 
 **Conclusion, updated 2026-08-23:** §8a is now genuinely, fully exhausted
 — every row is either DONE, a permanent no-op (7, 9, 10), correctly
