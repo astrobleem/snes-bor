@@ -35,6 +35,49 @@ python build_rom.py
 
 ---
 
+## TAD audio project regeneration (G11 hardening)
+
+`soundwork/tad/build/*` (`audio-data.bin`/`.s`, `audio-enums.inc`,
+`tad_blob_syms.pasm`) are compiled outputs, not sources — `src/main.pasm`
+`.incbin`s `audio-data.bin` directly and `.include`s `tad_blob_syms.pasm`'s
+constants. **`build_rom.py` does not regenerate these** — edit
+`soundwork/tad/project/02_coin.terrificaudio` or `sound-effects.txt`, then
+explicitly regenerate:
+
+```bash
+python soundwork/tad/rebuild.py --check    # compiles to a temp dir, diffs against committed build/, fails on drift
+python soundwork/tad/rebuild.py --update   # same, then overwrites committed build/ outputs
+python soundwork/tad/verify_project.py     # fast, no-compiler-required hash/metadata check against project/reconstruction_oracle.json
+```
+
+`rebuild.py` requires a real `tad-compiler` binary (this project does not
+vendor one — see `rebuild.py`'s own `find_compiler()` for the search order:
+`--compiler` flag, `TAD_COMPILER` env var, then sibling-repo fallback
+paths). It prints which binary/version it used; a version mismatch against
+the pinned `REQUIRED_COMPILER_VERSION` is a fatal error by default. The
+explicit `--allow-version-mismatch` option is available only for deliberate
+diagnostics and must not be used to update committed outputs.
+
+**A real, previously-silent bug this tooling was built to catch**:
+`tad_blob_syms.pasm` used to be a hand-ported, never-regenerated file — a
+past edit to the TAD project grew common data by 29 bytes, and
+`tad_blob_syms.pasm`'s `Tad_DataTable` offset went stale by exactly that
+amount, making `main.pasm`'s `LoadAudioData` read the audio blob's real
+directory table from the wrong offset at runtime. Every engine-visible
+status byte still looked correct (`TadPrivate_state` reached `PLAYING`, the
+S-DSP left reset, main volume was non-zero) — only `tools/verify/phase7.py`'s
+exact-final-transfer-address ground-truth assertion caught it. `rebuild.py`
+now regenerates `tad_blob_syms.pasm` itself (parsed from a fresh compile's
+real `audio-data.s`) on both `--check` and `--update`, so this can't drift
+silently again. See `plan_game.md` §11 for the full story.
+
+`tools/rom_audit/check_sfx_id_sync.py` (run by `audit_all.py`) is a related,
+narrower guard: it fails the build if `src/main.pasm`'s hand-maintained
+`SFX_HIT_ID` constant (Poppy can't `.include` a ca65 `.enum`) drifts from
+the real generated `audio-enums.inc`.
+
+---
+
 ## Output Artifacts
 
 - `build/bor.sfc` & `distribution/bor.sfc` — SNES ROM (LoROM, SA-1, Cart type `$35`, 4MB)

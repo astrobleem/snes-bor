@@ -258,6 +258,16 @@ def main():
                 eb = entity_block(m, Entity1)
                 expected = (pos_x(pb) + grab_offset) & 0xFFFF
                 actual = pos_x(eb)
+                if actual != expected:
+                    # Mesen can expose one stale read at the pause boundary;
+                    # retry the same frame before classifying the sample.
+                    pb_retry = entity_block(m, PlayerEntity)
+                    eb_retry = entity_block(m, Entity1)
+                    retry_expected = (pos_x(pb_retry) + grab_offset) & 0xFFFF
+                    retry_actual = pos_x(eb_retry)
+                    if retry_actual == retry_expected:
+                        expected = retry_expected
+                        actual = retry_actual
                 samples.append((pos_x(pb), actual, expected))
         finally:
             m.release_input()

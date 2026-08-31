@@ -36,6 +36,27 @@ PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
 ; Generated from tad-compiler ca65-export output.
 .include "../soundwork/tad/build/tad_blob_syms.pasm"
 
+; G11: SFX::sfx_hit's real generated ID, from
+; ../soundwork/tad/build/audio-enums.inc (Poppy can't consume that ca65 file
+; directly). NOT the same 1 as CHAR_HIT_APPLIED -- those are unrelated
+; meanings that happen to share a value; each landed-hit call site now loads
+; this named constant instead of reusing CHAR_HIT_APPLIED's `lda #1`, so a
+; future SFX reorder can't silently desync them. Kept honest by
+; tools/rom_audit/check_sfx_id_sync.py (parses audio-enums.inc and fails the
+; build if this drifts) rather than trusting this comment.
+SFX_HIT_ID = 1
+
+; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
+; exactly once at each of the two real accepted-landed-damage SFX call sites
+; (Character_HitApply__ScoreAndFinish, Character_HitApply_VsPlayer), right
+; before the D0 dispatch. Lets tools/verify/game_g11_sfx.py assert an exact
+; request delta per case instead of racing Tad_sfxQueue_sfx's single-frame
+; observability window (see Tad_Process's per-frame drain comment). $7E2805
+; chosen as the next free byte after core/ending.pasm's Ending_Timer ($7E2803
+; .dw, ends at $7E2804) -- verified free via full-repo grep before use.
+G11_HitSfxRequestCount = $7E2805   ; .db -- wraps at 256, gate only ever
+                                       ; checks small deltas within one run
+
 ; SPC700 IPL reset is a hardware-side operation. TAD_Init must only run after
 ; the S-SMP has been reset and has reached its IPL ready handshake ($BBAA).
 ; $2140-$2143 are data ports, not a reset control register.
@@ -1711,6 +1732,24 @@ Tad_QueueSoundEffect_D0:
     jsr Tad_QueueSoundEffect
     pld
     rts
+
+; G11 hardening: shared choke point for both real landed-hit SFX call sites
+; (Character_HitApply__ScoreAndFinish and Character_HitApply_VsPlayer, both
+; tail-jmp here now instead of duplicating this inline -- ROM budget, same
+; reasoning as Tad_QueueSoundEffect_D0 above). Bumps G11_HitSfxRequestCount
+; (verification telemetry only, see that constant's own comment) then loads
+; the real named SFX_HIT_ID (not a reused CHAR_HIT_APPLIED coincidence) and
+; falls into Tad_QueueSoundEffect_D0. CHAR_HIT_APPLIED must already be
+; stamped by the caller before jumping here (both callers do this while D is
+; still their own entity's window, same constraint as before).
+; IN: none (A is a scratch clobber on entry)
+G11_QueueHitSfx:
+.a8
+    lda.l G11_HitSfxRequestCount
+    inc
+    sta.l G11_HitSfxRequestCount
+    lda #SFX_HIT_ID
+    jmp Tad_QueueSoundEffect_D0
 
 
 
@@ -6057,7 +6096,7 @@ Character_HitApply__ScoreAndFinish__scored:
     ; $FC00 elsewhere in this file).
     lda #1
     sta CHAR_HIT_APPLIED
-    jmp Tad_QueueSoundEffect_D0
+    jmp G11_QueueHitSfx
 
 ; ambient width, unchanged) -- every branch target below is a handful of
 ; lines away, well inside 8-bit branch range. No caller-convention assumed
@@ -6405,7 +6444,7 @@ Character_HitApply_VsPlayer__hp_ok:
     ; SFX call, same shared Tad_QueueSoundEffect_D0 helper and same tail-jmp
     ; ROM-budget shape ScoreAndFinish uses (this leaf runs with D = the
     ; ATTACKING AI's own OopDp window, same reason).
-    jmp Tad_QueueSoundEffect_D0
+    jmp G11_QueueHitSfx
 Character_HitApply_VsPlayer__grabbed:
 .a8
     ; Grab replaces damage, same as the player-vs-AI path (Character_

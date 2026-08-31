@@ -207,6 +207,21 @@ def run_width_directive_check():
     return result.returncode == 0
 
 
+def run_sfx_id_sync_check():
+    """Runs check_sfx_id_sync.py: G11 hardening guard against SFX_HIT_ID
+    (a hand-maintained Poppy literal, since Poppy can't .include a ca65
+    .enum) drifting from the real compiler-generated SFX::sfx_hit value."""
+    print('--- check_sfx_id_sync.py (G11 SFX_HIT_ID guard) ---')
+    result = subprocess.run(
+        [sys.executable, os.path.join(HERE, 'check_sfx_id_sync.py')],
+        capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    print()
+    return result.returncode == 0
+
+
 def check_entity_base_sync(pasm_path):
     """Entity1_Base/Entity2_Base/Entity3_Base are hand-maintained literals
     (Poppy can't forward-reference CHAR_ZP_LEN -- see main.pasm's comment
@@ -381,6 +396,7 @@ def main():
 
     all_ok &= run_verify_layout()
     all_ok &= run_width_directive_check()
+    all_ok &= run_sfx_id_sync_check()
     all_ok &= check_entity_base_sync(PASM_PATH)
     all_ok &= check_dp_base_sync(PASM_PATH)
     all_ok &= check_record_size_sync(PASM_PATH)

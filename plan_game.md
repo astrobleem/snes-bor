@@ -2278,6 +2278,9 @@ phase was `partial`, then flips to `done` here.
 
 ## §11 — Phase G11: real landed-hit SFX (DONE)
 
+> **Status: DONE — implemented, hardened, and verified by the separately
+> authorized complete regression suite.**
+
 One real hit sound (BOR's own `DATA\SOUNDS\BEAT1.WAV`) now plays on every
 accepted, non-grab landed hit — player-vs-AI (`Character_HitApply_VsEntity1/
 2/3` → `Character_HitApply__ScoreAndFinish`) and AI-vs-player
@@ -2287,35 +2290,127 @@ inc`'s `sfx_hit = 1` (additive; `sfx_stub` stays 0).
 The blocker this section used to describe — no authoring project existed for
 `soundwork/tad/build/audio-data.bin`, only its compiled outputs survived —
 was resolved by forensic reconstruction, not by treating it as a stop
-condition. `soundwork/tad/project/02_coin.terrificaudio` (real TAD v0.4.2
-project, checked in) was rebuilt from the surviving artifacts: a from-scratch
-bytecode disassembler (grounded in the real `audio-driver/src/bytecode.inc`
-source) decoded the shipped `s02_coin` song's actual note/instrument/timing
-content, re-encoded it back to MML, and recompiling that MML reproduces
-336/341 identical bytes against the original — the remaining 5 bytes are
-isolated to non-melodic echo/pan header settings. The shared BRR sample was
+condition. `soundwork/tad/project/02_coin.terrificaudio` (checked in) was
+rebuilt from the surviving artifacts: a from-scratch bytecode disassembler
+(grounded in the real `audio-driver/src/bytecode.inc` source) decoded the
+shipped `s02_coin` song's actual note/instrument/timing content, re-encoded
+it back to MML, and recompiling that MML reproduces 336/341 identical bytes
+against the original — the remaining 5 bytes are isolated to non-melodic
+echo/pan header settings and are tracked, not silently dropped, in
+`soundwork/tad/project/reconstruction_oracle.json`. The shared BRR sample was
 recovered losslessly (extracted verbatim, not re-encoded) and reused
-byte-for-byte. Adding `sfx_hit` on top is purely additive, verified not to
-perturb a single further byte of `s02_coin`'s own compiled output.
+byte-for-byte.
 
-A real, project-specific bug surfaced and got fixed along the way: the new
-SFX call sites run under a `CharacterEntity`'s own per-instance `OopDp`
-window (see CLAUDE.md's entity-system section), but `Tad_QueueSoundEffect`'s
-`Tad_sfxQueue_sfx`/`Tad_sfxQueue_pan` are bare-DP-addressed and assume
-`D=$0000` (true for every pre-G11 caller, which only ever ran at boot or from
-the pause menu). Confirmed via `add_write_hook`/`add_exec_hook`/`trace_log`
-instrumentation (not guesswork) that the write genuinely executed but landed
-on the wrong physical byte; fixed with a shared `Tad_QueueSoundEffect_D0`
-helper (`phd`/`pea $0000`/`pld` ... `pld`/`rts`) both call sites tail-jmp
-into.
+**Correction found the project file's `_about.version` claim (`0.4.2`) did
+not match any real compiler on this machine or in either sibling TAD-using
+repo** (`snes-outrun-sa1`, `SNES-SuperMonkeyIsland` both vendor `tad-compiler
+0.3.0`) — that field is the TAD *project file format* version, tracked
+independently of the compiler CLI version, and the original reconstruction
+never actually round-tripped through a real compiler run. It does now:
+`soundwork/tad/rebuild.py` uses the real `0.3.0` binary (see its own header
+comment on why 0.4.2 was a bad assumption, not ground truth).
 
-Gate: `tools/verify/game_g11_sfx.py` (`GATE G11: PASS`) — whiff→none,
-landed hit→queues once, continued overlap→no re-fire, second hit→fires
-again, AI-vs-player→fires via the `VsPlayer` leaf too, grab-lock (real JOE
-mutual-lock, not simulated state)→none, existing song/DSP state unaffected,
-and real DSP-voice audibility evidence (majority-of-5 hit-vs-no-hit peak
-comparison) distinguishing "command queued" from "driver actually produced
-audible output," per this phase's own original requirement.
+**Correction also found `beat1` was misconfigured as a pitched musical
+instrument** (`octave` pitch mode, arbitrary `500.0` Hz tuning, note `c3`,
+duration `12` SFX ticks ≈ 96 ms) instead of what it actually is — a recorded
+~0.379 s impact WAV. Fixed to TAD's `sample_rates: [11025]` one-shot form
+(the real source rate), triggered via `play_note 0 48` (bare numeric
+sample-rate-table index, not a note name — a musical note name would have
+compiled to the same bytes here since a sample-rate instrument only has one
+table slot, but the numeric form is the semantically correct one and is what
+this project now uses), `48` SFX ticks (source is ≈47.35 ticks at TAD's
+125-tick clock — the smallest tick count that doesn't truncate the encoded
+one-shot), non-looping, flat `gain F127` envelope (no ADSR note-shaping on a
+recorded hit). Regenerating after this fix changed `audio-data.bin` by 10
+bytes larger and ~5450 bytes of content-diff against the pre-fix blob — real,
+substantial, not cosmetic. `s02_coin`'s own compiled bytes are unaffected
+(only `beat1`'s own sample entry and `sfx_hit`'s own bytecode changed);
+verified via `soundwork/tad/rebuild.py --check`.
+
+**Removed an accidental `1 == sfx_hit` coupling**: both landed-hit call sites
+used to `lda #1` once for `CHAR_HIT_APPLIED` and reuse that same accumulator
+value for the SFX id, because both values happened to be `1`. Those meanings
+are unrelated. Both sites now explicitly `lda #SFX_HIT_ID` before queueing.
+`SFX_HIT_ID` is a hand-maintained Poppy literal (Poppy cannot `.include` a
+ca65 `.enum`) kept honest by `tools/rom_audit/check_sfx_id_sync.py`, which
+parses the real generated `audio-enums.inc` and fails the build on drift —
+now wired into `audit_all.py`.
+
+**Reproducibility tooling added**: `soundwork/tad/rebuild.py --check`/
+`--update` recompiles the checked-in project with a real, version-checked
+`tad-compiler` binary and diffs against the committed `build/` outputs
+(temp-dir first, only overwrites on `--update`); `soundwork/tad/
+verify_project.py` is a fast, no-compiler-required hash/metadata check
+against `reconstruction_oracle.json` (song/SFX id ordering, TAD IO version,
+sample/driver/loader hashes). Neither existed before this hardening pass —
+"edit the project, forget to regenerate, ship stale `audio-data.bin`" was a
+real silent-failure mode.
+
+**Building that tooling caught a second, more serious real bug in the
+process, found only because `tools/verify/phase7.py` asserts ground truth
+(the real final transfer address) rather than trusting TAD's own status
+byte**: `soundwork/tad/build/tad_blob_syms.pasm` — the Poppy-syntax
+constants `main.pasm`'s `LoadAudioData` actually reads at runtime,
+hand-ported from ca65 syntax when TAD was first integrated and never wired
+into any regeneration step since — went stale by exactly the number of
+bytes the beat1 fix grew common data. `Tad_DataTable`'s offset was still the
+old, pre-fix value; `LoadAudioData` read the real audio blob's directory
+table from the wrong location and, interpreting adjacent unrelated ROM bytes
+as if they were a `(source address, size)` pair, streamed something on the
+order of 10KB of garbage as "song data." **This did not visibly fail**:
+`TadPrivate_state` still reached `PLAYING`, the S-DSP still left reset with
+non-zero main volume, and `phase7.py`'s own weaker checks all passed —
+exactly the class of false-positive this project's own Phase 7 history
+warns about (see this file's Testing section and CLAUDE.md's matching note).
+Only `phase7.py`'s exact-address ground-truth assertion (`final queue
+address ... is the end of the audio blob`) caught it, landing at `$F767`
+instead of the real `$9A14`. Fixed two ways: the stale value corrected, and
+`soundwork/tad/rebuild.py` extended to regenerate `tad_blob_syms.pasm`
+itself (parsed from a fresh compile's real `audio-data.s` exports, anchored
+to `__Tad_AudioData_0`'s real bank:address via `src/main.sym`) on both
+`--check` and `--update`, so this exact silent-staleness class cannot
+recur unnoticed.
+
+A real, project-specific engine bug surfaced and got fixed along the way:
+the new SFX call sites run under a `CharacterEntity`'s own per-instance
+`OopDp` window (see CLAUDE.md's entity-system section), but
+`Tad_QueueSoundEffect`'s `Tad_sfxQueue_sfx`/`Tad_sfxQueue_pan` are
+bare-DP-addressed and assume `D=$0000` (true for every pre-G11 caller, which
+only ever ran at boot or from the pause menu). Confirmed via
+`add_write_hook`/`add_exec_hook`/`trace_log` instrumentation (not guesswork)
+that the write genuinely executed but landed on the wrong physical byte;
+fixed with a shared `Tad_QueueSoundEffect_D0` helper (`phd`/`pea $0000`/
+`pld` ... `pld`/`rts`) both call sites tail-jmp into. **This engine fix is
+preserved unchanged by this hardening pass** — only the SFX id load and the
+audio-data content around it changed.
+
+**Architecture note (not a scope change): TAD/SPC700 owns short, low-latency
+gameplay/UI sound effects; MSU-1 PCM owns the eventual full-quality
+soundtrack.** `s02_coin`'s TAD material is a reconstructed test/placeholder
+song, not authorization to move the production soundtrack onto TAD. A hit
+SFX request must never write, stop, restart, or otherwise touch MSU-1 track
+selection, volume, or play/repeat control — the two audio paths are
+independent. The MSU-1 PCM soundtrack path itself remains unbuilt and is
+tracked as future work, not silently forgotten by this note.
+
+Gate: `tools/verify/game_g11_sfx.py` — rewritten this hardening pass to
+derive every structure offset via `pasm_constant()`/generated sources
+instead of hand-copied literals, to observe a new dedicated WRAM counter
+(`G11_HitSfxRequestCount`, verification telemetry only, incremented exactly
+once per accepted landed-damage SFX request) instead of racing the transient
+SFX queue, and to remove retry-as-success loops in favor of deterministic
+per-frame observation of each real case: whiff (delta 0), landed hit (delta
+1, HP down), continued overlap in the same attack cycle (still delta 1),
+second independent hit (delta 2), AI-vs-player (delta 1), grab (delta 0, real
+JOE mutual-lock), and invulnerability/rejected-damage (delta 0) — plus an
+isolated S-DSP audibility check correlating the request counter to actual
+non-silent SPC output through the encoded one-shot's real duration. See the
+script's own module docstring for the exact per-case procedure.
+
+This phase intentionally stops here for this run — no full regression suite
+was run and this branch (`g11-sfx-hardening`) was not merged to `master`,
+per `g11correction.txt`'s explicit prohibition. One later, separately
+authorized run is expected to run the full suite and merge.
 
 ---
 
