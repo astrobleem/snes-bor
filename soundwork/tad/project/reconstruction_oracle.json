@@ -5,22 +5,19 @@
   "compiler_version": "0.3.0",
   "compiler_version_note": "The project file's own _about.version field tracks the TAD project-file FORMAT version, independent of the compiler CLI version. An earlier draft of this hardening task assumed the CLI itself was 0.4.2; that version was not found on this machine or in any sibling repo (snes-outrun-sa1, SNES-SuperMonkeyIsland both vendor 0.3.0). Ground truth beats an assumed version number -- see rebuild.py's own comment.",
   "song_ids": {
-    "BLANK": 0,
-    "s02_coin": 1
+    "BLANK": 0
   },
   "sfx_ids": {
-    "sfx_stub": 0,
-    "sfx_hit": 1
+    "sfx_hit": 0
   },
   "hashes": {
     "vendor/tad-audio-driver.bin": "96ceef04fba19c9895fb42051a54acf6c45064a4bedf2141c0e2b4997fb99422",
     "vendor/tad-loader.bin": "fcc4d1be06563d1ab85fb7220afacb5ecbe800701cee50924acde682254ec895",
-    "project/samples/coin_tone.brr": "dc33a94782f0e7832dd0fe948b3e7a65fd04a3a27bbfdddd6d6f540cabfa6402",
-    "build/audio-data.bin": "99d02157465029584f17bd73e405c8ce125434fa6dc4a8a072092479799f11df"
+    "build/audio-data.bin": "cc4c5cba26d03b0c2c73de73d7f1934033838938f7b8beb79aa6ff8046d872ea"
   },
   "sample_ordering": {
-    "note": "Index order of brr_samples/instruments as compiled by tad-compiler, s02_coin.mml's @N channel-instrument assignments reference this order directly.",
-    "instruments": ["s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+    "note": "Production is SFX-only; the blank song has no musical instruments.",
+    "instruments": [],
     "samples": ["beat1"]
   },
   "s02_coin_reconstruction": {

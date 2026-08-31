@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "candidate_count": 220,
+  "unique_set_count": 10,
+  "candidates": [
+    {
+      "strategy": "A",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "all"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/ralf"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/mouser"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/foot01"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/rock"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/leather"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/bebop"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/apple"
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null
+    }
+  ]
+}

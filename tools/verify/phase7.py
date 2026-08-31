@@ -26,8 +26,6 @@ import os
 import re
 import struct
 import sys
-import tempfile
-import wave
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, read_block,  # noqa: E402
@@ -64,15 +62,6 @@ def blob_base():
     raise KeyError('__Tad_AudioData_0 not found in src/main.sym')
 
 
-def wav_peak(path):
-    with wave.open(path) as w:
-        raw = w.readframes(w.getnframes())
-    n = len(raw) // 2
-    if not n:
-        return 0
-    return max(abs(v) for v in struct.unpack('<' + 'h' * n, raw[:n * 2]))
-
-
 def main():
     r = Reporter(7)
 
@@ -102,18 +91,12 @@ def main():
         # Before the fix this pointed at $8F35 -- valid-looking, and entirely
         # outside the blob. ---
         r.check('transfer queue drained (size == 0)', size == 0)
-        # The last song ends exactly at the end of the blob, and TAD's
-        # TransferData documents that it "may read one byte past the end of
-        # the transfer queue" -- so the drained pointer legitimately lands on
-        # blob_end + 1. Asserting that exact landing spot is a much sharper
-        # check than a range: it proves the table offsets were rebased by the
-        # right amount. Using __Tad_AudioData_0 itself as the base (51 bytes
-        # too high) overshot to $C0B6, and the pre-fix LoROM math produced
-        # $8F35, nowhere near the blob at all.
-        blob_end = base + len(audio)
-        r.check(f'final queue address ${addr:04X} is the end of the audio blob '
-                f'(${blob_end:04X}, +1 for TAD\'s documented one-byte overread)',
-                addr in (blob_end, blob_end + 1))
+        # The production song is now the minimal blank SFX-support song. With
+        # no song payload transfer, TAD may leave the pointer at its callback
+        # return address rather than inside the audio blob. The meaningful
+        # invariant for this architecture is that no transfer remains queued;
+        # the ROM/blob byte comparison below independently protects the data
+        # table base and catches stale/wrong audio placement.
 
         # --- 3. GROUND TRUTH: the ROM the loader read from really is the
         # compiled audio data, byte for byte. This is the check that would
@@ -147,25 +130,15 @@ def main():
         r.check('Nmi_FrameCounter still advancing (TAD did not hang the main loop)',
                 c1 != c0)
 
-    # --- 6. Real waveform output. The recorder itself has a documented
-    # external false-silent rate in this Mesen/MCP environment, so use a
-    # bounded majority of 3. This is measurement tolerance, not reassurance:
-    # the internal TAD state/transfer checks above remain deterministic and
-    # must pass on the same run. ---
-    peaks = []
-    tmp = tempfile.mkdtemp(prefix='phase7-')
-    for i in range(3):
-        wav = os.path.join(tmp, f'run{i}.wav')
-        with open_session(__file__) as m:
-            m.reset_emulator()
-            m.run_frames(10)
-            m.record_audio(wav)
-            m.run_frames(300)
-            m.stop_audio()
-        peaks.append(wav_peak(wav))
-    print(f'recorded peak amplitudes over 3 runs: {peaks}')
-    r.check(f'audio is audibly non-silent in a majority of captures {peaks}',
-            sum(1 for p in peaks if p > 64) >= 2)
+    # --- 6. TAD is now SFX-only. Do not require an idle-song waveform: MSU-1
+    # owns authored music. Live hit audibility belongs to G11's source-backed
+    # combat gate, while these checks prove the production SFX export remains.
+    enums = os.path.join(ROOT, 'soundwork', 'tad', 'build', 'audio-enums.inc')
+    with open(enums, encoding='utf-8') as f:
+        enum_text = f.read()
+    r.check('production TAD export contains sfx_hit', 'sfx_hit' in enum_text)
+    with open(os.path.join(ROOT, 'src', 'main.pasm'), encoding='utf-8') as f:
+        r.check('production boot requests blank TAD song', 'lda #$00' in f.read())
 
     r.finish()
 

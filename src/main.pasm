@@ -11885,7 +11885,7 @@ scpu_boot__bg1sc_done:
     rep #$31
 .a16
 
-    ; --- Load Song 1 (s02_coin) ---
+    ; --- Load blank TAD song; MSU-1 owns authored soundtrack music ---
     ; Every Tad_* entry point is a JSL/RTL routine declared `.a8` (8-bit
     ; accumulator) -- Core_Nmi_Init above returns in 16-bit (rep #$31) mode,
     ; so a bare `jsl Tad_LoadSong` here executes the driver's 8-bit-encoded
@@ -11897,7 +11897,7 @@ scpu_boot__bg1sc_done:
     ; jsl Tad_Init) is required, not optional.
     sep #$20
 .a8
-    lda #$01
+    lda #$00
     jsl Tad_LoadSong
     rep #$31
 .a16

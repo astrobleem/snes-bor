@@ -24,6 +24,7 @@ from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
 from shipped_content import shipped_characters, shipped_levels  # noqa: E402
+from engine_audio_semantics import ENGINE_GLOBAL_AUDIO, ENGINE_REVISION, ENGINE_SOURCE  # noqa: E402
 
 SHIPPED_CHARACTERS = shipped_characters()
 
@@ -186,20 +187,25 @@ def scan_family(family: str, pak: Path) -> dict:
                 }
             else:
                 asset["references"].append(ref)
-    # G11's landed-hit sound is a real engine default, not a TXT directive.
-    # Keep the source evidence as a normal manifest reference so the asset is
-    # required for a reason the verifier can explain.
+    # Engine-global samples are source-backed references, not inferred from
+    # filenames or from the SNES implementation under test.
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
-    if family == "bor-original" and beat1 is not None:
-        beat1["references"].append({
-            "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/source/gamelogic.c:load_special_sounds",
-            "line": None,
-            "directive": "engine-global-default",
-            "semantic_event": "landed-hit",
-            "engine_global_sample": "global_sample_list.beat",
-            "source_evidence": "default attack hitsound=global_sample_list.beat; hit playback uses attack_object->hitsound",
-            "reachability": "shipped-reachable",
-        })
+    if family == "bor-original":
+        for semantic in ENGINE_GLOBAL_AUDIO:
+            asset = assets.get(semantic["asset"])
+            if asset is None:
+                continue
+            asset["references"].append({
+                "source_file": f"OpenBOR {ENGINE_REVISION}: {ENGINE_SOURCE}",
+                "line": None,
+                "directive": "engine-global-default",
+                "semantic_event": semantic["event"],
+                "engine_global_sample": f"global_sample_list.{semantic['global']}",
+                "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+                "reachability": "shipped-reachable" if semantic["reachable"] else "content-inapplicable",
+                "snes_reachable": semantic["reachable"],
+                "reachability_reason": semantic["reason"],
+            })
     if family == "bor-original" and beat1 is not None:
         beat1["converter_representation"] = "soundwork/tad/project/samples/beat1.wav"
         beat1["packed_runtime"] = "TAD SFX::sfx_hit; Character_HitApply"

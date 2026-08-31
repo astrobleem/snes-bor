@@ -26,12 +26,12 @@ PROJECT = ROOT / "soundwork" / "tad" / "project"
 PAK_ROOT = ROOT
 
 
-def reachable_assets() -> list[dict]:
+def reachable_assets(selected: set[str] | None = None) -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     result = []
     for family in manifest["families"]:
         for asset in family["assets"]:
-            if asset["kind"] == "sfx" and asset["shipped_reachable"]:
+            if asset["kind"] == "sfx" and asset["shipped_reachable"] and (selected is None or (family["family"], asset["source_path"]) in selected):
                 item = dict(asset)
                 item["family"] = family["family"]
                 item["pak"] = family["pak"]
@@ -84,10 +84,12 @@ def canonical_wav(raw: bytes) -> tuple[bytes, int]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--compiler", default=None)
+    ap.add_argument("--asset", action="append", help="family:source path; restrict the scratch set")
     args = ap.parse_args()
     compiler = find_compiler(args.compiler)
     version = check_compiler_version(compiler)
-    assets = reachable_assets()
+    selected = set(args.asset) if args.asset else None
+    assets = reachable_assets(selected)
     if not assets:
         raise SystemExit("FAIL: manifest has no shipped-reachable SFX")
     with tempfile.TemporaryDirectory(prefix="bor-reachable-sfx-") as tmp:

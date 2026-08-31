@@ -3,90 +3,14 @@
     "file_type": "Terrific Audio Driver project file",
     "version": "0.3.0"
   },
-  "instruments": [
-    {
-      "name": "s0",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s1",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s2",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s3",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s4",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s5",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    },
-    {
-      "name": "s6",
-      "source": "samples/coin_tone.brr",
-      "freq": 500.0,
-      "loop": "none",
-      "evaluator": "default",
-      "ignore_gaussian_overflow": false,
-      "first_octave": 0,
-      "last_octave": 6,
-      "envelope": "adsr 12 1 1 16"
-    }
-  ],
+  "instruments": [],
   "samples": [
     {
       "name": "beat1",
       "source": "samples/beat1.wav",
-      "sample_rates": [11025],
+      "sample_rates": [
+        11025
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -99,15 +23,14 @@
   },
   "high_priority_sound_effects": [],
   "sound_effects": [
-    "sfx_stub",
     "sfx_hit"
   ],
   "low_priority_sound_effects": [],
   "sound_effect_file": "sound-effects.txt",
   "songs": [
     {
-      "name": "s02_coin",
-      "source": "mml/02_coin.mml"
+      "name": "blank_sfx_only",
+      "source": "mml/00_blank.mml"
     }
   ]
 }
