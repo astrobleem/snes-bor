@@ -8,6 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPILE = ROOT / "tools/audio/compile_reachable_sfx.py"
+sys.path.insert(0, str(ROOT / "tools/audio"))
+from runtime_sfx_states import explore_stage  # noqa: E402
+from shipped_content import STAGE_CONFIGS  # noqa: E402
 
 
 def main() -> int:
@@ -19,8 +22,8 @@ def main() -> int:
     ralf = (ROOT / "out/ralf_moveset.json").read_text(encoding="utf-8")
     if '"jump": null' in leo or '"jump": null' not in ralf:
         raise SystemExit("jump capability fixture does not distinguish LEO and RALF")
-    states = json.loads((ROOT / "tools/audio/runtime_sfx_states.json").read_text(encoding="utf-8"))
-    streets = states["states_by_stage"].get("tmnt:DATA\\LEVELS\\STREETS.TXT", [])
+    streets_stage = next(s for s in STAGE_CONFIGS if s["source_level"].upper().endswith("STREETS.TXT"))
+    streets = explore_stage(streets_stage)
     if not any(slot["pickup_type"] == 2 for state in streets for slot in state["slots"] if slot["alive"]):
         raise SystemExit("TMNT STREETS runtime states do not expose the Pizza health pickup")
     residency = json.loads((ROOT / "tools/audio/sfx_residency.json").read_text(encoding="utf-8"))

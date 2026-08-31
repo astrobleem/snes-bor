@@ -127,8 +127,10 @@ def main() -> int:
     c_unique = {}
     for row in exact_states:
         signature = tuple(row["assets"])
-        record = c_unique.setdefault(signature, {**row, "users": []})
-        record["users"].append({"stage": row["stage"], "player": row["player"], "state_index": row["state_index"]})
+        record = c_unique.setdefault(signature, {**row, "user_count": 0, "example_users": []})
+        record["user_count"] += 1
+        if len(record["example_users"]) < 3:
+            record["example_users"].append({"stage": row["stage"], "player": row["player"], "state_index": row["state_index"]})
     ab_results = [{**row, **compile_one(row)} for row in ab_rows]
     c_results = [{**row, **compile_one(row)} for row in c_unique.values()]
     output = {"schema_version": 5, "source": "committed packed 10-byte spawn tables and runtime lifecycle model", "candidate_count": len(candidates), "unique_set_count": len(ab_results), "strategy_a_count": len(STAGE_CONFIGS), "strategy_b_count": len(candidates) - len(STAGE_CONFIGS), "strategy_a_b_results": ab_results, "strategy_c_state_count": len(exact_states), "strategy_c_unique_set_count": len(c_results), "strategy_c_results": c_results, "max_non_player_slots": 3}

@@ -6,6 +6,7 @@ generated runtime data is modified by this tool.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import struct
@@ -110,22 +111,28 @@ def main() -> int:
         samples.mkdir(exist_ok=True)
         sample_rows = []
         effects = []
+        sample_by_identity = {}
         for index, asset in enumerate(assets):
             sample_name = f"reachable_{index:02d}"
             filename = sample_name + ".wav"
             data = extract(PAK_ROOT / asset["pak"], asset["source_path"])
             normalized, sample_rate = canonical_wav(data)
-            (samples / filename).write_bytes(normalized)
-            sample_rows.append({
-                "name": sample_name,
-                "source": "samples/" + filename,
-                "sample_rates": [sample_rate],
-                "loop": "none",
-                "evaluator": "default",
-                "ignore_gaussian_overflow": False,
-                "envelope": "gain F127",
-            })
-            effects.extend([f"=== sfx_reachable_{index:02d} ===", f"    set_instrument {sample_name}", "    play_note 0 48", ""])
+            identity = (hashlib.sha256(normalized).hexdigest(), sample_rate)
+            physical = sample_by_identity.get(identity)
+            if physical is None:
+                physical = sample_name
+                sample_by_identity[identity] = physical
+                (samples / filename).write_bytes(normalized)
+                sample_rows.append({
+                    "name": physical,
+                    "source": "samples/" + filename,
+                    "sample_rates": [sample_rate],
+                    "loop": "none",
+                    "evaluator": "default",
+                    "ignore_gaussian_overflow": False,
+                    "envelope": "gain F127",
+                })
+            effects.extend([f"=== sfx_reachable_{index:02d} ===", f"    set_instrument {physical}", "    play_note 0 48", ""])
         project_file = root / "02_coin.terrificaudio"
         project = json.loads(project_file.read_text(encoding="utf-8"))
         project["samples"] = sample_rows

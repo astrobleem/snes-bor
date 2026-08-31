@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "compiler": "E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe",
+  "compiler_version": "0.3.0",
+  "reachable_asset_count": 30,
+  "canonical_assets": [
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\1UP.WAV",
+      "canonical_pcm_hash": "ecdb9f9aaf50beee4318e26b069be6c2ca99ae153b21872726bd5905a465309b",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "canonical_pcm_hash": "690e6c144dd3e4ef9eb674cb9a1f1d8d987bba4c6ec0338506ca3cb3e1544dbe",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "canonical_pcm_hash": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "canonical_pcm_hash": "9f1272b31b8c3299c0165de78e2e5bd6a8eba60fb7aefeeda820243b44b78456",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "canonical_pcm_hash": "6ac521a18137da4b9a90fe6b3f7b247f6cf71c844804d7bf0c882422f544095e",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "canonical_pcm_hash": "f7c9f35f417a2e048feeee5e776c74dbbe9d20eb7d6b3737b5138380ad9b6c9d",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\GET.WAV",
+      "canonical_pcm_hash": "0527be5a3d9755658523a5291fc8c39765ee21aebc062504ee52d3e878815419",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "canonical_pcm_hash": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+      "canonical_pcm_hash": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+      "canonical_pcm_hash": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\1UP.WAV",
+      "canonical_pcm_hash": "ecdb9f9aaf50beee4318e26b069be6c2ca99ae153b21872726bd5905a465309b",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "canonical_pcm_hash": "dff2040abaa165adb7b37c43736701e42f25f7e003204c929eef5e9588a87269",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+      "canonical_pcm_hash": "237073ade06e80200a4555c3ff6ee68880c774fa94aa1d5914fd7db7a0702b87",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "canonical_pcm_hash": "9f1272b31b8c3299c0165de78e2e5bd6a8eba60fb7aefeeda820243b44b78456",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "canonical_pcm_hash": "0d5688a1128bf8f012aef0b76d4337266675d18c33f3d2957655c8031fff7eab",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "canonical_pcm_hash": "d36cefbaf0cbe3270609ed5788393ab74760d8fb01f17d06f2f2757cf48dc64c",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "canonical_pcm_hash": "7a1b298b5599c86137edce7fb55955f9073a18e5894e22f798b134087dc8fa11",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\GET.WAV",
+      "canonical_pcm_hash": "b4962d6bd03e77bde7287cf8e14f519ae43120bd8730fee4c3d7f3c5ea9d2fc3",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "canonical_pcm_hash": "a4fbaca421f8610cf7ebc1d4c7535e521509bbb0ea1ce4aa3d5536a76b7bd421",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "canonical_pcm_hash": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "canonical_pcm_hash": "89b6561539c196f51fabbbe194889922a4400a89fd1fce5f14dbd7a384d61f57",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+      "canonical_pcm_hash": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "canonical_pcm_hash": "e0f5d6500a4c9ef8a8290621c334cbdda885bbd744e13dd2c329281428960e68",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "canonical_pcm_hash": "f4a221a3127164858fc7a1a56546de72553846efcd64588a4f3a6f0fe9db7781",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "canonical_pcm_hash": "093cfe9d910fea7f345dadc44ed4f8531f311485e2ee164f29c86301d7956016",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+      "canonical_pcm_hash": "e6ae32ffc748c877b56be9359f338aabebabb2f1ce2549bd60d176197504556a",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "canonical_pcm_hash": "e94abcd89a43e535689641901b9b5990cf19c74aea231baf33482c01d9b3d0fa",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "canonical_pcm_hash": "b2831fc76bec3348550572e8b34db928bbbcd300fa2d70c6998c1dea84927914",
+      "sample_rate_hz": 22050
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+      "canonical_pcm_hash": "bc8a5fa74286ae64a6d3eb938f3cd35910842d17ea0eabdfe50e59e9c3e7ac49",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "canonical_pcm_hash": "c890a6f3c9c7cf04ad0b69b1714e025c27bae8883040a2b40e14ebc4349f592b",
+      "sample_rate_hz": 22050
+    }
+  ],
+  "identical_groups": [
+    [
+      "bor-original:DATA\\SOUNDS\\1UP.WAV",
+      "tmnt:DATA\\SOUNDS\\1UP.WAV"
+    ],
+    [
+      "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+    ],
+    [
+      "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+    ],
+    [
+      "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+      "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+    ]
+  ],
+  "tad_one_sample_common_bytes": 2396,
+  "tad_duplicate_sample_common_bytes": 2409,
+  "tad_duplicate_delta_bytes": 13
+}
