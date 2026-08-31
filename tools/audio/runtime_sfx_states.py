@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from collections import deque
 from pathlib import Path
 import sys
@@ -124,7 +125,7 @@ def explore_stage(stage: dict, max_states: int = 500000) -> list[dict]:
 def main() -> int:
     roster_by_index = {index: roster_identity(entry) for index, entry in enumerate(ROSTER_CONFIGS)}
     states_by_stage = {stage["family"] + ":" + stage["source_level"]: explore_stage(stage) for stage in STAGE_CONFIGS}
-    summary = {"schema_version": 3, "record_size": RECORD_SIZE, "max_non_player_slots": 3, "roster_by_index": {str(k): v for k, v in roster_by_index.items()}, "state_count_by_stage": {k: len(v) for k, v in states_by_stage.items()}, "total_state_count": sum(len(v) for v in states_by_stage.values()), "input_spawn_hashes": {stage["family"] + ":" + stage["source_level"]: __import__("hashlib").sha256((ROOT / stage["spawn"]).read_bytes()).hexdigest() for stage in STAGE_CONFIGS}}
+    summary = {"schema_version": 4, "record_size": RECORD_SIZE, "max_non_player_slots": 3, "roster_by_index": {str(k): v for k, v in roster_by_index.items()}, "state_count_by_stage": {k: len(v) for k, v in states_by_stage.items()}, "total_state_count": sum(len(v) for v in states_by_stage.values()), "input_spawn_hashes": {stage["family"] + ":" + stage["source_level"]: hashlib.sha256((ROOT / stage["spawn"]).read_bytes()).hexdigest() for stage in STAGE_CONFIGS}, "explorer_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "roster_config_sha256": hashlib.sha256(json.dumps(ROSTER_CONFIGS, sort_keys=True).encode()).hexdigest(), "stage_config_sha256": hashlib.sha256(json.dumps(STAGE_CONFIGS, sort_keys=True).encode()).hexdigest()}
     (ROOT / "tools/audio/runtime_sfx_states.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(f"runtime state explorer: {summary['total_state_count']} states; max non-player slots: 3")
     return 0

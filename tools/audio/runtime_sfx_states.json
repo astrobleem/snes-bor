@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "record_size": 10,
   "max_non_player_slots": 3,
   "roster_by_index": {
@@ -26,18 +26,18 @@
     "20": "MISC\\TABLE"
   },
   "state_count_by_stage": {
-    "bor-original:DATA\\EASY\\1BEASY.TXT": 10396,
-    "bor-original:DATA\\EASY\\1AEASY.TXT": 7636,
-    "tmnt:DATA\\LEVELS\\BEBOP.TXT": 22,
-    "tmnt:DATA\\LEVELS\\ROCK.TXT": 24,
-    "tmnt:DATA\\LEVELS\\LEATHER.TXT": 8,
-    "tmnt:DATA\\LEVELS\\SEWER0.TXT": 719,
-    "tmnt:DATA\\LEVELS\\STREETS.TXT": 8407,
-    "tmnt:DATA\\LEVELS\\STREETS2.TXT": 12441,
-    "tmnt:DATA\\LEVELS\\SEWER.TXT": 467,
+    "bor-original:DATA\\EASY\\1BEASY.TXT": 27167,
+    "bor-original:DATA\\EASY\\1AEASY.TXT": 43631,
+    "tmnt:DATA\\LEVELS\\BEBOP.TXT": 26,
+    "tmnt:DATA\\LEVELS\\ROCK.TXT": 28,
+    "tmnt:DATA\\LEVELS\\LEATHER.TXT": 9,
+    "tmnt:DATA\\LEVELS\\SEWER0.TXT": 8854,
+    "tmnt:DATA\\LEVELS\\STREETS.TXT": 121587,
+    "tmnt:DATA\\LEVELS\\STREETS2.TXT": 279145,
+    "tmnt:DATA\\LEVELS\\SEWER.TXT": 7808,
     "tmnt:DATA\\LEVELS\\FOOT.TXT": 4
   },
-  "total_state_count": 40124,
+  "total_state_count": 488259,
   "input_spawn_hashes": {
     "bor-original:DATA\\EASY\\1BEASY.TXT": "2607d1a06ad2377de70e779100468393837577d545bdfd4f0ff35a2e79032a31",
     "bor-original:DATA\\EASY\\1AEASY.TXT": "c459f7de8828068db349bf35ff6dd86c4c2062e2d36750c6dca670bac12b83ac",
@@ -49,5 +49,8 @@
     "tmnt:DATA\\LEVELS\\STREETS2.TXT": "fadc7f265f428dcdd86949ebaf4382f10007aae6d10ddada18adb4dcbc66d089",
     "tmnt:DATA\\LEVELS\\SEWER.TXT": "f17bdc63fb7f5b8f13ed8b7f308e59b9d732b3a2879f92b209a957470a7892af",
     "tmnt:DATA\\LEVELS\\FOOT.TXT": "a1eb755cfbe2aba1ca821e09dd4222de1f5d42399f27e8e93f75113d8a879d9c"
-  }
+  },
+  "explorer_sha256": "cc9563529ad89ca50c2215f6a1daeddb2b02f3ee475d4609356e8d2e7456a83a",
+  "roster_config_sha256": "e7aa5fc83458880b33eabf238f68f2ba88d2b5c6e28d16f4c8efda418816db27",
+  "stage_config_sha256": "f5a4147f9645b0590d858406092e350fd31f70f047817ef19cd6452e16ebc1a2"
 }

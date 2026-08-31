@@ -45,6 +45,7 @@ def main() -> int:
     manifest = json.loads((ROOT / "tools/audio/audio_manifest.json").read_text(encoding="utf-8"))
     manifest_hash = hashlib.sha256((ROOT / "tools/audio/audio_manifest.json").read_bytes()).hexdigest()
     global_ids_path = ROOT / "tools/audio/sfx_global_ids.json"
+    runtime_summary_path = ROOT / "tools/audio/runtime_sfx_states.json"
     reachable = {}
     for family in manifest["families"]:
         for asset in family["assets"]:
@@ -132,19 +133,30 @@ def main() -> int:
     combined = set()
     combined_users = {}
     transition = set()
+    states_by_stage = {
+        stage["family"] + ":" + stage["source_level"]: __import__("runtime_sfx_states").explore_stage(stage)
+        for stage in STAGE_CONFIGS
+    }
+    projected_by_stage = {}
+    for stage in STAGE_CONFIGS:
+        stage_key = stage["family"] + ":" + stage["source_level"]
+        projected_by_stage[stage_key] = {
+            tuple((slot["alive"], slot["roster_index"], slot["prop"],
+                   slot["pickup_type"], slot["contained_item_roster_index"])
+                  for slot in state["slots"])
+            for state in states_by_stage[stage_key]
+        }
     for stage in STAGE_CONFIGS:
         family = stage["family"]
         options_by_identity = {m["identity"]: model_action_options(m, family) for m in models}
         base = set()
         for event in ("pause-entry", "ui-beep", "ui-beep-secondary", "landed-hit"):
             base |= global_assets.get((family, event), set())
+        stage_key = stage["family"] + ":" + stage["source_level"]
+        state_contexts = projected_by_stage[stage_key]
         for player in (m for m in models if m["playable"]):
-            states = __import__("runtime_sfx_states").explore_stage(stage)
-            state_contexts = set()
-            for state in states:
-                identities = tuple(slot["roster_index"] for slot in state["slots"] if slot["alive"])
-                state_contexts.add(identities)
-            for identities in state_contexts:
+            for context in state_contexts:
+                identities = [slot[1] for slot in context if slot[0]]
                 slot_models = []
                 for index in identities:
                     if 0 <= index < len(ROSTER_CONFIGS):
@@ -164,7 +176,10 @@ def main() -> int:
                         die = model_by_identity.get(ident, {}).get("diesound")
                         if die:
                             transition.add(tuple(sorted(base | {die})))
-                    pickup_event = {1: "health-pickup", 2: "health-pickup", 3: "score-pickup", 4: "one-up", 5: "score-pickup"}.get(next((slot["pickup_type"] for slot in state["slots"] if slot["roster_index"] == index), 0))
+                for alive, roster_index, prop, pickup_type, contained in context:
+                    if not alive or not prop or not pickup_type:
+                        continue
+                    pickup_event = {1: "health-pickup", 2: "health-pickup", 3: "score-pickup", 4: "one-up", 5: "score-pickup"}.get(pickup_type)
                     if pickup_event:
                         transition.add(tuple(sorted(base | global_assets.get((family, pickup_event), set()))))
                 transition.add(tuple(sorted(base | global_assets.get((family, "fall"), set()))))
@@ -173,6 +188,7 @@ def main() -> int:
         "source": "authoritative entity parser plus converted moveset role table",
         "manifest_hash": manifest_hash,
         "global_ids_hash": hashlib.sha256(global_ids_path.read_bytes()).hexdigest() if global_ids_path.exists() else None,
+        "runtime_summary_hash": hashlib.sha256(runtime_summary_path.read_bytes()).hexdigest(),
         "input_hash": hashlib.sha256(json.dumps(models, sort_keys=True).encode()).hexdigest(),
         "models": models,
         "action_signature_count": len(action_signatures),

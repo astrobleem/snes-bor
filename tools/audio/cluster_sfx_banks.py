@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import sys
 from pathlib import Path
@@ -58,6 +59,7 @@ def main() -> int:
     output = {
         "schema_version": 1,
         "logical_signature_count": len(signatures),
+        "action_residency_hash": hashlib.sha256((ROOT / "tools/audio/action_residency.json").read_bytes()).hexdigest(),
         "bank_count": len(banks),
         "capacity_bytes": CAPACITY,
         "engineering_reserve_bytes": RESERVE,
