@@ -10,6 +10,9 @@ BANK0_SIZE = 0x8000
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'bor_converter'))
 import pack_msu_roster
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'audio'))
+from shipped_content import STAGE_CONFIGS
+import build_audio
 
 # Fixed initial roster for runtime MSU-1 character selection (see the plan
 # at temporal-swinging-hartmanis.md). Replaces the old single-string
@@ -169,11 +172,7 @@ PLAYABLE_ROSTER_COUNT = 13   # ralf..leo (indices 0-12); out/apple (13) is a pro
 # reinforced-HP (500 vs the normal 70) Foot Soldier encounter, nothing
 # more -- shipped as stage 9, not part of G9's boss coverage. Regenerate:
 #   python tools/bg_converter/convert_bg.py --pak "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak" --level "data\levels\foot.txt" -o out/bg_stage9foot --streaming
-BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
-              ("out/bg_stage2boss", "out/hud"), ("out/bg_stage3rock", "out/hud"),
-              ("out/bg_stage4leather", "out/hud"), ("out/bg_stage5sewer0", "out/hud"),
-              ("out/bg_stage6streets", "out/hud"), ("out/bg_stage7streets2", "out/hud"),
-              ("out/bg_stage8sewer", "out/hud"), ("out/bg_stage9foot", "out/hud")]
+BG_SCREENS = [(stage["bg"], "out/hud") for stage in STAGE_CONFIGS]
 
 # Phase 10 (plan.md 2.10): the frontpanel foreground layer for each entry in
 # BG_SCREENS, same length/order -- an out/ dir (tools/bg_converter/
@@ -184,7 +183,7 @@ BG_SCREENS = [("out/bg_stage1b", "out/hud"), ("out/bg_stage1a", "out/hud"),
 # kept committed) -- shipping it here means the stage transition exercises
 # a real "no FP -> has FP" case, not just two FP-less levels. Regenerate with:
 #   python tools/bg_converter/convert_frontpanel.py --level "DATA\EASY\1AEASY.TXT" -o out/fp_stage1a --width-tiles 408
-FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None, None]
+FP_SCREENS = [stage["frontpanel"] for stage in STAGE_CONFIGS]
 
 # Phase G4 (plan_game.md 4): one spawn-table blob per BG_SCREENS entry, same
 # length/order -- was a single hand-synced SPAWN_MSU_OFFSET/SPAWN_COUNT
@@ -195,11 +194,7 @@ FP_SCREENS = [None, "out/fp_stage1a", None, None, None, None, None, None, None, 
 # with the hand-synced constants it used to cross-check -- there is nothing
 # left in main.pasm for it to check. Regenerate 1A's with:
 #   python tools/bg_converter/build_spawn_table.py "Beats of Rage Original [v.3.0 Build 4086].pak" "DATA\EASY\1AEASY.TXT" out/spawn_stage1a/spawn_table.bin
-SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_table.bin",
-                "out/spawn_stage2boss/spawn_table.bin", "out/spawn_stage3rock/spawn_table.bin",
-                "out/spawn_stage4leather/spawn_table.bin", "out/spawn_stage5sewer0/spawn_table.bin",
-                "out/spawn_stage6streets/spawn_table.bin", "out/spawn_stage7streets2/spawn_table.bin",
-                "out/spawn_stage8sewer/spawn_table.bin", "out/spawn_stage9foot/spawn_table.bin"]
+SPAWN_TABLES = [stage["spawn"] for stage in STAGE_CONFIGS]
 
 if not (len(BG_SCREENS) == len(FP_SCREENS) == len(SPAWN_TABLES)):
     raise SystemExit("BG_SCREENS, FP_SCREENS, and SPAWN_TABLES must stay parallel")
@@ -306,6 +301,7 @@ def check_vm_constants(roster_sidecar):
 
 
 def main():
+    build_audio.main()
     assemble()
     poppy_data = bytearray(open('src/main.bin', 'rb').read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")

@@ -11,15 +11,9 @@ tad-check:
 	$(PYTHON) soundwork/tad/rebuild.py --check $(TAD_ARGS)
 
 audio-manifest:
-	$(PYTHON) tools/audio/generate_audio_manifest.py
-	$(PYTHON) tools/audio/verify_audio_manifest.py
+	$(PYTHON) tools/audio/build_audio.py
 
-audio-ids: audio-manifest
-	$(PYTHON) tools/audio/generate_audio_music_ids.py
-
-audio-music: audio-ids
-	$(PYTHON) tools/audio/build_music_catalog.py --output distribution --catalog $(AUDIO_CATALOG)
-	$(PYTHON) tools/audio/verify_msu_pcm.py
+audio-ids audio-music: audio-manifest
 
 src/main.bin: audio-ids src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm tools/audio/audio_music_ids.pasm
 	$(DOTNET) $(POPPY_DLL) src/main.pasm -s src/main.sym

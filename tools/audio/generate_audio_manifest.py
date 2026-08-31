@@ -23,21 +23,12 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
+from shipped_content import SHIPPED_CHARACTERS, shipped_levels  # noqa: E402
 
 PAKS = [
     ("bor-original", ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"),
     ("tmnt", ROOT / "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak"),
 ]
-SHIPPED = {
-    "bor-original": {
-        "characters": {"RALF", "JHUN", "JOE", "YASHIRO", "MISC\\TRASH", "MISC\\CHAIR", "MISC\\TABLE"},
-        "levels": {"1AEASY.TXT", "1BEASY.TXT"},
-    },
-    "tmnt": {
-        "characters": {"BEBOP", "FOOT01", "FOOT02", "FOOT03", "FOOT04", "LEATHER", "LEO", "MOUSER", "ROCK"},
-        "levels": {"BEBOP.TXT", "ROCK.TXT", "LEATHER.TXT", "SEWER0.TXT", "STREETS.TXT", "STREETS2.TXT", "SEWER.TXT", "FOOT.TXT"},
-    },
-}
 PAK_ALIASES = {
     ("tmnt", "DATA\\SOUNDS\\TURTLEDIE.WAV"): "DATA\\SOUNDS\\TURTLE~1.WAV",
 }
@@ -177,9 +168,9 @@ def scan_family(family: str, pak: Path) -> dict:
             upper_source = norm(e.name)
             if "\\CHARS\\" in upper_source:
                 suffix = upper_source.split("\\CHARS\\", 1)[1].rsplit("\\", 1)[0]
-                ref["reachability"] = "shipped-reachable" if suffix in SHIPPED[family]["characters"] else "unshipped-source-content"
+                ref["reachability"] = "shipped-reachable" if suffix in SHIPPED_CHARACTERS[family] else "unshipped-source-content"
             elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
-                ref["reachability"] = "shipped-reachable" if Path(upper_source).name in SHIPPED[family]["levels"] else "unshipped-source-content"
+                ref["reachability"] = "shipped-reachable" if Path(upper_source).name in shipped_levels(family) else "unshipped-source-content"
             else:
                 ref["reachability"] = "shipped-reachable" if "\\SCENES\\ENDING.TXT" in upper_source else "unshipped-source-content"
             if asset is None:

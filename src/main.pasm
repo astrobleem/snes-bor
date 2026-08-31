@@ -11131,16 +11131,6 @@ scpu_boot:
     stz $2228               ; BWPA: no BW-RAM write protect
     stz $2224               ; BMAPS: S-CPU BW-RAM window $00:6000 = BW-RAM bank 0
 
-    ; Phase G5: BW-RAM's classic $6000-$7FFF window is real battery-backed
-    ; save RAM (see core/options.pasm's own header), now writable by the
-    ; three pokes just above. Initialize and latch the persisted option before
-    ; authored MSU-1 track selection so the first volume write never reads
-    ; uninitialized WRAM. The first PLAYING-frame pause hook sees the latch.
-    jsl Options_Init
-    lda #1
-    sta.l Options_Initialized
-    jsl Options_ApplyMusicVolume_Long
-
     stz $2203               ; CRV low
     lda #$80
     sta $2204               ; CRV high -> SA-1 reset vector $8000
@@ -11403,7 +11393,6 @@ msu1_done:
 .a16
 .i16
     jsr Bg_LoadScene
-    jsr Music_SelectStageTrack
 
     ; Playfield border width, deferred to here (see the comment left at the
     ; old boot-time call site above) so a BG_MODE_STREAMING level's real
@@ -11469,6 +11458,20 @@ Boot_SetPlayfieldBorder__go:
     rep #$10
 .i16
     jsl Tad_Init
+
+    ; Tad_Init must precede every Tad_* API call. BW-RAM is configured here,
+    ; so load the persisted option and apply it to TAD before authored MSU
+    ; music selection uses the same initialized value.
+    jsl Options_Init
+    sep #$20
+.a8
+    lda #1
+    sta.l Options_Initialized
+    jsl Options_ApplyMusicVolume_Long
+    rep #$31
+.a16
+.i16
+    jsr Music_SelectStageTrack
 
     ; --- PPU init (forced blank) ---
     lda #$80

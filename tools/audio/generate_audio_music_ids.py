@@ -2,20 +2,27 @@
 """Generate the stage-indexed MSU track table from the audio manifest."""
 import json
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shipped_content import STAGE_CONFIGS
 
 ROOT = Path(__file__).resolve().parents[2]
-STAGES = [
-    "bor-original:DATA\\MUSIC\\KOF.BOR", "bor-original:DATA\\MUSIC\\ASC.BOR",
-    "tmnt:DATA\\MUSIC\\NYSTREET.BOR", "tmnt:DATA\\MUSIC\\FIRE.BOR",
-    "tmnt:DATA\\MUSIC\\SEWERS.BOR", "tmnt:DATA\\MUSIC\\REMIX\\PAINOVO.BOR",
-    "tmnt:DATA\\MUSIC\\REMIX\\TAU1.BOR", "tmnt:DATA\\MUSIC\\REMIX\\ZETA1.BOR",
-    "tmnt:DATA\\MUSIC\\REMIX\\GLIESE86.BOR", "tmnt:DATA\\MUSIC\\FIRE.BOR",
-]
-
-
 def main() -> int:
     manifest = json.loads((ROOT / "tools/audio/audio_manifest.json").read_text(encoding="utf-8"))
-    ids = {a.get("track_key"): a.get("msu_track_id") for f in manifest["families"] for a in f["assets"] if a.get("track_key")}
+    assets = [a for f in manifest["families"] for a in f["assets"] if a.get("track_key")]
+    stages = []
+    for stage in STAGE_CONFIGS:
+        level = stage["source_level"].upper()
+        refs = [r for a in assets for r in a["references"]
+                if r.get("reachability") == "shipped-reachable"
+                and r.get("directive") == "music"
+                and r.get("source_file", "").upper().endswith(level)]
+        if len(refs) != 1:
+            raise SystemExit(f"expected one authored music directive for {stage['source_level']}, got {len(refs)}")
+        asset = next(a for a in assets if refs[0] in a["references"])
+        stages.append(asset["track_key"])
+    ids = {a.get("track_key"): a.get("msu_track_id") for a in assets}
+    STAGES = stages
     missing = [key for key in STAGES if key not in ids]
     if missing:
         raise SystemExit("missing generated track mapping: " + ", ".join(missing))
