@@ -1,5 +1,6 @@
 PYTHON ?= python3
-POPPY ?= poppy
+DOTNET ?= C:/Users/chad/.dotnet/dotnet.exe
+POPPY_DLL ?= E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll
 TAD_COMPILER ?=
 TAD_ARGS = $(if $(TAD_COMPILER),--compiler "$(TAD_COMPILER)",)
 
@@ -9,7 +10,7 @@ tad-check:
 	$(PYTHON) soundwork/tad/rebuild.py --check $(TAD_ARGS)
 
 src/main.bin: src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm
-	$(POPPY) src/main.pasm -s src/main.sym
+	$(DOTNET) $(POPPY_DLL) src/main.pasm -s src/main.sym
 
 build/bor.sfc: tad-check src/main.bin build_rom.py
 	$(PYTHON) build_rom.py

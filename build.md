@@ -31,9 +31,11 @@ C:\Users\chad\.dotnet\dotnet.exe E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Releas
 python build_rom.py
 ```
 
-`build_rom.py` accepts `DOTNET` and `POPPY_DLL` environment overrides; it
-fails clearly when the configured Poppy CLI is missing instead of silently
-using a stale assembler output.
+`build_rom.py` accepts `DOTNET` and `POPPY_DLL` environment overrides. Its
+known-local defaults are the working .NET 10 executable and Poppy CLI DLL on
+this development machine; it fails clearly when either configured tool is
+missing instead of silently using a stale assembler output. The Makefile uses
+the same two variables and invokes `$(DOTNET) $(POPPY_DLL)` explicitly.
 
 `make clean && make` runs the same build with configurable `PYTHON`, `POPPY`, and
 `TAD_COMPILER` commands. Set those variables to the tools in your environment;

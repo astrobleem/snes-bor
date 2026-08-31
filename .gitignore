@@ -20,3 +20,6 @@ __pycache__/
 
 # Superseded local Poppy build-script backups
 *.poppy.bak
+
+# Local agent/audit note, never repository content
+/notjustfreespecial.txt

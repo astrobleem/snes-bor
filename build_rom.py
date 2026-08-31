@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import shutil
 
 ROM_SIZE = 0x400000
 BANK0_SIZE = 0x8000
@@ -221,7 +222,7 @@ if not (len(BG_SCREENS) == len(FP_SCREENS) == len(SPAWN_TABLES)):
 # the packed bytes and the ground truth cannot drift apart.
 VM_MODULE = "tools/verify/vm_fixtures/boot_spawn_wave1_module.bin"
 
-DOTNET = os.environ.get('DOTNET', 'dotnet')
+DOTNET = os.environ.get('DOTNET', r'C:\Users\chad\.dotnet\dotnet.exe')
 POPPY_DLL = os.environ.get(
     'POPPY_DLL',
     r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll')
@@ -233,6 +234,10 @@ def assemble():
     # reassembled, which cost a full debugging cycle chasing "fixes" that
     # were never actually built. Making this automatic removes that failure
     # mode entirely.
+    if not (os.path.exists(DOTNET) or shutil.which(DOTNET)):
+        print(f".NET executable not found: {DOTNET}. Set DOTNET to a working dotnet executable.",
+              file=sys.stderr)
+        sys.exit(1)
     if not os.path.exists(POPPY_DLL):
         print(f"Poppy CLI not found: {POPPY_DLL}. Set POPPY_DLL to the built poppy.dll.",
               file=sys.stderr)
