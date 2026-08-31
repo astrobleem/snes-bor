@@ -1,27 +1,157 @@
 # Audio Inventory
 
-This is a source-backed inventory, not a claim that the game's audio is
-complete. Asset names and counts were read from the local OpenBOR `PACK`
-archives with `tools/bor_converter/pak_extract.py` on 2026-08-31.
+Generated from the local BOR/TMNT PAK archives by `tools/audio/generate_audio_manifest.py`.
 
-Status values are restricted to: `implemented`, `present in source/content but
-not implemented`, `content-inapplicable`, `intentionally deferred`, and
-`unknown requiring source research`.
+This is not an audio-complete claim. `implemented-and-gated` requires a real source reference and live runtime proof.
 
-| Source/content | Inventory | Status | Evidence/current handling |
-|---|---|---|---|
-| BOR Original `DATA\\SOUNDS` | 29 WAV assets: `BEAT1`, `DIE1`, `FALL`, `GET`, `DIE2`, `JUMP`, `KLUNK`, `MONEY`, `BEEP`, `BEEP2`, `MAXBOOM`, `TIMEOVER`, `INDIRECT`, `EEK`, `PUNCH`, `1UP`, `KULAHEY`, `KULABLOW`, `MAXROCKT`, `MAXUH`, `LEONAHEY`, `WOOD`, `BIKE`, `MARYTOSS`, `MARY_FFP`, `SHAAH`, `DRILL`, `ALIEN`, `ZOEF` | `implemented` for `BEAT1`; `present in source/content but not implemented` for the other 28 | G11's `sfx_hit` plays `soundwork/tad/project/samples/beat1.wav`; no other BOR sound asset is in the TAD SFX project |
-| TMNT `data\\SOUNDS` | 57 sound assets, including `BEAT1`, `BEAT`, `BEAT01`, `DASH`, `THROW`, `PUNCH0`, `PIZZA`, `SPIN`, `COWABUNG`, `BEBOPDIE`, `FOOTDIE`, `TURTLE~1`, `ROCKDIE`, `GUNSHOT`, `ELECTRIC`, `METAL`, `WAVE`, and the remaining archive entries | `present in source/content but not implemented` | TMNT visual/stage data is converted, but its sound assets are not imported into TAD |
-| BOR Original level/scene music | Referenced tracks include `asc.bor`, `kof.bor`, `1boss.bor`, `saviour.bor`, `control.bor`, `scorcher.bor`, `necktie.bor`, `supertb.bor`, `goarge.bor`, `trick.bor`, `exist.bor`, `joe.bor`, `fsol.bor`, `time.bor`, and `haha.bor` | `present in source/content but not implemented` | The current TAD song is `s02_coin`, reconstructed from surviving compiled artifacts; it is not these BOR music files |
-| TMNT level/scene music | Referenced tracks include `NYstreet.bor`, `boss.bor`, `Fire.bor`, `Sewers.bor`, `remix/Gliese86.bor`, `remix/Painovo.bor`, `remix/Tau1.bor`, `remix/Zeta1.bor`, `TMNT.bor`, and `TMNTEnd.bor` | `present in source/content but not implemented` | No BOR/TMNT music track is converted to the current MSU-1 PCM track |
-| Character and prop `sound`/`diesound` directives | BOR and TMNT character text files reference death, attack, voice, prop, pickup, and special-effect WAVs | `present in source/content but not implemented` | These directives are source evidence only; no runtime sound dispatch exists for them |
-| Menu/game-state audio cues | OpenBOR scene files contain music directives for ending and other scenes; current title, character-select, pause, game-over, and ending paths have no corresponding real BOR cue assets | `intentionally deferred` | Keep future UI/state cue work separate from G11's landed-hit scope |
-| `distribution/bor-1.pcm` | One MSU-1 PCM track next to the ROM | `content-inapplicable` | It is a placeholder/proof clip, explicitly not a BOR soundtrack asset |
-| TAD `s02_coin` song | One reconstructed TAD song plus `sfx_stub` and `sfx_hit` exports | `intentionally deferred` for soundtrack; `implemented` for `sfx_hit` | TAD/SPC700 remains the short gameplay/UI SFX path; MSU-1 PCM is reserved for the eventual full-quality soundtrack |
+## bor-original
 
-## Scope boundary
+PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
+- SFX WAV assets: 29 total, 17 referenced, 12 unused by scanned shipped content.
+- BOR music assets: 19 total, 15 referenced, 4 unused by scanned shipped content.
 
-G11 is complete because its defined scope is one real landed-hit SFX path using
-`BEAT1.WAV`. This inventory is future work and does not reopen G11. The full
-BOR soundtrack is not currently implemented, and the placeholder MSU-1 PCM
-track must not be described as that soundtrack.
+| Asset | References | Classification | Runtime mapping |
+|---|---:|---|---|
+| `DATA\MUSIC\1BOSS.BOR` | 16 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\ASC.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\COMPLETE.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\CONTROL.BOR` | 6 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\EXIST.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\FSOL.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\GAMEOVER.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\GOARGE.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\HAHA.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\JOE.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\KOF.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\MENU.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\NECKTIE.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\SAVIOUR.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\SCORCHER.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\SUPERTB.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\TIME.BOR` | 2 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\TRICK.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\1UP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\ALIEN.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\BEAT1.WAV` | 0 | `implemented-and-gated` | `TAD SFX::sfx_hit; Character_HitApply` |
+| `DATA\SOUNDS\BEEP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEEP2.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BIKE.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\DIE1.WAV` | 9 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\DIE2.WAV` | 7 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\DRILL.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\EEK.WAV` | 5 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\FALL.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\GET.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\INDIRECT.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\JUMP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\KLUNK.WAV` | 3 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\KULABLOW.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\KULAHEY.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\LEONAHEY.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MARYTOSS.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MARY_FFP.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MAXBOOM.WAV` | 3 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MAXROCKT.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MAXUH.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MONEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\PUNCH.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\SHAAH.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\TIMEOVER.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\WOOD.WAV` | 5 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\ZOEF.WAV` | 1 | `present-not-implemented` | `none` |
+
+## tmnt
+
+PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
+- SFX WAV assets: 55 total, 21 referenced, 34 unused by scanned shipped content.
+- BOR music assets: 25 total, 11 referenced, 14 unused by scanned shipped content.
+
+| Asset | References | Classification | Runtime mapping |
+|---|---:|---|---|
+| `DATA\MUSIC\BOSS.BOR` | 6 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\COMPLETE.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\CUTSCE~1.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\DTROUBLE.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\FIRE.BOR` | 3 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\GAMEOVER.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\MENU.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\MENU0.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\NYSTREET.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\REMIX0.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\REMIX\BOSS.BOR` | 2 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX\DTROUBLE.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\REMIX\FIRE.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\REMIX\GABO01.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\REMIX\GLIESE86.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX\PAINOVO.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX\TAU1.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\REMIX\ZETA1.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\SELECT.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\SEWER.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\MUSIC\SEWERS.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\TMNT.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\TMNTEND.BOR` | 1 | `present-not-implemented` | `none` |
+| `DATA\MUSIC\TMNTROCK.BOR` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\1UP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\ALIEN.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEAT.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEAT01.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEAT1.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEBOPDIE.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\BEEP0.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEEP2.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BIKE.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BOAR.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\COWABUNG.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\DASH.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\DIE00.WAV` | 2 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\DIE1.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\DIE2.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\DRILL.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\EEK.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\ELEC4.WAV` | 2 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\ELECTRIC.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\ELECTR~1.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\ELECTR~2.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\FALL.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\FOOTDIE.WAV` | 5 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\GET.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\GET00.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\GUNSHOT.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\INDIRECT.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\JUMP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\KLUNK.WAV` | 42 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\KULABLOW.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\KULAHEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\LEONAHEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\MARYTOSS.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\MARY_FFP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\MAXBOOM.WAV` | 3 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MAXROCKT.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MAXUH.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\META2L.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\METAL.WAV` | 2 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\MONEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\PIZZA.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\PIZZA1.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\PUNCH0.WAV` | 7 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\PUNCH00.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\PUNCH01.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\RHINO.WAV` | 3 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\ROCKDIE.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\SHAAH.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\SPIN.WAV` | 6 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\THROW.WAV` | 5 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\TIMEOVER.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\TURTLE~1.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\WAVE.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\WOOD.WAV` | 5 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\ZOEF.WAV` | 0 | `unused-by-shipped-content` | `none` |
+
+## Architecture boundary
+
+TAD/SPC700 handles short gameplay/UI SFX. MSU-1 PCM is reserved for the eventual full-quality soundtrack. The current `distribution/bor-1.pcm` remains a placeholder proof asset.
+
+G11 remains DONE for one real landed-hit SFX path using BOR `BEAT1.WAV`; this pass does not reopen G11 or start G12.

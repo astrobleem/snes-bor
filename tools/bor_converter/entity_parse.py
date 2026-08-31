@@ -4,7 +4,7 @@
 Tab/whitespace-delimited, line-oriented format. Top-level scalar directives
 (name, health, speed, type, shadow, icon, diesound) and repeatable `remap`
 lines, followed by one or more `anim <name>` blocks. Inside an anim block,
-`loop`/`delay`/`offset`/`bbox`/`attack`/`move`/`range` directives set
+`loop`/`delay`/`offset`/`bbox`/`attack`/`move`/`sound`/`range` directives set
 "current" state that applies to every `frame` line until overridden --
 e.g. RALF.TXT's `pain` anim sets `delay 12`, one `frame`, then `delay 50`,
 another `frame`, then `delay 12` again: each `frame` line snapshots
@@ -45,7 +45,8 @@ def parse_entity(text):
     cur_anim = None
     cur_anim_name = None
     # "pending" state, sticky across frame lines within one anim block
-    pending = {'delay': None, 'offset': None, 'bbox': None, 'attack': None, 'move': None}
+    pending = {'delay': None, 'offset': None, 'bbox': None, 'attack': None,
+               'move': None, 'sound': None}
 
     for raw in lines:
         toks = _tokenize(raw)
@@ -61,7 +62,8 @@ def parse_entity(text):
                 'frames': [],
             }
             entity['animations'][cur_anim_name] = cur_anim
-            pending = {'delay': None, 'offset': None, 'bbox': None, 'attack': None, 'move': None}
+            pending = {'delay': None, 'offset': None, 'bbox': None, 'attack': None,
+                       'move': None, 'sound': None}
             continue
 
         if cur_anim is None:
@@ -94,6 +96,8 @@ def parse_entity(text):
             pending['attack'] = tuple(int(a) for a in args)
         elif key == 'move':
             pending['move'] = int(args[0])
+        elif key == 'sound':
+            pending['sound'] = args[0] if args else None
         elif key == 'frame':
             cur_anim['frames'].append({
                 'gif': args[0],
@@ -102,6 +106,7 @@ def parse_entity(text):
                 'bbox': pending['bbox'],
                 'attack': pending['attack'],
                 'move': pending['move'],
+                'sound': pending['sound'],
             })
         # unrecognized directives inside an anim block (rare/model-specific) are ignored
 

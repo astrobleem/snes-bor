@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Generate the source-backed BOR/TMNT audio manifest.
+
+The PAK files are the authority.  This scanner deliberately does not infer
+meaning from filenames: only explicit ``sound``/``diesound`` and
+``music``/``bossmusic`` directives become references.  The manifest also
+lists unreferenced media so content coverage cannot silently shrink.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import re
+import struct
+import sys
+import wave
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
+from pak_extract import read_entries, extract  # noqa: E402
+
+PAKS = [
+    ("bor-original", ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"),
+    ("tmnt", ROOT / "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak"),
+]
+SOUND_RE = re.compile(r"^\s*(sound|diesound)\s+(\S+)", re.I)
+MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)", re.I)
+
+
+def norm(value: str) -> str:
+    return value.replace("/", "\\").upper()
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def wav_metadata(data: bytes) -> dict:
+    try:
+        with wave.open(io.BytesIO(data)) as w:
+            return {
+                "container": "WAV", "codec": "PCM",
+                "channels": w.getnchannels(), "sample_width_bytes": w.getsampwidth(),
+                "sample_rate_hz": w.getframerate(), "sample_count": w.getnframes(),
+                "duration_seconds": round(w.getnframes() / w.getframerate(), 9),
+            }
+    except wave.Error:
+        # Some TMNT assets are WAVE_FORMAT_MPEG (tag 0x55), not PCM.  Retain
+        # the source facts without pretending a PCM decoder measured them.
+        if data[:4] != b"RIFF" or data[8:12] != b"WAVE":
+            raise
+        pos = 12
+        fmt = None
+        data_bytes = None
+        while pos + 8 <= len(data):
+            tag, size = data[pos:pos + 4], struct.unpack_from("<I", data, pos + 4)[0]
+            body = data[pos + 8:pos + 8 + size]
+            pos += 8 + size + (size & 1)
+            if tag == b"fmt " and len(body) >= 16:
+                fmt = struct.unpack_from("<HHIIHH", body)
+            elif tag == b"data":
+                data_bytes = len(body)
+        if fmt is None:
+            raise
+        codec, channels, rate, byte_rate, block_align, bits = fmt
+        return {"container": "WAV", "codec_tag": f"0x{codec:04x}",
+                "channels": channels, "sample_width_bytes": None,
+                "sample_rate_hz": rate, "sample_count": None,
+                "duration_seconds": None, "compressed_data_bytes": data_bytes,
+                "byte_rate": byte_rate, "block_align": block_align, "bits_per_sample": bits}
+
+
+def media_metadata(name: str, data: bytes) -> dict:
+    suffix = Path(name).suffix.lower()
+    if suffix == ".wav":
+        return wav_metadata(data)
+    if suffix == ".bor":
+        return {"container": "OpenBOR BOR music", "magic": data[:9].rstrip(b"\0").decode("latin1", "replace")}
+    return {"container": suffix.lstrip(".").upper() or "unknown"}
+
+
+def classify(asset: dict) -> str:
+    if asset["kind"] == "missing-source":
+        return "unknown-needs-source-research"
+    if asset["kind"] == "sfx" and asset["source_path"] == "DATA\\SOUNDS\\BEAT1.WAV" \
+            and asset["family"] == "bor-original":
+        return "implemented-and-gated"
+    if asset["references"]:
+        return "present-not-implemented"
+    return "unused-by-shipped-content"
+
+
+def scan_family(family: str, pak: Path) -> dict:
+    if not pak.exists():
+        raise SystemExit(f"missing source PAK: {pak}")
+    entries = read_entries(str(pak))
+    by_name = {norm(e.name): e for e in entries}
+    assets = {}
+    for e in entries:
+        p = norm(e.name)
+        if not p.startswith("DATA\\SOUNDS\\") and not p.startswith("DATA\\MUSIC\\"):
+            continue
+        suffix = Path(p).suffix.lower()
+        kind = "sfx" if p.startswith("DATA\\SOUNDS\\") and suffix == ".wav" else \
+            "music" if p.startswith("DATA\\MUSIC\\") and suffix == ".bor" else "other-audio"
+        data = extract(str(pak), e.name)
+        assets[p] = {
+            "family": family,
+            "kind": kind,
+            "source_path": p,
+            "source_filename": Path(p).name,
+            "source_hash": sha256(data),
+            "source_size_bytes": len(data),
+            "format": media_metadata(p, data),
+            "references": [],
+            "converter_representation": None,
+            "packed_runtime": None,
+            "tad_sfx_id": 1 if family == "bor-original" and p == "DATA\\SOUNDS\\BEAT1.WAV" else None,
+            "msu_track_id": None,
+        }
+    for e in entries:
+        if not e.name.upper().endswith(".TXT"):
+            continue
+        text = extract(str(pak), e.name).decode("latin1")
+        # TEST.TXT is a converter fixture, not a shipped stage in build_rom.py.
+        if norm(e.name) == "DATA\\LEVELS\\TEST.TXT":
+            continue
+        for line_no, line in enumerate(text.splitlines(), 1):
+            match = SOUND_RE.match(line) or MUSIC_RE.match(line)
+            if not match:
+                continue
+            directive, raw_path = match.groups()
+            source_path = norm(raw_path)
+            if not source_path.startswith("DATA\\"):
+                source_path = "DATA\\" + source_path
+            asset = assets.get(source_path)
+            ref = {
+                "source_file": norm(e.name),
+                "line": line_no,
+                "directive": directive.lower(),
+                "semantic_event": "death" if directive.lower() == "diesound" else
+                    "boss-music" if directive.lower() == "bossmusic" else
+                    "music-selection" if directive.lower() == "music" else "animation-or-event-sound",
+            }
+            if asset is None:
+                # Keep the unresolved reference visible; the verifier reports it.
+                assets[source_path] = {
+                    "family": family, "kind": "missing-source", "source_path": source_path,
+                    "source_filename": Path(source_path).name, "source_hash": None,
+                    "source_size_bytes": None, "format": None, "references": [ref],
+                    "converter_representation": None, "packed_runtime": None,
+                    "tad_sfx_id": None, "msu_track_id": None,
+                }
+            else:
+                asset["references"].append(ref)
+    for asset in assets.values():
+        asset["implementation_classification"] = classify(asset)
+        if asset["family"] == "bor-original" and asset["source_path"] == "DATA\\SOUNDS\\BEAT1.WAV":
+            asset["converter_representation"] = "soundwork/tad/project/samples/beat1.wav"
+            asset["packed_runtime"] = "TAD SFX::sfx_hit; Character_HitApply"
+    return {"family": family, "pak": pak.name, "pak_hash": sha256(pak.read_bytes()),
+            "assets": sorted(assets.values(), key=lambda a: (a["kind"], a["source_path"]))}
+
+
+def write_docs(manifest: dict, path: Path) -> None:
+    lines = ["# Audio Inventory", "", "Generated from the local BOR/TMNT PAK archives by `tools/audio/generate_audio_manifest.py`.", "", "This is not an audio-complete claim. `implemented-and-gated` requires a real source reference and live runtime proof.", ""]
+    for family in manifest["families"]:
+        assets = family["assets"]
+        sfx = [a for a in assets if a["kind"] == "sfx"]
+        music = [a for a in assets if a["kind"] == "music"]
+        ref_sfx = [a for a in sfx if a["references"]]
+        ref_music = [a for a in music if a["references"]]
+        lines += [f"## {family['family']}", "", f"PAK: `{family['pak']}`", f"- SFX WAV assets: {len(sfx)} total, {len(ref_sfx)} referenced, {len(sfx)-len(ref_sfx)} unused by scanned shipped content.", f"- BOR music assets: {len(music)} total, {len(ref_music)} referenced, {len(music)-len(ref_music)} unused by scanned shipped content.", ""]
+        lines.append("| Asset | References | Classification | Runtime mapping |")
+        lines.append("|---|---:|---|---|")
+        for a in assets:
+            if a["kind"] not in ("sfx", "music"):
+                continue
+            lines.append(f"| `{a['source_path']}` | {len(a['references'])} | `{a['implementation_classification']}` | `{a['packed_runtime'] or 'none'}` |")
+        lines.append("")
+    lines += ["## Architecture boundary", "", "TAD/SPC700 handles short gameplay/UI SFX. MSU-1 PCM is reserved for the eventual full-quality soundtrack. The current `distribution/bor-1.pcm` remains a placeholder proof asset.", "", "G11 remains DONE for one real landed-hit SFX path using BOR `BEAT1.WAV`; this pass does not reopen G11 or start G12."]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--output", type=Path, default=ROOT / "tools/audio/audio_manifest.json")
+    ap.add_argument("--docs", type=Path, default=ROOT / "docs/audio_inventory.md")
+    args = ap.parse_args()
+    manifest = {"schema_version": 1, "source_of_truth": "local OpenBOR PAK archives", "families": [scan_family(f, p) for f, p in PAKS]}
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    write_docs(manifest, args.docs)
+    print(f"wrote {args.output} and {args.docs}")
+    for family in manifest["families"]:
+        a = family["assets"]
+        print(f"{family['family']}: sfx={sum(x['kind']=='sfx' for x in a)} referenced_sfx={sum(x['kind']=='sfx' and bool(x['references']) for x in a)} music={sum(x['kind']=='music' for x in a)} referenced_music={sum(x['kind']=='music' and bool(x['references']) for x in a)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
