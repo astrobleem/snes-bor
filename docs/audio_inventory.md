@@ -7,7 +7,7 @@ This is not an audio-complete claim. `implemented-and-gated` requires a real sou
 ## bor-original
 
 PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
-- SFX WAV assets: 29 total; 29 raw-referenced; 5 shipped-reachable references; 0 unused.
+- SFX WAV assets: 29 total; 29 raw-referenced; 10 shipped-reachable references; 0 unused.
 - BOR music assets: 19 total; 15 raw-referenced; 3 shipped-reachable references; 4 unused.
 
 | Asset | References | Classification | Runtime mapping |
@@ -64,7 +64,7 @@ PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 ## tmnt
 
 PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
-- SFX WAV assets: 55 total; 22 raw-referenced; 33 shipped-reachable references; 33 unused.
+- SFX WAV assets: 55 total; 32 raw-referenced; 38 shipped-reachable references; 23 unused.
 - BOR music assets: 25 total; 11 raw-referenced; 16 shipped-reachable references; 14 unused.
 
 | Asset | References | Classification | Runtime mapping |
@@ -94,15 +94,15 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\MUSIC\TMNT.BOR` | 1 | `present-not-implemented` | `none` |
 | `DATA\MUSIC\TMNTEND.BOR` | 1 | `present-not-implemented` | `none` |
 | `DATA\MUSIC\TMNTROCK.BOR` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\1UP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\1UP.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\ALIEN.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\BEAT.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\BEAT01.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\BEAT1.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEAT1.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\BEBOPDIE.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\BEEP0.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\BEEP2.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\BIKE.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\BEEP2.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\BIKE.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\BOAR.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\COWABUNG.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\DASH.WAV` | 1 | `present-not-implemented` | `none` |
@@ -115,13 +115,13 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\SOUNDS\ELECTRIC.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\ELECTR~1.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\ELECTR~2.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\FALL.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\FALL.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\FOOTDIE.WAV` | 5 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\GET.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\GET.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\GET00.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\GUNSHOT.WAV` | 1 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\INDIRECT.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\JUMP.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\INDIRECT.WAV` | 1 | `present-not-implemented` | `none` |
+| `DATA\SOUNDS\JUMP.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\KLUNK.WAV` | 42 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\KULABLOW.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\KULAHEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
@@ -133,7 +133,7 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\SOUNDS\MAXUH.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\META2L.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\METAL.WAV` | 2 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\MONEY.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\MONEY.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\PIZZA.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\PIZZA1.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\PUNCH0.WAV` | 7 | `present-not-implemented` | `none` |
@@ -144,7 +144,7 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\SOUNDS\SHAAH.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\SPIN.WAV` | 6 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\THROW.WAV` | 5 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\TIMEOVER.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\TIMEOVER.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\TURTLE~1.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\WAVE.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\WOOD.WAV` | 5 | `present-not-implemented` | `none` |

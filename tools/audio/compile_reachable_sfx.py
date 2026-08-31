@@ -26,12 +26,17 @@ PROJECT = ROOT / "soundwork" / "tad" / "project"
 PAK_ROOT = ROOT
 
 
+def asset_key(family: str, path: str) -> str:
+    return f"{family}:{path.upper()}"
+
+
 def reachable_assets(selected: set[str] | None = None) -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     result = []
     for family in manifest["families"]:
         for asset in family["assets"]:
-            if asset["kind"] == "sfx" and asset["shipped_reachable"] and (selected is None or (family["family"], asset["source_path"]) in selected):
+            key = asset_key(family["family"], asset["source_path"])
+            if asset["kind"] == "sfx" and asset["shipped_reachable"] and (selected is None or key in selected):
                 item = dict(asset)
                 item["family"] = family["family"]
                 item["pak"] = family["pak"]
@@ -89,6 +94,12 @@ def main() -> int:
     compiler = find_compiler(args.compiler)
     version = check_compiler_version(compiler)
     selected = set(args.asset) if args.asset else None
+    if selected:
+        selected = {asset_key(*value.split(":", 1)) if ":" in value else value for value in selected}
+        available = {asset_key(a["family"], a["source_path"]) for a in reachable_assets()}
+        missing = sorted(selected - available)
+        if missing:
+            raise SystemExit("FAIL: requested SFX asset key is not shipped-reachable: " + ", ".join(missing))
     assets = reachable_assets(selected)
     if not assets:
         raise SystemExit("FAIL: manifest has no shipped-reachable SFX")

@@ -32,6 +32,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unknown-needs-source-research"
@@ -61,6 +63,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unknown-needs-source-research"
@@ -250,6 +254,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 16,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 16,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -309,6 +315,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 1,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -338,6 +346,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -427,6 +437,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 6,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 6,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -486,6 +498,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -525,6 +539,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -553,6 +569,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -612,6 +630,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -651,6 +671,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -710,6 +732,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -769,6 +793,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 2,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -798,6 +824,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -857,6 +885,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -885,6 +915,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -944,6 +976,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1003,6 +1037,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1062,6 +1098,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1111,6 +1149,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 3,
           "raw_reference_count": 2,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 2,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -1171,6 +1211,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1199,18 +1241,21 @@
               "semantic_event": "one-up",
               "engine_global_sample": "global_sample_list.one_up",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "reachability_reason": "one-up state audio is not implemented"
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "current pickup path implements ONEUP; audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1246,6 +1291,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1276,6 +1323,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
+              "audio_implemented": true,
               "reachability_reason": "default attack hitsound and accepted attack playback are implemented"
             }
           ],
@@ -1283,7 +1331,9 @@
           "packed_runtime": "TAD SFX::sfx_hit; Character_HitApply",
           "tad_sfx_id": 1,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated"
@@ -1314,6 +1364,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "no authored reachable UI beep event is represented"
             }
           ],
@@ -1321,7 +1372,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1352,6 +1405,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "no authored reachable UI beep event is represented"
             }
           ],
@@ -1359,7 +1413,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1390,6 +1446,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "bike mechanic is not present in the shipped runtime"
             }
           ],
@@ -1397,7 +1454,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1515,6 +1574,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 9,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 9,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -1612,6 +1673,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 7,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 7,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -1649,6 +1712,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1726,6 +1791,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 5,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1756,6 +1823,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "fall sound dispatch is not present in the current SNES runtime"
             }
           ],
@@ -1763,7 +1831,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1792,18 +1862,21 @@
               "semantic_event": "get-up",
               "engine_global_sample": "global_sample_list.get",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "reachability_reason": "get-up sound dispatch is not present in the current SNES runtime"
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "get-up/death recovery mechanic exists; audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1832,6 +1905,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "projectile sound dispatch is not implemented"
             }
           ],
@@ -1839,7 +1913,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1868,18 +1944,21 @@
               "semantic_event": "jump",
               "engine_global_sample": "global_sample_list.jump",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "reachability_reason": "jump sound dispatch is not implemented"
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "core/jump.pasm implements the source-backed jump mechanic; audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1935,6 +2014,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -1972,6 +2053,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2009,6 +2092,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2046,6 +2131,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2083,6 +2170,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2120,6 +2209,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2177,6 +2268,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2214,6 +2307,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2251,6 +2346,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2279,18 +2376,21 @@
               "semantic_event": "money-pickup",
               "engine_global_sample": "global_sample_list.get_2",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "reachability_reason": "generic pickup audio dispatch is not implemented"
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "money pickup exists; generic pickup audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -2317,18 +2417,21 @@
               "semantic_event": "attack-swing",
               "engine_global_sample": "global_sample_list.punch",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "reachability_reason": "generic frame/attack sound dispatch is not implemented"
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "current attack/attack-chain path is source-backed; generic swing audio remains unimplemented"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -2364,6 +2467,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2394,6 +2499,7 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
+              "audio_implemented": false,
               "reachability_reason": "time-over state audio is not implemented"
             }
           ],
@@ -2401,7 +2507,9 @@
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "raw_reference_count": 1,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2479,6 +2587,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 5,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2516,6 +2626,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -2612,6 +2724,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 4,
           "raw_reference_count": 6,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 6,
           "shipped_reachable_reference_count": 5,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -2641,6 +2755,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2669,6 +2785,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2697,6 +2815,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2756,6 +2876,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 5,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -2785,6 +2907,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2813,6 +2937,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2841,6 +2967,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2880,6 +3008,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 6,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -2909,6 +3039,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2937,6 +3069,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -2986,6 +3120,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 7,
           "raw_reference_count": 2,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3015,6 +3151,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3043,6 +3181,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3071,6 +3211,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3110,6 +3252,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 8,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3150,6 +3294,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 9,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3190,6 +3336,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 10,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3230,6 +3378,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 11,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3259,6 +3409,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3287,6 +3439,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3326,6 +3480,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 12,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3366,6 +3522,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -3405,6 +3563,8 @@
           "tad_sfx_id": null,
           "msu_track_id": 13,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented",
@@ -3434,6 +3594,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3454,6 +3616,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3474,6 +3638,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3494,6 +3660,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3514,6 +3682,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3534,15 +3704,30 @@
             "sample_count": 35384,
             "duration_seconds": 1.604716553
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "one-up",
+              "engine_global_sample": "global_sample_list.one_up",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "current pickup path implements ONEUP; audio dispatch remains unimplemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -3566,6 +3751,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3592,6 +3779,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3618,6 +3807,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3638,15 +3829,30 @@
             "sample_count": 3394,
             "duration_seconds": 0.307845805
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "landed-hit",
+              "engine_global_sample": "global_sample_list.beat",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": true,
+              "reachability_reason": "default attack hitsound and accepted attack playback are implemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -3681,6 +3887,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -3707,6 +3915,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3727,15 +3937,30 @@
             "sample_count": 4414,
             "duration_seconds": 0.200181406
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "ui-beep-secondary",
+              "engine_global_sample": "global_sample_list.beep_2",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "no authored reachable UI beep event is represented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -3753,15 +3978,30 @@
             "sample_count": 16152,
             "duration_seconds": 1.465034014
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "bike",
+              "engine_global_sample": "global_sample_list.bike",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "bike mechanic is not present in the shipped runtime"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -3796,6 +4036,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -3822,6 +4064,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3859,6 +4103,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -3906,6 +4152,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 2,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 2,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -3943,6 +4191,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -3969,6 +4219,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -3995,6 +4247,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4021,6 +4275,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4068,6 +4324,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 2,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 2,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -4094,6 +4352,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4120,6 +4380,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4150,6 +4412,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4170,15 +4434,30 @@
             "sample_count": 11466,
             "duration_seconds": 0.52
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "fall",
+              "engine_global_sample": "global_sample_list.fall",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "fall sound dispatch is not present in the current SNES runtime"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -4253,6 +4532,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 5,
           "shipped_reachable_reference_count": 4,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -4273,15 +4554,30 @@
             "sample_count": 16791,
             "duration_seconds": 1.522993197
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "get-up",
+              "engine_global_sample": "global_sample_list.get",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "get-up/death recovery mechanic exists; audio dispatch remains unimplemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -4305,6 +4601,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4342,6 +4640,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -4362,15 +4662,30 @@
             "sample_count": 8991,
             "duration_seconds": 0.407755102
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "indirect-attack",
+              "engine_global_sample": "global_sample_list.indirect",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "projectile sound dispatch is not implemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -4388,15 +4703,30 @@
             "sample_count": 5941,
             "duration_seconds": 0.538866213
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "jump",
+              "engine_global_sample": "global_sample_list.jump",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "core/jump.pasm implements the source-backed jump mechanic; audio dispatch remains unimplemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -4841,6 +5171,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 42,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 42,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -4867,6 +5199,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4893,6 +5227,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4919,6 +5255,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4945,6 +5283,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -4971,6 +5311,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5028,6 +5370,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -5065,6 +5409,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -5102,6 +5448,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -5128,6 +5476,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5175,6 +5525,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 2,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5195,15 +5547,30 @@
             "sample_count": 9794,
             "duration_seconds": 0.888344671
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "money-pickup",
+              "engine_global_sample": "global_sample_list.get_2",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "money pickup exists; generic pickup audio dispatch remains unimplemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -5231,6 +5598,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5268,6 +5637,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5365,6 +5736,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 7,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 7,
           "shipped_reachable_reference_count": 7,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5391,6 +5764,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5417,6 +5792,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5474,6 +5851,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 3,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5511,6 +5890,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5537,6 +5918,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"
@@ -5624,6 +6007,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 6,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 6,
           "shipped_reachable_reference_count": 6,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5701,6 +6086,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 5,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5721,15 +6108,30 @@
             "sample_count": 20160,
             "duration_seconds": 0.914285714
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "time-over",
+              "engine_global_sample": "global_sample_list.time_over",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "time-over state audio is not implemented"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -5764,6 +6166,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5801,6 +6205,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
@@ -5878,6 +6284,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 5,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "present-not-implemented"
@@ -5904,6 +6312,8 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
           "implementation_classification": "unused-by-shipped-content"

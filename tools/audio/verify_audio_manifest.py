@@ -26,8 +26,14 @@ def main() -> int:
             if asset.get("implementation_classification") not in ALLOWED:
                 errors.append(f"invalid classification: {key}")
             refs = asset.get("references", [])
-            if asset.get("raw_reference_count") != len(refs):
+            raw_refs = sum(r.get("directive") != "engine-global-default" for r in refs)
+            engine_refs = sum(r.get("directive") == "engine-global-default" for r in refs)
+            if asset.get("raw_reference_count") != raw_refs:
                 errors.append(f"raw reference count mismatch: {key}")
+            if asset.get("engine_global_reference_count", 0) != engine_refs:
+                errors.append(f"engine-global reference count mismatch: {key}")
+            if asset.get("total_reference_count") != len(refs):
+                errors.append(f"total reference count mismatch: {key}")
             reachable = sum(r.get("reachability") == "shipped-reachable" for r in refs)
             if asset.get("shipped_reachable_reference_count") != reachable:
                 errors.append(f"reachable reference count mismatch: {key}")

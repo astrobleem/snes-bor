@@ -190,7 +190,7 @@ def scan_family(family: str, pak: Path) -> dict:
     # Engine-global samples are source-backed references, not inferred from
     # filenames or from the SNES implementation under test.
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
-    if family == "bor-original":
+    if family in ("bor-original", "tmnt"):
         for semantic in ENGINE_GLOBAL_AUDIO:
             asset = assets.get(semantic["asset"])
             if asset is None:
@@ -202,8 +202,9 @@ def scan_family(family: str, pak: Path) -> dict:
                 "semantic_event": semantic["event"],
                 "engine_global_sample": f"global_sample_list.{semantic['global']}",
                 "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-                "reachability": "shipped-reachable" if semantic["reachable"] else "content-inapplicable",
-                "snes_reachable": semantic["reachable"],
+                "reachability": "shipped-reachable" if semantic["mechanic_reachable"] else "content-inapplicable",
+                "snes_reachable": semantic["mechanic_reachable"],
+                "audio_implemented": semantic["audio_implemented"],
                 "reachability_reason": semantic["reason"],
             })
     if family == "bor-original" and beat1 is not None:
@@ -212,7 +213,11 @@ def scan_family(family: str, pak: Path) -> dict:
     for asset in assets.values():
         refs = asset["references"]
         reachable = [r for r in refs if r.get("reachability") == "shipped-reachable"]
-        asset["raw_reference_count"] = len(refs)
+        pak_refs = [r for r in refs if r.get("directive") != "engine-global-default"]
+        engine_refs = [r for r in refs if r.get("directive") == "engine-global-default"]
+        asset["raw_reference_count"] = len(pak_refs)
+        asset["engine_global_reference_count"] = len(engine_refs)
+        asset["total_reference_count"] = len(refs)
         asset["shipped_reachable_reference_count"] = len(reachable)
         asset["shipped_reachable"] = bool(reachable)
         asset["implementation_classification"] = classify(asset)
