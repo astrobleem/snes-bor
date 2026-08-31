@@ -83,13 +83,22 @@ def main() -> int:
             enum_ids = {name: int(number) for name, number in re.findall(r"\b(bank\d+_fx\d+)\s*=\s*(\d+)", enum)}
             target = out_root / f"bank_{bank['bank_id']:02d}"
             target.mkdir()
-            shutil.copy2(out / "audio-data.bin", target / "common-data.bin")
+            blob = (out / "audio-data.bin").read_bytes()
+            export_text = (out / "audio-data.s").read_text(encoding="utf-8")
+            table_match = re.search(r"Tad_DataTable\s*:=\s*__Tad_AudioData_0\s*\+\s*(\d+)", export_text)
+            if not table_match:
+                raise SystemExit(f"FAIL: TAD export has no DataTable for bank {bank['bank_id']}")
+            table = int(table_match.group(1))
+            common_start = int.from_bytes(blob[table:table + 3], "little")
+            common_end = int.from_bytes(blob[table + 3:table + 6], "little")
+            if not 0 <= common_start < len(blob):
+                raise SystemExit(f"FAIL: invalid common start {common_start} for bank {bank['bank_id']}")
+            emitted_common_end = min(common_end, len(blob))
+            (target / "common-data.bin").write_bytes(blob[common_start:emitted_common_end])
             shutil.copy2(out / "audio-enums.inc", target / "audio-enums.inc")
-            blob_bytes = (out / "audio-data.bin").stat().st_size
-            common = blob_bytes - 116 - 3250 - 8 - 21
-            if common < 0:
-                raise SystemExit(f"FAIL: cannot derive common data size for bank {bank['bank_id']} from {blob_bytes} bytes")
-            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "compiled_blob_bytes": blob_bytes, "common_data_bytes": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
+            blob_bytes = len(blob)
+            common = emitted_common_end - common_start
+            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "compiled_blob_bytes": blob_bytes, "compiled_blob_sha256": hashlib.sha256(blob).hexdigest(), "common_data_offset": common_start, "common_data_declared_end": common_end, "common_data_bytes": common, "common_data_bytes_emitted": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
             for asset, effect in asset_to_effect.items():
                 maps.append({"bank_id": bank["bank_id"], "asset": asset, "local_effect_id": enum_ids[effect], "effect_symbol": effect, "exact_physical_identity": hashlib.sha256((samples / f"{effect}.wav").read_bytes()).hexdigest()})
     output = {"schema_version": 1, "compiler": str(compiler), "compiler_version": version, "bank_plan_hash": hashlib.sha256(plan_path.read_bytes()).hexdigest(), "global_ids_hash": hashlib.sha256(ids_path.read_bytes()).hexdigest(), "banks": banks, "maps": maps, "bank_count": len(banks), "total_common_data_bytes": sum(b["common_data_bytes"] for b in banks), "distinct_local_effects": sum(b["physical_effect_count"] for b in banks)}

@@ -59,6 +59,8 @@ def main() -> int:
         enum = OUT / f"bank_{bank['bank_id']:02d}" / "audio-enums.inc"
         if not binary.exists() or not enum.exists():
             raise SystemExit(f"FAIL: missing compiled output for bank {bank['bank_id']}")
+        if binary.stat().st_size != bank["common_data_bytes"]:
+            raise SystemExit(f"FAIL: bank {bank['bank_id']} persisted common-data size mismatch")
         if digest(binary) != bank["common_data_sha256"]:
             raise SystemExit(f"FAIL: bank {bank['bank_id']} binary hash mismatch")
         enum_ids[bank["bank_id"]] = {
