@@ -17,3 +17,6 @@ __pycache__/
 # large and not worth committing — the .pasm sources and Poppy .bin/.sym/
 # .pansy outputs are the actual evidence, kept committed)
 /tools/bank_test_*.sfc
+
+# Superseded local Poppy build-script backups
+*.poppy.bak
