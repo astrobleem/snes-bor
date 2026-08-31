@@ -232,7 +232,7 @@ def write_docs(manifest: dict, path: Path) -> None:
                 continue
             lines.append(f"| `{a['source_path']}` | {len(a['references'])} | `{a['implementation_classification']}` | `{a['packed_runtime'] or 'none'}` |")
         lines.append("")
-    lines += ["## Architecture boundary", "", "TAD/SPC700 handles short gameplay/UI SFX. MSU-1 PCM is reserved for the eventual full-quality soundtrack. The current `distribution/bor-1.pcm` remains a placeholder proof asset.", "", "G11 remains DONE for one real landed-hit SFX path using BOR `BEAT1.WAV`; this pass does not reopen G11 or start G12."]
+    lines += ["## Architecture boundary", "", "TAD/SPC700 handles short gameplay/UI SFX. MSU-1 PCM handles the authored soundtrack pipeline. `distribution/bor-N.pcm` files are deterministic generated artifacts from the catalog, not placeholder proof clips.", "", "G11 remains DONE for one real landed-hit SFX path using BOR `BEAT1.WAV`; this pass does not reopen G11 or start G12."]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Decode every shipped-reachable BOR music asset and build MSU-1 PCM.
 
-The PAKs remain local source inputs.  Output is generated under ``build/``
-and is intentionally not committed; the catalog records source, decoded, and
-MSU PCM hashes for reproducibility.
+The PAKs remain local source inputs. Output is generated under the selected
+distribution directory and is intentionally not committed; the catalog records
+source, decoded, and MSU PCM hashes for reproducibility.
 """
 from __future__ import annotations
 

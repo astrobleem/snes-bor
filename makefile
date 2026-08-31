@@ -3,19 +3,24 @@ DOTNET ?= C:/Users/chad/.dotnet/dotnet.exe
 POPPY_DLL ?= E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll
 TAD_COMPILER ?=
 TAD_ARGS = $(if $(TAD_COMPILER),--compiler "$(TAD_COMPILER)",)
+AUDIO_CATALOG = tools/audio/music_catalog.json
 
 all: build/bor.sfc
 
 tad-check:
 	$(PYTHON) soundwork/tad/rebuild.py --check $(TAD_ARGS)
 
-src/main.bin: src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm
+audio-music:
+	$(PYTHON) tools/audio/build_music_catalog.py --output distribution --catalog $(AUDIO_CATALOG)
+	$(PYTHON) tools/audio/verify_msu_pcm.py
+
+src/main.bin: src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm tools/audio/audio_music_ids.pasm
 	$(DOTNET) $(POPPY_DLL) src/main.pasm -s src/main.sym
 
-build/bor.sfc: tad-check src/main.bin build_rom.py
+build/bor.sfc: tad-check audio-music src/main.bin build_rom.py
 	$(PYTHON) build_rom.py
 
 clean:
 	rm -rf build distribution src/main.bin src/main.pansy src/main.sym
 
-.PHONY: all clean tad-check
+.PHONY: all clean tad-check audio-music
