@@ -15,6 +15,7 @@ def run(script: str, *args: str) -> None:
 
 
 def main() -> int:
+    run("verify_shipped_content.py")
     run("generate_audio_manifest.py")
     run("verify_audio_manifest.py")
     run("generate_audio_music_ids.py")

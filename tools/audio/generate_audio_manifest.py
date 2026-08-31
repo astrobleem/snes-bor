@@ -23,7 +23,9 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
-from shipped_content import SHIPPED_CHARACTERS, shipped_levels  # noqa: E402
+from shipped_content import shipped_characters, shipped_levels  # noqa: E402
+
+SHIPPED_CHARACTERS = shipped_characters()
 
 PAKS = [
     ("bor-original", ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"),
@@ -190,10 +192,12 @@ def scan_family(family: str, pak: Path) -> dict:
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
     if family == "bor-original" and beat1 is not None:
         beat1["references"].append({
-            "source_file": "src/main.pasm:Character_HitApply",
+            "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/source/gamelogic.c:load_special_sounds",
             "line": None,
-            "directive": "engine-default-hit-sound",
+            "directive": "engine-global-default",
             "semantic_event": "landed-hit",
+            "engine_global_sample": "global_sample_list.beat",
+            "source_evidence": "default attack hitsound=global_sample_list.beat; hit playback uses attack_object->hitsound",
             "reachability": "shipped-reachable",
         })
     if family == "bor-original" and beat1 is not None:

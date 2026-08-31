@@ -11,7 +11,7 @@ BANK0_SIZE = 0x8000
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'bor_converter'))
 import pack_msu_roster
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'audio'))
-from shipped_content import STAGE_CONFIGS
+from shipped_content import PLAYABLE_ROSTER_COUNT, ROSTER_PREFIXES, STAGE_CONFIGS
 import build_audio
 
 # Fixed initial roster for runtime MSU-1 character selection (see the plan
@@ -69,57 +69,6 @@ import build_audio
 # pain/fall/rise resolve to a known engine role -- jump/slide/grab-throw/
 # special are real OpenBOR mechanics this engine doesn't implement
 # (plan_game.md's own long-standing gap), not something invented here.
-ROSTER_PREFIXES = ["out/ralf", "out/jhun", "out/joe", "out/yashiro", "out/mouser", "out/foot01",
-                   "out/rock", "out/leather", "out/bebop", "out/foot02", "out/foot03", "out/foot04",
-                   "out/leo",
-                   # Real prop/pickup sprite art (notjustfreespecial.txt
-                   # follow-up to G8's own "deliberately still not done"
-                   # item, completed in finish_g8_with_runtime_asset_
-                   # swapping.md): every real MISC item entity BOR's own
-                   # shipped levels reference (DATA\CHARS\MISC\*.TXT),
-                   # converted via tools/bor_converter/convert_prop.py (its
-                   # own idle-only pipeline, NOT convert_character.py -- see
-                   # that script's docstring for why). These are real
-                   # catalog entries for Spawn_DoRosterReassign's purposes
-                   # (see PLAYABLE_ROSTER_COUNT below -- they are NOT
-                   # player-selectable), always listed after every real
-                   # fighter for that same reason. build_spawn_table.py's
-                   # roster_lookup-by-item-name mechanism (same one bosses
-                   # already use) picks each of these up automatically for
-                   # any spawn whose real item name matches, with zero
-                   # engine-side per-item-type code.
-                   "out/apple", "out/money", "out/meat", "out/1up", "out/gold",
-                   # claude_close_g7_g8_before_g10.md Part 3: real breakable-
-                   # object sprites, audited against the ACTUAL reachable set
-                   # across all 10 shipped stages' own spawn tables (grep for
-                   # `spawn <obstacle-name>` across every shipped level file
-                   # -- Box/Crate/Barrel are real MISC entities in the BOR
-                   # pak but are spawned by NONE of the 10 shipped stages, so
-                   # they are deliberately not converted here). Trash/Chair/
-                   # Table are real, used (DATA\EASY\1AEASY.TXT: 4 Trash
-                   # spawns, all with an `item` line; DATA\EASY\1BEASY.TXT: 7
-                   # Chair/Table spawns, 5 with `item` [money/gold/apple/
-                   # money/apple], 2 bare -- re-counted directly against the
-                   # real pak text during the Part 3 GOLD re-audit above; an
-                   # earlier pass here under-counted this as "5 spawns, 3
-                   # with item"). Converted via convert_prop.py's real `fall`
-                   # art (not an idle copy) -- see that script's own comment
-                   # for why the broken-object appearance needs to be real,
-                   # not fabricated.
-                   "out/trash", "out/chair", "out/table"]
-
-# Real prop/pickup sprite art converted via convert_prop.py (see the
-# ROSTER_PREFIXES comment above) is a real roster member for Spawn_
-# DoRosterReassign's purposes but MUST NOT be player-selectable at char-
-# select -- a 1-frame idle/walk/attack prop has no real playable moveset.
-# PLAYABLE_ROSTER_COUNT is the real, sourced boundary (game_g5_menus.py's
-# own full-roster char-select wrap check caught this as a real regression
-# the same day "out/apple" was added -- char-select's Left-wrap-from-slot-0
-# landed on apple and showed a stale/wrong name row instead of a real
-# character). Requires every prop prefix to be appended AFTER every real
-# fighter prefix in ROSTER_PREFIXES, which is already this list's own
-# convention (props always added last).
-PLAYABLE_ROSTER_COUNT = 13   # ralf..leo (indices 0-12); out/apple (13) is a prop
 
 # Phase 6/9: the BG1 backdrop + BG3 HUD screen, appended to bor.msu as the
 # BG section. Each entry is (bg_converter output dir, make_hud_tiles output

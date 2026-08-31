@@ -1,0 +1,143 @@
+"""Compile the manifest's unique shipped-reachable SFX set with pinned TAD.
+
+The project is built in a temporary directory. No production TAD project or
+generated runtime data is modified by this tool.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import wave
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
+from pak_extract import extract  # noqa: E402
+sys.path.insert(0, str(ROOT / "soundwork" / "tad"))
+from rebuild import check_compiler_version, find_compiler  # noqa: E402
+
+MANIFEST = ROOT / "tools" / "audio" / "audio_manifest.json"
+PROJECT = ROOT / "soundwork" / "tad" / "project"
+PAK_ROOT = ROOT
+
+
+def reachable_assets() -> list[dict]:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    result = []
+    for family in manifest["families"]:
+        for asset in family["assets"]:
+            if asset["kind"] == "sfx" and asset["shipped_reachable"]:
+                item = dict(asset)
+                item["family"] = family["family"]
+                item["pak"] = family["pak"]
+                result.append(item)
+    return sorted(result, key=lambda a: (a["family"], a["source_path"]))
+
+
+def canonical_wav(raw: bytes) -> tuple[bytes, int]:
+    """Normalize OpenBOR PCM WAV chunks for TAD's strict WAV reader."""
+    if raw[:4] != b"RIFF" or raw[8:12] != b"WAVE":
+        raise ValueError("not a RIFF/WAVE file")
+    pos = 12
+    fmt = data = None
+    while pos + 8 <= len(raw):
+        kind = raw[pos:pos + 4]
+        size = struct.unpack_from("<I", raw, pos + 4)[0]
+        chunk = raw[pos + 8:pos + 8 + size]
+        if kind == b"fmt ":
+            fmt = chunk
+        elif kind == b"data":
+            data = chunk
+        pos += 8 + size + (size & 1)
+    if fmt is None or data is None or len(fmt) < 16:
+        raise ValueError("WAV lacks fmt/data chunks")
+    encoding, channels, rate, _byte_rate, block_align, width = struct.unpack_from("<HHIIHH", fmt)
+    if encoding != 1 or width not in (8, 16) or channels not in (1, 2):
+        raise ValueError(f"unsupported PCM WAV encoding={encoding} channels={channels} width={width}")
+    frames = len(data) // block_align
+    values = []
+    for frame in range(frames):
+        samples = []
+        for channel in range(channels):
+            off = frame * block_align + channel * (width // 8)
+            if width == 8:
+                samples.append(data[off] - 128)
+            else:
+                samples.append(struct.unpack_from("<h", data, off)[0] // 256)
+        values.append(sum(samples) // len(samples) + 128)
+    values.extend([128] * ((16 - len(values) % 16) % 16))
+    out = tempfile.SpooledTemporaryFile()
+    with wave.open(out, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(1)
+        wav.setframerate(rate)
+        wav.writeframes(bytes(values))
+    out.seek(0)
+    return out.read(), rate
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--compiler", default=None)
+    args = ap.parse_args()
+    compiler = find_compiler(args.compiler)
+    version = check_compiler_version(compiler)
+    assets = reachable_assets()
+    if not assets:
+        raise SystemExit("FAIL: manifest has no shipped-reachable SFX")
+    with tempfile.TemporaryDirectory(prefix="bor-reachable-sfx-") as tmp:
+        root = Path(tmp) / "project"
+        shutil.copytree(PROJECT, root)
+        samples = root / "samples"
+        samples.mkdir(exist_ok=True)
+        sample_rows = []
+        effects = []
+        for index, asset in enumerate(assets):
+            sample_name = f"reachable_{index:02d}"
+            filename = sample_name + ".wav"
+            data = extract(PAK_ROOT / asset["pak"], asset["source_path"])
+            normalized, sample_rate = canonical_wav(data)
+            (samples / filename).write_bytes(normalized)
+            sample_rows.append({
+                "name": sample_name,
+                "source": "samples/" + filename,
+                "sample_rates": [sample_rate],
+                "loop": "none",
+                "evaluator": "default",
+                "ignore_gaussian_overflow": False,
+                "envelope": "gain F127",
+            })
+            effects.extend([f"=== sfx_reachable_{index:02d} ===", f"    set_instrument {sample_name}", "    play_note 0 48", ""])
+        project_file = root / "02_coin.terrificaudio"
+        project = json.loads(project_file.read_text(encoding="utf-8"))
+        project["samples"] = sample_rows
+        project["sound_effects"] = [f"sfx_reachable_{i:02d}" for i in range(len(assets))]
+        project["high_priority_sound_effects"] = []
+        project["low_priority_sound_effects"] = []
+        project["sound_effect_file"] = "sound-effects.txt"
+        project_file.write_text(json.dumps(project, indent=2) + "\n", encoding="utf-8")
+        (root / "sound-effects.txt").write_text("\n".join(effects), encoding="utf-8")
+        out = Path(tmp) / "out"
+        out.mkdir()
+        cmd = [str(compiler), "ca65-export", str(project_file), "-a", str(out / "audio-data.s"), "-b", str(out / "audio-data.bin"), "-i", str(out / "audio-enums.inc"), "-s", "AUDIO0", "--lorom"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode:
+            print(result.stdout)
+            print(result.stderr, file=sys.stderr)
+            raise SystemExit(f"FAIL: all-reachable SFX compile exited {result.returncode}")
+        blob = out / "audio-data.bin"
+        print(f"all-reachable SFX compile PASS: {len(assets)} assets")
+        print(f"compiler: {compiler} ({version})")
+        print(f"compiled audio-data.bin: {blob.stat().st_size} bytes")
+        labels = [a["family"] + ":" + a["source_path"] for a in assets]
+        print("assets: " + ", ".join(labels))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

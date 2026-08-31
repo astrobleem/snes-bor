@@ -14,10 +14,39 @@ STAGE_CONFIGS = [
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\FOOT.TXT", "bg": "out/bg_stage9foot", "frontpanel": None, "spawn": "out/spawn_stage9foot/spawn_table.bin"},
 ]
 
-SHIPPED_CHARACTERS = {
-    "bor-original": {"RALF", "JHUN", "JOE", "YASHIRO", "MISC\\TRASH", "MISC\\CHAIR", "MISC\\TABLE"},
-    "tmnt": {"BEBOP", "FOOT01", "FOOT02", "FOOT03", "FOOT04", "LEATHER", "LEO", "MOUSER", "ROCK"},
-}
+ROSTER_CONFIGS = [
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\RALF", "converted_prefix": "out/ralf", "playable": True},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\JHUN", "converted_prefix": "out/jhun", "playable": True},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\JOE", "converted_prefix": "out/joe", "playable": True},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\YASHIRO", "converted_prefix": "out/yashiro", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\MOUSER", "converted_prefix": "out/mouser", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT01", "converted_prefix": "out/foot01", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\ROCK", "converted_prefix": "out/rock", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\LEATHER", "converted_prefix": "out/leather", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\BEBOP", "converted_prefix": "out/bebop", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT02", "converted_prefix": "out/foot02", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT03", "converted_prefix": "out/foot03", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT04", "converted_prefix": "out/foot04", "playable": True},
+    {"family": "tmnt", "source_character": "DATA\\CHARS\\LEO", "converted_prefix": "out/leo", "playable": True},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\APPLE", "converted_prefix": "out/apple", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\MONEY", "converted_prefix": "out/money", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\MEAT", "converted_prefix": "out/meat", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\1UP", "converted_prefix": "out/1up", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\GOLD", "converted_prefix": "out/gold", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TRASH", "converted_prefix": "out/trash", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\CHAIR", "converted_prefix": "out/chair", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TABLE", "converted_prefix": "out/table", "playable": False},
+]
+
+ROSTER_PREFIXES = [entry["converted_prefix"] for entry in ROSTER_CONFIGS]
+PLAYABLE_ROSTER_COUNT = sum(entry["playable"] for entry in ROSTER_CONFIGS)
+
+
+def shipped_characters() -> dict[str, set[str]]:
+    return {
+        family: {entry["source_character"].split("\\CHARS\\", 1)[1] for entry in ROSTER_CONFIGS if entry["family"] == family}
+        for family in {entry["family"] for entry in ROSTER_CONFIGS}
+    }
 
 
 def shipped_levels(family: str) -> set[str]:

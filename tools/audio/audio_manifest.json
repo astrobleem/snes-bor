@@ -1256,10 +1256,12 @@
           },
           "references": [
             {
-              "source_file": "src/main.pasm:Character_HitApply",
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/source/gamelogic.c:load_special_sounds",
               "line": null,
-              "directive": "engine-default-hit-sound",
+              "directive": "engine-global-default",
               "semantic_event": "landed-hit",
+              "engine_global_sample": "global_sample_list.beat",
+              "source_evidence": "default attack hitsound=global_sample_list.beat; hit playback uses attack_object->hitsound",
               "reachability": "shipped-reachable"
             }
           ],
