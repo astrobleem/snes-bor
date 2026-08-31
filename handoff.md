@@ -1081,8 +1081,8 @@ runtime indexed addressing, which has its own confirmed Poppy traps (the
    could mislead anyone executing this later. Roles 1-3 spawn at
    non-overlapping 32x64 boxes (checked by hand and by the gate below).
 4. `msu1_done` now creates 4 entities (roles 0-3; role 2 reuses roster 0/
-   Ralf, role 3 reuses roster 1/JHUN — only 2 characters exist, so "4
-   entities" is necessarily "2 Ralfs + 2 JHUNs").
+   Ralf, role 3 reuses roster 1/JHUN — at that historical point only 2
+   characters existed, so "4 entities" was necessarily "2 Ralfs + 2 JHUNs".
 5. `Character_BlankPadding` — **fixed a live, confirmed bug**, not just
    generalized it. It only ever blanked tile-column-slice 0 (hardcoded
    `$4600`/`$4700`); every other slice's unused rows 6-7 showed whatever

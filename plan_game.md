@@ -14,7 +14,8 @@
 Be precise about this, because the engine is genuinely impressive in ways that
 make it easy to overestimate how close a *game* is.
 
-**What exists and works:** SA-1 boot and CC-DMA, MSU-1 asset streaming, TAD music,
+**What exists and works:** SA-1 boot and CC-DMA, MSU-1 asset streaming, an operational
+TAD/SPC700 runtime with one real landed-hit SFX,
 a 4-entity system with per-instance state, dpad player control, AI that seeks and
 attacks, AABB collision with hit stun, HP with a BG3 health-bar HUD, a soft-kill
 at 0 HP for AI, two converted real levels with a streaming tile cache, horizontal
@@ -510,7 +511,7 @@ the streaming caches are consistent after reload.
 > attach to here (same closure logic as §8a's `settime`/`maxenemy`: no
 > control-remap infrastructure exists; gamma/brightness are a CRT concept,
 > meaningless on a fixed-palette cart; SFX volume would control zero real
-> SFX content with G11 blocked; difficulty picks between mod-defined content
+> SFX content limited to the one G11 landed-hit path; difficulty picks between mod-defined content
 > sets and only the EASY variant of any level has ever been converted).
 > Folded into the existing pause list as a third "VOLUME" row (real BOR
 > reaches its own options via a dedicated `FLAG_SCREENSHOT` key/screen this
@@ -2407,10 +2408,8 @@ isolated S-DSP audibility check correlating the request counter to actual
 non-silent SPC output through the encoded one-shot's real duration. See the
 script's own module docstring for the exact per-case procedure.
 
-This phase intentionally stops here for this run — no full regression suite
-was run and this branch (`g11-sfx-hardening`) was not merged to `master`,
-per `g11correction.txt`'s explicit prohibition. One later, separately
-authorized run is expected to run the full suite and merge.
+This phase intentionally stops at the defined landed-hit SFX scope. The full
+BOR SFX library and soundtrack remain future work; see `docs/audio_inventory.md`.
 
 ---
 
@@ -2479,7 +2478,8 @@ format (8→15 slots, 12 used) — see §9's own follow-ups for exactly what's
 still a reskin (ordinary non-boss enemies only — every character
 deliberately given a roster slot now identifies for real).
 
-G11 (SFX) slots in anywhere once the content exists. G12 is continuous.
+G11's one landed-hit SFX scope is complete; the remaining source-backed audio
+inventory is future work. G12 is continuous.
 
 **Genuinely hard** (expect real research and real bugs):
 - ~~**G7's jump / Z axis**~~ — **Done, 2026-08-28** (see §7's jump bullet).

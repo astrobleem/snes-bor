@@ -31,7 +31,15 @@ C:\Users\chad\.dotnet\dotnet.exe E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Releas
 python build_rom.py
 ```
 
-`make clean && make` (Linux original) runs the equivalent two steps via the Makefile, invoking `dotnet` and `poppy.dll` from `/home/chad/...` paths that don't exist on this machine — use the commands above instead until the Makefile is updated for this environment.
+`build_rom.py` accepts `DOTNET` and `POPPY_DLL` environment overrides. Its
+known-local defaults are the working .NET 10 executable and Poppy CLI DLL on
+this development machine; it fails clearly when either configured tool is
+missing instead of silently using a stale assembler output. The Makefile uses
+the same two variables and invokes `$(DOTNET) $(POPPY_DLL)` explicitly.
+
+`make clean && make` runs the same build with configurable `PYTHON`, `POPPY`, and
+`DOTNET`, `POPPY_DLL`, and `TAD_COMPILER` commands. Set those variables to the tools in your environment;
+the `tad-check` prerequisite fails if committed TAD outputs drift from source.
 
 ---
 
@@ -81,7 +89,7 @@ the real generated `audio-enums.inc`.
 ## Output Artifacts
 
 - `build/bor.sfc` & `distribution/bor.sfc` — SNES ROM (LoROM, SA-1, Cart type `$35`, 4MB)
-- `build/bor.msu` & `distribution/bor.msu` — MSU-1 data stream: a real runtime character roster (`pack_msu_roster.py`), packing each shipped character's palette + idle/walk/attack pixel data behind a directory of frame counts/delays/byte offsets that `Anim_LoadCharacter` reads at boot/reselect (currently ~29KB for two characters, Ralf and JHUN) — no longer the old 46-byte placeholder string this file used to be.
+- `build/bor.msu` & `distribution/bor.msu` — MSU-1 data stream: a real runtime roster (`pack_msu_roster.py`), currently 13 playable character slots plus prop assets, with palette and animation data behind generated directory offsets; the file also carries converted level/spawn data. It is not the soundtrack.
 - `distribution/bor-1.pcm` — MSU-1 audio track 1, a placeholder voice clip used to prove audio playback works (not a Beats of Rage asset)
 - `src/main.bin` — raw Poppy binary output
 - `src/main.pansy` — Poppy metadata & symbol file (used by MCP tooling's `lookup_pansy`/`disassemble` for symbol-aware debugging)
@@ -202,7 +210,7 @@ with McpSession(rom=ROM, mesen=MESEN, boot_wait=2.0) as m:
 - Two sequential `read_memory` calls to *different* addresses within one paused session have returned suspiciously identical byte prefixes (looked like a stale/cached buffer, not the requested address). Re-running the same read via **independent, freshly-constructed `McpSession` instances** and checking for majority agreement across 3 runs is the most reliable pattern found so far — see `src/core/random.pasm`'s verification for an example (2 of 3 independent runs matched the expected seeded value exactly; the third didn't, consistent with harness noise rather than a code bug).
 - This Poppy build (`net10.0`, `10.0.300-preview.0.26177.108`) mis-resolves `@`-prefixed local labels once the containing code is reached via `.include` — a branch to `@label` inside an included file fails to assemble (`Cannot evaluate operand for instruction`), even though the exact same code assembles fine as a standalone (non-included) file. Confirmed via isolated repro. Workaround: use fully-qualified global labels instead of `@`-locals in any file meant to be `.include`d — this is what `src/core/*.pasm` does, and matches `main.pasm`'s existing convention of not using local labels at all.
 - To verify actual audio output (including MSU-1, which mixes in independent of SPC700), use `record_audio` + `stop_audio`, then `audio_fingerprint`/`audio_waveform_png` on the captured WAV — this checks the real output signal instead of internal state.
-- **The audio check is nondeterministic — expect `peakAmplitude: 0` on a fully correct ROM some fraction of the time.** On one identical, unchanged binary, 7 consecutive `record_audio`/`audio_fingerprint` runs came back 3 correct (`peakAmplitude` ~0.928) and 4 silent, mixed across `boot_wait` values from 2.0 to 10.0 — raising `boot_wait` did not change the failure rate (6.0: 1/3 silent; 10.0: 3/5 silent), which rules out a boot-timing cause despite how compelling a single before/after pair can look (an earlier pass at this file claimed `boot_wait=2.0` and a missing `pause()`/`record_audio` bracket were each a root cause of false silence — both claims were single-shot comparisons, n=1 each, and did not replicate; treat them as retracted). The actual cause is still unidentified, somewhere in the record/fingerprint path.
+- **Historical audio-capture flakiness:** an earlier majority-of-3 check was retained while the MSU-1 presence-detection bug was being isolated. That deterministic bug is fixed; `tools/verify/phase7.py` now performs one bounded capture and requires a non-silent peak, rather than masking a failure with repeated runs.
   - **Verification rule**: because a genuinely broken ROM can only ever be silent (a crashed/hung CPU can't spuriously produce a correct waveform), a single non-silent, correct-looking run is a real pass — no need to chase 100% consistency. Silence proves nothing by itself; only treat it as a real regression after several consecutive silent runs on a binary that was previously confirmed passing, and even then, rebuild and re-test before concluding the code changed anything.
   - **Update, post boot-crash-fix: root-caused and fixed.** A later session saw 5/5 `record_audio` runs come back silent and 12/12 runs read the MSU-1 success flag (`$7E0330`) as `0`. Direct byte-level inspection found the actual cause: `msu1_check_loop`'s `cmp.l msu1_id_str,x` computed the wrong base address for its ROM data label (see Poppy bug 5 below) — it was comparing the hardware MSU-1 ID register against the tail of unrelated preceding instructions, not `"S-MSU1"`, so the presence check failed essentially every time. This was the real cause of the *original* 3/7-silent ratio too, not just the post-fix regression. Fixed by replacing the indexed comparison with 6 unrolled immediate-byte checks. Verified: 5/5 `record_audio` runs now produce `peakAmplitude` ~0.928 and 7/8 direct flag reads show `$7E0330 = 1`.
 - Three more Poppy assembler encoding bugs were found and worked around while porting `src/core/error.pasm`, `dma_channel.pasm`, `dma.pasm`, `allocate_wram.pasm` — see those files' header comments (and README.md's Current Status section) for full detail: forward-address-estimation drift on `symbol+N` operands feeding long-addressable instructions, `.w` indexed access to banked symbols silently dropping the bank byte, and macro invocations sized as 0 bytes for branch-offset purposes. All three are permanent style constraints for any new `.pasm` in this project, not one-off fixes.

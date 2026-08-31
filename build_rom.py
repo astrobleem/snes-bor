@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import shutil
 
 ROM_SIZE = 0x400000
 BANK0_SIZE = 0x8000
@@ -200,6 +201,9 @@ SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_ta
                 "out/spawn_stage6streets/spawn_table.bin", "out/spawn_stage7streets2/spawn_table.bin",
                 "out/spawn_stage8sewer/spawn_table.bin", "out/spawn_stage9foot/spawn_table.bin"]
 
+if not (len(BG_SCREENS) == len(FP_SCREENS) == len(SPAWN_TABLES)):
+    raise SystemExit("BG_SCREENS, FP_SCREENS, and SPAWN_TABLES must stay parallel")
+
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test
 # fixture (gate0_module.bin) that shipped here since Gate 0a. Compiled from
@@ -218,8 +222,10 @@ SPAWN_TABLES = ["out/spawn_stage1b/spawn_table.bin", "out/spawn_stage1a/spawn_ta
 # the packed bytes and the ground truth cannot drift apart.
 VM_MODULE = "tools/verify/vm_fixtures/boot_spawn_wave1_module.bin"
 
-DOTNET = r'C:\Users\chad\.dotnet\dotnet.exe'
-POPPY_DLL = r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll'
+DOTNET = os.environ.get('DOTNET', r'C:\Users\chad\.dotnet\dotnet.exe')
+POPPY_DLL = os.environ.get(
+    'POPPY_DLL',
+    r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll')
 
 def assemble():
     # Runs Poppy to (re)produce src/main.bin from src/main.pasm. Previously
@@ -228,6 +234,14 @@ def assemble():
     # reassembled, which cost a full debugging cycle chasing "fixes" that
     # were never actually built. Making this automatic removes that failure
     # mode entirely.
+    if not (os.path.exists(DOTNET) or shutil.which(DOTNET)):
+        print(f".NET executable not found: {DOTNET}. Set DOTNET to a working dotnet executable.",
+              file=sys.stderr)
+        sys.exit(1)
+    if not os.path.exists(POPPY_DLL):
+        print(f"Poppy CLI not found: {POPPY_DLL}. Set POPPY_DLL to the built poppy.dll.",
+              file=sys.stderr)
+        sys.exit(1)
     result = subprocess.run([DOTNET, POPPY_DLL, 'src/main.pasm', '-s', 'src/main.sym'])
     if result.returncode != 0:
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
@@ -376,8 +390,11 @@ def main():
         f.write(rom)
 
     # Write MSU-1 data files
-    spawn_blobs = [open(p, 'rb').read() if os.path.exists(p) else b"" for p in SPAWN_TABLES]
-    vm_blob = open(VM_MODULE, 'rb').read() if os.path.exists(VM_MODULE) else b""
+    missing = [p for p in SPAWN_TABLES + [VM_MODULE] if not os.path.exists(p)]
+    if missing:
+        raise SystemExit("missing required generated input(s): " + ", ".join(missing))
+    spawn_blobs = [open(p, 'rb').read() for p in SPAWN_TABLES]
+    vm_blob = open(VM_MODULE, 'rb').read()
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
         ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawns=spawn_blobs,
         vm_blob=vm_blob, playable_count=PLAYABLE_ROSTER_COUNT)
