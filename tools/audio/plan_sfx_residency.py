@@ -31,7 +31,16 @@ def main() -> int:
 
     def model_assets(family: str, identity: str) -> set[tuple[str, str]]:
         marker = "DATA\\CHARS\\" + identity.upper().strip("\\") + "\\"
-        return {(f, p) for (f, p), a in all_assets.items() if f == family and any(marker in r.get("source_file", "").upper() for r in a["references"])}
+        return {(f, p) for (f, p), a in all_assets.items() if f == family and any(marker in r.get("source_file", "").upper() and r.get("reachability") == "shipped-reachable" for r in a["references"])}
+
+    represented = {(e["family"], e["source_character"].split("\\CHARS\\", 1)[1].upper().strip("\\")) for e in ROSTER_CONFIGS}
+
+    def represented_identity(family: str, name: str) -> str | None:
+        name = name.upper().strip("\\")
+        for owner, identity in represented:
+            if owner == family and identity.rsplit("\\", 1)[-1] == name.rsplit("\\", 1)[-1]:
+                return identity
+        return None
 
     def stage_entities(stage: dict) -> tuple[set[str], set[str]]:
         text = extract(ROOT / stage["pak"], stage["source_level"]).decode("latin1")
@@ -46,12 +55,13 @@ def main() -> int:
     def stage_base(stage: dict) -> tuple[set[tuple[str, str]], dict]:
         family = stage["family"]
         entities, items = stage_entities(stage)
-        base = set().union(*(model_assets(family, n) for n in entities | items)) if entities | items else set()
+        represented_entities = {resolved for name in entities | items if (resolved := represented_identity(family, name))}
+        base = set().union(*(model_assets(family, n) for n in represented_entities)) if represented_entities else set()
         level = stage["source_level"].upper()
         base |= {(f, p) for (f, p), a in all_assets.items() if f == family and any(level in r.get("source_file", "").upper() for r in a["references"])}
         names = {n.upper() for n in entities | items}
         if names & {"MONEY", "GOLD", "APPLE", "MEAT"}:
-            base |= global_by_event.get((family, "money-pickup"), set()) | global_by_event.get((family, "get-up"), set())
+            base |= global_by_event.get((family, "score-pickup"), set()) | global_by_event.get((family, "health-pickup"), set())
         if "1UP" in names:
             base |= global_by_event.get((family, "one-up"), set())
         return base, {"spawnable_entities": sorted(entities), "contained_or_standalone_items": sorted(items)}
@@ -66,16 +76,26 @@ def main() -> int:
     for stage in STAGE_CONFIGS:
         stage_key = stage["family"] + ":" + stage["source_level"]
         base, report = stage_base(stage)
-        stage_global = set().union(*(global_by_event.get((stage["family"], event), set()) for event in ("money-pickup", "one-up", "get-up")))
-        stage_reports[stage_key] = {**report, "stage_global_sfx": sorted(key(*x) for x in stage_global), "model_local_sfx": sorted(key(*x) for x in base - stage_global), "stage_base_sfx": sorted(key(*x) for x in base)}
-        player_global = global_by_event.get((stage["family"], "landed-hit"), set()) | global_by_event.get((stage["family"], "attack-swing"), set())
+        stage_global = base & set().union(*(global_by_event.get((stage["family"], event), set()) for event in ("score-pickup", "one-up", "health-pickup", "pause-entry", "ui-beep", "ui-beep-secondary")))
+        stage_reports[stage_key] = {**report, "required_stage_global_sfx": sorted(key(*x) for x in stage_global), "model_local_sfx": sorted(key(*x) for x in base - stage_global), "stage_base_sfx": sorted(key(*x) for x in base)}
+        player_global = global_by_event.get((stage["family"], "landed-hit"), set()) | global_by_event.get((stage["family"], "attack-swing"), set()) | global_by_event.get((stage["family"], "ui-beep"), set()) | global_by_event.get((stage["family"], "ui-beep-secondary"), set())
         all_local = set().union(*player_sets.values()) if player_sets else set()
-        candidates["A:" + stage_key] = {"strategy": "A", "stages": [stage_key], "players": ["all"], "combinations": [{"stage": stage_key, "player": "all"}], "assets": sorted(key(*x) for x in base | all_local | player_global)}
+        reasons = {key(*item): "stage-content:represented-model-or-directive" for item in base}
+        reasons.update({key(*item): "all-selectable-player:model-local" for item in all_local})
+        reasons.update({key(*item): "active-player-global:ordinary-attack-or-ui:stage-family" for item in player_global})
+        candidates["A:" + stage_key] = {"strategy": "A", "stages": [stage_key], "players": ["all"], "combinations": [{"stage": stage_key, "player": "all"}], "assets": sorted(key(*x) for x in base | all_local | player_global), "asset_reasons": reasons}
         for prefix, local in player_sets.items():
             selected = base | local | player_global
-            if any(e["converted_prefix"] == prefix and "jump" in e["source_character"].lower() for e in ROSTER_CONFIGS):
+            moveset = ROOT / (prefix + "_moveset.json")
+            jump_capable = moveset.exists() and json.loads(moveset.read_text(encoding="utf-8")).get("roles", {}).get("jump") is not None
+            if jump_capable:
                 selected |= global_by_event.get((stage["family"], "jump"), set())
-            candidates["B:" + stage_key + ":" + prefix] = {"strategy": "B", "stages": [stage_key], "players": [prefix], "combinations": [{"stage": stage_key, "player": prefix}], "assets": sorted(key(*x) for x in selected)}
+            reasons = {key(*item): "stage-content:represented-model-or-directive" for item in base}
+            reasons.update({key(*item): f"selected-player:{prefix}:model-local" for item in local})
+            reasons.update({key(*item): "active-player-global:ordinary-attack-or-ui:stage-family" for item in player_global})
+            if jump_capable:
+                reasons.update({key(*item): "active-player-global:jump:stage-family" for item in global_by_event.get((stage["family"], "jump"), set())})
+            candidates["B:" + stage_key + ":" + prefix] = {"strategy": "B", "stages": [stage_key], "players": [prefix], "combinations": [{"stage": stage_key, "player": prefix}], "assets": sorted(key(*x) for x in selected), "asset_reasons": reasons}
     expected = len(STAGE_CONFIGS) * (1 + sum(e["playable"] for e in ROSTER_CONFIGS))
     if len(candidates) != expected:
         raise SystemExit(f"candidate formula mismatch: generated {len(candidates)}, expected {expected}")

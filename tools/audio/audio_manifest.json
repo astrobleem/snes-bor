@@ -1362,10 +1362,10 @@
               "semantic_event": "ui-beep",
               "engine_global_sample": "global_sample_list.beep",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "no authored reachable UI beep event is represented"
+              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus have corresponding input paths"
             }
           ],
           "converter_representation": null,
@@ -1375,8 +1375,8 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1403,10 +1403,10 @@
               "semantic_event": "ui-beep-secondary",
               "engine_global_sample": "global_sample_list.beep_2",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "no authored reachable UI beep event is represented"
+              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
             }
           ],
           "converter_representation": null,
@@ -1416,8 +1416,8 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1859,13 +1859,13 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "get-up",
+              "semantic_event": "health-pickup",
               "engine_global_sample": "global_sample_list.get",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "get-up/death recovery mechanic exists; audio dispatch remains unimplemented"
+              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; current health pickups are implemented but audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
@@ -2373,13 +2373,13 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "money-pickup",
+              "semantic_event": "score-pickup",
               "engine_global_sample": "global_sample_list.get_2",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "money pickup exists; generic pickup audio dispatch remains unimplemented"
+              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; current score pickups are implemented but audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
@@ -3945,10 +3945,10 @@
               "semantic_event": "ui-beep-secondary",
               "engine_global_sample": "global_sample_list.beep_2",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "no authored reachable UI beep event is represented"
+              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
             }
           ],
           "converter_representation": null,
@@ -3958,8 +3958,8 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -4559,13 +4559,13 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "get-up",
+              "semantic_event": "health-pickup",
               "engine_global_sample": "global_sample_list.get",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "get-up/death recovery mechanic exists; audio dispatch remains unimplemented"
+              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; current health pickups are implemented but audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,
@@ -5552,13 +5552,13 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "money-pickup",
+              "semantic_event": "score-pickup",
               "engine_global_sample": "global_sample_list.get_2",
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "money pickup exists; generic pickup audio dispatch remains unimplemented"
+              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; current score pickups are implemented but audio dispatch remains unimplemented"
             }
           ],
           "converter_representation": null,

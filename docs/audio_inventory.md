@@ -7,7 +7,7 @@ This is not an audio-complete claim. `implemented-and-gated` requires a real sou
 ## bor-original
 
 PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
-- SFX WAV assets: 29 total; 29 raw-referenced; 10 shipped-reachable references; 0 unused.
+- SFX WAV assets: 29 total; 29 raw-referenced; 12 shipped-reachable references; 0 unused.
 - BOR music assets: 19 total; 15 raw-referenced; 3 shipped-reachable references; 4 unused.
 
 | Asset | References | Classification | Runtime mapping |
@@ -64,7 +64,7 @@ PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 ## tmnt
 
 PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
-- SFX WAV assets: 55 total; 32 raw-referenced; 38 shipped-reachable references; 23 unused.
+- SFX WAV assets: 55 total; 32 raw-referenced; 39 shipped-reachable references; 23 unused.
 - BOR music assets: 25 total; 11 raw-referenced; 16 shipped-reachable references; 14 unused.
 
 | Asset | References | Classification | Runtime mapping |

@@ -36,7 +36,7 @@ def reachable_assets(selected: set[str] | None = None) -> list[dict]:
     for family in manifest["families"]:
         for asset in family["assets"]:
             key = asset_key(family["family"], asset["source_path"])
-            if asset["kind"] == "sfx" and (asset["shipped_reachable"] or selected is not None) and (selected is None or key in selected):
+            if asset["kind"] == "sfx" and asset["shipped_reachable"] and (selected is None or key in selected):
                 item = dict(asset)
                 item["family"] = family["family"]
                 item["pak"] = family["pak"]
@@ -96,7 +96,7 @@ def main() -> int:
     selected = set(args.asset) if args.asset else None
     if selected:
         selected = {asset_key(*value.split(":", 1)) if ":" in value else value for value in selected}
-        available = {asset_key(f["family"], a["source_path"]) for f in json.loads(MANIFEST.read_text(encoding="utf-8"))["families"] for a in f["assets"] if a["kind"] == "sfx"}
+        available = {asset_key(f["family"], a["source_path"]) for f in json.loads(MANIFEST.read_text(encoding="utf-8"))["families"] for a in f["assets"] if a["kind"] == "sfx" and a["shipped_reachable"]}
         missing = sorted(selected - available)
         if missing:
             raise SystemExit("FAIL: requested SFX asset key is not shipped-reachable: " + ", ".join(missing))

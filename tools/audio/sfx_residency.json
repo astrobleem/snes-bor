@@ -19,21 +19,16 @@
         "gold",
         "money"
       ],
-      "stage_global_sfx": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+      "required_stage_global_sfx": [
         "bor-original:DATA\\SOUNDS\\GET.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV"
       ],
       "model_local_sfx": [
-        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
       ],
       "stage_base_sfx": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV"
       ]
     },
@@ -55,22 +50,18 @@
         "apple",
         "money"
       ],
-      "stage_global_sfx": [
+      "required_stage_global_sfx": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV"
       ],
       "model_local_sfx": [
-        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
       ],
       "stage_base_sfx": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV"
       ]
     },
@@ -80,11 +71,7 @@
         "Hydrany"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
@@ -102,11 +89,7 @@
         "Rock"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
@@ -123,11 +106,7 @@
         "Leather"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
@@ -141,11 +120,7 @@
         "mouser"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
@@ -180,11 +155,7 @@
         "trash3"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
@@ -222,11 +193,7 @@
         "wdrop"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
@@ -253,11 +220,7 @@
         "mouser"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
@@ -272,11 +235,7 @@
         "Foot3"
       ],
       "contained_or_standalone_items": [],
-      "stage_global_sfx": [
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
-      ],
+      "required_stage_global_sfx": [],
       "model_local_sfx": [],
       "stage_base_sfx": []
     }
@@ -298,11 +257,11 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
@@ -320,11 +279,35 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (251776 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (234361 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -352,16 +335,25 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 41706,
-      "compiled_common_bytes": 38311,
+      "compiled_blob_bytes": 24291,
+      "compiled_common_bytes": 20896,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -381,17 +373,27 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 47942,
-      "compiled_common_bytes": 44547,
+      "compiled_blob_bytes": 30527,
+      "compiled_common_bytes": 27132,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -411,17 +413,27 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 44459,
-      "compiled_common_bytes": 41064,
+      "compiled_blob_bytes": 27044,
+      "compiled_common_bytes": 23649,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -456,19 +468,29 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
       ],
-      "compile_pass": false,
-      "compiled_blob_bytes": null,
-      "compiled_common_bytes": null,
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": true,
+      "compiled_blob_bytes": 57041,
+      "compiled_common_bytes": 53646,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (71061 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": null
     },
     {
       "strategy": "B",
@@ -486,21 +508,33 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/rock:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (85684 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (68269 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -518,17 +552,27 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 50354,
-      "compiled_common_bytes": 46959,
+      "compiled_blob_bytes": 32939,
+      "compiled_common_bytes": 29544,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -548,21 +592,33 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "selected-player:out/bebop:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88510 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (71095 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -580,10 +636,11 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
@@ -593,11 +650,27 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (112465 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (98415 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "A",
@@ -616,11 +689,11 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
@@ -638,11 +711,36 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (271701 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (254286 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -671,16 +769,26 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 61631,
-      "compiled_common_bytes": 58236,
+      "compiled_blob_bytes": 44216,
+      "compiled_common_bytes": 40821,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -701,19 +809,30 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
-      "compile_pass": false,
-      "compiled_blob_bytes": null,
-      "compiled_common_bytes": null,
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": true,
+      "compiled_blob_bytes": 50452,
+      "compiled_common_bytes": 47057,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (64472 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": null
     },
     {
       "strategy": "B",
@@ -732,19 +851,30 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
-      "compile_pass": false,
-      "compiled_blob_bytes": null,
-      "compiled_common_bytes": null,
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": true,
+      "compiled_blob_bytes": 46969,
+      "compiled_common_bytes": 43574,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (60989 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": null
     },
     {
       "strategy": "B",
@@ -778,19 +908,30 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (90986 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (73571 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -809,21 +950,34 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/rock:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (105609 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88194 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -842,19 +996,30 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
-      "compile_pass": false,
-      "compiled_blob_bytes": null,
-      "compiled_common_bytes": null,
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": true,
+      "compiled_blob_bytes": 52864,
+      "compiled_common_bytes": 49469,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (66884 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": null
     },
     {
       "strategy": "B",
@@ -873,21 +1038,34 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "selected-player:out/bebop:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (108435 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (91020 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -906,10 +1084,11 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
@@ -919,11 +1098,28 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\1UP.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\GET.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (132390 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (118340 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "A",
@@ -979,6 +1175,7 @@
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
@@ -993,11 +1190,31 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "all-selectable-player:model-local",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "all-selectable-player:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (219651 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (222152 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1027,12 +1244,21 @@
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 59780,
-      "compiled_common_bytes": 56385,
+      "compiled_blob_bytes": 62281,
+      "compiled_common_bytes": 58886,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1054,14 +1280,23 @@
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
-      "compile_pass": true,
-      "compiled_blob_bytes": 61796,
-      "compiled_common_bytes": 58401,
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": null
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (60902 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1086,13 +1321,22 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 58313,
-      "compiled_common_bytes": 54918,
+      "compiled_blob_bytes": 60814,
+      "compiled_common_bytes": 57419,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1150,15 +1394,24 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84915 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (87416 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1183,17 +1436,28 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (99538 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (102039 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1218,15 +1482,24 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
-      "compile_pass": true,
-      "compiled_blob_bytes": 64208,
-      "compiled_common_bytes": 60813,
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": null
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (63314 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1250,12 +1523,20 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 55560,
-      "compiled_common_bytes": 52165,
+      "compiled_blob_bytes": 58061,
+      "compiled_common_bytes": 54666,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1276,8 +1557,10 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\SPIN.WAV",
@@ -1285,11 +1568,25 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (126319 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (132185 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1318,13 +1615,22 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 56954,
-      "compiled_common_bytes": 53559,
+      "compiled_blob_bytes": 59455,
+      "compiled_common_bytes": 56060,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1345,13 +1651,22 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 58970,
-      "compiled_common_bytes": 55575,
+      "compiled_blob_bytes": 61471,
+      "compiled_common_bytes": 58076,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1377,14 +1692,23 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 55487,
-      "compiled_common_bytes": 52092,
+      "compiled_blob_bytes": 57988,
+      "compiled_common_bytes": 54593,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1446,16 +1770,25 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (82089 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84590 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1488,13 +1821,21 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/rock:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 52734,
-      "compiled_common_bytes": 49339,
+      "compiled_blob_bytes": 55235,
+      "compiled_common_bytes": 51840,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1514,8 +1855,10 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
@@ -1524,11 +1867,25 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (123493 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (129359 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1557,11 +1914,18 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 18229,
-      "compiled_common_bytes": 14834,
+      "compiled_blob_bytes": 20730,
+      "compiled_common_bytes": 17335,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1582,11 +1946,18 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 20245,
-      "compiled_common_bytes": 16850,
+      "compiled_blob_bytes": 22746,
+      "compiled_common_bytes": 19351,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1612,12 +1983,19 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 16762,
-      "compiled_common_bytes": 13367,
+      "compiled_blob_bytes": 19263,
+      "compiled_common_bytes": 15868,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1652,12 +2030,19 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 46759,
-      "compiled_common_bytes": 43364,
+      "compiled_blob_bytes": 49260,
+      "compiled_common_bytes": 45865,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1682,11 +2067,17 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 14009,
-      "compiled_common_bytes": 10614,
+      "compiled_blob_bytes": 16510,
+      "compiled_common_bytes": 13115,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1706,7 +2097,9 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
@@ -1714,11 +2107,23 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84768 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (90634 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1747,11 +2152,18 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 12332,
-      "compiled_common_bytes": 8937,
+      "compiled_blob_bytes": 14835,
+      "compiled_common_bytes": 11440,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1772,11 +2184,18 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 14348,
-      "compiled_common_bytes": 10953,
+      "compiled_blob_bytes": 16851,
+      "compiled_common_bytes": 13456,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1801,11 +2220,17 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 8112,
-      "compiled_common_bytes": 4717,
+      "compiled_blob_bytes": 10615,
+      "compiled_common_bytes": 7220,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1862,12 +2287,19 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 40862,
-      "compiled_common_bytes": 37467,
+      "compiled_blob_bytes": 43365,
+      "compiled_common_bytes": 39970,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -1887,7 +2319,9 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
@@ -1895,11 +2329,23 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (78873 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84739 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1928,16 +2374,26 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (86309 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88810 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1956,16 +2412,26 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88325 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (90826 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -1989,17 +2455,27 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84842 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (87343 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2024,6 +2500,7 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
@@ -2031,11 +2508,22 @@
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "selected-player:out/bebop:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (132288 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (134789 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2053,9 +2541,11 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
@@ -2064,11 +2554,26 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (156243 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (162109 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2098,15 +2603,25 @@
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (89135 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (91636 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2126,15 +2641,25 @@
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (91151 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (93652 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2159,16 +2684,26 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "selected-player:out/mouser:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (87668 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (90169 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2187,16 +2722,26 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (93563 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (96064 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2215,9 +2760,11 @@
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\SPIN.WAV",
@@ -2225,11 +2772,26 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (159069 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (164935 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2258,12 +2820,20 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 45082,
-      "compiled_common_bytes": 41687,
+      "compiled_blob_bytes": 47585,
+      "compiled_common_bytes": 44190,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2284,12 +2854,20 @@
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 47098,
-      "compiled_common_bytes": 43703,
+      "compiled_blob_bytes": 49601,
+      "compiled_common_bytes": 46206,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2309,13 +2887,21 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV": "selected-player:out/leather:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 49512,
-      "compiled_common_bytes": 46117,
+      "compiled_blob_bytes": 52013,
+      "compiled_common_bytes": 48618,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2335,8 +2921,10 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
@@ -2344,11 +2932,24 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "stage-content:represented-model-or-directive",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (111623 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (117489 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
@@ -2376,11 +2977,17 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV"
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV": "selected-player:out/ralf:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 9579,
-      "compiled_common_bytes": 6184,
+      "compiled_blob_bytes": 12082,
+      "compiled_common_bytes": 8687,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2400,11 +3007,17 @@
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV"
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
       ],
+      "asset_reasons": {
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV": "selected-player:out/jhun:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 11595,
-      "compiled_common_bytes": 8200,
+      "compiled_blob_bytes": 14098,
+      "compiled_common_bytes": 10703,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2439,11 +3052,17 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "selected-player:out/foot01:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family"
+      },
       "compile_pass": true,
-      "compiled_blob_bytes": 38109,
-      "compiled_common_bytes": 34714,
+      "compiled_blob_bytes": 40612,
+      "compiled_common_bytes": 37217,
       "overflow": null,
       "compile_diagnostic": null
     },
@@ -2463,18 +3082,31 @@
       ],
       "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\SPIN.WAV",
         "tmnt:DATA\\SOUNDS\\THROW.WAV",
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
+      "asset_reasons": {
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV": "selected-player:out/leo:model-local",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "active-player-global:ordinary-attack-or-ui:stage-family",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV": "active-player-global:jump:stage-family"
+      },
       "compile_pass": false,
       "compiled_blob_bytes": null,
       "compiled_common_bytes": null,
       "overflow": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (76120 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (81986 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     }
   ]
 }
