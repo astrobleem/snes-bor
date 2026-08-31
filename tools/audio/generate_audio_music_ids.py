@@ -26,10 +26,9 @@ def main() -> int:
     for key in STAGES:
         asset = next(a for f in manifest["families"] for a in f["assets"]
                      if a.get("track_key") == key)
-        args = [r.get("loop_argument") for r in asset["references"]
-                if r.get("reachability") == "shipped-reachable"
-                and r.get("loop_argument") is not None]
-        repeats.append(1 if not args or "1" in args else 0)
+        # OpenBOR's level and boss music calls pass loop=1 separately from
+        # the authored musicOffset byte argument.
+        repeats.append(1)
     text += "Music_StageRepeats:\n    .db " + ", ".join(str(value) for value in repeats) + "\n"
     text += f"Music_StageTrackCount = {len(STAGES)}\n"
     (ROOT / "tools/audio/audio_music_ids.pasm").write_text(text, encoding="ascii")

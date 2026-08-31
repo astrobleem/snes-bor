@@ -42,7 +42,7 @@ PAK_ALIASES = {
     ("tmnt", "DATA\\SOUNDS\\TURTLEDIE.WAV"): "DATA\\SOUNDS\\TURTLE~1.WAV",
 }
 SOUND_RE = re.compile(r"^\s*(sound|diesound)\s+(\S+)", re.I)
-MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)(?:\s+([01]))?(?:\s|$)", re.I)
+MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)(?:\s+([+-]?\d+))?(?:\s|$)", re.I)
 
 
 def norm(value: str) -> str:

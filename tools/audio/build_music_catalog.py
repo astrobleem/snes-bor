@@ -23,7 +23,7 @@ from decode_bor_music import decode_bor  # noqa: E402
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--output", type=Path, default=ROOT / "build" / "audio_music")
+    ap.add_argument("--output", type=Path, default=ROOT / "distribution")
     ap.add_argument("--catalog", type=Path, default=ROOT / "build" / "audio_music_catalog.json")
     args = ap.parse_args()
     output = args.output
@@ -38,15 +38,21 @@ def main() -> int:
             source = extract(str(pak), asset["source_path"])
             source_hash = hashlib.sha256(source).hexdigest()
             bor = output / f"track-{asset['msu_track_id']:02d}.bor"
-            pcm = output / f"track-{asset['msu_track_id']:02d}.pcm"
+            pcm = output / f"bor-{asset['msu_track_id']}.pcm"
             bor.parent.mkdir(parents=True, exist_ok=True)
             bor.write_bytes(source)
             header, decoded = decode_bor(source)
             loop_arguments = [r.get("loop_argument") for r in asset["references"]
                               if r.get("reachability") == "shipped-reachable"
                               and r.get("loop_argument") is not None]
-            repeat = not loop_arguments or "1" in loop_arguments
-            meta = convert(bor, pcm, repeat=repeat)
+            offsets = [int(value) for value in loop_arguments] or [0]
+            if any(value < 0 for value in offsets):
+                raise SystemExit(f"negative BOR loop offset: {asset['source_path']}")
+            if len(set(offsets)) != 1:
+                raise SystemExit(f"conflicting BOR loop offsets: {asset['source_path']}")
+            offset = offsets[0]
+            repeat = True  # level music() and boss music() call the engine with loop=1
+            meta = convert(bor, pcm, repeat=repeat, bor_loop_offset_bytes=offset)
             if hashlib.sha256(bor.read_bytes()).hexdigest() != source_hash:
                 raise SystemExit(f"source extraction drift: {asset['source_path']}")
             rows.append({"track_id": asset["msu_track_id"], "track_key": asset["track_key"],
@@ -57,10 +63,12 @@ def main() -> int:
                          "msu_sample_count": meta["msu_sample_count"],
                          "duration_seconds": meta["duration_seconds"],
                          "authored_loop_directive": loop_arguments,
-                         "original_bor_loop": {"kind": "repeat-flag", "repeat": repeat},
+                         "original_bor_loop": {"kind": "encoded-byte-offset", "offset_bytes": offset},
+                         "repeat": repeat,
+                         "bor_loop_offset_bytes": meta["bor_loop_offset_bytes"],
                          "decoded_source_loop_frame": meta["source_loop_frame"],
-                         "msu_loop_frame": meta["msu_loop_frame"], "repeat": repeat,
-                         "msu_pcm_path": f"build/audio_music/track-{asset['msu_track_id']:02d}.pcm"})
+                         "msu_loop_frame": meta["msu_loop_frame"],
+                         "msu_pcm_path": f"distribution/bor-{asset['msu_track_id']}.pcm"})
             bor.unlink()
     rows.sort(key=lambda row: row["track_id"])
     catalog_path.write_text(json.dumps({"format": "MSU-1 PCM: MSU1 header + signed 16-bit LE stereo 44100 Hz", "tracks": rows}, indent=2) + "\n", encoding="utf-8")

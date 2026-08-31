@@ -14,13 +14,14 @@
       "duration_seconds": 240.56163265306122,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-01.pcm"
+      "msu_pcm_path": "distribution/bor-1.pcm"
     },
     {
       "track_id": 2,
@@ -35,20 +36,21 @@
       "duration_seconds": 93.60036281179138,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-02.pcm"
+      "msu_pcm_path": "distribution/bor-2.pcm"
     },
     {
       "track_id": 3,
       "track_key": "bor-original:DATA\\MUSIC\\TIME.BOR",
       "source_hash": "6f977fb0bc14c29ee7869eb97326d57338030c65822989b8fe0ed7071980574d",
       "decoded_pcm_hash": "df934d5086a47309be3dfd78b9804072c4efd8b05f4b6ad004d3991c6255adce",
-      "msu_pcm_hash": "5729044688b2d5900274f69ced6ce0b09b6971039bb8b8592b8f20c85fbc3073",
+      "msu_pcm_hash": "563eba813d85cd68c6519f041ac8b0471e82f3ba8f98737135859814f2a8e715",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 4304448,
@@ -58,13 +60,14 @@
         "1"
       ],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 1
       },
-      "decoded_source_loop_frame": 0,
-      "msu_loop_frame": 0,
       "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-03.pcm"
+      "bor_loop_offset_bytes": 1,
+      "decoded_source_loop_frame": 2,
+      "msu_loop_frame": 4,
+      "msu_pcm_path": "distribution/bor-3.pcm"
     },
     {
       "track_id": 4,
@@ -79,13 +82,14 @@
       "duration_seconds": 29.754285714285714,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-04.pcm"
+      "msu_pcm_path": "distribution/bor-4.pcm"
     },
     {
       "track_id": 5,
@@ -100,13 +104,14 @@
       "duration_seconds": 44.28,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-05.pcm"
+      "msu_pcm_path": "distribution/bor-5.pcm"
     },
     {
       "track_id": 6,
@@ -121,13 +126,14 @@
       "duration_seconds": 38.26249433106576,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-06.pcm"
+      "msu_pcm_path": "distribution/bor-6.pcm"
     },
     {
       "track_id": 7,
@@ -142,13 +148,14 @@
       "duration_seconds": 31.142222222222223,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-07.pcm"
+      "msu_pcm_path": "distribution/bor-7.pcm"
     },
     {
       "track_id": 8,
@@ -163,13 +170,14 @@
       "duration_seconds": 94.89297052154195,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-08.pcm"
+      "msu_pcm_path": "distribution/bor-8.pcm"
     },
     {
       "track_id": 9,
@@ -184,13 +192,14 @@
       "duration_seconds": 48.615963718820865,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-09.pcm"
+      "msu_pcm_path": "distribution/bor-9.pcm"
     },
     {
       "track_id": 10,
@@ -205,13 +214,14 @@
       "duration_seconds": 74.66702947845805,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-10.pcm"
+      "msu_pcm_path": "distribution/bor-10.pcm"
     },
     {
       "track_id": 11,
@@ -226,13 +236,14 @@
       "duration_seconds": 58.30929705215419,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-11.pcm"
+      "msu_pcm_path": "distribution/bor-11.pcm"
     },
     {
       "track_id": 12,
@@ -247,20 +258,21 @@
       "duration_seconds": 81.00888888888889,
       "authored_loop_directive": [],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 0
       },
+      "repeat": true,
+      "bor_loop_offset_bytes": 0,
       "decoded_source_loop_frame": 0,
       "msu_loop_frame": 0,
-      "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-12.pcm"
+      "msu_pcm_path": "distribution/bor-12.pcm"
     },
     {
       "track_id": 13,
       "track_key": "tmnt:DATA\\MUSIC\\TMNTEND.BOR",
       "source_hash": "ecbf42b92b66eff71e64e8bd0a38dd60db5b953a43b60d9135839d206df42b0e",
       "decoded_pcm_hash": "c88285dca6f8f3949a7812ae7c37677fba672e145174a743b49a17122581037e",
-      "msu_pcm_hash": "f6c335ab8ac9a12e95ca54f9ddb1a265619e62486b5da6c5b094b572d9cdd0ed",
+      "msu_pcm_hash": "9671b8e50e1378a78a684f6072dada4e91bfb021a1f0548b3b3f84a1ef5efb9d",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1605894,
@@ -270,13 +282,14 @@
         "1"
       ],
       "original_bor_loop": {
-        "kind": "repeat-flag",
-        "repeat": true
+        "kind": "encoded-byte-offset",
+        "offset_bytes": 1
       },
-      "decoded_source_loop_frame": 0,
-      "msu_loop_frame": 0,
       "repeat": true,
-      "msu_pcm_path": "build/audio_music/track-13.pcm"
+      "bor_loop_offset_bytes": 1,
+      "decoded_source_loop_frame": 2,
+      "msu_loop_frame": 4,
+      "msu_pcm_path": "distribution/bor-13.pcm"
     }
   ]
 }

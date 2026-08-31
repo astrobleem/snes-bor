@@ -35,6 +35,10 @@ def main() -> int:
         frames = (len(data) - 8) // 4
         if loop > frames:
             errors.append(f"track {track_id}: loop frame outside payload")
+        if track.get("msu_loop_frame") != loop:
+            errors.append(f"track {track_id}: catalog loop frame mismatch")
+        if track.get("repeat") is not True:
+            errors.append(f"track {track_id}: runtime repeat semantic is not explicit")
         if hashlib.sha256(data).hexdigest() != track.get("msu_pcm_hash"):
             errors.append(f"track {track_id}: catalog hash mismatch")
     if errors:

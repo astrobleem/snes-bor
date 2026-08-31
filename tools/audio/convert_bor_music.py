@@ -18,6 +18,18 @@ from decode_bor_music import decode_bor  # noqa: E402
 TARGET_RATE = 44100
 
 
+def bor_loop_frames(offset_bytes: int, channels: int) -> int:
+    if offset_bytes < 0 or channels not in (1, 2):
+        raise ValueError("invalid BOR loop offset or channel count")
+    return offset_bytes * 2 // channels
+
+
+def msu_loop_frames(decoded_frame: int, source_rate: int) -> int:
+    if decoded_frame < 0 or source_rate <= 0:
+        raise ValueError("invalid decoded loop frame or source rate")
+    return decoded_frame * TARGET_RATE // source_rate
+
+
 def to_stereo(samples: list[tuple[int, ...]], channels: int) -> list[tuple[int, int]]:
     return [(s[0], s[0]) if channels == 1 else (s[0], s[1]) for s in samples]
 
@@ -36,17 +48,16 @@ def resample_stereo(samples: list[tuple[int, int]], source_rate: int) -> list[tu
     return result
 
 
-def convert(source: Path, output: Path, repeat: bool = False,
-            source_loop_frame: int | None = None) -> dict:
+def convert(source: Path, output: Path, repeat: bool = True,
+            bor_loop_offset_bytes: int = 0) -> dict:
     header, pcm = decode_bor(source.read_bytes())
     values = struct.unpack("<" + "h" * (len(pcm) // 2), pcm)
     frames = [values[i:i + header.channels] for i in range(0, len(values), header.channels)]
     converted = resample_stereo(to_stereo(frames, header.channels), header.frequency)
-    if source_loop_frame is None:
-        source_loop_frame = 0
-    if not 0 <= source_loop_frame <= len(frames):
+    source_loop_frame = bor_loop_frames(bor_loop_offset_bytes, header.channels)
+    if source_loop_frame > len(frames):
         raise ValueError("BOR loop frame is outside decoded source")
-    msu_loop_frame = round(source_loop_frame * TARGET_RATE / header.frequency)
+    msu_loop_frame = msu_loop_frames(source_loop_frame, header.frequency)
     if not 0 <= msu_loop_frame <= len(converted):
         raise ValueError("resampled loop frame is outside MSU PCM")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +70,8 @@ def convert(source: Path, output: Path, repeat: bool = False,
             "source_sample_count": len(frames), "msu_rate_hz": TARGET_RATE,
             "msu_channels": 2, "msu_sample_count": len(converted),
             "duration_seconds": len(converted) / TARGET_RATE,
-            "repeat": bool(repeat), "source_loop_frame": source_loop_frame,
+            "repeat": bool(repeat), "bor_loop_offset_bytes": bor_loop_offset_bytes,
+            "source_loop_frame": source_loop_frame,
             "msu_loop_frame": msu_loop_frame}
 
 
