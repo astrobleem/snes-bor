@@ -16,6 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
 from compile_reachable_sfx import canonical_wav  # noqa: E402
+from production_sfx import duration_ticks, effect_policy, physical_effect_identity  # noqa: E402
 from pak_extract import extract  # noqa: E402
 from rebuild import check_compiler_version, find_compiler  # noqa: E402
 
@@ -57,17 +58,16 @@ def main() -> int:
                 family_row, source = reachable[asset_key]
                 raw = extract(ROOT / family_row["pak"], source_path)
                 wav, rate = canonical_wav(raw)
-                with wave.open(io.BytesIO(wav), "rb") as decoded:
-                    frames = decoded.getnframes()
-                duration_ticks = max(1, (frames * 125 + rate - 1) // rate)
-                program = f"play_note 0 {duration_ticks}"
-                identity = (hashlib.sha256(wav).hexdigest(), rate, "none", "gain F127", program)
+                frames, ticks, seconds = duration_ticks(wav, rate)
+                policy = effect_policy(rate, ticks)
+                program = policy["program"]
+                identity = physical_effect_identity(wav, policy)
                 effect = physical.get(identity)
                 if effect is None:
                     effect = f"bank{bank['bank_id']:02d}_fx{len(physical):02d}"
                     physical[identity] = effect
                     (samples / f"{effect}.wav").write_bytes(wav)
-                    rows.append({"name": effect, "source": f"samples/{effect}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127", "source_frames": frames, "source_duration_seconds": frames / rate, "duration_ticks": duration_ticks})
+                    rows.append({"name": effect, "source": f"samples/{effect}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127", "source_frames": frames, "source_duration_seconds": seconds, "duration_ticks": ticks, "one_channel": policy["one_channel"], "interruptible": policy["interruptible"], "priority": policy["priority"]})
                 asset_to_effect[asset_key] = effect
             for effect in physical.values():
                 effect_ticks = next(row["duration_ticks"] for row in rows if row["name"] == effect)

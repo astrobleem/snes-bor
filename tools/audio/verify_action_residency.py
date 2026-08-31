@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +21,9 @@ def main() -> int:
     ids = ROOT / "tools/audio/sfx_global_ids.json"
     if ids.exists() and data.get("global_ids_hash") != __import__("hashlib").sha256(ids.read_bytes()).hexdigest():
         raise SystemExit("FAIL: action residency plan is stale relative to global SFX IDs")
+    runtime = ROOT / "tools/audio/runtime_sfx_states.json"
+    if data.get("runtime_summary_hash") != hashlib.sha256(runtime.read_bytes()).hexdigest():
+        raise SystemExit("FAIL: action residency plan is stale relative to runtime state summary")
     joe = next(model for model in data["models"] if model["identity"] == "JOE")
     roles = {action["role"]: action["animation"] for action in joe["actions"]}
     if roles.get("attack2") != "grab" or "attack2_is_grab" in roles:

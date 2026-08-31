@@ -1,4 +1,6 @@
-"""Compile the manifest's unique shipped-reachable SFX set with pinned TAD.
+"""Diagnostic-only legacy compiler for comparison fixtures.
+
+Production capacity decisions must use production_sfx.py/build_sfx_banks.py.
 
 The project is built in a temporary directory. No production TAD project or
 generated runtime data is modified by this tool.
