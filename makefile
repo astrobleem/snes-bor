@@ -10,11 +10,18 @@ all: build/bor.sfc
 tad-check:
 	$(PYTHON) soundwork/tad/rebuild.py --check $(TAD_ARGS)
 
-audio-music:
+audio-manifest:
+	$(PYTHON) tools/audio/generate_audio_manifest.py
+	$(PYTHON) tools/audio/verify_audio_manifest.py
+
+audio-ids: audio-manifest
+	$(PYTHON) tools/audio/generate_audio_music_ids.py
+
+audio-music: audio-ids
 	$(PYTHON) tools/audio/build_music_catalog.py --output distribution --catalog $(AUDIO_CATALOG)
 	$(PYTHON) tools/audio/verify_msu_pcm.py
 
-src/main.bin: src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm tools/audio/audio_music_ids.pasm
+src/main.bin: audio-ids src/main.pasm soundwork/tad/build/audio-data.bin soundwork/tad/build/tad_blob_syms.pasm tools/audio/audio_music_ids.pasm
 	$(DOTNET) $(POPPY_DLL) src/main.pasm -s src/main.sym
 
 build/bor.sfc: tad-check audio-music src/main.bin build_rom.py
@@ -23,4 +30,4 @@ build/bor.sfc: tad-check audio-music src/main.bin build_rom.py
 clean:
 	rm -rf build distribution src/main.bin src/main.pansy src/main.sym
 
-.PHONY: all clean tad-check audio-music
+.PHONY: all clean tad-check audio-manifest audio-ids audio-music

@@ -26,6 +26,13 @@ def main() -> int:
             if asset.get("implementation_classification") not in ALLOWED:
                 errors.append(f"invalid classification: {key}")
             refs = asset.get("references", [])
+            if asset.get("raw_reference_count") != len(refs):
+                errors.append(f"raw reference count mismatch: {key}")
+            reachable = sum(r.get("reachability") == "shipped-reachable" for r in refs)
+            if asset.get("shipped_reachable_reference_count") != reachable:
+                errors.append(f"reachable reference count mismatch: {key}")
+            if asset.get("shipped_reachable") != bool(reachable):
+                errors.append(f"reachable asset flag mismatch: {key}")
             if asset.get("kind") == "missing-source":
                 if any(r.get("reachability") == "shipped-reachable" for r in refs):
                     errors.append(f"shipped-reachable source reference names missing asset: {key}")

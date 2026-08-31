@@ -7283,6 +7283,8 @@ Options_ApplyMusicVolume_Long:
     tax
     lda #SET_GLOBAL_MUSIC_VOLUME
     jsr Tad_QueueCommand
+    lda.l Options_MusicVolume
+    sta $2006
     rtl
 
 ; Stage_LoadAndRespawn_Long -- Phase G10: same trampoline pattern as
@@ -11131,14 +11133,13 @@ scpu_boot:
 
     ; Phase G5: BW-RAM's classic $6000-$7FFF window is real battery-backed
     ; save RAM (see core/options.pasm's own header), now writable by the
-    ; three pokes just above -- but reading it (Options_Init) and applying
-    ; the result to TAD are NOT done here. Both are deferred to the first
-    ; ever Game_State_Pause_CheckEntry call (core/pausemenu.pasm, bank 6,
-    ; already jsl'd from Game_State_Play__playing every PLAYING frame with
-    ; zero additional bank-0 cost) instead of two more jsl's living
-    ; permanently in this chronically-tight $C100-$FC00 bank -- see that
-    ; routine's own header for why this is equivalent in practice (still
-    ; well before the very first player action) and not a shortcut.
+    ; three pokes just above. Initialize and latch the persisted option before
+    ; authored MSU-1 track selection so the first volume write never reads
+    ; uninitialized WRAM. The first PLAYING-frame pause hook sees the latch.
+    jsl Options_Init
+    lda #1
+    sta.l Options_Initialized
+    jsl Options_ApplyMusicVolume_Long
 
     stz $2203               ; CRV low
     lda #$80

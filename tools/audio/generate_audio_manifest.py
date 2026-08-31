@@ -209,6 +209,11 @@ def scan_family(family: str, pak: Path) -> dict:
         beat1["converter_representation"] = "soundwork/tad/project/samples/beat1.wav"
         beat1["packed_runtime"] = "TAD SFX::sfx_hit; Character_HitApply"
     for asset in assets.values():
+        refs = asset["references"]
+        reachable = [r for r in refs if r.get("reachability") == "shipped-reachable"]
+        asset["raw_reference_count"] = len(refs)
+        asset["shipped_reachable_reference_count"] = len(reachable)
+        asset["shipped_reachable"] = bool(reachable)
         asset["implementation_classification"] = classify(asset)
     return {"family": family, "pak": pak.name, "pak_hash": sha256(pak.read_bytes()),
             "assets": sorted(assets.values(), key=lambda a: (a["kind"], a["source_path"]))}
