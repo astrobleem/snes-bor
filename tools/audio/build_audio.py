@@ -22,6 +22,10 @@ def main() -> int:
     run("build_music_catalog.py", "--output", "distribution", "--catalog",
         "tools/audio/music_catalog.json")
     run("verify_msu_pcm.py")
+    run("generate_sfx_global_ids.py")
+    run("verify_sfx_global_ids.py")
+    run("plan_action_residency.py")
+    run("verify_sfx_production_banks.py")
     return 0
 
 

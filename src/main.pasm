@@ -38,8 +38,8 @@ PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
 
 ; G11: SFX::sfx_hit's real generated ID, from
 ; ../soundwork/tad/build/audio-enums.inc (Poppy can't consume that ca65 file
-; directly). NOT the same 1 as CHAR_HIT_APPLIED -- those are unrelated
-; meanings that happen to share a value; each landed-hit call site now loads
+; directly). It is currently local effect 0 in the SFX-only TAD project; each
+; landed-hit call site now loads
 ; this named constant instead of reusing CHAR_HIT_APPLIED's `lda #1`, so a
 ; future SFX reorder can't silently desync them. Kept honest by
 ; tools/rom_audit/check_sfx_id_sync.py (parses audio-enums.inc and fails the
@@ -1738,7 +1738,7 @@ Tad_QueueSoundEffect_D0:
 ; tail-jmp here now instead of duplicating this inline -- ROM budget, same
 ; reasoning as Tad_QueueSoundEffect_D0 above). Bumps G11_HitSfxRequestCount
 ; (verification telemetry only, see that constant's own comment) then loads
-; the real named SFX_HIT_ID (not a reused CHAR_HIT_APPLIED coincidence) and
+; the generated production SFX_HIT_ID and
 ; falls into Tad_QueueSoundEffect_D0. CHAR_HIT_APPLIED must already be
 ; stamped by the caller before jumping here (both callers do this while D is
 ; still their own entity's window, same constraint as before).

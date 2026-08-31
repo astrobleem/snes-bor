@@ -657,7 +657,7 @@ def main():
                 shape_corr > 0.5)
 
     # --- 11. Static: the only real queue-write call site always requests
-    # SFX_HIT_ID, never sfx_stub (id 0). ---
+    # the generated production SFX_HIT_ID. ---
     with open(os.path.join(ROOT, 'src', 'main.pasm'), encoding='utf-8') as f:
         main_pasm = f.read()
     call_sites = re.findall(r'jsr Tad_QueueSoundEffect\b', main_pasm)
