@@ -26,8 +26,192 @@
         "tmnt:DATA\\SOUNDS\\THROW.WAV"
       ],
       "physical_effect_count": 13,
+      "effect_metadata": [
+        {
+          "name": "bank00_fx00",
+          "source": "samples/bank00_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4176,
+          "source_duration_seconds": 0.3787755102040816,
+          "duration_ticks": 48
+        },
+        {
+          "name": "bank00_fx01",
+          "source": "samples/bank00_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank00_fx02",
+          "source": "samples/bank00_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank00_fx03",
+          "source": "samples/bank00_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank00_fx04",
+          "source": "samples/bank00_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank00_fx05",
+          "source": "samples/bank00_fx05.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 17648,
+          "source_duration_seconds": 0.8003628117913832,
+          "duration_ticks": 101
+        },
+        {
+          "name": "bank00_fx06",
+          "source": "samples/bank00_fx06.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3840,
+          "source_duration_seconds": 0.34829931972789113,
+          "duration_ticks": 44
+        },
+        {
+          "name": "bank00_fx07",
+          "source": "samples/bank00_fx07.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11472,
+          "source_duration_seconds": 0.5202721088435374,
+          "duration_ticks": 66
+        },
+        {
+          "name": "bank00_fx08",
+          "source": "samples/bank00_fx08.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 10592,
+          "source_duration_seconds": 0.9607256235827665,
+          "duration_ticks": 121
+        },
+        {
+          "name": "bank00_fx09",
+          "source": "samples/bank00_fx09.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4864,
+          "source_duration_seconds": 0.44117913832199546,
+          "duration_ticks": 56
+        },
+        {
+          "name": "bank00_fx10",
+          "source": "samples/bank00_fx10.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 6704,
+          "source_duration_seconds": 0.30403628117913833,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank00_fx11",
+          "source": "samples/bank00_fx11.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 1136,
+          "source_duration_seconds": 0.10303854875283447,
+          "duration_ticks": 13
+        },
+        {
+          "name": "bank00_fx12",
+          "source": "samples/bank00_fx12.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 26048,
+          "source_duration_seconds": 1.1813151927437642,
+          "duration_ticks": 148
+        }
+      ],
       "compiled_blob_bytes": 61941,
-      "compiled_blob_sha256": "00deb39565d46a96b724f2b23e77427c2ee906427a5be28fade1e6d5bb256aa2",
+      "compiled_blob_sha256": "c59661382be1070b0ea48f0aa9431546d4b7fb5bc34cf06410a93402a49eb274",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -38,7 +222,7 @@
       "segment_end": 61992,
       "binary_end": 61941,
       "common_data_bytes": 58546,
-      "common_data_sha256": "902d4ab897e4946c7d4b6af09710a8ad22857524678763e8cd13309dbaed95bf"
+      "common_data_sha256": "2b00588f0175333c95d47319b79c27d66f2375daa3690d5196ddda22ad28d92b"
     },
     {
       "bank_id": 1,
@@ -58,8 +242,192 @@
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "physical_effect_count": 13,
+      "effect_metadata": [
+        {
+          "name": "bank01_fx00",
+          "source": "samples/bank01_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank01_fx01",
+          "source": "samples/bank01_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank01_fx02",
+          "source": "samples/bank01_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank01_fx03",
+          "source": "samples/bank01_fx03.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 17648,
+          "source_duration_seconds": 0.8003628117913832,
+          "duration_ticks": 101
+        },
+        {
+          "name": "bank01_fx04",
+          "source": "samples/bank01_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3840,
+          "source_duration_seconds": 0.34829931972789113,
+          "duration_ticks": 44
+        },
+        {
+          "name": "bank01_fx05",
+          "source": "samples/bank01_fx05.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11472,
+          "source_duration_seconds": 0.5202721088435374,
+          "duration_ticks": 66
+        },
+        {
+          "name": "bank01_fx06",
+          "source": "samples/bank01_fx06.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 10592,
+          "source_duration_seconds": 0.9607256235827665,
+          "duration_ticks": 121
+        },
+        {
+          "name": "bank01_fx07",
+          "source": "samples/bank01_fx07.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank01_fx08",
+          "source": "samples/bank01_fx08.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4864,
+          "source_duration_seconds": 0.44117913832199546,
+          "duration_ticks": 56
+        },
+        {
+          "name": "bank01_fx09",
+          "source": "samples/bank01_fx09.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 6704,
+          "source_duration_seconds": 0.30403628117913833,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank01_fx10",
+          "source": "samples/bank01_fx10.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 15344,
+          "source_duration_seconds": 0.6958730158730159,
+          "duration_ticks": 87
+        },
+        {
+          "name": "bank01_fx11",
+          "source": "samples/bank01_fx11.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 1136,
+          "source_duration_seconds": 0.10303854875283447,
+          "duration_ticks": 13
+        },
+        {
+          "name": "bank01_fx12",
+          "source": "samples/bank01_fx12.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 13312,
+          "source_duration_seconds": 0.603718820861678,
+          "duration_ticks": 76
+        }
+      ],
       "compiled_blob_bytes": 61059,
-      "compiled_blob_sha256": "781464ed3e8fb5a2da29c06108c099606d57672d16714c9b7c4e04d7df701183",
+      "compiled_blob_sha256": "53619074401450d52e337f123ce0021c8da360eedafec115d7cc49d9ee16ffd1",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -70,7 +438,7 @@
       "segment_end": 61110,
       "binary_end": 61059,
       "common_data_bytes": 57664,
-      "common_data_sha256": "e67a386b72a6faffac58b4b21a61596ecfad0b00ca1d718d788e2e2528a6484c"
+      "common_data_sha256": "0b9fff68a4cb3fb76b437713b7edfc692d545c7973cbb14b17991148ea7745f4"
     },
     {
       "bank_id": 2,
@@ -92,8 +460,178 @@
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "physical_effect_count": 12,
+      "effect_metadata": [
+        {
+          "name": "bank02_fx00",
+          "source": "samples/bank02_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4176,
+          "source_duration_seconds": 0.3787755102040816,
+          "duration_ticks": 48
+        },
+        {
+          "name": "bank02_fx01",
+          "source": "samples/bank02_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank02_fx02",
+          "source": "samples/bank02_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank02_fx03",
+          "source": "samples/bank02_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5456,
+          "source_duration_seconds": 0.494875283446712,
+          "duration_ticks": 62
+        },
+        {
+          "name": "bank02_fx04",
+          "source": "samples/bank02_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank02_fx05",
+          "source": "samples/bank02_fx05.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank02_fx06",
+          "source": "samples/bank02_fx06.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11472,
+          "source_duration_seconds": 0.5202721088435374,
+          "duration_ticks": 66
+        },
+        {
+          "name": "bank02_fx07",
+          "source": "samples/bank02_fx07.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 10592,
+          "source_duration_seconds": 0.9607256235827665,
+          "duration_ticks": 121
+        },
+        {
+          "name": "bank02_fx08",
+          "source": "samples/bank02_fx08.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 35728,
+          "source_duration_seconds": 1.6203174603174604,
+          "duration_ticks": 203
+        },
+        {
+          "name": "bank02_fx09",
+          "source": "samples/bank02_fx09.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 6704,
+          "source_duration_seconds": 0.30403628117913833,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank02_fx10",
+          "source": "samples/bank02_fx10.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 1136,
+          "source_duration_seconds": 0.10303854875283447,
+          "duration_ticks": 13
+        },
+        {
+          "name": "bank02_fx11",
+          "source": "samples/bank02_fx11.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 13312,
+          "source_duration_seconds": 0.603718820861678,
+          "duration_ticks": 76
+        }
+      ],
       "compiled_blob_bytes": 63103,
-      "compiled_blob_sha256": "4c93ed6b074a3949a3606d074cbc6527ca81e7ba82d129903a011b1d2b3d2484",
+      "compiled_blob_sha256": "e01c08dc28ba7025836bc8eabd1241eb7a26e51451c93859a6f83ac62788d4e5",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -104,7 +642,7 @@
       "segment_end": 63154,
       "binary_end": 63103,
       "common_data_bytes": 59708,
-      "common_data_sha256": "c69c1e51f95080d45c0efbbaf947c8c5d0d6fe977d1591fcc503bb02b1155549"
+      "common_data_sha256": "a3a9078faf9615273049887ee6ad9eae92262a30ac8bea354cb6540521aa24a5"
     },
     {
       "bank_id": 3,
@@ -127,8 +665,192 @@
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "physical_effect_count": 13,
+      "effect_metadata": [
+        {
+          "name": "bank03_fx00",
+          "source": "samples/bank03_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4176,
+          "source_duration_seconds": 0.3787755102040816,
+          "duration_ticks": 48
+        },
+        {
+          "name": "bank03_fx01",
+          "source": "samples/bank03_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank03_fx02",
+          "source": "samples/bank03_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank03_fx03",
+          "source": "samples/bank03_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5456,
+          "source_duration_seconds": 0.494875283446712,
+          "duration_ticks": 62
+        },
+        {
+          "name": "bank03_fx04",
+          "source": "samples/bank03_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank03_fx05",
+          "source": "samples/bank03_fx05.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4048,
+          "source_duration_seconds": 0.18358276643990928,
+          "duration_ticks": 23
+        },
+        {
+          "name": "bank03_fx06",
+          "source": "samples/bank03_fx06.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank03_fx07",
+          "source": "samples/bank03_fx07.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11472,
+          "source_duration_seconds": 0.5202721088435374,
+          "duration_ticks": 66
+        },
+        {
+          "name": "bank03_fx08",
+          "source": "samples/bank03_fx08.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 6704,
+          "source_duration_seconds": 0.30403628117913833,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank03_fx09",
+          "source": "samples/bank03_fx09.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 15344,
+          "source_duration_seconds": 0.6958730158730159,
+          "duration_ticks": 87
+        },
+        {
+          "name": "bank03_fx10",
+          "source": "samples/bank03_fx10.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 1136,
+          "source_duration_seconds": 0.10303854875283447,
+          "duration_ticks": 13
+        },
+        {
+          "name": "bank03_fx11",
+          "source": "samples/bank03_fx11.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 26048,
+          "source_duration_seconds": 1.1813151927437642,
+          "duration_ticks": 148
+        },
+        {
+          "name": "bank03_fx12",
+          "source": "samples/bank03_fx12.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 13312,
+          "source_duration_seconds": 0.603718820861678,
+          "duration_ticks": 76
+        }
+      ],
       "compiled_blob_bytes": 62625,
-      "compiled_blob_sha256": "30d3ebd3434a0896d14d3a2f39be5afb23056c97aa2b34915d2b3bcab092e1cd",
+      "compiled_blob_sha256": "d6f28d69bb96394456839a3b59590273947397d22cf10713c3c0edb6d287edad",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -139,7 +861,7 @@
       "segment_end": 62676,
       "binary_end": 62625,
       "common_data_bytes": 59230,
-      "common_data_sha256": "4ed610e2e623057310266e8f0b37a941e843a5bc6581cec4a6e5745b8de21e5f"
+      "common_data_sha256": "93f5df0406557ee115f8427d92db28d1f22ac2d822b299ab6cf812478bbf09c1"
     },
     {
       "bank_id": 4,
@@ -161,8 +883,178 @@
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
       ],
       "physical_effect_count": 12,
+      "effect_metadata": [
+        {
+          "name": "bank04_fx00",
+          "source": "samples/bank04_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4176,
+          "source_duration_seconds": 0.3787755102040816,
+          "duration_ticks": 48
+        },
+        {
+          "name": "bank04_fx01",
+          "source": "samples/bank04_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank04_fx02",
+          "source": "samples/bank04_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank04_fx03",
+          "source": "samples/bank04_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5456,
+          "source_duration_seconds": 0.494875283446712,
+          "duration_ticks": 62
+        },
+        {
+          "name": "bank04_fx04",
+          "source": "samples/bank04_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank04_fx05",
+          "source": "samples/bank04_fx05.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4048,
+          "source_duration_seconds": 0.18358276643990928,
+          "duration_ticks": 23
+        },
+        {
+          "name": "bank04_fx06",
+          "source": "samples/bank04_fx06.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank04_fx07",
+          "source": "samples/bank04_fx07.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 17648,
+          "source_duration_seconds": 0.8003628117913832,
+          "duration_ticks": 101
+        },
+        {
+          "name": "bank04_fx08",
+          "source": "samples/bank04_fx08.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3840,
+          "source_duration_seconds": 0.34829931972789113,
+          "duration_ticks": 44
+        },
+        {
+          "name": "bank04_fx09",
+          "source": "samples/bank04_fx09.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 10592,
+          "source_duration_seconds": 0.9607256235827665,
+          "duration_ticks": 121
+        },
+        {
+          "name": "bank04_fx10",
+          "source": "samples/bank04_fx10.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4864,
+          "source_duration_seconds": 0.44117913832199546,
+          "duration_ticks": 56
+        },
+        {
+          "name": "bank04_fx11",
+          "source": "samples/bank04_fx11.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 35728,
+          "source_duration_seconds": 1.6203174603174604,
+          "duration_ticks": 203
+        }
+      ],
       "compiled_blob_bytes": 61852,
-      "compiled_blob_sha256": "989c5adae5542031579dddd9d3ad556528463e79bbb1c038e43ac04d18c11ff9",
+      "compiled_blob_sha256": "f49c7c7585703a3412cf4ce414da8f77cdac38abdda7aaab2bb7fb039873d724",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -173,7 +1065,7 @@
       "segment_end": 61903,
       "binary_end": 61852,
       "common_data_bytes": 58457,
-      "common_data_sha256": "4aa8461740857ebec38187f94d0c1922fc741f1b47448dd9e22d80adf7a95326"
+      "common_data_sha256": "456111513c5982d9e3e75d7304b3e4f7bd0d8f90268247637620fbc008cdbe79"
     },
     {
       "bank_id": 5,
@@ -189,8 +1081,136 @@
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
       "physical_effect_count": 9,
+      "effect_metadata": [
+        {
+          "name": "bank05_fx00",
+          "source": "samples/bank05_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank05_fx01",
+          "source": "samples/bank05_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank05_fx02",
+          "source": "samples/bank05_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank05_fx03",
+          "source": "samples/bank05_fx03.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 17648,
+          "source_duration_seconds": 0.8003628117913832,
+          "duration_ticks": 101
+        },
+        {
+          "name": "bank05_fx04",
+          "source": "samples/bank05_fx04.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11472,
+          "source_duration_seconds": 0.5202721088435374,
+          "duration_ticks": 66
+        },
+        {
+          "name": "bank05_fx05",
+          "source": "samples/bank05_fx05.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 5952,
+          "source_duration_seconds": 0.5398639455782313,
+          "duration_ticks": 68
+        },
+        {
+          "name": "bank05_fx06",
+          "source": "samples/bank05_fx06.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 35728,
+          "source_duration_seconds": 1.6203174603174604,
+          "duration_ticks": 203
+        },
+        {
+          "name": "bank05_fx07",
+          "source": "samples/bank05_fx07.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 6704,
+          "source_duration_seconds": 0.30403628117913833,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank05_fx08",
+          "source": "samples/bank05_fx08.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 15344,
+          "source_duration_seconds": 0.6958730158730159,
+          "duration_ticks": 87
+        }
+      ],
       "compiled_blob_bytes": 62107,
-      "compiled_blob_sha256": "075d2e43a22eadc63b3ff9161f40c9aae96261b919f923d21b476a092d74c04d",
+      "compiled_blob_sha256": "3610360a19eaf85763b718dc474b823ea26c55869c0377f6ed4c097b809fbea9",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
@@ -201,7 +1221,7 @@
       "segment_end": 62158,
       "binary_end": 62107,
       "common_data_bytes": 58712,
-      "common_data_sha256": "6e743f72e8a570b5a56c3c7957459303b2411fa1faac8a0ac7a3845468facc2b"
+      "common_data_sha256": "b1c0751403190a7c8177793960d79b969dae4358726d4bc618481f23e9079d93"
     },
     {
       "bank_id": 6,
@@ -219,19 +1239,147 @@
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
       ],
       "physical_effect_count": 9,
-      "compiled_blob_bytes": 62476,
-      "compiled_blob_sha256": "8e5b6399a88c78432c4e31968f7fedaf884267bfa83b356a07fe4f729630da01",
+      "effect_metadata": [
+        {
+          "name": "bank06_fx00",
+          "source": "samples/bank06_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4176,
+          "source_duration_seconds": 0.3787755102040816,
+          "duration_ticks": 48
+        },
+        {
+          "name": "bank06_fx01",
+          "source": "samples/bank06_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank06_fx02",
+          "source": "samples/bank06_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank06_fx03",
+          "source": "samples/bank06_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 7472,
+          "source_duration_seconds": 0.6777324263038549,
+          "duration_ticks": 85
+        },
+        {
+          "name": "bank06_fx04",
+          "source": "samples/bank06_fx04.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 11056,
+          "source_duration_seconds": 1.00281179138322,
+          "duration_ticks": 126
+        },
+        {
+          "name": "bank06_fx05",
+          "source": "samples/bank06_fx05.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 8128,
+          "source_duration_seconds": 0.737233560090703,
+          "duration_ticks": 93
+        },
+        {
+          "name": "bank06_fx06",
+          "source": "samples/bank06_fx06.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4480,
+          "source_duration_seconds": 0.40634920634920635,
+          "duration_ticks": 51
+        },
+        {
+          "name": "bank06_fx07",
+          "source": "samples/bank06_fx07.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank06_fx08",
+          "source": "samples/bank06_fx08.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 58192,
+          "source_duration_seconds": 5.278185941043084,
+          "duration_ticks": 660
+        }
+      ],
+      "compiled_blob_bytes": 62478,
+      "compiled_blob_sha256": "d0444d54b243db64a9a66dc0a8dc6b1f31cb139266e30662d06bc6ec8b8ccad6",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
       "common_data_segment_start": 3425,
       "common_data_binary_start": 3374,
-      "song_segment_start": 62506,
-      "song_binary_start": 62455,
-      "segment_end": 62527,
-      "binary_end": 62476,
-      "common_data_bytes": 59081,
-      "common_data_sha256": "41b82b4f862080a4a9e239bf5b0832e0f71c9c05c0d494b9ffc1ae3b2b17495c"
+      "song_segment_start": 62508,
+      "song_binary_start": 62457,
+      "segment_end": 62529,
+      "binary_end": 62478,
+      "common_data_bytes": 59083,
+      "common_data_sha256": "27b3e183f4a5d686ce8213708facb62bfe89411c4c736ab43c10810e18bcf265"
     },
     {
       "bank_id": 7,
@@ -242,19 +1390,77 @@
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
       "physical_effect_count": 4,
-      "compiled_blob_bytes": 42528,
-      "compiled_blob_sha256": "4a4390b542308c624b794a09711a9be736dce6511d7336280c75ad71e41bdab6",
+      "effect_metadata": [
+        {
+          "name": "bank07_fx00",
+          "source": "samples/bank07_fx00.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3408,
+          "source_duration_seconds": 0.3091156462585034,
+          "duration_ticks": 39
+        },
+        {
+          "name": "bank07_fx01",
+          "source": "samples/bank07_fx01.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 3376,
+          "source_duration_seconds": 0.15310657596371882,
+          "duration_ticks": 20
+        },
+        {
+          "name": "bank07_fx02",
+          "source": "samples/bank07_fx02.wav",
+          "sample_rates": [
+            22050
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 4416,
+          "source_duration_seconds": 0.2002721088435374,
+          "duration_ticks": 26
+        },
+        {
+          "name": "bank07_fx03",
+          "source": "samples/bank07_fx03.wav",
+          "sample_rates": [
+            11025
+          ],
+          "loop": "none",
+          "evaluator": "default",
+          "ignore_gaussian_overflow": false,
+          "envelope": "gain F127",
+          "source_frames": 58192,
+          "source_duration_seconds": 5.278185941043084,
+          "duration_ticks": 660
+        }
+      ],
+      "compiled_blob_bytes": 42530,
+      "compiled_blob_sha256": "ed0dc163c97729d2b692bd26da5729091cf5832d7ed54e44912ab3202eb524b2",
       "load_audio_data_bytes": 51,
       "data_table_segment_offset": 3366,
       "data_table_binary_offset": 3366,
       "common_data_segment_start": 3425,
       "common_data_binary_start": 3374,
-      "song_segment_start": 42558,
-      "song_binary_start": 42507,
-      "segment_end": 42579,
-      "binary_end": 42528,
-      "common_data_bytes": 39133,
-      "common_data_sha256": "9e92d78e73aae34290e2d5e658785f885fa144417e970b8dcb28fcb9cc5fc3f1"
+      "song_segment_start": 42560,
+      "song_binary_start": 42509,
+      "segment_end": 42581,
+      "binary_end": 42530,
+      "common_data_bytes": 39135,
+      "common_data_sha256": "a301018035d726f6a270aaeb8017f880cc95e3c5e223f56dd447d5d73cd3e0b9"
     }
   ],
   "maps": [
@@ -953,6 +2159,6 @@
     }
   ],
   "bank_count": 8,
-  "total_common_data_bytes": 450531,
+  "total_common_data_bytes": 450535,
   "distinct_local_effects": 85
 }

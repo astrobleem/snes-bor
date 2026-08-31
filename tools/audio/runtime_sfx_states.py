@@ -75,20 +75,28 @@ def explore_stage(stage: dict, max_states: int = 500000) -> list[dict]:
         # WAIT clamps at the current Screen_PosX. Enumerating the finite set of
         # packed trigger positions preserves that distinction without a pixel
         # movement simulator.
-        if trigger_x > camera_x:
-            if waiting:
-                continue
+        if waiting and trigger_x > camera_x:
+            continue
+        # GROUP only blocks queue advancement. It does not clamp Screen_PosX,
+        # so the camera may pass any later trigger while the current record is
+        # already eligible but cannot be consumed.
+        if not waiting:
+            advanced = False
             for next_camera in trigger_positions:
                 if next_camera > camera_x:
                     enqueue((queue_index, group_min, group_max, waiting, next_camera, slots))
-            continue
+                    advanced = True
+            if advanced:
+                if trigger_x > camera_x:
+                    continue
 
         enemy_count = sum(1 for s in slots if s[0] and not s[2] and s[3] == 0)
         if enemy_count >= group_min or enemy_count >= group_max:
             continue
 
         if kind == KIND_WAIT:
-            enqueue((queue_index + 1, group_min, group_max, True, trigger_x, slots))
+            # Spawn_Play copies the current Screen_PosX to Screen_MaxX.
+            enqueue((queue_index + 1, group_min, group_max, True, camera_x, slots))
             continue
         if kind == KIND_GROUP:
             enqueue((queue_index + 1, record[2], record[3], waiting, camera_x, slots))

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import re
 import shutil
 import subprocess
 import tempfile
+import wave
 from pathlib import Path
 import sys
 
@@ -55,16 +57,21 @@ def main() -> int:
                 family_row, source = reachable[asset_key]
                 raw = extract(ROOT / family_row["pak"], source_path)
                 wav, rate = canonical_wav(raw)
-                identity = (hashlib.sha256(wav).hexdigest(), rate, "none", "gain F127", "play_note 0 48")
+                with wave.open(io.BytesIO(wav), "rb") as decoded:
+                    frames = decoded.getnframes()
+                duration_ticks = max(1, (frames * 125 + rate - 1) // rate)
+                program = f"play_note 0 {duration_ticks}"
+                identity = (hashlib.sha256(wav).hexdigest(), rate, "none", "gain F127", program)
                 effect = physical.get(identity)
                 if effect is None:
                     effect = f"bank{bank['bank_id']:02d}_fx{len(physical):02d}"
                     physical[identity] = effect
                     (samples / f"{effect}.wav").write_bytes(wav)
-                    rows.append({"name": effect, "source": f"samples/{effect}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127"})
+                    rows.append({"name": effect, "source": f"samples/{effect}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127", "source_frames": frames, "source_duration_seconds": frames / rate, "duration_ticks": duration_ticks})
                 asset_to_effect[asset_key] = effect
             for effect in physical.values():
-                effects += [f"=== {effect} ===", f"    set_instrument {effect}", "    play_note 0 48", ""]
+                effect_ticks = next(row["duration_ticks"] for row in rows if row["name"] == effect)
+                effects += [f"=== {effect} ===", f"    set_instrument {effect}", f"    play_note 0 {effect_ticks}", ""]
             project_file = root / "02_coin.terrificaudio"
             project = json.loads(project_file.read_text(encoding="utf-8"))
             project["samples"] = rows
@@ -118,7 +125,7 @@ def main() -> int:
             shutil.copy2(out / "audio-enums.inc", target / "audio-enums.inc")
             blob_bytes = len(blob)
             common = len(common_bytes)
-            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "compiled_blob_bytes": blob_bytes, "compiled_blob_sha256": hashlib.sha256(blob).hexdigest(), "load_audio_data_bytes": data_base, "data_table_segment_offset": table_segment, "data_table_binary_offset": table, "common_data_segment_start": common_start_segment, "common_data_binary_start": common_start, "song_segment_start": song_start_segment, "song_binary_start": song_start, "segment_end": end_segment, "binary_end": end, "common_data_bytes": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
+            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "effect_metadata": rows, "compiled_blob_bytes": blob_bytes, "compiled_blob_sha256": hashlib.sha256(blob).hexdigest(), "load_audio_data_bytes": data_base, "data_table_segment_offset": table_segment, "data_table_binary_offset": table, "common_data_segment_start": common_start_segment, "common_data_binary_start": common_start, "song_segment_start": song_start_segment, "song_binary_start": song_start, "segment_end": end_segment, "binary_end": end, "common_data_bytes": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
             for asset, effect in asset_to_effect.items():
                 maps.append({"bank_id": bank["bank_id"], "asset": asset, "local_effect_id": enum_ids[effect], "effect_symbol": effect, "exact_physical_identity": hashlib.sha256((samples / f"{effect}.wav").read_bytes()).hexdigest()})
     output = {"schema_version": 1, "compiler": str(compiler), "compiler_version": version, "bank_plan_hash": hashlib.sha256(plan_path.read_bytes()).hexdigest(), "global_ids_hash": hashlib.sha256(ids_path.read_bytes()).hexdigest(), "banks": banks, "maps": maps, "bank_count": len(banks), "total_common_data_bytes": sum(b["common_data_bytes"] for b in banks), "distinct_local_effects": sum(b["physical_effect_count"] for b in banks)}
