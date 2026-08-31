@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "tools/audio/audio_manifest.json"
 IDS = ROOT / "tools/audio/sfx_global_ids.json"
 PLAN = ROOT / "tools/audio/sfx_banks.json"
+ACTION = ROOT / "tools/audio/action_residency.json"
 ARTIFACT = ROOT / "tools/audio/sfx_production_banks.json"
 OUT = ROOT / "soundwork/tad/build/sfx_banks"
 CAPACITY = 60828
@@ -21,12 +22,14 @@ def digest(path: Path) -> str:
 
 
 def main() -> int:
-    for path in (MANIFEST, IDS, PLAN, ARTIFACT):
+    for path in (MANIFEST, IDS, PLAN, ACTION, ARTIFACT):
         if not path.exists():
             raise SystemExit(f"FAIL: missing production SFX input {path}")
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     ids = json.loads(IDS.read_text(encoding="utf-8"))
     plan = json.loads(PLAN.read_text(encoding="utf-8"))
+    if plan.get("action_residency_hash") != digest(ACTION):
+        raise SystemExit("FAIL: SFX bank plan is stale relative to action residency")
     artifact = json.loads(ARTIFACT.read_text(encoding="utf-8"))
     if artifact.get("bank_plan_hash") != digest(PLAN):
         raise SystemExit("FAIL: compiled SFX banks are stale relative to sfx_banks.json")

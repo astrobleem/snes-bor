@@ -124,8 +124,6 @@ def main() -> int:
                 values |= global_assets.get((context_family, "attack-swing"), set())
             if role in ("jump", "jumpattack", "jumpattack2"):
                 values |= global_assets.get((context_family, "jump"), set())
-            if role in ("fall", "rise"):
-                values |= global_assets.get((context_family, "fall"), set())
             options.add(tuple(sorted(values)))
         return sorted(options)
 
@@ -149,9 +147,9 @@ def main() -> int:
     for stage in STAGE_CONFIGS:
         family = stage["family"]
         options_by_identity = {m["identity"]: model_action_options(m, family) for m in models}
-        base = set()
+        always_resident_global_requirements = set()
         for event in ("pause-entry", "ui-beep", "ui-beep-secondary", "landed-hit"):
-            base |= global_assets.get((family, event), set())
+            always_resident_global_requirements |= global_assets.get((family, event), set())
         stage_key = stage["family"] + ":" + stage["source_level"]
         state_contexts = projected_by_stage[stage_key]
         for player in (m for m in models if m["playable"]):
@@ -164,25 +162,27 @@ def main() -> int:
                         slot_models.append(options_by_identity.get(ident, [tuple()]))
                 player_options = options_by_identity.get(player["identity"], [tuple()])
                 for choices in itertools.product(player_options, *(slot_models[:3])):
-                    values = set(base)
+                    values = set(always_resident_global_requirements)
                     for choice in choices:
                         values.update(choice)
                     signature = tuple(sorted(values))
                     combined.add(signature)
                     combined_users.setdefault(signature, {"stage": stage["source_level"], "player": player["identity"], "slot_identities": list(identities)})
-                for index in identities:
-                    if 0 <= index < len(ROSTER_CONFIGS):
-                        ident = ROSTER_CONFIGS[index]["source_character"].split("\\CHARS\\", 1)[1].upper()
+                    # Every transition overlays the complete concurrent action
+                    # requirement; it is never reduced to base + event.
+                    transition.add(tuple(sorted(values | global_assets.get((family, "landed-hit"), set()))))
+                    for ident in [player["identity"]] + [ROSTER_CONFIGS[index]["source_character"].split("\\CHARS\\", 1)[1].upper() for index in identities if 0 <= index < len(ROSTER_CONFIGS)]:
                         die = model_by_identity.get(ident, {}).get("diesound")
                         if die:
-                            transition.add(tuple(sorted(base | {die})))
-                for alive, roster_index, prop, pickup_type, contained in context:
-                    if not alive or not prop or not pickup_type:
-                        continue
-                    pickup_event = {1: "health-pickup", 2: "health-pickup", 3: "score-pickup", 4: "one-up", 5: "score-pickup"}.get(pickup_type)
-                    if pickup_event:
-                        transition.add(tuple(sorted(base | global_assets.get((family, pickup_event), set()))))
-                transition.add(tuple(sorted(base | global_assets.get((family, "fall"), set()))))
+                            transition.add(tuple(sorted(values | {die})))
+                    for alive, roster_index, prop, pickup_type, contained in context:
+                        if not alive or not prop or not pickup_type:
+                            continue
+                        pickup_event = {1: "health-pickup", 2: "health-pickup", 3: "score-pickup", 4: "one-up", 5: "score-pickup"}.get(pickup_type)
+                        if pickup_event:
+                            transition.add(tuple(sorted(values | global_assets.get((family, pickup_event), set()))))
+                    # FALL is a landing/bounce transition, not an animation role.
+                    transition.add(tuple(sorted(values | global_assets.get((family, "fall"), set()))))
     output = {
         "schema_version": 2,
         "source": "authoritative entity parser plus converted moveset role table",
