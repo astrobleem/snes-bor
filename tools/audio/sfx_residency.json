@@ -1,21 +1,291 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "candidate_count": 140,
-  "unique_set_count": 9,
+  "unique_set_count": 62,
+  "stage_reports": {
+    "bor-original:DATA\\EASY\\1BEASY.TXT": {
+      "spawnable_entities": [
+        "Angel",
+        "Chair",
+        "Ralf",
+        "Shermie",
+        "Table",
+        "Yashiro"
+      ],
+      "contained_or_standalone_items": [
+        "Apple",
+        "Money",
+        "apple",
+        "gold",
+        "money"
+      ],
+      "stage_global_sfx": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+      ],
+      "stage_base_sfx": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV"
+      ]
+    },
+    "bor-original:DATA\\EASY\\1AEASY.TXT": {
+      "spawnable_entities": [
+        "1up",
+        "Ralf",
+        "Shermie",
+        "Trash",
+        "Yashiro",
+        "angel",
+        "ralf",
+        "shermie",
+        "trash",
+        "yashiro"
+      ],
+      "contained_or_standalone_items": [
+        "Meat",
+        "apple",
+        "money"
+      ],
+      "stage_global_sfx": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+      ],
+      "stage_base_sfx": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\BEBOP.TXT": {
+      "spawnable_entities": [
+        "Bebop",
+        "Hydrany"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\ROCK.TXT": {
+      "spawnable_entities": [
+        "Hydrany",
+        "Rock"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\LEATHER.TXT": {
+      "spawnable_entities": [
+        "Leather"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\SEWER0.TXT": {
+      "spawnable_entities": [
+        "WhiteD",
+        "mouser"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\STREETS.TXT": {
+      "spawnable_entities": [
+        "Epole",
+        "Epole2",
+        "Foot01",
+        "Hydrant",
+        "Light2",
+        "Lightb",
+        "Pizza",
+        "Plant",
+        "Rock",
+        "Smoke",
+        "Tree",
+        "Wdrop",
+        "WhiteB",
+        "car",
+        "foot01",
+        "foot02",
+        "foot03",
+        "guy",
+        "mail",
+        "ptc",
+        "trash1",
+        "trash2",
+        "trash3"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\STREETS2.TXT": {
+      "spawnable_entities": [
+        "Bebop",
+        "Epolef",
+        "Epolef2",
+        "Epolef3",
+        "Foot01",
+        "Foot02",
+        "Foot03",
+        "Foot04",
+        "Hydrany",
+        "Lightb",
+        "Parkm",
+        "Pizza",
+        "Trashf",
+        "Trashf2",
+        "WhiteC",
+        "foot01",
+        "foot02",
+        "foot03",
+        "trash1",
+        "wdrop"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\SEWER.TXT": {
+      "spawnable_entities": [
+        "Foot04",
+        "Pipef",
+        "Pipef2",
+        "Wdrop",
+        "WhiteD",
+        "foot01",
+        "foot02",
+        "foot03",
+        "mouser"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "stage_base_sfx": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ]
+    },
+    "tmnt:DATA\\LEVELS\\FOOT.TXT": {
+      "spawnable_entities": [
+        "Foot3"
+      ],
+      "contained_or_standalone_items": [],
+      "stage_global_sfx": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ],
+      "model_local_sfx": [],
+      "stage_base_sfx": []
+    }
+  },
   "candidates": [
     {
       "strategy": "A",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "all"
@@ -24,64 +294,23 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "all"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "all"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "all"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
         "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\METAL.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
@@ -93,21 +322,14 @@
       ],
       "compile_pass": false,
       "compiled_blob_bytes": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (264674 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (251776 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/joe",
@@ -126,147 +348,27 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/yashiro"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/yashiro"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/ralf"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/joe"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/yashiro"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
       "compile_pass": true,
-      "compiled_blob_bytes": 54604,
+      "compiled_blob_bytes": 41706,
+      "compiled_common_bytes": 38311,
+      "overflow": null,
       "compile_diagnostic": null
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/jhun"
@@ -275,75 +377,28 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/jhun"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/jhun"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/jhun"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
         "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
       ],
       "compile_pass": true,
-      "compiled_blob_bytes": 56620,
+      "compiled_blob_bytes": 47942,
+      "compiled_common_bytes": 44547,
+      "overflow": null,
       "compile_diagnostic": null
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/mouser"
@@ -352,75 +407,28 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/mouser"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/mouser"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/mouser"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\METAL.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
       ],
       "compile_pass": true,
-      "compiled_blob_bytes": 53137,
+      "compiled_blob_bytes": 44459,
+      "compiled_common_bytes": 41064,
+      "overflow": null,
       "compile_diagnostic": null
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/foot01",
@@ -444,183 +452,28 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/foot04"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/foot04"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/foot01"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/foot02"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/foot03"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/foot04"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
       ],
       "compile_pass": false,
       "compiled_blob_bytes": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (79739 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (71061 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/rock"
@@ -629,77 +482,30 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/rock"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/rock"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/rock"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV",
         "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
       ],
       "compile_pass": false,
       "compiled_blob_bytes": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (94362 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (85684 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/leather"
@@ -708,75 +514,28 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/leather"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/leather"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
-          "player": "out/leather"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
         "tmnt:DATA\\SOUNDS\\RHINO.WAV"
       ],
       "compile_pass": true,
-      "compiled_blob_bytes": 59032,
+      "compiled_blob_bytes": 50354,
+      "compiled_common_bytes": 46959,
+      "overflow": null,
       "compile_diagnostic": null
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
-        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-        "tmnt:DATA\\LEVELS\\FOOT.TXT",
-        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-        "tmnt:DATA\\LEVELS\\ROCK.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER.TXT",
-        "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS.TXT",
-        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
       ],
       "players": [
         "out/bebop"
@@ -785,69 +544,390 @@
         {
           "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
           "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88510 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1BEASY.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (112465 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "A",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "all"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "all"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (271701 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/ralf"
         },
         {
           "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/bebop"
+          "player": "out/joe"
         },
         {
-          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/bebop"
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 61631,
+      "compiled_common_bytes": 58236,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (64472 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/mouser"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (60989 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/foot01"
         },
         {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/bebop"
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/foot02"
         },
         {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/bebop"
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/foot03"
         },
         {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/bebop"
-        },
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (90986 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/rock"
+      ],
+      "combinations": [
         {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/bebop"
-        },
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/rock"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (105609 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/leather"
+      ],
+      "combinations": [
         {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/bebop"
-        },
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/leather"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (66884 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/bebop"
+      ],
+      "combinations": [
         {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/bebop"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
           "player": "out/bebop"
         }
       ],
       "assets": [
         "bor-original:DATA\\SOUNDS\\1UP.WAV",
         "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
         "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
         "bor-original:DATA\\SOUNDS\\MONEY.WAV",
         "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "compile_pass": false,
       "compiled_blob_bytes": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (97188 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (108435 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     },
     {
       "strategy": "B",
       "stages": [
-        "bor-original:DATA\\EASY\\1AEASY.TXT",
-        "bor-original:DATA\\EASY\\1BEASY.TXT",
+        "bor-original:DATA\\EASY\\1AEASY.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\EEK.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (132390 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "A",
+      "stages": [
         "tmnt:DATA\\LEVELS\\BEBOP.TXT",
         "tmnt:DATA\\LEVELS\\FOOT.TXT",
         "tmnt:DATA\\LEVELS\\LEATHER.TXT",
@@ -858,63 +938,957 @@
         "tmnt:DATA\\LEVELS\\STREETS2.TXT"
       ],
       "players": [
+        "all"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "all"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "all"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (219651 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 59780,
+      "compiled_common_bytes": 56385,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 61796,
+      "compiled_common_bytes": 58401,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 58313,
+      "compiled_common_bytes": 54918,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/foot04"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/bebop"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84915 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+        "tmnt:DATA\\LEVELS\\ROCK.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/rock"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (99538 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/leather"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/leather"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 64208,
+      "compiled_common_bytes": 60813,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+        "tmnt:DATA\\LEVELS\\FOOT.TXT"
+      ],
+      "players": [
+        "out/bebop"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+          "player": "out/bebop"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 55560,
+      "compiled_common_bytes": 52165,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\BEBOP.TXT"
+      ],
+      "players": [
         "out/leo"
       ],
       "combinations": [
         {
-          "stage": "bor-original:DATA\\EASY\\1BEASY.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "bor-original:DATA\\EASY\\1AEASY.TXT",
-          "player": "out/leo"
-        },
-        {
           "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
-          "player": "out/leo"
-        },
-        {
-          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
           "player": "out/leo"
         }
       ],
       "assets": [
-        "bor-original:DATA\\SOUNDS\\1UP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\GET.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (126319 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\ROCK.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 56954,
+      "compiled_common_bytes": 53559,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\ROCK.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 58970,
+      "compiled_common_bytes": 55575,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\ROCK.TXT",
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/mouser",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/rock"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 55487,
+      "compiled_common_bytes": 52092,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\ROCK.TXT",
+        "tmnt:DATA\\LEVELS\\STREETS.TXT"
+      ],
+      "players": [
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04",
+        "out/leather",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/foot04"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/rock"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/leather"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (82089 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT",
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+        "tmnt:DATA\\LEVELS\\ROCK.TXT"
+      ],
+      "players": [
+        "out/leather",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/rock"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/leather"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/rock"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/rock"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 52734,
+      "compiled_common_bytes": 49339,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\ROCK.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
         "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\GET.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (123493 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 18229,
+      "compiled_common_bytes": 14834,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 20245,
+      "compiled_common_bytes": 16850,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/leather",
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/leather"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 16762,
+      "compiled_common_bytes": 13367,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 46759,
+      "compiled_common_bytes": 43364,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT",
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/leather"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/leather"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/leather"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 14009,
+      "compiled_common_bytes": 10614,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84768 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 12332,
+      "compiled_common_bytes": 8937,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 14348,
+      "compiled_common_bytes": 10953,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT",
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/mouser"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 8112,
+      "compiled_common_bytes": 4717,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT",
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04",
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/foot04"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 40862,
+      "compiled_common_bytes": 37467,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
         "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
         "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
         "tmnt:DATA\\SOUNDS\\SPIN.WAV",
@@ -923,7 +1897,584 @@
       ],
       "compile_pass": false,
       "compiled_blob_bytes": null,
-      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (121143 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (78873 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (86309 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (88325 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT",
+        "tmnt:DATA\\LEVELS\\STREETS.TXT"
+      ],
+      "players": [
+        "out/mouser",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/rock"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (84842 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS.TXT",
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/rock"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/bebop"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/rock"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (132288 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (156243 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (89135 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (91151 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT",
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/bebop",
+        "out/mouser"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/mouser"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/bebop"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (87668 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/leather"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/leather"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (93563 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (159069 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 45082,
+      "compiled_common_bytes": 41687,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 47098,
+      "compiled_common_bytes": 43703,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT"
+      ],
+      "players": [
+        "out/leather"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/leather"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 49512,
+      "compiled_common_bytes": 46117,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\SEWER.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (111623 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT"
+      ],
+      "players": [
+        "out/joe",
+        "out/ralf",
+        "out/yashiro"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/ralf"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/joe"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/yashiro"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 9579,
+      "compiled_common_bytes": 6184,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT"
+      ],
+      "players": [
+        "out/jhun"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/jhun"
+        }
+      ],
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 11595,
+      "compiled_common_bytes": 8200,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT"
+      ],
+      "players": [
+        "out/foot01",
+        "out/foot02",
+        "out/foot03",
+        "out/foot04"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/foot01"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/foot02"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/foot03"
+        },
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/foot04"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "compile_pass": true,
+      "compiled_blob_bytes": 38109,
+      "compiled_common_bytes": 34714,
+      "overflow": null,
+      "compile_diagnostic": null
+    },
+    {
+      "strategy": "B",
+      "stages": [
+        "tmnt:DATA\\LEVELS\\FOOT.TXT"
+      ],
+      "players": [
+        "out/leo"
+      ],
+      "combinations": [
+        {
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+          "player": "out/leo"
+        }
+      ],
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "compile_pass": false,
+      "compiled_blob_bytes": null,
+      "compiled_common_bytes": null,
+      "overflow": null,
+      "compile_diagnostic": "\nCannot compile common audio data: common audio data is too large (76120 bytes, max: 60828)\n\n\nFAIL: all-reachable SFX compile exited 1\n"
     }
   ]
 }
