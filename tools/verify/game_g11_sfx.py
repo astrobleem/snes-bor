@@ -44,9 +44,8 @@ skip` check (grab-lock) and `CHAR_HIT_APPLIED` latch (no re-fire on
 continued overlap) that already exist for scoring.
 
 Checked:
-  1. Reconstruction sanity: soundwork/tad/build/audio-enums.inc really
-     exports sfx_hit=1 (not sfx_stub renumbered); SFX_HIT_ID (main.pasm) is
-     in sync with it (also enforced at build time by
+  1. Reconstruction sanity: soundwork/tad/build/audio-enums.inc exports the
+     production-only sfx_hit entry; SFX_HIT_ID (main.pasm) is in sync with it (also enforced at build time by
      tools/rom_audit/check_sfx_id_sync.py).
   2. A whiff (Y pressed with no AI entity in range), observed frame-by-frame
      for the entire attack interval: request counter never moves, HP never
@@ -90,8 +89,8 @@ Checked:
      above -- and MSU-1 PCM music-control registers are untouched by any of
      it (architecture boundary from plan_game.md §11: TAD owns SFX, MSU-1
      owns the soundtrack).
- 11. No accepted gameplay path can request sfx_stub (id 0) -- the only real
-     queue-write call site in this project's own code is
+ 11. No accepted gameplay path can request an absent test-only effect; the
+     only real queue-write call site in this project's own code is
      G11_QueueHitSfx (main.pasm), which always requests SFX_HIT_ID.
 
 Usage: python tools/verify/game_g11_sfx.py
@@ -242,10 +241,8 @@ def main():
     enums_path = os.path.join(ROOT, 'soundwork', 'tad', 'build', 'audio-enums.inc')
     with open(enums_path) as f:
         enums = f.read()
-    m0 = re.search(r'sfx_stub\s*=\s*(\d+)', enums)
-    r.check('audio-enums.inc exports sfx_stub=0', m0 is not None and m0.group(1) == '0')
-    r.check(f'audio-enums.inc exports sfx_hit={SFX_HIT_ID} (purely additive, not a renumber)',
-            SFX_HIT_ID == 1)
+    r.check('audio-enums.inc exports production-only sfx_hit',
+            'sfx_stub' not in enums and re.search(r'\bsfx_hit\s*=\s*\d+', enums) is not None)
     r.check(f'main.pasm SFX_HIT_ID ({SFX_HIT_ID_PASM}) matches real generated sfx_hit ({SFX_HIT_ID})',
             SFX_HIT_ID_PASM == SFX_HIT_ID)
 

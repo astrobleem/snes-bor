@@ -44,7 +44,7 @@ PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
 ; future SFX reorder can't silently desync them. Kept honest by
 ; tools/rom_audit/check_sfx_id_sync.py (parses audio-enums.inc and fails the
 ; build if this drifts) rather than trusting this comment.
-SFX_HIT_ID = 1
+SFX_HIT_ID = 0
 
 ; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
 ; exactly once at each of the two real accepted-landed-damage SFX call sites

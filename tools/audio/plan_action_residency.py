@@ -43,6 +43,8 @@ def source_entry(pak: Path, identity: str) -> str:
 
 def main() -> int:
     manifest = json.loads((ROOT / "tools/audio/audio_manifest.json").read_text(encoding="utf-8"))
+    manifest_hash = hashlib.sha256((ROOT / "tools/audio/audio_manifest.json").read_bytes()).hexdigest()
+    global_ids_path = ROOT / "tools/audio/sfx_global_ids.json"
     reachable = {}
     for family in manifest["families"]:
         for asset in family["assets"]:
@@ -112,25 +114,27 @@ def main() -> int:
                 if ref.get("directive") == "engine-global-default" and ref.get("snes_reachable"):
                     global_assets.setdefault((family["family"], ref["semantic_event"]), set()).add(key(family["family"], asset["source_path"]))
 
-    def model_action_options(model):
+    def model_action_options(model, context_family):
         options = {tuple()}
         for action in model["actions"]:
             values = set(action["frame_sound_ids"])
             role = action["role"]
             if role in ("attack", "attack2", "attack3", "attack4", "upper", "grabattack"):
-                values |= global_assets.get((model["family"], "attack-swing"), set())
+                values |= global_assets.get((context_family, "attack-swing"), set())
             if role in ("jump", "jumpattack", "jumpattack2"):
-                values |= global_assets.get((model["family"], "jump"), set())
+                values |= global_assets.get((context_family, "jump"), set())
+            if role in ("fall", "rise"):
+                values |= global_assets.get((context_family, "fall"), set())
             options.add(tuple(sorted(values)))
         return sorted(options)
 
-    options_by_identity = {m["identity"]: model_action_options(m) for m in models}
     model_by_identity = {m["identity"]: m for m in models}
     combined = set()
     combined_users = {}
     transition = set()
     for stage in STAGE_CONFIGS:
         family = stage["family"]
+        options_by_identity = {m["identity"]: model_action_options(m, family) for m in models}
         base = set()
         for event in ("pause-entry", "ui-beep", "ui-beep-secondary", "landed-hit"):
             base |= global_assets.get((family, event), set())
@@ -160,9 +164,15 @@ def main() -> int:
                         die = model_by_identity.get(ident, {}).get("diesound")
                         if die:
                             transition.add(tuple(sorted(base | {die})))
+                    pickup_event = {1: "health-pickup", 2: "health-pickup", 3: "score-pickup", 4: "one-up", 5: "score-pickup"}.get(next((slot["pickup_type"] for slot in state["slots"] if slot["roster_index"] == index), 0))
+                    if pickup_event:
+                        transition.add(tuple(sorted(base | global_assets.get((family, pickup_event), set()))))
+                transition.add(tuple(sorted(base | global_assets.get((family, "fall"), set()))))
     output = {
         "schema_version": 2,
         "source": "authoritative entity parser plus converted moveset role table",
+        "manifest_hash": manifest_hash,
+        "global_ids_hash": hashlib.sha256(global_ids_path.read_bytes()).hexdigest() if global_ids_path.exists() else None,
         "input_hash": hashlib.sha256(json.dumps(models, sort_keys=True).encode()).hexdigest(),
         "models": models,
         "action_signature_count": len(action_signatures),

@@ -14,8 +14,24 @@ INPUT = ROOT / "tools/audio/action_residency.json"
 
 def main() -> int:
     data = json.loads(INPUT.read_text(encoding="utf-8"))
+    manifest = ROOT / "tools/audio/audio_manifest.json"
+    if data.get("manifest_hash") != __import__("hashlib").sha256(manifest.read_bytes()).hexdigest():
+        raise SystemExit("FAIL: action residency plan is stale relative to audio manifest")
+    ids = ROOT / "tools/audio/sfx_global_ids.json"
+    if ids.exists() and data.get("global_ids_hash") != __import__("hashlib").sha256(ids.read_bytes()).hexdigest():
+        raise SystemExit("FAIL: action residency plan is stale relative to global SFX IDs")
+    joe = next(model for model in data["models"] if model["identity"] == "JOE")
+    roles = {action["role"]: action["animation"] for action in joe["actions"]}
+    if roles.get("attack2") != "grab" or "attack2_is_grab" in roles:
+        raise SystemExit("FAIL: boolean attack2_is_grab polluted JOE action roles")
+    for model in data["models"]:
+        # The planner already rejects absent ordinals; this explicit guard
+        # ensures metadata keys cannot appear in generated action rows.
+        if any(action["role"].endswith(("_is_grab", "_is_throw")) for action in model["actions"]):
+            raise SystemExit(f"FAIL: metadata field became action role for {model['identity']}")
     results = []
-    for signature in data["signatures"]:
+    signatures = data["action_signatures"] + data["combined_signatures"] + data["combined_transition_signatures"]
+    for signature in signatures:
         assets = signature["assets"]
         if not assets:
             results.append({"assets": [], "compile_pass": True, "compiled_common_bytes": 0, "diagnostic": "empty action signature"})
@@ -30,7 +46,7 @@ def main() -> int:
             if line.startswith("compiled common-data:"):
                 common = int(line.split()[2])
                 break
-        results.append({"assets": assets, "users": signature["users"], "compile_pass": result.returncode == 0, "compiled_common_bytes": common, "diagnostic": output[-500:]})
+        results.append({"assets": assets, "users": signature.get("users", [signature.get("example")]), "compile_pass": result.returncode == 0, "compiled_common_bytes": common, "diagnostic": output[-500:]})
         if result.returncode:
             print(output, file=sys.stderr)
             raise SystemExit("FAIL: executable action signature does not compile")
