@@ -38,7 +38,7 @@ missing instead of silently using a stale assembler output. The Makefile uses
 the same two variables and invokes `$(DOTNET) $(POPPY_DLL)` explicitly.
 
 `make clean && make` runs the same build with configurable `PYTHON`, `POPPY`, and
-`TAD_COMPILER` commands. Set those variables to the tools in your environment;
+`DOTNET`, `POPPY_DLL`, and `TAD_COMPILER` commands. Set those variables to the tools in your environment;
 the `tad-check` prerequisite fails if committed TAD outputs drift from source.
 
 ---
