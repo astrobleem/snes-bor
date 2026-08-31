@@ -62,7 +62,7 @@ def main() -> int:
         (root / "samples/b.wav").write_bytes(normalized)
         one = compile_names(compiler, root, ["a"])
         two = compile_names(compiler, root, ["a", "b"])
-    output = {"schema_version": 1, "compiler": str(compiler), "compiler_version": version, "reachable_asset_count": len(rows), "canonical_assets": rows, "identical_groups": [items for items in groups.values() if len(items) > 1], "tad_one_sample_common_bytes": one, "tad_duplicate_sample_common_bytes": two, "tad_duplicate_delta_bytes": two - one}
+    output = {"schema_version": 1, "manifest_hash": hashlib.sha256((ROOT / "tools/audio/audio_manifest.json").read_bytes()).hexdigest(), "compiler": str(compiler), "compiler_version": version, "reachable_asset_count": len(rows), "canonical_assets": rows, "identical_groups": [items for items in groups.values() if len(items) > 1], "tad_one_sample_common_bytes": one, "tad_duplicate_sample_common_bytes": two, "tad_duplicate_delta_bytes": two - one}
     (ROOT / "tools/audio/sfx_pcm_dedup.json").write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     print(f"canonical reachable SFX: {len(rows)} assets; identical groups: {len(output['identical_groups'])}")
     print(f"TAD duplicate experiment: one={one} bytes, duplicate={two} bytes, delta={two - one}")

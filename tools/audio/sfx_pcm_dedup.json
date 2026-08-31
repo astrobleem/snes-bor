@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
+  "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",
   "compiler": "E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe",
   "compiler_version": "0.3.0",
-  "reachable_asset_count": 34,
+  "reachable_asset_count": 35,
   "canonical_assets": [
     {
       "asset": "bor-original:DATA\\SOUNDS\\1UP.WAV",
@@ -83,6 +84,11 @@
       "asset": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
       "canonical_pcm_hash": "237073ade06e80200a4555c3ff6ee68880c774fa94aa1d5914fd7db7a0702b87",
       "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "canonical_pcm_hash": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+      "sample_rate_hz": 22050
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
@@ -179,6 +185,10 @@
     [
       "bor-original:DATA\\SOUNDS\\1UP.WAV",
       "tmnt:DATA\\SOUNDS\\1UP.WAV"
+    ],
+    [
+      "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "tmnt:DATA\\SOUNDS\\BEEP0.WAV"
     ],
     [
       "bor-original:DATA\\SOUNDS\\BEEP2.WAV",

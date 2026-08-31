@@ -155,6 +155,17 @@ def read_block(m, addr, length=32, mem_type='snesMemory'):
     return m.read_memory(mem_type, addr, length)
 
 
+def read_snes_bus_block(m, addr, length=32):
+    """Read CPU-bus space, including low MMIO addresses such as $2000."""
+    assert length >= 32
+    return m.read_memory('snesMemory', addr, length)
+
+
+def read_msu_status(m):
+    """Return MSU-1 status from CPU-bus $2000, never from write-only ports."""
+    return read_snes_bus_block(m, 0x002000, 32)[0]
+
+
 def exact_input_edge(m, buttons, frames, port=0):
     """Assert `buttons` for EXACTLY `frames` emulated frames, verified
     against the real emulator frame counter (Mesen's set_input is
