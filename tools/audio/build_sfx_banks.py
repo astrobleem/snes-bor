@@ -85,20 +85,40 @@ def main() -> int:
             target.mkdir()
             blob = (out / "audio-data.bin").read_bytes()
             export_text = (out / "audio-data.s").read_text(encoding="utf-8")
+            load_match = re.search(r"\.assert \.sizeof\(LoadAudioData\) = (\d+)", export_text)
+            if not load_match:
+                raise SystemExit(f"FAIL: TAD export has no LoadAudioData size for bank {bank['bank_id']}")
+            data_base = int(load_match.group(1))
             table_match = re.search(r"Tad_DataTable\s*:=\s*__Tad_AudioData_0\s*\+\s*(\d+)", export_text)
             if not table_match:
                 raise SystemExit(f"FAIL: TAD export has no DataTable for bank {bank['bank_id']}")
-            table = int(table_match.group(1))
-            common_start = int.from_bytes(blob[table:table + 3], "little")
-            common_end = int.from_bytes(blob[table + 3:table + 6], "little")
-            if not 0 <= common_start < len(blob):
-                raise SystemExit(f"FAIL: invalid common start {common_start} for bank {bank['bank_id']}")
-            emitted_common_end = min(common_end, len(blob))
-            (target / "common-data.bin").write_bytes(blob[common_start:emitted_common_end])
+            table_segment = int(table_match.group(1))
+            # The table is emitted inside audio-data.bin; its entries are the
+            # segment-relative addresses that include the preceding callback.
+            # Only item addresses need conversion to blob coordinates.
+            table = table_segment
+            if table < 0 or table + 8 > len(blob):
+                raise SystemExit(f"FAIL: invalid binary table offset {table} for bank {bank['bank_id']}")
+            common_start_segment = int.from_bytes(blob[table:table + 3], "little")
+            song_start_segment = int.from_bytes(blob[table + 3:table + 6], "little")
+            end_segment = int.from_bytes(blob[table + 6:table + 8], "little")
+            common_start = common_start_segment - data_base
+            song_start = song_start_segment - data_base
+            end = end_segment - data_base
+            if not 0 <= common_start < song_start <= end <= len(blob):
+                raise SystemExit(f"FAIL: invalid binary data ranges for bank {bank['bank_id']}: {common_start}:{song_start}:{end}")
+            common_bytes = blob[common_start:song_start]
+            standalone = out / "common-standalone.bin"
+            common_result = subprocess.run([str(compiler), "common", "--output", str(standalone), str(project_file)], capture_output=True, text=True)
+            if common_result.returncode:
+                raise SystemExit(common_result.stdout + common_result.stderr)
+            if standalone.read_bytes() != common_bytes:
+                raise SystemExit(f"FAIL: standalone common differs from corrected ca65 extraction for bank {bank['bank_id']}")
+            (target / "common-data.bin").write_bytes(common_bytes)
             shutil.copy2(out / "audio-enums.inc", target / "audio-enums.inc")
             blob_bytes = len(blob)
-            common = emitted_common_end - common_start
-            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "compiled_blob_bytes": blob_bytes, "compiled_blob_sha256": hashlib.sha256(blob).hexdigest(), "common_data_offset": common_start, "common_data_declared_end": common_end, "common_data_bytes": common, "common_data_bytes_emitted": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
+            common = len(common_bytes)
+            banks.append({"bank_id": bank["bank_id"], "assets": bank["assets"], "physical_effect_count": len(physical), "compiled_blob_bytes": blob_bytes, "compiled_blob_sha256": hashlib.sha256(blob).hexdigest(), "load_audio_data_bytes": data_base, "data_table_segment_offset": table_segment, "data_table_binary_offset": table, "common_data_segment_start": common_start_segment, "common_data_binary_start": common_start, "song_segment_start": song_start_segment, "song_binary_start": song_start, "segment_end": end_segment, "binary_end": end, "common_data_bytes": common, "common_data_sha256": hashlib.sha256((target / "common-data.bin").read_bytes()).hexdigest()})
             for asset, effect in asset_to_effect.items():
                 maps.append({"bank_id": bank["bank_id"], "asset": asset, "local_effect_id": enum_ids[effect], "effect_symbol": effect, "exact_physical_identity": hashlib.sha256((samples / f"{effect}.wav").read_bytes()).hexdigest()})
     output = {"schema_version": 1, "compiler": str(compiler), "compiler_version": version, "bank_plan_hash": hashlib.sha256(plan_path.read_bytes()).hexdigest(), "global_ids_hash": hashlib.sha256(ids_path.read_bytes()).hexdigest(), "banks": banks, "maps": maps, "bank_count": len(banks), "total_common_data_bytes": sum(b["common_data_bytes"] for b in banks), "distinct_local_effects": sum(b["physical_effect_count"] for b in banks)}
