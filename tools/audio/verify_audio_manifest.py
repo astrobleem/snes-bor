@@ -16,6 +16,7 @@ def main() -> int:
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
     errors = []
     seen = set()
+    track_ids = {}
     for family in data.get("families", []):
         for asset in family.get("assets", []):
             key = (asset.get("family"), asset.get("source_path"))
@@ -26,7 +27,10 @@ def main() -> int:
                 errors.append(f"invalid classification: {key}")
             refs = asset.get("references", [])
             if asset.get("kind") == "missing-source":
-                errors.append(f"source reference names missing asset: {key}")
+                if any(r.get("reachability") == "shipped-reachable" for r in refs):
+                    errors.append(f"shipped-reachable source reference names missing asset: {key}")
+                else:
+                    print(f"INFO: unshipped broken source reference: {key}")
             if asset.get("kind") == "sfx" and asset.get("tad_sfx_id") is not None:
                 if not asset.get("packed_runtime"):
                     errors.append(f"SFX has ID but no runtime dispatch: {key}")
@@ -34,8 +38,14 @@ def main() -> int:
                     errors.append(f"mapped SFX is not implemented-and-gated: {key}")
             if asset.get("kind") == "music" and asset.get("implementation_classification") == "implemented-and-gated" and asset.get("msu_track_id") is None:
                 errors.append(f"implemented music has no MSU track: {key}")
-            if asset.get("kind") == "music" and asset.get("msu_track_id") is not None and not asset.get("packed_runtime"):
-                errors.append(f"music track has no runtime mapping: {key}")
+            if asset.get("kind") == "music" and any(r.get("reachability") == "shipped-reachable" for r in refs) and asset.get("msu_track_id") is None:
+                errors.append(f"shipped-reachable music has no generated MSU track: {key}")
+            if asset.get("kind") == "music" and asset.get("msu_track_id") is not None:
+                old = track_ids.setdefault(asset["msu_track_id"], key)
+                if old != key:
+                    errors.append(f"duplicate MSU track id {asset['msu_track_id']}: {old} and {key}")
+            if asset.get("kind") == "music" and asset.get("implementation_classification") == "implemented-and-gated" and not asset.get("packed_runtime"):
+                errors.append(f"implemented music has no runtime mapping: {key}")
             if asset.get("kind") in ("sfx", "music") and refs and asset.get("source_hash") is None:
                 errors.append(f"referenced audio has no source hash: {key}")
     if errors:

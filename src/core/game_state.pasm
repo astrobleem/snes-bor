@@ -1077,6 +1077,7 @@ Stage_Load__fp_done:
 
     ; --- this stage's own spawn queue (Spawn_MsuOffsetLo/Hi/Spawn_Count
     ; already populated by Bg_LoadScene above) ---
+    jsr Music_SelectStageTrack
     jsl Spawn_Init
 
     ; --- force the next Hud_Play call to redraw unconditionally: the BG3

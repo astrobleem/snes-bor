@@ -20,7 +20,11 @@
               "source_file": "DATA\\CHARS\\BINK\\BINK.TXT",
               "line": 215,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\BINKBLOW.WAV",
+              "resolved_source_path": null,
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -42,7 +46,11 @@
               "source_file": "DATA\\CHARS\\BINK\\BINK.TXT",
               "line": 350,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\BINKHEY.WAV",
+              "resolved_source_path": null,
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -59,105 +67,176 @@
           "source_hash": "906905cbbacaec275f48f50c1bb26e28b6ce36d9fae890631e4a80ec24e2755a",
           "source_size_bytes": 1716094,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Yuzo_Koshiro",
+            "title": "Boss",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1715934
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\1CEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EASY\\2EASY.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EASY\\3CEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EASY\\4BEASY.TXT",
               "line": 3,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EASY\\5BEASY.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\1C.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\2.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\3C.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\4B.TXT",
               "line": 3,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\5B.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\1CHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\2HARD.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\3CHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\4BHARD.TXT",
               "line": 3,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\5BHARD.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EXTRA.TXT",
               "line": 3,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -174,34 +253,54 @@
           "source_hash": "20455949ba49b4b8911645300f9255766f85146c001689eacfbaa42b884afe3d",
           "source_size_bytes": 2652352,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Coretex",
+            "title": "Ascension",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 2652192
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\1AEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\1A.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\1AHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\ASC.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 1,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "bor-original:DATA\\MUSIC\\ASC.BOR"
         },
         {
           "family": "bor-original",
@@ -211,8 +310,15 @@
           "source_hash": "939f236d7e60a90bf9cd1cfb18759549a10dc22abe7953c89d0c47dbaf98a6e4",
           "source_size_bytes": 97466,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 97306
           },
           "references": [],
           "converter_representation": null,
@@ -229,45 +335,76 @@
           "source_hash": "e5ae3ac9ed6e16545cc8be501478598955bd64427eb6951fe42c6feedefd8182",
           "source_size_bytes": 4255904,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 4255744
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\3AEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\EASY\\3BEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\3B.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\3A.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\3AHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\3BHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -284,27 +421,46 @@
           "source_hash": "0e3e1c6fd0583c7af69650d8e2572923c2c3eb00fc523a892b1d9cddd15baff2",
           "source_size_bytes": 1072288,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1072128
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\6BEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\6B.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\6BHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\EXIST.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -321,15 +477,26 @@
           "source_hash": "78598ce5109533265bbfd62d9f0b2070ff7d8d4101360f467b36b3f79dc87066",
           "source_size_bytes": 3829120,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Future_Sound_Of_London",
+            "title": "My_Kingdom",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 3828960
           },
           "references": [
             {
               "source_file": "DATA\\EXTRA.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\FSOL.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\FSOL.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -346,8 +513,15 @@
           "source_hash": "6c9132c54c66628b0732b3cd9af278926ffa40edc1281ed4aef764916e6f03b2",
           "source_size_bytes": 50848,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 50688
           },
           "references": [],
           "converter_representation": null,
@@ -364,27 +538,46 @@
           "source_hash": "1c230d735229a77d61de1cebcdb80fb520e8554f798151f3a8999668482ee12d",
           "source_size_bytes": 1607536,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Front_Line_Assembly",
+            "title": "Columbian_Necktie_(Goarge_Mix)",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1607376
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\5BEASY.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\5B.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\5BHARD.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\GOARGE.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -401,15 +594,26 @@
           "source_hash": "045c775a7a7617e82d6231b192e97bc726a9a30913e6209f6fda42f82226307b",
           "source_size_bytes": 39392,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 39232
           },
           "references": [
             {
               "source_file": "DATA\\SCENES\\RUGAL.TXT",
               "line": 6,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": "0",
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\HAHA.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\HAHA.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -426,27 +630,46 @@
           "source_hash": "3d358c8f0f6d2f9abea27082322e8fb7d00587cb9fad88be9b96ff0fae0d67a5",
           "source_size_bytes": 3730336,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Cubanate",
+            "title": "Ordinary_Joe",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 3730176
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\6CEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\6C.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\6CHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\JOE.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -463,34 +686,54 @@
           "source_hash": "7fe916f39b489d59e77d49a7dc2a47e915454346c1b2a6e96e59d5e00d6a5896",
           "source_size_bytes": 1032104,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "SNK",
+            "title": "KOF'95_AOF_Stage",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1031944
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\1BEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\1B.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\1BHARD.TXT",
               "line": 3,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\KOF.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 2,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "bor-original:DATA\\MUSIC\\KOF.BOR"
         },
         {
           "family": "bor-original",
@@ -500,8 +743,15 @@
           "source_hash": "53cc0a0a5ab64a62f4fd1b1cd9c332da22bb85b37fcee35430c549cd57acbf26",
           "source_size_bytes": 105920,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 105760
           },
           "references": [],
           "converter_representation": null,
@@ -518,27 +768,46 @@
           "source_hash": "561e9f2afdc04ba376a3538d0d6aa237e41aad5de9f66b722340b5840cf5c8b3",
           "source_size_bytes": 5338240,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Front_Line_Assembly/Cydonia",
+            "title": "Colombian_Necktie",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 5338080
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\4BEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\4B.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\4BHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -555,8 +824,15 @@
           "source_hash": "eed12c6a0f8c0031bce1796f4d9c4fcbd4e3d158d94779d90c5b1e4dfce34847",
           "source_size_bytes": 3201184,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Yuzo_Koshiro",
+            "title": "Main_Theme_Drum_'n'_Bass_Mix",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 3201024
           },
           "references": [],
           "converter_representation": null,
@@ -573,27 +849,46 @@
           "source_hash": "a944e91209a845ed9a7ff4d823f1b0f779ec24642b0d52c5ebb67e92314d460e",
           "source_size_bytes": 3639776,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "VNV_Nation",
+            "title": "Saviour",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 3639616
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\2EASY.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\2.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\2HARD.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -610,27 +905,46 @@
           "source_hash": "5f6d59c3941a7e0dfb98411a0f4a8c4b6b88f8624e5ca0a9e30fb3137d431277",
           "source_size_bytes": 4551280,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Jesper_Kyd",
+            "title": "Wasteland",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 4551120
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\4AEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\4A.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\4AHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -647,27 +961,46 @@
           "source_hash": "90a87d27a45c6500461f879cba37f0fce9e6bfcd2691613e4167294e01ecc4e4",
           "source_size_bytes": 921481,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 921321
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\5AEASY.TXT",
               "line": 4,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\5A.TXT",
               "line": 4,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\5AHARD.TXT",
               "line": 4,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -684,28 +1017,44 @@
           "source_hash": "6f977fb0bc14c29ee7869eb97326d57338030c65822989b8fe0ed7071980574d",
           "source_size_bytes": 2152384,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "Louis_Armstrong",
+            "title": "We_Have_All_The_Time_In_The_World",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 2152224
           },
           "references": [
             {
               "source_file": "DATA\\SCENES\\ENDING.TXT",
               "line": 5,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": "1",
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TIME.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TIME.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\SCENES\\SEWER.TXT",
               "line": 5,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": "1",
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TIME.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TIME.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 3,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "bor-original:DATA\\MUSIC\\TIME.BOR"
         },
         {
           "family": "bor-original",
@@ -715,27 +1064,46 @@
           "source_hash": "0a58a353c07fe1efa61fece2aa0f464df569ca8469e5af664bcfba2b93bea149",
           "source_size_bytes": 2927680,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "The_Prodigy",
+            "title": "The_Trick",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 2927520
           },
           "references": [
             {
               "source_file": "DATA\\EASY\\6AEASY.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\NORMAL\\6A.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\HARD\\6AHARD.TXT",
               "line": 2,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TRICK.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -788,7 +1156,11 @@
               "source_file": "DATA\\CHARS\\LOBSTER\\LOBSTER.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -813,7 +1185,15 @@
             "sample_count": 4162,
             "duration_seconds": 0.377505669
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "src/main.pasm:Character_HitApply",
+              "line": null,
+              "directive": "engine-default-hit-sound",
+              "semantic_event": "landed-hit",
+              "reachability": "shipped-reachable"
+            }
+          ],
           "converter_representation": "soundwork/tad/project/samples/beat1.wav",
           "packed_runtime": "TAD SFX::sfx_hit; Character_HitApply",
           "tad_sfx_id": 1,
@@ -910,55 +1290,91 @@
               "source_file": "DATA\\CHARS\\RALF\\RALF.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\JOE\\JOE.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\RAMON\\RAMON.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\YASHIRO\\YASHIRO.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\BILLY\\BILLY.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MIGHTY\\MIGHTY.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\HEAVY\\HEAVY.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\RUGAL\\RUGAL.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -988,43 +1404,71 @@
               "source_file": "DATA\\CHARS\\EIJI\\EIJI.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\YAMAZAKI\\YAMAZAKI.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\JHUN\\JHUN.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\K\\K.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MRBIG\\MRBIG.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\ROBERT\\ROBERT.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\K9999\\K9999.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1054,7 +1498,11 @@
               "source_file": "DATA\\CHARS\\K9999\\K9999.TXT",
               "line": 90,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\DRILL.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DRILL.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1084,31 +1532,51 @@
               "source_file": "DATA\\CHARS\\ANGEL\\ANGEL.TXT",
               "line": 2,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\KULA\\KULA.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\SHERMIE\\SHERMIE.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MARY\\MARY.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\BINK\\BINK.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1230,19 +1698,31 @@
               "source_file": "DATA\\CHARS\\MISC\\FENCE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASH.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\DRUM.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1272,7 +1752,11 @@
               "source_file": "DATA\\CHARS\\KULA\\KULA.TXT",
               "line": 225,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\KULABLOW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KULABLOW.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1302,7 +1786,11 @@
               "source_file": "DATA\\CHARS\\KULA\\KULA.TXT",
               "line": 360,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\KULAHEY.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KULAHEY.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1332,7 +1820,11 @@
               "source_file": "DATA\\CHARS\\ANGEL\\ANGEL.TXT",
               "line": 124,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\LEONAHEY.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\LEONAHEY.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1362,7 +1854,11 @@
               "source_file": "DATA\\CHARS\\MARY\\MARY.TXT",
               "line": 313,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MARYTOSS.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MARYTOSS.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1392,7 +1888,11 @@
               "source_file": "DATA\\CHARS\\MARY\\MARY.TXT",
               "line": 182,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MARY_FFP.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MARY_FFP.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1422,19 +1922,31 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 237,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\HEAVY\\HEAVY.TXT",
               "line": 111,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\K9999\\K9999.TXT",
               "line": 117,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1464,7 +1976,11 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 256,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1494,7 +2010,11 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 186,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1570,7 +2090,11 @@
               "source_file": "DATA\\CHARS\\YAMAZAKI\\YAMAZAKI.TXT",
               "line": 186,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SHAAH.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SHAAH.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1623,31 +2147,51 @@
               "source_file": "DATA\\CHARS\\MISC\\BOX.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\CHAIR.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TABLE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\CRATE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TROLLY.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1677,7 +2221,11 @@
               "source_file": "DATA\\CHARS\\RUGAL\\RUGAL.TXT",
               "line": 109,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\ZOEF.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\ZOEF.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -1695,80 +2243,90 @@
       "assets": [
         {
           "family": "tmnt",
-          "kind": "missing-source",
-          "source_path": "DATA\\SOUNDS\\TURTLEDIE.WAV",
-          "source_filename": "TURTLEDIE.WAV",
-          "source_hash": null,
-          "source_size_bytes": null,
-          "format": null,
-          "references": [
-            {
-              "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
-              "line": 9,
-              "directive": "diesound",
-              "semantic_event": "death"
-            }
-          ],
-          "converter_representation": null,
-          "packed_runtime": null,
-          "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "unknown-needs-source-research"
-        },
-        {
-          "family": "tmnt",
           "kind": "music",
           "source_path": "DATA\\MUSIC\\BOSS.BOR",
           "source_filename": "BOSS.BOR",
           "source_hash": "da06ad3c416d356950764f895e42d04ec71f6b34fbfc38d0e16c50b1b5edb2c2",
           "source_size_bytes": 328201,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 328041
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\BEBOP.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\LEATHER.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\ROCK.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\SEWER.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\SEWER0.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\STREETS3.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\BOSS.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 4,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\BOSS.BOR"
         },
         {
           "family": "tmnt",
@@ -1778,8 +2336,15 @@
           "source_hash": "66f0a3e4803c6cec99be84b9c8ef764427486de843617f005c8212d85e3b6f5e",
           "source_size_bytes": 31620,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 31460
           },
           "references": [],
           "converter_representation": null,
@@ -1796,8 +2361,15 @@
           "source_hash": "7e6e9d05ce890e37c48c63a969eb1702b9c7c8c0bd883dd2d69281b457707dab",
           "source_size_bytes": 3679619,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 3679459
           },
           "references": [],
           "converter_representation": null,
@@ -1814,8 +2386,15 @@
           "source_hash": "f38fc02fe380f6c512871f5baf27c8873cb49a546d21c0711c3bbb0a67779769",
           "source_size_bytes": 548091,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 547931
           },
           "references": [],
           "converter_representation": null,
@@ -1832,34 +2411,54 @@
           "source_hash": "d6dcb5d7c4a16de246b4d9bf81757f5c3d9d3d5c1053e75908dfee5cf1ba2c04",
           "source_size_bytes": 488347,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 488187
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\FOOT.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\ROCK.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\STREETS3.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\FIRE.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 5,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\FIRE.BOR"
         },
         {
           "family": "tmnt",
@@ -1869,8 +2468,15 @@
           "source_hash": "e8b4f7d1ab4847e6ed30a28bf2f7132d9e10b5570ea8437f0834be9fae3647fd",
           "source_size_bytes": 35236,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 35076
           },
           "references": [],
           "converter_representation": null,
@@ -1887,8 +2493,15 @@
           "source_hash": "bcae50bb5d984bae364723fe88d30d53ed821bfac589d5317f52bae4537bd034",
           "source_size_bytes": 80746,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 80586
           },
           "references": [],
           "converter_representation": null,
@@ -1905,8 +2518,15 @@
           "source_hash": "53cc0a0a5ab64a62f4fd1b1cd9c332da22bb85b37fcee35430c549cd57acbf26",
           "source_size_bytes": 105920,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 105760
           },
           "references": [],
           "converter_representation": null,
@@ -1923,22 +2543,34 @@
           "source_hash": "f1e430b42c23b69e3de2471c13d6171cc8b8782de8814f8c8a8624fb0c04cedd",
           "source_size_bytes": 422004,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 421844
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\BEBOP.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\NYSTREET.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\NYSTREET.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 6,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\NYSTREET.BOR"
         },
         {
           "family": "tmnt",
@@ -1948,8 +2580,15 @@
           "source_hash": "8f58dae5861a68dc7c7abaf78bf138c576a58323edcf4d88bcc7042fa6d254d3",
           "source_size_bytes": 641560,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 641400
           },
           "references": [],
           "converter_representation": null,
@@ -1966,8 +2605,15 @@
           "source_hash": "7fe916f39b489d59e77d49a7dc2a47e915454346c1b2a6e96e59d5e00d6a5896",
           "source_size_bytes": 1032104,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "SNK",
+            "title": "KOF'95_AOF_Stage",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1031944
           },
           "references": [],
           "converter_representation": null,
@@ -1984,28 +2630,44 @@
           "source_hash": "b0ff37335e43b37eed401e29d36b3e81d7595e5a4c5fb9021fa5906b6cb551e0",
           "source_size_bytes": 343503,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 343343
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\STREETS.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\LEVELS\\STREETS2.TXT",
               "line": 2,
               "directive": "bossmusic",
-              "semantic_event": "boss-music"
+              "loop_argument": null,
+              "semantic_event": "boss-music",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\BOSS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\BOSS.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 7,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\REMIX\\BOSS.BOR"
         },
         {
           "family": "tmnt",
@@ -2015,8 +2677,15 @@
           "source_hash": "4faed0b806cb3ea507d4255320176dcc02ca2d95f810ee7bc3c23ee0c20094c7",
           "source_size_bytes": 1095988,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 44100,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1095828
           },
           "references": [],
           "converter_representation": null,
@@ -2033,8 +2702,15 @@
           "source_hash": "0d2c9caa41ee5488fb4ca4b63c55394114fc9019f87d6d44abb08d11864e87df",
           "source_size_bytes": 488330,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 488170
           },
           "references": [],
           "converter_representation": null,
@@ -2051,8 +2727,15 @@
           "source_hash": "767abbec0ab4dff4bae5ff2fe03f9a76c479f0e982348180d8689753ff518a30",
           "source_size_bytes": 981385,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 44100,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 981225
           },
           "references": [],
           "converter_representation": null,
@@ -2069,22 +2752,34 @@
           "source_hash": "ef6d30e1729b39e70904836c57f7a3c33c5fd4573bd2584a3df5ec312331a0c7",
           "source_size_bytes": 1046355,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 1046195
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\SEWER.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\GLIESE86.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\GLIESE86.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 8,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\REMIX\\GLIESE86.BOR"
         },
         {
           "family": "tmnt",
@@ -2094,22 +2789,34 @@
           "source_hash": "d6eea543f7ca7898180fc30ae5b615dd954729ae9321bb74bed4db5600b25b77",
           "source_size_bytes": 536151,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 535991
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\SEWER0.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\PAINOVO.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\PAINOVO.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 9,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\REMIX\\PAINOVO.BOR"
         },
         {
           "family": "tmnt",
@@ -2119,22 +2826,34 @@
           "source_hash": "23170f534904a898338b421a4dd02c100cd0e38a5fd2dfe548885d36681a2c80",
           "source_size_bytes": 823364,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 823204
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\STREETS.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\TAU1.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\TAU1.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 10,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\REMIX\\TAU1.BOR"
         },
         {
           "family": "tmnt",
@@ -2144,22 +2863,34 @@
           "source_hash": "b4214b4be3f062249c723bbae1f20e760461827e3b51f754cb2210b8f723ef96",
           "source_size_bytes": 643020,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 642860
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\STREETS2.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\REMIX\\ZETA1.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\REMIX\\ZETA1.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 11,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\REMIX\\ZETA1.BOR"
         },
         {
           "family": "tmnt",
@@ -2169,8 +2900,15 @@
           "source_hash": "bcae50bb5d984bae364723fe88d30d53ed821bfac589d5317f52bae4537bd034",
           "source_size_bytes": 80746,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 80586
           },
           "references": [],
           "converter_representation": null,
@@ -2187,8 +2925,15 @@
           "source_hash": "0700f51bbfb97696ffb78d322265f856a4c37d77e61aa47ce2c8c29d3d1e87f3",
           "source_size_bytes": 893266,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 893106
           },
           "references": [],
           "converter_representation": null,
@@ -2205,22 +2950,34 @@
           "source_hash": "0d9fbaf78c6b8ac4e5bdbc59dcce78a2ea7ff46cc228eb45779b07e4554de251",
           "source_size_bytes": 893283,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 893123
           },
           "references": [
             {
               "source_file": "DATA\\LEVELS\\LEATHER.TXT",
               "line": 1,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": null,
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\SEWERS.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\SEWERS.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 12,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\SEWERS.BOR"
         },
         {
           "family": "tmnt",
@@ -2230,15 +2987,26 @@
           "source_hash": "a92924c45c67b31e51604700b3a0a9bf951740b863343d2015c02e97b95daa2d",
           "source_size_bytes": 722086,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 721926
           },
           "references": [
             {
               "source_file": "DATA\\SCENES\\STORY.TXT",
               "line": 5,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": "0",
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TMNT.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TMNT.BOR",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -2255,22 +3023,34 @@
           "source_hash": "ecbf42b92b66eff71e64e8bd0a38dd60db5b953a43b60d9135839d206df42b0e",
           "source_size_bytes": 803107,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 802947
           },
           "references": [
             {
               "source_file": "DATA\\SCENES\\ENDING.TXT",
               "line": 5,
               "directive": "music",
-              "semantic_event": "music-selection"
+              "loop_argument": "1",
+              "semantic_event": "music-selection",
+              "requested_source_path": "DATA\\MUSIC\\TMNTEND.BOR",
+              "resolved_source_path": "DATA\\MUSIC\\TMNTEND.BOR",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": null,
-          "implementation_classification": "present-not-implemented"
+          "msu_track_id": 13,
+          "implementation_classification": "present-not-implemented",
+          "track_key": "tmnt:DATA\\MUSIC\\TMNTEND.BOR"
         },
         {
           "family": "tmnt",
@@ -2280,8 +3060,15 @@
           "source_hash": "f26c823475b8b90ac9f3319c393f4cea6f63b172c2898dd7a420ed44a6d29e5a",
           "source_size_bytes": 759482,
           "format": {
-            "container": "OpenBOR BOR music",
-            "magic": "BOR music"
+            "container": "OpenBOR BOR ADPCM",
+            "identifier": "BOR music",
+            "version": "0x00010000",
+            "artist": "",
+            "title": "",
+            "sample_rate_hz": 22050,
+            "channels": 1,
+            "datastart": 160,
+            "encoded_bytes": 759322
           },
           "references": [],
           "converter_representation": null,
@@ -2494,7 +3281,11 @@
               "source_file": "DATA\\CHARS\\BEBOP\\BEBOP.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\BEBOPDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\BEBOPDIE.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -2593,7 +3384,11 @@
               "source_file": "DATA\\CHARS\\BEBOP\\BEBOP.TXT",
               "line": 56,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\BOAR.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\BOAR.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -2646,7 +3441,11 @@
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 74,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\DASH.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DASH.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -2676,13 +3475,21 @@
               "source_file": "DATA\\CHARS\\DON\\DON.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MIKE\\MIKE.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -2712,7 +3519,11 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -2811,13 +3622,21 @@
               "source_file": "DATA\\CHARS\\MISC\\LIGHT.TXT",
               "line": 16,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\LIGHTB.TXT",
               "line": 16,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -2943,31 +3762,51 @@
               "source_file": "DATA\\CHARS\\FOOT01\\FOOT01.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\FOOT02\\FOOT02.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\FOOT03\\FOOT03.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\FOOT04\\FOOT04.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\FOOT05\\FOOT05.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -3043,7 +3882,11 @@
               "source_file": "DATA\\CHARS\\ROCK\\ROCK.TXT",
               "line": 101,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\GUNSHOT.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\GUNSHOT.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3119,253 +3962,421 @@
               "source_file": "DATA\\CHARS\\MISC\\BG2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\DRUM.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLE.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLE2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLEF.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLEF2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLEF3.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\EPOLES.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\FENCE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\FG.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\HYDRANT.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\HYDRANY.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\HYDS.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\LIGHT.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\LIGHT2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\LIGHTB.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\MAIL.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\MAILS.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\ORANGE.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\PARKM.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\PARKMS.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\PIPEF.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\PIPEF2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\PLANT.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\SMOKE\\SMOKE.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASH.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASH1.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASH2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASH3.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASHF.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASHF2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TRASHS.TXT",
               "line": 7,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TREE.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WATERF.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WATERF2.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WDROP.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WFENCE.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WHITEB.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WHITEC.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\WHITED.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\YELLOWB.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\YELLOWD.TXT",
               "line": 6,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -3510,19 +4521,31 @@
               "source_file": "DATA\\CHARS\\DON\\DON.TXT",
               "line": 199,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 237,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MIKE\\MIKE.TXT",
               "line": 269,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -3552,7 +4575,11 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 256,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -3582,7 +4609,11 @@
               "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
               "line": 186,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -3635,13 +4666,21 @@
               "source_file": "DATA\\CHARS\\MOUSER\\MOUSER.TXT",
               "line": 95,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MOUSER\\MOUSER.TXT",
               "line": 116,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3721,7 +4760,11 @@
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 96,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PIZZA1.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PIZZA1.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3751,43 +4794,71 @@
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 146,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 158,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 180,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 196,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 216,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 315,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 331,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3863,19 +4934,31 @@
               "source_file": "DATA\\CHARS\\LEATHER\\LEATHER.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEATHER\\LEATHER.TXT",
               "line": 50,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\ROCK\\ROCK.TXT",
               "line": 58,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3905,7 +4988,11 @@
               "source_file": "DATA\\CHARS\\ROCK\\ROCK.TXT",
               "line": 8,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\ROCKDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\ROCKDIE.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -3958,37 +5045,61 @@
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 108,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 113,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 118,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 123,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 128,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 133,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -4018,31 +5129,51 @@
               "source_file": "DATA\\CHARS\\DON\\DON.TXT",
               "line": 161,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 236,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 256,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
               "line": 299,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MIKE\\MIKE.TXT",
               "line": 231,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,
@@ -4090,12 +5221,23 @@
             "sample_count": 58187,
             "duration_seconds": 5.277732426
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
+              "line": 9,
+              "directive": "diesound",
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\TURTLEDIE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\TURTLE~1.WAV",
+              "reachability": "shipped-reachable"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
-          "implementation_classification": "unused-by-shipped-content"
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -4118,7 +5260,11 @@
               "source_file": "DATA\\CHARS\\BEBOP\\BEBOP.TXT",
               "line": 101,
               "directive": "sound",
-              "semantic_event": "animation-or-event-sound"
+              "loop_argument": null,
+              "semantic_event": "animation-or-event-sound",
+              "requested_source_path": "DATA\\SOUNDS\\WAVE.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WAVE.WAV",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -4148,31 +5294,51 @@
               "source_file": "DATA\\CHARS\\MISC\\BOX.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\CHAIR.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\CRATE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TABLE.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TROLLY.TXT",
               "line": 9,
               "directive": "diesound",
-              "semantic_event": "death"
+              "loop_argument": null,
+              "semantic_event": "death",
+              "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "reachability": "unshipped-source-content"
             }
           ],
           "converter_representation": null,

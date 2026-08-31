@@ -2050,6 +2050,10 @@ Tad_IsSongPlaying:
 .include "core/vm/vm_string.pasm"
 .include "core/vm/vm_dec16.pasm"
 
+; Fixed-gap music selector and generated MSU-1 track table.
+.org $B001
+.include "core/audio_music.pasm"
+
 ; ============================================================================
 ; LoadAudioData Callback (LoROM mapping)
 ; ============================================================================
@@ -11196,14 +11200,8 @@ msu1_read_loop:
     lda #$01
     sta.l $7E0330           ; MSU-1 success flag = 1
 
-    ; --- MSU-1: start audio track 1 playback (bor-1.pcm) ---
-    lda #$01
-    sta $2004               ; track select low byte = 1
-    stz $2005               ; track select high byte = 0 -> triggers LoadTrack
-    lda #$FF
-    sta $2006               ; volume = max
-    lda #$03
-    sta $2007               ; bit0=play, bit1=repeat
+    ; Authored stage music is selected after Game_StageIndex and scene state
+    ; are initialized below. Do not start the placeholder proof clip here.
 
     bra msu1_done
 
@@ -11404,6 +11402,7 @@ msu1_done:
 .a16
 .i16
     jsr Bg_LoadScene
+    jsr Music_SelectStageTrack
 
     ; Playfield border width, deferred to here (see the comment left at the
     ; old boot-time call site above) so a BG_MODE_STREAMING level's real

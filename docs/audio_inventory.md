@@ -7,8 +7,8 @@ This is not an audio-complete claim. `implemented-and-gated` requires a real sou
 ## bor-original
 
 PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
-- SFX WAV assets: 29 total, 17 referenced, 12 unused by scanned shipped content.
-- BOR music assets: 19 total, 15 referenced, 4 unused by scanned shipped content.
+- SFX WAV assets: 29 total; 18 raw-referenced; 5 shipped-reachable references; 11 unused.
+- BOR music assets: 19 total; 15 raw-referenced; 3 shipped-reachable references; 4 unused.
 
 | Asset | References | Classification | Runtime mapping |
 |---|---:|---|---|
@@ -33,7 +33,7 @@ PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 | `DATA\MUSIC\TRICK.BOR` | 3 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\1UP.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\ALIEN.WAV` | 1 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\BEAT1.WAV` | 0 | `implemented-and-gated` | `TAD SFX::sfx_hit; Character_HitApply` |
+| `DATA\SOUNDS\BEAT1.WAV` | 1 | `implemented-and-gated` | `TAD SFX::sfx_hit; Character_HitApply` |
 | `DATA\SOUNDS\BEEP.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\BEEP2.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\BIKE.WAV` | 0 | `unused-by-shipped-content` | `none` |
@@ -64,8 +64,8 @@ PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 ## tmnt
 
 PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
-- SFX WAV assets: 55 total, 21 referenced, 34 unused by scanned shipped content.
-- BOR music assets: 25 total, 11 referenced, 14 unused by scanned shipped content.
+- SFX WAV assets: 55 total; 22 raw-referenced; 33 shipped-reachable references; 33 unused.
+- BOR music assets: 25 total; 11 raw-referenced; 16 shipped-reachable references; 14 unused.
 
 | Asset | References | Classification | Runtime mapping |
 |---|---:|---|---|
@@ -145,7 +145,7 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\SOUNDS\SPIN.WAV` | 6 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\THROW.WAV` | 5 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\TIMEOVER.WAV` | 0 | `unused-by-shipped-content` | `none` |
-| `DATA\SOUNDS\TURTLE~1.WAV` | 0 | `unused-by-shipped-content` | `none` |
+| `DATA\SOUNDS\TURTLE~1.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\WAVE.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\WOOD.WAV` | 5 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\ZOEF.WAV` | 0 | `unused-by-shipped-content` | `none` |

@@ -21,13 +21,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
+sys.path.insert(0, str(ROOT / "tools" / "audio"))
+from decode_bor_music import parse_header  # noqa: E402
 
 PAKS = [
     ("bor-original", ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"),
     ("tmnt", ROOT / "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak"),
 ]
+SHIPPED = {
+    "bor-original": {
+        "characters": {"RALF", "JHUN", "JOE", "YASHIRO", "MISC\\TRASH", "MISC\\CHAIR", "MISC\\TABLE"},
+        "levels": {"1AEASY.TXT", "1BEASY.TXT"},
+    },
+    "tmnt": {
+        "characters": {"BEBOP", "FOOT01", "FOOT02", "FOOT03", "FOOT04", "LEATHER", "LEO", "MOUSER", "ROCK"},
+        "levels": {"BEBOP.TXT", "ROCK.TXT", "LEATHER.TXT", "SEWER0.TXT", "STREETS.TXT", "STREETS2.TXT", "SEWER.TXT", "FOOT.TXT"},
+    },
+}
+PAK_ALIASES = {
+    ("tmnt", "DATA\\SOUNDS\\TURTLEDIE.WAV"): "DATA\\SOUNDS\\TURTLE~1.WAV",
+}
 SOUND_RE = re.compile(r"^\s*(sound|diesound)\s+(\S+)", re.I)
-MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)", re.I)
+MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)(?:\s+([01]))?(?:\s|$)", re.I)
 
 
 def norm(value: str) -> str:
@@ -78,15 +93,19 @@ def media_metadata(name: str, data: bytes) -> dict:
     if suffix == ".wav":
         return wav_metadata(data)
     if suffix == ".bor":
-        return {"container": "OpenBOR BOR music", "magic": data[:9].rstrip(b"\0").decode("latin1", "replace")}
+        header = parse_header(data)
+        return {"container": "OpenBOR BOR ADPCM", "identifier": "BOR music",
+                "version": f"0x{header.version:08x}", "artist": header.artist,
+                "title": header.title, "sample_rate_hz": header.frequency,
+                "channels": header.channels, "datastart": header.datastart,
+                "encoded_bytes": len(data) - header.datastart}
     return {"container": suffix.lstrip(".").upper() or "unknown"}
 
 
 def classify(asset: dict) -> str:
     if asset["kind"] == "missing-source":
         return "unknown-needs-source-research"
-    if asset["kind"] == "sfx" and asset["source_path"] == "DATA\\SOUNDS\\BEAT1.WAV" \
-            and asset["family"] == "bor-original":
+    if asset.get("packed_runtime"):
         return "implemented-and-gated"
     if asset["references"]:
         return "present-not-implemented"
@@ -129,26 +148,44 @@ def scan_family(family: str, pak: Path) -> dict:
         if norm(e.name) == "DATA\\LEVELS\\TEST.TXT":
             continue
         for line_no, line in enumerate(text.splitlines(), 1):
-            match = SOUND_RE.match(line) or MUSIC_RE.match(line)
-            if not match:
+            sound_match = SOUND_RE.match(line)
+            music_match = MUSIC_RE.match(line)
+            if sound_match:
+                directive, raw_path = sound_match.groups()
+                loop_arg = None
+            elif music_match:
+                directive, raw_path, loop_arg = music_match.groups()
+            else:
                 continue
-            directive, raw_path = match.groups()
             source_path = norm(raw_path)
             if not source_path.startswith("DATA\\"):
                 source_path = "DATA\\" + source_path
-            asset = assets.get(source_path)
+            requested_path = source_path
+            resolved_path = PAK_ALIASES.get((family, source_path), source_path)
+            asset = assets.get(resolved_path)
             ref = {
                 "source_file": norm(e.name),
                 "line": line_no,
                 "directive": directive.lower(),
+                "loop_argument": loop_arg,
                 "semantic_event": "death" if directive.lower() == "diesound" else
                     "boss-music" if directive.lower() == "bossmusic" else
                     "music-selection" if directive.lower() == "music" else "animation-or-event-sound",
+                "requested_source_path": requested_path,
+                "resolved_source_path": resolved_path if asset is not None else None,
             }
+            upper_source = norm(e.name)
+            if "\\CHARS\\" in upper_source:
+                suffix = upper_source.split("\\CHARS\\", 1)[1].rsplit("\\", 1)[0]
+                ref["reachability"] = "shipped-reachable" if suffix in SHIPPED[family]["characters"] else "unshipped-source-content"
+            elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
+                ref["reachability"] = "shipped-reachable" if Path(upper_source).name in SHIPPED[family]["levels"] else "unshipped-source-content"
+            else:
+                ref["reachability"] = "shipped-reachable" if "\\SCENES\\ENDING.TXT" in upper_source else "unshipped-source-content"
             if asset is None:
                 # Keep the unresolved reference visible; the verifier reports it.
-                assets[source_path] = {
-                    "family": family, "kind": "missing-source", "source_path": source_path,
+                assets[requested_path] = {
+                    "family": family, "kind": "missing-source", "source_path": requested_path,
                     "source_filename": Path(source_path).name, "source_hash": None,
                     "source_size_bytes": None, "format": None, "references": [ref],
                     "converter_representation": None, "packed_runtime": None,
@@ -156,11 +193,23 @@ def scan_family(family: str, pak: Path) -> dict:
                 }
             else:
                 asset["references"].append(ref)
+    # G11's landed-hit sound is a real engine default, not a TXT directive.
+    # Keep the source evidence as a normal manifest reference so the asset is
+    # required for a reason the verifier can explain.
+    beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
+    if family == "bor-original" and beat1 is not None:
+        beat1["references"].append({
+            "source_file": "src/main.pasm:Character_HitApply",
+            "line": None,
+            "directive": "engine-default-hit-sound",
+            "semantic_event": "landed-hit",
+            "reachability": "shipped-reachable",
+        })
+    if family == "bor-original" and beat1 is not None:
+        beat1["converter_representation"] = "soundwork/tad/project/samples/beat1.wav"
+        beat1["packed_runtime"] = "TAD SFX::sfx_hit; Character_HitApply"
     for asset in assets.values():
         asset["implementation_classification"] = classify(asset)
-        if asset["family"] == "bor-original" and asset["source_path"] == "DATA\\SOUNDS\\BEAT1.WAV":
-            asset["converter_representation"] = "soundwork/tad/project/samples/beat1.wav"
-            asset["packed_runtime"] = "TAD SFX::sfx_hit; Character_HitApply"
     return {"family": family, "pak": pak.name, "pak_hash": sha256(pak.read_bytes()),
             "assets": sorted(assets.values(), key=lambda a: (a["kind"], a["source_path"]))}
 
@@ -173,7 +222,9 @@ def write_docs(manifest: dict, path: Path) -> None:
         music = [a for a in assets if a["kind"] == "music"]
         ref_sfx = [a for a in sfx if a["references"]]
         ref_music = [a for a in music if a["references"]]
-        lines += [f"## {family['family']}", "", f"PAK: `{family['pak']}`", f"- SFX WAV assets: {len(sfx)} total, {len(ref_sfx)} referenced, {len(sfx)-len(ref_sfx)} unused by scanned shipped content.", f"- BOR music assets: {len(music)} total, {len(ref_music)} referenced, {len(music)-len(ref_music)} unused by scanned shipped content.", ""]
+        reach_sfx = sum(1 for a in sfx for r in a["references"] if r.get("reachability") == "shipped-reachable")
+        reach_music = sum(1 for a in music for r in a["references"] if r.get("reachability") == "shipped-reachable")
+        lines += [f"## {family['family']}", "", f"PAK: `{family['pak']}`", f"- SFX WAV assets: {len(sfx)} total; {len(ref_sfx)} raw-referenced; {reach_sfx} shipped-reachable references; {len(sfx)-len(ref_sfx)} unused.", f"- BOR music assets: {len(music)} total; {len(ref_music)} raw-referenced; {reach_music} shipped-reachable references; {len(music)-len(ref_music)} unused.", ""]
         lines.append("| Asset | References | Classification | Runtime mapping |")
         lines.append("|---|---:|---|---|")
         for a in assets:
@@ -191,6 +242,13 @@ def main() -> int:
     ap.add_argument("--docs", type=Path, default=ROOT / "docs/audio_inventory.md")
     args = ap.parse_args()
     manifest = {"schema_version": 1, "source_of_truth": "local OpenBOR PAK archives", "families": [scan_family(f, p) for f, p in PAKS]}
+    next_track = 1
+    for family in manifest["families"]:
+        for asset in family["assets"]:
+            if asset["kind"] == "music" and any(r.get("reachability") == "shipped-reachable" for r in asset["references"]):
+                asset["msu_track_id"] = next_track
+                asset["track_key"] = f"{asset['family']}:{asset['source_path']}"
+                next_track += 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     write_docs(manifest, args.docs)
