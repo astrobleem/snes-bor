@@ -2276,10 +2276,10 @@ phase was `partial`, then flips to `done` here.
 
 ---
 
-## §11 — Phase G11: real landed-hit SFX (PARTIAL — hardening in progress, `g11-sfx-hardening`)
+## §11 — Phase G11: real landed-hit SFX (DONE)
 
-> **Status: PARTIAL — implemented, hardened per `g11correction.txt`, pending
-> one separately authorized full regression suite and merge to `master`.**
+> **Status: DONE — implemented, hardened, and verified by the separately
+> authorized complete regression suite.**
 
 One real hit sound (BOR's own `DATA\SOUNDS\BEAT1.WAV`) now plays on every
 accepted, non-grab landed hit — player-vs-AI (`Character_HitApply_VsEntity1/

@@ -142,6 +142,7 @@ def main():
                 byte_at(m, CharSelect_Loaded) == 1)
 
         m.set_input(m.BTN_START, 10)
+        m.run_frames(60)
         m.pause()
         r.check('Start at char-select lands in GAME_STATE_PLAYING',
                 word_at(m, GAME_STATE) == GAME_STATE_PLAYING)
@@ -152,7 +153,12 @@ def main():
         m.pause()
         hp_before = [byte_at(m, b + CHAR_HP) for b in ENTITY_BASES[1:]]
         stun_before = [byte_at(m, b + CHAR_HIT_STUN) for b in ENTITY_BASES[1:]]
-        m.set_input(m.BTN_Y, 60)
+        # Clear incidental boot-warmup hit-stun before the real attack input.
+        # This is the same combat-test setup used by the dedicated pickup and
+        # hit gates; it prevents an unrelated AI hit from suppressing the
+        # first sampled player attack.
+        m.write_u8(PLAYER_BASE + CHAR_HIT_STUN, 0)
+        m.set_input(m.BTN_Y, 120)
         m.pause()
         hp_after = [byte_at(m, b + CHAR_HP) for b in ENTITY_BASES[1:]]
         stun_after = [byte_at(m, b + CHAR_HIT_STUN) for b in ENTITY_BASES[1:]]
