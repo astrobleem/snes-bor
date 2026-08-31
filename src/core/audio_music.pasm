@@ -3,6 +3,8 @@
 .include "../../tools/audio/audio_music_ids.pasm"
 
 Music_SelectStageTrack:
+Music_MSU_PLAY = $01
+Music_MSU_REPEAT = $02
     php
     rep #$31
 .a16
@@ -17,9 +19,15 @@ Music_SelectStageTrack:
     sep #$20
 .a8
     lda Music_StageTracks,x
+    pha
+    lda.l Options_MusicVolume
+    sta $2006
+    pla
     sta $2004
     stz $2005
-    lda #$03
+    lda Music_StageRepeats,x
+    asl
+    ora #Music_MSU_PLAY
     sta $2007
 Music_SelectStageTrack__done:
     plp

@@ -1,178 +1,282 @@
 {
-  "format": "MSU-1 raw signed 16-bit LE stereo 44100 Hz",
+  "format": "MSU-1 PCM: MSU1 header + signed 16-bit LE stereo 44100 Hz",
   "tracks": [
     {
       "track_id": 1,
       "track_key": "bor-original:DATA\\MUSIC\\ASC.BOR",
       "source_hash": "20455949ba49b4b8911645300f9255766f85146c001689eacfbaa42b884afe3d",
       "decoded_pcm_hash": "8ad18ee15bd757a2d35bf1682837dd8202a262a49aff2db3736cb625290da968",
-      "msu_pcm_hash": "ca84d00e2d211e16ae9f437960225456e872c1495af41b6d64ad5ba58ea020f9",
+      "msu_pcm_hash": "3c423a6f846521a784728afade8cc29ca6e72741b08d8b3d3578e4fa52d62750",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 5304384,
       "msu_sample_count": 10608768,
       "duration_seconds": 240.56163265306122,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-01.pcm"
     },
     {
       "track_id": 2,
       "track_key": "bor-original:DATA\\MUSIC\\KOF.BOR",
       "source_hash": "7fe916f39b489d59e77d49a7dc2a47e915454346c1b2a6e96e59d5e00d6a5896",
       "decoded_pcm_hash": "0c2652da6d2df2ef9d9f263f07eafc296fbf2fb26d85c0fed493b37b0dc93965",
-      "msu_pcm_hash": "a421fbd9c5827d0a866502d3295d3f6f9de271af55876fb40d20f4d3fcd0deb8",
+      "msu_pcm_hash": "217fe123235594de69a90027c3317c216d5d464adf71da93d3ddaa959a700a0f",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 2063888,
       "msu_sample_count": 4127776,
       "duration_seconds": 93.60036281179138,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-02.pcm"
     },
     {
       "track_id": 3,
       "track_key": "bor-original:DATA\\MUSIC\\TIME.BOR",
       "source_hash": "6f977fb0bc14c29ee7869eb97326d57338030c65822989b8fe0ed7071980574d",
       "decoded_pcm_hash": "df934d5086a47309be3dfd78b9804072c4efd8b05f4b6ad004d3991c6255adce",
-      "msu_pcm_hash": "1533895d95fee8af1ac865c33e72585b41c7db070ad32bb2604e098515c014d7",
+      "msu_pcm_hash": "5729044688b2d5900274f69ced6ce0b09b6971039bb8b8592b8f20c85fbc3073",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 4304448,
       "msu_sample_count": 8608896,
       "duration_seconds": 195.2130612244898,
-      "loop_arguments": [
+      "authored_loop_directive": [
         "1"
-      ]
+      ],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-03.pcm"
     },
     {
       "track_id": 4,
       "track_key": "tmnt:DATA\\MUSIC\\BOSS.BOR",
       "source_hash": "da06ad3c416d356950764f895e42d04ec71f6b34fbfc38d0e16c50b1b5edb2c2",
       "decoded_pcm_hash": "5be01b57791df300d1b8e1c06f0e3871087eeb9e9d43997387b573b46a156c5d",
-      "msu_pcm_hash": "9a928f15b755d0f56ffb7f1fb2a4a8fd50f2acbe0b7445f490bae52936b30e56",
+      "msu_pcm_hash": "1f1d4baa95697368dbddfda503ded6ede8a11c3cc149f4fa7960add02d1b4876",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 656082,
       "msu_sample_count": 1312164,
       "duration_seconds": 29.754285714285714,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-04.pcm"
     },
     {
       "track_id": 5,
       "track_key": "tmnt:DATA\\MUSIC\\FIRE.BOR",
       "source_hash": "d6dcb5d7c4a16de246b4d9bf81757f5c3d9d3d5c1053e75908dfee5cf1ba2c04",
       "decoded_pcm_hash": "e2f6ed64cf9439d0fc45231d1a595007d82951aa274b4f1a1fc48543b2e44bde",
-      "msu_pcm_hash": "b78a9d9761e27f6ed2ef46e796b8a0d4a611af4c1000822568478b896015fc82",
+      "msu_pcm_hash": "34ff20b57f47a4ffc7b935fa23bc24f1f7ee25311d393d33510acd8619133b8c",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 976374,
       "msu_sample_count": 1952748,
       "duration_seconds": 44.28,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-05.pcm"
     },
     {
       "track_id": 6,
       "track_key": "tmnt:DATA\\MUSIC\\NYSTREET.BOR",
       "source_hash": "f1e430b42c23b69e3de2471c13d6171cc8b8782de8814f8c8a8624fb0c04cedd",
       "decoded_pcm_hash": "2eee1e9dfbc024d95ef83d07df5c07edb0197a9e8e0ebbf63e27981f8b547441",
-      "msu_pcm_hash": "1fff6871c840590a5ab527bc3b0e3d861b80ec93ad8aa32409c16e76d064a96f",
+      "msu_pcm_hash": "c214e861b2cb1aba344d8ad3918ce94d8714c0d6b433aec8d859cac2f171bee0",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 843688,
       "msu_sample_count": 1687376,
       "duration_seconds": 38.26249433106576,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-06.pcm"
     },
     {
       "track_id": 7,
       "track_key": "tmnt:DATA\\MUSIC\\REMIX\\BOSS.BOR",
       "source_hash": "b0ff37335e43b37eed401e29d36b3e81d7595e5a4c5fb9021fa5906b6cb551e0",
       "decoded_pcm_hash": "15354b218c90da039e2e79b4d2e25bba81ebd02f2cf18b3da41bd965db35f471",
-      "msu_pcm_hash": "e6ee0c786b428fb6202ba500af080c0e5cd62ff51d7c9776ec174466ef85394f",
+      "msu_pcm_hash": "f162ab37c65c3c85fa5d31740bc1a330d0895482e14caca2b195e00bf74bbfcd",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 686686,
       "msu_sample_count": 1373372,
       "duration_seconds": 31.142222222222223,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-07.pcm"
     },
     {
       "track_id": 8,
       "track_key": "tmnt:DATA\\MUSIC\\REMIX\\GLIESE86.BOR",
       "source_hash": "ef6d30e1729b39e70904836c57f7a3c33c5fd4573bd2584a3df5ec312331a0c7",
       "decoded_pcm_hash": "f1d8743fcbb021682c1b09e97a6449e0ea876850bfd94550001bcfe046865528",
-      "msu_pcm_hash": "0c0f917cd854dbb7d6fe8b32d41efae4d2a3c14a1b27d6c19635c0341432894b",
+      "msu_pcm_hash": "937fe253701b8bf7e645e891dd00f956e852b37488b9943193e86cf12e773d1f",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 2092390,
       "msu_sample_count": 4184780,
       "duration_seconds": 94.89297052154195,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-08.pcm"
     },
     {
       "track_id": 9,
       "track_key": "tmnt:DATA\\MUSIC\\REMIX\\PAINOVO.BOR",
       "source_hash": "d6eea543f7ca7898180fc30ae5b615dd954729ae9321bb74bed4db5600b25b77",
       "decoded_pcm_hash": "2fbb5fc4b4c4c9a3475b9892c96d81e6935b6936ee7189eaba2129ea46e14449",
-      "msu_pcm_hash": "3dd80135845a7a43428a5d32e9995d5578c6b17050c74788ba44e8e4af510837",
+      "msu_pcm_hash": "3b21435a8ece7c7b4a5c661a9038be1275313a6be13b4b9e912ef37b99f7305c",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1071982,
       "msu_sample_count": 2143964,
       "duration_seconds": 48.615963718820865,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-09.pcm"
     },
     {
       "track_id": 10,
       "track_key": "tmnt:DATA\\MUSIC\\REMIX\\TAU1.BOR",
       "source_hash": "23170f534904a898338b421a4dd02c100cd0e38a5fd2dfe548885d36681a2c80",
       "decoded_pcm_hash": "3c4bf648aae42ec801aec9e800a8433e6f359ccd2f8bc08c48d8aec7bdbfa402",
-      "msu_pcm_hash": "a179425f127f3ae659c57a86ad2181bce4ed67d88af0bd187e335c7f36847378",
+      "msu_pcm_hash": "0c17b2c209217425b4155694242f61653d72f1a76041e72eddf20ab40919f405",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1646408,
       "msu_sample_count": 3292816,
       "duration_seconds": 74.66702947845805,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-10.pcm"
     },
     {
       "track_id": 11,
       "track_key": "tmnt:DATA\\MUSIC\\REMIX\\ZETA1.BOR",
       "source_hash": "b4214b4be3f062249c723bbae1f20e760461827e3b51f754cb2210b8f723ef96",
       "decoded_pcm_hash": "987e95c27fa2fa9b33efeb8a6f86d87e915ae8e9bcd21e73ebe2670bd657dadc",
-      "msu_pcm_hash": "049a4556caa0fc49b898a0bd278a8ab91ea2ec21dbf163c21bf2c7de9e4070af",
+      "msu_pcm_hash": "13999dbcc0291086f2428c562cea90d423f1377d7c07d889418b091eb10986ae",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1285720,
       "msu_sample_count": 2571440,
       "duration_seconds": 58.30929705215419,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-11.pcm"
     },
     {
       "track_id": 12,
       "track_key": "tmnt:DATA\\MUSIC\\SEWERS.BOR",
       "source_hash": "0d9fbaf78c6b8ac4e5bdbc59dcce78a2ea7ff46cc228eb45779b07e4554de251",
       "decoded_pcm_hash": "8c34315d3c080fa1ddd5a2a625c81bc3bb560691bd6e7ac5b0de1a1497f6ac63",
-      "msu_pcm_hash": "00268621c3b66b78cd7accb56af745e9e8f79bf938abd0ff4e217233f9df058d",
+      "msu_pcm_hash": "85c0a3d038e7253ccbe72f761b60918e0107a3dd9b40dd22a23a9baa051b0d54",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1786246,
       "msu_sample_count": 3572492,
       "duration_seconds": 81.00888888888889,
-      "loop_arguments": []
+      "authored_loop_directive": [],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-12.pcm"
     },
     {
       "track_id": 13,
       "track_key": "tmnt:DATA\\MUSIC\\TMNTEND.BOR",
       "source_hash": "ecbf42b92b66eff71e64e8bd0a38dd60db5b953a43b60d9135839d206df42b0e",
       "decoded_pcm_hash": "c88285dca6f8f3949a7812ae7c37677fba672e145174a743b49a17122581037e",
-      "msu_pcm_hash": "ebb48e44949efa3f6052ff52973b7cb2d6a3d2e18c8ac6d85f3a2e2e6b469f5a",
+      "msu_pcm_hash": "f6c335ab8ac9a12e95ca54f9ddb1a265619e62486b5da6c5b094b572d9cdd0ed",
       "source_rate_hz": 22050,
       "source_channels": 1,
       "source_sample_count": 1605894,
       "msu_sample_count": 3211788,
       "duration_seconds": 72.82965986394558,
-      "loop_arguments": [
+      "authored_loop_directive": [
         "1"
-      ]
+      ],
+      "original_bor_loop": {
+        "kind": "repeat-flag",
+        "repeat": true
+      },
+      "decoded_source_loop_frame": 0,
+      "msu_loop_frame": 0,
+      "repeat": true,
+      "msu_pcm_path": "build/audio_music/track-13.pcm"
     }
   ]
 }

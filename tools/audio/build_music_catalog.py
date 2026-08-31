@@ -42,7 +42,11 @@ def main() -> int:
             bor.parent.mkdir(parents=True, exist_ok=True)
             bor.write_bytes(source)
             header, decoded = decode_bor(source)
-            meta = convert(bor, pcm)
+            loop_arguments = [r.get("loop_argument") for r in asset["references"]
+                              if r.get("reachability") == "shipped-reachable"
+                              and r.get("loop_argument") is not None]
+            repeat = not loop_arguments or "1" in loop_arguments
+            meta = convert(bor, pcm, repeat=repeat)
             if hashlib.sha256(bor.read_bytes()).hexdigest() != source_hash:
                 raise SystemExit(f"source extraction drift: {asset['source_path']}")
             rows.append({"track_id": asset["msu_track_id"], "track_key": asset["track_key"],
@@ -52,10 +56,14 @@ def main() -> int:
                          "source_sample_count": len(decoded) // (2 * header.channels),
                          "msu_sample_count": meta["msu_sample_count"],
                          "duration_seconds": meta["duration_seconds"],
-                         "loop_arguments": [r.get("loop_argument") for r in asset["references"] if r.get("reachability") == "shipped-reachable" and r.get("loop_argument") is not None]})
+                         "authored_loop_directive": loop_arguments,
+                         "original_bor_loop": {"kind": "repeat-flag", "repeat": repeat},
+                         "decoded_source_loop_frame": meta["source_loop_frame"],
+                         "msu_loop_frame": meta["msu_loop_frame"], "repeat": repeat,
+                         "msu_pcm_path": f"build/audio_music/track-{asset['msu_track_id']:02d}.pcm"})
             bor.unlink()
     rows.sort(key=lambda row: row["track_id"])
-    catalog_path.write_text(json.dumps({"format": "MSU-1 raw signed 16-bit LE stereo 44100 Hz", "tracks": rows}, indent=2) + "\n", encoding="utf-8")
+    catalog_path.write_text(json.dumps({"format": "MSU-1 PCM: MSU1 header + signed 16-bit LE stereo 44100 Hz", "tracks": rows}, indent=2) + "\n", encoding="utf-8")
     print(f"decoded {len(rows)} shipped-reachable tracks -> {catalog_path}")
     return 0
 
