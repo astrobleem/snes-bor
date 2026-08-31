@@ -25,6 +25,7 @@ def explore_stage(stage: dict, max_states: int = 500000) -> list[dict]:
     if len(data) % RECORD_SIZE:
         raise SystemExit(f"invalid packed spawn size: {stage['spawn']}")
     records = [data[i:i + RECORD_SIZE] for i in range(0, len(data), RECORD_SIZE)]
+    trigger_positions = sorted({record[0] | (record[1] << 8) for record in records})
     natural = (1, 2, 3)
     # queue, group_min, group_max, waiting, camera_x, slots
     # slot = alive, loaded_roster_index, input_driven_prop, pickup_type, pending_item_index
@@ -69,12 +70,17 @@ def explore_stage(stage: dict, max_states: int = 500000) -> list[dict]:
             enqueue((queue_index, group_min, group_max, False, camera_x, slots))
             continue
 
-        # Screen_PosX is monotonic. A wait clamps it at the wait record's
-        # trigger; same-position records remain eligible, later records do not.
+        # Screen_PosX is monotonic. GROUP does not clamp it, so the player can
+        # pass several future trigger positions while the queue is blocked.
+        # WAIT clamps at the current Screen_PosX. Enumerating the finite set of
+        # packed trigger positions preserves that distinction without a pixel
+        # movement simulator.
         if trigger_x > camera_x:
             if waiting:
                 continue
-            enqueue((queue_index, group_min, group_max, waiting, trigger_x, slots))
+            for next_camera in trigger_positions:
+                if next_camera > camera_x:
+                    enqueue((queue_index, group_min, group_max, waiting, next_camera, slots))
             continue
 
         enemy_count = sum(1 for s in slots if s[0] and not s[2] and s[3] == 0)

@@ -42,6 +42,23 @@ ROSTER_PREFIXES = [entry["converted_prefix"] for entry in ROSTER_CONFIGS]
 PLAYABLE_ROSTER_COUNT = sum(entry["playable"] for entry in ROSTER_CONFIGS)
 
 
+def source_character_identity(family: str, source_file: str) -> str | None:
+    """Resolve a PAK character file to the longest authoritative roster identity."""
+    source = source_file.replace("/", "\\").upper().strip("\\")
+    marker = "DATA\\CHARS\\"
+    if marker not in source:
+        return None
+    relative = source.split(marker, 1)[1]
+    candidates = []
+    for entry in ROSTER_CONFIGS:
+        if entry["family"] != family:
+            continue
+        identity = entry["source_character"].split("\\CHARS\\", 1)[1].upper().strip("\\")
+        if relative == identity + ".TXT" or relative.startswith(identity + "\\"):
+            candidates.append(identity)
+    return max(candidates, key=len) if candidates else None
+
+
 def shipped_characters() -> dict[str, set[str]]:
     return {
         family: {entry["source_character"].split("\\CHARS\\", 1)[1] for entry in ROSTER_CONFIGS if entry["family"] == family}

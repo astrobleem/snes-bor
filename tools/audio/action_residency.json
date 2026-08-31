@@ -1,0 +1,2716 @@
+{
+  "schema_version": 1,
+  "source": "authoritative entity parser plus converted moveset role table",
+  "input_hash": "8c9424a16efd6168fbef7eaadf0b1efdbdfc74b406cfd7a66579b4c36596e539",
+  "models": [
+    {
+      "family": "bor-original",
+      "identity": "RALF",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\RALF\\RALF.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "JHUN",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\JHUN\\JHUN.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "JOE",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\JOE\\JOE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "grab",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "walk",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "YASHIRO",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\YASHIRO\\YASHIRO.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "MOUSER",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\MOUSER\\MOUSER.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "backwalk",
+          "animation": "backwalk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT01",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\FOOT01\\FOOT01.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "ROCK",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\ROCK\\ROCK.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+          ]
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "LEATHER",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\LEATHER\\LEATHER.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "BEBOP",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\BEBOP\\BEBOP.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+          ]
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT02",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\FOOT02\\FOOT02.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT03",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\FOOT03\\FOOT03.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT04",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\FOOT04\\FOOT04.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "LEO",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+          ]
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\THROW.WAV"
+          ]
+        },
+        {
+          "role": "waiting",
+          "animation": "waiting",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+          ]
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack4",
+          "animation": "attack4",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\THROW.WAV"
+          ]
+        },
+        {
+          "role": "slide",
+          "animation": "slide",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\DASH.WAV"
+          ]
+        },
+        {
+          "role": "grabattack",
+          "animation": "grabattack",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "freespecial",
+          "animation": "freespecial",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "waiting",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grab",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\APPLE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\APPLE.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\MONEY",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\MONEY.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\MEAT",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\MEAT.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\1UP",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\1UP.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\GOLD",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\GOLD.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TRASH",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TRASH.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\CHAIR",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\CHAIR.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TABLE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TABLE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2_is_grab",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    }
+  ],
+  "required_signature_count": 19,
+  "signatures": [
+    {
+      "assets": [],
+      "users": [
+        {
+          "identity": "MOUSER",
+          "role": "idle"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "walk"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "pain"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "fall"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "rise"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "backwalk"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "LEO",
+          "role": "idle"
+        },
+        {
+          "identity": "LEO",
+          "role": "walk"
+        },
+        {
+          "identity": "LEO",
+          "role": "pain"
+        },
+        {
+          "identity": "LEO",
+          "role": "fall"
+        },
+        {
+          "identity": "LEO",
+          "role": "rise"
+        },
+        {
+          "identity": "LEO",
+          "role": "waiting"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "LEO",
+          "role": "grab"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\APPLE",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\MONEY",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\MEAT",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\1UP",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\GOLD",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ],
+      "users": [
+        {
+          "identity": "RALF",
+          "role": "idle"
+        },
+        {
+          "identity": "RALF",
+          "role": "walk"
+        },
+        {
+          "identity": "RALF",
+          "role": "pain"
+        },
+        {
+          "identity": "RALF",
+          "role": "fall"
+        },
+        {
+          "identity": "RALF",
+          "role": "rise"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack2"
+        },
+        {
+          "identity": "RALF",
+          "role": "upper"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "JOE",
+          "role": "idle"
+        },
+        {
+          "identity": "JOE",
+          "role": "walk"
+        },
+        {
+          "identity": "JOE",
+          "role": "pain"
+        },
+        {
+          "identity": "JOE",
+          "role": "fall"
+        },
+        {
+          "identity": "JOE",
+          "role": "rise"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack2"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "idle"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "walk"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "pain"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "fall"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "rise"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "attack"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ],
+      "users": [
+        {
+          "identity": "JHUN",
+          "role": "idle"
+        },
+        {
+          "identity": "JHUN",
+          "role": "walk"
+        },
+        {
+          "identity": "JHUN",
+          "role": "pain"
+        },
+        {
+          "identity": "JHUN",
+          "role": "fall"
+        },
+        {
+          "identity": "JHUN",
+          "role": "rise"
+        },
+        {
+          "identity": "JHUN",
+          "role": "jumpattack"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack2"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MISC\\TRASH",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "idle"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "walk"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "fall"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "rise"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "riseattack"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "upper"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "attack2"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "pain"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "attack"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "slide"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "FOOT01",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack3"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack3"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "attack"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MOUSER",
+          "role": "attack"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "attack2"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "upper"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "get"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "jumpattack"
+        },
+        {
+          "identity": "LEO",
+          "role": "jumpattack2"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack3"
+        },
+        {
+          "identity": "LEO",
+          "role": "grabattack"
+        },
+        {
+          "identity": "LEO",
+          "role": "freespecial"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack2"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEATHER",
+          "role": "idle"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "walk"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "pain"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "fall"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "rise"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "riseattack"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack2"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "upper"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "pain"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "idle"
+        },
+        {
+          "identity": "ROCK",
+          "role": "walk"
+        },
+        {
+          "identity": "ROCK",
+          "role": "fall"
+        },
+        {
+          "identity": "ROCK",
+          "role": "rise"
+        },
+        {
+          "identity": "ROCK",
+          "role": "riseattack"
+        },
+        {
+          "identity": "ROCK",
+          "role": "upper"
+        },
+        {
+          "identity": "ROCK",
+          "role": "attack2"
+        },
+        {
+          "identity": "ROCK",
+          "role": "attack2_is_grab"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "jump"
+        }
+      ]
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "special"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack4"
+        }
+      ]
+    }
+  ],
+  "compiler_results": [
+    {
+      "assets": [],
+      "compile_pass": true,
+      "compiled_common_bytes": 0,
+      "diagnostic": "empty action signature"
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ],
+      "users": [
+        {
+          "identity": "RALF",
+          "role": "idle"
+        },
+        {
+          "identity": "RALF",
+          "role": "walk"
+        },
+        {
+          "identity": "RALF",
+          "role": "pain"
+        },
+        {
+          "identity": "RALF",
+          "role": "fall"
+        },
+        {
+          "identity": "RALF",
+          "role": "rise"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack2"
+        },
+        {
+          "identity": "RALF",
+          "role": "upper"
+        },
+        {
+          "identity": "RALF",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "JOE",
+          "role": "idle"
+        },
+        {
+          "identity": "JOE",
+          "role": "walk"
+        },
+        {
+          "identity": "JOE",
+          "role": "pain"
+        },
+        {
+          "identity": "JOE",
+          "role": "fall"
+        },
+        {
+          "identity": "JOE",
+          "role": "rise"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack2"
+        },
+        {
+          "identity": "JOE",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "idle"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "walk"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "pain"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "fall"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "rise"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "attack"
+        },
+        {
+          "identity": "YASHIRO",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 4250,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 7645 bytes\ncompiled common-data: 4250 bytes\nassets: bor-original:DATA\\SOUNDS\\DIE1.WAV\n"
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ],
+      "users": [
+        {
+          "identity": "JHUN",
+          "role": "idle"
+        },
+        {
+          "identity": "JHUN",
+          "role": "walk"
+        },
+        {
+          "identity": "JHUN",
+          "role": "pain"
+        },
+        {
+          "identity": "JHUN",
+          "role": "fall"
+        },
+        {
+          "identity": "JHUN",
+          "role": "rise"
+        },
+        {
+          "identity": "JHUN",
+          "role": "jumpattack"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack2"
+        },
+        {
+          "identity": "JHUN",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 6266,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 9661 bytes\ncompiled common-data: 6266 bytes\nassets: bor-original:DATA\\SOUNDS\\DIE2.WAV\n"
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MISC\\TRASH",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\TRASH",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 4619,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 8014 bytes\ncompiled common-data: 4619 bytes\nassets: bor-original:DATA\\SOUNDS\\KLUNK.WAV\n"
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\CHAIR",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "idle"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "walk"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "attack"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "fall"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "rise"
+        },
+        {
+          "identity": "MISC\\TABLE",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 2567,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 5962 bytes\ncompiled common-data: 2567 bytes\nassets: bor-original:DATA\\SOUNDS\\WOOD.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "idle"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "walk"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "fall"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "rise"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "riseattack"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "upper"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "attack2"
+        },
+        {
+          "identity": "BEBOP",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 32780,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 36175 bytes\ncompiled common-data: 32780 bytes\nassets: tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "pain"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 42726,
+      "diagnostic": "all-reachable SFX compile PASS: 2 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 46121 bytes\ncompiled common-data: 42726 bytes\nassets: tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV, tmnt:DATA\\SOUNDS\\BOAR.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "BEBOP",
+          "role": "attack"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 40287,
+      "diagnostic": "all-reachable SFX compile PASS: 2 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 43682 bytes\ncompiled common-data: 40287 bytes\nassets: tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV, tmnt:DATA\\SOUNDS\\WAVE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "slide"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 2207,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 5602 bytes\ncompiled common-data: 2207 bytes\nassets: tmnt:DATA\\SOUNDS\\DASH.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "FOOT01",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack3"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT01",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack3"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT02",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT03",
+          "role": "attack2_is_grab"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "idle"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "walk"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "pain"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "fall"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "rise"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack2"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "upper"
+        },
+        {
+          "identity": "FOOT04",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 32780,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 36175 bytes\ncompiled common-data: 32780 bytes\nassets: tmnt:DATA\\SOUNDS\\FOOTDIE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "attack"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 38755,
+      "diagnostic": "all-reachable SFX compile PASS: 2 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 42150 bytes\ncompiled common-data: 38755 bytes\nassets: tmnt:DATA\\SOUNDS\\GUNSHOT.WAV, tmnt:DATA\\SOUNDS\\ROCKDIE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "users": [
+        {
+          "identity": "MOUSER",
+          "role": "attack"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "attack2"
+        },
+        {
+          "identity": "MOUSER",
+          "role": "upper"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 2783,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 6178 bytes\ncompiled common-data: 2783 bytes\nassets: tmnt:DATA\\SOUNDS\\METAL.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "get"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 20144,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 23539 bytes\ncompiled common-data: 20144 bytes\nassets: tmnt:DATA\\SOUNDS\\PIZZA1.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "jumpattack"
+        },
+        {
+          "identity": "LEO",
+          "role": "jumpattack2"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack3"
+        },
+        {
+          "identity": "LEO",
+          "role": "grabattack"
+        },
+        {
+          "identity": "LEO",
+          "role": "freespecial"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack2"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 3818,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 7213 bytes\ncompiled common-data: 3818 bytes\nassets: tmnt:DATA\\SOUNDS\\PUNCH0.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEATHER",
+          "role": "idle"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "walk"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "pain"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "fall"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "rise"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "riseattack"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack2"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "upper"
+        },
+        {
+          "identity": "LEATHER",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 8678,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 12073 bytes\ncompiled common-data: 8678 bytes\nassets: tmnt:DATA\\SOUNDS\\RHINO.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "pain"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 41430,
+      "diagnostic": "all-reachable SFX compile PASS: 2 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 44825 bytes\ncompiled common-data: 41430 bytes\nassets: tmnt:DATA\\SOUNDS\\RHINO.WAV, tmnt:DATA\\SOUNDS\\ROCKDIE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "users": [
+        {
+          "identity": "ROCK",
+          "role": "idle"
+        },
+        {
+          "identity": "ROCK",
+          "role": "walk"
+        },
+        {
+          "identity": "ROCK",
+          "role": "fall"
+        },
+        {
+          "identity": "ROCK",
+          "role": "rise"
+        },
+        {
+          "identity": "ROCK",
+          "role": "riseattack"
+        },
+        {
+          "identity": "ROCK",
+          "role": "upper"
+        },
+        {
+          "identity": "ROCK",
+          "role": "attack2"
+        },
+        {
+          "identity": "ROCK",
+          "role": "attack2_is_grab"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 32780,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 36175 bytes\ncompiled common-data: 32780 bytes\nassets: tmnt:DATA\\SOUNDS\\ROCKDIE.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "jump"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 686,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 4081 bytes\ncompiled common-data: 686 bytes\nassets: tmnt:DATA\\SOUNDS\\SPIN.WAV\n"
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "users": [
+        {
+          "identity": "LEO",
+          "role": "special"
+        },
+        {
+          "identity": "LEO",
+          "role": "attack4"
+        }
+      ],
+      "compile_pass": true,
+      "compiled_common_bytes": 14699,
+      "diagnostic": "all-reachable SFX compile PASS: 1 assets\ncompiler: E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe (0.3.0)\ncompiled audio-data.bin: 18094 bytes\ncompiled common-data: 14699 bytes\nassets: tmnt:DATA\\SOUNDS\\THROW.WAV\n"
+    }
+  ],
+  "max_compiled_common_bytes": 42726,
+  "capacity_bytes": 60828,
+  "min_margin_bytes": 18102
+}

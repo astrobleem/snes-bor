@@ -24,6 +24,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\BINKBLOW.WAV",
               "resolved_source_path": null,
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -55,6 +56,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\BINKHEY.WAV",
               "resolved_source_path": null,
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -64,6 +66,78 @@
           "msu_track_id": null,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 0,
+          "shipped_reachable": false,
+          "implementation_classification": "unknown-needs-source-research"
+        },
+        {
+          "family": "bor-original",
+          "kind": "missing-source",
+          "source_path": "DATA\\SOUNDS\\BLOCK.WAV",
+          "source_filename": "BLOCK.WAV",
+          "source_hash": null,
+          "source_size_bytes": null,
+          "format": null,
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "blocked-attack",
+              "engine_global_sample": "global_sample_list.block",
+              "requested_global_asset": "DATA\\SOUNDS\\BLOCK.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BLOCK.WAV",
+              "fallback": null,
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "blocking mechanic is not present in the current SNES runtime"
+            }
+          ],
+          "converter_representation": null,
+          "packed_runtime": null,
+          "tad_sfx_id": null,
+          "msu_track_id": null,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 0,
+          "shipped_reachable": false,
+          "implementation_classification": "unknown-needs-source-research"
+        },
+        {
+          "family": "bor-original",
+          "kind": "missing-source",
+          "source_path": "DATA\\SOUNDS\\GO.WAV",
+          "source_filename": "GO.WAV",
+          "source_hash": null,
+          "source_size_bytes": null,
+          "format": null,
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "go",
+              "engine_global_sample": "global_sample_list.go",
+              "requested_global_asset": "DATA\\SOUNDS\\GO.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\GO.WAV",
+              "fallback": null,
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "go prompt audio is not present in the shipped runtime"
+            }
+          ],
+          "converter_representation": null,
+          "packed_runtime": null,
+          "tad_sfx_id": null,
+          "msu_track_id": null,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
@@ -1240,6 +1314,9 @@
               "directive": "engine-global-default",
               "semantic_event": "one-up",
               "engine_global_sample": "global_sample_list.one_up",
+              "requested_global_asset": "DATA\\SOUNDS\\1UP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\1UP.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -1283,6 +1360,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -1320,6 +1398,9 @@
               "directive": "engine-global-default",
               "semantic_event": "landed-hit",
               "engine_global_sample": "global_sample_list.beat",
+              "requested_global_asset": "DATA\\SOUNDS\\BEAT1.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEAT1.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -1361,6 +1442,9 @@
               "directive": "engine-global-default",
               "semantic_event": "ui-beep",
               "engine_global_sample": "global_sample_list.beep",
+              "requested_global_asset": "DATA\\SOUNDS\\BEEP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -1402,11 +1486,29 @@
               "directive": "engine-global-default",
               "semantic_event": "ui-beep-secondary",
               "engine_global_sample": "global_sample_list.beep_2",
+              "requested_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
               "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
+            },
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "pause-entry",
+              "engine_global_sample": "global_sample_list.pause",
+              "requested_global_asset": "DATA\\SOUNDS\\PAUSE.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "fallback": "DATA\\SOUNDS\\BEEP2.WAV",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; current SNES pause state is implemented"
             }
           ],
           "converter_representation": null,
@@ -1414,9 +1516,9 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "engine_global_reference_count": 1,
-          "total_reference_count": 1,
-          "shipped_reachable_reference_count": 1,
+          "engine_global_reference_count": 2,
+          "total_reference_count": 2,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
@@ -1443,6 +1545,9 @@
               "directive": "engine-global-default",
               "semantic_event": "bike",
               "engine_global_sample": "global_sample_list.bike",
+              "requested_global_asset": "DATA\\SOUNDS\\BIKE.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BIKE.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
@@ -1486,6 +1591,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": "RALF",
               "reachability": "shipped-reachable"
             },
             {
@@ -1496,6 +1602,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": "JOE",
               "reachability": "shipped-reachable"
             },
             {
@@ -1506,6 +1613,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1516,6 +1624,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1526,6 +1635,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": "YASHIRO",
               "reachability": "shipped-reachable"
             },
             {
@@ -1536,6 +1646,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1546,6 +1657,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1556,6 +1668,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1566,6 +1679,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -1605,6 +1719,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1615,6 +1730,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1625,6 +1741,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": "JHUN",
               "reachability": "shipped-reachable"
             },
             {
@@ -1635,6 +1752,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1645,6 +1763,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1655,6 +1774,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1665,6 +1785,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE2.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE2.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -1704,6 +1825,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\DRILL.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DRILL.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -1743,6 +1865,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1753,6 +1876,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1763,6 +1887,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1773,6 +1898,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1783,6 +1909,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\EEK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\EEK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -1820,11 +1947,14 @@
               "directive": "engine-global-default",
               "semantic_event": "fall",
               "engine_global_sample": "global_sample_list.fall",
+              "requested_global_asset": "DATA\\SOUNDS\\FALL.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\FALL.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "fall sound dispatch is not present in the current SNES runtime"
+              "reachability_reason": "OpenBOR fall-sound call is tied to the fall/knockdown transition; current SNES core/jump and knockdown paths expose that gameplay transition"
             }
           ],
           "converter_representation": null,
@@ -1834,8 +1964,8 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -1861,6 +1991,9 @@
               "directive": "engine-global-default",
               "semantic_event": "health-pickup",
               "engine_global_sample": "global_sample_list.get",
+              "requested_global_asset": "DATA\\SOUNDS\\GET.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\GET.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -1902,11 +2035,14 @@
               "directive": "engine-global-default",
               "semantic_event": "indirect-attack",
               "engine_global_sample": "global_sample_list.indirect",
+              "requested_global_asset": "DATA\\SOUNDS\\INDIRECT.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\INDIRECT.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
               "audio_implemented": false,
-              "reachability_reason": "projectile sound dispatch is not implemented"
+              "reachability_reason": "OpenBOR indirect-sound call requires a projectile/indirect attack entity; current SNES runtime has no projectile entity or indirect attack path"
             }
           ],
           "converter_representation": null,
@@ -1943,6 +2079,9 @@
               "directive": "engine-global-default",
               "semantic_event": "jump",
               "engine_global_sample": "global_sample_list.jump",
+              "requested_global_asset": "DATA\\SOUNDS\\JUMP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\JUMP.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -1986,6 +2125,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -1996,7 +2136,8 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
-              "reachability": "unshipped-source-content"
+              "character_identity": "MISC\\TRASH",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\DRUM.TXT",
@@ -2006,6 +2147,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2016,8 +2158,8 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -2045,6 +2187,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\KULABLOW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KULABLOW.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2084,6 +2227,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\KULAHEY.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KULAHEY.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2123,6 +2267,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\LEONAHEY.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\LEONAHEY.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2162,6 +2307,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MARYTOSS.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MARYTOSS.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2201,6 +2347,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MARY_FFP.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MARY_FFP.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2240,6 +2387,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -2250,6 +2398,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -2260,6 +2409,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2299,6 +2449,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2338,6 +2489,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2375,6 +2527,9 @@
               "directive": "engine-global-default",
               "semantic_event": "score-pickup",
               "engine_global_sample": "global_sample_list.get_2",
+              "requested_global_asset": "DATA\\SOUNDS\\MONEY.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\MONEY.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -2416,6 +2571,9 @@
               "directive": "engine-global-default",
               "semantic_event": "attack-swing",
               "engine_global_sample": "global_sample_list.punch",
+              "requested_global_asset": "DATA\\SOUNDS\\PUNCH.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\PUNCH.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -2459,6 +2617,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SHAAH.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SHAAH.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2496,11 +2655,14 @@
               "directive": "engine-global-default",
               "semantic_event": "time-over",
               "engine_global_sample": "global_sample_list.time_over",
+              "requested_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
               "audio_implemented": false,
-              "reachability_reason": "time-over state audio is not implemented"
+              "reachability_reason": "OpenBOR time-over call requires a level countdown reaching zero; current SNES runtime has no level timer state or expiration transition"
             }
           ],
           "converter_representation": null,
@@ -2539,6 +2701,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -2549,7 +2712,8 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
-              "reachability": "unshipped-source-content"
+              "character_identity": "MISC\\CHAIR",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\TABLE.TXT",
@@ -2559,7 +2723,8 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
-              "reachability": "unshipped-source-content"
+              "character_identity": "MISC\\TABLE",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\MISC\\CRATE.TXT",
@@ -2569,6 +2734,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -2579,6 +2745,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2589,8 +2756,8 @@
           "raw_reference_count": 5,
           "engine_global_reference_count": 0,
           "total_reference_count": 5,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 2,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -2618,6 +2785,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\ZOEF.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ZOEF.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -2639,6 +2807,78 @@
       "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
       "pak_hash": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
       "assets": [
+        {
+          "family": "tmnt",
+          "kind": "missing-source",
+          "source_path": "DATA\\SOUNDS\\BLOCK.WAV",
+          "source_filename": "BLOCK.WAV",
+          "source_hash": null,
+          "source_size_bytes": null,
+          "format": null,
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "blocked-attack",
+              "engine_global_sample": "global_sample_list.block",
+              "requested_global_asset": "DATA\\SOUNDS\\BLOCK.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BLOCK.WAV",
+              "fallback": null,
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "blocking mechanic is not present in the current SNES runtime"
+            }
+          ],
+          "converter_representation": null,
+          "packed_runtime": null,
+          "tad_sfx_id": null,
+          "msu_track_id": null,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 0,
+          "shipped_reachable": false,
+          "implementation_classification": "unknown-needs-source-research"
+        },
+        {
+          "family": "tmnt",
+          "kind": "missing-source",
+          "source_path": "DATA\\SOUNDS\\GO.WAV",
+          "source_filename": "GO.WAV",
+          "source_hash": null,
+          "source_size_bytes": null,
+          "format": null,
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "go",
+              "engine_global_sample": "global_sample_list.go",
+              "requested_global_asset": "DATA\\SOUNDS\\GO.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\GO.WAV",
+              "fallback": null,
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "content-inapplicable",
+              "snes_reachable": false,
+              "audio_implemented": false,
+              "reachability_reason": "go prompt audio is not present in the shipped runtime"
+            }
+          ],
+          "converter_representation": null,
+          "packed_runtime": null,
+          "tad_sfx_id": null,
+          "msu_track_id": null,
+          "raw_reference_count": 0,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 0,
+          "shipped_reachable": false,
+          "implementation_classification": "unknown-needs-source-research"
+        },
         {
           "family": "tmnt",
           "kind": "music",
@@ -3711,6 +3951,9 @@
               "directive": "engine-global-default",
               "semantic_event": "one-up",
               "engine_global_sample": "global_sample_list.one_up",
+              "requested_global_asset": "DATA\\SOUNDS\\1UP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\1UP.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -3836,6 +4079,9 @@
               "directive": "engine-global-default",
               "semantic_event": "landed-hit",
               "engine_global_sample": "global_sample_list.beat",
+              "requested_global_asset": "DATA\\SOUNDS\\BEAT1.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEAT1.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -3879,6 +4125,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\BEBOPDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\BEBOPDIE.WAV",
+              "character_identity": "BEBOP",
               "reachability": "shipped-reachable"
             }
           ],
@@ -3909,17 +4156,33 @@
             "sample_count": 3376,
             "duration_seconds": 0.153106576
           },
-          "references": [],
+          "references": [
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "ui-beep",
+              "engine_global_sample": "global_sample_list.beep",
+              "requested_global_asset": "DATA\\SOUNDS\\BEEP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP0.WAV",
+              "fallback": "DATA\\SOUNDS\\BEEP0.WAV",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus have corresponding input paths"
+            }
+          ],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "engine_global_reference_count": 0,
-          "total_reference_count": 0,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unused-by-shipped-content"
+          "engine_global_reference_count": 1,
+          "total_reference_count": 1,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "tmnt",
@@ -3944,11 +4207,29 @@
               "directive": "engine-global-default",
               "semantic_event": "ui-beep-secondary",
               "engine_global_sample": "global_sample_list.beep_2",
+              "requested_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
               "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
+            },
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "pause-entry",
+              "engine_global_sample": "global_sample_list.pause",
+              "requested_global_asset": "DATA\\SOUNDS\\PAUSE.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BEEP2.WAV",
+              "fallback": "DATA\\SOUNDS\\BEEP2.WAV",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; current SNES pause state is implemented"
             }
           ],
           "converter_representation": null,
@@ -3956,9 +4237,9 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "engine_global_reference_count": 1,
-          "total_reference_count": 1,
-          "shipped_reachable_reference_count": 1,
+          "engine_global_reference_count": 2,
+          "total_reference_count": 2,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
@@ -3985,6 +4266,9 @@
               "directive": "engine-global-default",
               "semantic_event": "bike",
               "engine_global_sample": "global_sample_list.bike",
+              "requested_global_asset": "DATA\\SOUNDS\\BIKE.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\BIKE.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
@@ -4028,6 +4312,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\BOAR.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\BOAR.WAV",
+              "character_identity": "BEBOP",
               "reachability": "shipped-reachable"
             }
           ],
@@ -4095,6 +4380,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\DASH.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DASH.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             }
           ],
@@ -4134,6 +4420,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE00.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4144,6 +4431,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE00.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE00.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -4183,6 +4471,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -4306,6 +4595,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4316,6 +4606,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ELEC4.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -4441,11 +4732,14 @@
               "directive": "engine-global-default",
               "semantic_event": "fall",
               "engine_global_sample": "global_sample_list.fall",
+              "requested_global_asset": "DATA\\SOUNDS\\FALL.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\FALL.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "fall sound dispatch is not present in the current SNES runtime"
+              "reachability_reason": "OpenBOR fall-sound call is tied to the fall/knockdown transition; current SNES core/jump and knockdown paths expose that gameplay transition"
             }
           ],
           "converter_representation": null,
@@ -4455,8 +4749,8 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
         {
@@ -4484,6 +4778,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "character_identity": "FOOT01",
               "reachability": "shipped-reachable"
             },
             {
@@ -4494,6 +4789,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "character_identity": "FOOT02",
               "reachability": "shipped-reachable"
             },
             {
@@ -4504,6 +4800,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "character_identity": "FOOT03",
               "reachability": "shipped-reachable"
             },
             {
@@ -4514,6 +4811,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "character_identity": "FOOT04",
               "reachability": "shipped-reachable"
             },
             {
@@ -4524,6 +4822,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\FOOTDIE.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -4561,6 +4860,9 @@
               "directive": "engine-global-default",
               "semantic_event": "health-pickup",
               "engine_global_sample": "global_sample_list.get",
+              "requested_global_asset": "DATA\\SOUNDS\\GET.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\GET.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -4632,6 +4934,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\GUNSHOT.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\GUNSHOT.WAV",
+              "character_identity": "ROCK",
               "reachability": "shipped-reachable"
             }
           ],
@@ -4669,11 +4972,14 @@
               "directive": "engine-global-default",
               "semantic_event": "indirect-attack",
               "engine_global_sample": "global_sample_list.indirect",
+              "requested_global_asset": "DATA\\SOUNDS\\INDIRECT.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\INDIRECT.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
               "audio_implemented": false,
-              "reachability_reason": "projectile sound dispatch is not implemented"
+              "reachability_reason": "OpenBOR indirect-sound call requires a projectile/indirect attack entity; current SNES runtime has no projectile entity or indirect attack path"
             }
           ],
           "converter_representation": null,
@@ -4710,6 +5016,9 @@
               "directive": "engine-global-default",
               "semantic_event": "jump",
               "engine_global_sample": "global_sample_list.jump",
+              "requested_global_asset": "DATA\\SOUNDS\\JUMP.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\JUMP.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -4753,6 +5062,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4763,6 +5073,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4773,6 +5084,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4783,6 +5095,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4793,6 +5106,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4803,6 +5117,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4813,6 +5128,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4823,6 +5139,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4833,6 +5150,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4843,6 +5161,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4853,6 +5172,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4863,6 +5183,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4873,6 +5194,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4883,6 +5205,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4893,6 +5216,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4903,6 +5227,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4913,6 +5238,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4923,6 +5249,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4933,6 +5260,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4943,6 +5271,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4953,6 +5282,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4963,6 +5293,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4973,6 +5304,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4983,6 +5315,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -4993,6 +5326,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5003,6 +5337,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5013,6 +5348,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5023,6 +5359,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5033,6 +5370,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5043,6 +5381,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5053,6 +5392,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5063,6 +5403,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5073,6 +5414,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5083,6 +5425,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5093,6 +5436,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5103,6 +5447,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5113,6 +5458,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5123,6 +5469,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5133,6 +5480,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5143,6 +5491,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5153,6 +5502,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5163,6 +5513,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\KLUNK.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -5342,6 +5693,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5352,6 +5704,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -5362,6 +5715,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXBOOM.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -5401,6 +5755,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXROCKT.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -5440,6 +5795,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\MAXUH.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -5507,6 +5863,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\METAL.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "character_identity": "MOUSER",
               "reachability": "shipped-reachable"
             },
             {
@@ -5517,6 +5874,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\METAL.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\METAL.WAV",
+              "character_identity": "MOUSER",
               "reachability": "shipped-reachable"
             }
           ],
@@ -5554,6 +5912,9 @@
               "directive": "engine-global-default",
               "semantic_event": "score-pickup",
               "engine_global_sample": "global_sample_list.get_2",
+              "requested_global_asset": "DATA\\SOUNDS\\MONEY.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\MONEY.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
@@ -5629,6 +5990,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PIZZA1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PIZZA1.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             }
           ],
@@ -5668,6 +6030,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5678,6 +6041,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5688,6 +6052,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5698,6 +6063,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5708,6 +6074,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5718,6 +6085,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5728,7 +6096,23 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
+            },
+            {
+              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
+              "line": null,
+              "directive": "engine-global-default",
+              "semantic_event": "attack-swing",
+              "engine_global_sample": "global_sample_list.punch",
+              "requested_global_asset": "DATA\\SOUNDS\\PUNCH.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "fallback": "DATA\\SOUNDS\\PUNCH0.WAV",
+              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
+              "audio_implemented": false,
+              "reachability_reason": "current attack/attack-chain path is source-backed; generic swing audio remains unimplemented"
             }
           ],
           "converter_representation": null,
@@ -5736,9 +6120,9 @@
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 7,
-          "engine_global_reference_count": 0,
-          "total_reference_count": 7,
-          "shipped_reachable_reference_count": 7,
+          "engine_global_reference_count": 1,
+          "total_reference_count": 8,
+          "shipped_reachable_reference_count": 8,
           "shipped_reachable": true,
           "implementation_classification": "present-not-implemented"
         },
@@ -5823,6 +6207,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "character_identity": "LEATHER",
               "reachability": "shipped-reachable"
             },
             {
@@ -5833,6 +6218,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "character_identity": "LEATHER",
               "reachability": "shipped-reachable"
             },
             {
@@ -5843,6 +6229,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\RHINO.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\RHINO.WAV",
+              "character_identity": "ROCK",
               "reachability": "shipped-reachable"
             }
           ],
@@ -5882,6 +6269,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\ROCKDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ROCKDIE.WAV",
+              "character_identity": "ROCK",
               "reachability": "shipped-reachable"
             }
           ],
@@ -5949,6 +6337,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5959,6 +6348,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5969,6 +6359,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5979,6 +6370,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5989,6 +6381,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -5999,6 +6392,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\SPIN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\SPIN.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             }
           ],
@@ -6038,6 +6432,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -6048,6 +6443,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -6058,6 +6454,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -6068,6 +6465,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             },
             {
@@ -6078,6 +6476,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\THROW.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\THROW.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],
@@ -6115,11 +6514,14 @@
               "directive": "engine-global-default",
               "semantic_event": "time-over",
               "engine_global_sample": "global_sample_list.time_over",
+              "requested_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
+              "resolved_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
+              "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "content-inapplicable",
               "snes_reachable": false,
               "audio_implemented": false,
-              "reachability_reason": "time-over state audio is not implemented"
+              "reachability_reason": "OpenBOR time-over call requires a level countdown reaching zero; current SNES runtime has no level timer state or expiration transition"
             }
           ],
           "converter_representation": null,
@@ -6158,6 +6560,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\TURTLEDIE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\TURTLE~1.WAV",
+              "character_identity": "LEO",
               "reachability": "shipped-reachable"
             }
           ],
@@ -6197,6 +6600,7 @@
               "semantic_event": "animation-or-event-sound",
               "requested_source_path": "DATA\\SOUNDS\\WAVE.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WAVE.WAV",
+              "character_identity": "BEBOP",
               "reachability": "shipped-reachable"
             }
           ],
@@ -6236,6 +6640,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -6246,6 +6651,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -6256,6 +6662,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -6266,6 +6673,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             },
             {
@@ -6276,6 +6684,7 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\WOOD.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\WOOD.WAV",
+              "character_identity": null,
               "reachability": "unshipped-source-content"
             }
           ],

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "compiler": "E:\\gh\\snes-outrun-sa1\\tools\\tad\\tad-compiler.exe",
   "compiler_version": "0.3.0",
-  "reachable_asset_count": 30,
+  "reachable_asset_count": 34,
   "canonical_assets": [
     {
       "asset": "bor-original:DATA\\SOUNDS\\1UP.WAV",
@@ -35,6 +35,11 @@
       "sample_rate_hz": 11025
     },
     {
+      "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
+      "canonical_pcm_hash": "c1b4b54f3d8d85516b96903f9b87de4e22025bf3f26440d158886c10e0d4e8b6",
+      "sample_rate_hz": 11025
+    },
+    {
       "asset": "bor-original:DATA\\SOUNDS\\GET.WAV",
       "canonical_pcm_hash": "0527be5a3d9755658523a5291fc8c39765ee21aebc062504ee52d3e878815419",
       "sample_rate_hz": 11025
@@ -42,6 +47,11 @@
     {
       "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
       "canonical_pcm_hash": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "sample_rate_hz": 11025
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "canonical_pcm_hash": "7cb4118ee602f63a496093172dee98e1a0a89bc4427c439dd0e059abe44bfc3e",
       "sample_rate_hz": 11025
     },
     {
@@ -53,6 +63,11 @@
       "asset": "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
       "canonical_pcm_hash": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1",
       "sample_rate_hz": 22050
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "canonical_pcm_hash": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf",
+      "sample_rate_hz": 11025
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\1UP.WAV",
@@ -83,6 +98,11 @@
       "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
       "canonical_pcm_hash": "d36cefbaf0cbe3270609ed5788393ab74760d8fb01f17d06f2f2757cf48dc64c",
       "sample_rate_hz": 11025
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "canonical_pcm_hash": "4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91",
+      "sample_rate_hz": 22050
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",

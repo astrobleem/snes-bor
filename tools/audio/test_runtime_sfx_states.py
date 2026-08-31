@@ -55,6 +55,20 @@ def main() -> int:
     assert any(s["queue_index"] == 2 and s["camera_trigger_x"] == 0 and s["wait_state"] == "waiting" for s in f)
     assert not any(s["queue_index"] == 3 and s["camera_trigger_x"] < 10 for s in f)
 
+    # GROUP blocks queue advancement but does not clamp the camera. Once the
+    # first enemy dies, an overdue WAIT is reached at the already-advanced
+    # camera position and same/earlier records remain eligible.
+    overshoot = states([
+        record(kind=3, group_min=1, group_max=2),
+        ordinary,
+        record(trigger=10),
+        record(trigger=20, kind=2),
+        record(trigger=20),
+        record(trigger=30),
+    ])
+    assert any(s["queue_index"] == 2 and s["camera_trigger_x"] >= 20 for s in overshoot)
+    assert any(s["queue_index"] >= 4 and s["camera_trigger_x"] >= 20 and s["wait_state"] == "waiting" for s in overshoot)
+
     # Identified boss reassignment uses object_roster_idx.
     g = states([record(kind=5, obj=8)])
     assert any(s["slots"][0]["alive"] and s["slots"][0]["roster_index"] == 8 for s in g)

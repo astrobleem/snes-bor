@@ -21,6 +21,10 @@ def asset_key(family: str, path: str) -> str:
 
 
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ab-only", action="store_true", help="compile A/B candidates without the expensive exhaustive C compile")
+    args = parser.parse_args()
     manifest = json.loads((ROOT / "tools/audio/audio_manifest.json").read_text(encoding="utf-8"))
     assets = {(family["family"], asset["source_path"]): asset for family in manifest["families"] for asset in family["assets"] if asset["kind"] == "sfx"}
     roster = {index: entry for index, entry in enumerate(ROSTER_CONFIGS)}
@@ -132,8 +136,8 @@ def main() -> int:
         if len(record["example_users"]) < 3:
             record["example_users"].append({"stage": row["stage"], "player": row["player"], "state_index": row["state_index"]})
     ab_results = [{**row, **compile_one(row)} for row in ab_rows]
-    c_results = [{**row, **compile_one(row)} for row in c_unique.values()]
-    output = {"schema_version": 5, "source": "committed packed 10-byte spawn tables and runtime lifecycle model", "candidate_count": len(candidates), "unique_set_count": len(ab_results), "strategy_a_count": len(STAGE_CONFIGS), "strategy_b_count": len(candidates) - len(STAGE_CONFIGS), "strategy_a_b_results": ab_results, "strategy_c_state_count": len(exact_states), "strategy_c_unique_set_count": len(c_results), "strategy_c_results": c_results, "max_non_player_slots": 3}
+    c_results = [] if args.ab_only else [{**row, **compile_one(row)} for row in c_unique.values()]
+    output = {"schema_version": 5, "source": "committed packed 10-byte spawn tables and runtime lifecycle model", "candidate_count": len(candidates), "unique_set_count": len(ab_results), "strategy_a_count": len(STAGE_CONFIGS), "strategy_b_count": len(candidates) - len(STAGE_CONFIGS), "strategy_a_b_results": ab_results, "strategy_c_state_count": len(exact_states), "strategy_c_unique_set_count": len(c_results), "strategy_c_results": c_results, "strategy_c_compile_skipped": args.ab_only, "max_non_player_slots": 3}
     (ROOT / "tools/audio/sfx_residency.json").write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
     passed = [row["compiled_common_bytes"] for row in ab_results if row["compile_pass"]]
     cpassed = [row["compiled_common_bytes"] for row in c_results if row["compile_pass"]]

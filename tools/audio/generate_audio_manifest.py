@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
-from shipped_content import shipped_characters, shipped_levels  # noqa: E402
+from shipped_content import shipped_characters, shipped_levels, source_character_identity  # noqa: E402
 from engine_audio_semantics import ENGINE_GLOBAL_AUDIO, ENGINE_REVISION, ENGINE_SOURCE  # noqa: E402
 
 SHIPPED_CHARACTERS = shipped_characters()
@@ -34,6 +34,11 @@ PAKS = [
 ]
 PAK_ALIASES = {
     ("tmnt", "DATA\\SOUNDS\\TURTLEDIE.WAV"): "DATA\\SOUNDS\\TURTLE~1.WAV",
+    # The target TMNT PAK uses the legacy family's numbered global names.
+    # Keep the requested OpenBOR semantic and the authored PAK resolution
+    # visible rather than manufacturing missing global assets.
+    ("tmnt", "DATA\\SOUNDS\\BEEP.WAV"): "DATA\\SOUNDS\\BEEP0.WAV",
+    ("tmnt", "DATA\\SOUNDS\\PUNCH.WAV"): "DATA\\SOUNDS\\PUNCH0.WAV",
 }
 SOUND_RE = re.compile(r"^\s*(sound|diesound)\s+(\S+)", re.I)
 MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)(?:\s+([+-]?\d+))?(?:\s|$)", re.I)
@@ -170,8 +175,9 @@ def scan_family(family: str, pak: Path) -> dict:
             }
             upper_source = norm(e.name)
             if "\\CHARS\\" in upper_source:
-                suffix = upper_source.split("\\CHARS\\", 1)[1].rsplit("\\", 1)[0]
-                ref["reachability"] = "shipped-reachable" if suffix in SHIPPED_CHARACTERS[family] else "unshipped-source-content"
+                identity = source_character_identity(family, upper_source)
+                ref["character_identity"] = identity
+                ref["reachability"] = "shipped-reachable" if identity in SHIPPED_CHARACTERS[family] else "unshipped-source-content"
             elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
                 ref["reachability"] = "shipped-reachable" if Path(upper_source).name in shipped_levels(family) else "unshipped-source-content"
             else:
@@ -192,15 +198,37 @@ def scan_family(family: str, pak: Path) -> dict:
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
     if family in ("bor-original", "tmnt"):
         for semantic in ENGINE_GLOBAL_AUDIO:
-            asset = assets.get(semantic["asset"])
+            requested_global_asset = semantic["asset"]
+            resolved_global_asset = requested_global_asset
+            fallback = None
+            asset = assets.get(requested_global_asset)
             if asset is None:
-                continue
+                alias = PAK_ALIASES.get((family, requested_global_asset))
+                if alias:
+                    fallback = alias
+                    asset = assets.get(alias)
+                    resolved_global_asset = alias
+            if asset is None and semantic["global"] == "pause":
+                fallback = "DATA\\SOUNDS\\BEEP2.WAV"
+                asset = assets.get(fallback)
+                resolved_global_asset = fallback
+            if asset is None:
+                asset = assets.setdefault(requested_global_asset, {
+                    "family": family, "kind": "missing-source", "source_path": requested_global_asset,
+                    "source_filename": Path(requested_global_asset).name, "source_hash": None,
+                    "source_size_bytes": None, "format": None, "references": [],
+                    "converter_representation": None, "packed_runtime": None,
+                    "tad_sfx_id": None, "msu_track_id": None,
+                })
             asset["references"].append({
                 "source_file": f"OpenBOR {ENGINE_REVISION}: {ENGINE_SOURCE}",
                 "line": None,
                 "directive": "engine-global-default",
                 "semantic_event": semantic["event"],
                 "engine_global_sample": f"global_sample_list.{semantic['global']}",
+                "requested_global_asset": requested_global_asset,
+                "resolved_global_asset": resolved_global_asset,
+                "fallback": fallback,
                 "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
                 "reachability": "shipped-reachable" if semantic["mechanic_reachable"] else "content-inapplicable",
                 "snes_reachable": semantic["mechanic_reachable"],
