@@ -1,463 +1,6 @@
 {
-  "floor_count": 13,
+  "capability_union_count": 1,
   "floors": [
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 22416,
-      "common_data_sha256": "6271583d73542b9ebcc46f1539beebc34838888152b86756f1e760ed5fff9a62",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2",
-        "upper"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "RALF",
-      "margin": 38412,
-      "player": "out/ralf",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 24432,
-      "common_data_sha256": "98bd9e6d794161d48c58b7af205fe6b58bf5c64e9b3983f8167b106418ffe1e8",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "jumpattack",
-        "attack",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "JHUN",
-      "margin": 36396,
-      "player": "out/jhun",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 22416,
-      "common_data_sha256": "6271583d73542b9ebcc46f1539beebc34838888152b86756f1e760ed5fff9a62",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "JOE",
-      "margin": 38412,
-      "player": "out/joe",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 22416,
-      "common_data_sha256": "6271583d73542b9ebcc46f1539beebc34838888152b86756f1e760ed5fff9a62",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "YASHIRO",
-      "margin": 38412,
-      "player": "out/yashiro",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\METAL.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 20949,
-      "common_data_sha256": "4ba9855c7006fbb536bf5a3027c9a9f8474d432af5b8e9b1df6dc9025858671a",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2",
-        "upper"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "MOUSER",
-      "margin": 39879,
-      "player": "out/mouser",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 50948,
-      "common_data_sha256": "8ed529c244a8538fbb76a2a33093085e97f514b2cdc89ab95b33f99de18ce6fd",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack3",
-        "upper",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "FOOT01",
-      "margin": 9880,
-      "player": "out/foot01",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 12,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
-        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
-      ],
-      "common_data_bytes": 56923,
-      "common_data_sha256": "75a3cf2e131bfeca0bec41125ba8497f44a42511b46615530483e52fa7310f05",
-      "effect_count": 9,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "upper",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "ROCK",
-      "margin": 3905,
-      "player": "out/rock",
-      "sample_count": 9
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
-        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
-      ],
-      "common_data_bytes": 26844,
-      "common_data_sha256": "d8a874ce037c5b46eec8744b5f81e00477431748c9c3c65b2e6e2ea54aedf739",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2",
-        "upper"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "LEATHER",
-      "margin": 33984,
-      "player": "out/leather",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 12,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
-        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
-      ],
-      "common_data_bytes": 58453,
-      "common_data_sha256": "c4a6f9095f510fc724698c64c1321523586de2a28d9463eaa69b4969b8934b96",
-      "effect_count": 9,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "upper",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "BEBOP",
-      "margin": 2375,
-      "player": "out/bebop",
-      "sample_count": 9
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 50948,
-      "common_data_sha256": "8ed529c244a8538fbb76a2a33093085e97f514b2cdc89ab95b33f99de18ce6fd",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack3",
-        "upper",
-        "attack2"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "FOOT02",
-      "margin": 9880,
-      "player": "out/foot02",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 50948,
-      "common_data_sha256": "8ed529c244a8538fbb76a2a33093085e97f514b2cdc89ab95b33f99de18ce6fd",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2",
-        "upper"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "FOOT03",
-      "margin": 9880,
-      "player": "out/foot03",
-      "sample_count": 8
-    },
-    {
-      "asset_count": 11,
-      "assets": [
-        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
-        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
-        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
-        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
-        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
-        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
-        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
-        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
-        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
-      ],
-      "common_data_bytes": 50948,
-      "common_data_sha256": "8ed529c244a8538fbb76a2a33093085e97f514b2cdc89ab95b33f99de18ce6fd",
-      "effect_count": 8,
-      "executable_roles": [
-        "idle",
-        "walk",
-        "attack",
-        "attack2",
-        "upper"
-      ],
-      "global_events": [
-        "attack-swing",
-        "jump",
-        "landed-hit",
-        "pause-entry",
-        "ui-beep",
-        "ui-beep-secondary"
-      ],
-      "identity": "FOOT04",
-      "margin": 9880,
-      "player": "out/foot04",
-      "sample_count": 8
-    },
     {
       "asset_count": 14,
       "assets": [
@@ -537,19 +80,7 @@
       "source_sample_rate": 11025,
       "users": [
         "landed-hit",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -564,19 +95,7 @@
       "source_frames": 3376,
       "source_sample_rate": 22050,
       "users": [
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
         "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO",
         "ui-beep"
       ]
     },
@@ -593,19 +112,7 @@
       "source_sample_rate": 22050,
       "users": [
         "pause-entry",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
         "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO",
         "ui-beep-secondary"
       ]
     },
@@ -620,11 +127,7 @@
       "single_asset_common_bytes": 4250,
       "source_frames": 7472,
       "source_sample_rate": 11025,
-      "users": [
-        "player:JOE",
-        "player:RALF",
-        "player:YASHIRO"
-      ]
+      "users": []
     },
     {
       "asset": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
@@ -637,9 +140,7 @@
       "single_asset_common_bytes": 6266,
       "source_frames": 11056,
       "source_sample_rate": 11025,
-      "users": [
-        "player:JHUN"
-      ]
+      "users": []
     },
     {
       "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
@@ -680,19 +181,7 @@
       "source_sample_rate": 11025,
       "users": [
         "jump",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -734,19 +223,7 @@
       "source_sample_rate": 22050,
       "users": [
         "attack-swing",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -788,19 +265,7 @@
       "source_sample_rate": 11025,
       "users": [
         "landed-hit",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -814,9 +279,7 @@
       "single_asset_common_bytes": 32782,
       "source_frames": 58192,
       "source_sample_rate": 11025,
-      "users": [
-        "player:BEBOP"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
@@ -830,19 +293,7 @@
       "source_frames": 3376,
       "source_sample_rate": 22050,
       "users": [
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
         "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO",
         "ui-beep"
       ]
     },
@@ -859,19 +310,7 @@
       "source_sample_rate": 22050,
       "users": [
         "pause-entry",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
         "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO",
         "ui-beep-secondary"
       ]
     },
@@ -927,12 +366,7 @@
       "single_asset_common_bytes": 32782,
       "source_frames": 58192,
       "source_sample_rate": 11025,
-      "users": [
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\GET.WAV",
@@ -958,9 +392,7 @@
       "single_asset_common_bytes": 6005,
       "source_frames": 10592,
       "source_sample_rate": 11025,
-      "users": [
-        "player:ROCK"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
@@ -975,19 +407,7 @@
       "source_sample_rate": 11025,
       "users": [
         "jump",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -1001,9 +421,7 @@
       "single_asset_common_bytes": 2783,
       "source_frames": 4864,
       "source_sample_rate": 11025,
-      "users": [
-        "player:MOUSER"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -1046,19 +464,7 @@
       "source_sample_rate": 22050,
       "users": [
         "attack-swing",
-        "player:BEBOP",
-        "player:FOOT01",
-        "player:FOOT02",
-        "player:FOOT03",
-        "player:FOOT04",
-        "player:JHUN",
-        "player:JOE",
-        "player:LEATHER",
-        "player:LEO",
-        "player:MOUSER",
-        "player:RALF",
-        "player:ROCK",
-        "player:YASHIRO"
+        "player:LEO"
       ]
     },
     {
@@ -1072,9 +478,7 @@
       "single_asset_common_bytes": 8678,
       "source_frames": 15344,
       "source_sample_rate": 22050,
-      "users": [
-        "player:LEATHER"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
@@ -1087,9 +491,7 @@
       "single_asset_common_bytes": 32782,
       "source_frames": 58192,
       "source_sample_rate": 11025,
-      "users": [
-        "player:ROCK"
-      ]
+      "users": []
     },
     {
       "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
@@ -1145,14 +547,13 @@
       "single_asset_common_bytes": 7535,
       "source_frames": 13312,
       "source_sample_rate": 22050,
-      "users": [
-        "player:BEBOP"
-      ]
+      "users": []
     }
   ],
   "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",
   "policy": "baseline-policy capacity; not final shipping policy",
-  "schema_version": 1,
+  "schema_version": 2,
+  "terminology": "player capability union; not a proven always-resident floor",
   "total_distinct_effect_identities": 30,
   "total_distinct_inventory_assets": 35,
   "total_distinct_sample_identities": 30,

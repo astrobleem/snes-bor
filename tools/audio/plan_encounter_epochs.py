@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
 from production_compile import compile_production_sfx_set
 from runtime_sfx_states import KIND_GROUP, KIND_WAIT, explore_stage
-from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS
+from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS, normal_player_entries
 
 CAPACITY = 60828
 RECORD_SIZE = 10
@@ -66,9 +66,7 @@ def main():
             roster_indices = {s["roster_index"] for state in relevant for s in state["slots"] if s["alive"] and not s["prop"] and s["roster_index"] < len(ROSTER_CONFIGS)}
             prop_indices = {s["roster_index"] for state in relevant for s in state["slots"] if s["alive"] and s["prop"] and s["roster_index"] < len(ROSTER_CONFIGS)}
             pickup_types = {s["pickup_type"] for state in relevant for s in state["slots"] if s["alive"] and s["prop"]}
-            for player_index, player in enumerate(ROSTER_CONFIGS):
-                if not player["playable"]:
-                    continue
+            for player_index, player in normal_player_entries(stage["family"]):
                 whole_assets = stage_base(stage) | whole_stage_models | model_assets(player_index)
                 values = stage_base(stage) | model_assets(player_index)
                 for index in roster_indices | prop_indices:
@@ -104,7 +102,7 @@ def main():
             row.update({"common_data_bytes": int(match.group(1)), "common_data_sha256": None, "sample_count": None, "effect_count": None, "compile_error": str(exc).strip()})
         row["margin"] = CAPACITY - row["common_data_bytes"]
         row["classification"] = "fail" if row["margin"] < 0 else ("tight fit" if row["margin"] < 1024 else "comfortable fit")
-    out = {"schema_version": 1, "boundary_policy": "WAIT only; GROUP is not a boundary", "policy": "baseline-policy capacity; not final shipping policy", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "nominal_epoch_context_count": len(rows), "unique_logical_union_count": len(unique), "epochs": list(unique.values())}
+    out = {"schema_version": 2, "boundary_policy": "WAIT only; GROUP is not a boundary", "scope": "canonical source-normal player/stage contexts only; bonus runtime roster excluded", "policy": "baseline-policy capacity; not final shipping policy", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "nominal_epoch_context_count": len(rows), "unique_logical_union_count": len(unique), "epochs": list(unique.values())}
     (ROOT / "tools/audio/encounter_epoch_residency.json").write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"encounter epochs: {len(rows)} nominal contexts, {len(unique)} unique unions")
     for row in out["epochs"]:

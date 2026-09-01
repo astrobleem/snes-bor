@@ -1,4 +1,8 @@
-"""Compile persistent player/global floors and per-asset BRR cost evidence."""
+"""Compile represented-player capability unions and per-asset BRR evidence.
+
+Compatibility filename retained. These unions are not claims that every asset
+must remain resident simultaneously for an entire stage.
+"""
 from __future__ import annotations
 
 import hashlib
@@ -10,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
 from production_compile import compile_production_sfx_set
-from shipped_content import ROSTER_CONFIGS
+from shipped_content import ROSTER_CONFIGS, normal_player_entries
 
 CAPACITY = 60828
 EXECUTABLE_ROLES = {"idle", "walk", "attack", "attack2", "upper", "jump", "jumpattack", "jumpattack2", "special", "get", "attack3", "attack4", "slide", "grabattack", "freespecial"}
@@ -37,9 +41,7 @@ def main():
         return family.lower() + ":" + path.upper()
     floors = []
     all_assets = {f"{family}:{path.upper()}" for family, path in reachable}
-    for entry in ROSTER_CONFIGS:
-        if not entry["playable"]:
-            continue
+    for _, entry in normal_player_entries():
         ident = entry["source_character"].split("\\CHARS\\", 1)[1].upper()
         model = models[ident]
         values = set(globals_all)
@@ -73,7 +75,7 @@ def main():
         brr = ((sample["source_frames"] + 15) // 16) * 9
         inventory.append({"asset": asset_key, "canonical_pcm_hash": effect["canonical_pcm_hash"], "sample_identity": effect["sample_identity"], "effect_identity": effect["effect_identity"], "source_sample_rate": effect["sample_rate_hz"], "source_frames": effect["source_frames"], "duration_seconds": effect["duration_seconds"], "duration_ticks": effect["duration_ticks"], "brr_bytes": brr, "single_asset_common_bytes": result["common_data_bytes"], "users": sorted(set(users.get(asset_key, [])))})
 
-    output = {"schema_version": 1, "policy": "baseline-policy capacity; not final shipping policy", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "global_ids_hash": hashlib.sha256((ROOT / "tools/audio/sfx_global_ids.json").read_bytes()).hexdigest(), "floor_count": len(floors), "floors": floors, "inventory": inventory, "total_distinct_inventory_assets": len(inventory), "total_distinct_sample_identities": len({x["sample_identity"] for x in inventory}), "total_distinct_effect_identities": len({x["effect_identity"] for x in inventory}), "total_individual_brr_bytes": sum(x["brr_bytes"] for x in inventory)}
+    output = {"schema_version": 2, "terminology": "player capability union; not a proven always-resident floor", "policy": "baseline-policy capacity; not final shipping policy", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "global_ids_hash": hashlib.sha256((ROOT / "tools/audio/sfx_global_ids.json").read_bytes()).hexdigest(), "capability_union_count": len(floors), "floors": floors, "inventory": inventory, "total_distinct_inventory_assets": len(inventory), "total_distinct_sample_identities": len({x["sample_identity"] for x in inventory}), "total_distinct_effect_identities": len({x["effect_identity"] for x in inventory}), "total_individual_brr_bytes": sum(x["brr_bytes"] for x in inventory)}
     (ROOT / "tools/audio/persistent_floor_evidence.json").write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     for row in floors:
         print(f"{row['player']}: {row['common_data_bytes']} bytes, margin {row['margin']}, samples={row['sample_count']}, effects={row['effect_count']}")

@@ -14,14 +14,14 @@ from production_sfx import canonical_wav, duration_ticks, effect_policy, physica
 from rebuild import check_compiler_version, find_compiler
 
 
-def compile_production_sfx_set(root: Path, asset_keys, policy_name="baseline", need_binary=False, need_enums=False):
+def compile_production_sfx_set(root: Path, asset_keys, policy_name="baseline", need_binary=False, need_enums=False, allow_source_canonical=False):
     root = Path(root)
     manifest = json.loads((root / "tools/audio/audio_manifest.json").read_text(encoding="utf-8"))
     reachable = {}
     for family in manifest["families"]:
         for asset in family["assets"]:
             key = f"{family['family']}:{asset['source_path'].upper()}"
-            if asset["kind"] == "sfx" and asset["shipped_reachable"]:
+            if asset["kind"] == "sfx" and (asset["shipped_reachable"] or allow_source_canonical):
                 reachable[key] = (family, asset)
     compiler = find_compiler(None)
     compiler_version = check_compiler_version(compiler)
@@ -49,7 +49,7 @@ def compile_production_sfx_set(root: Path, asset_keys, policy_name="baseline", n
                 sample_name = f"sample{len(sample_ids):03d}"
                 sample_ids[sample_identity] = sample_name
                 (samples_dir / f"{sample_name}.wav").write_bytes(wav)
-                sample_rows.append({"name": sample_name, "source": f"samples/{sample_name}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127", "source_frames": frames, "source_duration_seconds": seconds, "duration_ticks": ticks, "sample_identity": sample_identity})
+                sample_rows.append({"name": sample_name, "source": f"samples/{sample_name}.wav", "sample_rates": [rate], "loop": "none", "evaluator": "default", "ignore_gaussian_overflow": False, "envelope": "gain F127", "source_frames": frames, "source_duration_seconds": seconds, "duration_ticks": ticks, "sample_identity": sample_identity, "brr_bytes": ((frames + 15) // 16) * 9})
             effect_identity = physical_effect_identity(wav, policy)
             if effect_identity not in effect_ids:
                 effect_name = f"fx{len(effect_ids):03d}"
@@ -81,4 +81,5 @@ def compile_production_sfx_set(root: Path, asset_keys, policy_name="baseline", n
             enum_ids = {name: int(number) for name, number in re.findall(r"\b(fx\d+)\s*=\s*(\d+)", enum_text)}
         for row in asset_rows:
             row["local_effect_id"] = enum_ids.get(row["effect_symbol"])
-        return {"common_data_bytes": len(common), "common_data_sha256": hashlib.sha256(common).hexdigest(), "common_data_blob": common if need_binary else None, "compiler": str(compiler), "compiler_version": compiler_version, "policy_name": policy_name, "logical_assets": asset_keys, "sample_count": len(sample_ids), "effect_count": len(effect_ids), "samples": sample_rows, "effects": asset_rows}
+        brr_bytes = sum(row["brr_bytes"] for row in sample_rows)
+        return {"common_data_bytes": len(common), "common_data_sha256": hashlib.sha256(common).hexdigest(), "common_data_blob": common if need_binary else None, "compiler": str(compiler), "compiler_version": compiler_version, "policy_name": policy_name, "logical_assets": asset_keys, "sample_count": len(sample_ids), "effect_count": len(effect_ids), "samples": sample_rows, "effects": asset_rows, "brr_sample_bytes": brr_bytes, "non_sample_common_bytes": len(common) - brr_bytes}

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
 from production_compile import compile_production_sfx_set
 from runtime_sfx_states import explore_stage
-from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS, source_character_identity
+from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS, normal_player_entries
 
 CAPACITY = 60828
 
@@ -53,7 +53,7 @@ def main():
             if slot["alive"] and 0 <= slot["roster_index"] < len(ROSTER_CONFIGS)
         }
         stage_models = set().union(*(model_assets(index) for index in reachable_indices)) if reachable_indices else set()
-        playable = [(i, e) for i, e in enumerate(ROSTER_CONFIGS) if e["playable"]]
+        playable = normal_player_entries(stage["family"])
         for index, player in playable:
             assets_for_context = base | stage_models | model_assets(index)
             signature = tuple(sorted(assets_for_context))
@@ -72,7 +72,7 @@ def main():
             row.update({"common_data_bytes": int(match.group(1)), "common_data_sha256": None, "sample_count": None, "effect_count": None, "compiler_version": None, "policy_name": "baseline", "compile_error": str(exc).strip()})
         row["margin"] = CAPACITY - row["common_data_bytes"]
         row["classification"] = "fail" if row["margin"] < 0 else ("tight fit" if row["margin"] < 1024 else "comfortable fit")
-    output = {"schema_version": 1, "policy": "baseline-policy capacity; not final shipping policy", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "nominal_context_count": len(STAGE_CONFIGS) * sum(e["playable"] for e in ROSTER_CONFIGS), "unique_logical_union_count": len(unique), "contexts": list(unique.values())}
+    output = {"schema_version": 2, "policy": "baseline-policy capacity; not final shipping policy", "scope": "canonical source-normal player/stage contexts only; bonus runtime roster excluded", "manifest_hash": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "nominal_context_count": sum(len(normal_player_entries(stage["family"])) for stage in STAGE_CONFIGS), "bonus_context_count": sum(len(ROSTER_CONFIGS) - len(normal_player_entries(stage["family"])) for stage in STAGE_CONFIGS), "unique_logical_union_count": len(unique), "contexts": list(unique.values())}
     out = ROOT / "tools/audio/coarse_stage_residency.json"
     out.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"coarse stage residency: {output['nominal_context_count']} nominal contexts, {len(unique)} unique unions")

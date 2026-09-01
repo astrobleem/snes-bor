@@ -38,6 +38,43 @@ ROSTER_CONFIGS = [
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TABLE", "converted_prefix": "out/table", "playable": False},
 ]
 
+# Source authority is the PAK's MODELS.TXT plus each referenced model's
+# `type` directive.  The existing runtime roster is broader than normal source
+# player selection because it also contains identities needed for AI spawn and
+# reassignment proofs.  Keep those runtime entries, but do not let them define
+# canonical player/stage capacity contexts.
+SOURCE_PLAYER_SELECTION = {
+    "bor-original": {
+        "normal": {"KULA", "MAXIMA", "MARY", "MIGHTY"},
+        "source_names": {"KULA": "KULA", "MAX": "MAXIMA", "MANDY": "MARY", "MIGHTY": "MIGHTY"},
+        "commented_player": set(),
+        "evidence": "DATA\\MODELS.TXT: uncommented load entries whose model TXT declares type player",
+    },
+    "tmnt": {
+        "normal": {"LEO"},
+        "commented_player": {"DON", "MIKE"},
+        "evidence": "data\\MODELS.TXT: leo is uncommented; don and mike are commented load entries",
+    },
+}
+
+for _entry in ROSTER_CONFIGS:
+    _identity = _entry["source_character"].split("\\CHARS\\", 1)[1].upper()
+    _source = SOURCE_PLAYER_SELECTION[_entry["family"]]
+    _is_prop = _identity.startswith("MISC\\")
+    _entry["runtime_roster_member"] = True
+    _entry["normal_player_selectable"] = _identity in _source["normal"]
+    _entry["ai_spawnable"] = not _is_prop
+    _entry["optional_bonus_player"] = not _is_prop and not _entry["normal_player_selectable"]
+
+
+def normal_player_entries(family: str | None = None):
+    """Return only source-normal players represented by the current runtime."""
+    return [
+        (i, entry) for i, entry in enumerate(ROSTER_CONFIGS)
+        if entry["normal_player_selectable"]
+        and (family is None or entry["family"] == family)
+    ]
+
 ROSTER_PREFIXES = [entry["converted_prefix"] for entry in ROSTER_CONFIGS]
 PLAYABLE_ROSTER_COUNT = sum(entry["playable"] for entry in ROSTER_CONFIGS)
 
