@@ -11,9 +11,10 @@
     "driver_offset": 116,
     "driver_size_before_patch": 3250,
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
-    "driver_size_after_patch": 3266,
-    "driver_sha256_after_patch": "56b7399e4a9c100cb1af93c66b85140b770d0356f0549756b0fe177038593a90",
-    "audio_data_sha256_after_patch": "e8392c64161346d9f4cd53d7bb0112d00889ee511e787e86f1cf775ea271d15a",
+    "driver_size_after_patch": 3274,
+    "driver_sha256_after_patch": "470db31cabf527b18b2e303057b2af93dc3fd667daef7cf5f1165804140ef3aa",
+    "audio_data_sha256_after_patch": "3b2bef62c9e954ea4a4019a5da45b40a9f51541049dfc454500d695a54ad963e",
+    "data_table": "$018D71",
     "generated_symbols": "soundwork/tad/build/tad_blob_syms.pasm",
     "rom_loader": "src/main.pasm:Tad_Init"
   },
@@ -25,10 +26,12 @@
   },
   "patch": {
     "path": "soundwork/tad/patches/tad-v0.3.0-reserve-voice0.patch",
-    "sha256": "d5e3aa5986e83630254f1adb74db42ec71d88c568e97bfa73124fd707ec94642",
+    "sha256": "a93560dad40a1853c4d3a832b4dd1f1a9c4fc527d95d5968847401edbf525417",
+    "source_sha256": "f20bbe8ce90dd9549ae8f152cd346bf8cdd653d71eb3e4ab3478cd3563aa11a8",
     "mode": "source-level build-time reservation",
     "parent_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
     "reserved_physical_voice": 0,
     "normal_sfx_voices": [6, 7]
   }
 }
+

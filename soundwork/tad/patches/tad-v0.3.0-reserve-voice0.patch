@@ -1,5 +1,5 @@
 diff --git a/audio-driver/src/audio-driver.asm b/audio-driver/src/audio-driver.asm
-index 4db042b..89414b1 100644
+index 4db042b..1485943 100644
 --- a/audio-driver/src/audio-driver.asm
 +++ b/audio-driver/src/audio-driver.asm
 @@ -68,6 +68,11 @@ LAST_MUSIC_CHANNEL = N_MUSIC_CHANNELS - 1
@@ -14,62 +14,112 @@ index 4db042b..89414b1 100644
  
  ; Using separate values for slide and triangle to simplify the rust bytecode interpreter.
  ; See: `channelSoA_volEffect_direction`
-@@ -793,7 +798,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+@@ -118,7 +123,8 @@ VOL_PAN_EFFECT_TRIANGLE_DOWN = $41
+ 
+     ; bitmask - Set if S-DSP voice channel is music, clear if sfx.
+     ; Used to disable music channel S-DSP writes that are used by sound effects.
+-    ; Bits 0-5 MUST be set.
++    ; Bits 0-5 MUST be set. Physical stream reservation is applied at the
++    ; hardware-write firewall, not by changing this internal TAD invariant.
+     ; MUST ONLY be modified by `process_sfx_channels`.
+     musicSfxChannelMask : u8
+ 
+@@ -544,7 +550,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+ 
+     ; All keys off
+     mov A, #DSP_KOFF
+-    mov Y, #$ff
++    mov Y, #STREAM_VOICE_MASK
+     movw DSPADDR, YA
  
  
-     ; Reset bit-masks
--    mov A, #$ff
-+    mov A, #STREAM_VOICE_MASK
+@@ -792,15 +798,18 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+     IsSurround:
+ 
+ 
+-    ; Reset bit-masks
++    ; Reset bit-masks. echoDirty and sfx_oneChannelSfxId are not physical
++    ; voice masks and intentionally retain the upstream $FF sentinel.
+     mov A, #$ff
      mov echoDirty, A
++
      mov io_musicChannelsMask, A
      mov musicSfxChannelMask, A
-@@ -974,6 +979,7 @@ ClearEchoBufferEnd:
+     mov volShadowDirty_music, A
+     mov keyOnMask_music, A
  
-     .assert page(pendingNon_music) != 0
-     mov A, pendingNon_music
-+    and A, #STREAM_VOICE_MASK
-     mov nonShadow_music, A
+     .assert N_SFX_CHANNELS == 2
++    mov A, #$ff
+     mov sfx_oneChannelSfxId+0, A
+     mov sfx_oneChannelSfxId+1, A
  
-     ; Clears NON on the tick after key-off
-@@ -1042,6 +1048,7 @@ ClearEchoBufferEnd:
-     ; musicSfxChannelMask = a = (a | keyOffShadow_sfx) ^ $ff
-     or  A, keyOffShadow_sfx
-     eor A, #$ff
+@@ -982,6 +991,7 @@ ClearEchoBufferEnd:
+ 
+     ; Send KOFF commands to the DSP
+     and A, musicSfxChannelMask
 +    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_KOFF
+     movw DSPADDR, YA
+@@ -1045,8 +1055,11 @@ ClearEchoBufferEnd:
      mov musicSfxChannelMask, A
  
      ; Write keyOffShadow_sfx to the DSP
-@@ -1307,6 +1314,7 @@ _mutedChannels = zpTmp
-     ; MUST not use X
-     ; y = a = ((eonShadow_music ^ eonShadow_sfx) & sfxMusicEchoNoiseMask) ^ eonShadow_music
-     mov A, eonShadow_music
+-    mov A, #DSP_KOFF
+     mov Y, keyOffShadow_sfx
++    mov A, Y
 +    and A, #STREAM_VOICE_MASK
++    mov Y, A
++    mov A, #DSP_KOFF
+     movw DSPADDR, YA
+ 
+ 
+@@ -1310,6 +1323,7 @@ _mutedChannels = zpTmp
      eor A, eonShadow_sfx
      and A, sfxMusicEchoNoiseMask
      eor A, eonShadow_music
-@@ -1336,6 +1344,9 @@ _mutedChannels = zpTmp
++    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_EON
+     movw DSPADDR, YA
+@@ -1320,6 +1334,7 @@ _mutedChannels = zpTmp
+     mov A, nonShadow_music
+     and A, musicSfxChannelMask
+     or  A, nonShadow_sfx
++    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_NON
+     movw DSPADDR, YA
+@@ -1334,8 +1349,11 @@ _mutedChannels = zpTmp
+         ; processing music channels
+ 
          ; Write pmonShadow to PMON
-         mov A, #DSP_PMON
+-        mov A, #DSP_PMON
          mov Y, pmonShadow
 +        mov A, Y
 +        and A, #STREAM_VOICE_MASK
 +        mov Y, A
++        mov A, #DSP_PMON
          movw DSPADDR, YA
  
          mov A, noiseLock
-@@ -1809,11 +1820,15 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+@@ -1382,6 +1400,9 @@ _mutedChannels = zpTmp
  
- ; IN: Y = channel mask
- .proc cmd__set_music_channels
+ 
+     ; Y = keyOnShadow_*
 +    mov A, Y
 +    and A, #STREAM_VOICE_MASK
 +    mov Y, A
-     mov io_musicChannelsMask, Y
+     mov A, #DSP_KON
+     movw DSPADDR, YA
  
-     ; key-off muted channels
-     mov A, Y
-     eor A, #$ff
+@@ -1779,6 +1800,9 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+ 
+ ; IN: Y = channels
+ .proc __cmd__keyoff
++    mov A, Y
 +    and A, #STREAM_VOICE_MASK
-     tset1 keyOffShadow_music
++    mov Y, A
+     mov A, #DSP_KOFF
+     movw DSPADDR, YA
  
-     ret

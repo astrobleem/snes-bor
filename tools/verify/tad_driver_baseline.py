@@ -27,10 +27,20 @@ def main() -> int:
     assert len(driver) == size, "generated audio blob is shorter than driver range"
     assert sha(driver) == m["runtime_graph"]["driver_sha256_after_patch"]
     text = AUDIO_ASM.read_text(encoding="utf-8")
-    assert re.search(r"Tad_AudioDriver_SIZE\s*=\s*3266", text)
+    asm_size = int(re.search(r"Tad_AudioDriver_SIZE\s*=\s*(\d+)", text).group(1))
+    assert asm_size == size
     syms = BLOB_SYMS.read_text(encoding="utf-8")
-    assert "Tad_AudioDriver_Bin = $0180A7" in syms
-    assert "Tad_AudioDriver_SIZE = 3266" in syms
+    main_sym = (ROOT / "src/main.sym").read_text(encoding="utf-8-sig", errors="replace")
+    blob_match = re.search(r"^\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+__Tad_AudioData_0\s*$", main_sym, re.M)
+    assert blob_match, "fresh main.sym lacks __Tad_AudioData_0"
+    blob_base = (int(blob_match.group(1), 16) << 16) | int(blob_match.group(2), 16)
+    sym_offset = int(re.search(r"Tad_AudioDriver_Bin = \$([0-9A-Fa-f]+)", syms).group(1), 16)
+    sym_size = int(re.search(r"Tad_AudioDriver_SIZE = (\d+)", syms).group(1))
+    assert sym_offset == blob_base + offset
+    assert sym_size == size
+    assert sha(blob) == m["runtime_graph"]["audio_data_sha256_after_patch"]
+    data_table = int(re.search(r"Tad_DataTable = \$([0-9A-Fa-f]+)", syms).group(1), 16)
+    assert m["runtime_graph"]["data_table"] == f"${data_table:06X}"
     vendor = VENDOR.read_bytes()
     assert len(vendor) == m["legacy_vendor"]["size"]
     assert sha(vendor) == m["legacy_vendor"]["sha256"]
