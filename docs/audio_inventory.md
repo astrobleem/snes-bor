@@ -193,3 +193,44 @@ epochs if a whole stage does not fit. Asynchronous encounter-boundary loading
 has been transport-tested but not yet accepted as a gameplay architecture.
 The action-time whole-common plan is retained as reachability and capacity
 evidence, not as the runtime design.
+
+## Coarse working-set evidence
+
+The first baseline-policy whole-stage pass used the normal `(stage, selected
+player)` key. It produced 130 nominal contexts and 16 exact logical unions.
+Several fit, but whole-stage residency does not fit all required contexts:
+
+| Context users | Common bytes | Margin |
+|---|---:|---:|
+| BOR stage(s), Ralf/Joe/Yashiro | 47,272 | 13,556 |
+| BOR stage(s), Leo | 117,208 | -56,380 |
+| TMNT stages, Ralf/Joe/Yashiro | 59,152 | 1,676 |
+| TMNT stages, Jhun | 61,168 | -340 |
+| TMNT stages, Bebop | 105,133 | -44,305 |
+| TMNT stages, Leo | 125,300 | -64,472 |
+
+These are baseline-policy capacity values, not final shipping policy values.
+They use the shared duration-aware production compiler and do not include
+other playable characters merely because the optional live Select behavior
+exists.
+
+The conservative WAIT-delimited follow-up produced 728 nominal epoch contexts
+and 60 exact logical unions. WAIT is the only boundary used; GROUP records are
+reported but are not treated as hard seams because GROUP does not clamp the
+camera or guarantee old-content lifetime. Some small BOR epoch unions fit, but
+many conservative TMNT unions still overflow, with a largest measured union of
+179,721 bytes. This is evidence that epoch projection needs further source and
+carry-over refinement before declaring a platform limit; it is not a final
+fine-residency decision.
+
+No source-level `GO`, `GO!`, or `LET'S GO` progression cue was found in the
+audited level text. No historical asset-swapping behavior is attributed to
+these seams.
+
+Preliminary residency result: **WHOLE-STAGE RESIDENCY FAILS -- ENCOUNTER EPOCH
+ANALYSIS REQUIRED**.
+
+The existing live Select-button reselect remains optional/non-core behavior.
+If retained, it may use an intentionally disruptive same-stage/new-player
+reload and must not inflate normal stage/player working sets. Normal gameplay
+assumes player selection occurs before stage entry.
