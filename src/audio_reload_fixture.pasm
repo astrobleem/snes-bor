@@ -57,11 +57,23 @@ AudioReloadFixtureStateAfterFinish = $7E2A06
 AudioReloadFixtureFinalState = $7E2A07
 AudioReloadFixtureMainLoopBefore = $7E2A08
 AudioReloadFixtureMainLoopAfter = $7E2A0A
-AudioReloadFixtureRawNmiCounter = $7E2A0C
-AudioReloadFixtureNmiCommitStart = $7E2A0D
-AudioReloadFixtureNmiCommitEnd = $7E2A0F
 AudioReloadFixtureTransferChunks = $7E2A11
 AudioReloadFixtureMainLoopCounter = $7E2A13
+AudioReloadFixtureCallbackCount = $7E2A15
+AudioReloadFixtureCallbackBank = $7E2A16
+AudioReloadFixtureCallbackAddr = $7E2A17
+AudioReloadFixtureCallbackSize = $7E2A19
+AudioReloadFixtureQueuedBank = $7E2A1B
+AudioReloadFixtureQueuedAddr = $7E2A1C
+AudioReloadFixtureQueuedSize = $7E2A1E
+AudioReloadFixtureRawNmiCounter = $7E2A20
+AudioReloadFixtureRawNmiStart = $7E2A21
+AudioReloadFixtureRawNmiEnd = $7E2A22
+AudioReloadFixtureNmiFrameStart = $7E2A23
+AudioReloadFixtureNmiFrameEnd = $7E2A24
+AudioReloadFixtureMainLoopStart = $7E2A25
+AudioReloadFixtureMainLoopEnd = $7E2A26
+AudioReloadFixtureQueuedCaptured = $7E2A27
 AudioReloadFixtureCommonSize = 58546
 AudioReloadFixtureBeat1LocalId = 0
 
@@ -985,6 +997,9 @@ TadPrivate_Loader_SetDataToTransfer:
 .i16
 ;; DB access lowram
 TadPrivate_Loader_TransferData:
+    lda.l AudioReloadFixtureTransferChunks
+    inc a
+    sta.l AudioReloadFixtureTransferChunks
     ; Early exit if the loader is not ready
     ;
     ; This test doubles as a lock for the previous transfer.
@@ -1441,7 +1456,9 @@ Tad_Process__NotPauseOrPlay:
 ; [assert] assert TAD__FIRST_LOADING_STATE > TAD__FIRST_WAITING_STATE, error
 ; [assert] assert TAD__FIRST_LOADING_STATE = TadState::WAITING_FOR_LOADER_SONG + 1, error
         cmp #TAD__FIRST_LOADING_STATE
-        bcs TadPrivate_Process_Loading
+        bcc TadPrivate_Process__NotLoadingBranch
+        brl TadPrivate_Process_Loading
+TadPrivate_Process__NotLoadingBranch:
         cmp #TAD__FIRST_WAITING_STATE
         bcs TadPrivate_Process_WaitingForLoader
 
@@ -1550,7 +1567,7 @@ TadPrivate_Process_WaitingForLoader:
 ;     the zero padding at the head of the audio blob: same guarantee, no
 ;     dependence on Poppy's estimation pass at all.
 TadPrivate_Process_WaitingForLoader__LoadData:
-    jsl LoadAudioData
+    jsl AudioReloadFixture_LoadDataDispatch
     bcs __anon10
         ; LoadAudioData returned false
     TadPrivate_Process_WaitingForLoader__UseBlankSong:
@@ -1564,6 +1581,29 @@ TadPrivate_Process_WaitingForLoader__LoadData:
     ; A:X = data address
     ; Y = data size
     jsr TadPrivate_Loader_SetDataToTransfer
+
+    lda.l TadPrivate_dataToTransfer_bank
+    sta.l AudioReloadFixtureQueuedBank
+    lda.l AudioReloadFixtureCallbackCount
+    cmp #1
+    beq AudioReloadFixture_CheckQueuedCapture
+    jmp AudioReloadFixture_SkipQueuedCapture
+AudioReloadFixture_CheckQueuedCapture:
+    lda.l AudioReloadFixtureQueuedCaptured
+    beq AudioReloadFixture_CaptureQueued
+    jmp AudioReloadFixture_SkipQueuedCapture
+AudioReloadFixture_CaptureQueued:
+    rep #$20
+.a16
+    txa
+    sta.l AudioReloadFixtureQueuedAddr
+    tya
+    sta.l AudioReloadFixtureQueuedSize
+    sep #$20
+.a8
+    lda #1
+    sta.l AudioReloadFixtureQueuedCaptured
+AudioReloadFixture_SkipQueuedCapture:
 
     ; Must set state AFTER the `LoadAudioData` call.
     ; `LoadAudioData` might call `Tad_FinishLoadingData`.
@@ -2175,21 +2215,29 @@ Tad_BlankSongByte:
     ; TadPrivate_Process_WaitingForLoader__LoadData.
     .db $00
 
-.org $B050
+.org $B700
 AudioReloadFixture_LoadDataDispatch:
 .a8
     cmp #0
     bne AudioReloadFixture_LoadDataDispatch__production
     lda.l AudioReloadFixtureEnabled
     beq AudioReloadFixture_LoadDataDispatch__production
+    lda.l AudioReloadFixtureCallbackCount
+    inc a
+    sta.l AudioReloadFixtureCallbackCount
     rep #$30
 .a16
     lda #AudioReloadFixtureCommonSize
     tay
+    sta.l AudioReloadFixtureCallbackSize
     ldx #$8000
+    phx
+    pla
+    sta.l AudioReloadFixtureCallbackAddr
     sep #$20
 .a8
     lda #11
+    sta.l AudioReloadFixtureCallbackBank
     sec
     rtl
 AudioReloadFixture_LoadDataDispatch__production:
@@ -2205,9 +2253,30 @@ AudioReloadFixture_Process:
     sta.l AudioReloadFixtureStateAfterProcess
     rtl
 AudioReloadFixture_Finish:
+    lda.l TadPrivate_state
+    cmp #LOADING_COMMON_AUDIO_DATA
+    bne AudioReloadFixture_Finish__no_common_snapshot
+    lda.l AudioReloadFixtureRawNmiCounter
+    sta.l AudioReloadFixtureRawNmiStart
+    lda.l Nmi_FrameCounter
+    sta.l AudioReloadFixtureNmiFrameStart
+    lda.l AudioReloadFixtureMainLoopCounter
+    sta.l AudioReloadFixtureMainLoopStart
+    lda #0
+    sta.l AudioReloadFixtureTransferChunks
+AudioReloadFixture_Finish__no_common_snapshot:
     jsl Tad_FinishLoadingData
     lda.l TadPrivate_state
     sta.l AudioReloadFixtureStateAfterFinish
+    cmp #WAITING_FOR_LOADER_SONG
+    bne AudioReloadFixture_Finish__no_common_end
+    lda.l AudioReloadFixtureRawNmiCounter
+    sta.l AudioReloadFixtureRawNmiEnd
+    lda.l Nmi_FrameCounter
+    sta.l AudioReloadFixtureNmiFrameEnd
+    lda.l AudioReloadFixtureMainLoopCounter
+    sta.l AudioReloadFixtureMainLoopEnd
+AudioReloadFixture_Finish__no_common_end:
     jsr AudioReloadFixture_AfterFinish
     rtl
 AudioReloadFixture_Request:
@@ -2221,6 +2290,8 @@ AudioReloadFixture_Request:
     sta.l AudioReloadFixtureRequestCount
     lda.l TadPrivate_state
     sta.l AudioReloadFixtureStateBefore
+    lda #0
+    sta.l AudioReloadFixtureTransferChunks
     jsr Tad_ReloadCommonAudioData
     lda #0
     jsl Tad_LoadSong
@@ -2351,7 +2422,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/allocate_cgram.pasm"
 .include "core/oop.pasm"
 .include "core/screen.pasm"
-.include "core/nmi.pasm"
+.include "core/nmi_audio_reload_fixture.pasm"
 .include "core/oam.pasm"
 .include "core/stream_cache.pasm"
 .include "core/stream_cache_fp.pasm"
@@ -11098,7 +11169,7 @@ Hud_Play__text_done:
 TestSprite32x48:
     .incbin "assets/test_sprite_32x48.bin"
 
-.org $FC00
+.org $FC10
 
 scpu_boot:
     sei
@@ -11548,6 +11619,7 @@ Boot_SetPlayfieldBorder__go:
     sta.l AudioReloadFixtureReady
     sta.l AudioReloadFixtureBeatQueued
     sta.l AudioReloadFixtureRequestCount
+    sta.l AudioReloadFixtureQueuedCaptured
     rep #$10
 .i16
     jsl Tad_Init
