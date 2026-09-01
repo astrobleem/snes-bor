@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
 from production_compile import compile_production_sfx_set
+from runtime_sfx_states import explore_stage
 from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS, source_character_identity
 
 CAPACITY = 60828
@@ -45,14 +46,22 @@ def main():
     unique = {}
     for stage in STAGE_CONFIGS:
         base = stage_assets(stage)
+        reachable_indices = {
+            slot["roster_index"]
+            for state in explore_stage(stage)
+            for slot in state["slots"]
+            if slot["alive"] and 0 <= slot["roster_index"] < len(ROSTER_CONFIGS)
+        }
+        stage_models = set().union(*(model_assets(index) for index in reachable_indices)) if reachable_indices else set()
         playable = [(i, e) for i, e in enumerate(ROSTER_CONFIGS) if e["playable"]]
         for index, player in playable:
-            assets_for_context = base | model_assets(index)
+            assets_for_context = base | stage_models | model_assets(index)
             signature = tuple(sorted(assets_for_context))
             row = unique.setdefault(signature, {"stages": [], "players": [], "assets": list(signature)})
             row["stages"].append(stage["family"] + ":" + stage["source_level"])
             row["players"].append(player["converted_prefix"])
     for row in unique.values():
+        row["whole_stage_context_id"] = hashlib.sha256(json.dumps(sorted(row["assets"]), separators=(",", ":")).encode()).hexdigest()
         try:
             result = compile_production_sfx_set(ROOT, row["assets"], policy_name="baseline")
             row.update({k: result[k] for k in ("common_data_bytes", "common_data_sha256", "sample_count", "effect_count", "compiler_version", "policy_name")})

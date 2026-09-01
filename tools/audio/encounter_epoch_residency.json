@@ -215,7 +215,24 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ],
+      "whole_stage_common_data_bytes": 56045,
+      "whole_stage_context_id": "e56d7da658f0653846ac13eed12b1722b587520ace98f026775c03586de1cb0c",
+      "whole_stage_margin": 4783
     },
     {
       "assets": [
@@ -306,7 +323,25 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "whole_stage_common_data_bytes": 58798,
+      "whole_stage_context_id": "f71c4befac10dc3047262a878bb409676c556515e24145af014e561c84828e44",
+      "whole_stage_margin": 2030
     },
     {
       "assets": [
@@ -524,7 +559,25 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 88797,
+      "whole_stage_context_id": "82749585ca32f3547777daa4bf62fe2fd547769cc2cbc3c90ed745b872fdc135",
+      "whole_stage_margin": -27969
     },
     {
       "assets": [
@@ -618,7 +671,27 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 103420,
+      "whole_stage_context_id": "c8598859d9a9a454db51e139098e59787bb1a3f7d56dac4ae7ed82a1ced92df6",
+      "whole_stage_margin": -42592
     },
     {
       "assets": [
@@ -710,7 +783,25 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 64693,
+      "whole_stage_context_id": "26f23f3bb7faca38dc47af9d6164296a55b55067c8573995e1ea7176cc078105",
+      "whole_stage_margin": -3865
     },
     {
       "assets": [
@@ -804,7 +895,27 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 106246,
+      "whole_stage_context_id": "cecd38e7ddf5cf370cb9dbc8417586771e8c53ba496bb0e902fd017bf19ee38e",
+      "whole_stage_margin": -45418
     },
     {
       "assets": [
@@ -901,7 +1012,30 @@
         12,
         14,
         25
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 130201,
+      "whole_stage_context_id": "14128ce9a64f5105eb29c03ad15bcbc5f3d25e4300fd1c3c08d6b3dedd6da405",
+      "whole_stage_margin": -69373
     },
     {
       "assets": [
@@ -975,7 +1109,24 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "whole_stage_common_data_bytes": 58097,
+      "whole_stage_context_id": "c6d3c0ae3fe3d655bdd953be107e047441f4291db46f443f13ebef69594bf241",
+      "whole_stage_margin": 2731
     },
     {
       "assets": [
@@ -1029,7 +1180,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "whole_stage_common_data_bytes": 60850,
+      "whole_stage_context_id": "b53a757cb53e5507d3d579c1018c43138262f7d8fc80e42f4a4c153a5a1bd64e",
+      "whole_stage_margin": -22
     },
     {
       "assets": [
@@ -1105,7 +1274,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 90849,
+      "whole_stage_context_id": "ae2756dce1ea74343e80c0b6de91dcec758da8ce3820b64a3e83956bebf94e8e",
+      "whole_stage_margin": -30021
     },
     {
       "assets": [
@@ -1162,7 +1349,27 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 105472,
+      "whole_stage_context_id": "02b7efc129609ad1db16058e25ee31a0dce705c16025e462fac4c57adbfe5bdf",
+      "whole_stage_margin": -44644
     },
     {
       "assets": [
@@ -1217,7 +1424,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 66745,
+      "whole_stage_context_id": "b02d8abab67ae8a439420db236869bb8f5607706ccd3a741828f4287db134a55",
+      "whole_stage_margin": -5917
     },
     {
       "assets": [
@@ -1274,7 +1499,27 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 108298,
+      "whole_stage_context_id": "5b239eb0758e5727e3cea0c27564ddabdb0c59c01aa0ee7b0dade272d914b877",
+      "whole_stage_margin": -47470
     },
     {
       "assets": [
@@ -1334,7 +1579,30 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 132253,
+      "whole_stage_context_id": "5b082448b02026c64f272fc14d41badeb2143d0c03169de1ed2ee741296dcd9e",
+      "whole_stage_margin": -71425
     },
     {
       "assets": [
@@ -1551,7 +1819,24 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "whole_stage_common_data_bytes": 58097,
+      "whole_stage_context_id": "c6d3c0ae3fe3d655bdd953be107e047441f4291db46f443f13ebef69594bf241",
+      "whole_stage_margin": 2731
     },
     {
       "assets": [
@@ -1644,7 +1929,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "whole_stage_common_data_bytes": 60850,
+      "whole_stage_context_id": "b53a757cb53e5507d3d579c1018c43138262f7d8fc80e42f4a4c153a5a1bd64e",
+      "whole_stage_margin": -22
     },
     {
       "assets": [
@@ -1863,7 +2166,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 90849,
+      "whole_stage_context_id": "ae2756dce1ea74343e80c0b6de91dcec758da8ce3820b64a3e83956bebf94e8e",
+      "whole_stage_margin": -30021
     },
     {
       "assets": [
@@ -1958,7 +2279,27 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 105472,
+      "whole_stage_context_id": "02b7efc129609ad1db16058e25ee31a0dce705c16025e462fac4c57adbfe5bdf",
+      "whole_stage_margin": -44644
     },
     {
       "assets": [
@@ -2051,7 +2392,25 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 66745,
+      "whole_stage_context_id": "b02d8abab67ae8a439420db236869bb8f5607706ccd3a741828f4287db134a55",
+      "whole_stage_margin": -5917
     },
     {
       "assets": [
@@ -2146,7 +2505,27 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 108298,
+      "whole_stage_context_id": "5b239eb0758e5727e3cea0c27564ddabdb0c59c01aa0ee7b0dade272d914b877",
+      "whole_stage_margin": -47470
     },
     {
       "assets": [
@@ -2244,7 +2623,30 @@
         26,
         32,
         40
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\GET.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 132253,
+      "whole_stage_context_id": "5b082448b02026c64f272fc14d41badeb2143d0c03169de1ed2ee741296dcd9e",
+      "whole_stage_margin": -71425
     },
     {
       "assets": [
@@ -2339,7 +2741,25 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 109353,
+      "whole_stage_context_id": "e134d677fb880001458364508bcdfffaf425a7644c9da573eeaabc0f26ef79cd",
+      "whole_stage_margin": -48525
     },
     {
       "assets": [
@@ -2666,7 +3086,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 115589,
+      "whole_stage_context_id": "22c8e1a37d627578e3e301646e66ff4171dc2c0d2a8102c03329e2d9e4543ad0",
+      "whole_stage_margin": -54761
     },
     {
       "assets": [
@@ -2720,7 +3159,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 112106,
+      "whole_stage_context_id": "7b56276aa2cc880cc4e4be4b3168166623b6cc23e1c39d90c46958a251cf8cf7",
+      "whole_stage_margin": -51278
     },
     {
       "assets": [
@@ -2816,7 +3274,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 142105,
+      "whole_stage_context_id": "3435ca1c6ba16484b537fa39414478073124cb95fb62ff33590876f08f859fcb",
+      "whole_stage_margin": -81277
     },
     {
       "assets": [
@@ -2872,7 +3349,28 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 156728,
+      "whole_stage_context_id": "fdd5bf73c9ab3874960944e0abbb07658a0875ffd2741a0200cfb6a94d7c8623",
+      "whole_stage_margin": -95900
     },
     {
       "assets": [
@@ -2926,7 +3424,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 118001,
+      "whole_stage_context_id": "2fe7d7a7e3f0fd93cc12926917883d4f2423b84254354993716660325d95da2a",
+      "whole_stage_margin": -57173
     },
     {
       "assets": [
@@ -2984,7 +3501,30 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 179721,
+      "whole_stage_context_id": "2e0d0946fc19acd4ecb3bcff62f1422f974645445db0489ee1b3f8343c2f2576",
+      "whole_stage_margin": -118893
     },
     {
       "assets": [
@@ -3346,7 +3886,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 112763,
+      "whole_stage_context_id": "813bf63843348409c7249844a97656e2fc4657469f6bece03af0c1256dad7e66",
+      "whole_stage_margin": -51935
     },
     {
       "assets": [
@@ -3434,7 +3993,25 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 108543,
+      "whole_stage_context_id": "0f045674c46f518b3efd416c0e98c2466b5be78ba3b55a3fcfdd72e7c9f7114b",
+      "whole_stage_margin": -47715
     },
     {
       "assets": [
@@ -3488,7 +4065,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 111296,
+      "whole_stage_context_id": "53b460e37e864f20858ba0f8934f23cbba8487066c29edd30590904ed13ed186",
+      "whole_stage_margin": -50468
     },
     {
       "assets": [
@@ -3584,7 +4180,26 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 141295,
+      "whole_stage_context_id": "c575f8986e6ff1625413aaf70a59602d9f479b11823e04f187b64d2dc2a13936",
+      "whole_stage_margin": -80467
     },
     {
       "assets": [
@@ -3640,7 +4255,28 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 158744,
+      "whole_stage_context_id": "a2855b631dab0d04a521c90fceba54c779820f94d5ad8a61921b4dfd449b1bc3",
+      "whole_stage_margin": -97916
     },
     {
       "assets": [
@@ -3698,7 +4334,30 @@
       ],
       "wait_boundaries": [
         2
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 178911,
+      "whole_stage_context_id": "ea4cc5151b9f3fd9e113793cbdf04ffb57a2c81b12e691f6aead5aa41bdfd553",
+      "whole_stage_margin": -118083
     },
     {
       "assets": [
@@ -3776,7 +4435,23 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 67800,
+      "whole_stage_context_id": "e3587a1357d7c51143e340217cc5d54bd9ec1c75a207c15ce4df78b14a675af1",
+      "whole_stage_margin": -6972
     },
     {
       "assets": [
@@ -3833,7 +4508,23 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 69816,
+      "whole_stage_context_id": "bdbca113ff9bcbf0ef4f4f2baad33d440ed5861e611231a262a383dcbf7ff42e",
+      "whole_stage_margin": -8988
     },
     {
       "assets": [
@@ -3883,7 +4574,23 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 66333,
+      "whole_stage_context_id": "581fc7034d7b4e628521a9374a73457471b7ae6516732875051669d82f0618bd",
+      "whole_stage_margin": -5505
     },
     {
       "assets": [
@@ -3975,7 +4682,23 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 96332,
+      "whole_stage_context_id": "8605ba888333c6d0faa34d30f59af274c314ebf0fc9fe031edfc7b7751632f70",
+      "whole_stage_margin": -35504
     },
     {
       "assets": [
@@ -4026,7 +4749,24 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 102307,
+      "whole_stage_context_id": "45ff5156fadce0e1a4a4b0a502186af7abfef56f13453433203c7f940a8ba93a",
+      "whole_stage_margin": -41479
     },
     {
       "assets": [
@@ -4075,7 +4815,22 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 63580,
+      "whole_stage_context_id": "5da1e85551e5a89e6b65e65bdf7a8b34434ccc51d351d522555b7bf79164488e",
+      "whole_stage_margin": -2752
     },
     {
       "assets": [
@@ -4127,7 +4882,25 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 113781,
+      "whole_stage_context_id": "4f46c3e369f422318f7e5cbc10ecbeb42f427da25dc7f4b36cfe4f75168d483a",
+      "whole_stage_margin": -52953
     },
     {
       "assets": [
@@ -4181,7 +4954,27 @@
       ],
       "wait_boundaries": [
         1
-      ]
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 133948,
+      "whole_stage_context_id": "fc3906f65e9a64cc00eee23090d53b48732c16095924925d5f8b355eb6efa5fb",
+      "whole_stage_margin": -73120
     },
     {
       "assets": [
@@ -5194,7 +5987,23 @@
         26,
         43,
         62
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 65388,
+      "whole_stage_context_id": "fb2f15b0db649672444e1340d41665613b7c07e7bf28b0696b8e1c00ffe583b0",
+      "whole_stage_margin": -4560
     },
     {
       "assets": [
@@ -5473,7 +6282,24 @@
         26,
         43,
         62
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 68141,
+      "whole_stage_context_id": "418bbba04ddcf2f9d57d8f2f06d1e3a9d64d6f171a12d05e8ea6c05da9c8eb73",
+      "whole_stage_margin": -7313
     },
     {
       "assets": [
@@ -6466,7 +7292,24 @@
         26,
         43,
         62
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 98140,
+      "whole_stage_context_id": "d4c405ec481dda40920d99b74120d2c69ad0e7a1d60e3cbac00174e77e966c47",
+      "whole_stage_margin": -37312
     },
     {
       "assets": [
@@ -6745,7 +7588,24 @@
         26,
         43,
         62
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "whole_stage_common_data_bytes": 74036,
+      "whole_stage_context_id": "60870b1e06a0d9c60b15c3fd22b3ae4efa15911ec6b87c0857b635be8c6763ba",
+      "whole_stage_margin": -13208
     },
     {
       "assets": [
@@ -7028,7 +7888,28 @@
         26,
         43,
         62
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 135756,
+      "whole_stage_context_id": "a23aec5f0da6a238cb42e9e78780b38b20c40782f4a924d54ac5668fa4292faa",
+      "whole_stage_margin": -74928
     },
     {
       "assets": [
@@ -7085,7 +7966,27 @@
         43,
         50,
         57
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 115516,
+      "whole_stage_context_id": "01ffc2aefc11eb1396ad1efbe53d51a989d33d848caff22633dd5a4e6768e9d0",
+      "whole_stage_margin": -54688
     },
     {
       "assets": [
@@ -7163,7 +8064,27 @@
         43,
         50,
         57
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 145515,
+      "whole_stage_context_id": "f6fc8919fc39b0d9d0db9d2cff943383d1c8304dc9af01b889f02981338cce3f",
+      "whole_stage_margin": -84687
     },
     {
       "assets": [
@@ -7229,7 +8150,29 @@
         43,
         50,
         57
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 162964,
+      "whole_stage_context_id": "7c5fc8d9d9665ddda5a0dbdd47cbbaf101547dd7b6dbcf618aa8da2b3f8f2ebb",
+      "whole_stage_margin": -102136
     },
     {
       "assets": [
@@ -7290,7 +8233,31 @@
         43,
         50,
         57
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 183131,
+      "whole_stage_context_id": "2dd0cdfe38a5503a19bf7c7c844f1182e4d05241aa6aa05aadb6877b3e0f0c6f",
+      "whole_stage_margin": -122303
     },
     {
       "assets": [
@@ -7352,7 +8319,27 @@
         69,
         74,
         81
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 118342,
+      "whole_stage_context_id": "8cf60ccb9b889205ad86e91e01669481638122ab163bb4772865ca0716bbe8df",
+      "whole_stage_margin": -57514
     },
     {
       "assets": [
@@ -7435,7 +8422,27 @@
         69,
         74,
         81
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 148341,
+      "whole_stage_context_id": "8cdcc0b0ddd25ba36ca3e5e7eaad35c9f32c111dfbda9008871f5ead36d4d404",
+      "whole_stage_margin": -87513
     },
     {
       "assets": [
@@ -7497,7 +8504,27 @@
         69,
         74,
         81
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 124237,
+      "whole_stage_context_id": "de9c63103a02fe38b85843a002fb68ebcd57177d5391b92b1c1834553c2f2402",
+      "whole_stage_margin": -63409
     },
     {
       "assets": [
@@ -7563,7 +8590,31 @@
         69,
         74,
         81
-      ]
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 185957,
+      "whole_stage_context_id": "2b53cca7113318a668eca34ab0bd534aaa16a34e60418a60b439eec7658a9228",
+      "whole_stage_margin": -125129
     },
     {
       "assets": [
@@ -7603,7 +8654,22 @@
           "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
         }
       ],
-      "wait_boundaries": []
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 61168,
+      "whole_stage_context_id": "235a3d4a955ffcf4721a1dba9614ba852037886328f299e87b8bd76ae7105fe5",
+      "whole_stage_margin": -340
     },
     {
       "assets": [
@@ -7644,7 +8710,23 @@
           "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
         }
       ],
-      "wait_boundaries": []
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 63921,
+      "whole_stage_context_id": "eb254f415ca34534ce946a9039a941ea4f13d4e9e140c3896f5959d251c279d2",
+      "whole_stage_margin": -3093
     },
     {
       "assets": [
@@ -7706,7 +8788,23 @@
           "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
         }
       ],
-      "wait_boundaries": []
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "whole_stage_common_data_bytes": 93920,
+      "whole_stage_context_id": "4801498c3c831ccf3b198eaf94e8808acb68e9637c0cfa380de3d8d8170bfb5d",
+      "whole_stage_margin": -33092
     },
     {
       "assets": [
@@ -7749,7 +8847,25 @@
           "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
         }
       ],
-      "wait_boundaries": []
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 111369,
+      "whole_stage_context_id": "7aaeec73aa75002969fd3d8eb7f14bec3d3cf02b82affe82ec70cb7eda7574bd",
+      "whole_stage_margin": -50541
     },
     {
       "assets": [
@@ -7794,7 +8910,27 @@
           "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
         }
       ],
-      "wait_boundaries": []
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 131536,
+      "whole_stage_context_id": "84443c2a28ef38353eea145f0b6acd02a3b8c67d33e91e7f6d752d38090e797c",
+      "whole_stage_margin": -70708
     }
   ],
   "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",

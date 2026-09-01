@@ -234,3 +234,43 @@ The existing live Select-button reselect remains optional/non-core behavior.
 If retained, it may use an intentionally disruptive same-stage/new-player
 reload and must not inflate normal stage/player working sets. Normal gameplay
 assumes player selection occurs before stage entry.
+
+## Persistent floor and sample-cost evidence
+
+The persistent player/global floor was compiled separately from encounter
+content. Every selectable player fits under the 60,828-byte common-data limit:
+
+| Player | Common bytes | Margin | Samples | Effects |
+|---|---:|---:|---:|---:|
+| Ralf | 22,416 | 38,412 | 8 | 8 |
+| Jhun | 24,432 | 36,396 | 8 | 8 |
+| Joe | 22,416 | 38,412 | 8 | 8 |
+| Yashiro | 22,416 | 38,412 | 8 | 8 |
+| Mouser | 20,949 | 39,879 | 8 | 8 |
+| Foot01/02/03/04 | 50,948 | 9,880 | 8 | 8 |
+| Rock | 56,923 | 3,905 | 9 | 9 |
+| Leather | 26,844 | 33,984 | 8 | 8 |
+| Bebop | 58,453 | 2,375 | 9 | 9 |
+| Leo | 55,812 | 5,016 | 11 | 11 |
+
+The inventory covers 35 shipped-reachable semantic assets, 30 distinct sample
+identities, and 30 current baseline-policy effect identities. Their individual
+BRR payload total is 318,348 bytes; exact sample sharing reduces the distinct
+sample payload total to 285,192 bytes, saving 33,156 bytes. The largest sample
+contributors are `BEBOPDIE.WAV`, `FOOTDIE.WAV`, and `ROCKDIE.WAV` at 32,733
+BRR bytes each, followed by `TURTLE~1.WAV` at 32,733 and `PIZZA1.WAV` at
+20,097. Sample and effect identities are persisted separately; current policy
+differences do not force BRR duplication.
+
+The corrected epoch evidence carries a fail-closed whole-stage context hash.
+All 60 epoch unions are subsets of their corresponding whole-stage unions.
+The 179,721-byte maximum is TMNT `DATA\\LEVELS\\BEBOP.TXT`, player Leo, epoch
+0. Its persistent floor is 55,812 bytes, but the complete epoch equals its
+179,721-byte whole-stage parent because the opening reachable context already
+exposes the full relevant roster content. This is legitimate under the current
+conservative runtime projection, not an escaped asset-set invariant failure.
+
+The present classification is hybrid-capable: player floors fit, some BOR
+contexts may fit whole-stage, while oversized TMNT contexts require refined
+source-defined epoch/lifetime analysis. Fine sample residency is not yet
+started.
