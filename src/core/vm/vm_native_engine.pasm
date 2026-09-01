@@ -901,6 +901,7 @@ Character_HitApply__ApplyDamage__reaction_done:
 .a8
     lda.l $7E0a00,x
     bne Character_HitApply__ApplyDamage__not_kill
+    jsl AudioSemantic_EmitDiesound
     lda #1
     rts
 Character_HitApply__ApplyDamage__not_kill:
@@ -1863,3 +1864,197 @@ Character_Throw_Play__ordinary_land:
 Character_Throw_Play__done:
 .a8
     rtl
+
+
+; Audio-content pass: source-semantic diesound request emission. This lives
+; in bank 1 because bank 0's fixed $C100-$FC00 region has no safe growth
+; margin. The table is keyed by the stable converted roster order; target
+; physical slots are derived from ApplyDamage's authoritative saved offset.
+AudioSemantic_DiesoundByRoster:
+    .db AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1
+    .db AUDIO_SEMANTIC_NONE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_ROCKDIE, AUDIO_SEMANTIC_RHINODIE
+    .db AUDIO_SEMANTIC_BEBOPDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE
+    .db AUDIO_SEMANTIC_TURTLEDIE
+AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
+
+; JSL/RTL. HitApply_EntityBase identifies the dying entity. Preserves A/X/Y
+; and processor width.
+AudioSemantic_EmitDiesound:
+    php
+    rep #$30
+.a16
+.i16
+    phx
+    phy
+    sep #$20
+.a8
+    ; Derive the fixed physical target slot from the offset saved by
+    ; Character_HitApply__ApplyDamage. This avoids relying on D across the
+    ; bank-1 TryGrab/ApplyDamage call chain.
+    rep #$20
+.a16
+    lda.l HitApply_EntityBase
+    cmp #CHAR_ZP_LEN
+    beq AudioSemantic_EmitDiesound__slot1
+    cmp #CHAR_ZP_LEN*2
+    beq AudioSemantic_EmitDiesound__slot2
+    cmp #CHAR_ZP_LEN*3
+    beq AudioSemantic_EmitDiesound__slot3
+    sep #$20
+.a8
+    lda #0
+    bra AudioSemantic_EmitDiesound__slot_store
+AudioSemantic_EmitDiesound__slot1:
+    sep #$20
+.a8
+    lda #1
+    bra AudioSemantic_EmitDiesound__slot_store
+AudioSemantic_EmitDiesound__slot2:
+    sep #$20
+.a8
+    lda #2
+    bra AudioSemantic_EmitDiesound__slot_store
+AudioSemantic_EmitDiesound__slot3:
+    sep #$20
+.a8
+    lda #3
+AudioSemantic_EmitDiesound__slot_store:
+    sta.l AudioSemantic_CurrentActorSlot
+    rep #$20
+.a16
+    lda.l HitApply_EntityBase
+    ldx #0
+    tax
+    sep #$20
+.a8
+    lda.l AudioSemantic_EntityRoster,x
+    cmp #13
+    bcc AudioSemantic_EmitDiesound__roster_ok
+    jmp AudioSemantic_EmitDiesound__done
+AudioSemantic_EmitDiesound__roster_ok:
+    rep #$30
+    .a16
+    .i16
+    and #$00FF
+    tax
+    sep #$20
+    .a8
+    sta.l AudioSemantic_CurrentRoster
+    lda.l AudioSemantic_DiesoundByRoster,x
+    cmp #AUDIO_SEMANTIC_NONE
+    bne AudioSemantic_EmitDiesound__identity_ok
+    jmp AudioSemantic_EmitDiesound__done
+AudioSemantic_EmitDiesound__identity_ok:
+    sta.l AudioSemantic_CurrentId
+    cmp #AUDIO_SEMANTIC_FOOTDIE
+    bne AudioSemantic_EmitDiesound__not_foot
+    lda.l AudioSemantic_FootDieRequestCount
+    inc
+    sta.l AudioSemantic_FootDieRequestCount
+    jsr AudioSemantic_FootDieBackendPolicy
+AudioSemantic_EmitDiesound__not_foot:
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    rep #$20
+.a16
+    lda.l Nmi_FrameCounter
+    cmp.l AudioSemantic_LastFrame
+    beq AudioSemantic_EmitDiesound__same_frame
+    sta.l AudioSemantic_LastFrame
+    sep #$20
+.a8
+    lda #0
+    sta.l AudioSemantic_FrameSequence
+    bra AudioSemantic_EmitDiesound__record
+AudioSemantic_EmitDiesound__same_frame:
+    sep #$20
+.a8
+    lda.l AudioSemantic_FrameSequence
+    inc
+    sta.l AudioSemantic_FrameSequence
+AudioSemantic_EmitDiesound__record:
+    rep #$30
+    .a16
+    .i16
+    lda.l AudioSemantic_TraceWriteIndex
+    cmp #AudioSemantic_TraceCapacity
+    bcs AudioSemantic_EmitDiesound__overflow
+    and #$000F
+    asl
+    asl
+    asl
+    tax
+    lda.l AudioSemantic_LastFrame
+    sta.l AudioSemantic_TraceBase,x
+    sep #$20
+.a8
+    lda.l AudioSemantic_FrameSequence
+    sta.l AudioSemantic_TraceBaseSeq,x
+    lda.l AudioSemantic_CurrentId
+    sta.l AudioSemantic_TraceBaseId,x
+    lda.l AudioSemantic_CurrentActorSlot
+    sta.l AudioSemantic_TraceBaseSlot,x
+    lda.l AudioSemantic_CurrentRoster
+    sta.l AudioSemantic_TraceBaseRoster,x
+    lda #AudioSemantic_EventDiesound
+    sta.l AudioSemantic_TraceBaseEvent,x
+    lda.l AudioSemantic_TraceWriteIndex
+    inc
+    sta.l AudioSemantic_TraceWriteIndex
+    bra AudioSemantic_EmitDiesound__done
+AudioSemantic_EmitDiesound__overflow:
+    lda.l AudioSemantic_TraceOverflow
+    inc
+    sta.l AudioSemantic_TraceOverflow
+AudioSemantic_EmitDiesound__done:
+    ply
+    plx
+    plp
+    rtl
+
+; TEST-ONLY backend policy for the first one-stream feasibility fixture. The
+; semantic request and trace are recorded before this policy collapses only
+; the provisional playback decision.
+AudioSemantic_FootDieBackendPolicy:
+    php
+    rep #$30
+.a16
+.i16
+    lda.l Nmi_FrameCounter
+    cmp.l AudioSemantic_FootDieStreamFrame
+    beq AudioSemantic_FootDieBackendPolicy__same_frame
+    sep #$20
+.a8
+    lda.l AudioSemantic_FootDieStreamActive
+    bne AudioSemantic_FootDieBackendPolicy__suppressed
+    rep #$20
+.a16
+    lda.l Nmi_FrameCounter
+    sta.l AudioSemantic_FootDieStreamFrame
+    sep #$20
+.a8
+    lda #1
+    sta.l AudioSemantic_FootDieStreamActive
+    rep #$20
+.a16
+    lda.l AudioSemantic_FootDieStreamStartCount
+    inc
+    sta.l AudioSemantic_FootDieStreamStartCount
+    bra AudioSemantic_FootDieBackendPolicy__done
+AudioSemantic_FootDieBackendPolicy__same_frame:
+    sep #$20
+.a8
+    lda.l AudioSemantic_FootDieSameFrameCoalescedCount
+    inc
+    sta.l AudioSemantic_FootDieSameFrameCoalescedCount
+    bra AudioSemantic_FootDieBackendPolicy__done
+AudioSemantic_FootDieBackendPolicy__suppressed:
+    rep #$20
+.a16
+    lda.l AudioSemantic_FootDieWhileActiveSuppressedCount
+    inc
+    sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
+AudioSemantic_FootDieBackendPolicy__done:
+    plp
+    rts

@@ -57,6 +57,42 @@ SFX_HIT_ID = 0
 G11_HitSfxRequestCount = $7E2805   ; .db -- wraps at 256, gate only ever
                                        ; checks small deltas within one run
 
+; Audio-content pass: global semantic IDs are independent of the resident TAD
+; bank and its local compiler enum. These cells are a bounded pre-backend
+; trace, not a production SFX FIFO.
+AUDIO_SEMANTIC_NONE      = $FF
+AUDIO_SEMANTIC_DIE1      = $01
+AUDIO_SEMANTIC_FOOTDIE   = $02
+AUDIO_SEMANTIC_ROCKDIE   = $03
+AUDIO_SEMANTIC_RHINODIE  = $04
+AUDIO_SEMANTIC_BEBOPDIE  = $05
+AUDIO_SEMANTIC_TURTLEDIE = $06
+AudioSemantic_RequestCount        = $7E2806 ; .dw
+AudioSemantic_TraceWriteIndex     = $7E2808 ; .db
+AudioSemantic_TraceOverflow       = $7E2809 ; .db
+AudioSemantic_FootDieRequestCount = $7E280A ; .dw
+AudioSemantic_CurrentActorSlot    = $7E280C ; .db
+AudioSemantic_CurrentRoster       = $7E280D ; .db
+AudioSemantic_CurrentId           = $7E280E ; .db
+AudioSemantic_LastFrame           = $7E280F ; .dw
+AudioSemantic_FrameSequence       = $7E2811 ; .db
+AudioSemantic_FootDieStreamStartCount = $7E2812 ; .dw -- test backend
+AudioSemantic_FootDieSameFrameCoalescedCount = $7E2814 ; .dw -- test backend
+AudioSemantic_FootDieWhileActiveSuppressedCount = $7E2816 ; .dw -- test backend
+AudioSemantic_FootDieStreamFrame = $7E2818 ; .dw -- test backend
+AudioSemantic_FootDieStreamActive = $7E281A ; .db -- test backend
+AudioSemantic_TraceBase           = $7E2820
+AudioSemantic_TraceBaseSeq        = $7E2822
+AudioSemantic_TraceBaseId         = $7E2823
+AudioSemantic_TraceBaseSlot       = $7E2824
+AudioSemantic_TraceBaseRoster     = $7E2825
+AudioSemantic_TraceBaseEvent      = $7E2826
+AudioSemantic_TraceCapacity       = 16
+AudioSemantic_EventDiesound       = $01
+
+; Converted roster order. CHAR_ROSTER_INDEX is the stable source/runtime
+; identity written by CharacterEntity_Init/Spawn_Play; physical slots are
+; recorded separately by the three fixed AI target leaves.
 ; SPC700 IPL reset is a hardware-side operation. TAD_Init must only run after
 ; the S-SMP has been reset and has reached its IPL ready handshake ($BBAA).
 ; $2140-$2143 are data ports, not a reset control register.
@@ -11030,6 +11066,29 @@ scpu_boot:
     jsr Core_Wram_Init
     jsr Core_Vram_Init
     jsr Core_Cgram_Init
+
+    ; Explicitly initialize semantic request telemetry. WRAM power-on state
+    ; is not a valid initializer for bounded proof state.
+    rep #$20
+.a16
+    lda #0
+    sta.l AudioSemantic_RequestCount
+    sta.l AudioSemantic_FootDieRequestCount
+    sta.l AudioSemantic_LastFrame
+    sta.l AudioSemantic_FootDieStreamStartCount
+    sta.l AudioSemantic_FootDieSameFrameCoalescedCount
+    sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
+    sta.l AudioSemantic_FootDieStreamFrame
+    sep #$20
+.a8
+    lda #0
+    sta.l AudioSemantic_TraceWriteIndex
+    sta.l AudioSemantic_TraceOverflow
+    sta.l AudioSemantic_CurrentActorSlot
+    sta.l AudioSemantic_CurrentRoster
+    sta.l AudioSemantic_CurrentId
+    sta.l AudioSemantic_FrameSequence
+    sta.l AudioSemantic_FootDieStreamActive
 
     ; Core_StreamCache_Init sets up the Tile2Slot/Slot2Tile/SlotStamp tables
     ; for real use by Bg_LoadScene_Streaming (called later, from within
