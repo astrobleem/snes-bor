@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_CONCURRENCY_BOUNDARY_PENDING_RUNTIME_DIESOUND_PLUMBING",
+  "parents": {
+    "semantic_lifetime_residency": "tools/audio/semantic_lifetime_residency.json",
+    "runtime_source": "src/core/jump.pasm",
+    "tad_source_tag": "Terrific Audio Driver v0.3.0 tag 00215a2"
+  },
+  "runtime_shape": {
+    "non_player_slots": 3,
+    "single_attack_checks_slots_in_order": [1, 2, 3],
+    "same_frame_multiple_lethal_targets": "SOURCE_POSSIBLE",
+    "same_frame_max_long_requests": 3,
+    "live_observed_same_frame_max": null,
+    "live_observation_status": "PENDING: current runtime has no semantic diesound emission before TAD arbitration"
+  },
+  "events": [
+    {"asset": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV", "owner": "Foot01/02/03/04", "event": "enemy death", "duration_seconds": 5.278185941043084, "same_frame_overlap": "SOURCE_POSSIBLE", "staggered_overlap": "SOURCE_POSSIBLE"},
+    {"asset": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV", "owner": "Bebop", "event": "boss death", "duration_seconds": 5.278185941043084, "same_frame_overlap": "TERMINAL_CONTEXT_PENDING", "staggered_overlap": "TERMINAL_CONTEXT_PENDING"},
+    {"asset": "bor-original:DATA\\SOUNDS\\EEK.WAV", "owner": "BOR enemy", "event": "enemy death", "duration_seconds": 1.3307936507936508, "same_frame_overlap": "SOURCE_POSSIBLE", "staggered_overlap": "SOURCE_POSSIBLE"},
+    {"asset": "bor-original:DATA\\SOUNDS\\MAXROCKT.WAV", "owner": "Max", "event": "player authored action", "duration_seconds": 1.3010430839002268, "same_frame_overlap": "ACTION_CONTEXT_PENDING", "staggered_overlap": "ACTION_CONTEXT_PENDING"},
+    {"asset": "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV", "owner": "Max", "event": "player authored action", "duration_seconds": 1.4900226757369615, "same_frame_overlap": "ACTION_CONTEXT_PENDING", "staggered_overlap": "ACTION_CONTEXT_PENDING"}
+  ],
+  "one_stream_policy_options": {
+    "same_frame_identical_foot": ["coalesce_one_start", "restart_one", "suppress_duplicates", "require_second_voice"],
+    "while_active_identical_foot": ["suppress", "restart", "queue_one", "require_second_voice"],
+    "current_selection": null,
+    "reason": "requires source mixer and pre-TAD runtime trace evidence"
+  },
+  "max_analysis": {
+    "EEK": {"trigger": "enemy diesound", "predictable": "death transition only", "ordinary_action": false},
+    "MAXROCKT": {"trigger": "Max authored action sound", "predictable": "action selection", "terminal": false, "zero_latency": true},
+    "MAXBOOM": {"trigger": "Max authored action sound", "predictable": "action selection", "terminal": false, "zero_latency": true},
+    "concurrent_pair_status": "not proven from current runtime trace"
+  },
+  "voice_ownership": {
+    "tad_virtual_music_channels": 8,
+    "tad_virtual_sfx_channels": 2,
+    "physical_sfx_voices": [6, 7],
+    "candidate_stream_voice": 0,
+    "voice_1_theoretical_symmetry": true,
+    "voice_1_additional_conflict": "same music-side reservation analysis required",
+    "ordinary_sfx_voice_reduction": 0,
+    "reservation_status": "STATIC_COMPATIBLE_ONLY; no driver modification made"
+  }
+}

@@ -68,3 +68,23 @@ policy for overlapping Foot deaths and would leave only one physical TAD SFX
 voice for landed-hit/attack effects during the vocal. That fidelity decision
 is unresolved. Per the feasibility gate, no streaming fixture or multi-voice
 extension is implemented yet.
+
+## Updated voice-0 and concurrency decision
+
+The official TAD v0.3.0 channel tables map the two resident SFX channels to
+physical voices 6 and 7. Physical voice 0 is a music-side voice, so reserving
+voice 0 preserves both ordinary TAD SFX voices. This is only a static
+compatibility result; the vendored project still contains an unmodified driver.
+
+The current runtime has three AI slots and one attack visits all three slots in
+order. A source-faithful implementation can therefore commit three Foot
+deaths in one gameplay frame. The runtime does not yet carry each entity's
+source diesound in its live record and does not emit semantic diesound requests
+before TAD arbitration. There is consequently no honest live same-frame or
+staggered long-SFX trace yet. This boundary is recorded fail-closed in
+`tools/audio/long_event_concurrency.json`; no synthetic trace or stream policy
+has been promoted.
+
+The next prerequisite is minimal diesound provenance and semantic request
+instrumentation. It must precede choosing coalesce, restart, suppress,
+queue-one, or a second voice for overlapping identical vocals.
