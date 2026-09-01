@@ -11,11 +11,8 @@ import argparse
 import hashlib
 import json
 import shutil
-import struct
 import subprocess
 import sys
-import tempfile
-import wave
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,6 +20,7 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "soundwork" / "tad"))
 from rebuild import check_compiler_version, find_compiler  # noqa: E402
+from production_sfx import canonical_wav  # noqa: E402
 
 MANIFEST = ROOT / "tools" / "audio" / "audio_manifest.json"
 PROJECT = ROOT / "soundwork" / "tad" / "project"
@@ -45,48 +43,6 @@ def reachable_assets(selected: set[str] | None = None) -> list[dict]:
                 item["pak"] = family["pak"]
                 result.append(item)
     return sorted(result, key=lambda a: (a["family"], a["source_path"]))
-
-
-def canonical_wav(raw: bytes) -> tuple[bytes, int]:
-    """Normalize OpenBOR PCM WAV chunks for TAD's strict WAV reader."""
-    if raw[:4] != b"RIFF" or raw[8:12] != b"WAVE":
-        raise ValueError("not a RIFF/WAVE file")
-    pos = 12
-    fmt = data = None
-    while pos + 8 <= len(raw):
-        kind = raw[pos:pos + 4]
-        size = struct.unpack_from("<I", raw, pos + 4)[0]
-        chunk = raw[pos + 8:pos + 8 + size]
-        if kind == b"fmt ":
-            fmt = chunk
-        elif kind == b"data":
-            data = chunk
-        pos += 8 + size + (size & 1)
-    if fmt is None or data is None or len(fmt) < 16:
-        raise ValueError("WAV lacks fmt/data chunks")
-    encoding, channels, rate, _byte_rate, block_align, width = struct.unpack_from("<HHIIHH", fmt)
-    if encoding != 1 or width not in (8, 16) or channels not in (1, 2):
-        raise ValueError(f"unsupported PCM WAV encoding={encoding} channels={channels} width={width}")
-    frames = len(data) // block_align
-    values = []
-    for frame in range(frames):
-        samples = []
-        for channel in range(channels):
-            off = frame * block_align + channel * (width // 8)
-            if width == 8:
-                samples.append(data[off] - 128)
-            else:
-                samples.append(struct.unpack_from("<h", data, off)[0] // 256)
-        values.append(sum(samples) // len(samples) + 128)
-    values.extend([128] * ((16 - len(values) % 16) % 16))
-    out = tempfile.SpooledTemporaryFile()
-    with wave.open(out, "wb") as wav:
-        wav.setnchannels(1)
-        wav.setsampwidth(1)
-        wav.setframerate(rate)
-        wav.writeframes(bytes(values))
-    out.seek(0)
-    return out.read(), rate
 
 
 def main() -> int:

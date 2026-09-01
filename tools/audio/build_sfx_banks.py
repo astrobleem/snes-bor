@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import hashlib
-import io
 import json
 import re
 import shutil
 import subprocess
 import tempfile
-import wave
 from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "tools/audio"), str(ROOT / "tools/bor_converter"), str(ROOT / "soundwork/tad")]
-from compile_reachable_sfx import canonical_wav  # noqa: E402
-from production_sfx import duration_ticks, effect_policy, physical_effect_identity  # noqa: E402
+from production_sfx import canonical_wav, duration_ticks, effect_policy, physical_effect_identity  # noqa: E402
 from pak_extract import extract  # noqa: E402
 from rebuild import check_compiler_version, find_compiler  # noqa: E402
 
