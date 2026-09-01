@@ -92,8 +92,6 @@ AudioReloadFixtureQueuedCaptured = $7E2A27
     text=text.replace(load_site,"TadPrivate_Process_WaitingForLoader__LoadData:\n    jsl AudioReloadFixture_LoadDataDispatch",1)
     if text.count("TadPrivate_Process_WaitingForLoader__LoadData:\n    jsl AudioReloadFixture_LoadDataDispatch")!=1:
         fail("fixture LoadAudioData call-site routing missing")
-    if text.count("AudioReloadFixture_LoadDataDispatch__production:\n    jsl LoadAudioData")!=1:
-        fail("fixture production LoadAudioData fallback missing")
     loading_branch="        bcs TadPrivate_Process_Loading\n"
     if text.count(loading_branch)!=1: fail("TAD loading branch anchor is not unique")
     text=text.replace(loading_branch,"""        bcc TadPrivate_Process__NotLoadingBranch
@@ -215,6 +213,8 @@ AudioReloadFixture_SkipQueuedCapture:
     marker2="    .db $00\n\n; Msu1_LoadFrame"
     if text.count(marker2)!=1: fail("blank-song insertion anchor is not unique")
     text=text.replace(marker2,"    .db $00\n"+support+"\n; Msu1_LoadFrame",1)
+    if text.count("AudioReloadFixture_LoadDataDispatch__production:\n    jsl LoadAudioData")!=1:
+        fail("fixture production LoadAudioData fallback missing")
     if text.count(".org $FC00")!=1: fail("fixture boot origin is not unique")
     text=text.replace(".org $FC00", ".org $FC10", 1)
     text+="\n.bank 11\n.org $8000\n    .incbin \"../build/audio_reload_fixture/common-data.bin\"\n"

@@ -155,3 +155,41 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 TAD/SPC700 handles short gameplay/UI SFX. MSU-1 PCM handles the authored soundtrack pipeline. `distribution/bor-N.pcm` files are deterministic generated artifacts from the catalog, not placeholder proof clips.
 
 G11 remains DONE for one real landed-hit SFX path using BOR `BEAT1.WAV`; this pass does not reopen G11 or start G12.
+
+## Runtime residency architecture boundary
+
+The live TAD transport fixture loaded the duration-aware bank-0 common payload
+through the real callback and loader path. The synchronous result was:
+
+| Measure | Result |
+|---|---:|
+| Common payload | 58,546 bytes |
+| Runtime source | `$0B:$8000` |
+| Transfer setting | 256 bytes |
+| `TransferData` calls | 230 |
+| Raw NMI delta | 70 |
+| Visual-commit NMI delta | 70 |
+| Completed gameplay loops | 0 |
+| Synchronous common upload | approximately 1.17 seconds |
+| Total SFX blackout through final ready | approximately 1.43 seconds |
+
+This rejects synchronous whole-common swapping during active combat,
+attack/action boundaries, and hit boundaries. The 15 harness observation units
+from the earlier run are not SNES video frames and are not used as timing
+evidence.
+
+The asynchronous test-only fixture then requested the same payload with
+`Tad_Process` only while loading, at an 800-byte transfer setting. In the one
+fresh run, the callback and queued source were `$0B:$8000`/58,546 bytes, 75
+transfer chunks completed, common completion was observed at raw NMI 168,
+final SFX readiness at raw NMI 170, and the main-loop counter advanced from 3
+to 94. The test remained presenting/live according to the existing emulator
+run, but the fixture does not claim ordinary combat suitability from this
+single transport run.
+
+Whole-common residency remains under evaluation for coarse boundaries only:
+whole-stage or selected-player loading first, then source-defined encounter
+epochs if a whole stage does not fit. Asynchronous encounter-boundary loading
+has been transport-tested but not yet accepted as a gameplay architecture.
+The action-time whole-common plan is retained as reachability and capacity
+evidence, not as the runtime design.
