@@ -1,0 +1,75 @@
+diff --git a/audio-driver/src/audio-driver.asm b/audio-driver/src/audio-driver.asm
+index 4db042b..89414b1 100644
+--- a/audio-driver/src/audio-driver.asm
++++ b/audio-driver/src/audio-driver.asm
+@@ -68,6 +68,11 @@ LAST_MUSIC_CHANNEL = N_MUSIC_CHANNELS - 1
+ FIRST_SFX_CHANNEL = LAST_MUSIC_CHANNEL + 1
+ LAST_SFX_CHANNEL = N_CHANNELS - 1
+ 
++; snes-bor production mode uses MSU-1 for music. Reserve physical DSP voice 0
++; for the specialized long-SFX streamer; TAD SFX voices 6 and 7 remain normal.
++RESERVE_STREAM_VOICE0 = 1
++STREAM_VOICE_MASK = $fe
++
+ 
+ ; Using separate values for slide and triangle to simplify the rust bytecode interpreter.
+ ; See: `channelSoA_volEffect_direction`
+@@ -793,7 +798,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+ 
+ 
+     ; Reset bit-masks
+-    mov A, #$ff
++    mov A, #STREAM_VOICE_MASK
+     mov echoDirty, A
+     mov io_musicChannelsMask, A
+     mov musicSfxChannelMask, A
+@@ -974,6 +979,7 @@ ClearEchoBufferEnd:
+ 
+     .assert page(pendingNon_music) != 0
+     mov A, pendingNon_music
++    and A, #STREAM_VOICE_MASK
+     mov nonShadow_music, A
+ 
+     ; Clears NON on the tick after key-off
+@@ -1042,6 +1048,7 @@ ClearEchoBufferEnd:
+     ; musicSfxChannelMask = a = (a | keyOffShadow_sfx) ^ $ff
+     or  A, keyOffShadow_sfx
+     eor A, #$ff
++    and A, #STREAM_VOICE_MASK
+     mov musicSfxChannelMask, A
+ 
+     ; Write keyOffShadow_sfx to the DSP
+@@ -1307,6 +1314,7 @@ _mutedChannels = zpTmp
+     ; MUST not use X
+     ; y = a = ((eonShadow_music ^ eonShadow_sfx) & sfxMusicEchoNoiseMask) ^ eonShadow_music
+     mov A, eonShadow_music
++    and A, #STREAM_VOICE_MASK
+     eor A, eonShadow_sfx
+     and A, sfxMusicEchoNoiseMask
+     eor A, eonShadow_music
+@@ -1336,6 +1344,9 @@ _mutedChannels = zpTmp
+         ; Write pmonShadow to PMON
+         mov A, #DSP_PMON
+         mov Y, pmonShadow
++        mov A, Y
++        and A, #STREAM_VOICE_MASK
++        mov Y, A
+         movw DSPADDR, YA
+ 
+         mov A, noiseLock
+@@ -1809,11 +1820,15 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+ 
+ ; IN: Y = channel mask
+ .proc cmd__set_music_channels
++    mov A, Y
++    and A, #STREAM_VOICE_MASK
++    mov Y, A
+     mov io_musicChannelsMask, Y
+ 
+     ; key-off muted channels
+     mov A, Y
+     eor A, #$ff
++    and A, #STREAM_VOICE_MASK
+     tset1 keyOffShadow_music
+ 
+     ret
