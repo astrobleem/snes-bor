@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "scope": "BOR production gameplay",
+  "channels": {
+    "0": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": true},
+    "1": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "2": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "3": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "4": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "5": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "6": {"dma": "unused by current production source", "hdma": "unused", "safe_for_stream": false},
+    "7": {"dma": "Core_Dma_ProcessQueue VRAM/OAM/CGRAM", "hdma": "unused", "safe_for_stream": false}
+  },
+  "selected_transport": "TAD-owned CPU/APU protocol with HDMA channel 0",
+  "donor_transport_rejected": "donor HDMA channel 7 conflicts with BOR DMA queue",
+  "evidence_sources": ["src/core/dma.pasm", "src/core/nmi.pasm", "src/main.pasm"]
+}

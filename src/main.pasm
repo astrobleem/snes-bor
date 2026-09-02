@@ -90,6 +90,53 @@ AudioSemantic_TraceBaseEvent      = $7E2826
 AudioSemantic_TraceCapacity       = 16
 AudioSemantic_EventDiesound       = $01
 
+; TEST-ONLY Footdie stream producer state. The BRR source is in a dedicated
+; ROM bank so its 32,733 bytes remain contiguous and do not enter TAD common.
+AudioStream_State = $7E28A4
+AudioStream_Enable = $7E28A9 ; .db -- test fixture gate, default disabled
+AudioStream_TransportOnly = $7E28C5 ; .db -- test fixture: suppress stream KON
+AudioStream_SerialPermit = $7E28C6 ; .db -- test fixture: permit one transfer
+STREAM_RECEIVE_FRAME = 22
+TAD_STREAM_HDMA_MARKER = $57
+TAD_STREAM_FRAME_BYTES = 144
+TAD_STREAM_HDMA_TABLE = $3C00
+TAD_STREAM_BUFFER_BYTES = 144
+TAD_STREAM_BUFFER_COUNT = 8
+TAD_STREAM_RING_SIZE = 1152
+TAD_STREAM_PREFILL_CHUNKS = 7
+; Must stay synchronized with the BOR TAD v0.3.0 ARAM partition:
+; COMMON_DATA_ADDR=$17E4, LAST_VAR_PAGE_ADDR=$169A, ring=$121A-$169A.
+TAD_STREAM_RING_ADDR = $121A
+DMAP0 = $4300
+BBAD0 = $4301
+A1T0L = $4302
+A1T0H = $4303
+A1B0 = $4304
+TadPrivate_stream_frame = $7E28A0
+TadPrivate_stream_buffer = $7E28A2 ; .dw ARAM destination
+TadPrivate_stream_state = $7E28A4 ; .db transfer state
+TadPrivate_stream_source_offset = $7E28A5 ; .dw ROM source offset
+TadPrivate_stream_budget = $7E28A7 ; .dw BRR byte pacing accumulator
+TadPrivate_stream_chunk_index = $7E28AA ; .dw monotonic source chunk number
+TadPrivate_stream_ring_slot = $7E28AC ; .db next physical ring slot
+TadPrivate_stream_last_payload = $7E28AD ; .db genuine bytes in last transfer
+TadPrivate_stream_producer_done = $7E28AE ; .db source exhausted
+TadPrivate_stream_pending = $7E28B0 ; .db one TAD-owned transfer in flight
+TadPrivate_stream_command = $7E28B1 ; .db command value awaiting ACK
+TadPrivate_stream_ack = $7E28B2 ; .db last host-observed command ACK
+TadPrivate_stream_pending_source_offset = $7E28B4 ; .dw source after ACK
+TadPrivate_stream_pending_chunk = $7E28B6 ; .dw chunk after ACK
+TadPrivate_stream_pending_ring_slot = $7E28B8 ; .db slot after ACK
+TadPrivate_stream_pending_payload = $7E28B9 ; .db payload after ACK
+TadPrivate_stream_pending_done = $7E28BA ; .db producer done after ACK
+TadPrivate_stream_chunks_prepared = $7E28BC ; .dw test telemetry
+TadPrivate_stream_chunks_armed = $7E28BE ; .dw test telemetry
+TadPrivate_stream_chunks_accepted = $7E28C0 ; .dw test telemetry
+TadPrivate_stream_pending_buffer = $7E28C2 ; .dw ARAM destination after ACK
+TadPrivate_stream_arm_ack = $7E28C4 ; .db command ACK before this transfer
+TadPrivate_stream_arm_phase = $7E28C7 ; .db 1=command sent, 2=HDMA armed
+TadPrivate_stream_row_token = $7E28C8 ; .db next 5-bit commit token
+
 ; Converted roster order. CHAR_ROSTER_INDEX is the stable source/runtime
 ; identity written by CharacterEntity_Init/Spawn_Play; physical slots are
 ; recorded separately by the three fixed AI target leaves.
@@ -1789,7 +1836,9 @@ G11_QueueHitSfx:
 
 
 
-; JSL/RTL subroutine
+; Pace subsequent 144-byte refills behind the measured FOOTDIE payload rate.
+; TAD command traffic remains serialized: no refill is submitted until the
+; previous command has been acknowledged.
 ; IN: A = song_id
 .a8
 ; I unknown
@@ -11067,28 +11116,15 @@ scpu_boot:
     jsr Core_Vram_Init
     jsr Core_Cgram_Init
 
-    ; Explicitly initialize semantic request telemetry. WRAM power-on state
-    ; is not a valid initializer for bounded proof state.
-    rep #$20
-.a16
-    lda #0
-    sta.l AudioSemantic_RequestCount
-    sta.l AudioSemantic_FootDieRequestCount
-    sta.l AudioSemantic_LastFrame
-    sta.l AudioSemantic_FootDieStreamStartCount
-    sta.l AudioSemantic_FootDieSameFrameCoalescedCount
-    sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
-    sta.l AudioSemantic_FootDieStreamFrame
+    ; Stream/semantic WRAM state is initialized by a bank-1 JSL/RTL helper.
+    ; Keeping this growing test-only block out of bank 0 preserves the fixed
+    ; reset/NMI/IRQ layout without changing its initialization semantics.
     sep #$20
 .a8
-    lda #0
-    sta.l AudioSemantic_TraceWriteIndex
-    sta.l AudioSemantic_TraceOverflow
-    sta.l AudioSemantic_CurrentActorSlot
-    sta.l AudioSemantic_CurrentRoster
-    sta.l AudioSemantic_CurrentId
-    sta.l AudioSemantic_FrameSequence
-    sta.l AudioSemantic_FootDieStreamActive
+    jsl Tad_StreamInit
+    rep #$31
+.a16
+.i16
 
     ; Core_StreamCache_Init sets up the Tile2Slot/Slot2Tile/SlotStamp tables
     ; for real use by Bg_LoadScene_Streaming (called later, from within
@@ -12002,12 +12038,11 @@ scpu_main_loop:
 
     sep #$20
 .a8
-    jsl Tad_Process
-    ; Drain active transfers each frame (from proven SM reference) -- still
-    ; .a8 from the sep above (Tad_Process's own .a8/rtl contract doesn't
-    ; change tracked width), so no second sep #$20 needed.
+    ; Drain active transfers and serialize normal TAD processing through one
+    ; bank-1 helper. This keeps the added stream dispatch out of bank 0.
+    sep #$20
 .a8
-    jsl Tad_FinishLoadingData
+    jsl Tad_StreamFrameService
     rep #$31
 .a16
     jsr Core_Input_Poll
@@ -12038,47 +12073,20 @@ scpu_main_loop:
     jsr Game_State_Play
     bra scpu_main_loop
 
-; NMI/IRQ pushed from $FE00/$FE10 to $FE20/$FE30, to $FF00/$FF10, then to
-; $FF20/$FF30 -- scpu_boot's body keeps growing (most recently: the CC-DMA
-; sprite/pump/tilemap code, then the unrolled CGRAM palette load) and each
-; time it grows past whatever budget was left before these fixed .org
-; addresses, Poppy silently truncates/corrupts whatever ran into them
-; instead of erroring (see poppy_assembler_bugs.md). The $FF00 push was not
-; enough headroom for scpu_main_loop's own growth either: once its jsr list
-; grew to include jsr Anim_Play, the loop body's compiled length reached
-; exactly $FF00 with zero bytes free, silently truncating `jsr Anim_Play`
-; and the trailing `bra scpu_main_loop` entirely -- execution just fell
-; through into nmi_handler's `jsr Core_Nmi_Play`/`rti` every iteration
-; instead. Confirmed via Mesen's trace-based disassembler (Anim_Play's
-; address was never marked as executed) and by live-disassembling
-; scpu_main_loop's actual tail, which showed the last traced instruction
-; landing exactly at $FF00. build_rom.py's NMI/IRQ vector constants were
-; updated to match -- these addresses are load-bearing, keep them in sync.
-; Still comfortably below $FFE4 (native vector table). Pushed again, $FF20/
-; $FF30 -> $FF40/$FF50, when Core_StreamScroll_ClampCamera's jsr call site
-; grew scpu_main_loop past $FF20 by 2 bytes (build_rom.py's NMI/IRQ vector
-; constants updated to match -- keep them in sync, nothing enforces this
-; automatically). Pushed AGAIN, $FF40/$FF50 -> $FF60/$FF70, when Phase 10's
-; (plan.md 2.10) BG3 frontpanel boot-time load call site grew scpu_boot and
-; left only a 2-byte margin (tools/rom_audit/audit_all.py's own margin
-; check caught it -- see that script's header for what it verifies).
-; Pushed AGAIN, $FF60/$FF70 -> $FF90/$FFA0, ahead of VM Gate 6 wiring a
-; cooperative-budget jsr into scpu_main_loop (plan_vm.md §8 step 4) -- the
-; prior push left only 3 bytes of margin, exactly enough to silently
-; truncate a single new call site and reproduce this same bug a fifth time.
-; Pushed AGAIN, $FF90/$FFA0 -> $FFA0/$FFB0, for Phase G5's (plan_game.md 5)
-; boot-time Title_Step zero-init in scpu_boot (6 bytes, right alongside
-; Game_Lives) -- the prior push again left only a few bytes of margin.
-; build_rom.py's NMI/IRQ vector constants updated to match; still
-; comfortably below $FFE4 (native vector table).
+; The LoROM header occupies $FFC0-$FFDF and hardware vectors occupy
+; $FFE4-$FFFF. Ordinary bank-0 runtime must end before the fixed interrupt
+; stubs; build_rom.py validates this contract before patching the header.
+scpu_bank0_runtime_end:
 .org $FFA0
 nmi_handler:
     jsr Core_Nmi_Play
     rti
+nmi_handler_end:
 
 .org $FFB0
 irq_handler:
     rti
+irq_handler_end:
 
 ; ============================================================================
 ; Audio Data Blob -- relocated 2026-08-19 to a real bank boundary.
@@ -12123,6 +12131,208 @@ __Tad_AudioData_0:
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
 
+; Bank-1 stream/semantic initialization helper. The caller enters in .a8;
+; this routine restores the established boot convention (.a16/.i16) through
+; its explicit return sequence.
+Tad_StreamInit:
+    rep #$20
+.a16
+    lda #0
+    sta.l AudioSemantic_RequestCount
+    sta.l AudioSemantic_FootDieRequestCount
+    sta.l AudioSemantic_LastFrame
+    sta.l AudioSemantic_FootDieStreamStartCount
+    sta.l AudioSemantic_FootDieSameFrameCoalescedCount
+    sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
+    sta.l AudioSemantic_FootDieStreamFrame
+    sep #$20
+.a8
+    lda #0
+    sta.l AudioSemantic_TraceWriteIndex
+    sta.l AudioSemantic_TraceOverflow
+    sta.l TadPrivate_stream_frame
+    rep #$20
+.a16
+    lda #TAD_STREAM_RING_ADDR
+    sta.l TadPrivate_stream_buffer
+    sep #$20
+.a8
+    lda #0
+    sta.l TadPrivate_stream_source_offset
+    sta.l TadPrivate_stream_source_offset+1
+    sta.l TadPrivate_stream_pending_source_offset
+    sta.l TadPrivate_stream_pending_source_offset+1
+    sta.l TadPrivate_stream_pending_chunk
+    sta.l TadPrivate_stream_pending_ring_slot
+    sta.l TadPrivate_stream_pending_payload
+    sta.l TadPrivate_stream_pending_done
+    sta.l TadPrivate_stream_chunks_prepared
+    sta.l TadPrivate_stream_chunks_armed
+    sta.l TadPrivate_stream_chunks_accepted
+    sta.l TadPrivate_stream_pending_buffer
+    sta.l TadPrivate_stream_arm_ack
+    sta.l TadPrivate_stream_arm_phase
+    sta.l TadPrivate_stream_row_token
+    sta.l AudioStream_TransportOnly
+    sta.l AudioStream_SerialPermit
+    sta.l TadPrivate_stream_state
+    sta.l TadPrivate_stream_budget
+    sta.l TadPrivate_stream_budget+1
+    sta.l AudioStream_Enable
+    sta.l AudioSemantic_CurrentActorSlot
+    sta.l AudioSemantic_CurrentRoster
+    sta.l AudioSemantic_CurrentId
+    sta.l AudioSemantic_FrameSequence
+    sta.l AudioSemantic_FootDieStreamActive
+    rtl
+
+; Bank-1 per-frame wrapper for stream servicing and ordinary TAD processing.
+; The normal Tad_Process path remains active whenever no stream transaction is
+; pending, so this is a protocol extension rather than a second APU owner.
+Tad_StreamFrameService:
+    sep #$20
+.a8
+    jsl Tad_FinishLoadingData
+    lda.l AudioStream_Enable
+    beq Tad_StreamFrameService__process
+    jsl Tad_StreamServiceFootdie
+Tad_StreamFrameService__process:
+    jsl Tad_ProcessMaybeStream
+    rtl
+
+; Test-only paced refill. Kept in bank 1 so the fixed bank-0 reset region and
+; gameplay code retain their established layout.
+Tad_StreamServiceFootdie:
+    sep #$20
+.a8
+    lda.l AudioStream_Enable
+    bne Tad_StreamServiceFootdie__enabled
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__enabled:
+    lda.l AudioSemantic_FootDieStreamActive
+    bne Tad_StreamServiceFootdie__active
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__active:
+    .a8
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    bne Tad_StreamServiceFootdie__not_serial
+    lda.l AudioStream_SerialPermit
+    bne Tad_StreamServiceFootdie__not_serial
+    ; Serial mode forbids a new submission while the permit is clear, but an
+    ; in-flight transaction must still reach the ACK polling path below.
+    lda.l TadPrivate_stream_pending
+    bne Tad_StreamServiceFootdie__not_serial
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__not_serial:
+    lda.l TadPrivate_stream_pending
+    bne Tad_StreamServiceFootdie__pending
+    brl Tad_StreamServiceFootdie__ready
+Tad_StreamServiceFootdie__pending:
+    lda.l TadPrivate_stream_arm_phase
+    beq Tad_StreamServiceFootdie__await_ack
+    jsl Tad_StreamArmFootdieFrame
+    lda #2
+    sta.l TadPrivate_stream_arm_phase
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__await_ack:
+    ; A refill is complete only when TAD has acknowledged the command.  The
+    ; old one-frame countdown let the producer rewrite the single HDMA table
+    ; while the previous frame was still being consumed.
+    lda.l COMMAND_ACK_PORT
+    cmp.l TadPrivate_stream_arm_ack
+    bne Tad_StreamServiceFootdie__ack_changed
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__ack_changed:
+    cmp.l TadPrivate_stream_command
+    beq Tad_StreamServiceFootdie__ack_ready
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__ack_ready:
+    .a8
+    sta.l TadPrivate_stream_ack
+    lda #0
+    sta.l TadPrivate_stream_pending
+    sta.l TadPrivate_stream_arm_phase
+    ; The acknowledged table is complete.  Remove channel 0 from the NMI
+    ; shadow before preparing another table; re-enabling it is deliberately
+    ; deferred until the new descriptor is fully built below.
+    lda.l Nmi_HdmaEnable
+    and #$fe
+    sta.l Nmi_HdmaEnable
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_pending_source_offset
+    sta.l TadPrivate_stream_source_offset
+    lda.l TadPrivate_stream_pending_chunk
+    inc
+    sta.l TadPrivate_stream_chunk_index
+    lda.l TadPrivate_stream_pending_buffer
+    sta.l TadPrivate_stream_buffer
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_pending_ring_slot
+    sta.l TadPrivate_stream_ring_slot
+    rep #$20
+.a16
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_pending_payload
+    sta.l TadPrivate_stream_last_payload
+    lda.l TadPrivate_stream_pending_done
+    sta.l TadPrivate_stream_producer_done
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_chunks_accepted
+    inc
+    sta.l TadPrivate_stream_chunks_accepted
+    sep #$20
+.a8
+Tad_StreamServiceFootdie__ready:
+    .a8
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    bne Tad_StreamServiceFootdie__ready_allowed
+    lda.l AudioStream_SerialPermit
+    bne Tad_StreamServiceFootdie__ready_allowed
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__ready_allowed:
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_source_offset
+    cmp #32733
+    bcs Tad_StreamServiceFootdie__return16
+    lda.l TadPrivate_stream_budget
+    clc
+    adc #103
+    cmp #144
+    bcc Tad_StreamServiceFootdie__save_budget
+    sec
+    sbc #144
+    sta.l TadPrivate_stream_budget
+    sep #$20
+.a8
+    jsl Tad_StreamSendFootdieFrame
+    rtl
+Tad_StreamServiceFootdie__save_budget:
+    sta.l TadPrivate_stream_budget
+Tad_StreamServiceFootdie__return16:
+    sep #$20
+.a8
+Tad_StreamServiceFootdie__return:
+    rtl
+
+; Bank-1 wrapper for the host-side stream command fence.  Keeping the test
+; here avoids growing the fixed bank-0 main-loop layout while preserving the
+; ordinary Tad_Process path on every idle stream frame.
+Tad_ProcessMaybeStream:
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_pending
+    bne Tad_ProcessMaybeStream__return
+    jsl Tad_Process
+Tad_ProcessMaybeStream__return:
+    rtl
+
 ; ============================================================================
 ; Font Data Blob -- plan_game.md Phase G1. ROM-resident (not MSU-streamed:
 ; it's small, static, and never changes at runtime, unlike character/BG art),
@@ -12132,12 +12342,273 @@ __Tad_AudioData_0:
 ; project's own AUDIO_DATA_BANK precedent, though the `^` operator itself was
 ; fixed 2026-08-19 (poppy#389) and would also work now.
 ; ============================================================================
+; JSL/RTL subroutine. Bank 1 keeps the growing producer out of bank 0's
+; fixed layout and is the established cross-bank stream-support region.
+Tad_StreamSendFootdieFrame:
+    phb
+    sep #$20
+.a8
+    lda #$7e
+    pha
+    plb
+    rep #$20
+.a16
+    lda.l AudioStream_State
+    bne Tad_StreamSendFootdieFrame__state_ready
+    lda #0
+    sta.l TadPrivate_stream_chunk_index
+    sta.l TadPrivate_stream_ring_slot
+    sta.l TadPrivate_stream_last_payload
+    sta.l TadPrivate_stream_producer_done
+Tad_StreamSendFootdieFrame__state_ready:
+    .a16
+    lda.l TadPrivate_stream_buffer
+Tad_StreamSendFootdieFrame__store_destination:
+    sta.l PARAMETER0_PORT
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_buffer+1
+    pha
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    bne Tad_StreamSendFootdieFrame__normal_destination
+    pla
+    ora #$80
+    bra Tad_StreamSendFootdieFrame__write_destination_high
+Tad_StreamSendFootdieFrame__normal_destination:
+    pla
+Tad_StreamSendFootdieFrame__write_destination_high:
+    sta.l PARAMETER1_PORT
+    ; Clear APUIO3 before dispatch. The submit row publishes the marker after
+    ; the command is accepted, while APUIO0 remains the stable stream command.
+    lda #0
+Tad_StreamSendFootdieFrame__marker_ready:
+    sta.l SWITCH_TO_LOADER_PORT
+    ; Compute the freshness-bearing command once. APUIO0 must remain exactly
+    ; this value for the submit row and every payload row; using the bare
+    ; command ID here would look like a second TAD command to the dispatcher.
+    lda TadPrivate_previousCommand
+    and #COMMAND_I_MASK
+    eor #COMMAND_I_MASK
+    ora #STREAM_RECEIVE_FRAME
+    sta.l TadPrivate_stream_command
+    ldy #0
+    rep #$10
+.i16
+    ; The source offset is a 16-bit ROM index.  Load it with M=0 so a stale
+    ; high byte cannot repeat or skip source data.
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_source_offset
+    tax
+    sep #$20
+.a8
+    ; Submit descriptor: one mode-4 row with the start marker on APUIO3.
+    lda #2
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l TadPrivate_stream_command
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l TadPrivate_stream_buffer
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l TadPrivate_stream_buffer+1
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda #TAD_STREAM_HDMA_MARKER
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda #72
+    sta.l TadPrivate_stream_state
+    lda #0
+    sta.l TadPrivate_stream_row_token
+Tad_StreamSendFootdieFrame__row:
+    sep #$20
+.a8
+    lda #2
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    ; Hold APUIO0 at the accepted stream command. Carry two genuine BRR bytes
+    ; on APUIO1/2. APUIO3 is the commit token and is written last.
+    lda.l TadPrivate_stream_command
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l TadPrivate_stream_row_token
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l TadPrivate_stream_row_token
+    inc
+    and #$1f
+    sta.l TadPrivate_stream_row_token
+    lda.l TadPrivate_stream_state
+    dec
+    sta.l TadPrivate_stream_state
+    bne Tad_StreamSendFootdieFrame__row
+    lda #0
+    sta TAD_STREAM_HDMA_TABLE,y
+    rep #$10
+.i16
+    rep #$20
+.a16
+    txa
+    cpx #32733
+    bcc Tad_StreamSendFootdieFrame__source_not_done
+    lda #32733
+    sta.l TadPrivate_stream_pending_source_offset
+    sep #$20
+.a8
+    lda #45
+    sta.l TadPrivate_stream_pending_payload
+    lda #1
+    sta.l TadPrivate_stream_pending_done
+    bra Tad_StreamSendFootdieFrame__source_accounted
+Tad_StreamSendFootdieFrame__source_not_done:
+    txa
+    sta.l TadPrivate_stream_pending_source_offset
+    sep #$20
+.a8
+    lda #144
+    sta.l TadPrivate_stream_pending_payload
+Tad_StreamSendFootdieFrame__source_accounted:
+    .i16
+    cpx #32733
+    bcs Tad_StreamSendFootdieFrame__no_loop_header
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_buffer
+    cmp #(TAD_STREAM_RING_ADDR + (TAD_STREAM_BUFFER_BYTES * 7))
+    bne Tad_StreamSendFootdieFrame__no_loop_header
+    sep #$20
+.a8
+    ; Only the final BRR header of physical slot 7 receives transport LOOP.
+    ; The genuine final source block is never converted into a ring loop.
+    ; With a submit row plus two-byte payload rows, source byte 135 is the
+    ; second payload byte of row 67: 5 + (67 * 5) + 3 = offset 343.
+    lda TAD_STREAM_HDMA_TABLE+343
+    ora #$02
+    sta TAD_STREAM_HDMA_TABLE+343
+Tad_StreamSendFootdieFrame__no_loop_header:
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_chunk_index
+    sta.l TadPrivate_stream_pending_chunk
+    sep #$20
+.a8
+    lda.l COMMAND_ACK_PORT
+    sta.l TadPrivate_stream_arm_ack
+    lda.l TadPrivate_stream_command
+    sta.l COMMAND_PORT
+    sta TadPrivate_previousCommand
+    lda #1
+    sta.l TadPrivate_stream_pending
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    bne Tad_StreamSendFootdieFrame__not_serial
+    ; Keep the serial permit through the command-only interval.  The next
+    ; service call arms HDMA, then the arm helper closes the permit until ACK.
+    lda #1
+    sta.l AudioStream_SerialPermit
+Tad_StreamSendFootdieFrame__not_serial:
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_chunks_prepared
+    inc
+    sta.l TadPrivate_stream_chunks_prepared
+    lda.l TadPrivate_stream_chunks_armed
+    inc
+    sta.l TadPrivate_stream_chunks_armed
+    sep #$20
+.a8
+    ; Defer HDMA arming until the next producer service interval.  This gives
+    ; the SPC one complete service interval to enter the command handler before
+    ; the submit/payload rows begin changing APUIO0..3.
+    lda #1
+    sta.l TadPrivate_stream_arm_phase
+    rep #$20
+.a16
+    lda.l TadPrivate_stream_buffer
+    clc
+    adc #TAD_STREAM_BUFFER_BYTES
+    cmp #(TAD_STREAM_RING_ADDR + TAD_STREAM_RING_SIZE)
+    bcc Tad_StreamSendFootdieFrame__save_buffer
+    lda #TAD_STREAM_RING_ADDR
+    bra Tad_StreamSendFootdieFrame__save_buffer
+
+Tad_StreamArmFootdieFrame:
+    phb
+    sep #$20
+.a8
+    ; Channel 0 is reserved for this HDMA stream path.  Do not OR the mode
+    ; into stale DMA state left by unrelated startup code: DMAP0 must be the
+    ; explicit mode-4 four-register transfer descriptor.
+    lda #$04
+    sta.l DMAP0
+    lda #$40
+    sta.l BBAD0
+    lda #<TAD_STREAM_HDMA_TABLE
+    sta.l A1T0L
+    lda #>TAD_STREAM_HDMA_TABLE
+    sta.l A1T0H
+    lda #$7e
+    sta.l A1B0
+    lda.l Nmi_HdmaEnable
+    ora #$01
+    sta.l Nmi_HdmaEnable
+    lda #1
+    sta.l AudioStream_State
+    lda #0
+    sta.l AudioStream_SerialPermit
+    plb
+    rtl
+
+Tad_StreamOneShotHdmaFence:
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_arm_phase
+    cmp #2
+    bne Tad_StreamOneShotHdmaFence__return
+    lda.l Nmi_HdmaEnable
+    and #$fe
+    sta.l Nmi_HdmaEnable
+    lda #0
+    sta.l TadPrivate_stream_arm_phase
+Tad_StreamOneShotHdmaFence__return:
+    rtl
+
+Tad_StreamSendFootdieFrame__save_buffer:
+    sta.l TadPrivate_stream_pending_buffer
+    sep #$20
+.a8
+    lda.l TadPrivate_stream_ring_slot
+    inc
+    and #7
+    sta.l TadPrivate_stream_pending_ring_slot
+    plb
+    rtl
+
 .bank 2
 .org $8000
 Font_TilesData:
     .incbin "assets/font_tiles.bin"     ; 1520 bytes, 95 2bpp tiles (ASCII 32-126)
 Font_PaletteData:
     .incbin "assets/font_palette.bin"   ; 8 bytes, 4 BGR555 colors
+
+.bank 11
+.org $8000
+; TEST-ONLY ROM source for the specialized FOOTDIE streamer. This is the
+; genuine production BRR payload and is intentionally outside TAD common.
+Footdie_StreamSource:
+    .incbin "../assets/audio/footdie.brr"
+    .fill 99, 0
 
 ; Text_StringPool -- every string core/text.pasm's Core_Text_DrawString can
 ; draw, concatenated and null-terminated; callers pass a byte OFFSET into

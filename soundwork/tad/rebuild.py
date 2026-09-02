@@ -27,6 +27,7 @@ Usage:
 import argparse
 import filecmp
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -44,6 +45,7 @@ OUT_BIN = BUILD_DIR / "audio-data.bin"
 OUT_INC = BUILD_DIR / "audio-enums.inc"
 OUT_SYMS = BUILD_DIR / "tad_blob_syms.pasm"
 MAIN_SYM = HERE.parents[1] / "src" / "main.sym"
+BASELINE = HERE / "driver_baseline.json"
 
 # This is a REAL, tested compiler binary -- not a guessed version number.
 # The project file's own "_about"."version" field is the TAD *project file
@@ -54,6 +56,7 @@ MAIN_SYM = HERE.parents[1] / "src" / "main.sym"
 # not exist anywhere on this machine or in any sibling repo. Ground truth
 # beats an assumed version number.)
 REQUIRED_COMPILER_VERSION = "0.3.0"
+PATCHED_COMPILER = Path(r"E:\\gh\\terrific-audio-driver\\target\\release\\tad-compiler.exe")
 
 FALLBACK_COMPILER_PATHS = [
     Path(r"E:\gh\snes-outrun-sa1\tools\tad\tad-compiler.exe"),
@@ -73,6 +76,8 @@ def find_compiler(explicit: str | None) -> Path:
         if not p.exists():
             raise SystemExit(f"FAIL: TAD_COMPILER path does not exist: {p}")
         return p
+    if PATCHED_COMPILER.exists():
+        return PATCHED_COMPILER
     for p in FALLBACK_COMPILER_PATHS:
         if p.exists():
             return p
@@ -126,6 +131,37 @@ def sha256_of(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def load_baseline() -> dict:
+    try:
+        return json.loads(BASELINE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"FAIL: cannot read {BASELINE}: {exc}")
+
+
+def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
+    """Reject same-version stock compilers for the patched stream build."""
+    identity = baseline.get("patched_toolchain")
+    if not identity:
+        raise SystemExit("FAIL: driver_baseline.json lacks patched_toolchain identity")
+    expected_compiler = identity.get("compiler_sha256", "").lower()
+    actual_compiler = sha256_of(compiler).lower()
+    if actual_compiler != expected_compiler:
+        raise SystemExit(
+            "FAIL: compiler identity mismatch -- this stream build requires "
+            f"patched compiler SHA {expected_compiler}, got {actual_compiler} ({compiler})"
+        )
+    for raw_path, expected in identity.get("source_files_sha256", {}).items():
+        source = Path(raw_path)
+        if not source.exists():
+            raise SystemExit(f"FAIL: patched TAD source input is missing: {source}")
+        actual = sha256_of(source).lower()
+        if actual != expected.lower():
+            raise SystemExit(
+                f"FAIL: patched TAD source identity mismatch for {source}: "
+                f"expected {expected}, got {actual}"
+            )
+
+
 def compile_project(compiler: Path, out_dir: Path) -> None:
     out_asm = out_dir / "audio-data.s"
     out_bin = out_dir / "audio-data.bin"
@@ -140,6 +176,38 @@ def compile_project(compiler: Path, out_dir: Path) -> None:
         print(result.stdout)
         print(result.stderr, file=sys.stderr)
         raise SystemExit(f"FAIL: tad-compiler ca65-export failed (exit {result.returncode})")
+
+
+def verify_generated_driver(audio_data_s: Path, audio_data_bin: Path, baseline: dict) -> None:
+    graph = baseline["runtime_graph"]
+    text = audio_data_s.read_text(encoding="utf-8")
+
+    def integer_export(name: str) -> int:
+        match = re.search(rf"(?:\.export\s+)?{re.escape(name)}\s*:?=\s*(\d+)", text)
+        if not match:
+            raise SystemExit(f"FAIL: generated output lacks {name}")
+        return int(match.group(1))
+
+    offset = int(graph["driver_offset"])
+    size = integer_export("Tad_AudioDriver_SIZE")
+    if size != int(graph["driver_size_after_patch"]):
+        raise SystemExit(f"FAIL: generated driver size {size} disagrees with baseline")
+    blob = audio_data_bin.read_bytes()
+    driver = blob[offset:offset + size]
+    if len(driver) != size:
+        raise SystemExit("FAIL: generated audio-data.bin is shorter than the driver slice")
+    driver_sha = hashlib.sha256(driver).hexdigest()
+    if driver_sha != graph["driver_sha256_after_patch"].lower():
+        raise SystemExit(
+            f"FAIL: embedded patched driver SHA {driver_sha} disagrees with baseline "
+            f"{graph['driver_sha256_after_patch']}"
+        )
+    blob_sha = sha256_of(audio_data_bin)
+    if blob_sha != graph["audio_data_sha256_after_patch"].lower():
+        raise SystemExit(
+            f"FAIL: generated audio blob SHA {blob_sha} disagrees with baseline "
+            f"{graph['audio_data_sha256_after_patch']}"
+        )
 
 
 def parse_blob_syms(audio_data_s: Path, base_addr: int) -> str:
@@ -249,6 +317,8 @@ def main() -> int:
         raise SystemExit(f"FAIL: project file not found: {PROJECT_FILE}")
 
     compiler = find_compiler(args.compiler)
+    baseline = load_baseline()
+    verify_patched_toolchain(compiler, baseline)
     version = check_compiler_version(compiler, allow_mismatch=args.allow_version_mismatch)
     print(f"Using compiler: {compiler} (version {version})")
 
@@ -269,6 +339,7 @@ def main() -> int:
 
         base_addr = find_audio_data_base()
         new_syms = parse_blob_syms(new_files["audio-data.s"], base_addr)
+        verify_generated_driver(new_files["audio-data.s"], new_files["audio-data.bin"], baseline)
 
         if args.update:
             BUILD_DIR.mkdir(parents=True, exist_ok=True)

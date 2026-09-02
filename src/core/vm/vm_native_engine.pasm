@@ -1945,6 +1945,7 @@ AudioSemantic_EmitDiesound__roster_ok:
     bne AudioSemantic_EmitDiesound__identity_ok
     jmp AudioSemantic_EmitDiesound__done
 AudioSemantic_EmitDiesound__identity_ok:
+    .a8
     sta.l AudioSemantic_CurrentId
     cmp #AUDIO_SEMANTIC_FOOTDIE
     bne AudioSemantic_EmitDiesound__not_foot
@@ -2036,6 +2037,10 @@ AudioSemantic_FootDieBackendPolicy:
 .a8
     lda #1
     sta.l AudioSemantic_FootDieStreamActive
+    lda.l AudioStream_Enable
+    beq AudioSemantic_FootDieBackendPolicy__count_start
+    jsl Tad_StreamSendFootdieFrame
+AudioSemantic_FootDieBackendPolicy__count_start:
     rep #$20
 .a16
     lda.l AudioSemantic_FootDieStreamStartCount

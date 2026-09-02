@@ -305,6 +305,10 @@ Core_Nmi_Play__skip_oam_reset:
     lda.l Nmi_HdmaEnable
     sta $420C
     sta.l Nmi_HdmaEnableCurrent
+    ; Stream transport tables are one-shot. The bank-1 helper clears channel
+    ; 0 after this vblank and moves the host state to await-ACK, preventing a
+    ; completed table from replaying over the SPC acknowledgment.
+    jsl Tad_StreamOneShotHdmaFence
 
     ; Window regs (W12SEL/WOBJSEL/WH0/WH2/WBGLOG/WOBJLOG/CGWSEL) and the
     ; fixed color (COLDATA) are committed once, at boot, by Core_Nmi_Init --
@@ -323,9 +327,6 @@ Core_Nmi_Play__skip_oam_reset:
     sta $210B
     lda.l Nmi_BgTilesVram34
     sta $210C
-    lda.l Nmi_ObjSel
-    sta $2101
-
     ; BGnHOFS/VOFS are write-twice registers: low byte then high byte, same
     ; address, latched internally by the PPU.
     lda.l Nmi_Bg1ScrollX

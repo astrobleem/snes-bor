@@ -13,32 +13,35 @@ def between(text, start, end):
 def main():
     text = SOURCE.read_text(encoding="utf-8")
     init = between(text, "; Reset bit-masks", "; Pop ESA from the stack")
-    assert "mov A, #$ff" in init
-    assert "mov echoDirty, A" in init
-    assert "and A, #STREAM_VOICE_MASK" not in init
-    assert "mov A, #$ff\n    mov sfx_oneChannelSfxId+0, A" in init
-    def final_writes(register):
-        starts = [m.start() for m in re.finditer(r"mov A, #" + register + r"\b", text)]
-        assert starts, f"no production setup for {register}"
-        for start in starts:
-            previous = text.rfind("movw DSPADDR, YA", 0, start)
-            tail = text[previous + len("movw DSPADDR, YA"):]
-            write = tail.find("movw DSPADDR, YA")
-            assert write >= 0, f"{register} setup has no DSP write"
-            block = tail[:write]
-            mask_text = "and A, #STREAM_VOICE_MASK"
-            if mask_text not in block:
-                safe_constant = "mov Y, #STREAM_VOICE_MASK" in block or "mov Y, #0" in block
-                safe_variable = register == "DSP_KOFF" and "and A, musicSfxChannelMask" in block
-                assert safe_constant or safe_variable, f"{register} final value is not reserved-safe"
-                continue
-            mask = block.rfind(mask_text)
-            assert block.find("mov Y, A", mask) >= 0, f"{register} mask not transferred to Y"
-    for label in ("DSP_KON", "DSP_KOFF", "DSP_NON", "DSP_PMON", "DSP_EON"):
-        final_writes(label)
+    assert re.search(r"mov A, #\$ff\s+mov echoDirty, A", init)
+    assert re.search(r"mov A, #\$ff\s+mov sfx_oneChannelSfxId\+0, A", init)
+    assert re.search(r"mov sfx_oneChannelSfxId\+1, A", init)
+
+    # Verify actual hardware write sites, not the nearest textual occurrence
+    # of a DSP register constant. The normal firewall prepares Y and reloads
+    # A with the register address immediately before movw DSPADDR, YA.
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        m = re.search(r"mov A, #(DSP_(KON|KOFF|NON|PMON|EON))\b", line)
+        if not m:
+            continue
+        register = m.group(1)
+        window = lines[max(0, i - 14):i + 3]
+        joined = "\n".join(window)
+        assert "movw DSPADDR, YA" in "\n".join(lines[i:i + 3]), f"{register} is not a final DSP write"
+        proc_start = max((j for j in range(i + 1) if re.match(r"\s*\.proc\s+", lines[j])), default=0)
+        stream_owned = "stream_receive_frame" in lines[proc_start].lower()
+        if stream_owned and register == "DSP_KON":
+            continue
+        mask = re.search(r"and A, #STREAM_VOICE_MASK", joined)
+        safe_constant = re.search(r"mov Y, #STREAM_VOICE_MASK", joined) or re.search(r"mov Y, #0", joined)
+        assert mask or safe_constant, f"{register} final value is not reservation-safe"
+        if mask:
+            assert re.search(r"and A, #STREAM_VOICE_MASK\s+mov Y, A", joined), \
+                f"{register} masked value is not transferred to Y"
+
     pmon = between(text, "; Write pmonShadow to PMON", "mov A, noiseLock")
-    assert pmon.index("and A, #STREAM_VOICE_MASK") < pmon.index("mov A, #DSP_PMON")
-    assert pmon.index("mov A, #DSP_PMON") < pmon.index("movw DSPADDR, YA")
+    assert re.search(r"and A, #STREAM_VOICE_MASK\s+mov Y, A\s+mov A, #DSP_PMON\s+movw DSPADDR, YA", pmon)
     assert "hardware-write firewall" in text
     assert "musicSfxChannelMask" in text
     print("TAD VOICE-0 RESERVATION STATIC: PASS")

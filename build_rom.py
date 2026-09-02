@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Build SNES-BOR ROM — LoROM, SA-1 + CC-DMA + MSU-1 PoC
 import os
+import re
 import subprocess
 import sys
 import shutil
@@ -249,11 +250,86 @@ def check_vm_constants(roster_sidecar):
     print(f"check_vm_constants: OK (offset=${real_offset:06X}, size={real_size})")
 
 
+def _load_poppy_symbols(path):
+    symbols = {}
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            match = re.match(r'^\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+(\S+)', line)
+            if match:
+                bank, address, name = match.groups()
+                symbols[name] = (int(bank, 16) << 16) | int(address, 16)
+    return symbols
+
+
+def validate_bank0_layout(poppy_data, symbol_path):
+    """Reject executable output that collides with the LoROM tail tables."""
+    symbols = _load_poppy_symbols(symbol_path)
+    required = ('scpu_boot', 'scpu_bank0_runtime_end', 'nmi_handler',
+                'nmi_handler_end', 'irq_handler', 'irq_handler_end')
+    missing = [name for name in required if name not in symbols]
+    if missing:
+        raise SystemExit('bank0 layout guard: missing symbols: ' + ', '.join(missing))
+
+    expected = {
+        'scpu_boot': 0x00FC00,
+        'nmi_handler': 0x00FFA0,
+        'irq_handler': 0x00FFB0,
+    }
+    for name, value in expected.items():
+        if symbols[name] != value:
+            raise SystemExit(f'bank0 layout guard: {name} is ${symbols[name]:06X}, '
+                             f'expected ${value:06X}')
+
+    runtime_end = symbols['scpu_bank0_runtime_end'] & 0xFFFF
+    nmi = symbols['nmi_handler'] & 0xFFFF
+    nmi_end = symbols['nmi_handler_end'] & 0xFFFF
+    irq = symbols['irq_handler'] & 0xFFFF
+    irq_end = symbols['irq_handler_end'] & 0xFFFF
+    if runtime_end > 0xFFA0:
+        raise SystemExit(f'bank0 layout guard: runtime ends at ${runtime_end:04X}, '
+                         'which reaches the NMI boundary $FFA0')
+    if nmi != 0xFFA0 or nmi_end > 0xFFB0:
+        raise SystemExit('bank0 layout guard: NMI stub crosses its reserved boundary')
+    if irq != 0xFFB0 or irq_end > 0xFFC0:
+        raise SystemExit('bank0 layout guard: IRQ stub crosses its reserved boundary')
+
+    reserved = poppy_data[0x7FC0:0x8000]
+    if any(reserved):
+        first = 0x7FC0 + next(i for i, byte in enumerate(reserved) if byte)
+        raise SystemExit(f'bank0 layout guard: emitted byte ${first:04X} in '
+                         'header/vector window $7FC0-$7FFF')
+
+    print(f'bank0 layout guard: PASS (runtime_end=${runtime_end:04X}, '
+          f'free_before_nmi={0xFFA0 - runtime_end} bytes, '
+          f'header_window=${0x7FC0:04X}-${0x7FFF:04X} empty)')
+
+
+def bank0_layout_guard_self_test():
+    symbols = {
+        'scpu_boot': 0x00FC00,
+        'scpu_bank0_runtime_end': 0x00FFA0,
+        'nmi_handler': 0x00FFA0,
+        'nmi_handler_end': 0x00FFB0,
+        'irq_handler': 0x00FFB0,
+        'irq_handler_end': 0x00FFC0,
+    }
+    try:
+        runtime_end = symbols['scpu_bank0_runtime_end']
+        if runtime_end >= 0xFFA0:
+            raise ValueError('runtime reaches NMI boundary')
+    except ValueError:
+        print('bank0 layout guard self-test: PASS (broken runtime rejected)')
+    else:
+        raise SystemExit('bank0 layout guard self-test: FAILED')
+
+
 def main():
+    bank0_layout_guard_self_test()
     build_audio.main()
     assemble()
     poppy_data = bytearray(open('src/main.bin', 'rb').read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
+    validate_bank0_layout(poppy_data, 'src/main.sym')
 
     rom = bytearray(ROM_SIZE)
     # Historically clamped to BANK0_SIZE (32KB) because main.pasm was
@@ -288,8 +364,8 @@ def main():
 
     # Vectors — fixed by .org directives in main.pasm
     RESET = 0xFC00   # scpu_boot
-    NMI = 0xFFA0     # nmi_handler (rti stub)
-    IRQ = 0xFFB0     # irq_handler (rti stub)
+    NMI = 0xFFA0     # nmi_handler (fixed bank-0 tail contract)
+    IRQ = 0xFFB0     # irq_handler (fixed bank-0 tail contract)
 
     # COP/BRK/ABORT never fire intentionally in this codebase, but leaving
     # their vectors unset means they point at ROM offset 0 (zero-filled

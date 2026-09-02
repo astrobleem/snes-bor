@@ -4,12 +4,12 @@
 
 - Branch: `audio-content-pass`.
 - Work is uncommitted and must be preserved.
-- Current blocker: transport-only transaction 0 is not reaching a verified end-to-end completion.
-- Exact next test: trace one command from CPU APUIO writes through TAD dispatch and payload-complete ACK.
-- Do not start DSP playback, ring timing, consumer distance, or the 228-chunk burn-in yet.
-- Current driver evidence: latest fresh export is 3411 bytes, SHA prefix `e99d5b3a`.
-- Current audio blob evidence: SHA prefix `a815d27e`.
-- Current ROM evidence: source-built ROM SHA prefix `c2541246`.
+- Current blocker: transaction-only transport is proven through 16 serialized chunks; playback and ring-consumer safety remain unproven.
+- Exact next test: begin the separately controlled first playback/wrap diagnostic only after preserving this transport boundary.
+- No full burn-in, gameplay stream integration, or commit of the transport slice yet.
+- Current driver evidence: latest fresh export is 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`.
+- Current audio blob evidence: SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
+- Current ROM evidence: source-built ROM SHA `9a2f47fb27b9e0bfa2bf632c28215cf404e70ba7a43209128946f28f0c66d240`.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
 - Protected repository: `E:/gh/Mesen2-mcp-server`; do not touch.
 - Scope exclusions: no merge, G12, full regression, voice 1, generalized heap, resampling, truncation, or substituted authored audio.
@@ -85,21 +85,38 @@
 - Host HDMA staging table is WRAM `$7E3C00`.
 - Current selected HDMA channel is channel 0.
 - Channel 7 remains reserved by existing NMI use.
-- The intended current contract is donor-style mode 4: one submit row followed by 36 payload rows, four APUIO bytes per payload row.
-- Payload size is therefore 36 x 4 = 144 bytes.
-- APUIO0..APUIO3 carry four payload bytes on each payload row.
+- The accepted current contract is mode 4: one submit row followed by 72 payload rows.
+- APUIO0 carries the exact freshness-bearing stream command for the transaction.
+- APUIO1/2 carry two payload bytes per row; APUIO3 carries the commit token.
+- Payload size is therefore 72 x 2 = 144 bytes.
 - The submit row uses APUIO3 `$57` as the receive-start marker.
 - The receiver reads APUIO0..APUIO3 for 36 iterations and stores 144 bytes.
 - The receiver uses the supplied destination pointer and no playback is allowed in transport-only mode.
+
+## Latest Transaction-0 and Serial Evidence
+
+- Host producer entry is reached at `01:A646` on each service frame in the latest ROM.
+- CPU submits destination `$121A` and marker `$57`; the command value is `$16`.
+- The current contract is one submit row followed by 72 mode-4 rows. APUIO0 remains stable at the freshness-bearing submitted command; APUIO1/2 carry payload and APUIO3 commits each row.
+- A one-frame command-to-HDMA gap is present so the SPC command handler can enter before payload rows begin.
+- SPC command acceptance and payload-complete ACK are observed for transaction 0; destination `$121A` exactly matches FOOTDIE chunk 0, SHA `cb3bb339dc40eae86ab91d33430e852734f4a7c04d241ca74086368ebb081b00`.
+- The original 48 x 3 contract failed because APUIO0 published a row before payload data was stable. The commit-last 72 x 2 contract fixed that race.
+- A subsequent alternating serial failure was traced to stale `src/main.bin` packaging: source contained dynamic APUIO0 loads while the packaged ROM still contained immediate `A9 16` bytes.
+- After explicit fresh Poppy assembly and repackaging, chunks 0..15 passed serially, one transaction at a time, with exact external ARAM equality. Both generations passed; slot 7's intentional ring-header patch was accounted for.
+- Current serial acceptance: 16/16 chunks exact, 16/16 ACKed, no playback enabled.
+- `rebuild.py --check`, bank-0 layout guard, and voice-0 reservation verifier pass for the current artifacts.
 
 ## Stage A Status
 
 - Stage A is not proven.
 - Previous host-reported chunk counts were rejected because they did not prove SPC acceptance or correct ARAM contents.
 - A previous playback run stopped near 2017 voice-0 samples, consistent with one physical ring traversal, but DSP diagnosis is deferred until transport is correct.
-- Current serial harness after the marker fix shows no valid transaction 0: state remains idle, no ACK is observed, and no ARAM write is verified.
+- Current serial harness proves transaction 0 and chunks 0..15 without playback; host counters are still secondary to ACK plus external ARAM equality.
 - A forced-threshold diagnostic with stream enable, active flag, serial permit, and budget 143 still leaves budget/state/table unchanged across frames.
-- Therefore the first currently observed failure is producer-service invocation or its runtime gating, before HDMA table execution and before SPC payload receive.
+- Execution hooks in the clean diagnostic session reached neither the main-loop producer call-site range nor producer entry `01:A580`.
+- Raw ROM inspection shows the main loop begins at `$00:FFA2`, while the LoROM header occupies file `$7FC0-$7FDF`, corresponding to CPU `$00:FFC0-$FFDF`. The current main-loop body extends into that header region.
+- The current build also places NMI/IRQ handlers at `$00:FFD0/$00:FFD8`, inside the same header region. The S-CPU consequently leaves valid code and reaches `PC=$0007` before the producer call site.
+- This is a genuine ROM layout/control-flow defect before stream producer execution. Stream protocol, HDMA, and ring logic remain untested in this image.
 - Host counters are not trusted as delivery evidence.
 - The current acceptance oracle is CPU port traffic, SPC command/state transition, payload-complete ACK, and exact external ARAM bytes.
 

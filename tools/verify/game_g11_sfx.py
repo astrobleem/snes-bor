@@ -96,6 +96,8 @@ Checked:
 Usage: python tools/verify/game_g11_sfx.py
 """
 import os
+import argparse
+import hashlib
 import re
 import struct
 import sys
@@ -162,6 +164,14 @@ BEAT1_WAV_PATH = os.path.join(ROOT, 'soundwork', 'tad', 'project', 'samples', 'b
 def _beat1_source_duration_s():
     with wave.open(BEAT1_WAV_PATH) as w:
         return w.getnframes() / w.getframerate()
+
+
+def _rom_sha256():
+    h = hashlib.sha256()
+    with open(os.path.join(ROOT, 'distribution', 'bor.sfc'), 'rb') as f:
+        for block in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(block)
+    return h.hexdigest()
 
 
 BEAT1_SOURCE_DURATION_S = _beat1_source_duration_s()
@@ -235,7 +245,16 @@ def poll_frames(m, n, on_frame):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rom-sha256', required=True)
+    args = parser.parse_args()
     r = Reporter('G11', kind='GATE')
+
+    actual_rom_sha = _rom_sha256()
+    r.check(f'waveform ROM hash matches expected {args.rom_sha256}',
+            actual_rom_sha == args.rom_sha256.lower())
+    if actual_rom_sha != args.rom_sha256.lower():
+        print(f'INVALID CAPTURE: ROM hash is {actual_rom_sha}, expected {args.rom_sha256.lower()}')
 
     # --- 1. Reconstruction sanity + SFX id sync. ---
     enums_path = os.path.join(ROOT, 'soundwork', 'tad', 'build', 'audio-enums.inc')
@@ -543,42 +562,67 @@ def main():
     # thresholds below are set with margin under those real measurements,
     # not tuned to just barely pass.
     RECORD_FRAMES = 90
-    with open_session(__file__) as m:
-        boot_and_warm(m)
-        tmp = tempfile.mkdtemp(prefix='g11-isolated-')
-        nohit_wav = os.path.join(tmp, 'nohit.wav')
-        m.record_audio(nohit_wav)
-        m.run_frames(RECORD_FRAMES)
-        m.pause()
-        m.stop_audio()
+    with tempfile.TemporaryDirectory(prefix='g11-isolated-') as tmp:
+        nohit_wav = os.path.join(tmp, 'nohit-fresh.wav')
+        hit_wav = os.path.join(tmp, 'hit-fresh.wav')
+        assert not os.path.exists(nohit_wav) and not os.path.exists(hit_wav)
+
+        with open_session(__file__) as m:
+            boot_and_warm(m)
+            write_u16(m, Entity1 + CHAR_POS_X, 60000)
+            baseline_nohit = read_byte(m, REQUEST_COUNT_ADDR)
+            m.record_audio(nohit_wav)
+            m.run_frames(RECORD_FRAMES)
+            m.pause()
+            m.stop_audio()
+            nohit_delta = (read_byte(m, REQUEST_COUNT_ADDR) - baseline_nohit) & 0xFF
+
+            # Reset inside this still-fresh process so control and hit audio
+            # begin from the same deterministic TAD/MSU phase.  A second
+            # independently booted process can be frame-aligned yet still
+            # leave the music phase offset in the difference signal.
+            m.reset_emulator()
+            boot_and_warm(m)
+            write_u8(m, PlayerEntity + CHAR_HIT_STUN, 0)
+            write_u8(m, Entity1 + CHAR_HP, 100)
+            overlap(m, Entity1)
+            write_u8(m, PlayerEntity + CHAR_HIT_APPLIED, 0)
+            baseline_count9 = read_byte(m, REQUEST_COUNT_ADDR)
+            m.record_audio(hit_wav)
+            hit_confirmed_frame = None
+            hit_count = 0
+            m.hold_input(m.BTN_Y, 0)
+            for i in range(RECORD_FRAMES):
+                m.run_frames(1)
+                m.pause()
+                delta = (read_byte(m, REQUEST_COUNT_ADDR) - baseline_count9) & 0xFF
+                if delta:
+                    hit_count = delta
+                    if hit_confirmed_frame is None:
+                        hit_confirmed_frame = i
+                        # End the attack interaction after the one real
+                        # authoritative commit, preventing a second hit from
+                        # entering this quality capture.
+                        write_u16(m, Entity1 + CHAR_POS_X, 60000)
+            m.release_input(0)
+            m.stop_audio()
+
+        r.check('waveform capture files were created by this run',
+                os.path.isfile(nohit_wav) and os.path.isfile(hit_wav) and
+                os.path.getsize(nohit_wav) > 44 and os.path.getsize(hit_wav) > 44)
+        r.check('waveform control capture had zero G11 events', nohit_delta == 0)
+        r.check('waveform hit capture had exactly one G11 event',
+                hit_confirmed_frame is not None and hit_count == 1)
+        if nohit_delta != 0 or hit_confirmed_frame is None or hit_count != 1:
+            print(f'INVALID CAPTURE: nohit_delta={nohit_delta}, hit_count={hit_count}, '
+                  f'hit_frame={hit_confirmed_frame}')
+            r.finish()
+
         with wave.open(nohit_wav) as w:
             nohit_raw = w.readframes(w.getnframes())
             audio_rate = w.getframerate()
-
-    with open_session(__file__) as m:
-        boot_and_warm(m)
-        write_u8(m, PlayerEntity + CHAR_HIT_STUN, 0)
-        write_u8(m, Entity1 + CHAR_HP, 100)
-        overlap(m, Entity1)
-        write_u8(m, PlayerEntity + CHAR_HIT_APPLIED, 0)
-        baseline_count9 = read_byte(m, REQUEST_COUNT_ADDR)
-
-        hit_wav = os.path.join(tmp, 'hit.wav')
-        m.record_audio(hit_wav)
-        hit_confirmed_frame = None
-        m.hold_input(m.BTN_Y, 0)
-        for i in range(RECORD_FRAMES):
-            m.run_frames(1)
-            m.pause()
-            if hit_confirmed_frame is None and read_byte(m, REQUEST_COUNT_ADDR) != baseline_count9:
-                hit_confirmed_frame = i
-        m.release_input(0)
-        m.stop_audio()
         with wave.open(hit_wav) as w:
             hit_raw = w.readframes(w.getnframes())
-
-    r.check('isolated BEAT1 proof precondition: a real hit was confirmed during the recording',
-            hit_confirmed_frame is not None)
 
     n = min(len(nohit_raw), len(hit_raw)) // 4  # stereo, 16-bit = 4 bytes/frame
     nohit_stereo = struct.unpack('<' + 'h' * (n * 2), nohit_raw[:n * 4])
@@ -594,20 +638,23 @@ def main():
         env.append((sum(x * x for x in seg) / WIN) ** 0.5)
 
     noise_floor = sorted(env[:10])[len(env[:10]) // 2] if len(env) > 10 else 0
-    threshold = max(noise_floor * 5, 50)
+    # Keep the floor relative to the matched-session noise rather than using
+    # a fixed mixer-amplitude cutoff.  The authored BEAT1 tail is quiet; a
+    # fixed 50-sample floor classified that legitimate tail as silence.
+    threshold = max(noise_floor * 3, 20)
 
     onset = next((i for i, e in enumerate(env) if e > threshold), None)
     offset = None
     if onset is not None:
-        consec = 0
-        for i in range(onset + 1, len(env)):
-            if env[i] < threshold:
-                consec += 1
-                if consec >= 10:
-                    offset = i - 10 + 1
-                    break
-            else:
-                consec = 0
+        # A recorded one-shot can contain internal low-energy valleys.  The
+        # first 20-window gap is therefore not a reliable end marker.  Use
+        # the last threshold-crossing window, then require the remainder of
+        # the bounded recording to stay quiet for the same trailing window.
+        active_windows = [i for i in range(onset, len(env)) if env[i] > threshold]
+        if active_windows:
+            candidate = active_windows[-1] + 1
+            if len(env) - candidate >= 20 and all(e < threshold for e in env[candidate:]):
+                offset = candidate
 
     r.check('isolated BEAT1 proof: a bounded onset was found in the hit-minus-no-hit difference signal',
             onset is not None)

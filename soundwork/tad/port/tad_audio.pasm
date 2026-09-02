@@ -185,6 +185,7 @@ TAD_IO_VERSION = 20
     SET_GLOBAL_MUSIC_VOLUME = 16
     SET_GLOBAL_SFX_VOLUME = 18
     SET_GLOBAL_VOLUMES = 20
+    STREAM_RECEIVE_FRAME = 22
 ; endenum
 
 TAD_MAX_PAN = 128
@@ -371,7 +372,22 @@ TAD_N_AUDIO_MODES = 3
     ;; Default number of bytes to transfer to Audio-RAM per `Tad_Process` call.
     ;;
     ;; MUST be between the TAD_MIN_TRANSFER_PER_FRAME and TAD_MAX_TRANSFER_PER_FRAME
-    TAD_DEFAULT_TRANSFER_PER_FRAME = 256
+TAD_DEFAULT_TRANSFER_PER_FRAME = 256
+
+;; TEST-ONLY long-SFX transport. The SPC command is implemented by the
+;; project-local TAD source patch; this host path owns the same four ports.
+TAD_STREAM_HDMA_MARKER = $d7
+TAD_STREAM_FRAME_BYTES = 144
+; The routine below sets DBR to WRAM bank $7E before using this absolute,Y
+; table. Keeping the offset 16-bit avoids illegal long,Y addressing.
+TAD_STREAM_HDMA_TABLE = $3C00
+TAD_STREAM_HDMA_CHANNEL = 0
+DMAP0 = $4300
+BBAD0 = $4301
+A1T0L = $4302
+A1T0H = $4303
+A1B0 = $4304
+HDMAEN = $420C
 
 
 
@@ -445,6 +461,12 @@ TadPrivate_nextCommand_id = $7E003D
     ;; The two parameters of the next command (if any)
 TadPrivate_nextCommand_parameter0 = $7E003E
 TadPrivate_nextCommand_parameter1 = $7E003F
+
+TadPrivate_stream_frame = $7E2840
+TadPrivate_stream_buffer = $7E2842 ; .dw ARAM destination
+TadPrivate_stream_state = $7E2844 ; .db transfer state
+TadPrivate_stream_source_offset = $7E2845 ; .dw ROM source offset
+TadPrivate_stream_budget = $7E2847 ; .dw BRR byte pacing accumulator
 
 
 ;; ---------------------------------------
@@ -1276,6 +1298,92 @@ Tad_QueueSoundEffect__EndIf:
     rts
 
 
+; TEST-ONLY host producer for the fixed FOOTDIE ring. The caller must provide
+; a ROM source at Footdie_StreamSource and invoke this once per accepted frame.
+; It builds one marker + 36 four-port HDMA rows in WRAM, then sends the normal
+; TAD command and enables HDMA channel 0. DMA channel 7 remains owned by the
+; project's NMI VRAM/OAM/CGRAM queue.
+Tad_StreamSendFootdieFrame:
+    phb
+    sep #$20
+.a8
+    lda #$7e
+    pha
+    plb
+    lda TadPrivate_stream_buffer
+    sta.l PARAMETER0_PORT
+    lda #0
+    sta.l PARAMETER1_PORT
+
+    ldy #0
+
+    rep #$10
+.i16
+    lda.l TadPrivate_stream_source_offset
+    tax
+    lda #36
+    sta.l TadPrivate_stream_state
+Tad_StreamSendFootdieFrame__row:
+    sep #$20
+.a8
+    lda #1
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l Footdie_StreamSource,x
+    sta TAD_STREAM_HDMA_TABLE,y
+    iny
+    inx
+    lda.l TadPrivate_stream_state
+    dec
+    sta.l TadPrivate_stream_state
+    bne Tad_StreamSendFootdieFrame__row
+    lda #0
+    sta TAD_STREAM_HDMA_TABLE,y
+    txa
+    sta.l TadPrivate_stream_source_offset
+    lda TAD_STREAM_HDMA_TABLE+135
+    ora #$03
+    sta TAD_STREAM_HDMA_TABLE+135
+
+    ; The command ID toggles exactly like ordinary TAD commands. The SPC
+    ; receiver acknowledges only after its bounded 144-byte receive completes.
+    lda TadPrivate_previousCommand
+    and #COMMAND_I_MASK
+    eor #COMMAND_I_MASK
+    ora #STREAM_RECEIVE_FRAME
+    sta.l COMMAND_PORT
+    sta TadPrivate_previousCommand
+
+    lda.l DMAP0
+    ora #$04
+    sta.l DMAP0
+    lda #$40
+    sta.l BBAD0
+    lda #<TAD_STREAM_HDMA_TABLE
+    sta.l A1T0L
+    lda #>TAD_STREAM_HDMA_TABLE
+    sta.l A1T0H
+    lda #$7e
+    sta.l A1B0
+    lda.l Nmi_HdmaEnable
+    ora #$01
+    sta.l Nmi_HdmaEnable
+    plb
+    rts
+
+
 
 ; IN: A = song_id
 .a8
@@ -1468,5 +1576,3 @@ Tad_IsSongPlaying:
     lda TadPrivate_state
     cmp #PLAYING
     rts
-
-
