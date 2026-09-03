@@ -1,0 +1,14 @@
+diff --git a/audio-driver/src/audio-driver.asm b/audio-driver/src/audio-driver.asm
+index 502a224..11ba70f 100644
+--- a/audio-driver/src/audio-driver.asm
++++ b/audio-driver/src/audio-driver.asm
+@@ -1862,6 +1862,9 @@ ReceiveStreamFrame__payload_done:
+     mov A, #hibyte(STREAM_RING_ADDR)
+     mov brrDirectory+133, A
+     ; Explicit stream ownership of physical DSP voice 0, only at first start.
++    mov A, #$04
++    mov Y, #33
++    movw DSPADDR, YA
+     mov A, #$00
+     mov Y, #$7f
+     movw DSPADDR, YA

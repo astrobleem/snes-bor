@@ -161,19 +161,21 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
                 f"expected {expected}, got {actual}"
             )
 
-    stream_patch = baseline.get("patch", {}).get("stream_transport_patch")
-    if not stream_patch:
-        raise SystemExit("FAIL: baseline lacks stream transport patch identity")
-    patch_path = REPO_ROOT / stream_patch["path"]
-    if not patch_path.exists():
-        raise SystemExit(f"FAIL: stream transport patch is missing: {patch_path}")
-    expected_patch = stream_patch.get("sha256", "").lower()
-    actual_patch = sha256_of(patch_path).lower()
-    if actual_patch != expected_patch:
-        raise SystemExit(
-            f"FAIL: stream transport patch identity mismatch: expected "
-            f"{expected_patch}, got {actual_patch} ({patch_path})"
-        )
+    patch_identity = baseline.get("patch", {})
+    for patch_name in ("stream_transport_patch", "stream_voice0_patch"):
+        stream_patch = patch_identity.get(patch_name)
+        if not stream_patch:
+            raise SystemExit(f"FAIL: baseline lacks {patch_name} identity")
+        patch_path = REPO_ROOT / stream_patch["path"]
+        if not patch_path.exists():
+            raise SystemExit(f"FAIL: source patch is missing: {patch_path}")
+        expected_patch = stream_patch.get("sha256", "").lower()
+        actual_patch = sha256_of(patch_path).lower()
+        if actual_patch != expected_patch:
+            raise SystemExit(
+                f"FAIL: {patch_name} identity mismatch: expected "
+                f"{expected_patch}, got {actual_patch} ({patch_path})"
+            )
 
 
 def compile_project(compiler: Path, out_dir: Path) -> None:

@@ -8,12 +8,12 @@
 - Transaction 0 and serialized chunks 0..15 are exact and ACK-gated; bank-0 layout is resolved and guarded.
 - Current next gate: controlled physical playback and ring-wrap proof. Full Stage A remains unproven.
 - The source provenance cleanup is uncommitted; no playback has started.
-- Current driver evidence: latest accepted export is 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`.
-- Current audio blob evidence: SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
-- Current ROM evidence: source-built ROM SHA `9a2f47fb27b9e0bfa2bf632c28215cf404e70ba7a43209128946f28f0c66d240`.
+- Current d58 reconstruction evidence: driver 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`; blob SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
+- Current working playback diagnostic: driver 3426 bytes, SHA `8ebdf5098be4691528e55e4fc2fd8a5f30db9d00bf704baf6939d735f903802b`; blob SHA `8974821a44f0ea8b0bd2cbb05d826bd5626e39e31d338ebc217756f8020bfa56`; ROM SHA `fbfc143f7f4eed444d6dc6220646745edc6a8312eef09c7a25ee36a64e3a9b04`.
 - Source provenance cleanup is now reconstructed as the pinned upstream commit plus the accepted voice-0 patch and the new stream-transport patch; fresh reconstructed export is byte-identical to the accepted driver and blob.
 - Revalidated after cleanup: transaction 0 exact ARAM PASS, serialized chunks 0..15 exact PASS, `rebuild.py --check` PASS, voice-0 reservation PASS, and authoritative G11 voice-7 PASS.
 - Current next gate: controlled physical playback and ring-wrap proof. Do not claim playback or full Stage A yet.
+- Provenance: pinned upstream plus the voice-0 patch plus `tad-v0.3.0-stream-transport.patch` reproduces d58 exactly; `tad-v0.3.0-stream-voice0-srcn.patch` records the later V0SRCN diagnostic fix.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
 - Protected repository: `E:/gh/Mesen2-mcp-server`; do not touch.
 - Scope exclusions: no merge, G12, full regression, voice 1, generalized heap, resampling, truncation, or substituted authored audio.

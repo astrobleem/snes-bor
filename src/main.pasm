@@ -12489,12 +12489,14 @@ Tad_StreamSendFootdieFrame__source_accounted:
     bne Tad_StreamSendFootdieFrame__no_loop_header
     sep #$20
 .a8
-    ; Only the final BRR header of physical slot 7 receives transport LOOP.
+    ; Intermediate physical slot 7 must terminate and loop to the directory
+    ; loop pointer. The source header may have neither flag set, so publish
+    ; both END and LOOP. The genuine final source block is never patched.
     ; The genuine final source block is never converted into a ring loop.
     ; With a submit row plus two-byte payload rows, source byte 135 is the
     ; second payload byte of row 67: 5 + (67 * 5) + 3 = offset 343.
     lda TAD_STREAM_HDMA_TABLE+343
-    ora #$02
+    ora #$03
     sta TAD_STREAM_HDMA_TABLE+343
 Tad_StreamSendFootdieFrame__no_loop_header:
     rep #$20
