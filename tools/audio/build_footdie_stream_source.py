@@ -28,6 +28,9 @@ BRR_BYTES = 32733
 BRR_BLOCK = 9
 FRAME_BYTES = 144
 RING_BUFFERS = 8
+PAYLOAD_ROWS = 72
+PAYLOAD_BYTES_PER_SCANLINE = 2
+SUBMIT_MARKER = 0x57
 
 
 def main() -> int:
@@ -76,20 +79,6 @@ def main() -> int:
     out_dir = ROOT / "assets" / "audio"
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "footdie.brr").write_bytes(brr)
-    # HDMA channel 0 receives a marker row followed by 36 four-port payload
-    # rows. The marker synchronizes the SPC command; transport framing never
-    # means sample END.
-    hdma = bytearray()
-    for pos in range(0, len(brr), FRAME_BYTES):
-        chunk = brr[pos:pos + FRAME_BYTES]
-        hdma.extend((1, 0xD7, 0, 0, 0))
-        for off in range(0, FRAME_BYTES, 4):
-            part = chunk[off:off + 4]
-            hdma.append(1)
-            hdma.extend(part)
-            hdma.extend(b"\0" * (4 - len(part)))
-        hdma.append(0)
-    (out_dir / "footdie.hdma").write_bytes(hdma)
     evidence = {
         "asset": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
         "source_pak_sha256": hashlib.sha256(PAK.read_bytes()).hexdigest(),
@@ -99,9 +88,17 @@ def main() -> int:
         "duration_seconds": seconds, "duration_ticks": ticks,
         "brr_bytes": len(brr), "brr_sha256": hashlib.sha256(brr).hexdigest(),
         "brr_blocks": len(brr) // BRR_BLOCK,
-        "transport": {"payload_bytes_per_scanline": 3, "frame_bytes": FRAME_BYTES,
-                       "ring_buffers": RING_BUFFERS, "ring_bytes": RING_BUFFERS * FRAME_BYTES,
-                       "hdma_channel": 0, "hdma_table_bytes": len(hdma)},
+        "transport": {"frame_bytes": FRAME_BYTES,
+                       "payload_bytes_per_scanline": PAYLOAD_BYTES_PER_SCANLINE,
+                       "payload_rows": PAYLOAD_ROWS,
+                       "command_port": "APUIO0",
+                       "payload_ports": ["APUIO1", "APUIO2"],
+                       "commit_port": "APUIO3",
+                       "submit_marker": "$57",
+                       "hdma_channel": 0,
+                       "runtime_table": "dynamic",
+                       "ring_buffers": RING_BUFFERS,
+                       "ring_bytes": RING_BUFFERS * FRAME_BYTES},
         "parents": {"generator": "tools/audio/build_footdie_stream_source.py",
                     "compiler": str(COMPILER), "production_lifetime": "tools/audio/semantic_lifetime_residency.json"},
     }

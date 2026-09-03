@@ -14,7 +14,7 @@
     "driver_size_after_patch": 3420,
     "driver_sha256_after_patch": "12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa",
     "audio_data_sha256_after_patch": "ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235",
-    "data_table": "$018E2A",
+    "data_table": "$018E03",
     "generated_symbols": "soundwork/tad/build/tad_blob_syms.pasm",
     "rom_loader": "src/main.pasm:Tad_Init"
   },
@@ -29,6 +29,11 @@
     "sha256": "a93560dad40a1853c4d3a832b4dd1f1a9c4fc527d95d5968847401edbf525417",
     "source_sha256": "85f71196e1a91b702203acd96eb5105ad71c09dd9f880cde2a2bae988f7f030a",
     "mode": "source-level build-time reservation",
+    "stream_transport_patch": {
+      "path": "soundwork/tad/patches/tad-v0.3.0-stream-transport.patch",
+      "sha256": "4486e95f7a37d66e04c33b93642dd20db7bf9e0ec77744270556802afbc408f1",
+      "mode": "source-level TAD stream transport extension"
+    },
     "parent_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
     "reserved_physical_voice": 0,
     "normal_sfx_voices": [

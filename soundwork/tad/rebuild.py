@@ -161,6 +161,20 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
                 f"expected {expected}, got {actual}"
             )
 
+    stream_patch = baseline.get("patch", {}).get("stream_transport_patch")
+    if not stream_patch:
+        raise SystemExit("FAIL: baseline lacks stream transport patch identity")
+    patch_path = REPO_ROOT / stream_patch["path"]
+    if not patch_path.exists():
+        raise SystemExit(f"FAIL: stream transport patch is missing: {patch_path}")
+    expected_patch = stream_patch.get("sha256", "").lower()
+    actual_patch = sha256_of(patch_path).lower()
+    if actual_patch != expected_patch:
+        raise SystemExit(
+            f"FAIL: stream transport patch identity mismatch: expected "
+            f"{expected_patch}, got {actual_patch} ({patch_path})"
+        )
+
 
 def compile_project(compiler: Path, out_dir: Path) -> None:
     out_asm = out_dir / "audio-data.s"
@@ -207,6 +221,18 @@ def verify_generated_driver(audio_data_s: Path, audio_data_bin: Path, baseline: 
         raise SystemExit(
             f"FAIL: generated audio blob SHA {blob_sha} disagrees with baseline "
             f"{graph['audio_data_sha256_after_patch']}"
+        )
+
+
+def verify_data_table_metadata(generated_syms: str, baseline: dict) -> None:
+    match = re.search(r'^Tad_DataTable = \$([0-9A-Fa-f]+)$', generated_syms, re.M)
+    if not match:
+        raise SystemExit("FAIL: generated symbols lack Tad_DataTable")
+    actual = f"${int(match.group(1), 16):06X}"
+    expected = baseline["runtime_graph"]["data_table"].upper()
+    if actual != expected:
+        raise SystemExit(
+            f"FAIL: baseline data_table {expected} disagrees with generated symbols {actual}"
         )
 
 
@@ -339,6 +365,7 @@ def main() -> int:
 
         base_addr = find_audio_data_base()
         new_syms = parse_blob_syms(new_files["audio-data.s"], base_addr)
+        verify_data_table_metadata(new_syms, baseline)
         verify_generated_driver(new_files["audio-data.s"], new_files["audio-data.bin"], baseline)
 
         if args.update:

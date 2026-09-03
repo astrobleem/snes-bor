@@ -4,12 +4,16 @@
 
 - Branch: `audio-content-pass`.
 - Work is uncommitted and must be preserved.
-- Current blocker: transaction-only transport is proven through 16 serialized chunks; playback and ring-consumer safety remain unproven.
-- Exact next test: begin the separately controlled first playback/wrap diagnostic only after preserving this transport boundary.
-- No full burn-in, gameplay stream integration, or commit of the transport slice yet.
-- Current driver evidence: latest fresh export is 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`.
+- Published transport boundary: `d58b513`.
+- Transaction 0 and serialized chunks 0..15 are exact and ACK-gated; bank-0 layout is resolved and guarded.
+- Current next gate: controlled physical playback and ring-wrap proof. Full Stage A remains unproven.
+- The source provenance cleanup is uncommitted; no playback has started.
+- Current driver evidence: latest accepted export is 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`.
 - Current audio blob evidence: SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
 - Current ROM evidence: source-built ROM SHA `9a2f47fb27b9e0bfa2bf632c28215cf404e70ba7a43209128946f28f0c66d240`.
+- Source provenance cleanup is now reconstructed as the pinned upstream commit plus the accepted voice-0 patch and the new stream-transport patch; fresh reconstructed export is byte-identical to the accepted driver and blob.
+- Revalidated after cleanup: transaction 0 exact ARAM PASS, serialized chunks 0..15 exact PASS, `rebuild.py --check` PASS, voice-0 reservation PASS, and authoritative G11 voice-7 PASS.
+- Current next gate: controlled physical playback and ring-wrap proof. Do not claim playback or full Stage A yet.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
 - Protected repository: `E:/gh/Mesen2-mcp-server`; do not touch.
 - Scope exclusions: no merge, G12, full regression, voice 1, generalized heap, resampling, truncation, or substituted authored audio.
@@ -64,11 +68,15 @@
 - Stock compiler use is forbidden for this stream branch.
 - Manual restoration of `src/main.bin` or `audio-data.bin` is forbidden.
 - Latest patched compiler was rebuilt from source and selected explicitly.
+- Reproducible patch chain: upstream `00215a2e9aaf327d620120a48b47d74f80d5b521` + voice patch `a93560dad40a1853c4d3a832b4dd1f1a9c4fc527d95d5968847401edbf525417` + stream patch `4486e95f7a37d66e04c33b93642dd20db7bf9e0ec77744270556802afbc408f1`.
+- Reconstructed source content matches the accepted sibling source after line-ending normalization; fresh export is byte-identical to the accepted driver/blob.
 - `soundwork/tad/rebuild.py --check` passed for the latest generated export.
-- Latest driver: 3411 bytes, SHA prefix `e99d5b3a`.
-- Latest audio blob: SHA prefix `a815d27e`.
-- Latest ROM rebuilt from `src/main.pasm`: SHA prefix `c2541246`.
+- Latest accepted driver: 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`.
+- Latest accepted audio blob: SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
+- Latest ROM rebuilt from `src/main.pasm`: SHA `9a2f47fb27b9e0bfa2bf632c28215cf404e70ba7a43209128946f28f0c66d240`.
 - `build/bor.sfc` and `distribution/bor.sfc` were packaged byte-identically for that build.
+- Generated `Tad_DataTable` is `$018E03`; baseline metadata now checks this against fresh generated symbols.
+- Stream patch SHA: `4486e95f7a37d66e04c33b93642dd20db7bf9e0ec77744270556802afbc408f1`.
 
 ## Important Protocol Fix
 
@@ -90,7 +98,7 @@
 - APUIO1/2 carry two payload bytes per row; APUIO3 carries the commit token.
 - Payload size is therefore 72 x 2 = 144 bytes.
 - The submit row uses APUIO3 `$57` as the receive-start marker.
-- The receiver reads APUIO0..APUIO3 for 36 iterations and stores 144 bytes.
+- The receiver reads APUIO1/2 for 72 commit-token iterations and stores 144 bytes.
 - The receiver uses the supplied destination pointer and no playback is allowed in transport-only mode.
 
 ## Latest Transaction-0 and Serial Evidence
@@ -114,9 +122,8 @@
 - Current serial harness proves transaction 0 and chunks 0..15 without playback; host counters are still secondary to ACK plus external ARAM equality.
 - A forced-threshold diagnostic with stream enable, active flag, serial permit, and budget 143 still leaves budget/state/table unchanged across frames.
 - Execution hooks in the clean diagnostic session reached neither the main-loop producer call-site range nor producer entry `01:A580`.
-- Raw ROM inspection shows the main loop begins at `$00:FFA2`, while the LoROM header occupies file `$7FC0-$7FDF`, corresponding to CPU `$00:FFC0-$FFDF`. The current main-loop body extends into that header region.
-- The current build also places NMI/IRQ handlers at `$00:FFD0/$00:FFD8`, inside the same header region. The S-CPU consequently leaves valid code and reaches `PC=$0007` before the producer call site.
-- This is a genuine ROM layout/control-flow defect before stream producer execution. Stream protocol, HDMA, and ring logic remain untested in this image.
+- Historical layout defect: an earlier image placed main-loop/NMI/IRQ code in the header window and reached `PC=$0007`; it was repaired before d58b513 and is now guarded by the fixed bank-0 contract.
+- Current runtime layout: main-loop `$00:FF0C`, ordinary runtime end `$00:FF2E`, NMI `$00:FFA0`, IRQ `$00:FFB0`, with 114 bytes free before NMI.
 - Host counters are not trusted as delivery evidence.
 - The current acceptance oracle is CPU port traffic, SPC command/state transition, payload-complete ACK, and exact external ARAM bytes.
 
