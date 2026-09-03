@@ -1,17 +1,29 @@
 # SNES BOR Audio Content Pass Checkpoint
 
+## Shared Armory
+
+- Relevant shared tool worktree: `E:\\gh\\Mesen2-mcp-frameexact`.
+- Remote/fork: `https://github.com/astrobleem/Mesen2.git`, `origin/master` at `18c05d3f076728d05310c6e591b7d0a08d604d42`.
+- Reusable capability: exact frame-count `run_frames`, held/released input, deterministic pause and teardown.
+- Liveness proof on this host: requests for 1, 1, and 10 frames returned exact advancement with `timedOut=false`.
+- Passive DSP diagnostic edits remain only in the separate worktree. `E:\\gh\\Mesen2-mcp-server` was not modified.
+
 ## Resume Here
 
 - Branch: `audio-content-pass`.
-- Work is uncommitted and must be preserved.
-- Published transport boundary: `d58b513`.
+- Work after the published transport boundary is uncommitted and must be preserved.
+- Published transport boundary: `d58b513`; provenance follow-up is published as `aeccf84`.
 - Transaction 0 and serialized chunks 0..15 are exact and ACK-gated; bank-0 layout is resolved and guarded.
 - Current next gate: controlled physical playback and ring-wrap proof. Full Stage A remains unproven.
-- The source provenance cleanup is uncommitted; no playback has started.
+- Playback remains unstarted after the corrected source extraction; Gate A must be rerun with the real BRR content.
 - Current d58 reconstruction evidence: driver 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`; blob SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
-- Current working playback diagnostic: driver 3426 bytes, SHA `8ebdf5098be4691528e55e4fc2fd8a5f30db9d00bf704baf6939d735f903802b`; blob SHA `8974821a44f0ea8b0bd2cbb05d826bd5626e39e31d338ebc217756f8020bfa56`; ROM SHA `fbfc143f7f4eed444d6dc6220646745edc6a8312eef09c7a25ee36a64e3a9b04`.
-- Source provenance cleanup is now reconstructed as the pinned upstream commit plus the accepted voice-0 patch and the new stream-transport patch; fresh reconstructed export is byte-identical to the accepted driver and blob.
+- Current latest TAD source fix: transport-only prefill no longer claims voice 0; stream directory start and loop low bytes use `lobyte(STREAM_RING_ADDR)`.
+- Current latest driver: 3437 bytes, SHA `b55edf38ed53b470789a9a9a6b43b1b13e8d408640c08ca1f3c17cf664da5ea6`; blob SHA `97a734107636d4aa99a993e91aa9d960bf9aa16c34fe31e46ec97a396a5382de`; corrected-content ROM SHA `113f1dff67f9cba1177da0fe39dec97dc701a06a7b600224a7026da50b1bd5d2`.
+- Source provenance cleanup is published in `aeccf84`; the active post-d58 source delta remains represented by `tad-v0.3.0-stream-voice0-srcn.patch` and the patched compiler path.
 - Revalidated after cleanup: transaction 0 exact ARAM PASS, serialized chunks 0..15 exact PASS, `rebuild.py --check` PASS, voice-0 reservation PASS, and authoritative G11 voice-7 PASS.
+- The prior `footdie.brr` extraction used `common[19:...]`, which started inside TAD metadata. The generator now converts data-table segment offsets to blob offsets, reads the directory at Common Audio Data offset 28, and derives BRR start from its `$1815` ARAM pointer.
+- Corrected FOOTDIE: Common Audio Data 32782 bytes; base `$17E4`; BRR offset 49; 32733 bytes; 3637 blocks; 58192 decoded samples; first header `$70`; final header `$01`; END count 1; LOOP count 0; decode/source correlation `0.9977658011`; BRR SHA `6b7677dc2666ab4de95021ef88ff2ce43b2f30263ffee6ec2562a455745d3c7d`.
+- Corrected-content transport rerun: transaction 0 and serialized chunks 0..15 are exact with ACK-gated external ARAM verification; chunk-0 SHA is `317fa853814e0315096e2ca441d84ab55d8faa3296e0e231b87b609f18f431ae`.
 - Current next gate: controlled physical playback and ring-wrap proof. Do not claim playback or full Stage A yet.
 - Provenance: pinned upstream plus the voice-0 patch plus `tad-v0.3.0-stream-transport.patch` reproduces d58 exactly; `tad-v0.3.0-stream-voice0-srcn.patch` records the later V0SRCN diagnostic fix.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
@@ -111,7 +123,8 @@
 - The original 48 x 3 contract failed because APUIO0 published a row before payload data was stable. The commit-last 72 x 2 contract fixed that race.
 - A subsequent alternating serial failure was traced to stale `src/main.bin` packaging: source contained dynamic APUIO0 loads while the packaged ROM still contained immediate `A9 16` bytes.
 - After explicit fresh Poppy assembly and repackaging, chunks 0..15 passed serially, one transaction at a time, with exact external ARAM equality. Both generations passed; slot 7's intentional ring-header patch was accounted for.
-- Current serial acceptance: 16/16 chunks exact, 16/16 ACKed, no playback enabled.
+- Current serial acceptance after the fresh rebuild: 16/16 chunks exact, 16/16 ACKed, no playback enabled.
+- Playback observations before corrected extraction: prefill slots 0..6 were exact; normal start changed directory entry 33 to `1A121A12`; voice-0 capture was invalid because the extracted source began with metadata. This is superseded by the corrected BRR and must be rerun.
 - `rebuild.py --check`, bank-0 layout guard, and voice-0 reservation verifier pass for the current artifacts.
 
 ## Stage A Status
@@ -157,3 +170,41 @@
 - Do not reset or rewrite history.
 - Do not amend the accepted reservation commit.
 - Do not commit or push until the coherent transport slice has real evidence.
+
+## Latest Gate A Evidence (2026-09-02)
+
+- Corrected FOOTDIE extraction remains authoritative: Common Audio Data directory-derived BRR offset `$31`, 32733 bytes, 3637 blocks, 58192 decoded samples, one final END header, zero LOOP headers.
+- Corrected BRR SHA-256: `6b7677dc2666ab4de95021ef88ff2ce43b2f30263ffee6ec2562a455745d3c7d`.
+- Serialized transport with corrected content remains 16/16 exact; chunk 0 expected and ARAM SHA-256: `317fa853814e0315096e2ca441d84ab55d8faa3296e0e231b87b609f18f431ae`.
+- Host stream table uses HDMA line-count `1` for the submit and 72 payload rows, preserving the accepted 72 x 2 protocol, APUIO ownership, and `$57`.
+- The once-per-frame pacing fix plus late stream pump raised measured delivery from 25/60 frames to approximately 43/60 frames, above the 6201.5625-byte/s authored-source requirement.
+- A separate consumer-credit safety ceiling now prevents the next submission when it would be eight chunks ahead of the estimated consumer. Transport-only prefill is excluded from this playback epoch.
+- Current source-built/package ROM SHA-256: `ddb68415622e65557ad9e68dba3ec65ecddc6a49cad7681c7a88c53e5336a4a2`.
+- Playback Gate A controlled run: prefill chunks 0..6 exact; 228/228 source chunks accepted; no KOFF; natural ENDX at output sample `168852`, duration `5.276625 s` at 32000 Hz.
+- Clean DSP trace observed 28 physical slot-7-to-slot-0 wraps. The first post-wrap slot-0 fetch resolves to source block 128; the prior unsafe schedule resolved to source block 256 and omitted one 128-block generation. The final fetch is source block 3636 with genuine header `$01`.
+- Playback Gate A is PASS for the bounded full-source run: no premature ENDX, no KOFF, physical loop active, final natural END. Explicit overwrite/underrun telemetry remains a follow-up hardening item, not evidence of a failure in this run.
+- Targeted G11 resident canary remains PASS: voice 7, 12049 samples, natural ENDX, 0.37653125 s, byte-identical oracle.
+
+## Coexistence Evidence (2026-09-03)
+
+- Shared-armory frame liveness is PASS at `18c05d3f076728d05310c6e591b7d0a08d604d42`: exact 1, 1, and 10 frame requests advanced exactly and did not time out.
+- The corrected coexistence fixture required `STREAM_IMMEDIATE_START=1`; the default startup mode stalled during prefill before the consumer epoch was active.
+- One real landed player-vs-AI hit changed request count `5 -> 6` exactly once while the stream was active.
+- Voice 7 capture: KON sample `24098`, natural ENDX sample `36147`, no KOFF; exactly 12049 samples / `0.37653125 s`.
+- Voice 0 capture produced 168852 samples at 32000 Hz, SHA-256 `2e3083c634325e8ed58aa09f525705137d32a586c8924eff2a3817670058d8f1`, no KOFF, natural ENDX. The matched stream-only control produced identical PCM bytes and hash.
+- Coexistence stream telemetry: 228/228 accepted chunks, 28 physical wraps, first post-wrap source block 128, final source block 3636 with header `$01`.
+- This is local full Stage A coexistence evidence, not yet a published commit boundary.
+
+## Resume Here
+
+- Published baseline is `aeccf841`; serialized transport proof is `d58b513`.
+- Transaction 0 and serialized chunks 0..15 remain exact. Bank-0 layout and corrected directory-derived FOOTDIE extraction remain active.
+- Playback Gate A is bounded-PASS: the current ROM delivered all 228 chunks, survived 28 physical wraps, reached source block 3636, and naturally ENDXed at `168852` output samples / `5.276625 s`.
+- Shared armory liveness is PASS. The ordinary G11 gameplay control reaches its real landed-hit request under the armory; its legacy mixed-waveform checks are non-authoritative and were not used as a G11 verdict.
+- The latest stream-only armory probe initially stalled during prefill because the fixture omitted `STREAM_IMMEDIATE_START=1`; the corrected startup mode reached all seven exact prefill ACKs. That earlier result was a fixture failure, not resident-SFX or stream-playback evidence.
+- Exact next gate: run focused build/static canaries, remove only disposable BOR diagnostics, review the coherent diff, and create one Stage A completion commit. Do not run full regression.
+- Current ROM SHA: `ddb68415622e65557ad9e68dba3ec65ecddc6a49cad7681c7a88c53e5336a4a2`.
+- Current safety rule: consumer credit advances once per video frame; a submission is allowed only while `next_chunk - estimated_consumed_chunk < 8`; transport-only prefill does not advance consumer credit.
+- Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
+- Protected dirty repository: `E:\gh\Mesen2-mcp-server`; leave untouched.
+- Forbidden scope: no merge, G12, full regression, voice 1, generalized heap, or authored-audio modification.

@@ -11,10 +11,10 @@
     "driver_offset": 116,
     "driver_size_before_patch": 3250,
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
-    "driver_size_after_patch": 3426,
-    "driver_sha256_after_patch": "8ebdf5098be4691528e55e4fc2fd8a5f30db9d00bf704baf6939d735f903802b",
-    "audio_data_sha256_after_patch": "8974821a44f0ea8b0bd2cbb05d826bd5626e39e31d338ebc217756f8020bfa56",
-    "data_table": "$018E09",
+    "driver_size_after_patch": 3437,
+    "driver_sha256_after_patch": "a0d4a0b37dbd41ec85c6afbaabc2ebc9744822a9be5eb1115f5864ee7db39730",
+    "audio_data_sha256_after_patch": "2b291cdb226900b9f8bf60b6d3f733c44c5cf84f62984bff5495e9260c162807",
+    "data_table": "$018E14",
     "generated_symbols": "soundwork/tad/build/tad_blob_syms.pasm",
     "rom_loader": "src/main.pasm:Tad_Init"
   },
@@ -36,8 +36,8 @@
     },
     "stream_voice0_patch": {
       "path": "soundwork/tad/patches/tad-v0.3.0-stream-voice0-srcn.patch",
-      "sha256": "102930561e984e10a3be876d792eebad9931475a75e88d2c267158160cba1177",
-      "mode": "post-d58 stream voice-0 SRCN fix"
+      "sha256": "2b44ae332389c159ad1e54cbeb7f4be5413acae1e7fa931fd013d2ee2581f88f",
+      "mode": "source-level stream voice-0 directory fix"
     },
     "parent_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
     "reserved_physical_voice": 0,
@@ -48,10 +48,10 @@
   },
   "patched_toolchain": {
     "compiler_path": "E:/gh/terrific-audio-driver/target/release/tad-compiler.exe",
-      "compiler_sha256": "9065b1526d2128c9b9c847eeef19ffc5978f75fead0c5def6d7728abd6881fe2",
+    "compiler_sha256": "666688e5f4d9c1ff02bac2456eb24742f9788c0b50a1e59821b5b88d2c0c73c9",
     "source_bundle_sha256": "1cb68f2131092df755ee0784faa81b6359ea353a364a5df2d5d8861961aa6f87",
     "source_files_sha256": {
-      "E:/gh/terrific-audio-driver/audio-driver/src/audio-driver.asm": "a46bc3f03652441b88b5acd82353c1c847c116572703a0feff381147f9b4eb6e",
+      "E:/gh/terrific-audio-driver/audio-driver/src/audio-driver.asm": "484f16acbd9e0c35ad778819f3bc52cf984986f6c5b0cdf06ad90678757dc402",
       "E:/gh/terrific-audio-driver/audio-driver/src/common-memmap.inc": "fde1b0578655f3cccf704a049ef3a5b615f2607fd7cc99ab73714a031bc45f4d",
       "E:/gh/terrific-audio-driver/audio-driver/src/io-commands.inc": "7f2052e024951c799738167ad9dc03e348f243c71875f756d56b39744702722c",
       "E:/gh/terrific-audio-driver/crates/compiler/src/driver_constants.rs": "3de3ee7cf0106d32e072e37a80362fed770e7fc0fd266eb12320a4f41f5460cb"

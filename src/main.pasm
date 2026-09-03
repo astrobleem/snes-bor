@@ -136,6 +136,9 @@ TadPrivate_stream_pending_buffer = $7E28C2 ; .dw ARAM destination after ACK
 TadPrivate_stream_arm_ack = $7E28C4 ; .db command ACK before this transfer
 TadPrivate_stream_arm_phase = $7E28C7 ; .db 1=command sent, 2=HDMA armed
 TadPrivate_stream_row_token = $7E28C8 ; .db next 5-bit commit token
+TadPrivate_stream_consumer_budget = $7E28CA ; .dw estimated consumed bytes
+TadPrivate_stream_consumer_chunk = $7E28CC ; .dw estimated consumed chunks
+TadPrivate_stream_consumer_started = $7E28CE ; .db normal playback epoch active
 
 ; Converted roster order. CHAR_ROSTER_INDEX is the stable source/runtime
 ; identity written by CharacterEntity_Init/Spawn_Play; physical slots are
@@ -12071,6 +12074,9 @@ scpu_main_loop:
     ; see check_width_directives.py/audit_all.py's tight-margin note on this
     ; loop before adding anything back here directly.
     jsr Game_State_Play
+    ; Late stream-only opportunity after gameplay; ordinary TAD processing
+    ; remains exclusively in Tad_StreamFrameService above.
+    jsl Tad_StreamLatePump
     bra scpu_main_loop
 
 ; The LoROM header occupies $FFC0-$FFDF and hardware vectors occupy
@@ -12173,6 +12179,14 @@ Tad_StreamInit:
     sta.l TadPrivate_stream_arm_ack
     sta.l TadPrivate_stream_arm_phase
     sta.l TadPrivate_stream_row_token
+    rep #$20
+.a16
+    lda #0
+    sta.l TadPrivate_stream_consumer_budget
+    sta.l TadPrivate_stream_consumer_chunk
+    sep #$20
+.a8
+    sta.l TadPrivate_stream_consumer_started
     sta.l AudioStream_TransportOnly
     sta.l AudioStream_SerialPermit
     sta.l TadPrivate_stream_state
@@ -12200,6 +12214,17 @@ Tad_StreamFrameService__process:
     jsl Tad_ProcessMaybeStream
     rtl
 
+; Late-frame stream-only pump.  It can observe a payload ACK before the next
+; NMI and prepare the next table without ticking ordinary TAD processing.
+Tad_StreamLatePump:
+    sep #$20
+.a8
+    lda.l AudioStream_Enable
+    beq Tad_StreamLatePump__return
+    jsl Tad_StreamServiceFootdie
+Tad_StreamLatePump__return:
+    rtl
+
 ; Test-only paced refill. Kept in bank 1 so the fixed bank-0 reset region and
 ; gameplay code retain their established layout.
 Tad_StreamServiceFootdie:
@@ -12214,6 +12239,56 @@ Tad_StreamServiceFootdie__enabled:
     brl Tad_StreamServiceFootdie__return
 Tad_StreamServiceFootdie__active:
     .a8
+    ; Transport-only prefill is not playback time. Start a fresh consumer
+    ; epoch when normal voice-0 playback becomes active.
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    beq Tad_StreamServiceFootdie__consumer_mode_ready
+    lda.l TadPrivate_stream_consumer_started
+    bne Tad_StreamServiceFootdie__consumer_mode_ready
+    rep #$20
+.a16
+    lda #0
+    sta.l TadPrivate_stream_consumer_budget
+    sta.l TadPrivate_stream_consumer_chunk
+    sep #$20
+.a8
+    lda #1
+    sta.l TadPrivate_stream_consumer_started
+Tad_StreamServiceFootdie__consumer_mode_ready:
+    ; Advance playback credit once per real NMI frame. The late pump in the
+    ; same frame observes the same frame identity and cannot advance twice.
+    rep #$20
+.a16
+    lda.l Nmi_FrameCounter
+    cmp.l TadPrivate_stream_frame
+    beq Tad_StreamServiceFootdie__budget_ready
+    sta.l TadPrivate_stream_frame
+    lda.l TadPrivate_stream_budget
+    clc
+    adc #103
+    sta.l TadPrivate_stream_budget
+    lda.l AudioStream_TransportOnly
+    cmp #2
+    beq Tad_StreamServiceFootdie__consumer_budget_ready
+    lda.l TadPrivate_stream_consumer_budget
+    clc
+    adc #103
+    cmp #144
+    bcc Tad_StreamServiceFootdie__consumer_budget_saved
+    sec
+    sbc #144
+    sta.l TadPrivate_stream_consumer_budget
+    lda.l TadPrivate_stream_consumer_chunk
+    inc
+    sta.l TadPrivate_stream_consumer_chunk
+    bra Tad_StreamServiceFootdie__consumer_budget_ready
+Tad_StreamServiceFootdie__consumer_budget_saved:
+    sta.l TadPrivate_stream_consumer_budget
+Tad_StreamServiceFootdie__consumer_budget_ready:
+Tad_StreamServiceFootdie__budget_ready:
+    sep #$20
+.a8
     lda.l AudioStream_TransportOnly
     cmp #2
     bne Tad_StreamServiceFootdie__not_serial
@@ -12302,10 +12377,13 @@ Tad_StreamServiceFootdie__ready_allowed:
     cmp #32733
     bcs Tad_StreamServiceFootdie__return16
     lda.l TadPrivate_stream_budget
-    clc
-    adc #103
     cmp #144
     bcc Tad_StreamServiceFootdie__save_budget
+    lda.l TadPrivate_stream_chunk_index
+    sec
+    sbc.l TadPrivate_stream_consumer_chunk
+    cmp #8
+    bcs Tad_StreamServiceFootdie__save_budget
     sec
     sbc #144
     sta.l TadPrivate_stream_budget
@@ -12404,7 +12482,7 @@ Tad_StreamSendFootdieFrame__marker_ready:
     sep #$20
 .a8
     ; Submit descriptor: one mode-4 row with the start marker on APUIO3.
-    lda #2
+    lda #1
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     lda.l TadPrivate_stream_command
@@ -12426,7 +12504,7 @@ Tad_StreamSendFootdieFrame__marker_ready:
 Tad_StreamSendFootdieFrame__row:
     sep #$20
 .a8
-    lda #2
+    lda #1
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     ; Hold APUIO0 at the accepted stream command. Carry two genuine BRR bytes
@@ -12530,10 +12608,11 @@ Tad_StreamSendFootdieFrame__not_serial:
     sta.l TadPrivate_stream_chunks_armed
     sep #$20
 .a8
-    ; Defer HDMA arming until the next producer service interval.  This gives
-    ; the SPC one complete service interval to enter the command handler before
-    ; the submit/payload rows begin changing APUIO0..3.
-    lda #1
+    ; The table is complete before the command is submitted.  Arm it now so
+    ; the next frame's HDMA initialization can transfer the payload; deferring
+    ; this to another producer service interval loses a full frame per chunk.
+    jsl Tad_StreamArmFootdieFrame
+    lda #2
     sta.l TadPrivate_stream_arm_phase
     rep #$20
 .a16
