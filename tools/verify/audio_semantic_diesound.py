@@ -20,13 +20,18 @@ CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 CHAR_HP = pasm_constant('CHAR_HP')
+CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
+CHAR_FALL_STATE_TIMER = pasm_constant('CHAR_FALL_STATE_TIMER')
+CHAR_KNOCKDOWN_COUNT = pasm_constant('CHAR_KNOCKDOWN_COUNT')
+CHAR_KNOCKDOWN_TIMER = pasm_constant('CHAR_KNOCKDOWN_TIMER')
+CHAR_TICK_COUNTER = pasm_constant('CHAR_TICK_COUNTER')
+CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
-CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
 ENTITY_INVULN = [None,
                   pasm_constant_in('src/core/game_state.pasm', 'Entity1_InvulnFrames'),
                   pasm_constant_in('src/core/game_state.pasm', 'Entity2_InvulnFrames'),
@@ -39,6 +44,7 @@ TRACE_INDEX = pasm_constant('AudioSemantic_TraceWriteIndex')
 TRACE_BASE = pasm_constant('AudioSemantic_TraceBase')
 TRACE_OVERFLOW = pasm_constant('AudioSemantic_TraceOverflow')
 FOOT_COUNT = pasm_constant('AudioSemantic_FootDieRequestCount')
+FALL_COUNT = pasm_constant('AudioSemantic_FallRequestCount')
 STREAM_START_COUNT = pasm_constant('AudioSemantic_FootDieStreamStartCount')
 COALESCED_COUNT = pasm_constant('AudioSemantic_FootDieSameFrameCoalescedCount')
 SUPPRESSED_COUNT = pasm_constant('AudioSemantic_FootDieWhileActiveSuppressedCount')
@@ -110,6 +116,7 @@ def clear_observation(m):
     w8(m, TRACE_INDEX, 0)
     w8(m, TRACE_OVERFLOW, 0)
     w16(m, FOOT_COUNT, 0)
+    w16(m, FALL_COUNT, 0)
     m.write_memory('snesMemory', TRACE_BASE, '00' * 128)
 
 
@@ -132,6 +139,36 @@ def kill_target(m, slot_index, roster_index):
         m.pause()
     after = u16(m, REQ_COUNT)
     return before, after, u8(m, ENTITY_BASES[slot_index] + CHAR_HP), trace(m)
+
+
+def fall_target(m, slot_index=1, roster_index=5):
+    for i, base in enumerate(ENTITY_BASES[1:], 1):
+        w8(m, base + CHAR_HP, 0 if i != slot_index else CHAR_HP_MAX)
+        w8(m, ENTITY_INVULN[i], 0)
+        w8(m, base + CHAR_INPUT_DRIVEN, 0)
+    prepare_target(m, ENTITY_BASES[slot_index], roster_index, CHAR_HP_MAX)
+    # Force the real drop-force predicate below zero without making the hit
+    # lethal. The request must come from the transition, not fixture state.
+    w8(m, ENTITY_BASES[slot_index] + CHAR_KNOCKDOWN_COUNT, 0xFF)
+    # Keep the forced negative count alive through the attack windup.  A
+    # one-frame timer expires before the real hit lands and the production
+    # regen path intentionally restores the configured knockdown maximum.
+    w8(m, ENTITY_BASES[slot_index] + CHAR_KNOCKDOWN_TIMER, 60)
+    w8(m, ENTITY_BASES[slot_index] + CHAR_SELECTED, 0)
+    w8(m, ENTITY_BASES[slot_index] + CHAR_FALL_STATE_TIMER, 0)
+    w8(m, ENTITY_BASES[slot_index] + CHAR_FRAME_INDEX, 0xFF)
+    w8(m, ENTITY_BASES[slot_index] + CHAR_TICK_COUNTER, 1)
+    # The real player can still be in hitstun after the bounded boot/warm-up
+    # window.  Match kill_target's proven setup so the input edge reaches the
+    # actual attack path instead of being discarded by player-state gating.
+    w8(m, PLAYER + CHAR_HIT_STUN, 0)
+    w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
+    before = u16(m, FALL_COUNT)
+    held_input_sampled(m, m.BTN_Y, 3)
+    for _ in range(60):
+        run_frames_exact(m, 1)
+        m.pause()
+    return before, u16(m, FALL_COUNT), trace(m)
 
 
 def kill_all_targets(m):
@@ -171,6 +208,26 @@ def main():
         held_input_sampled(m, m.BTN_Y, 3)
         after = u16(m, REQ_COUNT)
         print(f'NONLETHAL_REQUEST_DELTA={after - before} HP={u8(m, SLOT1 + CHAR_HP)} TRACE={trace(m)}')
+
+    with open_session(__file__) as m:
+        boot(m)
+        clear_observation(m)
+        before, after, rows = fall_target(m)
+        fall_id = pasm_constant('AUDIO_SEMANTIC_FALL')
+        if after - before != 1 or not any(row['semantic_id'] == fall_id for row in rows):
+            raise SystemExit(f'FAIL: FALL transition did not emit exactly one semantic request: before={before} after={after} rows={rows}')
+        print(f'FALL_TRANSITION: request_delta={after - before} rows={rows}')
+        before_repeat = after
+        for _ in range(60):
+            run_frames_exact(m, 1)
+            m.pause()
+        if u16(m, FALL_COUNT) != before_repeat:
+            raise SystemExit(f'FAIL: FALL repeated while actor remained in fall state: before={before_repeat} after={u16(m, FALL_COUNT)}')
+        print(f'FALL_HELD: request_delta={u16(m, FALL_COUNT) - before_repeat}')
+        second_before, second_after, second_rows = fall_target(m)
+        if second_after - second_before != 1:
+            raise SystemExit(f'FAIL: second FALL transition request delta={second_after - second_before} rows={second_rows}')
+        print(f'FALL_SECOND_TRANSITION: request_delta={second_after - second_before} rows={second_rows}')
 
     for slot in (1, 2, 3):
         with open_session(__file__) as m:

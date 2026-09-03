@@ -849,6 +849,14 @@ Character_HitApply__ApplyDamage__fall:
     tax
     sep #$20
 .a8
+    lda.l $7E0a00,x
+    cmp #CHAR_SELECTED_FALL
+    beq Character_HitApply__ApplyDamage__fall_already_active
+    jsl AudioSemantic_EmitFall
+Character_HitApply__ApplyDamage__fall_already_active:
+    rep #$31
+.a16
+.i16
     lda #CHAR_SELECTED_FALL
     sta.l $7E0a00,x
     rep #$31
@@ -1876,6 +1884,135 @@ AudioSemantic_DiesoundByRoster:
     .db AUDIO_SEMANTIC_BEBOPDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE
     .db AUDIO_SEMANTIC_TURTLEDIE
 AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
+
+; Emit the source-backed FALL semantic exactly when a damage event crosses
+; into the fall/knockdown state. This is the resident short-SFX backend; it
+; does not use the long voice-0 stream. HitApply_EntityBase is set by the
+; caller before this bank-1 helper is entered.
+AudioSemantic_EmitFall:
+    php
+    rep #$30
+.a16
+.i16
+    phx
+    phy
+    sep #$20
+.a8
+    rep #$20
+.a16
+    lda.l HitApply_EntityBase
+    cmp #CHAR_ZP_LEN
+    beq AudioSemantic_EmitFall__slot1
+    cmp #CHAR_ZP_LEN*2
+    beq AudioSemantic_EmitFall__slot2
+    cmp #CHAR_ZP_LEN*3
+    beq AudioSemantic_EmitFall__slot3
+    sep #$20
+.a8
+    lda #0
+    bra AudioSemantic_EmitFall__slot_store
+AudioSemantic_EmitFall__slot1:
+    sep #$20
+.a8
+    lda #1
+    bra AudioSemantic_EmitFall__slot_store
+AudioSemantic_EmitFall__slot2:
+    sep #$20
+.a8
+    lda #2
+    bra AudioSemantic_EmitFall__slot_store
+AudioSemantic_EmitFall__slot3:
+    sep #$20
+.a8
+    lda #3
+AudioSemantic_EmitFall__slot_store:
+    sta.l AudioSemantic_CurrentActorSlot
+    rep #$20
+.a16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_ROSTER_INDEX
+    tax
+    sep #$20
+.a8
+    lda.l $7E0a00,x
+    sta.l AudioSemantic_CurrentRoster
+    lda #AUDIO_SEMANTIC_FALL
+    sta.l AudioSemantic_CurrentId
+    rep #$20
+.a16
+    lda.l AudioSemantic_FallRequestCount
+    inc
+    sta.l AudioSemantic_FallRequestCount
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    lda.l Nmi_FrameCounter
+    cmp.l AudioSemantic_LastFrame
+    beq AudioSemantic_EmitFall__same_frame
+    sta.l AudioSemantic_LastFrame
+    sep #$20
+.a8
+    lda #0
+    sta.l AudioSemantic_FrameSequence
+    bra AudioSemantic_EmitFall__record
+AudioSemantic_EmitFall__same_frame:
+    sep #$20
+.a8
+    lda.l AudioSemantic_FrameSequence
+    inc
+    sta.l AudioSemantic_FrameSequence
+AudioSemantic_EmitFall__record:
+    rep #$30
+.a16
+.i16
+    lda.l AudioSemantic_TraceWriteIndex
+    cmp #AudioSemantic_TraceCapacity
+    bcs AudioSemantic_EmitFall__overflow
+    and #$000F
+    asl
+    asl
+    asl
+    tax
+    lda.l AudioSemantic_LastFrame
+    sta.l AudioSemantic_TraceBase,x
+    sep #$20
+.a8
+    lda.l AudioSemantic_FrameSequence
+    sta.l AudioSemantic_TraceBaseSeq,x
+    lda.l AudioSemantic_CurrentId
+    sta.l AudioSemantic_TraceBaseId,x
+    lda.l AudioSemantic_CurrentActorSlot
+    sta.l AudioSemantic_TraceBaseSlot,x
+    lda.l AudioSemantic_CurrentRoster
+    sta.l AudioSemantic_TraceBaseRoster,x
+    lda #AudioSemantic_EventFall
+    sta.l AudioSemantic_TraceBaseEvent,x
+    lda.l AudioSemantic_TraceWriteIndex
+    inc
+    sta.l AudioSemantic_TraceWriteIndex
+    bra AudioSemantic_EmitFall__queue
+AudioSemantic_EmitFall__overflow:
+    sep #$20
+.a8
+AudioSemantic_EmitFall__queue:
+    ; Tad_sfxQueue_sfx is a zero-page TAD queue. Bracket D=$0000 locally,
+    ; preserving the bank-1 JSL/RTL boundary and the normal lower-ID priority.
+    phd
+    pea $0000
+    pld
+    lda #SFX_FALL_ID
+    cmp Tad_sfxQueue_sfx
+    bcs AudioSemantic_EmitFall__queue_done
+    sta Tad_sfxQueue_sfx
+    lda #TAD_CENTER_PAN
+    sta Tad_sfxQueue_pan
+AudioSemantic_EmitFall__queue_done:
+    pld
+    ply
+    plx
+    plp
+    rtl
 
 ; JSL/RTL. HitApply_EntityBase identifies the dying entity. Preserves A/X/Y
 ; and processor width.

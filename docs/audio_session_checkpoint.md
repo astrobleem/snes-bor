@@ -19,10 +19,12 @@
 - The protected `tools/audio/sfx_production_banks.json` modification is pre-existing, user-owned dirty state. It is untouched, unstaged, and excluded from all commits.
 - Current working-tree dirt also includes intentionally retained untracked TAD reproduction directories; do not clean or discard them.
 - G11 remains closed and authoritative: physical voice 7, 12049 PCM samples, `0.37653125 s`, accepted per-voice oracle.
-- Bounded semantic diesound/concurrency slice is now proven: real lethal Foot requests map to semantic ID `2`, same-frame triple requests coalesce to one stream start, and a staggered active-stream request is suppressed.
-- Next planned audio stage: the first reachable unimplemented global SFX from `tools/audio/engine_audio_semantics.py`, currently the source-backed `FALL.WAV` fall/knockdown event. Do not broaden to the full SFX library or soundtrack and do not start G12.
-- Exact next gate: audit the real fall/knockdown transition and its source `FALL.WAV` provenance, then add one deterministic runtime request/playback gate without changing the accepted stream transport or coexistence architecture.
-- The semantic/concurrency working-tree slice is proven but not yet published; publish it as one coherent BOR commit before implementing `FALL.WAV`.
+- Bounded semantic diesound/concurrency slice is published in `06d4d866` (`audio: define long-event semantic concurrency`): real lethal Foot requests map to semantic ID `2`, same-frame triple requests coalesce to one stream start, and a staggered active-stream request is suppressed.
+- FALL source/content work is currently uncommitted and bounded to the next global SFX gate. The authoritative PAK entry is `DATA\\SOUNDS\\FALL.WAV`; raw SHA `b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef`, canonical WAV SHA `4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91`, 22050 Hz, 11466 source frames, 0.52 seconds.
+- FALL is classified as a resident TAD SFX: temporary one-sample export produced 6453 BRR bytes, 717 blocks, and 11472 decoded samples. The generated resident sample is `soundwork/tad/project/samples/fall.wav`; no authored source was modified.
+- The focused FALL semantic fixture now proves one real request on transition, zero repeats while held, and one request on a second transition. The earlier failure was fixture-only: a one-frame knockdown timer expired before the attack landed and regenerated the negative count.
+- Current corrected FALL build artifacts are audio blob `dbb231209a30743da065d49329c9a6065c021096380f1acaf8bc9c7f4553d9b5` and source-built ROM `1da34915b137b6ce8a89f06d5e5c07af9527d1882118c7a626a4f795d31dd171`; strict rebuild check, project verification, and bank-0 packaging guard pass.
+- Exact next gate: capture the real resident FALL playback on physical voice 6/7, proving semantic request -> TAD command -> KON/ENDX and PCM identity/duration against the generated FALL sample. Do not reopen accepted Stage A transport or coexistence without regression evidence.
 - Current d58 reconstruction evidence: driver 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`; blob SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
 - Current latest TAD source fix: transport-only prefill no longer claims voice 0; stream directory start and loop low bytes use `lobyte(STREAM_RING_ADDR)`.
 - Current latest driver: 3437 bytes, SHA `b55edf38ed53b470789a9a9a6b43b1b13e8d408640c08ca1f3c17cf664da5ea6`; blob SHA `97a734107636d4aa99a993e91aa9d960bf9aa16c34fe31e46ec97a396a5382de`; corrected-content ROM SHA `113f1dff67f9cba1177da0fe39dec97dc701a06a7b600224a7026da50b1bd5d2`.
@@ -148,8 +150,9 @@
 - Host counters are not trusted as delivery evidence.
 - The current acceptance oracle is CPU port traffic, SPC command/state transition, payload-complete ACK, and exact external ARAM bytes.
 
-## Required Transaction-0 Gate
+## Historical Transaction-0 Gate (Accepted)
 
+- This gate is historical and accepted by `d58b513`/`c7c5f80`; it is retained as provenance, not as the current blocker.
 - No KON voice 0.
 - No DSP consumer or safe-refill scheduling analysis.
 - No 16-transaction or 228-transaction burn-in.
@@ -201,6 +204,15 @@
 - Staggered control records one request per event and backend `suppressed=1` while the Footdie stream is active.
 - `tools/audio/long_event_concurrency.json` now records the observed runtime boundary and selected policy: same-frame identical Footdie coalesces one start; while-active identical Footdie is suppressed.
 
+## FALL Resident-SFX Evidence (2026-09-03)
+
+- Authoritative source is PAK `Teenage Ninja Ninja Turtles [v.3.0 Build 4153].pak`, entry `DATA\\SOUNDS\\FALL.WAV`; PAK SHA `f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182`.
+- Raw source SHA is `b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef`; canonical WAV SHA is `4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91`. Source is mono unsigned 8-bit PCM at 22050 Hz with 11466 authored frames and 0.52 seconds.
+- Directory-derived one-sample TAD export classifies FALL as resident: 6453 BRR bytes, 717 blocks, 11472 decoded samples after required 16-sample BRR padding. Generated resident sample is `soundwork/tad/project/samples/fall.wav`; authored source remains unchanged.
+- Semantic FALL fixture proves request delta 1 on a real attack->hit->fall transition, zero repeats while held, and one additional request after a second transition. The earlier red result was fixture-only: the forced knockdown timer expired before the real hit and regenerated the negative count.
+- Controlled capture wrapper `tools/verify/capture_fall_voice7.py` used the clean Nexen/Mesen path and physical voice 7. ROM SHA `1da34915b137b6ce8a89f06d5e5c07af9527d1882118c7a626a4f795d31dd171`; FALL request delta 1; capture SHA `6d1bffacfe7c893f8e645404a9bce8ecc0a1b59b0e6e656cb88910b635c2e00`; 12049 samples at 32000 Hz (`0.37653125 s`), KON-bounded, natural ENDX, no stream playback.
+- The clean Nexen binary does not return the `framesAdvanced` field expected by the BOR exact-input helper. The FALL capture uses the established controlled launcher with one-frame input calls; this is a tooling-contract limitation, not a FALL runtime failure.
+
 ## Coexistence Evidence (2026-09-03)
 
 - Shared-armory frame liveness is PASS at `18c05d3f076728d05310c6e591b7d0a08d604d42`: exact 1, 1, and 10 frame requests advanced exactly and did not time out.
@@ -213,11 +225,12 @@
 
 ## Resume Here
 
-- Published baseline is `c7c5f80f47bd1f9b7cab341bcc4732ec2968f4b0`; remote `origin/audio-content-pass` is at that commit.
-- Stage A is accepted locally and published: 228/228 chunks, 28 wraps, voice 0 `168852` samples / `5.276625 s`, natural ENDX, and resident-SFX coexistence without stream interference.
+- Published BOR baseline is `c7c5f80f47bd1f9b7cab341bcc4732ec2968f4b0`; semantic/concurrency boundary is published at `06d4d866a0a9e990fe7da1878ed90aa8c37ebad7`.
+- Stage A remains accepted and closed: 228/228 chunks, 28 wraps, voice 0 `168852` samples / `5.276625 s`, natural ENDX, and resident-SFX coexistence without stream interference. Do not reopen without regression evidence.
 - Corrected FOOTDIE remains directory-derived and source-faithful: BRR SHA `6b7677dc2666ab4de95021ef88ff2ce43b2f30263ffee6ec2562a455745d3c7d`.
-- Exact next gate: source and gate the reachable `FALL.WAV` fall/knockdown SFX as the next bounded global-audio slice. Do not reopen transport, protocol, voice-0, or coexistence unless a new regression appears.
-- Semantic/concurrency evidence is ready for the next coherent BOR commit; no implementation of `FALL.WAV` has started.
+- FALL source extraction and resident TAD project integration are present but uncommitted. Semantic FALL is proven by a real attack->hit->fall transition: request delta 1, no held-state repeat, and one additional request after a second transition.
+- FALL semantic and physical resident gates now pass: request delta 1, physical voice 7, 12049 samples, `0.37653125 s`, KON-bounded natural ENDX. The generated FALL PCM capture is recorded above; no mixed-output amplitude gate was used.
+- Exact next gate: run targeted post-content canaries, review the bounded FALL diff, and create one coherent BOR commit. Do not reopen accepted Stage A transport or coexistence without regression evidence.
 - Shared TAD armory is published at `astrobleem/terrific-audio-driver:bor-poppy-stage-a-v0.3.0@97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`, based on pinned v0.3.0. Its source lineage commit is `2aae713e68c2a2b5962c643eb9631f630a00eadd`; Poppy API is `audio-driver/poppy-api/tad-stream.pasm`.
 - Shared armory: `E:\gh\Mesen2-mcp-frameexact`, branch `debug/bor-frameexact`, commit `18c05d3f076728d05310c6e591b7d0a08d604d42`; generic exact frame advancement and deterministic input/liveness are already available. Do not forge a new generic debugger capability without auditing this first.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; pre-existing user-owned state, untouched and unstaged.

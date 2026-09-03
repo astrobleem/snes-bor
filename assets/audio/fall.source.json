@@ -1,0 +1,16 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef",
+  "raw_channels": 1,
+  "raw_sample_format": "unsigned 8-bit PCM",
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 11466,
+  "raw_duration_seconds": 0.52,
+  "canonical_path": "soundwork/tad/project/samples/fall.wav",
+  "canonical_sha256": "4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91",
+  "canonical_frames": 11472,
+  "padding_rule": "canonical_wav pads to a complete 16-sample BRR block",
+  "backend": "resident_tad_sfx"
+}

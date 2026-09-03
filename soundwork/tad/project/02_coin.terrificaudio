@@ -15,6 +15,17 @@
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
       "envelope": "gain F127"
+    },
+    {
+      "name": "fall",
+      "source": "samples/fall.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
     }
   ],
   "default_sfx_flags": {
@@ -23,7 +34,8 @@
   },
   "high_priority_sound_effects": [],
   "sound_effects": [
-    "sfx_hit"
+    "sfx_hit",
+    "sfx_fall"
   ],
   "low_priority_sound_effects": [],
   "sound_effect_file": "sound-effects.txt",

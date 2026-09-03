@@ -8,17 +8,18 @@
     "BLANK": 0
   },
   "sfx_ids": {
-    "sfx_hit": 0
+    "sfx_hit": 0,
+    "sfx_fall": 1
   },
   "hashes": {
     "vendor/tad-audio-driver.bin": "96ceef04fba19c9895fb42051a54acf6c45064a4bedf2141c0e2b4997fb99422",
     "vendor/tad-loader.bin": "fcc4d1be06563d1ab85fb7220afacb5ecbe800701cee50924acde682254ec895",
-    "build/audio-data.bin": "cc4c5cba26d03b0c2c73de73d7f1934033838938f7b8beb79aa6ff8046d872ea"
+    "build/audio-data.bin": "dbb231209a30743da065d49329c9a6065c021096380f1acaf8bc9c7f4553d9b5"
   },
   "sample_ordering": {
     "note": "Production is SFX-only; the blank song has no musical instruments.",
     "instruments": [],
-    "samples": ["beat1"]
+    "samples": ["beat1", "fall"]
   },
   "s02_coin_reconstruction": {
     "method": "From-scratch bytecode disassembler (grounded in the real audio-driver/src/bytecode.inc source) decoded the shipped s02_coin song's actual note/instrument/timing content from the surviving compiled blob (no original MML/project source ever existed in this repo's history); that was re-encoded to soundwork/tad/project/mml/02_coin.mml.",

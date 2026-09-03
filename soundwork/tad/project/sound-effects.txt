@@ -1,3 +1,6 @@
 === sfx_hit ===
     set_instrument beat1
     play_note 0 48
+=== sfx_fall ===
+    set_instrument fall
+    play_note 0 65
