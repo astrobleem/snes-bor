@@ -1160,6 +1160,28 @@ Jump_PlayerTick:
     lda.l Input_trigger
     and #$80                ; A button
     beq Jump_PlayerTick__no
+    ; OpenBOR dojump() emits global_sample_list.jump at this accepted
+    ; ground-jump edge, before jump velocity/state initialization. This is a
+    ; documented SNES adaptation, not an airborne-frame or jumpattack sound.
+    lda #AUDIO_SEMANTIC_JUMP
+    sta.l AudioSemantic_CurrentId
+    lda.l AudioSemantic_JumpRequestCount
+    inc
+    sta.l AudioSemantic_JumpRequestCount
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    phd
+    pea $0000
+    pld
+    lda #SFX_JUMP_ID
+    cmp Tad_sfxQueue_sfx
+    bcs Jump_PlayerTick__jump_queue_done
+    sta Tad_sfxQueue_sfx
+    lda #TAD_CENTER_PAN
+    sta Tad_sfxQueue_pan
+Jump_PlayerTick__jump_queue_done:
+    pld
     rep #$31
 .a16
 .i16

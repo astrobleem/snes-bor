@@ -24,7 +24,7 @@ def parse_enum_sfx_ids(text: str) -> dict[str, int]:
         raise SystemExit(f"FAIL: no '.enum SFX ... .endenum' block found in {ENUMS_INC}")
     body = m.group(1)
     values = {}
-    for name in ("sfx_hit", "sfx_fall"):
+    for name in ("sfx_hit", "sfx_fall", "sfx_jump"):
         m2 = re.search(rf"\b{name}\s*=\s*(\d+)", body)
         if not m2:
             raise SystemExit(f"FAIL: no '{name} = N' entry inside SFX enum in {ENUMS_INC}")
@@ -36,7 +36,7 @@ def parse_enum_sfx_ids(text: str) -> dict[str, int]:
 
 def parse_pasm_sfx_ids(text: str) -> dict[str, int]:
     values = {}
-    for name in ("SFX_HIT_ID", "SFX_FALL_ID"):
+    for name in ("SFX_HIT_ID", "SFX_FALL_ID", "SFX_JUMP_ID"):
         m = re.search(rf"^{name}\s*=\s*(\d+)", text, re.M)
         if not m:
             raise SystemExit(f"FAIL: no '{name} = N' constant found in {MAIN_PASM}")
@@ -54,7 +54,7 @@ def main() -> int:
 
     generated = parse_enum_sfx_ids(ENUMS_INC.read_text())
     pasm = parse_pasm_sfx_ids(MAIN_PASM.read_text())
-    expected = {"SFX_HIT_ID": generated["sfx_hit"], "SFX_FALL_ID": generated["sfx_fall"]}
+    expected = {"SFX_HIT_ID": generated["sfx_hit"], "SFX_FALL_ID": generated["sfx_fall"], "SFX_JUMP_ID": generated["sfx_jump"]}
     if pasm != expected:
         print(f"FAIL: resident SFX ID drift -- main.pasm={pasm}, generated={expected}")
         return 1

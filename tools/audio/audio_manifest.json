@@ -2085,8 +2085,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "core/jump.pasm implements the source-backed jump mechanic; audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "Documented SNES adaptation: the grounded A-trigger edge is the source-backed jump initiation event; OpenBOR dojump emits global_sample_list.jump before initializing jump state, and resident JUMP playback is implemented"
             }
           ],
           "converter_representation": null,
@@ -5022,8 +5022,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "core/jump.pasm implements the source-backed jump mechanic; audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "Documented SNES adaptation: the grounded A-trigger edge is the source-backed jump initiation event; OpenBOR dojump emits global_sample_list.jump before initializing jump state, and resident JUMP playback is implemented"
             }
           ],
           "converter_representation": null,

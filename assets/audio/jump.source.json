@@ -1,0 +1,19 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9",
+  "raw_bytes": 6000,
+  "raw_channels": 1,
+  "raw_sample_format": "unsigned 8-bit PCM",
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 5941,
+  "raw_duration_seconds": 0.5388662131519274,
+  "canonical_path": "soundwork/tad/project/samples/jump.wav",
+  "canonical_sha256": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+  "canonical_frames": 5952,
+  "canonical_duration_seconds": 0.5398639455782313,
+  "padding_rule": "canonical_wav pads to a complete 16-sample BRR block",
+  "brr_bytes": 3348,
+  "backend": "resident_tad_sfx"
+}

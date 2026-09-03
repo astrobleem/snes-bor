@@ -46,6 +46,7 @@ PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
 ; build if this drifts) rather than trusting this comment.
 SFX_HIT_ID = 0
 SFX_FALL_ID = 1
+SFX_JUMP_ID = 2
 
 ; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
 ; exactly once at each of the two real accepted-landed-damage SFX call sites
@@ -69,6 +70,8 @@ AUDIO_SEMANTIC_RHINODIE  = $04
 AUDIO_SEMANTIC_BEBOPDIE  = $05
 AUDIO_SEMANTIC_TURTLEDIE = $06
 AUDIO_SEMANTIC_FALL      = $07
+AUDIO_SEMANTIC_JUMP       = $08
+AudioSemantic_JumpRequestCount = $7E281E ; .dw
 AudioSemantic_RequestCount        = $7E2806 ; .dw
 AudioSemantic_TraceWriteIndex     = $7E2808 ; .db
 AudioSemantic_TraceOverflow       = $7E2809 ; .db
@@ -93,6 +96,7 @@ AudioSemantic_TraceBaseEvent      = $7E2826
 AudioSemantic_TraceCapacity       = 16
 AudioSemantic_EventDiesound       = $01
 AudioSemantic_EventFall           = $02
+AudioSemantic_EventJump           = $03
 
 ; TEST-ONLY Footdie stream producer state. The BRR source is in a dedicated
 ; ROM bank so its 32,733 bytes remain contiguous and do not enter TAD common.
@@ -12151,6 +12155,7 @@ Tad_StreamInit:
     sta.l AudioSemantic_RequestCount
     sta.l AudioSemantic_FootDieRequestCount
     sta.l AudioSemantic_FallRequestCount
+    sta.l AudioSemantic_JumpRequestCount
     sta.l AudioSemantic_LastFrame
     sta.l AudioSemantic_FootDieStreamStartCount
     sta.l AudioSemantic_FootDieSameFrameCoalescedCount

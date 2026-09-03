@@ -359,3 +359,33 @@ No FALL source, hook, resident ID, allocator, TAD, capture, Stage-A, voice-polic
 ## Resume Here
 
 Independent review complete. Begin the next audited audio slice only after review authorization.
+## JUMP Audio Slice
+
+This section records the completed JUMP slice and supersedes the earlier
+JUMP-in-progress notes.
+
+- Starting BOR HEAD: b524640c5c762e6a704ecf40ef9ada8a894c4c0f
+- Final ROM SHA-256: c8586733d35ae46817c80b894635964e2b864ced3fda0eb4a614e8281818ba9d
+- OpenBOR source: engine/openbor.c dojump(); global_sample_list.jump is played once at jump initiation before jump state initialization.
+- Source PAK: TMNT pack, SHA f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182
+- Source asset: DATA\\SOUNDS\\JUMP.WAV, SHA 0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9, 11025 Hz mono unsigned 8-bit, 5941 frames.
+- Canonical resident sample: soundwork/tad/project/samples/jump.wav, SHA d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0, 5952 frames.
+- Backend: resident TAD SFX; BRR size 3348 bytes, 209 blocks.
+- Generated IDs: HIT 0, FALL 1, JUMP 2. Semantic ID: AUDIO_SEMANTIC_JUMP $08.
+- SNES hook: grounded player A-trigger accepted by Jump_PlayerTick; airborne/held-A and no-jump-data paths do not request JUMP.
+- Semantic fixture: first ground jump delta 1; held airborne duplicate delta 0; no-jump-data delta 0; second distinct ground jump delta 1.
+- Direct JUMP golden: physical voice 6, local ID 2, 17204 frames, 32000 Hz stereo signed 16-bit raw capture, KON 0, KOFF 17203, ENDX 17204, SHA 6b2c1b7e965d3267423230abde6db539a811eae388f24a02e2ad6922de76ba36.
+- Gameplay JUMP: semantic delta 1; physical voice 7; KON 72294 and ENDX 89498 in the full capture; the exact 17204-frame KON-to-ENDX interval SHA 8580df11db281465cc72b8fa53b2d1cf80366de2ae8903cbcb8192b2ede2b331; aligned channel correlation 0.9999999962 against the direct golden.
+- The gameplay capture's leading 72294 frames are pre-event voice output and are excluded by the KON-to-ENDX boundary. The resulting JUMP PCM is distinct from the accepted FALL and G11 HIT controls.
+- Shared Mesen runtime: astrobleem/Mesen2, debug/spc-command-trace-voice-capture, 5fb1f1b6cba1b9348b40ff2d03ae6e4afde16f63. No shared change was required.
+- TAD fork: astrobleem/terrific-audio-driver, bor-poppy-stage-a-v0.3.0, 97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b.
+- Focused checks: TAD rebuild/check PASS; HIT/FALL/JUMP ID sync PASS; audio manifest PASS; shipped content PASS; layout guard PASS; TAD baseline PASS; voice-0 static reservation PASS; voice-0 live ownership PASS. The direct G11 command requires its explicit ROM-hash argument and did not yield a usable result in the combined invocation; no G11 result is claimed here.
+- FALL physical gate remains PASS and is not reopened.
+
+JUMP physical gate: PASS
+Direct/gameplay PCM: matched after exact KON-to-ENDX normalization
+Accepted next implementation: audio: add jump sfx
+
+## Resume Here
+
+Independent review of the JUMP slice after its single corrective commit.
