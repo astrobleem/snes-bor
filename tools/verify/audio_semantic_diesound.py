@@ -16,6 +16,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, pasm_constant_in, read_block, exact_input_edge,
                       run_frames_exact, held_input_sampled)
 
+
+def run_frames_exact(m, count):
+    """Use the clean capture path; Nexen omits the frame-count response field."""
+    for _ in range(count):
+        m.run_frames(1)
+        m.pause()
+
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
@@ -30,6 +37,10 @@ CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
+CHAR_THROW_ZPOS = pasm_constant('CHAR_THROW_ZPOS')
+CHAR_THROW_ZVEL = pasm_constant('CHAR_THROW_ZVEL')
+CHAR_SELECTED_THROWN = pasm_constant('CHAR_SELECTED_THROWN')
+JUMP_INITIAL_VEL = pasm_constant('JUMP_INITIAL_VEL')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 ENTITY_INVULN = [None,
@@ -147,27 +158,19 @@ def fall_target(m, slot_index=1, roster_index=5):
         w8(m, ENTITY_INVULN[i], 0)
         w8(m, base + CHAR_INPUT_DRIVEN, 0)
     prepare_target(m, ENTITY_BASES[slot_index], roster_index, CHAR_HP_MAX)
-    # Force the real drop-force predicate below zero without making the hit
-    # lethal. The request must come from the transition, not fixture state.
-    w8(m, ENTITY_BASES[slot_index] + CHAR_KNOCKDOWN_COUNT, 0xFF)
-    # Keep the forced negative count alive through the attack windup.  A
-    # one-frame timer expires before the real hit lands and the production
-    # regen path intentionally restores the configured knockdown maximum.
-    w8(m, ENTITY_BASES[slot_index] + CHAR_KNOCKDOWN_TIMER, 60)
-    w8(m, ENTITY_BASES[slot_index] + CHAR_SELECTED, 0)
-    w8(m, ENTITY_BASES[slot_index] + CHAR_FALL_STATE_TIMER, 0)
-    w8(m, ENTITY_BASES[slot_index] + CHAR_FRAME_INDEX, 0xFF)
-    w8(m, ENTITY_BASES[slot_index] + CHAR_TICK_COUNTER, 1)
-    # The real player can still be in hitstun after the bounded boot/warm-up
-    # window.  Match kill_target's proven setup so the input edge reaches the
-    # actual attack path instead of being discarded by player-state gating.
-    w8(m, PLAYER + CHAR_HIT_STUN, 0)
-    w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
+    # OpenBOR emits FALL at a qualifying ground bounce, not when damage first
+    # enters the knockdown state. Exercise the existing SNES equivalent:
+    # ordinary thrown landing, with no safe UP+A land command.
+    w8(m, ENTITY_BASES[slot_index] + CHAR_SELECTED, CHAR_SELECTED_THROWN)
+    w16(m, ENTITY_BASES[slot_index] + CHAR_THROW_ZPOS, 0)
+    w16(m, ENTITY_BASES[slot_index] + CHAR_THROW_ZVEL, JUMP_INITIAL_VEL)
+    w8(m, ENTITY_BASES[slot_index] + CHAR_HIT_STUN, 0)
     before = u16(m, FALL_COUNT)
-    held_input_sampled(m, m.BTN_Y, 3)
-    for _ in range(60):
+    for _ in range(120):
         run_frames_exact(m, 1)
         m.pause()
+        if u8(m, ENTITY_BASES[slot_index] + CHAR_SELECTED) != CHAR_SELECTED_THROWN:
+            break
     return before, u16(m, FALL_COUNT), trace(m)
 
 
@@ -188,11 +191,23 @@ def kill_all_targets(m):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--rom-sha256', required=True)
+    parser.add_argument('--fall-only', action='store_true')
     args = parser.parse_args()
     rom = Path(__file__).resolve().parents[2] / 'distribution' / 'bor.sfc'
     actual = hashlib.sha256(rom.read_bytes()).hexdigest()
     if actual != args.rom_sha256.lower():
         raise SystemExit(f'ROM SHA mismatch: expected {args.rom_sha256}, actual {actual}')
+
+    if args.fall_only:
+        with open_session(__file__) as m:
+            boot(m)
+            clear_observation(m)
+            before, after, rows = fall_target(m)
+            fall_id = pasm_constant('AUDIO_SEMANTIC_FALL')
+            if after - before != 1 or not any(row['semantic_id'] == fall_id for row in rows):
+                raise SystemExit(f'FAIL: ordinary thrown landing did not emit exactly one FALL request: before={before} after={after} rows={rows}')
+            print(f'FALL_THROW_LANDING: request_delta={after - before} rows={rows}')
+        return
 
     # Fresh session per case prevents prior entity teardown/reassignment from
     # contaminating provenance or the negative control.

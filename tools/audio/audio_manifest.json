@@ -1945,7 +1945,7 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "fall",
+              "semantic_event": "ordinary-thrown-landing",
               "engine_global_sample": "global_sample_list.fall",
               "requested_global_asset": "DATA\\SOUNDS\\FALL.WAV",
               "resolved_global_asset": "DATA\\SOUNDS\\FALL.WAV",
@@ -1954,7 +1954,7 @@
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "OpenBOR fall-sound call is tied to the fall/knockdown transition; current SNES core/jump and knockdown paths expose that gameplay transition"
+              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate"
             }
           ],
           "converter_representation": null,
@@ -4730,7 +4730,7 @@
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
               "line": null,
               "directive": "engine-global-default",
-              "semantic_event": "fall",
+              "semantic_event": "ordinary-thrown-landing",
               "engine_global_sample": "global_sample_list.fall",
               "requested_global_asset": "DATA\\SOUNDS\\FALL.WAV",
               "resolved_global_asset": "DATA\\SOUNDS\\FALL.WAV",
@@ -4739,7 +4739,7 @@
               "reachability": "shipped-reachable",
               "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "OpenBOR fall-sound call is tied to the fall/knockdown transition; current SNES core/jump and knockdown paths expose that gameplay transition"
+              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate"
             }
           ],
           "converter_representation": null,

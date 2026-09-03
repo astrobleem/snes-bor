@@ -852,7 +852,6 @@ Character_HitApply__ApplyDamage__fall:
     lda.l $7E0a00,x
     cmp #CHAR_SELECTED_FALL
     beq Character_HitApply__ApplyDamage__fall_already_active
-    jsl AudioSemantic_EmitFall
 Character_HitApply__ApplyDamage__fall_already_active:
     rep #$31
 .a16
@@ -1862,6 +1861,22 @@ Character_Throw_Play__land:
     rtl
 Character_Throw_Play__ordinary_land:
 .a8
+    ; OpenBOR's FALL sample is emitted by the ground-bounce path, not by
+    ; damage entering the knockdown state. This ordinary thrown landing is
+    ; the existing SNES equivalent; safe UP+A landings intentionally bypass
+    ; it. Character_Throw_Play runs with D set to this entity's DP window,
+    ; so recover the same byte-offset convention used by ApplyDamage before
+    ; entering the bank-1 semantic helper.
+    rep #$31
+.a16
+.i16
+    tdc
+    sec
+    sbc #PlayerEntity_DpBase
+    sta.l HitApply_EntityBase
+    sep #$20
+.a8
+    jsl AudioSemantic_EmitFall
     lda #CHAR_SELECTED_FALL
     sta CHAR_SELECTED
     lda #$FF
@@ -1885,10 +1900,10 @@ AudioSemantic_DiesoundByRoster:
     .db AUDIO_SEMANTIC_TURTLEDIE
 AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
 
-; Emit the source-backed FALL semantic exactly when a damage event crosses
-; into the fall/knockdown state. This is the resident short-SFX backend; it
-; does not use the long voice-0 stream. HitApply_EntityBase is set by the
-; caller before this bank-1 helper is entered.
+; Emit the source-backed FALL semantic at the source-equivalent ordinary
+; thrown landing edge. This is the resident short-SFX backend; it does not
+; use the long voice-0 stream. HitApply_EntityBase is set by the caller
+; before this bank-1 helper is entered.
 AudioSemantic_EmitFall:
     php
     rep #$30

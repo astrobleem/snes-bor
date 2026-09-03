@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""G11 hardening: fail the build if SFX_HIT_ID (src/main.pasm) drifts from
-the real generated SFX::sfx_hit value in soundwork/tad/build/audio-enums.inc.
+"""Fail the build if resident semantic SFX IDs drift from generated TAD IDs.
 
 Poppy cannot .include a ca65 .enum file directly, so main.pasm carries its
 own literal `SFX_HIT_ID = N` constant (see that definition's own comment).
@@ -19,22 +18,30 @@ ENUMS_INC = REPO_ROOT / "soundwork" / "tad" / "build" / "audio-enums.inc"
 MAIN_PASM = REPO_ROOT / "src" / "main.pasm"
 
 
-def parse_enum_sfx_hit(text: str) -> int:
+def parse_enum_sfx_ids(text: str) -> dict[str, int]:
     m = re.search(r"\.enum\s+SFX\b(.*?)\.endenum", text, re.S)
     if not m:
         raise SystemExit(f"FAIL: no '.enum SFX ... .endenum' block found in {ENUMS_INC}")
     body = m.group(1)
-    m2 = re.search(r"\bsfx_hit\s*=\s*(\d+)", body)
-    if not m2:
-        raise SystemExit(f"FAIL: no 'sfx_hit = N' entry inside SFX enum in {ENUMS_INC}")
-    return int(m2.group(1))
+    values = {}
+    for name in ("sfx_hit", "sfx_fall"):
+        m2 = re.search(rf"\b{name}\s*=\s*(\d+)", body)
+        if not m2:
+            raise SystemExit(f"FAIL: no '{name} = N' entry inside SFX enum in {ENUMS_INC}")
+        values[name] = int(m2.group(1))
+    if len(set(values.values())) != len(values):
+        raise SystemExit(f"FAIL: duplicate generated resident SFX IDs: {values}")
+    return values
 
 
-def parse_pasm_sfx_hit_id(text: str) -> int:
-    m = re.search(r"^SFX_HIT_ID\s*=\s*(\d+)", text, re.M)
-    if not m:
-        raise SystemExit(f"FAIL: no 'SFX_HIT_ID = N' constant found in {MAIN_PASM}")
-    return int(m.group(1))
+def parse_pasm_sfx_ids(text: str) -> dict[str, int]:
+    values = {}
+    for name in ("SFX_HIT_ID", "SFX_FALL_ID"):
+        m = re.search(rf"^{name}\s*=\s*(\d+)", text, re.M)
+        if not m:
+            raise SystemExit(f"FAIL: no '{name} = N' constant found in {MAIN_PASM}")
+        values[name] = int(m.group(1))
+    return values
 
 
 def main() -> int:
@@ -45,18 +52,13 @@ def main() -> int:
         print(f"FAIL: {MAIN_PASM} does not exist")
         return 1
 
-    real_id = parse_enum_sfx_hit(ENUMS_INC.read_text())
-    pasm_id = parse_pasm_sfx_hit_id(MAIN_PASM.read_text())
-
-    if real_id != pasm_id:
-        print(
-            f"FAIL: SFX_HIT_ID drift -- main.pasm says {pasm_id}, but "
-            f"audio-enums.inc's real SFX::sfx_hit is {real_id}. Update "
-            f"src/main.pasm's SFX_HIT_ID constant to {real_id}."
-        )
+    generated = parse_enum_sfx_ids(ENUMS_INC.read_text())
+    pasm = parse_pasm_sfx_ids(MAIN_PASM.read_text())
+    expected = {"SFX_HIT_ID": generated["sfx_hit"], "SFX_FALL_ID": generated["sfx_fall"]}
+    if pasm != expected:
+        print(f"FAIL: resident SFX ID drift -- main.pasm={pasm}, generated={expected}")
         return 1
-
-    print(f"OK: SFX_HIT_ID in sync ({pasm_id}) with audio-enums.inc")
+    print(f"OK: resident SFX IDs in sync ({pasm}) with audio-enums.inc")
     return 0
 
 

@@ -19,7 +19,7 @@ import re
 import sys
 
 MESEN_PYTHON_PATH = r'E:\gh\Mesen2\python'
-MESEN_EXE = r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe'
+MESEN_EXE = os.environ.get('MESEN_EXE', r'E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe')
 
 if MESEN_PYTHON_PATH not in sys.path:
     sys.path.append(MESEN_PYTHON_PATH)
@@ -94,12 +94,14 @@ def _free_tcp_port():
     return port
 
 
-def open_session(verify_script_file, boot_wait=2.0):
+def open_session(verify_script_file, boot_wait=2.0, env=None, stderr_log=None):
     return McpSession(
         rom=rom_path(verify_script_file),
         mesen=MESEN_EXE,
         boot_wait=boot_wait,
         port=_free_tcp_port(),
+        env=env,
+        stderr_log=stderr_log,
     )
 
 
