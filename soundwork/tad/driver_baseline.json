@@ -5,6 +5,15 @@
     "tag": "v0.3.0",
     "compiler": "tad-compiler 0.3.0"
   },
+  "shared_armory": {
+    "repository": "astrobleem/terrific-audio-driver",
+    "remote": "https://github.com/astrobleem/terrific-audio-driver.git",
+    "branch": "bor-poppy-stage-a-v0.3.0",
+    "base": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+    "source_commit": "2aae713e68c2a2b5962c643eb9631f630a00eadd",
+    "poppy_api_commit": "97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b",
+    "poppy_api_path": "audio-driver/poppy-api/tad-stream.pasm"
+  },
   "runtime_graph": {
     "project": "soundwork/tad/project/02_coin.terrificaudio",
     "blob": "soundwork/tad/build/audio-data.bin",

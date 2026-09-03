@@ -7,15 +7,22 @@
 - Reusable capability: exact frame-count `run_frames`, held/released input, deterministic pause and teardown.
 - Liveness proof on this host: requests for 1, 1, and 10 frames returned exact advancement with `timedOut=false`.
 - Passive DSP diagnostic edits remain only in the separate worktree. `E:\\gh\\Mesen2-mcp-server` was not modified.
+- Shared TAD armory: `astrobleem/terrific-audio-driver`, branch `bor-poppy-stage-a-v0.3.0`, pinned base `00215a2e9aaf327d620120a48b47d74f80d5b521`.
+- Shared TAD commits: source lineage `2aae713e68c2a2b5962c643eb9631f630a00eadd`; generic Poppy stream API `97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`; remote branch matches `97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`.
+- Shared Poppy API: `audio-driver/poppy-api/tad-stream.pasm`; full BOR Poppy host port remains BOR-local because it contains fixed WRAM, stream state, and game integration.
 
 ## Resume Here
 
 - Branch: `audio-content-pass`.
-- Work after the published transport boundary is uncommitted and must be preserved.
-- Published transport boundary: `d58b513`; provenance follow-up is published as `aeccf84`.
-- Transaction 0 and serialized chunks 0..15 are exact and ACK-gated; bank-0 layout is resolved and guarded.
-- Current next gate: controlled physical playback and ring-wrap proof. Full Stage A remains unproven.
-- Playback remains unstarted after the corrected source extraction; Gate A must be rerun with the real BRR content.
+- Published Stage A completion boundary: `c7c5f80f47bd1f9b7cab341bcc4732ec2968f4b0` (`audio: complete long-SFX playback stage`), remote `origin/audio-content-pass` matches.
+- Stage A is accepted: serialized transport, full 228-chunk playback, physical ring wraps, voice-0 natural completion, and resident voice-6/7 coexistence are closed. Do not reopen those gates without regression evidence.
+- The protected `tools/audio/sfx_production_banks.json` modification is pre-existing, user-owned dirty state. It is untouched, unstaged, and excluded from all commits.
+- Current working-tree dirt also includes intentionally retained untracked TAD reproduction directories; do not clean or discard them.
+- G11 remains closed and authoritative: physical voice 7, 12049 PCM samples, `0.37653125 s`, accepted per-voice oracle.
+- Bounded semantic diesound/concurrency slice is now proven: real lethal Foot requests map to semantic ID `2`, same-frame triple requests coalesce to one stream start, and a staggered active-stream request is suppressed.
+- Next planned audio stage: the first reachable unimplemented global SFX from `tools/audio/engine_audio_semantics.py`, currently the source-backed `FALL.WAV` fall/knockdown event. Do not broaden to the full SFX library or soundtrack and do not start G12.
+- Exact next gate: audit the real fall/knockdown transition and its source `FALL.WAV` provenance, then add one deterministic runtime request/playback gate without changing the accepted stream transport or coexistence architecture.
+- The semantic/concurrency working-tree slice is proven but not yet published; publish it as one coherent BOR commit before implementing `FALL.WAV`.
 - Current d58 reconstruction evidence: driver 3420 bytes, SHA `12b285126ee811aacb6012b2ded6df056accf252df19563377accd5d4b69e3aa`; blob SHA `ee3b47b3c0c50bfa5ddab1539198ed6b597c2d8255f95e6602cd2c6022f28235`.
 - Current latest TAD source fix: transport-only prefill no longer claims voice 0; stream directory start and loop low bytes use `lobyte(STREAM_RING_ADDR)`.
 - Current latest driver: 3437 bytes, SHA `b55edf38ed53b470789a9a9a6b43b1b13e8d408640c08ca1f3c17cf664da5ea6`; blob SHA `97a734107636d4aa99a993e91aa9d960bf9aa16c34fe31e46ec97a396a5382de`; corrected-content ROM SHA `113f1dff67f9cba1177da0fe39dec97dc701a06a7b600224a7026da50b1bd5d2`.
@@ -24,7 +31,7 @@
 - The prior `footdie.brr` extraction used `common[19:...]`, which started inside TAD metadata. The generator now converts data-table segment offsets to blob offsets, reads the directory at Common Audio Data offset 28, and derives BRR start from its `$1815` ARAM pointer.
 - Corrected FOOTDIE: Common Audio Data 32782 bytes; base `$17E4`; BRR offset 49; 32733 bytes; 3637 blocks; 58192 decoded samples; first header `$70`; final header `$01`; END count 1; LOOP count 0; decode/source correlation `0.9977658011`; BRR SHA `6b7677dc2666ab4de95021ef88ff2ce43b2f30263ffee6ec2562a455745d3c7d`.
 - Corrected-content transport rerun: transaction 0 and serialized chunks 0..15 are exact with ACK-gated external ARAM verification; chunk-0 SHA is `317fa853814e0315096e2ca441d84ab55d8faa3296e0e231b87b609f18f431ae`.
-- Current next gate: controlled physical playback and ring-wrap proof. Do not claim playback or full Stage A yet.
+- Current next gate after the published Stage A result is the bounded semantic diesound/concurrency slice described above. Playback and ring-wrap proof are accepted historical evidence, not pending work.
 - Provenance: pinned upstream plus the voice-0 patch plus `tad-v0.3.0-stream-transport.patch` reproduces d58 exactly; `tad-v0.3.0-stream-voice0-srcn.patch` records the later V0SRCN diagnostic fix.
 - Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
 - Protected repository: `E:/gh/Mesen2-mcp-server`; do not touch.
@@ -75,6 +82,7 @@
 ## Build Graph
 
 - Required graph: pinned TAD source -> BOR source patch -> patched compiler -> fresh ca65 export -> generated audio artifacts -> ROM.
+- Shared-armory anchor: `astrobleem/terrific-audio-driver` branch `bor-poppy-stage-a-v0.3.0`, source commit `2aae713e68c2a2b5962c643eb9631f630a00eadd`, Poppy API commit `97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`.
 - Pinned upstream TAD commit: `00215a2e9aaf327d620120a48b47d74f80d5b521`.
 - Compiler version text is not sufficient identity because stock and patched builds both report 0.3.0.
 - Stock compiler use is forbidden for this stream branch.
@@ -129,7 +137,7 @@
 
 ## Stage A Status
 
-- Stage A is not proven.
+- Stage A is accepted and published at `c7c5f80f47bd1f9b7cab341bcc4732ec2968f4b0`; do not reopen transport, playback, ring, or resident-SFX coexistence without regression evidence.
 - Previous host-reported chunk counts were rejected because they did not prove SPC acceptance or correct ARAM contents.
 - A previous playback run stopped near 2017 voice-0 samples, consistent with one physical ring traversal, but DSP diagnosis is deferred until transport is correct.
 - Current serial harness proves transaction 0 and chunks 0..15 without playback; host counters are still secondary to ACK plus external ARAM equality.
@@ -165,11 +173,11 @@
 
 ## Protected Scope
 
-- Do not modify `tools/audio/sfx_production_banks.json`.
+- `tools/audio/sfx_production_banks.json` is pre-existing, user-owned dirty state; do not modify, stage, commit, or clean it.
 - Do not modify `E:/gh/Mesen2-mcp-server`.
 - Do not reset or rewrite history.
 - Do not amend the accepted reservation commit.
-- Do not commit or push until the coherent transport slice has real evidence.
+- Do not amend `c7c5f80`; future commits must be coherent with the next bounded audio slice.
 
 ## Latest Gate A Evidence (2026-09-02)
 
@@ -185,6 +193,14 @@
 - Playback Gate A is PASS for the bounded full-source run: no premature ENDX, no KOFF, physical loop active, final natural END. Explicit overwrite/underrun telemetry remains a follow-up hardening item, not evidence of a failure in this run.
 - Targeted G11 resident canary remains PASS: voice 7, 12049 samples, natural ENDX, 0.37653125 s, byte-identical oracle.
 
+## Semantic Diesound Evidence (2026-09-03)
+
+- The focused live gate uses the established real player-attack -> hit dispatch -> lethal damage path; fixture setup is paused and clears target/player hit-stun and target invulnerability before each event.
+- Foot roster index `5` emits semantic ID `2` with actor-slot provenance for slots 1, 2, and 3. Reassigned roster index `6` emits semantic ID `3` (Rockdie).
+- Same-frame three-target control records request delta 3 and backend counts `starts=1`, `coalesced=2`.
+- Staggered control records one request per event and backend `suppressed=1` while the Footdie stream is active.
+- `tools/audio/long_event_concurrency.json` now records the observed runtime boundary and selected policy: same-frame identical Footdie coalesces one start; while-active identical Footdie is suppressed.
+
 ## Coexistence Evidence (2026-09-03)
 
 - Shared-armory frame liveness is PASS at `18c05d3f076728d05310c6e591b7d0a08d604d42`: exact 1, 1, and 10 frame requests advanced exactly and did not time out.
@@ -197,14 +213,13 @@
 
 ## Resume Here
 
-- Published baseline is `aeccf841`; serialized transport proof is `d58b513`.
-- Transaction 0 and serialized chunks 0..15 remain exact. Bank-0 layout and corrected directory-derived FOOTDIE extraction remain active.
-- Playback Gate A is bounded-PASS: the current ROM delivered all 228 chunks, survived 28 physical wraps, reached source block 3636, and naturally ENDXed at `168852` output samples / `5.276625 s`.
-- Shared armory liveness is PASS. The ordinary G11 gameplay control reaches its real landed-hit request under the armory; its legacy mixed-waveform checks are non-authoritative and were not used as a G11 verdict.
-- The latest stream-only armory probe initially stalled during prefill because the fixture omitted `STREAM_IMMEDIATE_START=1`; the corrected startup mode reached all seven exact prefill ACKs. That earlier result was a fixture failure, not resident-SFX or stream-playback evidence.
-- Exact next gate: run focused build/static canaries, remove only disposable BOR diagnostics, review the coherent diff, and create one Stage A completion commit. Do not run full regression.
-- Current ROM SHA: `ddb68415622e65557ad9e68dba3ec65ecddc6a49cad7681c7a88c53e5336a4a2`.
-- Current safety rule: consumer credit advances once per video frame; a submission is allowed only while `next_chunk - estimated_consumed_chunk < 8`; transport-only prefill does not advance consumer credit.
-- Protected dirty file: `tools/audio/sfx_production_banks.json`; leave untouched and unstaged.
+- Published baseline is `c7c5f80f47bd1f9b7cab341bcc4732ec2968f4b0`; remote `origin/audio-content-pass` is at that commit.
+- Stage A is accepted locally and published: 228/228 chunks, 28 wraps, voice 0 `168852` samples / `5.276625 s`, natural ENDX, and resident-SFX coexistence without stream interference.
+- Corrected FOOTDIE remains directory-derived and source-faithful: BRR SHA `6b7677dc2666ab4de95021ef88ff2ce43b2f30263ffee6ec2562a455745d3c7d`.
+- Exact next gate: source and gate the reachable `FALL.WAV` fall/knockdown SFX as the next bounded global-audio slice. Do not reopen transport, protocol, voice-0, or coexistence unless a new regression appears.
+- Semantic/concurrency evidence is ready for the next coherent BOR commit; no implementation of `FALL.WAV` has started.
+- Shared TAD armory is published at `astrobleem/terrific-audio-driver:bor-poppy-stage-a-v0.3.0@97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`, based on pinned v0.3.0. Its source lineage commit is `2aae713e68c2a2b5962c643eb9631f630a00eadd`; Poppy API is `audio-driver/poppy-api/tad-stream.pasm`.
+- Shared armory: `E:\gh\Mesen2-mcp-frameexact`, branch `debug/bor-frameexact`, commit `18c05d3f076728d05310c6e591b7d0a08d604d42`; generic exact frame advancement and deterministic input/liveness are already available. Do not forge a new generic debugger capability without auditing this first.
+- Protected dirty file: `tools/audio/sfx_production_banks.json`; pre-existing user-owned state, untouched and unstaged.
 - Protected dirty repository: `E:\gh\Mesen2-mcp-server`; leave untouched.
 - Forbidden scope: no merge, G12, full regression, voice 1, generalized heap, or authored-audio modification.

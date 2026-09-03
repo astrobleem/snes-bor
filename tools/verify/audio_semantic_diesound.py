@@ -13,19 +13,24 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import (open_session, pasm_constant, read_block, exact_input_edge,
+from _harness import (open_session, pasm_constant, pasm_constant_in, read_block, exact_input_edge,
                       run_frames_exact, held_input_sampled)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 CHAR_HP = pasm_constant('CHAR_HP')
+CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
+ENTITY_INVULN = [None,
+                  pasm_constant_in('src/core/game_state.pasm', 'Entity1_InvulnFrames'),
+                  pasm_constant_in('src/core/game_state.pasm', 'Entity2_InvulnFrames'),
+                  pasm_constant_in('src/core/game_state.pasm', 'Entity3_InvulnFrames')]
 SEM_NONE = pasm_constant('AUDIO_SEMANTIC_NONE')
 SEM_FOOTDIE = pasm_constant('AUDIO_SEMANTIC_FOOTDIE')
 SEM_ROCKDIE = pasm_constant('AUDIO_SEMANTIC_ROCKDIE')
@@ -78,14 +83,26 @@ def trace(m):
 def prepare_target(m, base, roster_index, hp):
     w8(m, base + CHAR_INPUT_DRIVEN, 0)  # deterministic static target setup
     w8(m, base + CHAR_ROSTER_INDEX, roster_index)
+    w8(m, base + CHAR_HIT_STUN, 0)
     w16(m, base + CHAR_POS_X, u16(m, PLAYER + CHAR_POS_X))
     w16(m, base + CHAR_POS_Y, u16(m, PLAYER + CHAR_POS_Y))
     w8(m, base + CHAR_HP, hp)
+    slot = ENTITY_BASES.index(base)
+    w8(m, ENTITY_INVULN[slot], 0)
 
 
 def boot(m):
     m.reset_emulator()
-    run_frames_exact(m, 300)
+    run_frames_exact(m, 150)
+    m.pause()
+    for base in ENTITY_BASES[2:]:
+        w8(m, base + CHAR_HP, 0)
+    run_frames_exact(m, 30)
+    # Establish entity fixtures only while the CPU is paused.  The accepted
+    # G11 gate uses the same boundary; writing these fields while the game is
+    # running lets Anim_Play/Spawn logic race the setup and can leave the
+    # target out of overlap before the real attack edge is delivered.
+    m.pause()
 
 
 def clear_observation(m):
@@ -98,13 +115,21 @@ def clear_observation(m):
 
 def kill_target(m, slot_index, roster_index):
     for i, base in enumerate(ENTITY_BASES[1:], 1):
-        w8(m, base + CHAR_HP, CHAR_HP_MAX if i != slot_index else 1)
+        w8(m, base + CHAR_HP, 0 if i != slot_index else 1)
+        w8(m, ENTITY_INVULN[i], 0)
         w8(m, base + CHAR_INPUT_DRIVEN, 0)
     prepare_target(m, ENTITY_BASES[slot_index], roster_index, 1)
+    w8(m, PLAYER + CHAR_HIT_STUN, 0)
     w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
     before = u16(m, REQ_COUNT)
     held_input_sampled(m, m.BTN_Y, 3)
-    run_frames_exact(m, 8)
+    # The real attack can land after the three sampled input frames.  Keep a
+    # single bounded observation window, matching the accepted G11 gate's
+    # 3-frame edge plus recovery/windup window rather than treating an early
+    # no-hit read as proof that the semantic path did not run.
+    for _ in range(60):
+        run_frames_exact(m, 1)
+        m.pause()
     after = u16(m, REQ_COUNT)
     return before, after, u8(m, ENTITY_BASES[slot_index] + CHAR_HP), trace(m)
 
@@ -113,8 +138,12 @@ def kill_all_targets(m):
     for base in ENTITY_BASES[1:]:
         prepare_target(m, base, 5, 1)
     w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
+    w8(m, PLAYER + CHAR_HIT_STUN, 0)
     before = u16(m, REQ_COUNT)
     held_input_sampled(m, m.BTN_Y, 3)
+    for _ in range(60):
+        run_frames_exact(m, 1)
+        m.pause()
     after = u16(m, REQ_COUNT)
     return after - before, trace(m)
 

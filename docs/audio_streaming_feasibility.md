@@ -65,9 +65,9 @@ is no honest pre-TAD live trace of those requests in the current ROM.
 
 One streamed voice would therefore require an explicit restart/drop/suppress
 policy for overlapping Foot deaths and would leave only one physical TAD SFX
-voice for landed-hit/attack effects during the vocal. That fidelity decision
-is unresolved. Per the feasibility gate, no streaming fixture or multi-voice
-extension is implemented yet.
+voice for landed-hit/attack effects during the vocal. The current bounded policy
+is coalesce-one-start for same-frame identical Footdie requests and suppress
+while that stream is active; mixed-identity policy remains future work.
 
 ## Updated voice-0 and concurrency decision
 
@@ -78,13 +78,10 @@ compatibility result; the vendored project still contains an unmodified driver.
 
 The current runtime has three AI slots and one attack visits all three slots in
 order. A source-faithful implementation can therefore commit three Foot
-deaths in one gameplay frame. The runtime does not yet carry each entity's
-source diesound in its live record and does not emit semantic diesound requests
-before TAD arbitration. There is consequently no honest live same-frame or
-staggered long-SFX trace yet. This boundary is recorded fail-closed in
-`tools/audio/long_event_concurrency.json`; no synthetic trace or stream policy
-has been promoted.
+deaths in one gameplay frame. The runtime now carries roster identity through
+the lethal transition and emits semantic diesound requests before TAD
+arbitration. The focused live gate observed the same-frame and staggered
+boundaries; the result is recorded in `tools/audio/long_event_concurrency.json`.
 
-The next prerequisite is minimal diesound provenance and semantic request
-instrumentation. It must precede choosing coalesce, restart, suppress,
-queue-one, or a second voice for overlapping identical vocals.
+The next bounded audio slice is the reachable source-backed `FALL.WAV`
+fall/knockdown event, gated independently of the accepted long stream.
