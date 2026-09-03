@@ -1900,8 +1900,8 @@ AudioSemantic_DiesoundByRoster:
     .db AUDIO_SEMANTIC_TURTLEDIE
 AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
 
-; Emit the source-backed FALL semantic at the source-equivalent ordinary
-; thrown landing edge. This is the resident short-SFX backend; it does not
+; Emit the source-backed FALL semantic at the documented SNES adaptation of
+; the source bounce-impact event. This is the resident short-SFX backend; it does not
 ; use the long voice-0 stream. HitApply_EntityBase is set by the caller
 ; before this bank-1 helper is entered.
 AudioSemantic_EmitFall:

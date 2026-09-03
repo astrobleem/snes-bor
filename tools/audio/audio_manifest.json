@@ -1953,8 +1953,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate"
+              "audio_implemented": true,
+              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate; FALL playback is implemented and physically accepted"
             }
           ],
           "converter_representation": null,
@@ -4738,8 +4738,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate"
+              "audio_implemented": true,
+              "reachability_reason": "Documented SNES adaptation: ordinary thrown ground impact is the reachable analogue of OpenBOR's qualifying bounce; the simplified SNES throw model does not reproduce every tobounce predicate; FALL playback is implemented and physically accepted"
             }
           ],
           "converter_representation": null,

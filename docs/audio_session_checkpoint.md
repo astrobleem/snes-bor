@@ -327,3 +327,35 @@ Nexen post-setup timer divergence remains documented shared-tool debt; standard 
 ## Resume Here
 
 STOP FOR INDEPENDENT REVIEW. Do not begin another SFX slice, G12, generalized residency, or Stage-A regression.
+
+## Final FALL Bookkeeping (authoritative, 2026-09-03)
+
+Historical diagnostic sections above are superseded by the accepted packaged-runtime result below. They remain retained as failure and provenance evidence.
+
+Published HEAD:
+    `60c21f5c3024726b241a88665927ecc84f767e4a`
+
+FALL metadata:
+- Before: `audio_implemented = False`.
+- After: `audio_implemented = True`.
+- `mechanic_reachable = True`.
+- `event = ordinary-thrown-landing`.
+- Wording remains explicit that this is a documented SNES adaptation of OpenBOR's qualifying bounce-impact event, not a literal reproduction of every OpenBOR predicate.
+
+FALL physical gate:
+    PASS
+
+direct/gameplay PCM:
+    byte-identical
+
+accepted implementation:
+    `60c21f5c3024726b241a88665927ecc84f767e4a`
+
+next action:
+    independent review complete / ready for next audited audio slice
+
+No FALL source, hook, resident ID, allocator, TAD, capture, Stage-A, voice-policy, or gameplay-proof work was reopened by this bookkeeping change.
+
+## Resume Here
+
+Independent review complete. Begin the next audited audio slice only after review authorization.
