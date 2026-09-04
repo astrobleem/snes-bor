@@ -1,0 +1,23 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf",
+  "raw_bytes": 4524,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 4480,
+  "canonical_path": "assets/audio/batch_b/canonical/wood.wav",
+  "canonical_sha256": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf",
+  "canonical_frames": 4480,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.40634920634920635,
+  "duration_ticks": 51,
+  "brr_bytes": 2520,
+  "brr_blocks": 280,
+  "brr_sha256": "89ef8009873aaf87a0c75bfebb4337b03dbd657e5ed4e8cc14e827ca79d99771",
+  "single_effect_common_bytes": 2567,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/wood.brr"
+}
