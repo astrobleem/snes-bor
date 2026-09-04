@@ -2491,6 +2491,14 @@ Audio_FrameSoundDispatch__frame_ok:
     cmp.l AudioSemantic_FrameSoundLastFrame
     beq Audio_FrameSoundDispatch__same_frame
     sta.l AudioSemantic_FrameSoundLastFrame
+    ; LastKey is scoped to LastFrame.  A matching record must be eligible
+    ; again as soon as a later NMI begins.
+    sep #$20
+.a8
+    lda #$FF
+    sta.l AudioSemantic_FrameSoundLastKey
+    rep #$20
+.a16
 Audio_FrameSoundDispatch__same_frame:
     txa
     lsr

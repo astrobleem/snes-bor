@@ -868,3 +868,28 @@ SOUND COMPLETE. Published implementation commit:
 
 Stop for final review. Do not begin another subsystem or reopen accepted audio
 mechanisms absent a new production regression.
+
+### Frame-sound dedupe fix-forward
+
+- Final review found that `Audio_FrameSoundDispatch` updated
+  `AudioSemantic_FrameSoundLastFrame` on a new NMI frame without invalidating
+  `AudioSemantic_FrameSoundLastKey`. A single authored record could therefore
+  remain suppressed across later actions.
+- The new-frame path now resets `LastKey` to `$FF`; the explicit same-frame
+  comparison and duplicate suppression remain unchanged.
+- Fresh ROM SHA-256 after this fix:
+  `1ecd696eb3b927bebef8276fef661c156cb4e19e426ba7d33c04d670a97b7aa6`.
+- `frame_sound_repeatability.py` PASS: same-NMI duplicate suppression and
+  later-frame re-arm, two real LEO DASH authored requests, and two rearmed
+  real PIZZA1 authored source-12 dispatches in one session.
+  The second PIZZA1 remains subject to the accepted single active voice-0
+  stream serialization policy; this correction proves dispatch repeatability,
+  not a second simultaneous stream start.
+- Focused closure: SPIN multi-record control live, diesound stream control
+  executed, resident ID sync PASS, manifest PASS, action residency PASS,
+  voice-0 reservation PASS, voice-0 ownership PASS, and fresh assembly/layout
+  PASS.
+
+## Resume Here
+
+Publish the frame-sound dedupe fix-forward, then stop for final review.
