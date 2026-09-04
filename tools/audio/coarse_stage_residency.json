@@ -11,7 +11,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -23,12 +22,12 @@
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 179721,
+      "common_data_bytes": 173251,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (179721 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (173251 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -118893,
+      "margin": -112423,
       "players": [
         "out/leo"
       ],
@@ -37,7 +36,7 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\BEBOP.TXT"
       ],
-      "whole_stage_context_id": "2e0d0946fc19acd4ecb3bcff62f1422f974645445db0489ee1b3f8343c2f2576"
+      "whole_stage_context_id": "89263e4d8937001a3b8b2a9258fa270e5c2c45ada66b357030f9968046dd2ba0"
     },
     {
       "assets": [
@@ -47,7 +46,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
@@ -61,12 +59,12 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 178911,
+      "common_data_bytes": 172441,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (178911 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (172441 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -118083,
+      "margin": -111613,
       "players": [
         "out/leo"
       ],
@@ -75,7 +73,7 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\ROCK.TXT"
       ],
-      "whole_stage_context_id": "ea4cc5151b9f3fd9e113793cbdf04ffb57a2c81b12e691f6aead5aa41bdfd553"
+      "whole_stage_context_id": "dd88fa84b1ef9283a1141ba75e2352b6f9eeabf48a2716d3da108121b82d1d4a"
     },
     {
       "assets": [
@@ -84,7 +82,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -96,12 +93,12 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 133948,
+      "common_data_bytes": 127478,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (133948 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (127478 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -73120,
+      "margin": -66650,
       "players": [
         "out/leo"
       ],
@@ -110,7 +107,7 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\LEATHER.TXT"
       ],
-      "whole_stage_context_id": "fc3906f65e9a64cc00eee23090d53b48732c16095924925d5f8b355eb6efa5fb"
+      "whole_stage_context_id": "53f25601de62298b2381448215fe1a4a62f36f62015ccd8096c1b00b7f60e2c5"
     },
     {
       "assets": [
@@ -121,7 +118,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -132,12 +128,12 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 135756,
+      "common_data_bytes": 129286,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (135756 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (129286 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -74928,
+      "margin": -68458,
       "players": [
         "out/leo",
         "out/leo"
@@ -148,7 +144,7 @@
         "tmnt:DATA\\LEVELS\\SEWER0.TXT",
         "tmnt:DATA\\LEVELS\\SEWER.TXT"
       ],
-      "whole_stage_context_id": "a23aec5f0da6a238cb42e9e78780b38b20c40782f4a924d54ac5668fa4292faa"
+      "whole_stage_context_id": "9ab9fe6fc1c4c9aedfaa96d11460fba4f3b3f5f96404e97887940d349ace1453"
     },
     {
       "assets": [
@@ -159,7 +155,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
@@ -173,12 +168,12 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 183131,
+      "common_data_bytes": 176661,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (183131 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (176661 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -122303,
+      "margin": -115833,
       "players": [
         "out/leo"
       ],
@@ -187,7 +182,7 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\STREETS.TXT"
       ],
-      "whole_stage_context_id": "2dd0cdfe38a5503a19bf7c7c844f1182e4d05241aa6aa05aadb6877b3e0f0c6f"
+      "whole_stage_context_id": "93adb5fa344a74427df4a02ee907bf27eb9037cebd8dfc157cb8bf56ccf7dc72"
     },
     {
       "assets": [
@@ -200,7 +195,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\BOAR.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -212,12 +206,12 @@
         "tmnt:DATA\\SOUNDS\\WAVE.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 185957,
+      "common_data_bytes": 179487,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (185957 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (179487 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -125129,
+      "margin": -118659,
       "players": [
         "out/leo"
       ],
@@ -226,7 +220,7 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\STREETS2.TXT"
       ],
-      "whole_stage_context_id": "2b53cca7113318a668eca34ab0bd534aaa16a34e60418a60b439eec7658a9228"
+      "whole_stage_context_id": "171c7a478632bd7f2bc853455da4d4a95ba91cddaccd7630d9c75f231be38390"
     },
     {
       "assets": [
@@ -236,7 +230,6 @@
         "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
         "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
         "tmnt:DATA\\SOUNDS\\DASH.WAV",
-        "tmnt:DATA\\SOUNDS\\FALL.WAV",
         "tmnt:DATA\\SOUNDS\\GET.WAV",
         "tmnt:DATA\\SOUNDS\\JUMP.WAV",
         "tmnt:DATA\\SOUNDS\\MONEY.WAV",
@@ -247,12 +240,12 @@
         "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
       ],
       "classification": "fail",
-      "common_data_bytes": 131536,
+      "common_data_bytes": 125066,
       "common_data_sha256": null,
-      "compile_error": "Cannot compile common audio data: common audio data is too large (131536 bytes, max: 60828)",
+      "compile_error": "Cannot compile common audio data: common audio data is too large (125066 bytes, max: 59036)",
       "compiler_version": null,
       "effect_count": null,
-      "margin": -70708,
+      "margin": -64238,
       "players": [
         "out/leo"
       ],
@@ -261,10 +254,10 @@
       "stages": [
         "tmnt:DATA\\LEVELS\\FOOT.TXT"
       ],
-      "whole_stage_context_id": "84443c2a28ef38353eea145f0b6acd02a3b8c67d33e91e7f6d752d38090e797c"
+      "whole_stage_context_id": "24b32003c3b4ffc9e1abd612b237cce86b6d4dc2a07ba55d7998c3ecd45c33d8"
     }
   ],
-  "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",
+  "manifest_hash": "5b0a16f457526bb0fbdbdbab8c3db6fd36d32efb41049acde5279282da286212",
   "nominal_context_count": 8,
   "policy": "baseline-policy capacity; not final shipping policy",
   "schema_version": 2,

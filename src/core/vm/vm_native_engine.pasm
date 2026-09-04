@@ -856,6 +856,8 @@ Character_HitApply__ApplyDamage__fall_already_active:
     rep #$31
 .a16
 .i16
+    sep #$20
+.a8
     lda #CHAR_SELECTED_FALL
     sta.l $7E0a00,x
     rep #$31
@@ -894,6 +896,7 @@ Character_HitApply__ApplyDamage__stun:
 .a8
     lda #CHAR_HIT_STUN_FRAMES
     sta.l $7E0a00,x
+    jsl AudioSemantic_EmitPainSound
 
 Character_HitApply__ApplyDamage__reaction_done:
     ; --- 4: return whether this hit was a kill ---
@@ -1889,15 +1892,10 @@ Character_Throw_Play__done:
     rtl
 
 
-; Audio-content pass: source-semantic diesound request emission. This lives
-; in bank 1 because bank 0's fixed $C100-$FC00 region has no safe growth
-; margin. The table is keyed by the stable converted roster order; target
-; physical slots are derived from ApplyDamage's authoritative saved offset.
-AudioSemantic_DiesoundByRoster:
-    .db AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1, AUDIO_SEMANTIC_DIE1
-    .db AUDIO_SEMANTIC_NONE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_ROCKDIE, AUDIO_SEMANTIC_RHINODIE
-    .db AUDIO_SEMANTIC_BEBOPDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE, AUDIO_SEMANTIC_FOOTDIE
-    .db AUDIO_SEMANTIC_TURTLEDIE
+; Audio-content pass: source-semantic diesound request emission. The
+; generated roster/source tables and authored frame records are included by
+; main.pasm immediately after this file; keeping them generated prevents the
+; runtime dispatch from drifting from the measured Batch-B inventory. AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
 AudioSemantic_EntityRoster = $7E0A00 + CHAR_ROSTER_INDEX
 
 ; Emit the source-backed FALL semantic at the documented SNES adaptation of
@@ -2104,6 +2102,8 @@ Audio_EmitPunch:
     lda CHAR_ATTACK_VARIANT
     cmp #GET_MOVE_VARIANT          ; GET shares the attack animation state
     beq Audio_EmitPunch__done      ; but is not an attack swing
+    cmp #6                         ; slide is an accepted ground movement
+    beq Audio_EmitPunch__done      ; edge with authored DASH frame audio
     lda CHAR_FRAME_INDEX
     cmp #$FF
     bne Audio_EmitPunch__done
@@ -2164,7 +2164,7 @@ AudioSemantic_EmitDiesound__slot_store:
     sep #$20
 .a8
     lda.l AudioSemantic_EntityRoster,x
-    cmp #13
+    cmp #21
     bcc AudioSemantic_EmitDiesound__roster_ok
     jmp AudioSemantic_EmitDiesound__done
 AudioSemantic_EmitDiesound__roster_ok:
@@ -2188,8 +2188,13 @@ AudioSemantic_EmitDiesound__identity_ok:
     lda.l AudioSemantic_FootDieRequestCount
     inc
     sta.l AudioSemantic_FootDieRequestCount
-    jsr AudioSemantic_FootDieBackendPolicy
 AudioSemantic_EmitDiesound__not_foot:
+    lda.l AudioSemantic_DiesoundSourceByRoster,x
+    sta.l AudioStream_SourceId
+    cmp #AUDIO_STREAM_SOURCE_NONE
+    beq AudioSemantic_EmitDiesound__no_stream
+    jsr AudioSemantic_StreamBackendPolicy
+AudioSemantic_EmitDiesound__no_stream:
     lda.l AudioSemantic_RequestCount
     inc
     sta.l AudioSemantic_RequestCount
@@ -2250,21 +2255,22 @@ AudioSemantic_EmitDiesound__done:
     plp
     rtl
 
-; TEST-ONLY backend policy for the first one-stream feasibility fixture. The
-; semantic request and trace are recorded before this policy collapses only
-; the provisional playback decision.
-AudioSemantic_FootDieBackendPolicy:
+; Shared stream backend policy for diesounds and authored frame sounds. The
+; source ID is already in AudioStream_SourceId. The existing one-voice
+; transport remains serialized: same-frame requests coalesce and requests
+; arriving while voice 0 is active are counted as suppressed.
+AudioSemantic_StreamBackendPolicy:
     php
     rep #$30
 .a16
 .i16
     lda.l Nmi_FrameCounter
     cmp.l AudioSemantic_FootDieStreamFrame
-    beq AudioSemantic_FootDieBackendPolicy__same_frame
+    beq AudioSemantic_StreamBackendPolicy__same_frame
     sep #$20
 .a8
     lda.l AudioSemantic_FootDieStreamActive
-    bne AudioSemantic_FootDieBackendPolicy__suppressed
+    bne AudioSemantic_StreamBackendPolicy__suppressed
     rep #$20
 .a16
     lda.l Nmi_FrameCounter
@@ -2274,28 +2280,347 @@ AudioSemantic_FootDieBackendPolicy:
     lda #1
     sta.l AudioSemantic_FootDieStreamActive
     lda.l AudioStream_Enable
-    beq AudioSemantic_FootDieBackendPolicy__count_start
+    beq AudioSemantic_StreamBackendPolicy__count_start
+    ; Tad_StreamStartSource takes A=source ID.  The enable check above leaves
+    ; A=1, which otherwise aliases every authored stream to source 1.
+    lda.l AudioStream_SourceId
+    jsr Tad_StreamStartSource
+    lda.l AudioStream_Enable
+    beq AudioSemantic_StreamBackendPolicy__count_start
     jsl Tad_StreamSendFootdieFrame
-AudioSemantic_FootDieBackendPolicy__count_start:
+AudioSemantic_StreamBackendPolicy__count_start:
+    rep #$20
+.a16
+    lda.l AudioSemantic_StreamRequestCount
+    inc
+    sta.l AudioSemantic_StreamRequestCount
+    sep #$20
+.a8
+    lda.l AudioStream_SourceId
+    bne AudioSemantic_StreamBackendPolicy__done
     rep #$20
 .a16
     lda.l AudioSemantic_FootDieStreamStartCount
     inc
     sta.l AudioSemantic_FootDieStreamStartCount
-    bra AudioSemantic_FootDieBackendPolicy__done
-AudioSemantic_FootDieBackendPolicy__same_frame:
+    bra AudioSemantic_StreamBackendPolicy__done
+AudioSemantic_StreamBackendPolicy__same_frame:
     sep #$20
 .a8
+    rep #$20
+.a16
+    lda.l AudioSemantic_StreamSuppressedCount
+    inc
+    sta.l AudioSemantic_StreamSuppressedCount
+    sep #$20
+.a8
+    lda.l AudioStream_SourceId
+    bne AudioSemantic_StreamBackendPolicy__done
+    rep #$20
+.a16
     lda.l AudioSemantic_FootDieSameFrameCoalescedCount
     inc
     sta.l AudioSemantic_FootDieSameFrameCoalescedCount
-    bra AudioSemantic_FootDieBackendPolicy__done
-AudioSemantic_FootDieBackendPolicy__suppressed:
+    bra AudioSemantic_StreamBackendPolicy__done
+AudioSemantic_StreamBackendPolicy__suppressed:
+    rep #$20
+.a16
+    lda.l AudioSemantic_StreamSuppressedCount
+    inc
+    sta.l AudioSemantic_StreamSuppressedCount
+    sep #$20
+.a8
+    lda.l AudioStream_SourceId
+    bne AudioSemantic_StreamBackendPolicy__done
     rep #$20
 .a16
     lda.l AudioSemantic_FootDieWhileActiveSuppressedCount
     inc
     sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
-AudioSemantic_FootDieBackendPolicy__done:
+AudioSemantic_StreamBackendPolicy__done:
     plp
     rts
+
+; Compatibility name retained for existing FOOTDIE diagnostics. New callers
+; use the generic policy above; this alias does not create a second backend.
+AudioSemantic_FootDieBackendPolicy = AudioSemantic_StreamBackendPolicy
+
+; JSL/RTL. LEO's shipped THROW.WAV belongs to source throw-animation frames,
+; but the documented SNES throw adaptation intentionally has no unique throw
+; art.  Its accepted toss edge is therefore the one production audio edge.
+AudioSemantic_EmitThrow:
+    php
+    sep #$20
+.a8
+    lda #AUDIO_SEMANTIC_THROW
+    sta.l AudioSemantic_CurrentId
+    lda #13                         ; generated Batch-B THROW stream source
+    sta.l AudioStream_SourceId
+    rep #$20
+.a16
+    lda.l AudioSemantic_FrameSoundRequestCount
+    inc
+    sta.l AudioSemantic_FrameSoundRequestCount
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    sep #$20
+.a8
+    jsr AudioSemantic_StreamBackendPolicy
+    plp
+    rtl
+
+; JSL/RTL. Generic roster-indexed authored pain sound at the accepted
+; nonlethal pain transition. A $FF generated row is a deliberate no-op.
+AudioSemantic_EmitPainSound:
+    php
+    rep #$30
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_ROSTER_INDEX
+    tax
+    sep #$20
+.a8
+    lda.l $7E0A00,x
+    tax
+    lda.l AudioSemantic_PainByRoster,x
+    cmp #$FF
+    beq AudioSemantic_EmitPainSound__done
+    sta.l AudioSemantic_CurrentId
+    lda.l AudioSemantic_PainSourceByRoster,x
+    sta.l AudioStream_SourceId
+    rep #$20
+.a16
+    lda.l AudioSemantic_FrameSoundRequestCount
+    inc
+    sta.l AudioSemantic_FrameSoundRequestCount
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    sep #$20
+.a8
+    jsr AudioSemantic_StreamBackendPolicy
+AudioSemantic_EmitPainSound__done:
+    plp
+    rtl
+
+; Generic authored animation-frame sound dispatch. Msu1_LoadFrame calls this
+; once after the frame DMA rows are queued. Generated records carry the exact
+; roster/selected/variant/jump-mode/frame condition plus either a resident
+; local ID or a stream source ID. A record is emitted at most once per NMI
+; frame, preventing repeated frame-loader calls from duplicating one event.
+Audio_FrameSoundDispatch:
+    php
+    rep #$30
+.a16
+.i16
+    phx
+    phy
+    phd
+    lda.l AudioSemantic_FrameSoundEntityBase
+    tcd
+    sep #$20
+.a8
+    ldx #0
+Audio_FrameSoundDispatch__scan:
+    rep #$20
+.a16
+    cpx #(AUDIO_FRAME_SOUND_RECORD_COUNT * AUDIO_FRAME_SOUND_RECORD_SIZE)
+    bcc Audio_FrameSoundDispatch__scan_continue
+    brl Audio_FrameSoundDispatch__done
+Audio_FrameSoundDispatch__scan_continue:
+    sep #$20
+.a8
+    lda CHAR_ROSTER_INDEX
+    cmp.l Audio_FrameSoundRecords,x
+    beq Audio_FrameSoundDispatch__roster_ok
+    brl Audio_FrameSoundDispatch__next
+Audio_FrameSoundDispatch__roster_ok:
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    cmp CHAR_SELECTED
+    beq Audio_FrameSoundDispatch__selected_ok
+    brl Audio_FrameSoundDispatch__next
+Audio_FrameSoundDispatch__selected_ok:
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    cmp #$FF
+    beq Audio_FrameSoundDispatch__variant_ok
+    cmp CHAR_ATTACK_VARIANT
+    beq Audio_FrameSoundDispatch__variant_ok
+    brl Audio_FrameSoundDispatch__next
+Audio_FrameSoundDispatch__variant_ok:
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    cmp #$FF
+    beq Audio_FrameSoundDispatch__jump_mode_ok
+    cmp.l Player_JumpAnimMode
+    beq Audio_FrameSoundDispatch__jump_mode_ok
+    brl Audio_FrameSoundDispatch__next
+Audio_FrameSoundDispatch__jump_mode_ok:
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    cmp CHAR_FRAME_INDEX
+    beq Audio_FrameSoundDispatch__frame_ok
+    brl Audio_FrameSoundDispatch__next
+Audio_FrameSoundDispatch__frame_ok:
+
+    ; Deduplicate only the same record in the same NMI frame. Different
+    ; authored sound records may legitimately share one frame.
+    rep #$20
+.a16
+    lda.l Nmi_FrameCounter
+    cmp.l AudioSemantic_FrameSoundLastFrame
+    beq Audio_FrameSoundDispatch__same_frame
+    sta.l AudioSemantic_FrameSoundLastFrame
+Audio_FrameSoundDispatch__same_frame:
+    txa
+    lsr
+    lsr
+    lsr
+    sep #$20
+.a8
+    cmp.l AudioSemantic_FrameSoundLastKey
+    bne Audio_FrameSoundDispatch__emit
+    brl Audio_FrameSoundDispatch__done
+Audio_FrameSoundDispatch__emit:
+    sta.l AudioSemantic_FrameSoundLastKey
+    rep #$20
+.a16
+    lda.l AudioSemantic_FrameSoundRequestCount
+    inc
+    sta.l AudioSemantic_FrameSoundRequestCount
+    sep #$20
+.a8
+    inx
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    dex
+    ; DEX restores the record offset but also overwrites Z.  Re-test the
+    ; generated backend byte after restoring X: 0 is resident, 1 is stream.
+    cmp #0
+    bne Audio_FrameSoundDispatch__stream
+    brl Audio_FrameSoundDispatch__resident
+
+    ; Stream record: set the stable semantic/source identity, count the
+    ; semantic request, then use the same serialized stream policy as death.
+Audio_FrameSoundDispatch__stream:
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    sta.l AudioSemantic_CurrentId
+    lda.l AudioStream_SourceId
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    sta.l AudioStream_SourceId
+    rep #$20
+.a16
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    sep #$20
+.a8
+    jsr AudioSemantic_StreamBackendPolicy
+    bra Audio_FrameSoundDispatch__done
+
+Audio_FrameSoundDispatch__resident:
+    ; Save the record offset in Y while X is replaced with the generated
+    ; local resident ID for Audio_QueueResidentSemantic.
+    phx
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    pha
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    lda.l Audio_FrameSoundRecords,x
+    dex
+    dex
+    dex
+    dex
+    dex
+    dex
+    tax
+    pla
+    jsl Audio_QueueResidentSemantic
+    plx
+    bra Audio_FrameSoundDispatch__done
+
+Audio_FrameSoundDispatch__next:
+    rep #$20
+.a16
+    txa
+    clc
+    adc #AUDIO_FRAME_SOUND_RECORD_SIZE
+    tax
+    brl Audio_FrameSoundDispatch__scan
+Audio_FrameSoundDispatch__done:
+    pld
+    ply
+    plx
+    plp
+    rtl

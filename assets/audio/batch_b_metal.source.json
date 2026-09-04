@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d",
+  "raw_bytes": 9830,
+  "raw_channels": 2,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 4851,
+  "canonical_path": "assets/audio/batch_b/canonical/metal.wav",
+  "canonical_sha256": "89b6561539c196f51fabbbe194889922a4400a89fd1fce5f14dbd7a384d61f57",
+  "canonical_frames": 4864,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.44117913832199546,
+  "duration_ticks": 56,
+  "brr_bytes": 2736,
+  "brr_blocks": 304,
+  "brr_sha256": "e7ff6c0bcdddaa9004fddc514c00fcc8cade5df37e9778545feff6800780ce8a",
+  "single_effect_common_bytes": 2783,
+  "backend": "resident_tad_sfx",
+  "project_sample_path": "soundwork/tad/project/samples/metal.wav"
+}

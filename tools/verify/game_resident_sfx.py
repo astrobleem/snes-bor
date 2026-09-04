@@ -30,13 +30,19 @@ QUEUE_SFX = 0x7E0020
 QUEUE_PAN = 0x7E0021
 
 SPECS = {
-    "get": ("GET", 3, 0x09),
-    "money": ("MONEY", 4, 0x0A),
-    "punch": ("PUNCH", 5, 0x0B),
-    "oneup": ("1UP", 6, 0x0C),
-    "beep": ("BEEP", 7, 0x0D),
-    "beep2": ("BEEP2", 8, 0x0E),
-    "pause": ("PAUSE", 8, 0x0F),
+    # LEO's real GET move emits global GET on the resident voice and its
+    # authored PIZZA1 frame sound on stream voice 0.  PUNCH is suppressed
+    # for GET_MOVE_VARIANT, so this two-event window is source-specific.
+    "get": ("GET", 3, 0x09, 2, 0x18),
+    # Assert at the pickup's immediate production event boundary.  Later
+    # animation follow-through can emit PUNCH and must not be counted as a
+    # duplicate pickup request.
+    "money": ("MONEY", 4, 0x0A, 1, 0x0A),
+    "punch": ("PUNCH", 5, 0x0B, 1, 0x0B),
+    "oneup": ("1UP", 6, 0x0C, 1, 0x0C),
+    "beep": ("BEEP", 7, 0x0D, 1, 0x0D),
+    "beep2": ("BEEP2", 8, 0x0E, 1, 0x0E),
+    "pause": ("PAUSE", 8, 0x0F, 1, 0x0F),
 }
 
 
@@ -77,7 +83,9 @@ def prepare_pickup(m, pickup_type):
 
 
 def run_pickup_event(m):
-    m.set_input(m.BTN_Y, 1)
+    # Ground items are production touch-collects.  Advancing the overlap with
+    # neutral input isolates the pickup edge from the later PUNCH animation.
+    m.set_input(0, 1)
     pickup.poll_until(m, lambda: pickup.read_u8(m, pickup.Entity2 + pickup.CHAR_HP) == 0, max_frames=30)
     run_frames(m, 2)
 
@@ -134,7 +142,7 @@ def main():
     if not 0 <= args.voice <= 7:
         raise SystemExit("physical voice must be in 0..7")
 
-    name, local_id, semantic_id = SPECS[args.fixture]
+    name, local_id, semantic_id, expected_event_delta, expected_current_id = SPECS[args.fixture]
     capture = Path(args.output).resolve()
     arm = Path(str(capture) + ".arm")
     stderr = Path(str(capture) + ".stderr.log")
@@ -187,6 +195,8 @@ def main():
         else:
             g11.exact_input_edge(m, m.BTN_START, 1)
             run_frames(m, 40)
+        event_after = u8(m, REQ_COUNT)
+        event_current_id = u8(m, CURRENT_ID)
         # Keep the session alive past the source-specific one-shot so the
         # capture can prove natural ENDX rather than a truncated prefix.
         run_frames(m, 180)
@@ -207,6 +217,10 @@ def main():
         "fixture": args.fixture,
         "expected_name": name,
         "semantic_id": semantic_id,
+        "expected_event_delta": expected_event_delta,
+        "event_request_delta": (event_after - before) & 0xFF,
+        "event_current_id": event_current_id,
+        "expected_event_current_id": expected_current_id,
         "semantic_request_delta": (after - before) & 0xFF,
         "semantic_current_id": current_id,
         "semantic_trace": semantic_rows,
@@ -222,7 +236,11 @@ def main():
     }
     Path(str(capture) + ".report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, sort_keys=True))
-    return 0 if report["semantic_request_delta"] == 1 and raw else 1
+    return 0 if (
+        report["event_request_delta"] == expected_event_delta
+        and (expected_current_id is None or report["event_current_id"] == expected_current_id)
+        and raw
+    ) else 1
 
 
 if __name__ == "__main__":

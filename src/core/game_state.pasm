@@ -866,9 +866,9 @@ Game_State_Play__stageclear:
     inc a
     cmp #STAGE_COUNT
     bcc Game_State_Play__stageclear_next
-    ; --- no more stages: this project's content ends here for now -- go to
-    ; the existing ENDING stub rather than looping or crashing. A real
-    ; ending (G10) is out of this phase's scope. ---
+    ; No more stages: enter the real ending adaptation and start its
+    ; source-authored ENDING.TXT MSU track before its first scene page.
+    jsr Music_SelectEndingTrack
     lda #GAME_STATE_ENDING
     sta.l Game_State
     jmp Game_State_Play__stageclear_done

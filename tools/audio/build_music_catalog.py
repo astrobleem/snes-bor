@@ -43,7 +43,7 @@ def main() -> int:
             bor.write_bytes(source)
             header, decoded = decode_bor(source)
             loop_arguments = [r.get("loop_argument") for r in asset["references"]
-                              if r.get("reachability") == "shipped-reachable"
+                              if r.get("directive") in ("music", "bossmusic")
                               and r.get("loop_argument") is not None]
             offsets = [int(value) for value in loop_arguments] or [0]
             if any(value < 0 for value in offsets):

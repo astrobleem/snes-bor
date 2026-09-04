@@ -19,7 +19,9 @@
     {
       "name": "jump",
       "source": "samples/jump.wav",
-      "sample_rates": [11025],
+      "sample_rates": [
+        11025
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -39,7 +41,9 @@
     {
       "name": "get",
       "source": "samples/get.wav",
-      "sample_rates": [11025],
+      "sample_rates": [
+        11025
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -48,7 +52,9 @@
     {
       "name": "money",
       "source": "samples/money.wav",
-      "sample_rates": [11025],
+      "sample_rates": [
+        11025
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -57,7 +63,9 @@
     {
       "name": "punch",
       "source": "samples/punch.wav",
-      "sample_rates": [22050],
+      "sample_rates": [
+        22050
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -66,7 +74,9 @@
     {
       "name": "oneup",
       "source": "samples/oneup.wav",
-      "sample_rates": [22050],
+      "sample_rates": [
+        22050
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -75,7 +85,9 @@
     {
       "name": "beep",
       "source": "samples/beep.wav",
-      "sample_rates": [22050],
+      "sample_rates": [
+        22050
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -84,7 +96,42 @@
     {
       "name": "beep2",
       "source": "samples/beep2.wav",
-      "sample_rates": [22050],
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "spin",
+      "source": "samples/spin.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "dash",
+      "source": "samples/dash.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "metal",
+      "source": "samples/metal.wav",
+      "sample_rates": [
+        11025
+      ],
       "loop": "none",
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
@@ -105,7 +152,10 @@
     "sfx_punch",
     "sfx_oneup",
     "sfx_beep",
-    "sfx_beep2"
+    "sfx_beep2",
+    "sfx_spin",
+    "sfx_dash",
+    "sfx_metal"
   ],
   "low_priority_sound_effects": [],
   "sound_effect_file": "sound-effects.txt",

@@ -15,6 +15,7 @@ def main() -> int:
         level = stage["source_level"].upper()
         refs = [r for a in assets for r in a["references"]
                 if r.get("reachability") == "shipped-reachable"
+                and a["family"] == stage["family"]
                 and r.get("directive") == "music"
                 and r.get("source_file", "").upper().endswith(level)]
         if len(refs) != 1:
@@ -37,6 +38,29 @@ def main() -> int:
         # the authored musicOffset byte argument.
         repeats.append(1)
     text += "Music_StageRepeats:\n    .db " + ", ".join(str(value) for value in repeats) + "\n"
+    boss_tracks = []
+    for stage in STAGE_CONFIGS:
+        level = stage["source_level"].upper()
+        refs = [r for a in assets for r in a["references"]
+                if r.get("reachability") == "shipped-reachable"
+                and a["family"] == stage["family"]
+                and r.get("directive") == "bossmusic"
+                and r.get("source_file", "").upper().endswith(level)]
+        if len(refs) > 1:
+            raise SystemExit(f"expected at most one authored bossmusic directive for {stage['source_level']}, got {len(refs)}")
+        boss_tracks.append(0 if not refs else next(a["msu_track_id"] for a in assets if refs[0] in a["references"]))
+    text += "Music_StageBossTracks:\n    .db " + ", ".join(str(value) for value in boss_tracks) + "\n"
+    text += "Music_StageBossRepeats:\n    .db " + ", ".join("1" for _ in boss_tracks) + "\n"
+    ending_family = STAGE_CONFIGS[-1]["family"]
+    ending_refs = [r for a in assets for r in a["references"]
+                   if a["family"] == ending_family
+                   and r.get("reachability") == "shipped-reachable"
+                   and r.get("directive") == "music"
+                   and r.get("source_file", "").upper() == "DATA\\SCENES\\ENDING.TXT"]
+    if len(ending_refs) != 1:
+        raise SystemExit(f"expected one reachable ending music directive for {ending_family}, got {len(ending_refs)}")
+    text += "Music_EndingTrack = " + str(next(a["msu_track_id"] for a in assets if ending_refs[0] in a["references"])) + "\n"
+    text += "Music_EndingRepeat = 1\n"
     text += f"Music_StageTrackCount = {len(STAGES)}\n"
     (ROOT / "tools/audio/audio_music_ids.pasm").write_text(text, encoding="ascii")
     print("generated stage music IDs:", [ids[key] for key in STAGES])

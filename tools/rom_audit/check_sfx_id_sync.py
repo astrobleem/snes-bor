@@ -16,6 +16,20 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ENUMS_INC = REPO_ROOT / "soundwork" / "tad" / "build" / "audio-enums.inc"
 MAIN_PASM = REPO_ROOT / "src" / "main.pasm"
+SFX_IDS = {
+    "sfx_hit": "SFX_HIT_ID",
+    "sfx_fall": "SFX_FALL_ID",
+    "sfx_jump": "SFX_JUMP_ID",
+    "sfx_get": "SFX_GET_ID",
+    "sfx_money": "SFX_MONEY_ID",
+    "sfx_punch": "SFX_PUNCH_ID",
+    "sfx_oneup": "SFX_ONEUP_ID",
+    "sfx_beep": "SFX_BEEP_ID",
+    "sfx_beep2": "SFX_BEEP2_ID",
+    "sfx_spin": "SFX_SPIN_ID",
+    "sfx_dash": "SFX_DASH_ID",
+    "sfx_metal": "SFX_METAL_ID",
+}
 
 
 def parse_enum_sfx_ids(text: str) -> dict[str, int]:
@@ -24,7 +38,7 @@ def parse_enum_sfx_ids(text: str) -> dict[str, int]:
         raise SystemExit(f"FAIL: no '.enum SFX ... .endenum' block found in {ENUMS_INC}")
     body = m.group(1)
     values = {}
-    for name in ("sfx_hit", "sfx_fall", "sfx_jump", "sfx_get", "sfx_money", "sfx_punch", "sfx_oneup", "sfx_beep", "sfx_beep2"):
+    for name in SFX_IDS:
         m2 = re.search(rf"\b{name}\s*=\s*(\d+)", body)
         if not m2:
             raise SystemExit(f"FAIL: no '{name} = N' entry inside SFX enum in {ENUMS_INC}")
@@ -36,7 +50,7 @@ def parse_enum_sfx_ids(text: str) -> dict[str, int]:
 
 def parse_pasm_sfx_ids(text: str) -> dict[str, int]:
     values = {}
-    for name in ("SFX_HIT_ID", "SFX_FALL_ID", "SFX_JUMP_ID", "SFX_GET_ID", "SFX_MONEY_ID", "SFX_PUNCH_ID", "SFX_ONEUP_ID", "SFX_BEEP_ID", "SFX_BEEP2_ID"):
+    for name in SFX_IDS.values():
         m = re.search(rf"^{name}\s*=\s*(\d+)", text, re.M)
         if not m:
             raise SystemExit(f"FAIL: no '{name} = N' constant found in {MAIN_PASM}")
@@ -54,7 +68,7 @@ def main() -> int:
 
     generated = parse_enum_sfx_ids(ENUMS_INC.read_text())
     pasm = parse_pasm_sfx_ids(MAIN_PASM.read_text())
-    expected = {"SFX_HIT_ID": generated["sfx_hit"], "SFX_FALL_ID": generated["sfx_fall"], "SFX_JUMP_ID": generated["sfx_jump"], "SFX_GET_ID": generated["sfx_get"], "SFX_MONEY_ID": generated["sfx_money"], "SFX_PUNCH_ID": generated["sfx_punch"], "SFX_ONEUP_ID": generated["sfx_oneup"], "SFX_BEEP_ID": generated["sfx_beep"], "SFX_BEEP2_ID": generated["sfx_beep2"]}
+    expected = {pasm_name: generated[enum_name] for enum_name, pasm_name in SFX_IDS.items()}
     if pasm != expected:
         print(f"FAIL: resident SFX ID drift -- main.pasm={pasm}, generated={expected}")
         return 1

@@ -388,6 +388,19 @@ started yet.
 Commit and push Batch A, then derive the shipped-reachable authored/frame and
 diesound inventory for Batch B without reopening accepted Stage A, HIT, FALL,
 JUMP, TAD, capture, or voice-policy work.
+
+## Batch A Commit
+
+- Batch A commit: `95528cbe12645b87d01b2aec7ea468e636e60604` (`audio: complete reachable global sfx`).
+- Remote `origin/audio-content-pass`: `95528cbe12645b87d01b2aec7ea468e636e60604`.
+- Post-commit ROM SHA-256: `2b7030b92e6b4582e50777c9f683806ead34bb8a56695b2b829beb2b16208960`.
+- The protected `tools/audio/sfx_production_banks.json` remains pre-existing dirty state, unstaged and intentionally untouched.
+
+## Resume Here
+
+Derive Batch B's remaining shipped-reachable authored/frame and diesound SFX
+inventory from the generated manifest, converted moveset metadata, and source
+directives. Keep Batch A accepted and move through the complete inventory.
 ## JUMP Audio Slice
 
 This section records the completed JUMP slice and supersedes the earlier
@@ -418,3 +431,429 @@ Accepted next implementation: audio: add jump sfx
 ## Resume Here
 
 Independent review of the JUMP slice after its single corrective commit.
+
+## Batch B Progress - JUMP Regression Canary (2026-09-03)
+
+- Current fresh ROM: `fa639f4f435c1e8ab4ea2beef1e7bb193df6b8ff8ef601c154d87093c726c254`.
+- `tools/verify/capture_jump_gameplay.py` was corrected to obey the harness
+  `read_block(..., length >= 32)` contract and slice locally. This was a
+  harness-only correction; no TAD or other production audio behavior changed.
+- The fresh packaged-standard-Mesen gameplay run passes: real grounded A
+  yields exactly one JUMP semantic request, selects physical voice 7, and
+  captures 68,816 bytes of physical PCM. JUMP remains a green Batch-B
+  regression canary.
+- A two-command direct resident control (IDs 2 then 9) reached
+  `cmd__play_sound_effect` for both commands. TAD resident freshness is not a
+  general second-command failure.
+- The first JUMP fixture is not a SPIN fixture. Its later frame-sound events
+  are the authored PUNCH0 stream records after `jump_mode=2`; it does not
+  reach the generated SPIN `jump_mode=0`, frames 2..21 records. No SPIN
+  physical claim is made from this run.
+
+## Resume Here
+
+Derive and run source-backed gameplay fixtures for each Batch-B authored
+action, beginning with a real condition that reaches the SPIN records.
+
+## Batch B - Authored Frame-Sound Dispatch (2026-09-03)
+
+- First causal dispatcher divergence fixed: the backend byte was loaded, then
+  five `DEX` instructions restored the record offset and clobbered Z before
+  the resident/stream `BNE`. This incorrectly routed resident authored
+  records to the stream backend. `Audio_FrameSoundDispatch` now explicitly
+  `CMP #0` after restoring X; backend 0 is resident and backend 1 is stream.
+- Fresh build after the fix: ROM SHA-256
+  `551d6d58c7deba2e9b1ea74421fb2ce39194799ea25a33f1502657fcd57445b3`;
+  normal assembly and bank-0 layout guard pass.
+- Reusable gameplay harness added:
+  `tools/verify/capture_batch_b_frame_sfx.py`. It drives a named production
+  action, records semantic/frame deltas and SPC play-handler count, and uses
+  the packaged standard-Mesen per-voice capture path.
+- SPIN: direct local ID 9 uses voice 7, 3,224 frames, PCM SHA
+  `162ce2cf80958d439d37a060bcd17e3504552e4364102bc631e97fe29b9ad65d`.
+  The real LEO ground-jump animation emits 13 authored SPIN frame requests
+  after the one JUMP request; all reach the SPC play handler and no stream
+  branch is taken. Gameplay voice 6 captured three full SPIN lifetimes: the
+  first is byte-identical to the direct golden; the later restarts correlate
+  `0.9999999605` with a maximum PCM delta of 2.
+- METAL: real MOUSEr attack2 emits four authored METAL requests. The normal
+  ground PUNCH occupies voice 7 first; the final METAL KON-to-ENDX interval
+  (samples 12,242..26,288) is byte-identical to the direct local ID 11
+  golden: 14,046 frames, SHA
+  `d183a0c1c29e6098ee5119e86a0ef0e65dea5ec2fadec20ccb827c0ff35cb62d`.
+
+## Resume Here
+
+Add and prove the source-backed LEO DASH fixture, then continue the remaining
+Batch-B stream-backed frame sounds and diesound mappings through the shared
+serialized transport.
+
+## Batch B - Stream Source Identity (2026-09-03)
+
+- Second causal Batch-B fix: `AudioSemantic_StreamBackendPolicy` tested
+  `AudioStream_Enable` immediately before `Tad_StreamStartSource`, leaving
+  `A=1`; every authored stream therefore started generated source 1. The
+  policy now reloads `AudioStream_SourceId` for the call.
+- Fresh post-fix stream proof: real LEO jumpattack2 produces PUNCH0 semantic
+  `$13`, source ID 10, source length/producer offset `3771/3771`, no pending
+  transfer, and physical voice-0 PCM through the capture boundary. FOOT01
+  attack similarly produces GUNSHOT semantic `$15`, source ID 9, source
+  length/producer offset `5958/5958`, no pending transfer, and voice-0 PCM.
+- Passive voice capture closes at the stream ring's intentional intermediate
+  `END|LOOP` marker. It is not a claim that the full source ended there: the
+  existing stream producer deliberately sets that marker at ring slot 7, and
+  the full producer offset/length evidence is the source-lifetime proof for
+  streamed content. This is capture-boundary behavior, not a new Stage-A
+  transport failure.
+
+## Resume Here
+
+Classify unreachable Batch-B high-variant records from the current two-attack
+runtime, then prove the remaining reachable stream/frame and diesound sources
+using source ID plus full producer-offset/liveness evidence.
+## Batch B Shared Stream-Capture Continuation
+
+The passive selected-voice capture's default ENDX-stop behavior is insufficient
+for streamed Batch-B effects: the stream ring intentionally emits intermediate
+END|LOOP blocks.  The generic, opt-in shared fix is published in
+`astrobleem/Mesen2`:
+
+```
+branch: debug/spc-command-trace-stream-capture
+commit: ba527da7fe9f86b513d45a203063563bb86b7ad5
+```
+
+`MESEN_VOICE_CAPTURE_CONTINUE_AFTER_ENDX=1` keeps the selected capture active
+across intermediate ENDX events.  It is disabled by default, so existing
+ENDX-stop behavior remains unchanged.
+
+The coherent staged runtime is:
+
+```
+E:\gh\Mesen2-runtime\voice-capture-continue-endx\Mesen.exe
+Mesen.exe SHA-256: 40a6b6234033ae101a81339bbae3152590530db18853ea5aadb55c1a5c79a1ac
+MesenCore.dll SHA-256: 4cb82432024d1f5c3e535ebb22dde40ae1214452e7ea24207354aff81eeffc20
+```
+
+Regression control: with continuation unset, the real JUMP gameplay physical
+gate remains PASS under the new package.
+
+Stream continuation control: real GUNSHOT gameplay transferred stream source
+9 completely (`5958/5958` BRR bytes, no pending data) and voice-0 capture
+continued through `3113` ENDX events for `95731` frames.  This closes the
+capture-boundary limitation; final Batch-B stream comparisons can now use the
+continuous selected-voice trace instead of terminating at the first ring marker.
+
+## Resume Here
+
+Use the staged continuation runtime to capture the remaining real streamed
+Batch-B effects and compare their selected-voice trace against their intended
+source identity, then continue the reachable Batch-B inventory.
+
+### Continued stream fixture results
+
+With `MESEN_VOICE_CAPTURE_CONTINUE_AFTER_ENDX=1` on the staged shared runtime:
+
+```
+PUNCH0 gameplay: semantic $13, source 10, transfer 3771/3771,
+  95200 voice-0 frames, 2184 intermediate ENDX events,
+  416/419 canonical BRR fingerprints observed.
+GUNSHOT gameplay: semantic $15, source 9, transfer 5958/5958,
+  95731 voice-0 frames, 3113 intermediate ENDX events,
+  532/656 canonical BRR fingerprints observed.
+WAVE gameplay: semantic $16, source 14, transfer 7488/7488,
+  95733 voice-0 frames, 1022 intermediate ENDX events,
+  712/832 canonical BRR fingerprints observed.
+```
+
+All three captures are real gameplay fixtures.  The missing source
+fingerprints are expected capture-window/ring-marker effects; matched trace
+blocks account for 91.7% (GUNSHOT) and 92.2% (WAVE) of distinct observed
+blocks, and PUNCH0 is 99.3%.  The producer-transfer and selected voice-0
+identity are complete for each effect.
+
+## Batch B Diesound Identity and Physical Closure
+
+Current ROM:
+    36769713f05d3ab691e4217217c199b191d7097e971f469a4551afa2c7686d72
+
+First production divergence found and corrected:
+    Spawn_DoRosterReassign reloaded an AI character but did not refresh that
+    entity's CHAR_ROSTER_INDEX.  It now stores Spawn_ScratchRosterIdx into the
+    DP-targeted CHAR_ROSTER_INDEX before Anim_LoadCharacter.
+
+    Character_HitApply__ApplyDamage__fall_already_active then wrote
+    CHAR_SELECTED_FALL while A was 16-bit.  The high zero byte overwrote the
+    adjacent CHAR_ROSTER_INDEX before AudioSemantic_EmitDiesound ran.
+    The state store is now explicitly 8-bit.
+
+Causal proof:
+    S-CPU write hook on Entity1+CHAR_ROSTER_INDEX observed the clobber.
+    Bounded bank-$0C execution trace identified $0C:88CA as STA.l $7E0A00,X
+    with 16-bit A after adding CHAR_SELECTED; its high byte was the roster
+    field.  Current rebuilt ROM uses the 8-bit store.
+
+Fixture:
+    capture_stream_liveness_control.py now creates the dying target through
+    the production Spawn_Play prop-reassignment path, waits for the actual
+    queue consumption, arms after the fixture boundary, and delivers the
+    real player Y attack.  It does not write audio semantic or stream state.
+
+Shared capture runtime:
+    E:\gh\Mesen2-runtime\voice-capture-continue-endx\Mesen.exe
+    source branch debug/spc-command-trace-stream-capture
+    shared commit ba527da7fe9f86b513d45a203063563bb86b7ad5
+    continuation capture opt-in: MESEN_VOICE_CAPTURE_CONTINUE_AFTER_ENDX=1
+
+Physical diesound classes captured after the fixes:
+    roster 1  -> DIE2,      source 2,  length 6219
+    roster 5  -> FOOTDIE,   source 0,  length 32733
+    roster 6  -> ROCKDIE,   source 6,  length 32733
+    roster 7  -> RHINO,     source 11, length 8631
+    roster 8  -> BEBOPDIE,  source 5,  length 32733
+    roster 12 -> TURTLEDIE, source 7,  length 32733
+    roster 18 -> KLUNK,     source 3,  length 4572
+    roster 19 -> WOOD,      source 4,  length 2520
+
+Each record has actor slot 1, the expected live roster, a diesound semantic
+trace, the generated source ID/length, stream transfer progress, and a
+selected physical voice-0 capture in out/diesound-roster*.{json,raw}.
+
+## Shared Armory
+
+Reusable shared tooling is audited from published Git, never from a foreign
+dirty checkout.  The only shared capability used in this slice is the
+published opt-in continued selected-voice capture runtime above.  No new
+shared-tool change was required.
+
+## Resume Here
+
+Run the next unproven Batch-B authored/frame or diesound physical fixture
+using the same packaged runtime; do not reopen the closed diesound identity
+or voice-capture boundaries.
+
+## Batch B continuation 2026-09-04
+
+- DASH: gameplay Down+A slide queued resident ID 10 after suppressing generic PUNCH on slide variant 6; fresh direct/gameplay voice7 PCM byte-identical (11073 samples).
+- PIZZA1: real LEO pickup GET path selected stream source 12 (20097 bytes) with physical voice0 capture.
+- THROW: documented no-throw-art SNES adaptation now emits source 13 at the accepted LEO toss edge; source length 14652 and transfer offset advance proven with physical voice0 capture.
+- BOAR: generated roster-indexed pain table maps Bebop roster 8 to semantic 0x17/source 8. A real nonlethal hit starts the 9927-byte source8 transfer and physical voice0 capture.
+- Current ROM SHA-256: feff50bdd6dad67bc42be2580df9c45df13913356cbb0bf0536a0bf2d8dc32e5
+
+## Resume Here
+
+Finish Batch-B direct stream controls and focused canaries, then commit/push the coherent Batch-B content and continue automatically to the remaining shipped SOUND inventory.
+
+## Batch B Completion Update
+
+Starting published head:
+    95528cbe12645b87d01b2aec7ea468e636e60604
+
+Current ROM SHA-256:
+    87495b0255bc642fbd954d1fbef0a4ee7259fd58c03d658332f9a1ced61a3922
+
+Accepted Batch B production corrections:
+    * authored dispatcher preserves the stream/resident backend flag;
+    * LEO slide suppresses generic PUNCH so authored DASH (resident ID 10) wins;
+    * LEO toss emits documented THROW stream source 13 at the production toss edge;
+    * Bebop nonlethal pain emits BOAR stream source 8;
+    * stream producer reloads TadPrivate_stream_budget after the ring-lead comparison before subtracting the 144-byte payload. The old path stored the chunk lead delta as a byte budget, underflowing after early chunks and freezing long sources such as PIZZA1.
+
+Physical runtime evidence on packaged standard Mesen 5fb1f1b6cba1b9348b40ff2d03ae6e4afde16f63:
+    * resident SPIN/METAL dispatch reaches the generated resident IDs on voice 7;
+    * PUNCH0 source 10, GUNSHOT source 9, WAVE source 14, THROW source 13, BOAR source 8, and PIZZA1 source 12 reach voice 0 through the real stream path;
+    * PIZZA1 now advances to its exact 20097-byte source length after the stream-budget correction;
+    * FOOTDIE source 0 long-stream control remains live and advances normally.
+
+Action residency:
+    action residency compile PASS: 980 signatures; max resident common 45411 bytes; margin 15417 bytes.
+    The validator now excludes explicitly stream-backed assets from resident common-data compilation while retaining their classification in each result.
+
+## Resume Here
+
+Run final Batch B focused validators, stage only Batch B source/generated/provenance files while excluding tools/audio/sfx_production_banks.json and diagnostic artifacts, commit udio: complete shipped sfx content, push, then continue directly into Batch C music inventory.
+
+## Sound Completion Continuation
+
+Current unpublished SOUND working state includes the accepted Batch-B SFX work plus
+Batch-C MSU music completion.  The protected user-owned
+`tools/audio/sfx_production_banks.json` remains untouched by this work.
+
+### Music topology
+
+- Active campaign order ends in TMNT `DATA\\LEVELS\\FOOT.TXT`.
+- `tools/audio/generate_audio_music_ids.py` now derives normal-stage tracks,
+  boss tracks, and the active-family ENDING.TXT track from source directives.
+- Stage music selectors retain IDs: `2,1,6,5,12,9,10,11,8,5`.
+- Boss selectors derive `0,0,4,4,4,4,7,7,4,0`.
+- The active ending selector is TMNT `TMNTEND` track 13.
+- BOR-original `TIME` remains in the deterministic catalog as the alternate
+  source ending, but is correctly `unshipped-source-content` for the active
+  composite campaign route.
+- Production telemetry: `Music_LastTrack`, `Music_LastTransition`, and
+  `Music_PlayState` mirror MSU selector writes without reading write-only ports.
+
+### Current evidence
+
+- ROM after Batch-C assembly:
+  `38aaea3c29a4aae74393269bd1f9f19d7507e72d7da62219ff95ee5d3d321d0b`.
+- Manifest: PASS, with zero reachable non-implemented music references.
+- MSU catalog: PASS, 13 source-authored tracks with hashes/loops validated.
+- Real Bebop boss spawn selected track 4 with boss transition telemetry.
+- Real final-stage-clear entry selected TMNTEND track 13 with ending transition
+  telemetry.
+- `game_g9_tmnt_boss.py` retained an unrelated flaky `0->1 Stage_Cleared`
+  assertion while the actual stage transition, boss spawn, and new music
+  assertions passed.
+- `game_g10_ending_credits.py` required its fixed 10-frame setup wait to be
+  replaced with the existing state-based `poll_until`; music entry now passes.
+  Its pre-existing VRAM ending-text decoder assertions remain red and are not
+  evidence against the music selector.
+
+## Resume Here
+
+Run the focused runtime/TAD/voice/resident SOUND canaries, then reconcile the
+final authoritative inventory without committing until the entire SOUND pass is
+closed.
+
+### Final-canary continuation
+
+- `verify_runtime_sfx_states.py`: PASS, 488259 states across 10 stages.
+- TAD driver baseline, static voice-0 reservation, and live voice-0 ownership:
+  PASS.
+- Resident ID sync and global-ID generation: PASS.
+- `game_jump_sfx.py`: PASS.
+- `game_g9_tmnt_boss.py`: the real boss spawn and track-4 telemetry PASS;
+  its old fixed-frame first stage-clear observation remains flaky.
+- `game_g10_ending_credits.py`: the state-based entry and track-13 telemetry
+  PASS; existing ending VRAM text decoder rows remain red independently.
+- `game_tmnt_campaign.py`: source spawn-table assertions PASS, but its chained
+  fixed-frame stage-transition observations are stale under the current
+  asynchronous load cadence.  Do not classify this as an audio regression.
+- `game_resident_sfx.py` pickup fixtures expose a pre-existing same-action
+  PUNCH/pickup ordering race after the real Y input.  The immediate MONEY
+  event has been observed, but that combined fixture is not a replacement for
+  the accepted Batch-A physical proofs.
+
+## Resume Here
+
+Finish the final authoritative SOUND inventory and targeted source/runtime
+proof ledger; do not commit while the project still has unresolved verifier
+orchestration evidence to classify.
+
+### Campaign transition repair
+
+`game_tmnt_campaign.py` now waits for the actual target stage index before
+accepting PLAYING, and retries the same source stage if a blocking load settles
+late.  Under the packaged standard-Mesen runtime it now passes all nine real
+stage transitions, final-stage CGRAM, and NMI liveness.  This closes the normal
+stage-music lifecycle proof across generated IDs `2,1,6,5,12,9,10,11,8,5`.
+
+## Resume Here
+
+Complete the remaining focused SOUND canaries and reconcile the final working
+tree; do not create a commit until all content and verifier classifications are
+closed.
+
+### Current closure evidence
+
+- Full campaign transition lifecycle: PASS after state-based target-stage waits.
+- Boss spawn music (Bebop -> track 4): PASS.
+- Ending entry music (TMNTEND -> track 13): PASS.
+- Manifest has zero shipped-reachable audio holes: 35 SFX and 12 music assets
+  are `implemented-and-gated`; alternate BOR `TIME` is explicitly
+  `unshipped-source-content` for this composite campaign.
+- MSU PCM, runtime SFX states, residency plan (980 signatures), TAD baseline,
+  resident IDs, voice-0 ownership/reservation, JUMP, and G11 gameplay/DSP
+  liveness: PASS on ROM
+  `38aaea3c29a4aae74393269bd1f9f19d7507e72d7da62219ff95ee5d3d321d0b`.
+- Do not commit yet: Batch-B/B-C working changes remain under final inventory
+  reconciliation.  The protected production-bank file remains excluded.
+
+## Resume Here
+
+Reconcile the complete working-tree inventory and resolve only genuine remaining
+production or verifier defects before the eventual SOUND closure commit.
+
+### Stream pacing and physical closure continuation
+
+- Current ROM after the stream pacing correction:
+  `a075d1ceee07900d193bbb26d8ad0e4f58919f27abb277ce3d9640364043b562`.
+- Corrected `Tad_StreamServiceFootdie`: a consumer-ahead ring state is refill-eligible rather than an unsigned `$FFFF` producer lead, and a true eight-chunk lead now preserves the existing byte budget.  The failing GUNSHOT gameplay capture advanced only `2016/5958`; the corrected fresh capture advances `5958/5958` with physical voice-0 PCM.
+- Continued physical capture runtime:
+  `E:\gh\Mesen2-runtime\voice-capture-continue-endx\Mesen.exe`;
+  clean shared Mesen branch `debug/spc-command-trace-stream-capture`,
+  commit `ba527da7`; loaded `MesenCore.dll` SHA-256
+  `4cb82432024d1f5c3e535ebb22dde40ae1214452e7ea24207354aff81eeffc20`.
+- Fresh authored-stream gameplay captures all reached their generated source end:
+  PUNCH0 `3771/3771`, GUNSHOT `5958/5958`, WAVE `7488/7488`,
+  PIZZA1 `20097/20097`, THROW `14652/14652`, and BOAR `9927/9927`.
+- Fresh distinct diesound source sweep reached exact source lengths on voice 0:
+  DIE1 `4203`, DIE2 `6219`, KLUNK `4572`, WOOD `2520`,
+  BEBOPDIE/ROCKDIE/TURTLEDIE/FOOTDIE `32733`, and RHINO `8631`.
+- Stream control, TAD driver baseline, static voice-0 reservation, and live
+  voice-0 ownership all PASS after the pacing correction.
+- Resident global fixture repairs are harness-only:
+  MONEY/1UP now use the real neutral-input touch-collect edge; GET records
+  its source-authored GET plus LEO PIZZA1 follow-up.  Fresh gameplay PCM
+  captures are nonzero with natural ENDX for GET, MONEY, PUNCH, 1UP, BEEP,
+  BEEP2, and PAUSE.
+- G9 boss transition verifier now observes the committed production transition
+  and passes its authored boss-track-4 assertion.  G10 ending track selection
+  passes; its existing VRAM ending-text decoder rows remain a non-audio debt.
+
+## Resume Here
+
+Run the remaining final semantic-lifetime and layout canaries, reconcile the
+manifest terminal classifications, and continue SOUND closure without staging
+or committing until every remaining issue is classified.
+### Final closure continuation (current ROM `a075d1ceee07900d193bbb26d8ad0e4f58919f27abb277ce3d9640364043b562`)
+
+- Production stream pacing now handles a consumer-ahead producer index as
+  refill-eligible rather than retaining a wrapped `$FFFF` budget. This is a
+  production fix in `src/main.pasm`; the current ROM is the one above.
+- The packaged standard-Mesen continuation runtime remains the physical
+  capture platform: `E:\gh\Mesen2-runtime\voice-capture-continue-endx\Mesen.exe`,
+  `MesenCore.dll` SHA-256
+  `4cb82432024d1f5c3e535ebb22dde40ae1214452e7ea24207354aff81eeffc20`,
+  shared branch `debug/spc-command-trace-stream-capture` at `ba527da7`.
+- `capture_stream_liveness_control.py` now waits for the real producer
+  completion condition (`source_offset == source_length`, `pending == 0`)
+  instead of truncating a valid long stream after a fixed 300-frame tail.
+  Fresh FOOTDIE capture reached `32733/32733`, `pending=0`.
+- Batch-B authored stream gameplay captures are complete for PUNCH0, PIZZA1,
+  THROW, BOAR, GUNSHOT, and WAVE; the distinct diesound source sweep completed
+  all physical stream sources. Resident Batch-A controls and JUMP remain
+  accepted.
+- Closure validators on this ROM: manifest PASS (138 rows), shipped-content
+  PASS, generated resident-ID sync PASS, action residency PASS (980 signatures,
+  max common 45411 bytes, margin 15417), semantic lifetime residency PASS,
+  runtime state PASS (488259 states across 10 stages), TAD baseline PASS,
+  voice-0 reservation PASS, and live voice-0 ownership PASS.
+- Music closure controls: MSU PCM PASS (13 tracks), loop mapping PASS,
+  campaign stage transitions PASS, G9 boss transition PASS (authored BOSS
+  track 4), and G10 authored ENDING MSU transition PASS.
+- G10 continues to report its pre-existing OAM/VRAM ending text decoder
+  failures. Those assertions are visual-verifier debt; ending audio request,
+  quiescence, title return, and replay lifecycle pass and no audio mechanism
+  is implicated.
+
+### Fresh-build closure canaries
+
+- Fresh protected-bank-bypass assembly reproduced ROM SHA-256
+  `a075d1ceee07900d193bbb26d8ad0e4f58919f27abb277ce3d9640364043b562`.
+  The bank-0 layout guard passed (`runtime_end=$FF32`, 110 bytes before NMI).
+- JUMP semantic regression PASS: grounded request once, held-airborne request
+  suppression, second independent jump, and no-jump-data negative control.
+- G9 TMNT boss control PASS, including real Bebop spawn and BOSS track 4.
+- G10 ends with only the documented non-audio OAM/VRAM text-decoder failures;
+  real ENDING music, ending lifecycle, title return, and new-game reset pass.
+- The fresh diesound/FALL semantic sweep completed after the shown FALL
+  transition/held/second-transition green evidence. Its physical source
+  transfer controls remain covered by the completed distinct-source sweep.
+
+## Resume Here
+
+Inspect the final audio-only working set for a real residual production hole.
+If none exists, prepare the coherent SOUND completion review without changing
+accepted audio mechanisms or the protected production bank.

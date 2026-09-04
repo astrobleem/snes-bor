@@ -332,7 +332,7 @@
           "total_reference_count": 16,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -385,7 +385,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 1; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 1,
           "raw_reference_count": 3,
@@ -393,7 +393,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\ASC.BOR"
         },
         {
@@ -515,7 +515,7 @@
           "total_reference_count": 6,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -576,7 +576,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -617,7 +617,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -708,7 +708,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -749,7 +749,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -810,7 +810,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -863,7 +863,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 2; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 2,
           "raw_reference_count": 3,
@@ -871,7 +871,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\KOF.BOR"
         },
         {
@@ -963,7 +963,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1054,7 +1054,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1115,7 +1115,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1176,7 +1176,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1205,7 +1205,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\TIME.BOR",
               "resolved_source_path": "DATA\\MUSIC\\TIME.BOR",
-              "reachability": "shipped-reachable"
+              "reachability": "unshipped-source-content"
             },
             {
               "source_file": "DATA\\SCENES\\SEWER.TXT",
@@ -1225,9 +1225,9 @@
           "raw_reference_count": 2,
           "engine_global_reference_count": 0,
           "total_reference_count": 2,
-          "shipped_reachable_reference_count": 1,
-          "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "shipped_reachable_reference_count": 0,
+          "shipped_reachable": false,
+          "implementation_classification": "unshipped-source-content",
           "track_key": "bor-original:DATA\\MUSIC\\TIME.BOR"
         },
         {
@@ -1289,7 +1289,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1333,7 +1333,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -1373,7 +1373,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1461,7 +1461,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -1520,7 +1520,7 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -1564,7 +1564,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1684,7 +1684,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 1 (die1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 9,
@@ -1692,7 +1692,12 @@
           "total_reference_count": 9,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 1,
+            "mapping": "voice0 stream source 1 (die1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -1790,7 +1795,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 2 (die2); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 7,
@@ -1798,7 +1803,12 @@
           "total_reference_count": 7,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 2,
+            "mapping": "voice0 stream source 2 (die2); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -1838,7 +1848,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1922,7 +1932,7 @@
           "total_reference_count": 5,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -1966,7 +1976,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2010,7 +2020,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2054,7 +2064,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2098,7 +2108,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2152,7 +2162,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 3 (klunk); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
@@ -2160,7 +2170,12 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 3,
+            "mapping": "voice0 stream source 3 (klunk); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2200,7 +2215,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2240,7 +2255,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2280,7 +2295,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2320,7 +2335,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2360,7 +2375,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2422,7 +2437,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2462,7 +2477,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2502,7 +2517,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2546,7 +2561,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2590,7 +2605,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2630,7 +2645,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2674,7 +2689,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "bor-original",
@@ -2750,7 +2765,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 4 (wood); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
@@ -2758,7 +2773,12 @@
           "total_reference_count": 5,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 4,
+            "mapping": "voice0 stream source 4 (wood); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "bor-original",
@@ -2798,7 +2818,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         }
       ]
     },
@@ -2960,7 +2980,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 4; boss-music",
           "tad_sfx_id": null,
           "msu_track_id": 4,
           "raw_reference_count": 6,
@@ -2968,7 +2988,7 @@
           "total_reference_count": 6,
           "shipped_reachable_reference_count": 5,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\BOSS.BOR"
         },
         {
@@ -3112,7 +3132,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 5; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 5,
           "raw_reference_count": 3,
@@ -3120,7 +3140,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\FIRE.BOR"
         },
         {
@@ -3244,7 +3264,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 6; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 6,
           "raw_reference_count": 1,
@@ -3252,7 +3272,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\NYSTREET.BOR"
         },
         {
@@ -3356,7 +3376,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 7; boss-music",
           "tad_sfx_id": null,
           "msu_track_id": 7,
           "raw_reference_count": 2,
@@ -3364,7 +3384,7 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\REMIX\\BOSS.BOR"
         },
         {
@@ -3488,7 +3508,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 8; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 8,
           "raw_reference_count": 1,
@@ -3496,7 +3516,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\REMIX\\GLIESE86.BOR"
         },
         {
@@ -3530,7 +3550,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 9; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 9,
           "raw_reference_count": 1,
@@ -3538,7 +3558,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\REMIX\\PAINOVO.BOR"
         },
         {
@@ -3572,7 +3592,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 10; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 10,
           "raw_reference_count": 1,
@@ -3580,7 +3600,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\REMIX\\TAU1.BOR"
         },
         {
@@ -3614,7 +3634,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 11; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 11,
           "raw_reference_count": 1,
@@ -3622,7 +3642,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\REMIX\\ZETA1.BOR"
         },
         {
@@ -3716,7 +3736,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 12; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 12,
           "raw_reference_count": 1,
@@ -3724,7 +3744,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\SEWERS.BOR"
         },
         {
@@ -3766,7 +3786,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -3799,7 +3819,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 13; music-selection",
           "tad_sfx_id": null,
           "msu_track_id": 13,
           "raw_reference_count": 1,
@@ -3807,7 +3827,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented",
+          "implementation_classification": "implemented-and-gated",
           "track_key": "tmnt:DATA\\MUSIC\\TMNTEND.BOR"
         },
         {
@@ -3970,7 +3990,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4098,7 +4118,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4130,7 +4150,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 5 (bebopdie); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -4138,7 +4158,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 5,
+            "mapping": "voice0 stream source 5 (bebopdie); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4182,7 +4207,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4241,7 +4266,7 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4285,7 +4310,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -4317,7 +4342,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 8 (boar); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -4325,7 +4350,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 8,
+            "mapping": "voice0 stream source 8 (boar); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4385,7 +4415,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "TAD SFX::sfx_dash; Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -4393,7 +4423,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "resident",
+            "id": 10,
+            "mapping": "TAD SFX::sfx_dash; Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4444,7 +4479,7 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -4484,7 +4519,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -4619,7 +4654,7 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -4751,7 +4786,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4827,7 +4862,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 0 (footdie); AudioSemantic_EmitDiesound",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
@@ -4835,7 +4870,12 @@
           "total_reference_count": 5,
           "shipped_reachable_reference_count": 4,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 0,
+            "mapping": "voice0 stream source 0 (footdie); AudioSemantic_EmitDiesound"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4879,7 +4919,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4939,7 +4979,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 9 (gunshot); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -4947,7 +4987,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 9,
+            "mapping": "voice0 stream source 9 (gunshot); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -4991,7 +5036,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -5035,7 +5080,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -5526,7 +5571,7 @@
           "total_reference_count": 42,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -5728,7 +5773,7 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -5768,7 +5813,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -5808,7 +5853,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -5879,7 +5924,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "TAD SFX::sfx_metal; Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 2,
@@ -5887,7 +5932,12 @@
           "total_reference_count": 2,
           "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "resident",
+            "id": 11,
+            "mapping": "TAD SFX::sfx_metal; Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -5931,7 +5981,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -5995,7 +6045,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 12 (pizza1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -6003,7 +6053,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 12,
+            "mapping": "voice0 stream source 12 (pizza1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6116,7 +6171,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 10 (punch0); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 7,
@@ -6124,7 +6179,12 @@
           "total_reference_count": 8,
           "shipped_reachable_reference_count": 8,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 10,
+            "mapping": "voice0 stream source 10 (punch0); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6234,7 +6294,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 11 (rhino); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 3,
@@ -6242,7 +6302,12 @@
           "total_reference_count": 3,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 11,
+            "mapping": "voice0 stream source 11 (rhino); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6274,7 +6339,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 6 (rockdie); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -6282,7 +6347,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 6,
+            "mapping": "voice0 stream source 6 (rockdie); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6397,7 +6467,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "TAD SFX::sfx_spin; Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 6,
@@ -6405,7 +6475,12 @@
           "total_reference_count": 6,
           "shipped_reachable_reference_count": 6,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "resident",
+            "id": 9,
+            "mapping": "TAD SFX::sfx_spin; Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6481,7 +6556,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 13 (throw); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 5,
@@ -6489,7 +6564,12 @@
           "total_reference_count": 5,
           "shipped_reachable_reference_count": 3,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 13,
+            "mapping": "voice0 stream source 13 (throw); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6533,7 +6613,7 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",
@@ -6565,7 +6645,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 7 (turtle1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -6573,7 +6653,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 7,
+            "mapping": "voice0 stream source 7 (turtle1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6605,7 +6690,7 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "voice0 stream source 14 (wave); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch",
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 1,
@@ -6613,7 +6698,12 @@
           "total_reference_count": 1,
           "shipped_reachable_reference_count": 1,
           "shipped_reachable": true,
-          "implementation_classification": "present-not-implemented"
+          "batch_b_runtime": {
+            "backend": "stream_voice0",
+            "source_id": 14,
+            "mapping": "voice0 stream source 14 (wave); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"
+          },
+          "implementation_classification": "implemented-and-gated"
         },
         {
           "family": "tmnt",
@@ -6697,7 +6787,7 @@
           "total_reference_count": 5,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "present-not-implemented"
+          "implementation_classification": "unshipped-source-content"
         },
         {
           "family": "tmnt",

@@ -53,6 +53,9 @@ SFX_PUNCH_ID = 5
 SFX_ONEUP_ID = 6
 SFX_BEEP_ID = 7
 SFX_BEEP2_ID = 8
+SFX_SPIN_ID = 9
+SFX_DASH_ID = 10
+SFX_METAL_ID = 11
 
 ; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
 ; exactly once at each of the two real accepted-landed-damage SFX call sites
@@ -84,6 +87,19 @@ AUDIO_SEMANTIC_ONEUP      = $0C
 AUDIO_SEMANTIC_BEEP       = $0D
 AUDIO_SEMANTIC_BEEP2      = $0E
 AUDIO_SEMANTIC_PAUSE      = $0F
+AUDIO_SEMANTIC_METAL      = $10
+AUDIO_SEMANTIC_SPIN       = $11
+AUDIO_SEMANTIC_DASH       = $12
+AUDIO_SEMANTIC_PUNCH0     = $13
+AUDIO_SEMANTIC_THROW      = $14
+AUDIO_SEMANTIC_GUNSHOT    = $15
+AUDIO_SEMANTIC_WAVE       = $16
+AUDIO_SEMANTIC_BOAR       = $17
+AUDIO_SEMANTIC_PIZZA1     = $18
+AUDIO_SEMANTIC_RHINO      = $19
+AUDIO_SEMANTIC_KLUNK      = $1A
+AUDIO_SEMANTIC_WOOD       = $1B
+AUDIO_SEMANTIC_DIE2       = $1C
 AudioSemantic_JumpRequestCount = $7E281E ; .dw
 AudioSemantic_RequestCount        = $7E2806 ; .dw
 AudioSemantic_TraceWriteIndex     = $7E2808 ; .db
@@ -117,6 +133,24 @@ AudioStream_State = $7E28A4
 AudioStream_Enable = $7E28A9 ; .db -- test fixture gate, default disabled
 AudioStream_TransportOnly = $7E28C5 ; .db -- test fixture: suppress stream KON
 AudioStream_SerialPermit = $7E28C6 ; .db -- test fixture: permit one transfer
+AudioSemantic_FrameSoundRequestCount = $7E28D0 ; .dw
+AudioSemantic_StreamRequestCount = $7E28D2 ; .dw
+AudioSemantic_StreamSuppressedCount = $7E28D4 ; .dw
+AudioStream_SourceId = $7E28D6 ; .db
+AudioStream_SourceLength = $7E28D7 ; .dw
+AudioStream_SourceChunks = $7E28D9 ; .dw
+AudioSemantic_FrameSoundLastFrame = $7E28DB ; .dw
+AudioSemantic_FrameSoundLastKey = $7E28DD ; .db
+AudioSemantic_FrameSoundEntityBase = $7E28DE ; .dw DP captured at frame-load entry
+; MSU music transition telemetry.  These bytes mirror production selector
+; writes so validators can observe logical track/reason/play state without
+; mutating or reading write-only MSU control ports.
+Music_LastTrack = $7E28E0 ; .db
+Music_LastTransition = $7E28E1 ; .db
+Music_PlayState = $7E28E2 ; .db
+MUSIC_TRANSITION_STAGE = 1
+MUSIC_TRANSITION_BOSS = 2
+MUSIC_TRANSITION_ENDING = 3
 STREAM_RECEIVE_FRAME = 22
 TAD_STREAM_HDMA_MARKER = $57
 TAD_STREAM_FRAME_BYTES = 144
@@ -3925,6 +3959,7 @@ Anim_Play__check_reselect:
     lda #0
 Anim_Play__reselect_ok:
     sta.l CharSelect_Index
+    sta CHAR_ROSTER_INDEX
     jsr Anim_LoadCharacter        ; sets/restores its own widths, see its header
     sep #$20
 .a8
@@ -4917,6 +4952,8 @@ Msu1_LoadFrame:
     clc
     adc.l AnimHeaderStaging+12  ; a = n*3
     sta.l AnimHeaderStaging+14  ; scratch16 = n*3
+    tdc
+    sta.l AudioSemantic_FrameSoundEntityBase
 
     ; --- Precompute this instance's row-DMA target byte offset,
     ; CHAR_TILE_COLUMN*128 (plan.md Phase 1b Step 3 -- see the row-DMA
@@ -5069,6 +5106,9 @@ Msu1_LoadFrame__read:
 .a8
     lda #1
     sta.l Msu1_StreamBusy
+    ; Dispatch the authored frame sound after the six frame DMA rows are
+    ; queued, while D still names the current entity.
+    jsl Audio_FrameSoundDispatch
 
     plp
     rep #$31
@@ -5183,16 +5223,16 @@ TestSprite_Init:
 .a16
     lda #$4000                ; tile 0 (top-left quadrant), OBJ base
     sta.l $002116
-    jsr TestSprite_WriteSolidTile
+    jsl TestSprite_WriteSolidTile
     lda #$4010                ; tile 1 (top-right quadrant): base + 1*16 words
     sta.l $002116
-    jsr TestSprite_WriteSolidTile
+    jsl TestSprite_WriteSolidTile
     lda #$4100                ; tile $10 (bottom-left quadrant): base + 16*16 words
     sta.l $002116
-    jsr TestSprite_WriteSolidTile
+    jsl TestSprite_WriteSolidTile
     lda #$4110                ; tile $11 (bottom-right quadrant): base + 17*16 words
     sta.l $002116
-    jsr TestSprite_WriteSolidTile
+    jsl TestSprite_WriteSolidTile
 
     ; --- OBJ palette: CGRAM color 192 (pixel value 0, unused/transparent,
     ; left black) + color 193 (pixel value 1, bright red: R=31 G=0 B=0) ---
@@ -5259,25 +5299,6 @@ TestSprite_Init:
 ; pixel row), then 8 words of interleaved plane2/plane3. Solid color index
 ; 1 (binary 0001) needs only plane0 set -- word = $00FF (low byte/plane0 =
 ; $FF, high byte/plane1 = $00) for the first 8 words, $0000 for the last 8.
-TestSprite_WriteSolidTile:
-    rep #$31
-.a16
-.i16
-    ldx #8
-    lda #$00FF
-TestSprite_WriteSolidTile__plane01:
-    sta.l $002118
-    dex
-    bne TestSprite_WriteSolidTile__plane01
-
-    ldx #8
-    lda #$0000
-TestSprite_WriteSolidTile__plane23:
-    sta.l $002118
-    dex
-    bne TestSprite_WriteSolidTile__plane23
-    rts
-
 ; One-time boot blank of the character sprite's unused padding tiles.
 ; OBSEL mode 6's "large" size is 32x64 (4 tiles wide x 8 tall, per Mesen2-
 ; source-verified _oamSizes[6][1] = {4,8}), but our real art is only 32x48
@@ -7414,6 +7435,13 @@ Stage_LoadAndRespawn_Long:
     jsr Game_State_RespawnPlayer
     rtl
 
+; Cross-bank bridge for Spawn_Play (bank 3) to the bank-0 source-driven
+; bossmusic selector.  The selector itself remains same-bank and preserves
+; the caller's processor status.
+Music_SelectBossTrack_Long:
+    jsr Music_SelectBossTrack
+    rtl
+
 ; ----------------------------------------------------------------------------
 ; plan_game.md 8a row 3 (`map`): MapApply_Index/PaletteBaseLo/PaletteBaseHi/
 ; MapBaseLo/MapBaseHi/PaletteSlot are WRAM constants owned and declared by
@@ -7699,6 +7727,7 @@ CharacterEntity_Init__load:
     sep #$20
 .a8
     sta.l CharSelect_Index
+    sta CHAR_ROSTER_INDEX
 
     ; Phase 6: full HP for the player. Spawn-table phase (2026-08-16):
     ; AI roles (CHAR_INPUT_DRIVEN==2, set by the role branch above) now boot
@@ -12160,6 +12189,7 @@ __Tad_AudioData_0:
 .org $8000
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
+.include "core/vm/audio_batch_b_generated.pasm"
 
 ; Bank-1 stream/semantic initialization helper. The caller enters in .a8;
 ; this routine restores the established boot convention (.a16/.i16) through
@@ -12177,6 +12207,12 @@ Tad_StreamInit:
     sta.l AudioSemantic_FootDieSameFrameCoalescedCount
     sta.l AudioSemantic_FootDieWhileActiveSuppressedCount
     sta.l AudioSemantic_FootDieStreamFrame
+    sta.l AudioSemantic_FrameSoundRequestCount
+    sta.l AudioSemantic_StreamRequestCount
+    sta.l AudioSemantic_StreamSuppressedCount
+    sta.l AudioStream_SourceLength
+    sta.l AudioStream_SourceChunks
+    sta.l AudioSemantic_FrameSoundLastFrame
     sep #$20
 .a8
     lda #0
@@ -12219,10 +12255,21 @@ Tad_StreamInit:
     sta.l TadPrivate_stream_budget
     sta.l TadPrivate_stream_budget+1
     sta.l AudioStream_Enable
+    lda #$FF
+    sta.l AudioSemantic_FrameSoundLastKey
+    lda #0
+    sta.l AudioStream_SourceId
+    lda #1
+    sta.l AudioStream_Enable
     sta.l AudioSemantic_CurrentActorSlot
     sta.l AudioSemantic_CurrentRoster
     sta.l AudioSemantic_CurrentId
     sta.l AudioSemantic_FrameSequence
+    ; Streaming stays enabled for real diesound requests, but no source owns
+    ; the transport until AudioSemantic_StreamBackendPolicy starts one.
+    ; Leaving this armed at boot continuously submitted the FOOTDIE stream and
+    ; starved ordinary resident SFX commands.
+    lda #0
     sta.l AudioSemantic_FootDieStreamActive
     rtl
 
@@ -12400,16 +12447,23 @@ Tad_StreamServiceFootdie__ready_allowed:
     rep #$20
 .a16
     lda.l TadPrivate_stream_source_offset
-    cmp #32733
+    cmp.l AudioStream_SourceLength
     bcs Tad_StreamServiceFootdie__return16
     lda.l TadPrivate_stream_budget
     cmp #144
     bcc Tad_StreamServiceFootdie__save_budget
     lda.l TadPrivate_stream_chunk_index
+    cmp.l TadPrivate_stream_consumer_chunk
+    bcc Tad_StreamServiceFootdie__consume_budget
     sec
     sbc.l TadPrivate_stream_consumer_chunk
     cmp #8
-    bcs Tad_StreamServiceFootdie__save_budget
+    bcs Tad_StreamServiceFootdie__return16
+Tad_StreamServiceFootdie__consume_budget:
+    ; A consumer ahead of the acknowledged producer is an underfilled ring,
+    ; not an unsigned lead of $ffff.  Only a real lead of eight chunks stalls
+    ; production; otherwise reload the byte budget before consuming a payload.
+    lda.l TadPrivate_stream_budget
     sec
     sbc #144
     sta.l TadPrivate_stream_budget
@@ -12435,6 +12489,28 @@ Tad_ProcessMaybeStream:
     bne Tad_ProcessMaybeStream__return
     jsl Tad_Process
 Tad_ProcessMaybeStream__return:
+    rtl
+
+; Boot-only solid tile writer. It is bank-independent and uses explicit PPU
+; addresses, so keeping it with the bank-12 helpers preserves the fixed
+; bank-0 reset/vector budget while the four boot callers use JSL/RTL.
+TestSprite_WriteSolidTile:
+    rep #$31
+.a16
+.i16
+    ldx #8
+    lda #$00FF
+TestSprite_WriteSolidTile__plane01:
+    sta.l $002118
+    dex
+    bne TestSprite_WriteSolidTile__plane01
+
+    ldx #8
+    lda #$0000
+TestSprite_WriteSolidTile__plane23:
+    sta.l $002118
+    dex
+    bne TestSprite_WriteSolidTile__plane23
     rtl
 
 ; ============================================================================
@@ -12538,11 +12614,11 @@ Tad_StreamSendFootdieFrame__row:
     lda.l TadPrivate_stream_command
     sta TAD_STREAM_HDMA_TABLE,y
     iny
-    lda.l Footdie_StreamSource,x
+    jsr Tad_StreamReadSourceByte
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     inx
-    lda.l Footdie_StreamSource,x
+    jsr Tad_StreamReadSourceByte
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     inx
@@ -12564,13 +12640,16 @@ Tad_StreamSendFootdieFrame__row:
     rep #$20
 .a16
     txa
-    cpx #32733
+    txa
+    cmp.l AudioStream_SourceLength
     bcc Tad_StreamSendFootdieFrame__source_not_done
-    lda #32733
+    lda.l AudioStream_SourceLength
     sta.l TadPrivate_stream_pending_source_offset
     sep #$20
 .a8
-    lda #45
+    lda.l AudioStream_SourceLength
+    sec
+    sbc.l TadPrivate_stream_source_offset
     sta.l TadPrivate_stream_pending_payload
     lda #1
     sta.l TadPrivate_stream_pending_done
@@ -12584,7 +12663,8 @@ Tad_StreamSendFootdieFrame__source_not_done:
     sta.l TadPrivate_stream_pending_payload
 Tad_StreamSendFootdieFrame__source_accounted:
     .i16
-    cpx #32733
+    txa
+    cmp.l AudioStream_SourceLength
     bcs Tad_StreamSendFootdieFrame__no_loop_header
     rep #$20
 .a16
@@ -12701,6 +12781,133 @@ Tad_StreamSendFootdieFrame__save_buffer:
     sta.l TadPrivate_stream_pending_ring_slot
     plb
     rtl
+
+; Select and start a new stream source. Entry is .a8 with A=source ID.
+; Source 0 is the accepted FOOTDIE payload; Batch-B sources are generated
+; into separate ROM banks and share the same voice-0 transport.
+Tad_StreamStartSource:
+    php
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    sta.l AudioStream_SourceId
+    asl
+    tax
+    lda.l AudioStream_SourceLengthTable,x
+    sta.l AudioStream_SourceLength
+    lda.l AudioStream_SourceChunkTable,x
+    sta.l AudioStream_SourceChunks
+    sep #$20
+.a8
+    lda #0
+    sta.l TadPrivate_stream_source_offset
+    sta.l TadPrivate_stream_source_offset+1
+    sta.l TadPrivate_stream_pending_source_offset
+    sta.l TadPrivate_stream_pending_source_offset+1
+    sta.l TadPrivate_stream_pending
+    sta.l TadPrivate_stream_arm_phase
+    sta.l TadPrivate_stream_producer_done
+    sta.l TadPrivate_stream_consumer_started
+    sta.l TadPrivate_stream_state
+    sta.l AudioStream_State
+    sta.l AudioSemantic_FootDieStreamActive
+    rep #$20
+.a16
+    lda #TAD_STREAM_RING_ADDR
+    sta.l TadPrivate_stream_buffer
+    lda #0
+    sta.l TadPrivate_stream_chunk_index
+    sta.l TadPrivate_stream_consumer_chunk
+    sta.l TadPrivate_stream_consumer_budget
+    sep #$20
+.a8
+    lda #1
+    sta.l AudioSemantic_FootDieStreamActive
+    plp
+    rts
+
+Tad_StreamReadSourceByte:
+    sep #$20
+.a8
+    lda.l AudioStream_SourceId
+    beq Tad_StreamReadSourceByte__footdie
+    cmp #1
+    beq Tad_StreamReadSourceByte__source1
+    cmp #2
+    beq Tad_StreamReadSourceByte__source2
+    cmp #3
+    beq Tad_StreamReadSourceByte__source3
+    cmp #4
+    beq Tad_StreamReadSourceByte__source4
+    cmp #5
+    beq Tad_StreamReadSourceByte__source5
+    cmp #6
+    beq Tad_StreamReadSourceByte__source6
+    cmp #7
+    beq Tad_StreamReadSourceByte__source7
+    cmp #8
+    beq Tad_StreamReadSourceByte__source8
+    cmp #9
+    beq Tad_StreamReadSourceByte__source9
+    cmp #10
+    beq Tad_StreamReadSourceByte__source10
+    cmp #11
+    beq Tad_StreamReadSourceByte__source11
+    cmp #12
+    beq Tad_StreamReadSourceByte__source12
+    cmp #13
+    beq Tad_StreamReadSourceByte__source13
+    cmp #14
+    beq Tad_StreamReadSourceByte__source14
+    ; Only generated source IDs 0..14 are valid; fail closed on a corrupt ID.
+    lda #0
+    rts
+Tad_StreamReadSourceByte__footdie:
+    lda.l Footdie_StreamSource,x
+    rts
+Tad_StreamReadSourceByte__source1:
+    lda.l AudioStream_Source_1,x
+    rts
+Tad_StreamReadSourceByte__source2:
+    lda.l AudioStream_Source_2,x
+    rts
+Tad_StreamReadSourceByte__source3:
+    lda.l AudioStream_Source_3,x
+    rts
+Tad_StreamReadSourceByte__source4:
+    lda.l AudioStream_Source_4,x
+    rts
+Tad_StreamReadSourceByte__source5:
+    lda.l AudioStream_Source_5,x
+    rts
+Tad_StreamReadSourceByte__source6:
+    lda.l AudioStream_Source_6,x
+    rts
+Tad_StreamReadSourceByte__source7:
+    lda.l AudioStream_Source_7,x
+    rts
+Tad_StreamReadSourceByte__source8:
+    lda.l AudioStream_Source_8,x
+    rts
+Tad_StreamReadSourceByte__source9:
+    lda.l AudioStream_Source_9,x
+    rts
+Tad_StreamReadSourceByte__source10:
+    lda.l AudioStream_Source_10,x
+    rts
+Tad_StreamReadSourceByte__source11:
+    lda.l AudioStream_Source_11,x
+    rts
+Tad_StreamReadSourceByte__source12:
+    lda.l AudioStream_Source_12,x
+    rts
+Tad_StreamReadSourceByte__source13:
+    lda.l AudioStream_Source_13,x
+    rts
+Tad_StreamReadSourceByte__source14:
+    lda.l AudioStream_Source_14,x
+    rts
 
 .bank 2
 .org $8000
@@ -12868,6 +13075,8 @@ Text_Str_EndingC1:
     .db "THANKS FOR PLAYING              ", $00
 Text_Str_EndingC2:
     .db "MADE WITH POPPY + TAD + MESEN2  ", $00
+
+.include "audio_batch_b_stream_sources.pasm"
 
 ; ============================================================================
 ; core/spawn.pasm -- relocated to its own bank (2026-08-22, the structural

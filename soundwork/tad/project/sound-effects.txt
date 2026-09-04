@@ -25,3 +25,12 @@
 === sfx_beep2 ===
     set_instrument beep2
     play_note 0 26
+=== sfx_spin ===
+    set_instrument spin
+    play_note 0 13
+=== sfx_dash ===
+    set_instrument dash
+    play_note 0 44
+=== sfx_metal ===
+    set_instrument metal
+    play_note 0 56

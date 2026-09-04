@@ -33,6 +33,7 @@ import audio_semantic_diesound as semantic  # noqa: E402
 
 QUEUE_SFX = 0x7E0020
 QUEUE_PAN = 0x7E0021
+PLAY_SFX_HANDLER_PC = int(os.environ.get("RESIDENT_SFX_HANDLER_PC", "0x08C1"), 0)
 
 
 def remove_stale() -> None:
@@ -52,9 +53,21 @@ def main() -> int:
     remove_stale()
     with open_session(__file__, env=ENV, stderr_log=str(STDERR)) as m:
         semantic.boot(m)
+        # A direct backend control must not race a lower-ID gameplay request
+        # from any live AI entity.  Keep the player/runtime lifecycle real,
+        # but remove all non-player combat sources before queueing the chosen
+        # resident ID.
+        for base in semantic.ENTITY_BASES[1:]:
+            semantic.w8(m, base + semantic.CHAR_HP, 0)
+        for _ in range(30):
+            m.run_frames(1)
+            m.pause()
         Path(ARM).touch()
+        handler_hook = m.add_exec_hook(PLAY_SFX_HANDLER_PC, PLAY_SFX_HANDLER_PC, cpu_type="Spc")
         m.write_memory("snesMemory", QUEUE_PAN, "40")
         m.write_memory("snesMemory", QUEUE_SFX, f"{LOCAL_ID:02X}")
+        handler_result = m.run_until(60, handler_hook)
+        m.remove_hook(handler_hook)
         m.run_frames(180)
         m.pause()
         state = m.get_audio_state()
@@ -74,6 +87,8 @@ def main() -> int:
         "capture_bytes": len(raw),
         "audio_state": state,
         "capture_path": str(CAPTURE),
+        "spc_handler_pc": PLAY_SFX_HANDLER_PC,
+        "spc_handler_result": handler_result,
     }
     Path(str(CAPTURE) + ".report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, sort_keys=True))

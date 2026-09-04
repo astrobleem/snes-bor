@@ -1615,6 +1615,17 @@ Spawn_Play__slot3_no_restore:
 Spawn_Play__advance:
     sep #$20
 .a8
+    ; OpenBOR switches to level bossmusic when the real boss entity is
+    ; spawned.  This remains a data-driven stage lookup; non-boss records
+    ; and stages without an authored bossmusic directive are no-ops.
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS
+    beq Spawn_Play__advance_boss_music
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    bne Spawn_Play__advance_index
+Spawn_Play__advance_boss_music:
+    jsl Music_SelectBossTrack_Long
+Spawn_Play__advance_index:
     lda.l Spawn_Index
     inc a
     sta.l Spawn_Index
@@ -1683,6 +1694,7 @@ Spawn_DoRosterReassign:
     sta.l Spawn_SavedCharSelectIndex
     lda.l Spawn_ScratchRosterIdx
     sta.l CharSelect_Index
+    sta CHAR_ROSTER_INDEX
     jsl Anim_LoadCharacter_Long
     ; ROOT CAUSE (animheaderstaging_shared_scratch_collision investigation,
     ; corrected): Anim_LoadCharacter's every exit path re-asserts .a16/.i16

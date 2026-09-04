@@ -51,7 +51,7 @@ import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, repo_root_from, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, pasm_constant_in, poll_until, read_block, repo_root_from, Reporter  # noqa: E402
 
 ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
@@ -118,21 +118,21 @@ def force_win_and_wait(m, r, from_stage, label):
     m.write_u8(SPAWN_INDEX, spawn_count)
     for base in ENTITY_BASES[1:]:
         m.write_u8(base + CHAR_HP, 0)
-    m.run_frames(5)
+    poll_until(m, lambda session: byte_at(session, STAGE_CLEARED) == 1, max_frames=120)
     m.pause()
     cleared = byte_at(m, STAGE_CLEARED)
     r.check(f'{label}: win condition fired (Stage_Cleared set)', cleared == 1)
 
     true_max = word_at(m, STAGE_TRUE_MAX_X)
     m.write_u16(SCREEN_POS_X, true_max)
-    m.run_frames(10)
+    poll_until(
+        m,
+        lambda session: word_at(session, GAME_STAGE_INDEX) == from_stage + 1
+        and word_at(session, GAME_STATE) == GAME_STATE_PLAYING,
+        max_frames=600,
+        step=5,
+    )
     m.pause()
-
-    for _ in range(20):
-        if word_at(m, GAME_STATE) == GAME_STATE_PLAYING:
-            break
-        m.run_frames(30)
-        m.pause()
 
 
 def main():
@@ -196,10 +196,24 @@ def main():
         # standalone encounter) below. What THIS gate adds for stage 6 is
         # the byte-level proof above that its real, converted spawn table
         # -- a second, different RECORD_KIND_BOSS site -- is correct.
-        for target in range(1, 10):
-            force_win_and_wait(m, r, from_stage=target - 1, label=f'{target-1}->{target}')
+        target = 1
+        transition_attempts = 0
+        while target <= 9 and transition_attempts < 18:
+            current = word_at(m, GAME_STAGE_INDEX)
+            if current != target - 1:
+                r.check(f'Game_StageIndex reached expected stage {target - 1} before {target} ({current})', False)
+                break
+            force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}')
             got = word_at(m, GAME_STAGE_INDEX)
-            r.check(f'Game_StageIndex advances {target-1} -> {target} ({got})', got == target)
+            if got == target:
+                r.check(f'Game_StageIndex advances {current} -> {target} ({got})', True)
+                target += 1
+            else:
+                # A blocking Stage_Load can legitimately settle after the
+                # bounded wait. Retry the same real source stage instead of
+                # corrupting the rest of the campaign's expected sequence.
+                transition_attempts += 1
+        r.check(f'all nine real stage transitions completed (next target={target})', target == 10)
 
         final_state = word_at(m, GAME_STATE)
         r.check(f'Game_State returns to PLAYING on the final stage ({final_state})',

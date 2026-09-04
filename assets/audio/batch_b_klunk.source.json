@@ -1,0 +1,23 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+  "raw_bytes": 8178,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 8120,
+  "canonical_path": "assets/audio/batch_b/canonical/klunk.wav",
+  "canonical_sha256": "7cb4118ee602f63a496093172dee98e1a0a89bc4427c439dd0e059abe44bfc3e",
+  "canonical_frames": 8128,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.737233560090703,
+  "duration_ticks": 93,
+  "brr_bytes": 4572,
+  "brr_blocks": 508,
+  "brr_sha256": "56d2d42035dedfd73e32fe196055ecede25d7986eb0a8160691799e0fd37ab82",
+  "single_effect_common_bytes": 4619,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/klunk.brr"
+}

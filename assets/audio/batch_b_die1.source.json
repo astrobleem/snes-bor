@@ -1,0 +1,23 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "4ee3087ad3812e2f301720762289f9bcbc5718d59e8f5e2fca835f143e6ec3a6",
+  "raw_bytes": 7512,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 7468,
+  "canonical_path": "assets/audio/batch_b/canonical/die1.wav",
+  "canonical_sha256": "6ac521a18137da4b9a90fe6b3f7b247f6cf71c844804d7bf0c882422f544095e",
+  "canonical_frames": 7472,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.6777324263038549,
+  "duration_ticks": 85,
+  "brr_bytes": 4203,
+  "brr_blocks": 467,
+  "brr_sha256": "44658300c9d4b05de3cebfdc3ee570afc471e1f35b897710d7c6e2821f43023c",
+  "single_effect_common_bytes": 4250,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/die1.brr"
+}

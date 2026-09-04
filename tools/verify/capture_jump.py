@@ -83,7 +83,6 @@ with session as m:
     spc_apu_write_hook = m.add_write_hook(0xF4, 0xF7, cpu_type='Spc')
     spc_dispatch_hook = m.add_exec_hook(0x08C1, 0x08C1, cpu_type='Spc')
     semantic.clear_observation(m)
-    open(ARM, 'wb').close()
     apu_hook = m.add_write_hook(0x002140, 0x002143)
     queue_hook = m.add_write_hook(0x000020, 0x000021)
     spc_port_hook = m.add_write_hook(0x0000F4, 0x0000F7, cpu_type='Spc')
@@ -111,6 +110,7 @@ with session as m:
         semantic.w8(m, CHAR_SELECTED, 12)
         semantic.w8(m, CHAR_THROW_ZPOS, 0)
         semantic.w8(m, CHAR_THROW_ZVEL, 0)
+        open(ARM, 'wb').close()
         m.set_input(m.BTN_A, 1)
         advance_probe_frame(m)
         after = int.from_bytes(m.read_memory('snesMemory', jump_count, 2), 'little')
@@ -120,7 +120,12 @@ with session as m:
         }, sort_keys=True))
     elif not NO_REQUEST:
         # Normal TAD resident queue path: Tad_Process consumes this queue
-        # entry and submits generated local sfx_fall ID. No APUIO bypass.
+        # entry and submits generated local sfx_jump ID. No APUIO bypass.
+        neutralize_ai(m)
+        for _ in range(30):
+            advance_probe_frame(m)
+        semantic.clear_observation(m)
+        open(ARM, 'wb').close()
         semantic.w8(m, TAD_SFX_QUEUE_PAN, 0x40)
         semantic.w8(m, TAD_SFX_QUEUE_SFX, JUMP_LOCAL_ID)
     event_audio_state = []

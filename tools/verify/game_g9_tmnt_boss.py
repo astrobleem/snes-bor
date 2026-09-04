@@ -82,6 +82,11 @@ SPAWN_COUNT_ADDR = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
 Entity1_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity1_IsBoss')
 Entity2_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity2_IsBoss')
 Entity3_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity3_IsBoss')
+MUSIC_LAST_TRACK = pasm_constant('Music_LastTrack')
+MUSIC_LAST_TRANSITION = pasm_constant('Music_LastTransition')
+MUSIC_PLAY_STATE = pasm_constant('Music_PlayState')
+MUSIC_TRANSITION_STAGE = pasm_constant('MUSIC_TRANSITION_STAGE')
+MUSIC_TRANSITION_BOSS = pasm_constant('MUSIC_TRANSITION_BOSS')
 
 STREAM_SCROLL_FP_ENABLED = pasm_constant('StreamScrollFp_Enabled')
 
@@ -148,10 +153,19 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
     m.write_u8(SPAWN_INDEX, spawn_count)
     for base in ENTITY_BASES[1:]:
         m.write_u8(base + CHAR_HP, 0)
+    committed = False
+    for _ in range(120):
+        if byte_at(m, STAGE_CLEARED) == 1 or word_at(m, GAME_STAGE_INDEX) != from_stage:
+            committed = True
+            break
+        m.run_frames(1)
+        m.pause()
+    r.check(f'{label}: win condition committed', committed)
+    # Preserve the production settle interval between the clear edge and the
+    # camera-clamp transition; the poll above can observe the flag earlier
+    # than the old fixed five-frame sample did.
     m.run_frames(5)
     m.pause()
-    cleared = byte_at(m, STAGE_CLEARED)
-    r.check(f'{label}: win condition fired (Stage_Cleared set)', cleared == 1)
 
     if walk:
         for _ in range(20):
@@ -167,7 +181,8 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
         m.pause()
 
     for _ in range(20):
-        if word_at(m, GAME_STATE) == GAME_STATE_PLAYING:
+        if (word_at(m, GAME_STAGE_INDEX) != from_stage
+                and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
             break
         m.run_frames(30)
         m.pause()
@@ -206,12 +221,19 @@ def main():
 
         boot_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'boots on stage 0 ({boot_stage})', boot_stage == 0)
+        r.check('stage 0 source music selector requested KOF track 2 and play state',
+                byte_at(m, MUSIC_LAST_TRACK) == 2
+                and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE
+                and byte_at(m, MUSIC_PLAY_STATE) == 1)
 
         # --- 2a. Stage 0 -> 1 (already proven direction, needed as a real
         # stepping stone to reach stage 2 -- there is no direct-load path). ---
         force_win_and_wait(m, r, from_stage=0, label='0->1', walk=True)
         mid_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'Game_StageIndex advances 0 -> 1 ({mid_stage})', mid_stage == 1)
+        r.check('stage 1 source music selector requested ASC track 1',
+                byte_at(m, MUSIC_LAST_TRACK) == 1
+                and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE)
 
         # --- 2b. Stage 1 -> 2: the real boss stage, untested direction.
         # Stage 1A is 408 tiles wide (real converted data) -- direct-write
@@ -266,6 +288,10 @@ def main():
         print(f'real boss record landed on entity slot: {boss_slot}')
         r.check('the real converted boss record set SOME entity\'s '
                 f'EntityN_IsBoss (slot={boss_slot})', boss_slot is not None)
+        r.check('the real Bebop boss spawn requested authored BOSS track 4',
+                byte_at(m, MUSIC_LAST_TRACK) == 4
+                and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_BOSS
+                and byte_at(m, MUSIC_PLAY_STATE) == 1)
 
         # --- 6. The HUD boss bar actually renders for it: BG3 tilemap
         # ground truth, a real nonzero bar, not the $FF/blank sentinel. ---

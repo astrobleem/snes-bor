@@ -23,10 +23,39 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
-from shipped_content import shipped_characters, shipped_levels, source_character_identity  # noqa: E402
+from shipped_content import STAGE_CONFIGS, shipped_characters, shipped_levels, source_character_identity  # noqa: E402
 from engine_audio_semantics import ENGINE_GLOBAL_AUDIO, ENGINE_REVISION, ENGINE_SOURCE  # noqa: E402
 
 SHIPPED_CHARACTERS = shipped_characters()
+BATCH_B = json.loads((ROOT / "tools/audio/batch_b_audio.json").read_text(encoding="utf-8"))
+# The active SNES campaign follows the configured stage order.  It reaches
+# this family's authored ENDING.TXT after the final stage; the other PAK's
+# scene remains source-present, but has no independent campaign route here.
+ACTIVE_ENDING_FAMILY = STAGE_CONFIGS[-1]["family"]
+
+
+def batch_b_runtime_mapping(family: str, source_path: str) -> dict | None:
+    """Return the generated Batch-B backend for a shipped source asset."""
+    key = f"{family}:{source_path}"
+    resident_ids = {
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV": 9,
+        "tmnt:DATA\\SOUNDS\\DASH.WAV": 10,
+        "tmnt:DATA\\SOUNDS\\METAL.WAV": 11,
+    }
+    if key in resident_ids:
+        name = Path(source_path).stem.lower()
+        return {"backend": "resident", "id": resident_ids[key],
+                "mapping": f"TAD SFX::sfx_{name}; Audio_FrameSoundDispatch"}
+    if key == "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV":
+        return {"backend": "stream_voice0", "source_id": 0,
+                "mapping": "voice0 stream source 0 (footdie); AudioSemantic_EmitDiesound"}
+    for index, raw in enumerate(BATCH_B["stream"], 1):
+        raw_family, raw_path = raw.split(":", 1)
+        if raw_family == family and f"{family}:{norm(raw_path)}" == key:
+            name = Path(source_path).stem.lower().replace("~", "")
+            return {"backend": "stream_voice0", "source_id": index,
+                    "mapping": f"voice0 stream source {index} ({name}); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch"}
+    return None
 
 PAKS = [
     ("bor-original", ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"),
@@ -106,6 +135,10 @@ def classify(asset: dict) -> str:
         return "unknown-needs-source-research"
     if asset.get("packed_runtime"):
         return "implemented-and-gated"
+    if any(ref.get("audio_implemented") for ref in asset["references"]):
+        return "implemented-and-gated"
+    if asset["references"] and not any(ref.get("reachability") == "shipped-reachable" for ref in asset["references"]):
+        return "unshipped-source-content"
     if asset["references"]:
         return "present-not-implemented"
     return "unused-by-shipped-content"
@@ -181,7 +214,9 @@ def scan_family(family: str, pak: Path) -> dict:
             elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
                 ref["reachability"] = "shipped-reachable" if Path(upper_source).name in shipped_levels(family) else "unshipped-source-content"
             else:
-                ref["reachability"] = "shipped-reachable" if "\\SCENES\\ENDING.TXT" in upper_source else "unshipped-source-content"
+                ref["reachability"] = "shipped-reachable" if (
+                    "\\SCENES\\ENDING.TXT" in upper_source and family == ACTIVE_ENDING_FAMILY
+                ) else "unshipped-source-content"
             if asset is None:
                 # Keep the unresolved reference visible; the verifier reports it.
                 assets[requested_path] = {
@@ -248,6 +283,10 @@ def scan_family(family: str, pak: Path) -> dict:
         asset["total_reference_count"] = len(refs)
         asset["shipped_reachable_reference_count"] = len(reachable)
         asset["shipped_reachable"] = bool(reachable)
+        runtime = batch_b_runtime_mapping(asset["family"], asset["source_path"])
+        if runtime and asset["shipped_reachable"]:
+            asset["batch_b_runtime"] = runtime
+            asset["packed_runtime"] = runtime["mapping"]
         asset["implementation_classification"] = classify(asset)
     return {"family": family, "pak": pak.name, "pak_hash": sha256(pak.read_bytes()),
             "assets": sorted(assets.values(), key=lambda a: (a["kind"], a["source_path"]))}
@@ -284,9 +323,21 @@ def main() -> int:
     next_track = 1
     for family in manifest["families"]:
         for asset in family["assets"]:
-            if asset["kind"] == "music" and any(r.get("reachability") == "shipped-reachable" for r in asset["references"]):
+            # Keep catalog IDs stable for every source-authored music asset.
+            # Runtime dispatch is separately gated by reachable references.
+            is_ending_source = any(
+                r.get("source_file", "").upper() == "DATA\\SCENES\\ENDING.TXT"
+                and r.get("directive") == "music"
+                for r in asset["references"]
+            )
+            if asset["kind"] == "music" and (any(r.get("reachability") == "shipped-reachable" for r in asset["references"]) or is_ending_source):
                 asset["msu_track_id"] = next_track
                 asset["track_key"] = f"{asset['family']}:{asset['source_path']}"
+                reachable = [r for r in asset["references"] if r.get("reachability") == "shipped-reachable"]
+                if reachable:
+                    events = ", ".join(sorted({r["semantic_event"] for r in reachable}))
+                    asset["packed_runtime"] = f"MSU-1 track {next_track}; {events}"
+                asset["implementation_classification"] = classify(asset)
                 next_track += 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

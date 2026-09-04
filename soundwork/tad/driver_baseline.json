@@ -22,7 +22,7 @@
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
     "driver_size_after_patch": 3437,
     "driver_sha256_after_patch": "a0d4a0b37dbd41ec85c6afbaabc2ebc9744822a9be5eb1115f5864ee7db39730",
-    "audio_data_sha256_after_patch": "bca61dd738251d3e86de36290981dfb91661e0647c23b79f79965d87a39f5497",
+    "audio_data_sha256_after_patch": "34c261f9ad54cfd55d8747705bf111c57b704aea93c677980429d7b504a05c1a",
     "data_table": "$018E14",
     "resident_jump": {
       "source_asset": "DATA\\SOUNDS\\JUMP.WAV",
@@ -55,7 +55,19 @@
       "local_effect": "sfx_fall"
     },
     "generated_symbols": "soundwork/tad/build/tad_blob_syms.pasm",
-    "rom_loader": "src/main.pasm:Tad_Init"
+    "rom_loader": "src/main.pasm:Tad_Init",
+    "resident_batch_b": {
+      "sources": [
+        "spin",
+        "dash",
+        "metal"
+      ],
+      "local_effects": [
+        "sfx_spin",
+        "sfx_dash",
+        "sfx_metal"
+      ]
+    }
   },
   "legacy_vendor": {
     "path": "soundwork/tad/vendor/tad-audio-driver.bin",

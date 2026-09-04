@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "tools/audio/audio_manifest.json"
-ALLOWED = {"implemented-and-gated", "present-not-implemented", "unused-by-shipped-content", "content-inapplicable", "intentionally-deferred", "unknown-needs-source-research"}
+ALLOWED = {"implemented-and-gated", "present-not-implemented", "unused-by-shipped-content", "unshipped-source-content", "content-inapplicable", "intentionally-deferred", "unknown-needs-source-research"}
 
 
 def main() -> int:

@@ -1089,6 +1089,15 @@ Jump_PlayerInputGate__do_throw:
     jsl Character_Grab_Throw
     sep #$20
 .a8
+    lda CHAR_ROSTER_INDEX
+    cmp #12                        ; LEO is the only shipped THROW.WAV user
+    bne Jump_PlayerInputGate__throw_audio_done
+    ; The documented SNES throw adaptation reuses idle instead of source
+    ; throw art, so no authored frame reaches Audio_FrameSoundDispatch.
+    ; Emit the source throw-impact sound at the accepted production toss edge.
+    jsl AudioSemantic_EmitThrow
+Jump_PlayerInputGate__throw_audio_done:
+.a8
     lda #0
     sta CHAR_SELECTED           ; thrower returns to idle immediately -- no
     lda #$FF                     ; unique throw-swing art in any roster pak

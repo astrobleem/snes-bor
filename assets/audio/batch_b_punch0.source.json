@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3",
+  "raw_bytes": 6818,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 6703,
+  "canonical_path": "assets/audio/batch_b/canonical/punch0.wav",
+  "canonical_sha256": "f4a221a3127164858fc7a1a56546de72553846efcd64588a4f3a6f0fe9db7781",
+  "canonical_frames": 6704,
+  "canonical_rate_hz": 22050,
+  "duration_seconds": 0.30403628117913833,
+  "duration_ticks": 39,
+  "brr_bytes": 3771,
+  "brr_blocks": 419,
+  "brr_sha256": "04fa4674b0def73875039303a8a57be084f29e0bea9d6dae555f5f1694fcda85",
+  "single_effect_common_bytes": 3818,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/punch0.brr"
+}

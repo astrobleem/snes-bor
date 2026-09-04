@@ -137,6 +137,12 @@ def kill_target(m, slot_index, roster_index):
         w8(m, ENTITY_INVULN[i], 0)
         w8(m, base + CHAR_INPUT_DRIVEN, 0)
     prepare_target(m, ENTITY_BASES[slot_index], roster_index, 1)
+    # AudioSemantic_EmitDiesound consumes the production mirror maintained by
+    # the entity tick, not the paused test fixture's raw CHAR_ROSTER_INDEX
+    # write.  Advance one real frame so the target identity is authenticated
+    # before the real lethal attack edge is delivered.
+    run_frames_exact(m, 1)
+    m.pause()
     w8(m, PLAYER + CHAR_HIT_STUN, 0)
     w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
     before = u16(m, REQ_COUNT)
@@ -150,6 +156,44 @@ def kill_target(m, slot_index, roster_index):
         m.pause()
     after = u16(m, REQ_COUNT)
     return before, after, u8(m, ENTITY_BASES[slot_index] + CHAR_HP), trace(m)
+
+
+def kill_spawned_target(m, slot_index):
+    """Kill a target whose production spawn path already set its identity."""
+    sentinel = next(i for i in range(1, 4) if i != slot_index)
+    for i, base in enumerate(ENTITY_BASES[1:], 1):
+        if i != slot_index:
+            w8(m, base + CHAR_HP, 0)
+        w8(m, ENTITY_INVULN[i], 0)
+        w8(m, base + CHAR_INPUT_DRIVEN, 0)
+    # Keep the level live after the target dies.  This fixture sentinel is
+    # deliberately outside the combat overlap; it prevents the normal
+    # no-enemy stage transition from resetting the target before the audio
+    # observation window closes.
+    w8(m, ENTITY_BASES[sentinel] + CHAR_HP, CHAR_HP_MAX)
+    w16(m, ENTITY_BASES[sentinel] + CHAR_POS_X, u16(m, PLAYER + CHAR_POS_X) + 200)
+    w16(m, ENTITY_BASES[sentinel] + CHAR_POS_Y, u16(m, PLAYER + CHAR_POS_Y))
+    target = ENTITY_BASES[slot_index]
+    w8(m, target + CHAR_INPUT_DRIVEN, 0)
+    w8(m, target + CHAR_HIT_STUN, 0)
+    w16(m, target + CHAR_POS_X, u16(m, PLAYER + CHAR_POS_X))
+    w16(m, target + CHAR_POS_Y, u16(m, PLAYER + CHAR_POS_Y))
+    w8(m, target + CHAR_HP, 1)
+    w8(m, PLAYER + CHAR_HIT_STUN, 0)
+    w8(m, PLAYER + CHAR_HIT_APPLIED, 0)
+    before = u16(m, REQ_COUNT)
+    roster_samples = held_input_sampled(
+        m, m.BTN_Y, 3,
+        sample_fn=lambda _: {
+            'roster': u8(m, target + CHAR_ROSTER_INDEX),
+            'requests': u16(m, REQ_COUNT),
+            'trace_index': u8(m, TRACE_INDEX),
+        })
+    for _ in range(60):
+        run_frames_exact(m, 1)
+        m.pause()
+    after = u16(m, REQ_COUNT)
+    return before, after, u8(m, target + CHAR_HP), trace(m), roster_samples
 
 
 def fall_target(m, slot_index=1, roster_index=5):

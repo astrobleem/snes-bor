@@ -44,7 +44,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter  # noqa: E402
+from _harness import open_session, pasm_constant, pasm_constant_in, poll_until, read_block, Reporter  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -58,6 +58,11 @@ Stage_LoadPending = pasm_constant_in('src/core/game_state.pasm', 'Stage_LoadPend
 Stage_Cleared = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 Game_Score = pasm_constant_in('src/core/game_state.pasm', 'Game_Score')
 Game_Lives = pasm_constant_in('src/core/game_state.pasm', 'Game_Lives')
+MUSIC_LAST_TRACK = pasm_constant('Music_LastTrack')
+MUSIC_LAST_TRANSITION = pasm_constant('Music_LastTransition')
+MUSIC_PLAY_STATE = pasm_constant('Music_PlayState')
+MUSIC_TRANSITION_ENDING = pasm_constant('MUSIC_TRANSITION_ENDING')
+MUSIC_ENDING_TRACK = pasm_constant_in('tools/audio/audio_music_ids.pasm', 'Music_EndingTrack')
 
 TITLE_STEP_WAIT = pasm_constant_in('src/core/game_state.pasm', 'TITLE_STEP_WAIT')
 Title_Step = pasm_constant_in('src/core/game_state.pasm', 'Title_Step')
@@ -150,13 +155,19 @@ def main():
         m.write_memory('snesMemory', Stage_LoadPending, '01')
         m.write_memory('snesMemory', Stage_Cleared, '00')
         m.write_u16(GAME_STATE, GAME_STATE_STAGECLEAR)
-        m.run_frames(10)
+        entered_ending = poll_until(
+            m, lambda session: u16(session, GAME_STATE) == GAME_STATE_ENDING,
+            max_frames=120,
+        )
         m.pause()
-
         state = u16(m, GAME_STATE)
         r.check('final-stage completion (Game_StageIndex+1>=STAGE_COUNT) reaches '
                 f'GAME_STATE_ENDING via the real STAGECLEAR dispatch (got {state})',
-                state == GAME_STATE_ENDING)
+                entered_ending and state == GAME_STATE_ENDING)
+        r.check('the real ENDING transition requested its authored MSU track',
+                u8(m, MUSIC_LAST_TRACK) == MUSIC_ENDING_TRACK
+                and u8(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_ENDING
+                and u8(m, MUSIC_PLAY_STATE) == 1)
 
         # ================= gameplay is genuinely quiescent =================
         r.check('OAM slot 0 is hidden in ENDING (no gameplay sprites drawn)',

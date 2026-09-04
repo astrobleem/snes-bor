@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "9e027ac6ca48abf564f07858e4afe18338a6fa3952d62001dda2d19467dc68fb",
+  "raw_bytes": 26100,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 26041,
+  "canonical_path": "assets/audio/batch_b/canonical/throw.wav",
+  "canonical_sha256": "b2831fc76bec3348550572e8b34db928bbbcd300fa2d70c6998c1dea84927914",
+  "canonical_frames": 26048,
+  "canonical_rate_hz": 22050,
+  "duration_seconds": 1.1813151927437642,
+  "duration_ticks": 148,
+  "brr_bytes": 14652,
+  "brr_blocks": 1628,
+  "brr_sha256": "28f48a183a8db53721892d0348ec8ddd55bddfa92d20a3b81a7c9a687ee3e177",
+  "single_effect_common_bytes": 14699,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/throw.brr"
+}
