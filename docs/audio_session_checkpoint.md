@@ -892,4 +892,9 @@ mechanisms absent a new production regression.
 
 ## Resume Here
 
-Publish the frame-sound dedupe fix-forward, then stop for final review.
+Published frame-sound dedupe fix-forward:
+`5a1f2b78b4e4d59ba8a55639bea8c834d1a43b85`
+(`audio: fix repeated authored frame sfx`).
+
+Stop for final review. Do not reopen accepted SOUND mechanisms unless a new
+production regression contradicts the focused closure evidence above.
