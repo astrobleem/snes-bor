@@ -854,6 +854,17 @@ or committing until every remaining issue is classified.
 
 ## Resume Here
 
-Inspect the final audio-only working set for a real residual production hole.
-If none exists, prepare the coherent SOUND completion review without changing
-accepted audio mechanisms or the protected production bank.
+SOUND COMPLETE. Published implementation commit:
+`18e6b605fd87c7f0b816983a12f3fbe2cb797c94`
+(`audio: complete sound content`) on `origin/audio-content-pass`.
+
+- Current ROM SHA-256:
+  `a075d1ceee07900d193bbb26d8ad0e4f58919f27abb277ce3d9640364043b562`.
+- All 47 shipped-reachable manifest rows are `implemented-and-gated`:
+  35 SFX and 12 music. The remaining 91 source rows are explicitly terminal
+  as source-missing, unshipped, or unused.
+- `tools/audio/sfx_production_banks.json` remains user-owned dirty state and
+  is intentionally unstaged.
+
+Stop for final review. Do not begin another subsystem or reopen accepted audio
+mechanisms absent a new production regression.
