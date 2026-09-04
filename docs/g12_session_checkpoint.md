@@ -1,0 +1,223 @@
+# G12 session checkpoint
+
+## Kickoff
+
+- Starting branch: `audio-content-pass`
+- Starting HEAD: `58188b29023ab821ff83ed380e4e920fe2cf43e2`
+- Starting accepted ROM SHA-256: `1ecd696eb3b927bebef8276fef661c156cb4e19e426ba7d33c04d670a97b7aa6`
+- Roadmap frontier: G12, content and scale. SOUND is complete and remains closed.
+- Current production entity limit: 4 `CharacterEntity` instances (player plus three AI); OOP has spare generic slots, but the character/OAM/runtime path is hard-coded to entities 0..3.
+
+## Measured baseline
+
+The fixture uses the real stage-clear transition to stage 1A, walks through its real spawn queue to create a production wave, then samples 240 real frames. It does not create fake entity slots or alter the scheduler.
+
+| Entity | Role at sample start | Frame-index advances | Advances / real frame |
+|---|---:|---:|---:|
+| 0 | player | 25 | 0.1042 |
+| 1 | AI | 23 | 0.0958 |
+| 2 | AI | 17 | 0.0708 |
+| 3 | AI | 8 | 0.0333 |
+
+The current rule is per-entity idle/walk/attack tick decrement, gated before the decrement by global `Msu1_StreamBusy`; an animation advance performs one 768-byte MSU read and six 128-byte VRAM row-DMA enqueues. The main loop remains vblank-paced, so gameplay simulation continues at one update per real frame; the measured rates are presentation/frame-index rates only.
+
+Runtime health in this sample:
+
+- NMI delta: `240` over `240` real frames.
+- NMI overrun observations: `0`.
+- DMA queue pressure: all `8` queue slots observed active; maximum sampled queued-byte budget: `848`.
+- `Msu1_StreamBusy`: observed asserted at sample boundaries.
+- Hardware OAM remained populated with four distinct actor entries.
+
+Five-, six-, and eight-fighter results are explicit nonclaims, not extrapolated measurements: the current production path has no slots 4..7, no OAM allocation for them, and no collision/render dispatch for them. The baseline tool records this boundary instead of faking WRAM entities.
+
+## Bottleneck
+
+The exact limiter is serialized ownership of the single `AnimFrameStaging` buffer and its six queued VRAM row transfers. `Msu1_StreamBusy` permits only one entity to start a frame transfer until the next NMI drains those rows. Thus an animation advance is not merely an MSU read: it occupies the shared staging buffer, six of the eight DMA queue slots, and the next visual commit. The 8-slot queue and observed 848-byte pressure are secondary evidence that queue headroom is already narrow once OAM/background work is included.
+
+## Options considered
+
+- **Selective frame residency / reuse — chosen first.** The OBJ sheet is `$4000-$4FFF`; current actors use only the first 8 tile rows of each of four 4-column slices. The second 8-row band is currently unused, so a BOR-specific two-resident-pose design can fit without changing OBSEL. Cache identity must include roster identity, animation identity, and frame identity; palette is an entity render concern, while sharing pixel data is safe only when the resident pose's source identity matches. Misses fail closed by retaining the last valid pose and retrying the stream request.
+- **Scheduler change — rejected as the first slice.** Round-robin/fairness can redistribute the same one-transfer-per-NMI wall but cannot materially raise aggregate presentation throughput.
+- **SA-1 participation — rejected for now.** The live SA-1 loop is a static BW-RAM/CC-DMA compositor experiment and is not on the OAM character path; routing character frames there would be a new transfer/composition system, not a bounded scheduler change.
+- **Lower animation rates — retained only as fallback.** It preserves correctness but accepts the measured fourth-actor degradation and does not address repeated idle/walk/attack frame reads.
+
+## First slice and boundary
+
+The first G12 architecture slice is selective two-band pose residency for the existing four entities, with no 2-player work and no audio changes. The next implementation must add a small BOR-local cache with explicit owner/key/valid metadata, alternate OBJ-band selection, and a gate proving cache hits do not start an MSU transfer while misses preserve the current frame until their six row DMAs complete. It must retain the current gameplay update rate and prove four active fighters, visible OAM correctness, NMI health, and DMA pressure.
+
+The committed kickoff measurement tool is `tools/verify/g12_scaling_baseline.py`. It is intentionally a nonclaim for 5/6/8 until production entity allocation is separately designed and gated.
+
+## G12A refinement and implementation checkpoint
+
+The refined trace records, per entity, roster slot, animation state, attack
+variant, frame index, exact source identity (`base + frame * 768`), tick
+counter, timed requests, retry attempts, forced loads, and wait latency.
+Gameplay remains one update per real frame; only animation presentation is
+deferred.
+
+The existing 600-real-frame control was reclassified without changing
+production behavior:
+
+| Entity | Timed requests | Timed streams | Busy retries | Forced loads | Superseded/cancelled | Max wait | Average wait |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 43 | 43 | 12 | 19 | 0/0 | 1 | 0.000 |
+| 1 | 42 | 32 | 18 | 21 | 1/9 | 2 | 1.188 |
+| 2 | 35 | 33 | 24 | 8 | 1/1 | 3 | 1.424 |
+| 3 | 13 | 12 | 10 | 3 | 0/1 | 3 | 1.417 |
+
+For each entity, `timed requests = timed streams + superseded + cancelled +
+outstanding`; all four controls have zero outstanding requests. Busy retries
+are excluded from that invariant. The simulator's 171 count is a different
+universe: every transition into a concrete source identity, consisting of 120
+timed streams, 2 timed requests superseded by forced loads, and 49 independent
+forced loads. The old 185 frame-index changes additionally included 14
+transitions into non-streaming frame `$FF`; the old 197 due observations
+included retry observations. The 240-frame control remains available through
+the same tool; its original raw frame-change observations were 25/23/17/8.
+
+### OBJ ownership proof
+
+- OBJ base: VRAM word `$4000`; OBSEL shadow is `$C2`, large mode is 32x64.
+- Full OBJ character band: `$4000-$4FFF`, tile numbers `0-255`, 256 tiles.
+- Existing dynamic character storage: lower band, four 4-column slices,
+  tile rows 0-7, words `$4000-$47FF`; each slice is 32 complete hardware
+  pose tiles (4 wide x 8 high). Authored art occupies rows 0-5; rows 6-7
+  are padding and are explicitly blanked for all four slices.
+- Proposed G12A cache band: upper `$4800-$4FFF`, tile numbers `128-255`,
+  128 tiles, four complete 32x64 pose slots. Six streamed rows leave the
+  upper rows 6-7 unchanged; the production boot VRAM clear and the ownership
+  audit show no other runtime writer there, so they remain blank padding.
+- Other OBJ users: the boot test sprite uses tile 0 in the lower band and
+  palettes 4-7; it does not touch the upper band. OAM/compositor code writes
+  tile numbers and attributes only. No production code writes upper-band
+  pose pixels.
+- OBSEL's current setting selects the `$4000` OBJ base and does not consume a
+  second character name table for this slice. The second-name-table/base
+  capability is future headroom only; it is not enabled.
+
+### Trace policy simulation
+
+Offline simulation is in `tools/verify/g12_cache_simulation.py`, using
+`out/g12/baseline_600.json` rather than synthetic requests:
+
+| Policy | Hits | Misses | Reads/DMA groups eliminated | Projected denials | Evictions |
+|---|---:|---:|---:|---:|---:|
+| A no cache | 0 | 171 | 0 | 64 | 0 |
+| B per-entity two-slot | 0 | 171 | 0 | 64 | 0 |
+| C shared four-slot upper band | 0 | 171 | 0 | 64 | 167 |
+| D four fixed hot idle slots | 45 | 126 | 45 | 19 | 0 |
+
+Policy C was rejected: continuous multi-entity pose churn evicts before
+reuse. Policy B was rejected by the real trace: two prior poses are not a
+long enough history for these authored cycles. Policy D is the selected
+smallest slice because it removes 45 of 171 observed frame reads (and their
+six-row groups) without changing gameplay timing. Same-pose multi-entity
+sharing did not occur in this production trace and remains NONCLAIM.
+
+### Rejected first implementation
+
+The rejected candidate added a BOR-local fixed four-slot hot-pose
+cache in `src/core/depth_sort.pasm` and keeps `CHAR_TILE_COLUMN` as dynamic
+fallback storage. Slots are keyed by the exact 24-bit MSU source address and
+serve player idle frame indices 0-3. A cache hit selects tile bases 128, 132,
+136, or 140 with no MSU read or frame-DMA enqueue. A miss uses the existing
+`Msu1_LoadFrame` reader and six-row DMA path, targeting the upper band. Cache
+validity is committed only from NMI after `Core_Dma_ProcessQueue`; the single
+pending stream and `CharSelect_Loaded==0` load boundary prevent partial-slot
+exposure and invalidate roster-reassigned poses. Palette and facing remain
+OAM attributes. Other entities/actions fall back to their existing dynamic
+columns.
+
+The candidate ROM was `09db63f043699c210bb8e97ee1726d00698bf1bf3e8d7b416cfd9056cae33257`.
+It deterministically failed `phase5.py` twice: player/entity animation
+variation and AI hit-stun failed, while NMI advancement remained healthy. The
+candidate is rejected as a production regression. Its source-only forensic
+patch is preserved at `out/g12a_failed_candidate.patch`.
+
+Production source has been restored to accepted HEAD. The protected-bank
+bypass rebuild reproduces accepted ROM
+`1ecd696eb3b927bebef8276fef661c156cb4e19e426ba7d33c04d670a97b7aa6`.
+The full build's unrelated SFX-bank-plan verifier still fails against the
+preserved user-owned `tools/audio/sfx_production_banks.json`; that file was
+not touched.
+Live cache-hit/miss visual and performance validation is PENDING. The earlier
+Mesen application-error/JIT-dialog was caused by my recovery attempt launching
+two Mesen instances concurrently; the harness itself was not changed. After
+clearing both processes, a single foreground session launched cleanly with no
+Mesen crash, but the existing stage-clear fixture failed: `Stage_Cleared`
+remained zero and stage stayed `0`, while NMI advanced with zero overruns.
+The existing `game_g4_transition.py` reproduces that failure on the current
+ROM, so no live cache PASS is claimed.
+
+Current validation ROM SHA-256: `1ecd696eb3b927bebef8276fef661c156cb4e19e426ba7d33c04d670a97b7aa6`.
+G12A is not complete; no second residency implementation has started.
+
+Exact remaining NONCLAIMS: more than four production entities, 2-player
+co-op, SA-1 character acceleration, and multi-entity cache sharing.
+
+## G12 throughput slice — rejected two-buffer experiment
+
+The accepted baseline was measured before implementation and remains the
+production authority: ROM SHA-256
+`1ecd696eb3b927bebef8276fef661c156cb4e19e426ba7d33c04d670a97b7aa6`,
+`phase5.py PASS`, NMI 1:1, and zero overrun observations. The existing G4
+fixture's early `Stage_Cleared` observation remains known verifier debt; the
+real transition/subsequent checks remain the authority for that lane.
+
+### Budget decision
+
+The real accepted 600-frame trace reached 848 queued bytes at its sample
+boundary, with all 8 generic queue slots active. The software DMA budget is
+`0x0B00` = 2816 bytes. Exact payload accounting for the proposed grouped
+transport is:
+
+| Work | Bytes | 8 master cycles/byte |
+|---|---:|---:|
+| OAM upload | 544 | 4352 |
+| one character frame | 768 | 6144 |
+| two character frames | 1536 | 12288 |
+| maximum HUD upload | 256 | 2048 |
+| two frames + OAM + HUD | 2336 | 18688 |
+
+That leaves 480 bytes of payload headroom before other regular work and CPU
+setup. The installed MCP endpoint rejected the advertised `get_cpu_state`
+tool, so an entry-to-return CPU-cycle measurement was unavailable; the live
+NMI/queue measurements and exact DMA arithmetic are recorded in
+`out/g12/budget_measure_accepted.json`.
+
+### Experiment and rejection
+
+A task-local candidate implemented two fixed 768-byte staging buffers, a
+two-descriptor grouped upload path, bounded active ownership, and NMI-side
+expansion to the existing six strided row transfers. It was built only with
+the protected SFX validator bypassed; `tools/audio/sfx_production_banks.json`
+was not touched.
+
+The live modified 600-frame trace showed the transport symptom improving:
+`Msu1_StreamBusy` occupancy reached 2, NMI was 600/600, and NMI overrun
+observations stayed 0. Due-request wait maxima were 2/1/1/1 frames and
+averages were approximately 0.43/0.23/0.29/0.18 frames, versus the accepted
+single-buffer control's 1/2/2/3 maxima and approximately
+1.00/1.19/1.42/1.42 averages. `phase5.py` also passed on that candidate.
+
+The required correctness gate then failed: accepted and committed descriptor
+telemetry diverged, and the six-row hardware VRAM contents did not match the
+exact MSU frame source bytes. This is a real transport corruption result, not
+an emulator-overrun result. The candidate was rejected and production source
+was restored; the two-buffer trace remains at
+`out/g12/baseline_600_two_buffer.json`, and the failed gate is
+`tools/verify/game_g12_throughput.py`.
+
+No high-contention 5/6/8 service fixture was promoted or claimed. The
+candidate failed the required four-entity correctness proof first, so the
+service-path stress result is explicitly NONCLAIM rather than extrapolated.
+
+### Current decision
+
+`G12 THROUGHPUT SLICE: REJECTED`.
+
+Production remains the accepted single-buffer architecture. Residency
+research remains unchanged: generic two-slot and shared four-slot policies
+had zero hits; the fixed hot-player-idle policy predicted 45/171 hits. Sound
+is closed and not part of this decision.
