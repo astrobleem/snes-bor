@@ -1,0 +1,21 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\GET.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "df44cae1360524e01e6d7c0e080788ba3f2085cca5de5fa12eeb08b60fa409e3",
+  "raw_bytes": 3632,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_format": "unsigned 8-bit PCM",
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 3573,
+  "raw_duration_seconds": 0.3240816326530612,
+  "canonical_path": "soundwork/tad/project/samples/get.wav",
+  "canonical_sha256": "0527be5a3d9755658523a5291fc8c39765ee21aebc062504ee52d3e878815419",
+  "canonical_frames": 3584,
+  "canonical_duration_seconds": 0.3250793650793651,
+  "padding_rule": "canonical_wav pads to a complete 16-sample BRR block",
+  "brr_bytes": 2016,
+  "brr_blocks": 224,
+  "backend": "resident_tad_sfx"
+}

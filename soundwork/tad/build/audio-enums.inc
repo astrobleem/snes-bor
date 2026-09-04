@@ -7,7 +7,7 @@
 
 
 LAST_SONG_ID = 1
-N_SOUND_EFFECTS = 3
+N_SOUND_EFFECTS = 9
 
 ;; Song enum.
 ;; Input argument for `Tad_LoadSong`
@@ -24,4 +24,10 @@ N_SOUND_EFFECTS = 3
   sfx_hit = 0
   sfx_fall = 1
   sfx_jump = 2
+  sfx_get = 3
+  sfx_money = 4
+  sfx_punch = 5
+  sfx_oneup = 6
+  sfx_beep = 7
+  sfx_beep2 = 8
 .endenum

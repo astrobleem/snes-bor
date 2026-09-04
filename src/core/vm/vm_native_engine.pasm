@@ -2029,6 +2029,90 @@ AudioSemantic_EmitFall__queue_done:
     plp
     rtl
 
+; Generic resident semantic/audio choke point for banked gameplay and menu
+; callers. Entry is .a8 with A = stable semantic ID and X = generated local
+; resident SFX ID. This bank-1 helper duplicates only the tiny queue operation
+; instead of calling the bank-0 RTS routine across a bank boundary. The D=0
+; bracket is required because entity callers may have a different direct-page
+; window; the normal Tad_Process queue and lower-ID priority remain unchanged.
+Audio_QueueResidentSemantic:
+    php
+    sep #$20
+.a8
+    sta.l AudioSemantic_CurrentId
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    txa
+    phd
+    pea $0000
+    pld
+    cmp Tad_sfxQueue_sfx
+    bcs Audio_QueueResidentSemantic__done
+    sta Tad_sfxQueue_sfx
+    lda #TAD_CENTER_PAN
+    sta Tad_sfxQueue_pan
+Audio_QueueResidentSemantic__done:
+    pld
+    plp
+    rtl
+
+; Queue the resident pickup sound for the real collection/reward edge.  Entry
+; is .a8 with A = PICKUP_TYPE_*; A is restored so the caller can immediately
+; pass the same type to Character_HitApply__ApplyPickup.
+Audio_EmitPickup:
+    php
+    sep #$20
+.a8
+    pha
+    cmp #PICKUP_TYPE_APPLE
+    beq Audio_EmitPickup__get
+    cmp #PICKUP_TYPE_MEAT
+    beq Audio_EmitPickup__get
+    cmp #PICKUP_TYPE_MONEY
+    beq Audio_EmitPickup__money
+    cmp #PICKUP_TYPE_GOLD
+    beq Audio_EmitPickup__money
+    cmp #PICKUP_TYPE_ONEUP
+    beq Audio_EmitPickup__oneup
+    bra Audio_EmitPickup__restore
+Audio_EmitPickup__get:
+    lda #AUDIO_SEMANTIC_GET
+    ldx #SFX_GET_ID
+    jsl Audio_QueueResidentSemantic
+    bra Audio_EmitPickup__restore
+Audio_EmitPickup__money:
+    lda #AUDIO_SEMANTIC_MONEY
+    ldx #SFX_MONEY_ID
+    jsl Audio_QueueResidentSemantic
+    bra Audio_EmitPickup__restore
+Audio_EmitPickup__oneup:
+    lda #AUDIO_SEMANTIC_ONEUP
+    ldx #SFX_ONEUP_ID
+    jsl Audio_QueueResidentSemantic
+Audio_EmitPickup__restore:
+    pla
+    plp
+    rtl
+
+Audio_EmitPunch:
+    sep #$20
+.a8
+    lda CHAR_SELECTED
+    cmp #2
+    bne Audio_EmitPunch__done
+    lda CHAR_ATTACK_VARIANT
+    cmp #GET_MOVE_VARIANT          ; GET shares the attack animation state
+    beq Audio_EmitPunch__done      ; but is not an attack swing
+    lda CHAR_FRAME_INDEX
+    cmp #$FF
+    bne Audio_EmitPunch__done
+    lda #AUDIO_SEMANTIC_PUNCH
+    ldx #SFX_PUNCH_ID
+    jsl Audio_QueueResidentSemantic
+Audio_EmitPunch__done:
+    rtl
+
 ; JSL/RTL. HitApply_EntityBase identifies the dying entity. Preserves A/X/Y
 ; and processor width.
 AudioSemantic_EmitDiesound:

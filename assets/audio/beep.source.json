@@ -1,0 +1,21 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+  "raw_bytes": 3420,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_format": "unsigned 8-bit PCM",
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 3376,
+  "raw_duration_seconds": 0.15310657596371882,
+  "canonical_path": "soundwork/tad/project/samples/beep.wav",
+  "canonical_sha256": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+  "canonical_frames": 3376,
+  "canonical_duration_seconds": 0.15310657596371882,
+  "padding_rule": "canonical_wav pads to a complete 16-sample BRR block",
+  "brr_bytes": 1899,
+  "brr_blocks": 211,
+  "backend": "resident_tad_sfx"
+}

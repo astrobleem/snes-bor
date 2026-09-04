@@ -22,7 +22,7 @@
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
     "driver_size_after_patch": 3437,
     "driver_sha256_after_patch": "a0d4a0b37dbd41ec85c6afbaabc2ebc9744822a9be5eb1115f5864ee7db39730",
-    "audio_data_sha256_after_patch": "a95f8d5ca571d2c650d08567ce10c22a672d96361a337dce92b5fef5e88d579e",
+    "audio_data_sha256_after_patch": "bca61dd738251d3e86de36290981dfb91661e0647c23b79f79965d87a39f5497",
     "data_table": "$018E14",
     "resident_jump": {
       "source_asset": "DATA\\SOUNDS\\JUMP.WAV",

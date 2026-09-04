@@ -1637,7 +1637,7 @@ Character_HitApply__ApplyPickup:
     beq Character_HitApply__ApplyPickup__oneup
     cmp #PICKUP_TYPE_GOLD
     beq Character_HitApply__ApplyPickup__gold
-    bra Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
+    brl Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
 Character_HitApply__ApplyPickup__heal_apple:
     sep #$20
 .a8
@@ -1670,11 +1670,13 @@ Character_HitApply__ApplyPickup__heal_store:
     sta.l PlayerEntity_Hp
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__oneup:
+.a8
     lda.l Game_Lives
     inc a
     sta.l Game_Lives
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__money:
+.a8
     ; Game_Score += PICKUP_SCORE_MONEY, clamped at 65535 -- same idiom
     ; Game_Score_Award uses, but this leaf doesn't also re-check the
     ; EXTEND_LIFE_SCORE crossing Game_Score_Award does for combat score;
@@ -1696,6 +1698,7 @@ Character_HitApply__ApplyPickup__money_store:
 .a8
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__gold:
+.a8
     ; Game_Score += PICKUP_SCORE_GOLD, clamped at 65535 -- same idiom as
     ; the money branch above, own real value (GOLD.TXT score=5000).
     rep #$20
@@ -1761,6 +1764,7 @@ Character_HitApply__RevealOrPickup__e1_instant:
     lda.l Entity1_PickupType   ; reload -- clobbered by the ItemRosterIdx
                                   ; check above; ApplyPickup needs A ==
                                   ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Audio_EmitPickup
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity1_PickupType
@@ -1780,6 +1784,7 @@ Character_HitApply__RevealOrPickup__e2_instant:
     lda.l Entity2_PickupType   ; reload -- clobbered by the ItemRosterIdx
                                   ; check above; ApplyPickup needs A ==
                                   ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Audio_EmitPickup
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity2_PickupType
@@ -1799,6 +1804,7 @@ Character_HitApply__RevealOrPickup__e3_instant:
     lda.l Entity3_PickupType   ; reload -- clobbered by the ItemRosterIdx
                                   ; check above; ApplyPickup needs A ==
                                   ; CHAR_PICKUP_TYPE, not ItemRosterIdx
+    jsl Audio_EmitPickup
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity3_PickupType
@@ -1905,6 +1911,9 @@ Character_Pickup_CheckOverlap__vs1_dy_ok:
 .a8
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity1_PickupType
+    pha
+    jsl Audio_EmitPickup
+    pla
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity1_PickupType
@@ -1968,6 +1977,9 @@ Character_Pickup_CheckOverlap__vs2_dy_ok:
 .a8
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity2_PickupType
+    pha
+    jsl Audio_EmitPickup
+    pla
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity2_PickupType
@@ -2031,6 +2043,9 @@ Character_Pickup_CheckOverlap__vs3_dy_ok:
 .a8
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity3_PickupType
+    pha
+    jsl Audio_EmitPickup
+    pla
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity3_PickupType

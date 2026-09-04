@@ -162,6 +162,9 @@ Game_State_Play__charselect_left_dec:
     dec a
 Game_State_Play__charselect_left_set:
     sta.l CharSelect_Index
+    lda #AUDIO_SEMANTIC_BEEP
+    ldx #SFX_BEEP_ID
+    jsl Audio_QueueResidentSemantic
     jsr Game_State_CharSelect_ReloadPlayer
     sep #$20
 .a8
@@ -182,6 +185,9 @@ Game_State_Play__charselect_wait_check_right:
     lda #0
 Game_State_Play__charselect_right_set:
     sta.l CharSelect_Index
+    lda #AUDIO_SEMANTIC_BEEP
+    ldx #SFX_BEEP_ID
+    jsl Audio_QueueResidentSemantic
     jsr Game_State_CharSelect_ReloadPlayer
     sep #$20
 .a8
@@ -200,6 +206,9 @@ Game_State_Play__charselect_wait_check_start:
 Game_State_Play__charselect_wait_start_pressed:
     sep #$20
 .a8
+    lda #AUDIO_SEMANTIC_BEEP2
+    ldx #SFX_BEEP2_ID
+    jsl Audio_QueueResidentSemantic
     lda #CHARSELECT_STEP_CLEAR_HEADER
     sta.l CharSelect_Step
     jmp Game_State_Play__charselect_done

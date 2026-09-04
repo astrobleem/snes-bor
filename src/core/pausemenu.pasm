@@ -276,6 +276,9 @@ Game_State_Play__pausemenu_wait_toggle_down_inc:
 Game_State_Play__pausemenu_wait_toggle_common:
 .a8
     sta.l Pause_Selector
+    lda #AUDIO_SEMANTIC_BEEP
+    ldx #SFX_BEEP_ID
+    jsl Audio_QueueResidentSemantic
     jsr Game_State_Pause_DrawContinueRow
     lda #PAUSE_STEP_REDRAW_ENDGAME
     sta.l Pause_Step
@@ -370,6 +373,9 @@ Game_State_Play__pausemenu_wait_check_start:
 Game_State_Play__pausemenu_wait_start_pressed:
     sep #$20
 .a8
+    lda #AUDIO_SEMANTIC_BEEP2
+    ldx #SFX_BEEP2_ID
+    jsl Audio_QueueResidentSemantic
     lda #PAUSE_STEP_CLEAR_HEADER
     sta.l Pause_Step
     jmp Game_State_Play__pausemenu_done
@@ -628,6 +634,9 @@ Game_State_Pause_CheckEntry_options_done:
     lda.l Input_trigger+1
     and #$0010
     beq Game_State_Pause_CheckEntry_no
+    lda #AUDIO_SEMANTIC_PAUSE
+    ldx #SFX_BEEP2_ID
+    jsl Audio_QueueResidentSemantic
     lda #GAME_STATE_PAUSED
     sta.l Game_State
     sep #$20

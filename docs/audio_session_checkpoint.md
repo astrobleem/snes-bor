@@ -359,6 +359,35 @@ No FALL source, hook, resident ID, allocator, TAD, capture, Stage-A, voice-polic
 ## Resume Here
 
 Independent review complete. Begin the next audited audio slice only after review authorization.
+
+## Batch A - Reachable Global SFX (authoritative, 2026-09-03)
+
+This batch completes the seven remaining reachable global sounds. It is based
+on BOR-original PAK `Beats of Rage Original [v.3.0 Build 4086].pak`, SHA-256
+`a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6`.
+
+- Starting BOR HEAD: `9ff10f5d124e48ef8bf3b1742e297d26debec82f`.
+- Current ROM SHA-256: `2b7030b92e6b4582e50777c9f683806ead34bb8a56695b2b829beb2b16208960`.
+- Source assets were extracted with `tools/audio/build_global_resident_sources.py`; PAUSE.WAV is absent and uses the source-documented BEEP2 fallback.
+- Canonical resident BRR footprint for the six new unique assets: `34101` bytes (`GET` 2016, `MONEY` 5517, `PUNCH` 2277, `1UP` 19908, `BEEP` 1899, `BEEP2` 2484). Generated audio blob: 50018 bytes, SHA-256 `bca61dd738251d3e86de36290981dfb91661e0647c23b79f79965d87a39f5497`.
+- Generated local IDs: HIT `0`, FALL `1`, JUMP `2`, GET `3`, MONEY `4`, PUNCH `5`, 1UP `6`, BEEP `7`, BEEP2 `8`.
+- Semantic IDs: GET `$09`, MONEY `$0A`, PUNCH `$0B`, 1UP `$0C`, BEEP `$0D`, BEEP2 `$0E`, PAUSE `$0F`.
+- All seven gameplay fixtures produced exactly one semantic request and selected resident physical voice 7. Direct controls used voice 6. Every gameplay capture matched its direct control byte-for-byte, with natural ENDX: GET 10330 samples SHA `51ed28edd17fa701f70615978ff16fec076cb28cc68f5a7e3d842e2304ee1e39`; MONEY 28398 SHA `4bb6aba9728d5c897bfd8a7ab1afa35f56c8a271cfee62254902296ccbb869e7`; PUNCH 5842 SHA `403f72823aa1b0b55a03e708df2cac90365aa069ff37ffa791c6e85277a44c91`; 1UP 51337 SHA `778f84fe8e5735227e472950a0f9afa94625814a66da4502686370b98065667a`; BEEP 4867 SHA `4bf94787765a1d5c81819cf4664595f05b19f5a63a4d559643431872ae791b2e`; BEEP2/PAUSE 6376 SHA `df07e008498660711896231ee78a45a39dc118cf513025d9a0992e7b0b972343`.
+- PUNCH fix: GET exclusion is now keyed to `GET_MOVE_VARIANT`, not shared `CHAR_SELECTED == 2`, so normal attack dispatch emits PUNCH without reclassifying GET.
+- Menu fixtures use one-frame input edges and neutralized non-player entities; this prevents resumed AI PUNCH requests from contaminating BEEP2 confirmation evidence.
+- Focused checks: TAD rebuild/check PASS; TAD baseline PASS; voice-0 static/live ownership PASS; resident ID sync PASS; global ID verifier PASS; runtime SFX-state verifier PASS; audio manifest PASS; shipped-content PASS; fresh assembly/layout guard PASS; JUMP semantic PASS. Existing G11 suite passes lifecycle/content checks but retains its historical waveform-duration analyzer failure as separate known debt. G5 visual text analyzer remains unrelated pre-existing debt.
+- `tools/audio/compile_reachable_sfx.py` received the required missing `tempfile` import so action-residency verification can execute; protected `tools/audio/sfx_production_banks.json` was not staged or intentionally changed and remains pre-existing dirty state.
+- Shared runtime: `astrobleem/Mesen2`, `debug/spc-command-trace-voice-capture`, `5fb1f1b6cba1b9348b40ff2d03ae6e4afde16f63`; staged packaged runtime `E:\gh\Mesen2-runtime\voice-capture-5fb1f1b`.
+- Shared TAD: `astrobleem/terrific-audio-driver`, `bor-poppy-stage-a-v0.3.0`, `97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b`.
+
+Batch A status: COMPLETE and physically matched. No Batch B work has been
+started yet.
+
+## Resume Here
+
+Commit and push Batch A, then derive the shipped-reachable authored/frame and
+diesound inventory for Batch B without reopening accepted Stage A, HIT, FALL,
+JUMP, TAD, capture, or voice-policy work.
 ## JUMP Audio Slice
 
 This section records the completed JUMP slice and supersedes the earlier

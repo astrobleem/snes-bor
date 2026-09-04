@@ -1320,8 +1320,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "current pickup path implements ONEUP; audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "current pickup path implements ONEUP and queues the source-backed 1UP resident effect"
             }
           ],
           "converter_representation": null,
@@ -1448,8 +1448,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus have corresponding input paths"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus queue the source-backed BEEP resident effect"
             }
           ],
           "converter_representation": null,
@@ -1492,8 +1492,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus queue the source-backed BEEP2 resident effect"
             },
             {
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
@@ -1507,8 +1507,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; current SNES pause state is implemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; the current SNES pause-entry adaptation queues the source-backed BEEP2 resident effect"
             }
           ],
           "converter_representation": null,
@@ -1997,8 +1997,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; current health pickups are implemented but audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; the current SNES health-pickup path queues the source-backed GET resident effect"
             }
           ],
           "converter_representation": null,
@@ -2533,8 +2533,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; current score pickups are implemented but audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; the current SNES score-pickup path queues the source-backed MONEY resident effect"
             }
           ],
           "converter_representation": null,
@@ -2577,8 +2577,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "current attack/attack-chain path is source-backed; generic swing audio remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "current attack/attack-chain path is source-backed and queues the source-backed PUNCH resident effect on attack initiation"
             }
           ],
           "converter_representation": null,
@@ -3957,8 +3957,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "current pickup path implements ONEUP; audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "current pickup path implements ONEUP and queues the source-backed 1UP resident effect"
             }
           ],
           "converter_representation": null,
@@ -4169,8 +4169,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus have corresponding input paths"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause selector and character selection call global_sample_list.beep; current SNES menus queue the source-backed BEEP resident effect"
             }
           ],
           "converter_representation": null,
@@ -4213,8 +4213,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus have corresponding paths"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause commit/exit and character confirmation call global_sample_list.beep_2; current SNES menus queue the source-backed BEEP2 resident effect"
             },
             {
               "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
@@ -4228,8 +4228,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; current SNES pause state is implemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR pause entry calls global_sample_list.pause; the current SNES pause-entry adaptation queues the source-backed BEEP2 resident effect"
             }
           ],
           "converter_representation": null,
@@ -4866,8 +4866,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; current health pickups are implemented but audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR health/item pickup calls global_sample_list.get; the current SNES health-pickup path queues the source-backed GET resident effect"
             }
           ],
           "converter_representation": null,
@@ -5918,8 +5918,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; current score pickups are implemented but audio dispatch remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "OpenBOR score/money pickup calls global_sample_list.get_2; the current SNES score-pickup path queues the source-backed MONEY resident effect"
             }
           ],
           "converter_representation": null,
@@ -6111,8 +6111,8 @@
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
               "reachability": "shipped-reachable",
               "snes_reachable": true,
-              "audio_implemented": false,
-              "reachability_reason": "current attack/attack-chain path is source-backed; generic swing audio remains unimplemented"
+              "audio_implemented": true,
+              "reachability_reason": "current attack/attack-chain path is source-backed and queues the source-backed PUNCH resident effect on attack initiation"
             }
           ],
           "converter_representation": null,

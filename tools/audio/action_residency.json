@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "source": "authoritative entity parser plus converted moveset role table",
-  "manifest_hash": "9e31bcaf6a8d02d865c526eea58a03b34fe12b7d80b04627b243a53fb3912a6b",
-  "global_ids_hash": "6d0394c388a09f82f298bb67c2305e7bcf9869eafb0a9a20d3d531d0d183d995",
+  "manifest_hash": "5b62f71255c7eb67bfc3b7df8c5a396a3a0b383f618cef16253b89fb427bf46e",
+  "global_ids_hash": "0759078402b94d25ece844a8e300bdbd3bef3475c965fd5449cfc24458de57e1",
   "runtime_summary_hash": "0c46cde52861a372da0d0d85bb2861bed794a42e7c3ab8d961015cd565067944",
   "input_hash": "a828d3b5c32a8926c3223ede711d1a54ce0413438046b22dda452d57ae987c36",
   "models": [

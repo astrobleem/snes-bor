@@ -47,6 +47,12 @@ PumpScratch       = $7E2344   ; .db[32] -- 32-byte tile staging for the pump's
 SFX_HIT_ID = 0
 SFX_FALL_ID = 1
 SFX_JUMP_ID = 2
+SFX_GET_ID = 3
+SFX_MONEY_ID = 4
+SFX_PUNCH_ID = 5
+SFX_ONEUP_ID = 6
+SFX_BEEP_ID = 7
+SFX_BEEP2_ID = 8
 
 ; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
 ; exactly once at each of the two real accepted-landed-damage SFX call sites
@@ -71,6 +77,13 @@ AUDIO_SEMANTIC_BEBOPDIE  = $05
 AUDIO_SEMANTIC_TURTLEDIE = $06
 AUDIO_SEMANTIC_FALL      = $07
 AUDIO_SEMANTIC_JUMP       = $08
+AUDIO_SEMANTIC_GET        = $09
+AUDIO_SEMANTIC_MONEY      = $0A
+AUDIO_SEMANTIC_PUNCH      = $0B
+AUDIO_SEMANTIC_ONEUP      = $0C
+AUDIO_SEMANTIC_BEEP       = $0D
+AUDIO_SEMANTIC_BEEP2      = $0E
+AUDIO_SEMANTIC_PAUSE      = $0F
 AudioSemantic_JumpRequestCount = $7E281E ; .dw
 AudioSemantic_RequestCount        = $7E2806 ; .dw
 AudioSemantic_TraceWriteIndex     = $7E2808 ; .db
@@ -4383,6 +4396,7 @@ Anim_Play__walk:
     jsr Anim_Play_Walk
     rts
 Anim_Play__attack:
+    jsl Audio_EmitPunch
     jsr Anim_Play_Attack
     rts
 Anim_Play__fall:
@@ -12142,6 +12156,8 @@ irq_handler_end:
 __Tad_AudioData_0:
     .incbin "../soundwork/tad/build/audio-data.bin"
 
+.bank 12
+.org $8000
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
 

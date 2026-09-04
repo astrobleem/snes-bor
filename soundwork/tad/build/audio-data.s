@@ -116,8 +116,14 @@ AUDIO_DATA_BANK = .bankbyte(__Tad_AudioData_0)
 
 .assert .sizeof(LoadAudioData) = 51, error
 
-  __Tad_AudioData_0: .incbin "audio-data.bin", $0
-  .assert .sizeof(__Tad_AudioData_0) = $3dc7, error, "audio-data.bin file size does not match binary size in the assembly file"
+  __Tad_AudioData_0: .incbin "audio-data.bin", $0, $7fcd
+  .assert (* & $ffff) = $0000, lderror, "Not at the end of a bank (AUDIO0)"
+
+.segment "AUDIO1"
+  .assert .loword(*) = $8000, lderror, "AUDIO1 does not start at the beginning of a LoRom bank ($8000)"
+  .assert .bankbyte(*) = .bankbyte(__Tad_AudioData_0) + 1, lderror, "AUDIO1 segment must point to the bank immediatly after AUDIO0"
+  __Tad_AudioData_1: .incbin "audio-data.bin", $7fcd
+  .assert .sizeof(__Tad_AudioData_1) = $4395, error, "audio-data.bin file size does not match binary size in the assembly file"
 
 .assert .bankbyte(Tad_DataTable) = .bankbyte(Tad_DataTable + Tad_DataTable_SIZE), lderror, "Tad_DataTable does not fit in a single bank"
 
