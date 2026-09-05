@@ -2370,6 +2370,8 @@ G12_AnimTrace_Record:
     sta.l G12_AnimTrace_Event
     sta.l G12_AnimTrace_LastEvent
     lda.l G12_AnimTrace_Index
+    rep #$20
+.a16
     and #$07
     asl a
     asl a

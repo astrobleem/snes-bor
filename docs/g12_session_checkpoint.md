@@ -461,3 +461,44 @@ and four/six depth-sort portions pass; the depth fixture's jump subgate
 still reports its existing `player never entered jump state` failure under
 this diagnostic build. No fairness, transport, cache, or audio change is
 claimed, and the six-actor 600-frame acceptance measurement remains open.
+
+## G12 attack dispatch and causal liveness fix-forward (2026-09-05)
+
+The attack dispatcher defect is corrected. After the existing `cmp #3` split,
+variant 2 still reaches the special handler, `DEC A / BEQ` routes variant 1
+to attack2, and variant 0 falls through to attack1; variants 3 and above
+retain the shared higher-variant path. This fixes the prior `CMP #2 / BEQ /
+BNE attack2` defect that made attack1 unreachable. The production six-actor
+gate and dedicated attack2 gate pass JOE, YASHIRO (zero attack2 frames), and
+MOUSER cases. A RALF attack2 assertion in `game_g7_grab.py` still fails to
+land in its 40-frame poll and remains a focused verifier regression requiring
+follow-up; it is not waived.
+
+The observer index now switches to A16 before masking/shifting, making the
+ring index genuinely sixteen-bit. The ring is fully initialized in two
+32-byte writes. The hooked candidate is ROM
+`739FC08C92A2352150FCEA2B7F6254E77629223584DD84641250686EF9FDE888` with
+MSU `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The hook-disabled ordinary build is ROM
+`3484B4ACC8476131B356977EC31E0C4A7E99488607D45AF48C0D20FF9E3814A1`
+with the same MSU. Both builds pass the bank-0 guard. The ordinary
+depth-sort regression, including jump/landing and crossover, passes.
+
+The corrected hooked short run gives actor 2 six created and six serviced
+timed streams with zero inferred cancellations; its prior attack-to-idle
+reset is absent. The continuous six-actor run is retained at
+`out/g12_six_actor_measurement_after_attackfix.json`: five non-player combat
+actors remain active in all 600 samples, frame advances are
+`[61,79,96,63,82,46]`, maximum inferred waits are `[1,2,3,5,4,4]`, NMI
+delta is 600 with zero overruns, and DMA high-water is 8 records/856 bytes.
+Event-3 records confirm accepted-upload boundaries, but exact per-actor
+completed-VRAM accounting remains limited by the bounded sampled ring;
+`confirmed_busy_denials` remains JSON null. Logical frame changes are not
+claimed as completed VRAM uploads.
+
+The added-slot production gate passes spawn, OAM/VRAM/palette ownership,
+combat, break/reveal/collection, reuse, slot-5 last-enemy clear, camera
+travel, and next-stage transition. No transport, fairness, cache, two-player,
+or audio redesign was made. The remaining explicit issue is the RALF
+attack2 verifier failure; the six-actor measurement is evidence, not final
+acceptance until that regression is classified.

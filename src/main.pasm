@@ -4698,7 +4698,12 @@ Anim_Play_Attack__not_new_slot:
 .a8
     cmp #2
     beq Anim_Play_Special__jsl
-    bne Anim_Play_Attack2__advance
+    dec a
+    beq Anim_Play_Attack2__advance
+    ; Variant 0 is attack1. Variants >=3 were diverted above; retaining
+    ; this explicit fall-through keeps the special and higher-variant routes
+    ; distinct instead of making attack1 unreachable.
+Anim_Play_Attack__attack1:
 
     lda CHAR_FRAME_INDEX
     inc a

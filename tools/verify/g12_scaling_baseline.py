@@ -185,6 +185,7 @@ def main():
         m.write_u8(ANIM_TRACE_INDEX, 0)
         m.write_u8(ANIM_TRACE_OVERFLOW, 0)
         m.write_memory("snesMemory", ANIM_TRACE_RING, "00" * 32)
+        m.write_memory("snesMemory", ANIM_TRACE_RING + 32, "00" * 32)
         if args.production_six:
             # Reuse the production verifier's actual SpawnTable_Wram records
             # and Spawn_Play path.  This is a fresh measurement fixture, not
