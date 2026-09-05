@@ -1466,7 +1466,7 @@ Character_HitApply_VsEntityGeneric__dx_have:
     bra Character_HitApply_VsEntityGeneric__dy_have
 Character_HitApply_VsEntityGeneric__dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l $7E0a00,x
 Character_HitApply_VsEntityGeneric__dy_have:
     cmp #CHAR_HITBOX_H
     bcs Character_HitApply_VsEntityGeneric__no
@@ -2777,4 +2777,55 @@ Audio_FrameSoundDispatch__done:
     ply
     plx
     plp
+    rtl
+
+; Extra bounded actor timer maintenance lives in this bank to keep the
+; bank-0 gameplay loop within its fixed NMI header window. This is the same
+; per-frame decrement policy used by slots 1-3; only slots 4/5 are handled
+; here because the established four-actor path remains unchanged.
+Game_State_TickExtraActorTimers:
+    php
+    sep #$20
+.a8
+    lda.l Entity4_InvulnFrames
+    beq Game_State_TickExtraActorTimers__i4
+    dec a
+    sta.l Entity4_InvulnFrames
+Game_State_TickExtraActorTimers__i4:
+    lda.l Entity5_InvulnFrames
+    beq Game_State_TickExtraActorTimers__k4
+    dec a
+    sta.l Entity5_InvulnFrames
+Game_State_TickExtraActorTimers__k4:
+    lda.l Entity4_KnockdownTimer
+    beq Game_State_TickExtraActorTimers__k5
+    dec a
+    sta.l Entity4_KnockdownTimer
+Game_State_TickExtraActorTimers__k5:
+    lda.l Entity5_KnockdownTimer
+    beq Game_State_TickExtraActorTimers__done
+    dec a
+    sta.l Entity5_KnockdownTimer
+Game_State_TickExtraActorTimers__done:
+    plp
+    rtl
+
+Game_State_AnyActorAlive:
+    sep #$20
+.a8
+    lda.l $7E0AA8
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0B2D
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0BB2
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0C37
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0CBC
+    beq Game_State_AnyActorAlive__none
+Game_State_AnyActorAlive__some:
+    sec
+    rtl
+Game_State_AnyActorAlive__none:
+    clc
     rtl

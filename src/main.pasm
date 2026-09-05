@@ -2663,6 +2663,8 @@ PlayerEntity_DpBase = $0a00        ; low16 of $7E0a00
 Entity1_DpBase      = $0a85        ; low16 of $7E0a00+133 ($85=133 dec)
 Entity2_DpBase      = $0b0a        ; low16 of $7E0a00+266 ($10a=266 dec)
 Entity3_DpBase      = $0b8f        ; low16 of $7E0a00+399 ($18f=399 dec)
+Entity4_DpBase      = $0c14        ; low16 of $7E0a00+532
+Entity5_DpBase      = $0c99        ; low16 of $7E0a00+665
 ; G7 throw slice: these 3 literals are THE hand-synced site that broke
 ; silently when CHAR_ZP_LEN grew 67->71 for CHAR_THROW_ZPOS/ZVEL -- found
 ; the hard way via phase11_damage.py/game_g7_knockdown.py both losing
@@ -2742,13 +2744,33 @@ Entity3_PaletteBaseHi = Entity3_Base + 51 ; Entity #3's CHAR_PALETTE_BASE_HI
 Entity3_MapIndex      = Entity3_Base + 52 ; Entity #3's CHAR_MAP_INDEX
 Entity3_MapBaseLo     = Entity3_Base + 53 ; Entity #3's CHAR_MAP_BASE_LO
 Entity3_MapBaseHi     = Entity3_Base + 55 ; Entity #3's CHAR_MAP_BASE_HI
+Entity4_Base    = $7E0a00 + 532
+Entity4_PosX    = Entity4_Base + 4
+Entity4_PosXHi  = Entity4_Base + 5
+Entity4_PosY    = Entity4_Base + 6
+Entity4_FacingLeft = Entity4_Base + 8
+Entity4_Hp      = Entity4_Base + 35
+Entity4_KnockdownTimer = Entity4_Base + 47
+Entity4_InputDriven = Entity4_Base + 15
+Entity4_PickupType = Entity4_Base + 127
+Entity4_ItemRosterIdx = Entity4_Base + 128
+Entity4_IsBoss  = $7E58B6
+Entity5_Base    = $7E0a00 + 665
+Entity5_PosX    = Entity5_Base + 4
+Entity5_PosXHi  = Entity5_Base + 5
+Entity5_PosY    = Entity5_Base + 6
+Entity5_FacingLeft = Entity5_Base + 8
+Entity5_Hp      = Entity5_Base + 35
+Entity5_KnockdownTimer = Entity5_Base + 47
+Entity5_InputDriven = Entity5_Base + 15
+Entity5_PickupType = Entity5_Base + 127
+Entity5_ItemRosterIdx = Entity5_Base + 128
+Entity5_IsBoss  = $7E58B7
 
 ; One authoritative bounded actor count for the gameplay paths. Slot 0 is
 ; always the player; the target table is deliberately separate from roster,
 ; OAM, and VRAM allocation indices.
-CHARACTER_ACTOR_COUNT = 4
-Character_ActorTargetOffsets:
-    .dw CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3
+CHARACTER_ACTOR_COUNT = 6
 
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
@@ -3443,12 +3465,12 @@ JumpAttack2BaseTmpHi = $7E27D9  ; .db
 ; comment). All bytes, no struct growth (see struct_growth_regression_root_
 ; cause project memory for why CHAR_ZP_LEN growth is dangerous) -- this is
 ; global per-frame scratch, not per-instance state.
-Depth_Y              = $7E27DB  ; .db x4 (27DB-27DE) -- ground Y, index = entity id
-Depth_Used           = $7E27DF  ; .db x4 (27DF-27E2) -- FindMax scratch
-Depth_BestVal        = $7E27E3  ; .db -- FindMax scratch
-Depth_BestIdx        = $7E27E4  ; .db -- FindMax scratch
-Depth_BestFound      = $7E27E5  ; .db -- FindMax scratch
-Depth_RenderOrder    = $7E27E6  ; .db x4 (27E6-27E9) -- PUBLIC: front-to-back entity id order
+Depth_Y              = $7E27DB  ; .db x6 -- ground Y, index = entity id
+Depth_Used           = $7E27E1  ; .db x6 -- FindMax scratch
+Depth_BestVal        = $7E27E7  ; .db -- FindMax scratch
+Depth_BestIdx        = $7E27E8  ; .db -- FindMax scratch
+Depth_BestFound      = $7E27E9  ; .db -- FindMax scratch
+Depth_RenderOrder    = $7E27EA  ; .db x6 -- PUBLIC: front-to-back entity id order
 
 ; --- G7 content-audit slice: the 12 new-slot fcount/delay bytes and the 7
 ; atchain/chainlength bytes are written STRAIGHT to their own DP fields at
@@ -4981,7 +5003,7 @@ Msu1_LoadFrame:
     asl a
     asl a
     asl a
-    asl a                       ; a = CHAR_TILE_COLUMN * 128
+    asl a
     sta CHAR_TILE_BYTE_OFFSET
 
     sep #$20
@@ -7650,6 +7672,16 @@ CharacterEntity_Init:
 CharacterEntity_Init__role3:
     sep #$20
 .a8
+    ; Roles 3-5 share the AI initialization path. Their physical OBJ
+    ; columns are 3, 32, and 33 respectively; role 4/5 are dormant until
+    ; production spawning supplies their position and HP.
+    sta CHAR_PALETTE_SLOT
+    cmp #4
+    bcc CharacterEntity_Init__role3_lower_tile
+    clc
+    adc #28
+CharacterEntity_Init__role3_lower_tile:
+    sta CHAR_TILE_COLUMN
     lda #120                        ; [120,152) x [40,104) -- clear of the
     sta CHAR_POS_X                  ; player's [120,152) x [150,214) (same
     stz CHAR_POS_X_HI                ; CHAR_POS_X is .dw (Phase 8, world X) --
@@ -7662,9 +7694,6 @@ CharacterEntity_Init__role3:
     sta CHAR_POS_Y                  ; 64px sprite height)
     lda #2
     sta CHAR_INPUT_DRIVEN
-    lda #3
-    sta CHAR_PALETTE_SLOT
-    sta CHAR_TILE_COLUMN
     bra CharacterEntity_Init__load
 CharacterEntity_Init__role2:
     ; --- role 2: AI-seeking, own palette slot 2 / tile-column-slice 2.
@@ -11505,6 +11534,19 @@ msu1_done:
     tay
     lda #$0303               ; init param -- role 3 (high byte), roster
                               ; slot 3 / Yashiro (low byte)
+    jsr Core_Oop_Create
+    jsr Core_Dma_ProcessQueue
+
+    lda.l CharacterClassId
+    and #$00ff
+    tay
+    lda #$0404
+    jsr Core_Oop_Create
+    jsr Core_Dma_ProcessQueue
+    lda.l CharacterClassId
+    and #$00ff
+    tay
+    lda #$0505
     jsr Core_Oop_Create
     jsr Core_Dma_ProcessQueue
 

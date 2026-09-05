@@ -71,6 +71,10 @@ Depth_Sort_ComputeOrder:
     sta.l Depth_Y+2
     lda.l Entity3_PosY
     sta.l Depth_Y+3
+    lda.l Entity4_PosY
+    sta.l Depth_Y+4
+    lda.l Entity5_PosY
+    sta.l Depth_Y+5
     ; `lda #0 / sta.l` instead of `stz.l`/`stz.w` -- STZ has no long
     ; addressing mode on 65816 at all, and no long-form-fitting bare/`.w`
     ; form either for a $7Exxxx-valued symbol (measured: both hard-error
@@ -81,6 +85,8 @@ Depth_Sort_ComputeOrder:
     sta.l Depth_Used+1
     sta.l Depth_Used+2
     sta.l Depth_Used+3
+    sta.l Depth_Used+4
+    sta.l Depth_Used+5
 
     ; Selection sort, descending: 4 passes, each picks the largest
     ; not-yet-used Y and appends its entity id to Depth_RenderOrder. N=4
@@ -109,8 +115,19 @@ Depth_Sort_ComputeOrder:
 
     jsr Depth_Sort_ComputeOrder__FindMax
     sta.l Depth_RenderOrder+3
-    ; last slot -- no need to mark used, nothing reads Depth_Used again
-    ; until next frame's Depth_Sort_ComputeOrder call re-zeroes it.
+    tax
+    lda #1
+    sta.l Depth_Used,x
+    jsr Depth_Sort_ComputeOrder__FindMax
+    sta.l Depth_RenderOrder+4
+    tax
+    lda #1
+    sta.l Depth_Used,x
+    jsr Depth_Sort_ComputeOrder__FindMax
+    sta.l Depth_RenderOrder+5
+    tax
+    lda #1
+    sta.l Depth_Used,x
 
     plp
     rtl
@@ -159,7 +176,7 @@ Depth_Sort_ComputeOrder__FindMax__compare:
 Depth_Sort_ComputeOrder__FindMax__skip:
 .i8
     inx
-    cpx #4
+    cpx #6
     bcc Depth_Sort_ComputeOrder__FindMax__loop
 
     lda.l Depth_BestIdx
@@ -174,9 +191,12 @@ Depth_Sort_ComputeOrder__FindMax__skip:
 ; label" in CLAUDE.md's toolchain section for why `.l` is required and
 ; confirmed working here).
 EntityDpBaseTable:
-    .dw PlayerEntity_DpBase, Entity1_DpBase, Entity2_DpBase, Entity3_DpBase
+    .dw PlayerEntity_DpBase, Entity1_DpBase, Entity2_DpBase, Entity3_DpBase, Entity4_DpBase, Entity5_DpBase
 
 ; ============================================================================
+Character_ActorTargetOffsets:
+    .dw CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3, CHAR_ZP_LEN*4, CHAR_ZP_LEN*5
+
 ; Character_RenderPass -- Actor depth-sort slice (plan_game.md 7, sixth
 ; slice). Emits this frame's OAM entries for all 4 fixed entity slots in
 ; real ground-depth order (front-to-back == descending CHAR_POS_Y), instead
@@ -261,7 +281,7 @@ Character_RenderPass__loop:
     pld
     plx                            ; restore outer loop counter
     inx
-    cpx #4
+    cpx #6
     bcc Character_RenderPass__loop
 
     plp

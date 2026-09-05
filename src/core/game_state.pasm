@@ -705,6 +705,7 @@ Game_State_Play__invuln2_done:
     dec a
     sta.l Entity3_InvulnFrames
 Game_State_Play__invuln3_done:
+    jsl Game_State_TickExtraActorTimers
     ; plan_game.md G7 knockdown slice: tick each AI entity's knockdown-regen
     ; timer down once per frame too, same unconditional-if-nonzero shape --
     ; real OpenBOR's knockdowntime is a free-running borTime deadline, not
@@ -735,10 +736,8 @@ Game_State_Play__kdtimer3_done:
     lda.l Spawn_Index
     cmp.l Spawn_Count
     bcc Game_State_Play__stage_no_win_a8
-    lda.l Entity1_Hp
-    ora.l Entity2_Hp
-    ora.l Entity3_Hp
-    bne Game_State_Play__stage_no_win_a8
+    jsl Game_State_AnyActorAlive
+    bcs Game_State_Play__stage_no_win_a8
     lda #1
     sta.l Stage_Cleared
     rep #$31

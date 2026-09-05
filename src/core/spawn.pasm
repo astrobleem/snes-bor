@@ -345,6 +345,7 @@ Spawn_SavedCharSelectIndex = $7E58AA ; .db -- real bug found+fixed
 Entity1_ItemRosterIdx = $7E58AB  ; .db
 Entity2_ItemRosterIdx = $7E58AC  ; .db
 Entity3_ItemRosterIdx = $7E58AD  ; .db
+Spawn_ScratchSlotOfs = $7E58AF   ; .dw -- selected actor byte offset
 Spawn_ScratchItemRosterIdx = $7E58AE ; .db -- captured record+8 (item_roster_
                                    ; idx), this record's own decode scratch,
                                    ; parallel to Spawn_ScratchRosterIdx below
@@ -492,6 +493,8 @@ Spawn_Init:
     sta.l Entity1_IsBoss
     sta.l Entity2_IsBoss
     sta.l Entity3_IsBoss
+    sta.l Entity4_IsBoss
+    sta.l Entity5_IsBoss
 
     ; --- seek to this stage's spawn blob (Spawn_MsuOffsetLo/Hi, already
     ; populated by Bg_LoadScene) ---
@@ -615,7 +618,9 @@ Spawn_Play:
     ; ever restores what Stage_ApplyWinClamp already computed, never a
     ; separately-derived value. ---
     lda.l Spawn_Waiting
-    beq Spawn_Play__wait_check_done
+    bne Spawn_Play__wait_release_active
+    brl Spawn_Play__wait_check_done
+Spawn_Play__wait_release_active:
     lda #0
     sta.l Spawn_ScratchEnemyCount
     lda.l Entity1_Hp
@@ -649,6 +654,24 @@ Spawn_Play__wc_slot3:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__wc_sum_done:
+    lda.l Entity4_Hp
+    beq Spawn_Play__wc_slot5
+    lda.l Entity4_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_slot5
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__wc_slot5:
+    lda.l Entity5_Hp
+    beq Spawn_Play__wc_sum_done6
+    lda.l Entity5_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_sum_done6
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__wc_sum_done6:
     sep #$20
 .a8
     lda.l Spawn_ScratchEnemyCount
@@ -718,6 +741,24 @@ Spawn_Play__gc_slot3:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__gc_sum_done:
+    lda.l Entity4_Hp
+    beq Spawn_Play__gc_slot5
+    lda.l Entity4_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_slot5
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__gc_slot5:
+    lda.l Entity5_Hp
+    beq Spawn_Play__gc_sum_done6
+    lda.l Entity5_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_sum_done6
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_Play__gc_sum_done6:
     lda.l Spawn_ScratchEnemyCount
     cmp.l Spawn_GroupMin
     bcc Spawn_Play__group_ok        ; EnemyCount < GroupMin -- proceed
@@ -902,8 +943,26 @@ Spawn_Play__find_slot_check3:
     ; CHAR_INPUT_DRIVEN/HP) past this chain's original beq range -- jmp has
     ; no such limit, same fix as game_state.pasm's own G5 dispatch chain.
     lda.l Entity3_Hp
-    bne Spawn_Play__find_slot_none
+    bne Spawn_Play__find_slot_check4
     jmp Spawn_Play__slot3
+Spawn_Play__find_slot_check4:
+    lda.l Entity4_Hp
+    bne Spawn_Play__find_slot_check5
+    rep #$30
+.a16
+.i16
+    lda #CHAR_ZP_LEN*4
+    tax
+    jmp Spawn_Play__slot45
+Spawn_Play__find_slot_check5:
+    lda.l Entity5_Hp
+    bne Spawn_Play__find_slot_none
+    rep #$30
+.a16
+.i16
+    lda #CHAR_ZP_LEN*5
+    tax
+    jmp Spawn_Play__slot45
 Spawn_Play__find_slot_none:
     plp
     rtl                         ; no free slot -- record stays pending
@@ -1612,6 +1671,294 @@ Spawn_Play__slot3_not_boss:
 .a8
 Spawn_Play__slot3_no_restore:
 
+; Slots 4 and 5 share this indexed spawn path. It deliberately writes the
+; common CharacterEntity fields through the selected object's DP window and
+; keeps slot/roster/OAM/VRAM identity separate. The older slot-specific
+; routines remain the four-actor compatibility path while this bounded path
+; proves the added slots use the same spawn kinds and map application.
+Spawn_Play__slot45:
+    txa
+    sta.l Spawn_ScratchSlotOfs
+    phd
+    phb
+    sep #$20
+.a8
+    lda #$7E
+    pha
+    plb
+    txa
+    clc
+    adc #$0A00
+    tcd
+    rep #$30
+.a16
+.i16
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
+    tax
+    sep #$20
+.a8
+    jsl Spawn_ResetKnockdownFall
+    sep #$20
+.a8
+    lda.l Spawn_ScratchX
+    sta CHAR_POS_X
+    stz CHAR_POS_X_HI
+    lda.l Spawn_ScratchY
+    sta CHAR_POS_Y
+    lda.l Spawn_ScratchFacing
+    sta CHAR_FACING_LEFT
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_prop
+    lda #CHAR_INPUT_DRIVEN_AI
+    sta CHAR_INPUT_DRIVEN
+    lda.l Spawn_ScratchHp
+    sta CHAR_HP
+    stz CHAR_PICKUP_TYPE
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
+    cmp #CHAR_ZP_LEN*4
+    bne Spawn_Play__slot45_clear_item5
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity4_ItemRosterIdx
+    bra Spawn_Play__slot45_common
+Spawn_Play__slot45_clear_item5:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity5_ItemRosterIdx
+    bra Spawn_Play__slot45_common
+Spawn_Play__slot45_prop:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_PROP
+    sta CHAR_INPUT_DRIVEN
+    lda #CHAR_HP_PER_HIT
+    sta CHAR_HP
+    lda.l Spawn_ScratchPickupType
+    sta CHAR_PICKUP_TYPE
+    ; The contained item identity is per actor slot, not the loaded roster
+    ; identity. Keep it in the same standalone metadata cells used by slots
+    ; 1-3 so reveal/slot reuse cannot leak it.
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
+    tax
+    sep #$20
+.a8
+    lda.l Spawn_ScratchItemRosterIdx
+    cpx #CHAR_ZP_LEN*4
+    bne Spawn_Play__slot45_item5
+    sta.l Entity4_ItemRosterIdx
+    bra Spawn_Play__slot45_common
+Spawn_Play__slot45_item5:
+    sta.l Entity5_ItemRosterIdx
+Spawn_Play__slot45_common:
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    cmp #CHAR_ZP_LEN*4
+    bne Spawn_Play__slot45_boss5
+    lda #0
+    sta.l Entity4_IsBoss
+    bra Spawn_Play__slot45_boss_done
+Spawn_Play__slot45_boss5:
+    lda #0
+    sta.l Entity5_IsBoss
+Spawn_Play__slot45_boss_done:
+    sep #$20
+.a8
+    lda #$FF
+    sta CHAR_GRAB_TARGET
+    sta CHAR_GRABBED_BY
+    stz CHAR_GRAB_TIMER
+    stz CHAR_GRAB_OFFSET
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_BOSS
+    beq Spawn_Play__slot45_mark_boss
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    bne Spawn_Play__slot45_boss_mark_done
+Spawn_Play__slot45_mark_boss:
+    lda.l Spawn_ScratchSlotOfs
+    cmp #CHAR_ZP_LEN*4
+    bne Spawn_Play__slot45_mark_boss5
+    lda #1
+    sta.l Entity4_IsBoss
+    bra Spawn_Play__slot45_boss_mark_done
+Spawn_Play__slot45_mark_boss5:
+    lda #1
+    sta.l Entity5_IsBoss
+Spawn_Play__slot45_boss_mark_done:
+    ; The selected OopDp window is useful to the shared reset helper, but
+    ; this spawn entry is also reachable from the bank-3 scheduler with DBR
+    ; changed by a preceding palette/reassignment call.  Commit the complete
+    ; spawn state through explicit long indexed WRAM writes so the lifetime
+    ; contract cannot depend on the caller's direct-page mirror state.
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l Spawn_ScratchX
+    sta.l $7E0a00,x
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_POS_Y
+    tax
+    sep #$20
+.a8
+    lda.l Spawn_ScratchY
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_FACING_LEFT
+    tax
+    sep #$20
+.a8
+    lda.l Spawn_ScratchFacing
+    sta.l $7E0a00,x
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_long_prop
+    lda #CHAR_INPUT_DRIVEN_AI
+    bra Spawn_Play__slot45_long_mode
+Spawn_Play__slot45_long_prop:
+    lda #CHAR_INPUT_DRIVEN_PROP
+Spawn_Play__slot45_long_mode:
+    pha
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_INPUT_DRIVEN
+    tax
+    sep #$20
+.a8
+    pla
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_HP
+    tax
+    sep #$20
+.a8
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_long_prop_hp
+    lda.l Spawn_ScratchHp
+    bra Spawn_Play__slot45_long_hp
+Spawn_Play__slot45_long_prop_hp:
+    lda #CHAR_HP_PER_HIT
+Spawn_Play__slot45_long_hp:
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_PICKUP_TYPE
+    tax
+    sep #$20
+.a8
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_long_prop_pickup
+    lda #0
+    bra Spawn_Play__slot45_long_pickup
+Spawn_Play__slot45_long_prop_pickup:
+    lda.l Spawn_ScratchPickupType
+Spawn_Play__slot45_long_pickup:
+    sta.l $7E0a00,x
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_long_links
+    lda.l Spawn_ScratchSlotOfs
+    cmp #CHAR_ZP_LEN*4
+    bne Spawn_Play__slot45_long_clear_item5
+    lda #0
+    sta.l Entity4_ItemRosterIdx
+    bra Spawn_Play__slot45_long_links
+Spawn_Play__slot45_long_clear_item5:
+    lda #0
+    sta.l Entity5_ItemRosterIdx
+Spawn_Play__slot45_long_links:
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_GRAB_TARGET
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_GRABBED_BY
+    tax
+    sep #$20
+.a8
+    lda #$FF
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_GRAB_TIMER
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l $7E0a00,x
+    rep #$20
+.a16
+    lda.l Spawn_ScratchSlotOfs
+    clc
+    adc #CHAR_GRAB_OFFSET
+    tax
+    sep #$20
+.a8
+    sta.l $7E0a00,x
+    sep #$20
+.a8
+    ; A slot-4/5 ordinary spawn retains its initialized roster art. Props
+    ; and bosses use the established gated reassignment helper.
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    beq Spawn_Play__slot45_reassign
+    cmp #SPAWN_KIND_BOSS
+    beq Spawn_Play__slot45_reassign
+    cmp #SPAWN_KIND_BOSS_IDENTIFIED
+    bne Spawn_Play__slot45_done
+Spawn_Play__slot45_reassign:
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
+    tax
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+Spawn_Play__slot45_done:
+    pld
+    plb
+    jmp Spawn_Play__advance
+
 Spawn_Play__advance:
     sep #$20
 .a8
@@ -1781,13 +2128,37 @@ Spawn_RevealPendingItems__check3:
 .a8
     lda.l Entity3_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
-    bne Spawn_RevealPendingItems__done
+    bne Spawn_RevealPendingItems__check4
     lda.l Entity3_Hp
     cmp #1
-    bne Spawn_RevealPendingItems__done
+    bne Spawn_RevealPendingItems__check4
     lda.l Entity3_ItemRosterIdx
-    beq Spawn_RevealPendingItems__done
+    beq Spawn_RevealPendingItems__check4
     ldx #CHAR_ZP_LEN*3
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check4:
+    lda.l Entity4_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__check5
+    lda.l Entity4_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__check5
+    lda.l Entity4_ItemRosterIdx
+    beq Spawn_RevealPendingItems__check5
+    ldx #CHAR_ZP_LEN*4
+    jsr Spawn_RevealPendingItems__do
+    bra Spawn_RevealPendingItems__done
+Spawn_RevealPendingItems__check5:
+    lda.l Entity5_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity5_Hp
+    cmp #1
+    bne Spawn_RevealPendingItems__done
+    lda.l Entity5_ItemRosterIdx
+    beq Spawn_RevealPendingItems__done
+    ldx #CHAR_ZP_LEN*5
     jsr Spawn_RevealPendingItems__do
 Spawn_RevealPendingItems__done:
     plp
@@ -1853,8 +2224,22 @@ Spawn_RevealPendingItems__do__not1:
     rts
 Spawn_RevealPendingItems__do__not2:
 .a8
+    cpx #CHAR_ZP_LEN*4
+    bne Spawn_RevealPendingItems__do__not4
+    lda #0
+    sta.l Entity4_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not4:
+    cpx #CHAR_ZP_LEN*5
+    bne Spawn_RevealPendingItems__do__not5
+    lda #0
+    sta.l Entity5_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not5:
     lda #0
     sta.l Entity3_ItemRosterIdx
+    sta.l Entity4_ItemRosterIdx
+    sta.l Entity5_ItemRosterIdx
     rts
 Spawn_RevealPendingItems__do__busy:
     pla

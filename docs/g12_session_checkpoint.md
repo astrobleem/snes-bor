@@ -237,3 +237,21 @@ The AI invulnerability bytes were moved to a contiguous indexed block at
 later six-actor extension. Four-actor validation passed `phase5.py`,
 `phase11_damage.py`, `game_g8_props.py`, `game_g7_depth_sort.py`, and
 `game_g7_grab.py`. Six-actor behavior and VRAM mapping are still NONCLAIM.
+
+## G12 entity-capacity continuation — six-slot implementation in progress
+
+The bounded actor count is now 6 while retaining player slot 0, the existing
+CharacterEntity struct, single staging buffer, and single-buffer animation
+transport. Six OOP instances are allocated in the existing boot path; slots
+4 and 5 remain dormant until Spawn_Play claims them. Their physical OBJ
+columns are 32 and 33, mapping to OAM base tiles $80/$84 and first-row VRAM
+byte addresses $9000/$9080; slots 0-3 retain $8000/$8080/$8100/$8180.
+Depth sorting and the DP-base table are bounded at six entries.
+
+The added spawn path is shared by slots 4/5 and writes through the selected
+object's DP window. Wait/group enemy counting, stage-clear alive checks,
+extra timer maintenance, and pending-item reveal traversal now include the
+added slots. This remains implementation work only: real six-actor
+production-spawn proof, slot-4/5 combat/death/reuse proof, complete VRAM and
+palette validation, and >=600-frame service measurements are pending. No
+transport or cache experiment is part of this slice.
