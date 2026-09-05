@@ -2779,6 +2779,10 @@ G12_StageTrace_Hp5 = $7E58C6
 G12_StageTrace_Carry = $7E58C7
 Entity5_IsBoss  = $7E58B7
 
+; Bounded G12 animation-service observation.  This is a last-event latch,
+; not a scheduler or queue: the verifier samples it immediately after a
+; short exact-frame interval.  Event 1=Anim_Play entry, 2=busy rejection,
+
 ; One authoritative bounded actor count for the gameplay paths. Slot 0 is
 ; always the player; the target table is deliberately separate from roster,
 ; OAM, and VRAM allocation indices.

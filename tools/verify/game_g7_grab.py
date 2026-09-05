@@ -323,6 +323,22 @@ def main():
             max_frames=180)
         r.check('entity1 resumes independent behavior after release', resumed)
 
+        # Invalid slot IDs must take Character_Grab_Play's guarded cleanup
+        # path in A8.  Exercise both values that are outside the six-slot
+        # resolver domain and protect adjacent entity state from an over-wide
+        # store.  $FF remains the ordinary no-grab sentinel and is covered by
+        # the normal release checks above.
+        for invalid_id in (6, 0xFE):
+            m.write_u8(PlayerEntity + CHAR_GRABBED_BY, invalid_id)
+            sentinel_timer = 37
+            m.write_u8(PlayerEntity + CHAR_GRAB_TIMER, sentinel_timer)
+            run_frames_exact(m, 2)
+            after_invalid = entity_block(m, PlayerEntity)
+            r.check(f'invalid grabber slot ID ${invalid_id:02X} clears link in A8',
+                    after_invalid[CHAR_GRABBED_BY] == 0xFF)
+            r.check(f'invalid grabber slot ID ${invalid_id:02X} preserves neighboring timer',
+                    after_invalid[CHAR_GRAB_TIMER] == sentinel_timer)
+
         # --- 6. Regression: RALF's attack2 (upper) is unchanged instant damage. ---
         # Never hardcode a press count that assumes a specific roster size
         # (see phase5.py's own docstring on this class of drift) -- read the

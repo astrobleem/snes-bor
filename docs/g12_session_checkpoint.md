@@ -404,3 +404,19 @@ service-entry/early-return/accepted-upload event counts. Pending initial
 frames are retained as `pending_initial_frame`, so actors 2 and 3 are not
 silently treated as legitimate non-streaming actors. No transport or fairness
 change is claimed in this checkpoint.
+
+## G12 invalid-link contract fix-forward (2026-09-05)
+
+`Character_Grab_Play__release_invalid` now executes `SEP #$20` before its
+byte cleanup. The focused `game_g7_grab.py` gate injected invalid IDs `$06`
+and `$FE` through the production follow path; both cleared to `$FF` while
+preserving the adjacent grab timer. The ordinary `$FF` no-grab path, original
+slot grab/follow/release, AI grab, and the complete player/AI throw gate all
+pass on the rebuilt candidate.
+
+An attempted last-event service latch was rejected by the fixed bank-$00
+layout guard (19 bytes over the `$FC00` boundary) and removed without
+changing gameplay. The six-actor trace's
+`inferred_nonprogress_while_due` values therefore remain inferred snapshot
+statistics; confirmed busy-branch counts and direct service-boundary event
+records remain unmeasured. No fairness correction is justified yet.

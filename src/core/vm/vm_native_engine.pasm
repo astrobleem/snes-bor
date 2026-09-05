@@ -2011,6 +2011,7 @@ Character_Grab_Play__done:
 .a8
     rtl
 Character_Grab_Play__release_invalid:
+    sep #$20
 .a8
     lda #$FF
     sta CHAR_GRABBED_BY
