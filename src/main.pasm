@@ -4152,6 +4152,10 @@ Anim_Play__not_attacking:
     ; (attack) on the very next frame after Character_HitApply__ApplyDamage
     ; set it to 3 (fall) -- found by this slice's own gate never seeing
     ; CHAR_SELECTED settle on FALL/RISE at all.
+    ; The preceding grab-target gate leaves A holding a slot ID when the
+    ; entity is a grabber.  Reaction tests must always inspect the entity's
+    ; animation state, never that link ID.
+    lda CHAR_SELECTED
     cmp #CHAR_SELECTED_FALL
     bne Anim_Play__not_riseattack_check
     ; G7 content-audit slice: real player_lie_check() (DCurrent/openbor

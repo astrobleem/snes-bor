@@ -1136,6 +1136,7 @@ GRAB_HOLD_FRAMES = 240  ; ~4s @ 60fps before auto-release -- bumped from
 ; old offset representation fit slots 0/1 only; higher offsets were silently
 ; truncated by the one-byte fields.  $FF remains the none sentinel.
 Character_Grab_OffsetToSlot:
+    rep #$30
 .a16
 .i16
     cmp #0
@@ -1185,25 +1186,30 @@ Character_Grab_OffsetToSlot__done:
     rts
 
 Character_Grab_SlotToOffset:
-.a8
-    cmp #CHARACTER_ACTOR_COUNT
-    bcs Character_Grab_SlotToOffset__invalid
+    ; Runtime contract: callers may enter in either width.  The resolver
+    ; always returns A16/I16, with carry set only for a valid slot ID.
     rep #$30
 .a16
 .i16
     and #$00FF
+    cmp #CHARACTER_ACTOR_COUNT
+    bcs Character_Grab_SlotToOffset__invalid
     asl a
     tax
     lda.l EntityOffsetTable,x
     sec
     rts
 Character_Grab_SlotToOffset__invalid:
-.a8
     lda #0
-    rep #$20
-.a16
     clc
     rts
+
+; Bank-$08 callers must use this entry: the resolver above is RTS-terminated
+; and lives in bank $0C.  Keep the actual resolver same-bank for bank-$0C
+; callers, while providing a proper long-call boundary for external banks.
+Character_Grab_SlotToOffset_Long:
+    jsr Character_Grab_SlotToOffset
+    rtl
 
 ; ============================================================================
 ; Character_HitApply__TryGrabVsPlayer -- AI-vs-player grab-establish check.

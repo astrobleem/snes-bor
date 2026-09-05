@@ -92,7 +92,7 @@ PlayerEntity = ENTITY_BASES[0]
 Entity1 = ENTITY_BASES[1]
 Entity2 = ENTITY_BASES[2]
 Entity3 = ENTITY_BASES[3]
-Entity1_ByteOff = CHAR_ZP_LEN
+Entity1_Slot = 1
 
 CharSelect_Index = 0x7E53B6
 CharSelect_Loaded = 0x7E53B8
@@ -555,13 +555,11 @@ def main():
         m.write_u8(PlayerEntity + CHAR_HP, CHAR_HP_MAX)
         m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
         overlap_entity_with_player(m, Entity1)
-        # Entity1 is the grabber: its own CHAR_GRAB_TARGET holds the
-        # player's byte offset (0); the player's CHAR_GRABBED_BY holds
-        # Entity1's real byte offset -- same convention as game_g7_grab.py's
-        # own AI-grab section (test 7 there), reversed from every player-
-        # initiated grab in this file.
+        # Entity1 is the grabber: both link fields hold bounded actor slot IDs
+        # (the player's ID is 0, Entity1's ID is 1), resolved through the
+        # shared actor-offset table by production code.
         m.write_u8(Entity1 + CHAR_GRAB_TARGET, 0)
-        m.write_u8(PlayerEntity + CHAR_GRABBED_BY, Entity1_ByteOff)
+        m.write_u8(PlayerEntity + CHAR_GRABBED_BY, Entity1_Slot)
 
         def still_holding_no_throw():
             overlap_entity_with_player(m, Entity1)

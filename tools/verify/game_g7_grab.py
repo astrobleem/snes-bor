@@ -26,8 +26,8 @@ Checks, all against a live Mesen2 session:
 1. Select the roster to JOE (2 Select presses from boot); confirm
    CHAR_ATTACK2_IS_GRAB reads 1 in WRAM.
 2. Overlap JOE with Entity1 (RALF) and press X: confirm the mutual link
-   (player's CHAR_GRAB_TARGET == Entity1's real byte offset, Entity1's
-   CHAR_GRABBED_BY == 0 i.e. the player's own byte offset) and that both
+   (player's CHAR_GRAB_TARGET == Entity1's actor slot ID, Entity1's
+   CHAR_GRABBED_BY == 0 i.e. the player's actor slot ID) and that both
    entities' CHAR_POS_X snapped to the real adjust_grabposition midpoint
    +/- GRAB_HALF_DIST, computed independently in this test from each
    entity's own pre-grab X read back from WRAM -- not asked of the engine.
@@ -196,7 +196,7 @@ def main():
               f'entity1.CHAR_GRABBED_BY={e1_grabbed_by}')
         r.check('cross-link: player.CHAR_GRAB_TARGET == entity1 actor slot ID',
                 player_grab_target == Entity1_Slot)
-        r.check('cross-link: entity1.CHAR_GRABBED_BY == player byte offset (0)',
+        r.check('cross-link: entity1.CHAR_GRABBED_BY == player actor slot ID (0)',
                 e1_grabbed_by == 0)
 
         # Ground truth: same overlap => mid == px_before, self_ge branch taken

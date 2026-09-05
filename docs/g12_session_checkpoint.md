@@ -358,3 +358,49 @@ AI grab, and RALF attack regression.
 before restoring the player's saved selection state and returns carry for
 success/failure. Reveal clears item metadata only after successful target
 load. The DBR=$00 contract remains unchanged.
+
+## G12 grab-contract fix-forward (2026-09-05)
+
+The current rebuilt candidate is `distribution/bor.sfc` SHA-256
+`DFC84B6271A10C0BBC726AF793577F22073F7271A175A91034668CE49DF77473` with
+`distribution/bor.msu` SHA-256
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:
+None; raise SystemExit(build_rom.main())"`.
+
+The three reviewed grab defects are corrected. Bank-$08 now calls the bank-$0C
+`Character_Grab_SlotToOffset_Long` RTL wrapper (`22 3A 8A 0C` at the rebuilt
+`Jump_PlayerInputGate__do_throw` call site). The resolver begins with runtime
+`REP #$30`, masks and validates the low-byte slot ID, returns A16/I16, and
+uses carry set/clear for valid/invalid results. `Anim_Play__not_attacking`
+reloads `CHAR_SELECTED` before fall/rise/thrown comparisons.
+
+The prior AI-throw failure was verifier contamination: `game_g7_throw.py`
+still wrote `CHAR_ZP_LEN` into the one-byte `CHAR_GRABBED_BY` field. It now
+writes actor slot ID 1. The complete production throw gate passes, including
+AI throw, landing, lethal throw, and post-throw control. `game_g7_grab.py`
+passes original-slot reciprocal grab/follow/release and AI-grab controls.
+
+Focused controls pass on the rebuilt candidate:
+
+- `game_g12_collision_boundaries.py`: original slot 1 and added slot 4,
+  symmetric vertical/horizontal inside, exact-edge, and outside cases.
+- `game_g7_depth_sort.py`: four-actor control and six-actor order/crossover.
+- `game_g12_six_actor_production.py`: production-spawned player plus five
+  live combat actors, added-slot combat/reveal/collection, slot reuse, and
+  slot-5 last-enemy stage transition.
+
+The continuous six-actor trace is retained at
+`out/g12_six_actor_measurement_current.json`. It contains six consecutive
+100-frame chunks in one session; five non-player combat actors were active in
+all 600 samples. NMI delta was 600 with zero overruns; DMA high-water was
+8 active records and 856 bytes. Frame changes were `[61, 62, 7, 9, 112, 66]`
+for slots 0..5; max inferred waits were `[1, 2, 1, 3, 3, 3]` frames.
+
+The trace's old retry statistic is now named
+`inferred_nonprogress_while_due`; it is not a confirmed `Msu1_StreamBusy`
+branch observation. Confirmed busy denials remain unmeasured, as are direct
+service-entry/early-return/accepted-upload event counts. Pending initial
+frames are retained as `pending_initial_frame`, so actors 2 and 3 are not
+silently treated as legitimate non-streaming actors. No transport or fairness
+change is claimed in this checkpoint.

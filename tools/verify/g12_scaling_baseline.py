@@ -273,7 +273,12 @@ def main():
                 waits[i].append(pending[i]["wait"])
         result["timed_due_requests"] = timed_requests
         result["successful_timed_streams"] = timed_streams
-        result["streambusy_denials_while_due"] = retries
+        # This observer samples state at frame boundaries; it does not see the
+        # branch in Anim_Play_* that reads Msu1_StreamBusy.  Keep this as an
+        # inferred nonprogress count until a CPU-side recorder observes that
+        # branch directly.
+        result["inferred_nonprogress_while_due"] = retries
+        result["confirmed_busy_denials"] = [0] * ACTOR_COUNT
         result["forced_frame_loads"] = forced_loads
         result["timed_requests_superseded_by_forced_load"] = superseded
         result["timed_requests_cancelled_by_nonstreaming_transition"] = cancelled

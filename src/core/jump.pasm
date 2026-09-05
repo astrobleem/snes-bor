@@ -1083,7 +1083,7 @@ Jump_PlayerInputGate__do_throw:
 .a16
 .i16
     lda CHAR_GRAB_TARGET
-    jsr Character_Grab_SlotToOffset
+    jsl Character_Grab_SlotToOffset_Long
     bcc Jump_PlayerInputGate__throw_invalid
     tax
     jsl Character_Grab_Throw
