@@ -344,6 +344,7 @@ Spawn_SavedCharSelectIndex = $7E58AA ; .db -- real bug found+fixed
 ; SavedCharSelectIndex above, the previous highest cell in this file).
 Spawn_SavedCharSelectLoaded = $7E58BA ; .db -- preserved player load gate
 Spawn_SavedCharSelectCount  = $7E58BB ; .db -- preserved player wrap bound
+Spawn_RosterLoadResult      = $7E58BC ; .db -- target loader result
 Entity1_ItemRosterIdx = $7E58AB  ; .db
 Entity2_ItemRosterIdx = $7E58AC  ; .db
 Entity3_ItemRosterIdx = $7E58AD  ; .db
@@ -1927,6 +1928,10 @@ Spawn_DoRosterReassign:
     sta.l CharSelect_Index
     sta CHAR_ROSTER_INDEX
     jsl Anim_LoadCharacter_Long
+    sep #$20
+.a8
+    lda.l CharSelect_Loaded
+    sta.l Spawn_RosterLoadResult
     ; ROOT CAUSE (animheaderstaging_shared_scratch_collision investigation,
     ; corrected): Anim_LoadCharacter's every exit path re-asserts .a16/.i16
     ; before its own rts (matches its "caller must be in .a16/.i16" header
@@ -1962,6 +1967,12 @@ Spawn_DoRosterReassign:
 .i16
     plb
     pld
+    lda.l Spawn_RosterLoadResult
+    beq Spawn_DoRosterReassign__failed
+    sec
+    rts
+Spawn_DoRosterReassign__failed:
+    clc
     rts
 
 ; ============================================================================
@@ -2094,6 +2105,7 @@ Spawn_RevealPendingItems__do:
                                   ; reproducible, not a race). Saved/
                                   ; restored across the call instead.
     jsr Spawn_DoRosterReassign
+    bcc Spawn_RevealPendingItems__do__load_failed
     plx
     sep #$20
 .a8
@@ -2136,6 +2148,9 @@ Spawn_RevealPendingItems__do__not4:
 Spawn_RevealPendingItems__do__not5:
     ; Invalid target offsets are rejected. Never clear another actor's
     ; metadata as a fallback for a corrupted/stale dispatch value.
+    rts
+Spawn_RevealPendingItems__do__load_failed:
+    plx
     rts
 Spawn_RevealPendingItems__do__busy:
     pla

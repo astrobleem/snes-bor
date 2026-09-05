@@ -1078,13 +1078,13 @@ Jump_PlayerInputGate__no_slide:
                                        ; follow-drag)
 Jump_PlayerInputGate__do_throw:
 .a8
-    ; X(16-bit) = CHAR_GRAB_TARGET, zero-extended -- the real byte offset
-    ; of whichever AI slot (1/2/3) this player is currently holding.
+    ; X(16-bit) = resolved CharacterEntity offset for the held actor slot ID.
     rep #$30
 .a16
 .i16
     lda CHAR_GRAB_TARGET
-    and #$00FF
+    jsr Character_Grab_SlotToOffset
+    bcc Jump_PlayerInputGate__throw_invalid
     tax
     jsl Character_Grab_Throw
     sep #$20
@@ -1105,6 +1105,13 @@ Jump_PlayerInputGate__throw_audio_done:
     lda #1                       ; this file's own jumpattack2 reuse)
     sta CHAR_TICK_COUNTER
     sec
+    rtl
+Jump_PlayerInputGate__throw_invalid:
+.a16
+.i16
+    sep #$20
+.a8
+    clc
     rtl
 Jump_PlayerInputGate__not_grabbing:
 .a8

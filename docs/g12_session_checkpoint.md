@@ -331,3 +331,30 @@ The current VRAM helper still uses bounded candidate-frame snapshot matching,
 not a newly latched source/staging/queue identity. This is an evidence
 limitation, not a transport failure claim. Residency, two-player, SA-1, and
 sound remain nonclaims.
+
+## G12 liveness/link fix-forward (2026-09-05)
+
+The retained trace was reclassified from its raw `$FF` label. Actors 2 and 3
+first entered `(selected=0, frame=$FF, tick=1)` at samples 28 and 16; the
+longest contiguous complete state residence was 28 samples for each. Their
+loaded idle counts/bases were valid, so this is `pending_initial_frame`, not
+legitimate non-streaming action. In the refreshed production-six trace,
+actor 2 recorded 140 due requests, 5 successful streams, 402 busy denials,
+134 cancellations, and one outstanding request; actor 3 recorded 152, 7,
+394, 144, and one outstanding. The causal source boundary is the existing
+`Anim_Play_Idle/Walk` `Msu1_StreamBusy` early return before tick decrement;
+this records prolonged contention/starvation explicitly and does not claim a
+transport redesign or a healthy presentation rate for those actors.
+
+Grab links now store bounded actor slot IDs rather than one-byte Character-
+Entity offsets. `Character_Grab_OffsetToSlot` and
+`Character_Grab_SlotToOffset` validate IDs against the six-slot bound and
+preserve `$FF` as none. Follow, throw, special release, AI throw, reciprocal
+link creation, timer release, death, and reuse use the same conversion path.
+`game_g7_grab.py` passes the original-slot control, reciprocal links, release,
+AI grab, and RALF attack regression.
+
+`Spawn_DoRosterReassign` now latches the actual `CharSelect_Loaded` result
+before restoring the player's saved selection state and returns carry for
+success/failure. Reveal clears item metadata only after successful target
+load. The DBR=$00 contract remains unchanged.

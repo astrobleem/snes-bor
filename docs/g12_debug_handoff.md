@@ -161,3 +161,27 @@ that is retained as an explicit per-actor observation.
 The current VRAM proof remains bounded candidate-frame snapshot evidence;
 staging and queued-row bytes were not independently latched at enqueue time.
 This is an evidence limitation, not a claimed transport failure.
+
+## Liveness and grab-link fix-forward (2026-09-05)
+
+Analysis of the retained trace found actors 2/3 first entered
+`selected=0, frame=$FF, tick=1` at samples 28/16, with longest complete
+residences of 28 samples. Loaded idle counts and bases were valid. The state
+is therefore classified as `pending_initial_frame`; it is not silently
+excluded as non-streaming. The refreshed six-actor trace measured actor 2 as
+140 due / 5 serviced / 402 busy-denied / 134 cancelled / 1 outstanding and
+actor 3 as 152 / 7 / 394 / 144 / 1. Source inspection identifies the first
+early-return boundary as the existing `Msu1_StreamBusy` gate before the
+animation tick decrement. This is directly evidenced starvation under the
+single-buffer transport; no new transport architecture was added.
+
+The concrete grab defect was that byte link fields held CharacterEntity byte
+offsets, truncating all offsets above 255. Links now store validated bounded
+slot IDs and resolve them through `EntityOffsetTable` at every follow, throw,
+release, AI-throw, death, and reuse consumer. `game_g7_grab.py` passes its
+original-slot control, reciprocal-link, timer-release, AI-grab, and RALF
+regression checks.
+
+Roster reassignment now captures the target loader's actual
+`CharSelect_Loaded` result before restoring the player's saved selection
+state; reveal metadata is cleared only on successful target load.

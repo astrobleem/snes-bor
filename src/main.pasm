@@ -3008,15 +3008,12 @@ CHAR_ATTACK_VARIANT  = 61  ; .db -- 0=attack1 selected/playing, 1=attack2
 CHAR_ATTACK2_IS_GRAB = 62  ; .db -- 1 = this character's attack2 IS a real
                             ; grab (JOE); 0 = ordinary second attack
                             ; (RALF/JHUN unchanged instant-damage move)
-CHAR_GRAB_TARGET     = 63  ; .db -- BYTE OFFSET ($7E0a00+N, i.e. one of
-                            ; Entity1/2/3_Base's own 0/66/132/198 values --
-                            ; not a compact 0-3 index) of the entity this
+CHAR_GRAB_TARGET     = 63  ; .db -- actor slot ID of the entity this
                             ; entity is currently grabbing, $FF = none
                             ; (grabber side -- only ever the player this
-                            ; slice). Storing the real byte offset directly
-                            ; avoids an index<->offset conversion anywhere
-                            ; downstream.
-CHAR_GRABBED_BY      = 64  ; .db -- byte offset of the grabber, $FF = none
+                            ; slice). Consumers resolve the ID through the
+                            ; bounded actor-offset table.
+CHAR_GRABBED_BY      = 64  ; .db -- actor slot ID of grabber, $FF = none
                             ; (grabbed side)
 CHAR_GRAB_TIMER      = 65  ; .db -- frames remaining until auto-release,
                             ; lives on the GRABBED entity (matches real

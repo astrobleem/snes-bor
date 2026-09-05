@@ -84,7 +84,7 @@ PlayerEntity = ENTITY_BASES[0]
 Entity1 = ENTITY_BASES[1]
 Entity2 = ENTITY_BASES[2]
 Entity3 = ENTITY_BASES[3]
-Entity1_ByteOff = CHAR_ZP_LEN  # X register offset TryGrab/HitApply use for Entity1
+Entity1_Slot = 1  # compact actor ID stored in the byte grab-link fields
 
 CharSelect_Index = 0x7E53B6
 CharSelect_Loaded = 0x7E53B8
@@ -194,8 +194,8 @@ def main():
         e1_grabbed_by = e1_blk[CHAR_GRABBED_BY]
         print(f'link: player.CHAR_GRAB_TARGET={player_grab_target} '
               f'entity1.CHAR_GRABBED_BY={e1_grabbed_by}')
-        r.check('cross-link: player.CHAR_GRAB_TARGET == entity1 real byte offset',
-                player_grab_target == Entity1_ByteOff)
+        r.check('cross-link: player.CHAR_GRAB_TARGET == entity1 actor slot ID',
+                player_grab_target == Entity1_Slot)
         r.check('cross-link: entity1.CHAR_GRABBED_BY == player byte offset (0)',
                 e1_grabbed_by == 0)
 
@@ -415,12 +415,12 @@ def main():
               f'player.CHAR_GRABBED_BY={player_grabbed_by}')
         r.check('an AI entity landing a real attack2_is_grab hit on the '
                 'player establishes the mutual lock (the AI entity\'s own '
-                'CHAR_GRAB_TARGET == the player\'s real byte offset, 0)',
+                'CHAR_GRAB_TARGET == the player actor slot ID, 0)',
                 grabbed and entity1_target == 0)
         r.check('the player\'s own CHAR_GRABBED_BY is set to the AI '
                 'entity\'s real byte offset, same cross-link JOE\'s '
                 'player-initiated grab gives in reverse (test 2 above)',
-                player_grabbed_by == Entity1_ByteOff)
+                player_grabbed_by == Entity1_Slot)
         reset_combat_state(m)
         m.write_u8(Entity1 + CHAR_GRAB_TARGET, 0xFF)
         m.write_u8(PlayerEntity + CHAR_GRABBED_BY, 0xFF)

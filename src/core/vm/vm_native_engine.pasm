@@ -1131,6 +1131,81 @@ GRAB_HOLD_FRAMES = 240  ; ~4s @ 60fps before auto-release -- bumped from
                          ; real MCP round trips between grab-init and
 
 ; ============================================================================
+; Grab-link representation helpers.  CHAR_GRAB_TARGET and CHAR_GRABBED_BY
+; contain actor slot IDs (0..CHARACTER_ACTOR_COUNT-1), not byte offsets.  The
+; old offset representation fit slots 0/1 only; higher offsets were silently
+; truncated by the one-byte fields.  $FF remains the none sentinel.
+Character_Grab_OffsetToSlot:
+.a16
+.i16
+    cmp #0
+    beq Character_Grab_OffsetToSlot__0
+    cmp #CHAR_ZP_LEN
+    beq Character_Grab_OffsetToSlot__1
+    cmp #CHAR_ZP_LEN*2
+    beq Character_Grab_OffsetToSlot__2
+    cmp #CHAR_ZP_LEN*3
+    beq Character_Grab_OffsetToSlot__3
+    cmp #CHAR_ZP_LEN*4
+    beq Character_Grab_OffsetToSlot__4
+    cmp #CHAR_ZP_LEN*5
+    beq Character_Grab_OffsetToSlot__5
+    sep #$20
+.a8
+    lda #$FF
+    clc
+    rts
+Character_Grab_OffsetToSlot__0:
+.a16
+    lda #0
+    bra Character_Grab_OffsetToSlot__done
+Character_Grab_OffsetToSlot__1:
+.a16
+    lda #1
+    bra Character_Grab_OffsetToSlot__done
+Character_Grab_OffsetToSlot__2:
+.a16
+    lda #2
+    bra Character_Grab_OffsetToSlot__done
+Character_Grab_OffsetToSlot__3:
+.a16
+    lda #3
+    bra Character_Grab_OffsetToSlot__done
+Character_Grab_OffsetToSlot__4:
+.a16
+    lda #4
+    bra Character_Grab_OffsetToSlot__done
+Character_Grab_OffsetToSlot__5:
+.a16
+    lda #5
+Character_Grab_OffsetToSlot__done:
+    sep #$20
+.a8
+    sec
+    rts
+
+Character_Grab_SlotToOffset:
+.a8
+    cmp #CHARACTER_ACTOR_COUNT
+    bcs Character_Grab_SlotToOffset__invalid
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    asl a
+    tax
+    lda.l EntityOffsetTable,x
+    sec
+    rts
+Character_Grab_SlotToOffset__invalid:
+.a8
+    lda #0
+    rep #$20
+.a16
+    clc
+    rts
+
+; ============================================================================
 ; Character_HitApply__TryGrabVsPlayer -- AI-vs-player grab-establish check.
 ; notjustfreespecial.txt item 3 (AI grab/throw reachability): the AI-vs-
 ; player hit path (Character_HitApply_VsPlayer) previously never called any
@@ -1359,7 +1434,7 @@ Character_HitApply__ApplyGrab__sides_done:
     lda.l GrabScratch_NewOtherX
     sta.l $7E0a00,x
 
-    ; target.CHAR_GRABBED_BY = the REAL attacker's own byte offset --
+    ; target.CHAR_GRABBED_BY = the REAL attacker's bounded actor slot ID --
     ; notjustfreespecial.txt item 3: this used to be a hardcoded literal 0
     ; ("grabber is always the player"), which was harmless while attack2/
     ; grab was structurally unreachable for AI (Anim_Play__ai_attack never
@@ -1373,7 +1448,12 @@ Character_HitApply__ApplyGrab__sides_done:
     tax
     sep #$20
 .a8
+    rep #$20
+.a16
     lda.l GrabScratch_SelfBase
+    jsr Character_Grab_OffsetToSlot
+    sep #$20
+.a8
     sta.l $7E0a00,x
 
     ; target.CHAR_GRAB_TIMER = GRAB_HOLD_FRAMES
@@ -1408,9 +1488,13 @@ Character_HitApply__ApplyGrab__sides_done:
     lda.l GrabScratch_Mid
     sta.l $7E0a00,x
 
-    ; self.CHAR_GRAB_TARGET = target's byte offset (fits one byte, max
-    ; 228; HitApply_EntityBase's high byte is always 0, X's own source)
+    ; self.CHAR_GRAB_TARGET = target's bounded actor slot ID.
+    rep #$20
+.a16
     lda.l HitApply_EntityBase
+    jsr Character_Grab_OffsetToSlot
+    sep #$20
+.a8
     sta CHAR_GRAB_TARGET
 
     ; latch this attack cycle, same as a landed normal hit
@@ -1584,7 +1668,7 @@ Character_HitApply_VsAllGeneric__next:
 ; the player (self, DP-local), matching every other grab routine's own
 ; documented restriction (AI never grabs).
 ;
-;   in:  X(16-bit) = victim's byte offset (CHAR_GRAB_TARGET, zero-extended)
+;   in:  X(16-bit) = victim's resolved CharacterEntity byte offset
 ;   out: none. Clobbers A/X.
 ; ============================================================================
 Character_Grab_Throw:
@@ -1722,6 +1806,9 @@ Character_Grab_Throw__knock_have:
 Character_Grab_Throw__done:
 .a8
     rtl
+Character_Grab_Throw__invalid:
+.a8
+    rtl
 
 AI_THROW_CHANCE = 8   ; 8/256 per frame -- notjustfreespecial.txt item 3: a
                        ; flat per-frame chance for an AI grabber to execute
@@ -1755,9 +1842,13 @@ Anim_Play__AiGrabHoldDecide:
 .a16
 .i16
     lda CHAR_GRAB_TARGET
-    and #$00FF
+    jsr Character_Grab_SlotToOffset
+    bcc Anim_Play__AiGrabHoldDecide__invalid
     tax
     jsl Character_Grab_Throw
+    sep #$20
+.a8
+Anim_Play__AiGrabHoldDecide__invalid:
     sep #$20
 .a8
 Anim_Play__AiGrabHoldDecide__no:
@@ -1779,7 +1870,7 @@ Anim_Play__AiGrabHoldDecide__no:
 ; site already gates on it, same "trust the one caller" convention as
 ; Character_Grab_Throw's own X-in precondition).
 ;
-;   in:  self.CHAR_GRAB_TARGET = victim's byte offset (already valid, non-
+;   in:  self.CHAR_GRAB_TARGET = victim's slot ID (already valid, non-
 ;        $FF -- caller's precondition, matches Character_Grab_Throw's own X
 ;        precondition one level up).
 ;   out: none. Clobbers A/X.
@@ -1790,7 +1881,8 @@ Character_Special_ReleaseGrab:
 .a16
 .i16
     lda CHAR_GRAB_TARGET
-    and #$00FF
+    jsr Character_Grab_SlotToOffset
+    bcc Character_Special_ReleaseGrab__invalid
     clc
     adc #CHAR_GRABBED_BY
     tax
@@ -1799,6 +1891,12 @@ Character_Special_ReleaseGrab:
     lda #$FF
     sta.l $7E0a00,x
     sta CHAR_GRAB_TARGET      ; self (player, DP-local)
+    rtl
+Character_Special_ReleaseGrab__invalid:
+.a16
+.i16
+    sep #$20
+.a8
     rtl
 
 ; ============================================================================
@@ -1855,13 +1953,14 @@ Character_Grab_Play__off_hi_set:
     sta.l GrabDragOffsetHi
 
     ; --- self.CHAR_POS_X = grabber.CHAR_POS_X + GrabDragOffset -- real
-    ; lookup through CHAR_GRABBED_BY's own byte offset now (was a hardcoded
+    ; lookup through CHAR_GRABBED_BY's own actor slot ID now (was a hardcoded
     ; PlayerEntity_PosX read; see this routine's own header). ---
     rep #$31
 .a16
 .i16
     lda CHAR_GRABBED_BY
-    and #$00FF
+    jsr Character_Grab_SlotToOffset
+    bcc Character_Grab_Play__release_invalid
     clc
     adc #CHAR_POS_X
     tax
@@ -1891,7 +1990,8 @@ Character_Grab_Play__release:
 .a16
 .i16
     lda CHAR_GRABBED_BY
-    and #$00FF
+    jsr Character_Grab_SlotToOffset
+    bcc Character_Grab_Play__release_invalid
     clc
     adc #CHAR_GRAB_TARGET
     tax
@@ -1903,6 +2003,11 @@ Character_Grab_Play__release:
     rtl
 Character_Grab_Play__done:
 .a8
+    rtl
+Character_Grab_Play__release_invalid:
+.a8
+    lda #$FF
+    sta CHAR_GRABBED_BY
     rtl
 
 ; ============================================================================

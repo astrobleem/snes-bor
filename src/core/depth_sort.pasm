@@ -193,6 +193,12 @@ Depth_Sort_ComputeOrder__FindMax__skip:
 EntityDpBaseTable:
     .dw PlayerEntity_DpBase, Entity1_DpBase, Entity2_DpBase, Entity3_DpBase, Entity4_DpBase, Entity5_DpBase
 
+; Compact actor-slot -> CharacterEntity byte-offset table.  Grab links store
+; these bounded slot IDs in their existing byte fields; consumers resolve the
+; ID here instead of truncating offsets such as $010A/$018F/$0214/$0299.
+EntityOffsetTable:
+    .dw 0, CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3, CHAR_ZP_LEN*4, CHAR_ZP_LEN*5
+
 ; ============================================================================
 Character_ActorTargetOffsets:
     .dw CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3, CHAR_ZP_LEN*4, CHAR_ZP_LEN*5

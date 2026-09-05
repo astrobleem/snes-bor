@@ -26,6 +26,7 @@ CHAR_HP = pasm_constant("CHAR_HP")
 CHAR_HP_MAX = pasm_constant("CHAR_HP_MAX")
 CHAR_IDLE_BASE_LO = pasm_constant("CHAR_IDLE_BASE_LO")
 CHAR_IDLE_BASE_HI = pasm_constant("CHAR_IDLE_BASE_HI")
+CHAR_IDLE_FCOUNT = pasm_constant("CHAR_IDLE_FCOUNT")
 CHAR_WALK_BASE_LO = pasm_constant("CHAR_WALK_BASE_LO")
 CHAR_WALK_BASE_HI = pasm_constant("CHAR_WALK_BASE_HI")
 CHAR_ATTACK_BASE_LO = pasm_constant("CHAR_ATTACK_BASE_LO")
@@ -96,6 +97,11 @@ def snapshot(m):
         selected = b[CHAR_SELECTED]
         variant = b[CHAR_ATTACK_VARIANT]
         source, state_name = source_identity(b, frame, selected, variant)
+        # $FF is the pre-frame sentinel.  With tick==1 it is an outstanding
+        # initial/transition request, not proof of a legitimate non-streaming
+        # action.  Keep true non-streaming states separate for later review.
+        if frame == 0xFF and b[CHAR_TICK_COUNTER] == 1:
+            state_name = "pending_initial_frame"
         entities.append({
             "frame": frame,
             "tick": b[CHAR_TICK_COUNTER],
@@ -106,6 +112,9 @@ def snapshot(m):
             "role": b[CHAR_INPUT_DRIVEN],
             "roster": b[CHAR_ROSTER_INDEX],
             "hp": b[CHAR_HP],
+            "idle_frame_count": b[CHAR_IDLE_FCOUNT],
+            "idle_base_lo": b[CHAR_IDLE_BASE_LO],
+            "idle_base_hi": b[CHAR_IDLE_BASE_HI],
         })
     q = block(m, DMA_QUEUE, 64)
     active = sum(1 for i in range(8) if q[i * 8 + 4] & 0x40)
@@ -232,7 +241,7 @@ def main():
         for previous, sample in zip(observations, observations[1:]):
             for i, entity in enumerate(sample["entities"]):
                 old = previous["entities"][i]
-                due_state = old["state"] in {"idle", "walk", "attack", "attack2", "fall", "rise"}
+                due_state = old["state"] in {"idle", "walk", "attack", "attack2", "fall", "rise", "pending_initial_frame"}
                 changed = (old["frame"], old["source_identity"], old["selected"], old["variant"]) != (entity["frame"], entity["source_identity"], entity["selected"], entity["variant"])
                 target_stream = entity["source_identity"] is not None
                 if due_state and old["tick"] == 1 and pending[i] is None:
@@ -242,7 +251,9 @@ def main():
                     pending[i]["wait"] += 1
                 if changed:
                     if pending[i] is not None:
-                        same_state_stream = target_stream and due_state and entity["state"] == pending[i]["state"]
+                        same_state_stream = target_stream and due_state and (
+                            entity["state"] == pending[i]["state"] or
+                            pending[i]["state"] == "pending_initial_frame")
                         wait = max(0, pending[i]["wait"] - 1)
                         if same_state_stream:
                             timed_streams[i] += 1
