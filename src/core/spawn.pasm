@@ -1670,6 +1670,7 @@ Spawn_Play__slot3_not_boss:
     sep #$20
 .a8
 Spawn_Play__slot3_no_restore:
+    jmp Spawn_Play__advance
 
 ; Slots 4 and 5 share this indexed spawn path. It deliberately writes the
 ; common CharacterEntity fields through the selected object's DP window and
@@ -1677,6 +1678,9 @@ Spawn_Play__slot3_no_restore:
 ; routines remain the four-actor compatibility path while this bounded path
 ; proves the added slots use the same spawn kinds and map application.
 Spawn_Play__slot45:
+    rep #$31
+.a16
+.i16
     txa
     sta.l Spawn_ScratchSlotOfs
     phd
@@ -1686,7 +1690,10 @@ Spawn_Play__slot45:
     lda #$7E
     pha
     plb
-    txa
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_ScratchSlotOfs
     clc
     adc #$0A00
     tcd
@@ -1762,8 +1769,8 @@ Spawn_Play__slot45_prop:
 Spawn_Play__slot45_item5:
     sta.l Entity5_ItemRosterIdx
 Spawn_Play__slot45_common:
-    rep #$20
-.a16
+    sep #$20
+.a8
     lda.l Spawn_ScratchSlotOfs
     cmp #CHAR_ZP_LEN*4
     bne Spawn_Play__slot45_boss5
@@ -1797,145 +1804,6 @@ Spawn_Play__slot45_mark_boss5:
     lda #1
     sta.l Entity5_IsBoss
 Spawn_Play__slot45_boss_mark_done:
-    ; The selected OopDp window is useful to the shared reset helper, but
-    ; this spawn entry is also reachable from the bank-3 scheduler with DBR
-    ; changed by a preceding palette/reassignment call.  Commit the complete
-    ; spawn state through explicit long indexed WRAM writes so the lifetime
-    ; contract cannot depend on the caller's direct-page mirror state.
-    rep #$30
-.a16
-.i16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_POS_X
-    tax
-    lda.l Spawn_ScratchX
-    sta.l $7E0a00,x
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_POS_Y
-    tax
-    sep #$20
-.a8
-    lda.l Spawn_ScratchY
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_FACING_LEFT
-    tax
-    sep #$20
-.a8
-    lda.l Spawn_ScratchFacing
-    sta.l $7E0a00,x
-    lda.l Spawn_ScratchKind
-    cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_long_prop
-    lda #CHAR_INPUT_DRIVEN_AI
-    bra Spawn_Play__slot45_long_mode
-Spawn_Play__slot45_long_prop:
-    lda #CHAR_INPUT_DRIVEN_PROP
-Spawn_Play__slot45_long_mode:
-    pha
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_INPUT_DRIVEN
-    tax
-    sep #$20
-.a8
-    pla
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_HP
-    tax
-    sep #$20
-.a8
-    lda.l Spawn_ScratchKind
-    cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_long_prop_hp
-    lda.l Spawn_ScratchHp
-    bra Spawn_Play__slot45_long_hp
-Spawn_Play__slot45_long_prop_hp:
-    lda #CHAR_HP_PER_HIT
-Spawn_Play__slot45_long_hp:
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_PICKUP_TYPE
-    tax
-    sep #$20
-.a8
-    lda.l Spawn_ScratchKind
-    cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_long_prop_pickup
-    lda #0
-    bra Spawn_Play__slot45_long_pickup
-Spawn_Play__slot45_long_prop_pickup:
-    lda.l Spawn_ScratchPickupType
-Spawn_Play__slot45_long_pickup:
-    sta.l $7E0a00,x
-    lda.l Spawn_ScratchKind
-    cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_long_links
-    lda.l Spawn_ScratchSlotOfs
-    cmp #CHAR_ZP_LEN*4
-    bne Spawn_Play__slot45_long_clear_item5
-    lda #0
-    sta.l Entity4_ItemRosterIdx
-    bra Spawn_Play__slot45_long_links
-Spawn_Play__slot45_long_clear_item5:
-    lda #0
-    sta.l Entity5_ItemRosterIdx
-Spawn_Play__slot45_long_links:
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_GRAB_TARGET
-    tax
-    sep #$20
-.a8
-    lda #$FF
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_GRABBED_BY
-    tax
-    sep #$20
-.a8
-    lda #$FF
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_GRAB_TIMER
-    tax
-    sep #$20
-.a8
-    lda #0
-    sta.l $7E0a00,x
-    rep #$20
-.a16
-    lda.l Spawn_ScratchSlotOfs
-    clc
-    adc #CHAR_GRAB_OFFSET
-    tax
-    sep #$20
-.a8
-    sta.l $7E0a00,x
-    sep #$20
-.a8
     ; A slot-4/5 ordinary spawn retains its initialized roster art. Props
     ; and bosses use the established gated reassignment helper.
     lda.l Spawn_ScratchKind
@@ -1955,8 +1823,8 @@ Spawn_Play__slot45_reassign:
     sep #$20
 .a8
 Spawn_Play__slot45_done:
-    pld
     plb
+    pld
     jmp Spawn_Play__advance
 
 Spawn_Play__advance:

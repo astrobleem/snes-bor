@@ -729,7 +729,12 @@ Game_State_Play__kdtimer2_done:
     dec a
     sta.l Entity3_KnockdownTimer
 Game_State_Play__kdtimer3_done:
-    ; width already .a8 -- no rep since line 662's real sep #$20 above.
+    ; Spawn_Index and Spawn_Count are adjacent .db cells.  Reassert A8 at
+    ; this boundary: the player-death path above is A16, and the old source
+    ; comment incorrectly claimed a SEP still survived from line 662.  In
+    ; A16, cmp.l Spawn_Count would consume Spawn_CountX8's low byte as the
+    ; high operand and keep the stage permanently uncleared.
+    sep #$20
 .a8
     lda.l Stage_Cleared
     bne Game_State_Play__stage_check_edge
@@ -755,7 +760,7 @@ Game_State_Play__stage_check_edge:
     rep #$31
 .a16
 .i16
-    lda Screen_PosX
+    lda.l Screen_PosX
     cmp.l Stage_TrueMaxX
     bcc Game_State_Play__stage_no_win
     sep #$20

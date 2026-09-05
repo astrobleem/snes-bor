@@ -255,3 +255,40 @@ added slots. This remains implementation work only: real six-actor
 production-spawn proof, slot-4/5 combat/death/reuse proof, complete VRAM and
 palette validation, and >=600-frame service measurements are pending. No
 transport or cache experiment is part of this slice.
+
+## G12 review fix-forward — current evidence (2026-09-04)
+
+Review branch: `review/g12-six-actor-debug`, parent WIP
+`bd48d542c68f81ed769d11e4b1732fe471460864`. The spawn correction now
+restores slot 3 to `Spawn_Play__advance`, establishes A16/I16 before the
+slot-4/5 offset capture and `TCD`, restores `PLB` then `PLD`, uses A8 for
+boss flags, and stores added-slot item metadata at standalone
+`$7E58B8/$7E58B9` cells. Added-slot pickup overlap paths are present in
+`src/core/jump.pasm`. The stage predicate explicitly enters A8 before
+comparing the adjacent byte cells `Spawn_Index` and `Spawn_Count`; the prior
+emitted code was A16 and consumed the low byte of `Spawn_CountX8` as part of
+the comparison.
+
+Fresh build command:
+`python -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`
+
+Fresh artifacts:
+
+- `distribution/bor.sfc`: `8A045586C32F6E2BF02E3A28B9004A5AD63340D84D4597AD86A27E53A6D2BDEE`
+- `distribution/bor.msu`: `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`
+
+Focused fresh results: `game_g12_collision_boundaries.py` PASS and
+`game_g7_depth_sort.py` PASS for both four- and six-actor fixtures. The
+six-actor production gate passes production spawning of five non-player
+combat actors, six distinct OAM entries, palettes/facing/tile columns,
+completed slot-4/5 frame-source VRAM comparison, added-slot state, prop
+metadata, and slot reuse/grab-link clearing. It still FAILs the required
+slot-5 last-enemy stage transition. The final observed state is
+`Stage_Cleared=0`, `Game_State=PLAYING`, `Stage_LoadPending=0`,
+`Game_StageIndex` unchanged, `Spawn_Index=7`, `Spawn_Count=7`, and
+`Screen_PosX=0`, `Stage_TrueMaxX=863` after the normal input interval.
+The exact live instruction/operand trace remains not retained because the
+available Mesen hook/CPU-state endpoint did not produce events. No six-actor
+600-frame animation-service measurement is claimed until this correctness
+failure is resolved. No transport, cache, two-player, SA-1, or sound change
+is included.

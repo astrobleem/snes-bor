@@ -2753,7 +2753,7 @@ Entity4_Hp      = Entity4_Base + 35
 Entity4_KnockdownTimer = Entity4_Base + 47
 Entity4_InputDriven = Entity4_Base + 15
 Entity4_PickupType = Entity4_Base + 127
-Entity4_ItemRosterIdx = Entity4_Base + 128
+Entity4_ItemRosterIdx = $7E58B8
 Entity4_IsBoss  = $7E58B6
 Entity5_Base    = $7E0a00 + 665
 Entity5_PosX    = Entity5_Base + 4
@@ -2764,7 +2764,7 @@ Entity5_Hp      = Entity5_Base + 35
 Entity5_KnockdownTimer = Entity5_Base + 47
 Entity5_InputDriven = Entity5_Base + 15
 Entity5_PickupType = Entity5_Base + 127
-Entity5_ItemRosterIdx = Entity5_Base + 128
+Entity5_ItemRosterIdx = $7E58B9
 Entity5_IsBoss  = $7E58B7
 
 ; One authoritative bounded actor count for the gameplay paths. Slot 0 is

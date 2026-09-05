@@ -1859,6 +1859,8 @@ Character_Pickup_CheckOverlap:
     jsr Character_Pickup_CheckOverlap__vs1
     jsr Character_Pickup_CheckOverlap__vs2
     jsr Character_Pickup_CheckOverlap__vs3
+    jsr Character_Pickup_CheckOverlap__vs4
+    jsr Character_Pickup_CheckOverlap__vs5
     plp
     rep #$31
 .a16
@@ -2061,6 +2063,136 @@ Character_Pickup_CheckOverlap__vs3_dy_ok:
     sta.l Entity3_Hp
     rts
 Character_Pickup_CheckOverlap__vs3_no:
+    rts
+Character_Pickup_CheckOverlap__vs4:
+    sep #$20
+.a8
+    lda.l Entity4_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Character_Pickup_CheckOverlap__vs4_no
+    lda.l Entity4_PickupType
+    beq Character_Pickup_CheckOverlap__vs4_no
+    lda.l Entity4_ItemRosterIdx
+    bne Character_Pickup_CheckOverlap__vs4_no
+    lda.l Entity4_Hp
+    beq Character_Pickup_CheckOverlap__vs4_no
+    rep #$20
+.a16
+    lda.l Entity4_PosX
+    cmp.l PlayerEntity_PosX
+    bcs Character_Pickup_CheckOverlap__vs4_dx_otherge
+    sec
+    lda.l PlayerEntity_PosX
+    sbc.l Entity4_PosX
+    bra Character_Pickup_CheckOverlap__vs4_dx_have
+Character_Pickup_CheckOverlap__vs4_dx_otherge:
+    rep #$20
+.a16
+    sec
+    sbc.l PlayerEntity_PosX
+Character_Pickup_CheckOverlap__vs4_dx_have:
+.a16
+    cmp #CHAR_HITBOX_W
+    bcc Character_Pickup_CheckOverlap__vs4_dx_ok
+    sep #$20
+.a8
+    rts
+Character_Pickup_CheckOverlap__vs4_dx_ok:
+    sep #$20
+.a8
+    lda.l Entity4_PosY
+    cmp.l PlayerEntity_PosY
+    bcs Character_Pickup_CheckOverlap__vs4_dy_otherge
+    lda.l PlayerEntity_PosY
+    sec
+    sbc.l Entity4_PosY
+    bra Character_Pickup_CheckOverlap__vs4_dy_have
+Character_Pickup_CheckOverlap__vs4_dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_Pickup_CheckOverlap__vs4_dy_have:
+.a8
+    cmp #CHAR_HITBOX_H
+    bcc Character_Pickup_CheckOverlap__vs4_dy_ok
+    rts
+Character_Pickup_CheckOverlap__vs4_dy_ok:
+.a8
+    jsr Character_Pickup_CheckOverlap__TriggerGet
+    lda.l Entity4_PickupType
+    pha
+    jsl Audio_EmitPickup
+    pla
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity4_PickupType
+    sta.l Entity4_Hp
+    rts
+Character_Pickup_CheckOverlap__vs4_no:
+    rts
+Character_Pickup_CheckOverlap__vs5:
+    sep #$20
+.a8
+    lda.l Entity5_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_PROP
+    bne Character_Pickup_CheckOverlap__vs5_no
+    lda.l Entity5_PickupType
+    beq Character_Pickup_CheckOverlap__vs5_no
+    lda.l Entity5_ItemRosterIdx
+    bne Character_Pickup_CheckOverlap__vs5_no
+    lda.l Entity5_Hp
+    beq Character_Pickup_CheckOverlap__vs5_no
+    rep #$20
+.a16
+    lda.l Entity5_PosX
+    cmp.l PlayerEntity_PosX
+    bcs Character_Pickup_CheckOverlap__vs5_dx_otherge
+    sec
+    lda.l PlayerEntity_PosX
+    sbc.l Entity5_PosX
+    bra Character_Pickup_CheckOverlap__vs5_dx_have
+Character_Pickup_CheckOverlap__vs5_dx_otherge:
+    rep #$20
+.a16
+    sec
+    sbc.l PlayerEntity_PosX
+Character_Pickup_CheckOverlap__vs5_dx_have:
+.a16
+    cmp #CHAR_HITBOX_W
+    bcc Character_Pickup_CheckOverlap__vs5_dx_ok
+    sep #$20
+.a8
+    rts
+Character_Pickup_CheckOverlap__vs5_dx_ok:
+    sep #$20
+.a8
+    lda.l Entity5_PosY
+    cmp.l PlayerEntity_PosY
+    bcs Character_Pickup_CheckOverlap__vs5_dy_otherge
+    lda.l PlayerEntity_PosY
+    sec
+    sbc.l Entity5_PosY
+    bra Character_Pickup_CheckOverlap__vs5_dy_have
+Character_Pickup_CheckOverlap__vs5_dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_Pickup_CheckOverlap__vs5_dy_have:
+.a8
+    cmp #CHAR_HITBOX_H
+    bcc Character_Pickup_CheckOverlap__vs5_dy_ok
+    rts
+Character_Pickup_CheckOverlap__vs5_dy_ok:
+.a8
+    jsr Character_Pickup_CheckOverlap__TriggerGet
+    lda.l Entity5_PickupType
+    pha
+    jsl Audio_EmitPickup
+    pla
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity5_PickupType
+    sta.l Entity5_Hp
+    rts
+Character_Pickup_CheckOverlap__vs5_no:
     rts
 
 ; --- Character_Pickup_CheckOverlap__TriggerGet -- claude_close_g7_g8_

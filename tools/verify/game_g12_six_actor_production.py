@@ -17,6 +17,9 @@ CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 CHAR_FACING_LEFT = pasm_constant('CHAR_FACING_LEFT')
 CHAR_TILE_COLUMN = pasm_constant('CHAR_TILE_COLUMN')
+CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
+CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
+CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 CHAR_PALETTE_SLOT = pasm_constant('CHAR_PALETTE_SLOT')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_HP = pasm_constant('CHAR_HP')
@@ -41,6 +44,8 @@ STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
 SCREEN_POS_X = 0x7E1601
 MSU_BUSY = pasm_constant('Msu1_StreamBusy')
+ENTITY4_ITEM_ROSTER = pasm_constant_in('src/main.pasm', 'Entity4_ItemRosterIdx')
+ENTITY5_ITEM_ROSTER = pasm_constant_in('src/main.pasm', 'Entity5_ItemRosterIdx')
 
 BASE = 0x7E0A00
 ENTITIES = [BASE + i * CHAR_ZP_LEN for i in range(ACTOR_COUNT)]
@@ -164,20 +169,20 @@ def main():
         committed_frames = {}
         for i, base in enumerate(ENTITIES[4:], start=4):
             entity = bytes(read_block(m, base, 64))
-            col = entity[16]
+            col = entity[CHAR_TILE_COLUMN]
             got_rows = [bytes(read_block(m, 0x8000 + col * 128 + row * 512, 128,
                                          mem_type='snesVideoRam')) for row in range(6)]
             match = None
             for frame in range(16):
-                source, state_name = source_identity(entity, frame, entity[11], entity[12])
+                source, state_name = source_identity(entity, frame, entity[CHAR_SELECTED], entity[CHAR_ATTACK_VARIANT])
                 if source is not None and all(
                         got_rows[row] == msu[source + row * 128:source + (row + 1) * 128]
                         for row in range(6)):
                     match = (frame, state_name, source)
                     break
             if match is None:
-                source, state_name = source_identity(entity, entity[9], entity[11], entity[12])
-                first_vram_mismatch = (i, entity[9], entity[14], col, source, state_name)
+                source, state_name = source_identity(entity, entity[CHAR_FRAME_INDEX], entity[CHAR_SELECTED], entity[CHAR_ATTACK_VARIANT])
+                first_vram_mismatch = (i, entity[CHAR_FRAME_INDEX], entity[CHAR_ROSTER_INDEX], col, source, state_name)
                 vram_ok = False
                 checked += 6
             else:
@@ -210,25 +215,22 @@ def main():
         m.pause()
         print('reused slot4 metadata:', u8(m, target4 + CHAR_INPUT_DRIVEN),
               u8(m, target4 + CHAR_PICKUP_TYPE),
-              u8(m, 0x7E0A00 + 4 * CHAR_ZP_LEN + 128),
+              u8(m, ENTITY4_ITEM_ROSTER),
               u8(m, target4 + CHAR_GRAB_TARGET), u8(m, target4 + CHAR_GRABBED_BY))
         r.check('production spawn reused added slot 4', u8(m, target4 + CHAR_HP) > 0)
         r.check('reused slot 4 is classified as prop, not enemy', u8(m, target4 + CHAR_INPUT_DRIVEN) == PROP_MODE)
-        r.check('reused prop carries its contained item roster metadata', u8(m, 0x7E0A00 + 4 * CHAR_ZP_LEN + 128) == 13)
+        r.check('reused prop carries its contained item roster metadata', u8(m, ENTITY4_ITEM_ROSTER) == 13)
         r.check('slot 4 reuse clears old grab links', u8(m, target4 + CHAR_GRAB_TARGET) == 0xFF and u8(m, target4 + CHAR_GRABBED_BY) == 0xFF)
 
         # Only remaining enemy in slot 5 must hold the stage. Props do not
         # count as enemies in the production wait/completion accounting.
         m.write_u8(STAGE_CLEARED, 0)
-        m.write_u16(GAME_STATE, GAME_STATE_PLAYING)
-        m.write_u16(SCREEN_POS_X, u16(m, STAGE_TRUE_MAX_X))
         m.write_u8(SPAWN_WAITING, 0)
         m.write_u8(SPAWN_GROUP_MIN, 100)
         m.write_u8(SPAWN_GROUP_MAX, 100)
         for i in (1, 2, 3, 4): m.write_u8(ENTITIES[i] + CHAR_HP, 0)
         m.write_u8(ENTITIES[5] + CHAR_HP, CHAR_HP_MAX)
         m.write_u8(SPAWN_INDEX, 7); m.write_u8(SPAWN_COUNT, 7)
-        m.write_u16(SCREEN_POS_X, u16(m, STAGE_TRUE_MAX_X))
         m.run_frames(8); m.pause()
         print('completion state before/after slot5 kill:', u8(m, STAGE_CLEARED),
               [u8(m, b + CHAR_HP) for b in ENTITIES], u8(m, SPAWN_INDEX))
@@ -236,13 +238,13 @@ def main():
         m.write_u8(ENTITIES[5] + CHAR_HP, 0)
         initial_stage = u16(m, GAME_STAGE_INDEX)
         saw_clear = False; advanced = False
-        for _ in range(30):
-            # Keep the player on the real camera-driving path while the
-            # win-condition edge unlocks the full stage width.
-            m.set_input(m.BTN_RIGHT, 60)
-            m.run_frames(1); m.pause()
-            saw_clear |= u8(m, STAGE_CLEARED) == 1
-            advanced |= u16(m, GAME_STAGE_INDEX) != initial_stage
+        # Match the established G4 transition fixture: set_input's duration
+        # is itself a real, frame-exact input interval, and the player/camera
+        # must be allowed to drive the unlocked edge through normal input.
+        m.set_input(m.BTN_RIGHT, 60)
+        m.pause()
+        saw_clear = u8(m, STAGE_CLEARED) == 1
+        advanced = u16(m, GAME_STAGE_INDEX) != initial_stage
         print('completion final:', u8(m, STAGE_CLEARED), 'saw_clear=', saw_clear,
               'advanced=', advanced,
               [u8(m, b + CHAR_HP) for b in ENTITIES], 'state=', u16(m, GAME_STATE),
