@@ -292,3 +292,42 @@ available Mesen hook/CPU-state endpoint did not produce events. No six-actor
 600-frame animation-service measurement is claimed until this correctness
 failure is resolved. No transport, cache, two-player, SA-1, or sound change
 is included.
+
+## G12 DBR fix-forward and six-actor evidence (2026-09-05)
+
+The confirmed reassignment failure was a bank-contract violation. Slot 4/5
+spawn used DBR=$7E for actor-relative accesses, then called
+`Anim_LoadCharacter`, whose absolute `$2000-$2003` accesses are MSU hardware
+registers and therefore require DBR=$00. The zero-offset seek consequently
+cleared WRAM `$7E2000-$7E2003`, producing sixteen zero header bytes.
+`Spawn_DoRosterReassign` now preserves the caller bank, establishes DBR=$00
+only across the loader path, restores PLB then PLD, and restores the player
+selection-load state. D remains the actor window (`$0C14`/`$0C99`).
+
+The reveal dispatcher now has an explicit slot-3 branch; invalid offsets are
+rejected instead of clearing slots 3/4/5 together. The packed G8
+Chair->Money production path passes damage, reveal, collection, reward-once,
+and removal. Collision and depth-sort four/six controls pass.
+
+Fresh build command:
+`python -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`
+
+Fresh artifacts: `distribution/bor.sfc` SHA-256
+`C9B0026593A149309EEDDBD7945021C982EB962D0555168DB46C0D4DD343EB7D` and
+`distribution/bor.msu` SHA-256
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+
+The six-actor measurement is retained at
+`out/g12_six_actor_measurement.json`, from six consecutive exact 100-frame
+chunks in one session. All five non-player actors remained HP-positive and
+AI-role active throughout. Per-slot timed requests/streams/retries were
+`[44,37,4,7,92,54]` / `[44,33,4,6,84,45]` / `[9,11,0,6,44,36]`;
+max waits were `[1,2,0,2,3,4]` and average waits were
+`[0.205,0.273,0,1.0,0.476,0.667]` frames. DMA high-water was 8 active
+slots and 856 queued bytes; NMI delta was 600 with zero overruns. Slots 2/3
+entered non-streaming animation state and are reported explicitly.
+
+The current VRAM helper still uses bounded candidate-frame snapshot matching,
+not a newly latched source/staging/queue identity. This is an evidence
+limitation, not a transport failure claim. Residency, two-player, SA-1, and
+sound remain nonclaims.

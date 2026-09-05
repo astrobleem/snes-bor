@@ -13,7 +13,7 @@ import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, pasm_constant_in,
-                      read_block)
+                      read_block, run_frames_exact)
 
 CHAR_ZP_LEN = pasm_constant("CHAR_ZP_LEN")
 CHAR_FRAME_INDEX = pasm_constant("CHAR_FRAME_INDEX")
@@ -144,29 +144,60 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--frames", type=int, default=240)
     parser.add_argument("--trace-out")
+    parser.add_argument("--production-six", action="store_true",
+                        help="spawn the bounded six-actor production fixture")
     args = parser.parse_args()
     with open_session(__file__) as m:
         m.reset_emulator()
-        move_to_stage_1a(m)
-        # Stage 1A's real spawn queue is trigger-position driven. Walk through
-        # the first production wave so the measurement covers live fighters,
-        # not merely the freshly-reset empty slots at the stage's left edge.
-        m.set_input(m.BTN_RIGHT, 300)
-        m.run_frames(30)
+        if args.production_six:
+            # Reuse the production verifier's actual SpawnTable_Wram records
+            # and Spawn_Play path.  This is a fresh measurement fixture, not
+            # the destructive lifecycle/visual fixture from that gate.
+            from game_g12_six_actor_production import install_fixture_queue, wait_for_six
+            run_frames_exact(m, 180)
+            for base in ENTITY_BASES[1:]:
+                m.write_u8(base + CHAR_HP, 0)
+            install_fixture_queue(m)
+            if wait_for_six(m, 600) is None:
+                raise RuntimeError(f"six production actors did not spawn: {snapshot(m)}")
+            m.pause()
+            m.write_u8(SPAWN_INDEX, u8(m, SPAWN_COUNT))
+            # One-time fixture conditioning keeps all five production-spawned
+            # fighters alive for the observation window; roles and update
+            # paths remain the ordinary AI mode (2), never static mode 0.
+            for base in ENTITY_BASES[1:]:
+                m.write_u8(base + CHAR_HP, 255)
+        else:
+            move_to_stage_1a(m)
+            # Stage 1A's real spawn queue is trigger-position driven. Walk through
+            # the first production wave so the measurement covers live fighters,
+            # not merely the freshly-reset empty slots at the stage's left edge.
+            m.set_input(m.BTN_RIGHT, 300)
+            run_frames_exact(m, 30)
         m.pause()
         before = snapshot(m)
         samples = []
         frame_changes = [0] * ACTOR_COUNT
         previous = [e["frame"] for e in before["entities"]]
-        for _ in range(args.frames):
-            m.run_frames(1)
-            m.pause()
-            current = snapshot(m)
-            samples.append(current)
-            for i, e in enumerate(current["entities"]):
-                if e["frame"] != previous[i]:
-                    frame_changes[i] += 1
-            previous = [e["frame"] for e in current["entities"]]
+        completed = 0
+        while completed < args.frames:
+            chunk = min(100, args.frames - completed)
+            for _ in range(chunk):
+                run_frames_exact(m, 1)
+                m.pause()
+                current = snapshot(m)
+                samples.append(current)
+                for i, e in enumerate(current["entities"]):
+                    if e["frame"] != previous[i]:
+                        frame_changes[i] += 1
+                previous = [e["frame"] for e in current["entities"]]
+            completed += chunk
+            active_now = sum(1 for e in samples[-1]["entities"][1:]
+                             if e["hp"] > 0 and e["role"] == 2)
+            print(f"measurement chunk {completed}/{args.frames}: "
+                  f"active_nonplayer_combat={active_now} "
+                  f"nmi={samples[-1]['nmi']} dma={samples[-1]['dma_active']}/"
+                  f"{samples[-1]['dma_budget']}", flush=True)
 
         visible = block(m, 0, 32, mem_type="snesSpriteRam")
         result = {
@@ -182,6 +213,7 @@ def main():
             "final_entities": samples[-1]["entities"],
             "oam_first_six": [list(visible[i:i + 4]) for i in range(0, 24, 4)],
             "production_entity_limit": ACTOR_COUNT,
+            "measurement_fixture": "production-six" if args.production_six else "stage-1a-control",
             "active_combat_actors_observed": [sum(1 for e in s["entities"][1:] if e["hp"] > 0 and e["role"] == 2) for s in samples],
         }
         # A request is created only on the first tick==1 observation of a

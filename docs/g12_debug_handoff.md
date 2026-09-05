@@ -98,3 +98,66 @@ is not a six-actor performance claim. A valid six-actor measurement has not
 been captured. The rejected transport research remains in the existing
 checkpoint and is not revived here.
 
+## Fix-forward execution evidence (2026-09-05)
+
+Build command:
+
+```
+python -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"
+```
+
+Current rebuilt `bor.sfc` SHA-256: `7895C13A045E250DFE5DDACC22A36BDF09D2224D22D4F13CBDD4C19BC77321A2`.
+Matching `bor.msu` SHA-256: `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+
+The camera correction makes `Core_StreamScroll_PickColumn` derive demand from
+`Screen_TargetX` while retaining the camera clamp. In the fresh slot-5-last-
+enemy fixture, exact chunk logs showed the watermark advancing from 106 to
+139, `Screen_PosX` reaching `Stage_TrueMaxX=863`, and `Game_StageIndex`
+advancing to 1. This directly observed transition now passes.
+
+The remaining attack blocker is directly observed. Immediately before reuse,
+the player had `CharSelect_Loaded=1`, `CharSelect_RosterCount=13`, and
+`Msu1Present=1`. After production reuse of slot 4 as a prop, its role was 3,
+object roster 18, item roster 14, and idle count 1, but the shared load state
+was `CharSelect_Loaded=0`, `CharSelect_RosterCount=0` for 20 exact one-frame
+polls. `AnimHeaderStaging` at `$7E2320` was sixteen zero bytes. The player
+attack edge was delivered (`Input_press=0x4000`, `Input_trigger=0x4000`), but
+`CHAR_SELECTED` stayed 0 and target HP stayed 4. The first failing boundary
+is therefore the spawn-driven `Anim_LoadCharacter` header/load-status handoff,
+before collision or reveal. The attempted save/restore around
+`Spawn_DoRosterReassign` did not resolve it; no force write is used as proof.
+
+No valid six-actor performance measurement or publication claim exists yet.
+
+## DBR correction and current results (2026-09-05)
+
+The all-zero header was confirmed at the bank boundary: slot45 entered the
+reassignment helper with actor D, DBR=$7E; `Anim_LoadCharacter` then accessed
+absolute `$2000-$2003` as `$7E2000-$7E2003`. The zero seek cleared those WRAM
+bytes and the header loop read sixteen zeros. The helper now saves/restores
+DBR and establishes DBR=$00 only around the loader call, preserving D and
+stack balance. This is directly confirmed by header
+`01010164646401ffaa6e060000000000`, matching `distribution/bor.msu`'s
+selected header, with `CharSelect_Loaded=1` and roster count 13 restored.
+
+The slot-3 reveal omission was also corrected. `game_g8_pickup_chain.py`
+passes real packed Chair damage -> reveal -> Money collection -> one reward
+-> removal. Collision, four/six depth ordering, and the complete six-actor
+production gate pass. The camera-demand correction remains in place; the
+slot-5-last-enemy trace reaches `Stage_Cleared=1`, camera true edge 863, and
+stage index 1.
+
+Current artifact hashes are ROM
+`C9B0026593A149309EEDDBD7945021C982EB962D0555168DB46C0D4DD343EB7D` and
+MSU `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The six-actor 600-frame trace is retained at
+`out/g12_six_actor_measurement.json`; all five non-player actors stayed
+HP-positive and role 2 in six exact 100-frame chunks. Requests/streams/
+retries were `[44,37,4,7,92,54]` / `[44,33,4,6,84,45]` /
+`[9,11,0,6,44,36]`; max waits `[1,2,0,2,3,4]`, DMA high-water 8 slots /
+856 bytes, NMI 600/600, overruns 0. Slots 2/3 entered non-streaming state;
+that is retained as an explicit per-actor observation.
+
+The current VRAM proof remains bounded candidate-frame snapshot evidence;
+staging and queued-row bytes were not independently latched at enqueue time.
+This is an evidence limitation, not a claimed transport failure.

@@ -342,6 +342,8 @@ Spawn_SavedCharSelectIndex = $7E58AA ; .db -- real bug found+fixed
 ; verified dangerous (game_state.pasm's own EntityN_InvulnFrames precedent,
 ; same reasoning). Grep-confirmed free at $7E58AB+ (right after Spawn_
 ; SavedCharSelectIndex above, the previous highest cell in this file).
+Spawn_SavedCharSelectLoaded = $7E58BA ; .db -- preserved player load gate
+Spawn_SavedCharSelectCount  = $7E58BB ; .db -- preserved player wrap bound
 Entity1_ItemRosterIdx = $7E58AB  ; .db
 Entity2_ItemRosterIdx = $7E58AC  ; .db
 Entity3_ItemRosterIdx = $7E58AD  ; .db
@@ -1697,22 +1699,17 @@ Spawn_Play__slot45:
     clc
     adc #$0A00
     tcd
-    rep #$30
-.a16
-.i16
-    rep #$30
-.a16
-.i16
     lda.l Spawn_ScratchSlotOfs
     tax
     sep #$20
 .a8
     jsl Spawn_ResetKnockdownFall
-    sep #$20
-.a8
+    rep #$20
+.a16
     lda.l Spawn_ScratchX
     sta CHAR_POS_X
-    stz CHAR_POS_X_HI
+    sep #$20
+.a8
     lda.l Spawn_ScratchY
     sta CHAR_POS_Y
     lda.l Spawn_ScratchFacing
@@ -1895,6 +1892,25 @@ Spawn_DoRosterReassign:
 .a16
 .i16
     phd
+    ; Anim_LoadCharacter's $2000-$2003 accesses are absolute hardware
+    ; registers, so this helper must not inherit the caller's WRAM DBR
+    ; (slot45 deliberately uses DBR=$7E for its actor window). Preserve the
+    ; caller bank and establish DBR=$00 only for the loader call path.
+    phb
+    sep #$20
+.a8
+    lda #$00
+    pha
+    plb
+    sep #$20
+.a8
+    lda.l CharSelect_Loaded
+    sta.l Spawn_SavedCharSelectLoaded
+    lda.l CharSelect_RosterCount
+    sta.l Spawn_SavedCharSelectCount
+    rep #$31
+.a16
+.i16
     txa
     clc
     adc #$0A00
@@ -1935,9 +1951,16 @@ Spawn_DoRosterReassign:
 .a8
     lda.l Spawn_SavedCharSelectIndex
     sta.l CharSelect_Index
+    sep #$20
+.a8
+    lda.l Spawn_SavedCharSelectLoaded
+    sta.l CharSelect_Loaded
+    lda.l Spawn_SavedCharSelectCount
+    sta.l CharSelect_RosterCount
     rep #$31
 .a16
 .i16
+    plb
     pld
     rts
 
@@ -2092,6 +2115,13 @@ Spawn_RevealPendingItems__do__not1:
     rts
 Spawn_RevealPendingItems__do__not2:
 .a8
+    cpx #CHAR_ZP_LEN*3
+    bne Spawn_RevealPendingItems__do__not3
+    lda #0
+    sta.l Entity3_ItemRosterIdx
+    rts
+Spawn_RevealPendingItems__do__not3:
+.a8
     cpx #CHAR_ZP_LEN*4
     bne Spawn_RevealPendingItems__do__not4
     lda #0
@@ -2104,10 +2134,8 @@ Spawn_RevealPendingItems__do__not4:
     sta.l Entity5_ItemRosterIdx
     rts
 Spawn_RevealPendingItems__do__not5:
-    lda #0
-    sta.l Entity3_ItemRosterIdx
-    sta.l Entity4_ItemRosterIdx
-    sta.l Entity5_ItemRosterIdx
+    ; Invalid target offsets are rejected. Never clear another actor's
+    ; metadata as a fallback for a corrupted/stale dispatch value.
     rts
 Spawn_RevealPendingItems__do__busy:
     pla

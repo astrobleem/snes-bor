@@ -2765,6 +2765,18 @@ Entity5_KnockdownTimer = Entity5_Base + 47
 Entity5_InputDriven = Entity5_Base + 15
 Entity5_PickupType = Entity5_Base + 127
 Entity5_ItemRosterIdx = $7E58B9
+
+; Temporary G12 stage-predicate trace. These standalone bytes are outside all
+; actor state and are cleared/ignored by production; the verifier reads them
+; only to prove the helper's actual operands and carry result. Keep this in
+; the separately audited scratch window; the nearby item metadata is live.
+G12_StageTrace_Entry = $7E58C1
+G12_StageTrace_Hp1 = $7E58C2
+G12_StageTrace_Hp2 = $7E58C3
+G12_StageTrace_Hp3 = $7E58C4
+G12_StageTrace_Hp4 = $7E58C5
+G12_StageTrace_Hp5 = $7E58C6
+G12_StageTrace_Carry = $7E58C7
 Entity5_IsBoss  = $7E58B7
 
 ; One authoritative bounded actor count for the gameplay paths. Slot 0 is
@@ -7923,7 +7935,7 @@ CharacterEntity_OnCommand:
     rep #$31
 .a16
 .i16
-    lda OopCall_CommandId
+    lda.l OopCall_CommandId
     cmp #SCREEN_CMD_GET_CAMERA_DATA
     beq CharacterEntity_OnCommand__camera
     clc
@@ -7933,9 +7945,9 @@ CharacterEntity_OnCommand__camera:
     ; keeps Y-axis camera easing live (see screen.pasm's header on why
     ; SCREEN_MODE_AIRBORNE freezes it). Harmless since Y never scrolls here.
     lda CHAR_POS_X
-    sta OopCall_ResultX
+    sta.l OopCall_ResultX
     lda CHAR_POS_Y
-    sta OopCall_ResultY
+    sta.l OopCall_ResultY
     lda #SCREEN_MODE_GROUNDED
     sec
     rts
@@ -9534,7 +9546,7 @@ Core_StreamScroll_FetchTileToBuffer__read:
     rts
 
 ; Picks which world column to (re)stage this tick: extends the resident
-; window toward the camera if the desired range has fallen outside
+; window toward the camera target if the desired range has fallen outside
 ; [StagedLo, StagedHi] (watermark), otherwise re-syncs one column from a
 ; cycling repair-sweep cursor (protects against a stale tile surviving an
 ; eviction + scroll reversal).
@@ -9544,7 +9556,13 @@ Core_StreamScroll_PickColumn:
     rep #$31
 .a16
 .i16
-    lda Screen_PosX
+    ; Screen_PosX is deliberately clamped by Core_StreamScroll_ClampCamera
+    ; below the uncached leading edge.  Using it here creates a deadlock:
+    ; once the clamp engages, the desired window is also clamped and the
+    ; resolver can never request the next column.  Screen_TargetX is the
+    ; uncapped gameplay camera demand and is the correct producer-side input;
+    ; the presentation clamp remains the safety barrier for visible VRAM.
+    lda Screen_TargetX
     lsr a
     lsr a
     lsr a                         ; cameraCol = Screen_PosX >> 3

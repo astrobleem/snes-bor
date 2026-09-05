@@ -1754,20 +1754,38 @@ Character_HitApply__RevealOrPickup:
 .a16
 .i16
     cpx #CHAR_ZP_LEN
-    beq Character_HitApply__RevealOrPickup__e1
+    bne Character_HitApply__RevealOrPickup__check2
+    jmp Character_HitApply__RevealOrPickup__e1
+Character_HitApply__RevealOrPickup__check2:
     cpx #CHAR_ZP_LEN*2
-    beq Character_HitApply__RevealOrPickup__e2
-    bra Character_HitApply__RevealOrPickup__e3
+    bne Character_HitApply__RevealOrPickup__check3
+    jmp Character_HitApply__RevealOrPickup__e2
+Character_HitApply__RevealOrPickup__check3:
+    cpx #CHAR_ZP_LEN*3
+    bne Character_HitApply__RevealOrPickup__check4
+    jmp Character_HitApply__RevealOrPickup__e3
+Character_HitApply__RevealOrPickup__check4:
+    cpx #CHAR_ZP_LEN*4
+    bne Character_HitApply__RevealOrPickup__check5
+    jmp Character_HitApply__RevealOrPickup__e4
+Character_HitApply__RevealOrPickup__check5:
+    cpx #CHAR_ZP_LEN*5
+    bne Character_HitApply__RevealOrPickup__invalid
+    jmp Character_HitApply__RevealOrPickup__e5
+Character_HitApply__RevealOrPickup__invalid:
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e1:
     sep #$20
 .a8
     lda.l Entity1_PickupType
-    beq Character_HitApply__RevealOrPickup__done
+    bne Character_HitApply__RevealOrPickup__e1_has_pickup
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e1_has_pickup:
     lda.l Entity1_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e1_instant
     lda #1
     sta.l Entity1_Hp
-    bra Character_HitApply__RevealOrPickup__done
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e1_instant:
 .a8
     lda.l Entity1_PickupType   ; reload -- clobbered by the ItemRosterIdx
@@ -1777,17 +1795,19 @@ Character_HitApply__RevealOrPickup__e1_instant:
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity1_PickupType
-    bra Character_HitApply__RevealOrPickup__done
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e2:
     sep #$20
 .a8
     lda.l Entity2_PickupType
-    beq Character_HitApply__RevealOrPickup__done
+    bne Character_HitApply__RevealOrPickup__e2_has_pickup
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e2_has_pickup:
     lda.l Entity2_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e2_instant
     lda #1
     sta.l Entity2_Hp
-    bra Character_HitApply__RevealOrPickup__done
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e2_instant:
 .a8
     lda.l Entity2_PickupType   ; reload -- clobbered by the ItemRosterIdx
@@ -1797,17 +1817,19 @@ Character_HitApply__RevealOrPickup__e2_instant:
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity2_PickupType
-    bra Character_HitApply__RevealOrPickup__done
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e3:
     sep #$20
 .a8
     lda.l Entity3_PickupType
-    beq Character_HitApply__RevealOrPickup__done
+    bne Character_HitApply__RevealOrPickup__e3_has_pickup
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e3_has_pickup:
     lda.l Entity3_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e3_instant
     lda #1
     sta.l Entity3_Hp
-    bra Character_HitApply__RevealOrPickup__done
+    brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e3_instant:
 .a8
     lda.l Entity3_PickupType   ; reload -- clobbered by the ItemRosterIdx
@@ -1817,6 +1839,46 @@ Character_HitApply__RevealOrPickup__e3_instant:
     jsl Character_HitApply__ApplyPickup
     lda #0
     sta.l Entity3_PickupType
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e4:
+    sep #$20
+.a8
+    lda.l Entity4_PickupType
+    bne Character_HitApply__RevealOrPickup__e4_has_pickup
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e4_has_pickup:
+    lda.l Entity4_ItemRosterIdx
+    beq Character_HitApply__RevealOrPickup__e4_instant
+    lda #1
+    sta.l Entity4_Hp
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e4_instant:
+.a8
+    lda.l Entity4_PickupType
+    jsl Audio_EmitPickup
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity4_PickupType
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e5:
+    sep #$20
+.a8
+    lda.l Entity5_PickupType
+    bne Character_HitApply__RevealOrPickup__e5_has_pickup
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e5_has_pickup:
+    lda.l Entity5_ItemRosterIdx
+    beq Character_HitApply__RevealOrPickup__e5_instant
+    lda #1
+    sta.l Entity5_Hp
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e5_instant:
+.a8
+    lda.l Entity5_PickupType
+    jsl Audio_EmitPickup
+    jsl Character_HitApply__ApplyPickup
+    lda #0
+    sta.l Entity5_PickupType
 Character_HitApply__RevealOrPickup__done:
     plp
     rtl
