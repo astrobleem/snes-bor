@@ -2308,26 +2308,35 @@ Character_Pickup_CheckOverlap__TriggerGet__no:
 ; read wrapper returns the exact A/flags seen by the existing BEQ; the store
 ; wrapper performs the original store after recording an accepted upload.
 G12_AnimTrace_BusyRead:
-    sep #$20
-.a8
     ; This wrapper replaces an actual LDA.l.  Perform that load here so the
     ; caller receives the same A and flags; do not record the incoming A.
     lda.l Msu1_StreamBusy
     php
+    ; Preserve the complete accumulator, including the hidden high byte when
+    ; the displaced instruction was an A8 load.  Record changes M/I and uses
+    ; TDC, so an 8-bit PHA/PLA pair is not sufficient here.
+    rep #$20
+.a16
     pha
     phx
     phy
+    sep #$20
+.a8
     sta.l G12_AnimTrace_SavedA
     lda #2                         ; event 2 = actual busy decision
     jsr G12_AnimTrace_Record
     ply
     plx
+    rep #$20
+.a16
     pla
     plp
     rtl
 
 G12_AnimTrace_BusyStore:
     php
+    rep #$20
+.a16
     pha
     phx
     phy
@@ -2338,6 +2347,8 @@ G12_AnimTrace_BusyStore:
     jsr G12_AnimTrace_Record
     ply
     plx
+    rep #$20
+.a16
     pla
     plp
     sta.l Msu1_StreamBusy
@@ -2347,18 +2358,22 @@ G12_AnimTrace_LoadedRead:
     ; Same-size replacement for Anim_Play's LDA.l CharSelect_Loaded.  The
     ; returned A/flags are the original load result; event 4 records whether
     ; this entity reached the global character-loaded dispatch gate.
-    sep #$20
-.a8
     lda.l CharSelect_Loaded
     php
+    rep #$20
+.a16
     pha
     phx
     phy
+    sep #$20
+.a8
     sta.l G12_AnimTrace_SavedA
     lda #4
     jsr G12_AnimTrace_Record
     ply
     plx
+    rep #$20
+.a16
     pla
     plp
     rtl

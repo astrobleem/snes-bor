@@ -59,7 +59,10 @@ CHAR_ATTACK2_FCOUNT = pasm_constant('CHAR_ATTACK2_FCOUNT')
 CHAR_ATTACK2_DELAY = pasm_constant('CHAR_ATTACK2_DELAY')
 CHAR_ATTACK2_BASE_LO = pasm_constant('CHAR_ATTACK2_BASE_LO')
 CHAR_ATTACK2_BASE_HI = pasm_constant('CHAR_ATTACK2_BASE_HI')
+CHAR_ATTACK_BASE_LO = pasm_constant('CHAR_ATTACK_BASE_LO')
+CHAR_ATTACK_BASE_HI = pasm_constant('CHAR_ATTACK_BASE_HI')
 CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
+CHAR_TILE_COLUMN = pasm_constant('CHAR_TILE_COLUMN')
 CHAR_RISE_FCOUNT = pasm_constant('CHAR_RISE_FCOUNT')
 CHAR_RISE_BASE_LO = pasm_constant('CHAR_RISE_BASE_LO')
 CHAR_RISE_BASE_HI = pasm_constant('CHAR_RISE_BASE_HI')
@@ -222,6 +225,43 @@ def main():
         states_none = press_and_poll(m, m.BTN_X, max_frames=20)
         r.check('X press on YASHIRO never triggers CHAR_SELECTED=2 (no crash, no-op)',
                 all(s['selected'] != 2 for s in states_none))
+
+        # The zero-attack2 case must still use attack1 when Y is pressed.  A
+        # dispatch regression can pass the X no-op check while leaving the
+        # attack1 body unreachable, so verify a presented attack1 frame against
+        # the independently selected packed MSU source as well.
+        m.write_u8(PlayerEntity + CHAR_SELECTED, 0)
+        m.set_input(m.BTN_Y, 1)
+        states_yashiro_a1 = []
+        presented = None
+        with open(os.path.join(ROOT, 'distribution', 'bor.msu'), 'rb') as f:
+            msu = f.read()
+        for _ in range(30):
+            m.run_frames(1)
+            m.pause()
+            state = player_state(m)
+            states_yashiro_a1.append(state)
+            if (presented is None and state['selected'] == 2
+                    and state['variant'] == 0 and state['frame_index'] != 0xFF):
+                y_entity = read_block(m, PlayerEntity, 64)
+                base = ((y_entity[CHAR_ATTACK_BASE_HI] << 16)
+                        | y_entity[CHAR_ATTACK_BASE_LO]
+                        | (y_entity[CHAR_ATTACK_BASE_LO + 1] << 8))
+                source = base + state['frame_index'] * 768
+                col = y_entity[CHAR_TILE_COLUMN]
+                rows = [bytes(read_block(m, 0x8000 + col * 128 + row * 512, 128,
+                                         mem_type='snesVideoRam')) for row in range(6)]
+                if all(rows[row] == msu[source + row * 128:source + (row + 1) * 128]
+                       for row in range(6)):
+                    presented = (state['frame_index'], source)
+        triggered_yashiro_a1 = next(
+            (s for s in states_yashiro_a1
+             if s['selected'] == 2 and s['variant'] == 0), None)
+        r.check('YASHIRO Y press enters attack1 variant 0',
+                triggered_yashiro_a1 is not None)
+        print(f'YASHIRO attack1 presented source: {presented}')
+        r.check('YASHIRO attack1 presents the matching packed MSU frame',
+                presented is not None)
 
         # --- 6. claude_close_g7_g8_before_g10.md Part 1 regression proof:
         # MOUSER's real second attack is 'upper' (9 frames), but MOUSER

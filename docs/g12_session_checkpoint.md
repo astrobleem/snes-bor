@@ -502,3 +502,55 @@ travel, and next-stage transition. No transport, fairness, cache, two-player,
 or audio redesign was made. The remaining explicit issue is the RALF
 attack2 verifier failure; the six-actor measurement is evidence, not final
 acceptance until that regression is classified.
+## G12 wrapper contract and focused regression closeout evidence (2026-09-05)
+
+Fix-forward from `fce26e7a2cccbe4a74d98b370d7703d09ece1dfe` remains on
+`review/g12-six-actor-debug`. The three bounded animation observer wrappers
+now save the displaced access result in a full A16 push, run the recorder,
+then explicitly return to A16 before the matching pull and restore the saved
+status. This preserves the original load/store flags, caller M/I width,
+registers, D/DBR, and stack while retaining the recorder's A16 ring-index
+calculation. The built guard remains PASS (`runtime_end=$FF54`, 76 bytes
+free before NMI); the ring is fully cleared before measurement.
+
+Fresh hooked artifact: ROM
+`637358BB98BB2CADC2A5F1990D386E295DBDB88C469EC6A680192EA8288F6803`, MSU
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+Build command:
+`python -u -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`.
+
+`game_g7_attack2.py` now proves YASHIRO's zero-attack2 character enters
+attack1 variant 0 and that the first observed valid attack1 pose matches all
+six packed MSU rows at the player tile allocation (`source=114346`, frame 0).
+JOE attack2, YASHIRO X no-op, YASHIRO attack1, and MOUSER higher-variant
+coverage pass.
+
+The ordinary `game_g7_grab.py` RALF red case is now causally classified. Its
+pre-X state is valid (input-driven, chain length zero, attack2 count 4/base
+`$00524A`, no hit-stun/invulnerability, no links), and all non-target actors
+are explicitly suppressed immediately before the edge. The 40-frame trace
+shows no `CHAR_SELECTED=2` transition and no HP/hit-stun change; therefore
+the first failure is before damage dispatch, not a collision miss. The
+earlier contamination was also fixed: slots 2/3 had respawned during the
+long grab/reselect sequence, and the reset omitted the player's reciprocal
+grab field. The remaining RALF-specific input/dispatch contradiction is
+retained as unresolved evidence; it is not relabeled as a production PASS.
+
+The same focused gate otherwise passes JOE grab/follow/release, invalid-link
+cleanup, and reciprocal-link checks. `game_g12_six_actor_production.py`
+passes six production-spawned actors, completed source-matched VRAM uploads,
+slot reuse, break/reveal/collection, slot-5 last-enemy transition, and camera
+travel. `game_g7_depth_sort.py` passes both four- and six-actor ordering plus
+jump/landing/crossover. The latest continuous 600-frame six-live-actor
+measurement (`out/g12_six_actor_measurement_wrapperfix.json`) observes five
+non-player combat actors on every sample: per-slot successful streams are
+`[41,53,66,46,63,39]`, created requests `[41,61,72,58,74,48]`, max waits
+`[1,2,3,3,3,4]`, average waits
+`[0.3171,0.6604,0.7121,0.8478,1.0317,0.9487]`, DMA high-water 8 records /
+856 bytes, NMI delta 600, and zero overruns. Aggregate confirmed busy
+denials remain null because the bounded ring is not lossless; event-time
+busy decisions are retained as compact snapshot evidence.
+
+Nonclaims remain: no transport/cache redesign, no two-player support, no
+residency claim, and no acceptance of the RALF-specific red regression until
+its pre-dispatch contradiction receives independent review.

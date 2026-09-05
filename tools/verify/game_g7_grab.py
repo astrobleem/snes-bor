@@ -57,6 +57,7 @@ from _harness import (open_session, pasm_constant, pasm_constant_in, read_block,
                        exact_input_edge, run_frames_exact)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
+CHARACTER_ACTOR_COUNT = pasm_constant('CHARACTER_ACTOR_COUNT')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 CHAR_SELECTED = pasm_constant('CHAR_SELECTED')
@@ -64,6 +65,13 @@ CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
 CHAR_HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
+CHAR_FRAME_INDEX = pasm_constant('CHAR_FRAME_INDEX')
+CHAR_TICK_COUNTER = pasm_constant('CHAR_TICK_COUNTER')
+CHAR_ATTACK2_FCOUNT = pasm_constant('CHAR_ATTACK2_FCOUNT')
+CHAR_ATTACK2_BASE_LO = pasm_constant('CHAR_ATTACK2_BASE_LO')
+CHAR_ATTACK2_BASE_HI = pasm_constant('CHAR_ATTACK2_BASE_HI')
+CHAR_CHAINLENGTH = pasm_constant('CHAR_CHAINLENGTH')
+CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
 CHAR_ATTACK2_IS_GRAB = pasm_constant('CHAR_ATTACK2_IS_GRAB')
 CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
@@ -84,6 +92,8 @@ PlayerEntity = ENTITY_BASES[0]
 Entity1 = ENTITY_BASES[1]
 Entity2 = ENTITY_BASES[2]
 Entity3 = ENTITY_BASES[3]
+Entity4 = 0x7E0A00 + CHAR_ZP_LEN * 4
+Entity5 = 0x7E0A00 + CHAR_ZP_LEN * 5
 Entity1_Slot = 1  # compact actor ID stored in the byte grab-link fields
 
 CharSelect_Index = 0x7E53B6
@@ -117,6 +127,11 @@ def read_u8(m, addr):
     return read_block(m, addr, 32)[0]
 
 
+def read_u16(m, addr):
+    b = read_block(m, addr, 32)
+    return b[0] | (b[1] << 8)
+
+
 def overlap_entity1_with_player(m):
     px = entity_block(m, PlayerEntity)
     x = pos_x(px)
@@ -131,6 +146,11 @@ def reset_combat_state(m):
     m.write_u8(PlayerEntity + CHAR_HIT_APPLIED, 0)
     m.write_u8(PlayerEntity + CHAR_HIT_STUN, 0)
     m.write_u8(PlayerEntity + CHAR_GRAB_TARGET, 0xFF)
+    # The invalid-link subcase below deliberately writes the player's
+    # reciprocal field.  A fresh combat setup must clear both halves of the
+    # link; otherwise the following ordinary attack is still treated as a
+    # grabbed player and the RALF regression becomes a fixture false negative.
+    m.write_u8(PlayerEntity + CHAR_GRABBED_BY, 0xFF)
     m.write_u8(Entity1 + CHAR_SELECTED, 0)
     m.write_u8(Entity1 + CHAR_HIT_STUN, 0)
     m.write_u8(Entity1 + CHAR_GRABBED_BY, 0xFF)
@@ -358,14 +378,58 @@ def main():
         ralf_is_grab = read_u8(m, PlayerEntity + CHAR_ATTACK2_IS_GRAB)
         r.check('RALF CHAR_ATTACK2_IS_GRAB==0 (upper is not a real grab)', ralf_is_grab == 0)
 
+        # The earlier setup only suppressed slots 2/3.  The production spawn
+        # loop can reuse those slots during the long grab/reselect sequence,
+        # so make this short RALF combat case independent of respawned AI:
+        # keep Entity1 as the sole target and suppress every other non-player
+        # actor immediately before the attack edge.
+        for actor in (Entity2, Entity3, Entity4, Entity5):
+            m.write_u8(actor + CHAR_HP, 0)
+            m.write_u8(actor + CHAR_SELECTED, 0)
+            m.write_u8(actor + CHAR_GRAB_TARGET, 0xFF)
+            m.write_u8(actor + CHAR_GRABBED_BY, 0xFF)
+
         reset_combat_state(m)
         m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
         px2, py2 = overlap_entity1_with_player(m)
         hp_before = entity_block(m, Entity1)[CHAR_HP]
+        r.check('RALF attack setup has no stale player grab link',
+                read_u8(m, PlayerEntity + CHAR_GRABBED_BY) == 0xFF)
+        print('RALF pre-X state: selected=%02X variant=%02X grabbed_by=%02X '
+              'target=%02X a2_fc=%02X a2_base=%06X entity1_hp=%d' % (
+                  read_u8(m, PlayerEntity + CHAR_SELECTED),
+                  read_u8(m, PlayerEntity + CHAR_ATTACK_VARIANT),
+                  read_u8(m, PlayerEntity + CHAR_GRABBED_BY),
+                  read_u8(m, PlayerEntity + CHAR_GRAB_TARGET),
+                  read_u8(m, PlayerEntity + CHAR_ATTACK2_FCOUNT),
+                  read_u8(m, PlayerEntity + CHAR_ATTACK2_BASE_HI) << 16
+                  | (read_u16(m, PlayerEntity + CHAR_ATTACK2_BASE_LO)), hp_before))
+        print('RALF dispatch metadata: chainlength=%02X input_driven=%02X'
+              % (read_u8(m, PlayerEntity + CHAR_CHAINLENGTH),
+                 read_u8(m, PlayerEntity + CHAR_INPUT_DRIVEN)))
+        print('RALF pre-X gates: player_hit_stun=%02X entity1_hit_stun=%02X '
+              'entity1_invuln=%02X' % (
+                  read_u8(m, PlayerEntity + CHAR_HIT_STUN),
+                  read_u8(m, Entity1 + CHAR_HIT_STUN),
+                  read_u8(m, Entity1_InvulnFrames)))
         exact_input_edge(m, m.BTN_X, 1)
-        hit_landed = poll_until(
-            m, lambda: entity_block(m, Entity1)[CHAR_HP] != hp_before, max_frames=40)
+        ralf_trace = []
+        for _ in range(40):
+            run_frames_exact(m, 1)
+            pb = entity_block(m, PlayerEntity)
+            eb = entity_block(m, Entity1)
+            ralf_trace.append({
+                'selected': pb[CHAR_SELECTED], 'variant': pb[CHAR_ATTACK_VARIANT],
+                'frame': pb[CHAR_FRAME_INDEX], 'tick': pb[CHAR_TICK_COUNTER],
+                'hit_applied': pb[CHAR_HIT_APPLIED],
+                'target_hp': eb[CHAR_HP], 'target_stun': eb[CHAR_HIT_STUN],
+                'other_hp': [entity_block(m, b)[CHAR_HP] for b in
+                             (Entity2, Entity3, Entity4, Entity5)
+                             if b != PlayerEntity],
+            })
+        hit_landed = any(s['target_hp'] != hp_before for s in ralf_trace)
         e1_ralf = entity_block(m, Entity1)
+        print('RALF post-X trace: %s' % ralf_trace[:12])
         with open(RALF_MOVESET, 'r', encoding='utf-8') as f:
             ralf_moveset = json.load(f)
         print(f'RALF attack2 regression: hp {hp_before}->{e1_ralf[CHAR_HP]}, '

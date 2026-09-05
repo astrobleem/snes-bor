@@ -1326,12 +1326,12 @@
 00:8C30 ANIM_TILEMAP_LEFT_BASE
 08:8C41 Character_Pickup_CheckOverlap__TriggerGet__no
 08:8C42 G12_AnimTrace_BusyRead
-08:8C5A G12_AnimTrace_BusyStore
+08:8C5E G12_AnimTrace_BusyStore
 00:8C60 Core_Text_Init
 0C:8C62 Character_HitApply_VsAllGeneric__next
-08:8C72 G12_AnimTrace_LoadedRead
 0C:8C75 Character_Grab_Throw
-08:8C8A G12_AnimTrace_Record
+08:8C7A G12_AnimTrace_LoadedRead
+08:8C96 G12_AnimTrace_Record
 00:8C97 Core_Text_Init__pal_loop
 00:8CAA Text_EmitGlyph
 00:8CB4 Text_EmitGlyph__blank
@@ -1340,7 +1340,7 @@
 0C:8CC0 Character_Grab_Throw__knock_have
 00:8CE4 Text_EmitGlyph__skip
 00:8CE8 Text_FlushRow
-08:8CFA G12_AnimTrace_Record__done
+08:8D06 G12_AnimTrace_Record__done
 00:8D21 Core_Text_DrawString
 0C:8D2B Character_Grab_Throw__done
 0C:8D2C Character_Grab_Throw__invalid
