@@ -2742,6 +2742,14 @@ Entity3_PaletteBaseHi = Entity3_Base + 51 ; Entity #3's CHAR_PALETTE_BASE_HI
 Entity3_MapIndex      = Entity3_Base + 52 ; Entity #3's CHAR_MAP_INDEX
 Entity3_MapBaseLo     = Entity3_Base + 53 ; Entity #3's CHAR_MAP_BASE_LO
 Entity3_MapBaseHi     = Entity3_Base + 55 ; Entity #3's CHAR_MAP_BASE_HI
+
+; One authoritative bounded actor count for the gameplay paths. Slot 0 is
+; always the player; the target table is deliberately separate from roster,
+; OAM, and VRAM allocation indices.
+CHARACTER_ACTOR_COUNT = 4
+Character_ActorTargetOffsets:
+    .dw CHAR_ZP_LEN, CHAR_ZP_LEN*2, CHAR_ZP_LEN*3
+
 PlayerEntity_HitStun = $7E0a00 + 33   ; Entity #0's CHAR_HIT_STUN
 PlayerEntity_Hp      = $7E0a00 + 35   ; Entity #0's CHAR_HP
 PlayerEntity_GrabTarget = $7E0a00 + 63 ; Entity #0's CHAR_GRAB_TARGET (grab
@@ -6156,9 +6164,7 @@ Character_HitApply__attacking:
     beq Character_HitApply__do_vs_player
     bra Character_HitApply__done   ; mode 0 (static) -- no defined "other entity"
 Character_HitApply__do_vs_all_ai:
-    jsr Character_HitApply_VsEntity1
-    jsr Character_HitApply_VsEntity2
-    jsr Character_HitApply_VsEntity3
+    jsl Character_HitApply_VsAllGeneric
     bra Character_HitApply__done
 Character_HitApply__do_vs_player:
     jsr Character_HitApply_VsPlayer
@@ -6232,6 +6238,13 @@ Character_HitApply__ScoreAndFinish__scored:
     lda #1
     sta CHAR_HIT_APPLIED
     jmp G11_QueueHitSfx
+
+; Bank-1's count-driven collision walker reaches the established bank-0
+; score/SFX tail through this small JSL-safe trampoline.
+Character_HitApply__ScoreAndFinish_Long:
+.a8
+    jsr Character_HitApply__ScoreAndFinish
+    rtl
 
 ; ambient width, unchanged) -- every branch target below is a handful of
 ; lines away, well inside 8-bit branch range. No caller-convention assumed

@@ -83,6 +83,7 @@ VmNativeEng_ScanIndex = $7FF4FE   ; .dw -- SPAWN's free-slot scan cursor, 1..3
 ; several X-indexed field accesses that routine needs, since X itself gets
 ; reused (with CHAR_* added in) for each individual field address.
 HitApply_EntityBase = $7FF500     ; .dw
+HitApply_TargetIndex = $7FF50C    ; .db -- actor index 1..5 for invulnerability table
 
 ; plan_game.md 7 (grab mutual-lock slice): Character_HitApply__ApplyGrab's
 ; own scratch, placed directly after HitApply_EntityBase ($7FF502,
@@ -1417,6 +1418,151 @@ Character_HitApply__ApplyGrab__sides_done:
     sta CHAR_HIT_APPLIED
 
     sec
+    rtl
+
+; Character_HitApply_VsEntityGeneric -- bounded target traversal helper.
+; X is the target's CharacterEntity byte offset.  It performs the same AABB,
+; invulnerability, grab, and damage decision used by the former fixed
+; Entity1/2/3 leaves, but reads the target through the existing object-RAM
+; offset convention.  Carry clear means no damage/grab was applied; carry set
+; means a normal damage hit was applied (A is the kill result).  A grab is
+; deliberately reported as carry clear because the existing caller must not
+; award score or run pickup resolution for a grab lock.
+Character_HitApply_VsEntityGeneric:
+.a16
+.i16
+    txa
+    sta.l HitApply_EntityBase
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_X
+    tax
+    lda.l PlayerEntity_PosX
+    cmp.l $7E0a00,x
+    bcs Character_HitApply_VsEntityGeneric__dx_otherge
+    lda.l $7E0a00,x
+    sec
+    sbc.l PlayerEntity_PosX
+    bra Character_HitApply_VsEntityGeneric__dx_have
+Character_HitApply_VsEntityGeneric__dx_otherge:
+    sec
+    sbc.l $7E0a00,x
+Character_HitApply_VsEntityGeneric__dx_have:
+    cmp #CHAR_HITBOX_W
+    bcs Character_HitApply_VsEntityGeneric__no
+
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_POS_Y
+    tax
+    sep #$20
+.a8
+    lda.l PlayerEntity_PosY
+    cmp.l $7E0a00,x
+    bcs Character_HitApply_VsEntityGeneric__dy_otherge
+    lda.l $7E0a00,x
+    sec
+    sbc.l PlayerEntity_PosY
+    bra Character_HitApply_VsEntityGeneric__dy_have
+Character_HitApply_VsEntityGeneric__dy_otherge:
+    sec
+    sbc.l PlayerEntity_PosY
+Character_HitApply_VsEntityGeneric__dy_have:
+    cmp #CHAR_HITBOX_H
+    bcs Character_HitApply_VsEntityGeneric__no
+
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_HP
+    tax
+    sep #$20
+.a8
+    lda.l $7E0a00,x
+    beq Character_HitApply_VsEntityGeneric__no
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_TargetIndex
+    tax
+    sep #$20
+.a8
+    lda.l Actor_InvulnFrames,x
+    bne Character_HitApply_VsEntityGeneric__no
+    lda #AI_POST_HIT_INVULN_FRAMES
+    sta.l Actor_InvulnFrames,x
+
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    tax
+    jsl Character_HitApply__TryGrab
+.a8
+    bcs Character_HitApply_VsEntityGeneric__grabbed
+    sec
+    rtl
+Character_HitApply_VsEntityGeneric__grabbed:
+    clc
+    rtl
+Character_HitApply_VsEntityGeneric__no:
+    clc
+    rtl
+
+; Complete bounded player-target traversal. The actor table and count live in
+; main.pasm; this bank owns the loop so the bank-0 collision arena does not
+; grow when the bounded count grows. Target order is table order (Entity1,
+; Entity2, Entity3, then any later actor slots).
+Character_HitApply_VsAllGeneric:
+    php
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l VmNativeEng_ScanIndex
+Character_HitApply_VsAllGeneric__loop:
+    lda.l VmNativeEng_ScanIndex
+    tax
+    txa
+    lsr a
+    inc a
+    sta.l HitApply_TargetIndex
+    lda.l Character_ActorTargetOffsets,x
+    tax
+    jsl Character_HitApply_VsEntityGeneric
+.a8
+    bcc Character_HitApply_VsAllGeneric__next
+    jsl Character_HitApply__ScoreAndFinish_Long
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    clc
+    adc #CHAR_HP
+    tax
+    sep #$20
+.a8
+    lda.l $7E0a00,x
+    bne Character_HitApply_VsAllGeneric__next
+    rep #$31
+.a16
+.i16
+    lda.l HitApply_EntityBase
+    tax
+    jsl Character_HitApply__RevealOrPickup
+Character_HitApply_VsAllGeneric__next:
+    rep #$31
+.a16
+.i16
+    lda.l VmNativeEng_ScanIndex
+    inc a
+    inc a
+    sta.l VmNativeEng_ScanIndex
+    cmp #(CHARACTER_ACTOR_COUNT-1)*2
+    bcc Character_HitApply_VsAllGeneric__loop
+    plp
     rtl
 
 ; ============================================================================

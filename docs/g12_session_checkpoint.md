@@ -221,3 +221,19 @@ Production remains the accepted single-buffer architecture. Residency
 research remains unchanged: generic two-slot and shared four-slot policies
 had zero hits; the fixed hot-player-idle policy predicted 45/171 hits. Sound
 is closed and not part of this decision.
+
+## G12 actor-capacity migration — four-actor checkpoint
+
+The first count-driven four-actor migration is implemented and validated.
+`CHARACTER_ACTOR_COUNT` is authoritative for bounded player-target traversal;
+the target offsets remain a separate actor-slot table, preserving player slot
+0 and keeping actor slot, roster identity, OAM order, and VRAM allocation
+distinct. The former fixed Entity1/2/3 collision dispatch now reaches the
+existing grab/damage rules through one dynamic target helper. AI-vs-player,
+props, and existing pickup behavior remain on their established paths.
+
+The AI invulnerability bytes were moved to a contiguous indexed block at
+`$7E58B0`, leaving the character struct unchanged and reserving slots for the
+later six-actor extension. Four-actor validation passed `phase5.py`,
+`phase11_damage.py`, `game_g8_props.py`, `game_g7_depth_sort.py`, and
+`game_g7_grab.py`. Six-actor behavior and VRAM mapping are still NONCLAIM.

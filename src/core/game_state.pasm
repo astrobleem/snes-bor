@@ -310,9 +310,12 @@ Game_ScoreOldQuotientScratch = $7E2765  ; .dw -- ditto (see main.pasm's
 ; decremented once per PLAYING frame below (same shape as Player_InvulnFrames
 ; itself, NOT the per-entity Anim_Play site CHAR_HIT_STUN uses -- there is no
 ; per-entity dispatch context out here, so all three are ticked in a row).
-Entity1_InvulnFrames = $7E2767   ; .db
-Entity2_InvulnFrames = $7E2768   ; .db
-Entity3_InvulnFrames = $7E2769   ; .db
+Actor_InvulnFrames   = $7E58B0   ; .db x6, indexed by actor slot
+Entity1_InvulnFrames = $7E58B1
+Entity2_InvulnFrames = $7E58B2
+Entity3_InvulnFrames = $7E58B3
+Entity4_InvulnFrames = $7E58B4
+Entity5_InvulnFrames = $7E58B5
 
 ; claude_close_g7_g8_before_g10.md Part 2: a breakable object's contained
 ; item's roster index (build_spawn_table.py's +8 item_roster_idx byte) --
