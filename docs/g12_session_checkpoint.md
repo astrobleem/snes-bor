@@ -420,3 +420,44 @@ changing gameplay. The six-actor trace's
 `inferred_nonprogress_while_due` values therefore remain inferred snapshot
 statistics; confirmed busy-branch counts and direct service-boundary event
 records remain unmeasured. No fairness correction is justified yet.
+
+## G12 direct animation-service observation (2026-09-05)
+
+The current rebuilt candidate is `distribution/bor.sfc` SHA-256
+`A7D72A0CBE4B877270F4D7037BE79449BEBCB9465B229C1852EA2D04DD5F15F2` with
+`distribution/bor.msu` SHA-256
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The build command was:
+`python -u -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`.
+The fixed bank-0 guard remains PASS (`runtime_end=$FF54`, 76 bytes free).
+
+`G12_AnimTrace_BusyRead` now performs the displaced `LDA.l
+Msu1_StreamBusy` itself and restores the exact A/flags result used by the
+existing branch. `G12_AnimTrace_BusyStore` records the existing accepted
+upload store and then performs it. The same-size `CharSelect_Loaded` wrapper
+records whether each actor reaches the loaded dispatch gate. The bounded
+ring is at `$7EF000-$7EF03F`; its sampled records include DP base, event,
+event-time value, selected/frame/tick, and grab link. Event 2 is an actual
+busy decision (`value=1` rejection, `value=0` admission); event 3 is the
+existing post-enqueue busy store.
+
+In `out/g12_actor_liveness_causal_valid.json`, the isolated actor-2 run
+records actor 2 at DP `$0B0A`, `selected=2`, `frame=$FF`, `tick=1`. It
+receives actual busy decisions with both `value=1` and `value=0`; the
+progressing actor 1 services 3 timed streams, while actor 2 services 1 and
+has 5 created timed requests, 4 inferred cancellations, and no completed
+presentation for the final pending request. NMI delta is 40 and overruns
+are zero. The matching four-actor control also records busy decisions and
+bounded progress, so this evidence establishes serialized contention but
+does not establish an unfair-admission defect unique to six actors.
+
+`confirmed_busy_denials` remains JSON null deliberately: sampled circular
+ring snapshots are not a lossless aggregate event sequence. The direct
+event records are retained evidence; `inferred_nonprogress_while_due` is
+still explicitly inferred. A proposed frame-loader entry wrapper was tested
+and rejected because it stalled the diagnostic build before normal service;
+it was removed and is not evidence. The ordinary invalid-link, collision,
+and four/six depth-sort portions pass; the depth fixture's jump subgate
+still reports its existing `player never entered jump state` failure under
+this diagnostic build. No fairness, transport, cache, or audio change is
+claimed, and the six-actor 600-frame acceptance measurement remains open.

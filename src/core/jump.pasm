@@ -2303,3 +2303,109 @@ Character_Pickup_CheckOverlap__TriggerGet:
     sta.l PlayerEntity_TickCounter
 Character_Pickup_CheckOverlap__TriggerGet__no:
     rts
+
+; G12 service observer wrappers replace same-size bank-0 accesses. The busy
+; read wrapper returns the exact A/flags seen by the existing BEQ; the store
+; wrapper performs the original store after recording an accepted upload.
+G12_AnimTrace_BusyRead:
+    sep #$20
+.a8
+    ; This wrapper replaces an actual LDA.l.  Perform that load here so the
+    ; caller receives the same A and flags; do not record the incoming A.
+    lda.l Msu1_StreamBusy
+    php
+    pha
+    phx
+    phy
+    sta.l G12_AnimTrace_SavedA
+    lda #2                         ; event 2 = actual busy decision
+    jsr G12_AnimTrace_Record
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+G12_AnimTrace_BusyStore:
+    php
+    pha
+    phx
+    phy
+    sep #$20
+.a8
+    sta.l G12_AnimTrace_SavedA
+    lda #3
+    jsr G12_AnimTrace_Record
+    ply
+    plx
+    pla
+    plp
+    sta.l Msu1_StreamBusy
+    rtl
+
+G12_AnimTrace_LoadedRead:
+    ; Same-size replacement for Anim_Play's LDA.l CharSelect_Loaded.  The
+    ; returned A/flags are the original load result; event 4 records whether
+    ; this entity reached the global character-loaded dispatch gate.
+    sep #$20
+.a8
+    lda.l CharSelect_Loaded
+    php
+    pha
+    phx
+    phy
+    sta.l G12_AnimTrace_SavedA
+    lda #4
+    jsr G12_AnimTrace_Record
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+G12_AnimTrace_Record:
+    ; A8 = event kind, SavedA = value at the replaced access.
+    sep #$20
+.a8
+    sta.l G12_AnimTrace_Event
+    sta.l G12_AnimTrace_LastEvent
+    lda.l G12_AnimTrace_Index
+    and #$07
+    asl a
+    asl a
+    asl a
+    tax
+    rep #$31
+.a16
+.i16
+    tdc
+    sta.l G12_AnimTrace_Ring,x
+    sta.l G12_AnimTrace_LastDp
+    sep #$20
+.a8
+    lda.l G12_AnimTrace_Event
+    sta.l G12_AnimTrace_Ring+2,x
+    lda.l G12_AnimTrace_SavedA
+    sta.l G12_AnimTrace_Ring+3,x
+    sta.l G12_AnimTrace_LastValue
+    lda CHAR_SELECTED
+    sta.l G12_AnimTrace_Ring+4,x
+    lda CHAR_FRAME_INDEX
+    sta.l G12_AnimTrace_Ring+5,x
+    lda CHAR_TICK_COUNTER
+    sta.l G12_AnimTrace_Ring+6,x
+    lda CHAR_GRAB_TARGET
+    sta.l G12_AnimTrace_Ring+7,x
+    lda.l G12_AnimTrace_Index
+    inc a
+    sta.l G12_AnimTrace_Index
+    lda.l G12_AnimTrace_Index
+    cmp #8
+    bcc G12_AnimTrace_Record__done
+    lda #0
+    sta.l G12_AnimTrace_Index
+    lda.l G12_AnimTrace_Overflow
+    inc a
+    sta.l G12_AnimTrace_Overflow
+G12_AnimTrace_Record__done:
+    rts

@@ -2779,9 +2779,24 @@ G12_StageTrace_Hp5 = $7E58C6
 G12_StageTrace_Carry = $7E58C7
 Entity5_IsBoss  = $7E58B7
 
+; G12 actor-service event ring. Eight records x eight bytes at $7EF000-$7EF03F:
+; DP base (2), event (1), event-time busy/value (1), selected/frame/tick/grab
+; (4). Index wraps and overflow is latched; production behavior is unchanged.
+G12_AnimTrace_Index = $7E58C8
+G12_AnimTrace_Overflow = $7E58C9
+G12_AnimTrace_SavedA = $7E58CA
+G12_AnimTrace_Event = $7E58CB
+G12_AnimTrace_LastDp = $7E58CC
+G12_AnimTrace_LastEvent = $7E58CE
+G12_AnimTrace_LastValue = $7E58CF
+; $7EF000-$7EF03F is beyond the VM code WRAM window ($7E6000-$7EDFFF)
+; and is reserved here solely for the bounded diagnostic ring.
+G12_AnimTrace_Ring = $7EF000
+
 ; Bounded G12 animation-service observation.  This is a last-event latch,
 ; not a scheduler or queue: the verifier samples it immediately after a
-; short exact-frame interval.  Event 1=Anim_Play entry, 2=busy rejection,
+; short exact-frame interval.  Event 2=busy decision (value 1 rejection,
+; value 0 admission), 3=accepted upload store, 4=loaded dispatch gate.
 
 ; One authoritative bounded actor count for the gameplay paths. Slot 0 is
 ; always the player; the target table is deliberately separate from roster,
@@ -4010,7 +4025,7 @@ Anim_Play__no_reselect:
     ; Nothing loaded (MSU-1 absent, or the current slot's data is invalid --
     ; see Anim_LoadCharacter) -- skip the whole dispatch below rather than
     ; streaming from a zeroed/garbage MSU base every tick.
-    lda.l CharSelect_Loaded
+    jsl G12_AnimTrace_LoadedRead
     bne Anim_Play__loaded
     rep #$31
 .a16
@@ -4555,7 +4570,7 @@ Anim_Play_Idle:
     ; the tick decrement below, not after it reaches 0, so a blocked
     ; entity's countdown pauses for a frame instead of pinning at 0 and
     ; re-losing the race to a lower-priority caller every single frame.
-    lda.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyRead
     beq Anim_Play_Idle__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Idle__not_busy:
@@ -4600,7 +4615,7 @@ Anim_Play_Walk:
 .a8
     ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
     ; for why the check must come before the tick decrement.
-    lda.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyRead
     beq Anim_Play_Walk__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Walk__not_busy:
@@ -4647,7 +4662,7 @@ Anim_Play_Attack:
 .a8
     ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
     ; for why the check must come before the tick decrement.
-    lda.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyRead
     beq Anim_Play_Attack__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Attack__not_busy:
@@ -4847,7 +4862,7 @@ Anim_Play_Fall__to_rise:
     brl Anim_Done
 Anim_Play_Fall__stream_gate:
 .a8
-    lda.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyRead
     beq Anim_Play_Fall__playing_frames
     brl Anim_Done
 Anim_Play_Fall__playing_frames:
@@ -4904,7 +4919,7 @@ Anim_Play_Fall__frame_ok:
 Anim_Play_Rise:
     sep #$20
 .a8
-    lda.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyRead
     beq Anim_Play_Rise__not_busy
     brl Anim_Done
 Anim_Play_Rise__not_busy:
@@ -5152,7 +5167,7 @@ Msu1_LoadFrame__read:
     sep #$20
 .a8
     lda #1
-    sta.l Msu1_StreamBusy
+    jsl G12_AnimTrace_BusyStore
     ; Dispatch the authored frame sound after the six frame DMA rows are
     ; queued, while D still names the current entity.
     jsl Audio_FrameSoundDispatch

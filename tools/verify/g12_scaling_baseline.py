@@ -55,6 +55,12 @@ NMI_OVER = pasm_constant_in("src/core/nmi.pasm", "Nmi_FrameOver")
 DMA_CUR = pasm_constant_in("src/core/dma.pasm", "DmaQueue_CurrentSlot")
 DMA_BUDGET = pasm_constant_in("src/core/dma.pasm", "DmaQueue_BudgetTotal")
 DMA_QUEUE = pasm_constant_in("src/core/dma.pasm", "DmaQueue")
+ANIM_TRACE_INDEX = pasm_constant("G12_AnimTrace_Index")
+ANIM_TRACE_OVERFLOW = pasm_constant("G12_AnimTrace_Overflow")
+ANIM_TRACE_RING = pasm_constant("G12_AnimTrace_Ring")
+ANIM_TRACE_LAST_DP = pasm_constant("G12_AnimTrace_LastDp")
+ANIM_TRACE_LAST_EVENT = pasm_constant("G12_AnimTrace_LastEvent")
+ANIM_TRACE_LAST_VALUE = pasm_constant("G12_AnimTrace_LastValue")
 
 
 def block(m, addr, length=32, mem_type="snesMemory"):
@@ -118,6 +124,7 @@ def snapshot(m):
         })
     q = block(m, DMA_QUEUE, 64)
     active = sum(1 for i in range(8) if q[i * 8 + 4] & 0x40)
+    ring = block(m, ANIM_TRACE_RING, 32) + block(m, ANIM_TRACE_RING + 32, 32)
     return {
         "entities": entities,
         "msu_busy": u8(m, MSU_BUSY),
@@ -128,6 +135,19 @@ def snapshot(m):
         "dma_budget": u16(m, DMA_BUDGET),
         "stage": u16(m, GAME_STAGE_INDEX),
         "state": u16(m, GAME_STATE),
+        "anim_trace_index": u8(m, ANIM_TRACE_INDEX),
+        "anim_trace_overflow": u8(m, ANIM_TRACE_OVERFLOW),
+        "anim_trace_last": {
+            "dp": u16(m, ANIM_TRACE_LAST_DP),
+            "event": u8(m, ANIM_TRACE_LAST_EVENT),
+            "value": u8(m, ANIM_TRACE_LAST_VALUE),
+        },
+        "anim_trace_records": [
+            {"dp": ring[i] | (ring[i + 1] << 8), "event": ring[i + 2],
+             "value": ring[i + 3], "selected": ring[i + 4],
+             "frame": ring[i + 5], "tick": ring[i + 6], "grab": ring[i + 7]}
+            for i in range(0, 64, 8)
+        ],
     }
 
 
@@ -155,9 +175,16 @@ def main():
     parser.add_argument("--trace-out")
     parser.add_argument("--production-six", action="store_true",
                         help="spawn the bounded six-actor production fixture")
+    parser.add_argument("--actor-liveness", action="store_true",
+                        help="short production fixture isolating actor 2 with actor 1 control")
     args = parser.parse_args()
     with open_session(__file__) as m:
         m.reset_emulator()
+        # Reset the bounded diagnostic ring explicitly; production leaves
+        # this debug-only scratch uninitialized at boot.
+        m.write_u8(ANIM_TRACE_INDEX, 0)
+        m.write_u8(ANIM_TRACE_OVERFLOW, 0)
+        m.write_memory("snesMemory", ANIM_TRACE_RING, "00" * 32)
         if args.production_six:
             # Reuse the production verifier's actual SpawnTable_Wram records
             # and Spawn_Play path.  This is a fresh measurement fixture, not
@@ -176,6 +203,12 @@ def main():
             # paths remain the ordinary AI mode (2), never static mode 0.
             for base in ENTITY_BASES[1:]:
                 m.write_u8(base + CHAR_HP, 255)
+            if args.actor_liveness:
+                # Preserve production initialization for the two observed
+                # actors, but remove later callers so the last-event latch is
+                # actor-specific during this bounded causal reproducer.
+                for base in ENTITY_BASES[3:]:
+                    m.write_u8(base + CHAR_HP, 0)
         else:
             move_to_stage_1a(m)
             # Stage 1A's real spawn queue is trigger-position driven. Walk through
@@ -273,12 +306,13 @@ def main():
                 waits[i].append(pending[i]["wait"])
         result["timed_due_requests"] = timed_requests
         result["successful_timed_streams"] = timed_streams
-        # This observer samples state at frame boundaries; it does not see the
-        # branch in Anim_Play_* that reads Msu1_StreamBusy.  Keep this as an
-        # inferred nonprogress count until a CPU-side recorder observes that
-        # branch directly.
+        # The recorder observes individual busy decisions, but this observer
+        # does not retain a lossless per-event sequence across all entities.
+        # Keep this aggregate null rather than manufacturing a count from the
+        # circular snapshot ring; the per-sample records remain evidence.
         result["inferred_nonprogress_while_due"] = retries
-        result["confirmed_busy_denials"] = [0] * ACTOR_COUNT
+        result["confirmed_busy_denials"] = None
+        result["confirmed_busy_denials_status"] = "unmeasured: actual decisions are retained in the bounded event ring, but aggregate per-actor counts are not losslessly reconstructible from sampled ring snapshots"
         result["forced_frame_loads"] = forced_loads
         result["timed_requests_superseded_by_forced_load"] = superseded
         result["timed_requests_cancelled_by_nonstreaming_transition"] = cancelled

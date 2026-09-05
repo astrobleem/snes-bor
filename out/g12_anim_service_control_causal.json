@@ -1,0 +1,7796 @@
+{
+  "before": {
+    "anim_trace_index": 6,
+    "anim_trace_last": {
+      "dp": 3225,
+      "event": 4,
+      "value": 1
+    },
+    "anim_trace_overflow": 44,
+    "anim_trace_records": [
+      {
+        "dp": 2826,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2826,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2959,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2959,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2959,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2826,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2826,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      },
+      {
+        "dp": 2959,
+        "event": 2,
+        "frame": 255,
+        "grab": 255,
+        "selected": 2,
+        "tick": 1,
+        "value": 0
+      }
+    ],
+    "dma_active": 2,
+    "dma_budget": 26,
+    "dma_current": 24,
+    "entities": [
+      {
+        "frame": 2,
+        "hp": 40,
+        "idle_base_hi": 0,
+        "idle_base_lo": 74,
+        "idle_frame_count": 6,
+        "role": 1,
+        "roster": 0,
+        "selected": 0,
+        "source_identity": 2634,
+        "state": "idle",
+        "tick": 2,
+        "variant": 0
+      },
+      {
+        "frame": 1,
+        "hp": 16,
+        "idle_base_hi": 0,
+        "idle_base_lo": 202,
+        "idle_frame_count": 6,
+        "role": 2,
+        "roster": 1,
+        "selected": 2,
+        "source_identity": 47306,
+        "state": "attack2",
+        "tick": 5,
+        "variant": 1
+      },
+      {
+        "frame": 255,
+        "hp": 19,
+        "idle_base_hi": 0,
+        "idle_base_lo": 42,
+        "idle_frame_count": 10,
+        "role": 2,
+        "roster": 2,
+        "selected": 0,
+        "source_identity": null,
+        "state": "pending_initial_frame",
+        "tick": 1,
+        "variant": 0
+      },
+      {
+        "frame": 255,
+        "hp": 19,
+        "idle_base_hi": 1,
+        "idle_base_lo": 170,
+        "idle_frame_count": 16,
+        "role": 2,
+        "roster": 3,
+        "selected": 0,
+        "source_identity": null,
+        "state": "pending_initial_frame",
+        "tick": 1,
+        "variant": 0
+      },
+      {
+        "frame": 5,
+        "hp": 16,
+        "idle_base_hi": 1,
+        "idle_base_lo": 42,
+        "idle_frame_count": 1,
+        "role": 2,
+        "roster": 4,
+        "selected": 2,
+        "source_identity": 143658,
+        "state": "attack2",
+        "tick": 1,
+        "variant": 1
+      },
+      {
+        "frame": 255,
+        "hp": 0,
+        "idle_base_hi": 2,
+        "idle_base_lo": 74,
+        "idle_frame_count": 4,
+        "role": 2,
+        "roster": 5,
+        "selected": 0,
+        "source_identity": null,
+        "state": "pending_initial_frame",
+        "tick": 1,
+        "variant": 0
+      }
+    ],
+    "msu_busy": 0,
+    "nmi": 853,
+    "nmi_over": 0,
+    "stage": 1,
+    "state": 0
+  },
+  "samples": [
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 2560,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 46,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 40,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 40,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 855,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 47,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 856,
+      "dma_current": 40,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 32,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 855,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 50,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 56,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 32,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 857,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 2693,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 51,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 8,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 32,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 858,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 7,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 51,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 2,
+      "dma_budget": 26,
+      "dma_current": 8,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 32,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 858,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 53,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 856,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 10,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 6,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 144426,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 859,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 2,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 56,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 8,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 7,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145194,
+          "state": "attack2",
+          "tick": 3,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 861,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 57,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 40,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 7,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 7,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145194,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 862,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 59,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 7,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145194,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 863,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 59,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 2,
+      "dma_budget": 26,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 3,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 3402,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 7,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145194,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 863,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 2560,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 60,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 24,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 8,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145962,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 865,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 62,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 856,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 8,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145962,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 865,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 64,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 3,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 8,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145962,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 867,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 64,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 7,
+      "dma_budget": 186,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 3,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 8,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145962,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 867,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 2693,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 66,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 8,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48074,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 8,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 145962,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 869,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 2693,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 68,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 10,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 870,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 69,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 3092,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 4,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 10,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 871,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 70,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 3092,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 4,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 9,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 871,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 2,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 73,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 40,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 4,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 7,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 873,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 74,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 56,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 4,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 874,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 74,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 3,
+      "dma_budget": 58,
+      "dma_current": 56,
+      "entities": [
+        {
+          "frame": 4,
+          "hp": 4,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 4170,
+          "state": "idle",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 874,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 2560,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 76,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 876,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 77,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 7,
+      "dma_budget": 832,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 876,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 77,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 3,
+      "dma_budget": 90,
+      "dma_current": 8,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 6,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 2,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 130602,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 877,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 1,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 79,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 9,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 878,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 5,
+      "anim_trace_last": {
+        "dp": 2959,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 81,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 3,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 9,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 880,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 83,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 881,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 7,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 84,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 8,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 48,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 48842,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 882,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 2693,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 85,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 8,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 10,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 883,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 86,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 8,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 1
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 10,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 883,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 2826,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 88,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 8,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 1
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 8,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 131370,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 885,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 2,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 89,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 8,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 1
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 0,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1098,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 8,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 885,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 7,
+      "anim_trace_last": {
+        "dp": 2560,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 90,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 7,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 887,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 1,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 92,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 32,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 7,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108202,
+          "state": "walk",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 887,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 4,
+      "anim_trace_last": {
+        "dp": 2959,
+        "event": 2,
+        "value": 0
+      },
+      "anim_trace_overflow": 94,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 48,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 889,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 0,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 95,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 48,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 889,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 96,
+      "anim_trace_records": [
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        }
+      ],
+      "dma_active": 2,
+      "dma_budget": 26,
+      "dma_current": 48,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 7,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 4,
+          "variant": 1
+        },
+        {
+          "frame": 0,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 61994,
+          "state": "walk",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 890,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 7,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 97,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 1
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 4,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        }
+      ],
+      "dma_active": 8,
+      "dma_budget": 794,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 3,
+          "variant": 1
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 62762,
+          "state": "walk",
+          "tick": 10,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 6,
+          "variant": 0
+        },
+        {
+          "frame": 2,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132138,
+          "state": "attack",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 1,
+      "nmi": 891,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 3,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 99,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 0,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 2,
+          "variant": 1
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 62762,
+          "state": "walk",
+          "tick": 9,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 5,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132906,
+          "state": "attack",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 893,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 100,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 9,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 3,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 5,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 1
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 10,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 0,
+          "grab": 255,
+          "selected": 1,
+          "tick": 2,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 6,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 1,
+          "grab": 255,
+          "selected": 1,
+          "tick": 7,
+          "value": 0
+        }
+      ],
+      "dma_active": 0,
+      "dma_budget": 0,
+      "dma_current": 16,
+      "entities": [
+        {
+          "frame": 1,
+          "hp": 64,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 1866,
+          "state": "idle",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 4,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 49610,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 1,
+          "source_identity": 62762,
+          "state": "walk",
+          "tick": 8,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 1,
+          "source_identity": 108970,
+          "state": "walk",
+          "tick": 4,
+          "variant": 0
+        },
+        {
+          "frame": 3,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 132906,
+          "state": "attack",
+          "tick": 3,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 893,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    }
+  ],
+  "summary": {
+    "active_combat_actors_observed": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "actual_frame_advances": [
+      4,
+      3,
+      2,
+      2,
+      8,
+      0
+    ],
+    "average_wait_after_due": [
+      1.0,
+      0.5,
+      0.0,
+      0.0,
+      1.0,
+      40.0
+    ],
+    "before": {
+      "anim_trace_index": 6,
+      "anim_trace_last": {
+        "dp": 3225,
+        "event": 4,
+        "value": 1
+      },
+      "anim_trace_overflow": 44,
+      "anim_trace_records": [
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2826,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        },
+        {
+          "dp": 2959,
+          "event": 2,
+          "frame": 255,
+          "grab": 255,
+          "selected": 2,
+          "tick": 1,
+          "value": 0
+        }
+      ],
+      "dma_active": 2,
+      "dma_budget": 26,
+      "dma_current": 24,
+      "entities": [
+        {
+          "frame": 2,
+          "hp": 40,
+          "idle_base_hi": 0,
+          "idle_base_lo": 74,
+          "idle_frame_count": 6,
+          "role": 1,
+          "roster": 0,
+          "selected": 0,
+          "source_identity": 2634,
+          "state": "idle",
+          "tick": 2,
+          "variant": 0
+        },
+        {
+          "frame": 1,
+          "hp": 16,
+          "idle_base_hi": 0,
+          "idle_base_lo": 202,
+          "idle_frame_count": 6,
+          "role": 2,
+          "roster": 1,
+          "selected": 2,
+          "source_identity": 47306,
+          "state": "attack2",
+          "tick": 5,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 0,
+          "idle_base_lo": 42,
+          "idle_frame_count": 10,
+          "role": 2,
+          "roster": 2,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 255,
+          "hp": 19,
+          "idle_base_hi": 1,
+          "idle_base_lo": 170,
+          "idle_frame_count": 16,
+          "role": 2,
+          "roster": 3,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        },
+        {
+          "frame": 5,
+          "hp": 16,
+          "idle_base_hi": 1,
+          "idle_base_lo": 42,
+          "idle_frame_count": 1,
+          "role": 2,
+          "roster": 4,
+          "selected": 2,
+          "source_identity": 143658,
+          "state": "attack2",
+          "tick": 1,
+          "variant": 1
+        },
+        {
+          "frame": 255,
+          "hp": 0,
+          "idle_base_hi": 2,
+          "idle_base_lo": 74,
+          "idle_frame_count": 4,
+          "role": 2,
+          "roster": 5,
+          "selected": 0,
+          "source_identity": null,
+          "state": "pending_initial_frame",
+          "tick": 1,
+          "variant": 0
+        }
+      ],
+      "msu_busy": 0,
+      "nmi": 853,
+      "nmi_over": 0,
+      "stage": 1,
+      "state": 0
+    },
+    "confirmed_busy_denials": null,
+    "confirmed_busy_denials_status": "unmeasured: event latch is retained per sample; aggregate branch count not inferred",
+    "final_entities": [
+      {
+        "frame": 1,
+        "hp": 64,
+        "idle_base_hi": 0,
+        "idle_base_lo": 74,
+        "idle_frame_count": 6,
+        "role": 1,
+        "roster": 0,
+        "selected": 0,
+        "source_identity": 1866,
+        "state": "idle",
+        "tick": 4,
+        "variant": 0
+      },
+      {
+        "frame": 4,
+        "hp": 16,
+        "idle_base_hi": 0,
+        "idle_base_lo": 202,
+        "idle_frame_count": 6,
+        "role": 2,
+        "roster": 1,
+        "selected": 2,
+        "source_identity": 49610,
+        "state": "attack2",
+        "tick": 1,
+        "variant": 1
+      },
+      {
+        "frame": 1,
+        "hp": 19,
+        "idle_base_hi": 0,
+        "idle_base_lo": 42,
+        "idle_frame_count": 10,
+        "role": 2,
+        "roster": 2,
+        "selected": 1,
+        "source_identity": 62762,
+        "state": "walk",
+        "tick": 8,
+        "variant": 0
+      },
+      {
+        "frame": 1,
+        "hp": 19,
+        "idle_base_hi": 1,
+        "idle_base_lo": 170,
+        "idle_frame_count": 16,
+        "role": 2,
+        "roster": 3,
+        "selected": 1,
+        "source_identity": 108970,
+        "state": "walk",
+        "tick": 4,
+        "variant": 0
+      },
+      {
+        "frame": 3,
+        "hp": 16,
+        "idle_base_hi": 1,
+        "idle_base_lo": 42,
+        "idle_frame_count": 1,
+        "role": 2,
+        "roster": 4,
+        "selected": 2,
+        "source_identity": 132906,
+        "state": "attack",
+        "tick": 3,
+        "variant": 0
+      },
+      {
+        "frame": 255,
+        "hp": 0,
+        "idle_base_hi": 2,
+        "idle_base_lo": 74,
+        "idle_frame_count": 4,
+        "role": 2,
+        "roster": 5,
+        "selected": 0,
+        "source_identity": null,
+        "state": "pending_initial_frame",
+        "tick": 1,
+        "variant": 0
+      }
+    ],
+    "forced_frame_loads": [
+      3,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    "frame_advances_per_real_frame": [
+      0.1,
+      0.075,
+      0.05,
+      0.05,
+      0.2,
+      0.0
+    ],
+    "frame_changes": [
+      4,
+      3,
+      2,
+      2,
+      8,
+      0
+    ],
+    "inferred_nonprogress_while_due": [
+      1,
+      1,
+      15,
+      15,
+      7,
+      40
+    ],
+    "max_dma_active_at_sample_boundary": 8,
+    "max_dma_budget_at_sample_boundary": 856,
+    "max_msu_busy_at_sample_boundary": 1,
+    "max_wait_after_due": [
+      1,
+      1,
+      0,
+      0,
+      4,
+      40
+    ],
+    "measurement_fixture": "stage-1a-control",
+    "nmi_delta": 40,
+    "nmi_over_samples": 0,
+    "oam_first_six": [
+      [
+        178,
+        176,
+        8,
+        52
+      ],
+      [
+        178,
+        152,
+        12,
+        54
+      ],
+      [
+        114,
+        150,
+        0,
+        48
+      ],
+      [
+        178,
+        128,
+        4,
+        50
+      ],
+      [
+        178,
+        128,
+        128,
+        56
+      ],
+      [
+        238,
+        240,
+        132,
+        58
+      ]
+    ],
+    "outstanding_timed_requests": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "production_entity_limit": 6,
+    "request_accounting": [
+      {
+        "cache_serviced": 0,
+        "cancelled": 0,
+        "created": 1,
+        "invariant": true,
+        "outstanding": 0,
+        "serviced_stream": 1,
+        "superseded": 0
+      },
+      {
+        "cache_serviced": 0,
+        "cancelled": 0,
+        "created": 2,
+        "invariant": true,
+        "outstanding": 0,
+        "serviced_stream": 2,
+        "superseded": 0
+      },
+      {
+        "cache_serviced": 0,
+        "cancelled": 10,
+        "created": 12,
+        "invariant": true,
+        "outstanding": 0,
+        "serviced_stream": 2,
+        "superseded": 0
+      },
+      {
+        "cache_serviced": 0,
+        "cancelled": 10,
+        "created": 11,
+        "invariant": true,
+        "outstanding": 0,
+        "serviced_stream": 1,
+        "superseded": 0
+      },
+      {
+        "cache_serviced": 0,
+        "cancelled": 2,
+        "created": 9,
+        "invariant": true,
+        "outstanding": 0,
+        "serviced_stream": 7,
+        "superseded": 0
+      },
+      {
+        "cache_serviced": 0,
+        "cancelled": 0,
+        "created": 1,
+        "invariant": true,
+        "outstanding": 1,
+        "serviced_stream": 0,
+        "superseded": 0
+      }
+    ],
+    "sample_frames": 40,
+    "successful_timed_streams": [
+      1,
+      2,
+      2,
+      1,
+      7,
+      0
+    ],
+    "timed_due_requests": [
+      1,
+      2,
+      12,
+      11,
+      9,
+      1
+    ],
+    "timed_requests_cancelled_by_nonstreaming_transition": [
+      0,
+      0,
+      10,
+      10,
+      2,
+      0
+    ],
+    "timed_requests_superseded_by_forced_load": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "wait_frames_after_due": [
+      [
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0
+      ],
+      [
+        0,
+        1,
+        1,
+        0,
+        4,
+        0,
+        1
+      ],
+      [
+        40
+      ]
+    ]
+  }
+}
