@@ -195,6 +195,9 @@ Game_State_Play__charselect_wait_redraw:
     jsr Game_State_CharSelect_DrawName
     jmp Game_State_Play__charselect_done
 Game_State_Play__charselect_wait_check_start:
+    ; P2 mode, when selected, was established on the title screen before
+    ; this character-select state.  Start here belongs only to the existing
+    ; P1 character-select transition.
     rep #$31
 .a16
 .i16

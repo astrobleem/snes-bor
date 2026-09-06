@@ -3453,6 +3453,47 @@ Player_JumpAnimMode      = $7E27DA  ; .db -- which of the 3 real jump-family
                                       ; landing also implicitly ends it
                                       ; (CHAR_SELECTED leaves JUMP entirely).
 
+; G13: P2's standalone jump-family state. The accepted WRAM map leaves
+; $7E2697-$7E26FF unused between GrabDragOffset and TextStaging; fixed layout
+; guards and the allocator prove this is not actor DP, DMA, or text storage.
+; Keep this separate from CHAR_ZP_LEN=133 and from actor-local generic move
+; and throw fields. P2's six input bytes remain at $7E0416-$7E041B.
+Player2_JumpFCount        = $7E2697 ; .db
+Player2_JumpDelay         = $7E2698 ; .db
+Player2_JumpAttackFCount  = $7E2699 ; .db
+Player2_JumpAttackDelay   = $7E269A ; .db
+Player2_JumpAttack2FCount = $7E269B ; .db
+Player2_JumpAttack2Delay  = $7E269C ; .db
+Player2_JumpBaseLo        = $7E269D ; .dw
+Player2_JumpBaseHi        = $7E269F ; .db
+Player2_JumpAttackBaseLo  = $7E26A0 ; .dw
+Player2_JumpAttackBaseHi  = $7E26A2 ; .db
+Player2_JumpAttack2BaseLo = $7E26A3 ; .dw
+Player2_JumpAttack2BaseHi = $7E26A5 ; .db
+Player2_JumpAnimMode      = $7E26A6 ; .db
+
+; Transient context scratch in the same proven free gap. It preserves P1's
+; globals while the existing routines execute with P2's state active.
+G13_ContextSaveJump       = $7E26A7 ; 16 bytes, logical jump-field order
+G13_ContextSaveInput      = $7E26B7 ; 6 bytes: press/trigger/old
+G13_TwoPlayerEnabled      = $7E26BD ; .db -- fixed-session pre-game latch
+G13_P2StartSeen            = $7E26BE ; .db -- bounded first-slice gate latch
+G13_P2TriggerSnapshot      = $7E26BF ; .dw -- charselect WAIT diagnostic
+G13_P2MaskResult            = $7E26C1 ; .dw -- charselect WAIT diagnostic
+; During an AI actor's update, the old P2 gate latch byte is reused as the
+; selected-player slot.  The charselect diagnostics are no longer consumed
+; after the session gate, and this keeps the new target state out of the
+; fixed 133-byte actor record and the reserved stream/layout regions.
+G13_AiTargetSlot            = G13_P2StartSeen ; .db -- 0=P1, 1=P2
+G13_AiTargetOffset          = $7E26C3 ; .dw -- actor byte offset, AI-only
+G13_AiTargetX               = G13_ContextSaveJump+12 ; .dw
+G13_AiTargetY               = G13_ContextSaveJump+14 ; .db
+G13_PickupTargetX           = $7E26C5 ; .dw -- active collector's world X
+G13_PickupTargetY           = $7E26C7 ; .dw -- active collector's world Y
+G13_PickupForP2             = $7E26C9 ; .db -- 0=P1, 1=P2 during collection
+G13_PickupAmount            = $7E26CA ; .db -- reward/heal amount scratch
+G13_PickupValue             = $7E26CB ; .db -- clamped heal value scratch
+
 ; Generic (not player-only), transient, valid only for the CURRENT
 ; Anim_LoadCharacter call in progress -- real per-load jump/jumpattack/
 ; jumpattack2 frame_count/delay, needed by the map_base chain regardless of
@@ -4357,16 +4398,19 @@ Anim_Play__ai_seek:
     ; since a level can be wider than one 256px screen -- Y stays 8-bit,
     ; there is no vertical scroll). Every branch target in this X portion
     ; gets a redundant rep #$20/.a16 resync (poppy bug #10); Y and
-    ; Anim_Play__want_got below are still real 8-bit fields (CHAR_POS_Y,
-    ; CHAR_SELECTED), so .a8 is restored before either is touched.
+; Anim_Play__want_got below are still real 8-bit fields (CHAR_POS_Y,
+; CHAR_SELECTED), so .a8 is restored before either is touched.
+    jsl G13_AiChooseTarget
+    sep #$20
+.a8
     rep #$20
 .a16
-    lda.l PlayerEntity_PosX
+    lda.l G13_AiTargetX
     cmp CHAR_POS_X
     bcs Anim_Play__ai_dx_playerge
     lda CHAR_POS_X
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_AiTargetX
     bra Anim_Play__ai_dx_have
 Anim_Play__ai_dx_playerge:
     rep #$20
@@ -4383,12 +4427,12 @@ Anim_Play__ai_dx_have:
 Anim_Play__ai_dx_close:
     sep #$20
 .a8
-    lda.l PlayerEntity_PosY
+    lda.l G13_AiTargetY
     cmp CHAR_POS_Y
     bcs Anim_Play__ai_dy_playerge
     lda CHAR_POS_Y
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_AiTargetY
     bra Anim_Play__ai_dy_have
 Anim_Play__ai_dy_playerge:
     sec
@@ -5636,7 +5680,7 @@ Character_PlayFrame__ai_x:
     ; 8-bit unchanged (no vertical scroll).
     rep #$20
 .a16
-    lda.l PlayerEntity_PosX
+    lda.l G13_AiTargetX
     cmp CHAR_POS_X
     bne Character_PlayFrame__ai_x_not_aligned
     brl Character_PlayFrame__hold  ; already X-aligned with the player
@@ -5647,7 +5691,7 @@ Character_PlayFrame__ai_x_not_aligned:
     ; self > player
     lda CHAR_POS_X
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_AiTargetX
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold
     bra Character_PlayFrame__left  ; player is to the left -- reuse __left
@@ -5750,6 +5794,12 @@ Character_PlayFrame__hold:
 .a16
     lda CHAR_POS_X
 Character_PlayFrame__store_x:
+    ; In two-player mode both player actors share one viewport.  The bounded
+    ; helper clamps each player's world position to safe sprite margins so
+    ; the midpoint camera cannot leave either actor offscreen while its
+    ; eased position catches up.  One-player mode returns the original X.
+    jsl G13_TetherPlayerX
+Character_PlayFrame__store_x_commit:
     sta CHAR_POS_X
     ; Screen-relative X for OAM (world X - camera scroll) is no longer
     ; computed here -- Character_RenderFrame recomputes it fresh at render
@@ -5795,13 +5845,13 @@ Character_PlayFrame__dpad_y:
     bra Character_PlayFrame__up
 Character_PlayFrame__ai_y:
     ; Same distance-recompute fix as __ai_x -- see its comment.
-    lda.l PlayerEntity_PosY
+    lda.l G13_AiTargetY
     cmp CHAR_POS_Y
     beq Character_PlayFrame__hold_y
     bcs Character_PlayFrame__ai_y_playerge
     lda CHAR_POS_Y
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_AiTargetY
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold_y
     bra Character_PlayFrame__up    ; player is above -- reuse __up
@@ -6057,69 +6107,11 @@ Character_PlayFrame__not_dead_hide:
 ; contract, so X/Y are saved/restored here even though this leaf's own body
 ; needs X for Core_Math_Div.
 ; ============================================================================
-Game_Score_Award:
-    php
-    phx
-    phy
-    rep #$31
-.a16
-.i16
-    and #$00FF
-    beq Game_Score_Award__hit_only
-    lda #HIT_SCORE + KILL_SCORE
-    bra Game_Score_Award__have_award
-Game_Score_Award__hit_only:
-    rep #$31
-.a16
-.i16
-    lda #HIT_SCORE
-Game_Score_Award__have_award:
-    sta.l Game_ScoreAwardScratch
-
-    ; --- old quotient = Game_Score / EXTEND_LIFE_SCORE, BEFORE adding ---
-    ; (ldx.l has no long form in this toolchain -- CLAUDE.md -- so the
-    ; dividend goes through A/tax instead of a direct long load into X)
-    rep #$31
-.a16
-.i16
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
+; The full score leaf is in core/player2_context.pasm. This bank-0
+; trampoline is retained for its calls to the original bank-0 divider.
+G13_Core_Math_Div_Long:
     jsr Core_Math_Div
-    sta.l Game_ScoreOldQuotientScratch
-
-    ; --- add the award, clamped at 65535 (not wrapped) ---
-    rep #$31
-.a16
-.i16
-    lda.l Game_Score
-    clc
-    adc.l Game_ScoreAwardScratch
-    bcc Game_Score_Award__no_overflow
-    lda #$FFFF
-Game_Score_Award__no_overflow:
-    sta.l Game_Score
-
-    ; --- new quotient; a higher value means a threshold was just crossed ---
-    rep #$31
-.a16
-.i16
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsr Core_Math_Div
-    cmp.l Game_ScoreOldQuotientScratch
-    beq Game_Score_Award__done
-    sep #$20
-.a8
-    lda.l Game_Lives
-    inc a
-    sta.l Game_Lives
-Game_Score_Award__done:
-    ply
-    plx
-    plp
-    rts
+    rtl
 
 ; ============================================================================
 ; Character_HitApply -- plan.md Phase 4: minimal AABB collision + hit
@@ -6246,7 +6238,7 @@ Character_HitApply__ScoreAndFinish:
     cmp #1
     beq Character_HitApply__ScoreAndFinish__killed
     lda #0
-    jsr Game_Score_Award
+    jsl G13_Game_Score_Award
     bra Character_HitApply__ScoreAndFinish__scored
 Character_HitApply__ScoreAndFinish__killed:
     ; Game_Score_Award is documented "Entered/exited in .a8" (its own php
@@ -6254,7 +6246,7 @@ Character_HitApply__ScoreAndFinish__killed:
     ; entry, so no sep needed here.
 .a8
     lda #1
-    jsr Game_Score_Award
+    jsl G13_Game_Score_Award
 Character_HitApply__ScoreAndFinish__scored:
     ; same reasoning -- still .a8 either way it's reached (the bra above,
     ; or falling through Game_Score_Award's own .a8 return).
@@ -6564,12 +6556,12 @@ Character_HitApply_VsPlayer:
     ; reason. Phase 8: dx is 16-bit, dy stays 8-bit -- see its comment.
     rep #$20
 .a16
-    lda.l PlayerEntity_PosX
+    lda.l G13_AiTargetX
     cmp CHAR_POS_X
     bcs Character_HitApply_VsPlayer__dx_otherge
     lda CHAR_POS_X
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_AiTargetX
     bra Character_HitApply_VsPlayer__dx_have
 Character_HitApply_VsPlayer__dx_otherge:
     rep #$20
@@ -6583,12 +6575,12 @@ Character_HitApply_VsPlayer__dx_have:
 Character_HitApply_VsPlayer__dx_ok:
     sep #$20
 .a8
-    lda.l PlayerEntity_PosY
+    lda.l G13_AiTargetY
     cmp CHAR_POS_Y
     bcs Character_HitApply_VsPlayer__dy_otherge
     lda CHAR_POS_Y
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_AiTargetY
     bra Character_HitApply_VsPlayer__dy_have
 Character_HitApply_VsPlayer__dy_otherge:
     sec
@@ -6624,26 +6616,33 @@ Character_HitApply_VsPlayer__not_invuln:
     rep #$30
 .a16
 .i16
-    ldx #0                     ; target = the player, always offset 0
+    lda.l G13_AiTargetOffset
+    tax                         ; selected live player target
     jsl Character_HitApply__TryGrabVsPlayer   ; always returns .a8 (both exit
                                                 ; paths, same as TryGrab's own
                                                 ; call sites) -- no re-sync
                                                 ; sep needed
 .a8
     bcs Character_HitApply_VsPlayer__grabbed
+    rep #$20
+.a16
+    lda.l G13_AiTargetOffset
+    tax
+    sep #$20
+.a8
     lda #CHAR_HIT_STUN_FRAMES
-    sta.l PlayerEntity_HitStun
+    sta.l PlayerEntity_HitStun,x
     ; Phase 6: same landed hit also costs the target HP, clamped at 0.
     ; Phase G3: CHAR_HP==0 now DOES trigger a reaction -- see
     ; core/game_state.pasm's Game_State_Play__playing, which checks this
     ; once per frame at the top of the PLAYING dispatch.
-    lda.l PlayerEntity_Hp
+    lda.l PlayerEntity_Hp,x
     sec
     sbc #CHAR_HP_PER_HIT
     bcs Character_HitApply_VsPlayer__hp_ok
     lda #0
 Character_HitApply_VsPlayer__hp_ok:
-    sta.l PlayerEntity_Hp
+    sta.l PlayerEntity_Hp,x
     lda #1
     sta CHAR_HIT_APPLIED
     ; G11: this leaf deliberately does NOT route through Character_HitApply__
@@ -7872,6 +7871,19 @@ CharacterEntity_Init__load_hp_set:
 ; @return a<16-bit>  OBJR_NOERR -- see CharacterEntity_Init; Core_Oop_Play
 ;                     reads this the same way, right after the dispatch call
 CharacterEntity_Play:
+    ; Core_Oop_Play has switched D to this actor's window. The reserved P2
+    ; window uses the existing state machines with a bounded context swap.
+    rep #$31
+.a16
+.i16
+    tdc
+    cmp #$0A85
+    bne CharacterEntity_Play__context_ready
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq CharacterEntity_Play__context_ready
+    jsl G13_Player2_ContextEnter
+CharacterEntity_Play__context_ready:
     jsr Anim_Play
     jsr Character_PlayFrame
     jsr Character_HitApply   ; plan.md Phase 4: AABB hit check, after this
@@ -7941,6 +7953,14 @@ CharacterEntity_Play:
     rep #$31
 .a16
 .i16
+    tdc
+    cmp #$0A85
+    bne CharacterEntity_Play__no_context_exit
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq CharacterEntity_Play__no_context_exit
+    jsl G13_Player2_ContextExit
+CharacterEntity_Play__no_context_exit:
     lda #OBJR_NOERR
     rts
 
@@ -12018,6 +12038,13 @@ Boot_LoadFp__done:
 .a16
     lda #0
     sta.l Game_Score
+    sta.l G13_P2Score
+    sep #$20
+.a8
+    lda #GAME_LIVES_START
+    sta.l G13_P2Lives
+    lda #0
+    sta.l G13_PickupForP2
 
     jsr Core_Nmi_Init
 
@@ -13230,6 +13257,7 @@ Text_Str_EndingC2:
 .include "core/options.pasm"
 .include "core/input.pasm"
 .include "core/input_p2.pasm"
+.include "core/player2_context.pasm"
 
 ; Real jump slice (plan_game.md 7): jump/jumpattack/jumpattack2 base-offset
 ; chaining, own bank for the same ROM-budget reason -- see core/jump.pasm's

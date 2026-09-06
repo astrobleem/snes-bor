@@ -61,6 +61,35 @@ def main():
         assert not (p1["trigger"] & 0x0080)
         assert p2["press"] & 0x0080
         assert p2["trigger"] & 0x0080
+
+        # Activation-button sanity probe: retain the actual packed word at
+        # the poll boundary for Start and R separately.  This is deliberately
+        # before any activation-gate assertion so the source mask follows the
+        # hardware result rather than a guessed byte.
+        exact_input_edge(m, 0, 2, port=1)
+        m.hold_input(m.BTN_START, port=1)
+        run_frames_exact(m, 1)
+        print(f"P2_START_EDGE raw={word(read_block(m, P2_RAW, 32)):#06x} state={state(m, P2_PRESS)}")
+        m.release_input(port=1)
+        exact_input_edge(m, 0, 2, port=1)
+        m.hold_input(m.BTN_R, port=1)
+        run_frames_exact(m, 1)
+        print(f"P2_R_EDGE raw={word(read_block(m, P2_RAW, 32)):#06x} state={state(m, P2_PRESS)}")
+        m.release_input(port=1)
+        exact_input_edge(m, 0, 2, port=0)
+        exact_input_edge(m, 0, 2, port=1)
+        m.hold_input(m.BTN_X, port=0)
+        m.hold_input(m.BTN_A, port=1)
+        run_frames_exact(m, 1)
+        p1 = state(m, P1_PRESS)
+        p2 = state(m, P2_PRESS)
+        raw1 = word(read_block(m, P1_RAW, 32))
+        raw2 = word(read_block(m, P2_RAW, 32))
+        print(f"JOINT_EDGE raw1={raw1:#06x} raw2={raw2:#06x} p1={p1} p2={p2}")
+        m.release_input(port=0)
+        m.release_input(port=1)
+        assert raw1 & 0x0040 and raw2 & 0x0080
+        assert p1["trigger"] & 0x0040 and p2["trigger"] & 0x0080
         print("G13 JOY2 BOUNDARY: PASS")
 
 

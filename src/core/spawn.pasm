@@ -626,6 +626,8 @@ Spawn_Play:
 Spawn_Play__wait_release_active:
     lda #0
     sta.l Spawn_ScratchEnemyCount
+    lda.l G13_TwoPlayerEnabled
+    bne Spawn_Play__wc_slot2
     lda.l Entity1_Hp
     beq Spawn_Play__wc_slot2
     lda.l Entity1_InputDriven
@@ -713,6 +715,8 @@ Spawn_Play__have_queue:
     ; cheaper than risking that here). ---
     lda #0
     sta.l Spawn_ScratchEnemyCount
+    lda.l G13_TwoPlayerEnabled
+    bne Spawn_Play__gc_slot2
     lda.l Entity1_Hp
     beq Spawn_Play__gc_slot2
     lda.l Entity1_InputDriven
@@ -934,6 +938,8 @@ Spawn_Play__do_group:
 Spawn_Play__find_slot:
     sep #$20
 .a8
+    lda.l G13_TwoPlayerEnabled
+    bne Spawn_Play__find_slot_check2
     lda.l Entity1_Hp
     bne Spawn_Play__find_slot_check2
     jmp Spawn_Play__slot1

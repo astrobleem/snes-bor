@@ -77,6 +77,10 @@ Input2_old_Addr = $7E041A
 	sta.l Input2_old_Addr
 	sta.l Input_last_raw_Addr
 	sta.l Input2_last_raw_Addr
+	sta.l G13_TwoPlayerEnabled
+	sta.l G13_P2StartSeen
+	sta.l G13_P2TriggerSnapshot
+	sta.l G13_P2MaskResult
 	rtl
 
 ; Call once per frame. Safe to call more than once per frame (idempotent

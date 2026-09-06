@@ -343,6 +343,14 @@ Core_Screen_CheckIfOnScreen__off:
 Core_Screen__SetTargetPosition:
 	rep #$31
 .a16
+	lda.l G13_TwoPlayerEnabled
+	and #$00FF
+	beq Core_Screen__SetTargetPosition__single
+	jsl G13_Screen_SetTargetPosition
+	sec
+	rts
+
+Core_Screen__SetTargetPosition__single:
 	lda Screen_FocusId
 	and #$00ff
 	bne Core_Screen__SetTargetPosition__has_focus

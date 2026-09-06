@@ -298,6 +298,11 @@ Game_Score = $7E2761   ; .dw -- 0..65535, clamped (not wrapped -- a wrap would
 Game_ScoreAwardScratch      = $7E2763   ; .dw -- Game_Score_Award's own scratch
 Game_ScoreOldQuotientScratch = $7E2765  ; .dw -- ditto (see main.pasm's
                                          ; Game_Score_Award for both)
+; G13: P2's score/lives are standalone player-owned state.  These cells sit
+; in the verified gap before CharSelect_Step and do not alter the actor
+; record or the fixed DP layout.
+G13_P2Score            = $7E2767 ; .dw
+G13_P2Lives            = $7E2769 ; .db
 
 ; G7 second slice: post-hit invulnerability frames for AI entities, mirroring
 ; Player_InvulnFrames above but kept as standalone scalar bytes rather than a
@@ -526,6 +531,15 @@ Game_State_Play__title_wait:
     rep #$31
 .a16
 .i16
+    ; G13 fixed-session mode choice: P2 Start is consumed while still on the
+    ; title screen, before CHARSELECT/PLAYING.  It only establishes the
+    ; session; it is never a mid-game join edge and therefore remains free
+    ; for the global pause policy once gameplay starts.
+    lda.l Input2_trigger+1
+    and #$0010
+    beq Game_State_Play__title_wait_check_p1
+    jsl G13_EnableP2Session
+Game_State_Play__title_wait_check_p1:
     lda.l Input_trigger+1
     and #$0010                     ; Start -- same high-byte layout as
                                     ; Game_State_Play__gameover's own check
@@ -630,6 +644,7 @@ Game_State_Play__gameover_timeout:
     ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
     lda #GAME_STATE_TITLE
+    jsl G13_DisableP2Session
     sta.l Game_State
     jmp Game_State_Play__done
 
@@ -690,6 +705,8 @@ Game_State_Play__invuln_done:
     ; G7 second slice: tick each AI entity's post-hit invulnerability window
     ; down once per frame, same unconditional-if-nonzero shape as
     ; Player_InvulnFrames above. Harmless no-op while 0 (the common case).
+    lda.l G13_TwoPlayerEnabled
+    bne Game_State_Play__invuln1_done
     lda.l Entity1_InvulnFrames
     beq Game_State_Play__invuln1_done
     dec a
@@ -719,6 +736,8 @@ Game_State_Play__invuln3_done:
     dec a
     sta.l Entity1_KnockdownTimer
 Game_State_Play__kdtimer1_done:
+    lda.l G13_TwoPlayerEnabled
+    bne Game_State_Play__kdtimer2_done
     lda.l Entity2_KnockdownTimer
     beq Game_State_Play__kdtimer2_done
     dec a
@@ -837,7 +856,7 @@ Game_State_Play__stage_no_win:
     ; claude_close_g7_g8_before_g10.md Part 2: once-per-frame check for the
     ; player touching an already-revealed collectible item (core/jump.pasm)
     ; -- separates destruction (above) from collection (this call).
-    jsl Character_Pickup_CheckOverlap
+    jsl G13_Pickup_CheckPlayers
     ; Hud_Play runs AFTER Core_Oop_Play (so it sees this frame's CHAR_HP, which
     ; Character_HitApply may have just changed) and BEFORE Core_Oam_Play. It is
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
@@ -889,6 +908,12 @@ Game_State_Play__stageclear_next:
 .a16
 .i16
     jsr Stage_Load
+    ; Stage_Load reinitializes every non-player window.  In a two-player
+    ; session slot 1 is reserved for P2 for the entire session, so restore
+    ; its player role and fixed roster before gameplay resumes.  One-player
+    ; mode leaves this hook a no-op and retains the ordinary slot-1 spawn
+    ; path.
+    jsl G13_EnsureP2AfterStage
     lda #GAME_STATE_PLAYING
     sta.l Game_State
 Game_State_Play__stageclear_done:

@@ -1643,6 +1643,7 @@ Character_HitApply__ApplyPickup:
     php
     sep #$20
 .a8
+    sta.l G13_PickupAmount
     cmp #PICKUP_TYPE_APPLE
     beq Character_HitApply__ApplyPickup__heal_apple
     cmp #PICKUP_TYPE_MEAT
@@ -1652,8 +1653,10 @@ Character_HitApply__ApplyPickup:
     cmp #PICKUP_TYPE_ONEUP
     beq Character_HitApply__ApplyPickup__oneup
     cmp #PICKUP_TYPE_GOLD
-    beq Character_HitApply__ApplyPickup__gold
-    brl Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
+    bne Character_HitApply__ApplyPickup__not_gold
+    jmp Character_HitApply__ApplyPickup__gold
+Character_HitApply__ApplyPickup__not_gold:
+    jmp Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
 Character_HitApply__ApplyPickup__heal_apple:
     sep #$20
 .a8
@@ -1678,15 +1681,39 @@ Character_HitApply__ApplyPickup__heal:
     ; matching the proven-reliable style this same routine already uses
     ; for Game_Score/Game_Lives -- doesn't depend on D at all.
     clc
-    adc.l PlayerEntity_Hp
+    lda.l G13_PickupForP2
+    bne Character_HitApply__ApplyPickup__heal_p2
+    lda.l PlayerEntity_Hp
+    jmp Character_HitApply__ApplyPickup__heal_add
+Character_HitApply__ApplyPickup__heal_p2:
+    lda.l Entity1_Hp
+    jmp Character_HitApply__ApplyPickup__heal_add
+Character_HitApply__ApplyPickup__heal_add:
+    clc
+    adc.l G13_PickupAmount
     cmp #CHAR_HP_MAX + 1
     bcc Character_HitApply__ApplyPickup__heal_store
     lda #CHAR_HP_MAX
 Character_HitApply__ApplyPickup__heal_store:
+    sta.l G13_PickupValue
+    lda.l G13_PickupForP2
+    beq Character_HitApply__ApplyPickup__heal_store_p1
+    lda.l G13_PickupValue
+    sta.l Entity1_Hp
+    jmp Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__heal_store_p1:
+    lda.l G13_PickupValue
     sta.l PlayerEntity_Hp
-    bra Character_HitApply__ApplyPickup__done
+    jmp Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__oneup:
 .a8
+    lda.l G13_PickupForP2
+    beq Character_HitApply__ApplyPickup__oneup_p1
+    lda.l G13_P2Lives
+    inc a
+    sta.l G13_P2Lives
+    jmp Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__oneup_p1:
     lda.l Game_Lives
     inc a
     sta.l Game_Lives
@@ -1703,6 +1730,23 @@ Character_HitApply__ApplyPickup__money:
     ; reproduce).
     rep #$20
 .a16
+    lda.l G13_PickupForP2
+    beq Character_HitApply__ApplyPickup__money_p1
+    rep #$20
+.a16
+    lda.l G13_P2Score
+    clc
+    adc #PICKUP_SCORE_MONEY
+    bcc Character_HitApply__ApplyPickup__money_p2_store
+    lda #$FFFF
+Character_HitApply__ApplyPickup__money_p2_store:
+    sta.l G13_P2Score
+    sep #$20
+.a8
+    bra Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__money_p1:
+    rep #$20
+.a16
     lda.l Game_Score
     clc
     adc #PICKUP_SCORE_MONEY
@@ -1717,6 +1761,23 @@ Character_HitApply__ApplyPickup__gold:
 .a8
     ; Game_Score += PICKUP_SCORE_GOLD, clamped at 65535 -- same idiom as
     ; the money branch above, own real value (GOLD.TXT score=5000).
+    rep #$20
+.a16
+    lda.l G13_PickupForP2
+    beq Character_HitApply__ApplyPickup__gold_p1
+    rep #$20
+.a16
+    lda.l G13_P2Score
+    clc
+    adc #PICKUP_SCORE_GOLD
+    bcc Character_HitApply__ApplyPickup__gold_p2_store
+    lda #$FFFF
+Character_HitApply__ApplyPickup__gold_p2_store:
+    sta.l G13_P2Score
+    sep #$20
+.a8
+    bra Character_HitApply__ApplyPickup__done
+Character_HitApply__ApplyPickup__gold_p1:
     rep #$20
 .a16
     lda.l Game_Score
@@ -1951,17 +2012,17 @@ Character_Pickup_CheckOverlap__vs1:
     rep #$20
 .a16
     lda.l Entity1_PosX
-    cmp.l PlayerEntity_PosX
+    cmp.l G13_PickupTargetX
     bcs Character_Pickup_CheckOverlap__vs1_dx_otherge
     sec
-    lda.l PlayerEntity_PosX
+    lda.l G13_PickupTargetX
     sbc.l Entity1_PosX
     bra Character_Pickup_CheckOverlap__vs1_dx_have
 Character_Pickup_CheckOverlap__vs1_dx_otherge:
     rep #$20
 .a16
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_PickupTargetX
 Character_Pickup_CheckOverlap__vs1_dx_have:
 .a16
     cmp #CHAR_HITBOX_W
@@ -1973,15 +2034,15 @@ Character_Pickup_CheckOverlap__vs1_dx_ok:
     sep #$20
 .a8
     lda.l Entity1_PosY
-    cmp.l PlayerEntity_PosY
+    cmp.l G13_PickupTargetY
     bcs Character_Pickup_CheckOverlap__vs1_dy_otherge
-    lda.l PlayerEntity_PosY
+    lda.l G13_PickupTargetY
     sec
     sbc.l Entity1_PosY
     bra Character_Pickup_CheckOverlap__vs1_dy_have
 Character_Pickup_CheckOverlap__vs1_dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_PickupTargetY
 Character_Pickup_CheckOverlap__vs1_dy_have:
 .a8
     cmp #CHAR_HITBOX_H
@@ -2017,17 +2078,17 @@ Character_Pickup_CheckOverlap__vs2:
     rep #$20
 .a16
     lda.l Entity2_PosX
-    cmp.l PlayerEntity_PosX
+    cmp.l G13_PickupTargetX
     bcs Character_Pickup_CheckOverlap__vs2_dx_otherge
     sec
-    lda.l PlayerEntity_PosX
+    lda.l G13_PickupTargetX
     sbc.l Entity2_PosX
     bra Character_Pickup_CheckOverlap__vs2_dx_have
 Character_Pickup_CheckOverlap__vs2_dx_otherge:
     rep #$20
 .a16
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_PickupTargetX
 Character_Pickup_CheckOverlap__vs2_dx_have:
 .a16
     cmp #CHAR_HITBOX_W
@@ -2039,15 +2100,15 @@ Character_Pickup_CheckOverlap__vs2_dx_ok:
     sep #$20
 .a8
     lda.l Entity2_PosY
-    cmp.l PlayerEntity_PosY
+    cmp.l G13_PickupTargetY
     bcs Character_Pickup_CheckOverlap__vs2_dy_otherge
-    lda.l PlayerEntity_PosY
+    lda.l G13_PickupTargetY
     sec
     sbc.l Entity2_PosY
     bra Character_Pickup_CheckOverlap__vs2_dy_have
 Character_Pickup_CheckOverlap__vs2_dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_PickupTargetY
 Character_Pickup_CheckOverlap__vs2_dy_have:
 .a8
     cmp #CHAR_HITBOX_H
@@ -2083,17 +2144,17 @@ Character_Pickup_CheckOverlap__vs3:
     rep #$20
 .a16
     lda.l Entity3_PosX
-    cmp.l PlayerEntity_PosX
+    cmp.l G13_PickupTargetX
     bcs Character_Pickup_CheckOverlap__vs3_dx_otherge
     sec
-    lda.l PlayerEntity_PosX
+    lda.l G13_PickupTargetX
     sbc.l Entity3_PosX
     bra Character_Pickup_CheckOverlap__vs3_dx_have
 Character_Pickup_CheckOverlap__vs3_dx_otherge:
     rep #$20
 .a16
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_PickupTargetX
 Character_Pickup_CheckOverlap__vs3_dx_have:
 .a16
     cmp #CHAR_HITBOX_W
@@ -2105,15 +2166,15 @@ Character_Pickup_CheckOverlap__vs3_dx_ok:
     sep #$20
 .a8
     lda.l Entity3_PosY
-    cmp.l PlayerEntity_PosY
+    cmp.l G13_PickupTargetY
     bcs Character_Pickup_CheckOverlap__vs3_dy_otherge
-    lda.l PlayerEntity_PosY
+    lda.l G13_PickupTargetY
     sec
     sbc.l Entity3_PosY
     bra Character_Pickup_CheckOverlap__vs3_dy_have
 Character_Pickup_CheckOverlap__vs3_dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_PickupTargetY
 Character_Pickup_CheckOverlap__vs3_dy_have:
 .a8
     cmp #CHAR_HITBOX_H
@@ -2148,17 +2209,17 @@ Character_Pickup_CheckOverlap__vs4:
     rep #$20
 .a16
     lda.l Entity4_PosX
-    cmp.l PlayerEntity_PosX
+    cmp.l G13_PickupTargetX
     bcs Character_Pickup_CheckOverlap__vs4_dx_otherge
     sec
-    lda.l PlayerEntity_PosX
+    lda.l G13_PickupTargetX
     sbc.l Entity4_PosX
     bra Character_Pickup_CheckOverlap__vs4_dx_have
 Character_Pickup_CheckOverlap__vs4_dx_otherge:
     rep #$20
 .a16
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_PickupTargetX
 Character_Pickup_CheckOverlap__vs4_dx_have:
 .a16
     cmp #CHAR_HITBOX_W
@@ -2170,15 +2231,15 @@ Character_Pickup_CheckOverlap__vs4_dx_ok:
     sep #$20
 .a8
     lda.l Entity4_PosY
-    cmp.l PlayerEntity_PosY
+    cmp.l G13_PickupTargetY
     bcs Character_Pickup_CheckOverlap__vs4_dy_otherge
-    lda.l PlayerEntity_PosY
+    lda.l G13_PickupTargetY
     sec
     sbc.l Entity4_PosY
     bra Character_Pickup_CheckOverlap__vs4_dy_have
 Character_Pickup_CheckOverlap__vs4_dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_PickupTargetY
 Character_Pickup_CheckOverlap__vs4_dy_have:
 .a8
     cmp #CHAR_HITBOX_H
@@ -2213,17 +2274,17 @@ Character_Pickup_CheckOverlap__vs5:
     rep #$20
 .a16
     lda.l Entity5_PosX
-    cmp.l PlayerEntity_PosX
+    cmp.l G13_PickupTargetX
     bcs Character_Pickup_CheckOverlap__vs5_dx_otherge
     sec
-    lda.l PlayerEntity_PosX
+    lda.l G13_PickupTargetX
     sbc.l Entity5_PosX
     bra Character_Pickup_CheckOverlap__vs5_dx_have
 Character_Pickup_CheckOverlap__vs5_dx_otherge:
     rep #$20
 .a16
     sec
-    sbc.l PlayerEntity_PosX
+    sbc.l G13_PickupTargetX
 Character_Pickup_CheckOverlap__vs5_dx_have:
 .a16
     cmp #CHAR_HITBOX_W
@@ -2235,15 +2296,15 @@ Character_Pickup_CheckOverlap__vs5_dx_ok:
     sep #$20
 .a8
     lda.l Entity5_PosY
-    cmp.l PlayerEntity_PosY
+    cmp.l G13_PickupTargetY
     bcs Character_Pickup_CheckOverlap__vs5_dy_otherge
-    lda.l PlayerEntity_PosY
+    lda.l G13_PickupTargetY
     sec
     sbc.l Entity5_PosY
     bra Character_Pickup_CheckOverlap__vs5_dy_have
 Character_Pickup_CheckOverlap__vs5_dy_otherge:
     sec
-    sbc.l PlayerEntity_PosY
+    sbc.l G13_PickupTargetY
 Character_Pickup_CheckOverlap__vs5_dy_have:
 .a8
     cmp #CHAR_HITBOX_H

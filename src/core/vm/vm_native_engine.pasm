@@ -1527,12 +1527,15 @@ Character_HitApply_VsEntityGeneric:
     clc
     adc #CHAR_POS_X
     tax
-    lda.l PlayerEntity_PosX
+    ; The attacking actor remains in the caller's DP window.  Reading its
+    ; local position is what makes this same collision path valid for P1 and
+    ; the reserved P2 actor; the old PlayerEntity long read was P1-only.
+    lda CHAR_POS_X
     cmp.l $7E0a00,x
     bcs Character_HitApply_VsEntityGeneric__dx_otherge
     lda.l $7E0a00,x
     sec
-    sbc.l PlayerEntity_PosX
+    sbc CHAR_POS_X
     bra Character_HitApply_VsEntityGeneric__dx_have
 Character_HitApply_VsEntityGeneric__dx_otherge:
     sec
@@ -1547,12 +1550,12 @@ Character_HitApply_VsEntityGeneric__dx_have:
     tax
     sep #$20
 .a8
-    lda.l PlayerEntity_PosY
+    lda CHAR_POS_Y
     cmp.l $7E0a00,x
     bcs Character_HitApply_VsEntityGeneric__dy_otherge
     lda.l $7E0a00,x
     sec
-    sbc.l PlayerEntity_PosY
+    sbc CHAR_POS_Y
     bra Character_HitApply_VsEntityGeneric__dy_have
 Character_HitApply_VsEntityGeneric__dy_otherge:
     sec
@@ -1613,6 +1616,15 @@ Character_HitApply_VsAllGeneric:
     lda #0
     sta.l VmNativeEng_ScanIndex
 Character_HitApply_VsAllGeneric__loop:
+    ; In two-player mode slot 1 is a player, not a legal player-attack
+    ; target.  The scan index is the zero-based table index, so skip only
+    ; that first target while preserving the existing target order.
+    lda.l G13_TwoPlayerEnabled
+    beq Character_HitApply_VsAllGeneric__target
+    lda.l VmNativeEng_ScanIndex
+    bne Character_HitApply_VsAllGeneric__target
+    bra Character_HitApply_VsAllGeneric__next
+Character_HitApply_VsAllGeneric__target:
     lda.l VmNativeEng_ScanIndex
     tax
     txa
@@ -2925,9 +2937,21 @@ Game_State_TickExtraActorTimers__done:
 Game_State_AnyActorAlive:
     sep #$20
 .a8
+    lda.l G13_TwoPlayerEnabled
+    bne Game_State_AnyActorAlive__skip_p2
     lda #$A5
     lda.l $7E0AA8
     bne Game_State_AnyActorAlive__some
+    lda.l $7E0B2D
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0BB2
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0C37
+    bne Game_State_AnyActorAlive__some
+    lda.l $7E0CBC
+    beq Game_State_AnyActorAlive__none
+Game_State_AnyActorAlive__skip_p2:
+    ; In two-player mode slot 1 is the reserved P2 actor, never an enemy.
     lda.l $7E0B2D
     bne Game_State_AnyActorAlive__some
     lda.l $7E0BB2

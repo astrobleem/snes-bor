@@ -144,6 +144,10 @@ Game_State_NewGameReset:
     sta.l Game_Score
     sta.l Game_StageIndex
     jsl Stage_LoadAndRespawn_Long
+    ; Stage_Load reinitializes the five non-player windows.  In two-player
+    ; mode slot 1 is reserved for P2 for the entire session, so restore that
+    ; actor through the same bounded roster-load path before PLAYING resumes.
+    jsl G13_EnsureP2AfterStage
     rep #$31
 .a16
 .i16
