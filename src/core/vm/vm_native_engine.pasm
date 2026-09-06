@@ -2905,18 +2905,15 @@ Audio_FrameSoundDispatch__done:
 
 ; Extra bounded actor timer maintenance lives in this bank to keep the
 ; bank-0 gameplay loop within its fixed NMI header window. This is the same
-; per-frame decrement policy used by slots 1-3; only slots 4/5 are handled
-; here because the established four-actor path remains unchanged.
+; per-frame decrement policy used by the established actor timers. Slots 4/5
+; and the G13 P2 player timer are handled here because bank 0 is fixed.
 Game_State_TickExtraActorTimers:
     php
     sep #$20
 .a8
     ; G13 P2 player-local invulnerability is maintained here with the
-    ; existing bank-C extra timer pass.  This pass is called once per
-    ; PLAYING frame; keep the 1P path a no-op and do not couple countdown to
-    ; actor dispatch.
-    lda.l G13_TwoPlayerEnabled
-    beq Game_State_TickExtraActorTimers__p2_done
+    ; existing bank-C extra timer pass.  The cell is zeroed whenever 2P is
+    ; disabled, so the 1P path is a no-op without a second mode branch.
     lda.l G13_P2_InvulnFrames
     beq Game_State_TickExtraActorTimers__p2_done
     dec a

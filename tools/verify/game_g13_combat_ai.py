@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (Reporter, exact_input_edge, pasm_constant,
                       pasm_constant_in, read_block, run_frames_exact)
 from game_g13_two_player_input import (P1, P2, NPC2, clear_inputs,
-                                       prepare_session, neutral_players)
+                                       prepare_session)
 from game_g13_jump_isolation import open_jump_session
 from game_g12_six_actor_production import SPAWN_INDEX, SPAWN_COUNT
 from game_g13_semantic_boundary import symbol
@@ -63,6 +63,16 @@ def set_actor(m, index, x, y=150, hp=HP_MAX, role=AI_MODE):
     m.write_u8(b + FACING, 0)
     m.write_u8(b + GRAB_TARGET, 0xFF)
     m.write_u8(b + GRABBED_BY, 0xFF)
+
+def neutral_player_inputs(m):
+    """Poll both ports neutral without touching the configured NPC target."""
+    m.hold_input(0, port=0)
+    m.hold_input(0, port=1)
+    try:
+        run_frames_exact(m, 2)
+    finally:
+        m.release_input(port=0)
+        m.release_input(port=1)
 
 
 def prepare_ai_fixture(m, p1_x, p2_x, ai_x, p1_hp=HP_MAX, p2_hp=HP_MAX):
@@ -168,7 +178,7 @@ def player_hit_case(port):
         m.write_u8(P1_INVULN, 255 if port == 0 else 0)
         m.write_u8(P2_INVULN, 255 if port == 1 else 0)
         p1_before, p2_before, npc_before = u8(m, P1 + HP), u8(m, P2 + HP), u8(m, ENTITIES[2] + HP)
-        neutral_players(m)
+        neutral_player_inputs(m)
         m.hold_input(m.BTN_Y, port=port)
         try:
             run_frames_exact(m, 3)

@@ -5687,14 +5687,14 @@ Character_PlayFrame__ai_x:
     ; rep #$20/.a16 resync (poppy bug #10), since __right/__left/__hold are
     ; also reached directly from the still-.a8 dpad dispatch above. Y stays
     ; 8-bit unchanged (no vertical scroll).
-    ; No live player target means hold. The bank-C helper tests the explicit
-    ; slot sentinel before these transient coordinates are consumed.
+    ; No live player target means hold both axes. Jump directly to the Y hold
+    ; tail so the normal Y half cannot consume stale target coordinates.
     jsl G13_AiTargetValid
     bcs Character_PlayFrame__ai_x_target_valid
-    brl Character_PlayFrame__hold
+    brl Character_PlayFrame__hold_y
 Character_PlayFrame__ai_x_target_valid:
-.a16
     rep #$20
+.a16
 .a16
     lda.l G13_AiTargetX
     cmp CHAR_POS_X
@@ -6567,14 +6567,11 @@ Character_HitApply_VsEntity3__dead_skip:
 ; against PlayerEntity_PosX/Y/HitStun instead -- used by the AI (Entity
 ; #1) when it's the one attacking.
 Character_HitApply_VsPlayer:
-    sep #$20
-.a8
-    ; $FF is the explicit no-live-player result.  A finishing AI animation
-    ; may continue after both players die, but it cannot touch player state.
-    lda.l G13_AiTargetSlot
-    cmp #$FF
-    bne Character_HitApply_VsPlayer__has_target
-    jmp Character_HitApply_VsPlayer__no_target
+    ; $FF is the explicit no-live-player result. The shared bank-C validity
+    ; helper preserves this guard without spending another width block here.
+    jsl G13_AiTargetValid
+    bcs Character_HitApply_VsPlayer__has_target
+    rts
 Character_HitApply_VsPlayer__has_target:
     ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
     ; reason. Phase 8: dx is 16-bit, dy stays 8-bit -- see its comment.
@@ -6687,8 +6684,6 @@ Character_HitApply_VsPlayer__grabbed:
     ; Grab replaces damage, same as the player-vs-AI path (Character_
     ; HitApply__TryGrab's own __do block already set CHAR_HIT_APPLIED and
     ; positioned both entities) -- nothing further to do here.
-    rts
-Character_HitApply_VsPlayer__no_target:
     rts
 
 ; ============================================================================

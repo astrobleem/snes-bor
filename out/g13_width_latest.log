@@ -1,8 +1,9 @@
-width-directive check (poppy#386): 1741 branch/jump-target labels, 57 NEW, 180 baselined, 0 baseline entries now clean
+width-directive check (poppy#386): 1753 branch/jump-target labels, 57 NEW, 180 baselined, 0 baseline entries now clean
   NEW  src/core/screen.pasm:353  Core_Screen__SetTargetPosition__single:  reaches "and #$00ff" with no explicit width directive
   NEW  src/core/game_state.pasm:542  Game_State_Play__title_wait_check_p1:  reaches "and #$0010" with no explicit width directive
-  NEW  src/main.pasm:7719  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
-  NEW  src/main.pasm:7963  CharacterEntity_Play__no_context_exit:  reaches "lda #OBJR_NOERR" with no explicit width directive
+  NEW  src/main.pasm:6613  Character_HitApply_VsPlayer__dy_ok:  reaches "cmp #1" with no explicit width directive
+  NEW  src/main.pasm:7747  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
+  NEW  src/main.pasm:8009  CharacterEntity_Play__no_context_exit:  reaches "lda #OBJR_NOERR" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:1202  Character_Grab_SlotToOffset__invalid:  reaches "lda #0" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:1543  Character_HitApply_VsEntityGeneric__dx_have:  reaches "cmp #CHAR_HITBOX_W" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:1563  Character_HitApply_VsEntityGeneric__dy_have:  reaches "cmp #CHAR_HITBOX_H" with no explicit width directive
@@ -13,11 +14,11 @@ width-directive check (poppy#386): 1741 branch/jump-target labels, 57 NEW, 180 b
   NEW  src/core/vm/vm_native_engine.pasm:2461  AudioSemantic_EmitDiesound__not_foot:  reaches "cmp #AUDIO_STREAM_SOURCE_NONE" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2717  Audio_FrameSoundDispatch__selected_ok:  reaches "cmp #$FF" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2728  Audio_FrameSoundDispatch__variant_ok:  reaches "cmp #$FF" with no explicit width directive
-  NEW  src/core/vm/vm_native_engine.pasm:2963  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
-  NEW  src/core/vm/vm_native_engine.pasm:2967  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
-  NEW  src/main.pasm:12504  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
-  NEW  src/main.pasm:12587  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
-  NEW  src/main.pasm:12685  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2971  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2975  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
+  NEW  src/main.pasm:12550  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
+  NEW  src/main.pasm:12633  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
+  NEW  src/main.pasm:12731  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
   NEW  src/core/spawn.pasm:626  Spawn_Play__wait_release_active:  reaches "lda #0" with no explicit width directive
   NEW  src/core/spawn.pasm:661  Spawn_Play__wc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
   NEW  src/core/spawn.pasm:670  Spawn_Play__wc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
@@ -35,17 +36,16 @@ width-directive check (poppy#386): 1741 branch/jump-target labels, 57 NEW, 180 b
   NEW  src/core/pausemenu.pasm:643  Game_State_Pause_CheckEntry__enter:  reaches "lda #AUDIO_SEMANTIC_PAUSE" with no explicit width directive
   NEW  src/core/input.pasm:117  Core_Input_Poll__no_pad1:  reaches "lda #0" with no explicit width directive
   NEW  src/core/input_p2.pasm:23  Core_Input_Poll_P2__no_pad:  reaches "lda #0" with no explicit width directive
-  NEW  src/core/player2_context.pasm:364  G13_AiChooseTarget__candidate1:  reaches "cmp #1" with no explicit width directive
-  NEW  src/core/player2_context.pasm:482  G13_Screen_SetTargetPosition__set_x:  reaches "lda #0" with no explicit width directive
-  NEW  src/core/player2_context.pasm:500  G13_Screen_SetTargetPosition__set_y:  reaches "lda #0" with no explicit width directive
-  NEW  src/core/player2_context.pasm:510  G13_Screen_SetTargetPosition__y_ok:  reaches "lda #SCREEN_MODE_GROUNDED" with no explicit width directive
-  NEW  src/core/player2_context.pasm:536  G13_TetherPlayerX__player:  reaches "adc #16" with no explicit width directive
-  NEW  src/core/player2_context.pasm:546  G13_TetherPlayerX__upper:  reaches "sbc #32" with no explicit width directive
-  NEW  src/core/player2_context.pasm:655  G13_Game_Score_Award__hit_only:  reaches "lda #HIT_SCORE" with no explicit width directive
-  NEW  src/core/player2_context.pasm:657  G13_Game_Score_Award__have_award:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
-  NEW  src/core/player2_context.pasm:669  G13_Game_Score_Award__no_overflow:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
-  NEW  src/core/player2_context.pasm:701  G13_P2Score_Award__hit:  reaches "lda #HIT_SCORE" with no explicit width directive
-  NEW  src/core/player2_context.pasm:703  G13_P2Score_Award__add:  reaches "lda #$FFFF" with no explicit width directive
+  NEW  src/core/player2_context.pasm:569  G13_Screen_SetTargetPosition__set_x:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/player2_context.pasm:587  G13_Screen_SetTargetPosition__set_y:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/player2_context.pasm:597  G13_Screen_SetTargetPosition__y_ok:  reaches "lda #SCREEN_MODE_GROUNDED" with no explicit width directive
+  NEW  src/core/player2_context.pasm:623  G13_TetherPlayerX__player:  reaches "adc #16" with no explicit width directive
+  NEW  src/core/player2_context.pasm:633  G13_TetherPlayerX__upper:  reaches "sbc #32" with no explicit width directive
+  NEW  src/core/player2_context.pasm:742  G13_Game_Score_Award__hit_only:  reaches "lda #HIT_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:744  G13_Game_Score_Award__have_award:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:756  G13_Game_Score_Award__no_overflow:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:788  G13_P2Score_Award__hit:  reaches "lda #HIT_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:790  G13_P2Score_Award__add:  reaches "lda #$FFFF" with no explicit width directive
   NEW  src/core/jump.pasm:1691  Character_HitApply__ApplyPickup__heal_add:  reaches "cmp #CHAR_HP_MAX + 1" with no explicit width directive
   NEW  src/core/jump.pasm:1827  Character_HitApply__RevealOrPickup__check2:  reaches "cpx #CHAR_ZP_LEN*2" with no explicit width directive
   NEW  src/core/jump.pasm:1831  Character_HitApply__RevealOrPickup__check3:  reaches "cpx #CHAR_ZP_LEN*3" with no explicit width directive

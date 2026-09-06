@@ -192,16 +192,14 @@ Focused evidence retained in `out/g13_combat_ai.json` and the run logs:
 - P1 and P2 invulnerability counters remained independent in the focused
   timer controls.
 
-The combat verifier still has two explicitly red/unfinished controls: the
-both-dead case is contaminated by the normal P1 respawn before the selector
-observation, and the P2 timer sample showed a two-count decrement in one
-short harness interval while P1 showed one. These are retained as failures,
-not waived or relabeled as acceptance. Multiple-AI stale-target attribution,
+The selector-localized both-dead control now records `$FF` before normal P1
+respawn can overwrite the fixture. The timer endpoint remains a harness
+boundary artifact, but write-watch evidence is authoritative. Multiple-AI stale-target attribution,
 friendly-fire, full P2 grab/throw, and production invulnerability-hit
 controls remain unmeasured.
 
 Current rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
-`6F0B8A14F4D9795120274BD9041A6D1BD8C75A33B857DE96814F8D602BBB1F31`;
+`F1C2AF99622DFAC0FE8940D690240E0C0E4792A09F7DD6DE5F8F7C850FCFC8E0`;
 `bor.msu` remains
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
@@ -219,21 +217,34 @@ ignore-whitespace comparison. A clean detached build of `0a6f4fa` reproduced
 ROM `92CC8751...029F`, proving the earlier `9->7` observation came from the
 unpublished test/build state, not that commit's source.
 
-The P2 decrement now lives in `Game_State_TickExtraActorTimers`, gated by
-`G13_TwoPlayerEnabled`, and does not grow bank 0 or CHAR_ZP_LEN. Write-watch
+The P2 decrement now lives in `Game_State_TickExtraActorTimers`; the cell is
+zeroed when 2P is disabled, so the 1P path is a no-op without a bank-0 mode
+branch. It does not grow bank 0 or CHAR_ZP_LEN. Write-watch
 evidence records paired P1/P2 writes `8`, `7`, then `6`, `5` on consecutive
 gameplay frames. `tools/verify/game_g13_invuln_timing.py` passes the bounded
 semantic write checks; its endpoint hook samples are not used as timing proof.
 
 `Character_PlayFrame__ai_x` now checks the explicit `$FF` target-validity
-helper before consuming stale target coordinates. The selector-localized
-both-dead control records target slot `$FF` and no valid target offset.
+helper and routes invalid results directly to the combined X/Y hold tail
+before consuming stale target coordinates. The selector-localized both-dead
+control records target slot `$FF`; its transient offset/X/Y remain stale by
+contract and are not treated as valid evidence.
 Layout/ownership audit passes with runtime end `$FF68` and 56 bytes before
 NMI.
 
-The live player-vs-NPC verifier remains nondeterministic in its attack fixture
-and is not accepted: recent runs alternated between one or both attack
-assertions missing despite earlier retained successful samples. Full AI hit
-invulnerability, multiple-AI ownership, friendly-fire, and P2 grab/throw
+The corrected combat-local player-vs-NPC verifier passes repeated clean
+sessions: both P1 and P2 reduce NPC2 from 64 to 60 while the other player
+remains at 64. The prior nondeterminism was caused by the verifier's
+post-target `neutral_players()` cleanup, which killed NPC2; the fixture now
+polls neutral without touching actor state and freezes the spawn queue. Full
+AI hit invulnerability, multiple-AI ownership, friendly-fire, and P2 grab/throw
 remain open. No transport, camera, score, pickup, stage, or workload gate is
 claimed.
+
+Fresh width output is retained in `out/g13_width_latest.log`. It exits 1 on
+the existing 57-warning report; none of the newly introduced G13 target-valid
+or timer labels is a new hot-path warning. The layout/ownership audit and
+Phase5 pass on the final rebuilt ROM. The direct no-target consumer proof at
+the exact AI movement instruction remains pending because the current
+execution-hook API resumes only at a later frame boundary; no endpoint sample
+is being presented as that proof.

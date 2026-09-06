@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import Reporter, read_block
 from game_g13_jump_isolation import open_jump_session
@@ -54,15 +55,27 @@ def main():
             m.remove_hook(p1_writes)
             m.remove_hook(p2_writes)
     print('TIMER_PASSES', rows)
-    def writes_for(rows_, handle):
-        return [e['params']['value'] for row in rows_ for e in row['write_events']
-                if e['params']['handle'] == handle]
-    p1_values = writes_for(rows, p1_writes)
-    p2_values = writes_for(rows, p2_writes)
-    r.check('semantic writes decrement P1 once per pass',
-            p1_values[:2] == [8, 7] and len(p1_values) >= 2)
-    r.check('semantic writes decrement P2 once per pass',
-            p2_values[:2] == [8, 7] and len(p2_values) >= 2)
+    grouped = defaultdict(lambda: defaultdict(list))
+    for row in rows:
+        for event in row['write_events']:
+            p = event['params']
+            address = 'p1' if p['handle'] == p1_writes else 'p2'
+            grouped[p['frame']][address].append(p['value'])
+    frames = sorted(grouped)
+    no_duplicates = all(len(grouped[f]['p1']) <= 1 and
+                        len(grouped[f]['p2']) <= 1 for f in frames)
+    p1_values = [grouped[f]['p1'][0] for f in frames if grouped[f]['p1']]
+    p2_values = [grouped[f]['p2'][0] for f in frames if grouped[f]['p2']]
+    p1_stepwise = all(b == a - 1 for a, b in zip(p1_values, p1_values[1:]))
+    p2_stepwise = all(b == a - 1 for a, b in zip(p2_values, p2_values[1:]))
+    paired_equal = all(grouped[f]['p1'][0] == grouped[f]['p2'][0]
+                       for f in frames if grouped[f]['p1'] and grouped[f]['p2'])
+    r.check('one write per timer per observed frame', no_duplicates)
+    r.check('P1 writes are exactly one-step decrements',
+            len(p1_values) >= 2 and p1_stepwise)
+    r.check('P2 writes are exactly one-step decrements',
+            len(p2_values) >= 2 and p2_stepwise)
+    r.check('equal starting timers remain equal on paired writes', paired_equal)
     with open(OUT, 'w', encoding='utf-8') as f:
         json.dump({'passes': rows, 'confirmed_busy_denials': None}, f, indent=2)
         f.write('\n')
