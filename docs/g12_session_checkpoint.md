@@ -554,3 +554,36 @@ busy decisions are retained as compact snapshot evidence.
 Nonclaims remain: no transport/cache redesign, no two-player support, no
 residency claim, and no acceptance of the RALF-specific red regression until
 its pre-dispatch contradiction receives independent review.
+
+## G12 RALF input-boundary evidence (2026-09-05)
+
+Fix-forward from `def3b56a70761bf2eed4582372a2c5785c403fed` adds a bounded
+`G12_AnimTrace_InputRead` wrapper around the exact attack2
+`LDA.l Input_trigger` and records its event-time byte in
+`G12_AnimTrace_LastInput`. It uses the same full-A16 save/restore contract as
+the verified busy/loaded wrappers. The ring remains bounded and no aggregate
+busy count is invented.
+
+The ordinary RALF focused gate now compares cold start with the existing
+grab/reselect path. Cold start immediately after X reports
+`selected=$02,last_input=$40`. After the grab/reselect sequence, immediately
+after the same exact one-frame X helper, it reports
+`Game_State=$00, CharSelect_Loaded=$01, player HP=$10,
+input_driven=$01, chainlength=$00, hit-stun=$00, entity invulnerability=$00,
+selected=$00, frame=$04, tick=$01, last_input=$00`. The 40-frame retained
+trace contains no selected=2 transition, no hit-applied bit, no target HP or
+hit-stun change, and all non-target slots are HP-zero at the edge. Thus the
+failure is before the attack2 `CHAR_SELECTED` store; it is not a collision
+miss or a later reset. The original RALF damage assertion remains red.
+
+The event-5 ring record was not retained at the immediate boundary because
+the eight-record ring was overwritten by the surrounding frame activity; the
+last-input latch preserves the consumed value. The remaining divergence is
+the production input-poll/reselect boundary (cold X is observed, post-reselect
+X is not); no production input state was forced and no fix was guessed.
+
+Fresh hooked ROM: `5C4E68BACABF49D7B7D7C0355594E0248B1B2DE5DBD1AA0C990407EA8816F7E9`;
+MSU remains `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The six-actor production/depth gates and 600-frame five-non-player workload
+remain as recorded above; hook-disabled six-actor presentation validation is
+still not claimed for this artifact.

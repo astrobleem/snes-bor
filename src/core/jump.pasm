@@ -2378,6 +2378,31 @@ G12_AnimTrace_LoadedRead:
     plp
     rtl
 
+G12_AnimTrace_InputRead:
+    ; Same-size replacement for the attack2 gate's LDA.l Input_trigger.
+    ; Return the exact A/flags produced by the displaced load after recording
+    ; the event-time value consumed by the following AND #$40.
+    lda.l Input_trigger
+    php
+    rep #$20
+.a16
+    pha
+    phx
+    phy
+    sep #$20
+.a8
+    sta.l G12_AnimTrace_SavedA
+    sta.l G12_AnimTrace_LastInput
+    lda #5                         ; event 5 = attack2 input read
+    jsr G12_AnimTrace_Record
+    ply
+    plx
+    rep #$20
+.a16
+    pla
+    plp
+    rtl
+
 G12_AnimTrace_Record:
     ; A8 = event kind, SavedA = value at the replaced access.
     sep #$20

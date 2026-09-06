@@ -72,6 +72,12 @@ CHAR_ATTACK2_BASE_LO = pasm_constant('CHAR_ATTACK2_BASE_LO')
 CHAR_ATTACK2_BASE_HI = pasm_constant('CHAR_ATTACK2_BASE_HI')
 CHAR_CHAINLENGTH = pasm_constant('CHAR_CHAINLENGTH')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
+CHAR_FREESPECIAL_FCOUNT = pasm_constant('CHAR_FREESPECIAL_FCOUNT')
+CHAR_SPECIAL_FCOUNT = pasm_constant('CHAR_SPECIAL_FCOUNT')
+CHAR_SLIDE_FCOUNT = pasm_constant('CHAR_SLIDE_FCOUNT')
+CHAR_GRABMOVE_FCOUNT = pasm_constant('CHAR_GRABMOVE_FCOUNT')
+ANIM_TRACE_RING = pasm_constant('G12_AnimTrace_Ring')
+ANIM_TRACE_LAST_INPUT = pasm_constant('G12_AnimTrace_LastInput')
 CHAR_ATTACK2_IS_GRAB = pasm_constant('CHAR_ATTACK2_IS_GRAB')
 CHAR_ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 CHAR_GRAB_TARGET = pasm_constant('CHAR_GRAB_TARGET')
@@ -86,6 +92,7 @@ GRAB_HOLD_FRAMES = pasm_constant_in(VM_NATIVE_PATH, 'GRAB_HOLD_FRAMES')
 
 GS_PATH = 'src/core/game_state.pasm'
 Entity1_InvulnFrames = pasm_constant_in(GS_PATH, 'Entity1_InvulnFrames')
+Game_State = pasm_constant_in(GS_PATH, 'Game_State')
 
 ENTITY_BASES = [0x7E0A00 + i * CHAR_ZP_LEN for i in range(4)]
 PlayerEntity = ENTITY_BASES[0]
@@ -174,6 +181,25 @@ def poll_until(m, predicate, max_frames):
 def main():
     r = Reporter('G7-GRAB', kind='GATE')
     with open_session(__file__) as m:
+        m.reset_emulator()
+        m.run_frames(300)
+        m.pause()
+
+        # Cold-start control: RALF is the boot character.  Suppress the
+        # production wave, overlap the ordinary target, and sample the exact
+        # event-time Input_trigger byte immediately after one X edge.  Reset
+        # again before the longer JOE/grab/reselect sequence below so this
+        # control cannot alter that fixture's lifecycle.
+        for actor in (Entity1, Entity2, Entity3, Entity4, Entity5):
+            m.write_u8(actor + CHAR_HP, 0)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        reset_combat_state(m)
+        overlap_entity1_with_player(m)
+        exact_input_edge(m, m.BTN_X, 1)
+        cold_selected = read_u8(m, PlayerEntity + CHAR_SELECTED)
+        cold_input = read_u8(m, ANIM_TRACE_LAST_INPUT)
+        print('RALF cold-start immediate-after-edge: selected=%02X '
+              'last_input=%02X' % (cold_selected, cold_input))
         m.reset_emulator()
         m.run_frames(300)
         m.pause()
@@ -407,12 +433,34 @@ def main():
         print('RALF dispatch metadata: chainlength=%02X input_driven=%02X'
               % (read_u8(m, PlayerEntity + CHAR_CHAINLENGTH),
                  read_u8(m, PlayerEntity + CHAR_INPUT_DRIVEN)))
+        print('RALF post-reselect gates: Game_State=%02X Loaded=%02X HP=%02X '
+              'free=%02X special=%02X slide=%02X grabmove=%02X' % (
+                  read_u8(m, Game_State), read_u8(m, CharSelect_Loaded),
+                  read_u8(m, PlayerEntity + CHAR_HP),
+                  read_u8(m, PlayerEntity + CHAR_FREESPECIAL_FCOUNT),
+                  read_u8(m, PlayerEntity + CHAR_SPECIAL_FCOUNT),
+                  read_u8(m, PlayerEntity + CHAR_SLIDE_FCOUNT),
+                  read_u8(m, PlayerEntity + CHAR_GRABMOVE_FCOUNT)))
         print('RALF pre-X gates: player_hit_stun=%02X entity1_hit_stun=%02X '
               'entity1_invuln=%02X' % (
                   read_u8(m, PlayerEntity + CHAR_HIT_STUN),
                   read_u8(m, Entity1 + CHAR_HIT_STUN),
                   read_u8(m, Entity1_InvulnFrames)))
         exact_input_edge(m, m.BTN_X, 1)
+        immediate_after_edge = entity_block(m, PlayerEntity)
+        input_events = []
+        ring = read_block(m, ANIM_TRACE_RING, 64)
+        for off in range(0, 64, 8):
+            rec = ring[off:off + 8]
+            if rec[2] == 5 and (rec[0] | (rec[1] << 8)) == 0x0C14:
+                input_events.append({'value': rec[3], 'selected': rec[4],
+                                     'frame': rec[5], 'tick': rec[6]})
+        print('RALF immediate-after-edge: selected=%02X frame=%02X tick=%02X '
+              'last_input=%02X input_event=%s' % (
+                  immediate_after_edge[CHAR_SELECTED],
+                  immediate_after_edge[CHAR_FRAME_INDEX],
+                  immediate_after_edge[CHAR_TICK_COUNTER],
+                  read_u8(m, ANIM_TRACE_LAST_INPUT), input_events))
         ralf_trace = []
         for _ in range(40):
             run_frames_exact(m, 1)

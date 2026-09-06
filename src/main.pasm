@@ -2789,6 +2789,7 @@ G12_AnimTrace_Event = $7E58CB
 G12_AnimTrace_LastDp = $7E58CC
 G12_AnimTrace_LastEvent = $7E58CE
 G12_AnimTrace_LastValue = $7E58CF
+G12_AnimTrace_LastInput = $7E58D0
 ; $7EF000-$7EF03F is beyond the VM code WRAM window ($7E6000-$7EDFFF)
 ; and is reserved here solely for the bounded diagnostic ring.
 G12_AnimTrace_Ring = $7EF000
@@ -4268,7 +4269,7 @@ Anim_Play__no_atchain:
     ; stream from a zero-length region.
     lda CHAR_ATTACK2_FCOUNT
     beq Anim_Play__no_attack2_trigger
-    lda.l Input_trigger
+    jsl G12_AnimTrace_InputRead
     and #ANIM_ATTACK2_BUTTON_MASK
     beq Anim_Play__no_attack2_trigger
     lda #2
