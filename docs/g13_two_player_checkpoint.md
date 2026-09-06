@@ -198,8 +198,8 @@ boundary artifact, but write-watch evidence is authoritative. Multiple-AI stale-
 friendly-fire, full P2 grab/throw, and production invulnerability-hit
 controls remain unmeasured.
 
-Current rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
-`F1C2AF99622DFAC0FE8940D690240E0C0E4792A09F7DD6DE5F8F7C850FCFC8E0`;
+Current clean rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
+`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`;
 `bor.msu` remains
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
