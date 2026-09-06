@@ -3,8 +3,10 @@
 Status: WIP review publication; not accepted and not merge-ready.
 
 Parent/source commit: `67f0ef14d12b1bf2ee9843d9b80dd994d397e36d` on
-`g13-two-player`. The production sources and generated assembly in this
-commit are the current fix-forward worktree state.
+`g13-two-player`. Published WIP source/evidence commits are
+`4f8552a60f3d9fba9c3627d3c8110d4352d9da6b` and
+`423399e687cf7e4c1a26e7e1b41827776b6cbeb1`; the latter is the current
+published source SHA.
 
 ## Artifacts
 
