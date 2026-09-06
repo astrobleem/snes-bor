@@ -218,8 +218,9 @@ ROM `92CC8751...029F`, proving the earlier `9->7` observation came from the
 unpublished test/build state, not that commit's source.
 
 The P2 decrement now lives in `Game_State_TickExtraActorTimers`; the cell is
-zeroed when 2P is disabled, so the 1P path is a no-op without a bank-0 mode
-branch. It does not grow bank 0 or CHAR_ZP_LEN. Write-watch
+explicitly boot-initialized and the timer pass is gated by
+`G13_TwoPlayerEnabled`, so 1P seeded state does not tick. It does not grow
+bank 0 or CHAR_ZP_LEN. Write-watch
 evidence records paired P1/P2 writes `8`, `7`, then `6`, `5` on consecutive
 gameplay frames. `tools/verify/game_g13_invuln_timing.py` passes the bounded
 semantic write checks; its endpoint hook samples are not used as timing proof.
@@ -241,10 +242,13 @@ AI hit invulnerability, multiple-AI ownership, friendly-fire, and P2 grab/throw
 remain open. No transport, camera, score, pickup, stage, or workload gate is
 claimed.
 
-Fresh width output is retained in `out/g13_width_latest.log`. It exits 1 on
-the existing 57-warning report; none of the newly introduced G13 target-valid
-or timer labels is a new hot-path warning. The layout/ownership audit and
-Phase5 pass on the final rebuilt ROM. The direct no-target consumer proof at
-the exact AI movement instruction remains pending because the current
-execution-hook API resumes only at a later frame boundary; no endpoint sample
-is being presented as that proof.
+The hardened timer verifier now also records 1P seeded-P2, asymmetric 2P,
+paused, and cold/disabled controls; all pass with write events grouped by
+emulator frame. Fresh width output is retained in
+`out/g13_width_current.log`; it exits 1 on 51 historical/new warnings, but
+the requested G13 combat-path labels are absent from the NEW list. The
+layout/ownership audit and Phase5 pass on the final rebuilt ROM. The
+selector-localized no-target diagnostic records an `$FF` write and stale
+coordinates, but its async run-to-hook boundary does not yet prove the
+same-pass X/Y hold; the retained result is explicitly FAIL rather than an
+endpoint claim.

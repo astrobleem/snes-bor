@@ -21,6 +21,9 @@ Core_Input_Poll_P2:
     rtl
 
 Core_Input_Poll_P2__no_pad:
+    rep #$31
+.a16
+.i16
     lda #0
     sta.l Input2_press_Addr
     sta.l Input2_old_Addr

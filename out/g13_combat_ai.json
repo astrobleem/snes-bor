@@ -30,7 +30,7 @@
     "p2": {
       "target_slot": 1,
       "target_offset": 133,
-      "target_x": 200,
+      "target_x": 54218,
       "p1_hp": 64,
       "p2_hp": 60
     },
@@ -45,7 +45,7 @@
       "target_slot": 1,
       "target_offset": 133,
       "target_x": 200,
-      "p1_hp": 64,
+      "p1_hp": 0,
       "p2_hp": 64
     },
     "p1_only": {

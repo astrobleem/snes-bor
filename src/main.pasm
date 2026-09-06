@@ -5689,8 +5689,9 @@ Character_PlayFrame__ai_x:
     ; 8-bit unchanged (no vertical scroll).
     ; No live player target means hold both axes. Jump directly to the Y hold
     ; tail so the normal Y half cannot consume stale target coordinates.
-    jsl G13_AiTargetValid
-    bcs Character_PlayFrame__ai_x_target_valid
+    lda.l G13_AiTargetSlot
+    inc a
+    bne Character_PlayFrame__ai_x_target_valid
     brl Character_PlayFrame__hold_y
 Character_PlayFrame__ai_x_target_valid:
     rep #$20
@@ -6611,6 +6612,8 @@ Character_HitApply_VsPlayer__dy_have:
     bcc Character_HitApply_VsPlayer__dy_ok
     rts                     ; no overlap on Y
 Character_HitApply_VsPlayer__dy_ok:
+    sep #$20
+.a8
     ; Phase G3 (plan_game.md 3): a just-respawned player is briefly
     ; invulnerable (Player_InvulnFrames, ticked down once per frame by
     ; Game_State_Play -- see core/game_state.pasm) -- same "no further
@@ -8007,6 +8010,9 @@ CharacterEntity_Play__no_ai_target:
     beq CharacterEntity_Play__no_context_exit
     jsl G13_Player2_ContextExit
 CharacterEntity_Play__no_context_exit:
+    rep #$31
+.a16
+.i16
     lda #OBJR_NOERR
     rts
 

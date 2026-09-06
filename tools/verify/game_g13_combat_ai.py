@@ -173,6 +173,11 @@ def player_hit_case(port):
         m.write_u8(ENTITIES[2] + HITSTUN, 30)
         for i in range(3, 6):
             set_actor(m, i, 500 + i * 20, hp=0, role=AI_MODE)
+        # Freeze the production spawn queue after the live target is built.
+        # Do not use neutral_players() here: that helper is intentionally a
+        # dead-slot cleanup fixture and would invalidate NPC2 immediately
+        # before the player attack.
+        m.write_u8(SPAWN_INDEX, u8(m, SPAWN_COUNT))
         # Keep the non-attacking player immune to the test actor's ordinary
         # AI hit while preserving the real player-vs-NPC collision path.
         m.write_u8(P1_INVULN, 255 if port == 0 else 0)

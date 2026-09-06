@@ -1200,6 +1200,9 @@ Character_Grab_SlotToOffset:
     sec
     rts
 Character_Grab_SlotToOffset__invalid:
+    rep #$30
+.a16
+.i16
     lda #0
     clc
     rts
@@ -1541,6 +1544,8 @@ Character_HitApply_VsEntityGeneric__dx_otherge:
     sec
     sbc.l $7E0a00,x
 Character_HitApply_VsEntityGeneric__dx_have:
+    rep #$20
+.a16
     cmp #CHAR_HITBOX_W
     bcs Character_HitApply_VsEntityGeneric__no
 
@@ -1561,6 +1566,8 @@ Character_HitApply_VsEntityGeneric__dy_otherge:
     sec
     sbc.l $7E0a00,x
 Character_HitApply_VsEntityGeneric__dy_have:
+    sep #$20
+.a8
     cmp #CHAR_HITBOX_H
     bcs Character_HitApply_VsEntityGeneric__no
 
@@ -2912,8 +2919,10 @@ Game_State_TickExtraActorTimers:
     sep #$20
 .a8
     ; G13 P2 player-local invulnerability is maintained here with the
-    ; existing bank-C extra timer pass.  The cell is zeroed whenever 2P is
-    ; disabled, so the 1P path is a no-op without a second mode branch.
+    ; existing bank-C extra timer pass.  The cell is explicitly initialized
+    ; at boot and is maintained only while the bounded 2P session is active.
+    lda.l G13_TwoPlayerEnabled
+    beq Game_State_TickExtraActorTimers__p2_done
     lda.l G13_P2_InvulnFrames
     beq Game_State_TickExtraActorTimers__p2_done
     dec a

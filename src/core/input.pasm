@@ -78,6 +78,14 @@ Input2_old_Addr = $7E041A
 	sta.l Input_last_raw_Addr
 	sta.l Input2_last_raw_Addr
 	sta.l G13_TwoPlayerEnabled
+	; Power-on WRAM is undefined; explicitly initialize the standalone P2
+	; invulnerability timer with the other G13 boot state.
+	sep #$20
+.a8
+	sta.l G13_P2_InvulnFrames
+	rep #$31
+.a16
+.i16
 	sta.l G13_P2StartSeen
 	sta.l G13_P2TriggerSnapshot
 	sta.l G13_P2MaskResult

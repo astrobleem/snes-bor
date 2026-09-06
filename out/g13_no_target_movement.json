@@ -1,0 +1,38 @@
+{
+  "entry_frame": 238,
+  "done_frame": 239,
+  "same_oop_pass": false,
+  "stale": {
+    "x": 80,
+    "y": 150,
+    "slot": 0
+  },
+  "stale_after": {
+    "x": 80,
+    "y": 150
+  },
+  "target_slot": 255,
+  "before": {
+    "x": 136,
+    "y": 114,
+    "p1_hp": 64,
+    "p2_hp": 64,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "ai_grab": 255
+  },
+  "after": {
+    "x": 132,
+    "y": 118,
+    "p1_hp": 64,
+    "p2_hp": 0,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "ai_grab": 255
+  },
+  "confirmed_busy_denials": null
+}
