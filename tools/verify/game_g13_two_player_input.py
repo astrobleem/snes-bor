@@ -112,6 +112,21 @@ def sampled_simultaneous(m, buttons0, buttons1, sample):
         m.release_input(port=1)
 
 
+def neutral_joint(m):
+    """Poll both physical ports neutral in the same bounded interval."""
+    m.hold_input(0, port=0)
+    m.hold_input(0, port=1)
+    try:
+        run_frames_exact(m, 2)
+        state = (read_block(m, 0x7E0410, 32)[:6].hex(),
+                 read_block(m, 0x7E0416, 32)[:6].hex())
+    finally:
+        m.release_input(port=0)
+        m.release_input(port=1)
+    assert state[0] == '000000000000' and state[1] == '000000000000', state
+    return state
+
+
 def prepare_session(m):
     m.reset_emulator()
     run_frames_exact(m, 180)
@@ -137,7 +152,7 @@ def action_case(port, buttons):
 def simultaneous_action_case():
     with open_session(__file__) as m:
         prepare_session(m)
-        clear_inputs(m)
+        neutral_joint(m)
         neutral_players(m)
         _, sample = sampled_simultaneous(
             m, m.BTN_Y, m.BTN_Y,

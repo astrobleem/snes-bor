@@ -37,6 +37,11 @@ slot 1, mode-dependent Spawn_Play reservation and completion accounting,
 P2 jump-family state, nearest-live-player AI targeting, shared midpoint
 camera/tethering, and P2 score/pickup ownership. The six-actor G12 layout,
 `CHAR_ZP_LEN=133`, single staging buffer, and audio behavior are retained.
+The P1 jump bridge copies the six count/delay bytes and three 24-bit bases
+explicitly, then copies `Player_JumpAnimMode` at `$7E27DA`; it does not treat
+the intervening scratch as a contiguous live block. P2 owns the separate
+16-byte block at `$7E2697-$7E26A6`. P2 input is `$7E0416-$7E041B`, while
+context scratch and P2 score/lives occupy separate audited symbols.
 
 ## Evidence
 
@@ -61,16 +66,22 @@ Known red gate, reproduced by:
 `$s='E:\\gh\\Mesen2\\bin\\win-x64\\Release\\settings.json'; $b=[IO.File]::ReadAllBytes($s); try { $t=[Text.Encoding]::UTF8.GetString($b); $i=$t.IndexOf('"Port2"'); $j=$t.IndexOf('"Type": "None"',$i); $t=$t.Remove($j,18).Insert($j,'"Type": "SnesController"'); [IO.File]::WriteAllText($s,$t,(New-Object Text.UTF8Encoding($false))); python -u tools\\verify\\game_g13_two_player_input.py } finally { [IO.File]::WriteAllBytes($s,$b) }`
 
 The failing assertion is `simultaneous distinct attack edges remain
-distinct`. The latest retained sample was:
+distinct`. After replacing sequential neutral pulses with a synchronized
+two-port neutral hold, the latest retained sample was:
 
-`SIMULTANEOUS_ATTACK (0, 0, '000000000000', '000000000000', '00000000')`
+`SIMULTANEOUS_ATTACK (2, 0, '004000400000', '004000400000', '00400040')`
 
 where the tuple is P1 selected, P2 selected, P1 press/trigger/old, P2
-press/trigger/old, and raw-latch bytes. This is direct observation that the
-BOR update consumed no simultaneous action edge in that attempt, not proof
-that the controller API cannot deliver both ports. The synchronized hardware
-control passes. Independent attack controls have passed in fresh sessions;
-the simultaneous actor-consumption boundary remains unresolved.
+press/trigger/old, and the two raw-latch words. Both raw words are the
+expected Y value (`0x4000`) and both trigger contexts are present in the same
+BOR update, but only P1 enters attack state. This localizes the current red
+gate past controller delivery and before successful P2 action entry. The
+separate synchronized hardware control passes, and independent attack
+controls pass in fresh sessions.
+
+The old all-zero tuple occurred before the synchronized neutral correction
+and is retained only as historical verifier evidence, not as the current
+classification.
 
 The old outer-session action attempts were contaminated by repeated reset and
 input setup; those are not used as acceptance evidence. No production combat
