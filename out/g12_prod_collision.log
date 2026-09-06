@@ -1,0 +1,50 @@
+slot1 vertical above inside: dx=0 dy=63 hp=64->60 stun=23
+slot 1 vertical above inside: strict overlap applies damage and hit-stun: PASS
+slot1 vertical below inside: dx=0 dy=-63 hp=64->60 stun=23
+slot 1 vertical below inside: strict overlap applies damage and hit-stun: PASS
+slot1 vertical above exact edge: dx=0 dy=64 hp=64->64 stun=0
+slot 1 vertical above exact edge: outside boundary applies no damage or hit-stun: PASS
+slot1 vertical below exact edge: dx=0 dy=-64 hp=64->64 stun=0
+slot 1 vertical below exact edge: outside boundary applies no damage or hit-stun: PASS
+slot1 vertical above outside: dx=0 dy=65 hp=64->64 stun=0
+slot 1 vertical above outside: outside boundary applies no damage or hit-stun: PASS
+slot1 vertical below outside: dx=0 dy=-65 hp=64->64 stun=0
+slot 1 vertical below outside: outside boundary applies no damage or hit-stun: PASS
+slot1 horizontal right inside: dx=31 dy=0 hp=64->60 stun=23
+slot 1 horizontal right inside: strict overlap applies damage and hit-stun: PASS
+slot1 horizontal left inside: dx=-31 dy=0 hp=64->60 stun=23
+slot 1 horizontal left inside: strict overlap applies damage and hit-stun: PASS
+slot1 horizontal right exact edge: dx=32 dy=0 hp=64->64 stun=0
+slot 1 horizontal right exact edge: outside boundary applies no damage or hit-stun: PASS
+slot1 horizontal left exact edge: dx=-32 dy=0 hp=64->64 stun=0
+slot 1 horizontal left exact edge: outside boundary applies no damage or hit-stun: PASS
+slot1 horizontal right outside: dx=33 dy=0 hp=64->64 stun=0
+slot 1 horizontal right outside: outside boundary applies no damage or hit-stun: PASS
+slot1 horizontal left outside: dx=-33 dy=0 hp=64->64 stun=0
+slot 1 horizontal left outside: outside boundary applies no damage or hit-stun: PASS
+slot4 vertical above inside: dx=0 dy=63 hp=64->60 stun=23
+slot 4 vertical above inside: strict overlap applies damage and hit-stun: PASS
+slot4 vertical below inside: dx=0 dy=-63 hp=64->60 stun=23
+slot 4 vertical below inside: strict overlap applies damage and hit-stun: PASS
+slot4 vertical above exact edge: dx=0 dy=64 hp=64->64 stun=0
+slot 4 vertical above exact edge: outside boundary applies no damage or hit-stun: PASS
+slot4 vertical below exact edge: dx=0 dy=-64 hp=64->64 stun=0
+slot 4 vertical below exact edge: outside boundary applies no damage or hit-stun: PASS
+slot4 vertical above outside: dx=0 dy=65 hp=64->64 stun=0
+slot 4 vertical above outside: outside boundary applies no damage or hit-stun: PASS
+slot4 vertical below outside: dx=0 dy=-65 hp=64->64 stun=0
+slot 4 vertical below outside: outside boundary applies no damage or hit-stun: PASS
+slot4 horizontal right inside: dx=31 dy=0 hp=64->60 stun=23
+slot 4 horizontal right inside: strict overlap applies damage and hit-stun: PASS
+slot4 horizontal left inside: dx=-31 dy=0 hp=64->60 stun=23
+slot 4 horizontal left inside: strict overlap applies damage and hit-stun: PASS
+slot4 horizontal right exact edge: dx=32 dy=0 hp=64->64 stun=0
+slot 4 horizontal right exact edge: outside boundary applies no damage or hit-stun: PASS
+slot4 horizontal left exact edge: dx=-32 dy=0 hp=64->64 stun=0
+slot 4 horizontal left exact edge: outside boundary applies no damage or hit-stun: PASS
+slot4 horizontal right outside: dx=33 dy=0 hp=64->64 stun=0
+slot 4 horizontal right outside: outside boundary applies no damage or hit-stun: PASS
+slot4 horizontal left outside: dx=-33 dy=0 hp=64->64 stun=0
+slot 4 horizontal left outside: outside boundary applies no damage or hit-stun: PASS
+
+GATE G12-COLLISION-BOUNDARIES: PASS

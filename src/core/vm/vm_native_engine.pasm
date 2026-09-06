@@ -2926,29 +2926,21 @@ Game_State_AnyActorAlive:
     sep #$20
 .a8
     lda #$A5
-    sta.l G12_StageTrace_Entry
     lda.l $7E0AA8
-    sta.l G12_StageTrace_Hp1
     bne Game_State_AnyActorAlive__some
     lda.l $7E0B2D
-    sta.l G12_StageTrace_Hp2
     bne Game_State_AnyActorAlive__some
     lda.l $7E0BB2
-    sta.l G12_StageTrace_Hp3
     bne Game_State_AnyActorAlive__some
     lda.l $7E0C37
-    sta.l G12_StageTrace_Hp4
     bne Game_State_AnyActorAlive__some
     lda.l $7E0CBC
-    sta.l G12_StageTrace_Hp5
     beq Game_State_AnyActorAlive__none
 Game_State_AnyActorAlive__some:
     lda #$01
-    sta.l G12_StageTrace_Carry
     sec
     rtl
 Game_State_AnyActorAlive__none:
     lda #$00
-    sta.l G12_StageTrace_Carry
     clc
     rtl

@@ -1,0 +1,46 @@
+roster selected to JOE (index 2): PASS
+CharSelect_Loaded==1 after reselect: PASS
+JOE CHAR_ATTACK2_IS_GRAB==1 (real converted grab role): PASS
+grab established on entity1 before throw test: PASS
+X press while grabbing launches the victim into CHAR_SELECTED_THROWN: PASS
+post-throw links: player.CHAR_GRAB_TARGET=255 entity1.CHAR_GRABBED_BY=255
+player CHAR_GRAB_TARGET released ($FF) immediately after throw: PASS
+entity1 CHAR_GRABBED_BY released ($FF) immediately after throw: PASS
+player CHAR_SELECTED is idle(0) right after throwing (no unique throw-swing state): PASS
+zpos samples: [1280, 3762, 3762, 6140, 7290, 7290, 8414, 9512, 11630, 11630]
+victim actually left the ground during the throw (ZPos > 0 observed): PASS
+CHAR_POS_Y (depth-sort ground key) never changed for any entity while airborne: PASS
+first sampled (ZPos, ZVel) exactly matches the real toss()/check_gravity() integration at some tick count (identical formula to jump.pasm): PASS
+every subsequent sample continues to match the same simulation (real gravity integration, not a different/invented curve): PASS
+post-landing: CHAR_SELECTED=3 ZPos=0 ZVel=0
+victim lands into CHAR_SELECTED_FALL (real knockdown/rise path) within a bounded frame count: PASS
+CHAR_THROW_ZPOS resets to 0 on landing: PASS
+CHAR_THROW_ZVEL resets to 0 on landing: PASS
+CHAR_FALL_STATE_TIMER samples: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]...
+CHAR_FALL_STATE_TIMER genuinely advances after landing (real fall pipeline, not stuck): PASS
+player walk after throw: 128 -> 108
+player genuinely moves under dpad control after throwing (real control, not stuck): PASS
+entity 0 struct still readable/sane after throw sequence (HP=32 <= 64, CHAR_INPUT_DRIVEN=1 <= 3): PASS
+entity 1 struct still readable/sane after throw sequence (HP=0 <= 64, CHAR_INPUT_DRIVEN=2 <= 3): PASS
+entity 2 struct still readable/sane after throw sequence (HP=0 <= 64, CHAR_INPUT_DRIVEN=3 <= 3): PASS
+entity 3 struct still readable/sane after throw sequence (HP=0 <= 64, CHAR_INPUT_DRIVEN=3 <= 3): PASS
+grab re-established for the lethal-throw test: PASS
+lethal throw brings victim CHAR_HP to exactly 0: PASS
+post-lethal-throw: HP=0 CHAR_SELECTED=3 CHAR_GRABBED_BY=255 player.CHAR_GRAB_TARGET=255
+killed victim never entered CHAR_SELECTED_THROWN (no airborne launch for a kill): PASS
+killed victim CHAR_GRABBED_BY released ($FF): PASS
+player CHAR_GRAB_TARGET released ($FF) after a killing throw: PASS
+killed victim real OAM Y: 240 (CHAR_FALL_STATE_TIMER=0xff)
+killed victim real hardware OAM sprite hidden (Y=$F0 dead-hide sentinel): PASS
+entity 0 struct still sane after a lethal throw elsewhere (HP=32 <= 64, CHAR_INPUT_DRIVEN=1 <= 3): PASS
+entity 2 struct still sane after a lethal throw elsewhere (HP=60 <= 64, CHAR_INPUT_DRIVEN=3 <= 3): PASS
+entity 3 struct still sane after a lethal throw elsewhere (HP=64 <= 64, CHAR_INPUT_DRIVEN=3 <= 3): PASS
+AI-initiated throw: player.CHAR_SELECTED=6 entity1.CHAR_GRAB_TARGET=255 player.CHAR_GRABBED_BY=255
+an AI grabber's own per-frame decision really executes a real Character_Grab_Throw (player CHAR_SELECTED reaches CHAR_SELECTED_THROWN): PASS
+the throw releases both link fields (entity1.CHAR_GRAB_TARGET and player.CHAR_GRABBED_BY both back to $FF): PASS
+land-command landing: player.CHAR_SELECTED=0 (landed=True)
+holding UP+A while THROWN gives a safe landing (CHAR_SELECTED=idle, not FALL) -- real doland()/player_fall_check() semantics: PASS
+ordinary landing (no land command): player.CHAR_SELECTED=3 (landed=True)
+the SAME throw without UP+A held still lands into the ordinary FALL reaction (regression against the land-command path above): PASS
+
+GATE G7-THROW: PASS

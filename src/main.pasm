@@ -4026,7 +4026,7 @@ Anim_Play__no_reselect:
     ; Nothing loaded (MSU-1 absent, or the current slot's data is invalid --
     ; see Anim_LoadCharacter) -- skip the whole dispatch below rather than
     ; streaming from a zeroed/garbage MSU base every tick.
-    jsl G12_AnimTrace_LoadedRead
+    lda.l CharSelect_Loaded
     bne Anim_Play__loaded
     rep #$31
 .a16
@@ -4269,7 +4269,7 @@ Anim_Play__no_atchain:
     ; stream from a zero-length region.
     lda CHAR_ATTACK2_FCOUNT
     beq Anim_Play__no_attack2_trigger
-    jsl G12_AnimTrace_InputRead
+    lda.l Input_trigger
     and #ANIM_ATTACK2_BUTTON_MASK
     beq Anim_Play__no_attack2_trigger
     lda #2
@@ -4571,7 +4571,7 @@ Anim_Play_Idle:
     ; the tick decrement below, not after it reaches 0, so a blocked
     ; entity's countdown pauses for a frame instead of pinning at 0 and
     ; re-losing the race to a lower-priority caller every single frame.
-    jsl G12_AnimTrace_BusyRead
+    lda.l Msu1_StreamBusy
     beq Anim_Play_Idle__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Idle__not_busy:
@@ -4616,7 +4616,7 @@ Anim_Play_Walk:
 .a8
     ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
     ; for why the check must come before the tick decrement.
-    jsl G12_AnimTrace_BusyRead
+    lda.l Msu1_StreamBusy
     beq Anim_Play_Walk__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Walk__not_busy:
@@ -4663,7 +4663,7 @@ Anim_Play_Attack:
 .a8
     ; Msu1_StreamBusy gate -- see Anim_Play_Idle's copy of this same block
     ; for why the check must come before the tick decrement.
-    jsl G12_AnimTrace_BusyRead
+    lda.l Msu1_StreamBusy
     beq Anim_Play_Attack__not_busy
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Attack__not_busy:
@@ -4868,7 +4868,7 @@ Anim_Play_Fall__to_rise:
     brl Anim_Done
 Anim_Play_Fall__stream_gate:
 .a8
-    jsl G12_AnimTrace_BusyRead
+    lda.l Msu1_StreamBusy
     beq Anim_Play_Fall__playing_frames
     brl Anim_Done
 Anim_Play_Fall__playing_frames:
@@ -4925,7 +4925,7 @@ Anim_Play_Fall__frame_ok:
 Anim_Play_Rise:
     sep #$20
 .a8
-    jsl G12_AnimTrace_BusyRead
+    lda.l Msu1_StreamBusy
     beq Anim_Play_Rise__not_busy
     brl Anim_Done
 Anim_Play_Rise__not_busy:
@@ -5173,7 +5173,7 @@ Msu1_LoadFrame__read:
     sep #$20
 .a8
     lda #1
-    jsl G12_AnimTrace_BusyStore
+    sta.l Msu1_StreamBusy
     ; Dispatch the authored frame sound after the six frame DMA rows are
     ; queued, while D still names the current entity.
     jsl Audio_FrameSoundDispatch

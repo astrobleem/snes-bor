@@ -1,0 +1,49 @@
+RALF cold-start immediate-after-edge: selected=02 last_input=2C poll(raw,before,old,press,trigger)=(64, 0, 0, 64, 64)
+roster selected to JOE (index 2): PASS
+CharSelect_Loaded==1 after reselect: PASS
+JOE CHAR_ATTACK2_IS_GRAB==1 (real converted grab role): PASS
+pre-grab: player=(120,150) entity1_y=150
+X press near a real-grab target establishes the link (player CHAR_GRAB_TARGET != $FF): PASS
+link: player.CHAR_GRAB_TARGET=1 entity1.CHAR_GRABBED_BY=0
+cross-link: player.CHAR_GRAB_TARGET == entity1 actor slot ID: PASS
+cross-link: entity1.CHAR_GRABBED_BY == player actor slot ID (0): PASS
+X snap: player 128 (expected 128), entity1 112 (expected 112)
+player CHAR_POS_X snapped to the real adjust_grabposition value: PASS
+entity1 CHAR_POS_X snapped to the real adjust_grabposition value: PASS
+player CHAR_POS_Y unchanged (this slice never touches Y): PASS
+entity1 CHAR_POS_Y unchanged (this slice never touches Y): PASS
+entity1.CHAR_GRAB_OFFSET=-16
+CHAR_GRAB_OFFSET == entity1_x - player_x, frozen at grab-init: PASS
+drag samples (player_x, entity1_x, expected): [(128, 112, 112), (130, 114, 114), (134, 116, 118), (134, 118, 118), (138, 122, 122), (140, 124, 124), (142, 126, 126), (142, 126, 126), (144, 128, 128), (148, 132, 132), (148, 132, 132), (152, 136, 136), (152, 136, 136), (156, 140, 140), (158, 142, 142), (158, 142, 142), (160, 144, 144), (162, 146, 146), (166, 150, 150), (168, 152, 152)]
+entity1 rigidly tracks player_x + frozen offset every sampled frame (real check_link_move, not re-averaged; an isolated single-frame reading exactly one PLAYER_SPEED behind that self-corrects next frame is a documented Mesen pause-boundary artifact, not a desync): PASS
+player actually moved during the drag window (dpad wasn't a no-op): PASS
+held CHAR_SELECTED samples: {0}, hp 64->64
+held entity1 never leaves idle (CHAR_SELECTED stays 0, AI-seek gated): PASS
+held entity1 HP unaffected while linked: PASS
+post-release: player.CHAR_GRAB_TARGET=255 entity1.CHAR_GRABBED_BY=255
+grab timer expiry releases the link (player CHAR_GRAB_TARGET back to $FF): PASS
+grab timer expiry releases the link (entity1 CHAR_GRABBED_BY back to $FF): PASS
+entity1 resumes independent behavior after release: PASS
+invalid grabber slot ID $06 clears link in A8: PASS
+invalid grabber slot ID $06 preserves neighboring timer: PASS
+invalid grabber slot ID $FE clears link in A8: PASS
+invalid grabber slot ID $FE preserves neighboring timer: PASS
+roster wrapped back to RALF (index 0) after 11 Select presses from JOE (roster_count=13): PASS
+RALF CHAR_ATTACK2_IS_GRAB==0 (upper is not a real grab): PASS
+RALF setup observes a released neutral controller poll: PASS
+RALF attack setup has no stale player grab link: PASS
+RALF pre-X state: selected=00 variant=01 grabbed_by=FF target=FF a2_fc=04 a2_base=00524A entity1_hp=64
+RALF dispatch metadata: chainlength=00 input_driven=01
+RALF post-reselect gates: Game_State=00 Loaded=01 HP=0C free=00 special=00 slide=00 grabmove=00
+RALF pre-X gates: player_hit_stun=00 entity1_hit_stun=00 entity1_invuln=00
+RALF immediate-after-edge: selected=00 frame=05 tick=0A last_input=74 before_press=0000 old_after=0000 press_after=0000 trigger_after=0000 raw_joy_after=00 input_event=[]
+RALF post-X trace: [{'selected': 2, 'variant': 1, 'frame': 0, 'tick': 10, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 23, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 9, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 22, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 8, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 21, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 7, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 20, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 7, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 20, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 5, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 18, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 4, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 17, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 4, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 17, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 2, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 15, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 1, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 14, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 0, 'tick': 1, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 14, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 9, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 12, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 8, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 11, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 7, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 10, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 6, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 9, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 6, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 9, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 4, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 7, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 3, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 6, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 2, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 5, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 1, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 4, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 1, 'tick': 1, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 4, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 2, 'tick': 9, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 2, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 2, 'tick': 8, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 1, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 2, 'tick': 8, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 1, 'other_hp': [0, 0, 0, 0]}, {'selected': 2, 'variant': 1, 'frame': 2, 'tick': 6, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 10, 'hit_applied': 1, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 10, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 8, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 8, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 7, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 5, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 4, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 4, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 2, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 0, 'tick': 2, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 1, 'tick': 10, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 1, 'tick': 10, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 1, 'tick': 8, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 1, 'tick': 7, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}, {'selected': 0, 'variant': 1, 'frame': 1, 'tick': 7, 'hit_applied': 0, 'target_hp': 60, 'target_stun': 0, 'other_hp': [0, 0, 0, 0]}]
+RALF attack2 regression: hp 64->60, grab_target=255
+RALF attack2 still deals real instant damage (no grab stand-in): PASS
+RALF attack2 never triggers a grab link: PASS
+RALF attack2 role really is `upper` in the converted data (sanity): PASS
+AI-initiated grab: entity1.CHAR_GRAB_TARGET=0 player.CHAR_GRABBED_BY=1
+an AI entity landing a real attack2_is_grab hit on the player establishes the mutual lock (the AI entity's own CHAR_GRAB_TARGET == the player actor slot ID, 0): PASS
+the player's own CHAR_GRABBED_BY is set to the AI entity's real byte offset, same cross-link JOE's player-initiated grab gives in reverse (test 2 above): PASS
+
+GATE G7-GRAB: PASS

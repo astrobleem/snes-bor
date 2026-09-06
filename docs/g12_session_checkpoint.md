@@ -638,3 +638,37 @@ wait totals remain inferred; they are not claims of completed VRAM uploads.
 The focused RALF correction, ordinary production/depth gates, and ordinary
 six-actor measurement are now reproducible from the retained logs. No
 transport, cache, fairness, two-player, or audio change was made.
+
+## G12 production integration (2026-09-05)
+
+G12 is accepted. The default production path is now hook-disabled: every
+diagnostic `G12_AnimTrace_*` call site has been restored to the original
+direct `Msu1_StreamBusy`, `CharSelect_Loaded`, and `Input_trigger` access.
+The stage-predicate diagnostic stores were removed while preserving its
+loads, branches, carry result, and gameplay semantics. Diagnostic labels,
+verifiers, and retained evidence remain available for research; no
+diagnostic wrapper is executed and no diagnostic WRAM store is performed by
+the normal build. The single staging buffer and existing DMA ownership are
+unchanged. SOUND remains closed.
+
+Clean production build command:
+`python -u -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`.
+Final production ROM:
+`690F620E64D7645FCC750627C6A62C885D6527D1122C2795F6E1C8113A1C2C7A`.
+Final `bor.msu`:
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The ROM differs from the earlier accepted ordinary control
+`B2C0B01AD75AAB6BE854211F97AFE8E63896CAC9F847C8ECF0F99989CFA57714`
+only because the newly productionized build removes the stage-trace stores;
+the bank-0 guard remains PASS (`runtime_end=$FF54`, 76 bytes free before
+NMI).
+
+Final no-diagnostic-write ROM gates all passed: `phase5.py`; G7 grab with
+RALF `64->60`; G7 throw/AI throw; attack dispatch (YASHIRO attack1,
+JOE/RALF attack2, MOUSER higher route); collision boundaries; six-actor
+production lifecycle/combat/pickup/reuse and real stage transition;
+four/six depth with jump/landing/crossover; and the continuous six-actor
+600-frame workload. The exact logs are retained under `out/g12_prod_*.log`.
+The workload kept five non-player combat actors active for all samples,
+with NMI delta 600 and zero overruns; DMA high-water remained 8 records / 856
+bytes. `confirmed_busy_denials` remains explicitly unmeasured (`null`).
