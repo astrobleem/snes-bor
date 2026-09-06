@@ -53,7 +53,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import (open_session, pasm_constant, pasm_constant_in, read_block, Reporter,  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in, read_block,
+                       read_snes_bus_block, Reporter,  # noqa: E402
                        exact_input_edge, run_frames_exact)
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
@@ -195,11 +196,16 @@ def main():
         m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
         reset_combat_state(m)
         overlap_entity1_with_player(m)
+        cold_before_press = read_u16(m, 0x7E0410)
         exact_input_edge(m, m.BTN_X, 1)
         cold_selected = read_u8(m, PlayerEntity + CHAR_SELECTED)
         cold_input = read_u8(m, ANIM_TRACE_LAST_INPUT)
+        cold_poll = (read_snes_bus_block(m, 0x004218, 32)[0],
+                     cold_before_press, read_u16(m, 0x7E0414),
+                     read_u16(m, 0x7E0410), read_u16(m, 0x7E0412))
         print('RALF cold-start immediate-after-edge: selected=%02X '
-              'last_input=%02X' % (cold_selected, cold_input))
+              'last_input=%02X poll(raw,before,old,press,trigger)=%s' %
+              (cold_selected, cold_input, cold_poll))
         m.reset_emulator()
         m.run_frames(300)
         m.pause()
@@ -418,6 +424,16 @@ def main():
         reset_combat_state(m)
         m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
         px2, py2 = overlap_entity1_with_player(m)
+        run_frames_exact(m, 1)
+        neutral_poll_press = read_u16(m, 0x7E0410)
+        r.check('RALF setup observes a released neutral controller poll',
+                neutral_poll_press == 0)
+        # The neutral poll is a real gameplay frame; isolate the attack edge
+        # from any legitimate hit that may land during it, then re-establish
+        # the same valid overlap through the normal fixture setup.
+        reset_combat_state(m)
+        m.write_u8(Entity1 + CHAR_HP, CHAR_HP_MAX)
+        px2, py2 = overlap_entity1_with_player(m)
         hp_before = entity_block(m, Entity1)[CHAR_HP]
         r.check('RALF attack setup has no stale player grab link',
                 read_u8(m, PlayerEntity + CHAR_GRABBED_BY) == 0xFF)
@@ -446,8 +462,10 @@ def main():
                   read_u8(m, PlayerEntity + CHAR_HIT_STUN),
                   read_u8(m, Entity1 + CHAR_HIT_STUN),
                   read_u8(m, Entity1_InvulnFrames)))
+        bad_before_press = read_u16(m, 0x7E0410)
         exact_input_edge(m, m.BTN_X, 1)
         immediate_after_edge = entity_block(m, PlayerEntity)
+        raw_joy_after = read_snes_bus_block(m, 0x004218, 32)[0]
         input_events = []
         ring = read_block(m, ANIM_TRACE_RING, 64)
         for off in range(0, 64, 8):
@@ -456,11 +474,15 @@ def main():
                 input_events.append({'value': rec[3], 'selected': rec[4],
                                      'frame': rec[5], 'tick': rec[6]})
         print('RALF immediate-after-edge: selected=%02X frame=%02X tick=%02X '
-              'last_input=%02X input_event=%s' % (
+              'last_input=%02X before_press=%04X old_after=%04X '
+              'press_after=%04X trigger_after=%04X raw_joy_after=%02X '
+              'input_event=%s' % (
                   immediate_after_edge[CHAR_SELECTED],
                   immediate_after_edge[CHAR_FRAME_INDEX],
                   immediate_after_edge[CHAR_TICK_COUNTER],
-                  read_u8(m, ANIM_TRACE_LAST_INPUT), input_events))
+                  read_u8(m, ANIM_TRACE_LAST_INPUT), bad_before_press,
+                  read_u16(m, 0x7E0414), read_u16(m, 0x7E0410),
+                  read_u16(m, 0x7E0412), raw_joy_after, input_events))
         ralf_trace = []
         for _ in range(40):
             run_frames_exact(m, 1)
@@ -477,7 +499,7 @@ def main():
             })
         hit_landed = any(s['target_hp'] != hp_before for s in ralf_trace)
         e1_ralf = entity_block(m, Entity1)
-        print('RALF post-X trace: %s' % ralf_trace[:12])
+        print('RALF post-X trace: %s' % ralf_trace)
         with open(RALF_MOVESET, 'r', encoding='utf-8') as f:
             ralf_moveset = json.load(f)
         print(f'RALF attack2 regression: hp {hp_before}->{e1_ralf[CHAR_HP]}, '

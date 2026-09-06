@@ -587,3 +587,54 @@ MSU remains `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 The six-actor production/depth gates and 600-frame five-non-player workload
 remain as recorded above; hook-disabled six-actor presentation validation is
 still not claimed for this artifact.
+
+## G12 RALF input-poll correction and ordinary-build closeout evidence (2026-09-05)
+
+The RALF failure was an input-fixture boundary, not a combat or dispatch
+defect. The cold-start control consumed X on one exact poll with
+`($4218, Input_press-before, Input_old-after, Input_press-after,
+Input_trigger-after) = ($40, $0000, $0000, $0040, $0040)`. The post-reselect
+case initially presented a new X request without a verified neutral poll;
+the edge detector consequently produced no trigger at the consuming update.
+The fixture now performs one real released-input frame, asserts
+`Input_press == 0`, resets only the legitimate hit state caused during that
+neutral gameplay frame, and re-establishes the same overlap before the X
+edge. It does not write `Input_trigger` or `CHAR_SELECTED`. The retained full
+trace is `out/g12_ralf_input_boundary.log`; its post-X trace contains
+`selected=2`, `variant=1`, `hit_applied=1`, and target HP `64->60`.
+
+The hook-disabled control was built in isolated worktree
+`E:/gh/snes-bor-ordinary` from `667c4d5` with the same command:
+`python -u -c "import build_rom; build_rom.build_audio.main=lambda: None; raise SystemExit(build_rom.main())"`.
+The ordinary ROM is
+`B2C0B01AD75AAB6BE854211F97AFE8E63896CAC9F847C8ECF0F99989CFA57714` and
+the matching `bor.msu` is
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The ordinary RALF log is `out/g12_ralf_ordinary_input_boundary.log` and
+passes the original HP assertion (`64->60`); a repeat is retained at
+`out/g12_ralf_ordinary_input_boundary_repeat.log` and gives a clean
+`GATE G7-GRAB: PASS`. The first run's one pause-boundary-sensitive drag
+sample is separately retained and is not used to waive RALF.
+
+The ordinary six-actor production gate passes, including six live slots,
+added-slot source-matched VRAM/padding and palette ownership, combat,
+break/reveal/collection, reuse, and slot-5 last-enemy camera travel and next
+stage transition. `out/g12_six_actor_ordinary_production.log` retains the
+result. `out/g12_depth_ordinary.log` retains the ordinary four- and
+six-actor depth, jump/landing, and crossover PASS.
+
+The ordinary six-live-actor workload ran continuously as six exact 100-frame
+chunks in one session (`out/g12_six_actor_ordinary_600.log`). Every sample
+observed five non-player combat actors (six total actors). Successful timed
+streams were `[47,52,72,49,69,37]`; created requests were
+`[47,63,79,60,80,48]`; cancellations were `[0,9,7,10,11,11]`; superseded
+requests `[0,2,0,1,0,0]`; maximum inferred waits `[1,2,3,4,4,5]`; average
+inferred waits `[0.3191,0.4038,0.6667,0.7551,0.8406,1.0]`. NMI delta was
+600 with zero overruns, and DMA high-water was 8 records / 856 bytes.
+`confirmed_busy_denials` remains JSON null because the bounded observer
+does not provide a lossless aggregate. Snapshot-derived frame changes and
+wait totals remain inferred; they are not claims of completed VRAM uploads.
+
+The focused RALF correction, ordinary production/depth gates, and ordinary
+six-actor measurement are now reproducible from the retained logs. No
+transport, cache, fairness, two-player, or audio change was made.
