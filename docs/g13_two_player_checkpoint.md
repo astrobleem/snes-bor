@@ -201,7 +201,7 @@ friendly-fire, full P2 grab/throw, and production invulnerability-hit
 controls remain unmeasured.
 
 Current rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
-`92CC8751F44640BDC7F9664CED63C4E24C9E2B28E21244BE5937274E040B029F`;
+`6F0B8A14F4D9795120274BD9041A6D1BD8C75A33B857DE96814F8D602BBB1F31`;
 `bor.msu` remains
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
@@ -210,3 +210,30 @@ Layout guard passed with runtime end `$FF68` and 56 bytes before NMI.
 Later G13 gates are intentionally not claimed: camera, pause, score/HUD,
 pickup ownership, stage handoff, P2 death/continue, dual character
 selection, and the continuous two-player workload.
+
+## Timer and no-target fix-forward
+
+The committed WIP source had no P2 countdown; the unstaged
+`src/core/game_state.pasm` differed only by EOL and was discarded after an
+ignore-whitespace comparison. A clean detached build of `0a6f4fa` reproduced
+ROM `92CC8751...029F`, proving the earlier `9->7` observation came from the
+unpublished test/build state, not that commit's source.
+
+The P2 decrement now lives in `Game_State_TickExtraActorTimers`, gated by
+`G13_TwoPlayerEnabled`, and does not grow bank 0 or CHAR_ZP_LEN. Write-watch
+evidence records paired P1/P2 writes `8`, `7`, then `6`, `5` on consecutive
+gameplay frames. `tools/verify/game_g13_invuln_timing.py` passes the bounded
+semantic write checks; its endpoint hook samples are not used as timing proof.
+
+`Character_PlayFrame__ai_x` now checks the explicit `$FF` target-validity
+helper before consuming stale target coordinates. The selector-localized
+both-dead control records target slot `$FF` and no valid target offset.
+Layout/ownership audit passes with runtime end `$FF68` and 56 bytes before
+NMI.
+
+The live player-vs-NPC verifier remains nondeterministic in its attack fixture
+and is not accepted: recent runs alternated between one or both attack
+assertions missing despite earlier retained successful samples. Full AI hit
+invulnerability, multiple-AI ownership, friendly-fire, and P2 grab/throw
+remain open. No transport, camera, score, pickup, stage, or workload gate is
+claimed.

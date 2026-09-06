@@ -1,0 +1,159 @@
+{
+  "passes": [
+    {
+      "pass": 1,
+      "before": [
+        0,
+        0
+      ],
+      "at_extra_entry": [
+        8,
+        8
+      ],
+      "after": [
+        7,
+        7
+      ],
+      "write_events": [
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 4,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267605,
+            "value": 8,
+            "frame": 233
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 5,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267468,
+            "value": 8,
+            "frame": 233
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 4,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267605,
+            "value": 7,
+            "frame": 234
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 5,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267468,
+            "value": 7,
+            "frame": 234
+          }
+        }
+      ]
+    },
+    {
+      "pass": 2,
+      "before": [
+        6,
+        6
+      ],
+      "at_extra_entry": [
+        5,
+        5
+      ],
+      "after": [
+        4,
+        4
+      ],
+      "write_events": [
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 4,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267605,
+            "value": 6,
+            "frame": 235
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 5,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267468,
+            "value": 6,
+            "frame": 235
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 4,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267605,
+            "value": 5,
+            "frame": 236
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 5,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267468,
+            "value": 5,
+            "frame": 236
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 4,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267605,
+            "value": 4,
+            "frame": 237
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "notifications/mesen/hookFired",
+          "params": {
+            "handle": 5,
+            "kind": "Write",
+            "cpuType": "Snes",
+            "address": 8267468,
+            "value": 4,
+            "frame": 237
+          }
+        }
+      ]
+    }
+  ],
+  "confirmed_busy_denials": null
+}

@@ -2911,6 +2911,17 @@ Game_State_TickExtraActorTimers:
     php
     sep #$20
 .a8
+    ; G13 P2 player-local invulnerability is maintained here with the
+    ; existing bank-C extra timer pass.  This pass is called once per
+    ; PLAYING frame; keep the 1P path a no-op and do not couple countdown to
+    ; actor dispatch.
+    lda.l G13_TwoPlayerEnabled
+    beq Game_State_TickExtraActorTimers__p2_done
+    lda.l G13_P2_InvulnFrames
+    beq Game_State_TickExtraActorTimers__p2_done
+    dec a
+    sta.l G13_P2_InvulnFrames
+Game_State_TickExtraActorTimers__p2_done:
     lda.l Entity4_InvulnFrames
     beq Game_State_TickExtraActorTimers__i4
     dec a

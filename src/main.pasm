@@ -5687,6 +5687,13 @@ Character_PlayFrame__ai_x:
     ; rep #$20/.a16 resync (poppy bug #10), since __right/__left/__hold are
     ; also reached directly from the still-.a8 dpad dispatch above. Y stays
     ; 8-bit unchanged (no vertical scroll).
+    ; No live player target means hold. The bank-C helper tests the explicit
+    ; slot sentinel before these transient coordinates are consumed.
+    jsl G13_AiTargetValid
+    bcs Character_PlayFrame__ai_x_target_valid
+    brl Character_PlayFrame__hold
+Character_PlayFrame__ai_x_target_valid:
+.a16
     rep #$20
 .a16
     lda.l G13_AiTargetX
@@ -5706,7 +5713,6 @@ Character_PlayFrame__ai_x_not_aligned:
     bra Character_PlayFrame__left  ; player is to the left -- reuse __left
 Character_PlayFrame__ai_x_playerge:
     ; A is still playerX (cmp doesn't touch it)
-    rep #$20
 .a16
     sec
     sbc CHAR_POS_X
@@ -7919,12 +7925,12 @@ CharacterEntity_Play__context_ready:
     ; Multi-frame attacks bypass Anim_Play__ai_seek, so choose before every
     ; AI actor's complete Anim/position/hit pass and let all consumers use
     ; this result until CharacterEntity_Play returns.
+    sep #$20
+.a8
     lda CHAR_INPUT_DRIVEN
-    and #$00FF
     cmp #CHAR_INPUT_DRIVEN_AI
     bne CharacterEntity_Play__no_ai_target
     lda CHAR_HP
-    and #$00FF
     beq CharacterEntity_Play__no_ai_target
     jsl G13_AiChooseTarget
 CharacterEntity_Play__no_ai_target:

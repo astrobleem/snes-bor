@@ -520,6 +520,21 @@ G13_AiChooseTarget__return:
 G13_AiChooseTarget__no_target:
     bra G13_AiChooseTarget__return
 
+; Return carry set iff the current AI dispatch has a valid player target.
+; Character_PlayFrame uses this before consuming the transient target X/Y;
+; no-target deliberately leaves those coordinates stale for diagnostics.
+G13_AiTargetValid:
+    sep #$20
+.a8
+    lda.l G13_AiTargetSlot
+    cmp #$FF
+    beq G13_AiTargetValid__invalid
+    sec
+    rtl
+G13_AiTargetValid__invalid:
+    clc
+    rtl
+
 ; G13 shared-camera target helper. Called by Core_Screen__SetTargetPosition
 ; with A/I 16-bit. It returns through the screen routine's carry contract;
 ; the normal screen clamp remains the sole owner of final bounds.

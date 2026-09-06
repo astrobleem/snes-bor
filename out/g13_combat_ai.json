@@ -5,7 +5,7 @@
     "npc_hp_before": 64,
     "p1_hp_after": 64,
     "p2_hp_after": 64,
-    "npc_hp_after": 60,
+    "npc_hp_after": 64,
     "p1_stun": 0,
     "p2_stun": 0
   },
@@ -15,49 +15,55 @@
     "npc_hp_before": 64,
     "p1_hp_after": 64,
     "p2_hp_after": 64,
-    "npc_hp_after": 60,
+    "npc_hp_after": 64,
     "p1_stun": 0,
     "p2_stun": 0
   },
   "targets": {
     "p1": {
       "target_slot": 0,
+      "target_offset": 0,
       "target_x": 50,
       "p1_hp": 60,
       "p2_hp": 64
     },
     "p2": {
       "target_slot": 1,
+      "target_offset": 133,
       "target_x": 200,
       "p1_hp": 64,
       "p2_hp": 60
     },
     "tie": {
       "target_slot": 0,
+      "target_offset": 0,
       "target_x": 50,
       "p1_hp": 64,
       "p2_hp": 64
     },
     "p2_only": {
       "target_slot": 1,
+      "target_offset": 133,
       "target_x": 200,
       "p1_hp": 64,
       "p2_hp": 64
     },
     "p1_only": {
       "target_slot": 0,
+      "target_offset": 0,
       "target_x": 50,
       "p1_hp": 64,
       "p2_hp": 0
     },
     "both_dead": {
-      "target_slot": 0,
+      "target_slot": 255,
+      "target_offset": 0,
       "target_x": 16,
       "p1_hp": 64,
       "p2_hp": 0
     }
   },
-  "invulnerability": {
+  "invulnerability_snapshot_only": {
     "p1": {
       "before": [
         64,
@@ -72,7 +78,7 @@
         64,
         0,
         0,
-        8,
+        7,
         0
       ]
     },
@@ -91,7 +97,7 @@
         0,
         0,
         0,
-        7
+        8
       ]
     }
   },
