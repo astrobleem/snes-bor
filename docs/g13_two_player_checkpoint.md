@@ -2,6 +2,8 @@
 
 Status: WIP review publication; not accepted and not merge-ready.
 
+Current fix-forward source/evidence commit: `06e36859dae22abb7a718c66ab13ce82a7237e0a`.
+
 Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
 `4f8552a60f3d9fba9c3627d3c8110d4352d9da6b` and
