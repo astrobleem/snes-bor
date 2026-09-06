@@ -261,6 +261,8 @@ G13_EnableP2Session__init_slot:
     sta CHAR_INPUT_DRIVEN
     lda #CHAR_HP_MAX
     sta CHAR_HP
+    lda #PLAYER_RESPAWN_INVULN_FRAMES
+    sta.l G13_P2_InvulnFrames
     lda #0
     sta CHAR_SELECTED
     sta CHAR_ATTACK_VARIANT
@@ -340,6 +342,8 @@ G13_DisableP2Session:
     sta CHAR_GRABBED_BY
     stz CHAR_GRAB_TIMER
     stz CHAR_PICKUP_TYPE
+    lda #0
+    sta.l G13_P2_InvulnFrames
     lda #0
     sta.l Entity1_ItemRosterIdx
     pld
@@ -423,6 +427,8 @@ G13_AiChooseTarget__p1_y_done:
     sta.l G13_AiTargetSlot
 
 G13_AiChooseTarget__candidate1:
+    sep #$20
+.a8
     lda.l G13_TwoPlayerEnabled
     beq G13_AiChooseTarget__finish
     lda.l Entity1_InputDriven
@@ -476,6 +482,9 @@ G13_AiChooseTarget__finish:
 .i16
     lda.l G13_AiTargetSlot
     and #$00FF
+    cmp #$00FF
+    beq G13_AiChooseTarget__no_target
+    cmp #$0000
     beq G13_AiChooseTarget__p1_result
     sep #$20
 .a8
@@ -508,6 +517,8 @@ G13_AiChooseTarget__return:
     plx
     plp
     rtl
+G13_AiChooseTarget__no_target:
+    bra G13_AiChooseTarget__return
 
 ; G13 shared-camera target helper. Called by Core_Screen__SetTargetPosition
 ; with A/I 16-bit. It returns through the screen routine's carry contract;

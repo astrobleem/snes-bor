@@ -3493,6 +3493,10 @@ G13_PickupTargetY           = $7E26C7 ; .dw -- active collector's world Y
 G13_PickupForP2             = $7E26C9 ; .db -- 0=P1, 1=P2 during collection
 G13_PickupAmount            = $7E26CA ; .db -- reward/heal amount scratch
 G13_PickupValue             = $7E26CB ; .db -- clamped heal value scratch
+; G13: P2 player-local post-respawn invulnerability.  This verified one-byte
+; gap follows the pickup scratch and precedes the occupied char-select/HUD
+; cells; keep it standalone rather than growing CHAR_ZP_LEN.
+G13_P2_InvulnFrames         = $7E26CC ; .db
 
 ; Generic (not player-only), transient, valid only for the CURRENT
 ; Anim_LoadCharacter call in progress -- real per-load jump/jumpattack/
@@ -4400,9 +4404,14 @@ Anim_Play__ai_seek:
     ; gets a redundant rep #$20/.a16 resync (poppy bug #10); Y and
 ; Anim_Play__want_got below are still real 8-bit fields (CHAR_POS_Y,
 ; CHAR_SELECTED), so .a8 is restored before either is touched.
-    jsl G13_AiChooseTarget
     sep #$20
 .a8
+    ; Target selection already ran at CharacterEntity_Play entry.  Do not
+    ; reselect here: attack continuations bypass this label, and choosing at
+    ; the actor boundary keeps movement/attack/hit ownership coherent.
+    lda.l G13_AiTargetSlot
+    cmp #$FF
+    beq Anim_Play__want_idle
     rep #$20
 .a16
     lda.l G13_AiTargetX
@@ -6552,6 +6561,15 @@ Character_HitApply_VsEntity3__dead_skip:
 ; against PlayerEntity_PosX/Y/HitStun instead -- used by the AI (Entity
 ; #1) when it's the one attacking.
 Character_HitApply_VsPlayer:
+    sep #$20
+.a8
+    ; $FF is the explicit no-live-player result.  A finishing AI animation
+    ; may continue after both players die, but it cannot touch player state.
+    lda.l G13_AiTargetSlot
+    cmp #$FF
+    bne Character_HitApply_VsPlayer__has_target
+    jmp Character_HitApply_VsPlayer__no_target
+Character_HitApply_VsPlayer__has_target:
     ; Same explicit re-sync as Character_HitApply_VsEntity1's entry, same
     ; reason. Phase 8: dx is 16-bit, dy stays 8-bit -- see its comment.
     rep #$20
@@ -6595,7 +6613,14 @@ Character_HitApply_VsPlayer__dy_ok:
     ; Game_State_Play -- see core/game_state.pasm) -- same "no further
     ; stun/damage" shape as the AI leaves' dead-target skip above, but
     ; temporary instead of sticky.
+    lda.l G13_AiTargetSlot
+    cmp #1
+    bne Character_HitApply_VsPlayer__p1_invuln
+    lda.l G13_P2_InvulnFrames
+    bra Character_HitApply_VsPlayer__invuln_loaded
+Character_HitApply_VsPlayer__p1_invuln:
     lda.l Player_InvulnFrames
+Character_HitApply_VsPlayer__invuln_loaded:
     beq Character_HitApply_VsPlayer__not_invuln
     rts
 Character_HitApply_VsPlayer__not_invuln:
@@ -6656,6 +6681,8 @@ Character_HitApply_VsPlayer__grabbed:
     ; Grab replaces damage, same as the player-vs-AI path (Character_
     ; HitApply__TryGrab's own __do block already set CHAR_HIT_APPLIED and
     ; positioned both entities) -- nothing further to do here.
+    rts
+Character_HitApply_VsPlayer__no_target:
     rts
 
 ; ============================================================================
@@ -7888,6 +7915,19 @@ CharacterEntity_Play:
     beq CharacterEntity_Play__context_ready
     jsl G13_Player2_ContextEnter
 CharacterEntity_Play__context_ready:
+    ; AI target ownership is per actor dispatch, not per animation state.
+    ; Multi-frame attacks bypass Anim_Play__ai_seek, so choose before every
+    ; AI actor's complete Anim/position/hit pass and let all consumers use
+    ; this result until CharacterEntity_Play returns.
+    lda CHAR_INPUT_DRIVEN
+    and #$00FF
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne CharacterEntity_Play__no_ai_target
+    lda CHAR_HP
+    and #$00FF
+    beq CharacterEntity_Play__no_ai_target
+    jsl G13_AiChooseTarget
+CharacterEntity_Play__no_ai_target:
     jsr Anim_Play
     jsr Character_PlayFrame
     jsr Character_HitApply   ; plan.md Phase 4: AABB hit check, after this

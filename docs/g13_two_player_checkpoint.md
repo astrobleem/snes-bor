@@ -166,3 +166,47 @@ does not claim `confirmed_busy_denials`; that remains unmeasured/null.
 
 Protected audio files and unrelated dirty files are excluded from the WIP
 publication.
+
+## Combat and AI targeting WIP
+
+This fix-forward keeps the six-actor layout, CHAR_ZP_LEN=133, single
+animation staging buffer, and accepted G12/SOUND behavior.
+
+Source corrections in the current WIP:
+
+- AI target selection now runs at the start of each live AI actor dispatch,
+  so a multi-frame attack does not inherit another actor's transient target.
+- The P2 candidate reads byte fields in A8, the exact-distance tie retains P1,
+  and `$FF` is an explicit no-target result. The hit leaf rejects `$FF` before
+  any player HP, stun, grab, or invulnerability write.
+- P2 owns standalone `G13_P2_InvulnFrames` at `$7E26CC`, initialized from
+  `PLAYER_RESPAWN_INVULN_FRAMES` and maintained by the existing extra-timer
+  path. No character-record growth was introduced.
+
+Focused evidence retained in `out/g13_combat_ai.json` and the run logs:
+
+- real P1-vs-NPC and P2-vs-NPC attacks each reduced the NPC from 64 to 60
+  while the other player's HP remained 64;
+- nearest-P1, nearest-P2, exact tie, dead-P1, and dead-P2 target-slot cases
+  selected `0`, `1`, `0`, `1`, and `0` respectively;
+- P1 and P2 invulnerability counters remained independent in the focused
+  timer controls.
+
+The combat verifier still has two explicitly red/unfinished controls: the
+both-dead case is contaminated by the normal P1 respawn before the selector
+observation, and the P2 timer sample showed a two-count decrement in one
+short harness interval while P1 showed one. These are retained as failures,
+not waived or relabeled as acceptance. Multiple-AI stale-target attribution,
+friendly-fire, full P2 grab/throw, and production invulnerability-hit
+controls remain unmeasured.
+
+Current rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
+`92CC8751F44640BDC7F9664CED63C4E24C9E2B28E21244BE5937274E040B029F`;
+`bor.msu` remains
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
+Layout guard passed with runtime end `$FF68` and 56 bytes before NMI.
+
+Later G13 gates are intentionally not claimed: camera, pause, score/HUD,
+pickup ownership, stage handoff, P2 death/continue, dual character
+selection, and the continuous two-player workload.
