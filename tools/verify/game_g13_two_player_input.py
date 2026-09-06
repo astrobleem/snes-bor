@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Focused G13 input-context gate.
+"""Focused G13 input-context localization gate.
 
-The session is selected through the production title-screen P2 Start path.
-The final transition to PLAYING is then bounded by the fixture so the gate
-can isolate actor input ownership from stage spawning and combat traffic.
-No player state is forced into an action result: positions and neutral state
-are setup, while movement and attack edges come from the two hardware input
-contexts.
+The action-localization cases use a direct-state fixture: ``select_two_player``
+establishes P2 ownership and PLAYING directly so the gate isolates actor input
+ownership from stage spawning and combat traffic.  This does not claim the
+production title-screen activation path; that path is covered separately by
+``game_g13_p2_session.py``.  No player action result is forced: positions and
+neutral state are setup, while movement and attack edges come from hardware
+input contexts.
 """
 import os
 import sys
@@ -91,21 +92,25 @@ def clear_inputs(m):
 
 
 def sampled_edge(m, buttons, port, sample):
-    """Deliver one edge and sample before releasing the override."""
+    """Deliver one edge across a bounded complete actor-service window.
+
+    A fixture write can leave the emulator before the next input poll.  The
+    semantic-boundary gate separately proves the stronger Core_Oop_Play end.
+    """
     m.hold_input(buttons, port=port)
     try:
-        result = run_frames_exact(m, 1)
+        result = run_frames_exact(m, 3)
         return result, sample()
     finally:
         m.release_input(port=port)
 
 
 def sampled_simultaneous(m, buttons0, buttons1, sample):
-    """Deliver one same-frame edge on both ports and sample before release."""
+    """Deliver one synchronized edge across a bounded actor-service window."""
     m.hold_input(buttons0, port=0)
     m.hold_input(buttons1, port=1)
     try:
-        result = run_frames_exact(m, 1)
+        result = run_frames_exact(m, 3)
         return result, sample()
     finally:
         m.release_input(port=0)
@@ -212,11 +217,11 @@ def main():
         p1_attack, p2_attack, p1_in, p2_in = p2_sample
         print('P2_ATTACK_ONLY', p1_attack, p2_attack,
               'p1ctx', p1_in, 'p2ctx', p2_in,
-              'raws', read_block(m, 0x7E041C, 32)[:4].hex())
+              'raws', 'captured-in-action-case')
         r.check('P2 attack edge reaches only P2', p2_attack == 2 and p1_attack != 2)
         simultaneous_sample = simultaneous_action_case()
         print('SIMULTANEOUS_ATTACK', simultaneous_sample,
-              'captured at update boundary')
+              'bounded post-service control; semantic proof is game_g13_semantic_boundary.py')
         r.check('simultaneous distinct attack edges remain distinct',
                 simultaneous_sample[0] == 2 and simultaneous_sample[1] == 2)
 
