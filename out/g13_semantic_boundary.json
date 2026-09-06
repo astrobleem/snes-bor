@@ -407,19 +407,13 @@
       "dp_base": "0x7e0a00",
       "selected": 2,
       "input_driven": 1,
-      "hp": 64,
-      "press": "0040",
-      "trigger": "0040",
-      "old": "0000"
+      "hp": 64
     },
     "p2": {
       "dp_base": "0x7e0a85",
       "selected": 2,
       "input_driven": 1,
-      "hp": 64,
-      "press": "0040",
-      "trigger": "0040",
-      "old": "0000"
+      "hp": 64
     }
   },
   "measurement_status": {

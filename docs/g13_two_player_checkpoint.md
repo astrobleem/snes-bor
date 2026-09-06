@@ -2,22 +2,26 @@
 
 Status: WIP review publication; not accepted and not merge-ready.
 
-Parent/source commit: `67f0ef14d12b1bf2ee9843d9b80dd994d397e36d` on
+Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
 `4f8552a60f3d9fba9c3627d3c8110d4352d9da6b` and
 `423399e687cf7e4c1a26e7e1b41827776b6cbeb1`, and
-`ce5f3d8987ef9742500e3544ac66672dd0f81e09`; the latter is the current
-published source SHA before this fix-forward.
+`ce5f3d8987ef9742500e3544ac66672dd0f81e09`; this fix-forward is the
+jump-isolation review slice.
 
 ## Artifacts
 
 - ROM: `E:\gh\snes-bor-g13\distribution\bor.sfc`
-- ROM SHA-256: `7012DC5C1A497261F59CED00A8F76D0ABC4CCCE0A0D0B25C0079279D933B8895`
+- ROM SHA-256: `0AE3143CBB4C2BF3B192D0D2E992053160A70C626E65E07FFE7A9B2C65DFA088`
 - MSU: `E:\gh\snes-bor-g13\distribution\bor.msu`
 - MSU SHA-256: `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`
 - Build: `python -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`
 - Layout: `python tools\\rom_audit\\verify_layout.py src\\main.pasm src\\main.sym`
 - Semantic probe: `python -u tools\\verify\\game_g13_semantic_boundary.py`
+- Jump probe: `python -u tools\\verify\\game_g13_jump_isolation.py`
+- P2 session: `python -u tools\\verify\\game_g13_p2_session.py`
+- Input: `python -u tools\\verify\\game_g13_input.py`
+- One-player capacity: `python -u tools\\verify\\game_g13_one_player_capacity.py`
 
 The build uses the existing generated audio assets because the source audio
 PAK is not present in this worktree. No audio source or protected audio file
@@ -47,6 +51,19 @@ the intervening scratch as a contiguous live block. P2 owns the separate
 16-byte block at `$7E2697-$7E26A6`. P2 input is `$7E0416-$7E041B`, while
 context scratch and P2 score/lives occupy separate audited symbols.
 
+This jump slice made only focused ownership/call-contract corrections. The
+fixed-session initializer in bank 7 now calls the bank-0 loader through
+`Anim_LoadCharacter_Long`, reloads P1's standalone jump family from actor 0's
+roster record before installing P2, and the actor dispatcher restores its
+entry D before testing and exiting the P2 context. No jump mechanic, actor
+record, animation transport, or audio redesign was made.
+
+The verifier no longer reports P1's input context as P2's actor-local input;
+the semantic claim is the Y-poll-associated entity invocation reached
+`Core_Oop_Play__done`, with both selected values observed as 2 in the bounded
+post-service window, rather than calling a generic delayed snapshot the
+semantic-end sample.
+
 ## Evidence
 
 Passed on the current ROM:
@@ -66,6 +83,29 @@ Passed on the current ROM:
   and attack cases pass when each edge is delivered independently. The
   synchronized P1+P2 Y control now passes after a bounded complete service
   window.
+
+## Jump isolation slice
+
+The focused clean-session controls pass without a jump-gameplay change:
+
+- P1-only: P1 selected jump and became airborne; P2 remained grounded.
+- P2-only: P2 selected jump and became airborne; P1 remained grounded; the
+  complete P1 standalone jump-family snapshot was restored exactly after P2
+  dispatch.
+- Simultaneous A: both actors selected jump and developed nonzero, independent
+  actor-local airborne state in the same bounded service sequence.
+- LEO jump family: P1 and P2 independently reached jumpattack mode 1 from Y
+  and jumpattack2 mode 2 from X.
+- RALF P1 + LEO P2 negative control: P1's jump counts/bases remained zero,
+  P2 retained LEO's 22/2/9 family, and neither context acquired the other.
+- Staggered landing: one player returned from jump while the other remained
+  airborne, without replacing the other's live jump state.
+- Airborne opposite movement: from `(120,180)`, P1/P2 reached `(114,186)`.
+
+The accepted single staging buffer serialized presentation as designed; these
+gates do not require two uploads in one NMI. The retained evidence is
+`out/g13_jump_isolation.json`; it records actor state and jump-family identity,
+not a new DMA tracing framework or a claim of simultaneous VRAM completion.
 
 ## Semantic-boundary correction
 
@@ -117,7 +157,7 @@ entity pass.
 
 ## Explicit nonclaims
 
-This WIP does not claim a complete two-player slice, jump isolation,
+This WIP does not claim a complete two-player slice,
 friendly-fire proof, AI hit attribution, camera/pause, score/pickup,
 stage-handoff, or a valid continuous 600-frame two-player workload. It also
 does not claim `confirmed_busy_denials`; that remains unmeasured/null.

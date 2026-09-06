@@ -7876,6 +7876,10 @@ CharacterEntity_Play:
     rep #$31
 .a16
 .i16
+    ; Keep the dispatch DP independent of any downstream routine's temporary
+    ; D use.  The P2 exit must be tested against the actor window that was
+    ; entered, not against whatever D the grab/throw or hit path leaves live.
+    phd
     tdc
     cmp #$0A85
     bne CharacterEntity_Play__context_ready
@@ -7953,6 +7957,7 @@ CharacterEntity_Play__context_ready:
     rep #$31
 .a16
 .i16
+    pld
     tdc
     cmp #$0A85
     bne CharacterEntity_Play__no_context_exit

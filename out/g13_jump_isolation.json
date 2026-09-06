@@ -1,0 +1,5635 @@
+{
+  "p1_only": {
+    "before": {
+      "p1": {
+        "selected": 0,
+        "frame": 2,
+        "x": 120,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 0,
+        "frame": 4,
+        "x": 180,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 1280,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 4,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 1280,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 4,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 4,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 3762,
+          "zvel": 1202,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "selected": 5,
+        "frame": 0,
+        "x": 120,
+        "zpos": 3762,
+        "zvel": 1202,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 0,
+        "frame": 5,
+        "x": 180,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "p2_only": {
+    "before": {
+      "p1": {
+        "selected": 0,
+        "frame": 0,
+        "x": 120,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 0,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 0,
+        "frame": 0,
+        "x": 180,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 0,
+        "delay": 0,
+        "attack_fcount": 0,
+        "attack_delay": 0,
+        "attack2_fcount": 0,
+        "attack2_delay": 0,
+        "base": [
+          74,
+          94,
+          0
+        ],
+        "attack_base": [
+          74,
+          94,
+          0
+        ],
+        "attack2_base": [
+          74,
+          94,
+          0
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 0,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 2534,
+          "zvel": 1228,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "selected": 0,
+        "frame": 1,
+        "x": 120,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 0,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 2534,
+        "zvel": 1228,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 0,
+        "delay": 0,
+        "attack_fcount": 0,
+        "attack_delay": 0,
+        "attack2_fcount": 0,
+        "attack2_delay": 0,
+        "base": [
+          74,
+          94,
+          0
+        ],
+        "attack_base": [
+          74,
+          94,
+          0
+        ],
+        "attack2_base": [
+          74,
+          94,
+          0
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "simultaneous": {
+    "before": {
+      "p1": {
+        "selected": 0,
+        "frame": 2,
+        "x": 120,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 0,
+        "frame": 4,
+        "x": 180,
+        "zpos": 0,
+        "zvel": 0,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 2,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 4,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 3762,
+          "zvel": 1202,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 3762,
+          "zvel": 1202,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "selected": 5,
+        "frame": 0,
+        "x": 120,
+        "zpos": 3762,
+        "zvel": 1202,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 3762,
+        "zvel": 1202,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "p1_attack_y": {
+    "before": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 9512,
+          "zvel": 1072,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 1
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 10584,
+          "zvel": 1046,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 1
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 10584,
+          "zvel": 1046,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 1
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 11630,
+          "zvel": 1020,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 1
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 1
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "p2_attack_y": {
+    "before": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 8414,
+          "zvel": 1098,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 9512,
+          "zvel": 1072,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680501",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 1
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 10584,
+          "zvel": 1046,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680501",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 1
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 11630,
+          "zvel": 1020,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680501",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 1
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680501",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 1
+      }
+    }
+  },
+  "p1_attack2_x": {
+    "before": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 1,
+          "x": 120,
+          "zpos": 8414,
+          "zvel": 1098,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 9512,
+          "zvel": 1072,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 9512,
+          "zvel": 1072,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 2
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 120,
+          "zpos": 10584,
+          "zvel": 1046,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 5,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 2
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 2
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "p2_attack2_x": {
+    "before": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 8414,
+          "zvel": 1098,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 9512,
+          "zvel": 1072,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 2
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 10584,
+          "zvel": 1046,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680502",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 2
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 3,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 11630,
+          "zvel": 1020,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680502",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 2
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680502",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 2
+      }
+    }
+  },
+  "asymmetric": {
+    "before": {
+      "p1": {
+        "fcount": 0,
+        "delay": 0,
+        "attack_fcount": 0,
+        "attack_delay": 0,
+        "attack2_fcount": 0,
+        "attack2_delay": 0,
+        "base": [
+          74,
+          94,
+          0
+        ],
+        "attack_base": [
+          74,
+          94,
+          0
+        ],
+        "attack2_base": [
+          74,
+          94,
+          0
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      },
+      "rosters": [
+        0,
+        12
+      ]
+    },
+    "samples": [
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 0,
+          "frame": 0,
+          "x": 180,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 1280,
+          "zvel": 1254,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 0,
+          "frame": 1,
+          "x": 120,
+          "zpos": 0,
+          "zvel": 0,
+          "roster": 0,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 180,
+          "zpos": 2534,
+          "zvel": 1228,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 0,
+          "delay": 0,
+          "attack_fcount": 0,
+          "attack_delay": 0,
+          "attack2_fcount": 0,
+          "attack2_delay": 0,
+          "base": [
+            74,
+            94,
+            0
+          ],
+          "attack_base": [
+            74,
+            94,
+            0
+          ],
+          "attack2_base": [
+            74,
+            94,
+            0
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ],
+    "after": {
+      "p1": {
+        "fcount": 0,
+        "delay": 0,
+        "attack_fcount": 0,
+        "attack_delay": 0,
+        "attack2_fcount": 0,
+        "attack2_delay": 0,
+        "base": [
+          74,
+          94,
+          0
+        ],
+        "attack_base": [
+          74,
+          94,
+          0
+        ],
+        "attack2_base": [
+          74,
+          94,
+          0
+        ],
+        "mode": 0
+      },
+      "p2": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  },
+  "landing": [
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 1,
+        "x": 120,
+        "zpos": 13644,
+        "zvel": 968,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 4964,
+        "zvel": 1176,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 1,
+        "x": 120,
+        "zpos": 13644,
+        "zvel": 968,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 4964,
+        "zvel": 1176,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 1,
+        "x": 120,
+        "zpos": 14612,
+        "zvel": 942,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 6140,
+        "zvel": 1150,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 16470,
+        "zvel": 890,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 8414,
+        "zvel": 1098,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 16470,
+        "zvel": 890,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 0,
+        "x": 180,
+        "zpos": 8414,
+        "zvel": 1098,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 18224,
+        "zvel": 838,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 10584,
+        "zvel": 1046,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 18224,
+        "zvel": 838,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 10584,
+        "zvel": 1046,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 19062,
+        "zvel": 812,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 11630,
+        "zvel": 1020,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 2,
+        "x": 120,
+        "zpos": 19874,
+        "zvel": 786,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 12650,
+        "zvel": 994,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 21420,
+        "zvel": 734,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 13644,
+        "zvel": 968,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 21420,
+        "zvel": 734,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 14612,
+        "zvel": 942,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 22862,
+        "zvel": 682,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 16470,
+        "zvel": 890,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 22862,
+        "zvel": 682,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 1,
+        "x": 180,
+        "zpos": 16470,
+        "zvel": 890,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 23544,
+        "zvel": 656,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 17360,
+        "zvel": 864,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 24200,
+        "zvel": 630,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 18224,
+        "zvel": 838,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 25434,
+        "zvel": 578,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 19874,
+        "zvel": 786,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 3,
+        "x": 120,
+        "zpos": 25434,
+        "zvel": 578,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 19874,
+        "zvel": 786,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 26012,
+        "zvel": 552,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 20660,
+        "zvel": 760,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 27090,
+        "zvel": 500,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 22154,
+        "zvel": 708,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 27090,
+        "zvel": 500,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 2,
+        "x": 180,
+        "zpos": 22154,
+        "zvel": 708,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 28064,
+        "zvel": 448,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 23544,
+        "zvel": 656,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 28512,
+        "zvel": 422,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 23544,
+        "zvel": 656,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 28512,
+        "zvel": 422,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 24200,
+        "zvel": 630,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 4,
+        "x": 120,
+        "zpos": 28934,
+        "zvel": 396,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 24830,
+        "zvel": 604,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 29330,
+        "zvel": 370,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 25434,
+        "zvel": 578,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 29700,
+        "zvel": 344,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 26012,
+        "zvel": 552,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 30362,
+        "zvel": 292,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 27090,
+        "zvel": 500,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 30654,
+        "zvel": 266,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 27590,
+        "zvel": 474,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 30654,
+        "zvel": 266,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 3,
+        "x": 180,
+        "zpos": 27590,
+        "zvel": 474,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 5,
+        "x": 120,
+        "zpos": 31160,
+        "zvel": 214,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 28064,
+        "zvel": 448,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31374,
+        "zvel": 188,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 28512,
+        "zvel": 422,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31374,
+        "zvel": 188,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 28934,
+        "zvel": 396,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31724,
+        "zvel": 136,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 29700,
+        "zvel": 344,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31724,
+        "zvel": 136,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 29700,
+        "zvel": 344,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31860,
+        "zvel": 110,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 30044,
+        "zvel": 318,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 31970,
+        "zvel": 84,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 4,
+        "x": 180,
+        "zpos": 30362,
+        "zvel": 292,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 32112,
+        "zvel": 32,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 30920,
+        "zvel": 240,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 6,
+        "x": 120,
+        "zpos": 32112,
+        "zvel": 32,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 30920,
+        "zvel": 240,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 32150,
+        "zvel": 65516,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31374,
+        "zvel": 188,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 32130,
+        "zvel": 65490,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31562,
+        "zvel": 162,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 32130,
+        "zvel": 65490,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31562,
+        "zvel": 162,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 32012,
+        "zvel": 65438,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31724,
+        "zvel": 136,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 32012,
+        "zvel": 65438,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31860,
+        "zvel": 110,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 7,
+        "x": 120,
+        "zpos": 31914,
+        "zvel": 65412,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 31970,
+        "zvel": 84,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 31640,
+        "zvel": 65360,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 32054,
+        "zvel": 58,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 31640,
+        "zvel": 65360,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 5,
+        "x": 180,
+        "zpos": 32112,
+        "zvel": 32,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 31464,
+        "zvel": 65334,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 32144,
+        "zvel": 6,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 31034,
+        "zvel": 65282,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 32130,
+        "zvel": 65490,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 31034,
+        "zvel": 65282,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 32130,
+        "zvel": 65490,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 30780,
+        "zvel": 65256,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 32084,
+        "zvel": 65464,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 8,
+        "x": 120,
+        "zpos": 30194,
+        "zvel": 65204,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 31914,
+        "zvel": 65412,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 29862,
+        "zvel": 65178,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 31914,
+        "zvel": 65412,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 29862,
+        "zvel": 65178,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 31790,
+        "zvel": 65386,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 29504,
+        "zvel": 65152,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 6,
+        "x": 180,
+        "zpos": 31640,
+        "zvel": 65360,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 29120,
+        "zvel": 65126,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 31464,
+        "zvel": 65334,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 28710,
+        "zvel": 65100,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 31262,
+        "zvel": 65308,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 27812,
+        "zvel": 65048,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 30780,
+        "zvel": 65256,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 27324,
+        "zvel": 65022,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 30500,
+        "zvel": 65230,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 9,
+        "x": 120,
+        "zpos": 27324,
+        "zvel": 65022,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 30500,
+        "zvel": 65230,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 5,
+        "frame": 10,
+        "x": 120,
+        "zpos": 26810,
+        "zvel": 64996,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 30194,
+        "zvel": 65204,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    },
+    {
+      "p1": {
+        "selected": 0,
+        "frame": 0,
+        "x": 120,
+        "zpos": 26810,
+        "zvel": 64996,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p2": {
+        "selected": 5,
+        "frame": 7,
+        "x": 180,
+        "zpos": 29504,
+        "zvel": 65152,
+        "roster": 12,
+        "input_driven": 1
+      },
+      "p1_jump": {
+        "fcount": 22,
+        "delay": 7,
+        "attack_fcount": 2,
+        "attack_delay": 54,
+        "attack2_fcount": 9,
+        "attack2_delay": 10,
+        "base": [
+          234,
+          32,
+          5
+        ],
+        "attack_base": [
+          234,
+          98,
+          5
+        ],
+        "attack2_base": [
+          234,
+          104,
+          5
+        ],
+        "mode": 0
+      },
+      "p2_jump": {
+        "block": "16070236090aea2005ea6205ea680500",
+        "fcount": 22,
+        "attack_fcount": 2,
+        "attack2_fcount": 9,
+        "mode": 0
+      }
+    }
+  ],
+  "airborne_movement": {
+    "x0": [
+      120,
+      180
+    ],
+    "x1": [
+      114,
+      186
+    ],
+    "samples": [
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 118,
+          "zpos": 4964,
+          "zvel": 1176,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 182,
+          "zpos": 4964,
+          "zvel": 1176,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 116,
+          "zpos": 6140,
+          "zvel": 1150,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 184,
+          "zpos": 6140,
+          "zvel": 1150,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 116,
+          "zpos": 6140,
+          "zvel": 1150,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 184,
+          "zpos": 6140,
+          "zvel": 1150,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      },
+      {
+        "p1": {
+          "selected": 5,
+          "frame": 0,
+          "x": 114,
+          "zpos": 7290,
+          "zvel": 1124,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p2": {
+          "selected": 5,
+          "frame": 0,
+          "x": 186,
+          "zpos": 7290,
+          "zvel": 1124,
+          "roster": 12,
+          "input_driven": 1
+        },
+        "p1_jump": {
+          "fcount": 22,
+          "delay": 7,
+          "attack_fcount": 2,
+          "attack_delay": 54,
+          "attack2_fcount": 9,
+          "attack2_delay": 10,
+          "base": [
+            234,
+            32,
+            5
+          ],
+          "attack_base": [
+            234,
+            98,
+            5
+          ],
+          "attack2_base": [
+            234,
+            104,
+            5
+          ],
+          "mode": 0
+        },
+        "p2_jump": {
+          "block": "16070236090aea2005ea6205ea680500",
+          "fcount": 22,
+          "attack_fcount": 2,
+          "attack2_fcount": 9,
+          "mode": 0
+        }
+      }
+    ]
+  }
+}

@@ -53,16 +53,23 @@ def main():
         # Only the player's fixture position is arranged; no target HP, role,
         # roster, or other CharacterEntity field is written.
         for target in ENTITIES[2:4]:
-            for _ in range(24):
+            for _ in range(32):
                 if u8(m, target + CHAR_HP) == 0:
                     break
                 m.write_u16(ENTITIES[0] + CHAR_POS_X,
                             u16(m, target + CHAR_POS_X))
                 m.write_u8(ENTITIES[0] + CHAR_POS_Y,
-                           u8(m, target + CHAR_POS_Y))
-                m.write_u8(ENTITIES[0] + CHAR_FACING_LEFT, 0)
-                exact_input_edge(m, m.BTN_Y, 1)
-                run_frames_exact(m, 5)
+                            u8(m, target + CHAR_POS_Y))
+                # The shipped opening props face opposite directions.  Try
+                # each ordinary facing for the edge, retaining only the
+                # fixture's position/facing arrangement and never writing
+                # target state directly.
+                for facing in (0, 1):
+                    m.write_u8(ENTITIES[0] + CHAR_FACING_LEFT, facing)
+                    exact_input_edge(m, m.BTN_Y, 1)
+                    run_frames_exact(m, 3)
+                    if u8(m, target + CHAR_HP) == 0:
+                        break
         m.pause()
         print('post-production prop cleanup:',
               [(u8(m, b + CHAR_HP), u8(m, b + CHAR_INPUT_DRIVEN))

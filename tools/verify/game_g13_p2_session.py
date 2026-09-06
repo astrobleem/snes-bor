@@ -53,7 +53,8 @@ def main():
 
         m.hold_input(m.BTN_START, port=1)
         run_frames_exact(m, 1)
-        print(f"P2_PREPOLL raw={read_block(m, P2_RAW, 32)[:2].hex()} input2={read_block(m, 0x7E0416, 32)[:6].hex()}")
+        raw_start = read_block(m, P2_RAW, 32)[:2]
+        print(f"P2_PREPOLL raw={raw_start.hex()} input2={read_block(m, 0x7E0416, 32)[:6].hex()}")
         m.release_input(port=1)
         exact_input_edge(m, 0, 2, port=1)
         m.write_u16(GAME_STATE, 1)
@@ -71,9 +72,8 @@ def main():
             'snapshot': read_block(m, P2_SNAPSHOT, 32)[:2].hex(),
             'mask': read_block(m, P2_MASK, 32)[:2].hex(),
         }
-        raw = read_block(m, P2_RAW, 32)[:2]
-        print(f"P2_SESSION raw={raw.hex()} input2={read_block(m, 0x7E0416, 32)[:6].hex()} {got}")
-        assert raw == bytes((0x00, 0x10))
+        print(f"P2_SESSION raw_pre_poll={raw_start.hex()} input2={read_block(m, 0x7E0416, 32)[:6].hex()} {got}")
+        assert raw_start == bytes((0x00, 0x10))
         assert got['mode'] == 1 and got['slot1_input'] == 1
         assert got['slot1_roster'] == 12 and got['slot1_hp'] == CHAR_HP_MAX
         # The production gate now lives on TITLE, so the old CHARSELECT

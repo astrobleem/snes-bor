@@ -208,10 +208,13 @@ G13_EnableP2Session:
 .i16
     lda.l G13_TwoPlayerEnabled
     and #$00FF
-    bne G13_EnableP2Session__done
+    bne G13_EnableP2Session__already_enabled
     lda #1
     sta.l G13_TwoPlayerEnabled
-    bra G13_EnableP2Session__init_slot
+    jmp G13_EnableP2Session__init_slot
+
+G13_EnableP2Session__already_enabled:
+    jmp G13_EnableP2Session__done
 
 ; Re-establish the reserved P2 actor after Stage_Load has reinitialized the
 ; ordinary NPC windows.  This is a mode-owned lifecycle hook, not a second
@@ -231,6 +234,20 @@ G13_EnableP2Session__init_slot:
     pha
     lda.l CharSelect_Index
     pha
+
+    ; The fixed-session edge is taken before CHARSELECT has reloaded the
+    ; player's current roster for this run.  Re-establish P1's standalone
+    ; jump-family globals from the already-selected P1 record first; otherwise
+    ; the subsequent P2 context save can preserve stale bring-up data (for
+    ; example LEO's family while actor 0 is RALF).  This is the existing
+    ; loader, not a second data path, and it runs before switching to actor 1.
+    phd
+    pea $0A00
+    pld
+    lda CHAR_ROSTER_INDEX
+    sta.l CharSelect_Index
+    jsl Anim_LoadCharacter_Long
+    pld
 
     sep #$20
 .a8
@@ -267,7 +284,10 @@ G13_EnableP2Session__init_slot:
     ; inside the same ownership bridge used by CharacterEntity_Play so the
     ; loaded LEO family is committed to Player2_Jump* and P1 is restored.
     jsl G13_Player2_ContextEnter
-    jsr Anim_LoadCharacter
+    ; This module is bank 7; Anim_LoadCharacter is bank 0 and returns RTS.
+    ; Use the existing bank-0 JSR/RTL trampoline so the loader executes in
+    ; its owning bank without leaving the long-call return byte on the stack.
+    jsl Anim_LoadCharacter_Long
     jsl G13_Player2_ContextExit
     pld
 
