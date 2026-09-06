@@ -25,8 +25,9 @@ Recommended first implementation slice:
 * give each player an independent controller edge/held state and player
   dispatch path;
 * use one shared camera and the existing six-actor rendering/animation
-  allocation; score/lives, friendly fire, and death policy remain decisions,
-  not defaults;
+  allocation;
+* keep friendly fire off, independent player score/lives state, and either-
+  controller Start pause as the approved policies;
 * exclude both player slots from enemy counts, group waits, and completion;
 * exclude mid-game joining, split-screen, a new character-capacity pass,
   transport changes, and title-boot policy changes.
@@ -51,15 +52,15 @@ not hidden requirements of the initial proof.
 | Player identity | `src/main.pasm:PlayerEntity_*`; `src/core/game_state.pasm:Game_State_RespawnPlayer`, `Game_State_HandlePlayerDeath` | Slot-0 semantics for P1 | Keep slot 0 as P1. Add explicit P2 identity/state rather than relabeling P1 aliases. Decide whether P2 has independent lives/continue or shares the session pool. |
 | Actor storage | `src/main.pasm:CHARACTER_ACTOR_COUNT`, `CharacterEntity_Init`, `CharacterEntity_Play` | Six 133-byte character windows and generic OOP dispatch | Existing capacity is sufficient: convert slot 1 from NPC to a second input-driven player before the spawn queue starts. Do not create a seventh actor or an ECS. |
 | Allocation/reuse | `src/core/spawn.pasm:Spawn_Play`, `Spawn_Play__find_slot`, slot handlers, `Spawn_Index`, `Spawn_Count` | Existing bounded initialization, roster, boss, prop, and reuse paths | Reserve slot 1 permanently for P2 in this mode. Free-slot, death/reuse, prop, boss, and spawn initialization scans must target only slots 2–5. |
-| AI and targeting | `src/main.pasm:CharacterEntity_Play`; `src/core/vm/vm_native_engine.pasm:Character_HitApply_VsAllGeneric`, `Character_HitApply_VsPlayer` | Per-actor AI update and indexed collision paths | Player attacks must target NPC slots only. AI must choose from both live players according to a deterministic nearest/priority rule. Friendly fire is proposed off. |
+| AI and targeting | `src/main.pasm:CharacterEntity_Play`; `src/core/vm/vm_native_engine.pasm:Character_HitApply_VsAllGeneric`, `Character_HitApply_VsPlayer` | Per-actor AI update and indexed collision paths | Player attacks/grabs/throws target NPCs only. AI chooses the nearest live hostile player; exact ties favor the lower actor slot/P1. Friendly fire is off. |
 | Attack input | `src/main.pasm:Anim_Play`, `Character_PlayFrame`; `src/core/jump.pasm:Jump_PlayerInputGate` | Existing attack, jump, special, grab, and throw state machines | Route the active player's context instead of global `Input_*`. Preserve P1 behavior byte-for-byte where possible; give P2 equivalent gates and a separate jump/special state. |
 | Grab/throw | `src/core/vm/vm_native_engine.pasm:Character_Grab_SlotToOffset`, `Character_Grab_Play`, `Character_Throw_Play` | Slot-ID links, reciprocal link clearing, follow/release/throw lifecycle | Slot IDs already fit six actors. Target filters and player ownership must permit P2/NPC links while rejecting player-to-player grabs if friendly interaction is not approved. |
 | Character loading | `src/core/charselect.pasm`, `src/main.pasm:Anim_LoadCharacter`, `Game_State_CharSelect_ReloadPlayer` | MSU character loader, palette/tile setup, pre-game load | Current selection/load gate is singular and targets P1. First slice uses fixed preselected P2 roster identity before PLAYING; dual selection and dynamic reselect are later work. |
-| Camera | `src/core/screen.pasm:Core_Screen__SetTargetPosition`, `Core_Screen_Focus` | Clamp, streaming watermark, and stage-edge handoff | Current camera follows one focused OOP handle. Recommended policy is a bounded midpoint of the two players, clamped to the stage and retaining the accepted stream-scroll contract. Exact dead-player and separation behavior needs approval. |
+| Camera | `src/core/screen.pasm:Core_Screen__SetTargetPosition`, `Core_Screen_Focus` | Clamp, streaming watermark, and stage-edge handoff | Current camera follows one focused OOP handle. Approved adaptation is a shared midpoint of both live players' X interval with viewport tethering; follow the survivor alone when only one is live, and resume midpoint after an in-viewport respawn. |
 | Enemy/completion | `src/core/spawn.pasm:Spawn_Play` wait/group scans; `src/core/vm/vm_native_engine.pasm:Game_State_AnyActorAlive`; `src/core/game_state.pasm` stage logic | Existing exhausted-queue and alive-NPC contract | Count only combat actors in slots 2–5. Both player slots are always excluded; props remain non-blocking. Prove last NPC in slot 5 blocks completion until death, then camera unlock and real transition occur. |
 | HUD/boss | `src/main.pasm:Hud_Play`; `src/core/hud_boss.pasm:Hud_Play__boss_bar`; `PlayerEntity_Hp`, `Game_Lives` | Existing player bar, score/lives, and boss bar DMA | HUD is single-player (`PlayerEntity_Hp`, `Game_Lives`); boss-bar source checks only the older slots 1–3. Co-op needs two player bars and an NPC-only boss scan over slots 2–5. Score/lives is unresolved, not a convenient default. |
-| Score/pickups | `src/main.pasm:Game_Score_Award`; `src/core/jump.pasm` pickup paths | Existing score award and break/reveal/collection behavior | Current score is global and pickup effects are actor-triggered. Shared score, per-player score, and reward ownership are policy decisions; no adaptation is selected here. |
-| Pause/reset | `src/core/pausemenu.pasm`; `src/core/game_state.pasm:Game_State_NewGameReset`; `src/core/charselect.pasm` reset path | One global pause and new-game lifecycle | Pause ownership is unresolved; either-controller pause is only a proposed adaptation. Reset must clear both input contexts, both player records, and reserve slot 1 again. |
+| Score/pickups | `src/main.pasm:Game_Score_Award`; `src/core/jump.pasm` pickup paths | Existing score award and break/reveal/collection behavior | Current score is global and pickup effects are actor-triggered. Adapt to independent score/lives and attribute the effect/reward only to the collecting player; continue UI remains later. |
+| Pause/reset | `src/core/pausemenu.pasm`; `src/core/game_state.pasm:Game_State_NewGameReset`; `src/core/charselect.pasm` reset path | One global pause and new-game lifecycle | Either active controller's Start edge enters/resumes the single global pause. Reset must clear both input contexts, both player records, and reserve slot 1 again. |
 | Rendering | `src/core/depth_sort.pasm:EntityDpBaseTable`, `Character_RenderPass`; `CHAR_TILE_COLUMN`, `CHAR_PALETTE_SLOT` in `src/main.pasm` | Six-slot depth traversal and accepted OAM/OBJ mapping | Reuse slot ownership: P1 `$00`, P2 `$04`, NPC slots 2/3 `$08/$0C`, slots 4/5 `$20/$21`; palettes 0–5. Prove actor identity remains distinct from roster identity and OAM order. |
 
 ## Persistent state and hardware implications
@@ -97,28 +98,22 @@ currently loading `CHAR_INPUT_DRIVEN==1` actor's jump-family metadata into
 the global `Player_JumpFCount`, `Player_JumpDelay`, `Player_JumpAttack*`,
 `Player_JumpBase*`, and `Player_JumpAnimMode` cells at `$7E27BC..$7E27CA`
 and `$7E27DA`. Loading P2 after P1 would overwrite P1's jump command/base
-state (and vice versa). The existing per-actor fields are the right storage:
-`CHAR_THROW_ZPOS`/`CHAR_THROW_ZVEL` at offsets 67/69 hold height and velocity,
-`CHAR_SPECIAL_FCOUNT`/`DELAY`/`BASE` at offsets 71–75 hold special metadata,
-and the remaining jump/attack frame/base fields already live in each 133-byte
-character record where defined. The first implementation must make the jump
-family counts/delays/bases and `CHAR_*` animation mode actor-local, reusing
-those fields rather than adding a second global P2 copy.
+state (and vice versa). These metadata are not present in the 133-byte
+character record. `CHAR_THROW_ZPOS`/`CHAR_THROW_ZVEL` at offsets 67/69 are
+already actor-local and remain so; `CHAR_SPECIAL_*` and generic move slots
+are also actor-local and must not be aliased to jump metadata.
 
-The budget is zero additional character windows, zero additional OAM entries
-beyond the existing six, zero additional palettes, and no new animation
-staging buffer. The only new persistent state is two-controller input context
-plus any actor-local jump mode byte missing from the existing record. A
-The concrete new-state budget is 6 bytes for P2 press/old/trigger (three
-16-bit values), plus 0 bytes for actor metadata if the existing per-actor
-fields are reused; reserve at most 1 additional byte only as a measured
-contingency for a missing per-actor jump animation mode. Thus the design
-budget is 6 bytes normally, 7 bytes maximum, outside the character windows.
-The final placement is not approved until
-`src/core/allocate_wram.pasm` and its fixed layout guards prove a nonoverlap;
-no address is invented here. `Player_Jump*` may remain a compatibility view
-for slot 0 during transition, but cannot be ownership storage for either
-player.
+The first implementation must keep `CHAR_ZP_LEN=133` unchanged and allocate
+P2's same standalone 16-byte jump-family shape: six bytes for jump,
+jumpattack, and jumpattack2 counts/delays; nine bytes for three 24-bit MSU
+bases; and one byte for `Player_JumpAnimMode`. The budget is zero additional
+character windows, zero additional OAM entries, zero additional palettes, and
+no new animation staging buffer. Add six bytes for P2 press/old/trigger, so
+the net new persistent-state budget is exactly 22 bytes. Placement must be a
+separate bounded player-state allocation proven non-overlapping by
+`src/core/allocate_wram.pasm` and its fixed layout guards; no address is
+invented here. `Player_Jump*` remains P1-owned state until the implementation
+converts both players to explicit ownership.
 
 The single animation staging buffer, one-frame stream admission, DMA queue,
 background streaming, and NMI budget remain the accepted production design.
@@ -146,18 +141,24 @@ The current adaptation has one P1: AI attacks target slot 0 in
 `Game_Score_Award` writes one global score; `Game_Lives` and respawn/continue
 are global; `Core_Screen__SetTargetPosition` follows one focused entity; and
 `Hud_Play__boss_bar` has a fixed older-slot scan. BOR single-player semantics
-therefore do not determine a two-player policy. The following are proposed
-adaptations and require approval:
+therefore do not determine a two-player policy. The following are the
+approved SNES adaptations for the first slice:
 
-* friendly fire off, with players excluded from each other's target set;
-* AI target selection over both live players using a deterministic rule;
-* either player may collect an item, with the existing effect applied once and
-  reward ownership recorded;
-* a bounded midpoint camera, including separation and one-player-dead rules;
-* shared or independent score/lives, selected before implementation rather
-  than inferred from the current global cells;
-* pause ownership, since `pausemenu.pasm` currently implements one global
-  state.
+* friendly fire off, with players excluded from each other's attack/grab/throw
+  target set;
+* AI targets the nearest live hostile player, with exact-distance ties favoring
+  the lower actor slot/P1;
+* either player may collect an item, and its effect/reward is attributed to
+  that player only;
+* one shared camera targets the midpoint of the live players' world-X
+  bounding interval and tethers both to the common viewport; with one live
+  player it follows that survivor, and a respawn occurs inside that viewport;
+* score, lives, and eventual continue state are independent per player;
+* either active controller's Start edge enters/resumes the single global pause.
+
+These are adaptations, not claims about exact OpenBOR camera behavior. The
+first slice does not complete the continue/game-over UI; it must nevertheless
+own score/lives state per player now so P2 attribution cannot update P1.
 
 The actual predicates must be traced in the implementation pass: current
 `Spawn_Play` has explicit slot checks and its wait/group scans test HP and
@@ -217,7 +218,7 @@ joining is explicitly a nonclaim of this first slice. Split-screen, multitap,
 SA-1 work, transport/cache/fairness changes, additional actor capacity, and
 audio changes are also nonclaims.
 
-## Decisions requiring advisor approval
+## Settled policies and implementation gates
 
 The following are settled for the proposed first slice:
 
@@ -227,18 +228,18 @@ The following are settled for the proposed first slice:
   interface is included;
 * total capacity remains six actors and the single-buffer transport remains.
 
-Remaining decisions requiring advisor approval:
+The policies are now settled: shared midpoint/tether camera with survivor-only
+follow; friendly fire off; nearest-hostile AI targeting with lower-slot tie;
+independent score/lives and player-owned pickup attribution; and either active
+controller's Start edge for the global pause. Independent death/continue UI is
+explicitly deferred to the next lifecycle slice, but its state ownership must
+be designed independently now.
 
-1. Select camera policy, including separation and one-player-dead behavior.
-2. Select friendly-fire and AI-target policy.
-3. Select shared versus independent score/lives and the death/continue rule.
-4. Confirm whether either controller may pause, or P1 alone owns pause.
-
-The source-backed prerequisites before implementation are approval of these
-policies, an allocation audit for the persistent-state budget above, and the
-bounded JOY2/$421A delivery proof. JOY2 remains a future targeted
-implementation gate, not a claimed result. No new shared armory tooling is proposed: the
-existing input/debugger capability should be audited and reused first.
+The remaining implementation gates are the 22-byte allocation audit with
+fixed-layout proof and the bounded JOY2/$421A delivery/edge test. JOY2 remains
+a targeted implementation gate, not a claimed result. No new shared armory
+tooling is proposed: the existing input/debugger capability should be audited
+and reused first.
 
 ## Explicit nonclaims
 
