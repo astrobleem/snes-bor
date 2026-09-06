@@ -2396,7 +2396,6 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 ; ============================================================================
 .org $C100
 .include "core/random.pasm"
-.include "core/input.pasm"
 .include "core/math.pasm"
 .include "core/error.pasm"
 .include "core/dma_channel.pasm"
@@ -11249,7 +11248,7 @@ scpu_boot:
 
     ; --- Core utility init (random, input, dma, wram alloc; see src/core/) ---
     jsr Core_Random_Init
-    jsr Core_Input_Init
+    jsl Core_Input_Init
     jsr Core_DmaChannel_Init
     jsr Core_Dma_Init
     jsr Core_Wram_Init
@@ -12198,7 +12197,7 @@ scpu_main_loop:
     jsl Tad_StreamFrameService
     rep #$31
 .a16
-    jsr Core_Input_Poll
+    jsl Core_Input_Poll
     ; Anim_Play (updates Anim_FacingLeft via Anim_UpdateFacing, and streams a
     ; new frame into the character's OBJ tile slot on animation advance) and
     ; Character_PlayFrame now run via Core_Oop_Play -> CharacterEntity_Play,
@@ -13229,6 +13228,8 @@ Text_Str_EndingC2:
 .bank 7
 .org $8000
 .include "core/options.pasm"
+.include "core/input.pasm"
+.include "core/input_p2.pasm"
 
 ; Real jump slice (plan_game.md 7): jump/jumpattack/jumpattack2 base-offset
 ; chaining, own bank for the same ROM-budget reason -- see core/jump.pasm's

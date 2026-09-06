@@ -2,10 +2,9 @@
 ; core/input.pasm — controller polling with press/trigger/old edge detection
 ;
 ; Ported to Poppy syntax from SNES-SuperBossGaiden (src/core/input.65816),
-; used with the original author's permission. Trimmed to a single controller
-; (port 1) — the original supports 3 devices via manual WRIO strobing for
-; multitap; that's not needed yet, so it's left out rather than carried over
-; unused. Bring the multi-device version back if/when a second player lands.
+; used with the original author's permission. The accepted one-player path
+; remains the JOY1 state below. The bounded G13 slice adds an independent JOY2
+; state block without adding multitap support or changing the P1 aliases.
 ;
 ; Uses hardware auto-joypad-read ($4200 bit 0) instead of manual strobing,
 ; gated on $4212 (HVBJOY) bit 0 so a poll never reads mid-latch.
@@ -22,6 +21,18 @@ INPUT_SIGNATURE_MASK = $000f   ; low 4 bits of JOY1L are always 0 on a real pad
 	Input_trigger  .dw
 	Input_old      .dw
 .ende
+
+.enum $7E0416
+	Input2_press   .dw
+	Input2_trigger .dw
+	Input2_old     .dw
+.ende
+
+; Boundary-proof latches. These retain the exact hardware words consumed by
+; the most recent poll, so the verifier does not infer delivery from the
+; post-release edge state. They occupy the documented gap before Math_*.
+Input_last_raw_Addr  = $7E041C
+Input2_last_raw_Addr = $7E041E
 
 ; Call once during boot.
 Core_Input_Init:
@@ -47,11 +58,26 @@ Core_Input_Init:
 Input_old_Lo = $0414
 Input_press_Lo = $0410
 Input_trigger_Lo = $0412
+Input2_press_Lo = $0416
+Input2_trigger_Lo = $0418
+Input2_old_Lo = $041A
+Input_press_Addr = $7E0410
+Input_trigger_Addr = $7E0412
+Input_old_Addr = $7E0414
+Input2_press_Addr = $7E0416
+Input2_trigger_Addr = $7E0418
+Input2_old_Addr = $7E041A
 
-	stz.w Input_press_Lo
-	stz.w Input_trigger_Lo
-	stz.w Input_old_Lo
-	rts
+	lda #0
+	sta.l Input_press_Addr
+	sta.l Input_trigger_Addr
+	sta.l Input_old_Addr
+	sta.l Input2_press_Addr
+	sta.l Input2_trigger_Addr
+	sta.l Input2_old_Addr
+	sta.l Input_last_raw_Addr
+	sta.l Input2_last_raw_Addr
+	rtl
 
 ; Call once per frame. Safe to call more than once per frame (idempotent
 ; between hardware auto-reads): trigger only reflects the edge since the
@@ -68,22 +94,26 @@ Core_Input_Poll__wait_busy:
 	bne Core_Input_Poll__wait_busy
 
 	lda $4218            ; JOY1L/JOY1H combined (B Y Sel Start U D L R | A X L R 0 0 0 0)
+	sta.l Input_last_raw_Addr
 	bit #INPUT_SIGNATURE_MASK
-	bne Core_Input_Poll__no_pad   ; low 4 bits set -> not a real controller, ignore
+	bne Core_Input_Poll__no_pad1  ; low 4 bits set -> not a real controller
 
 	pha
-	lda Input_press
-	sta Input_old
+	lda.l Input_press_Addr
+	sta.l Input_old_Addr
 	eor #$ffff
-	sta Input_trigger    ; ~old, stashed
+	sta.l Input_trigger_Addr    ; ~old, stashed
 	pla
-	sta Input_press
-	and Input_trigger
-	sta Input_trigger    ; = new & ~old = newly-pressed bits
-	rts
+	sta.l Input_press_Addr
+	and.l Input_trigger_Addr
+	sta.l Input_trigger_Addr    ; = new & ~old = newly-pressed bits
+	jsl Core_Input_Poll_P2
+	rtl
 
-Core_Input_Poll__no_pad:
-	stz.w Input_press_Lo
-	stz.w Input_old_Lo
-	stz.w Input_trigger_Lo
-	rts
+Core_Input_Poll__no_pad1:
+	lda #0
+	sta.l Input_press_Addr
+	sta.l Input_old_Addr
+	sta.l Input_trigger_Addr
+	jsl Core_Input_Poll_P2
+	rtl
