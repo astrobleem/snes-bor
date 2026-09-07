@@ -2,7 +2,8 @@
 
 Status: WIP review publication; not accepted and not merge-ready.
 
-Current fix-forward source/evidence commit: `b15a454388a8a1951bf15398f366284fc3f94d40`.
+Current fix-forward source/evidence commit: `291ffae` (`g13: close combat
+and jump verifier evidence`).
 
 Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
@@ -376,6 +377,18 @@ explicitly null, and no-target movement remains
 `TOOLING-LIMITED / UNMEASURED` because the current MCP boundary cannot expose
 the exact same-dispatch movement state. Camera, pause, score/pickup, stage
 handoff, death/continue, and sustained workload remain outside this slice.
+
+## Published closeout
+
+Commit `291ffae` is the verifier/evidence closeout for the current WIP. The
+clean build from the committed source reproduced ROM
+`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB` and MSU
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+Production source, jump mechanics, transport, G12, and SOUND are unchanged.
+The active input gate is `game_g13_two_player_input.py`; `game_g13_input.py`
+is explicitly LEGACY/SUPERSEDED. The active closeout evidence is in
+`out/g13_combat_closeout.json`, `out/g13_jump_isolation.json`, and
+`out/g13_jump_ralf_negative.json`.
 
 The hardened timer gate passes on the rebuilt ROM: paired 2P writes are one
 per observed gameplay frame and decrement one step; asymmetric 2P, seeded-1P,
