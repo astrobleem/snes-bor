@@ -351,6 +351,9 @@ Core_Screen__SetTargetPosition:
 	rts
 
 Core_Screen__SetTargetPosition__single:
+	rep #$31
+	.a16
+	.i16
 	lda Screen_FocusId
 	and #$00ff
 	bne Core_Screen__SetTargetPosition__has_focus

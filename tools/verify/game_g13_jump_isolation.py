@@ -97,8 +97,10 @@ def actor(m, base):
 
 
 def input_context(m, base):
-    return {'press': u16(m, base), 'old': u16(m, base + 2),
-            'trigger': u16(m, base + 4)}
+    # Each controller context is press, trigger, old (all 16-bit words).
+    # Keep the diagnostic names aligned with the production layout.
+    return {'press': u16(m, base), 'trigger': u16(m, base + 2),
+            'old': u16(m, base + 4)}
 
 
 def snapshot(m):

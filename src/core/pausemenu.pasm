@@ -369,6 +369,14 @@ Game_State_Play__pausemenu_wait_check_start:
     and #$0010                     ; Start -- same high-byte layout as
                                      ; title/charselect's own check
     bne Game_State_Play__pausemenu_wait_start_pressed
+    lda.l G13_TwoPlayerEnabled
+    and #$0001
+    beq Game_State_Play__pausemenu_wait_check_start_no
+    lda.l Input2_trigger+1
+    and #$0010                     ; P2 Start uses the same global menu row
+    beq Game_State_Play__pausemenu_wait_check_start_no
+    bra Game_State_Play__pausemenu_wait_start_pressed
+Game_State_Play__pausemenu_wait_check_start_no:
     jmp Game_State_Play__pausemenu_done
 Game_State_Play__pausemenu_wait_start_pressed:
     sep #$20
@@ -641,6 +649,9 @@ Game_State_Pause_CheckEntry_options_done:
     and #$0010
     beq Game_State_Pause_CheckEntry_no
 Game_State_Pause_CheckEntry__enter:
+    rep #$31
+.a16
+.i16
     lda #AUDIO_SEMANTIC_PAUSE
     ldx #SFX_BEEP2_ID
     jsl Audio_QueueResidentSemantic

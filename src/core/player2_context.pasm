@@ -555,7 +555,7 @@ G13_Screen_SetTargetPosition:
     bra G13_Screen_SetTargetPosition__mid
 G13_Screen_SetTargetPosition__p2_min:
     sta.l Screen__Half
-    lda.l PlayerEntity_PosX
+    lda.l Entity1_PosX
 G13_Screen_SetTargetPosition__mid:
     clc
     adc.l Screen__Half
@@ -567,6 +567,9 @@ G13_Screen_SetTargetPosition__p1:
 G13_Screen_SetTargetPosition__p2:
     lda.l Entity1_PosX
 G13_Screen_SetTargetPosition__set_x:
+	rep #$31
+	.a16
+	.i16
 	pha
 	lda Screen_SizeX
 	lsr a
@@ -577,6 +580,9 @@ G13_Screen_SetTargetPosition__set_x:
     bcs G13_Screen_SetTargetPosition__x_ok
     lda #0
 G13_Screen_SetTargetPosition__x_ok:
+	rep #$31
+	.a16
+	.i16
     sta Screen_TargetX
     lda.l PlayerEntity_Hp
     beq G13_Screen_SetTargetPosition__y_p2
@@ -585,6 +591,9 @@ G13_Screen_SetTargetPosition__x_ok:
 G13_Screen_SetTargetPosition__y_p2:
     lda.l Entity1_PosY
 G13_Screen_SetTargetPosition__set_y:
+	rep #$31
+	.a16
+	.i16
 	pha
 	lda Screen_SizeY
 	lsr a
@@ -595,6 +604,9 @@ G13_Screen_SetTargetPosition__set_y:
     bcs G13_Screen_SetTargetPosition__y_ok
     lda #0
 G13_Screen_SetTargetPosition__y_ok:
+	rep #$31
+	.a16
+	.i16
     sta Screen_TargetY
     lda #SCREEN_MODE_GROUNDED
     sta Screen_Mode
@@ -621,6 +633,9 @@ G13_TetherPlayerX:
     cmp #$0A85
     bne G13_TetherPlayerX__unchanged
 G13_TetherPlayerX__player:
+	rep #$31
+	.a16
+	.i16
     lda.l G13_PickupTargetX
     cmp.l Screen_PosX
     bcs G13_TetherPlayerX__left_ok
@@ -631,6 +646,9 @@ G13_TetherPlayerX__player:
 G13_TetherPlayerX__left_ok:
     lda.l G13_PickupTargetX
 G13_TetherPlayerX__upper:
+	rep #$31
+	.a16
+	.i16
     sta.l G13_PickupTargetX
     lda.l Screen_PosX
     clc

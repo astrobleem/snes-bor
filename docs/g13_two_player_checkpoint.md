@@ -1,6 +1,15 @@
 # G13 two-player first-slice WIP checkpoint
 
-Status: WIP review publication; not accepted and not merge-ready.
+Status: WIP review publication; camera/pause slice green except for the
+survivor-only runtime injection probe classified MCP-boundary-unmeasured;
+not accepted and not merge-ready.
+
+Current camera/pause fix-forward source is uncommitted on `g13-two-player`.
+The production midpoint correction changes the upper-order branch to load
+`Entity1_PosX` (the previous code loaded `PlayerEntity_PosX` twice). The
+pause WAIT path now accepts P2 Start only when `G13_TwoPlayerEnabled`, using
+the same global selected-row commit as P1 Start. No transport, actor layout,
+audio, or jump/combat mechanics changed.
 
 Current fix-forward source/evidence commit: `291ffae` (`g13: close combat
 and jump verifier evidence`).
@@ -27,6 +36,8 @@ jump-isolation review slice.
 - Legacy input probe (superseded; not in the active suite):
   `python -u tools\\verify\\game_g13_input.py`
 - One-player capacity: `python -u tools\\verify\\game_g13_one_player_capacity.py`
+- Camera/pause: `python -u tools\\verify\\game_g13_camera_pause.py`
+- Width report: `python -u tools\\rom_audit\\check_width_directives.py`
 
 The build uses the existing generated audio assets because the source audio
 PAK is not present in this worktree. No audio source or protected audio file
@@ -402,3 +413,36 @@ and P2 LEO grab/throw. Camera, pause ownership, score/pickup acceptance,
 stage handoff, death/continue, and sustained workload remain outside this
 combat closeout. No transport, audio, actor-capacity, or CHAR_ZP_LEN change
 was made.
+
+## Camera and pause slice
+
+The focused camera/pause gate passes on the rebuilt artifact, with retained
+evidence in `out/g13_camera_pause.json`:
+
+- both-live midpoint targets are order-invariant: `(80,200)` and `(200,80)`
+  both produce target X `12`; odd midpoint uses the implemented floor;
+- left target clamps to zero and right camera position remains at/below the
+  configured final maximum; normal `Core_Screen__ClampToScreen` remains the
+  final level-bound owner;
+- real PLAYING easing follows both players right and left; separated players
+  remain ordered and inside the shared viewport; 1P movement bypasses the G13
+  tether;
+- P1 and P2 Start each enter and resume the same global PAUSED menu; paused
+  gameplay state remains fixed while NMI advances; 1P P2 Start is ignored;
+  simultaneous Start produces one global pause state.
+
+The source contract for survivor follow remains explicit in
+`G13_Screen_SetTargetPosition`: P1-live selects `PlayerEntity_PosX`, and the
+P1-dead/P2-live branch selects `Entity1_PosX`. A runtime HP injection between
+the PLAYING death check and that helper could not be read reliably with the
+current Mesen hook boundary, so survivor-only runtime injection is recorded
+as `MCP_HOOK_BOUNDARY_UNMEASURED`, not as a production failure or a claimed
+runtime pass. Both-live and live easing runtime behavior are measured.
+
+Fresh width output is `out/g13_camera_pause_width.log`: 44 branch-width
+warnings remain as pre-existing/unrelated debt, while the active camera and
+pause labels introduced/exercised by this slice are absent from the NEW list.
+
+The final rebuilt ROM for this slice is
+`067AF2214A57994709C55BFC423D2E1A913C65B0FF8324C14A0D0A22F8FD8220`; MSU is
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.

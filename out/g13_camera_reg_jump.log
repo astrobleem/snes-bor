@@ -1,0 +1,24 @@
+simultaneous: 5/5 isolated runs pass: PASS
+p2_attack_y: 5/5 isolated runs pass: PASS
+p2_attack2_x: 5/5 isolated runs pass: PASS
+airborne_movement: 5/5 isolated runs pass: PASS
+{
+  "simultaneous": {
+    "runs": 5,
+    "passed": 5
+  },
+  "p2_attack_y": {
+    "runs": 5,
+    "passed": 5
+  },
+  "p2_attack2_x": {
+    "runs": 5,
+    "passed": 5
+  },
+  "airborne_movement": {
+    "runs": 5,
+    "passed": 5
+  }
+}
+
+GATE G13-JUMP-ISOLATION: PASS

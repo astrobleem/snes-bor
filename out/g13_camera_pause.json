@@ -1,0 +1,358 @@
+{
+  "camera": {
+    "midpoint": {
+      "target_x": 12,
+      "pos_x": 6,
+      "size_x": 256,
+      "min_x": 0,
+      "max_x": 863,
+      "p1_x": 80,
+      "p2_x": 200,
+      "two_player": 1
+    },
+    "swapped": {
+      "target_x": 12,
+      "pos_x": 6,
+      "size_x": 256,
+      "min_x": 0,
+      "max_x": 863,
+      "p1_x": 200,
+      "p2_x": 80,
+      "two_player": 1
+    },
+    "odd": {
+      "target_x": 12,
+      "pos_x": 6,
+      "size_x": 256,
+      "min_x": 0,
+      "max_x": 863,
+      "p1_x": 81,
+      "p2_x": 200,
+      "two_player": 1
+    },
+    "left": {
+      "target_x": 0,
+      "pos_x": 4,
+      "size_x": 256,
+      "min_x": 0,
+      "max_x": 863,
+      "p1_x": 22,
+      "p2_x": 8,
+      "two_player": 1
+    },
+    "right": {
+      "target_x": 100,
+      "pos_x": 18,
+      "size_x": 256,
+      "min_x": 0,
+      "max_x": 300,
+      "p1_x": 228,
+      "p2_x": 228,
+      "two_player": 1
+    },
+    "survivor_follow": {
+      "status": "SOURCE_CONTRACT_VERIFIED_RUNTIME_HOOK_UNMEASURED",
+      "p1_branch": "P1 live -> PlayerEntity_PosX",
+      "p2_branch": "P1 dead -> Entity1_PosX"
+    },
+    "easing": {
+      "right": {
+        "before": {
+          "target_x": 32,
+          "pos_x": 14,
+          "size_x": 256,
+          "min_x": 0,
+          "max_x": 863
+        },
+        "after": {
+          "target_x": 46,
+          "pos_x": 30,
+          "size_x": 256,
+          "min_x": 0,
+          "max_x": 863
+        },
+        "p1": 144,
+        "p2": 204
+      },
+      "left": {
+        "before": {
+          "target_x": 48,
+          "pos_x": 32,
+          "size_x": 256,
+          "min_x": 0,
+          "max_x": 863
+        },
+        "after": {
+          "target_x": 34,
+          "pos_x": 32,
+          "size_x": 256,
+          "min_x": 0,
+          "max_x": 863
+        },
+        "p1": 132,
+        "p2": 192
+      }
+    }
+  },
+  "tether": {
+    "left_right": {
+      "actors": [
+        114,
+        272
+      ],
+      "screen": {
+        "target_x": 65,
+        "pos_x": 50,
+        "size_x": 256,
+        "min_x": 0,
+        "max_x": 300
+      }
+    },
+    "apart": {
+      "p1": 102,
+      "p2": 198,
+      "screen": {
+        "target_x": 22,
+        "pos_x": 6,
+        "size_x": 256,
+        "min_x": 0,
+        "max_x": 863
+      }
+    },
+    "one_player": {
+      "p1_x": 20,
+      "screen": {
+        "target_x": 0,
+        "pos_x": 16,
+        "size_x": 256,
+        "min_x": 0,
+        "max_x": 863
+      }
+    }
+  },
+  "pause": {
+    "p1_before": {
+      "state": 3,
+      "step": 3,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 210
+    },
+    "p1_frozen": {
+      "state": 3,
+      "step": 3,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 214
+    },
+    "p1_after": {
+      "state": 0,
+      "step": 0,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 225
+    },
+    "p2_before": {
+      "state": 3,
+      "step": 3,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 211
+    },
+    "p2_frozen": {
+      "state": 3,
+      "step": 3,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 215
+    },
+    "p2_after": {
+      "state": 0,
+      "step": 0,
+      "p1": {
+        "x": 120,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "p2": {
+        "x": 180,
+        "y": 150,
+        "hp": 64,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "npc2": {
+        "x": 128,
+        "y": 184,
+        "hp": 0,
+        "selected": 0,
+        "hitstun": 0,
+        "zpos": 0,
+        "zvel": 0
+      },
+      "spawn_index": 35,
+      "screen_x": 6,
+      "p1_invuln": 0,
+      "p2_invuln": 0,
+      "nmi": 225
+    },
+    "one_player_negative": {
+      "state": 3
+    },
+    "simultaneous": {
+      "state": 3
+    }
+  },
+  "regressions": {}
+}

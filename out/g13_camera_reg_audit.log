@@ -1,0 +1,200 @@
+--- seed set: boot entry points (4 entries) ---
+Decoded 8387 real instruction addresses, 1293 control-flow edges, 534 CALL-class, 0 unknown opcodes
+228 cross-bank JSL/JML edges skipped (out of this tool's bank-0 scope):
+  JSL at 0xd18f -> 0xc9b11 (bank 0C)
+  BPL at 0xc9b27 -> 0xc9b4c (bank 0C)
+  BEQ at 0xc9b40 -> 0xc9afc (bank 0C)
+  JSR at 0xc9b4c -> 0xc7f1d (bank 0C)
+  JSL at 0xfc0c -> 0x78093 (bank 07)
+  JSL at 0xfc21 -> 0xc968d (bank 0C)
+  JSL at 0xfdda -> 0x78000 (bank 07)
+  JSL at 0xfe75 -> 0x38000 (bank 03)
+  JSL at 0xff4b -> 0xc977b (bank 0C)
+  JSL at 0xff51 -> 0x780d8 (bank 07)
+  JSL at 0xff62 -> 0xc9790 (bank 0C)
+  BEQ at 0xc9790 -> 0xc97d7 (bank 0C)
+  BNE at 0xc97e0 -> 0xc9801 (bank 0C)
+  JSL at 0xd935 -> 0x682cf (bank 06)
+  JSL at 0xd98d -> 0xc9303 (bank 0C)
+  JSL at 0xd9ca -> 0xc9345 (bank 0C)
+  JSL at 0xda09 -> 0x9810d (bank 09)
+  JSL at 0xda24 -> 0x380b2 (bank 03)
+  JSL at 0xda28 -> 0x38a1f (bank 03)
+  JSL at 0xda2c -> 0x78711 (bank 07)
+No suspicious edges.
+No ownership violations.
+
+--- seed set: oop-dispatched entry points (9 entries) ---
+Decoded 965 real instruction addresses, 223 control-flow edges, 41 CALL-class, 0 unknown opcodes
+38 cross-bank JSL/JML edges skipped (out of this tool's bank-0 scope):
+  JSL at 0xeadd -> 0x784bf (bank 07)
+  JSL at 0xeaec -> 0xc8d6c (bank 0C)
+  JSL at 0xeaf2 -> 0xc8dcb (bank 0C)
+  JSL at 0xe58f -> 0x78615 (bank 07)
+  BEQ at 0x78618 -> 0x78619 (bank 07)
+  BMI at 0x7863a -> 0x785ff (bank 07)
+  BNE at 0x7863e -> 0x7865e (bank 07)
+  JSL at 0x78643 -> 0x3d9fd5 (bank 3D)
+  BMI at 0x785ff -> 0x78621 (bank 07)
+  JSL at 0xe42b -> 0xc8c1d (bank 0C)
+  JSR at 0xc8c2b -> 0xc03db (bank 0C)
+  BRA at 0xc03f0 -> 0xc038b (bank 0C)
+  BRA at 0xc038d -> 0xc037d (bank 0C)
+  JSL at 0xe2d3 -> 0x786b3 (bank 07)
+  BCS at 0x786b7 -> 0x7871e (bank 07)
+  BPL at 0x786d6 -> 0x7867b (bank 07)
+  BNE at 0x786dc -> 0x786d1 (bank 07)
+  BCS at 0x786e4 -> 0x7872a (bank 07)
+  JSL at 0x786f7 -> 0x3d6625 (bank 3D)
+  BMI at 0x78703 -> 0x78716 (bank 07)
+No suspicious edges.
+No ownership violations.
+
+--- verify_layout.py ---
+3441 symbols loaded from E:\gh\snes-bor-g13\src\main.sym
+
+.org 0x8000  (8 labels, 0 drifted)
+
+.org 0x8800  (73 labels, 0 drifted)
+
+.org 0x8c60  (21 labels, 0 drifted)
+
+.org 0x9000  (286 labels, 0 drifted)
+
+.org 0xb001  (10 labels, 0 drifted)
+
+.org 0xac00  (2 labels, 0 drifted)
+
+.org 0xb000  (1 labels, 0 drifted)
+
+.org 0xc100  (700 labels, 0 drifted)
+
+.org 0xb100  (1 labels, 0 drifted)
+
+.org 0xfc00  (15 labels, 0 drifted)
+
+.org 0xffa0  (2 labels, 0 drifted)
+
+.org 0xffb0  (2 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (271 labels, 0 drifted)
+
+.org 0x8000  (2 labels, 0 drifted)
+
+.org 0x8000  (38 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (92 labels, 0 drifted)
+
+.org 0x8000  (27 labels, 0 drifted)
+
+.org 0x8000  (12 labels, 0 drifted)
+
+.org 0x8000  (53 labels, 0 drifted)
+
+.org 0x8000  (67 labels, 0 drifted)
+
+.org 0x8000  (156 labels, 0 drifted)
+
+.org 0x8000  (10 labels, 0 drifted)
+
+.org 0x8000  (42 labels, 0 drifted)
+
+SUMMARY: 1906 labels checked, 0 drifted from main.sym, 0 referenced elsewhere (live bugs), 0 unreferenced (benign).
+No drifted-and-referenced labels found under the M1/M2/M3 model (see docstring for what this does and does not cover).
+
+
+--- check_width_directives.py (poppy#386 guard) ---
+width-directive check (poppy#386): 1754 branch/jump-target labels, 44 NEW, 180 baselined, 0 baseline entries now clean
+  NEW  src/core/game_state.pasm:542  Game_State_Play__title_wait_check_p1:  reaches "and #$0010" with no explicit width directive
+  NEW  src/main.pasm:7750  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2288  AudioSemantic_EmitFall__queue:  reaches "lda #SFX_FALL_ID" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2354  Audio_EmitPickup__get:  reaches "lda #AUDIO_SEMANTIC_GET" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2359  Audio_EmitPickup__money:  reaches "lda #AUDIO_SEMANTIC_MONEY" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2364  Audio_EmitPickup__oneup:  reaches "lda #AUDIO_SEMANTIC_ONEUP" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2468  AudioSemantic_EmitDiesound__not_foot:  reaches "cmp #AUDIO_STREAM_SOURCE_NONE" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2724  Audio_FrameSoundDispatch__selected_ok:  reaches "cmp #$FF" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2735  Audio_FrameSoundDispatch__variant_ok:  reaches "cmp #$FF" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2980  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2984  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
+  NEW  src/main.pasm:12556  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
+  NEW  src/main.pasm:12639  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
+  NEW  src/main.pasm:12737  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:626  Spawn_Play__wait_release_active:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:661  Spawn_Play__wc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:670  Spawn_Play__wc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:750  Spawn_Play__gc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:759  Spawn_Play__gc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:1784  Spawn_Play__slot45_boss5:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:1800  Spawn_Play__slot45_mark_boss:  reaches "cmp #CHAR_ZP_LEN*4" with no explicit width directive
+  NEW  src/core/spawn.pasm:1807  Spawn_Play__slot45_mark_boss5:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/spawn.pasm:1810  Spawn_Play__slot45_boss_mark_done:  reaches "cmp #SPAWN_KIND_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:2048  Spawn_RevealPendingItems__check4:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:2060  Spawn_RevealPendingItems__check5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:2148  Spawn_RevealPendingItems__do__not4:  reaches "cpx #CHAR_ZP_LEN*5" with no explicit width directive
+  NEW  src/core/charselect.pasm:163  Game_State_Play__charselect_left_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
+  NEW  src/core/charselect.pasm:186  Game_State_Play__charselect_right_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
+  NEW  src/core/input.pasm:125  Core_Input_Poll__no_pad1:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/player2_context.pasm:760  G13_Game_Score_Award__hit_only:  reaches "lda #HIT_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:762  G13_Game_Score_Award__have_award:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:774  G13_Game_Score_Award__no_overflow:  reaches "lda #EXTEND_LIFE_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:806  G13_P2Score_Award__hit:  reaches "lda #HIT_SCORE" with no explicit width directive
+  NEW  src/core/player2_context.pasm:808  G13_P2Score_Award__add:  reaches "lda #$FFFF" with no explicit width directive
+  NEW  src/core/jump.pasm:1691  Character_HitApply__ApplyPickup__heal_add:  reaches "cmp #CHAR_HP_MAX + 1" with no explicit width directive
+  NEW  src/core/jump.pasm:1827  Character_HitApply__RevealOrPickup__check2:  reaches "cpx #CHAR_ZP_LEN*2" with no explicit width directive
+  NEW  src/core/jump.pasm:1831  Character_HitApply__RevealOrPickup__check3:  reaches "cpx #CHAR_ZP_LEN*3" with no explicit width directive
+  NEW  src/core/jump.pasm:1835  Character_HitApply__RevealOrPickup__check4:  reaches "cpx #CHAR_ZP_LEN*4" with no explicit width directive
+  NEW  src/core/jump.pasm:1839  Character_HitApply__RevealOrPickup__check5:  reaches "cpx #CHAR_ZP_LEN*5" with no explicit width directive
+  NEW  src/core/jump.pasm:1851  Character_HitApply__RevealOrPickup__e1_has_pickup:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/jump.pasm:1873  Character_HitApply__RevealOrPickup__e2_has_pickup:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/jump.pasm:1895  Character_HitApply__RevealOrPickup__e3_has_pickup:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/jump.pasm:1917  Character_HitApply__RevealOrPickup__e4_has_pickup:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/jump.pasm:1937  Character_HitApply__RevealOrPickup__e5_has_pickup:  reaches "lda #1" with no explicit width directive
+
+Add an explicit `sep #$20` / `.a8` (or `rep #$30` / `.a16 .i16`) immediately after each label above.
+It is a runtime no-op when the width already matches -- see poppy#386 and CLAUDE.md.
+
+
+--- check_sfx_id_sync.py (G11 SFX_HIT_ID guard) ---
+OK: resident SFX IDs in sync ({'SFX_HIT_ID': 0, 'SFX_FALL_ID': 1, 'SFX_JUMP_ID': 2, 'SFX_GET_ID': 3, 'SFX_MONEY_ID': 4, 'SFX_PUNCH_ID': 5, 'SFX_ONEUP_ID': 6, 'SFX_BEEP_ID': 7, 'SFX_BEEP2_ID': 8, 'SFX_SPIN_ID': 9, 'SFX_DASH_ID': 10, 'SFX_METAL_ID': 11}) with audio-enums.inc
+
+
+Entity1_Base literal (133) matches 1*CHAR_ZP_LEN (133). OK.
+Entity2_Base literal (266) matches 2*CHAR_ZP_LEN (266). OK.
+Entity3_Base literal (399) matches 3*CHAR_ZP_LEN (399). OK.
+Entity1_DpBase literal ($0a85) matches low16 of $7E0a00+1*CHAR_ZP_LEN ($0a85). OK.
+Entity2_DpBase literal ($0b0a) matches low16 of $7E0a00+2*CHAR_ZP_LEN ($0b0a). OK.
+Entity3_DpBase literal ($0b8f) matches low16 of $7E0a00+3*CHAR_ZP_LEN ($0b8f). OK.
+Anim_LoadCharacter_SeekRecord's adc #50 matches pack_msu_roster.RECORD_SIZE (50). OK.
+scpu_main_loop last decoded instruction at 0xff66, nmi_handler at 0xffa0: margin = 58 bytes.
+
+FAILURES ABOVE -- see output
