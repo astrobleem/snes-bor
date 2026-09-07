@@ -257,3 +257,41 @@ retains the first OOP-done cutoff. The current MCP notification stream still
 returned a mixed/empty event segment in some runs, so the retained result is
 explicitly FAIL where it cannot prove the required target-valid/hold sequence;
 no endpoint sample is being promoted to a same-OOP claim.
+
+## Current combat closeout evidence (fix-forward)
+
+The production AI movement path was restored to its compact inline sentinel
+check (`G13_AiTargetSlot`, `$FF` -> combined X/Y hold); the cross-bank validity
+call is not retained in the hot movement path. The rebuilt ordinary ROM is
+`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`, with the
+same MSU hash above. The build used the documented audio bypass command.
+
+The corrected player-vs-NPC fixture was rerun as 10 fresh sessions per player:
+P1 10/10 and P2 10/10 reduced NPC2 exactly `64 -> 60`, with the other player
+remaining at 64. The retained organic `Actor_InvulnFrames[2]` values include
+nonzero values; the focused fixture now records that leak, then explicitly
+normalizes the legal-hit target to zero before neutral polling and attack
+delivery. Post-hit samples are named as post-window values and are not called
+pre-hit invulnerability.
+
+The direct no-target attempt is retained in
+`out/g13_no_target_movement.json`. The selector no-target label did fire, but
+the frame-granular run-to-hook boundary advanced into a later pass before the
+immediate sample: the observed state had `P1 HP=64`, `P2 HP=0`, target slot 0,
+and changed AI coordinates. The shared `hold_y` label is also not actor
+specific. This is a verifier/MCP semantic-boundary limitation, not a claimed
+production movement failure; no production telemetry or movement change was
+added to compensate. `confirmed_busy_denials` remains null.
+
+The hardened timer gate passes on the rebuilt ROM: paired 2P writes are one
+per observed gameplay frame and decrement one step; asymmetric 2P, seeded-1P,
+paused, and cold-zero controls pass. Fresh width output remains a 51-warning
+branch-wide debt list; the requested combat-path labels are absent from the
+NEW list. Layout and Phase5 remain green.
+
+Still unmeasured and therefore not accepted: friendly-fire negatives, the
+production AI invulnerability hit matrix, multi-AI latched-target attribution,
+and P2 LEO grab/throw. Camera, pause ownership, score/pickup acceptance,
+stage handoff, death/continue, and sustained workload remain outside this
+combat closeout. No transport, audio, actor-capacity, or CHAR_ZP_LEN change
+was made.

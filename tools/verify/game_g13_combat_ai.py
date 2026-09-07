@@ -187,20 +187,22 @@ def player_hit_case(port):
         # post-hit grace-timing test.  Normalize the real standalone timer
         # after recording its organic value so it cannot leak across setup.
         m.write_u8(ACTOR_INVULN + 2, 0)
+        inv_after_fixture = u8(m, ACTOR_INVULN + 2)
         # Keep the non-attacking player immune to the test actor's ordinary
         # AI hit while preserving the real player-vs-NPC collision path.
         m.write_u8(P1_INVULN, 255 if port == 0 else 0)
         m.write_u8(P2_INVULN, 255 if port == 1 else 0)
         p1_before, p2_before, npc_before = u8(m, P1 + HP), u8(m, P2 + HP), u8(m, ENTITIES[2] + HP)
         neutral_player_inputs(m)
-        inv_after_neutral = u8(m, ACTOR_INVULN + 2)
+        target_invuln_before_attack = u8(m, ACTOR_INVULN + 2)
         m.hold_input(m.BTN_Y, port=port)
         try:
             run_frames_exact(m, 3)
         finally:
             m.release_input(port=port)
         attack_delivery = {
-            'invuln': u8(m, ACTOR_INVULN + 2),
+            'target_invuln_after_attack_window': u8(m, ACTOR_INVULN + 2),
+            'target_invuln_before_attack_edge': target_invuln_before_attack,
             'selected': u8(m, ENTITIES[port] + SELECTED),
             'variant': u8(m, ENTITIES[port] + ATTACK_VARIANT),
             'hit_applied': u8(m, ENTITIES[port] + HIT_APPLIED),
@@ -216,8 +218,7 @@ def player_hit_case(port):
             'npc_hp_after': u8(m, ENTITIES[2] + HP),
             'p1_stun': u8(m, P1 + HITSTUN), 'p2_stun': u8(m, P2 + HITSTUN),
             'actor_invuln_after_prepare': inv_after_prepare,
-            'actor_invuln_after_fixture': u8(m, ACTOR_INVULN + 2),
-            'actor_invuln_after_neutral': inv_after_neutral,
+            'actor_invuln_after_fixture_normalization': inv_after_fixture,
             'attack_delivery': attack_delivery,
         }
 
@@ -246,14 +247,16 @@ def main():
                 'other_player_before': row['p2_hp_before'],
                 'other_player_after': row['p2_hp_after'],
                 'invuln_before_normalization': row['actor_invuln_after_prepare'],
-                'invuln_at_delivery': row['attack_delivery']['invuln']}
+                'invuln_before_attack_edge': row['attack_delivery']['target_invuln_before_attack_edge'],
+                'invuln_after_attack_window': row['attack_delivery']['target_invuln_after_attack_window']}
                for row in p1_runs],
         'p2': [{'npc_before': row['npc_hp_before'],
                 'npc_after': row['npc_hp_after'],
                 'other_player_before': row['p1_hp_before'],
                 'other_player_after': row['p1_hp_after'],
                 'invuln_before_normalization': row['actor_invuln_after_prepare'],
-                'invuln_at_delivery': row['attack_delivery']['invuln']}
+                'invuln_before_attack_edge': row['attack_delivery']['target_invuln_before_attack_edge'],
+                'invuln_after_attack_window': row['attack_delivery']['target_invuln_after_attack_window']}
                for row in p2_runs],
     }
     p1_repeat_ok = all(row['npc_hp_after'] == row['npc_hp_before'] - HP_PER_HIT and

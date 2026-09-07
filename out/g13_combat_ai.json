@@ -9,10 +9,10 @@
     "p1_stun": 0,
     "p2_stun": 0,
     "actor_invuln_after_prepare": 0,
-    "actor_invuln_after_fixture": 34,
-    "actor_invuln_after_neutral": 0,
+    "actor_invuln_after_fixture_normalization": 0,
     "attack_delivery": {
-      "invuln": 36,
+      "target_invuln_after_attack_window": 35,
+      "target_invuln_before_attack_edge": 0,
       "selected": 2,
       "variant": 0,
       "hit_applied": 1
@@ -27,11 +27,11 @@
     "npc_hp_after": 60,
     "p1_stun": 0,
     "p2_stun": 0,
-    "actor_invuln_after_prepare": 0,
-    "actor_invuln_after_fixture": 34,
-    "actor_invuln_after_neutral": 0,
+    "actor_invuln_after_prepare": 96,
+    "actor_invuln_after_fixture_normalization": 0,
     "attack_delivery": {
-      "invuln": 36,
+      "target_invuln_after_attack_window": 36,
+      "target_invuln_before_attack_edge": 0,
       "selected": 2,
       "variant": 0,
       "hit_applied": 1
@@ -45,63 +45,8 @@
         "other_player_before": 64,
         "other_player_after": 64,
         "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 14,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 24,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 29,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 104,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 84,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 17,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 19,
-        "invuln_at_delivery": 36
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 35
       },
       {
         "npc_before": 64,
@@ -109,7 +54,8 @@
         "other_player_before": 64,
         "other_player_after": 64,
         "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       },
       {
         "npc_before": 64,
@@ -117,7 +63,71 @@
         "other_player_before": 64,
         "other_player_after": 64,
         "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 101,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       }
     ],
     "p2": [
@@ -126,8 +136,9 @@
         "npc_after": 60,
         "other_player_before": 64,
         "other_player_after": 64,
-        "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
+        "invuln_before_normalization": 96,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       },
       {
         "npc_before": 64,
@@ -135,63 +146,17 @@
         "other_player_before": 64,
         "other_player_after": 64,
         "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       },
       {
         "npc_before": 64,
         "npc_after": 60,
         "other_player_before": 64,
         "other_player_after": 64,
-        "invuln_before_normalization": 59,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 31,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 123,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 112,
-        "invuln_at_delivery": 36
-      },
-      {
-        "npc_before": 64,
-        "npc_after": 60,
-        "other_player_before": 64,
-        "other_player_after": 64,
-        "invuln_before_normalization": 109,
-        "invuln_at_delivery": 36
+        "invuln_before_normalization": 38,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       },
       {
         "npc_before": 64,
@@ -199,7 +164,62 @@
         "other_player_before": 64,
         "other_player_after": 64,
         "invuln_before_normalization": 0,
-        "invuln_at_delivery": 36
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 83,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 68,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
+      },
+      {
+        "npc_before": 64,
+        "npc_after": 60,
+        "other_player_before": 64,
+        "other_player_after": 64,
+        "invuln_before_normalization": 0,
+        "invuln_before_attack_edge": 0,
+        "invuln_after_attack_window": 36
       }
     ]
   },
@@ -207,7 +227,7 @@
     "p1": {
       "target_slot": 0,
       "target_offset": 0,
-      "target_x": 50,
+      "target_x": 54218,
       "p1_hp": 60,
       "p2_hp": 64
     },
@@ -262,7 +282,7 @@
         64,
         0,
         0,
-        7,
+        8,
         0
       ]
     },
@@ -281,7 +301,7 @@
         0,
         0,
         0,
-        8
+        7
       ]
     }
   },

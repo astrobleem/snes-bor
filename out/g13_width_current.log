@@ -1,7 +1,7 @@
 width-directive check (poppy#386): 1753 branch/jump-target labels, 51 NEW, 180 baselined, 0 baseline entries now clean
   NEW  src/core/screen.pasm:353  Core_Screen__SetTargetPosition__single:  reaches "and #$00ff" with no explicit width directive
   NEW  src/core/game_state.pasm:542  Game_State_Play__title_wait_check_p1:  reaches "and #$0010" with no explicit width directive
-  NEW  src/main.pasm:7749  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
+  NEW  src/main.pasm:7750  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2288  AudioSemantic_EmitFall__queue:  reaches "lda #SFX_FALL_ID" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2354  Audio_EmitPickup__get:  reaches "lda #AUDIO_SEMANTIC_GET" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2359  Audio_EmitPickup__money:  reaches "lda #AUDIO_SEMANTIC_MONEY" with no explicit width directive
@@ -11,9 +11,9 @@ width-directive check (poppy#386): 1753 branch/jump-target labels, 51 NEW, 180 b
   NEW  src/core/vm/vm_native_engine.pasm:2735  Audio_FrameSoundDispatch__variant_ok:  reaches "cmp #$FF" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2980  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2984  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
-  NEW  src/main.pasm:12555  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
-  NEW  src/main.pasm:12638  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
-  NEW  src/main.pasm:12736  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
+  NEW  src/main.pasm:12556  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
+  NEW  src/main.pasm:12639  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
+  NEW  src/main.pasm:12737  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
   NEW  src/core/spawn.pasm:626  Spawn_Play__wait_release_active:  reaches "lda #0" with no explicit width directive
   NEW  src/core/spawn.pasm:661  Spawn_Play__wc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
   NEW  src/core/spawn.pasm:670  Spawn_Play__wc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
