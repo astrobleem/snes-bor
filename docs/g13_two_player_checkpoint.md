@@ -11,9 +11,9 @@ pause WAIT path now accepts P2 Start only when `G13_TwoPlayerEnabled`, using
 the same global selected-row commit as P1 Start. No transport, actor layout,
 audio, or jump/combat mechanics changed.
 
-Current score/pickup source/evidence commit: `f609dfd`
-(`g13: unify score and pickup ownership`), with this evidence closeout
-published as the latest fix-forward.
+Current score/pickup source/evidence commit: `f62af5b`
+(`g13: close score and pickup evidence`), based on the production changes in
+`f609dfd`.
 
 Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
