@@ -85,33 +85,65 @@
       "address": 16923,
       "value": 64,
       "frame": 235
+    },
+    {
+      "handle": 12,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16920,
+      "value": 0,
+      "frame": 236
+    },
+    {
+      "handle": 13,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16921,
+      "value": 64,
+      "frame": 236
+    },
+    {
+      "handle": 14,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16922,
+      "value": 0,
+      "frame": 236
+    },
+    {
+      "handle": 15,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16923,
+      "value": 64,
+      "frame": 236
     }
   ],
   "symbols": {
-    "Core_Input_Poll": "0x780d0",
-    "Core_Input_Poll_P2": "0x7811c",
+    "Core_Input_Poll": "0x780d8",
+    "Core_Input_Poll_P2": "0x78124",
     "Core_Oop_Play__loop": "0xcb5c",
-    "CharacterEntity_Play": "0xea96",
-    "G13_Player2_ContextEnter": "0x78158",
+    "CharacterEntity_Play": "0xeab9",
+    "G13_Player2_ContextEnter": "0x78162",
     "Anim_Play__player_input": "0xdc71",
     "Jump_PlayerInputGate": "0x884e7",
     "Jump_AtchainTrigger": "0x883fe",
     "Jump_AtchainTrigger__pressed": "0x8840f",
-    "G13_Player2_ContextExit": "0x78295",
+    "G13_Player2_ContextExit": "0x7829f",
     "Core_Oop_Play__done": "0xcb99"
   },
   "events": [
     {
       "event": "Core_Input_Poll",
       "frame": 234,
-      "address": "0x780d0",
+      "address": "0x780d8",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
     {
       "event": "Core_Input_Poll_P2",
       "frame": 234,
-      "address": "0x7811c",
+      "address": "0x78124",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -125,7 +157,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -153,14 +185,14 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
     {
       "event": "G13_Player2_ContextEnter",
       "frame": 234,
-      "address": "0x78158",
+      "address": "0x78162",
       "value": 8,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -181,7 +213,7 @@
     {
       "event": "G13_Player2_ContextExit",
       "frame": 234,
-      "address": "0x78295",
+      "address": "0x7829f",
       "value": 8,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -195,7 +227,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -209,7 +241,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -223,7 +255,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -237,7 +269,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 234,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -251,14 +283,14 @@
     {
       "event": "Core_Input_Poll",
       "frame": 235,
-      "address": "0x780d0",
+      "address": "0x780d8",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
     {
       "event": "Core_Input_Poll_P2",
       "frame": 235,
-      "address": "0x7811c",
+      "address": "0x78124",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -272,7 +304,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 235,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -300,14 +332,14 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 235,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
     {
       "event": "G13_Player2_ContextEnter",
       "frame": 235,
-      "address": "0x78158",
+      "address": "0x78162",
       "value": 8,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -327,8 +359,127 @@
     },
     {
       "event": "G13_Player2_ContextExit",
+      "frame": 235,
+      "address": "0x7829f",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__done",
+      "frame": 235,
+      "address": "0xcb99",
+      "value": 40,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll",
       "frame": 236,
-      "address": "0x78295",
+      "address": "0x780d8",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll_P2",
+      "frame": 236,
+      "address": "0x78124",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextEnter",
+      "frame": 236,
+      "address": "0x78162",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextExit",
+      "frame": 236,
+      "address": "0x7829f",
       "value": 8,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -342,7 +493,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 236,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -356,7 +507,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 236,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -370,7 +521,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 236,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -384,7 +535,7 @@
     {
       "event": "CharacterEntity_Play",
       "frame": 236,
-      "address": "0xea96",
+      "address": "0xeab9",
       "value": 194,
       "cpu_at_stop_unavailable_for_async_hook": true
     },
@@ -399,8 +550,8 @@
   "input_latches": {
     "joy1": "0040",
     "joy2": "0040",
-    "p1_context": "004000400000",
-    "p2_context": "004000400000"
+    "p1_context": "004000000040",
+    "p2_context": "004000000040"
   },
   "actors_at_boundary": {
     "p1": {
@@ -430,7 +581,7 @@
     {
       "input_poll_frame": 235,
       "entity_pass_start_frame": 235,
-      "entity_pass_end_frame": 236,
+      "entity_pass_end_frame": 235,
       "events": [
         {
           "event": "Core_Oop_Play__loop",
@@ -442,7 +593,7 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 235,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -470,14 +621,14 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 235,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
         {
           "event": "G13_Player2_ContextEnter",
           "frame": 235,
-          "address": "0x78158",
+          "address": "0x78162",
           "value": 8,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -497,8 +648,120 @@
         },
         {
           "event": "G13_Player2_ContextExit",
+          "frame": 235,
+          "address": "0x7829f",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__done",
+          "frame": 235,
+          "address": "0xcb99",
+          "value": 40,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        }
+      ]
+    },
+    {
+      "input_poll_frame": 236,
+      "entity_pass_start_frame": 236,
+      "entity_pass_end_frame": 236,
+      "events": [
+        {
+          "event": "Core_Oop_Play__loop",
           "frame": 236,
-          "address": "0x78295",
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextEnter",
+          "frame": 236,
+          "address": "0x78162",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextExit",
+          "frame": 236,
+          "address": "0x7829f",
           "value": 8,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -512,7 +775,7 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 236,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -526,7 +789,7 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 236,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -540,7 +803,7 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 236,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },
@@ -554,7 +817,7 @@
         {
           "event": "CharacterEntity_Play",
           "frame": 236,
-          "address": "0xea96",
+          "address": "0xeab9",
           "value": 194,
           "cpu_at_stop_unavailable_for_async_hook": true
         },

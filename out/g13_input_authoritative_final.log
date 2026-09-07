@@ -1,0 +1,15 @@
+P2_PLAY_SETUP {'state': 0, 'mode': 1, 'p1_role': 1, 'p2_role': 1, 'p1_loaded': 1, 'nmi': 192}
+P1_LEFT_ONLY (120, 180) (98, 180)
+P1 Left moves only P1: PASS
+P2_RIGHT_ONLY (120, 180) (120, 202)
+P2 Right moves only P2: PASS
+OPPOSITE_SIMULTANEOUS (120, 180) (98, 202)
+simultaneous contrary directions remain independent: PASS
+P1_ATTACK_ONLY 2 0 004000000040 000000000000
+P1 attack edge reaches only P1: PASS
+P2_ATTACK_ONLY 0 2 p1ctx 000000000000 p2ctx 004000000040 raws captured-in-action-case
+P2 attack edge reaches only P2: PASS
+SIMULTANEOUS_ATTACK (2, 2, '004000400000', '004000400000', '00400040') bounded post-service control; semantic proof is game_g13_semantic_boundary.py
+simultaneous distinct attack edges remain distinct: PASS
+
+GATE G13-TWO-PLAYER-INPUT: PASS

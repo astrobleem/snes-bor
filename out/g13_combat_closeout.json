@@ -1,0 +1,2931 @@
+{
+  "friendly_fire": {
+    "p1": {
+      "before": [
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        },
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        }
+      ],
+      "after": [
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 2,
+          "x": 140,
+          "y": 150
+        },
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        }
+      ]
+    },
+    "p2": {
+      "before": [
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        },
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        }
+      ],
+      "after": [
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        },
+        {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 2,
+          "x": 140,
+          "y": 150
+        }
+      ]
+    },
+    "p2_r": {
+      "held": {
+        "p2": {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        },
+        "npc": {
+          "hp": 64,
+          "stun": 225,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 396,
+          "y": 150
+        },
+        "p1": {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 0,
+          "x": 140,
+          "y": 150
+        },
+        "grabbed": false,
+        "p2_attack2_is_grab": 0,
+        "p2_roster": 12,
+        "immediate": {
+          "p2": {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 140,
+            "y": 150
+          },
+          "raw_input2": "000000000000",
+          "grabmove_fcount": 1,
+          "chainlength": 6,
+          "frame": 255,
+          "tick": 1,
+          "attack_variant": 0,
+          "hit_applied": 0,
+          "game_state": 0,
+          "p2_input_driven": 1,
+          "two_player": 1,
+          "oop_flags_0_1": [
+            1,
+            1
+          ],
+          "oop_slot_ptr": 12,
+          "charselect_loaded": 1,
+          "activation": {
+            "mode": 1,
+            "roster": 12,
+            "role": 1,
+            "grabmove": 1
+          },
+          "activation_attempts": [
+            {
+              "mode": 1,
+              "roster": 12,
+              "role": 1,
+              "grabmove": 1
+            }
+          ],
+          "neutral_before_r": {
+            "press": 0,
+            "old": 0,
+            "trigger": 0
+          },
+          "gate_entry_result": {
+            "events": 0
+          },
+          "player_input_result": {
+            "events": 0
+          },
+          "entity_results": [
+            0
+          ],
+          "frame_result": {
+            "port": 1,
+            "buttons": 1024,
+            "frames": 1,
+            "startFrame": 189,
+            "endFrame": 190,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          "hook_events": [],
+          "gate_result": {
+            "events": 0
+          }
+        }
+      },
+      "thrown": null
+    }
+  },
+  "ai_matrix": {
+    "p1": {
+      "vulnerable": {
+        "target_slot": 0,
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          }
+        ],
+        "target_invuln": 0
+      },
+      "invulnerable": {
+        "target_slot": 0,
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          }
+        ],
+        "target_invuln": 9
+      }
+    },
+    "p2": {
+      "vulnerable": {
+        "target_slot": 1,
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 24,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          }
+        ],
+        "target_invuln": 0
+      },
+      "invulnerable": {
+        "target_slot": 1,
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 220,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 120,
+            "y": 150
+          }
+        ],
+        "target_invuln": 9
+      }
+    }
+  },
+  "player_npc": {
+    "p1": {
+      "p1_hp_before": 64,
+      "p2_hp_before": 64,
+      "npc_hp_before": 64,
+      "p1_hp_after": 64,
+      "p2_hp_after": 64,
+      "npc_hp_after": 60,
+      "p1_stun": 0,
+      "p2_stun": 0,
+      "actor_invuln_after_prepare": 0,
+      "actor_invuln_after_fixture_normalization": 0,
+      "attack_delivery": {
+        "target_invuln_after_attack_window": 36,
+        "target_invuln_before_attack_edge": 0,
+        "selected": 2,
+        "variant": 0,
+        "hit_applied": 1
+      }
+    },
+    "p2": {
+      "p1_hp_before": 64,
+      "p2_hp_before": 64,
+      "npc_hp_before": 64,
+      "p1_hp_after": 64,
+      "p2_hp_after": 64,
+      "npc_hp_after": 60,
+      "p1_stun": 0,
+      "p2_stun": 0,
+      "actor_invuln_after_prepare": 42,
+      "actor_invuln_after_fixture_normalization": 0,
+      "attack_delivery": {
+        "target_invuln_after_attack_window": 36,
+        "target_invuln_before_attack_edge": 0,
+        "selected": 2,
+        "variant": 0,
+        "hit_applied": 1
+      }
+    }
+  },
+  "confirmed_busy_denials": null,
+  "multi_ai": {
+    "normal": [
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": false
+      }
+    ],
+    "reversed": [
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 22,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      },
+      {
+        "before": [
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 64,
+            "stun": 0,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "after": [
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 60,
+            "y": 150
+          },
+          {
+            "hp": 60,
+            "stun": 23,
+            "grab": 255,
+            "by": 255,
+            "selected": 0,
+            "x": 190,
+            "y": 150
+          }
+        ],
+        "ai2_hit_applied": 1,
+        "ai3_hit_applied": 1,
+        "reverse": true
+      }
+    ]
+  },
+  "p2_grab_throw": {
+    "held": {
+      "p2": {
+        "hp": 64,
+        "stun": 0,
+        "grab": 2,
+        "by": 255,
+        "selected": 2,
+        "x": 148,
+        "y": 150
+      },
+      "npc": {
+        "hp": 64,
+        "stun": 253,
+        "grab": 255,
+        "by": 1,
+        "selected": 0,
+        "x": 132,
+        "y": 150
+      },
+      "p1": {
+        "hp": 64,
+        "stun": 0,
+        "grab": 255,
+        "by": 255,
+        "selected": 0,
+        "x": 224,
+        "y": 150
+      },
+      "grabbed": true,
+      "p2_attack2_is_grab": 0,
+      "p2_roster": 12,
+      "immediate": {
+        "p2": {
+          "hp": 64,
+          "stun": 0,
+          "grab": 255,
+          "by": 255,
+          "selected": 2,
+          "x": 140,
+          "y": 150
+        },
+        "raw_input2": "100010000000",
+        "grabmove_fcount": 1,
+        "chainlength": 6,
+        "frame": 255,
+        "tick": 1,
+        "attack_variant": 5,
+        "hit_applied": 0,
+        "game_state": 0,
+        "p2_input_driven": 1,
+        "two_player": 1,
+        "oop_flags_0_1": [
+          1,
+          1
+        ],
+        "oop_slot_ptr": 12,
+        "charselect_loaded": 1,
+        "activation": {
+          "mode": 1,
+          "roster": 12,
+          "role": 1,
+          "grabmove": 1
+        },
+        "activation_attempts": [
+          {
+            "mode": 0,
+            "roster": 1,
+            "role": 2,
+            "grabmove": 0
+          },
+          {
+            "mode": 1,
+            "roster": 12,
+            "role": 1,
+            "grabmove": 1
+          }
+        ],
+        "neutral_before_r": {
+          "press": 0,
+          "old": 0,
+          "trigger": 0
+        },
+        "gate_entry_result": {
+          "events": 4
+        },
+        "player_input_result": {
+          "events": 4
+        },
+        "entity_results": [
+          8
+        ],
+        "frame_result": {
+          "port": 1,
+          "buttons": 1024,
+          "frames": 1,
+          "startFrame": 194,
+          "endFrame": 195,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        "hook_events": [
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 2,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 56433,
+              "value": 34,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 3,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 558311,
+              "value": 165,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 2,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 56433,
+              "value": 34,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 3,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 558311,
+              "value": 165,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 194
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 2,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 56433,
+              "value": 34,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 3,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 558311,
+              "value": 165,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 1,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 60089,
+              "value": 194,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 2,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 56433,
+              "value": 34,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 3,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 558311,
+              "value": 165,
+              "frame": 195
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "notifications/mesen/hookFired",
+            "params": {
+              "handle": 4,
+              "kind": "Exec",
+              "cpuType": "Snes",
+              "address": 558401,
+              "value": 169,
+              "frame": 195
+            }
+          }
+        ],
+        "gate_result": {
+          "events": 1
+        }
+      }
+    },
+    "thrown": {
+      "p2": {
+        "hp": 64,
+        "stun": 0,
+        "grab": 255,
+        "by": 255,
+        "selected": 0,
+        "x": 148,
+        "y": 150
+      },
+      "npc": {
+        "hp": 60,
+        "stun": 0,
+        "grab": 255,
+        "by": 255,
+        "selected": 3,
+        "x": 118,
+        "y": 150
+      },
+      "p1": {
+        "hp": 64,
+        "stun": 0,
+        "grab": 255,
+        "by": 255,
+        "selected": 0,
+        "x": 224,
+        "y": 150
+      },
+      "zpos": 0,
+      "zvel": 0,
+      "selected_thrown": true,
+      "nonzero_throw_z": true,
+      "landed_fall": true,
+      "trace": [
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 0,
+          "zvel": 1280
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 2534,
+          "zvel": 1228
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 2534,
+          "zvel": 1228
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 4964,
+          "zvel": 1176
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 4964,
+          "zvel": 1176
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 6140,
+          "zvel": 1150
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 7290,
+          "zvel": 1124
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 9512,
+          "zvel": 1072
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 9512,
+          "zvel": 1072
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 10584,
+          "zvel": 1046
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 11630,
+          "zvel": 1020
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 12650,
+          "zvel": 994
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 13644,
+          "zvel": 968
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 14612,
+          "zvel": 942
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 15554,
+          "zvel": 916
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 17360,
+          "zvel": 864
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 17360,
+          "zvel": 864
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 18224,
+          "zvel": 838
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 19062,
+          "zvel": 812
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 19874,
+          "zvel": 786
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 21420,
+          "zvel": 734
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 21420,
+          "zvel": 734
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 22154,
+          "zvel": 708
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 22862,
+          "zvel": 682
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 23544,
+          "zvel": 656
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 24830,
+          "zvel": 604
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 24830,
+          "zvel": 604
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 26012,
+          "zvel": 552
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 26012,
+          "zvel": 552
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 27090,
+          "zvel": 500
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 27090,
+          "zvel": 500
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 27590,
+          "zvel": 474
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28064,
+          "zvel": 448
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28512,
+          "zvel": 422
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28934,
+          "zvel": 396
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 29700,
+          "zvel": 344
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 29700,
+          "zvel": 344
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30044,
+          "zvel": 318
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30362,
+          "zvel": 292
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30654,
+          "zvel": 266
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30920,
+          "zvel": 240
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31374,
+          "zvel": 188
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31374,
+          "zvel": 188
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31724,
+          "zvel": 136
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31724,
+          "zvel": 136
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31860,
+          "zvel": 110
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32054,
+          "zvel": 58
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32054,
+          "zvel": 58
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32112,
+          "zvel": 32
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32150,
+          "zvel": 65516
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32150,
+          "zvel": 65516
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32084,
+          "zvel": 65464
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32084,
+          "zvel": 65464
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 32012,
+          "zvel": 65438
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31914,
+          "zvel": 65412
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31640,
+          "zvel": 65360
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31640,
+          "zvel": 65360
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31464,
+          "zvel": 65334
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31034,
+          "zvel": 65282
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 31034,
+          "zvel": 65282
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30780,
+          "zvel": 65256
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30194,
+          "zvel": 65204
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 30194,
+          "zvel": 65204
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 29862,
+          "zvel": 65178
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 29504,
+          "zvel": 65152
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28710,
+          "zvel": 65100
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28710,
+          "zvel": 65100
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 28274,
+          "zvel": 65074
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 27324,
+          "zvel": 65022
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 27324,
+          "zvel": 65022
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 26810,
+          "zvel": 64996
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 26270,
+          "zvel": 64970
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 25704,
+          "zvel": 64944
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 24494,
+          "zvel": 64892
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 24494,
+          "zvel": 64892
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 23850,
+          "zvel": 64866
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 22484,
+          "zvel": 64814
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 22484,
+          "zvel": 64814
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 21762,
+          "zvel": 64788
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 21014,
+          "zvel": 64762
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 19440,
+          "zvel": 64710
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 19440,
+          "zvel": 64710
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 18614,
+          "zvel": 64684
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 16884,
+          "zvel": 64632
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 16884,
+          "zvel": 64632
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 15050,
+          "zvel": 64580
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 15050,
+          "zvel": 64580
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 14094,
+          "zvel": 64554
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 13112,
+          "zvel": 64528
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 12104,
+          "zvel": 64502
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 10010,
+          "zvel": 64450
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 10010,
+          "zvel": 64450
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 8924,
+          "zvel": 64424
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 7812,
+          "zvel": 64398
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 6674,
+          "zvel": 64372
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 4320,
+          "zvel": 64320
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 4320,
+          "zvel": 64320
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 3104,
+          "zvel": 64294
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 6,
+          "zpos": 594,
+          "zvel": 64242
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        },
+        {
+          "grab": 255,
+          "npc_hp": 60,
+          "selected": 3,
+          "zpos": 0,
+          "zvel": 0
+        }
+      ]
+    }
+  }
+}

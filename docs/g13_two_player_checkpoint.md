@@ -14,7 +14,7 @@ jump-isolation review slice.
 ## Artifacts
 
 - ROM: `E:\gh\snes-bor-g13\distribution\bor.sfc`
-- ROM SHA-256: `0AE3143CBB4C2BF3B192D0D2E992053160A70C626E65E07FFE7A9B2C65DFA088`
+- ROM SHA-256: `C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`
 - MSU: `E:\gh\snes-bor-g13\distribution\bor.msu`
 - MSU SHA-256: `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`
 - Build: `python -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`
@@ -22,7 +22,9 @@ jump-isolation review slice.
 - Semantic probe: `python -u tools\\verify\\game_g13_semantic_boundary.py`
 - Jump probe: `python -u tools\\verify\\game_g13_jump_isolation.py`
 - P2 session: `python -u tools\\verify\\game_g13_p2_session.py`
-- Input: `python -u tools\\verify\\game_g13_input.py`
+- Authoritative input/session gate: `python -u tools\\verify\\game_g13_two_player_input.py`
+- Legacy input probe (superseded; not in the active suite):
+  `python -u tools\\verify\\game_g13_input.py`
 - One-player capacity: `python -u tools\\verify\\game_g13_one_player_capacity.py`
 
 The build uses the existing generated audio assets because the source audio
@@ -76,11 +78,10 @@ Passed on the current ROM:
   Spawn_Play path produced live NPC slots `[1,2,3,4,5]` in one-player mode;
 - `python -u tools\\verify\\game_g13_p2_session.py`: production title
   P2 Start path established slot 1 as input-driven LEO with HP 64;
-- `python -u tools\\verify\\game_g13_input.py`: independent JOY1/JOY2
-  edge proof and synchronized joint hardware edge PASS. The joint case
-  installed `hold_input(BTN_X, port=0)` and `hold_input(BTN_A, port=1)`
-  before one `run_frames_exact(1)`; raw JOY values were `0x0040` and
-  `0x0080`, with matching independent triggers.
+- `python -u tools\\verify\\game_g13_two_player_input.py`: authoritative
+  independent JOY1/JOY2 gameplay-context and synchronized action gate PASS.
+  The older `game_g13_input.py` is retained as LEGACY/SUPERSEDED evidence;
+  it uses an obsolete setup path and is not an active acceptance gate.
 - In the two-player context gate, fresh-session P1-only and P2-only movement
   and attack cases pass when each edge is delivered independently. The
   synchronized P1+P2 Y control now passes after a bounded complete service
@@ -195,12 +196,13 @@ Focused evidence retained in `out/g13_combat_ai.json` and the run logs:
 The earlier selector-localized both-dead control recorded `$FF` before normal
 P1 respawn could overwrite the fixture, but the new direct movement attempt
 could not preserve that tuple through the MCP frame-granular stop. The latter
-result is tooling-limited and is not promoted as runtime evidence. Multiple-AI
-stale-target attribution, friendly-fire, full P2 grab/throw, and production
-invulnerability-hit controls remain unmeasured.
+result is tooling-limited and is not promoted as runtime evidence. The combat
+closeout verifier now retains green friendly-fire, AI invulnerability,
+multi-AI attribution, and P2 grab/throw evidence; no-target movement remains
+tooling-limited.
 
 Current clean rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
-`AAEA0F72CD427411172C5E4CE5CB1522B0CF46BC3FBA37C0D0A5B6335F46BD3A`;
+`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`;
 `bor.msu` remains
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
@@ -209,6 +211,39 @@ Layout guard passed with runtime end `$FF68` and 56 bytes before NMI.
 Later G13 gates are intentionally not claimed: camera, pause, score/HUD,
 pickup ownership, stage handoff, P2 death/continue, dual character
 selection, and the continuous two-player workload.
+
+## Jump fixture follow-up
+
+At the published `f812959ebc00a87ff3c0db1ea114fd69876e8ded` source,
+`src/core/jump.pasm` is byte-identical to the accepted jump source at
+`06e36859dae22abb7a718c66ab13ce82a7237e0a`. The old jump failures were
+therefore diagnosed as fixture contamination: the long live RALF/LEO
+reselect setup left NPC combat traffic active, and the old shared
+`neutral_players()` helper only killed NPC2.
+
+The permanent jump-local fixture freezes `Spawn_Index == Spawn_Count`,
+neutralizes NPC slots 2-5 including standalone invulnerability and links,
+neutralizes unrelated P1/P2 combat state without writing jump-family fields,
+and establishes two real neutral controller polls. The verifier records the
+complete setup, post-neutral, pre-edge, and action-window state for P1/P2,
+NPCs, controller contexts, jump families, invulnerability, and spawn state.
+
+`out/g13_jump_isolation_pre_fixture_fix.json` retains the original failing
+run; `out/g13_jump_isolation_red_repeat.json` retains the required 5/5
+results for each formerly red case. Simultaneous jump, P2 jumpattack, P2
+jumpattack2, and airborne opposite movement all pass 5/5 (20/20) on fresh
+sessions. The authoritative RALF-P1/LEO-P2 restoration negative passes 20/20
+fresh sessions with P1 roster 0 and zero jump-family counts at stable
+boundaries while P2 retains the LEO family.
+
+One broader legacy full-run attempt had an intermittent P1-family endpoint
+assertion even though the requested four red cases and focused controls were
+green; its raw output is retained as `out/g13_jump_isolation_full_flaky.json`.
+The endpoint can occur after a transient family mode has already returned to
+idle, so it is not promoted as a production jump failure. No production
+source was changed. Current ROM/MSU remain
+`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB` /
+`CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 
 ## Timer and no-target fix-forward
 
@@ -259,6 +294,41 @@ returned a mixed/empty event segment in some runs, so the retained result is
 explicitly FAIL where it cannot prove the required target-valid/hold sequence;
 no endpoint sample is being promoted to a same-OOP claim.
 
+## Jump-isolation fixture correction
+
+The prior jump red was verifier contamination, not a jump production
+regression. `setup()` and the imported `neutral_players()` left live NPC
+traffic during the long RALF/LEO reselect path; G13 AI combat could then
+change P2's reaction/input state before the real jump edge. The pre-fix
+artifact is retained as `out/g13_jump_isolation_pre_fixture_fix.json`.
+
+`game_g13_jump_isolation.py` now uses `jump_local_neutral()` after the real
+session/roster setup. It freezes `Spawn_Index == Spawn_Count`, clears only
+NPC slots 2-5's combat state and invulnerability, clears unrelated P1/P2
+combat state, leaves all production jump-family fields untouched, and polls
+both controllers to press/old/trigger zero. It also records setup, post-
+neutral, pre-edge, and action-window snapshots for both players, all NPCs,
+input contexts, jump-family state, invulnerability, and spawn counters.
+
+The four formerly red cases passed 5/5 fresh sessions each (20/20):
+simultaneous A jump, P2 Y jumpattack, P2 X jumpattack2, and airborne
+opposite movement. The repeat artifact is
+`out/g13_jump_isolation_red_repeat.json`; the full isolated artifact is
+`out/g13_jump_isolation.json`. Focused P1 family controls also passed after
+the fixture verifies the requested live roster record. No production jump
+source was changed.
+
+Current clean ROM remains `C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`;
+MSU remains `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The retained legacy full-run artifact records an arbitrary endpoint sample;
+its P1 globals are the saved RALF family (not a third/corrupt value). The
+replacement endpoint classification accepts either the restored P1 family or
+the exact installed P2/LEO family when a frame-end sample falls inside the
+temporary alias window. The authoritative RALF-P1/LEO-P2 behavioral negative
+passes 20/20 after stable neutral boundaries: P1 remains grounded/RALF and
+cannot acquire LEO's jump behavior while P2 performs the real jump family.
+This is verifier timing evidence, not an engine failure.
+
 ## Current combat closeout evidence (fix-forward)
 
 The production AI movement path was restored to its compact inline sentinel
@@ -283,6 +353,29 @@ and changed AI coordinates. The shared `hold_y` label is also not actor
 specific. This is a verifier/MCP semantic-boundary limitation, not a claimed
 production movement failure; no production telemetry or movement change was
 added to compensate. `confirmed_busy_denials` remains null.
+
+## Combat/jump closeout status
+
+The four combat gates are locally green and retained in
+`out/g13_combat_closeout.json`: friendly fire is off, the AI invulnerability
+matrix passes, multi-AI attribution passes 10/10 in both geometry directions,
+and the real P2 LEO grab/throw path reaches FALL. The player-vs-NPC control is
+10/10 for each player and the timer matrix remains green.
+
+The four formerly red jump cases pass 20/20 under the isolated fixture. The
+legacy P1-global endpoint equality was removed because it was not a semantic
+dispatch boundary. The retained flaky artifact is diagnostic only; its
+mismatch is either the exact saved RALF family or the exact installed LEO
+family, with no third value. The authoritative RALF-P1/LEO-P2 negative passes
+20/20, including repeated P2 jump/jumpattack/jumpattack2, landing, and the
+P1-A negative while P2 is jumping. Ordered ContextEnter/Exit evidence remains
+in `out/g13_semantic_boundary.json`.
+
+No production source changed in this closeout. `confirmed_busy_denials` is
+explicitly null, and no-target movement remains
+`TOOLING-LIMITED / UNMEASURED` because the current MCP boundary cannot expose
+the exact same-dispatch movement state. Camera, pause, score/pickup, stage
+handoff, death/continue, and sustained workload remain outside this slice.
 
 The hardened timer gate passes on the rebuilt ROM: paired 2P writes are one
 per observed gameplay frame and decrement one step; asymmetric 2P, seeded-1P,

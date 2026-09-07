@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Bounded G13 JOY1/JOY2 hardware edge-detector proof.
+"""LEGACY/SUPERSEDED input-boundary probe.
+
+Use game_g13_two_player_input.py for the authoritative current G13 input
+and gameplay-context gate.  This older probe retains its history and is not
+part of the active G13 acceptance suite because its setup path predates the
+fixed-session production contract.
 
 This is only the input boundary gate. It does not claim co-op gameplay.
 Each port is driven independently through Mesen's existing set_input API;

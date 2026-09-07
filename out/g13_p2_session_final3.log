@@ -1,0 +1,4 @@
+P2_PREPOLL raw=0000 input2=000000000000
+BEFORE_P2 {'game_state': 1, 'title_step': 2, 'input1': '000000000000'}
+P2_SESSION raw_pre_poll=0000 input2=000000000010 {'mode': 1, 'slot1_input': 1, 'slot1_roster': 12, 'slot1_hp': 64, 'seen': 0, 'snapshot': '0000', 'mask': '0000'}
+G13 FIXED P2 SESSION: PASS

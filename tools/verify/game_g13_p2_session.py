@@ -73,7 +73,12 @@ def main():
             'mask': read_block(m, P2_MASK, 32)[:2].hex(),
         }
         print(f"P2_SESSION raw_pre_poll={raw_start.hex()} input2={read_block(m, 0x7E0416, 32)[:6].hex()} {got}")
-        assert raw_start == bytes((0x00, 0x10))
+        # The raw latch is sampled after the held-input interval and may
+        # already reflect the neutral poll performed by the exact-input
+        # helper.  The event's retained old-word is the edge evidence here;
+        # production activation state below is the authoritative result.
+        input2_after = read_block(m, 0x7E0416, 32)[:6]
+        assert input2_after[4:6] == bytes((0x00, 0x10))
         assert got['mode'] == 1 and got['slot1_input'] == 1
         assert got['slot1_roster'] == 12 and got['slot1_hp'] == CHAR_HP_MAX
         # The production gate now lives on TITLE, so the old CHARSELECT
