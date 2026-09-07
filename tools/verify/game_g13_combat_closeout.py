@@ -323,6 +323,12 @@ def main():
     r.check('P2 hits NPC while partner remains untouched',
             p2['npc_hp_after'] == p2['npc_hp_before'] - 4 and
             p2['p1_hp_after'] == p2['p1_hp_before'])
+    r.check('P1 combat score is owner-local',
+            p1['score_after'] - p1['score_before'] == pasm_constant('HIT_SCORE') and
+            p1['p2_score_after'] == p1['p2_score_before'])
+    r.check('P2 combat score is owner-local',
+            p2['p2_score_after'] - p2['p2_score_before'] == pasm_constant('HIT_SCORE') and
+            p2['score_after'] == p2['score_before'])
     result = {'friendly_fire': {'p1': ff1, 'p2': ff2, 'p2_r': ff_r},
               'ai_matrix': matrix, 'player_npc': {'p1': p1, 'p2': p2},
               'confirmed_busy_denials': None,

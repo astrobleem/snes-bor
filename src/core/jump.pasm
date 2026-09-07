@@ -1669,6 +1669,10 @@ Character_HitApply__ApplyPickup__heal_meat:
 Character_HitApply__ApplyPickup__heal:
     sep #$20
 .a8
+    ; The dispatch entry uses G13_PickupAmount for the pickup kind.  At this
+    ; leaf A is the authored heal amount; retain that amount before loading
+    ; the collector's current HP.
+    sta.l G13_PickupAmount
     ; PlayerEntity_Hp += A, clamped at CHAR_HP_MAX (never past the HUD
     ; bar's own max -- same clamp-not-wrap idiom Game_Score_Award uses for
     ; Game_Score). Real bug found live-tracing this: the bare DP-relative
@@ -1689,6 +1693,8 @@ Character_HitApply__ApplyPickup__heal_p2:
     lda.l Entity1_Hp
     jmp Character_HitApply__ApplyPickup__heal_add
 Character_HitApply__ApplyPickup__heal_add:
+    sep #$20
+.a8
     clc
     adc.l G13_PickupAmount
     cmp #CHAR_HP_MAX + 1
@@ -1720,73 +1726,19 @@ Character_HitApply__ApplyPickup__oneup_p1:
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__money:
 .a8
-    ; Game_Score += PICKUP_SCORE_MONEY, clamped at 65535 -- same idiom
-    ; Game_Score_Award uses, but this leaf doesn't also re-check the
-    ; EXTEND_LIFE_SCORE crossing Game_Score_Award does for combat score;
-    ; deliberately deferred (money pickups are rare in real shipped spawn
-    ; data -- 3 total across both stages -- not worth duplicating that
-    ; whole quotient-compare dance for here; a life-extend triggered purely
-    ; by picking up money is real OpenBOR behavior this slice doesn't yet
-    ; reproduce).
     rep #$20
 .a16
-    lda.l G13_PickupForP2
-    beq Character_HitApply__ApplyPickup__money_p1
-    rep #$20
-.a16
-    lda.l G13_P2Score
-    clc
-    adc #PICKUP_SCORE_MONEY
-    bcc Character_HitApply__ApplyPickup__money_p2_store
-    lda #$FFFF
-Character_HitApply__ApplyPickup__money_p2_store:
-    sta.l G13_P2Score
-    sep #$20
-.a8
-    bra Character_HitApply__ApplyPickup__done
-Character_HitApply__ApplyPickup__money_p1:
-    rep #$20
-.a16
-    lda.l Game_Score
-    clc
-    adc #PICKUP_SCORE_MONEY
-    bcc Character_HitApply__ApplyPickup__money_store
-    lda #$FFFF
-Character_HitApply__ApplyPickup__money_store:
-    sta.l Game_Score
+    lda #PICKUP_SCORE_MONEY
+    jsl G13_PlayerScore_Add
     sep #$20
 .a8
     bra Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__gold:
 .a8
-    ; Game_Score += PICKUP_SCORE_GOLD, clamped at 65535 -- same idiom as
-    ; the money branch above, own real value (GOLD.TXT score=5000).
     rep #$20
 .a16
-    lda.l G13_PickupForP2
-    beq Character_HitApply__ApplyPickup__gold_p1
-    rep #$20
-.a16
-    lda.l G13_P2Score
-    clc
-    adc #PICKUP_SCORE_GOLD
-    bcc Character_HitApply__ApplyPickup__gold_p2_store
-    lda #$FFFF
-Character_HitApply__ApplyPickup__gold_p2_store:
-    sta.l G13_P2Score
-    sep #$20
-.a8
-    bra Character_HitApply__ApplyPickup__done
-Character_HitApply__ApplyPickup__gold_p1:
-    rep #$20
-.a16
-    lda.l Game_Score
-    clc
-    adc #PICKUP_SCORE_GOLD
-    bcc Character_HitApply__ApplyPickup__gold_store
-    lda #$FFFF
-Character_HitApply__ApplyPickup__gold_store:
-    sta.l Game_Score
+    lda #PICKUP_SCORE_GOLD
+    jsl G13_PlayerScore_Add
     sep #$20
 .a8
 Character_HitApply__ApplyPickup__done:
@@ -1818,6 +1770,27 @@ Character_HitApply__ApplyPickup__done:
 ; ============================================================================
 Character_HitApply__RevealOrPickup:
     php
+    ; The attacker DP is still live on entry.  Establish the one-shot reward
+    ; owner before the slot dispatch; ApplyPickup consumes this selector.
+    rep #$31
+.a16
+.i16
+    tdc
+    cmp #$0A85
+    bne Character_HitApply__RevealOrPickup__owner_p1
+    sep #$20
+.a8
+    lda.l G13_TwoPlayerEnabled
+    beq Character_HitApply__RevealOrPickup__owner_p1
+    lda #1
+    sta.l G13_PickupForP2
+    bra Character_HitApply__RevealOrPickup__dispatch
+Character_HitApply__RevealOrPickup__owner_p1:
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
+Character_HitApply__RevealOrPickup__dispatch:
     rep #$30
 .a16
 .i16
@@ -1825,18 +1798,30 @@ Character_HitApply__RevealOrPickup:
     bne Character_HitApply__RevealOrPickup__check2
     jmp Character_HitApply__RevealOrPickup__e1
 Character_HitApply__RevealOrPickup__check2:
+    rep #$30
+.a16
+.i16
     cpx #CHAR_ZP_LEN*2
     bne Character_HitApply__RevealOrPickup__check3
     jmp Character_HitApply__RevealOrPickup__e2
 Character_HitApply__RevealOrPickup__check3:
+    rep #$30
+.a16
+.i16
     cpx #CHAR_ZP_LEN*3
     bne Character_HitApply__RevealOrPickup__check4
     jmp Character_HitApply__RevealOrPickup__e3
 Character_HitApply__RevealOrPickup__check4:
+    rep #$30
+.a16
+.i16
     cpx #CHAR_ZP_LEN*4
     bne Character_HitApply__RevealOrPickup__check5
     jmp Character_HitApply__RevealOrPickup__e4
 Character_HitApply__RevealOrPickup__check5:
+    rep #$30
+.a16
+.i16
     cpx #CHAR_ZP_LEN*5
     bne Character_HitApply__RevealOrPickup__invalid
     jmp Character_HitApply__RevealOrPickup__e5
@@ -1849,6 +1834,8 @@ Character_HitApply__RevealOrPickup__e1:
     bne Character_HitApply__RevealOrPickup__e1_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e1_has_pickup:
+    sep #$20
+.a8
     lda.l Entity1_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e1_instant
     lda #1
@@ -1871,6 +1858,8 @@ Character_HitApply__RevealOrPickup__e2:
     bne Character_HitApply__RevealOrPickup__e2_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e2_has_pickup:
+    sep #$20
+.a8
     lda.l Entity2_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e2_instant
     lda #1
@@ -1893,6 +1882,8 @@ Character_HitApply__RevealOrPickup__e3:
     bne Character_HitApply__RevealOrPickup__e3_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e3_has_pickup:
+    sep #$20
+.a8
     lda.l Entity3_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e3_instant
     lda #1
@@ -1915,6 +1906,8 @@ Character_HitApply__RevealOrPickup__e4:
     bne Character_HitApply__RevealOrPickup__e4_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e4_has_pickup:
+    sep #$20
+.a8
     lda.l Entity4_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e4_instant
     lda #1
@@ -1935,6 +1928,8 @@ Character_HitApply__RevealOrPickup__e5:
     bne Character_HitApply__RevealOrPickup__e5_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e5_has_pickup:
+    sep #$20
+.a8
     lda.l Entity5_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e5_instant
     lda #1
@@ -1948,6 +1943,10 @@ Character_HitApply__RevealOrPickup__e5_instant:
     lda #0
     sta.l Entity5_PickupType
 Character_HitApply__RevealOrPickup__done:
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
     plp
     rtl
 
@@ -2349,6 +2348,24 @@ Character_Pickup_CheckOverlap__vs5_no:
 ;   in:  none. Clobbers A.
 ; ============================================================================
 Character_Pickup_CheckOverlap__TriggerGet:
+.a8
+    lda.l G13_PickupForP2
+    beq Character_Pickup_CheckOverlap__TriggerGet__p1
+    lda.l Entity1_GetFcount
+    beq Character_Pickup_CheckOverlap__TriggerGet__no
+    lda.l Entity1_Selected
+    bne Character_Pickup_CheckOverlap__TriggerGet__no
+    lda #GET_MOVE_VARIANT
+    sta.l Entity1_AttackVariant
+    lda #2
+    sta.l Entity1_Selected
+    lda #$FF
+    sta.l Entity1_FrameIndex
+    lda #1
+    sta.l Entity1_TickCounter
+    rts
+Character_Pickup_CheckOverlap__TriggerGet__p1:
+    sep #$20
 .a8
     lda.l PlayerEntity_GetFcount
     beq Character_Pickup_CheckOverlap__TriggerGet__no

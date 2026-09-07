@@ -1,0 +1,603 @@
+{
+  "p2_apple": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 10,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 1,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 29,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8260264,
+          "value": 29,
+          "handle": 2
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    },
+    "get_fcount": 1
+  },
+  "p1_apple": {
+    "before": {
+      "p1_hp": 10,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 1,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 29,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8260131,
+          "value": 29,
+          "handle": 1
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p1_money": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 1000,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p2_money": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 1000,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p1_gold": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 5,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 5000,
+      "p2_score": 0,
+      "lives": 21,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p2_gold": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 5,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 5000,
+      "lives": 20,
+      "p2_lives": 21,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p1_oneup": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 4,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 21,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p2_oneup": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 4,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 21,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "tie": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 1000,
+      "p2_score": 0,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    },
+    "final_score": 1000,
+    "final_p2_score": 0
+  },
+  "p1_threshold": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 4500,
+      "p2_score": 0,
+      "lives": 7,
+      "p2_lives": 20,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 400,
+      "p1_x": 100,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 5500,
+      "p2_score": 0,
+      "lives": 8,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 0,
+      "p1_variant": 0,
+      "p2_variant": 0,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p2_threshold": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 4500,
+      "lives": 20,
+      "p2_lives": 7,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 5500,
+      "lives": 20,
+      "p2_lives": 8,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  },
+  "p2_saturation": {
+    "before": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 65530,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 3,
+      "mode": 1,
+      "p2_input": 1,
+      "p2_x": 100,
+      "p1_x": 400,
+      "item_x": 100,
+      "item_input": 3
+    },
+    "after": {
+      "p1_hp": 64,
+      "p2_hp": 64,
+      "score": 0,
+      "p2_score": 65535,
+      "lives": 20,
+      "p2_lives": 20,
+      "item": 0,
+      "p1_selected": 0,
+      "p2_selected": 2,
+      "p1_variant": 0,
+      "p2_variant": 10,
+      "owner": 0,
+      "mode": 1,
+      "writes": [
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 1,
+          "handle": 3
+        },
+        {
+          "address": 8267465,
+          "value": 0,
+          "handle": 3
+        }
+      ]
+    }
+  }
+}

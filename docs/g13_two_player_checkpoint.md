@@ -446,3 +446,33 @@ pause labels introduced/exercised by this slice are absent from the NEW list.
 The final rebuilt ROM for this slice is
 `067AF2214A57994709C55BFC423D2E1A913C65B0FF8324C14A0D0A22F8FD8220`; MSU is
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+
+## Score and pickup ownership slice
+
+The camera/pause milestone is published at `a9f6d27`; its right-bound
+fixture only proves the final camera position remains within the existing
+clamp, not that runtime camera motion was driven to `Screen_MaxX`.
+
+This score/pickup fix-forward adds deterministic P2 state to the canonical
+`Game_State_NewGameReset`, converges combat, money, and gold score additions
+on one owner-aware saturating score/life helper, and routes P2 touch and
+instant-break rewards through the existing transaction owner. P2 GET now uses
+Entity1's own GET/action fields; P1 remains on the original path. A discovered
+byte-width boundary after the P1 pickup scan was corrected before testing the
+P2 branch, and the existing heal leaf was corrected to preserve the authored
+heal amount rather than the pickup kind.
+
+Focused evidence: `tools/verify/game_g13_score_pickup.py` and
+`out/g13_score_pickup.json`. P1/P2 apple and money/gold/one-up ownership,
+same-frame P1-first no-double-collection, P2 LEO GET, threshold crossing
+(exactly one life), and P2 score saturation pass. The retained G8 production
+pickup regression passes. The current clean ROM is
+`732D73E732B08913F36657A42D8EDC75CC4D1EDFE49E7D1DF2B3F2A81AAD0668`; MSU
+remains `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
+The fresh width report is `out/g13_score_pickup_width2.log`: the active
+score/pickup/reveal labels are absent from NEW; unrelated branch-wide debt
+remains. `confirmed_busy_denials` remains null and no-target movement remains
+TOOLING-LIMITED / UNMEASURED.
+
+Stage handoff, P2 death/continue, dual HUD, dual selection, and sustained
+workload remain outside this slice.

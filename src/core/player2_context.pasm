@@ -693,6 +693,11 @@ G13_Pickup_CheckPlayers:
     lda #0
     sta.l G13_PickupTargetY+1
     jsl Character_Pickup_CheckOverlap
+    ; Character_Pickup_CheckOverlap returns A16/I16.  The mode and actor
+    ; role below are byte-owned fields; restore the byte contract before
+    ; testing the P2 collection path.
+    sep #$20
+.a8
     lda.l G13_TwoPlayerEnabled
     beq G13_Pickup_CheckPlayers__done
     lda.l Entity1_InputDriven
@@ -723,8 +728,89 @@ G13_Pickup_CheckPlayers__done:
     plp
     rtl
 
-; G13 score leaf. It lives with the P2 context helpers so the tight bank-0
-; gameplay region retains its layout margin. Entry is A8; it returns RTL.
+; One owner-aware score-add leaf for combat and pickups.  Entry is A16 with
+; A=amount and G13_PickupForP2 selecting the owner (0=P1, 1=P2).  The owner
+; selector is already bounded, non-reentrant pickup transaction state and is
+; explicitly cleared by each transaction wrapper.  This preserves the
+; original quotient-changed => exactly one extra-life contract for every
+; score source, including money and gold.
+G13_PlayerScore_Add:
+    php
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    sta.l Game_ScoreAwardScratch
+    lda.l G13_PickupForP2
+    and #$00FF
+    beq G13_PlayerScore_Add__p1
+    lda.l G13_P2Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsl G13_Core_Math_Div_Long
+    sta.l Game_ScoreOldQuotientScratch
+    lda.l G13_P2Score
+    clc
+    adc.l Game_ScoreAwardScratch
+    bcc G13_PlayerScore_Add__p2_no_overflow
+    lda #$FFFF
+G13_PlayerScore_Add__p2_no_overflow:
+    rep #$31
+.a16
+.i16
+    sta.l G13_P2Score
+    lda.l G13_P2Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsl G13_Core_Math_Div_Long
+    cmp.l Game_ScoreOldQuotientScratch
+    beq G13_PlayerScore_Add__done
+    sep #$20
+.a8
+    lda.l G13_P2Lives
+    inc a
+    sta.l G13_P2Lives
+    bra G13_PlayerScore_Add__done
+G13_PlayerScore_Add__p1:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsl G13_Core_Math_Div_Long
+    sta.l Game_ScoreOldQuotientScratch
+    lda.l Game_Score
+    clc
+    adc.l Game_ScoreAwardScratch
+    bcc G13_PlayerScore_Add__p1_no_overflow
+    lda #$FFFF
+G13_PlayerScore_Add__p1_no_overflow:
+    rep #$31
+.a16
+.i16
+    sta.l Game_Score
+    lda.l Game_Score
+    tax
+    lda #EXTEND_LIFE_SCORE
+    jsl G13_Core_Math_Div_Long
+    cmp.l Game_ScoreOldQuotientScratch
+    beq G13_PlayerScore_Add__done
+    sep #$20
+.a8
+    lda.l Game_Lives
+    inc a
+    sta.l Game_Lives
+G13_PlayerScore_Add__done:
+    ply
+    plx
+    plp
+    rtl
+
+; Combat wrapper: derive ownership from the dispatcher's actor DP, convert
+; the kill flag to the established hit/kill amount, and route both players
+; through the shared score/life semantics above.
 G13_Game_Score_Award:
     php
     phx
@@ -735,83 +821,39 @@ G13_Game_Score_Award:
 .i16
     tdc
     cmp #$0A85
-    beq G13_Game_Score_Award__p2
+    bne G13_Game_Score_Award__p1_owner
     sep #$20
 .a8
-    pla
-    bra G13_Game_Score_Award__original
-G13_Game_Score_Award__p2:
+    lda.l G13_TwoPlayerEnabled
+    beq G13_Game_Score_Award__p1_owner
+    lda #1
+    sta.l G13_PickupForP2
+    bra G13_Game_Score_Award__amount
+G13_Game_Score_Award__p1_owner:
     sep #$20
 .a8
+    lda #0
+    sta.l G13_PickupForP2
+G13_Game_Score_Award__amount:
     pla
-    jsl G13_P2Score_Award
-    ply
-    plx
-    plp
-    rtl
-G13_Game_Score_Award__original:
     rep #$31
 .a16
 .i16
     and #$00FF
     beq G13_Game_Score_Award__hit_only
     lda #HIT_SCORE + KILL_SCORE
-    bra G13_Game_Score_Award__have_award
+    bra G13_Game_Score_Award__add
 G13_Game_Score_Award__hit_only:
-    lda #HIT_SCORE
-G13_Game_Score_Award__have_award:
-    sta.l Game_ScoreAwardScratch
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    sta.l Game_ScoreOldQuotientScratch
-    lda.l Game_Score
-    clc
-    adc.l Game_ScoreAwardScratch
-    bcc G13_Game_Score_Award__no_overflow
-    lda #$FFFF
-G13_Game_Score_Award__no_overflow:
-    sta.l Game_Score
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    cmp.l Game_ScoreOldQuotientScratch
-    beq G13_Game_Score_Award__done
-    sep #$20
-.a8
-    lda.l Game_Lives
-    inc a
-    sta.l Game_Lives
-G13_Game_Score_Award__done:
-    ply
-    plx
-    plp
-    rtl
-
-; P2-owned combat score leaf. The dispatcher preserves the caller's kill
-; flag in A while selecting this actor-owned path.
-G13_P2Score_Award:
-    php
-    phx
-    phy
     rep #$31
 .a16
 .i16
-    and #$00FF
-    beq G13_P2Score_Award__hit
-    lda #HIT_SCORE + KILL_SCORE
-    bra G13_P2Score_Award__add
-G13_P2Score_Award__hit:
     lda #HIT_SCORE
-G13_P2Score_Award__add:
-    clc
-    adc.l G13_P2Score
-    bcc G13_P2Score_Award__store
-    lda #$FFFF
-G13_P2Score_Award__store:
-    sta.l G13_P2Score
+G13_Game_Score_Award__add:
+    jsl G13_PlayerScore_Add
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
     ply
     plx
     plp

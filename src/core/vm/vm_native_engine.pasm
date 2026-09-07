@@ -2352,16 +2352,22 @@ Audio_EmitPickup:
     beq Audio_EmitPickup__oneup
     bra Audio_EmitPickup__restore
 Audio_EmitPickup__get:
+    sep #$20
+.a8
     lda #AUDIO_SEMANTIC_GET
     ldx #SFX_GET_ID
     jsl Audio_QueueResidentSemantic
     bra Audio_EmitPickup__restore
 Audio_EmitPickup__money:
+    sep #$20
+.a8
     lda #AUDIO_SEMANTIC_MONEY
     ldx #SFX_MONEY_ID
     jsl Audio_QueueResidentSemantic
     bra Audio_EmitPickup__restore
 Audio_EmitPickup__oneup:
+    sep #$20
+.a8
     lda #AUDIO_SEMANTIC_ONEUP
     ldx #SFX_ONEUP_ID
     jsl Audio_QueueResidentSemantic

@@ -41,6 +41,10 @@ AI_TARGET_Y = pasm_constant('G13_ContextSaveJump') + 14
 P2_INVULN = pasm_constant('G13_P2_InvulnFrames')
 P1_INVULN = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
 ACTOR_INVULN = pasm_constant_in('src/core/game_state.pasm', 'Actor_InvulnFrames')
+GAME_SCORE = pasm_constant_in('src/core/game_state.pasm', 'Game_Score')
+GAME_LIVES = pasm_constant_in('src/core/game_state.pasm', 'Game_Lives')
+P2_SCORE = pasm_constant_in('src/core/game_state.pasm', 'G13_P2Score')
+P2_LIVES = pasm_constant_in('src/core/game_state.pasm', 'G13_P2Lives')
 ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
@@ -193,6 +197,8 @@ def player_hit_case(port):
         m.write_u8(P1_INVULN, 255 if port == 0 else 0)
         m.write_u8(P2_INVULN, 255 if port == 1 else 0)
         p1_before, p2_before, npc_before = u8(m, P1 + HP), u8(m, P2 + HP), u8(m, ENTITIES[2] + HP)
+        score_before = u16(m, GAME_SCORE)
+        p2_score_before = u16(m, P2_SCORE)
         neutral_player_inputs(m)
         target_invuln_before_attack = u8(m, ACTOR_INVULN + 2)
         m.hold_input(m.BTN_Y, port=port)
@@ -216,6 +222,9 @@ def player_hit_case(port):
             'npc_hp_before': npc_before,
             'p1_hp_after': u8(m, P1 + HP), 'p2_hp_after': u8(m, P2 + HP),
             'npc_hp_after': u8(m, ENTITIES[2] + HP),
+            'score_before': score_before, 'score_after': u16(m, GAME_SCORE),
+            'p2_score_before': p2_score_before, 'p2_score_after': u16(m, P2_SCORE),
+            'lives_before': u8(m, GAME_LIVES), 'p2_lives': u8(m, P2_LIVES),
             'p1_stun': u8(m, P1 + HITSTUN), 'p2_stun': u8(m, P2 + HITSTUN),
             'actor_invuln_after_prepare': inv_after_prepare,
             'actor_invuln_after_fixture_normalization': inv_after_fixture,

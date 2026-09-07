@@ -112,8 +112,9 @@
 ; HP/hit-stun/facing/position the same well-tested way, and must run
 ; AFTER Stage_Load (it reads the current camera position, which Stage_
 ; Load itself resets for the new stage). Only the fields NEITHER of those
-; two existing routines owns are set explicitly below: Game_Score, Game_
-; Lives, Game_StageIndex/Bg_LoadScene_StageIndex/Stage_Cleared/Stage_
+; two existing routines owns are set explicitly below: Game_Score, G13_P2Score,
+; Game_Lives, and G13_P2Lives; the remaining stage cells are also reset here.
+; Game_StageIndex/Bg_LoadScene_StageIndex/Stage_Cleared/Stage_
 ; LoadPending (Stage_Load's caller's job, same contract Game_State_Play__
 ; stageclear_next already follows).
 ;
@@ -133,6 +134,7 @@ Game_State_NewGameReset:
 .a8
     lda #GAME_LIVES_START
     sta.l Game_Lives
+    sta.l G13_P2Lives
     lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared
@@ -142,6 +144,7 @@ Game_State_NewGameReset:
 .i16
     lda #0
     sta.l Game_Score
+    sta.l G13_P2Score
     sta.l Game_StageIndex
     jsl Stage_LoadAndRespawn_Long
     ; Stage_Load reinitializes the five non-player windows.  In two-player

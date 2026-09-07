@@ -2046,6 +2046,8 @@ Spawn_RevealPendingItems__check3:
     jsr Spawn_RevealPendingItems__do
     bra Spawn_RevealPendingItems__done
 Spawn_RevealPendingItems__check4:
+    sep #$20
+.a8
     lda.l Entity4_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     bne Spawn_RevealPendingItems__check5
@@ -2058,6 +2060,8 @@ Spawn_RevealPendingItems__check4:
     jsr Spawn_RevealPendingItems__do
     bra Spawn_RevealPendingItems__done
 Spawn_RevealPendingItems__check5:
+    sep #$20
+.a8
     lda.l Entity5_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     bne Spawn_RevealPendingItems__done
@@ -2146,6 +2150,9 @@ Spawn_RevealPendingItems__do__not3:
     sta.l Entity4_ItemRosterIdx
     rts
 Spawn_RevealPendingItems__do__not4:
+    rep #$30
+.a16
+.i16
     cpx #CHAR_ZP_LEN*5
     bne Spawn_RevealPendingItems__do__not5
     lda #0
