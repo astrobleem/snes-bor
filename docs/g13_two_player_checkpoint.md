@@ -2,7 +2,7 @@
 
 Status: WIP review publication; not accepted and not merge-ready.
 
-Current fix-forward source/evidence commit: `06e36859dae22abb7a718c66ab13ce82a7237e0a`.
+Current fix-forward source/evidence commit: `b15a454388a8a1951bf15398f366284fc3f94d40`.
 
 Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
@@ -192,11 +192,12 @@ Focused evidence retained in `out/g13_combat_ai.json` and the run logs:
 - P1 and P2 invulnerability counters remained independent in the focused
   timer controls.
 
-The selector-localized both-dead control now records `$FF` before normal P1
-respawn can overwrite the fixture. The timer endpoint remains a harness
-boundary artifact, but write-watch evidence is authoritative. Multiple-AI stale-target attribution,
-friendly-fire, full P2 grab/throw, and production invulnerability-hit
-controls remain unmeasured.
+The earlier selector-localized both-dead control recorded `$FF` before normal
+P1 respawn could overwrite the fixture, but the new direct movement attempt
+could not preserve that tuple through the MCP frame-granular stop. The latter
+result is tooling-limited and is not promoted as runtime evidence. Multiple-AI
+stale-target attribution, friendly-fire, full P2 grab/throw, and production
+invulnerability-hit controls remain unmeasured.
 
 Current clean rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
 `AAEA0F72CD427411172C5E4CE5CB1522B0CF46BC3FBA37C0D0A5B6335F46BD3A`;
