@@ -1,18 +1,19 @@
 # G13 two-player first-slice WIP checkpoint
 
-Status: WIP review publication; camera/pause slice green except for the
-survivor-only runtime injection probe classified MCP-boundary-unmeasured;
-not accepted and not merge-ready.
+Status: WIP review publication; score/pickup evidence closeout is green,
+pending advisor review. Camera/pause and combat/jump milestones remain
+accepted WIP evidence; this branch is not merge-ready.
 
-Current camera/pause fix-forward source is uncommitted on `g13-two-player`.
+Camera/pause source/evidence is published at `a9f6d27`.
 The production midpoint correction changes the upper-order branch to load
 `Entity1_PosX` (the previous code loaded `PlayerEntity_PosX` twice). The
 pause WAIT path now accepts P2 Start only when `G13_TwoPlayerEnabled`, using
 the same global selected-row commit as P1 Start. No transport, actor layout,
 audio, or jump/combat mechanics changed.
 
-Current fix-forward source/evidence commit: `291ffae` (`g13: close combat
-and jump verifier evidence`).
+Current score/pickup source/evidence commit: `f609dfd`
+(`g13: unify score and pickup ownership`), with this evidence closeout
+published as the latest fix-forward.
 
 Parent/source commit: `3c0a75c6c303e383ec71f31f3baa6da3f407c8f0` on
 `g13-two-player`. Published WIP source/evidence commits are
@@ -463,10 +464,11 @@ P2 branch, and the existing heal leaf was corrected to preserve the authored
 heal amount rather than the pickup kind.
 
 Focused evidence: `tools/verify/game_g13_score_pickup.py` and
-`out/g13_score_pickup.json`. P1/P2 apple and money/gold/one-up ownership,
-same-frame P1-first no-double-collection, P2 LEO GET, threshold crossing
-(exactly one life), and P2 score saturation pass. The retained G8 production
-pickup regression passes. The current clean ROM is
+`out/g13_score_pickup.json`. The true pre-advance same-item tie, real
+TITLE->CHARSELECT->PLAYING reset, P1/P2 instant-break ownership, same-session
+owner-leak sequences, P2 MEAT, P1/P2 apple and money/gold/one-up ownership,
+P2 LEO GET, threshold crossing (exactly one life), and P2 score saturation
+pass. The retained G8 production pickup regression passes. The current clean ROM is
 `732D73E732B08913F36657A42D8EDC75CC4D1EDFE49E7D1DF2B3F2A81AAD0668`; MSU
 remains `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 The fresh width report is `out/g13_score_pickup_width2.log`: the active

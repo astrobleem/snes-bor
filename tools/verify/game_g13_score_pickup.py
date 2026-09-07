@@ -5,13 +5,15 @@ The fixture changes only legal item metadata/geometry and session-owned
 preconditions.  Collection, reward dispatch, score saturation/life extension,
 and P2 GET selection remain production code.
 """
-import json, os, sys
+import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (Reporter, exact_input_edge, open_session, pasm_constant,
-                      pasm_constant_in, read_block, run_frames_exact)
-from game_g13_two_player_input import clear_inputs, select_two_player
+                      pasm_constant_in, read_block, run_frames_exact, poll_until)
+from game_g13_two_player_input import clear_inputs
 
 ZP = pasm_constant('CHAR_ZP_LEN')
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SYM = os.path.join(ROOT, 'src', 'main.sym')
 P1 = 0x7E0A00; P2 = P1 + ZP; ITEM = P1 + 2 * ZP
 POS_X = pasm_constant('CHAR_POS_X'); POS_Y = pasm_constant('CHAR_POS_Y')
 HP = pasm_constant('CHAR_HP'); HP_MAX = pasm_constant('CHAR_HP_MAX')
@@ -32,14 +34,35 @@ P2L = pasm_constant_in('src/core/game_state.pasm', 'G13_P2Lives')
 MODE = pasm_constant('G13_TwoPlayerEnabled')
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_TITLE = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_TITLE')
+GAME_STATE_CHARSELECT = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_CHARSELECT')
+GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
 TITLE_STEP = pasm_constant_in('src/core/game_state.pasm', 'Title_Step')
+CHARSELECT_STEP = pasm_constant_in('src/core/game_state.pasm', 'CharSelect_Step')
+CHARSELECT_WAIT = pasm_constant_in('src/core/game_state.pasm', 'CHARSELECT_STEP_WAIT')
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 SPAWN_COUNT = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
 ITEM_IDX = pasm_constant_in('src/core/spawn.pasm', 'Entity2_ItemRosterIdx')
+HITSTUN = pasm_constant('CHAR_HIT_STUN')
+FRAME = pasm_constant('CHAR_FRAME_INDEX')
+TICK = pasm_constant('CHAR_TICK_COUNTER')
+ATTACKED = pasm_constant('CHAR_HIT_APPLIED')
+ACTOR_INV = pasm_constant_in('src/core/game_state.pasm', 'Actor_InvulnFrames')
+CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
+KILL_SCORE = pasm_constant('KILL_SCORE')
+HIT_SCORE = pasm_constant('HIT_SCORE')
 
 def u8(m, a): return read_block(m, a, 32)[0]
 def u16(m, a):
     b = read_block(m, a, 32); return b[0] | b[1] << 8
+
+def symbol(name):
+    rx = re.compile(r'^([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4,6})\s+' + re.escape(name) + r'\s*$')
+    with open(SYM, encoding='utf-8') as f:
+        for line in f:
+            hit = rx.match(line.strip())
+            if hit:
+                return (int(hit.group(1), 16) << 16) | int(hit.group(2), 16)
+    raise KeyError(name)
 
 def setup(m):
     m.reset_emulator(); run_frames_exact(m, 180); clear_inputs(m)
@@ -102,8 +125,109 @@ def collect(m, owner, kind, score=0, lives=0):
     for h in (hp1_hook, hp2_hook, owner_hook): m.remove_hook(h)
     return before, after
 
+def prepare_item(m, kind, x=100, hp=1):
+    """Prepare one legal collectible without touching NPC lifecycle state."""
+    m.write_u8(ITEM + INPUT, PROP); m.write_u8(ITEM + HP, hp)
+    m.write_u8(ITEM + PICKUP, kind); m.write_u8(ITEM_IDX, 0)
+    m.write_u16(ITEM + POS_X, x); m.write_u8(ITEM + POS_Y, 150)
+
+def true_tie(m):
+    """Both collectors overlap before the first PLAYING transaction."""
+    for b in (P1, P2):
+        m.write_u16(b + POS_X, 100); m.write_u8(b + POS_Y, 150)
+        m.write_u8(b + HP, HP_MAX); m.write_u8(b + SELECTED, 0)
+        m.write_u8(b + HITSTUN, 0); m.write_u8(b + VARIANT, 0)
+    m.write_u16(GS, 0); m.write_u16(P2S, 0); m.write_u8(pasm_constant('G13_PickupForP2'), 0)
+    prepare_item(m, PT_MONEY, 100)
+    hooks = {name: m.add_write_hook(addr, addr) for name, addr in {
+        'owner': pasm_constant('G13_PickupForP2'), 'score': GS,
+        'p2_score': P2S, 'item_type': ITEM + PICKUP, 'item_hp': ITEM + HP}.items()}
+    run_frames_exact(m, 1)
+    events = m.drain_notifications()
+    first = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
+             'item_type': u8(m, ITEM + PICKUP), 'item_hp': u8(m, ITEM + HP),
+             'owner': u8(m, pasm_constant('G13_PickupForP2')),
+             'writes': [e.get('params', {}) for e in events
+                        if e.get('params', {}).get('handle') in hooks.values()]}
+    run_frames_exact(m, 1)
+    second = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
+              'item_type': u8(m, ITEM + PICKUP), 'item_hp': u8(m, ITEM + HP)}
+    for h in hooks.values(): m.remove_hook(h)
+    return first, second
+
+def owner_leak(m):
+    """Two transactions in one session, proving the one-shot owner clears."""
+    m.write_u16(GS, 0); m.write_u16(P2S, 0)
+    b1, a1 = collect(m, 1, PT_MONEY)
+    # Clear only action/geometry state between legal independent touches.
+    for b in (P1, P2):
+        m.write_u8(b + SELECTED, 0); m.write_u8(b + HITSTUN, 0)
+    clear_inputs(m); run_frames_exact(m, 2)
+    b2, a2 = collect(m, 0, PT_GOLD)
+    return {'first': {'before': b1, 'after': a1},
+            'second': {'before': b2, 'after': a2},
+            'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
+
+def p2_meat(m, hp):
+    m.write_u8(P2 + HP, hp)
+    return collect(m, 1, PT_MEAT)
+
+def instant_break(m, owner):
+    """Production hit -> ScoreAndFinish -> RevealOrPickup instant reward."""
+    attacker = P1 if owner == 0 else P2
+    other = P2 if owner == 0 else P1
+    for b, x in ((attacker, 120), (other, 400)):
+        m.write_u16(b + POS_X, x); m.write_u8(b + POS_Y, 150)
+        m.write_u8(b + HP, HP_MAX); m.write_u8(b + SELECTED, 2)
+        m.write_u8(b + VARIANT, 0); m.write_u8(b + HITSTUN, 0)
+        m.write_u8(b + FRAME, 0xFF); m.write_u8(b + TICK, 1)
+        m.write_u8(b + ATTACKED, 0)
+    prepare_item(m, PT_MONEY, 136, CHAR_HP_PER_HIT)
+    m.write_u8(ACTOR_INV + 2, 0)
+    hook = m.add_exec_hook(symbol('Character_HitApply__RevealOrPickup__e2_instant'))
+    # Use the accepted real Y attack path for both owners.  Only the target
+    # prop and legal one-hit state are controlled for deterministic evidence.
+    exact_input_edge(m, m.BTN_Y, 1, port=owner)
+    run_frames_exact(m, 2)
+    events = m.drain_notifications()
+    return {'owner': owner, 'instant_hook': any(e.get('params', {}).get('handle') == hook for e in events),
+            'p1_score': u16(m, GS), 'p2_score': u16(m, P2S),
+            'item': u8(m, ITEM + PICKUP), 'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
+
+def real_new_game_reset(m):
+    """Exercise TITLE -> CHARSELECT -> NewGameReset, without calling it."""
+    m.reset_emulator(); run_frames_exact(m, 180); clear_inputs(m)
+    m.write_u16(GAME_STATE, GAME_STATE_TITLE); m.write_u16(GAME_STATE + 2, GAME_STATE_TITLE)
+    m.write_u8(TITLE_STEP, pasm_constant_in('src/core/game_state.pasm', 'TITLE_STEP_WAIT'))
+    # P2 Start selects the fixed session before gameplay.
+    exact_input_edge(m, m.BTN_START, 1, port=1); clear_inputs(m); run_frames_exact(m, 1)
+    # P1 Start advances the real title path into CHARSELECT.
+    exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
+    assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_CHARSELECT, 120)
+    assert poll_until(m, lambda mm: u8(mm, CHARSELECT_STEP) == CHARSELECT_WAIT, 180)
+    # Dirty session state immediately before the production reset choke point.
+    m.write_u16(GS, 12345); m.write_u16(P2S, 23456); m.write_u8(LIVES, 3); m.write_u8(P2L, 7)
+    exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
+    assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_PLAYING, 240)
+    run_frames_exact(m, 1)
+    return {'score': u16(m, GS), 'p2_score': u16(m, P2S), 'lives': u8(m, LIVES),
+            'p2_lives': u8(m, P2L), 'mode': u8(m, MODE), 'p1_hp': u8(m, P1 + HP),
+            'p2_hp': u8(m, P2 + HP), 'p2_input': u8(m, P2 + INPUT),
+            'p2_roster': u8(m, P2 + pasm_constant('CHAR_ROSTER_INDEX')),
+            'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex'))}
+
 def main():
     r = Reporter('G13-SCORE-PICKUP', kind='GATE'); results = {}
+    with open_session(__file__) as m:
+        reset = real_new_game_reset(m); results['real_new_game_reset'] = reset
+        r.check('real TITLE->CHARSELECT->PLAYING reset clears both scores/lives',
+                reset['score'] == 0 and reset['p2_score'] == 0 and
+                reset['lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START') and
+                reset['p2_lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
+        r.check('real reset preserves active P2 ownership',
+                reset['mode'] == 1 and reset['p2_input'] == 1 and
+                reset['p2_roster'] == 12 and reset['stage'] == 0 and
+                reset['p1_hp'] == HP_MAX and reset['p2_hp'] == HP_MAX)
     def fresh(owner, kind):
         with open_session(__file__) as m:
             setup(m); return collect(m, owner, kind)
@@ -122,9 +246,15 @@ def main():
         if kind in (PT_MONEY, PT_GOLD): r.check(label+' score owner', (a['score']-b['score'],a['p2_score']-b['p2_score']) == ((amount,0) if owner==0 else (0,amount)))
         else: r.check(label+' life owner', (a['lives']-b['lives'],a['p2_lives']-b['p2_lives']) == ((1,0) if owner==0 else (0,1)))
     with open_session(__file__) as m:
-        setup(m); b,a=collect(m,0,PT_MONEY); m.write_u16(P2+POS_X,100); run_frames_exact(m,1)
-        results['tie']={'before':b,'after':a,'final_score':u16(m,GS),'final_p2_score':u16(m,P2S)}
-        r.check('same-frame pickup cannot double reward', u8(m,ITEM+PICKUP)==0)
+        setup(m)
+        first, second = true_tie(m)
+        results['tie'] = {'first': first, 'second': second}
+        r.check('true simultaneous overlap has one P1-first reward',
+                first['score'] == SCORE_MONEY and first['p2_score'] == 0 and
+                first['item_type'] == 0 and first['item_hp'] == 0)
+        r.check('true tie does not double reward on P2 pass',
+                second['score'] == SCORE_MONEY and second['p2_score'] == 0)
+        r.check('true tie owner selector clears', first['owner'] == 0)
     for owner, label in ((0, 'p1'), (1, 'p2')):
         with open_session(__file__) as m:
             setup(m)
@@ -139,6 +269,40 @@ def main():
         setup(m); m.write_u16(P2S, 0xFFFA); b,a=collect(m,1,PT_MONEY)
         results['p2_saturation']={'before':b,'after':a}
         r.check('P2 money saturates score without wrap', a['p2_score'] == 0xFFFF)
+    for hp, expected, label in ((10, HP_MAX, 'p2_meat_10'), (HP_MAX - 5, HP_MAX, 'p2_meat_59')):
+        with open_session(__file__) as m:
+            setup(m); b, a = p2_meat(m, hp)
+            results[label] = {'before': b, 'after': a}
+            r.check(label + ' heals P2 and clamps at max',
+                    a['p2_hp'] == expected and a['p1_hp'] == HP_MAX)
+    for owner, label in ((1, 'p2_instant'), (0, 'p1_instant')):
+        with open_session(__file__) as m:
+            setup(m); results[label] = instant_break(m, owner)
+            got = results[label]
+            expected = HIT_SCORE + KILL_SCORE + SCORE_MONEY
+            r.check(label + ' uses production instant reward path', got['instant_hook'] and got['item'] == 0)
+            r.check(label + ' credits only attacker',
+                    (got['p2_score'] if owner else got['p1_score']) == expected and
+                    (got['p1_score'] if owner else got['p2_score']) == 0)
+    with open_session(__file__) as m:
+        setup(m); results['owner_leak_p2_then_p1'] = owner_leak(m)
+        x = results['owner_leak_p2_then_p1']
+        r.check('owner leak P2 then P1 remains isolated',
+                x['first']['after']['p2_score'] == SCORE_MONEY and
+                x['second']['after']['score'] == SCORE_GOLD and
+                x['owner_final'] == 0)
+    with open_session(__file__) as m:
+        setup(m)
+        b1, a1 = collect(m, 0, PT_ONEUP)
+        clear_inputs(m); run_frames_exact(m, 2)
+        b2, a2 = collect(m, 1, PT_APPLE)
+        results['owner_leak_p1_then_p2'] = {'first': {'before': b1, 'after': a1},
+                                            'second': {'before': b2, 'after': a2},
+                                            'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
+        x = results['owner_leak_p1_then_p2']
+        r.check('owner leak P1 then P2 remains isolated',
+                x['first']['after']['lives'] == x['first']['before']['lives'] + 1 and
+                x['second']['after']['p2_hp'] == 29 and x['owner_final'] == 0)
     with open(os.path.join(os.path.dirname(__file__),'..','..','out','g13_score_pickup.json'),'w') as f: json.dump(results,f,indent=2); f.write('\n')
     return r.finish()
 if __name__ == '__main__': raise SystemExit(main())
