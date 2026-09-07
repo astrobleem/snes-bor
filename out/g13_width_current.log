@@ -9,8 +9,8 @@ width-directive check (poppy#386): 1753 branch/jump-target labels, 51 NEW, 180 b
   NEW  src/core/vm/vm_native_engine.pasm:2468  AudioSemantic_EmitDiesound__not_foot:  reaches "cmp #AUDIO_STREAM_SOURCE_NONE" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2724  Audio_FrameSoundDispatch__selected_ok:  reaches "cmp #$FF" with no explicit width directive
   NEW  src/core/vm/vm_native_engine.pasm:2735  Audio_FrameSoundDispatch__variant_ok:  reaches "cmp #$FF" with no explicit width directive
-  NEW  src/core/vm/vm_native_engine.pasm:2982  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
-  NEW  src/core/vm/vm_native_engine.pasm:2986  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2980  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2984  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
   NEW  src/main.pasm:12555  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
   NEW  src/main.pasm:12638  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
   NEW  src/main.pasm:12736  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
@@ -29,7 +29,7 @@ width-directive check (poppy#386): 1753 branch/jump-target labels, 51 NEW, 180 b
   NEW  src/core/charselect.pasm:163  Game_State_Play__charselect_left_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
   NEW  src/core/charselect.pasm:186  Game_State_Play__charselect_right_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
   NEW  src/core/pausemenu.pasm:643  Game_State_Pause_CheckEntry__enter:  reaches "lda #AUDIO_SEMANTIC_PAUSE" with no explicit width directive
-  NEW  src/core/input.pasm:126  Core_Input_Poll__no_pad1:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/input.pasm:125  Core_Input_Poll__no_pad1:  reaches "lda #0" with no explicit width directive
   NEW  src/core/player2_context.pasm:569  G13_Screen_SetTargetPosition__set_x:  reaches "lda #0" with no explicit width directive
   NEW  src/core/player2_context.pasm:587  G13_Screen_SetTargetPosition__set_y:  reaches "lda #0" with no explicit width directive
   NEW  src/core/player2_context.pasm:597  G13_Screen_SetTargetPosition__y_ok:  reaches "lda #SCREEN_MODE_GROUNDED" with no explicit width directive

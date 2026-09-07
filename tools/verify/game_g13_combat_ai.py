@@ -37,8 +37,12 @@ GRABBED_BY = pasm_constant('CHAR_GRABBED_BY')
 AI_TARGET_SLOT = pasm_constant('G13_P2StartSeen')
 AI_TARGET_OFFSET = pasm_constant('G13_AiTargetOffset')
 AI_TARGET_X = pasm_constant('G13_ContextSaveJump') + 12
+AI_TARGET_Y = pasm_constant('G13_ContextSaveJump') + 14
 P2_INVULN = pasm_constant('G13_P2_InvulnFrames')
 P1_INVULN = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
+ACTOR_INVULN = pasm_constant_in('src/core/game_state.pasm', 'Actor_InvulnFrames')
+ATTACK_VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
+HIT_APPLIED = pasm_constant('CHAR_HIT_APPLIED')
 HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 AI_MODE = pasm_constant('CHAR_INPUT_DRIVEN_AI')
 
@@ -162,6 +166,7 @@ def player_hit_case(port):
     with open_jump_session() as m:
         prepare_session(m)
         clear_inputs(m)
+        inv_after_prepare = u8(m, ACTOR_INVULN + 2)
         p1_x, p2_x = ((120, 220) if port == 0 else (220, 120))
         set_actor(m, 0, p1_x, hp=HP_MAX, role=1)
         set_actor(m, 1, p2_x, hp=HP_MAX, role=1)
@@ -178,17 +183,28 @@ def player_hit_case(port):
         # dead-slot cleanup fixture and would invalidate NPC2 immediately
         # before the player attack.
         m.write_u8(SPAWN_INDEX, u8(m, SPAWN_COUNT))
+        # The focused gate is a legal-hit routing test, not the target's
+        # post-hit grace-timing test.  Normalize the real standalone timer
+        # after recording its organic value so it cannot leak across setup.
+        m.write_u8(ACTOR_INVULN + 2, 0)
         # Keep the non-attacking player immune to the test actor's ordinary
         # AI hit while preserving the real player-vs-NPC collision path.
         m.write_u8(P1_INVULN, 255 if port == 0 else 0)
         m.write_u8(P2_INVULN, 255 if port == 1 else 0)
         p1_before, p2_before, npc_before = u8(m, P1 + HP), u8(m, P2 + HP), u8(m, ENTITIES[2] + HP)
         neutral_player_inputs(m)
+        inv_after_neutral = u8(m, ACTOR_INVULN + 2)
         m.hold_input(m.BTN_Y, port=port)
         try:
             run_frames_exact(m, 3)
         finally:
             m.release_input(port=port)
+        attack_delivery = {
+            'invuln': u8(m, ACTOR_INVULN + 2),
+            'selected': u8(m, ENTITIES[port] + SELECTED),
+            'variant': u8(m, ENTITIES[port] + ATTACK_VARIANT),
+            'hit_applied': u8(m, ENTITIES[port] + HIT_APPLIED),
+        }
         for _ in range(40):
             run_frames_exact(m, 1)
             if u8(m, ENTITIES[2] + HP) < npc_before:
@@ -199,6 +215,10 @@ def player_hit_case(port):
             'p1_hp_after': u8(m, P1 + HP), 'p2_hp_after': u8(m, P2 + HP),
             'npc_hp_after': u8(m, ENTITIES[2] + HP),
             'p1_stun': u8(m, P1 + HITSTUN), 'p2_stun': u8(m, P2 + HITSTUN),
+            'actor_invuln_after_prepare': inv_after_prepare,
+            'actor_invuln_after_fixture': u8(m, ACTOR_INVULN + 2),
+            'actor_invuln_after_neutral': inv_after_neutral,
+            'attack_delivery': attack_delivery,
         }
 
 
@@ -217,16 +237,40 @@ def invuln_case(target_slot):
 
 def main():
     r = Reporter('G13-COMBAT-AI', kind='GATE')
-    p1_hit = player_hit_case(0)
-    p2_hit = player_hit_case(1)
+    p1_runs = [player_hit_case(0) for _ in range(10)]
+    p2_runs = [player_hit_case(1) for _ in range(10)]
+    p1_hit, p2_hit = p1_runs[0], p2_runs[0]
+    repeatability = {
+        'p1': [{'npc_before': row['npc_hp_before'],
+                'npc_after': row['npc_hp_after'],
+                'other_player_before': row['p2_hp_before'],
+                'other_player_after': row['p2_hp_after'],
+                'invuln_before_normalization': row['actor_invuln_after_prepare'],
+                'invuln_at_delivery': row['attack_delivery']['invuln']}
+               for row in p1_runs],
+        'p2': [{'npc_before': row['npc_hp_before'],
+                'npc_after': row['npc_hp_after'],
+                'other_player_before': row['p1_hp_before'],
+                'other_player_after': row['p1_hp_after'],
+                'invuln_before_normalization': row['actor_invuln_after_prepare'],
+                'invuln_at_delivery': row['attack_delivery']['invuln']}
+               for row in p2_runs],
+    }
+    p1_repeat_ok = all(row['npc_hp_after'] == row['npc_hp_before'] - HP_PER_HIT and
+                       row['p2_hp_after'] == row['p2_hp_before'] for row in p1_runs)
+    p2_repeat_ok = all(row['npc_hp_after'] == row['npc_hp_before'] - HP_PER_HIT and
+                       row['p1_hp_after'] == row['p1_hp_before'] for row in p2_runs)
     print('P1_VS_NPC', p1_hit)
     print('P2_VS_NPC', p2_hit)
+    print('REPEATABILITY', json.dumps(repeatability, sort_keys=True))
     r.check('P1 damages NPC only',
             p1_hit['npc_hp_after'] == p1_hit['npc_hp_before'] - HP_PER_HIT and
             p1_hit['p2_hp_after'] == p1_hit['p2_hp_before'])
     r.check('P2 damages NPC only',
             p2_hit['npc_hp_after'] == p2_hit['npc_hp_before'] - HP_PER_HIT and
             p2_hit['p1_hp_after'] == p2_hit['p1_hp_before'])
+    r.check('P1 10/10 target hits are deterministic', p1_repeat_ok)
+    r.check('P2 10/10 target hits are deterministic', p2_repeat_ok)
 
     # Keep all geometry inside the current stage clamp (Screen_MaxX is 224
     # in this fixture); otherwise normal player clamping changes the intended
@@ -253,6 +297,7 @@ def main():
     print('INVULN_SNAPSHOT_ONLY', {'p1': p1_inv, 'p2': p2_inv})
 
     result = {'p1_vs_npc': p1_hit, 'p2_vs_npc': p2_hit,
+              'repeatability': repeatability,
               'targets': {'p1': near_p1, 'p2': near_p2, 'tie': tie,
                           'p2_only': p2_only, 'p1_only': p1_only,
                           'both_dead': both_dead},

@@ -5689,9 +5689,8 @@ Character_PlayFrame__ai_x:
     ; 8-bit unchanged (no vertical scroll).
     ; No live player target means hold both axes. Jump directly to the Y hold
     ; tail so the normal Y half cannot consume stale target coordinates.
-    lda.l G13_AiTargetSlot
-    inc a
-    bne Character_PlayFrame__ai_x_target_valid
+    jsl G13_AiTargetValid
+    bcs Character_PlayFrame__ai_x_target_valid
     brl Character_PlayFrame__hold_y
 Character_PlayFrame__ai_x_target_valid:
     rep #$20

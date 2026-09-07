@@ -199,7 +199,7 @@ friendly-fire, full P2 grab/throw, and production invulnerability-hit
 controls remain unmeasured.
 
 Current clean rebuilt ordinary artifact: `distribution/bor.sfc` SHA-256
-`C94E45AE7404440B44BB7F0B8CD0C65BCF73252A3B617081A5180A5ED71DF2CB`;
+`AAEA0F72CD427411172C5E4CE5CB1522B0CF46BC3FBA37C0D0A5B6335F46BD3A`;
 `bor.msu` remains
 `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`.
 Build command: `python -u -c "import build_rom; build_rom.build_audio.main=lambda:0; raise SystemExit(build_rom.main())"`.
@@ -235,9 +235,13 @@ NMI.
 
 The corrected combat-local player-vs-NPC verifier passes repeated clean
 sessions: both P1 and P2 reduce NPC2 from 64 to 60 while the other player
-remains at 64. The prior nondeterminism was caused by the verifier's
-post-target `neutral_players()` cleanup, which killed NPC2; the fixture now
-polls neutral without touching actor state and freezes the spawn queue. Full
+remains at 64. The prior nondeterminism had two fixture causes: the old
+post-target `neutral_players()` cleanup killed NPC2, and the target's
+standalone `Actor_InvulnFrames[2]` was not normalized. The fixture now records
+that organic value, explicitly clears it for this legal-hit test, polls
+neutral without touching actor state, and freezes the spawn queue. The latest
+10 fresh P1 and 10 fresh P2 cases all produced 64 -> 60 with zero misses.
+Full
 AI hit invulnerability, multiple-AI ownership, friendly-fire, and P2 grab/throw
 remain open. No transport, camera, score, pickup, stage, or workload gate is
 claimed.
@@ -248,7 +252,8 @@ emulator frame. Fresh width output is retained in
 `out/g13_width_current.log`; it exits 1 on 51 historical/new warnings, but
 the requested G13 combat-path labels are absent from the NEW list. The
 layout/ownership audit and Phase5 pass on the final rebuilt ROM. The
-selector-localized no-target diagnostic records an `$FF` write and stale
-coordinates, but its async run-to-hook boundary does not yet prove the
-same-pass X/Y hold; the retained result is explicitly FAIL rather than an
-endpoint claim.
+The ordered no-target diagnostic captures a selector-entry baseline and
+retains the first OOP-done cutoff. The current MCP notification stream still
+returned a mixed/empty event segment in some runs, so the retained result is
+explicitly FAIL where it cannot prove the required target-valid/hold sequence;
+no endpoint sample is being promoted to a same-OOP claim.
