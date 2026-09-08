@@ -1,7 +1,7 @@
 {
   "branch": "g13-two-player",
   "pre_checkpoint_head": "e70aac1beb86321a9d51d5c61bd6fa30836970d1",
-  "production_rom_sha256": "324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37",
+  "production_rom_sha256": "E60148CA9A8C57D0CE68831E3651CDD27D3404B24146D8A7240CC571956FD617",
   "msu_sha256": "CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0",
   "pak_path": "Beats of Rage Original [v.3.0 Build 4086].pak",
   "pak_sha256": "A2A55CDD5E1145E845607ECEC3AD85A342529492E7120449A928F3A6EAEA81D6",
@@ -24,11 +24,11 @@
     "get_cpu_state": "cataloged but rejected by installed server during prior run"
   },
   "generated_artifacts": {
-    "distribution\\bor.sfc": "324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37",
+    "distribution\\bor.sfc": "E60148CA9A8C57D0CE68831E3651CDD27D3404B24146D8A7240CC571956FD617",
     "distribution\\bor.msu": "CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0",
-    "src\\main.bin": "0565BBCCE75158F9DCD5923A26B8553183129D8E3FE5627C97C41D61E6794151",
-    "src\\main.pansy": "AFD4E3AE63167674F8DC36BBE5B03752E8CA2F70CC650BA1337C90A4DB40F66C",
-    "src\\main.sym": "D2E20BD00435A54479AB167055E9D59E4AECFE9CF8D2745A0A70B9152DE50E95"
+    "src\\main.bin": "AD714597A162AD22C63A5EA6808AF15EF280213B6FFD95EEE2909ADC607A72DA",
+    "src\\main.pansy": "5F76B39625410E1D08409E73560F76453EF5224A6F8DFF1D493B3F72A0FA0679",
+    "src\\main.sym": "B44E96ECD45D9E2EFC7F7ABD0E2E18050BDE9EF945F45F837EE95616EF70B6CC"
   },
   "important_symbols": {
     "Stage_Load": "00:DACF",
@@ -43,21 +43,21 @@
   },
   "caller_tail_bytes": "22B2860722568607220C8407A900008F50277E4C19DA",
   "runtime_state": {
-    "game_state": "STAGECLEAR ($0005)",
+    "game_state": "PLAYING ($0000)",
     "stage_index": 1,
     "stage_load_pending": 0,
     "nmi_frame_counter": "advancing normally after reload in functional G4; exact stalled sampler value retained in trace",
     "two_player_enabled": 0
   },
   "same_run_trace": {
-    "clear_entry": "07:86B2 reached",
+    "clear_entry": "07:86B6 reached",
     "final_slot_stores": "reached",
     "final_store_7e58b9": "write observed, value $00",
     "final_pld": "07:8710 reached",
     "final_plp": "07:8711 reached",
     "rtl": "07:8712 reached",
-    "caller_da55": "not observed",
-    "later_g13_hooks": "not observed",
+    "caller_da55": "07:8656 reached",
+    "later_g13_hooks": "07:840C and caller PLAYING store reached",
     "outer_jsl_frame": ["54", "DA", "00"],
     "nmi_stack_classification": "unmeasured S at NMI entry; bytes are not classified as foreground PBR:PC"
   },
@@ -70,7 +70,12 @@
     "log": "out/g13_lifecycle_width_final_current.log"
   },
   "retired_hypotheses": ["StreamScroll branch-target Poppy #392", "frontpanel branch-target", "Bg_LoadScene", "BG3 clear loop", "stream-cache initializer", "active NMI G13 cleanup", "Core_Nmi_Play inherited D", "static G13 push/pop imbalance"],
-  "open_classification": "POST-G13-RTL CONTROL FLOW / STACK-DEPTH OBSERVATION UNRESOLVED",
+  "root_causes": [
+    "Core_Nmi_Stop shadow/hardware race; fixed by compact shared Stop/Start setter",
+    "unmatched outer PHD in G13_ClearOldStageActors; fixed with layout-preserving NOP",
+    "G13_ReapplyP1Out and G13_ReapplyP2Out leaked A8; fixed with PHP/PLP"
+  ],
+  "open_classification": "G13/G4 lifecycle fixes locally green; focused acceptance scoped to regression matrix",
   "telemetry_free_production": true,
   "checkpoint_task_production_changes": false,
   "notes": "The checkpoint captures pre-existing local production changes; the checkpoint task made no production-source change. No source-instrumented phase is treated as current reachability proof."

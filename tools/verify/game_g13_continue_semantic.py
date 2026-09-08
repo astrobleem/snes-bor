@@ -7,8 +7,10 @@ invocation rather than a later PPU-frame snapshot.
 """
 import sys
 sys.path.insert(0, __import__('os').path.dirname(__file__))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter
+from _harness import (open_session, pasm_constant, pasm_constant_in,
+                      read_block, run_frames_exact, Reporter)
 from game_g13_camera_pause import setup, P1, P2
+from game_g13_two_player_input import neutral_joint
 
 GS = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -39,7 +41,7 @@ def edge_probe(m, port, out_addr, hp_addr, lives_addr, out_value=1):
     # Establish the legal OUT state, then obtain an actual neutral poll.
     m.write_u8(out_addr, out_value); m.write_u8(hp_addr, 0 if out_value else 64); m.write_u8(lives_addr, 0 if out_value else 1)
     m.write_u8(GS, PLAYING)
-    m.set_input(0, 1, port=port)
+    neutral_joint(m)
     before = {
         'raw_expected_api': 0, 'input_press': u16(m, 0x7E0410 if port == 0 else 0x7E0418),
         'input_trigger': u16(m, 0x7E0412 if port == 0 else 0x7E041A),
@@ -50,7 +52,11 @@ def edge_probe(m, port, out_addr, hp_addr, lives_addr, out_value=1):
              'Game_State_Pause_CheckEntry', 'Game_State_Pause_CheckEntry__enter',
              'Game_State_Play__done')
     hooks = {m.add_exec_hook(sym(n)): n for n in names}
-    result = m.set_input(m.BTN_START, 1, port=port)
+    m.hold_input(m.BTN_START, port=port)
+    try:
+        result = run_frames_exact(m, 3)
+    finally:
+        m.release_input(port=port)
     notes = m.drain_notifications()
     for h in hooks: m.remove_hook(h)
     events = [{'name': hooks[x['params']['handle']], 'frame': x['params'].get('frame')}

@@ -32,6 +32,8 @@ GAME_STATE_TITLE = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_TITL
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
 TITLE_STEP_WAIT = pasm_constant_in('src/core/game_state.pasm', 'TITLE_STEP_WAIT')
 P2_MODE = pasm_constant('G13_TwoPlayerEnabled')
+SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
+SPAWN_COUNT = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
 
 P1 = 0x7E0A00
 P2 = P1 + ZP
@@ -60,13 +62,21 @@ def select_two_player(m):
 
 
 def neutral_players(m):
+    # The six-actor engine owns NPC slots 2-5.  Neutralize every NPC slot so
+    # input/ownership tests cannot be contaminated by later spawn or combat
+    # service traffic; P1/P2 ownership fields remain untouched.
+    m.write_u8(SPAWN_INDEX, u8(m, SPAWN_COUNT))
     for b, x in ((P1, 120), (P2, 180)):
         m.write_u16(b + POS_X, x)
         m.write_u8(b + POS_Y, 150)
         m.write_u8(b + SELECTED, 0)
         m.write_u8(b + HITSTUN, 0)
         m.write_u8(b + HP, CHAR_HP_MAX)
-    m.write_u8(NPC2 + HP, 0)
+    for slot in range(2, 6):
+        npc = P1 + slot * ZP
+        m.write_u8(npc + HP, 0)
+        m.write_u8(npc + SELECTED, 0)
+        m.write_u8(npc + HITSTUN, 0)
 
 
 def movement_delta(m, p1_buttons, p2_buttons, frames=12):
@@ -118,18 +128,21 @@ def sampled_simultaneous(m, buttons0, buttons1, sample):
 
 
 def neutral_joint(m):
-    """Poll both physical ports neutral in the same bounded interval."""
+    """Converge both complete input contexts to neutral, bounded."""
     m.hold_input(0, port=0)
     m.hold_input(0, port=1)
     try:
-        run_frames_exact(m, 2)
-        state = (read_block(m, 0x7E0410, 32)[:6].hex(),
-                 read_block(m, 0x7E0416, 32)[:6].hex())
+        state = None
+        for _ in range(6):
+            run_frames_exact(m, 1)
+            state = (read_block(m, 0x7E0410, 32)[:6].hex(),
+                     read_block(m, 0x7E0416, 32)[:6].hex())
+            if state == ('000000000000', '000000000000'):
+                return state
+        raise AssertionError(f'neutral_joint did not converge: {state}')
     finally:
         m.release_input(port=0)
         m.release_input(port=1)
-    assert state[0] == '000000000000' and state[1] == '000000000000', state
-    return state
 
 
 def prepare_session(m):

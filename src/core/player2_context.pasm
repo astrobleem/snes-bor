@@ -555,6 +555,7 @@ G13_RespawnP1:
 ; Reassert an already exhausted P1 after that load without changing the
 ; resident roster or the fixed actor layout.
 G13_ReapplyP1Out:
+    php
     sep #$20
 .a8
     lda.l G13_P1Out
@@ -572,11 +573,13 @@ G13_ReapplyP1Out:
     sta.l PlayerEntity_GrabTarget
     sta.l PlayerEntity_GrabbedBy
 G13_ReapplyP1Out__done:
+    plp
     rtl
 
 ; Same post-load reassertion for reserved slot 1.  P2's roster and jump
 ; family remain resident so its later continue can use normal respawn code.
 G13_ReapplyP2Out:
+    php
     sep #$20
 .a8
     lda.l G13_P2Out
@@ -598,6 +601,7 @@ G13_ReapplyP2Out:
     sta CHAR_GRABBED_BY
     pld
 G13_ReapplyP2Out__done:
+    plp
     rtl
 
 ; Clear non-player runtime state before a new stage's queue is allowed to
@@ -605,7 +609,9 @@ G13_ReapplyP2Out__done:
 ; intact so the existing prop-art restoration contract is preserved.
 G13_ClearOldStageActors:
     php
-    phd
+    ; Per-slot PHD/PLD pairs preserve caller D. Keep one-byte NOP here
+    ; to preserve established bank-7 layout; an outer PHD would be unmatched.
+    nop
     sep #$20
 .a8
     lda.l G13_TwoPlayerEnabled

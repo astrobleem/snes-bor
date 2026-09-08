@@ -10,7 +10,7 @@ freezes the current local evidence without continuing root-cause debugging.
 - Pre-checkpoint HEAD: `e70aac1beb86321a9d51d5c61bd6fa30836970d1`
 - Upstream tracking ref: none configured locally
 - Current production ROM: `distribution\bor.sfc`, SHA-256
-  `324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37`
+  `E60148CA9A8C57D0CE68831E3651CDD27D3404B24146D8A7240CC571956FD617`
 - Current MSU: `distribution\bor.msu`, SHA-256
   `CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0`
 - `git diff --check`: passes; Git reports only its normal LF/CRLF warnings.
@@ -19,9 +19,9 @@ The generated tracked evidence currently has these hashes:
 
 | Artifact | SHA-256 |
 |---|---|
-| `src/main.bin` | `0565BBCCE75158F9DCD5923A26B8553183129D8E3FE5627C97C41D61E6794151` |
-| `src/main.pansy` | `AFD4E3AE63167674F8DC36BBE5B03752E8CA2F70CC650BA1337C90A4DB40F66C` |
-| `src/main.sym` | `D2E20BD00435A54479AB167055E9D59E4AECFE9CF8D2745A0A70B9152DE50E95` |
+| `src/main.bin` | `AD714597A162AD22C63A5EA6808AF15EF280213B6FFD95EEE2909ADC607A72DA` |
+| `src/main.pansy` | `5F76B39625410E1D08409E73560F76453EF5224A6F8DFF1D493B3F72A0FA0679` |
+| `src/main.sym` | `B44E96ECD45D9E2EFC7F7ABD0E2E18050BDE9EF945F45F837EE95616EF70B6CC` |
 
 The PAK inputs are already present at the required ignored root paths. The
 authoritative copies found under `E:\gh\snes-bor` match byte-for-byte:
@@ -58,6 +58,9 @@ Local fixes represented here are:
 3. Shared both-OUT predicate explicit A8 contract.
 4. GAMEOVER timeout reload of TITLE after the session-disable helper.
 5. Compact NMI Stop/Start shadow-plus-hardware contract.
+6. Layout-preserving removal of the unmatched outer PHD in
+   `G13_ClearOldStageActors`.
+7. Caller-P preservation in `G13_ReapplyP1Out` and `G13_ReapplyP2Out`.
 
 The compact NMI contract writes the shadow before `$4200`: Stop selects `$01`
 (auto-joypad on, NMI off), Start selects `$81` (auto-joypad on, NMI on), and
@@ -66,27 +69,26 @@ the shared setter performs `STA.L Nmi_InterruptFlags`, `STA $4200`, `PLP`,
 
 ## G4 status
 
-Normal G4 functional products pass in the current ROM: stage index/data,
-palette, width, frontpanel, spawn data, and NMI progress. The current
-semantic handoff is still unresolved. The strongest same-run trace is:
+Normal G4 functional products and the corrected 2P semantic handoff pass in
+the current ROM: stage index/data, palette, width, frontpanel, spawn data,
+and NMI progress. The prior unresolved handoff was explained by two
+production defects: an unmatched outer PHD shifted PLP/RTL by two bytes, and
+the reapply helpers leaked A8 into the 1P caller and latent 2P PLA restore.
 
 ```text
-00:DA51  JSL $07:86B2  G13_ClearOldStageActors
+00:DA51  JSL $07:86B6  G13_ClearOldStageActors
 00:DA55  JSL $07:8656  G13_ReapplyP1Out
 00:DA59  JSL $07:840C  G13_EnsureP2AfterStage
 00:DA5D  LDA #$0000
 00:DA60  STA.L $7E2750 Game_State
 00:DA64  JMP stageclear_done
 
-07:86B2 entry executes
-07:8708 final slot stores execute
-07:870C final STA executes and writes $7E58B9
+07:86B6 entry executes
 07:8710 PLD executes
 07:8711 PLP executes
 07:8712 RTL executes
-00:DA55 hook: not observed
-07:8656 and later post-load hooks: not observed
-Game_State remains STAGECLEAR ($0005)
+00:DA55, 07:8656, 07:840C, DA5D/DA60 and stageclear_done execute
+Game_State becomes PLAYING ($0000)
 ```
 
 The observed outer JSL frame is `$001FFA=$54`, `$001FFB=$DA`,
@@ -95,11 +97,15 @@ locations. Those bytes are not yet validly classified as an interrupted
 foreground PBR:PC because the S value at NMI entry was not independently
 established.
 
-Current conservative classification:
+Current classification:
 
-`POST-G13-RTL CONTROL FLOW / STACK-DEPTH OBSERVATION UNRESOLVED`
+`G13/G4 lifecycle fixes locally green; focused acceptance remains scoped to
+the listed regression matrix.`
 
-No emulator bug and no G13 stack corruption is claimed by this checkpoint.
+The old post-RTL unresolved classification is retired. The internal
+`G13_EnsureP2AfterStage__done` hook is observer-unreliable in the 2P verifier,
+but helper entry, caller continuation, PLAYING store, and state invariants
+pass.
 
 ## Retired hypotheses
 
@@ -112,7 +118,8 @@ The following are retired for this issue unless new evidence is produced:
 - Stream-cache initializer theory.
 - Active-NMI causality in G13 cleanup.
 - Core_Nmi_Play inherited-D nonzero causality.
-- Static G13 push/pop imbalance.
+- Static G13 push/pop imbalance as an unproven hypothesis; replaced by the
+  confirmed unmatched outer PHD defect and fixed.
 
 ## Emitted raw evidence
 
