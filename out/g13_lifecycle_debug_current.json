@@ -1,0 +1,77 @@
+{
+  "branch": "g13-two-player",
+  "pre_checkpoint_head": "e70aac1beb86321a9d51d5c61bd6fa30836970d1",
+  "production_rom_sha256": "324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37",
+  "msu_sha256": "CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0",
+  "pak_path": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "pak_sha256": "A2A55CDD5E1145E845607ECEC3AD85A342529492E7120449A928F3A6EAEA81D6",
+  "pak_status": "ignored; authoritative matching copy found under E:\\gh\\snes-bor",
+  "poppy": {
+    "dll": "E:\\gh\\poppy-astrobleem\\src\\Poppy.CLI\\bin\\Release\\net10.0\\poppy.dll",
+    "dll_sha256": "2FF9AEA492A8126737BF8F205A9964C6EA6AE7284AD72BBA28F118A173747918",
+    "repository_head": "ec005c196eedabf7d0c25ff6336398c427dd43ac",
+    "reference_392_commit": "8ee859b33bad94e3a01e9c78026803e482292801",
+    "current_rom_built_with_reference_392": false
+  },
+  "mesen": {
+    "exe": "E:\\gh\\Mesen2\\bin\\win-x64\\Release\\Mesen.exe",
+    "exe_sha256": "66FC84E03481DEDC521B095D0AA3022297F09E48DDCC3B8BEABD019F96C0B268",
+    "repository": "E:\\gh\\Mesen2",
+    "head": "5fb1f1b6cba1b9348b40ff2d03ae6e4afde16f63",
+    "status": "dirty; unrelated SPC/test-output paths",
+    "mcp_python": "E:\\gh\\Mesen2\\python\\mesen_mcp",
+    "mcp_repo_head": "5fb1f1b6cba1b9348b40ff2d03ae6e4afde16f63",
+    "get_cpu_state": "cataloged but rejected by installed server during prior run"
+  },
+  "generated_artifacts": {
+    "distribution\\bor.sfc": "324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37",
+    "distribution\\bor.msu": "CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0",
+    "src\\main.bin": "0565BBCCE75158F9DCD5923A26B8553183129D8E3FE5627C97C41D61E6794151",
+    "src\\main.pansy": "AFD4E3AE63167674F8DC36BBE5B03752E8CA2F70CC650BA1337C90A4DB40F66C",
+    "src\\main.sym": "D2E20BD00435A54479AB167055E9D59E4AECFE9CF8D2745A0A70B9152DE50E95"
+  },
+  "important_symbols": {
+    "Stage_Load": "00:DACF",
+    "Core_Nmi_Play": "00:D11A",
+    "Core_Nmi_Stop": "00:D241",
+    "Core_Nmi_Start": "00:D248",
+    "nmi_handler": "00:FFA0",
+    "G13_EnsureP2AfterStage": "07:840C",
+    "G13_ReapplyP1Out": "07:8656",
+    "G13_ClearOldStageActors": "07:86B2",
+    "G13_ClearOldStageActors__one": "07:8713"
+  },
+  "caller_tail_bytes": "22B2860722568607220C8407A900008F50277E4C19DA",
+  "runtime_state": {
+    "game_state": "STAGECLEAR ($0005)",
+    "stage_index": 1,
+    "stage_load_pending": 0,
+    "nmi_frame_counter": "advancing normally after reload in functional G4; exact stalled sampler value retained in trace",
+    "two_player_enabled": 0
+  },
+  "same_run_trace": {
+    "clear_entry": "07:86B2 reached",
+    "final_slot_stores": "reached",
+    "final_store_7e58b9": "write observed, value $00",
+    "final_pld": "07:8710 reached",
+    "final_plp": "07:8711 reached",
+    "rtl": "07:8712 reached",
+    "caller_da55": "not observed",
+    "later_g13_hooks": "not observed",
+    "outer_jsl_frame": ["54", "DA", "00"],
+    "nmi_stack_classification": "unmeasured S at NMI entry; bytes are not classified as foreground PBR:PC"
+  },
+  "stack_ledger": "balanced: JSL -3, PHP -1, outer PHD -2, slots net 0, PLD +2, PLP +1, RTL +3",
+  "width_audit": {
+    "labels": 1788,
+    "baselined_warnings": 180,
+    "new_unrelated_warnings": 11,
+    "new_g13_nmi_warnings": 0,
+    "log": "out/g13_lifecycle_width_final_current.log"
+  },
+  "retired_hypotheses": ["StreamScroll branch-target Poppy #392", "frontpanel branch-target", "Bg_LoadScene", "BG3 clear loop", "stream-cache initializer", "active NMI G13 cleanup", "Core_Nmi_Play inherited D", "static G13 push/pop imbalance"],
+  "open_classification": "POST-G13-RTL CONTROL FLOW / STACK-DEPTH OBSERVATION UNRESOLVED",
+  "telemetry_free_production": true,
+  "checkpoint_task_production_changes": false,
+  "notes": "The checkpoint captures pre-existing local production changes; the checkpoint task made no production-source change. No source-instrumented phase is treated as current reachability proof."
+}

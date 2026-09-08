@@ -624,6 +624,8 @@ Spawn_Play:
     bne Spawn_Play__wait_release_active
     brl Spawn_Play__wait_check_done
 Spawn_Play__wait_release_active:
+    sep #$20
+.a8
     lda #0
     sta.l Spawn_ScratchEnemyCount
     lda.l G13_TwoPlayerEnabled
@@ -659,6 +661,8 @@ Spawn_Play__wc_slot3:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__wc_sum_done:
+    sep #$20
+.a8
     lda.l Entity4_Hp
     beq Spawn_Play__wc_slot5
     lda.l Entity4_InputDriven
@@ -668,6 +672,8 @@ Spawn_Play__wc_sum_done:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__wc_slot5:
+    sep #$20
+.a8
     lda.l Entity5_Hp
     beq Spawn_Play__wc_sum_done6
     lda.l Entity5_InputDriven
@@ -748,6 +754,8 @@ Spawn_Play__gc_slot3:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__gc_sum_done:
+    sep #$20
+.a8
     lda.l Entity4_Hp
     beq Spawn_Play__gc_slot5
     lda.l Entity4_InputDriven
@@ -757,6 +765,8 @@ Spawn_Play__gc_sum_done:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__gc_slot5:
+    sep #$20
+.a8
     lda.l Entity5_Hp
     beq Spawn_Play__gc_sum_done6
     lda.l Entity5_InputDriven
@@ -1782,6 +1792,8 @@ Spawn_Play__slot45_common:
     sta.l Entity4_IsBoss
     bra Spawn_Play__slot45_boss_done
 Spawn_Play__slot45_boss5:
+    sep #$20
+.a8
     lda #0
     sta.l Entity5_IsBoss
 Spawn_Play__slot45_boss_done:
@@ -1798,6 +1810,9 @@ Spawn_Play__slot45_boss_done:
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     bne Spawn_Play__slot45_boss_mark_done
 Spawn_Play__slot45_mark_boss:
+    rep #$31
+.a16
+.i16
     lda.l Spawn_ScratchSlotOfs
     cmp #CHAR_ZP_LEN*4
     bne Spawn_Play__slot45_mark_boss5
@@ -1805,9 +1820,13 @@ Spawn_Play__slot45_mark_boss:
     sta.l Entity4_IsBoss
     bra Spawn_Play__slot45_boss_mark_done
 Spawn_Play__slot45_mark_boss5:
+    sep #$20
+.a8
     lda #1
     sta.l Entity5_IsBoss
 Spawn_Play__slot45_boss_mark_done:
+    sep #$20
+.a8
     ; A slot-4/5 ordinary spawn retains its initialized roster art. Props
     ; and bosses use the established gated reassignment helper.
     lda.l Spawn_ScratchKind

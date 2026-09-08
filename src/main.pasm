@@ -2683,6 +2683,8 @@ Entity1_FacingLeft = Entity1_Base + 8 ; Entity #1's CHAR_FACING_LEFT (spawn-tabl
 Entity1_FrameIndex  = Entity1_Base + 9    ; Entity #1's CHAR_FRAME_INDEX
 Entity1_TickCounter = Entity1_Base + 10   ; Entity #1's CHAR_TICK_COUNTER
 Entity1_Selected    = Entity1_Base + 11   ; Entity #1's CHAR_SELECTED
+Entity1_GrabTarget  = Entity1_Base + 63   ; Entity #1's CHAR_GRAB_TARGET
+Entity1_GrabbedBy    = Entity1_Base + 64   ; Entity #1's CHAR_GRABBED_BY
 Entity1_AttackVariant = Entity1_Base + 61
 Entity1_GetFcount = Entity1_Base + 128
 Entity1_HitStun = Entity1_Base + 33   ; Entity #1's CHAR_HIT_STUN
@@ -2750,6 +2752,17 @@ Entity4_PosX    = Entity4_Base + 4
 Entity4_PosXHi  = Entity4_Base + 5
 Entity4_PosY    = Entity4_Base + 6
 Entity4_FacingLeft = Entity4_Base + 8
+Entity4_FrameIndex = Entity4_Base + 9
+Entity4_TickCounter = Entity4_Base + 10
+Entity4_Selected = Entity4_Base + 11
+Entity4_AttackVariant = Entity4_Base + 61
+Entity4_HitApplied = Entity4_Base + 62
+Entity4_GrabTarget = Entity4_Base + 63
+Entity4_GrabbedBy = Entity4_Base + 64
+Entity4_GrabTimer = Entity4_Base + 65
+Entity4_ThrowZPos = Entity4_Base + 67
+Entity4_ThrowZVel = Entity4_Base + 68
+Entity4_HitStun = Entity4_Base + 33
 Entity4_Hp      = Entity4_Base + 35
 Entity4_KnockdownTimer = Entity4_Base + 47
 Entity4_InputDriven = Entity4_Base + 15
@@ -2761,6 +2774,17 @@ Entity5_PosX    = Entity5_Base + 4
 Entity5_PosXHi  = Entity5_Base + 5
 Entity5_PosY    = Entity5_Base + 6
 Entity5_FacingLeft = Entity5_Base + 8
+Entity5_FrameIndex = Entity5_Base + 9
+Entity5_TickCounter = Entity5_Base + 10
+Entity5_Selected = Entity5_Base + 11
+Entity5_AttackVariant = Entity5_Base + 61
+Entity5_HitApplied = Entity5_Base + 62
+Entity5_GrabTarget = Entity5_Base + 63
+Entity5_GrabbedBy = Entity5_Base + 64
+Entity5_GrabTimer = Entity5_Base + 65
+Entity5_ThrowZPos = Entity5_Base + 67
+Entity5_ThrowZVel = Entity5_Base + 68
+Entity5_HitStun = Entity5_Base + 33
 Entity5_Hp      = Entity5_Base + 35
 Entity5_KnockdownTimer = Entity5_Base + 47
 Entity5_InputDriven = Entity5_Base + 15
@@ -2824,6 +2848,11 @@ PlayerEntity_Selected    = $7E0a00 + 11   ; Entity #0's CHAR_SELECTED
 ; the player's own DP window (same reasoning as every other PlayerEntity_*
 ; absolute alias above), so it needs its own named absolute addresses too.
 PlayerEntity_AttackVariant = $7E0a00 + 61  ; Entity #0's CHAR_ATTACK_VARIANT
+PlayerEntity_HitApplied = $7E0a00 + 62
+PlayerEntity_GrabTimer = $7E0a00 + 65
+PlayerEntity_ThrowZPos = $7E0a00 + 67
+PlayerEntity_ThrowZVel = $7E0a00 + 68
+PlayerEntity_GrabbedBy = $7E0a00 + 64
 PlayerEntity_GetFcount     = $7E0a00 + 128 ; Entity #0's CHAR_GET_FCOUNT
 
 ; Both entities' sprites are 32x64 (OBSEL mode 6 "large" size, see
@@ -3499,6 +3528,10 @@ G13_PickupValue             = $7E26CB ; .db -- clamped heal value scratch
 ; gap follows the pickup scratch and precedes the occupied char-select/HUD
 ; cells; keep it standalone rather than growing CHAR_ZP_LEN.
 G13_P2_InvulnFrames         = $7E26CC ; .db
+; G13 lifecycle ownership, kept outside CHAR_ZP_LEN and the active jump/
+; pickup scratch. 0=active, 1=exhausted current life stock (OUT).
+G13_P1Out                   = $7E26CD ; .db
+G13_P2Out                   = $7E26CE ; .db
 
 ; Generic (not player-only), transient, valid only for the CURRENT
 ; Anim_LoadCharacter call in progress -- real per-load jump/jumpattack/
@@ -7913,6 +7946,14 @@ CharacterEntity_Play:
     ; D use.  The P2 exit must be tested against the actor window that was
     ; entered, not against whatever D the grab/throw or hit path leaves live.
     phd
+    jsl G13_PlayerLifecycleIsOut
+    bcc CharacterEntity_Play__not_out
+    pld
+    brl CharacterEntity_Play__no_context_exit
+CharacterEntity_Play__not_out:
+    rep #$31
+.a16
+.i16
     tdc
     cmp #$0A85
     bne CharacterEntity_Play__context_ready

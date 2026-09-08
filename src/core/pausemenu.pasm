@@ -639,12 +639,22 @@ Game_State_Pause_CheckEntry_options_done:
     rep #$31
 .a16
 .i16
+    lda.l G13_P1Out
+    and #$0001
+    bne Game_State_Pause_CheckEntry__check_p2
     lda.l Input_trigger+1
     and #$0010
     bne Game_State_Pause_CheckEntry__enter
+Game_State_Pause_CheckEntry__check_p2:
+    rep #$31
+.a16
+.i16
     lda.l G13_TwoPlayerEnabled
     and #$0001
     beq Game_State_Pause_CheckEntry_no
+    lda.l G13_P2Out
+    and #$0001
+    bne Game_State_Pause_CheckEntry_no
     lda.l Input2_trigger+1
     and #$0010
     beq Game_State_Pause_CheckEntry_no

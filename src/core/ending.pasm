@@ -136,6 +136,9 @@ Game_State_NewGameReset:
     sta.l Game_Lives
     sta.l G13_P2Lives
     lda #0
+    sta.l G13_P1Out
+    sta.l G13_P2Out
+    lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared
     sta.l Stage_LoadPending
@@ -147,6 +150,7 @@ Game_State_NewGameReset:
     sta.l G13_P2Score
     sta.l Game_StageIndex
     jsl Stage_LoadAndRespawn_Long
+    jsl G13_ReapplyP1Out
     ; Stage_Load reinitializes the five non-player windows.  In two-player
     ; mode slot 1 is reserved for P2 for the entire session, so restore that
     ; actor through the same bounded roster-load path before PLAYING resumes.

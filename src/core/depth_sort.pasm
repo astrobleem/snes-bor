@@ -278,9 +278,22 @@ Character_RenderPass__loop:
     lda.l EntityDpBaseTable,x
     phd
     tcd
+    jsl G13_PlayerLifecycleIsOut
+    bcc Character_RenderPass__render_live
+    sep #$20
+.a8
+    lda #$F0
+    sta.l OamSetSprite_Y
+    rep #$31
+.a16
+.i16
+    jsl Core_Oam_SetSprite_Long
+    bra Character_RenderPass__render_done
+Character_RenderPass__render_live:
     sep #$20
 .a8
     jsl Character_RenderFrame
+Character_RenderPass__render_done:
     rep #$31
 .a16
 .i16

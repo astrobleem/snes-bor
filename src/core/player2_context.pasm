@@ -211,6 +211,9 @@ G13_EnableP2Session:
     bne G13_EnableP2Session__already_enabled
     lda #1
     sta.l G13_TwoPlayerEnabled
+    lda #0
+    sta.l G13_P1Out
+    sta.l G13_P2Out
     jmp G13_EnableP2Session__init_slot
 
 G13_EnableP2Session__already_enabled:
@@ -296,6 +299,9 @@ G13_EnableP2Session__init_slot:
     rep #$31
 .a16
 .i16
+    ; Loading the roster is still required for a future continue, but an
+    ; exhausted player must remain OUT across the stage boundary.
+    jsl G13_ReapplyP2Out
     pla
     sta.l CharSelect_Index
     pla
@@ -310,6 +316,459 @@ G13_EnableP2Session__done:
 G13_EnsureP2AfterStage__done:
     plx
     plp
+    rtl
+
+; Respawn the reserved P2 actor inside the current shared viewport.  This is
+; the P2 counterpart of Game_State_RespawnPlayer and deliberately reuses the
+; actor record rather than introducing a second player object.
+G13_RespawnP2:
+    php
+    phd
+    pea $0A85
+    pld
+    sep #$20
+.a8
+    lda #CHAR_HP_MAX
+    sta CHAR_HP
+    lda #0
+    sta CHAR_HIT_STUN
+    sta CHAR_FACING_LEFT
+    sta CHAR_SELECTED
+    sta CHAR_ATTACK_VARIANT
+    sta CHAR_HIT_APPLIED
+    sta CHAR_GRAB_TIMER
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    sta CHAR_GRAB_TARGET
+    sta CHAR_GRABBED_BY
+    lda #PLAYER_RESPAWN_INVULN_FRAMES
+    sta.l G13_P2_InvulnFrames
+    lda #0
+    sta.l G13_P2Out
+    lda #PLAYER_RESPAWN_Y
+    sta CHAR_POS_Y
+    rep #$31
+.a16
+.i16
+    lda.l Screen_PosX
+    clc
+    adc #80
+    sta CHAR_POS_X
+    pld
+    plp
+    rtl
+
+; Return carry set when the currently selected player actor is explicitly OUT.
+; D remains the caller's actor window; this predicate is shared by gameplay
+; and rendering so OUT state cannot diverge between the two paths.
+G13_PlayerLifecycleIsOut:
+    rep #$31
+.a16
+.i16
+    tdc
+    cmp #$0A00
+    bne G13_PlayerLifecycleIsOut__p2
+    lda.l G13_P1Out
+    and #$0001
+    beq G13_PlayerLifecycleIsOut__clear
+    sec
+    rtl
+G13_PlayerLifecycleIsOut__p2:
+    rep #$31
+.a16
+.i16
+    cmp #$0A85
+    bne G13_PlayerLifecycleIsOut__none
+    ; Slot 1 is an ordinary NPC in 1P mode.  P2Out is meaningful only
+    ; while the fixed two-player session owns this actor window.
+    lda.l G13_TwoPlayerEnabled
+    and #$0001
+    beq G13_PlayerLifecycleIsOut__none
+    lda.l G13_P2Out
+    and #$0001
+    beq G13_PlayerLifecycleIsOut__clear
+    sec
+    rtl
+G13_PlayerLifecycleIsOut__none:
+G13_PlayerLifecycleIsOut__clear:
+    clc
+    rtl
+
+; P2's death/life-stock counterpart. Slot 1 remains reserved after OUT.
+G13_HandleP2Death:
+    php
+    rep #$31
+.a16
+.i16
+    ; This shared entry owns both player death checks. In 1P mode it exactly
+    ; retains the established P1 lives/game-over semantics; in 2P mode each
+    ; player has independent stock and only the second OUT enters GAMEOVER.
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    bne G13_HandleP2Death__two_player
+    lda.l PlayerEntity_Hp
+    and #$00FF
+    beq G13_HandleP2Death__p1_dead
+    brl G13_HandleP2Death__return
+G13_HandleP2Death__p1_dead:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Lives
+    and #$00FF
+    beq G13_HandleP2Death__one_gameover
+    sep #$20
+.a8
+    dec a
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+    jmp G13_HandleP2Death__gameover_return
+G13_HandleP2Death__one_gameover:
+    rep #$31
+.a16
+.i16
+    lda #GAME_OVER_CONTINUE_FRAMES
+    sta.l GameOver_ContinueTimer
+    lda #GAME_STATE_GAMEOVER
+    sta.l Game_State
+    jmp G13_HandleP2Death__gameover_return
+G13_HandleP2Death__two_player:
+    rep #$31
+.a16
+.i16
+    lda.l G13_P1Out
+    and #$00FF
+    bne G13_HandleP2Death__check_p2
+    lda.l PlayerEntity_Hp
+    and #$00FF
+    bne G13_HandleP2Death__check_p2
+    lda.l Game_Lives
+    and #$00FF
+    beq G13_HandleP2Death__p1_out
+    sep #$20
+.a8
+    dec a
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+    bra G13_HandleP2Death__check_p2
+G13_HandleP2Death__p1_out:
+    sep #$20
+.a8
+    lda #1
+    sta.l G13_P1Out
+    jsl G13_ReapplyP1Out
+G13_HandleP2Death__check_p2:
+    rep #$31
+.a16
+.i16
+    lda.l G13_P2Out
+    and #$00FF
+    bne G13_HandleP2Death__check_both_out
+    ; A living P2 is not a death candidate.  This shared handler runs once
+    ; per PLAYING service, so P2's life stock must not be consumed merely
+    ; because this call was reached while checking P1.
+    lda.l Entity1_Hp
+    and #$00FF
+    bne G13_HandleP2Death__return
+    lda.l G13_P2Lives
+    and #$00FF
+    beq G13_HandleP2Death__out
+    sep #$20
+.a8
+    dec a
+    sta.l G13_P2Lives
+    jsl G13_RespawnP2
+    plp
+    rtl
+G13_HandleP2Death__out:
+    sep #$20
+.a8
+    lda #1
+    sta.l G13_P2Out
+    lda #0
+    sta.l Entity1_Hp
+    sta.l Entity1_Selected
+    lda #$FF
+    sta.l Entity1_GrabTarget
+    sta.l Entity1_GrabbedBy
+    jsl G13_ReapplyP2Out
+G13_HandleP2Death__check_both_out:
+    sep #$20
+.a8
+    lda.l G13_P1Out
+    beq G13_HandleP2Death__return
+    lda.l G13_P2Out
+    beq G13_HandleP2Death__return
+    rep #$31
+.a16
+.i16
+    lda #GAME_OVER_CONTINUE_FRAMES
+    sta.l GameOver_ContinueTimer
+    lda #GAME_STATE_GAMEOVER
+    sta.l Game_State
+G13_HandleP2Death__gameover_return:
+    plp
+    sec
+    rtl
+G13_HandleP2Death__return:
+    plp
+    clc
+    rtl
+
+G13_RespawnP1:
+    sep #$20
+.a8
+    lda #CHAR_HP_MAX
+    sta.l PlayerEntity_Hp
+    lda #0
+    sta.l PlayerEntity_HitStun
+    sta.l PlayerEntity_FacingLeft
+    sta.l PlayerEntity_Selected
+    sta.l PlayerEntity_AttackVariant
+    sta.l PlayerEntity_HitApplied
+    sta.l PlayerEntity_GrabTimer
+    sta.l PlayerEntity_ThrowZPos
+    sta.l PlayerEntity_ThrowZVel
+    sta.l PlayerEntity_AttackVariant
+    sta.l PlayerEntity_HitApplied
+    sta.l G13_P1Out
+    lda #$FF
+    sta.l PlayerEntity_FrameIndex
+    sta.l PlayerEntity_GrabTarget
+    sta.l PlayerEntity_GrabbedBy
+    lda #PLAYER_RESPAWN_INVULN_FRAMES
+    sta.l Player_InvulnFrames
+    lda #PLAYER_RESPAWN_Y
+    sta.l PlayerEntity_PosY
+    rep #$31
+.a16
+.i16
+    lda.l Screen_PosX
+    clc
+    adc #PLAYER_RESPAWN_X_MARGIN
+    sta.l PlayerEntity_PosX
+    rtl
+
+; Stage_Load respawns slot 0 as part of its historical one-player setup.
+; Reassert an already exhausted P1 after that load without changing the
+; resident roster or the fixed actor layout.
+G13_ReapplyP1Out:
+    sep #$20
+.a8
+    lda.l G13_P1Out
+    beq G13_ReapplyP1Out__done
+    lda #0
+    sta.l PlayerEntity_Hp
+    sta.l PlayerEntity_Selected
+    sta.l PlayerEntity_AttackVariant
+    sta.l PlayerEntity_HitApplied
+    sta.l PlayerEntity_HitStun
+    sta.l PlayerEntity_GrabTimer
+    sta.l PlayerEntity_ThrowZPos
+    sta.l PlayerEntity_ThrowZVel
+    lda #$FF
+    sta.l PlayerEntity_GrabTarget
+    sta.l PlayerEntity_GrabbedBy
+G13_ReapplyP1Out__done:
+    rtl
+
+; Same post-load reassertion for reserved slot 1.  P2's roster and jump
+; family remain resident so its later continue can use normal respawn code.
+G13_ReapplyP2Out:
+    sep #$20
+.a8
+    lda.l G13_P2Out
+    beq G13_ReapplyP2Out__done
+    phd
+    pea $0A85
+    pld
+    lda #0
+    sta CHAR_HP
+    sta CHAR_SELECTED
+    sta CHAR_ATTACK_VARIANT
+    sta CHAR_HIT_APPLIED
+    sta CHAR_HIT_STUN
+    sta CHAR_GRAB_TIMER
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    lda #$FF
+    sta CHAR_GRAB_TARGET
+    sta CHAR_GRABBED_BY
+    pld
+G13_ReapplyP2Out__done:
+    rtl
+
+; Clear non-player runtime state before a new stage's queue is allowed to
+; reuse the actor windows. Input role and resident roster identity remain
+; intact so the existing prop-art restoration contract is preserved.
+G13_ClearOldStageActors:
+    php
+    phd
+    sep #$20
+.a8
+    lda.l G13_TwoPlayerEnabled
+    bne G13_ClearOldStageActors__slot2
+    phd
+    pea $0A85
+    pld
+    jsr G13_ClearOldStageActors__one
+    lda #0
+    sta.l Actor_InvulnFrames+1
+    pld
+G13_ClearOldStageActors__after_slot1:
+G13_ClearOldStageActors__slot2:
+    sep #$20
+.a8
+    phd
+    pea $0B0A
+    pld
+    jsr G13_ClearOldStageActors__one
+    lda #0
+    sta.l Actor_InvulnFrames+2
+    pld
+G13_ClearOldStageActors__after_slot2:
+    phd
+    pea $0B8D
+    pld
+    jsr G13_ClearOldStageActors__one
+    lda #0
+    sta.l Actor_InvulnFrames+3
+    pld
+G13_ClearOldStageActors__after_slot3:
+    phd
+    pea $0C10
+    pld
+    jsr G13_ClearOldStageActors__one
+    lda #0
+    sta.l Actor_InvulnFrames+4
+    sta.l Entity4_ItemRosterIdx
+    pld
+G13_ClearOldStageActors__after_slot4:
+    phd
+    pea $0C93
+    pld
+    jsr G13_ClearOldStageActors__one
+    lda #0
+    sta.l Actor_InvulnFrames+5
+    sta.l Entity5_ItemRosterIdx
+    pld
+G13_ClearOldStageActors__after_slot5:
+    plp
+    rtl
+G13_ClearOldStageActors__one:
+    sep #$20
+.a8
+    lda #0
+    sta CHAR_HP
+    sta CHAR_SELECTED
+    sta CHAR_ATTACK_VARIANT
+    sta CHAR_HIT_APPLIED
+    sta CHAR_HIT_STUN
+    sta CHAR_GRAB_TIMER
+    sta CHAR_PICKUP_TYPE
+    sta CHAR_KNOCKDOWN_COUNT
+    sta CHAR_KNOCKDOWN_TIMER
+    stz CHAR_THROW_ZPOS
+    stz CHAR_THROW_ZPOS+1
+    stz CHAR_THROW_ZVEL
+    stz CHAR_THROW_ZVEL+1
+    lda #$FF
+    sta CHAR_GRAB_TARGET
+    sta CHAR_GRABBED_BY
+    rts
+
+; Consume an OUT player's own Start as a continue while the partner remains
+; in PLAYING.  Carry set means the caller must skip pause and gameplay for
+; this update, preventing one edge from doing two actions.
+G13_HandleOutContinue:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq G13_HandleOutContinue__no
+    lda.l G13_P1Out
+    and #$00FF
+    beq G13_HandleOutContinue__p2
+    lda.l Input_trigger+1
+    and #$0010
+    beq G13_HandleOutContinue__p2
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+    bra G13_HandleOutContinue__yes
+G13_HandleOutContinue__p2:
+    rep #$31
+.a16
+.i16
+    lda.l G13_P2Out
+    and #$00FF
+    beq G13_HandleOutContinue__no
+    lda.l Input2_trigger+1
+    and #$0010
+    beq G13_HandleOutContinue__no
+    lda #GAME_LIVES_START
+    sta.l G13_P2Lives
+    jsl G13_RespawnP2
+G13_HandleOutContinue__yes:
+    plp
+    sec
+    rtl
+G13_HandleOutContinue__no:
+    plp
+    clc
+    rtl
+
+; Player-owned GAMEOVER continue.  The global menu state is shared, but the
+; continuing controller restores only its own player.  If both edges arrive
+; together both players are restored once.
+G13_HandleGameoverContinue:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger+1
+    and #$0010
+    pha
+    lda.l Input2_trigger+1
+    and #$0010
+    beq G13_HandleGameoverContinue__p1_only
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq G13_HandleGameoverContinue__p1_only
+    lda #GAME_LIVES_START
+    sta.l G13_P2Lives
+    jsl G13_RespawnP2
+    pla
+    beq G13_HandleGameoverContinue__finish
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+    bra G13_HandleGameoverContinue__finish
+G13_HandleGameoverContinue__p1_only:
+    rep #$31
+.a16
+.i16
+    pla
+    beq G13_HandleGameoverContinue__no
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+G13_HandleGameoverContinue__finish:
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
+    plp
+    sec
+    rtl
+G13_HandleGameoverContinue__no:
+    plp
+    clc
     rtl
 
 ; End a fixed two-player session when the game returns to TITLE.  This makes
@@ -330,6 +789,9 @@ G13_DisableP2Session:
 .a8
     lda #0
     sta.l G13_TwoPlayerEnabled
+    lda #0
+    sta.l G13_P1Out
+    sta.l G13_P2Out
     phd
     pea $0A85
     pld

@@ -4,7 +4,7 @@
 Bg_LoadScene stage-index parameterization, core/spawn.pasm's per-stage
 spawn table).
 
-Forces the win condition directly (Spawn_Index := Spawn_Count, all three AI
+Forces the win condition directly (Spawn_Index := Spawn_Count, all live AI
 entities' CHAR_HP := 0) rather than clearing stage 1B's real 28-record wave
 organically -- same "force the exact moment, don't wait on combat RNG"
 pattern game_g3_death.py already uses for player death. Then holds Right
@@ -39,6 +39,7 @@ not engine self-consistency -- CLAUDE.md's standing rule):
 Usage: python tools/verify/game_g4_transition.py
 """
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -48,12 +49,22 @@ ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
 import build_rom  # noqa: E402
 
+def symbol(name):
+    wanted = re.compile(r'^([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+' + re.escape(name) + r'\s*$')
+    with open(os.path.join(ROOT, 'src', 'main.sym'), encoding='utf-8') as f:
+        for line in f:
+            hit = wanted.match(line.strip())
+            if hit:
+                return (int(hit.group(1), 16) << 16) | int(hit.group(2), 16)
+    raise KeyError(name)
+
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
 GAME_STAGE_INDEX = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
 STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
 PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
+G13_MODE = pasm_constant('G13_TwoPlayerEnabled')
 
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 SPAWN_COUNT_ADDR = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
@@ -64,11 +75,15 @@ STREAM_SCROLL_FP_ENABLED = pasm_constant('StreamScrollFp_Enabled')
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
+CHAR_INPUT_DRIVEN_AI = pasm_constant('CHAR_INPUT_DRIVEN_AI')
 CHAR_POS_X = pasm_constant('CHAR_POS_X')
 
 PLAYER_BASE = 0x7E0A00
-ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_ZP_LEN,
-                PLAYER_BASE + 3 * CHAR_ZP_LEN]
+# G13 retains six actor windows.  The completion fixture must neutralize all
+# five NPC windows; clearing only the historical slots 1-3 leaves slots 4/5
+# as legitimate blockers under the role-aware predicate.
+ENTITY_BASES = [PLAYER_BASE + i * CHAR_ZP_LEN for i in range(6)]
 
 # Screen_MaxX/Screen_PosX: core/screen.pasm `.enum $7E1600` struct fields,
 # not plain `NAME = value` constants -- see tools/verify/phase8.py's own
@@ -139,27 +154,62 @@ def main():
         # already use for entity HP. ---
         spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
         m.write_u8(SPAWN_INDEX, spawn_count)
-        for base in ENTITY_BASES[1:]:
-            m.write_u8(base + CHAR_HP, 0)
-        m.run_frames(5)
+        for slot, base in enumerate(ENTITY_BASES[1:], start=1):
+            role = byte_at(m, base + CHAR_INPUT_DRIVEN)
+            print(f'forced-clear slot{slot}: role={role} hp={byte_at(m, base + CHAR_HP)}')
+            if role == CHAR_INPUT_DRIVEN_AI:
+                m.write_u8(base + CHAR_HP, 0)
+        # The completion predicate is evaluated from the PLAYING update.  A
+        # fixed five-frame sleep is not a semantic boundary, especially when
+        # the preceding MSU work leaves the emulator between NMI updates.
+        cleared = 0
+        for _ in range(180):
+            m.run_frames(1)
+            cleared = byte_at(m, STAGE_CLEARED)
+            if cleared:
+                break
         m.pause()
 
-        cleared = byte_at(m, STAGE_CLEARED)
+        print('post-clear roles/hp: ' + str([
+            (byte_at(m, base + CHAR_INPUT_DRIVEN), byte_at(m, base + CHAR_HP))
+            for base in ENTITY_BASES[1:]
+        ]))
+        print(f'post-clear mode={byte_at(m, G13_MODE)} spawn_index={byte_at(m, SPAWN_INDEX)} spawn_count={spawn_count}')
         r.check('win condition fired (Stage_Cleared set)', cleared == 1)
         true_max = word_at(m, STAGE_TRUE_MAX_X)
         print(f'Stage_Cleared={cleared} Stage_TrueMaxX={true_max}')
 
-        # --- Hold Right until the newly-unlocked camera clamp is reached --
-        # exactly the real win path, just with the setup above skipping the
-        # organic 28-wave clear. Force invulnerability throughout, same
-        # reasoning as phase8.py/phase9.py's own forced holds: combat must
-        # not confound a test that isn't about combat. ---
-        for _ in range(20):
-            m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
-            m.set_input(m.BTN_RIGHT, 60)
-            m.pause()
-            if word_at(m, GAME_STAGE_INDEX) != boot_stage:
-                break
+        # Drive the already-unlocked camera to the true edge as a controlled
+        # handoff precondition, then stop at the explicit post-store hook.
+        # A PPU-frame endpoint can otherwise land after a later stage-clear
+        # check and report the stale STAGECLEAR value even though the real
+        # stageclear invocation wrote PLAYING successfully.
+        m.write_u8(SCREEN_POS_X, true_max & 0xFF)
+        m.write_u8(SCREEN_POS_X + 1, true_max >> 8)
+        names = ('Game_State_Play__stageclear',
+                 'Game_State_Play__after_stage_load',
+                 'Game_State_Play__after_old_stage_clear',
+                 'G13_EnsureP2AfterStage',
+                 'G13_EnsureP2AfterStage__done',
+                 'Game_State_Play__after_p2_restore',
+                 'Game_State_Play__after_playing_store',
+                 'Game_State_Play__stageclear_done',
+                 'Game_State_Play__done')
+        hooks = {m.add_exec_hook(symbol(name)): name for name in names}
+        q = m.run_frames(120)
+        notes = m.drain_notifications()
+        for handle in hooks:
+            m.remove_hook(handle)
+        semantic = [{'name': hooks[n.get('params', {}).get('handle')],
+                     'frame': n.get('params', {}).get('frame')}
+                    for n in notes
+                    if n.get('method', '').endswith('hookFired') and
+                    n.get('params', {}).get('handle') in hooks]
+        semantic_ok = (all(name in [row['name'] for row in semantic]
+                            for name in names) and
+                       any(row['name'] == 'Game_State_Play__after_playing_store'
+                           for row in semantic))
+        print(f'semantic handoff events: {semantic}')
 
         # --- Stage_Load is a real, heavy, blocking reload (a ~150KB MSU-1
         # byte-by-byte stream under sei -- see core/game_state.pasm's own
@@ -179,7 +229,10 @@ def main():
 
         new_stage = word_at(m, GAME_STAGE_INDEX)
         state = word_at(m, GAME_STATE)
-        print(f'after forced win + held-right: stage={new_stage} state={state}')
+        print(f'after forced win + held-right: stage={new_stage} state={state} '
+              f'cleared={byte_at(m, STAGE_CLEARED)} pending={byte_at(m, pasm_constant_in("src/core/game_state.pasm", "Stage_LoadPending"))} '
+              f'spawn={byte_at(m, SPAWN_INDEX)}/{byte_at(m, SPAWN_COUNT_ADDR)}')
+        r.check('ordered semantic handoff completed', semantic_ok)
         r.check(f'Game_StageIndex advances 0 -> 1 ({new_stage})', new_stage == 1)
         r.check(f'Game_State returns to PLAYING ({state})', state == GAME_STATE_PLAYING)
 

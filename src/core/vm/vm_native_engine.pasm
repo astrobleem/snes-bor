@@ -2961,33 +2961,54 @@ Game_State_AnyActorAlive:
     sep #$20
 .a8
     lda.l G13_TwoPlayerEnabled
-    bne Game_State_AnyActorAlive__skip_p2
-    lda #$A5
-    lda.l $7E0AA8
+    bne Game_State_AnyActorAlive__slot2
+    ; 1P: slots 1-5 are eligible, but only AI-role live actors block.
+    lda.l Entity1_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne Game_State_AnyActorAlive__slot2
+    lda.l Entity1_Hp
     bne Game_State_AnyActorAlive__some
-    lda.l $7E0B2D
+Game_State_AnyActorAlive__slot2:
+    sep #$20
+.a8
+    lda.l Entity2_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne Game_State_AnyActorAlive__slot3
+    lda.l Entity2_Hp
     bne Game_State_AnyActorAlive__some
-    lda.l $7E0BB2
+Game_State_AnyActorAlive__slot3:
+    sep #$20
+.a8
+    lda.l Entity3_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne Game_State_AnyActorAlive__slot4
+    lda.l Entity3_Hp
     bne Game_State_AnyActorAlive__some
-    lda.l $7E0C37
+Game_State_AnyActorAlive__slot4:
+    sep #$20
+.a8
+    lda.l Entity4_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne Game_State_AnyActorAlive__slot5
+    lda.l Entity4_Hp
     bne Game_State_AnyActorAlive__some
-    lda.l $7E0CBC
-    beq Game_State_AnyActorAlive__none
-Game_State_AnyActorAlive__skip_p2:
-    ; In two-player mode slot 1 is the reserved P2 actor, never an enemy.
-    lda.l $7E0B2D
-    bne Game_State_AnyActorAlive__some
-    lda.l $7E0BB2
-    bne Game_State_AnyActorAlive__some
-    lda.l $7E0C37
-    bne Game_State_AnyActorAlive__some
-    lda.l $7E0CBC
+Game_State_AnyActorAlive__slot5:
+    sep #$20
+.a8
+    lda.l Entity5_InputDriven
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne Game_State_AnyActorAlive__none
+    lda.l Entity5_Hp
     beq Game_State_AnyActorAlive__none
 Game_State_AnyActorAlive__some:
+    sep #$20
+.a8
     lda #$01
     sec
     rtl
 Game_State_AnyActorAlive__none:
+    sep #$20
+.a8
     lda #$00
     clc
     rtl

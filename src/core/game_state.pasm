@@ -540,6 +540,9 @@ Game_State_Play__title_wait:
     beq Game_State_Play__title_wait_check_p1
     jsl G13_EnableP2Session
 Game_State_Play__title_wait_check_p1:
+    rep #$31
+.a16
+.i16
     lda.l Input_trigger+1
     and #$0010                     ; Start -- same high-byte layout as
                                     ; Game_State_Play__gameover's own check
@@ -624,15 +627,8 @@ Game_State_Play__gameover:
     ; letting it expire falls back to GAME_STATE_TITLE -- the existing
     ; "nothing is running" holding state (G2). There's no better fallback
     ; yet; a real "insert coin"/attract-mode content is G5's job.
-    lda.l Input_trigger+1
-    and #$0010                     ; Start -- core/input.pasm's documented
-                                    ; "B Y Sel Start U D L R" high-byte layout
-    beq Game_State_Play__gameover_no_continue
-    lda #GAME_LIVES_START
-    sta.l Game_Lives
-    jsr Game_State_RespawnPlayer
-    lda #GAME_STATE_PLAYING
-    sta.l Game_State
+    jsl G13_HandleGameoverContinue
+    bcc Game_State_Play__gameover_no_continue
     jmp Game_State_Play__done
 Game_State_Play__gameover_no_continue:
     lda.l GameOver_ContinueTimer
@@ -643,8 +639,8 @@ Game_State_Play__gameover_no_continue:
 Game_State_Play__gameover_timeout:
     ; width still .a16 -- same reasoning as Game_State_Play__playing above.
 .a16
-    lda #GAME_STATE_TITLE
     jsl G13_DisableP2Session
+    lda #GAME_STATE_TITLE
     sta.l Game_State
     jmp Game_State_Play__done
 
@@ -659,6 +655,10 @@ Game_State_Play__playing:
     ; bank-0 routine's own footprint minimal -- see that file's own
     ; Game_State_Pause_CheckEntry for the full check/set logic; carry
     ; comes back set only if PAUSED was just entered this frame.
+    jsl G13_HandleOutContinue
+    bcc Game_State_Play__no_out_continue
+    brl Game_State_Play__done
+Game_State_Play__no_out_continue:
     jsl Game_State_Pause_CheckEntry
     bcc Game_State_Play__no_pause_press
     jmp Game_State_Play__done
@@ -672,16 +672,8 @@ Game_State_Play__no_pause_press:
     ; frame before, via the normal collision pass) -- that one frame of
     ; latency is harmless: the player is exempt from every AI-only dead
     ; check, so it just plays one more ordinary (already-stunned) frame.
-    lda.l PlayerEntity_Hp
-    and #$00FF
-    bne Game_State_Play__no_death
-    jsr Game_State_HandlePlayerDeath
-    lda.l Game_State
-    cmp #GAME_STATE_PLAYING
-    beq Game_State_Play__no_death
-    ; Left PLAYING (GAMEOVER) this frame -- skip the rest of the gameplay
-    ; body; the transition-edge check at the top of this routine will hide
-    ; OAM next call, same as any other PLAYING exit.
+    jsl G13_HandleP2Death
+    bcc Game_State_Play__no_death
     jmp Game_State_Play__done
 Game_State_Play__no_death:
     ; width already .a16 on both paths in here (neither the bne above nor
@@ -908,14 +900,23 @@ Game_State_Play__stageclear_next:
 .a16
 .i16
     jsr Stage_Load
+Game_State_Play__after_stage_load:
+    ; The old-stage cleanup runs after the blocking loader returns.  This is
+    ; still before the next PLAYING pass can dispatch the new queue, while
+    ; keeping its DP/stack work outside the forced-blank/MSU load contract.
+    jsl G13_ClearOldStageActors
+Game_State_Play__after_old_stage_clear:
+    jsl G13_ReapplyP1Out
     ; Stage_Load reinitializes every non-player window.  In a two-player
     ; session slot 1 is reserved for P2 for the entire session, so restore
     ; its player role and fixed roster before gameplay resumes.  One-player
     ; mode leaves this hook a no-op and retains the ordinary slot-1 spawn
     ; path.
     jsl G13_EnsureP2AfterStage
+Game_State_Play__after_p2_restore:
     lda #GAME_STATE_PLAYING
     sta.l Game_State
+Game_State_Play__after_playing_store:
 Game_State_Play__stageclear_done:
     jmp Game_State_Play__done
 
@@ -930,6 +931,7 @@ Game_State_Play__stageclear_done:
 Game_State_HandlePlayerDeath:
     rep #$31
 .a16
+.i16
     lda.l Game_Lives
     and #$00FF
     beq Game_State_HandlePlayerDeath__gameover
@@ -951,7 +953,6 @@ Game_State_HandlePlayerDeath__gameover:
     lda #GAME_STATE_GAMEOVER
     sta.l Game_State
     rts
-
 ; ----------------------------------------------------------------------
 ; Phase G3: full player reset -- HP, hit-stun, facing, animation-selection
 ; (plan_game.md 3's own "watch out" list: "not just HP"), a brief
@@ -967,6 +968,7 @@ Game_State_RespawnPlayer:
     sta.l PlayerEntity_Hp
     lda #0
     sta.l PlayerEntity_HitStun
+    sta.l G13_P1Out
     sta.l PlayerEntity_FacingLeft
     sta.l PlayerEntity_Selected
     lda #$FF

@@ -390,17 +390,17 @@ Core_Nmi_Stop:
     php
     sep #$20
 .a8
-    lda.l Nmi_InterruptFlags
-    and #$7F                  ; clear NMI-enable bit, leave auto-joy-read alone
-    sta $4200
-    plp
-    rts
+    lda #$01                  ; auto-joypad on, NMI off; H/V IRQ bits unused
+    bra Core_Nmi_SetInterruptFlags
 
 Core_Nmi_Start:
     php
     sep #$20
 .a8
-    lda.l Nmi_InterruptFlags
+    lda #$81                  ; auto-joypad on, NMI on; H/V IRQ bits unused
+
+Core_Nmi_SetInterruptFlags:
+    sta.l Nmi_InterruptFlags
     sta $4200
     plp
     rts
