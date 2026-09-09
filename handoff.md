@@ -1,5 +1,14 @@
 # Handoff
 
+> **Campaign model correction (2026-09-09):** physical `STAGE_CONFIGS`/MSU
+> indices are catalog identities only. Runtime progression uses generated
+> `Game_CampaignId` and `Game_CampaignOrdinal` maps derived from source
+> `LEVELS.TXT`; packed index and campaign ordinal are distinct. BOR currently
+> contains only `1A -> 1B -> 1C` and stops at a labeled temporary TITLE
+> boundary. TMNT main progression is its own authored campaign; Bebop, Rock,
+> Leather and Foot remain standalone test content. Do not start Batch B from
+> this note; review `docs/bor_source_fidelity_audit.md` first.
+
 > **Current authority — 2026-09-08:** G1–G10, G12, and G13 are complete for
 > their accepted scopes. The production six-slot policy is P1 slot 0, fixed
 > P2 LEO slot 1, and NPC slots 2–5; one-player mode has five NPCs and
@@ -23,8 +32,9 @@
 > TEXT-1, the inherited pre-G14 DrawString bank-ownership defect, is closed;
 > the structural fix and guard are recorded in
 > `docs/text_drawstring_inherited_defect.md`. The current next work is the
-> planning-only G15 original BOR campaign audit in
-> `docs/g15_bor_campaign_audit.md`.
+> the G15 source-fidelity audit and campaign/catalog separation in
+> `docs/bor_source_fidelity_audit.md` and
+> `docs/g15_bor_campaign_audit.md`. Batch B/2EASY has not started.
 
 Read this before doing anything else, then `CLAUDE.md` (build/test commands,
 architecture map) and `build.md` (register tables, CC-DMA mechanism, Mesen2

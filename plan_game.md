@@ -1,5 +1,14 @@
 # plan_game.md — from hardware proof-of-concept to a complete, releasable game
 
+> **Source-fidelity correction (2026-09-09):** `STAGE_CONFIGS` is a physical
+> packed-stage catalog; it is not campaign progression. Build-generated
+> logical campaign maps now resolve BOR and TMNT authored `LEVELS.TXT` order
+> to physical entries. Standalone test/boss records are not implicit campaign
+> members. Current BOR ends at its temporary TITLE development boundary after
+> `1C`; Batch B/`2EASY` is not started. See
+> [`docs/bor_source_fidelity_audit.md`](docs/bor_source_fidelity_audit.md) for
+> source-vs-runtime classifications. No gameplay-fidelity rewrite is implied.
+
 > **This is the critical path.** Everything in this file is required to turn the
 > current ROM into something a person could sit down and play from title screen
 > to ending.
@@ -22,10 +31,9 @@
 > and two-player/four-NPC regression are retained. Do not redesign transport,
 > increase actor count, add a script VM, or reopen unrelated audio work.
 > **Following milestone: G15 — finish the original Beats of Rage
-> campaign/content.** G15 is not started here. TEXT-1, the inherited
-> pre-G14 DrawString reliability/observation defect, remains open; campaign
-> audit may proceed, but final release acceptance cannot claim
-> presentation-complete until TEXT-1 is resolved or proven verifier-only.
+> campaign/content.** The source-fidelity audit and campaign/catalog
+> separation are now recorded; no 2EASY conversion has started. TEXT-1 is
+> closed at `3775afbc7af333853f852f6f1e2078949e509ebb`.
 >
 > Planning rule: new engine architecture is added only when reachable game
 > content proves that it is needed. Animation residency redesign, SA-1

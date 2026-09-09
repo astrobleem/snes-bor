@@ -309,3 +309,11 @@ python tools/verify/phase12_roster.py             # roster expansion: 4 selectab
 `tools/verify/phase9_stagecolumn_spotcheck.py` and `phase9_syncscroll_test2.py` exist but are **not** part of this list (distinct from the routine `phase9.py` above) — they now track `build_rom.py`'s `BG_SCREENS` automatically (same convention as `phase6.py`) and pass against whatever streaming BG currently ships, but each takes real Mesen2 wall-clock time (a minute or more) and check byte-exact Tile2Slot-vs-VRAM consistency rather than throughput, so they're kept separate rather than folded into the routine list. See plan.md §2.8's own gate section before running them.
 
 The `phase*.py` scripts deliberately compare against ground truth the engine did not produce (the converter's own `.bin` output, the packed `bor.msu`, `audio-data.bin`) rather than asking the engine whether it thinks it is happy. Phase 7 is the cautionary tale: every engine-visible status byte read perfect for as long as the driver was loading zeros.
+# Current source-fidelity boundary
+
+`STAGE_CONFIGS` is the physical packed asset catalog, not campaign
+progression. Logical campaigns are defined from the source `LEVELS.TXT`
+orders and resolved to catalog entries at build time. Current BOR coverage is
+the authored `1A -> 1B -> 1C` prefix only; TMNT main-campaign content and
+standalone Bebop/Rock/Leather/Foot records are separate. See
+[`docs/bor_source_fidelity_audit.md`](docs/bor_source_fidelity_audit.md).

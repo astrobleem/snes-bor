@@ -160,6 +160,19 @@ growth, or animation transport redesign.
 Current explicit qualifications remain: no-target AI movement is
 TOOLING-LIMITED / UNMEASURED; `confirmed_busy_denials` is null/unmeasured.
 
+## Campaign/catalog correction (2026-09-09)
+
+The Batch-A physical catalog previously doubled as progression, which made
+1C fall into the following TMNT record. This is not BOR source behavior.
+`tools/audio/shipped_content.py` now keeps `STAGE_CONFIGS` as physical packed
+assets and defines logical `CAMPAIGN_CONFIGS` from the source `LEVELS.TXT`
+orders. Build-generated maps resolve those source identities to physical
+indices. BOR currently maps only `1A -> 1B -> 1C` and stops at a temporary
+TITLE development boundary; it does not enter TMNT or claim BOR completion.
+TMNT main maps independently to `sewer0 -> streets -> streets2 -> sewer`.
+Standalone Bebop/Rock/Leather/Foot records remain individually testable and
+are not implicit members of either campaign. No 2EASY conversion was begun.
+
 ## Batch A status (2026-09-09)
 
 Batch A is complete. The shipped BOR prefix is now `1AEASY -> 1BEASY ->
