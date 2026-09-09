@@ -16,13 +16,16 @@
 > handoff. Sections below retain historical implementation evidence; when
 > they conflict with this banner or README, this banner is current authority.
 >
-> **Current next work: G14 — player-facing two-player completion/polish.**
-> Bound it to dual-player HUD/session presentation, deciding and documenting
-> whether P2 remains fixed LEO or receives real selection, and sustained
-> two-player plus four-NPC campaign regression. Do not redesign transport,
+> **G14 — player-facing two-player completion/polish — is complete for its
+> accepted scope.** P1 remains normally selectable; P2 is fixed LEO with
+> explicit presentation. Independent P1/P2 HUD state, accepted G13 lifecycle,
+> and two-player/four-NPC regression are retained. Do not redesign transport,
 > increase actor count, add a script VM, or reopen unrelated audio work.
 > **Following milestone: G15 — finish the original Beats of Rage
-> campaign/content.** Neither milestone is implemented here.
+> campaign/content.** G15 is not started here. TEXT-1, the inherited
+> pre-G14 DrawString reliability/observation defect, remains open; campaign
+> audit may proceed, but final release acceptance cannot claim
+> presentation-complete until TEXT-1 is resolved or proven verifier-only.
 >
 > Planning rule: new engine architecture is added only when reachable game
 > content proves that it is needed. Animation residency redesign, SA-1
@@ -2494,15 +2497,19 @@ G14 player-facing two-player completion/polish
   → G15 finish the original Beats of Rage campaign/content
 ```
 
-### G14 — player-facing two-player completion/polish
+### G14 — player-facing two-player completion/polish — COMPLETE
 
-G14 covers dual-player HUD and session presentation, an explicit decision and
-documentation of fixed-LEO P2 versus real P2 selection, and sustained
-two-player plus four-NPC gameplay/campaign regression. It does not increase
-actor count, redesign animation transport, add a script VM, or include
-unrelated audio work. G14 is planning only; it is not implemented here.
+P1 remains normally selectable and P2 remains fixed LEO, explicitly shown in
+the player-facing session flow. The HUD presents independent P1/P2 HP, lives,
+and score. Accepted G13 lifecycle/combat ownership, one-player/five-NPC
+capacity, two-player/four-NPC capacity, stage handoff, pause, and regression
+coverage remain intact. The single TextStaging architecture is retained, with
+G14 HUD text serialized to at most one flush per gameplay frame.
 
-### G15 — finish the original Beats of Rage campaign/content
+TEXT-1 is inherited from before G14 and remains open; see
+`docs/text_drawstring_inherited_defect.md`.
+
+### G15 — finish the original Beats of Rage campaign/content — NOT STARTED
 
 G15 is the following major milestone and is also planning only.
 

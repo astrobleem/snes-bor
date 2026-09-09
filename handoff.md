@@ -5,11 +5,11 @@
 > P2 LEO slot 1, and NPC slots 2–5; one-player mode has five NPCs and
 > two-player mode has four. G13 provides the accepted fixed-session two-player
 > lifecycle, independent input/score/lives/continue ownership, either-
-> controller pause, shared camera/tether, and stage handoff. The next bounded
-> milestone is **G14 — player-facing two-player completion/polish**: dual HUD
-> and session presentation, a documented fixed-LEO-versus-selection decision,
-> and sustained two-player/four-NPC campaign regression. The following major
-> milestone is **G15 — finish the original Beats of Rage campaign/content**.
+> controller pause, shared camera/tether, and stage handoff. **G14 is complete
+> for its accepted scope:** P1 remains normally selectable, P2 is fixed LEO
+> with explicit presentation, and the HUD presents independent P1/P2 state.
+> The following major milestone is **G15 — finish the original Beats of Rage
+> campaign/content**, which is not started.
 > This file retains historical debugging notes; do not treat older “next step”
 > sections below as current instructions.
 
@@ -20,6 +20,9 @@
 > `TOOLING-LIMITED / UNMEASURED`, `confirmed_busy_denials` null/unmeasured,
 > and the synthetic instant-MONEY branch `NOT_APPLICABLE_UNMEASURED` for
 > current packed content.
+> TEXT-1, the inherited pre-G14 DrawString reliability/observation defect,
+> remains open and blocks presentation-complete release claims; see
+> `docs/text_drawstring_inherited_defect.md`.
 
 Read this before doing anything else, then `CLAUDE.md` (build/test commands,
 architecture map) and `build.md` (register tables, CC-DMA mechanism, Mesen2
