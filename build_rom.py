@@ -379,7 +379,10 @@ def validate_bank0_layout(poppy_data, symbol_path):
         raise SystemExit('bank0 layout guard: missing symbols: ' + ', '.join(missing))
 
     expected = {
-        'scpu_boot': 0x00FC00,
+        # The source startup dispatch consumed the final three bytes before
+        # the fixed boot body; keep the boot body aligned immediately after
+        # runtime code while preserving the header/NMI/IRQ reservations.
+        'scpu_boot': 0x00FC03,
         'nmi_handler': 0x00FFA0,
         'irq_handler': 0x00FFB0,
     }
@@ -499,7 +502,7 @@ def main():
     rom[0x7FDB] = 0x00   # Version
 
     # Vectors — fixed by .org directives in main.pasm
-    RESET = 0xFC00   # scpu_boot
+    RESET = 0xFC03   # scpu_boot
     NMI = 0xFFA0     # nmi_handler (fixed bank-0 tail contract)
     IRQ = 0xFFB0     # irq_handler (fixed bank-0 tail contract)
 

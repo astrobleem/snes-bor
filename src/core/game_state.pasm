@@ -1,21 +1,14 @@
 ; ============================================================================
 ; core/game_state.pasm -- Phase G2 (plan_game.md 2): the game state machine.
 ;
-; Today scpu_main_loop falls straight into gameplay forever; there is no
-; concept of "not in gameplay." Game_State_Play is the single entry point
+; Game_State_Play is the single entry point for the normal state machine.
 ; scpu_main_loop now calls (replacing the ~11-line straight-line jsr list
 ; that used to live there directly -- see the call site's own comment for
 ; why that move is budget-positive, not just cosmetic).
 ;
-; Boot state is deliberately GAME_STATE_PLAYING (=0): every existing gate
-; (phase5/6/8/9/11_damage/12_roster, game_g1_text, the non-routine phase9_*/
-; phase10_frontpanel scripts) drives the ROM from boot and asserts gameplay
-; is already running. Making PLAYING the zero/boot-default value means the
-; existing zero-init-before-Core_Nmi_Init step (main.pasm's scpu_boot, right
-; next to Oam_UploadFlag/HighWaterSlot -- memory boot_nmi_race_before_oam_
-; init) doubles as the state choice, with no separate write needed. TITLE
-; exists and is reachable (a debugger/gate can force-write Game_State), but
-; does not become the real boot state until G5 gives it actual content.
+; Historical gates once assumed GAME_STATE_PLAYING (=0) at boot. Normal reset
+; now enters the source-normal INTRO adaptation, then TITLE and selection;
+; low-level gates may explicitly establish a later state when appropriate.
 ;
 ; Scope for this phase (plan_game.md 2): define all 7 states, implement
 ; TITLE/PLAYING/PAUSED for real, and make every other state an explicit
@@ -28,12 +21,13 @@
 
 GAME_STATE_PLAYING    = 0
 GAME_STATE_TITLE      = 1   ; title screen, waiting for Start
-GAME_STATE_CHARSELECT = 2   ; character select (stub only, see header)
+GAME_STATE_CHARSELECT = 2   ; source-normal set/player select flow
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
 GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (Phase G3 -- real, see below)
 GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (Phase G4 -- real, see below)
 GAME_STATE_ENDING     = 6   ; Phase G10 (plan_game.md 10): real ending/
                              ; credits sequence -- see core/ending.pasm.
+GAME_STATE_INTRO      = $8001 ; source LOGO/INTRO scene adaptation
 
 Game_State     = $7E2750   ; .dw -- current state, see GAME_STATE_* above
 Game_StatePrev = $7E2752   ; .dw -- last frame's state, used only to detect
@@ -92,6 +86,11 @@ Title_Step = $7E2760   ; .db -- see TITLE_STEP_* above; zeroed at boot
                         ; code sets Game_State back to PLAYING, so TITLE is
                         ; always ready to redraw from scratch the next time
                         ; it's entered (e.g. a later GAME OVER timeout)
+
+; Intro reuses the already initialized title drip byte; it is reset to zero
+; when the intro hands control to TITLE, so no extra boot-time state write is
+; needed in the fixed boot window.
+Intro_Step = Title_Step
 
 ; ============================================================================
 ; Phase G5 (plan_game.md 5): character select. Entered from the title
@@ -405,8 +404,13 @@ Game_State_Play__check_title:
     ; `rep #$31` just above runs unconditionally before this is reached.
 .a16
     cmp #GAME_STATE_TITLE
-    bne Game_State_Play__check_charselect
-    jmp Game_State_Play__title
+    beq Game_State_Play__title
+Game_State_Play__check_intro:
+    .a16
+    ; All ordinary states here are positive; INTRO uses the high bit so the
+    ; sign result from the TITLE comparison is a compact dispatch test.
+    bpl Game_State_Play__check_charselect
+    jsl Game_State_Play__intro
 Game_State_Play__check_charselect:
     ; width already .a16 here -- check_title's own `rep #$30` just above
     ; runs unconditionally before either branch reaches this label.

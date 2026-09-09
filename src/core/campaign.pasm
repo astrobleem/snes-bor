@@ -2,6 +2,75 @@
 ; progression does not consume the bank-0 runtime/vector budget.
 .include "../../tools/audio/campaign_config.pasm"
 
+; Source startup scene adaptation. The PAK's LOGO.TXT displays senile.gif,
+; then INTRO.TXT displays city.gif followed by flashes.gif. Preserve that
+; ordering and input-advance contract with two full-row text cards; the GIF
+; pixel animation remains a documented presentation adaptation.
+Game_State_Play__intro:
+    php
+    rep #$31
+.a16
+.i16
+    ; This boot-time zero-init is deferred into the first source startup
+    ; frame to keep the fixed bank-0 boot window within its hard boundary.
+    lda #0
+    sta.l Player_InvulnFrames
+    sep #$20
+.a8
+    lda.l Intro_Step
+    cmp #2
+    bcs Game_State_Play__intro_wait
+    cmp #1
+    beq Game_State_Play__intro_story
+    lda #10
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_IntroLogo - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+    sep #$20
+.a8
+    lda #1
+    sta.l Intro_Step
+    plp
+    rtl
+Game_State_Play__intro_story:
+    sep #$20
+.a8
+    lda #10
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_IntroStory - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+    sep #$20
+.a8
+    lda #2
+    sta.l Intro_Step
+    plp
+    rtl
+Game_State_Play__intro_wait:
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger
+    ora.l Input_trigger+1
+    beq Game_State_Play__intro_done
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
+    sep #$20
+.a8
+    lda #0
+    sta.l Intro_Step
+Game_State_Play__intro_done:
+    plp
+    rtl
+
 ; Resolve the next physical catalog index from the active logical campaign.
 ; Entry is .a16/.i16; carry set means the campaign has ended. The caller
 ; reasserts its width after this long return.

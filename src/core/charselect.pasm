@@ -58,6 +58,8 @@ Game_State_Play__charselect:
     beq Game_State_Play__charselect_clear_difficulty
     jmp Game_State_Play__charselect_normal
 Game_State_Play__charselect_normal:
+    sep #$20
+.a8
     lda.l CharSelect_Step
     cmp #CHARSELECT_STEP_WAIT
     bne Game_State_Play__charselect_check_draw_header
@@ -160,6 +162,8 @@ Game_State_Play__charselect_draw_header:
     lda #0
     sta.l BorSelect_P2Ordinal
 Game_State_Play__charselect_default_p2_done:
+    sep #$20
+.a8
     lda #0
     jsr Game_State_CharSelect_SetP1Physical
     lda #1
@@ -233,6 +237,9 @@ Game_State_Play__charselect_wait:
     dec a
     bra Game_State_Play__charselect_p2_left_set
 Game_State_Play__charselect_p2_left_wrap:
+    rep #$31
+.a16
+.i16
     lda #BOR_SELECT_COUNT-1
 Game_State_Play__charselect_p2_left_set:
     sta.l BorSelect_P2Ordinal
@@ -240,6 +247,9 @@ Game_State_Play__charselect_p2_left_set:
     jsr Game_State_CharSelect_SetP2Physical
     jmp Game_State_Play__charselect_done
 Game_State_Play__charselect_p2_right:
+    rep #$31
+.a16
+.i16
     lda.l Input2_trigger+1
     and #$0001
     beq Game_State_Play__charselect_p2_start
@@ -254,6 +264,9 @@ Game_State_Play__charselect_p2_right_set:
     jsr Game_State_CharSelect_SetP2Physical
     jmp Game_State_Play__charselect_done
 Game_State_Play__charselect_p2_start:
+    rep #$31
+.a16
+.i16
     lda.l Input2_trigger+1
     and #$0010
     beq Game_State_Play__charselect_p1_input
@@ -339,6 +352,9 @@ Game_State_Play__charselect_wait_start_pressed:
     bne Game_State_Play__charselect_start_ok
     jmp Game_State_Play__charselect_done
 Game_State_Play__charselect_start_ok:
+    rep #$31
+.a16
+.i16
     lda #CHARSELECT_STEP_CLEAR_HEADER
     sta.l CharSelect_Step
     jmp Game_State_Play__charselect_done
@@ -448,6 +464,14 @@ Game_State_CharSelect_ReloadPlayer:
     phd
     tcd
     jsl Anim_LoadCharacter_Long
+    ; Anim_LoadCharacter owns the global seek/index and animation fields;
+    ; this live-select caller must also commit the selected physical identity
+    ; into slot 0's instance field, which CharacterEntity_Init normally does
+    ; for freshly-created entities.
+    sep #$20
+.a8
+    lda.l CharSelect_Index
+    sta CHAR_ROSTER_INDEX
     pld
     ; notjustfreespecial.txt G5 slice: a live reselect can change whether
     ; (and which) real waiting-portrait data applies -- flag it to restream

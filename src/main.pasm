@@ -11375,7 +11375,7 @@ Hud_Play__text_done:
 TestSprite32x48:
     .incbin "assets/test_sprite_32x48.bin"
 
-.org $FC00
+.org $FC03
 
 scpu_boot:
     sei
@@ -11914,12 +11914,11 @@ scpu_clear_ppu:
     ; why a single end-of-routine flush stopped being safe once 3+ entities
     ; share one staging buffer), so THIS call is now just a defensive no-op
     ; safety net in case anything else ever gets queued between here and
-    ; the last per-entity flush -- draining an already-empty queue is a
-    ; cheap check-and-return, not worth removing. Live reselect (Anim_Play,
+    ; the last per-entity flush -- the queue is already drained by each
+    ; entity-create boundary, so no extra boot drain is needed. Live reselect (Anim_Play,
     ; Select button) reuses the exact same Anim_LoadCharacter enqueue path
     ; and lets Core_Nmi_Play drain it normally instead, since forced blank
     ; isn't guaranteed there.
-    jsr Core_Dma_ProcessQueue
     rep #$20
 .a16
 
@@ -12041,6 +12040,7 @@ Boot_LoadFp__done:
 .a8
     lda #0
     sta.l Text_G1DemoDrawn
+    sta.l G1_NumberSnapshotValid
     rep #$31
 .a16
 .i16
@@ -12131,18 +12131,16 @@ Boot_LoadFp__done:
     lda #0
     sta.l Oam_UploadFlag
     sta.l Oam_HighWaterSlot
-    ; Normal BOR startup begins at TITLE.  Low-level verifiers that need a
+    ; Normal BOR startup begins at the source LOGO/INTRO adaptation.  Low-level verifiers that need a
     ; gameplay precondition establish it explicitly after the source menu
     ; flow; production boot must not skip the logo/title contract.
-    inc a                           ; A was zero from the OAM init above
+    lda #GAME_STATE_INTRO
     sta.l Game_State
-    dec a                           ; restore zero for the following init
     ; Phase G3 (plan_game.md 3): Player_InvulnFrames must not rely on WRAM
     ; happening to power on zero (this project's own documented gotcha --
     ; see WorldMaxX's declaration comment) -- a large garbage value would
     ; delay the very first AI-vs-player hit-stun by up to ~4s, which is
     ; harmless but not correct boot state, so zero it explicitly here too.
-    sta.l Player_InvulnFrames
     sep #$20
 .a8
     lda #GAME_LIVES_START
@@ -12337,8 +12335,6 @@ scpu_main_loop:
     ; and BG2 is a single shared layer that can't host independently-moving
     ; actors regardless of pump speed).
 
-    sep #$20
-.a8
     ; Drain active transfers and serialize normal TAD processing through one
     ; bank-1 helper. This keeps the added stream dispatch out of bank 0.
     sep #$20
@@ -13172,6 +13168,10 @@ Font_PaletteData:
 Text_StringPool:
 Text_Str_Hello:
     .db "SNES-BOR", $00
+Text_Str_IntroLogo:
+    .db "BEATS OF RAGE                    ", $00
+Text_Str_IntroStory:
+    .db "CITY / FLASHES                   ", $00
 Text_Str_TitleMain:
     .db "SNES-BOR  1 PLAYER / 2 PLAYER   ", $00
 Text_Str_TitlePress:

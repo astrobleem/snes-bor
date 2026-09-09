@@ -39,7 +39,7 @@ SYM_PATH = os.path.join(REPO_ROOT, 'src', 'main.sym')
 PASM_PATH = os.path.join(REPO_ROOT, 'src', 'main.pasm')
 BASE = 0x8000
 
-BOOT_SEED_NAMES_HEX = ['FC00', '8000']
+BOOT_SEED_NAMES_HEX = ['FC03', '8000']
 BOOT_SEED_NAMES = ['nmi_handler', 'irq_handler']  # looked up by name, not
 # hardcoded hex, same rationale as OOP_SEED_NAMES above: these addresses
 # move as scpu_boot grows (already pushed at least twice in this project's

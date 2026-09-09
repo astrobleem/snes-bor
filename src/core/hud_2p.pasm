@@ -1,8 +1,8 @@
 ; ============================================================================
 ; core/hud_2p.pasm -- player-facing fixed-session two-player HUD (G14).
 ;
-; P2 remains the accepted fixed LEO session player.  This module only adds
-; presentation for the already-owned Entity1/G13_P2Score/G13_P2Lives state.
+; P2 is a source-normal selected player. This module only adds presentation
+; for the already-owned Entity1/G13_P2Score/G13_P2Lives state.
 ; It uses the existing HudStaging/TextStaging buffers and queues at most one
 ; P2 bar and one P2 text row per gameplay service, just like the established
 ; P1 HUD path.  Rows 7-9 are free gameplay rows: row 6 remains the boss bar,

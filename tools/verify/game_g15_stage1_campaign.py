@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (Reporter, open_session, pasm_constant, pasm_constant_in,
                       poll_until, read_block, repo_root_from)
+import game_bor_startup_select as startup
 
 ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
@@ -115,7 +116,10 @@ def main():
                 'DATA\\EASY\\1CEASY.TXT'])
 
     with open_session(__file__) as m:
-        m.reset_emulator()
+        startup.cold_to_title(m, r)
+        startup.select_case(m, r, 'KULA')
+        # Let the real 1A Stage_Load/frontpanel stream settle before applying
+        # the established legal clear precondition.
         m.run_frames(60)
         m.pause()
         r.check('boots on real BOR 1A (stage 0)', u16(m, STAGE_INDEX) == 0)

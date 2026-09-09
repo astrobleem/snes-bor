@@ -41,6 +41,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import open_session, pasm_constant, pasm_constant_in, read_block, repo_root_from, Reporter  # noqa: E402
+import game_bor_startup_select as startup  # noqa: E402
 
 ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
@@ -139,7 +140,8 @@ def main():
         expected_spawn_count = len(f.read()) // RECORD_SIZE
 
     with open_session(__file__) as m:
-        m.reset_emulator()
+        startup.cold_to_title(m, r)
+        startup.select_case(m, r, 'KULA')
         m.run_frames(60)
         m.pause()
 

@@ -16,12 +16,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (Reporter, exact_input_edge, open_session, pasm_constant,
                       pasm_constant_in, read_block, run_frames_exact, poll_until)
 from game_g13_two_player_input import clear_inputs, neutral_joint
+import game_bor_startup_select as startup
 
 ZP = pasm_constant('CHAR_ZP_LEN')
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SYM = os.path.join(ROOT, 'src', 'main.sym')
 sys.path.insert(0, ROOT)
 import build_rom
+from shipped_content import normal_player_entries
+BOR_DEFAULT_P2 = normal_player_entries('bor-original')[0][0]
 P1 = 0x7E0A00; P2 = P1 + ZP; ITEM = P1 + 2 * ZP
 POS_X = pasm_constant('CHAR_POS_X'); POS_Y = pasm_constant('CHAR_POS_Y')
 HP = pasm_constant('CHAR_HP'); HP_MAX = pasm_constant('CHAR_HP_MAX')
@@ -82,16 +85,13 @@ def roster_index(name):
     raise KeyError(name)
 
 def setup(m):
-    m.reset_emulator(); run_frames_exact(m, 180); clear_inputs(m)
-    # Use the real fixed-session production entry.  The title boundary is
-    # arranged as in the authoritative session verifier; P2 is loaded as
-    # fixed LEO by production, rather than by writing roster/jump fields.
-    m.write_u16(GAME_STATE, GAME_STATE_TITLE)
-    m.write_u16(GAME_STATE + 2, GAME_STATE_TITLE)
-    m.write_u8(TITLE_STEP, 2)
+    setup_reporter = Reporter('G13-SCORE-SETUP')
+    startup.cold_to_title(m, setup_reporter)
+    startup.title_to_charselect(m, two_player=True)
     exact_input_edge(m, m.BTN_START, 1, port=1)
-    run_frames_exact(m, 2)
-    m.write_u16(GAME_STATE, 0); m.write_u16(GAME_STATE + 2, 0)
+    exact_input_edge(m, 0, 1, port=1)
+    exact_input_edge(m, m.BTN_START, 1, port=0)
+    assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_PLAYING, 240)
     m.write_u8(SPAWN_INDEX, u8(m, SPAWN_COUNT))
     for b, x in ((P1, 120), (P2, 180)):
         m.write_u16(b + POS_X, x); m.write_u8(b + POS_Y, 150)
@@ -319,17 +319,15 @@ def packed_alive_instant_candidates():
                                    'spawn_hp': data[offset + 7]})
     return candidates
 
-def real_new_game_reset(m):
+def real_new_game_reset(m, reporter):
     """Exercise TITLE -> CHARSELECT -> NewGameReset, without calling it."""
-    m.reset_emulator(); run_frames_exact(m, 180); clear_inputs(m)
-    m.write_u16(GAME_STATE, GAME_STATE_TITLE); m.write_u16(GAME_STATE + 2, GAME_STATE_TITLE)
-    m.write_u8(TITLE_STEP, pasm_constant_in('src/core/game_state.pasm', 'TITLE_STEP_WAIT'))
-    # P2 Start selects the fixed session before gameplay.
-    exact_input_edge(m, m.BTN_START, 1, port=1); clear_inputs(m); run_frames_exact(m, 1)
-    # P1 Start advances the real title path into CHARSELECT.
-    exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
-    assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_CHARSELECT, 120)
-    assert poll_until(m, lambda mm: u8(mm, CHARSELECT_STEP) == CHARSELECT_WAIT, 180)
+    startup.cold_to_title(m, reporter)
+    startup.title_to_charselect(m, two_player=True)
+    # Source-normal 2P selection requires both independent readiness edges;
+    # confirm the default P2 and P1 here before observing NewGameReset.
+    exact_input_edge(m, m.BTN_START, 1, port=1)
+    exact_input_edge(m, 0, 1, port=1)
+    exact_input_edge(m, m.BTN_START, 1, port=0)
     # Dirty session state immediately before the production reset choke point.
     m.write_u16(GS, 12345); m.write_u16(P2S, 23456); m.write_u8(LIVES, 3); m.write_u8(P2L, 7)
     exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
@@ -352,7 +350,7 @@ def real_new_game_reset(m):
 def main():
     r = Reporter('G13-SCORE-PICKUP', kind='GATE'); results = {}
     with open_session(__file__) as m:
-        reset = real_new_game_reset(m); results['real_new_game_reset'] = reset
+        reset = real_new_game_reset(m, r); results['real_new_game_reset'] = reset
         rb = reset['reset_boundary']
         r.check('real NewGameReset boundary clears both scores/lives',
                 rb['score'] == 0 and rb['p2_score'] == 0 and
@@ -360,7 +358,7 @@ def main():
                 rb['p2_lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
         r.check('real reset preserves active P2 ownership',
                 reset['mode'] == 1 and reset['p2_input'] == 1 and
-                reset['p2_roster'] == 12 and reset['stage'] == 0 and
+                reset['p2_roster'] == BOR_DEFAULT_P2 and reset['stage'] == 0 and
                 reset['p1_hp'] == HP_MAX and reset['p2_hp'] == HP_MAX)
     def fresh(owner, kind):
         with open_session(__file__) as m:

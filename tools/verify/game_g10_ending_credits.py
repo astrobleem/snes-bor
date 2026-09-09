@@ -46,6 +46,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, pasm_constant_in,
                       exact_input_edge, poll_until, read_block, Reporter)  # noqa: E402
+import game_bor_startup_select as startup  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
 import build_rom  # noqa: E402
@@ -256,22 +257,10 @@ def main():
         # sequence's own return to TITLE lands mid-drip, unlike game_g5_
         # menus.py's own reference sequence, which forces GAME_STATE_TITLE
         # directly from a settled boot state with no drip in flight yet).
-        for _ in range(30):
-            if u8(m, Title_Step) == TITLE_STEP_WAIT:
-                break
-            m.run_frames(1)
-            m.pause()
+        poll_until(m, lambda mm: u8(mm, Title_Step) == TITLE_STEP_WAIT, 120)
+        startup.title_to_charselect(m, two_player=False)
         exact_input_edge(m, m.BTN_START, 1)
-        m.run_frames(60)
-        m.pause()
-        m.run_frames(30)
-        m.pause()
-        exact_input_edge(m, m.BTN_START, 1)
-        for _ in range(120):
-            if u16(m, GAME_STATE) == GAME_STATE_PLAYING:
-                break
-            m.run_frames(1)
-            m.pause()
+        poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_PLAYING, 240)
         # The exact frame that leaves CHARSELECT is the reset boundary: the
         # reset routine has completed and written fresh session state, while
         # no later PLAYING frame has yet had a chance to collect 1AEASY's

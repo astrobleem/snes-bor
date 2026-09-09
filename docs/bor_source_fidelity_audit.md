@@ -80,6 +80,12 @@ Occurrences must be read through the level parser, not keyword names alone.
 The Easy campaign inventory is in `docs/g15_bor_campaign_audit.md`; the
 current parser/runtime is in `tools/bor_converter/` and `src/core/spawn.pasm`.
 
+The `SNES-BOR` and `1024` strings are `TEMP_DEV_SCAFFOLD` probes from the
+old G1 renderer gate, not original Beats of Rage presentation. The revised G1
+gate validates their DrawString/DrawNumber producer transactions and queued
+DMA parameters at the diagnostic boundary; it does not require row 5 to
+retain `1024` after later startup screens legitimately own that row.
+
 | Keyword/feature | Source meaning/evidence | Current status | Classification |
 |---|---|---|---|
 | `wait` | Source wave/scroll gating in level files | trigger hold and camera clamp | SOURCE_ADAPTATION |
@@ -179,7 +185,8 @@ animation-presence branch without fabricating attack data. The source
 freespecial `dojump(2)` branch remains `SOURCE_FEATURE_MISSING` for the
 current reachable SNES command path because Mighty has no freespecial data.
 
-The startup implementation now enters TITLE instead of direct PLAYING and
-presents the currently available Easy set before player selection. BOR's
-source logo/intro scene chain remains a bounded `SOURCE_ADAPTATION` task; it
-is not silently represented as complete by the title-state change alone.
+The startup implementation now enters INTRO, presents bounded static/text
+adaptations of the source logo and intro scenes, then reaches TITLE and the
+currently available Easy set before player selection. State/order semantics
+are `SOURCE_MATCH`; omitted GIF artwork/audio are `SOURCE_ADAPTATION`.
+Direct PLAYING and direct TITLE boot scaffolds are removed from normal reset.

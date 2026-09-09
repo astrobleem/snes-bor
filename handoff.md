@@ -10,15 +10,16 @@
 > this note; review `docs/bor_source_fidelity_audit.md` first.
 
 > **Current authority — 2026-09-08:** G1–G10, G12, and G13 are complete for
-> their accepted scopes. The production six-slot policy is P1 slot 0, fixed
-> P2 LEO slot 1, and NPC slots 2–5; one-player mode has five NPCs and
+> their accepted scopes. The production six-slot policy is P1 slot 0, source-
+> normal selected P2 slot 1, and NPC slots 2–5; one-player mode has five NPCs and
 > two-player mode has four. G13 provides the accepted fixed-session two-player
 > lifecycle, independent input/score/lives/continue ownership, either-
 > controller pause, shared camera/tether, and stage handoff. **G14 is complete
-> for its accepted scope:** P1 remains normally selectable, P2 is fixed LEO
-> with explicit presentation, and the HUD presents independent P1/P2 state.
+> for its accepted scope:** P1 and P2 use the source-normal Kula/Max/Mary/Mighty
+> mapping with explicit presentation, and the HUD presents independent P1/P2 state.
 > The following major milestone is **G15 — finish the original Beats of Rage
-> campaign/content**, which is not started.
+> campaign/content**; the current P1 source-fidelity work is in progress and
+> 2EASY/death-continue work has not started.
 > This file retains historical debugging notes; do not treat older “next step”
 > sections below as current instructions.
 

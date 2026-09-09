@@ -18,7 +18,7 @@
 
 > **Roadmap rebaseline after accepted G13 (2026-09-08).** G1–G10, G12, and
 > G13 are closed for their accepted scopes. Six actor slots are production:
-> P1 is slot 0, fixed P2 LEO is slot 1, and NPCs occupy slots 2–5. One-player
+> P1 is slot 0, source-normal selected P2 is slot 1, and NPCs occupy slots 2–5. One-player
 > mode supports five NPCs; two-player mode supports four. The accepted G13
 > slice includes independent P1/P2 input and score/lives/continue ownership,
 > either-controller pause, shared camera/tether behavior, and 1P/2P stage
@@ -26,8 +26,8 @@
 > they conflict with this banner or README, this banner is current authority.
 >
 > **G14 — player-facing two-player completion/polish — is complete for its
-> accepted scope.** P1 remains normally selectable; P2 is fixed LEO with
-> explicit presentation. Independent P1/P2 HUD state, accepted G13 lifecycle,
+> accepted scope.** P1 and P2 use the source-normal Kula/Max/Mary/Mighty map
+> with explicit presentation. Independent P1/P2 HUD state, accepted G13 lifecycle,
 > and two-player/four-NPC regression are retained. Do not redesign transport,
 > increase actor count, add a script VM, or reopen unrelated audio work.
 > **Following milestone: G15 — finish the original Beats of Rage
@@ -2489,7 +2489,7 @@ The two shortcuts from §0 come due here.
   currently doing a static test blit); or accept lower animation rates for
   background enemies.
 - **2-player co-op.** This former G12 frontier is now accepted G13 scope. The
-  current policy is fixed-session P1 slot 0/P2 LEO slot 1, NPC slots 2–5,
+  current policy is source-normal P1 slot 0/P2 selected player slot 1, NPC slots 2–5,
   independent player state, either-controller pause, shared camera/tether, and
   stage handoff. Future player-facing completion/polish is G14.
 
@@ -2507,8 +2507,8 @@ G14 player-facing two-player completion/polish
 
 ### G14 — player-facing two-player completion/polish — COMPLETE
 
-P1 remains normally selectable and P2 remains fixed LEO, explicitly shown in
-the player-facing session flow. The HUD presents independent P1/P2 HP, lives,
+P1 and P2 use the source-normal Kula/Max/Mary/Mighty mapping, explicitly shown
+in the player-facing session flow. The HUD presents independent P1/P2 HP, lives,
 and score. Accepted G13 lifecycle/combat ownership, one-player/five-NPC
 capacity, two-player/four-NPC capacity, stage handoff, pause, and regression
 coverage remain intact. The single TextStaging architecture is retained, with

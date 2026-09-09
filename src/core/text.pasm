@@ -99,6 +99,22 @@ Text_LabelValue       = $7E274C   ; .dw -- Core_Text_DrawLabeledNumber's 4th
                                     ; DmaRequest_* already uses for Core_Dma_
                                     ; Enqueue)
 
+; G1 verification-only transaction snapshot.  This deliberately lives in
+; the audited gap $7E2840-$7E2853: it is outside TextStaging/text state
+; ($7E2700-$7E274D), Game_State/campaign/HUD state ($7E2750-$7E27AC), the
+; indexed audio trace ($7E2820-$7E282F), and the audio-stream declarations
+; beginning at $7E28A0.  It is not a producer buffer and is never read by
+; gameplay, DMA, or state dispatch.
+G1_NumberSnapshotValid      = $7E2840   ; .db -- set last after the copy
+G1_NumberSnapshotRow        = $7E2841   ; .db
+G1_NumberSnapshotWords      = $7E2842   ; .dw[4]
+G1_NumberSnapshotDmaSource  = $7E284A   ; .dw
+G1_NumberSnapshotDmaBank    = $7E284C   ; .db
+G1_NumberSnapshotDmaTarget  = $7E284D   ; .dw (DMA byte address)
+G1_NumberSnapshotDmaLength  = $7E284F   ; .dw
+G1_NumberSnapshotDmaType    = $7E2851   ; .db
+G1_NumberSnapshotOffset     = $7E2852   ; .dw
+
 ; TextStaging is ONE shared buffer reused by every DrawString/DrawNumber
 ; call, and Text_FlushRow's DMA is QUEUED, not synchronous (core/dma.pasm:
 ; "Queue-only for now", drained once per frame from Core_Nmi_Play/NMI).
@@ -617,6 +633,57 @@ Core_Text_G1Demo:
     ldx #0
     ldy #1024
     jsr Core_Text_DrawNumber
+
+    ; Copy only after DrawNumber has returned from Text_FlushRow/Enqueue.
+    ; This is the synchronous boundary owned by the diagnostic call itself;
+    ; no later screen owner has run yet.  Keep the valid flag last so the
+    ; verifier can never accept a partially-written snapshot.
+    sep #$20
+.a8
+    lda #0
+    sta.l G1_NumberSnapshotValid
+    lda.l Text_Row
+    sta.l G1_NumberSnapshotRow
+    rep #$31
+.a16
+.i16
+    ldx #0
+Core_Text_G1Demo__snapshot_words:
+    rep #$31
+.a16
+.i16
+    lda.l TextStaging,x
+    sta.l G1_NumberSnapshotWords,x
+    inx
+    inx
+    cpx #8
+    bne Core_Text_G1Demo__snapshot_words
+    lda.l DmaRequest_SourceAddrLow
+    sta.l G1_NumberSnapshotDmaSource
+    sep #$20
+.a8
+    lda.l DmaRequest_SourceBank
+    sta.l G1_NumberSnapshotDmaBank
+    rep #$31
+.a16
+.i16
+    lda.l DmaRequest_TargetAddr
+    sta.l G1_NumberSnapshotDmaTarget
+    lda.l DmaRequest_Length
+    sta.l G1_NumberSnapshotDmaLength
+    sep #$20
+.a8
+    lda.l DmaRequest_TypeFlags
+    sta.l G1_NumberSnapshotDmaType
+    rep #$31
+.a16
+.i16
+    lda.l Text_StagingOffset
+    sta.l G1_NumberSnapshotOffset
+    sep #$20
+.a8
+    lda #1
+    sta.l G1_NumberSnapshotValid
     rts
 Core_Text_G1Demo__done:
     rts

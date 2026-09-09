@@ -51,7 +51,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, pasm_constant_in,
                       read_block, Reporter, roster, playable_roster,
-                      exact_input_edge)  # noqa: E402
+                      exact_input_edge, poll_until)  # noqa: E402
+import game_bor_startup_select as startup  # noqa: E402
+from shipped_content import normal_player_entries  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -88,9 +90,10 @@ EXPECT_MAIN = 'SNES-BOR  1 PLAYER / 2 PLAYER   '
 EXPECT_PRESS = 'P1 START: 1P   P2 START: 2P     '
 EXPECT_BLANK = ' ' * TEXT_ROW_ENTRIES
 EXPECT_HEADER = 'CHARACTER SELECT'.ljust(TEXT_ROW_ENTRIES)
-EXPECT_INSTR = 'LEFT/RIGHT SELECT  START GO'.ljust(TEXT_ROW_ENTRIES)
-EXPECT_RALF = 'RALF'.ljust(TEXT_ROW_ENTRIES)
-EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
+EXPECT_INSTR = 'EASY'.ljust(TEXT_ROW_ENTRIES)
+EXPECT_KULA = 'KULA'.ljust(TEXT_ROW_ENTRIES)
+EXPECT_MAX = 'MAX'.ljust(TEXT_ROW_ENTRIES)
+EXPECT_MIGHTY = 'MIGHTY'.ljust(TEXT_ROW_ENTRIES)
 # The roster's last slot -- was a hand-typed name, hand-synced to build_
 # rom.py's ROSTER_PREFIXES by a human every time the roster grew (YASHIRO
 # through Phase 15, then MOUSER/FOOT01/ROCK/LEATHER/BEBOP/FOOT02-04/LEO
@@ -112,6 +115,7 @@ EXPECT_JHUN = 'JHUN'.ljust(TEXT_ROW_ENTRIES)
 # caught the original bug in the first full regression run after out/apple
 # was added).
 EXPECT_LAST_SLOT = playable_roster()[-1].upper().ljust(TEXT_ROW_ENTRIES)
+BOR_SELECT_INDICES = [index for index, _ in normal_player_entries('bor-original')]
 
 
 def read_row_words(m, row, count=TEXT_ROW_ENTRIES):
@@ -150,12 +154,7 @@ def symbol(name):
 def main():
     r = Reporter('G5', kind='GATE')
     with open_session(__file__) as m:
-        m.reset_emulator()
-        m.run_frames(120)
-        m.pause()
-
-        # --- Force TITLE, same as game_g2_states.py. ---
-        set_game_state(m, GAME_STATE_TITLE)
+        startup.cold_to_title(m, r)
         m.run_frames(30)
         m.pause()
 
@@ -170,11 +169,9 @@ def main():
         r.check(f'Game_State still GAME_STATE_TITLE after the drip settles ({got_state})',
                  got_state == GAME_STATE_TITLE)
 
-        # --- Start at title: teardown drip (blank both title rows), then
-        # CHARSELECT (not PLAYING directly anymore). ---
-        m.set_input(m.BTN_START, 10)
-        m.run_frames(60)
-        m.pause()
+        # --- Start at title through the real Easy selector: teardown drip,
+        # then CHARSELECT (not PLAYING directly anymore). ---
+        startup.title_to_charselect(m, two_player=False)
 
         got_state = read_block(m, GAME_STATE, 32)[0]
         r.check(f'Start at title transitions to GAME_STATE_CHARSELECT ({got_state})',
@@ -192,15 +189,15 @@ def main():
         got_instr = decode_row(m, CHARSELECT_ROW_INSTR)
         r.check(f'charselect header row ({CHARSELECT_ROW_HEADER}) matches ({got_header!r})',
                  got_header == EXPECT_HEADER)
-        r.check(f'charselect name row ({CHARSELECT_ROW_NAME}) shows RALF initially ({got_name!r})',
-                 got_name == EXPECT_RALF)
+        r.check(f'charselect name row ({CHARSELECT_ROW_NAME}) shows KULA initially ({got_name!r})',
+                 got_name == EXPECT_KULA)
         r.check(f'charselect instructions row ({CHARSELECT_ROW_INSTR}) matches ({got_instr!r})',
                  got_instr == EXPECT_INSTR)
 
         idx = read_block(m, CharSelect_Index, 32)[0]
         roster_count = read_block(m, CharSelect_RosterCount, 32)[0]
         loaded = read_block(m, CharSelect_Loaded, 32)[0]
-        r.check(f'CharSelect_Index starts at 0 ({idx})', idx == 0)
+        r.check(f'CharSelect_Index starts at Kula runtime index ({idx})', idx == BOR_SELECT_INDICES[0])
         r.check(f'CharSelect_Loaded == 1 ({loaded})', loaded == 1)
 
         # --- Right: cycles forward, redraws the name row same-frame,
@@ -215,9 +212,9 @@ def main():
         got_name = decode_row(m, CHARSELECT_ROW_NAME)
         loaded = read_block(m, CharSelect_Loaded, 32)[0]
         pal_after = bytes(read_block(m, PLAYER_PALETTE_ADDR, 32, mem_type='snesCgRam'))
-        r.check(f'Right advances CharSelect_Index to 1 ({idx})', idx == 1)
-        r.check(f'name row redrawn to JHUN after Right ({got_name!r})',
-                 got_name == EXPECT_JHUN)
+        r.check(f'Right advances CharSelect_Index to Max runtime index ({idx})', idx == BOR_SELECT_INDICES[1])
+        r.check(f'name row redrawn to MAX after Right ({got_name!r})',
+                 got_name == EXPECT_MAX)
         r.check(f'CharSelect_Loaded still 1 after Right reselect ({loaded})', loaded == 1)
         r.check('CGRAM palette changed after Right reselect (real reload, not just the index)',
                  pal_after != pal_before)
@@ -247,14 +244,14 @@ def main():
               f'player_oam_y={player_oam_y} (dead-hide sentinel={DEAD_OAM_Y}) '
               f'CHAR_FRAME_INDEX samples={frame_samples}')
 
-        # --- Left from slot 1 goes back to slot 0 (RALF). ---
+        # --- Left from slot 1 goes back to slot 0 (KULA). ---
         m.set_input(m.BTN_LEFT, 10)
         m.run_frames(30)
         m.pause()
         idx = read_block(m, CharSelect_Index, 32)[0]
         got_name = decode_row(m, CHARSELECT_ROW_NAME)
-        r.check(f'Left decrements CharSelect_Index back to 0 ({idx})', idx == 0)
-        r.check(f'name row redrawn to RALF after Left ({got_name!r})', got_name == EXPECT_RALF)
+        r.check(f'Left returns CharSelect_Index to Kula ({idx})', idx == BOR_SELECT_INDICES[0])
+        r.check(f'name row redrawn to KULA after Left ({got_name!r})', got_name == EXPECT_KULA)
 
         # --- Left again from slot 0 wraps to the roster's last slot. ---
         m.set_input(m.BTN_LEFT, 10)
@@ -262,10 +259,9 @@ def main():
         m.pause()
         idx = read_block(m, CharSelect_Index, 32)[0]
         got_name = decode_row(m, CHARSELECT_ROW_NAME)
-        r.check(f'Left from slot 0 wraps to roster_count-1 ({idx} == {roster_count - 1})',
-                 idx == roster_count - 1)
-        r.check(f'name row redrawn to the roster\'s real last slot after wrap ({got_name!r})',
-                 got_name == EXPECT_LAST_SLOT)
+        r.check(f'Left from Kula wraps to Mighty ({idx})', idx == BOR_SELECT_INDICES[-1])
+        r.check(f'name row redrawn to the source roster\'s last slot after wrap ({got_name!r})',
+                 got_name == EXPECT_MIGHTY)
 
         # --- Start at charselect: teardown drip (blank all three rows),
         # then GAME_STATE_PLAYING. ---
@@ -275,7 +271,7 @@ def main():
         m.remove_hook(enter_playing_hook)
 
         got_state = read_block(m, GAME_STATE, 32)[0]
-        r.check(f'Start at charselect transitions to GAME_STATE_PLAYING ({got_state})',
+        r.check('Start at charselect reaches the production entry boundary',
                  boundary.get('reason') == 'hookFired')
 
         # This hook is before Game_State_NewGameReset/Stage_Load, after the
@@ -288,8 +284,11 @@ def main():
         r.check(f'charselect header row cleared on exit ({got_header!r})', got_header == EXPECT_BLANK)
         r.check(f'charselect name row cleared on exit ({got_name!r})', got_name == EXPECT_BLANK)
         r.check(f'charselect instructions row cleared on exit ({got_instr!r})', got_instr == EXPECT_BLANK)
-        m.run_frames(1)
-        m.pause()
+        poll_until(m, lambda mm: read_block(mm, GAME_STATE, 32)[0] == GAME_STATE_PLAYING,
+                   120, step=1)
+        got_state = read_block(m, GAME_STATE, 32)[0]
+        r.check(f'charselect teardown resumes GAME_STATE_PLAYING ({got_state})',
+                got_state == GAME_STATE_PLAYING)
 
     r.finish()
 

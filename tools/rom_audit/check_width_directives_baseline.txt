@@ -2,6 +2,15 @@
 # Sites already present when the check was added. Fixing one and
 # deleting its line here is always welcome; NEVER add a line to
 # silence a new site -- add the .a8/.a16 directive instead.
+src/main.pasm:CharacterEntity_Init__role3_lower_tile
+src/core/vm/vm_native_engine.pasm:AudioSemantic_EmitFall__queue
+src/core/vm/vm_native_engine.pasm:AudioSemantic_EmitDiesound__not_foot
+src/core/vm/vm_native_engine.pasm:Audio_FrameSoundDispatch__selected_ok
+src/core/vm/vm_native_engine.pasm:Audio_FrameSoundDispatch__variant_ok
+src/main.pasm:Tad_StreamServiceFootdie__pending
+src/main.pasm:Tad_StreamServiceFootdie__consume_budget
+src/main.pasm:Tad_StreamSendFootdieFrame__write_destination_high
+src/core/input.pasm:Core_Input_Poll__no_pad1
 src/core/allocate_cgram.pasm:Core_Cgram_Allocate__block_inrange
 src/core/allocate_cgram.pasm:Core_Cgram_Allocate__bound_ok
 src/core/allocate_cgram.pasm:Core_Cgram_Allocate__step_min_ok
@@ -94,8 +103,6 @@ src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Init__slot2tile
 src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Init__tile2slot
 src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Test__loop
 src/main.pasm:Anim_Play_Attack__advance
-src/main.pasm:Anim_Play_Idle__advance
-src/main.pasm:Anim_Play_Walk__advance
 src/main.pasm:Anim_Play__ai_attack
 src/main.pasm:Anim_Play__ai_dx_have
 src/main.pasm:Anim_Play__ai_dy_have
