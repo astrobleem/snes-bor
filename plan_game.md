@@ -2509,9 +2509,12 @@ G14 HUD text serialized to at most one flush per gameplay frame.
 TEXT-1 was inherited from before G14 and is now closed by restoring the string
 pool's bank ownership; see `docs/text_drawstring_inherited_defect.md`.
 
-### G15 — finish the original Beats of Rage campaign/content — NOT STARTED
+### G15 — finish the original Beats of Rage campaign/content — BATCH A COMPLETE
 
-G15 is the following major milestone and is audit/plan-only at this point;
+G15 Batch A is complete and accepted: the shipped original BOR prefix is
+`1AEASY -> 1BEASY -> 1CEASY` (3 of 14 Easy parts), while the existing TMNT
+development tail remains after it. Batch B is next, starting with `2EASY`.
+The remaining campaign is still audit/plan-only at this point;
 the source-backed audit is `docs/g15_bor_campaign_audit.md`.
 
 New engine architecture is added only when reachable game content proves that

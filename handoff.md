@@ -2033,11 +2033,10 @@ gate, not a regression.
 
 ## G15 Batch A handoff
 
-The next implementation slice is the real BOR stage-1 completion batch:
-ship `1CEASY` after the canonical `1AEASY -> 1BEASY` prefix, preserve the
-existing TMNT development tail, and gate all three real Stage_Load edges.
-Batch B will add `2EASY`; do not describe the current post-1C TMNT handoff
-as a BOR stage-2 result. Keep the six-actor bound, current animation
+Batch A is complete and accepted: the shipped BOR prefix is the canonical
+`1AEASY -> 1BEASY -> 1CEASY`, with the existing TMNT development tail still
+following it. Batch B is next and will add `2EASY`; do not describe the
+current post-1C TMNT handoff as a BOR stage-2 result. Keep the six-actor bound, current animation
 transport, script-VM scope, G12/G13/G14, and SOUND architecture unchanged.
 
 See `docs/g15_batch_a_stage1.md` and

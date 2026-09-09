@@ -49,7 +49,8 @@ import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, repo_root_from, Reporter  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in, poll_until,
+                      read_block, repo_root_from, Reporter)  # noqa: E402
 
 ROOT = repo_root_from(None)
 sys.path.insert(0, ROOT)
@@ -63,12 +64,19 @@ STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX'
 PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
 
 SCREEN_POS_X = 0x7E1601   # core/screen.pasm `.enum $7E1600`, same carve-out as other gates
+# `Screen_MaxX` is the .enum $7E1600 field at offset $0E (the harness's
+# pasm_constant helper intentionally handles assignments, not enum members).
+SCREEN_MAX_X = 0x7E160E
+SCREEN_TARGET_X = 0x7E1616
+SPAWN_PRECLEAR_HOLD_X = pasm_constant_in('src/core/spawn.pasm', 'Spawn_PreClearHoldX')
 
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 SPAWN_COUNT_ADDR = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
-Entity1_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity1_IsBoss')
-Entity2_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity2_IsBoss')
-Entity3_IsBoss = pasm_constant_in('src/core/spawn.pasm', 'Entity3_IsBoss')
+ENTITY_ISBOSS = [None] + [
+    pasm_constant_in('src/core/spawn.pasm' if slot <= 3 else 'src/main.pasm',
+                     f'Entity{slot}_IsBoss')
+    for slot in range(1, 6)
+]
 
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
@@ -92,9 +100,9 @@ CharSelect_Index = 0x7E53B6
 CharSelect_RosterCount = 0x7E53B7
 
 PLAYER_BASE = 0x7E0A00
-ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_ZP_LEN,
-                PLAYER_BASE + 3 * CHAR_ZP_LEN]
-ENTITY_ISBOSS = [None, Entity1_IsBoss, Entity2_IsBoss, Entity3_IsBoss]
+PLAYER_POS_X = PLAYER_BASE + 4
+ENTITY_BASES = [PLAYER_BASE + slot * CHAR_ZP_LEN for slot in range(6)]
+CHAR_ROSTER_INDEX = pasm_constant('CHAR_ROSTER_INDEX')
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
@@ -107,6 +115,35 @@ from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: 
 def _read(path):
     with open(path, 'rb') as f:
         return f.read()
+
+
+def _norm(value):
+    return value.replace('/', '\\').upper().strip('\\')
+
+
+def stage_config_for(source_level):
+    matches = [stage for stage in build_rom.STAGE_CONFIGS
+               if _norm(stage['source_level']) == _norm(source_level)]
+    if len(matches) != 1:
+        raise RuntimeError(f'expected one STAGE_CONFIGS match for {source_level}, got {len(matches)}')
+    return matches[0]
+
+
+def stage_index_for(source_level):
+    matches = [index for index, stage in enumerate(build_rom.STAGE_CONFIGS)
+               if _norm(stage['source_level']) == _norm(source_level)]
+    if len(matches) != 1:
+        raise RuntimeError(f'expected one stage index for {source_level}, got {matches}')
+    return matches[0]
+
+
+def roster_index_for(converted_prefix):
+    wanted = _norm(converted_prefix)
+    matches = [index for index, prefix in enumerate(build_rom.ROSTER_PREFIXES)
+               if _norm(prefix) == wanted]
+    if len(matches) != 1:
+        raise RuntimeError(f'expected one roster index for {converted_prefix}, got {matches}')
+    return matches[0]
 
 
 def byte_at(m, addr):
@@ -127,27 +164,56 @@ def entity_triple(m, base):
 def force_win_and_wait(m, r, from_stage, label):
     spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
     m.write_u8(SPAWN_INDEX, spawn_count)
-    for _ in range(240):
+    # Stage completion requires the legal camera-at-right-edge predicate as
+    # well as an exhausted queue and no live AI. Set it before servicing the
+    # completion frame, matching the accepted G4/stage-campaign gates.
+    true_max = word_at(m, STAGE_TRUE_MAX_X)
+    m.write_u16(PLAYER_POS_X, true_max)
+    m.write_u16(SCREEN_POS_X, true_max)
+    m.write_u16(SCREEN_TARGET_X, true_max)
+    def clear_npcs(session):
         for base in ENTITY_BASES[1:]:
-            m.write_u8(base + CHAR_HP, 0)
-        if byte_at(m, STAGE_CLEARED) == 1:
-            break
-        m.run_frames(1)
-        m.pause()
+            session.write_u8(base + CHAR_HP, 0)
+        return byte_at(session, STAGE_CLEARED) == 1
+
+    committed = poll_until(m, clear_npcs, max_frames=240)
     cleared = byte_at(m, STAGE_CLEARED)
     r.check(f'{label}: win condition fired (Stage_Cleared set)', cleared == 1)
 
-    true_max = word_at(m, STAGE_TRUE_MAX_X)
+    # Wait/group content may have held the camera clamp at its last trigger.
+    # Once the production clear predicate fired, release that legal hold so
+    # the normal stage-handoff edge can observe the true right boundary.
+    m.write_u16(SCREEN_MAX_X, true_max)
+    m.write_u16(SPAWN_PRECLEAR_HOLD_X, true_max)
+    m.write_u16(SCREEN_TARGET_X, true_max)
     m.write_u16(SCREEN_POS_X, true_max)
-    m.run_frames(10)
+    reached = poll_until(
+        m,
+        lambda session: word_at(session, GAME_STAGE_INDEX) == from_stage + 1
+        and word_at(session, GAME_STATE) == GAME_STATE_PLAYING,
+        max_frames=600,
+        step=5,
+    )
+    if not reached:
+        # Some long wait/group stages recompute the camera target from the
+        # player after the direct edge setup. Finish this bounded diagnostic
+        # handoff through the real held-Right path, keeping only the already
+        # established legal clear precondition alive.
+        for _ in range(120):
+            for base in ENTITY_BASES[1:]:
+                m.write_u8(base + CHAR_HP, 0)
+            m.set_input(m.BTN_RIGHT, 60)
+            m.pause()
+            if (word_at(m, GAME_STAGE_INDEX) == from_stage + 1
+                    and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
+                reached = True
+                break
+    if not reached:
+        print(f'{label}: transition diagnostic stage={word_at(m, GAME_STAGE_INDEX)} '
+              f'state={word_at(m, GAME_STATE)} cleared={byte_at(m, STAGE_CLEARED)} '
+              f'pending={byte_at(m, pasm_constant_in("src/core/game_state.pasm", "Stage_LoadPending"))} '
+              f'screen={word_at(m, SCREEN_POS_X)} true_max={word_at(m, STAGE_TRUE_MAX_X)}')
     m.pause()
-
-    for _ in range(20):
-        if (word_at(m, GAME_STAGE_INDEX) != from_stage
-                and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
-            break
-        m.run_frames(30)
-        m.pause()
 
 
 def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_roster_idx):
@@ -180,7 +246,7 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
     # slot happened to boot with). ---
     m.run_frames(10)
     m.pause()
-    before = {slot: entity_triple(m, ENTITY_BASES[slot]) for slot in (1, 2, 3)}
+    before = {slot: entity_triple(m, ENTITY_BASES[slot]) for slot in range(1, 6)}
     r.check(f'{roster_prefix}: no AI slot already shows the real triple '
              f'{expected_triple} before the spawn triggers (got {before})',
              expected_triple not in before.values())
@@ -192,7 +258,7 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
         m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
         m.set_input(m.BTN_RIGHT, 20)
         m.pause()
-        for slot in (1, 2, 3):
+        for slot in range(1, 6):
             if byte_at(m, ENTITY_ISBOSS[slot]) == 1:
                 boss_slot = slot
                 break
@@ -217,6 +283,10 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
         r.check(f'{roster_prefix}: slot {boss_slot} now shows its OWN real '
                  f'(idle,walk,attack) triple {expected_triple} (got {after})',
                  after == expected_triple)
+        actual_roster = byte_at(m, ENTITY_BASES[boss_slot] + CHAR_ROSTER_INDEX)
+        r.check(f'{roster_prefix}: slot {boss_slot} has its OWN roster index '
+                 f'{expected_roster_idx} (got {actual_roster})',
+                 actual_roster == expected_roster_idx)
     else:
         r.check(f'{roster_prefix}: slot triple matches its own real moveset', False)
 
@@ -238,15 +308,25 @@ def main():
         r.check(f'CharSelect_RosterCount sane before any reassignment ({roster_count_before} == '
                  f'{expected_roster_count})', roster_count_before == expected_roster_count)
 
-        # --- Reach stage 4 (Rock's own standalone boss stage) via the real
-        # chain, same force-win idiom as game_g9_tmnt_boss.py/
-        # game_tmnt_campaign.py -- there is no direct-load path. ---
-        for target in range(1, 5):
-            force_win_and_wait(m, r, from_stage=target - 1, label=f'{target-1}->{target}')
-            got = word_at(m, GAME_STAGE_INDEX)
-            r.check(f'Game_StageIndex advances {target-1} -> {target} ({got})', got == target)
+        rock_config = stage_config_for('DATA\\LEVELS\\ROCK.TXT')
+        leather_config = stage_config_for('DATA\\LEVELS\\LEATHER.TXT')
+        rock_stage = stage_index_for('DATA\\LEVELS\\ROCK.TXT')
+        leather_stage = stage_index_for('DATA\\LEVELS\\LEATHER.TXT')
+        rock_roster = roster_index_for('out/rock')
+        leather_roster = roster_index_for('out/leather')
+        print(f'derived Rock stage={rock_stage} roster={rock_roster}; '
+              f'Leather stage={leather_stage} roster={leather_roster}')
+        r.check('Rock precedes Leather in STAGE_CONFIGS', rock_stage < leather_stage)
 
-        check_boss_stage(m, r, 4, 'out/spawn_stage3rock/spawn_table.bin', 'rock', 6)
+        # Reach Rock via the real chain. Content identity, not a permanent
+        # numeric TMNT-tail index, defines the destination.
+        for target in range(1, rock_stage + 1):
+            current = target - 1
+            force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}')
+            got = word_at(m, GAME_STAGE_INDEX)
+            r.check(f'Game_StageIndex advances {current} -> {target} ({got})', got == target)
+
+        check_boss_stage(m, r, rock_stage, rock_config['spawn'], 'rock', rock_roster)
 
         # --- The actual regression check: Rock's own reassignment must not
         # have disturbed the player's persistent char-select state (the real
@@ -258,15 +338,17 @@ def main():
                  f'({byte_at(m, CharSelect_Index)} == {char_select_index_before})',
                  byte_at(m, CharSelect_Index) == char_select_index_before)
 
-        # --- Continue on to stage 5 (Leather's own standalone boss stage)
-        # -- proves this isn't a one-off, and that back-to-back blocking
+        # --- Continue on to Leather's own standalone boss stage. This proves
+        # this isn't a one-off, and that back-to-back blocking
         # Anim_LoadCharacter reloads (Rock's reassignment, then Leather's)
         # don't corrupt anything. ---
-        force_win_and_wait(m, r, from_stage=4, label='4->5')
-        got = word_at(m, GAME_STAGE_INDEX)
-        r.check(f'Game_StageIndex advances 4 -> 5 ({got})', got == 5)
+        for target in range(rock_stage + 1, leather_stage + 1):
+            current = target - 1
+            force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}')
+            got = word_at(m, GAME_STAGE_INDEX)
+            r.check(f'Game_StageIndex advances {current} -> {target} ({got})', got == target)
 
-        check_boss_stage(m, r, 5, 'out/spawn_stage4leather/spawn_table.bin', 'leather', 7)
+        check_boss_stage(m, r, leather_stage, leather_config['spawn'], 'leather', leather_roster)
 
         # --- Same regression check after the SECOND back-to-back
         # reassignment (a different roster identity, Leather not Rock) --

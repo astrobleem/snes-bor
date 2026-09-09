@@ -44,7 +44,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, poll_until, read_block, Reporter  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in,
+                      exact_input_edge, poll_until, read_block, Reporter)  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -250,18 +251,27 @@ def main():
                 break
             m.run_frames(1)
             m.pause()
-        m.set_input(m.BTN_START, 10)
+        exact_input_edge(m, m.BTN_START, 1)
         m.run_frames(60)
         m.pause()
-        # CHARSELECT -> PLAYING (a second real Start press; no roster
-        # navigation needed, default slot 0 is a real playable character).
-        # charselect's own draw drip needs the same settle margin.
         m.run_frames(30)
         m.pause()
-        m.set_input(m.BTN_START, 10)
+        exact_input_edge(m, m.BTN_START, 1)
+        for _ in range(120):
+            if u16(m, GAME_STATE) == GAME_STATE_PLAYING:
+                break
+            m.run_frames(1)
+            m.pause()
+        # The exact frame that leaves CHARSELECT is the reset boundary: the
+        # reset routine has completed and written fresh session state, while
+        # no later PLAYING frame has yet had a chance to collect 1AEASY's
+        # trigger-0 1UP.
+        reset_boundary = {'score': u16(m, Game_Score),
+                          'lives': u8(m, Game_Lives),
+                          'stage': u16(m, Game_StageIndex),
+                          'state': u16(m, GAME_STATE)}
         m.run_frames(60)
         m.pause()
-
         new_state = u16(m, GAME_STATE)
         r.check(f'a real TITLE->CHARSELECT->PLAYING run reaches GAME_STATE_PLAYING '
                 f'(got {new_state})', new_state == GAME_STATE_PLAYING)
@@ -269,9 +279,13 @@ def main():
                 f'got {u16(m, Game_Score)}', u16(m, Game_Score) == 0)
         r.check(f'Game_StageIndex reset to 0 for the new game, got {u16(m, Game_StageIndex)}',
                 u16(m, Game_StageIndex) == 0)
-        r.check(f'Game_Lives reset to GAME_LIVES_START={GAME_LIVES_START} for the new '
-                f'game (was poisoned to 1), got {u8(m, Game_Lives)}',
-                u8(m, Game_Lives) == GAME_LIVES_START)
+        r.check(f'NewGameReset boundary lives={GAME_LIVES_START} (got {reset_boundary["lives"]})',
+                reset_boundary['lives'] == GAME_LIVES_START)
+        r.check(f'NewGameReset boundary score/stage/state are fresh ({reset_boundary})',
+                reset_boundary['score'] == 0 and reset_boundary['stage'] == 0 and
+                reset_boundary['state'] == GAME_STATE_PLAYING)
+        r.check(f'1AEASY first gameplay window preserves legitimate pickup behavior '
+                f'(late lives={u8(m, Game_Lives)})', u8(m, Game_Lives) >= GAME_LIVES_START)
 
     r.finish()
 

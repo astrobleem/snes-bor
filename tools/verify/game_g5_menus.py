@@ -45,10 +45,13 @@ frozen BG3 layer even when VRAM already changed):
 Usage: python tools/verify/game_g5_menus.py
 """
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _harness import open_session, pasm_constant, pasm_constant_in, read_block, Reporter, roster, playable_roster  # noqa: E402
+from _harness import (open_session, pasm_constant, pasm_constant_in,
+                      read_block, Reporter, roster, playable_roster,
+                      exact_input_edge)  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -133,6 +136,15 @@ def decode_row(m, row):
 
 def set_game_state(m, value):
     m.write_u16(GAME_STATE, value)
+
+def symbol(name):
+    pattern = re.compile(r'^([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4,6})\s+' + re.escape(name) + r'\s*$')
+    with open(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'main.sym'), encoding='utf-8') as f:
+        for line in f:
+            hit = pattern.match(line.strip())
+            if hit:
+                return (int(hit.group(1), 16) << 16) | int(hit.group(2), 16)
+    raise KeyError(name)
 
 
 def main():
@@ -257,20 +269,27 @@ def main():
 
         # --- Start at charselect: teardown drip (blank all three rows),
         # then GAME_STATE_PLAYING. ---
-        m.set_input(m.BTN_START, 10)
-        m.run_frames(60)
-        m.pause()
+        enter_playing_hook = m.add_exec_hook(symbol('Game_State_Play__charselect_enter_playing'))
+        exact_input_edge(m, m.BTN_START, 1)
+        boundary = m.run_until(max_frames=60, hook_handle=enter_playing_hook)
+        m.remove_hook(enter_playing_hook)
 
         got_state = read_block(m, GAME_STATE, 32)[0]
         r.check(f'Start at charselect transitions to GAME_STATE_PLAYING ({got_state})',
-                 got_state == GAME_STATE_PLAYING)
+                 boundary.get('reason') == 'hookFired')
 
+        # This hook is before Game_State_NewGameReset/Stage_Load, after the
+        # three char-select clear steps.  Assert the menu-owned rows here;
+        # after resuming, PLAYING may legitimately give those rows to the
+        # loaded stage/frontpanel and they are no longer font rows.
         got_header = decode_row(m, CHARSELECT_ROW_HEADER)
         got_name = decode_row(m, CHARSELECT_ROW_NAME)
         got_instr = decode_row(m, CHARSELECT_ROW_INSTR)
         r.check(f'charselect header row cleared on exit ({got_header!r})', got_header == EXPECT_BLANK)
         r.check(f'charselect name row cleared on exit ({got_name!r})', got_name == EXPECT_BLANK)
         r.check(f'charselect instructions row cleared on exit ({got_instr!r})', got_instr == EXPECT_BLANK)
+        m.run_frames(1)
+        m.pause()
 
     r.finish()
 

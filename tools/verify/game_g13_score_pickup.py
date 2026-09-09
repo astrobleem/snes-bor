@@ -101,11 +101,19 @@ def setup(m):
     m.write_u8(ITEM + INPUT, PROP); m.write_u8(ITEM + HP, 1)
     m.write_u8(ITEM_IDX, 0); m.write_u16(ITEM + POS_X, 180); m.write_u8(ITEM + POS_Y, 150)
     clear_inputs(m)
+    # 1AEASY has a real trigger-0 1UP that may be collected during the
+    # required session-settle frames.  Reset only the session counters used
+    # by these focused ownership/threshold assertions after that window.
+    m.write_u16(GS, 0); m.write_u16(P2S, 0)
+    m.write_u8(LIVES, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
+    m.write_u8(P2L, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
     print('SETUP', {'mode': u8(m, MODE), 'p2_input': u8(m, P2 + INPUT),
                     'p2_hp': u8(m, P2 + HP), 'p2_get': u8(m, P2 + GET_FCOUNT),
                     'game_state': u8(m, GAME_STATE), 'item_input': u8(m, ITEM + INPUT)}, flush=True)
 
-def collect(m, owner, kind, score=0, lives=0):
+def collect(m, owner, kind, score=0, lives=0, slot=2, service_frames=1):
+    item = P1 + slot * ZP
+    item_idx = ITEM_IDX + (slot - 2)
     b = P1 if owner == 0 else P2
     m.write_u16(b + POS_X, 100); m.write_u8(b + POS_Y, 150)
     m.write_u8(b + SELECTED, 0); m.write_u8(b + HP, 10 if kind in (PT_APPLE, PT_MEAT) else HP_MAX)
@@ -115,25 +123,25 @@ def collect(m, owner, kind, score=0, lives=0):
         m.write_u8(player + pasm_constant('CHAR_HIT_STUN'), 0)
         m.write_u8(player + pasm_constant('CHAR_FRAME_INDEX'), 0xFF)
         m.write_u8(player + pasm_constant('CHAR_TICK_COUNTER'), 1)
-    m.write_u8(ITEM + INPUT, PROP); m.write_u8(ITEM + HP, 1); m.write_u8(ITEM + PICKUP, kind)
-    m.write_u8(ITEM_IDX, 0); m.write_u16(ITEM + POS_X, 100); m.write_u8(ITEM + POS_Y, 150)
+    m.write_u8(item + INPUT, PROP); m.write_u8(item + HP, 1); m.write_u8(item + PICKUP, kind)
+    m.write_u8(item_idx, 0); m.write_u16(item + POS_X, 100); m.write_u8(item + POS_Y, 150)
     # Keep the non-collector outside the hitbox without relying on a large
     # out-of-viewport coordinate that the production tether may clamp back
     # into the item.  The collector remains at the item, the partner is at
     # the opposite side of the bounded viewport.
     m.write_u16((P2 if owner == 0 else P1) + POS_X, 400)
     before = {'p1_hp':u8(m,P1+HP),'p2_hp':u8(m,P2+HP),'score':u16(m,GS),'p2_score':u16(m,P2S),
-              'lives':u8(m,LIVES),'p2_lives':u8(m,P2L),'item':u8(m,ITEM+PICKUP)}
+              'lives':u8(m,LIVES),'p2_lives':u8(m,P2L),'item':u8(m,item+PICKUP)}
     before.update({'mode':u8(m,MODE),'p2_input':u8(m,P2+INPUT),'p2_x':u16(m,P2+POS_X),
-                   'p1_x':u16(m,P1+POS_X),'item_x':u16(m,ITEM+POS_X),
-                   'item_input':u8(m,ITEM+INPUT)})
+                   'p1_x':u16(m,P1+POS_X),'item_x':u16(m,item+POS_X),
+                   'item_input':u8(m,item+INPUT)})
     hp1_hook = m.add_write_hook(P1 + HP, P1 + HP)
     hp2_hook = m.add_write_hook(P2 + HP, P2 + HP)
     owner_hook = m.add_write_hook(pasm_constant('G13_PickupForP2'), pasm_constant('G13_PickupForP2'))
-    run_frames_exact(m, 1)
+    run_frames_exact(m, service_frames)
     events = m.drain_notifications()
     after = {'p1_hp':u8(m,P1+HP),'p2_hp':u8(m,P2+HP),'score':u16(m,GS),'p2_score':u16(m,P2S),
-             'lives':u8(m,LIVES),'p2_lives':u8(m,P2L),'item':u8(m,ITEM+PICKUP),
+             'lives':u8(m,LIVES),'p2_lives':u8(m,P2L),'item':u8(m,item+PICKUP),
              'p1_selected':u8(m,P1+SELECTED),'p2_selected':u8(m,P2+SELECTED),
              'p1_variant':u8(m,P1+VARIANT),'p2_variant':u8(m,P2+VARIANT),
              'owner':u8(m,pasm_constant('G13_PickupForP2'))}
@@ -175,12 +183,12 @@ def true_tie(m):
 def owner_leak(m):
     """Two transactions in one session, proving the one-shot owner clears."""
     m.write_u16(GS, 0); m.write_u16(P2S, 0)
-    b1, a1 = collect(m, 1, PT_MONEY)
+    b1, a1 = collect(m, 1, PT_MONEY, slot=2)
     # Clear only action/geometry state between legal independent touches.
     for b in (P1, P2):
         m.write_u8(b + SELECTED, 0); m.write_u8(b + HITSTUN, 0)
     clear_inputs(m); run_frames_exact(m, 2)
-    b2, a2 = collect(m, 0, PT_GOLD)
+    b2, a2 = collect(m, 0, PT_GOLD, slot=3, service_frames=3)
     return {'first': {'before': b1, 'after': a1},
             'second': {'before': b2, 'after': a2},
             'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
@@ -326,8 +334,16 @@ def real_new_game_reset(m):
     m.write_u16(GS, 12345); m.write_u16(P2S, 23456); m.write_u8(LIVES, 3); m.write_u8(P2L, 7)
     exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
     assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_PLAYING, 240)
+    reset_boundary = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
+                      'lives': u8(m, LIVES), 'p2_lives': u8(m, P2L),
+                      'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')),
+                      'game_state': u16(m, GAME_STATE)}
     run_frames_exact(m, 1)
-    return {'score': u16(m, GS), 'p2_score': u16(m, P2S), 'lives': u8(m, LIVES),
+    first_frame = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
+            'lives': u8(m, LIVES), 'p2_lives': u8(m, P2L),
+            'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex'))}
+    return {'reset_boundary': reset_boundary, 'first_frame': first_frame,
+            'score': u16(m, GS), 'p2_score': u16(m, P2S), 'lives': u8(m, LIVES),
             'p2_lives': u8(m, P2L), 'mode': u8(m, MODE), 'p1_hp': u8(m, P1 + HP),
             'p2_hp': u8(m, P2 + HP), 'p2_input': u8(m, P2 + INPUT),
             'p2_roster': u8(m, P2 + pasm_constant('CHAR_ROSTER_INDEX')),
@@ -337,10 +353,11 @@ def main():
     r = Reporter('G13-SCORE-PICKUP', kind='GATE'); results = {}
     with open_session(__file__) as m:
         reset = real_new_game_reset(m); results['real_new_game_reset'] = reset
-        r.check('real TITLE->CHARSELECT->PLAYING reset clears both scores/lives',
-                reset['score'] == 0 and reset['p2_score'] == 0 and
-                reset['lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START') and
-                reset['p2_lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
+        rb = reset['reset_boundary']
+        r.check('real NewGameReset boundary clears both scores/lives',
+                rb['score'] == 0 and rb['p2_score'] == 0 and
+                rb['lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START') and
+                rb['p2_lives'] == pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
         r.check('real reset preserves active P2 ownership',
                 reset['mode'] == 1 and reset['p2_input'] == 1 and
                 reset['p2_roster'] == 12 and reset['stage'] == 0 and
@@ -421,9 +438,9 @@ def main():
                 x['owner_final'] == 0)
     with open_session(__file__) as m:
         setup(m)
-        b1, a1 = collect(m, 0, PT_ONEUP)
+        b1, a1 = collect(m, 0, PT_ONEUP, slot=2)
         clear_inputs(m); run_frames_exact(m, 2)
-        b2, a2 = collect(m, 1, PT_APPLE)
+        b2, a2 = collect(m, 1, PT_APPLE, slot=3, service_frames=3)
         results['owner_leak_p1_then_p2'] = {'first': {'before': b1, 'after': a1},
                                             'second': {'before': b2, 'after': a2},
                                             'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
