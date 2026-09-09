@@ -81,8 +81,8 @@ TEXT_ROW_ENTRIES = 32
 # core/charselect.pasm draw -- see main.pasm's Text_StringPool for why the
 # padding is real content, not cosmetic (avoids stale-column garbage from
 # TextStaging's buffer reuse).
-EXPECT_MAIN = 'SNES-BOR'.ljust(TEXT_ROW_ENTRIES)
-EXPECT_PRESS = 'PRESS START'.ljust(TEXT_ROW_ENTRIES)
+EXPECT_MAIN = 'SNES-BOR  1 PLAYER / 2 PLAYER   '
+EXPECT_PRESS = 'P1 START: 1P   P2 START: 2P     '
 EXPECT_BLANK = ' ' * TEXT_ROW_ENTRIES
 EXPECT_HEADER = 'CHARACTER SELECT'.ljust(TEXT_ROW_ENTRIES)
 EXPECT_INSTR = 'LEFT/RIGHT SELECT  START GO'.ljust(TEXT_ROW_ENTRIES)

@@ -214,6 +214,16 @@ G13_EnableP2Session:
     lda #0
     sta.l G13_P1Out
     sta.l G13_P2Out
+    sep #$20
+.a8
+    lda #$FF
+    sta.l HudCachedP2Hp
+    sta.l HudCachedP2Lives
+    rep #$31
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedP2Score
     jmp G13_EnableP2Session__init_slot
 
 G13_EnableP2Session__already_enabled:

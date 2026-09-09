@@ -3968,7 +3968,9 @@ HUD_BAR_TILES      = 8    ; body tiles per bar; 8 px each -> CHAR_HP_MAX = 64
 ; plan_game.md's own G6 status block for the full reasoning). HUD_ROWS/
 ; HUD_STAGING_BYTES shrink from 4 rows/256B to 1 row/64B accordingly; rows
 ; 1-3 (freed) now hold SCORE/LIVES/STAGE text -- see Hud_Play__text below.
-HUD_ROWS           = 1    ; just the player's own bar, row 0 of the BG3 tilemap
+HUD_ROW_P1_BAR     = 0
+HUD_ROW_P2_BAR     = 7    ; free gameplay row, below the boss row (row 6)
+HUD_ROWS           = 1    ; one bar is staged and queued per frame
 HUD_STAGING_BYTES  = 64   ; HUD_ROWS * 32 entries * 2 bytes -- one queue slot
 ; Tilemap high byte for every HUD entry: palette 0 (the HUD owns CGRAM
 ; sub-palette 0) with the priority bit (bit 13) set, which is what puts BG3
@@ -3979,6 +3981,8 @@ HUD_ENTRY_HIGH     = $20
 HUD_ROW_SCORE = 1
 HUD_ROW_LIVES = 2
 HUD_ROW_STAGE = 3
+HUD_ROW_P2_SCORE = 8
+HUD_ROW_P2_LIVES = 9
 HUD_LABEL_COL = 0   ; "SCORE "/"LIVES "/"STAGE " are each 6 chars; the value
                      ; starts at column 6 for all three, same fixed layout
 
@@ -4019,6 +4023,9 @@ HudBarFilled       = $7E2366   ; .db -- scratch: filled columns for one tile
 HudCachedScore      = $7E2367   ; .dw -- last Game_Score drawn
 HudCachedLives      = $7E2369   ; .db -- last Game_Lives drawn
 HudCachedStageIndex = $7E236A   ; .dw -- last Game_StageIndex drawn
+HudCachedP2Hp      = $7E236C   ; .db -- last slot-1 HP drawn
+HudCachedP2Score   = $7E236E   ; .dw -- last G13_P2Score drawn
+HudCachedP2Lives   = $7E2370   ; .db -- last G13_P2Lives drawn
 ; Phase G9: boss bar cache + its own staging row -- $7E276C onward,
 ; grep-confirmed clear (past CharSelect_NextStep at $7E276B, the highest
 ; prior use in this range; Entity1/2/3_InvulnFrames/Game_Score/etc. above
@@ -11148,6 +11155,7 @@ Hud_Play:
     php
     jsr Hud_Play__bar
     jsr Hud_Play__text
+    jsl Hud_Play__2p
     ; Hud_Play__boss_bar lives in its own bank (core/hud_boss.pasm) -- ROM
     ; budget, see that file's own header. jsl/rtl, not jsr/rts.
     jsl Hud_Play__boss_bar
@@ -11196,8 +11204,6 @@ Hud_Play__bar_clear:
     cpx #HUD_STAGING_BYTES
     bcc Hud_Play__bar_clear
 
-    sep #$20
-.a8
     lda.l HudCachedHp
     rep #$10
 .i16
@@ -13161,9 +13167,9 @@ Text_Str_Hello:
 ; columns it doesn't touch. A full-row string always overwrites all 64
 ; bytes of the shared buffer, so there's never a stale-column gap.
 Text_Str_TitleMain:
-    .db "SNES-BOR                        ", $00
+    .db "SNES-BOR  1 PLAYER / 2 PLAYER   ", $00
 Text_Str_TitlePress:
-    .db "PRESS START                     ", $00
+    .db "P1 START: 1P   P2 START: 2P     ", $00
 Text_Str_TitleBlank:
     .db "                                ", $00
 
@@ -13184,6 +13190,8 @@ Text_Str_CharSelectHeader:
     .db "CHARACTER SELECT                ", $00
 Text_Str_CharSelectInstr:
     .db "LEFT/RIGHT SELECT  START GO     ", $00
+Text_Str_CharSelectInstr2P:
+    .db "P2 FIXED: LEO  START GO         ", $00
 Text_Str_CharRalf:
     .db "RALF                            ", $00
 Text_Str_CharJhun:
@@ -13276,6 +13284,10 @@ Text_Str_HudLives:
     .db "LIVES ", $00
 Text_Str_HudStage:
     .db "STAGE ", $00
+Text_Str_HudP2Score:
+    .db "P2SCOR", $00
+Text_Str_HudP2Lives:
+    .db "P2LIFE", $00
 
 ; Phase G10 (plan_game.md 10): ending/credits screen strings. Same
 ; full-32-column-padded convention as the title/pause strings above (see
@@ -13344,6 +13356,7 @@ Text_Str_EndingC2:
 .bank 6
 .org $8000
 .include "core/pausemenu.pasm"
+.include "core/hud_2p.pasm"
 
 ; Phase G5 (plan_game.md 5): real SRAM-backed options (music volume), own
 ; bank for the same ROM-budget reason -- see core/options.pasm's own header.

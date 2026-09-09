@@ -135,6 +135,15 @@ Game_State_Play__charselect_draw_instr:
 .a16
 .i16
     ldx #0
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq Game_State_Play__charselect_draw_instr_1p
+    ldy #(Text_Str_CharSelectInstr2P - Text_StringPool)
+    jmp Game_State_CharSelect_DrawStepRow
+Game_State_Play__charselect_draw_instr_1p:
+    rep #$31
+.a16
+.i16
     ldy #(Text_Str_CharSelectInstr - Text_StringPool)
     jmp Game_State_CharSelect_DrawStepRow
 
@@ -161,6 +170,8 @@ Game_State_Play__charselect_wait:
 Game_State_Play__charselect_left_dec:
     dec a
 Game_State_Play__charselect_left_set:
+    sep #$20
+.a8
     sta.l CharSelect_Index
     lda #AUDIO_SEMANTIC_BEEP
     ldx #SFX_BEEP_ID
@@ -184,6 +195,8 @@ Game_State_Play__charselect_wait_check_right:
     bcc Game_State_Play__charselect_right_set
     lda #0
 Game_State_Play__charselect_right_set:
+    sep #$20
+.a8
     sta.l CharSelect_Index
     lda #AUDIO_SEMANTIC_BEEP
     ldx #SFX_BEEP_ID
