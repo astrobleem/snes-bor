@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""plan_game.md TMNT campaign gate: the real 4-level main campaign
-(sewer0 -> streets -> streets2 -> sewer, stages 5-8), the standalone
-boss stages added alongside it in the same session (Rock/Leather, stages
-3-4), and the last standalone TMNT level (foot.txt, stage 9) --
-game_g9_tmnt_boss.py already covers stage 2 (Bebop) end-to-end; this gate
+"""TMNT campaign gate: the real 4-level main campaign
+(sewer0 -> streets -> streets2 -> sewer). The physical catalog also retains
+standalone Bebop/Rock/Leather/Foot records, but those are not campaign links.
+game_g9_tmnt_boss.py already covers the standalone Bebop record end-to-end; this gate
 is the rest of that TMNT conversion.
 
 Real, verified-from-the-pak content facts this gate checks against (see
@@ -26,12 +25,10 @@ Checks:
      RECORD_KIND_BOSS record count/position matches the real pak content
      above, and record counts match build_spawn_table.py's own printed
      counts at conversion time (3/2/63/67/86/46/1).
-  2. Live engine: force-win sequentially from stage 0 through stage 9 (the
-     full real chain today), confirming Game_StageIndex reaches 9 and
-     Game_State returns to PLAYING -- exercises every one of the 9 stage-
-     transition edges this project's stage list now has, not just the ones
-     game_g4_transition.py/game_g9_tmnt_boss.py already covered (0->1,1->2).
-  3. Stage 9's CGRAM matches out/bg_stage9foot's own converter output
+  2. Live engine: explicitly select TMNT, then force-win the four authored
+     campaign stages, confirming Game_StageIndex reaches the physical sewer
+     record and Game_State returns to PLAYING.
+  3. The final TMNT campaign CGRAM matches its own converter output
      (ground truth the engine did not produce).
   4. Not hung after the full 9-stage transition chain.
 
@@ -60,6 +57,10 @@ import build_rom  # noqa: E402
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
 GAME_STAGE_INDEX = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
+GAME_STATE_TITLE = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_TITLE')
+GAME_STATE_ENDING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_ENDING')
+CAMPAIGN_ID = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignId')
+CAMPAIGN_ORDINAL = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignOrdinal')
 STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
 
@@ -72,25 +73,25 @@ CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
 
 PLAYER_BASE = 0x7E0A00
-ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_ZP_LEN,
-                PLAYER_BASE + 3 * CHAR_ZP_LEN]
+ENTITY_BASES = [PLAYER_BASE + i * CHAR_ZP_LEN for i in range(6)]
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
 
-_bg_last_dir, _hud_dir = build_rom.BG_SCREENS[10]
+TMNT_STAGE_INDICES = build_rom.CAMPAIGN_STAGE_MAPS['TMNT']
+_bg_last_dir, _hud_dir = build_rom.BG_SCREENS[TMNT_STAGE_INDICES[-1]]
 BG_LAST_DIR = os.path.join(ROOT, _bg_last_dir)
 HUD_DIR = os.path.join(ROOT, _hud_dir)
 
-EXPECTED = {
-    4: ('out/spawn_stage3rock/spawn_table.bin', 3, [1]),
-    5: ('out/spawn_stage4leather/spawn_table.bin', 2, [0]),
-    6: ('out/spawn_stage5sewer0/spawn_table.bin', 63, []),
-    7: ('out/spawn_stage6streets/spawn_table.bin', 67, [65]),
-    8: ('out/spawn_stage7streets2/spawn_table.bin', 86, [85]),
-    9: ('out/spawn_stage8sewer/spawn_table.bin', 46, []),
-    10: ('out/spawn_stage9foot/spawn_table.bin', 1, []),
-}
+EXPECTED_SOURCES = [
+    ('DATA\\LEVELS\\ROCK.TXT', 'out/spawn_stage3rock/spawn_table.bin', 3, [1]),
+    ('DATA\\LEVELS\\LEATHER.TXT', 'out/spawn_stage4leather/spawn_table.bin', 2, [0]),
+    ('DATA\\LEVELS\\SEWER0.TXT', 'out/spawn_stage5sewer0/spawn_table.bin', 63, []),
+    ('DATA\\LEVELS\\STREETS.TXT', 'out/spawn_stage6streets/spawn_table.bin', 67, [65]),
+    ('DATA\\LEVELS\\STREETS2.TXT', 'out/spawn_stage7streets2/spawn_table.bin', 86, [85]),
+    ('DATA\\LEVELS\\SEWER.TXT', 'out/spawn_stage8sewer/spawn_table.bin', 46, []),
+    ('DATA\\LEVELS\\FOOT.TXT', 'out/spawn_stage9foot/spawn_table.bin', 1, []),
+]
 
 
 def _read(path):
@@ -107,7 +108,7 @@ def word_at(m, addr):
     return b[0] | (b[1] << 8)
 
 
-def force_win_and_wait(m, r, from_stage, label):
+def force_win_and_wait(m, r, from_stage, label, expected_stage):
     """Same direct-write pattern game_g9_tmnt_boss.py already established:
     exhaust the spawn queue, zero remaining AI HP, then jump the camera
     straight to the real converted stage's own Stage_TrueMaxX rather than
@@ -127,7 +128,7 @@ def force_win_and_wait(m, r, from_stage, label):
     m.write_u16(SCREEN_POS_X, true_max)
     poll_until(
         m,
-        lambda session: word_at(session, GAME_STAGE_INDEX) == from_stage + 1
+        lambda session: word_at(session, GAME_STAGE_INDEX) == expected_stage
         and word_at(session, GAME_STATE) == GAME_STATE_PLAYING,
         max_frames=600,
         step=5,
@@ -139,7 +140,12 @@ def main():
     r = Reporter('TMNT-CAMPAIGN', kind='GATE')
 
     # --- 1. Byte-level ground truth for all 6 new stages' spawn tables. ---
-    for stage, (relpath, expected_count, expected_boss) in EXPECTED.items():
+    for source, relpath, expected_count, expected_boss in EXPECTED_SOURCES:
+        stage = next((i for i, config in enumerate(build_rom.STAGE_CONFIGS)
+                      if config['source_level'].replace('/', '\\').upper() == source), None)
+        if stage is None:
+            r.check(f'{source} resolves to one packed catalog entry', False)
+            continue
         data = _read(os.path.join(ROOT, relpath))
         n = len(data) // RECORD_SIZE
         # Roster-reassignment slice (same day, real user instruction): Rock
@@ -170,7 +176,20 @@ def main():
         boot_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'boots on stage 0 ({boot_stage})', boot_stage == 0)
 
-        # --- 2. Force-win the full real chain, 0 through 10. ---
+        # --- 2. Explicitly select the TMNT campaign for this dev gate. ---
+        # The selector is intentionally not player-facing yet. Starting from
+        # the boot-loaded BOR record, the normal stage-clear resolver is used
+        # once with ordinal FF so its increment selects TMNT ordinal zero;
+        # after that all transitions are TMNT-authored map entries.
+        m.write_u8(CAMPAIGN_ID, 1)
+        m.write_u8(CAMPAIGN_ORDINAL, 0xFF)
+        force_win_and_wait(m, r, from_stage=0, label='TMNT campaign select',
+                            expected_stage=6)
+        r.check('explicit TMNT campaign begins at sewer0',
+                word_at(m, GAME_STAGE_INDEX) == 6
+                and word_at(m, GAME_STATE) == GAME_STATE_PLAYING)
+
+        # --- 3. Force-win the four-stage TMNT main campaign, 6 through 9. ---
         #
         # Not attempted here: forcing stage 6's (streets) own real boss
         # (Rock, a second spawn table entirely separate from the standalone
@@ -196,14 +215,15 @@ def main():
         # standalone encounter) below. What THIS gate adds for stage 6 is
         # the byte-level proof above that its real, converted spawn table
         # -- a second, different RECORD_KIND_BOSS site -- is correct.
-        target = 1
+        target = 7
         transition_attempts = 0
-        while target <= 10 and transition_attempts < 22:
+        while target <= 9 and transition_attempts < 12:
             current = word_at(m, GAME_STAGE_INDEX)
             if current != target - 1:
                 r.check(f'Game_StageIndex reached expected stage {target - 1} before {target} ({current})', False)
                 break
-            force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}')
+            force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}',
+                               expected_stage=target)
             got = word_at(m, GAME_STAGE_INDEX)
             if got == target:
                 r.check(f'Game_StageIndex advances {current} -> {target} ({got})', True)
@@ -213,7 +233,7 @@ def main():
                 # bounded wait. Retry the same real source stage instead of
                 # corrupting the rest of the campaign's expected sequence.
                 transition_attempts += 1
-        r.check(f'all ten real stage transitions completed (next target={target})', target == 11)
+        r.check(f'all TMNT campaign transitions completed (next target={target})', target == 10)
 
         final_state = word_at(m, GAME_STATE)
         r.check(f'Game_State returns to PLAYING on the final stage ({final_state})',
@@ -221,8 +241,8 @@ def main():
 
         # --- 3. Stage 9's CGRAM matches its own converter output. ---
         got_palette = bytes(read_block(m, 0x000, 256, mem_type='snesCgRam'))
-        r.check("stage 10's CGRAM (BG1 backdrop + merged HUD sub-palette) "
-                "matches out/bg_stage9foot's own converter output",
+        r.check("final TMNT campaign CGRAM (BG1 backdrop + merged HUD) "
+                "matches its own converter output",
                 got_palette == expected_palette)
 
         # --- 4. Not hung after 9 real stage transitions. ---

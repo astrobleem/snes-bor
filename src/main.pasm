@@ -7579,6 +7579,10 @@ Stage_LoadAndRespawn_Long:
     jsr Game_State_RespawnPlayer
     rtl
 
+Music_SelectEndingTrack_Long:
+    jsr Music_SelectEndingTrack
+    rtl
+
 ; Cross-bank bridge for Spawn_Play (bank 3) to the bank-0 source-driven
 ; bossmusic selector.  The selector itself remains same-bank and preserves
 ; the caller's processor status.
@@ -11756,6 +11760,9 @@ msu1_done:
                                    ; holding boot-time WRAM garbage
     sep #$20
 .a8
+    lda #CAMPAIGN_BOR_ORIGINAL
+    sta.l Game_CampaignId
+    sta.l Game_CampaignOrdinal
     lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared
@@ -12419,6 +12426,7 @@ __Tad_AudioData_0:
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
 .include "core/vm/audio_batch_b_generated.pasm"
+.include "core/campaign.pasm"
 
 ; Bank-1 stream/semantic initialization helper. The caller enters in .a8;
 ; this routine restores the established boot convention (.a16/.i16) through

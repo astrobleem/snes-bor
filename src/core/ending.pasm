@@ -138,6 +138,8 @@ Game_State_NewGameReset:
     lda #0
     sta.l G13_P1Out
     sta.l G13_P2Out
+    sta.l Game_CampaignId
+    sta.l Game_CampaignOrdinal
     lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared

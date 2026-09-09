@@ -91,6 +91,8 @@ STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX'
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 SPAWN_COUNT = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
 SCREEN_POS_X = 0x7E1601
+SCREEN_MAX_X = 0x7E160E
+SCREEN_TARGET_X = 0x7E1616
 
 GS_PATH = 'src/core/game_state.pasm'
 Game_Score = pasm_constant_in(GS_PATH, 'Game_Score')
@@ -127,7 +129,10 @@ def advance_to_stage1b(m):
         m.pause()
     if read_u8(m, STAGE_CLEARED) != 1:
         return False
-    m.write_u16(SCREEN_POS_X, read_u16(m, STAGE_TRUE_MAX_X))
+    true_max = read_u16(m, STAGE_TRUE_MAX_X)
+    m.write_u16(SCREEN_MAX_X, true_max)
+    m.write_u16(SCREEN_TARGET_X, true_max)
+    m.write_u16(SCREEN_POS_X, true_max)
     for _ in range(20):
         if read_u16(m, GAME_STAGE_INDEX) == 1 and read_u16(m, GAME_STATE) == GAME_STATE_PLAYING:
             return True

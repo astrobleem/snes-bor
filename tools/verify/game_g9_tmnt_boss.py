@@ -36,14 +36,13 @@ Checks:
      no-identity RECORD_KIND_BOSS the other two G9 gates still use for
      their hand-authored synthetic record (predates any roster membership
      for that record's fictional character).
-  2. Driving the real win condition twice (stage 0->1, proven mechanism
-     already covered by game_g4_transition.py; then 1->2, the untested
-     direction into the new boss stage) lands on Game_StageIndex==3,
+  2. Selecting the standalone Bebop record through the explicit campaign
+     map lands on its current physical catalog index,
      Game_State back in PLAYING.
   3. Stage 2's CGRAM matches out/bg_stage2boss's own converter output
      (ground truth the engine did not produce, same standing rule as
      phase6.py/game_g4_transition.py).
-  4. StreamScrollFp_Enabled reads 0 -- stage 2 (like stage 1B) has no
+  4. StreamScrollFp_Enabled reads 0 -- the standalone Bebop record has no
      frontpanel; proves the has-FP -> no-FP direction (the OTHER untested
      transition direction versus game_g4_transition.py's no-FP -> has-FP).
   5. Once the real, converted level's own `boss 1` record is consumed by
@@ -76,6 +75,9 @@ PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_Invu
 # core/screen.pasm `.enum $7E1600` struct field, not a plain NAME = value
 # constant -- same carve-out phase8.py/game_g4_transition.py already use.
 SCREEN_POS_X = 0x7E1601
+SCREEN_MAX_X = 0x7E160E
+SCREEN_TARGET_X = 0x7E1616
+SPAWN_PRECLEAR_HOLD_X = pasm_constant_in('src/core/spawn.pasm', 'Spawn_PreClearHoldX')
 
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
 SPAWN_COUNT_ADDR = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
@@ -101,9 +103,11 @@ HudBossCachedHp = pasm_constant('HudBossCachedHp')
 BG3_TILEMAP_WORD = pasm_constant('BG3_TILEMAP_VRAM_WORD')
 
 PLAYER_BASE = 0x7E0A00
-ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_ZP_LEN,
-                PLAYER_BASE + 3 * CHAR_ZP_LEN]
-ENTITY_ISBOSS = [None, Entity1_IsBoss, Entity2_IsBoss, Entity3_IsBoss]
+PLAYER_POS_X = PLAYER_BASE + 4
+ENTITY_BASES = [PLAYER_BASE + i * CHAR_ZP_LEN for i in range(6)]
+ENTITY_ISBOSS = [None, Entity1_IsBoss, Entity2_IsBoss, Entity3_IsBoss,
+                 pasm_constant('Entity4_IsBoss'),
+                 pasm_constant('Entity5_IsBoss')]
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
@@ -135,7 +139,7 @@ def row_words(m, row, count=32):
     return [raw[i * 2] | (raw[i * 2 + 1] << 8) for i in range(count)]
 
 
-def force_win_and_wait(m, r, from_stage, label, walk=False):
+def force_win_and_wait(m, r, from_stage, label, walk=False, expected_stage=None):
     """Forces the win condition (same "force the exact moment, don't wait
     on combat RNG" pattern game_g4_transition.py/game_g3_death.py already
     use for spawn_index/HP), then reaches the camera-clamp edge check
@@ -152,7 +156,15 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
     precedent already applied to Spawn_Index/CHAR_HP just above, applied to
     the other side of the exact same edge check instead of walking to it."""
     spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
+    # A standalone campaign selection is a verifier-only catalog switch.  Do
+    # not let a stale clear flag from the boot-loaded stage satisfy this
+    # transition before the forced win is serviced.
+    m.write_u8(STAGE_CLEARED, 0)
     m.write_u8(SPAWN_INDEX, spawn_count)
+    true_max = word_at(m, STAGE_TRUE_MAX_X)
+    m.write_u16(PLAYER_POS_X, true_max)
+    m.write_u16(SCREEN_POS_X, true_max)
+    m.write_u16(SCREEN_TARGET_X, true_max)
     committed = False
     for _ in range(240):
         # Keep the legal clear precondition alive while pending spawn/reassign
@@ -160,7 +172,8 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
         for base in ENTITY_BASES[1:]:
             if byte_at(m, base + CHAR_INPUT_DRIVEN) == CHAR_INPUT_DRIVEN_AI:
                 m.write_u8(base + CHAR_HP, 0)
-        if byte_at(m, STAGE_CLEARED) == 1 or word_at(m, GAME_STAGE_INDEX) != from_stage:
+        if (byte_at(m, STAGE_CLEARED) == 1
+                and word_at(m, GAME_STAGE_INDEX) == from_stage):
             committed = True
             break
         m.run_frames(1)
@@ -175,10 +188,15 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
                 break
     else:
         true_max = word_at(m, STAGE_TRUE_MAX_X)
+        m.write_u16(SCREEN_MAX_X, true_max)
+        m.write_u16(SPAWN_PRECLEAR_HOLD_X, true_max)
+        m.write_u16(SCREEN_TARGET_X, true_max)
         m.write_u16(SCREEN_POS_X, true_max)
         m.run_frames(10)
         m.pause()
 
+    if expected_stage is None:
+        expected_stage = from_stage + 1
     for _ in range(20):
         if (word_at(m, GAME_STAGE_INDEX) != from_stage
                 and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
@@ -225,30 +243,15 @@ def main():
                 and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE
                 and byte_at(m, MUSIC_PLAY_STATE) == 1)
 
-        # --- 2a. Stage 0 -> 1 (already proven direction, needed as a real
-        # stepping stone to reach stage 2 -- there is no direct-load path). ---
-        force_win_and_wait(m, r, from_stage=0, label='0->1', walk=False)
-        mid_stage = word_at(m, GAME_STAGE_INDEX)
-        r.check(f'Game_StageIndex advances 0 -> 1 ({mid_stage})', mid_stage == 1)
-        r.check('stage 1 source music selector requested KOF track 2',
-                byte_at(m, MUSIC_LAST_TRACK) == 2
-                and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE)
-
-        # --- 2b. Stage 1 -> 2: the new 1C stage is a real stepping stone.
-        # Stage 1B is short, so direct-write
-        # the camera-clamp edge instead of holding Right for the real
-        # walking time that would take (see force_win_and_wait's header). ---
-        force_win_and_wait(m, r, from_stage=1, label='1->2', walk=False)
+        # Standalone Bebop is explicitly selected from the physical catalog;
+        # it is not reached by chaining BOR records. The first resolver edge
+        # uses the generated standalone map entry at ordinal zero.
+        m.write_u8(pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignId'), 2)
+        m.write_u8(pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignOrdinal'), 0xFF)
+        force_win_and_wait(m, r, from_stage=0, label='standalone Bebop select',
+                           walk=False, expected_stage=3)
         new_stage = word_at(m, GAME_STAGE_INDEX)
-        state = word_at(m, GAME_STATE)
-        print(f'after second forced win: stage={new_stage} state={state}')
-        r.check(f'Game_StageIndex advances 1 -> 2 ({new_stage})', new_stage == 2)
-        r.check(f'Game_State returns to PLAYING ({state})', state == GAME_STATE_PLAYING)
-
-        # --- 2c. 1C -> the existing TMNT Bebop stage. ---
-        force_win_and_wait(m, r, from_stage=2, label='2->3', walk=False)
-        new_stage = word_at(m, GAME_STAGE_INDEX)
-        r.check(f'Game_StageIndex advances 2 -> 3 ({new_stage})', new_stage == 3)
+        r.check(f'standalone Bebop resolves by identity ({new_stage})', new_stage == 3)
 
         # --- 3. Stage 3 (the existing TMNT Bebop stage)'s CGRAM matches its
         # own converter output. ---

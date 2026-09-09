@@ -15,6 +15,43 @@ STAGE_CONFIGS = [
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\FOOT.TXT", "bg": "out/bg_stage9foot", "frontpanel": None, "spawn": "out/spawn_stage9foot/spawn_table.bin"},
 ]
 
+# Logical authored campaigns are deliberately separate from STAGE_CONFIGS.
+# STAGE_CONFIGS is the physical MSU asset catalog; these source identities
+# come from each pak's LEVELS file and are resolved to physical indices by
+# build_rom.py. Keep incomplete BOR coverage explicit rather than allowing
+# the packed catalog tail to become an accidental campaign continuation.
+CAMPAIGN_CONFIGS = {
+    "BOR_ORIGINAL": {
+        "family": "bor-original",
+        "source_levels_file": "DATA\\LEVELS.TXT",
+        "source_levels": [
+            "DATA\\EASY\\1AEASY.TXT",
+            "DATA\\EASY\\1BEASY.TXT",
+            "DATA\\EASY\\1CEASY.TXT",
+        ],
+        "incomplete_boundary": "TITLE",
+    },
+    "TMNT": {
+        "family": "tmnt",
+        "source_levels_file": "DATA\\LEVELS00.TXT",
+        "source_levels": [
+            "DATA\\LEVELS\\SEWER0.TXT",
+            "DATA\\LEVELS\\STREETS.TXT",
+            "DATA\\LEVELS\\STREETS2.TXT",
+            "DATA\\LEVELS\\SEWER.TXT",
+        ],
+    },
+    "STANDALONE_TEST_CONTENT": {
+        "family": "standalone",
+        "source_levels": [
+            "DATA\\LEVELS\\BEBOP.TXT",
+            "DATA\\LEVELS\\ROCK.TXT",
+            "DATA\\LEVELS\\LEATHER.TXT",
+            "DATA\\LEVELS\\FOOT.TXT",
+        ],
+    },
+}
+
 ROSTER_CONFIGS = [
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RALF", "converted_prefix": "out/ralf", "playable": True},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\JHUN", "converted_prefix": "out/jhun", "playable": True},

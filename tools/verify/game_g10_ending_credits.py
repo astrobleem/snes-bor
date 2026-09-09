@@ -46,6 +46,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (open_session, pasm_constant, pasm_constant_in,
                       exact_input_edge, poll_until, read_block, Reporter)  # noqa: E402
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+import build_rom  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
@@ -55,6 +58,8 @@ GAME_STATE_ENDING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_END
 STAGE_COUNT = pasm_constant_in('src/core/game_state.pasm', 'STAGE_COUNT')
 GAME_LIVES_START = pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START')
 Game_StageIndex = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
+Game_CampaignId = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignId')
+Game_CampaignOrdinal = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignOrdinal')
 Stage_LoadPending = pasm_constant_in('src/core/game_state.pasm', 'Stage_LoadPending')
 Stage_Cleared = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 Game_Score = pasm_constant_in('src/core/game_state.pasm', 'Game_Score')
@@ -152,7 +157,12 @@ def main():
         # use), NOT a direct write of GAME_STATE_ENDING itself -- the real
         # STAGECLEAR dispatch (core/game_state.pasm) is what must actually
         # observe "no stages left" and transition, not this script.
-        m.write_u16(Game_StageIndex, STAGE_COUNT - 1)
+        # Select the final authored TMNT campaign record, rather than treating
+        # the last physical catalog entry (standalone Foot) as a campaign end.
+        tmnt_final = build_rom.CAMPAIGN_STAGE_MAPS['TMNT'][-1]
+        m.write_u8(Game_CampaignId, 1)
+        m.write_u8(Game_CampaignOrdinal, 3)
+        m.write_u16(Game_StageIndex, tmnt_final)
         m.write_memory('snesMemory', Stage_LoadPending, '01')
         m.write_memory('snesMemory', Stage_Cleared, '00')
         m.write_u16(GAME_STATE, GAME_STATE_STAGECLEAR)

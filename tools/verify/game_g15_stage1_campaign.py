@@ -21,7 +21,10 @@ import build_rom  # noqa: E402
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
+TITLE = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_TITLE')
 STAGE_INDEX = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
+CAMPAIGN_ID = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignId')
+CAMPAIGN_ORDINAL = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignOrdinal')
 STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
 SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
@@ -73,6 +76,9 @@ def clear_stage(m, r, from_index):
     if u8(m, STAGE_CLEARED) != 1:
         return False
     m.pause()
+    if from_index == 2:
+        return poll_until(m, lambda s: u16(s, GAME_STATE) == TITLE,
+                          max_frames=120, step=5)
     return poll_until(
         m, lambda s: u16(s, STAGE_INDEX) == from_index + 1
         and u16(s, GAME_STATE) == PLAYING, max_frames=600, step=5)
@@ -130,12 +136,16 @@ def main():
                 and u8(m, SPAWN_INDEX) <= u8(m, SPAWN_COUNT))
         r.check('1C remains in PLAYING during wave service', u16(m, GAME_STATE) == PLAYING)
 
-        # Clear 1C through the normal edge and report the configured tail,
-        # which is TMNT until Batch B adds BOR 2EASY.
-        r.check('1C -> current development tail uses real Stage_Load', clear_stage(m, r, 2))
-        r.check('post-1C handoff is the current configured development tail',
-                u16(m, STAGE_INDEX) == 3
-                and build_rom.STAGE_CONFIGS[3]['family'] == 'tmnt')
+        # Clear 1C through the normal edge. The incomplete BOR campaign has
+        # an explicit development boundary and must not enter TMNT merely
+        # because TMNT assets follow it in the physical catalog.
+        r.check('1C reaches BOR development boundary through stage-clear path',
+                clear_stage(m, r, 2))
+        r.check('1C stops at TITLE, not at the TMNT catalog',
+                u16(m, GAME_STATE) == TITLE
+                and u8(m, CAMPAIGN_ID) == 0
+                and u8(m, CAMPAIGN_ORDINAL) == 2
+                and u16(m, STAGE_INDEX) == 2)
         fc0 = u16(m, NMI_COUNTER)
         m.run_frames(60)
         m.pause()

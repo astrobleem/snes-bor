@@ -59,6 +59,8 @@ import build_rom  # noqa: E402
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
 GAME_STAGE_INDEX = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
+CAMPAIGN_ID = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignId')
+CAMPAIGN_ORDINAL = pasm_constant_in('src/core/game_state.pasm', 'Game_CampaignOrdinal')
 STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
 STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
 PLAYER_INVULN_FRAMES = pasm_constant_in('src/core/game_state.pasm', 'Player_InvulnFrames')
@@ -161,7 +163,7 @@ def entity_triple(m, base):
             byte_at(m, base + CHAR_ATTACK_FCOUNT))
 
 
-def force_win_and_wait(m, r, from_stage, label):
+def force_win_and_wait(m, r, from_stage, label, expected_stage=None):
     spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
     m.write_u8(SPAWN_INDEX, spawn_count)
     # Stage completion requires the legal camera-at-right-edge predicate as
@@ -189,7 +191,7 @@ def force_win_and_wait(m, r, from_stage, label):
     m.write_u16(SCREEN_POS_X, true_max)
     reached = poll_until(
         m,
-        lambda session: word_at(session, GAME_STAGE_INDEX) == from_stage + 1
+        lambda session: word_at(session, GAME_STAGE_INDEX) == (expected_stage if expected_stage is not None else from_stage + 1)
         and word_at(session, GAME_STATE) == GAME_STATE_PLAYING,
         max_frames=600,
         step=5,
@@ -204,7 +206,7 @@ def force_win_and_wait(m, r, from_stage, label):
                 m.write_u8(base + CHAR_HP, 0)
             m.set_input(m.BTN_RIGHT, 60)
             m.pause()
-            if (word_at(m, GAME_STAGE_INDEX) == from_stage + 1
+            if (word_at(m, GAME_STAGE_INDEX) == (expected_stage if expected_stage is not None else from_stage + 1)
                     and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
                 reached = True
                 break
@@ -318,9 +320,16 @@ def main():
               f'Leather stage={leather_stage} roster={leather_roster}')
         r.check('Rock precedes Leather in STAGE_CONFIGS', rock_stage < leather_stage)
 
-        # Reach Rock via the real chain. Content identity, not a permanent
-        # numeric TMNT-tail index, defines the destination.
-        for target in range(1, rock_stage + 1):
+        # Explicitly select the standalone catalog family. Content identity,
+        # not a permanent numeric TMNT-tail index, defines the destination.
+        m.write_u8(CAMPAIGN_ID, 2)
+        m.write_u8(CAMPAIGN_ORDINAL, 0xFF)
+        force_win_and_wait(m, r, from_stage=0, label='standalone catalog select',
+                           expected_stage=3)
+        r.check(f'standalone selection reaches the first standalone record '
+                f'({word_at(m, GAME_STAGE_INDEX)} == 3)',
+                word_at(m, GAME_STAGE_INDEX) == 3)
+        for target in range(4, rock_stage + 1):
             current = target - 1
             force_win_and_wait(m, r, from_stage=current, label=f'{current}->{target}')
             got = word_at(m, GAME_STAGE_INDEX)

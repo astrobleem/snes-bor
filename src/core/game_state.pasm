@@ -257,7 +257,18 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
 ; it against the packed bor.msu's real bg_count.
 ; ============================================================================
 
-STAGE_COUNT = 11  ; BG_SCREENS/FP_SCREENS/SPAWN_TABLES length in build_rom.py
+STAGE_COUNT = 11  ; physical BG/FP/spawn catalog length; not campaign length
+
+; Campaign maps are generated from authored LEVELS files and source identities.
+; Game_StageIndex remains the physical packed-stage selector; campaign state
+; chooses which physical record is loaded next.
+
+CAMPAIGN_BOR_ORIGINAL = 0
+CAMPAIGN_TMNT = 1
+CAMPAIGN_STANDALONE_TEST_CONTENT = 2
+
+Game_CampaignId      = $7E275E ; .db -- BOR, TMNT, or standalone dev context
+Game_CampaignOrdinal = $7E275F ; .db -- ordinal within the active campaign
 
 Game_StageIndex   = $7E2758   ; .dw -- 0-based index of the currently loaded
                                ; stage; Bg_LoadScene_StageIndex (main.pasm)
@@ -880,18 +891,19 @@ Game_State_Play__stageclear:
     rep #$31
 .a16
 .i16
-    lda.l Game_StageIndex
-    inc a
-    cmp #STAGE_COUNT
-    bcc Game_State_Play__stageclear_next
-    ; No more stages: enter the real ending adaptation and start its
-    ; source-authored ENDING.TXT MSU track before its first scene page.
-    jsr Music_SelectEndingTrack
-    lda #GAME_STATE_ENDING
-    sta.l Game_State
+    jsl Game_Campaign_ResolveNext
+    bcs Game_State_Play__campaign_end
+    rep #$31
+.a16
+.i16
+    bra Game_State_Play__stageclear_next
+Game_State_Play__campaign_end:
+    ; An incomplete campaign stops at TITLE rather than falling through into
+    ; the next physical catalog family. Bank-12 owns the compact end handler;
+    ; the authored TMNT campaign retains the existing ending adaptation.
+    jsl Game_Campaign_HandleEnd
     jmp Game_State_Play__stageclear_done
 Game_State_Play__stageclear_next:
-    sta.l Game_StageIndex
     sep #$20
 .a8
     sta.l Bg_LoadScene_StageIndex   ; A's low byte == the new Game_StageIndex
