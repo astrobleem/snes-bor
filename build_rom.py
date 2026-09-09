@@ -304,6 +304,31 @@ def validate_bank0_layout(poppy_data, symbol_path):
           f'header_window=${0x7FC0:04X}-${0x7FFF:04X} empty)')
 
 
+def validate_text_bank_layout(symbol_path):
+    """Keep the font-adjacent text data in its documented LoROM bank."""
+    symbols = _load_poppy_symbols(symbol_path)
+    required = ('Text_StringPool', 'Text_StringPool_End', 'CharSelect_NamePtrs')
+    missing = [name for name in required if name not in symbols]
+    if missing:
+        raise SystemExit('text bank layout guard: missing symbols: ' + ', '.join(missing))
+
+    expected_bank = 0x02
+    pool = symbols['Text_StringPool']
+    pool_end = symbols['Text_StringPool_End']
+    name_ptrs = symbols['CharSelect_NamePtrs']
+    for name, value in (('Text_StringPool', pool),
+                        ('Text_StringPool_End', pool_end),
+                        ('CharSelect_NamePtrs', name_ptrs)):
+        if value >> 16 != expected_bank:
+            raise SystemExit(f'text bank layout guard: {name} is ${value:06X}, '
+                             f'expected bank ${expected_bank:02X}')
+    if pool_end <= pool or ((pool_end - 1) >> 16) != expected_bank:
+        raise SystemExit('text bank layout guard: string pool crosses a ROM bank')
+
+    print(f'text bank layout guard: PASS (pool=${pool:06X}-${pool_end - 1:06X}, '
+          f'name_ptrs=${name_ptrs:06X})')
+
+
 def bank0_layout_guard_self_test():
     symbols = {
         'scpu_boot': 0x00FC00,
@@ -330,6 +355,7 @@ def main():
     poppy_data = bytearray(open('src/main.bin', 'rb').read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
     validate_bank0_layout(poppy_data, 'src/main.sym')
+    validate_text_bank_layout('src/main.sym')
 
     rom = bytearray(ROM_SIZE)
     # Historically clamped to BANK0_SIZE (32KB) because main.pasm was

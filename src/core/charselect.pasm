@@ -147,6 +147,10 @@ Game_State_Play__charselect_draw_instr_1p:
     .a16
     .i16
 Game_State_Play__charselect_draw_instr_join:
+    ; The mode test above clobbers A; restore the destination row before the
+    ; shared draw-step helper consumes A/X/Y.
+    sep #$20
+    lda #CHARSELECT_ROW_INSTR
     rep #$31
 .a16
 .i16

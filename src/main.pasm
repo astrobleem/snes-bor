@@ -13145,50 +13145,19 @@ Font_TilesData:
 Font_PaletteData:
     .incbin "assets/font_palette.bin"   ; 8 bytes, 4 BGR555 colors
 
-.bank 11
-.org $8000
-; TEST-ONLY ROM source for the specialized FOOTDIE streamer. This is the
-; genuine production BRR payload and is intentionally outside TAD common.
-Footdie_StreamSource:
-    .incbin "../assets/audio/footdie.brr"
-    .fill 99, 0
-
 ; Text_StringPool -- every string core/text.pasm's Core_Text_DrawString can
 ; draw, concatenated and null-terminated; callers pass a byte OFFSET into
-; this table (via Y), not a pointer -- see core/text.pasm's own header for
-; why. tools/verify/game_g1_text.py's gate draws Text_Str_Hello.
+; this table (via Y), not a pointer -- see core/text.pasm for why. This data
+; must remain in FONT_DATA_BANK.
 Text_StringPool:
 Text_Str_Hello:
     .db "SNES-BOR", $00
-
-; Phase G5 (plan_game.md 5): title screen strings. Each fills the FULL
-; 32-column BG3 row (real text padded with trailing spaces to exactly 32
-; characters), not just the visible text -- see core/game_state.pasm's own
-; Phase G5 header for why: TextStaging is one buffer reused across every
-; DrawString call with no clearing of untouched columns, so a short string
-; would leave whatever a PREVIOUS call (to a different row) left in the
-; columns it doesn't touch. A full-row string always overwrites all 64
-; bytes of the shared buffer, so there's never a stale-column gap.
 Text_Str_TitleMain:
     .db "SNES-BOR  1 PLAYER / 2 PLAYER   ", $00
 Text_Str_TitlePress:
     .db "P1 START: 1P   P2 START: 2P     ", $00
 Text_Str_TitleBlank:
     .db "                                ", $00
-
-; Phase G5 (plan_game.md 5): character-select screen strings. Same
-; full-32-column-padded convention as the title strings above (this screen
-; reuses Text_Str_TitleBlank for clearing, since blank is blank regardless
-; of which screen wrote the row). Names are hand-synced to build_rom.py's
-; ROSTER_PREFIXES order (RALF, JHUN, JOE, YASHIRO, MOUSER, FOOT01 -- the
-; last two added the same day as the TMNT campaign) -- see
-; CharSelect_NamePtrs below, same accepted hand-sync pattern as
-; tools/verify/phase12_roster.py's own ENTITY_ROSTER_SLOTS. A real bug hit
-; here once already: ROSTER_PREFIXES grew 4->6 without this table growing
-; to match, so CharSelect_Index==4/5 (wrapping Left from slot 0, or
-; cycling Right past YASHIRO) read 2 words of garbage past this table's
-; end as a string pointer -- caught by game_g5_menus.py's own wrap check
-; failing, not silently.
 Text_Str_CharSelectHeader:
     .db "CHARACTER SELECT                ", $00
 Text_Str_CharSelectInstr:
@@ -13221,16 +13190,6 @@ Text_Str_CharFoot04:
     .db "FOOT SOLDIER                    ", $00
 Text_Str_CharLeo:
     .db "LEO                             ", $00
-
-; CharSelect_NamePtrs -- word offsets into Text_StringPool, indexed by
-; CharSelect_Index (main.pasm). Must stay hand-synced to ROSTER_PREFIXES'
-; order in build_rom.py; a new roster slot needs a new entry here too.
-; LEO added the same day as the roster-growth slice (slot 12, the pak's
-; own only actively-loaded playable turtle) -- see this project's own
-; "real bug hit here once already" note above (grew 4->6, then 6->8, both
-; times this exact table was the thing left behind -- caught a THIRD time
-; by game_g5_menus.py before this entry was added): this table MUST grow
-; every time ROSTER_PREFIXES does, no exceptions.
 CharSelect_NamePtrs:
     .dw (Text_Str_CharRalf - Text_StringPool)
     .dw (Text_Str_CharJhun - Text_StringPool)
@@ -13245,14 +13204,6 @@ CharSelect_NamePtrs:
     .dw (Text_Str_CharFoot03 - Text_StringPool)
     .dw (Text_Str_CharFoot04 - Text_StringPool)
     .dw (Text_Str_CharLeo - Text_StringPool)
-
-; Phase G5 pause menu strings (core/pausemenu.pasm). Same full-32-column-
-; padded convention, real OpenBOR-sourced content: engine/openbor.c's own
-; pausemenu() draws exactly "Pause" plus two selectable rows, "Continue"/
-; "End Game", toggled by Up/Down with Start committing -- reproduced here
-; as a cursor prefix ("> "/"  ") baked into two string variants per option
-; row rather than a real sprite cursor, matching this project's existing
-; text-only menu style (title/charselect).
 Text_Str_PauseHeader:
     .db "PAUSE                           ", $00
 Text_Str_PauseContinueSel:
@@ -13263,24 +13214,10 @@ Text_Str_PauseEndGameSel:
     .db "> END GAME                      ", $00
 Text_Str_PauseEndGameUnsel:
     .db "  END GAME                      ", $00
-
-; Phase G5: pause-menu volume row label, drawn by Core_Text_DrawLabeledNumber
-; (not DrawString -- see that routine's own header), so short and NOT padded
-; to 32 columns, matching the HUD labels below it. Kept to the bare minimum
-; this chronically-tight bank can afford (real ROM-budget constraint, not a
-; style choice) -- the row's own fixed position in the pause menu (between
-; CONTINUE and END GAME) plus the numeric readout are enough context.
 Text_Str_PauseVolumeSel:
     .db "> V ", $00
 Text_Str_PauseVolumeUnsel:
     .db "  V ", $00
-
-; Phase G6 (plan_game.md 6): HUD scoreboard labels. Short, NOT padded to 32
-; columns -- unlike the title strings above, these are drawn by
-; Core_Text_DrawLabeledNumber (core/text.pasm), which blanks the rest of the
-; row itself after the label+value, so no stale-column hazard applies here.
-; All three are exactly 6 characters, so the value always starts at column
-; HUD_LABEL_COL+6 regardless of which row is being redrawn.
 Text_Str_HudScore:
     .db "SCORE ", $00
 Text_Str_HudLives:
@@ -13291,13 +13228,6 @@ Text_Str_HudP2Score:
     .db "P2SCOR", $00
 Text_Str_HudP2Lives:
     .db "P2LIFE", $00
-
-; Phase G10 (plan_game.md 10): ending/credits screen strings. Same
-; full-32-column-padded convention as the title/pause strings above (see
-; those own comments for why) -- core/ending.pasm's own header documents
-; the real-source finding these map to (BOR's own DATA\SCENES\ENDING.TXT
-; scene script) and the documented SNES text adaptation in place of that
-; scene's real, un-portable pixel-art playback.
 Text_Str_EndingA1:
     .db "YOU HAVE COMPLETED THE GAME     ", $00
 Text_Str_EndingA2:
@@ -13310,6 +13240,15 @@ Text_Str_EndingC1:
     .db "THANKS FOR PLAYING              ", $00
 Text_Str_EndingC2:
     .db "MADE WITH POPPY + TAD + MESEN2  ", $00
+Text_StringPool_End:
+
+.bank 11
+.org $8000
+; TEST-ONLY ROM source for the specialized FOOTDIE streamer. This is the
+; genuine production BRR payload and is intentionally outside TAD common.
+Footdie_StreamSource:
+    .incbin "../assets/audio/footdie.brr"
+    .fill 99, 0
 
 .include "audio_batch_b_stream_sources.pasm"
 
