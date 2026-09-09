@@ -20,9 +20,11 @@
 > `TOOLING-LIMITED / UNMEASURED`, `confirmed_busy_denials` null/unmeasured,
 > and the synthetic instant-MONEY branch `NOT_APPLICABLE_UNMEASURED` for
 > current packed content.
-> TEXT-1, the inherited pre-G14 DrawString reliability/observation defect,
-> remains open and blocks presentation-complete release claims; see
-> `docs/text_drawstring_inherited_defect.md`.
+> TEXT-1, the inherited pre-G14 DrawString bank-ownership defect, is closed;
+> the structural fix and guard are recorded in
+> `docs/text_drawstring_inherited_defect.md`. The current next work is the
+> planning-only G15 original BOR campaign audit in
+> `docs/g15_bor_campaign_audit.md`.
 
 Read this before doing anything else, then `CLAUDE.md` (build/test commands,
 architecture map) and `build.md` (register tables, CC-DMA mechanism, Mesen2

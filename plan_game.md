@@ -2506,23 +2506,31 @@ capacity, two-player/four-NPC capacity, stage handoff, pause, and regression
 coverage remain intact. The single TextStaging architecture is retained, with
 G14 HUD text serialized to at most one flush per gameplay frame.
 
-TEXT-1 is inherited from before G14 and remains open; see
-`docs/text_drawstring_inherited_defect.md`.
+TEXT-1 was inherited from before G14 and is now closed by restoring the string
+pool's bank ownership; see `docs/text_drawstring_inherited_defect.md`.
 
 ### G15 — finish the original Beats of Rage campaign/content — NOT STARTED
 
-G15 is the following major milestone and is also planning only.
+G15 is the following major milestone and is audit/plan-only at this point;
+the source-backed audit is `docs/g15_bor_campaign_audit.md`.
 
 New engine architecture is added only when reachable game content proves that
 it is needed. Animation residency redesign, SA-1 character compositor work,
 generic scripting, Double Dragon Moto, arbitrary actor-count growth, and
 speculative cache redesign remain future R&D rather than current blockers.
 
-**Do in this order** — each genuinely unblocks the next:
+**G15 proposed batch order** — each batch remains playable and ends with a
+real transition gate:
 
 ```
-G1 text  →  G2 states  →  G3 death  →  G4 win/transition  →  G5 menus
-         →  G6 HUD  →  G8 items  →  G7 moveset  →  G9 bosses  →  G10 ending
+ A finish original stage 1 (1C; normalize 1A→1B→1C)
+ B original stage 2 (2EASY)
+ C original stage 3 (3A→3B→3C)
+ D original stage 4 (4A→4B)
+ E original stage 5 (5A→5B)
+ F original final stage 6 (6A→6B→6C) and Rugal handoff
+ G 1P full-campaign/ending/title restart plus 2P campaign smoke
+ H optional Bonus extra.txt/sewer scene
 ```
 
 **§8a's level-format-keyword rows slot in around G8/G9/G12 specifically** —
