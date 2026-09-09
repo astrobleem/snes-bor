@@ -43,9 +43,11 @@ def edge_probe(m, port, out_addr, hp_addr, lives_addr, out_value=1):
     m.write_u8(GS, PLAYING)
     neutral_joint(m)
     before = {
-        'raw_expected_api': 0, 'input_press': u16(m, 0x7E0410 if port == 0 else 0x7E0418),
-        'input_trigger': u16(m, 0x7E0412 if port == 0 else 0x7E041A),
-        'input_old': u16(m, 0x7E0414 if port == 0 else 0x7E041C),
+        'raw_expected_api': 0, 'input_press': u16(m, 0x7E0410 if port == 0 else 0x7E0416),
+        'input_trigger': u16(m, 0x7E0412 if port == 0 else 0x7E0418),
+        'input_old': u16(m, 0x7E0414 if port == 0 else 0x7E041A),
+        'p1_out': u8(m, P1OUT), 'p1_hp': u8(m, P1 + HP),
+        'p1_lives': u8(m, LIVES),
     }
     names = ('Core_Input_Poll', 'Core_Input_Poll_P2', 'G13_HandleOutContinue',
              'G13_HandleOutContinue__yes', 'G13_HandleOutContinue__p2',
@@ -62,11 +64,13 @@ def edge_probe(m, port, out_addr, hp_addr, lives_addr, out_value=1):
     events = [{'name': hooks[x['params']['handle']], 'frame': x['params'].get('frame')}
               for x in notes if x.get('method', '').endswith('hookFired')
               and x.get('params', {}).get('handle') in hooks]
-    context = (0x7E0410 if port == 0 else 0x7E0418)
+    context = (0x7E0410 if port == 0 else 0x7E0416)
     after = {'raw_expected_api': m.BTN_START,
              'input_press': u16(m, context), 'input_trigger': u16(m, context + 2),
              'input_old': u16(m, context + 4), 'out': u8(m, out_addr),
-             'hp': u8(m, hp_addr), 'lives': u8(m, lives_addr), 'state': u16(m, GS)}
+             'hp': u8(m, hp_addr), 'lives': u8(m, lives_addr), 'state': u16(m, GS),
+             'p1_out': u8(m, P1OUT), 'p1_hp': u8(m, P1 + HP),
+             'p1_lives': u8(m, LIVES)}
     return {'port': port, 'neutral': before, 'set_input': result,
             'events': events, 'after': after}
 
@@ -85,7 +89,12 @@ def main():
         m.write_u8(LIVES, 1); m.write_u8(P2LIVES, 1); m.write_u8(GS, PLAYING)
         p1 = edge_probe(m, 0, P1OUT, P1 + HP, LIVES, out_value=0)
         print('active P1 pause semantic:', p1, flush=True)
-        r.check('P2 continue branch observed', any(e['name'] == 'G13_HandleOutContinue__yes' for e in p2['events']) and p2['after']['out'] == 0)
+        r.check('P2 continue branch observed',
+                any(e['name'] == 'G13_HandleOutContinue__yes' for e in p2['events']) and
+                p2['after']['out'] == 0 and p2['after']['hp'] == 64 and
+                p2['after']['lives'] == 20 and p2['after']['state'] == PLAYING and
+                (p2['after']['p1_out'], p2['after']['p1_hp'], p2['after']['p1_lives']) ==
+                (p2['neutral']['p1_out'], p2['neutral']['p1_hp'], p2['neutral']['p1_lives']))
         r.check('active P1 pause branch observed', any(e['name'] == 'Game_State_Pause_CheckEntry__enter' for e in p1['events']) and p1['after']['state'] == PAUSED)
     r.finish()
 if __name__ == '__main__': main()

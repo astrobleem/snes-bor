@@ -38,8 +38,9 @@
     "nmi_handler": "00:FFA0",
     "G13_EnsureP2AfterStage": "07:840C",
     "G13_ReapplyP1Out": "07:8656",
-    "G13_ClearOldStageActors": "07:86B2",
-    "G13_ClearOldStageActors__one": "07:8713"
+    "G13_ClearOldStageActors": "07:86B6",
+    "G13_ClearOldStageActors__after_slot5": "07:8715",
+    "G13_ClearOldStageActors__one": "07:8717"
   },
   "caller_tail_bytes": "22B2860722568607220C8407A900008F50277E4C19DA",
   "runtime_state": {
@@ -53,9 +54,9 @@
     "clear_entry": "07:86B6 reached",
     "final_slot_stores": "reached",
     "final_store_7e58b9": "write observed, value $00",
-    "final_pld": "07:8710 reached",
-    "final_plp": "07:8711 reached",
-    "rtl": "07:8712 reached",
+    "final_pld": "07:8714 reached",
+    "final_plp": "07:8715 reached",
+    "rtl": "07:8716 reached",
     "caller_da55": "07:8656 reached",
     "later_g13_hooks": "07:840C and caller PLAYING store reached",
     "outer_jsl_frame": ["54", "DA", "00"],

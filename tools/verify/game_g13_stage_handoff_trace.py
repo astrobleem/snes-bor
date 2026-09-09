@@ -44,7 +44,7 @@ def run_case(case, p2_out):
         m.write_u8(OUT1, 0); m.write_u8(P1 + CHAR_HP, CHAR_HP_MAX)
         m.write_u8(P2 + CHAR_HP, 0 if p2_out else CHAR_HP_MAX)
         m.write_u8(OUT2, 1 if p2_out else 0)
-        m.write_u8(P2 + CHAR_INPUT_DRIVEN, CHAR_INPUT_DRIVEN)
+        m.write_u8(P2 + CHAR_INPUT_DRIVEN, PLAYER_ROLE)
         m.write_u8(P2 + CHAR_ROSTER, 12); m.write_u8(P2_LIVES, 3)
         run_frames_exact(m, 2)
         m.write_u8(SPAWN_INDEX, byte_at(m, SPAWN_COUNT_ADDR))

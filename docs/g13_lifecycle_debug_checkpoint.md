@@ -84,9 +84,9 @@ the reapply helpers leaked A8 into the 1P caller and latent 2P PLA restore.
 00:DA64  JMP stageclear_done
 
 07:86B6 entry executes
-07:8710 PLD executes
-07:8711 PLP executes
-07:8712 RTL executes
+07:8714 PLD executes
+07:8715 PLP executes
+07:8716 RTL executes
 00:DA55, 07:8656, 07:840C, DA5D/DA60 and stageclear_done execute
 Game_State becomes PLAYING ($0000)
 ```
@@ -138,8 +138,9 @@ Core_Nmi_Start                     $00:D248
 nmi_handler                        $00:FFA0
 G13_EnsureP2AfterStage             $07:840C
 G13_ReapplyP1Out                   $07:8656
-G13_ClearOldStageActors            $07:86B2
-G13_ClearOldStageActors__one       $07:8713
+G13_ClearOldStageActors            $07:86B6
+G13_ClearOldStageActors__after_slot5 $07:8715
+G13_ClearOldStageActors__one       $07:8717
 ```
 
 Raw caller tail bytes are `22 B2 86 07 22 56 86 07 22 0C 84 07 A9 00 00 8F
