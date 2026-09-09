@@ -255,6 +255,37 @@ def check_vm_constants(roster_sidecar):
     print(f"check_vm_constants: OK (offset=${real_offset:06X}, size={real_size})")
 
 
+def check_spawn_table_freshness():
+    """Regenerate every shipped spawn table against the current roster map.
+
+    Spawn records embed roster indices, so changing ROSTER_PREFIXES can make
+    an otherwise same-sized old table point at a different prop/actor.
+    Compare the complete converter output, not merely record counts.
+    """
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    'tools', 'bg_converter'))
+    from build_spawn_table import build_from_pak
+    roster_lookup = {prefix.rsplit('/', 1)[-1].lower(): i
+                     for i, prefix in enumerate(ROSTER_PREFIXES)}
+    for stage in STAGE_CONFIGS:
+        pak = os.path.abspath(stage['pak'])
+        table = os.path.abspath(stage['spawn'])
+        if not os.path.exists(pak) or not os.path.exists(table):
+            continue
+        _, expected = build_from_pak(pak, stage['source_level'], roster_lookup)
+        with open(table, 'rb') as f:
+            actual = f.read()
+        if actual != expected:
+            first = next((i for i, (a, b) in enumerate(zip(actual, expected))
+                          if a != b), min(len(actual), len(expected)))
+            raise SystemExit(
+                f"spawn table stale: source={stage['source_level']} "
+                f"table={stage['spawn']} first_diff_record={first // 10} "
+                f"byte={first % 10} committed_len={len(actual)} "
+                f"expected_len={len(expected)}")
+    print('spawn-table freshness: PASS (all tables match current PAK/roster mapping)')
+
+
 def _load_poppy_symbols(path):
     symbols = {}
     with open(path, encoding='utf-8') as f:
@@ -445,6 +476,7 @@ def main():
     missing = [p for p in SPAWN_TABLES + [VM_MODULE] if not os.path.exists(p)]
     if missing:
         raise SystemExit("missing required generated input(s): " + ", ".join(missing))
+    check_spawn_table_freshness()
     spawn_blobs = [open(p, 'rb').read() for p in SPAWN_TABLES]
     vm_blob = open(VM_MODULE, 'rb').read()
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(

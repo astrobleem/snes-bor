@@ -20,6 +20,8 @@ from game_g13_two_player_input import clear_inputs, neutral_joint
 ZP = pasm_constant('CHAR_ZP_LEN')
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SYM = os.path.join(ROOT, 'src', 'main.sym')
+sys.path.insert(0, ROOT)
+import build_rom
 P1 = 0x7E0A00; P2 = P1 + ZP; ITEM = P1 + 2 * ZP
 POS_X = pasm_constant('CHAR_POS_X'); POS_Y = pasm_constant('CHAR_POS_Y')
 HP = pasm_constant('CHAR_HP'); HP_MAX = pasm_constant('CHAR_HP_MAX')
@@ -69,6 +71,14 @@ def symbol(name):
             hit = rx.match(line.strip())
             if hit:
                 return (int(hit.group(1), 16) << 16) | int(hit.group(2), 16)
+    raise KeyError(name)
+
+
+def roster_index(name):
+    """Resolve an embedded object identity from the authoritative roster."""
+    for index, prefix in enumerate(build_rom.ROSTER_PREFIXES):
+        if prefix.rsplit('/', 1)[-1].lower() == name.lower():
+            return index
     raise KeyError(name)
 
 def setup(m):
@@ -292,7 +302,7 @@ def packed_alive_instant_candidates():
             # future one carries a nonzero pickup with no contained-item
             # roster, fail explicitly and require instant-path review.
             object_roster_idx = data[offset + 9]
-            if (record_kind & 0x07) == 1 and pickup_type != 0 and data[offset + 8] == 0 and object_roster_idx not in (0, 16):
+            if (record_kind & 0x07) == 1 and pickup_type != 0 and data[offset + 8] == 0 and object_roster_idx not in (0, roster_index('1up')):
                 candidates.append({'table': os.path.relpath(path, ROOT),
                                    'record': offset // 10,
                                    'pickup_type': pickup_type,
