@@ -2,12 +2,14 @@
 """Focused 2P stage-handoff semantic gate."""
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'audio'))
 from _harness import open_session, pasm_constant, pasm_constant_in, run_frames_exact, Reporter
 from game_g13_camera_pause import setup, P1, P2
 from game_g4_transition import (CHAR_HP, CHAR_HP_MAX, CHAR_INPUT_DRIVEN,
     CHAR_INPUT_DRIVEN_AI, ENTITY_BASES, SPAWN_INDEX, SPAWN_COUNT_ADDR,
     SCREEN_POS_X, STAGE_CLEARED, STAGE_TRUE_MAX_X, GAME_STATE, G13_MODE,
     STREAM_SCROLL_WIDTH_TILES, STREAM_SCROLL_FP_ENABLED, byte_at, word_at)
+from shipped_content import normal_player_entries
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SYM = os.path.join(ROOT, 'src', 'main.sym')
@@ -19,6 +21,7 @@ OUT2 = pasm_constant('G13_P2Out')
 P2_LIVES = pasm_constant_in('src/core/game_state.pasm', 'G13_P2Lives')
 CHAR_ROSTER = pasm_constant('CHAR_ROSTER_INDEX')
 PLAYER_ROLE = 1
+BOR_DEFAULT = normal_player_entries('bor-original')[0][0]
 
 def symbol(name):
     rx = re.compile(r'^([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4,6})\s+' + re.escape(name) + r'\s*$')
@@ -45,7 +48,7 @@ def run_case(case, p2_out):
         m.write_u8(P2 + CHAR_HP, 0 if p2_out else CHAR_HP_MAX)
         m.write_u8(OUT2, 1 if p2_out else 0)
         m.write_u8(P2 + CHAR_INPUT_DRIVEN, PLAYER_ROLE)
-        m.write_u8(P2 + CHAR_ROSTER, 12); m.write_u8(P2_LIVES, 3)
+        m.write_u8(P2 + CHAR_ROSTER, BOR_DEFAULT); m.write_u8(P2_LIVES, 3)
         run_frames_exact(m, 2)
         m.write_u8(SPAWN_INDEX, byte_at(m, SPAWN_COUNT_ADDR))
         for base in ENTITY_BASES[1:]:
@@ -81,7 +84,7 @@ def run_case(case, p2_out):
         state['pass']=(not semantic_missing and state['state']==PLAYING and state['stage']==1 and
           state['pending']==0 and state['mode']==1 and state['p1_out']==0 and state['p1_hp']==CHAR_HP_MAX and
           state['p2_out']==(1 if p2_out else 0) and state['p2_hp']==(0 if p2_out else CHAR_HP_MAX) and
-          state['p2_input']==PLAYER_ROLE and state['p2_roster']==12 and state['width']>0 and state['frontpanel']==1)
+          state['p2_input']==PLAYER_ROLE and state['p2_roster']==BOR_DEFAULT and state['width']>0 and state['frontpanel']==1)
         print(json.dumps(state, sort_keys=True)); return state
 
 def main():

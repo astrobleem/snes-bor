@@ -1,0 +1,51 @@
+{
+  "entity": "Kula",
+  "anim": "jumpattack",
+  "loop": 0,
+  "scale": 0.32323232323232326,
+  "hotspot_canvas": [
+    10,
+    29
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        31,
+        90
+      ],
+      "bbox": [
+        23,
+        0,
+        18,
+        65
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 1000,
+      "offset": [
+        31,
+        90
+      ],
+      "bbox": [
+        23,
+        0,
+        18,
+        65
+      ],
+      "attack": [
+        68,
+        51,
+        32,
+        27,
+        6,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

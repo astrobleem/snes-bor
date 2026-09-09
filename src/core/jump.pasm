@@ -1115,6 +1115,17 @@ Jump_PlayerInputGate__throw_invalid:
     rtl
 Jump_PlayerInputGate__not_grabbing:
 .a8
+    ; BOR.C's generic missing-ANI_ATTACK1 fallback belongs before ordinary
+    ; attack dispatch, while the player is still grounded.
+    lda CHAR_ATTACK_FCOUNT
+    bne Jump_PlayerInputGate__normal_jump
+    lda.l Input_trigger+1
+    and #ANIM_ATTACK_BUTTON_MASK
+    beq Jump_PlayerInputGate__normal_jump
+    jsl Jump_MissingAttackFallback
+    rtl
+Jump_PlayerInputGate__normal_jump:
+.a8
     jsl Jump_PlayerTick   ; same-bank; its own carry convention (see its
                             ; header below) passes straight through this
                             ; rtl unchanged
@@ -1164,6 +1175,51 @@ Jump_PlayerInputGate__not_grabbing:
 ; state at its call site), .a8-equivalent out (carry meaningful, width not
 ; guaranteed -- caller re-asserts as needed, matching every other jsl
 ; boundary in this file).
+; Source BOR fallback for a player model with no ANI_ATTACK1.  This is the
+; generic animation-presence rule from BOR.C, not a Mighty name test.  It
+; enters the existing jump animation/physics path and separately marks the
+; jump as an attacking state so Character_HitApply can use the same collision
+; service without ever reading the absent attack blob.
+Jump_MissingAttackFallback:
+.a8
+    lda.l Player_JumpFCount
+    beq Jump_MissingAttackFallback__no
+    lda #AUDIO_SEMANTIC_JUMP
+    sta.l AudioSemantic_CurrentId
+    lda.l AudioSemantic_JumpRequestCount
+    inc
+    sta.l AudioSemantic_JumpRequestCount
+    lda.l AudioSemantic_RequestCount
+    inc
+    sta.l AudioSemantic_RequestCount
+    lda #SFX_JUMP_ID
+    sta.l Tad_sfxQueue_sfx
+    lda #TAD_CENTER_PAN
+    sta.l Tad_sfxQueue_pan
+    rep #$31
+.a16
+.i16
+    lda #JUMP_INITIAL_VEL
+    sta CHAR_THROW_ZVEL
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sep #$20
+.a8
+    lda #0
+    sta.l Player_JumpAnimMode
+    lda #CHAR_SELECTED_JUMP
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    sec
+    rtl
+Jump_MissingAttackFallback__no:
+.a8
+    clc
+    rtl
+
 Jump_PlayerTick:
 .a8
     lda CHAR_SELECTED

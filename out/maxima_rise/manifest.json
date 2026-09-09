@@ -1,0 +1,67 @@
+{
+  "entity": "Max",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.2711864406779661,
+  "hotspot_canvas": [
+    13,
+    24
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

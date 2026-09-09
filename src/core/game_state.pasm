@@ -26,7 +26,7 @@
 ; logic) later in the same phase -- see the CHARSELECT header below.
 ; ============================================================================
 
-GAME_STATE_PLAYING    = 0   ; current behavior -- also the boot default, see above
+GAME_STATE_PLAYING    = 0
 GAME_STATE_TITLE      = 1   ; title screen, waiting for Start
 GAME_STATE_CHARSELECT = 2   ; character select (stub only, see header)
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
@@ -85,8 +85,6 @@ TITLE_STEP_DRAW_PRESS = 1   ; draw "PRESS START" this frame, then advance
 TITLE_STEP_WAIT       = 2   ; idle, polling Start, until pressed
 TITLE_STEP_CLEAR_MAIN = 3   ; blank the title row this frame, then advance
 TITLE_STEP_CLEAR_PRESS = 4  ; blank "PRESS START" this frame, then advance
-                             ; -- anything >= 5 falls through to entering
-                             ; PLAYING (see Game_State_Play__title below)
 
 Title_Step = $7E2760   ; .db -- see TITLE_STEP_* above; zeroed at boot
                         ; (main.pasm, alongside Game_Lives) and reset back
@@ -502,8 +500,6 @@ Game_State_Play__title_check_clear_press:
     bne Game_State_Play__title_check_done
     jmp Game_State_Play__title_clear_press
 Game_State_Play__title_check_done:
-    ; Title_Step >= 5 (TITLE_STEP_CLEAR_PRESS done) -- both rows are clean,
-    ; finish the transition into PLAYING.
     jmp Game_State_Play__title_enter_playing
 
 Game_State_Play__title_draw_main:
@@ -562,6 +558,9 @@ Game_State_Play__title_wait_check_p1:
 Game_State_Play__title_wait_pressed:
     sep #$20
 .a8
+    ; A new BOR game always starts at the source difficulty/set prompt.
+    lda #0
+    sta.l BorDifficulty_Chosen
     lda #TITLE_STEP_CLEAR_MAIN
     sta.l Title_Step
     jmp Game_State_Play__done
@@ -594,12 +593,10 @@ Game_State_Play__title_clear_press:
     jsr Core_Text_DrawString
     sep #$20
 .a8
-    lda #5                          ; any value >= TITLE_STEP_CLEAR_PRESS+1
-                                    ; works; this falls through to
-                                    ; Game_State_Play__title_enter_playing
-                                    ; the very next frame this state runs
+    lda #5
     sta.l Title_Step
     jmp Game_State_Play__done
+
 
 Game_State_Play__title_enter_playing:
     sep #$20

@@ -1,0 +1,28 @@
+{
+  "entity": "Mandy",
+  "anim": "land",
+  "loop": 0,
+  "scale": 0.5647058823529412,
+  "hotspot_canvas": [
+    11,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 25,
+      "offset": [
+        32,
+        111
+      ],
+      "bbox": [
+        19,
+        29,
+        33,
+        84
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

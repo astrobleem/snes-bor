@@ -1,0 +1,60 @@
+{
+  "entity": "Mandy",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.5,
+  "hotspot_canvas": [
+    14,
+    45
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        34,
+        92
+      ],
+      "bbox": [
+        17,
+        5,
+        26,
+        90
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 50,
+      "offset": [
+        34,
+        92
+      ],
+      "bbox": [
+        10,
+        5,
+        26,
+        90
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        34,
+        92
+      ],
+      "bbox": [
+        17,
+        5,
+        26,
+        90
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

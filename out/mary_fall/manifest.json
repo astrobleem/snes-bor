@@ -1,0 +1,102 @@
+{
+  "entity": "Mandy",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.2882882882882883,
+  "hotspot_canvas": [
+    16,
+    16
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        58
+      ],
+      "bbox": null,
+      "attack": [
+        32,
+        22,
+        39,
+        41,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        58
+      ],
+      "bbox": null,
+      "attack": [
+        10,
+        36,
+        62,
+        28,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        58
+      ],
+      "bbox": null,
+      "attack": [
+        11,
+        35,
+        74,
+        23,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        58
+      ],
+      "bbox": null,
+      "attack": [
+        19,
+        30,
+        49,
+        32,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        58
+      ],
+      "bbox": null,
+      "attack": [
+        8,
+        44,
+        99,
+        16,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

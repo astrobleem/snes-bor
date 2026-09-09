@@ -75,6 +75,13 @@ ROSTER_CONFIGS = [
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TRASH", "converted_prefix": "out/trash", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\CHAIR", "converted_prefix": "out/chair", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TABLE", "converted_prefix": "out/table", "playable": False},
+    # Source-normal BOR players are appended so existing runtime roster and
+    # embedded spawn indices remain stable.  Player selection uses the
+    # explicit source mapping below, not the legacy playable prefix.
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\KULA", "converted_prefix": "out/kula", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MAXIMA", "converted_prefix": "out/maxima", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MARY", "converted_prefix": "out/mary", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MIGHTY", "converted_prefix": "out/mighty", "playable": False},
 ]
 
 # Source authority is the PAK's MODELS.TXT plus each referenced model's
@@ -85,6 +92,7 @@ ROSTER_CONFIGS = [
 SOURCE_PLAYER_SELECTION = {
     "bor-original": {
         "normal": {"KULA", "MAXIMA", "MARY", "MIGHTY"},
+        "source_order": ["KULA", "MAXIMA", "MARY", "MIGHTY"],
         "source_names": {"KULA": "KULA", "MAX": "MAXIMA", "MANDY": "MARY", "MIGHTY": "MIGHTY"},
         "commented_player": set(),
         "evidence": "DATA\\MODELS.TXT: uncommented load entries whose model TXT declares type player",
@@ -108,11 +116,18 @@ for _entry in ROSTER_CONFIGS:
 
 def normal_player_entries(family: str | None = None):
     """Return only source-normal players represented by the current runtime."""
-    return [
-        (i, entry) for i, entry in enumerate(ROSTER_CONFIGS)
-        if entry["normal_player_selectable"]
-        and (family is None or entry["family"] == family)
-    ]
+    result = []
+    families = [family] if family else list(SOURCE_PLAYER_SELECTION)
+    for selected_family in families:
+        source = SOURCE_PLAYER_SELECTION[selected_family]
+        for identity in source.get("source_order", sorted(source["normal"])):
+            matches = [(i, e) for i, e in enumerate(ROSTER_CONFIGS)
+                       if e["family"] == selected_family
+                       and e["source_character"].split("\\CHARS\\", 1)[1].upper() == identity]
+            if len(matches) != 1:
+                raise ValueError(f"source-normal player {selected_family}:{identity} resolves to {len(matches)} runtime entries")
+            result.extend(matches)
+    return result
 
 ROSTER_PREFIXES = [entry["converted_prefix"] for entry in ROSTER_CONFIGS]
 PLAYABLE_ROSTER_COUNT = sum(entry["playable"] for entry in ROSTER_CONFIGS)

@@ -1,0 +1,102 @@
+{
+  "entity": "Kula",
+  "anim": "grabattack",
+  "loop": 0,
+  "scale": 0.4507042253521127,
+  "hotspot_canvas": [
+    13,
+    43
+  ],
+  "frames": [
+    {
+      "delay": 4,
+      "offset": [
+        36,
+        100
+      ],
+      "bbox": [
+        34,
+        9,
+        19,
+        93
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 4,
+      "offset": [
+        36,
+        100
+      ],
+      "bbox": [
+        34,
+        9,
+        19,
+        93
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        36,
+        100
+      ],
+      "bbox": [
+        34,
+        9,
+        19,
+        93
+      ],
+      "attack": [
+        48,
+        35,
+        34,
+        26,
+        6
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 4,
+      "offset": [
+        36,
+        100
+      ],
+      "bbox": [
+        34,
+        9,
+        19,
+        93
+      ],
+      "attack": [
+        0
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 4,
+      "offset": [
+        36,
+        100
+      ],
+      "bbox": [
+        34,
+        9,
+        19,
+        93
+      ],
+      "attack": [
+        0
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

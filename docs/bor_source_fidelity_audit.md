@@ -140,3 +140,46 @@ Priority order for later approval:
 The following are explicitly not authorized here: broad gameplay rewrites,
 generic script VM work, animation transport redesign, arbitrary actor growth,
 Double Dragon Moto, and speculative cache redesign.
+## P1 update: Mighty
+
+The earlier conclusion that Mighty blocked the normal BOR roster is withdrawn.
+The authoritative `DATA\CHARS\MIGHTY\MIGHTY.TXT` has no attack1 animation by
+design, and original `BOR.C` explicitly dispatches missing `ANI_ATTACK1` to
+`dojump(1)` and missing `ANI_FREESPECIAL` to `dojump(2)`.  This is a
+`SOURCE_MATCH` target, not missing content or a reason to remove Mighty from
+selection.  The packer/runtime must represent absent attack data as a zero
+frame count and use the generic animation-presence condition.
+
+## P1 implementation status
+
+The runtime roster now appends the four source-normal BOR players without
+renumbering existing AI, boss, TMNT or prop identities.  The generated
+selection map is source ordered: Kula, Max/Maxima, Mandy/Mary, Mighty.  This
+mapping is distinct from runtime roster indices.
+
+Mighty's packed record has `attack_frame_count=0`; the existing jump system is
+the target for the normal attack fallback.  The separate freespecial fallback
+is not claimed as implemented unless the current command path has a real
+reachable source-equivalent trigger.
+
+## P1 current correction status
+
+The source-normal player mapping is explicit and appended without renumbering
+existing AI, boss, TMNT or prop identities: Kula -> runtime 22,
+Max/Maxima -> 23, Mandy/Mary -> 24, and Mighty -> 25. Normal selection no
+longer derives from the historical contiguous `playable` prefix, and the
+pre-game P2 path resolves its independent source-normal ordinal rather than
+forcing Leo. The older table entries above remain historical evidence of the
+pre-P1 state.
+
+Mighty's missing `attack1` is represented by an honest packed attack count of
+zero. The generic player attack path recognizes a zero real attack-frame count
+and routes through the existing jump state, matching BOR.C's
+animation-presence branch without fabricating attack data. The source
+freespecial `dojump(2)` branch remains `SOURCE_FEATURE_MISSING` for the
+current reachable SNES command path because Mighty has no freespecial data.
+
+The startup implementation now enters TITLE instead of direct PLAYING and
+presents the currently available Easy set before player selection. BOR's
+source logo/intro scene chain remains a bounded `SOURCE_ADAPTATION` task; it
+is not silently represented as complete by the title-state change alone.

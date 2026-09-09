@@ -1,0 +1,111 @@
+{
+  "entity": "Mighty",
+  "prefix": "out/mighty",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/mighty_idle",
+      "frames": 10
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/mighty_walk",
+      "frames": 6
+    },
+    {
+      "ordinal": 2,
+      "name": "get",
+      "dir": "out/mighty_get",
+      "frames": 1
+    },
+    {
+      "ordinal": 3,
+      "name": "jump",
+      "dir": "out/mighty_jump",
+      "frames": 8
+    },
+    {
+      "ordinal": 4,
+      "name": "grab",
+      "dir": "out/mighty_grab",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "throw",
+      "dir": "out/mighty_throw",
+      "frames": 1
+    },
+    {
+      "ordinal": 6,
+      "name": "pain",
+      "dir": "out/mighty_pain",
+      "frames": 1
+    },
+    {
+      "ordinal": 7,
+      "name": "fall",
+      "dir": "out/mighty_fall",
+      "frames": 1
+    },
+    {
+      "ordinal": 8,
+      "name": "rise",
+      "dir": "out/mighty_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 9,
+      "name": "land",
+      "dir": "out/mighty_land",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 6,
+    "fall": 7,
+    "rise": 8,
+    "backwalk": null,
+    "jump": 3,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": 2,
+    "attack": null,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 4,
+    "attack2_is_grab": true,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31644,
+      15070,
+      19092,
+      18960,
+      2403,
+      8630,
+      12501,
+      9481,
+      0,
+      9332,
+      17,
+      2057,
+      8237,
+      4160,
+      0
+    ]
+  ]
+}

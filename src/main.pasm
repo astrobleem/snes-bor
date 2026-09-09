@@ -2909,6 +2909,15 @@ Anim_WalkMsuBaseLo   = $7E53C2   ; .dw
 Anim_WalkMsuBaseHi   = $7E53C4   ; .db
 Anim_AttackMsuBaseLo = $7E53C5   ; .dw
 Anim_AttackMsuBaseHi = $7E53C7   ; .db
+; Source-normal BOR selection ordinals (Kula, Max, Mandy/Mary, Mighty).
+; These are deliberately separate from the physical runtime roster index.
+; Keep these outside the OAM high-water/full-upload cells at $7E53C8-$7E53CB.
+BorSelect_Ordinal    = $7E53D0   ; .db -- P1 source selection ordinal
+BorSelect_P2Ordinal  = $7E53D1   ; .db -- P2 source selection ordinal
+BorSelect_P1Ready    = $7E53D2   ; .db
+BorSelect_P2Ready    = $7E53D3   ; .db
+Player_MightyJumpAttack = $7E53D4 ; .db -- source fallback is attacking jump
+BorDifficulty_Chosen = $7E53D5     ; .db -- 0 draw, 1 wait, 2 clear, 3 done
 
 ; --- plan.md Phase 1b: core/oop.pasm CharacterEntity's per-instance
 ; direct-page window field layout. These are NOT fixed bank-$7E addresses
@@ -4378,8 +4387,7 @@ Anim_Play__no_attack2_trigger:
     beq Anim_Play__no_attack_trigger
     lda #2
     sta CHAR_SELECTED
-    lda #0
-    sta CHAR_ATTACK_VARIANT
+    stz CHAR_ATTACK_VARIANT
     lda #$FF
     sta CHAR_FRAME_INDEX
     lda #1
@@ -4684,8 +4692,7 @@ Anim_Play_Idle__advance:
     sta CHAR_FRAME_INDEX
     cmp CHAR_IDLE_FCOUNT
     bcc Anim_Play_Idle__frame_ok
-    lda #0
-    sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
+    stz CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
 Anim_Play_Idle__frame_ok:
     ; Copy this animation's 24-bit MSU base into AnimHeaderStaging+0/1/2 for
     ; Msu1_LoadFrame (see that routine's header for why this scratch reuse
@@ -4729,8 +4736,7 @@ Anim_Play_Walk__advance:
     sta CHAR_FRAME_INDEX
     cmp CHAR_WALK_FCOUNT
     bcc Anim_Play_Walk__frame_ok
-    lda #0
-    sta CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
+    stz CHAR_FRAME_INDEX        ; wrap (manifest loop=1)
 Anim_Play_Walk__frame_ok:
     rep #$31
 .a16
@@ -6234,8 +6240,15 @@ Character_HitApply:
     lda CHAR_SELECTED
     cmp #2
     beq Character_HitApply__attacking
-    lda #0
-    sta CHAR_HIT_APPLIED
+    ; BOR.C's missing-ANI_ATTACK1 fallback uses the real jump state as an
+    ; attacking jump.  Only a character with no attack frames takes this
+    ; path; ordinary jump states remain non-attacking.
+    cmp #CHAR_SELECTED_JUMP
+    bne Character_HitApply__not_attacking
+    lda CHAR_ATTACK_FCOUNT
+    beq Character_HitApply__attacking
+Character_HitApply__not_attacking:
+    stz CHAR_HIT_APPLIED
     rep #$31
 .a16
 .i16
@@ -12118,12 +12131,12 @@ Boot_LoadFp__done:
     lda #0
     sta.l Oam_UploadFlag
     sta.l Oam_HighWaterSlot
-    ; Phase G2 (plan_game.md 2): zero Game_State/Game_StatePrev before NMI is
-    ; enabled, same rule as the two cells just above (memory
-    ; boot_nmi_race_before_oam_init) -- GAME_STATE_PLAYING is deliberately 0,
-    ; so this zero-init IS the boot-state choice, not just a formality.
+    ; Normal BOR startup begins at TITLE.  Low-level verifiers that need a
+    ; gameplay precondition establish it explicitly after the source menu
+    ; flow; production boot must not skip the logo/title contract.
+    inc a                           ; A was zero from the OAM init above
     sta.l Game_State
-    sta.l Game_StatePrev
+    dec a                           ; restore zero for the following init
     ; Phase G3 (plan_game.md 3): Player_InvulnFrames must not rely on WRAM
     ; happening to power on zero (this project's own documented gotcha --
     ; see WorldMaxX's declaration comment) -- a large garbage value would
@@ -12154,8 +12167,6 @@ Boot_LoadFp__done:
 .a8
     lda #GAME_LIVES_START
     sta.l G13_P2Lives
-    lda #0
-    sta.l G13_PickupForP2
 
     jsr Core_Nmi_Init
 
@@ -12427,6 +12438,7 @@ __Tad_AudioData_0:
 .include "core/vm/vm_native_engine.pasm"
 .include "core/vm/audio_batch_b_generated.pasm"
 .include "core/campaign.pasm"
+.include "../tools/audio/bor_player_select_config.pasm"
 
 ; Bank-1 stream/semantic initialization helper. The caller enters in .a8;
 ; this routine restores the established boot convention (.a16/.i16) through
@@ -13166,12 +13178,14 @@ Text_Str_TitlePress:
     .db "P1 START: 1P   P2 START: 2P     ", $00
 Text_Str_TitleBlank:
     .db "                                ", $00
+Text_Str_Difficulty:
+    .db "EASY                            ", $00
 Text_Str_CharSelectHeader:
     .db "CHARACTER SELECT                ", $00
 Text_Str_CharSelectInstr:
     .db "LEFT/RIGHT SELECT  START GO     ", $00
 Text_Str_CharSelectInstr2P:
-    .db "P2 FIXED: LEO  START GO         ", $00
+    .db "P1/P2 SELECT     START GO         ", $00
 Text_Str_CharRalf:
     .db "RALF                            ", $00
 Text_Str_CharJhun:
@@ -13198,6 +13212,14 @@ Text_Str_CharFoot04:
     .db "FOOT SOLDIER                    ", $00
 Text_Str_CharLeo:
     .db "LEO                             ", $00
+Text_Str_CharKula:
+    .db "KULA                            ", $00
+Text_Str_CharMaxima:
+    .db "MAX                             ", $00
+Text_Str_CharMary:
+    .db "MARY                            ", $00
+Text_Str_CharMighty:
+    .db "MIGHTY                          ", $00
 CharSelect_NamePtrs:
     .dw (Text_Str_CharRalf - Text_StringPool)
     .dw (Text_Str_CharJhun - Text_StringPool)
@@ -13212,6 +13234,11 @@ CharSelect_NamePtrs:
     .dw (Text_Str_CharFoot03 - Text_StringPool)
     .dw (Text_Str_CharFoot04 - Text_StringPool)
     .dw (Text_Str_CharLeo - Text_StringPool)
+BorSelect_NamePtrs:
+    .dw (Text_Str_CharKula - Text_StringPool)
+    .dw (Text_Str_CharMaxima - Text_StringPool)
+    .dw (Text_Str_CharMary - Text_StringPool)
+    .dw (Text_Str_CharMighty - Text_StringPool)
 Text_Str_PauseHeader:
     .db "PAUSE                           ", $00
 Text_Str_PauseContinueSel:

@@ -1,0 +1,28 @@
+{
+  "entity": "Mandy",
+  "anim": "grab",
+  "loop": 0,
+  "scale": 0.4383561643835616,
+  "hotspot_canvas": [
+    14,
+    36
+  ],
+  "frames": [
+    {
+      "delay": 1000,
+      "offset": [
+        33,
+        83
+      ],
+      "bbox": [
+        26,
+        6,
+        27,
+        71
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

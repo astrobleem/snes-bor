@@ -50,6 +50,14 @@ Game_State_Play__charselect:
     jsl CharSelect_PortraitUpdate
     sep #$20
 .a8
+    lda.l BorDifficulty_Chosen
+    beq Game_State_Play__charselect_draw_difficulty
+    cmp #1
+    beq Game_State_Play__charselect_wait_difficulty
+    cmp #2
+    beq Game_State_Play__charselect_clear_difficulty
+    jmp Game_State_Play__charselect_normal
+Game_State_Play__charselect_normal:
     lda.l CharSelect_Step
     cmp #CHARSELECT_STEP_WAIT
     bne Game_State_Play__charselect_check_draw_header
@@ -89,6 +97,43 @@ Game_State_Play__charselect_check_done:
     ; finish the transition into PLAYING.
     jmp Game_State_Play__charselect_enter_playing
 
+Game_State_Play__charselect_draw_difficulty:
+    sep #$20
+.a8
+    lda #1
+    sta.l BorDifficulty_Chosen
+    lda #CHARSELECT_ROW_INSTR
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_Difficulty - Text_StringPool)
+    jmp Game_State_CharSelect_DrawStepRow
+
+Game_State_Play__charselect_wait_difficulty:
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger
+    ora.l Input_trigger+1
+    bne Game_State_Play__charselect_difficulty_pressed
+    jmp Game_State_Play__charselect_done
+Game_State_Play__charselect_difficulty_pressed:
+    sep #$20
+.a8
+    lda #2
+    sta.l BorDifficulty_Chosen
+    jmp Game_State_Play__charselect_done
+
+Game_State_Play__charselect_clear_difficulty:
+    sep #$20
+.a8
+    lda #3
+    sta.l BorDifficulty_Chosen
+    lda #CHARSELECT_STEP_DRAW_HEADER
+    sta.l CharSelect_Step
+    jmp Game_State_Play__charselect_done
+
 ; --- Draw/clear steps below all funnel through Game_State_CharSelect_
 ; DrawStepRow (A=row, Y=string offset, CharSelect_NextStep set first) --
 ; a jsr'd shared epilogue instead of 6 near-identical inline copies, same
@@ -105,6 +150,18 @@ Game_State_Play__charselect_draw_header:
     ; why the actual Msu1_LoadFrame call is deliberately deferred a frame).
     sep #$20
 .a8
+    ; Start every source selection with Kula as each player's default.
+    lda #0
+    sta.l BorSelect_Ordinal
+    sta.l BorSelect_P1Ready
+    sta.l BorSelect_P2Ready
+    lda.l G13_TwoPlayerEnabled
+    beq Game_State_Play__charselect_default_p2_done
+    lda #0
+    sta.l BorSelect_P2Ordinal
+Game_State_Play__charselect_default_p2_done:
+    lda #0
+    jsr Game_State_CharSelect_SetP1Physical
     lda #1
     sta.l CharSelect_PortraitPending
     lda #CHARSELECT_STEP_DRAW_NAME
@@ -162,6 +219,47 @@ Game_State_Play__charselect_draw_instr_join:
 ; these fires per frame, and the Left/Right case draws at most once (the
 ; name-row redraw), so this never risks a second same-frame DrawString. ---
 Game_State_Play__charselect_wait:
+    ; P2 owns a separate source cursor.  It is active only after the title
+    ; session edge, and uses the same explicit source-normal mapping.
+    sep #$20
+.a8
+    lda.l G13_TwoPlayerEnabled
+    beq Game_State_Play__charselect_p1_input
+    lda.l Input2_trigger+1
+    and #$0002
+    beq Game_State_Play__charselect_p2_right
+    lda.l BorSelect_P2Ordinal
+    beq Game_State_Play__charselect_p2_left_wrap
+    dec a
+    bra Game_State_Play__charselect_p2_left_set
+Game_State_Play__charselect_p2_left_wrap:
+    lda #BOR_SELECT_COUNT-1
+Game_State_Play__charselect_p2_left_set:
+    sta.l BorSelect_P2Ordinal
+    lda.l BorSelect_P2Ordinal
+    jsr Game_State_CharSelect_SetP2Physical
+    jmp Game_State_Play__charselect_done
+Game_State_Play__charselect_p2_right:
+    lda.l Input2_trigger+1
+    and #$0001
+    beq Game_State_Play__charselect_p2_start
+    lda.l BorSelect_P2Ordinal
+    inc a
+    cmp #BOR_SELECT_COUNT
+    bcc Game_State_Play__charselect_p2_right_set
+    lda #0
+Game_State_Play__charselect_p2_right_set:
+    sta.l BorSelect_P2Ordinal
+    lda.l BorSelect_P2Ordinal
+    jsr Game_State_CharSelect_SetP2Physical
+    jmp Game_State_Play__charselect_done
+Game_State_Play__charselect_p2_start:
+    lda.l Input2_trigger+1
+    and #$0010
+    beq Game_State_Play__charselect_p1_input
+    lda #1
+    sta.l BorSelect_P2Ready
+Game_State_Play__charselect_p1_input:
     rep #$31
 .a16
 .i16
@@ -171,21 +269,20 @@ Game_State_Play__charselect_wait:
     beq Game_State_Play__charselect_wait_check_right
     sep #$20
 .a8
-    lda.l CharSelect_Index
+    lda.l BorSelect_Ordinal
     bne Game_State_Play__charselect_left_dec
-    lda.l CharSelect_RosterCount
-    dec a
+    lda #BOR_SELECT_COUNT-1
     bra Game_State_Play__charselect_left_set
 Game_State_Play__charselect_left_dec:
     dec a
 Game_State_Play__charselect_left_set:
     sep #$20
 .a8
-    sta.l CharSelect_Index
+    sta.l BorSelect_Ordinal
+    jsr Game_State_CharSelect_SetP1Physical
     lda #AUDIO_SEMANTIC_BEEP
     ldx #SFX_BEEP_ID
     jsl Audio_QueueResidentSemantic
-    jsr Game_State_CharSelect_ReloadPlayer
     sep #$20
 .a8
     jmp Game_State_Play__charselect_wait_redraw
@@ -198,19 +295,19 @@ Game_State_Play__charselect_wait_check_right:
     beq Game_State_Play__charselect_wait_check_start
     sep #$20
 .a8
-    lda.l CharSelect_Index
+    lda.l BorSelect_Ordinal
     inc a
-    cmp.l CharSelect_RosterCount
+    cmp #BOR_SELECT_COUNT
     bcc Game_State_Play__charselect_right_set
     lda #0
 Game_State_Play__charselect_right_set:
     sep #$20
 .a8
-    sta.l CharSelect_Index
+    sta.l BorSelect_Ordinal
+    jsr Game_State_CharSelect_SetP1Physical
     lda #AUDIO_SEMANTIC_BEEP
     ldx #SFX_BEEP_ID
     jsl Audio_QueueResidentSemantic
-    jsr Game_State_CharSelect_ReloadPlayer
     sep #$20
 .a8
 Game_State_Play__charselect_wait_redraw:
@@ -234,6 +331,14 @@ Game_State_Play__charselect_wait_start_pressed:
     lda #AUDIO_SEMANTIC_BEEP2
     ldx #SFX_BEEP2_ID
     jsl Audio_QueueResidentSemantic
+    lda #1
+    sta.l BorSelect_P1Ready
+    lda.l G13_TwoPlayerEnabled
+    beq Game_State_Play__charselect_start_ok
+    lda.l BorSelect_P2Ready
+    bne Game_State_Play__charselect_start_ok
+    jmp Game_State_Play__charselect_done
+Game_State_Play__charselect_start_ok:
     lda #CHARSELECT_STEP_CLEAR_HEADER
     sta.l CharSelect_Step
     jmp Game_State_Play__charselect_done
@@ -360,6 +465,29 @@ Game_State_CharSelect_ReloadPlayer:
     sta.l CharSelect_PortraitPending
     rts
 
+; A = source-normal BOR selection ordinal. Resolve the explicit generated
+; mapping to a physical MSU roster slot, then reload player 1.
+Game_State_CharSelect_SetP1Physical:
+    sep #$20
+.a8
+    tax
+    lda.l BorSelect_RuntimeMap,x
+    sta.l CharSelect_Index
+    ; The loader records the same physical identity in player slot 0.
+    jsr Game_State_CharSelect_ReloadPlayer
+    rts
+
+; A = source-normal BOR selection ordinal. The existing P2 lifecycle bridge
+; reloads slot 1 while preserving P1's context and selected physical index.
+Game_State_CharSelect_SetP2Physical:
+    sep #$20
+.a8
+    tax
+    lda.l BorSelect_RuntimeMap,x
+    sta.l CharSelect_Index
+    jsl G13_EnableP2Session
+    rts
+
 ; ----------------------------------------------------------------------
 ; Game_State_CharSelect_DrawName -- draws the current CharSelect_Index's
 ; name at CHARSELECT_ROW_NAME via CharSelect_NamePtrs (main.pasm, hand-
@@ -371,14 +499,14 @@ Game_State_CharSelect_ReloadPlayer:
 Game_State_CharSelect_DrawName:
     sep #$20
 .a8
-    lda.l CharSelect_Index
+    lda.l BorSelect_Ordinal
     rep #$31
 .a16
 .i16
     and #$00FF
-    asl a                          ; index -> word offset into CharSelect_NamePtrs
+    asl a                          ; source ordinal -> BOR name table
     tax
-    lda.l CharSelect_NamePtrs,x
+    lda.l BorSelect_NamePtrs,x
     tay
     sep #$20
 .a8

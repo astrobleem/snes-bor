@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""G14 bounded player-facing two-player presentation gate.
+"""G14 bounded source-normal two-player presentation gate.
 
-The accepted G13 session model remains fixed-session: JOY2 selects 2P before
-character select and slot 1 is explicitly loaded as LEO.  This gate proves
-that presentation policy and the independent P2 HUD state are live without
-altering production WRAM during a running frame.
+JOY2 selects 2P before character select; both source-normal cursors default
+to the first BOR player and must be confirmed independently.
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'audio'))
 from _harness import (Reporter, exact_input_edge, open_session,
                       pasm_constant, pasm_constant_in, read_block,
                       run_frames_exact)  # noqa: E402
+from shipped_content import normal_player_entries  # noqa: E402
+
+BOR_DEFAULT = normal_player_entries('bor-original')[0][0]
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_TITLE = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_TITLE')
@@ -64,13 +66,19 @@ def main():
         exact_input_edge(m, m.BTN_START, 1, port=1)
         run_frames_exact(m, 2)
         r.check('title JOY2 Start enables 2P session', u8(m, MODE) == 1)
-        r.check('2P slot 1 loads fixed LEO roster entry', u8(m, P2_BASE + ROSTER_INDEX) == 12)
+        r.check('2P slot 1 loads source-normal default', u8(m, P2_BASE + ROSTER_INDEX) == BOR_DEFAULT)
 
         exact_input_edge(m, m.BTN_START, 1, port=0)
         run_frames_exact(m, 60)
+        # Source BOR has a difficulty/set confirmation between title and
+        # player select.  Easy is the only currently packed BOR set.
+        exact_input_edge(m, m.BTN_START, 1, port=0)
+        run_frames_exact(m, 60)
         r.check('P1 Start enters character select', u16(m, GAME_STATE) == GAME_STATE_CHARSELECT)
-        r.check('P2 remains fixed LEO in character select', u8(m, P2_BASE + ROSTER_INDEX) == 12)
+        r.check('P2 remains source-normal default in character select', u8(m, P2_BASE + ROSTER_INDEX) == BOR_DEFAULT)
 
+        exact_input_edge(m, m.BTN_START, 1, port=1)
+        run_frames_exact(m, 120)
         exact_input_edge(m, m.BTN_START, 1, port=0)
         run_frames_exact(m, 60)
         r.check('2P session reaches gameplay', u16(m, GAME_STATE) == GAME_STATE_PLAYING)

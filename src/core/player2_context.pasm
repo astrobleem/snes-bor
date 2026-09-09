@@ -196,10 +196,10 @@ G13_Player2_ContextExit:
     plp
     rtl
 
-; Fixed pre-game session entry. Called from the character-select WAIT state
-; when JOY2 Start has an edge. Slot 1 already owns its accepted OBJ palette
-; and tile allocation from boot; this changes only its player role and loads
-; the fixed LEO roster record through the ordinary production loader.
+; Source-normal pre-game P2 session entry. Called from the character-select
+; WAIT state when JOY2 Start has an edge. Slot 1 already owns its accepted
+; OBJ palette and tile allocation from boot; this changes its player role and
+; loads the physical roster slot selected by the independent P2 cursor.
 G13_EnableP2Session:
     php
     phx
@@ -214,6 +214,7 @@ G13_EnableP2Session:
     lda #0
     sta.l G13_P1Out
     sta.l G13_P2Out
+    sta.l BorSelect_P2Ordinal
     sep #$20
 .a8
     lda #$FF
@@ -227,7 +228,7 @@ G13_EnableP2Session:
     jmp G13_EnableP2Session__init_slot
 
 G13_EnableP2Session__already_enabled:
-    jmp G13_EnableP2Session__done
+    jmp G13_EnableP2Session__init_slot
 
 ; Re-establish the reserved P2 actor after Stage_Load has reinitialized the
 ; ordinary NPC windows.  This is a mode-owned lifecycle hook, not a second
@@ -240,7 +241,8 @@ G13_EnsureP2AfterStage:
 .i16
     lda.l G13_TwoPlayerEnabled
     and #$00FF
-    beq G13_EnsureP2AfterStage__done
+    bne G13_EnableP2Session__init_slot
+    jmp G13_EnsureP2AfterStage__done
 
 G13_EnableP2Session__init_slot:
     lda.l CharSelect_RosterCount
@@ -264,7 +266,14 @@ G13_EnableP2Session__init_slot:
 
     sep #$20
 .a8
-    lda #12                         ; fixed preselected LEO roster entry
+    ; Resolve the independent source-normal P2 cursor after the P1 context
+    ; restore above.  This keeps the bridge implementation separate from
+    ; player-selection policy and removes the old fixed-Leo identity.
+    sep #$20
+.a8
+    lda.l BorSelect_P2Ordinal
+    tax
+    lda.l BorSelect_RuntimeMap,x
     sta.l CharSelect_Index
     ; Switch DP to Entity 1 while preserving the caller's player-select DP.
     phd
@@ -290,7 +299,7 @@ G13_EnableP2Session__init_slot:
     stz CHAR_POS_X_HI
     lda #150
     sta CHAR_POS_Y
-    lda #12
+    lda.l CharSelect_Index
     sta CHAR_ROSTER_INDEX
     lda #0
     sta.l Entity1_IsBoss

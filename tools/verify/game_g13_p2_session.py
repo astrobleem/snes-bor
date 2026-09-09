@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Bounded fixed-session P2 activation proof.
+"""Bounded source-normal P2 activation proof.
 
 JOY2 Start is the pre-game session choice. Slot 1 is converted through the
-same production character-load path to fixed roster entry LEO. The verifier
-only arranges the already-reachable char-select dispatch boundary.
+same production character-load path to the source-normal default player. The
+verifier only arranges the already-reachable title dispatch boundary.
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'audio'))
 from _harness import (exact_input_edge, open_session, pasm_constant,
                       pasm_constant_in, read_block, run_frames_exact)  # noqa: E402
+from shipped_content import normal_player_entries  # noqa: E402
+
+SOURCE_DEFAULT = normal_player_entries('bor-original')[0][0]
 
 PLAYER = 0x7E0A00
 ZP_LEN = pasm_constant('CHAR_ZP_LEN')
@@ -80,7 +84,7 @@ def main():
         input2_after = read_block(m, 0x7E0416, 32)[:6]
         assert input2_after[4:6] == bytes((0x00, 0x10))
         assert got['mode'] == 1 and got['slot1_input'] == 1
-        assert got['slot1_roster'] == 12 and got['slot1_hp'] == CHAR_HP_MAX
+        assert got['slot1_roster'] == SOURCE_DEFAULT and got['slot1_hp'] == CHAR_HP_MAX
         # The production gate now lives on TITLE, so the old CHARSELECT
         # diagnostic snapshot is intentionally untouched.  The hardware
         # edge and the resulting production session state are authoritative.

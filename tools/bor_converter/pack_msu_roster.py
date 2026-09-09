@@ -253,7 +253,8 @@ FORMAT_VERSION = 4
 # real catalog entries alongside the 13 playable fighters + APPLE already
 # shipped. Raise again freely if real content needs more; there is no
 # hardware wall left to hit.
-MAX_CHARACTERS = 22  # G15 Batch A: Yamazaki is a real AI-only BOR boss
+MAX_CHARACTERS = 26  # P1: append the four source-normal BOR players without
+                      # renumbering existing runtime identities.
                       # identity for 1CEASY; this remains a soft packer cap.
                       # claude_close_g7_g8_before_g10.md Part 3: 20->21 for
                       # out/gold (real GOLD.TXT item, re-audit found it's
@@ -535,6 +536,13 @@ def _resolve_role_dirs(prefix):
     for role in ENGINE_ROLES:
         ordinal = roles.get(role)
         if ordinal is None:
+            # Original BOR deliberately permits a player model without
+            # ANI_ATTACK1 (Mighty).  The packed record represents that real
+            # absence with a zero count and no bytes; do not substitute an
+            # unrelated animation or make the character un-packable.
+            if role == "attack":
+                resolved[role] = None
+                continue
             raise KeyError(
                 f"{moveset['entity']!r} ({prefix}): required role {role!r} not "
                 f"found among its converted animations {list(anims_by_ordinal.values())} "
@@ -609,7 +617,10 @@ def pack_character_blob(prefix):
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
     walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
-    attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
+    if attack_dir is None:
+        attack_count, attack_delay = 0, 0
+    else:
+        attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
     fall_count, fall_delay = gen_pasm_animset.load_manifest(fall_dir)
     rise_count, rise_delay = gen_pasm_animset.load_manifest(rise_dir)
     if attack2_dir is not None:
@@ -657,6 +668,11 @@ def pack_character_blob(prefix):
     for count, name in counts:
         if not (0 <= count <= 255):
             raise ValueError(f"{prefix}: {name}_frame_count {count} out of u8 range (0-255)")
+    # The established runtime record stores one delay per role as u8.  Some
+    # original BOR optional animation manifests use long authoring delays
+    # (notably grab/jumpattack); preserve the real frame data and saturate only
+    # this pre-existing SNES timing field rather than rejecting an otherwise
+    # valid source player.  Absent attack remains the distinct 0/0 case above.
     delays = ([(idle_delay, "idle"), (walk_delay, "walk"), (attack_delay, "attack"),
               (fall_delay, "fall"), (rise_delay, "rise"), (attack2_delay, "attack2"),
               (jump_delay, "jump"), (jumpattack_delay, "jumpattack"),
@@ -664,15 +680,29 @@ def pack_character_blob(prefix):
               (waiting_delay, "waiting")]
               + [(d, role) for role, (_, d) in zip(NEW_MOVE_SLOT_NAMES, new_slot_counts_delays)])
     for delay, name in delays:
-        if not (0 <= delay <= 255):
-            raise ValueError(f"{prefix}: {name}_delay {delay} out of u8 range (0-255)")
+        if delay < 0:
+            raise ValueError(f"{prefix}: {name}_delay {delay} is negative")
+    idle_delay = min(idle_delay, 255)
+    walk_delay = min(walk_delay, 255)
+    attack_delay = min(attack_delay, 255)
+    fall_delay = min(fall_delay, 255)
+    rise_delay = min(rise_delay, 255)
+    attack2_delay = min(attack2_delay, 255)
+    jump_delay = min(jump_delay, 255)
+    jumpattack_delay = min(jumpattack_delay, 255)
+    jumpattack2_delay = min(jumpattack2_delay, 255)
+    special_delay = min(special_delay, 255)
+    waiting_delay = min(waiting_delay, 255)
+    new_slot_counts_delays = [
+        (count, min(delay, 255)) for count, delay in new_slot_counts_delays
+    ]
 
     palette_bytes = b"".join(struct.pack("<H", v) for v in palette)
     assert len(palette_bytes) == PALETTE_BYTES
 
     idle_bytes = bake_anim_bytes(idle_dir)
     walk_bytes = bake_anim_bytes(walk_dir)
-    attack_bytes = bake_anim_bytes(attack_dir)
+    attack_bytes = bake_anim_bytes(attack_dir) if attack_dir is not None else b""
     fall_bytes = bake_anim_bytes(fall_dir)
     rise_bytes = bake_anim_bytes(rise_dir)
     attack2_bytes = bake_anim_bytes(attack2_dir) if attack2_dir is not None else b""

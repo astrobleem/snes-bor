@@ -1,0 +1,165 @@
+{
+  "entity": "Kula",
+  "prefix": "out/kula",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/kula_idle",
+      "frames": 18
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/kula_walk",
+      "frames": 10
+    },
+    {
+      "ordinal": 2,
+      "name": "get",
+      "dir": "out/kula_get",
+      "frames": 5
+    },
+    {
+      "ordinal": 3,
+      "name": "attack1",
+      "dir": "out/kula_attack1",
+      "frames": 6
+    },
+    {
+      "ordinal": 4,
+      "name": "attack2",
+      "dir": "out/kula_attack2",
+      "frames": 7
+    },
+    {
+      "ordinal": 5,
+      "name": "attack3",
+      "dir": "out/kula_attack3",
+      "frames": 9
+    },
+    {
+      "ordinal": 6,
+      "name": "special",
+      "dir": "out/kula_special",
+      "frames": 19
+    },
+    {
+      "ordinal": 7,
+      "name": "freespecial",
+      "dir": "out/kula_freespecial",
+      "frames": 23
+    },
+    {
+      "ordinal": 8,
+      "name": "jump",
+      "dir": "out/kula_jump",
+      "frames": 6
+    },
+    {
+      "ordinal": 9,
+      "name": "jumpattack",
+      "dir": "out/kula_jumpattack",
+      "frames": 2
+    },
+    {
+      "ordinal": 10,
+      "name": "jumpattack2",
+      "dir": "out/kula_jumpattack2",
+      "frames": 4
+    },
+    {
+      "ordinal": 11,
+      "name": "grab",
+      "dir": "out/kula_grab",
+      "frames": 1
+    },
+    {
+      "ordinal": 12,
+      "name": "grabattack",
+      "dir": "out/kula_grabattack",
+      "frames": 5
+    },
+    {
+      "ordinal": 13,
+      "name": "grabattack2",
+      "dir": "out/kula_grabattack2",
+      "frames": 10
+    },
+    {
+      "ordinal": 14,
+      "name": "throw",
+      "dir": "out/kula_throw",
+      "frames": 3
+    },
+    {
+      "ordinal": 15,
+      "name": "pain",
+      "dir": "out/kula_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 16,
+      "name": "fall",
+      "dir": "out/kula_fall",
+      "frames": 5
+    },
+    {
+      "ordinal": 17,
+      "name": "rise",
+      "dir": "out/kula_rise",
+      "frames": 4
+    },
+    {
+      "ordinal": 18,
+      "name": "land",
+      "dir": "out/kula_land",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 15,
+    "fall": 16,
+    "rise": 17,
+    "backwalk": null,
+    "jump": 8,
+    "jumpattack": 9,
+    "jumpattack2": 10,
+    "special": 6,
+    "waiting": null,
+    "get": 2,
+    "attack": 3,
+    "attack3": 5,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": 12,
+    "freespecial": 7,
+    "attack2": 4,
+    "attack2_is_grab": false,
+    "grab": 11
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      7232,
+      31775,
+      31775,
+      26392,
+      31775,
+      18960,
+      31775,
+      14766,
+      31775,
+      7232,
+      31775,
+      31775,
+      31775,
+      18629,
+      31775
+    ]
+  ]
+}

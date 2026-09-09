@@ -1,0 +1,28 @@
+{
+  "entity": "Max",
+  "anim": "land",
+  "loop": 0,
+  "scale": 0.41025641025641024,
+  "hotspot_canvas": [
+    16,
+    36
+  ],
+  "frames": [
+    {
+      "delay": 25,
+      "offset": [
+        56,
+        103
+      ],
+      "bbox": [
+        31,
+        23,
+        52,
+        82
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}
