@@ -4,12 +4,18 @@
 The fixture changes only legal item metadata/geometry and session-owned
 preconditions.  Collection, reward dispatch, score saturation/life extension,
 and P2 GET selection remain production code.
+
+Current packed content does not organically produce an alive PROP with both
+nonzero PickupType and ItemRosterIdx == 0.  That synthetic state is eligible
+for both lethal instant reward and passive pickup, so instant MONEY cases are
+reported as not applicable/unmeasured rather than used as gates.  Organic
+MONEY break/reveal/collect coverage belongs to the stage-content pickup gate.
 """
-import json, os, re, sys
+import glob, json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _harness import (Reporter, exact_input_edge, open_session, pasm_constant,
                       pasm_constant_in, read_block, run_frames_exact, poll_until)
-from game_g13_two_player_input import clear_inputs
+from game_g13_two_player_input import clear_inputs, neutral_joint
 
 ZP = pasm_constant('CHAR_ZP_LEN')
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,6 +24,7 @@ P1 = 0x7E0A00; P2 = P1 + ZP; ITEM = P1 + 2 * ZP
 POS_X = pasm_constant('CHAR_POS_X'); POS_Y = pasm_constant('CHAR_POS_Y')
 HP = pasm_constant('CHAR_HP'); HP_MAX = pasm_constant('CHAR_HP_MAX')
 SELECTED = pasm_constant('CHAR_SELECTED'); INPUT = pasm_constant('CHAR_INPUT_DRIVEN')
+FACING_LEFT = pasm_constant('CHAR_FACING_LEFT')
 PICKUP = pasm_constant('CHAR_PICKUP_TYPE'); VARIANT = pasm_constant('CHAR_ATTACK_VARIANT')
 GET_FCOUNT = pasm_constant('CHAR_GET_FCOUNT')
 PROP = pasm_constant('CHAR_INPUT_DRIVEN_PROP')
@@ -172,27 +179,127 @@ def p2_meat(m, hp):
     m.write_u8(P2 + HP, hp)
     return collect(m, 1, PT_MEAT)
 
-def instant_break(m, owner):
-    """Production hit -> ScoreAndFinish -> RevealOrPickup instant reward."""
+def instant_break(m, owner, kind):
+    """Test a real lethal attack with a non-collectible target."""
     attacker = P1 if owner == 0 else P2
     other = P2 if owner == 0 else P1
     for b, x in ((attacker, 120), (other, 400)):
         m.write_u16(b + POS_X, x); m.write_u8(b + POS_Y, 150)
-        m.write_u8(b + HP, HP_MAX); m.write_u8(b + SELECTED, 2)
+        m.write_u8(b + HP, HP_MAX); m.write_u8(b + SELECTED, 0)
         m.write_u8(b + VARIANT, 0); m.write_u8(b + HITSTUN, 0)
+        m.write_u8(b + FACING_LEFT, 0)
         m.write_u8(b + FRAME, 0xFF); m.write_u8(b + TICK, 1)
         m.write_u8(b + ATTACKED, 0)
-    prepare_item(m, PT_MONEY, 136, CHAR_HP_PER_HIT)
+    # Keep the target non-collectible and non-damageable while the real attack
+    # is being established.  The target is armed only between complete frames.
+    prepare_item(m, 0, 136, CHAR_HP_PER_HIT)
+    m.write_u8(ITEM + HP, 0); m.write_u8(ITEM + SELECTED, 0)
+    m.write_u8(ITEM + HITSTUN, 0); m.write_u8(ITEM + VARIANT, 0)
     m.write_u8(ACTOR_INV + 2, 0)
-    hook = m.add_exec_hook(symbol('Character_HitApply__RevealOrPickup__e2_instant'))
-    # Use the accepted real Y attack path for both owners.  Only the target
-    # prop and legal one-hit state are controlled for deterministic evidence.
-    exact_input_edge(m, m.BTN_Y, 1, port=owner)
-    run_frames_exact(m, 2)
-    events = m.drain_notifications()
-    return {'owner': owner, 'instant_hook': any(e.get('params', {}).get('handle') == hook for e in events),
-            'p1_score': u16(m, GS), 'p2_score': u16(m, P2S),
-            'item': u8(m, ITEM + PICKUP), 'owner_final': u8(m, pasm_constant('G13_PickupForP2'))}
+    neutral_joint(m)
+    m.hold_input(m.BTN_Y, port=owner)
+    attack_ready = False
+    try:
+        for _ in range(8):
+            run_frames_exact(m, 1)
+            if (u8(m, attacker + SELECTED) == 2 and
+                    u8(m, attacker + ATTACKED) == 0 and
+                    u8(m, attacker + VARIANT) != GET_VARIANT):
+                attack_ready = True
+                break
+        if not attack_ready:
+            return {'owner': owner, 'kind': kind, 'tooling_limited': True,
+                    'attack_state': {'selected': u8(m, attacker + SELECTED),
+                                     'hit_applied': u8(m, attacker + ATTACKED),
+                                     'variant': u8(m, attacker + VARIANT)},
+                    'reason': 'no between-frame active attack boundary within 8 frames'}
+
+        # Keep the target disabled until the owner's real attack hit window.
+        # The sampled selected=2 state is established at a frame boundary;
+        # P1 and P2 reach their collision service at different offsets in the
+        # current production dispatch, so use a bounded owner-local settle
+        # window while the target remains HP=0/PickupType=NONE.
+        run_frames_exact(m, 3 if owner == 1 else 1)
+
+        # This is a between-frame write: no CPU instruction is paused and no
+        # hook callback mutates the invocation under test.
+        m.write_u8(ITEM + INPUT, PROP); m.write_u8(ITEM + HP, CHAR_HP_PER_HIT)
+        m.write_u8(ITEM + PICKUP, kind); m.write_u8(ITEM_IDX, 0)
+        m.write_u8(ACTOR_INV + 2, 0); m.write_u16(ITEM + POS_X, 136)
+        m.write_u8(ITEM + POS_Y, 150); m.write_u8(ITEM + SELECTED, 0)
+        m.write_u8(ITEM + HITSTUN, 0); m.write_u8(ITEM + VARIANT, 0)
+        hooks = [m.add_exec_hook(symbol(name)) for name in (
+            'Character_HitApply__ScoreAndFinish',
+            'Character_HitApply__RevealOrPickup',
+            'Character_HitApply__RevealOrPickup__e2_instant',
+            'Character_Pickup_CheckOverlap__vs2_dy_ok')]
+        run_frames_exact(m, 1)
+        first_frame = {'p1_score': u16(m, GS), 'p2_score': u16(m, P2S),
+                       'item': u8(m, ITEM + PICKUP), 'item_hp': u8(m, ITEM + HP)}
+        # The attack-selection state is established at a frame boundary; the
+        # next complete production service frame owns the collision pass.
+        # Keep the fixture mutation-free and observe that frame synchronously.
+        run_frames_exact(m, 1)
+        events = m.drain_notifications()
+        names = {symbol(name): name for name in (
+            'Character_HitApply__ScoreAndFinish',
+            'Character_HitApply__RevealOrPickup',
+            'Character_HitApply__RevealOrPickup__e2_instant',
+            'Character_Pickup_CheckOverlap__vs2_dy_ok')}
+        observed = [names.get(e.get('params', {}).get('address'),
+                              e.get('params', {}).get('address'))
+                    for e in events if e.get('method') == 'mesen/hookFired']
+        transaction = {'p1_score': u16(m, GS), 'p2_score': u16(m, P2S),
+                 'item': u8(m, ITEM + PICKUP),
+                 'owner_final': u8(m, pasm_constant('G13_PickupForP2')),
+                 'item_hp': u8(m, ITEM + HP), 'observed_hooks': observed}
+        run_frames_exact(m, 1)
+        after = {'p1_score': u16(m, GS), 'p2_score': u16(m, P2S),
+                 'item': u8(m, ITEM + PICKUP)}
+    finally:
+        m.release_input(port=owner)
+        for hook in locals().get('hooks', []):
+            m.remove_hook(hook)
+    expected = HIT_SCORE + KILL_SCORE + (SCORE_MONEY if kind == PT_MONEY else 0)
+    return {'owner': owner, 'kind': kind, 'tooling_limited': False,
+            'p1_score': transaction['p1_score'], 'p2_score': transaction['p2_score'],
+            'item': transaction['item'], 'owner_final': transaction['owner_final'],
+            'item_hp': transaction['item_hp'], 'observed_hooks': transaction['observed_hooks'],
+            'first_frame': first_frame, 'after': after, 'expected_total': expected,
+            'expected_attacker_score': expected}
+
+def packed_alive_instant_candidates():
+    """Find current packed props that would make the instant branch applicable.
+
+    Spawn-table records are the content-level source of truth here.  For a
+    prop, record-kind bits 5-7 carry PickupType and byte +8 carries the
+    contained-item roster index.  A nonzero pickup with index zero is the
+    dual-eligible state that must not silently become untested content.
+    """
+    candidates = []
+    for path in sorted(glob.glob(os.path.join(ROOT, 'out', 'spawn_*', 'spawn_table.bin'))):
+        with open(path, 'rb') as f:
+            data = f.read()
+        for offset in range(0, len(data), 10):
+            if offset + 10 > len(data):
+                continue
+            record_kind = data[offset + 6]
+            pickup_type = (record_kind >> 5) & 0x07
+            # Current packed standalone items use object roster 0 (no
+            # converted identity) or the known 1up identity 16.  They are
+            # already collectibles, not wrapped breakable props.  A
+            # converted breakable has its own object roster identity; if a
+            # future one carries a nonzero pickup with no contained-item
+            # roster, fail explicitly and require instant-path review.
+            object_roster_idx = data[offset + 9]
+            if (record_kind & 0x07) == 1 and pickup_type != 0 and data[offset + 8] == 0 and object_roster_idx not in (0, 16):
+                candidates.append({'table': os.path.relpath(path, ROOT),
+                                   'record': offset // 10,
+                                   'pickup_type': pickup_type,
+                                   'item_roster_idx': data[offset + 8],
+                                   'object_roster_idx': object_roster_idx,
+                                   'spawn_hp': data[offset + 7]})
+    return candidates
 
 def real_new_game_reset(m):
     """Exercise TITLE -> CHARSELECT -> NewGameReset, without calling it."""
@@ -277,13 +384,24 @@ def main():
                     a['p2_hp'] == expected and a['p1_hp'] == HP_MAX)
     for owner, label in ((1, 'p2_instant'), (0, 'p1_instant')):
         with open_session(__file__) as m:
-            setup(m); results[label] = instant_break(m, owner)
-            got = results[label]
-            expected = HIT_SCORE + KILL_SCORE + SCORE_MONEY
-            r.check(label + ' uses production instant reward path', got['instant_hook'] and got['item'] == 0)
-            r.check(label + ' credits only attacker',
-                    (got['p2_score'] if owner else got['p1_score']) == expected and
-                    (got['p1_score'] if owner else got['p2_score']) == 0)
+            setup(m)
+            none = instant_break(m, owner, 0)
+            results[label + '_none'] = none
+            r.check(label + ' NONE lethal control awards exactly 100',
+                    not none['tooling_limited'] and
+                    (none['p2_score'] if owner else none['p1_score']) == HIT_SCORE + KILL_SCORE and
+                    (none['p1_score'] if owner else none['p2_score']) == 0)
+    instant_candidates = packed_alive_instant_candidates()
+    results['synthetic_instant_money'] = {
+        'status': 'NOT_APPLICABLE_UNMEASURED',
+        'reason': ('Current packed content has no organically reachable alive '
+                   'pickup PROP with PickupType != 0 and ItemRosterIdx == 0; '
+                   'manual construction is dual-eligible for instant and '
+                   'passive pickup.'),
+        'owners': ['P1', 'P2'],
+        'content_guard_candidates': instant_candidates}
+    r.check('synthetic instant-reward state remains absent from packed content',
+            not instant_candidates)
     with open_session(__file__) as m:
         setup(m); results['owner_leak_p2_then_p1'] = owner_leak(m)
         x = results['owner_leak_p2_then_p1']
