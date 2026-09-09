@@ -10,15 +10,15 @@
 ; ============================================================================
 
 Hud_Play__2p:
-    php
     sep #$20
 .a8
     lda.l G13_TwoPlayerEnabled
     beq Hud_Play__2p_done
-    jsr Hud_Play__2p_bar
+    bcs Hud_Play__2p_bar_only
     jsr Hud_Play__2p_text
+Hud_Play__2p_bar_only:
+    jsr Hud_Play__2p_bar
 Hud_Play__2p_done:
-    plp
     rtl
 
 Hud_Play__2p_bar:

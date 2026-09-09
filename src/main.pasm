@@ -11251,6 +11251,7 @@ Hud_Play__bar_clean:
 ; single one-way transition with no later frame to catch up on).
 ; ============================================================================
 Hud_Play__text:
+    clc
     rep #$31
 .a16
 .i16
@@ -11262,12 +11263,11 @@ Hud_Play__text:
     sep #$20
 .a8
     lda #HUD_ROW_SCORE
-    rep #$10
 .i16
     ldx #HUD_LABEL_COL
     ldy #(Text_Str_HudScore - Text_StringPool)
     jsr Core_Text_DrawLabeledNumber
-    rts
+    bra Hud_Play__text_marked
 
 Hud_Play__text_check_lives:
     sep #$20
@@ -11284,12 +11284,11 @@ Hud_Play__text_check_lives:
     sep #$20
 .a8
     lda #HUD_ROW_LIVES
-    rep #$10
 .i16
     ldx #HUD_LABEL_COL
     ldy #(Text_Str_HudLives - Text_StringPool)
     jsr Core_Text_DrawLabeledNumber
-    rts
+    bra Hud_Play__text_marked
 
 Hud_Play__text_check_stage:
     rep #$31
@@ -11309,7 +11308,11 @@ Hud_Play__text_check_stage:
     ldx #HUD_LABEL_COL
     ldy #(Text_Str_HudStage - Text_StringPool)
     jsr Core_Text_DrawLabeledNumber
+Hud_Play__text_marked:
+    sec
+    rts
 Hud_Play__text_done:
+    clc
     rts
 
 ; ============================================================================

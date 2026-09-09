@@ -132,19 +132,24 @@ Game_State_Play__charselect_draw_instr:
     sta.l CharSelect_NextStep
     lda #CHARSELECT_ROW_INSTR
     rep #$31
-.a16
-.i16
+    .a16
+    .i16
     ldx #0
+    sep #$20
+.a8
     lda.l G13_TwoPlayerEnabled
-    and #$00FF
     beq Game_State_Play__charselect_draw_instr_1p
     ldy #(Text_Str_CharSelectInstr2P - Text_StringPool)
-    jmp Game_State_CharSelect_DrawStepRow
+    bra Game_State_Play__charselect_draw_instr_join
 Game_State_Play__charselect_draw_instr_1p:
+    rep #$31
+    ldy #(Text_Str_CharSelectInstr - Text_StringPool)
+    .a16
+    .i16
+Game_State_Play__charselect_draw_instr_join:
     rep #$31
 .a16
 .i16
-    ldy #(Text_Str_CharSelectInstr - Text_StringPool)
     jmp Game_State_CharSelect_DrawStepRow
 
 ; --- WAIT: poll Left/Right (edge-triggered, reuses Anim_LoadCharacter --
