@@ -12,6 +12,15 @@ Do not begin a later project phase merely because its gate is next numerically o
 
 ## What this is
 
+> **Current project status:** G1–G10, G12, and G13 are complete for their
+> accepted scopes. Production has six actor slots: P1 slot 0, fixed P2 LEO
+> slot 1, and NPC slots 2–5. One-player mode supports five NPCs; two-player
+> mode supports four. G13 provides independent P1/P2 input and score/lives/
+> continue ownership, either-controller pause, shared camera/tether behavior,
+> and stage handoff. The next roadmap item is G14 player-facing two-player
+> completion/polish; see `plan_game.md` for the bounded scope. Historical
+> four-actor and single-player wording below must not override this status.
+
 A SNES (Super Nintendo) hardware-pipeline proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD). **This is not a playable game** — four independently-animated characters render simultaneously (all streamed at runtime from an MSU-1 asset roster, `tools/bor_converter/`), one dpad-driven and three AI-driven that seek the player and land stunning attacks, over a converted Beats of Rage level backdrop with a BG3 health-bar HUD (`tools/bg_converter/`) that the camera scrolls horizontally as the player moves. AI entities now soft-kill at 0 HP (stop acting, stop taking/dealing hits, sprite hides — no death animation, since the MSU roster has none, and no respawn); the player is exempt (no game-over) and there is still no game loop. It proves out the low-level hardware plumbing (SA-1 boot, CC-DMA sprite conversion, OAM/NMI frame commit, MSU-1 streaming, TAD audio, camera/scroll) plus a minimal entity layer and asset pipeline on top, so a real game can be built later. See `README.md`'s "Current Status" section for the authoritative, currently-accurate list of what's verified working vs. not built — check it before assuming something works or is missing.
 
 `SNES-BOR-Engine-Prompt.md` is the original design spec for the full engine; much of it is still unbuilt.

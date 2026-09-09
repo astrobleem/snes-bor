@@ -1,5 +1,9 @@
 # G13 lifecycle / stage-transition debug checkpoint
 
+> **Historical checkpoint.** The G4/G13 lifecycle defects recorded here were
+> fixed and accepted in master. The raw diagnostic evidence remains valuable
+> history, but the unresolved classifications below are not current blockers.
+
 Status: WIP advisor checkpoint; not acceptance and not a merge. This document
 freezes the current local evidence without continuing root-cause debugging.
 

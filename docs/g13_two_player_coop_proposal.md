@@ -1,7 +1,12 @@
-# Provisional G13: bounded two-player co-op proposal
+# Historical G13 proposal: bounded two-player co-op
 
-Status: proposal only. No co-op runtime, verifier, generated artifact, audio,
-or shared-tool change is included in this document.
+> **Historical proposal — superseded by accepted G13.** The implementation,
+> lifecycle, stage handoff, and acceptance claims in this document describe
+> the pre-implementation proposal. They are retained for design provenance;
+> they must not be read as saying that two-player support is absent today.
+
+Status: historical proposal only. G13 runtime and verification are accepted
+and merged to master; this document contains no current implementation plan.
 
 ## Baseline and recommendation
 
@@ -13,9 +18,9 @@ The final G12 checkpoint records six-actor lifecycle, presentation, stage,
 and 600-frame workload acceptance. The single-buffer animation transport and
 SOUND are closed and remain unchanged.
 
-There is no Phase G13 in the current roadmap. This is a separately proposed
-milestone, not a status claim. `tools/coverage_ledger/phase_status.json`
-contains G1 through G11 only; §13 of `plan_game.md` is sequencing guidance.
+At proposal time there was no Phase G13 in the roadmap. This paragraph is
+historical, not a current status claim: G13 is now accepted and merged to
+master. The current roadmap is in `plan_game.md`.
 
 Recommended first implementation slice:
 
@@ -243,8 +248,7 @@ and reused first.
 
 ## Explicit nonclaims
 
-No two-player co-op runtime exists in this branch. Independent input,
-P2-specific presentation, P2 lifecycle, co-op targeting, shared camera/HUD,
-and two-player stage completion are untested. G12 one-player six-actor
-production, SOUND, the single-buffer transport, and accepted evidence remain
-the baseline and are not modified by this proposal.
+At proposal time no two-player co-op runtime existed in this branch. This
+historical nonclaim is superseded by accepted G13; the proposal itself remains
+non-authoritative design history. G12 one-player six-actor production, SOUND,
+the single-buffer transport, and accepted evidence remain the baseline.

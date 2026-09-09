@@ -1,5 +1,26 @@
 # Handoff
 
+> **Current authority — 2026-09-08:** G1–G10, G12, and G13 are complete for
+> their accepted scopes. The production six-slot policy is P1 slot 0, fixed
+> P2 LEO slot 1, and NPC slots 2–5; one-player mode has five NPCs and
+> two-player mode has four. G13 provides the accepted fixed-session two-player
+> lifecycle, independent input/score/lives/continue ownership, either-
+> controller pause, shared camera/tether, and stage handoff. The next bounded
+> milestone is **G14 — player-facing two-player completion/polish**: dual HUD
+> and session presentation, a documented fixed-LEO-versus-selection decision,
+> and sustained two-player/four-NPC campaign regression. The following major
+> milestone is **G15 — finish the original Beats of Rage campaign/content**.
+> This file retains historical debugging notes; do not treat older “next step”
+> sections below as current instructions.
+
+> New architecture is justified only by reachable game content. Transport
+> redesign, actor-count growth, SA-1 compositor work, a generic script VM,
+> Double Dragon Moto, speculative cache redesign, and unrelated audio work
+> are not G14 blockers. Current qualifications remain no-target AI movement
+> `TOOLING-LIMITED / UNMEASURED`, `confirmed_busy_denials` null/unmeasured,
+> and the synthetic instant-MONEY branch `NOT_APPLICABLE_UNMEASURED` for
+> current packed content.
+
 Read this before doing anything else, then `CLAUDE.md` (build/test commands,
 architecture map) and `build.md` (register tables, CC-DMA mechanism, Mesen2
 harness gaps) — this doc doesn't repeat what's already accurate there. This

@@ -7,6 +7,28 @@
 > Read `README.md`'s "Current Status" first — it is the authoritative list of
 > what actually works today. This file assumes it.
 
+> **Roadmap rebaseline after accepted G13 (2026-09-08).** G1–G10, G12, and
+> G13 are closed for their accepted scopes. Six actor slots are production:
+> P1 is slot 0, fixed P2 LEO is slot 1, and NPCs occupy slots 2–5. One-player
+> mode supports five NPCs; two-player mode supports four. The accepted G13
+> slice includes independent P1/P2 input and score/lives/continue ownership,
+> either-controller pause, shared camera/tether behavior, and 1P/2P stage
+> handoff. Sections below retain historical implementation evidence; when
+> they conflict with this banner or README, this banner is current authority.
+>
+> **Current next work: G14 — player-facing two-player completion/polish.**
+> Bound it to dual-player HUD/session presentation, deciding and documenting
+> whether P2 remains fixed LEO or receives real selection, and sustained
+> two-player plus four-NPC campaign regression. Do not redesign transport,
+> increase actor count, add a script VM, or reopen unrelated audio work.
+> **Following milestone: G15 — finish the original Beats of Rage
+> campaign/content.** Neither milestone is implemented here.
+>
+> Planning rule: new engine architecture is added only when reachable game
+> content proves that it is needed. Animation residency redesign, SA-1
+> compositor work, a generic script VM, Double Dragon Moto, arbitrary actor
+> growth, and speculative cache redesign are future R&D, not current blockers.
+
 ---
 
 ## §0 — Where the game actually is
@@ -100,8 +122,9 @@ What's still a reskin: every ordinary non-boss enemy — only characters
 deliberately added to the roster (currently 13 of 15 slots used) have
 anything real to identify against; most spawned names in these levels still
 aren't roster members, and that's a content decision, not a remaining code
-gap. See §9/§12 for the precise remaining scope. Still missing: ending/
-credits (G10) and SFX (content-blocked, §11). **G7 (BOR's real moveset) is
+gap. See §9/§12 for the precise remaining scope. G10 ending/credits is DONE;
+the accepted G11/SOUND scope is closed, while broader audio content remains
+future work. **G7 (BOR's real moveset) is
 complete as of the 2026-08-28 content-audit slice** — the earlier same-day
 "fully exhausted" claim was premature (it checked its own existing
 checklist, not the raw converted source content); a real source-content
@@ -128,8 +151,8 @@ which remains explicitly shelved.
 | Jump, throw, grab, specials | **G7 complete, 2026-08-28 reopened-again slice.** BOR's actual moveset, source-content-audited (not just checklist-checked): run/dash, AI invuln, knockdown/getting-up, attack2, jump/jumpattack/jumpattack2 (LEO), grab mutual-lock (JOE), depth sort, throw, special (LEO) — plus the content-audit slice's real `atchain` combo (LEO/FOOT01/FOOT02), generic `grab`/`slide`/`grabattack` (LEO), `riseattack` (BEBOP/ROCK/LEATHER) — plus this reopening's `freespecial` (double-tap-forward+attack, LEO), all reached via a real generic move-slot table, not per-move copy-paste. See §7's coverage ledger for the definitive table. `block`/`land` remain content-inapplicable (zero real config anywhere in either pak, sourced against `engine/openbor.c`); `waiting`→G5 (still PARTIAL, not actually implemented — see G5 row above), `get`→G8. |
 | ~~Items / pickups (entity kind, health)~~ | **Partial (G8, 2026-08-21)** — real prop kind + per-spawn HP, gates `game_g8_props.py`/`game_health_override.py`. §8a (level-format-keyword parity) is now fully exhausted |
 | ~~Bosses~~ | **Done (G9, 2026-08-23), full TMNT pak converted (2026-08-24)** — 10 real stages (0-9): 2 BOR levels, 3 standalone TMNT boss stages (Bebop/Rock/Leather), the real 4-level TMNT campaign, and `foot.txt`; `EntityN_IsBoss` + boss health bar reachable in play from real converted data throughout, gates `game_g9_tmnt_boss.py` (12 checks) + `game_tmnt_campaign.py`; synthetic gates `game_g9_boss_bar.py`/`game_g9_wait_group_boss.py` kept and still pass |
-| Ending / credits | **Not started (G10)** — finishing the game |
-| SFX | Every impact feeling real (blocked on content, §11) |
+| Ending / credits | **DONE (G10, 2026-08-30)** — ending sequence and credits are implemented and gated |
+| SFX | **CLOSED for accepted G11/SOUND scope** — broader source audio inventory remains future content work |
 
 **One structural constraint that shapes everything below.** Two deliberate
 shortcuts are load-bearing in the current engine and will need revisiting for a
@@ -2413,7 +2436,12 @@ BOR SFX library and soundtrack remain future work; see `docs/audio_inventory.md`
 
 ---
 
-## §12 — Phase G12: content and scale
+## §12 — Phase G12: content and scale (DONE / CLOSED)
+
+G12 is closed. Its accepted production result is the six-actor layout and
+single-buffer animation transport: one-player mode supports five NPCs, while
+accepted G13 reserves slot 1 for fixed P2 LEO and supports four NPCs in slots
+2–5. The transport is not an open redesign project.
 
 The two shortcuts from §0 come due here.
 
@@ -2449,13 +2477,39 @@ The two shortcuts from §0 come due here.
   re-streaming; give the SA-1 a real role in decompression/composition (it is
   currently doing a static test blit); or accept lower animation rates for
   background enemies.
-- **2-player co-op.** BOR's headline feature, and the one thing that genuinely
-  breaks "the player is always slot 0." Do not attempt it before §7, and treat it
-  as its own plan.
+- **2-player co-op.** This former G12 frontier is now accepted G13 scope. The
+  current policy is fixed-session P1 slot 0/P2 LEO slot 1, NPC slots 2–5,
+  independent player state, either-controller pause, shared camera/tether, and
+  stage handoff. Future player-facing completion/polish is G14.
 
 ---
 
-## §13 — Suggested order, and what is actually hard
+## §13 — Post-G13 roadmap and current frontier
+
+The historical G1–G10 sequence below is retained as implementation history.
+The current forward roadmap is:
+
+```text
+G14 player-facing two-player completion/polish
+  → G15 finish the original Beats of Rage campaign/content
+```
+
+### G14 — player-facing two-player completion/polish
+
+G14 covers dual-player HUD and session presentation, an explicit decision and
+documentation of fixed-LEO P2 versus real P2 selection, and sustained
+two-player plus four-NPC gameplay/campaign regression. It does not increase
+actor count, redesign animation transport, add a script VM, or include
+unrelated audio work. G14 is planning only; it is not implemented here.
+
+### G15 — finish the original Beats of Rage campaign/content
+
+G15 is the following major milestone and is also planning only.
+
+New engine architecture is added only when reachable game content proves that
+it is needed. Animation residency redesign, SA-1 character compositor work,
+generic scripting, Double Dragon Moto, arbitrary actor-count growth, and
+speculative cache redesign remain future R&D rather than current blockers.
 
 **Do in this order** — each genuinely unblocks the next:
 
@@ -2478,8 +2532,11 @@ format (8→15 slots, 12 used) — see §9's own follow-ups for exactly what's
 still a reskin (ordinary non-boss enemies only — every character
 deliberately given a roster slot now identifies for real).
 
-G11's one landed-hit SFX scope is complete; the remaining source-backed audio
-inventory is future work. G12 is continuous.
+G11/SOUND is closed for its accepted scope; broader source-backed audio content
+remains future work. G12 is closed. Current G13 qualifications remain
+explicit: no-target AI movement is TOOLING-LIMITED / UNMEASURED,
+confirmed_busy_denials is null/unmeasured, and the synthetic instant-MONEY
+branch is NOT_APPLICABLE_UNMEASURED for current packed content.
 
 **Genuinely hard** (expect real research and real bugs):
 - ~~**G7's jump / Z axis**~~ — **Done, 2026-08-28** (see §7's jump bullet).
@@ -2490,18 +2547,18 @@ inventory is future work. G12 is continuous.
   real depth sorting WAS needed and was built the very next slice, closing
   the gap the jump slice's own header had flagged.
 - **G4's cache teardown/reload** — never exercised; two streaming caches.
-- **G12's enemy scaling** — a real hardware bandwidth wall, not a code smell.
-- **2-player co-op** — breaks a load-bearing architectural shortcut.
+- **G12's enemy scaling** — a measured hardware bandwidth boundary, not a
+  current G13/G14 feature requirement.
+- **G14 presentation/regression** — the current bounded player-facing frontier.
 
 **Mostly routine** (the pipeline already proves them):
 - Converting more stages and characters.
 - Menus and HUD, *once G1 exists*.
 - Items, since the level data already carries them.
 
-**A note on effort.** Phases 0–15 got the engine here. §§G1–G10 is a comparable
-body of work, and G12 is open-ended. That is not a reason to avoid it — it is a
-reason to keep taking one phase at a time with a committed verify gate at each
-boundary, exactly as this project has done for fifteen phases.
+**A note on effort.** Phases 0–15 and G1–G13 brought the project to the current
+accepted two-player slice. Continue with bounded, game-first milestones and a
+committed verification gate at each boundary.
 
 ---
 

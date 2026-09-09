@@ -1,5 +1,10 @@
 # G12 session checkpoint
 
+> **Historical checkpoint.** G12 is closed and its accepted six-actor
+> production line is now part of master. The post-G13 roadmap is authoritative
+> for current work; this document preserves the measurements and rejected
+> experiments from the G12 investigation.
+
 ## Kickoff
 
 - Starting branch: `audio-content-pass`

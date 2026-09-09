@@ -1,5 +1,10 @@
 # G13 two-player first-slice WIP checkpoint
 
+> **Historical checkpoint.** G13 is accepted and merged to master. This WIP
+> record preserves the implementation and verification history; it is not a
+> current proposal or open blocker. See `README.md`, `plan_game.md`, and
+> `handoff.md` for the current G14 frontier.
+
 Status: WIP review publication; score/pickup evidence closeout is green,
 pending advisor review. Camera/pause and combat/jump milestones remain
 accepted WIP evidence; this branch is not merge-ready.
