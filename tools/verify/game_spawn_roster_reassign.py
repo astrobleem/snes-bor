@@ -127,10 +127,13 @@ def entity_triple(m, base):
 def force_win_and_wait(m, r, from_stage, label):
     spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
     m.write_u8(SPAWN_INDEX, spawn_count)
-    for base in ENTITY_BASES[1:]:
-        m.write_u8(base + CHAR_HP, 0)
-    m.run_frames(5)
-    m.pause()
+    for _ in range(240):
+        for base in ENTITY_BASES[1:]:
+            m.write_u8(base + CHAR_HP, 0)
+        if byte_at(m, STAGE_CLEARED) == 1:
+            break
+        m.run_frames(1)
+        m.pause()
     cleared = byte_at(m, STAGE_CLEARED)
     r.check(f'{label}: win condition fired (Stage_Cleared set)', cleared == 1)
 
@@ -140,7 +143,8 @@ def force_win_and_wait(m, r, from_stage, label):
     m.pause()
 
     for _ in range(20):
-        if word_at(m, GAME_STATE) == GAME_STATE_PLAYING:
+        if (word_at(m, GAME_STAGE_INDEX) != from_stage
+                and word_at(m, GAME_STATE) == GAME_STATE_PLAYING):
             break
         m.run_frames(30)
         m.pause()
@@ -201,9 +205,13 @@ def check_boss_stage(m, r, stage_index, spawn_relpath, roster_prefix, expected_r
     # moveset -- the actual proof the reassignment re-streamed a real
     # character, not just flipped a flag. ---
     if boss_slot is not None:
-        m.run_frames(5)
-        m.pause()
         after = entity_triple(m, ENTITY_BASES[boss_slot])
+        for _ in range(24):
+            if after == expected_triple:
+                break
+            m.run_frames(5)
+            m.pause()
+            after = entity_triple(m, ENTITY_BASES[boss_slot])
         print(f'{roster_prefix}: slot {boss_slot} triple before={before.get(boss_slot)} '
               f'after={after} expected={expected_triple}')
         r.check(f'{roster_prefix}: slot {boss_slot} now shows its OWN real '
@@ -230,15 +238,15 @@ def main():
         r.check(f'CharSelect_RosterCount sane before any reassignment ({roster_count_before} == '
                  f'{expected_roster_count})', roster_count_before == expected_roster_count)
 
-        # --- Reach stage 3 (Rock's own standalone boss stage) via the real
+        # --- Reach stage 4 (Rock's own standalone boss stage) via the real
         # chain, same force-win idiom as game_g9_tmnt_boss.py/
         # game_tmnt_campaign.py -- there is no direct-load path. ---
-        for target in range(1, 4):
+        for target in range(1, 5):
             force_win_and_wait(m, r, from_stage=target - 1, label=f'{target-1}->{target}')
             got = word_at(m, GAME_STAGE_INDEX)
             r.check(f'Game_StageIndex advances {target-1} -> {target} ({got})', got == target)
 
-        check_boss_stage(m, r, 3, 'out/spawn_stage3rock/spawn_table.bin', 'rock', 6)
+        check_boss_stage(m, r, 4, 'out/spawn_stage3rock/spawn_table.bin', 'rock', 6)
 
         # --- The actual regression check: Rock's own reassignment must not
         # have disturbed the player's persistent char-select state (the real
@@ -250,15 +258,15 @@ def main():
                  f'({byte_at(m, CharSelect_Index)} == {char_select_index_before})',
                  byte_at(m, CharSelect_Index) == char_select_index_before)
 
-        # --- Continue on to stage 4 (Leather's own standalone boss stage)
+        # --- Continue on to stage 5 (Leather's own standalone boss stage)
         # -- proves this isn't a one-off, and that back-to-back blocking
         # Anim_LoadCharacter reloads (Rock's reassignment, then Leather's)
         # don't corrupt anything. ---
-        force_win_and_wait(m, r, from_stage=3, label='3->4')
+        force_win_and_wait(m, r, from_stage=4, label='4->5')
         got = word_at(m, GAME_STAGE_INDEX)
-        r.check(f'Game_StageIndex advances 3 -> 4 ({got})', got == 4)
+        r.check(f'Game_StageIndex advances 4 -> 5 ({got})', got == 5)
 
-        check_boss_stage(m, r, 4, 'out/spawn_stage4leather/spawn_table.bin', 'leather', 7)
+        check_boss_stage(m, r, 5, 'out/spawn_stage4leather/spawn_table.bin', 'leather', 7)
 
         # --- Same regression check after the SECOND back-to-back
         # reassignment (a different roster identity, Leather not Rock) --

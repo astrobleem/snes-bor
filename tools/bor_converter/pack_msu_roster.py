@@ -253,7 +253,9 @@ FORMAT_VERSION = 4
 # real catalog entries alongside the 13 playable fighters + APPLE already
 # shipped. Raise again freely if real content needs more; there is no
 # hardware wall left to hit.
-MAX_CHARACTERS = 21  # claude_close_g7_g8_before_g10.md Part 3: 20->21 for
+MAX_CHARACTERS = 22  # G15 Batch A: Yamazaki is a real AI-only BOR boss
+                      # identity for 1CEASY; this remains a soft packer cap.
+                      # claude_close_g7_g8_before_g10.md Part 3: 20->21 for
                       # out/gold (real GOLD.TXT item, re-audit found it's
                       # actually used by DATA\EASY\1BEASY.TXT, see build_
                       # rom.py's ROSTER_PREFIXES comment) on top of the
@@ -304,7 +306,8 @@ PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 10  # bumped 5->9 adding the real 4-level TMNT main campaign
+MAX_BGS = 11  # G15 Batch A: add BOR 1CEASY to the 10 already-shipped stages.
+              # bumped 5->9 adding the real 4-level TMNT main campaign
               # (sewer0/streets/streets2/sewer) alongside the 3 standalone
               # TMNT boss stages and the 2 original BOR levels, then 9->10
               # for foot.txt (the last standalone TMNT level) -- directory

@@ -63,6 +63,7 @@ CHAR_POS_X = pasm_constant('CHAR_POS_X')
 CHAR_POS_Y = pasm_constant('CHAR_POS_Y')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
+CHAR_INPUT_DRIVEN_AI = pasm_constant('CHAR_INPUT_DRIVEN_AI')
 CHAR_PICKUP_TYPE = pasm_constant('CHAR_PICKUP_TYPE')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 CHAR_HIT_STUN = pasm_constant('CHAR_HIT_STUN')
@@ -81,6 +82,15 @@ PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
 HIT_SCORE = pasm_constant('HIT_SCORE')
 KILL_SCORE = pasm_constant('KILL_SCORE')
 COMBAT_KILL_AWARD = HIT_SCORE + KILL_SCORE
+
+GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
+GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')
+GAME_STAGE_INDEX = pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')
+STAGE_CLEARED = pasm_constant_in('src/core/game_state.pasm', 'Stage_Cleared')
+STAGE_TRUE_MAX_X = pasm_constant_in('src/core/game_state.pasm', 'Stage_TrueMaxX')
+SPAWN_INDEX = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Index')
+SPAWN_COUNT = pasm_constant_in('src/core/spawn.pasm', 'Spawn_Count')
+SCREEN_POS_X = 0x7E1601
 
 GS_PATH = 'src/core/game_state.pasm'
 Game_Score = pasm_constant_in(GS_PATH, 'Game_Score')
@@ -102,6 +112,28 @@ def read_u16(m, addr):
 
 def entity_block(m, base):
     return read_block(m, base, READ_LEN)
+
+
+def advance_to_stage1b(m):
+    """Use the real stage-clear edge to reach 1B after the Batch-A reorder."""
+    m.write_u8(SPAWN_INDEX, read_u8(m, SPAWN_COUNT))
+    for _ in range(240):
+        for base in ENTITY_BASES[1:]:
+            if read_u8(m, base + CHAR_INPUT_DRIVEN) == CHAR_INPUT_DRIVEN_AI:
+                m.write_u8(base + CHAR_HP, 0)
+        if read_u8(m, STAGE_CLEARED) == 1:
+            break
+        m.run_frames(1)
+        m.pause()
+    if read_u8(m, STAGE_CLEARED) != 1:
+        return False
+    m.write_u16(SCREEN_POS_X, read_u16(m, STAGE_TRUE_MAX_X))
+    for _ in range(20):
+        if read_u16(m, GAME_STAGE_INDEX) == 1 and read_u16(m, GAME_STATE) == GAME_STATE_PLAYING:
+            return True
+        m.run_frames(30)
+        m.pause()
+    return False
 
 
 def pos_x(blk):
@@ -128,6 +160,12 @@ def main():
     r = Reporter('G8-PICKUP-CHAIN', kind='GATE')
     with open_session(__file__) as m:
         m.reset_emulator()
+        m.run_frames(60)
+        m.pause()
+        if not advance_to_stage1b(m):
+            r.check('real 1A -> 1B transition reaches the packed Chair/Money stage', False)
+            r.finish()
+            return
         # Real boot settle (SA-1/CC-DMA bring-up, MSU streaming init, first
         # Spawn_Play dequeue of the trigger_x==0 records) -- same 300-frame
         # margin every other gate in this project uses before trusting

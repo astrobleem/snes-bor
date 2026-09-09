@@ -1,0 +1,60 @@
+{
+  "entity": "Yamazaki",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.3902439024390244,
+  "hotspot_canvas": [
+    20,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        127
+      ],
+      "bbox": [
+        32,
+        10,
+        27,
+        118
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 30,
+      "offset": [
+        57,
+        127
+      ],
+      "bbox": [
+        32,
+        10,
+        27,
+        118
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        57,
+        127
+      ],
+      "bbox": [
+        32,
+        10,
+        27,
+        118
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

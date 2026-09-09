@@ -2617,3 +2617,12 @@ not optional.
    artifact, found by checking rather than shrugging.
 7. **Commit at each phase boundary**, update `README.md`'s Current Status,
    `handoff.md`'s recommended-next-step, and this file's phase status.
+
+## G15 Batch A — original BOR stage 1
+
+Batch A is complete when the real Easy prefix is ordered and shipped as
+`1AEASY -> 1BEASY -> 1CEASY`, with the existing TMNT stages retained after
+it. It does not claim BOR stage 2 or full-campaign completion. The focused
+gate is `tools/verify/game_g15_stage1_campaign.py`; see
+`docs/g15_batch_a_stage1.md` for the source-content audit. The next bounded
+step is Batch B (`2EASY`), not a runtime architecture rewrite.

@@ -10,6 +10,8 @@ The accepted master baseline is `9b0b8399e2e2ea202cabcd598e1a33e52381892e`, tree
 
 G14 — player-facing two-player completion/polish — is complete for its accepted scope. P1 remains normally selectable; P2 is fixed LEO and the session presentation states that policy explicitly. The production HUD presents independent P1/P2 HP, lives, and score while retaining the accepted G13 lifecycle and four-NPC 2P capacity. G14 does not redesign animation transport, increase actor count, add a script VM, or introduce unrelated audio work.
 
+G15 Batch A — original BOR stage 1 — is now the active content slice: the real campaign prefix is `1AEASY -> 1BEASY -> 1CEASY` (3 of 14 Easy parts), followed by the already-shipped TMNT development tail. Batch A does not claim BOR stage 2 or full-campaign completion; Batch B will add `2EASY`. The six-actor runtime and existing transport remain unchanged. See [docs/g15_batch_a_stage1.md](docs/g15_batch_a_stage1.md).
+
 TEXT-1, the inherited pre-G14 DrawString reliability/observation defect, remains open and is documented in [docs/text_drawstring_inherited_defect.md](docs/text_drawstring_inherited_defect.md). G15 campaign audit may proceed, but final release acceptance cannot claim presentation-complete until TEXT-1 is resolved or independently proven verifier-only. The following major milestone is **G15 — finish the original Beats of Rage campaign/content**; it is not started here.
 
 Accepted qualifications remain explicit: no-target AI movement is `TOOLING-LIMITED / UNMEASURED`; `confirmed_busy_denials` is null/unmeasured; and the synthetic instant-MONEY branch is `NOT_APPLICABLE_UNMEASURED` for current packed content.

@@ -1,0 +1,28 @@
+{
+  "level_entry": "DATA\\EASY\\1CEASY.TXT",
+  "background": "data\\bgs\\alley\\back",
+  "panels": [
+    "data\\bgs\\alley\\p01",
+    "data\\bgs\\alley\\p02",
+    "data\\bgs\\alley\\p03",
+    "data\\bgs\\alley\\p04",
+    "data\\bgs\\alley\\p05"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 512,
+  "height_px": 224,
+  "width_tiles": 64,
+  "height_tiles": 28,
+  "content_width_tiles": 64,
+  "unique_tiles": 1352,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 43264,
+  "tilemap_bytes": 5376,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

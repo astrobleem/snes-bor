@@ -160,3 +160,14 @@ growth, or animation transport redesign.
 Current explicit qualifications remain: no-target AI movement is
 TOOLING-LIMITED / UNMEASURED; `confirmed_busy_denials` is null/unmeasured.
 
+## Batch A status (2026-09-09)
+
+Batch A is complete. The shipped BOR prefix is now `1AEASY -> 1BEASY ->
+1CEASY` (3 of 14 Easy parts), followed by the existing TMNT development tail.
+The focused gate proves real Stage_Load transitions through all three BOR
+parts, 1CEASY's 20-record production wave, and the development-tail handoff.
+Batch B has not started; the next original BOR part remains 2EASY. Yamazaki
+is the only new Batch-A runtime identity, as the 1CEASY boss; the 13-entry
+playable prefix and six actor windows are unchanged. The 1CEASY `1boss.bor`
+music reference remains recorded metadata without reopening the accepted
+SOUND/audio architecture.

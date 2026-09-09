@@ -1,0 +1,45 @@
+{
+  "entity": "Yamazaki",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.3333333333333333,
+  "hotspot_canvas": [
+    14,
+    37
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        113
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        113
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        45,
+        113
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

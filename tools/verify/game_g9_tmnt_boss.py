@@ -38,7 +38,7 @@ Checks:
      for that record's fictional character).
   2. Driving the real win condition twice (stage 0->1, proven mechanism
      already covered by game_g4_transition.py; then 1->2, the untested
-     direction into the new boss stage) lands on Game_StageIndex==2,
+     direction into the new boss stage) lands on Game_StageIndex==3,
      Game_State back in PLAYING.
   3. Stage 2's CGRAM matches out/bg_stage2boss's own converter output
      (ground truth the engine did not produce, same standing rule as
@@ -93,6 +93,8 @@ STREAM_SCROLL_FP_ENABLED = pasm_constant('StreamScrollFp_Enabled')
 CHAR_ZP_LEN = pasm_constant('CHAR_ZP_LEN')
 CHAR_HP = pasm_constant('CHAR_HP')
 CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
+CHAR_INPUT_DRIVEN = pasm_constant('CHAR_INPUT_DRIVEN')
+CHAR_INPUT_DRIVEN_AI = pasm_constant('CHAR_INPUT_DRIVEN_AI')
 
 HUD_ROW_BOSS = pasm_constant('HUD_ROW_BOSS')
 HudBossCachedHp = pasm_constant('HudBossCachedHp')
@@ -107,10 +109,10 @@ sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
 BEBOP_ROSTER_IDX = build_rom.ROSTER_PREFIXES.index('out/bebop')
 
-_bg2_dir, _hud_dir = build_rom.BG_SCREENS[2]
+_bg2_dir, _hud_dir = build_rom.BG_SCREENS[3]
 BG2_DIR = os.path.join(ROOT, _bg2_dir)
 HUD_DIR = os.path.join(ROOT, _hud_dir)
-assert build_rom.FP_SCREENS[2] is None, 'gate assumption: stage 2 has no frontpanel'
+assert build_rom.FP_SCREENS[3] is None, 'gate assumption: stage 3 has no frontpanel'
 
 
 def _read(path):
@@ -151,22 +153,19 @@ def force_win_and_wait(m, r, from_stage, label, walk=False):
     the other side of the exact same edge check instead of walking to it."""
     spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
     m.write_u8(SPAWN_INDEX, spawn_count)
-    for base in ENTITY_BASES[1:]:
-        m.write_u8(base + CHAR_HP, 0)
     committed = False
-    for _ in range(120):
+    for _ in range(240):
+        # Keep the legal clear precondition alive while pending spawn/reassign
+        # work settles; production may repopulate an AI slot during a frame.
+        for base in ENTITY_BASES[1:]:
+            if byte_at(m, base + CHAR_INPUT_DRIVEN) == CHAR_INPUT_DRIVEN_AI:
+                m.write_u8(base + CHAR_HP, 0)
         if byte_at(m, STAGE_CLEARED) == 1 or word_at(m, GAME_STAGE_INDEX) != from_stage:
             committed = True
             break
         m.run_frames(1)
         m.pause()
     r.check(f'{label}: win condition committed', committed)
-    # Preserve the production settle interval between the clear edge and the
-    # camera-clamp transition; the poll above can observe the flag earlier
-    # than the old fixed five-frame sample did.
-    m.run_frames(5)
-    m.pause()
-
     if walk:
         for _ in range(20):
             m.write_u8(PLAYER_INVULN_FRAMES, 0xFF)
@@ -221,22 +220,22 @@ def main():
 
         boot_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'boots on stage 0 ({boot_stage})', boot_stage == 0)
-        r.check('stage 0 source music selector requested KOF track 2 and play state',
-                byte_at(m, MUSIC_LAST_TRACK) == 2
+        r.check('stage 0 source music selector requested ASC track 1 and play state',
+                byte_at(m, MUSIC_LAST_TRACK) == 1
                 and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE
                 and byte_at(m, MUSIC_PLAY_STATE) == 1)
 
         # --- 2a. Stage 0 -> 1 (already proven direction, needed as a real
         # stepping stone to reach stage 2 -- there is no direct-load path). ---
-        force_win_and_wait(m, r, from_stage=0, label='0->1', walk=True)
+        force_win_and_wait(m, r, from_stage=0, label='0->1', walk=False)
         mid_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'Game_StageIndex advances 0 -> 1 ({mid_stage})', mid_stage == 1)
-        r.check('stage 1 source music selector requested ASC track 1',
-                byte_at(m, MUSIC_LAST_TRACK) == 1
+        r.check('stage 1 source music selector requested KOF track 2',
+                byte_at(m, MUSIC_LAST_TRACK) == 2
                 and byte_at(m, MUSIC_LAST_TRANSITION) == MUSIC_TRANSITION_STAGE)
 
-        # --- 2b. Stage 1 -> 2: the real boss stage, untested direction.
-        # Stage 1A is 408 tiles wide (real converted data) -- direct-write
+        # --- 2b. Stage 1 -> 2: the new 1C stage is a real stepping stone.
+        # Stage 1B is short, so direct-write
         # the camera-clamp edge instead of holding Right for the real
         # walking time that would take (see force_win_and_wait's header). ---
         force_win_and_wait(m, r, from_stage=1, label='1->2', walk=False)
@@ -246,16 +245,22 @@ def main():
         r.check(f'Game_StageIndex advances 1 -> 2 ({new_stage})', new_stage == 2)
         r.check(f'Game_State returns to PLAYING ({state})', state == GAME_STATE_PLAYING)
 
-        # --- 3. Stage 2's CGRAM matches its own converter output. ---
+        # --- 2c. 1C -> the existing TMNT Bebop stage. ---
+        force_win_and_wait(m, r, from_stage=2, label='2->3', walk=False)
+        new_stage = word_at(m, GAME_STAGE_INDEX)
+        r.check(f'Game_StageIndex advances 2 -> 3 ({new_stage})', new_stage == 3)
+
+        # --- 3. Stage 3 (the existing TMNT Bebop stage)'s CGRAM matches its
+        # own converter output. ---
         got_palette = bytes(read_block(m, 0x000, 256, mem_type='snesCgRam'))
-        r.check("stage 2's CGRAM (BG1 backdrop + merged HUD sub-palette) "
+        r.check("stage 3's CGRAM (BG1 backdrop + merged HUD sub-palette) "
                 "matches out/bg_stage2boss's own converter output",
                 got_palette == expected_palette)
 
-        # --- 4. has-FP (stage 1) -> no-FP (stage 2): the OTHER untested
+        # --- 4. has-FP (stage 1A) -> no-FP (stage 3): the OTHER untested
         # transition direction versus game_g4_transition.py's no-FP -> has-FP. ---
         fp_enabled = byte_at(m, STREAM_SCROLL_FP_ENABLED)
-        r.check(f'StreamScrollFp_Enabled is 0 (stage 2 has no frontpanel, '
+        r.check(f'StreamScrollFp_Enabled is 0 (stage 3 has no frontpanel, '
                 f'got {fp_enabled})', fp_enabled == 0)
 
         # --- 5. The real level's own boss record actually sets SOME

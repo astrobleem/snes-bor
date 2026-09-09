@@ -1,0 +1,84 @@
+{
+  "entity": "Yamazaki",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.24427480916030533,
+  "hotspot_canvas": [
+    16,
+    20
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        72,
+        86
+      ],
+      "bbox": null,
+      "attack": [
+        45,
+        11,
+        46,
+        51,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        72,
+        86
+      ],
+      "bbox": null,
+      "attack": [
+        30,
+        39,
+        91,
+        31,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        72,
+        86
+      ],
+      "bbox": null,
+      "attack": [
+        23,
+        59,
+        103,
+        24,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        72,
+        86
+      ],
+      "bbox": null,
+      "attack": [
+        18,
+        67,
+        110,
+        20,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

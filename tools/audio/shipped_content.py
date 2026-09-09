@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 STAGE_CONFIGS = [
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1BEASY.TXT", "bg": "out/bg_stage1b", "frontpanel": None, "spawn": "out/spawn_stage1b/spawn_table.bin"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1AEASY.TXT", "bg": "out/bg_stage1a", "frontpanel": "out/fp_stage1a", "spawn": "out/spawn_stage1a/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1BEASY.TXT", "bg": "out/bg_stage1b", "frontpanel": None, "spawn": "out/spawn_stage1b/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1CEASY.TXT", "bg": "out/bg_bor_1c", "frontpanel": None, "spawn": "out/spawn_bor_1c/spawn_table.bin"},
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\BEBOP.TXT", "bg": "out/bg_stage2boss", "frontpanel": None, "spawn": "out/spawn_stage2boss/spawn_table.bin"},
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\ROCK.TXT", "bg": "out/bg_stage3rock", "frontpanel": None, "spawn": "out/spawn_stage3rock/spawn_table.bin"},
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\LEATHER.TXT", "bg": "out/bg_stage4leather", "frontpanel": None, "spawn": "out/spawn_stage4leather/spawn_table.bin"},
@@ -28,6 +29,7 @@ ROSTER_CONFIGS = [
     {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT03", "converted_prefix": "out/foot03", "playable": True},
     {"family": "tmnt", "source_character": "DATA\\CHARS\\FOOT04", "converted_prefix": "out/foot04", "playable": True},
     {"family": "tmnt", "source_character": "DATA\\CHARS\\LEO", "converted_prefix": "out/leo", "playable": True},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\YAMAZAKI", "converted_prefix": "out/yamazaki", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\APPLE", "converted_prefix": "out/apple", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\MONEY", "converted_prefix": "out/money", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\MEAT", "converted_prefix": "out/meat", "playable": False},

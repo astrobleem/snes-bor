@@ -1,0 +1,99 @@
+{
+  "entity": "Yamazaki",
+  "prefix": "out/yamazaki",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/yamazaki_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/yamazaki_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/yamazaki_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/yamazaki_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/yamazaki_rise",
+      "frames": 3
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/yamazaki_attack1",
+      "frames": 9
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/yamazaki_attack2",
+      "frames": 18
+    },
+    {
+      "ordinal": 7,
+      "name": "attack3",
+      "dir": "out/yamazaki_attack3",
+      "frames": 14
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": 7,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      17215,
+      11034,
+      12892,
+      4597,
+      6583,
+      18798,
+      15628,
+      367,
+      4369,
+      10376,
+      4160,
+      0,
+      4160,
+      2057,
+      0
+    ]
+  ]
+}

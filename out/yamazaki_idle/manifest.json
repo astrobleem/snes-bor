@@ -1,0 +1,108 @@
+{
+  "entity": "Yamazaki",
+  "anim": "idle",
+  "loop": 1,
+  "scale": 0.3870967741935484,
+  "hotspot_canvas": [
+    10,
+    46
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        34,
+        128
+      ],
+      "bbox": [
+        23,
+        10,
+        32,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

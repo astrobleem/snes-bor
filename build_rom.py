@@ -149,6 +149,11 @@ SPAWN_TABLES = [stage["spawn"] for stage in STAGE_CONFIGS]
 if not (len(BG_SCREENS) == len(FP_SCREENS) == len(SPAWN_TABLES)):
     raise SystemExit("BG_SCREENS, FP_SCREENS, and SPAWN_TABLES must stay parallel")
 
+BOR_CAMPAIGN_PREFIX = ("DATA\\EASY\\1AEASY.TXT", "DATA\\EASY\\1BEASY.TXT",
+                       "DATA\\EASY\\1CEASY.TXT")
+if tuple(stage["source_level"].upper() for stage in STAGE_CONFIGS[:3]) != BOR_CAMPAIGN_PREFIX:
+    raise SystemExit("first three STAGE_CONFIGS entries must be BOR 1A, 1B, 1C")
+
 # Task #13 (2026-08-20): the real compiled openborscript module shipped
 # through the normal MSU/Vm_Load boot path, replacing the Gate 0 test
 # fixture (gate0_module.bin) that shipped here since Gate 0a. Compiled from

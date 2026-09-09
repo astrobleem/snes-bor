@@ -78,18 +78,18 @@ ENTITY_BASES = [PLAYER_BASE, PLAYER_BASE + CHAR_ZP_LEN, PLAYER_BASE + 2 * CHAR_Z
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
 from build_spawn_table import RECORD_SIZE, RECORD_KIND_BOSS, RECORD_KIND_BOSS_IDENTIFIED  # noqa: E402
 
-_bg_last_dir, _hud_dir = build_rom.BG_SCREENS[9]
+_bg_last_dir, _hud_dir = build_rom.BG_SCREENS[10]
 BG_LAST_DIR = os.path.join(ROOT, _bg_last_dir)
 HUD_DIR = os.path.join(ROOT, _hud_dir)
 
 EXPECTED = {
-    3: ('out/spawn_stage3rock/spawn_table.bin', 3, [1]),
-    4: ('out/spawn_stage4leather/spawn_table.bin', 2, [0]),
-    5: ('out/spawn_stage5sewer0/spawn_table.bin', 63, []),
-    6: ('out/spawn_stage6streets/spawn_table.bin', 67, [65]),
-    7: ('out/spawn_stage7streets2/spawn_table.bin', 86, [85]),
-    8: ('out/spawn_stage8sewer/spawn_table.bin', 46, []),
-    9: ('out/spawn_stage9foot/spawn_table.bin', 1, []),
+    4: ('out/spawn_stage3rock/spawn_table.bin', 3, [1]),
+    5: ('out/spawn_stage4leather/spawn_table.bin', 2, [0]),
+    6: ('out/spawn_stage5sewer0/spawn_table.bin', 63, []),
+    7: ('out/spawn_stage6streets/spawn_table.bin', 67, [65]),
+    8: ('out/spawn_stage7streets2/spawn_table.bin', 86, [85]),
+    9: ('out/spawn_stage8sewer/spawn_table.bin', 46, []),
+    10: ('out/spawn_stage9foot/spawn_table.bin', 1, []),
 }
 
 
@@ -170,7 +170,7 @@ def main():
         boot_stage = word_at(m, GAME_STAGE_INDEX)
         r.check(f'boots on stage 0 ({boot_stage})', boot_stage == 0)
 
-        # --- 2. Force-win the full real chain, 0 through 8. ---
+        # --- 2. Force-win the full real chain, 0 through 10. ---
         #
         # Not attempted here: forcing stage 6's (streets) own real boss
         # (Rock, a second spawn table entirely separate from the standalone
@@ -198,7 +198,7 @@ def main():
         # -- a second, different RECORD_KIND_BOSS site -- is correct.
         target = 1
         transition_attempts = 0
-        while target <= 9 and transition_attempts < 18:
+        while target <= 10 and transition_attempts < 22:
             current = word_at(m, GAME_STAGE_INDEX)
             if current != target - 1:
                 r.check(f'Game_StageIndex reached expected stage {target - 1} before {target} ({current})', False)
@@ -213,7 +213,7 @@ def main():
                 # bounded wait. Retry the same real source stage instead of
                 # corrupting the rest of the campaign's expected sequence.
                 transition_attempts += 1
-        r.check(f'all nine real stage transitions completed (next target={target})', target == 10)
+        r.check(f'all ten real stage transitions completed (next target={target})', target == 11)
 
         final_state = word_at(m, GAME_STATE)
         r.check(f'Game_State returns to PLAYING on the final stage ({final_state})',
@@ -221,7 +221,7 @@ def main():
 
         # --- 3. Stage 9's CGRAM matches its own converter output. ---
         got_palette = bytes(read_block(m, 0x000, 256, mem_type='snesCgRam'))
-        r.check("stage 9's CGRAM (BG1 backdrop + merged HUD sub-palette) "
+        r.check("stage 10's CGRAM (BG1 backdrop + merged HUD sub-palette) "
                 "matches out/bg_stage9foot's own converter output",
                 got_palette == expected_palette)
 

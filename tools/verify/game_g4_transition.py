@@ -20,14 +20,11 @@ not engine self-consistency -- CLAUDE.md's standing rule):
      matches build_rom.BG_SCREENS[1]'s OWN converter output -- ground truth
      the engine did not produce, same standing rule phase6.py already
      applies. Byte-identical here proves the reload actually loaded stage
-     1A's data, not a stale copy of stage 1B's.
-  3. StreamScroll_WidthTiles reads back as stage 1A's real width (not
-     stage 1B's stale 140) -- proves Boot_SetPlayfieldBorder's runtime
+     1B's data, not a stale copy of stage 1A's.
+  3. StreamScroll_WidthTiles reads back as stage 1B's real width (not
+     stage 1A's stale 408) -- proves Boot_SetPlayfieldBorder's runtime
      re-derivation actually re-ran for the new stage.
-  4. StreamScrollFp_Enabled reads back as 1 -- stage 1A DOES have a
-     frontpanel and stage 1B does NOT (see build_rom.py's own FP_SCREENS
-     comment), so this specifically exercises the "no FP -> has FP"
-     direction the advisor consult flagged as the riskiest untested case.
+  4. StreamScrollFp_Enabled reads back as 0 -- stage 1B has no frontpanel.
   5. This stage's own spawn queue is freshly loaded: Spawn_Count matches
      stage 1A's real record count, Spawn_Index is back to 0 (not stage
      1B's exhausted queue).
@@ -138,7 +135,7 @@ def main():
     # RECORD_SIZE rather than hardcoding it a second time here.
     sys.path.insert(0, os.path.join(ROOT, 'tools', 'bg_converter'))
     from build_spawn_table import RECORD_SIZE
-    with open(os.path.join(ROOT, 'out', 'spawn_stage1a', 'spawn_table.bin'), 'rb') as f:
+    with open(os.path.join(ROOT, 'out', 'spawn_stage1b', 'spawn_table.bin'), 'rb') as f:
         expected_spawn_count = len(f.read()) // RECORD_SIZE
 
     with open_session(__file__) as m:
@@ -157,13 +154,15 @@ def main():
         for slot, base in enumerate(ENTITY_BASES[1:], start=1):
             role = byte_at(m, base + CHAR_INPUT_DRIVEN)
             print(f'forced-clear slot{slot}: role={role} hp={byte_at(m, base + CHAR_HP)}')
-            if role == CHAR_INPUT_DRIVEN_AI:
-                m.write_u8(base + CHAR_HP, 0)
-        # The completion predicate is evaluated from the PLAYING update.  A
+        # The completion predicate is evaluated from the PLAYING update. Keep
+        # the legal clear precondition alive while pending stage work settles.
         # fixed five-frame sleep is not a semantic boundary, especially when
         # the preceding MSU work leaves the emulator between NMI updates.
         cleared = 0
-        for _ in range(180):
+        for _ in range(240):
+            for base in ENTITY_BASES[1:]:
+                if byte_at(m, base + CHAR_INPUT_DRIVEN) == CHAR_INPUT_DRIVEN_AI:
+                    m.write_u8(base + CHAR_HP, 0)
             m.run_frames(1)
             cleared = byte_at(m, STAGE_CLEARED)
             if cleared:
@@ -239,25 +238,25 @@ def main():
         # --- 2. New stage's CGRAM matches ITS OWN converter output. ---
         got_palette = bytes(read_block(m, 0x000, 256, mem_type='snesCgRam'))
         r.check("stage 1's CGRAM (BG1 backdrop + merged HUD sub-palette) "
-                "matches out/bg_stage1a's own converter output",
+                "matches out/bg_bor_1b's own converter output",
                 got_palette == bytes(expected_palette))
 
         # --- 3. Playfield width re-derived for the new stage, not stale. ---
         got_width = word_at(m, STREAM_SCROLL_WIDTH_TILES)
-        r.check(f'StreamScroll_WidthTiles reads stage 1A\'s real width '
+        r.check(f'StreamScroll_WidthTiles reads stage 1B\'s real width '
                 f'({stage1_width_tiles}, got {got_width})',
                 got_width == stage1_width_tiles)
 
         # --- 4. The riskiest untested direction: no-FP -> has-FP. ---
         fp_enabled = byte_at(m, STREAM_SCROLL_FP_ENABLED)
-        r.check('StreamScrollFp_Enabled is 1 (stage 1A has a frontpanel, '
-                'stage 1B did not)', fp_enabled == 1)
+        r.check('StreamScrollFp_Enabled is 0 (stage 1B has no frontpanel)',
+                fp_enabled == 0)
 
         # --- 5. Fresh spawn queue for the new stage. ---
         new_spawn_count = byte_at(m, SPAWN_COUNT_ADDR)
         new_spawn_index = byte_at(m, SPAWN_INDEX)
         print(f'new stage spawn_count={new_spawn_count} spawn_index={new_spawn_index}')
-        r.check(f"Spawn_Count matches stage 1A's own table ({expected_spawn_count})",
+        r.check(f"Spawn_Count matches stage 1B's own table ({expected_spawn_count})",
                 new_spawn_count == expected_spawn_count)
         # Not asserting exactly 0: by the time this samples, a few extra
         # frames have run past the transition (the checks above needed the

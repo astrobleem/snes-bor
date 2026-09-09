@@ -2031,6 +2031,18 @@ but that predates this phase — it gates the pre-Phase-9
 whole-level-static-BG scrolling shape, which stage 1B isn't; a known-stale
 gate, not a regression.
 
+## G15 Batch A handoff
+
+The next implementation slice is the real BOR stage-1 completion batch:
+ship `1CEASY` after the canonical `1AEASY -> 1BEASY` prefix, preserve the
+existing TMNT development tail, and gate all three real Stage_Load edges.
+Batch B will add `2EASY`; do not describe the current post-1C TMNT handoff
+as a BOR stage-2 result. Keep the six-actor bound, current animation
+transport, script-VM scope, G12/G13/G14, and SOUND architecture unchanged.
+
+See `docs/g15_batch_a_stage1.md` and
+`tools/verify/game_g15_stage1_campaign.py`.
+
 ## Harness gotchas (Mesen2 / build)
 
 Full detail lives in project memory ([[mesen-audio-check-nondeterministic]],
