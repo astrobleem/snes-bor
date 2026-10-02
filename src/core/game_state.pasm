@@ -208,9 +208,9 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- source all-OUT grace timer, then
 ; the player walk to Screen_MaxX from frame 1 would make "win" trivial and
 ; instant. Rather than hand-author a per-level "combat zone" table this
 ; project doesn't have, the hold boundary is DERIVED from data the level
-; already has: core/spawn.pasm's Spawn_LastTriggerX -- the trigger_x of the
-; stage's own LAST spawn record (spawn tables are packed in ascending
-; trigger order, so this is always the highest trigger in the table), which
+; already has: core/spawn.pasm's Spawn_LastTriggerX -- the highest trigger_x
+; anywhere in the stage's authored queue (record order is preserved and
+; trigger coordinates are not guaranteed to be monotonic), which
 ; is already expressed in the same Screen_PosX camera-space units Screen_MaxX
 ; itself uses. Stage_Load clamps Screen_MaxX down to this value at load
 ; time; Game_State_Play__playing's win check raises it back to the stage's
@@ -252,7 +252,7 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- source all-OUT grace timer, then
 ; it against the packed bor.msu's real bg_count.
 ; ============================================================================
 
-STAGE_COUNT = 32  ; physical BG/FP/spawn catalog length; not campaign length
+.include "../generated/campaign_layout.pasm"
 
 ; Campaign maps are generated from authored LEVELS files and source identities.
 ; Game_StageIndex remains the physical packed-stage selector; campaign state
@@ -365,9 +365,11 @@ Entity5_InvulnFrames = $7E58B5
 ; of re-asserting width at entry rather than trusting the caller).
 ; ----------------------------------------------------------------------
 Game_State_Play:
+    jsl StageWater_Begin
     php
     rep #$31
 .a16
+    jsl StageTimerHost_FrameService
     lda Game_State
     cmp Game_StatePrev
     beq Game_State_Play__no_transition
@@ -686,7 +688,7 @@ Game_State_Play__playing:
     ; bank-0 routine's own footprint minimal -- see that file's own
     ; Game_State_Pause_CheckEntry for the full check/set logic; carry
     ; comes back set only if PAUSED was just entered this frame.
-    jsl G13_HandleOutContinue
+    jsl StageTimerHost_HandleContinue
     bcc Game_State_Play__no_out_continue
     brl Game_State_Play__done
 Game_State_Play__no_out_continue:
@@ -703,11 +705,11 @@ Game_State_Play__no_pause_press:
     ; frame before, via the normal collision pass) -- that one frame of
     ; latency is harmless: the player is exempt from every AI-only dead
     ; check, so it just plays one more ordinary (already-stunned) frame.
-    jsl G13_HandleP2Death
+    jsl StageTimerHost_ServiceDeaths
     bcc Game_State_Play__no_death
     ; An already-OUT player is still a handled lifecycle state. Give the
     ; all-absent source terminal service a chance before stopping this frame.
-    jsl Game_State_Play__check_all_out
+    jsl StageTimerHost_CheckAllOut
     jmp Game_State_Play__done
 Game_State_Play__no_death:
     ; width already .a16 on both paths in here (neither the bne above nor
@@ -715,7 +717,7 @@ Game_State_Play__no_death:
 .a16
     ; Source BOR keeps an all-absent run alive for the credit/re-entry window.
     ; A successful OUT-player join clears this timer before this check runs.
-    jsl Game_State_Play__check_all_out
+    jsl StageTimerHost_CheckAllOut
     bcc Game_State_Play__no_all_out
     jmp Game_State_Play__done
 Game_State_Play__no_all_out:
@@ -827,8 +829,9 @@ Game_State_Play__stage_check_edge:
 Game_State_Play__stage_check_left_edge:
     lda.l Screen_PosX
     cmp.l Screen_MinX
-    bcs Game_State_Play__stage_no_win
-    bra Game_State_Play__stage_edge_ready
+    bcc Game_State_Play__stage_edge_ready
+    beq Game_State_Play__stage_edge_ready
+    bra Game_State_Play__stage_no_win
 Game_State_Play__stage_check_vertical_edge:
     lda.l Screen_PosY
     cmp Screen_MaxY
@@ -853,6 +856,7 @@ Game_State_Play__stage_no_win:
     ; The body every gate today already exercises from boot -- moved
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
+    jsl StageBoundsHost_Physics
     jsr Core_Oop_Play
     ; Actor depth-sort slice (plan_game.md 7): emits this frame's OAM
     ; entries for all 4 fixed entities in real ground-depth order, now that
@@ -865,6 +869,9 @@ Game_State_Play__stage_no_win:
     ; core/depth_sort.pasm's own bank (.bank 9), same ROM-budget reason as
     ; the other .bank-N modules; ends in rtl.
     jsl Character_RenderPass
+    lda.l SourceVisual_AfterPassCount
+    inc a
+    sta.l SourceVisual_AfterPassCount
     jsr Core_Screen_Play
     jsl Stage_ScrollPlay
     ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
@@ -915,10 +922,17 @@ Game_State_Play__stage_no_win:
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
     ; header for why that matters to the vblank budget.
     jsr Hud_Play
+Game_State_Play__after_hud:
+    ; Pair the outgoing OAM shadow with StageWater's immutable raster table,
+    ; but acquire the short NMI lease only after DMA-dependent world, BG, and
+    ; actor resource service has finished.
+    jsl StageWater_OamBegin
+Game_State_Play__after_water:
     jsr Core_Oam_Play
 
 Game_State_Play__done:
     plp
+    jsl StageWater_End
     rts
 
 ; ----------------------------------------------------------------------
@@ -964,6 +978,11 @@ Game_State_RespawnPlayer:
     sta.l PlayerEntity_PosY
     rep #$31
 .a16
+    ; This reset selects a grounded player state.  Clear both complete Q8.8
+    ; words so a prior jump cannot survive the stage/death respawn boundary.
+    lda #0
+    sta.l $7E0A00+CHAR_THROW_ZPOS
+    sta.l $7E0A00+CHAR_THROW_ZVEL
     jsl Stage_RespawnP1Position
     rts
 
@@ -1093,6 +1112,7 @@ Stage_Load__fp_done:
     ; already populated by Bg_LoadScene above) ---
     jsr Music_SelectStageTrack
     jsl Spawn_Init
+    jsl StageTimer_StartLevel
 
     ; --- force the next Hud_Play call to redraw unconditionally: the BG3
     ; clear above just wiped the HUD's own tilemap entries, and the
@@ -1213,8 +1233,8 @@ Stage_Load__keep_y:
 ; inline first draft here pushed that .org past $FC00-emitted bytes and
 ; failed to assemble). Caller must have already run Core_Screen_
 ; SetPlayfieldBorder (Screen_MaxX holds the stage's true width) and
-; Spawn_Init (Spawn_LastTriggerX holds this stage's last spawn record's
-; trigger_x, or 0 if it packs no spawn table at all) before calling this.
+; Spawn_Init (Spawn_LastTriggerX holds the highest trigger_x in this stage's
+; queue, or 0 if it packs no spawn table at all) before calling this.
 ; Entry/exit convention: .a16/.i16.
 ; ----------------------------------------------------------------------
 Stage_ApplyWinClamp:

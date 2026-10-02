@@ -7,6 +7,7 @@ import sys
 import shutil
 import hashlib
 import json
+from pathlib import Path
 
 ROM_SIZE = 0x400000
 BANK0_SIZE = 0x8000
@@ -173,80 +174,6 @@ def resolve_campaigns():
         if key in by_source:
             raise SystemExit(f"campaign guard: duplicate catalog source {key}")
         by_source[key] = (index, stage)
-    # G15-R4: Normal 1A/1B/1C are verifier-only append records. Keep their
-    # physical identities derived from the catalog and assert intentional
-    # presentation reuse instead of allowing silent index/order drift.
-    normal_key = "DATA\\NORMAL\\1A.TXT"
-    normal1b_key = "DATA\\NORMAL\\1B.TXT"
-    normal1c_key = "DATA\\NORMAL\\1C.TXT"
-    normal2_key = "DATA\\NORMAL\\2.TXT"
-    normal3a_key = "DATA\\NORMAL\\3A.TXT"
-    normal3b_key = "DATA\\NORMAL\\3B.TXT"
-    normal3c_key = "DATA\\NORMAL\\3C.TXT"
-    normal4a_key = "DATA\\NORMAL\\4A.TXT"
-    normal4b_key = "DATA\\NORMAL\\4B.TXT"
-    normal5a_key = "DATA\\NORMAL\\5A.TXT"
-    easy_key = "DATA\\EASY\\1AEASY.TXT"
-    easy1b_key = "DATA\\EASY\\1BEASY.TXT"
-    easy1c_key = "DATA\\EASY\\1CEASY.TXT"
-    easy2_key = "DATA\\EASY\\2EASY.TXT"
-    if any(key not in by_source for key in (normal_key, normal1b_key, normal1c_key, normal2_key, normal3a_key, normal3b_key, normal3c_key, normal4a_key, normal4b_key, normal5a_key,
-                                             easy_key, easy1b_key, easy1c_key, easy2_key)):
-        raise SystemExit("campaign guard: Normal/Easy 1A/1B/1C catalog identity missing")
-    normal_index, normal_stage = by_source[normal_key]
-    normal1b_index, normal1b_stage = by_source[normal1b_key]
-    normal1c_index, normal1c_stage = by_source[normal1c_key]
-    normal2_index, normal2_stage = by_source[normal2_key]
-    normal3a_index, normal3a_stage = by_source[normal3a_key]
-    normal3b_index, normal3b_stage = by_source[normal3b_key]
-    normal3c_index, normal3c_stage = by_source[normal3c_key]
-    normal4a_index, normal4a_stage = by_source[normal4a_key]
-    normal4b_index, normal4b_stage = by_source[normal4b_key]
-    normal5a_index, normal5a_stage = by_source[normal5a_key]
-    easy_index, easy_stage = by_source[easy_key]
-    easy1b_index, easy1b_stage = by_source[easy1b_key]
-    easy1c_index, easy1c_stage = by_source[easy1c_key]
-    easy2_index, easy2_stage = by_source[easy2_key]
-    if normal5a_index != len(STAGE_CONFIGS) - 1 or not (normal_index < normal1b_index < normal1c_index < normal2_index < normal3a_index < normal3b_index < normal3c_index < normal4a_index < normal4b_index < normal5a_index):
-        raise SystemExit("campaign guard: Normal 1A/1B/1C/2/3A/3B/3C/4A/4B/5A must be append-only catalog tail")
-    if any(index in (easy_index, easy1b_index, easy1c_index)
-           for index in (normal_index, normal1b_index, normal1c_index, normal2_index, normal3a_index, normal3b_index, normal3c_index, normal4a_index, normal4b_index, normal5a_index)):
-        raise SystemExit("campaign guard: Normal 1A/1B/1C/2/3A/3B/3C/4A/4B/5A must not overwrite Easy records")
-    if ((normal_stage["bg"], normal_stage.get("frontpanel")) !=
-            (easy_stage["bg"], easy_stage.get("frontpanel")) or
-            (normal1b_stage["bg"], normal1b_stage.get("frontpanel")) !=
-            (easy1b_stage["bg"], easy1b_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal presentation assets drift from Easy")
-    if ((normal1c_stage["bg"], normal1c_stage.get("frontpanel")) !=
-            (easy1c_stage["bg"], easy1c_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 1C presentation assets drift from Easy")
-    if ((normal2_stage["bg"], normal2_stage.get("frontpanel")) !=
-            (easy2_stage["bg"], easy2_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 2 presentation assets drift from Easy")
-    easy3a_stage = by_source["DATA\\EASY\\3AEASY.TXT"][1]
-    if ((normal3a_stage["bg"], normal3a_stage.get("frontpanel")) !=
-            (easy3a_stage["bg"], easy3a_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 3A presentation assets drift from Easy")
-    easy3b_stage = by_source["DATA\\EASY\\3BEASY.TXT"][1]
-    if ((normal3b_stage["bg"], normal3b_stage.get("frontpanel")) !=
-            (easy3b_stage["bg"], easy3b_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 3B presentation assets drift from Easy")
-    easy3c_stage = by_source["DATA\\EASY\\3CEASY.TXT"][1]
-    if ((normal3c_stage["bg"], normal3c_stage.get("frontpanel")) !=
-            (easy3c_stage["bg"], easy3c_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 3C presentation assets drift from Easy")
-    easy4a_stage = by_source["DATA\\EASY\\4AEASY.TXT"][1]
-    if ((normal4a_stage["bg"], normal4a_stage.get("frontpanel")) !=
-            (easy4a_stage["bg"], easy4a_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 4A presentation assets drift from Easy")
-    easy4b_stage = by_source["DATA\\EASY\\4BEASY.TXT"][1]
-    if ((normal4b_stage["bg"], normal4b_stage.get("frontpanel")) !=
-            (easy4b_stage["bg"], easy4b_stage.get("frontpanel"))):
-        raise SystemExit("campaign guard: Normal 4B presentation assets drift from Easy")
-    easy5a_stage = by_source["DATA\\EASY\\5AEASY.TXT"][1]
-    if ((normal5a_stage["bg"], normal5a_stage.get("frontpanel"), normal5a_stage.get("scroll_direction")) !=
-            (easy5a_stage["bg"], easy5a_stage.get("frontpanel"), easy5a_stage.get("scroll_direction"))):
-        raise SystemExit("campaign guard: Normal 5A presentation/scroll assets drift from Easy 5A")
     scene_ids = {entry["scene_id"].upper(): entry["runtime_id"]
                  for entry in SCENE_CONFIGS}
     resolved = {}
@@ -297,7 +224,7 @@ def resolve_campaigns():
 CAMPAIGN_STAGE_MAPS, CAMPAIGN_ENTRY_MAPS = resolve_campaigns()
 
 
-def write_campaign_include():
+def write_campaign_include(normal_candidate=False):
     """Emit the small assembly lookup used by runtime stage progression."""
     labels = {
         "BOR_ORIGINAL": "Bor",
@@ -309,7 +236,10 @@ def write_campaign_include():
     bor_sets = parse_levels_from_pak(bor_stage["pak"], "DATA\\LEVELS.TXT")
     if [s.name for s in bor_sets] != ["Easy", "Normal", "Hard", "Bonus"]:
         raise SystemExit("BOR set guard: unexpected source set order")
-    available = {"Easy": True, "Normal": False, "Hard": False, "Bonus": False}
+    # An isolated native candidate is not a production release decision.
+    available = {"Easy": True, "Normal": bool(normal_candidate), "Hard": False, "Bonus": False}
+    campaign_symbols = {"Easy": "CAMPAIGN_BOR_ORIGINAL",
+                        "Normal": "CAMPAIGN_BOR_NORMAL_DEV"}
     lines = [
         "; Generated by build_rom.py from shipped_content.CAMPAIGN_CONFIGS.",
         "; Physical indices are resolved from source identities; do not edit.",
@@ -325,7 +255,8 @@ def write_campaign_include():
         "BorSet_ContentAvailable:",
         "    .db " + ", ".join("1" if available[s.name] else "0" for s in bor_sets),
         "BorSet_CampaignMap:",
-        "    .db CAMPAIGN_BOR_ORIGINAL, BOR_SET_UNMAPPED, BOR_SET_UNMAPPED, BOR_SET_UNMAPPED",
+        "    .db " + ", ".join(campaign_symbols[s.name] if available[s.name]
+                               else "BOR_SET_UNMAPPED" for s in bor_sets),
         "BOR_SET_NAME_WIDTH = 8",
         "BorSet_Names:",
     ]
@@ -355,25 +286,25 @@ def write_campaign_include():
             f"    .db {values}",
             "",
         ]
-        if campaign_id == "BOR_NORMAL_1A_INTERNAL":
-            normal_source_set = next(source_set for source_set in bor_sets
-                                     if source_set.name == "Normal")
+        if campaign_id in ("BOR_ORIGINAL", "BOR_NORMAL_1A_INTERNAL"):
+            authored = CAMPAIGN_CONFIGS[campaign_id]["entries"]
+            if len(authored) != len(entries):
+                raise SystemExit(f"BOR source guard: {campaign_id} entry metadata drift")
             flags_by_file = []
-            normal_entries = normal_source_set.entries
-            internal_sources = [source.replace('/', '\\').upper()
-                                for source in CAMPAIGN_CONFIGS[campaign_id]["source_levels"]]
-            for pos, (directive, value) in enumerate(normal_entries):
-                if directive != "file" or value.replace('/', '\\').upper() not in internal_sources:
-                    continue
-                next_is_boundary = (pos + 1 < len(normal_entries)
-                                    and normal_entries[pos + 1][0] == "next")
-                flags_by_file.append(1 if next_is_boundary else 0)
-            if len(flags_by_file) != len(entries):
-                raise SystemExit("BOR source guard: Normal internal boundary metadata drift")
+            for entry in authored:
+                flag = entry.get("next_after")
+                if flag not in (False, True, 0, 1):
+                    raise SystemExit(f"BOR source guard: {campaign_id} missing/invalid next_after")
+                flags_by_file.append(int(flag))
             flags = ", ".join(str(value) for value in flags_by_file)
+            completion = CAMPAIGN_CONFIGS[campaign_id]['completion_flags']
+            if len(completion) != len(entries) or any(type(v) is not int or v not in (0, 1) for v in completion):
+                raise SystemExit(f"BOR completion policy drift: {campaign_id}")
             lines += [
                 f"Campaign_{label}_NextFlags:",
                 f"    .db {flags}",
+                f"Campaign_{label}_CompleteFlags:",
+                "    .db " + ", ".join(map(str, completion)),
                 "",
             ]
     with open("tools/audio/campaign_config.pasm", "w", encoding="ascii", newline="\n") as f:
@@ -476,62 +407,23 @@ def assemble():
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)
 
-def check_stage_count(roster_sidecar):
-    """Phase G4 (plan_game.md 4): cross-checks core/game_state.pasm's
-    hand-synced STAGE_COUNT constant against the packed bor.msu's real
-    bg_count. STAGE_COUNT can't be computed by the engine itself (it gates
-    Game_State_Play__stageclear's "no more stages -> ENDING" check before
-    any MSU read happens that frame) so it's hand-synced, same accepted-
-    risk pattern as this file's other build-time cross-checks.
-    """
-    import re
-    text = open('src/core/game_state.pasm', encoding='utf-8').read()
-    m = re.search(r'STAGE_COUNT\s*=\s*(\d+)', text)
-    if not m:
-        print("check_stage_count: couldn't find STAGE_COUNT in "
-              "src/core/game_state.pasm", file=sys.stderr)
-        sys.exit(1)
-    pasm_count = int(m.group(1))
-    real_count = roster_sidecar["bg_count"]
-    if pasm_count != real_count:
-        print(f"check_stage_count: MISMATCH -- src/core/game_state.pasm has "
-              f"STAGE_COUNT={pasm_count}, but the just-packed bor.msu has "
-              f"bg_count={real_count} (BG_SCREENS has {len(BG_SCREENS)} "
-              f"entries). Update src/core/game_state.pasm to match and "
-              f"rebuild.", file=sys.stderr)
-        sys.exit(1)
-    print(f"check_stage_count: OK (STAGE_COUNT={pasm_count})")
-
-
-def check_vm_constants(roster_sidecar):
-    """The check_spawn_constants pattern, applied to the script VM's module
-    (Gate 0a, plan_vm.md 1). src/core/vm/vm_load.pasm hand-syncs
-    VM_MSU_OFFSET/VM_MODULE_SIZE because neither can be computed by main.pasm
-    -- the module's file offset depends on every character/BG/FP/spawn blob
-    packed before it. Without this check, any future asset that changes size
-    shifts the module and the loader silently reads whatever bytes now sit
-    there: a garbage module with a plausible-looking header.
-    """
-    import re
-    text = open('src/core/vm/vm_load.pasm', encoding='utf-8').read()
-    offset_m = re.search(r'VM_MSU_OFFSET\s*=\s*\$([0-9A-Fa-f]+)', text)
-    size_m = re.search(r'VM_MODULE_SIZE\s*=\s*(\d+)', text)
-    if not offset_m or not size_m:
-        print("check_vm_constants: couldn't find VM_MSU_OFFSET/VM_MODULE_SIZE "
-              "in src/core/vm/vm_load.pasm", file=sys.stderr)
-        sys.exit(1)
-    pasm_offset = int(offset_m.group(1), 16)
-    pasm_size = int(size_m.group(1))
-    real_offset = roster_sidecar["vm_offset"]
-    real_size = roster_sidecar["vm_size"]
-    if pasm_offset != real_offset or pasm_size != real_size:
-        print(f"check_vm_constants: MISMATCH -- src/core/vm/vm_load.pasm has "
-              f"VM_MSU_OFFSET=${pasm_offset:06X} VM_MODULE_SIZE={pasm_size}, "
-              f"but the just-packed bor.msu has vm_offset=${real_offset:06X} "
-              f"vm_size={real_size}. Update src/core/vm/vm_load.pasm to match "
-              f"and rebuild.", file=sys.stderr)
-        sys.exit(1)
-    print(f"check_vm_constants: OK (offset=${real_offset:06X}, size={real_size})")
+def write_campaign_layout_include(roster_sidecar):
+    """Emit runtime constants from the finalized pack, before assembly."""
+    stage_count = roster_sidecar["bg_count"]
+    vm_offset = roster_sidecar["vm_offset"]
+    vm_size = roster_sidecar["vm_size"]
+    if stage_count != len(STAGE_CONFIGS) or not 0 < stage_count <= 255:
+        raise SystemExit("campaign layout guard: packed stage count/catalog mismatch")
+    if not 0 <= vm_offset <= 0xFFFFFFFF or not 0 < vm_size <= 0xFFFF:
+        raise SystemExit("campaign layout guard: VM offset/size exceeds runtime fields")
+    os.makedirs("src/generated", exist_ok=True)
+    with open("src/generated/campaign_layout.pasm", "w",
+              encoding="ascii", newline="\n") as f:
+        f.write(
+            "; Generated by build_rom.py from finalized packed metadata; do not edit.\n"
+            f"STAGE_COUNT = {stage_count}\n"
+            f"VM_MSU_OFFSET = ${vm_offset:08X}\n"
+            f"VM_MODULE_SIZE = {vm_size}\n")
 
 
 def check_spawn_table_freshness():
@@ -544,6 +436,8 @@ def check_spawn_table_freshness():
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     'tools', 'bg_converter'))
     from build_spawn_table import build_from_pak
+    from production_campaign import compile_queues
+    compiler_queues = compile_queues(STAGE_CONFIGS, ROSTER_CONFIGS)
     roster_lookup = {prefix.rsplit('/', 1)[-1].lower(): i
                      for i, prefix in enumerate(ROSTER_PREFIXES)}
     # Resolve source spawn aliases as well as converted directory names. K'
@@ -557,12 +451,10 @@ def check_spawn_table_freshness():
         table = os.path.abspath(stage['spawn'])
         if not os.path.exists(pak) or not os.path.exists(table):
             continue
-        _, expected = build_from_pak(pak, stage['source_level'], roster_lookup)
         if stage['family'] == 'bor-original':
-            sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'tools', 'bor_compile'))
-            from compiler import Source, stage as parse_stage
-            from environment_semantics import extend_legacy_queue_maps
-            expected = extend_legacy_queue_maps(parse_stage(Source(pak), stage['source_level']), expected)
+            expected = compiler_queues[stage['spawn']]
+        else:
+            _, expected = build_from_pak(pak, stage['source_level'], roster_lookup)
         with open(table, 'rb') as f:
             actual = f.read()
         if actual != expected:
@@ -757,7 +649,84 @@ def bank0_layout_guard_self_test():
         raise SystemExit('bank0 layout guard self-test: FAILED')
 
 
-def build_msu_assets():
+def prepare_campaign_queues():
+    from production_campaign import compile_queues
+    from pathlib import Path
+    for path, data in compile_queues(STAGE_CONFIGS, ROSTER_CONFIGS).items():
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.exists() or target.read_bytes() != data:
+            target.write_bytes(data)
+
+
+def prepare_stage_environment_assets(configs=None, roster_configs=None, *,
+                                     output_root='out/compiler_campaign/stage_water',
+                                     generated_dir='src/generated', bor_c=None):
+    """Materialize Normal water/FP cycles and emit water/bounds/HUD before assembly.
+
+    Return private physical bindings for this pack; accepted Easy media and
+    the shared catalog stay unchanged. All three helpers share source objects,
+    and water/bounds consume the same parsed Normal IR.
+    """
+    from pathlib import Path
+    from stage_water import normal_stage_inputs, materialize_normal, emit_tables
+    from stage_frontpanel_bg2 import materialize_normal as materialize_frontpanels
+    from stage_frontpanel_bg2 import motion_tables as frontpanel_motion_tables
+    from stage_frontpanel_wram import allocation_proof as frontpanel_allocation_proof
+    from stage_bounds import from_ir, emit_pasm
+    from generate_hud_names import family_sources, render as render_hud_names
+    from compiler import Source
+    configs = STAGE_CONFIGS if configs is None else configs
+    roster_configs = ROSTER_CONFIGS if roster_configs is None else roster_configs
+    bor_c = bor_c or Path(__file__).resolve().parent/'out/bor_compile_s6/BOR.C'
+    frontpanel_wram = frontpanel_allocation_proof()
+    sources, normal_ir = normal_stage_inputs(configs)
+    bounds = [None]*len(configs)
+    for physical, ir in normal_ir.items():
+        bounds[physical] = from_ir(ir)
+    bounds_text = emit_pasm(bounds, bank=15)
+    family_cache = {family:sources[str(path.resolve())]
+                    for family,path in family_sources(configs).items()}
+    # Explicit roster PAKs use the same source cache as family-bound models.
+    hud_roster = [dict(cfg) for cfg in roster_configs]
+    for cfg in hud_roster:
+        if cfg.get('pak'):
+            origin = str(Path(cfg['pak']).resolve())
+            if origin not in sources:
+                sources[origin] = Source(origin)
+            cfg['pak'] = sources[origin]
+    hud_text, hud_rows = render_hud_names(hud_roster, family_cache)
+    materialized, water_rows, water_media = materialize_normal(
+        configs, sources, normal_ir, bor_c, output_root)
+    materialized, frontpanel_media = materialize_frontpanels(
+        materialized, sources, normal_ir, bor_c, Path(output_root).parent/'stage_frontpanel')
+    frontpanel_motion_text, frontpanel_motion = frontpanel_motion_tables(materialized, normal_ir)
+    outputs = {
+        'stage_frontpanel_tables.pasm': frontpanel_motion_text,
+        'stage_water_tables.pasm': emit_tables(water_rows),
+        'stage_bounds_tables.pasm': bounds_text,
+        'hud_opponent_names.pasm': hud_text,
+        'stage_environment_materialization.json': json.dumps(dict(
+            normal_physical_ids=list(normal_ir), water_media=water_media, frontpanel_media=frontpanel_media,
+            frontpanel_motion=frontpanel_motion,
+            frontpanel_wram=frontpanel_wram,
+            bounds=[dict(physical=i, source_path=normal_ir[i].source_path,
+                         source_width=bounds[i].source_width, blocked=bounds[i].blocked,
+                         endhole=bounds[i].endhole) for i in normal_ir],
+            hud_names=hud_rows), indent=2)+'\n',
+    }
+    target = Path(generated_dir)
+    target.mkdir(parents=True, exist_ok=True)
+    for name,text in outputs.items():
+        path = target/name
+        if not path.exists() or path.read_text(encoding='ascii') != text:
+            path.write_text(text, encoding='ascii', newline='\n')
+    print(f'environment metadata: {len(normal_ir)} Normal stages, '
+          f'{len(water_media)} water/rock BGs, {len(frontpanel_media)} Normal FP bindings, {len(hud_rows)} HUD names')
+    return materialized
+
+
+def build_msu_assets(write_output=True, source_sized_visual=False):
     """Build MSU data and generated metadata before ROM assembly.
 
     Scene aliases in campaign_config.pasm are assembled from the generated
@@ -766,6 +735,9 @@ def build_msu_assets():
     """
     os.makedirs('build', exist_ok=True)
     os.makedirs('distribution', exist_ok=True)
+    environment_configs = prepare_stage_environment_assets()
+    # Queues are derived outputs, never a manually maintained campaign input.
+    prepare_campaign_queues()
     missing = [p for p in SPAWN_TABLES + [VM_MODULE] if not os.path.exists(p)]
     if missing:
         raise SystemExit("missing required generated input(s): " + ", ".join(missing))
@@ -802,10 +774,29 @@ def build_msu_assets():
         'fps_num': stats['fps_num'], 'fps_den': stats['fps_den'],
         'frame_count': stats['frame_count'], 'payload': payload,
     } for name, (payload, stats) in ending_payloads.items()]
+    # Directory reservation follows the actual physical catalog.
+    pack_msu_roster.MAX_BGS = len(BG_SCREENS)
     msu_data, roster_sidecar = pack_msu_roster.pack_roster(
-        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawns=spawn_blobs,
+        ROSTER_PREFIXES,
+        bgs=[(cfg['bg'], BG_SCREENS[i][1]) for i,cfg in enumerate(environment_configs)],
+        fps=[cfg['frontpanel'] for cfg in environment_configs], spawns=spawn_blobs,
         vm_blob=vm_blob, playable_count=PLAYABLE_ROSTER_COUNT,
         scene_video_entries=scene_video_entries, extended_maps=True)
+    if source_sized_visual:
+        visual_blob = Path('src/generated/production_source_visual.bin').read_bytes()
+        visual_catalog = json.loads(Path('src/generated/production_source_visual.json').read_text(encoding='utf-8'))
+        visual_offset = len(msu_data)
+        msu_data += visual_blob
+        roster_sidecar['source_visual'] = {
+            'format': 'SVIS1',
+            'entry_count': visual_catalog['summary']['entry_count'],
+            'data_offset': visual_offset,
+            'data_size': len(visual_blob),
+            'sha256': hashlib.sha256(visual_blob).hexdigest(),
+        }
+    # Layout audits flatten main's includes, so publish these finalized
+    # pack-derived constants before auditing the queue's WRAM ownership.
+    write_campaign_layout_include(roster_sidecar)
     from stage_environment_abi import write_model_map_counts
     write_model_map_counts(ROSTER_PREFIXES, 'src/generated/stage_environment_maps.pasm')
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'tools', 'bor_compile'))
@@ -830,11 +821,36 @@ def build_msu_assets():
         {'scene_id': 2, 'audio_track': generated_track('Music_EndingTrack'),
          'audio_repeat': 1, 'clips': [convert_ending.CLIP_IDS[name] for name in convert_ending.CLIPS]},
     ])
-    with open('build/bor.msu', 'wb') as f:
-        f.write(msu_data)
-    with open('distribution/bor.msu', 'wb') as f:
-        f.write(msu_data)
+    if write_output:
+        with open('build/bor.msu', 'wb') as f:
+            f.write(msu_data)
+    # Do not replace the runnable distribution's MSU while its ROM still
+    # describes an older catalog. Publish only after assembly/layout checks.
     return msu_data, roster_sidecar
+
+
+def prepare_source_visual_catalog():
+    """Generate compiler-owned source-sized visual metadata for an opt-in build."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    'tools', 'bor_compile'))
+    from production_source_publication import write_catalog
+    return write_catalog(
+        ROSTER_CONFIGS,
+        'src/generated/production_source_visual.json',
+        'src/generated/production_source_visual.pasm')
+
+
+def write_source_visual_layout_include(sidecar, *, enabled=False):
+    visual = sidecar.get('source_visual') or {}
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    'tools', 'bor_compile'))
+    from production_source_publication import emit_policy_include
+    catalog = json.loads(Path('src/generated/production_source_visual.json').read_text(
+        encoding='utf-8'))
+    emit_policy_include(catalog, 'src/generated/production_source_visual.pasm',
+                        enabled=enabled, msu_offset=visual.get('data_offset', 0),
+                        msu_size=visual.get('data_size', 0),
+                        key_path='src/generated/production_source_visual_keys.pasm')
 
 
 def reuse_pinned_audio(ref):
@@ -863,16 +879,50 @@ def reuse_pinned_audio(ref):
     print(f"pinned audio reuse PASS: {len(paths)} unchanged inputs, {len(music['tracks'])} PCMs, {len(sfx['banks'])} banks; ref={ref}")
 
 
-def main(reuse_audio_from=None):
-    bank0_layout_guard_self_test()
-    write_campaign_include()
-    write_stage_scroll_include()
-    write_bor_player_select_include()
-    if reuse_audio_from: reuse_pinned_audio(reuse_audio_from)
-    else: build_audio.main()
-    msu_data, roster_sidecar = build_msu_assets()
+def write_build_outputs(rom, msu_data, normal_candidate=False, candidate_dir=None):
+    """Publish only the selected target after assembly/layout checks succeed."""
+    if normal_candidate:
+        target = str(candidate_dir or 'build/s8_candidate')
+        # MSU music is resolved beside the loaded ROM. Copy only catalog-owned,
+        # hash-verified companions; never move or relink production artifacts.
+        with open('tools/audio/music_catalog.json', encoding='utf-8') as f:
+            catalog = json.load(f)
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'verify'))
+        from pcm_runtime import link_immutable_pcm
+        companions = []
+        for track in catalog['tracks']:
+            source = track['msu_pcm_path']
+            with open(source, 'rb') as f:
+                if hashlib.sha256(f.read()).hexdigest() != track['msu_pcm_hash']:
+                    raise SystemExit('candidate PCM hash mismatch: ' + source)
+            companions.append((source, f"{target}/bor-{int(track['track_id'])}.pcm"))
+        os.makedirs(target, exist_ok=True)
+        link_immutable_pcm(Path('distribution'), Path(target))
+        if {Path(destination).name for _, destination in companions} != {
+                p.name for p in Path(target).glob('bor-*.pcm')}:
+            raise SystemExit('candidate PCM sidecar set mismatch')
+        outputs = [(f'{target}/bor.sfc', rom), (f'{target}/bor.msu', msu_data)]
+    else:
+        os.makedirs('build', exist_ok=True)
+        os.makedirs('distribution', exist_ok=True)
+        outputs = [('build/bor.sfc', rom), ('distribution/bor.sfc', rom),
+                   ('distribution/bor.msu', msu_data)]
+    for path, data in outputs:
+        with open(path, 'wb') as f:
+            f.write(data)
+        print('Wrote ' + path)
+
+
+def link_rom():
+    """Assemble, validate, and return ROM bytes without publishing ROM/MSU.
+
+    Uses the existing generated includes and refreshes src/main.bin/main.sym
+    through assemble(). Diagnostic callers must supply matching existing MSU
+    data to write_build_outputs(); this does not regenerate or certify media.
+    """
     assemble()
-    poppy_data = bytearray(open('src/main.bin', 'rb').read())
+    with open('src/main.bin', 'rb') as f:
+        poppy_data = bytearray(f.read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
     validate_bank0_layout(poppy_data, 'src/main.sym')
     validate_text_bank_layout('src/main.sym')
@@ -886,7 +936,9 @@ def main(reuse_audio_from=None):
     # fixed in the fork as of 2026-08-19, so main.pasm can now use more than
     # bank 0). Copy the whole assembled binary; ROM_SIZE (4MB) is already the
     # real ceiling.
-    copy_len = min(len(poppy_data), ROM_SIZE)
+    if len(poppy_data) > ROM_SIZE:
+        raise SystemExit('ROM resource overflow: assembled banks exceed target capacity')
+    copy_len = len(poppy_data)
     rom[0:copy_len] = poppy_data[0:copy_len]
 
     # SA-1's reset vector (CRV) is hardware-forced into bank $00 on every
@@ -948,17 +1000,38 @@ def main(reuse_audio_from=None):
     rom[0x7FDE] = total & 0xFF
     rom[0x7FDF] = (total >> 8) & 0xFF
 
-    os.makedirs('build', exist_ok=True)
-    os.makedirs('distribution', exist_ok=True)
-    
-    # Write ROMs
-    with open('build/bor.sfc', 'wb') as f:
-        f.write(rom)
-    with open('distribution/bor.sfc', 'wb') as f:
-        f.write(rom)
+    return bytes(rom)
 
-    check_stage_count(roster_sidecar)
-    check_vm_constants(roster_sidecar)
+
+def main(reuse_audio_from=None, normal_candidate=False, source_sized_visual=False,
+         candidate_dir=None):
+    from production_campaign import materialize_actor_bindings
+    materialize_actor_bindings(ROSTER_CONFIGS)
+    if source_sized_visual:
+        catalog = prepare_source_visual_catalog()
+        if catalog['blockers']:
+            raise SystemExit('source-sized visual catalog has blockers: ' +
+                             json.dumps(catalog['blockers'][:8], sort_keys=True))
+    prepare_campaign_queues()
+    bank0_layout_guard_self_test()
+    write_campaign_include(normal_candidate=normal_candidate)
+    write_stage_scroll_include()
+    write_bor_player_select_include()
+    if reuse_audio_from: reuse_pinned_audio(reuse_audio_from)
+    else: build_audio.main()
+    # Shared compiler/packing paths stay unchanged; defer candidate MSU output
+    # so neither ordinary build/bor.msu nor distribution is published here.
+    if normal_candidate:
+        msu_data, roster_sidecar = build_msu_assets(
+            write_output=False, source_sized_visual=source_sized_visual)
+    else:
+        msu_data, roster_sidecar = build_msu_assets(
+            source_sized_visual=source_sized_visual)
+    write_source_visual_layout_include(roster_sidecar,
+                                       enabled=source_sized_visual)
+    rom = link_rom()
+    write_build_outputs(rom, msu_data, normal_candidate=normal_candidate,
+                        candidate_dir=candidate_dir)
 
     print(f"ROM: {len(rom)} bytes")
     print(f"MSU: {len(msu_data)} bytes (bor.msu), roster: {', '.join(ROSTER_PREFIXES)}")
@@ -982,4 +1055,13 @@ if __name__ == '__main__':
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument('--reuse-audio-from',help='non-audio rebuild: verify/reuse encoded audio pinned to this Git ref')
-    exit(main(parser.parse_args().reuse_audio_from))
+    parser.add_argument('--normal-candidate', action='store_true',
+                        help='enable Normal only in isolated build/s8_candidate/bor.* outputs; not a release')
+    parser.add_argument('--source-sized-visual', action='store_true',
+                        help='generate source-sized visual catalog for the opt-in migration build')
+    parser.add_argument('--candidate-dir', type=Path,
+                        help='write an isolated Normal candidate to this directory instead of build/s8_candidate')
+    args = parser.parse_args()
+    exit(main(args.reuse_audio_from, normal_candidate=args.normal_candidate,
+              source_sized_visual=args.source_sized_visual,
+              candidate_dir=args.candidate_dir))

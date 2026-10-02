@@ -10,7 +10,7 @@ SceneVideo_Record0_Height = 192
 SceneVideo_Record0_FpsNum = 25
 SceneVideo_Record0_FpsDen = 1
 SceneVideo_Record0_FrameCount = 126
-SceneVideo_Record0_PayloadOffset = 5791576
+SceneVideo_Record0_PayloadOffset = 5950632
 SceneVideo_Record0_PayloadSize = 1603792
 SceneVideo_Record1_SceneId = 2
 SceneVideo_Record1_Flags = 1
@@ -19,7 +19,7 @@ SceneVideo_Record1_Height = 192
 SceneVideo_Record1_FpsNum = 25
 SceneVideo_Record1_FpsDen = 1
 SceneVideo_Record1_FrameCount = 71
-SceneVideo_Record1_PayloadOffset = 7395368
+SceneVideo_Record1_PayloadOffset = 7554424
 SceneVideo_Record1_PayloadSize = 985976
 SceneVideo_Record2_SceneId = 3
 SceneVideo_Record2_Flags = 0
@@ -28,7 +28,7 @@ SceneVideo_Record2_Height = 192
 SceneVideo_Record2_FpsNum = 25
 SceneVideo_Record2_FpsDen = 1
 SceneVideo_Record2_FrameCount = 250
-SceneVideo_Record2_PayloadOffset = 8381344
+SceneVideo_Record2_PayloadOffset = 8540400
 SceneVideo_Record2_PayloadSize = 3397192
 SceneVideo_Record3_SceneId = 4
 SceneVideo_Record3_Flags = 1
@@ -37,7 +37,7 @@ SceneVideo_Record3_Height = 192
 SceneVideo_Record3_FpsNum = 25
 SceneVideo_Record3_FpsDen = 1
 SceneVideo_Record3_FrameCount = 175
-SceneVideo_Record3_PayloadOffset = 11778536
+SceneVideo_Record3_PayloadOffset = 11937592
 SceneVideo_Record3_PayloadSize = 1346776
 SceneVideo_Record4_SceneId = 5
 SceneVideo_Record4_Flags = 0
@@ -46,7 +46,7 @@ SceneVideo_Record4_Height = 192
 SceneVideo_Record4_FpsNum = 25
 SceneVideo_Record4_FpsDen = 1
 SceneVideo_Record4_FrameCount = 1500
-SceneVideo_Record4_PayloadOffset = 13125312
+SceneVideo_Record4_PayloadOffset = 13284368
 SceneVideo_Record4_PayloadSize = 15590908
 SceneVideo_Record5_SceneId = 6
 SceneVideo_Record5_Flags = 0
@@ -55,7 +55,7 @@ SceneVideo_Record5_Height = 192
 SceneVideo_Record5_FpsNum = 1
 SceneVideo_Record5_FpsDen = 5
 SceneVideo_Record5_FrameCount = 1
-SceneVideo_Record5_PayloadOffset = 28716220
+SceneVideo_Record5_PayloadOffset = 28875276
 SceneVideo_Record5_PayloadSize = 5998
 
 ; Indexed tables generated from the finalized BORVID records.
@@ -76,9 +76,9 @@ SceneVideo_RecordFrameCountsLo:
 SceneVideo_RecordFrameCountsHi:
     .dw 0, 0, 0, 0, 0, 0
 SceneVideo_RecordPayloadOffsetsLo:
-    .dw 24408, 55336, 58272, 47592, 18112, 11452
+    .dw 52392, 17784, 20720, 10040, 46096, 39436
 SceneVideo_RecordPayloadOffsetsHi:
-    .dw 88, 112, 127, 179, 200, 438
+    .dw 90, 115, 130, 182, 202, 440
 SceneVideo_RecordPayloadSizesLo:
     .dw 30928, 2936, 54856, 36056, 58876, 5998
 SceneVideo_RecordPayloadSizesHi:
@@ -86,7 +86,7 @@ SceneVideo_RecordPayloadSizesHi:
 SceneVideo_RecordFlags:
     .dw 0, 1, 0, 1, 0, 0
 SceneVideo_RecordPayloadOffsetBytes:
-    .db 88, 95, 88, 0, 40, 216, 112, 0, 160, 227, 127, 0, 232, 185, 179, 0, 192, 70, 200, 0, 188, 44, 182, 1
+    .db 168, 204, 90, 0, 120, 69, 115, 0, 240, 80, 130, 0, 56, 39, 182, 0, 16, 180, 202, 0, 12, 154, 184, 1
 SceneVideo_RecordPayloadSizeBytes:
     .db 208, 120, 24, 0, 120, 11, 15, 0, 72, 214, 51, 0, 216, 140, 20, 0, 252, 229, 237, 0, 110, 23, 0, 0
 SceneVideo_Rugal = SceneVideo_Record0_SceneId

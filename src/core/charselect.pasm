@@ -100,40 +100,15 @@ Game_State_Play__charselect_check_done:
     jmp Game_State_Play__charselect_enter_playing
 
 Game_State_Play__charselect_draw_difficulty:
-    sep #$20
-.a8
-    lda #1
-    sta.l BorDifficulty_Chosen
-    lda #CHARSELECT_ROW_INSTR
-    rep #$31
-.a16
-.i16
-    ldx #0
-    ldy #(Text_Str_Difficulty - Text_StringPool)
-    jmp Game_State_CharSelect_DrawStepRow
+    jsl BorSetSelect_Begin
+    jmp Game_State_Play__charselect_done
 
 Game_State_Play__charselect_wait_difficulty:
-    rep #$31
-.a16
-.i16
-    lda.l Input_trigger
-    ora.l Input_trigger+1
-    bne Game_State_Play__charselect_difficulty_pressed
-    jmp Game_State_Play__charselect_done
-Game_State_Play__charselect_difficulty_pressed:
-    sep #$20
-.a8
-    lda #2
-    sta.l BorDifficulty_Chosen
+    jsl BorSetSelect_Play
     jmp Game_State_Play__charselect_done
 
 Game_State_Play__charselect_clear_difficulty:
-    sep #$20
-.a8
-    lda #3
-    sta.l BorDifficulty_Chosen
-    lda #CHARSELECT_STEP_DRAW_HEADER
-    sta.l CharSelect_Step
+    jsl BorSetSelect_Finish
     jmp Game_State_Play__charselect_done
 
 ; --- Draw/clear steps below all funnel through Game_State_CharSelect_

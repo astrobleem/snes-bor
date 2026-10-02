@@ -5,7 +5,9 @@
 ; B8 attacker x, C2 explicit inair, C4 linked. 3A pain role ID supplied by linker.
 ; Outputs: B4/B6 pain deadline32, E6 driver=2 (pain), HP/direction/role/flags.
 ; BA/BC/BE request scratch, C0 proposed HP. FC diagnostics:
-; 4 unbound lifecycle (drop/blast/air/death/link),5 damage numeric range/type.
+; 4 unbound lifecycle (drop/blast/air/link),5 damage numeric range/type.
+; Normal's explicit compatibility program marker permits grounded lethal
+; hits to publish HP=0 and retire at the existing campaign slot seam.
 ; Unsupported cases FAIL BEFORE target mutation. They do not use compat damage.
 ; The source full callback also owns score/opponent/SFX/world dependencies;
 ; caller must bind these before certifying a complete actor or damage event.
@@ -27,10 +29,12 @@ S6_GroundDamage__player:
     pla
     jml S6_PlayerGroundDamage
 
-; Pinned player_takedamage, nonlethal/unlinked/grounded/zero-xdir slice.
+; Pinned player_takedamage, nonlethal/unlinked/grounded 16-bit-xdir slice.
 ; 74 explicit jumping flag (independent of altitude),76 attacker type.
 ; E6=7 means player_pain, not enemy recovery. Caller owns opponent/effects.
-; Nonzero xdir is not reinterpreted as an integer or an arbitrary float.
+; The supported source adapter stores xdir as a signed 16-bit speed with a
+; zero upper word. player_takedamage negates it; unsupported upper-word and
+; minimum-integer values fail before any gameplay mutation.
 S6_PlayerGroundDamage:
     rep #$30
     .a16
@@ -62,7 +66,9 @@ S6_PlayerGroundDamage__nonnegative_force:
     cmp #2
     beq S6_PlayerGroundDamage__force
     cmp #1
-    bne S6_PlayerGroundDamage__range
+    beq S6_PlayerGroundDamage__player_type_ok
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__player_type_ok:
     lsr $BA
 S6_PlayerGroundDamage__force:
     .a16
@@ -70,25 +76,50 @@ S6_PlayerGroundDamage__force:
     lda $F0
     sec
     sbc $BA
-    bvs S6_PlayerGroundDamage__range
+    bvc S6_PlayerGroundDamage__no_overflow
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__no_overflow:
     sta $C0
-    bmi S6_PlayerGroundDamage__lifecycle
-    beq S6_PlayerGroundDamage__lifecycle
+    bpl S6_PlayerGroundDamage__hp_nonnegative
+    jmp S6_PlayerGroundDamage__lifecycle
+S6_PlayerGroundDamage__hp_nonnegative:
+    bne S6_PlayerGroundDamage__nonlethal
+    jmp S6_PlayerGroundDamage__lethal
+S6_PlayerGroundDamage__nonlethal:
     lda $BC
     ora $C2
     ora $C4
-    bne S6_PlayerGroundDamage__lifecycle
+    beq S6_PlayerGroundDamage__not_lifecycle
+    jmp S6_PlayerGroundDamage__lifecycle
+S6_PlayerGroundDamage__not_lifecycle:
     lda $BE
     cmp #1
-    beq S6_PlayerGroundDamage__lifecycle
+    bne S6_PlayerGroundDamage__not_damage_type
+    jmp S6_PlayerGroundDamage__lifecycle
+S6_PlayerGroundDamage__not_damage_type:
     ldx $B0
-    beq S6_PlayerGroundDamage__range
+    bne S6_PlayerGroundDamage__velocity_pointer
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__velocity_pointer:
     cpx #$1FF9
-    bcs S6_PlayerGroundDamage__range
+    bcc S6_PlayerGroundDamage__velocity_window
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__velocity_window:
+    lda.l $7E0002,x
+    beq S6_PlayerGroundDamage__velocity_upper_zero
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__velocity_upper_zero:
     lda.l $7E0000,x
-    ora.l $7E0002,x
-    bne S6_PlayerGroundDamage__range
+    cmp #$8000
+    bne S6_PlayerGroundDamage__velocity_negatable
+    jmp S6_PlayerGroundDamage__range
+S6_PlayerGroundDamage__velocity_negatable:
     ; All admission checks precede changes to gameplay state.
+    ldx $B0
+    lda.l $7E0000,x
+    eor #$FFFF
+    inc a
+    sta.l $7E0000,x
     lda $D0
     clc
     adc #40
@@ -129,6 +160,27 @@ S6_PlayerGroundDamage__face:
     jsl S6_SetRole
     stz $FA
     rtl
+S6_PlayerGroundDamage__lethal:
+    .a16
+    .i16
+    lda $A8
+    and #$8000
+    beq S6_PlayerGroundDamage__lifecycle
+    lda $BC
+    ora $C2
+    ora $C4
+    bne S6_PlayerGroundDamage__lifecycle
+    lda $BE
+    cmp #1
+    beq S6_PlayerGroundDamage__lifecycle
+    lda #0
+    sta $F0
+    sta $F6
+    stz $74
+    lda $08
+    and #$FFFE
+    sta $08
+    rtl
 S6_PlayerGroundDamage__range:
     .a16
     .i16
@@ -157,18 +209,24 @@ S6_EnemyGroundDamage__policy:
     .i16
     lda $F2
     cmp #2
-    bne S6_EnemyGroundDamage__range
+    beq S6_EnemyGroundDamage__enemy_type
+    jmp S6_EnemyGroundDamage__range
+S6_EnemyGroundDamage__enemy_type:
     lda $F0
     sec
     sbc $BA
-    bvs S6_EnemyGroundDamage__range
+    bvc S6_EnemyGroundDamage__no_overflow
+    jmp S6_EnemyGroundDamage__range
+S6_EnemyGroundDamage__no_overflow:
     sta $C0
-    bmi S6_EnemyGroundDamage__lifecycle
-    beq S6_EnemyGroundDamage__lifecycle
+    bmi S6_EnemyGroundDamage__lethal
+    beq S6_EnemyGroundDamage__lethal
     lda $BC
     ora $C2
     ora $C4
-    bne S6_EnemyGroundDamage__lifecycle
+    beq S6_EnemyGroundDamage__not_lifecycle
+    jmp S6_EnemyGroundDamage__lifecycle
+S6_EnemyGroundDamage__not_lifecycle:
     lda $BE
     cmp #1
     beq S6_EnemyGroundDamage__lifecycle
@@ -217,6 +275,34 @@ S6_EnemyGroundDamage__direction:
     lda $3A
     jsl S6_SetRole
     stz $FA
+    rtl
+S6_EnemyGroundDamage__lethal:
+    .a16
+    .i16
+    lda $A8
+    and #$8000
+    beq S6_EnemyGroundDamage__lifecycle
+    lda $BC
+    ora $C2
+    ora $C4
+    bne S6_EnemyGroundDamage__lifecycle
+    lda $BE
+    cmp #1
+    beq S6_EnemyGroundDamage__lifecycle
+    ; The source ordinary-enemy death callback consumes one random lift value
+    ; on the lethal path. Keep that stream position even though Normal's
+    ; production entity contract uses BOR's HP-zero soft-kill renderer and
+    ; retires the resident row at the next acknowledged snapshot boundary.
+    phd
+    lda $36
+    tcd
+    jsl S6_Random32
+    jsl S6_RandomModulo1000
+    pld
+    lda #0
+    sta $F0
+    sta $F6
+    stz $08
     rtl
 S6_EnemyGroundDamage__range:
     .a16

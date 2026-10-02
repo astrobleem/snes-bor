@@ -24,7 +24,9 @@ from compiler import Source  # noqa: E402
 from model_ir import parse_model  # noqa: E402
 from source_actor_raster import compile_animation, encode_tile  # noqa: E402
 from source_compact_packing import pack_compact  # noqa: E402
-from source_obj_atlas import place_full_obj  # noqa: E402
+from source_obj_atlas import (place_full_obj, place_large_obj,
+                              _physical_origins)  # noqa: E402
+from source_visual_palette_pack import palette_banks_for_frames  # noqa: E402
 
 VISUAL_POLICY_LEGACY_FIXED = 0
 VISUAL_POLICY_SOURCE_SIZED = 1
@@ -40,7 +42,12 @@ RUNTIME_ROLE_ATTACK2 = 3
 RUNTIME_ROLE_FALL = 4
 RUNTIME_ROLE_RISE = 5
 RUNTIME_ROLE_SPECIAL = 6
+RUNTIME_ROLE_JUMP = 7
+RUNTIME_ROLE_PAIN = 8
 RUNTIME_ROLE_UNSUPPORTED = 255
+SOURCE_OBJ_LAYOUT_MANIFEST = Path(__file__).with_name("source_obj_atlas_manifest.json")
+SOURCE_OBJ_LAYOUT_GENERATION = False
+SOURCE_OBJ_LAYOUT_RESULTS = {}
 
 
 def runtime_role_key(role):
@@ -59,7 +66,62 @@ def runtime_role_key(role):
         return RUNTIME_ROLE_RISE
     if name in ("special", "freespecial"):
         return RUNTIME_ROLE_SPECIAL
+    if name in ("jump", "jumping"):
+        return RUNTIME_ROLE_JUMP
+    if name in ("pain", "hit"):
+        return RUNTIME_ROLE_PAIN
     return RUNTIME_ROLE_UNSUPPORTED
+
+
+def runtime_catalog_role_key(role, authored_roles):
+    """Resolve authored aliases to the runtime's presentation role keys.
+
+    BOR's native attack2 state is backed by the authored ``grab`` animation
+    for models such as JOE.  Keep ``grab`` outside the generic role map unless
+    the model has no separate attack2 animation; in that case its exact
+    source frames are the correct attack2 presentation.
+    """
+    key = runtime_role_key(role)
+    names = {str(name).lower() for name in authored_roles}
+    if (str(role).lower() == "grab"
+            and not any(runtime_role_key(name) == RUNTIME_ROLE_ATTACK2
+                        for name in names)):
+        return RUNTIME_ROLE_ATTACK2
+    return key
+
+
+def runtime_catalog_role_aliases(role, authored_roles, identity):
+    """Return additional native lookup roles backed by this authored clip.
+
+    Biker-K' is a source-defined vehicle subtype with only idle and pain
+    animations.  The production vehicle controller can expose its moving
+    state through BOR's generic fall discriminator; use the exact authored
+    MOTOR/pain pixels for that native key as well, without replacing the pain
+    key or manufacturing a fall animation. In the Normal source trace,
+    Jhun's five-frame jumpattack and Ralf's four-frame upper clips are the
+    authored frames requested through the generic attack2 presentation
+    discriminator; alias those existing source frames without synthesizing
+    or resizing an animation.
+    """
+    name = str(role).lower()
+    authored = {str(item).lower() for item in authored_roles}
+    identity_key = str(identity).replace("\\", "/").upper().rstrip("/")
+    if ((identity_key == "JHUN" or identity_key.endswith("/JHUN"))
+            and name == "jumpattack"
+            and not any(runtime_role_key(item) == RUNTIME_ROLE_ATTACK2
+                        for item in authored)):
+        return (RUNTIME_ROLE_ATTACK2,)
+    if ((identity_key == "RALF" or identity_key.endswith("/RALF"))
+            and name == "upper"
+            and not any(runtime_role_key(item) == RUNTIME_ROLE_ATTACK2
+                        for item in authored)):
+        return (RUNTIME_ROLE_ATTACK2,)
+    if (str(identity).replace("\\", "/").upper().endswith("BIKER-K")
+            and name in ("pain", "hit")
+            and not any(runtime_role_key(item) == RUNTIME_ROLE_FALL
+                        for item in authored)):
+        return (RUNTIME_ROLE_FALL,)
+    return ()
 
 
 def _remap_palette_overrides(source, model):
@@ -121,7 +183,9 @@ def _palette_bytes(source, colors, palette_override=None):
     return bytes(out).ljust(32, b"\0")
 
 
-def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pack=False):
+def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pack=False,
+                     palette_banks_override=None, packed_override=None,
+                     obj_layout_key=None):
     """Return lossless masked OBJ pieces and content-addressed resources.
 
     Each emitted piece contains only pixels belonging to its palette bank;
@@ -131,27 +195,41 @@ def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pac
     raw = source.read(frame["source_path"])
     image = Image.open(io.BytesIO(raw))
     image.load()
-    packed = pack_compact(raw, frame["offset"])
-    visible = sorted({p for p in image.getdata() if p})
+    packed = packed_override or pack_compact(raw, frame["offset"])
+    color_aliases = packed.get("cgram_aliases", {})
+    visible = sorted({color_aliases.get(p, p) for p in image.getdata() if p})
     if not visible:
         return packed, [], {}, {}, ("0" * 64, b"")
-    banks = [visible[i:i + 15] for i in range(0, len(visible), 15)]
-    if len(banks) > 8:
+    banks = (palette_banks_override if palette_banks_override is not None else
+             [visible[i:i + 15] for i in range(0, len(visible), 15)])
+    piece_palette_banks = packed.get("piece_palette_banks")
+    if piece_palette_banks is None and len(banks) > 8:
         raise ValueError(f"OBJ_PALETTE_SLOT_CAPACITY: required={len(banks)}, available=8")
     palettes = {}
     blocks = {}
     rows = []
-    for piece in packed["pieces"]:
+    for piece_index, piece in enumerate(packed["pieces"]):
         px, py = piece["source_xy"]
         w, h = piece["size"]
-        colors = {image.getpixel((x, y)) for y in range(py, min(py + h, image.height))
-                  for x in range(px, min(px + w, image.width)) if image.getpixel((x, y))}
-        for bank_id, bank in enumerate(banks):
-            local_colors = colors.intersection(bank)
+        source_colors = {image.getpixel((x, y))
+                         for y in range(py, min(py + h, image.height))
+                         for x in range(px, min(px + w, image.width))
+                         if image.getpixel((x, y))}
+        colors = {color_aliases.get(color, color) for color in source_colors}
+        if piece_palette_banks is None:
+            selected_banks = range(len(banks))
+        else:
+            selected = piece_palette_banks[piece_index]
+            selected_banks = () if selected == 255 else (selected,)
+        for bank_id in selected_banks:
+            bank = banks[bank_id]
+            bank_colors = {value for value in bank if value}
+            local_colors = colors.intersection(bank_colors)
             if not local_colors:
                 continue
             palette = [0, *bank]
-            mapping = {value: i for i, value in enumerate(palette)}
+            mapping = {value: i for i, value in enumerate(palette) if value}
+            mapping[0] = 0
             palette_data = _palette_bytes(source, palette, palette_override)
             palette_id = _sha(palette_data)
             palettes[palette_id] = dict(bank=bank_id, colors=palette,
@@ -160,15 +238,16 @@ def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pac
             for y in range(py, py + h):
                 for x in range(px, px + w):
                     value = image.getpixel((x, y)) if x < image.width and y < image.height else 0
-                    pixels.append(mapping.get(value, 0))
+                    pixels.append(mapping.get(color_aliases.get(value, value), 0))
             encoded = bytearray()
             for ty in range(0, h, 8):
-                for tx in (0, 8):
+                for tx in range(0, w, 8):
                     tile = bytes(pixels[(ty + yy) * w + tx + xx]
                                  for yy in range(8) for xx in range(8))
                     encoded += encode_tile(tile)
-            block_id = _sha(bytes(encoded))
-            blocks[block_id] = dict(size=len(encoded), data=bytes(encoded).hex())
+            encoded = bytes(encoded)
+            block_id = _sha(encoded)
+            blocks[block_id] = dict(size=len(encoded), data=encoded.hex())
             rows.append({
                 "source_xy": piece["source_xy"],
                 "size": piece["size"],
@@ -177,29 +256,39 @@ def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pac
                 "palette": palette_id,
                 "palette_bank": bank_id,
                 "resource": block_id,
-                "source_colors": sorted(local_colors),
+                "source_colors": sorted(color for color in source_colors
+                                         if color_aliases.get(color, color) in bank_colors),
             })
-    # Give every emitted (possibly palette-masked) piece a deterministic
-    # location in a 16-tile-wide OBJ sheet.  The sheet layout matches the
-    # SNES sprite row stride; the native publisher can therefore transfer one
-    # contiguous frame sheet instead of issuing four DMA requests per piece.
-    for index, row in enumerate(rows):
-        sheet_col = (index % 8) * 2
-        sheet_row = (index // 8) * 4
-        row["sheet_tile"] = sheet_row * 16 + sheet_col
-    sheet_rows = ((len(rows) + 7) // 8) * 4
-    sheet_data = bytearray(sheet_rows * 16 * 32)
-    for index, row in enumerate(rows):
-        encoded = bytes.fromhex(blocks[row["resource"]]["data"])
-        col = (row["sheet_tile"] % 16) * 32
-        row_base = (row["sheet_tile"] // 16) * 32 * 16
-        for tile_row in range(4):
-            src = tile_row * 64
-            dst = row_base + tile_row * 16 * 32 + col
-            sheet_data[dst:dst + 64] = encoded[src:src + 64]
-    if len(sheet_data) > 16384 and allow_full_obj_pack:
-        origins, tile_grid = place_full_obj(
-            bytes.fromhex(value["data"]) for value in blocks.values())
+    large_obj = bool(rows and tuple(rows[0]["size"]) == (32, 64))
+    if large_obj:
+        if not allow_full_obj_pack:
+            raise ValueError("LARGE_OBJ_REQUIRES_FULL_ATLAS")
+        for row in rows:
+            row["sheet_tile"] = 0
+            row["obj_size"] = [32, 64]
+        sheet_data = bytearray(1024)
+        packed["solver_status"] = "joint_animation_atlas_pending"
+    else:
+        # Place small OBJ rectangles on legal 16x32 origin boundaries.
+        for index, row in enumerate(rows):
+            sheet_col = (index % 8) * 2
+            sheet_row = (index // 8) * 4
+            row["sheet_tile"] = sheet_row * 16 + sheet_col
+            row["obj_size"] = [16, 32]
+        sheet_rows = ((len(rows) + 7) // 8) * 4
+        sheet_data = bytearray(sheet_rows * 16 * 32)
+        for row in rows:
+            encoded = bytes.fromhex(blocks[row["resource"]]["data"])
+            col = (row["sheet_tile"] % 16) * 32
+            row_base = (row["sheet_tile"] // 16) * 32 * 16
+            for tile_row in range(4):
+                src = tile_row * 64
+                dst = row_base + tile_row * 16 * 32 + col
+                sheet_data[dst:dst + 64] = encoded[src:src + 64]
+    if not large_obj and len(sheet_data) > 16384 and allow_full_obj_pack:
+        origins, tile_grid = _full_obj_layout(
+            [bytes.fromhex(value["data"]) for value in blocks.values()],
+            obj_layout_key, frame.get("asset_sha256"))
         last_cell = max(tile_grid)
         sheet_data = bytearray((last_cell // 16 + 1) * 16 * 32)
         for cell, tile in tile_grid.items():
@@ -207,6 +296,7 @@ def _partition_frame(source, frame, palette_override=None, *, allow_full_obj_pac
         for row in rows:
             block = bytes.fromhex(blocks[row["resource"]]["data"])
             row["sheet_tile"] = origins[block]
+            row["obj_size"] = [16, 32]
         packed["solver_status"] = "lossless_full_obj_overlap_16k"
     sheet_id = _sha(bytes(sheet_data))
     return packed, rows, palettes, blocks, (sheet_id, bytes(sheet_data))
@@ -230,6 +320,7 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
         "blockers": [],
     }
     sources = {}
+    authored_roles_by_roster = {}
     for roster_id, cfg in enumerate(roster_configs):
         if cfg.get("family") != "bor-original" and not include_non_bor:
             continue
@@ -251,6 +342,9 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
             result["blockers"].append({"roster": roster_id, "identity": identity,
                                        "capability": "MODEL_PARSE", "reason": str(exc)})
             continue
+        authored_roles_by_roster[roster_id] = {
+            str(animation.role).lower() for animation in model.animations
+        }
         for animation in model.animations:
             try:
                 raster = compile_animation(source, model, animation.role,
@@ -273,6 +367,25 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
                                            "role": animation.role,
                                            "capability": "SOURCE_FRAME", "reason": str(exc)})
                 continue
+            furnace_palette_plan = None
+            is_normal_furnace_idle = (
+                identity.replace("\\", "/").upper() == "MISC/FURNACE"
+                and animation.role.lower() in ("idle", "waiting")
+            )
+            if is_normal_furnace_idle:
+                try:
+                    banks, packed_frames, stats = palette_banks_for_frames(
+                        source, raster["manifest"]["frames"], piece_size=(16, 32),
+                        collapse_cgram_aliases=True,
+                        palette_per_obj_piece=True)
+                    furnace_palette_plan = (banks, packed_frames, stats)
+                except Exception as exc:
+                    result["blockers"].append({
+                        "roster": roster_id, "identity": identity,
+                        "role": animation.role, "capability": "SOURCE_PALETTE_CLUSTER",
+                        "reason": str(exc),
+                    })
+                    continue
             try:
                 remap_overrides = [{}] + _remap_palette_overrides(source, model)
             except Exception as exc:
@@ -286,9 +399,19 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
                         normal_required_large_pose = (
                             identity.split("/")[-1].upper() == "K9999"
                             and animation.role in ("special", "upper"))
+                        normal_required_large_pose = normal_required_large_pose or is_normal_furnace_idle
+                        palette_banks_override = None
+                        packed_override = None
+                        if furnace_palette_plan is not None:
+                            palette_banks_override = furnace_palette_plan[0]
+                            packed_override = furnace_palette_plan[1][frame_index]
                         packed, pieces, palettes, blocks, sheet = _partition_frame(
                             source, frame, palette_override,
-                            allow_full_obj_pack=normal_required_large_pose)
+                            allow_full_obj_pack=normal_required_large_pose,
+                            palette_banks_override=palette_banks_override,
+                            packed_override=packed_override,
+                            obj_layout_key=((identity, animation.role, frame_index)
+                                            if is_normal_furnace_idle else None))
                     except Exception as exc:
                         result["blockers"].append({"roster": roster_id, "identity": identity,
                                                    "role": animation.role, "frame": frame_index,
@@ -333,7 +456,10 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
                     "source_palette_indices": sorted({c for p in pieces for c in p["source_colors"]}),
                     "source_delay": frame["source_delay"],
                     "packed_solver_status": packed.get("solver_status", "source_compact_packing"),
+                    "palette_cluster": (furnace_palette_plan[2]
+                                        if furnace_palette_plan is not None else None),
                     })
+    _pack_large_animation_entries(result["entries"])
     result["entries"].sort(key=lambda e: (e["roster"], e["role"], e["frame"], e["map"]))
     role_ids = {}
     for entry in result["entries"]:
@@ -349,8 +475,225 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
         "legacy_fixed_entries": 0,
     }
     for entry in result["entries"]:
-        entry["runtime_role"] = runtime_role_key(entry["role"])
+        entry["runtime_role"] = runtime_catalog_role_key(
+            entry["role"], authored_roles_by_roster.get(entry["roster"], ())
+        )
+        entry["runtime_key_aliases"] = list(runtime_catalog_role_aliases(
+            entry["role"], authored_roles_by_roster.get(entry["roster"], ()),
+            entry["identity"],
+        ))
     return result
+
+
+def _pack_large_animation_entries(entries):
+    """Solve byte-exact legal atlases for every frame of a large OBJ clip."""
+    groups = {}
+    for entry in entries:
+        if any(tuple(piece.get("obj_size", (16, 32))) == (32, 64)
+               for piece in entry["pieces"]):
+            groups.setdefault((entry["identity"], entry["role"]), []).append(entry)
+
+    for (identity, role), group in groups.items():
+        by_frame = {}
+        for entry in group:
+            by_frame.setdefault(entry["frame"], []).append(entry)
+        for frame_id, frame_entries in sorted(by_frame.items()):
+            representatives = sorted(frame_entries, key=lambda row: row["map"])
+            representative = representatives[0]
+            blocks_by_key = {}
+            for piece in representative["pieces"]:
+                key = (tuple(piece["source_xy"]), piece["palette_bank"])
+                block = bytes.fromhex(representative["blocks"][piece["resource"]]["data"])
+                if key in blocks_by_key or len(block) != 1024:
+                    raise ValueError("SOURCE_LARGE_FRAME_BLOCK_CONTRACT")
+                blocks_by_key[key] = block
+            origins, grid = _large_obj_layout(identity, role, frame_id,
+                                               representative, blocks_by_key)
+            last_cell = max(grid)
+            sheet_size = (last_cell // 16 + 1) * 16 * 32
+            if sheet_size > 16384:
+                raise ValueError("SOURCE_LARGE_FRAME_ATLAS_OVER_16K")
+            sheet = bytearray(sheet_size)
+            for cell, tile in grid.items():
+                sheet[cell * 32:cell * 32 + 32] = tile
+            sheet_id = _sha(bytes(sheet))
+            if not SOURCE_OBJ_LAYOUT_GENERATION:
+                expected_sheet = _source_obj_layout_manifest()["frames"][identity][role][str(frame_id)]["sheet_sha256"]
+                if sheet_id != expected_sheet:
+                    raise ValueError("SOURCE_OBJ_ATLAS_STALE_SHEET_HASH")
+            for entry in frame_entries:
+                entry_blocks = {}
+                for piece in entry["pieces"]:
+                    key = (tuple(piece["source_xy"]), piece["palette_bank"])
+                    entry_blocks[key] = piece
+                if set(entry_blocks) != set(blocks_by_key):
+                    raise ValueError("SOURCE_LARGE_FRAME_MAP_PIECE_DRIFT")
+                for key, piece in entry_blocks.items():
+                    block = bytes.fromhex(entry["blocks"][piece["resource"]]["data"])
+                    if block != blocks_by_key[key]:
+                        raise ValueError("SOURCE_LARGE_FRAME_MAP_TILE_DRIFT")
+                    piece["sheet_tile"] = origins[block]
+                    piece["obj_size"] = [32, 64]
+                entry["sheet"] = sheet_id
+                entry["sheet_data"] = bytes(sheet).hex()
+                entry["sheet_bytes"] = len(sheet)
+                entry["tile_bytes"] = len(sheet)
+                entry["packed_solver_status"] = "lossless_full_obj_overlap_16k_large"
+
+
+def _source_obj_layout_manifest():
+    try:
+        manifest = json.loads(SOURCE_OBJ_LAYOUT_MANIFEST.read_text(encoding="utf-8"))
+    except FileNotFoundError as error:
+        raise ValueError("SOURCE_OBJ_ATLAS_MANIFEST_MISSING") from error
+    if manifest.get("format") != "BOR_SOURCE_OBJ_ATLAS_LAYOUT_V1":
+        raise ValueError("SOURCE_OBJ_ATLAS_MANIFEST_FORMAT")
+    return manifest
+
+
+def _full_obj_layout(blocks, layout_key, source_asset_sha256):
+    """Resolve a byte-exact 16x32 atlas, using pinned Furnace layouts at build time."""
+    blocks = sorted(set(blocks))
+    if layout_key is None:
+        return place_full_obj(blocks)
+    identity, role, frame_id = layout_key
+    identity = identity.replace("\\", "/").upper()
+    role = str(role).lower()
+    frame_id = str(frame_id)
+    key = (identity, role, frame_id)
+
+    if SOURCE_OBJ_LAYOUT_GENERATION:
+        cached = SOURCE_OBJ_LAYOUT_RESULTS.get(key)
+        if cached is not None:
+            expected_hashes = {hashlib.sha256(block).hexdigest()
+                               for block in blocks}
+            if (cached.get("source_asset_sha256") != source_asset_sha256 or
+                    set(cached.get("origins", {})) != expected_hashes):
+                raise ValueError("SOURCE_OBJ_ATLAS_GENERATION_CACHE_DRIFT")
+            origins = {block: cached["origins"][hashlib.sha256(block).hexdigest()]
+                       for block in blocks}
+            grid = _obj_grid_from_origins(blocks, origins)
+            if _obj_grid_sheet_sha256(grid) != cached.get("sheet_sha256"):
+                raise ValueError("SOURCE_OBJ_ATLAS_GENERATION_CACHE_SHEET_DRIFT")
+            return origins, grid
+        origins, grid = place_full_obj(blocks)
+        SOURCE_OBJ_LAYOUT_RESULTS[key] = {
+            "source_asset_sha256": source_asset_sha256,
+            "sheet_sha256": _obj_grid_sheet_sha256(grid),
+            "origins": {hashlib.sha256(block).hexdigest(): int(origin)
+                        for block, origin in origins.items()},
+        }
+        return origins, grid
+
+    manifest = _source_obj_layout_manifest()
+    try:
+        row = manifest["frames"][identity][role][frame_id]
+    except KeyError as error:
+        raise ValueError("SOURCE_OBJ_ATLAS_LAYOUT_UNBOUND") from error
+    if (row.get("source_asset_sha256") != source_asset_sha256 or
+            row.get("piece_size") != [16, 32]):
+        raise ValueError("SOURCE_OBJ_ATLAS_SOURCE_OR_SIZE_DRIFT")
+    by_hash = {hashlib.sha256(block).hexdigest(): block for block in blocks}
+    if set(by_hash) != set(row.get("blocks", {})):
+        raise ValueError("SOURCE_OBJ_ATLAS_BLOCK_SET_DRIFT")
+    origins = {by_hash[digest]: int(origin)
+               for digest, origin in row["blocks"].items()}
+    grid = _obj_grid_from_origins(blocks, origins)
+    if _obj_grid_sheet_sha256(grid) != row.get("sheet_sha256"):
+        raise ValueError("SOURCE_OBJ_ATLAS_SHEET_HASH_DRIFT")
+    return origins, grid
+
+
+def _obj_grid_from_origins(blocks, origins):
+    origin_list, footprints = _physical_origins(2, 4)
+    legal = dict(zip(origin_list, footprints))
+    if set(origins) != set(blocks):
+        raise ValueError("SOURCE_OBJ_ATLAS_BLOCK_BINDING")
+    grid = {}
+    for block, origin in origins.items():
+        if len(block) != 256 or origin not in legal:
+            raise ValueError("SOURCE_OBJ_ATLAS_ORIGIN_INVALID")
+        for tile_index, cell in enumerate(legal[origin]):
+            tile = block[tile_index * 32:(tile_index + 1) * 32]
+            prior = grid.get(cell)
+            if prior is not None and prior != tile:
+                raise ValueError("SOURCE_OBJ_ATLAS_OVERLAP_MISMATCH")
+            grid[cell] = tile
+    return grid
+
+
+def _obj_grid_sheet_sha256(grid):
+    if not grid:
+        return _sha(b"")
+    sheet = bytearray((max(grid) // 16 + 1) * 16 * 32)
+    for cell, tile in grid.items():
+        sheet[cell * 32:cell * 32 + 32] = tile
+    return _sha(bytes(sheet))
+
+
+def _large_obj_layout(identity, role, frame_id, entry, blocks_by_key):
+    identity = identity.replace("\\", "/").upper()
+    role = str(role).lower()
+    frame_id = str(frame_id)
+    cache_key = (identity, role, frame_id)
+    if SOURCE_OBJ_LAYOUT_GENERATION:
+        blocks = sorted(set(blocks_by_key.values()))
+        cached = SOURCE_OBJ_LAYOUT_RESULTS.get(cache_key)
+        if cached is not None:
+            expected_hashes = {hashlib.sha256(block).hexdigest()
+                               for block in blocks}
+            if (cached.get("source_asset_sha256") != entry["asset_sha256"] or
+                    set(cached.get("origins", {})) != expected_hashes):
+                raise ValueError("SOURCE_LARGE_OBJ_GENERATION_CACHE_DRIFT")
+            origins = {block: cached["origins"][hashlib.sha256(block).hexdigest()]
+                       for block in blocks}
+            grid = _obj_large_grid_from_origins(blocks, origins)
+            if _obj_grid_sheet_sha256(grid) != cached.get("sheet_sha256"):
+                raise ValueError("SOURCE_LARGE_OBJ_GENERATION_CACHE_SHEET_DRIFT")
+            return origins, grid
+        origins, grid = place_large_obj(blocks)
+        SOURCE_OBJ_LAYOUT_RESULTS[cache_key] = {
+            "source_asset_sha256": entry["asset_sha256"],
+            "sheet_sha256": _obj_grid_sheet_sha256(grid),
+            "origins": {hashlib.sha256(block).hexdigest(): int(origin)
+                        for block, origin in origins.items()},
+        }
+        return origins, grid
+    manifest = _source_obj_layout_manifest()
+    try:
+        layout = manifest["frames"][identity][role][str(frame_id)]
+    except KeyError as error:
+        raise ValueError("SOURCE_OBJ_ATLAS_LAYOUT_UNBOUND") from error
+    if entry["asset_sha256"] != layout.get("source_asset_sha256"):
+        raise ValueError("SOURCE_OBJ_ATLAS_SOURCE_HASH_DRIFT")
+    if layout.get("piece_size") != [32, 64]:
+        raise ValueError("SOURCE_OBJ_ATLAS_SOURCE_OR_SIZE_DRIFT")
+    rows = layout.get("blocks", {})
+    expected = {hashlib.sha256(block).hexdigest() for block in blocks_by_key.values()}
+    if set(rows) != expected:
+        raise ValueError("SOURCE_OBJ_ATLAS_BLOCK_SET_DRIFT")
+    origins = {block: int(rows[hashlib.sha256(block).hexdigest()])
+               for block in blocks_by_key.values()}
+    return origins, _obj_large_grid_from_origins(blocks_by_key.values(), origins)
+
+
+def _obj_large_grid_from_origins(blocks, origins):
+    origin_list, footprints = _physical_origins(4, 8)
+    cells_by_origin = dict(zip(origin_list, footprints))
+    blocks = sorted(set(blocks))
+    if set(origins) != set(blocks):
+        raise ValueError("SOURCE_LARGE_OBJ_ATLAS_BLOCK_BINDING")
+    grid = {}
+    for block, origin in origins.items():
+        if origin not in cells_by_origin or len(block) != 1024:
+            raise ValueError("SOURCE_LARGE_OBJ_ORIGIN_INVALID")
+        for tile_index, cell in enumerate(cells_by_origin[origin]):
+            tile = block[tile_index * 32:(tile_index + 1) * 32]
+            prior = grid.get(cell)
+            if prior is not None and prior != tile:
+                raise ValueError("SOURCE_LARGE_OBJ_OVERLAP_MISMATCH")
+            grid[cell] = tile
+    return grid
 
 
 def pack_runtime_catalog(catalog):
@@ -403,25 +746,29 @@ def pack_runtime_catalog(catalog):
                            count, entry["palette_count"], first,
                            sheet_index[entry["sheet"]])
     for piece, entry in pieces:
+        tile = piece["sheet_tile"]
+        if tuple(piece.get("obj_size", (16, 32))) == (32, 64):
+            tile |= 0x8000
         out += struct.pack("<hhhhBBHHH", piece["right_xy"][0], piece["right_xy"][1],
                            piece["left_xy"][0], piece["left_xy"][1],
                            piece["palette_slot"], entry["map"],
                            palette_index[piece["palette"]], block_index[piece["resource"]],
-                           piece["sheet_tile"])
+                           tile)
     block_payload = bytearray()
     for key in block_ids:
         payload = bytes.fromhex(blocks[key]["data"])
-        if len(payload) != 256:
+        if len(payload) not in (256, 1024):
             raise ValueError("SOURCE_VISUAL_BLOCK_SIZE")
         row = data_offset + len(block_payload)
-        out += struct.pack("<32sHII", bytes.fromhex(key), 256, row, len(payload))
+        out += struct.pack("<32sHII", bytes.fromhex(key), len(payload), row, len(payload))
         block_payload += payload
+    block_payload_size = len(block_payload)
     palette_payload = bytearray()
     for key in palette_ids:
         payload = bytes.fromhex(palettes[key]["data"])
         if len(payload) != 32:
             raise ValueError("SOURCE_VISUAL_PALETTE_SIZE")
-        row = data_offset + len(block_ids) * 256 + len(palette_payload)
+        row = data_offset + block_payload_size + len(palette_payload)
         out += struct.pack("<32sHII", bytes.fromhex(key), 32, row, len(payload))
         palette_payload += payload
     for key in sheet_ids:
@@ -432,7 +779,7 @@ def pack_runtime_catalog(catalog):
     # The table offsets above intentionally point into the final immutable
     # payload area.  Keep the payload order deterministic and assert offsets.
     out += block_payload + palette_payload
-    if len(out) != data_offset + len(block_ids) * 256 + len(palette_ids) * 32 + sum(len(sheets[k]) for k in sheet_ids):
+    if len(out) != data_offset + block_payload_size + len(palette_ids) * 32 + sum(len(sheets[k]) for k in sheet_ids):
         raise ValueError("SOURCE_VISUAL_CATALOG_SIZE")
     return bytes(out)
 
@@ -447,6 +794,17 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
     bank layout.
     """
     entries = catalog["entries"]
+    key_bindings = []
+    for index, entry in enumerate(entries):
+        key_bindings.append((entry["roster"], entry["runtime_role"],
+                             entry["frame"], entry["map"], index))
+        for alias in entry.get("runtime_key_aliases", ()):
+            key_bindings.append((entry["roster"], alias, entry["frame"],
+                                 entry["map"], index))
+    # Keep the emitted lookup table in a canonical roster/runtime-key order.
+    # SourceVisual_FindEntry scans each roster range; ordering the keys makes
+    # that generated ABI deterministic independently of authored-role order.
+    key_bindings.sort()
     max_roster = max((e["roster"] for e in entries), default=-1)
     unique_blocks = {p["resource"] for e in entries for p in e["pieces"]}
     unique_palettes = {p["palette"] for e in entries for p in e["pieces"]}
@@ -465,7 +823,7 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
         f"SOURCE_VISUAL_ROSTER_COUNT = {max_roster + 1}",
         f"SOURCE_VISUAL_MSU_OFFSET = ${int(msu_offset or 0):08X}",
         f"SOURCE_VISUAL_MSU_SIZE = {int(msu_size or 0)}",
-        f"SOURCE_VISUAL_ENTRY_KEY_COUNT = {len(entries)}",
+        f"SOURCE_VISUAL_ENTRY_KEY_COUNT = {len(key_bindings)}",
         f"SOURCE_VISUAL_PIECE_OFFSET = {piece_offset}",
         f"SOURCE_VISUAL_BLOCK_OFFSET = {block_offset}",
         f"SOURCE_VISUAL_PALETTE_OFFSET = {palette_offset}",
@@ -481,8 +839,8 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
     rows.append("    .db " + ", ".join(policies or ["VISUAL_POLICY_LEGACY_FIXED"]))
     roster_start = [None] * (max_roster + 1)
     roster_end = [None] * (max_roster + 1)
-    for index, entry in enumerate(entries):
-        roster = entry["roster"]
+    for index, binding in enumerate(key_bindings):
+        roster = binding[0]
         if roster_start[roster] is None:
             roster_start[roster] = index * 6
         roster_end[roster] = (index + 1) * 6
@@ -496,10 +854,9 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
     # 64 KiB once the complete BOR roster and authored maps are linked.
     # Native code derives 18 + index * 24 without truncating the catalog
     # address.
-    for index, entry in enumerate(entries):
-        key_rows.append(f"    .db {entry['roster']},{entry['runtime_role']},"
-                        f"{entry['frame']},{entry['map']}")
-        key_rows.append(f"    .dw {index}")
+    for roster, role, frame, map_index, entry_index in key_bindings:
+        key_rows.append(f"    .db {roster},{role},{frame},{map_index}")
+        key_rows.append(f"    .dw {entry_index}")
     if key_path:
         Path(key_path).write_text("\n".join(key_rows) + "\n",
                                   encoding="ascii", newline="\n")

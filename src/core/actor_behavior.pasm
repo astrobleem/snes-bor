@@ -253,6 +253,7 @@ ActorBehavior_PreserveRoster__store:
     plp
     rtl
 ActorBehavior_RestoreRoster:
+    jsl HudOpponent_Reset
     php
     rep #$30
 .a16
@@ -774,6 +775,10 @@ ActorBehavior_Save__loop:
     sta.l ActorBehavior_Ticks,x
     lda $0E
     sta.l ActorBehavior_Ticks+2,x
+    lda.l ActorBehavior_Alive,x
+    bne ActorBehavior_Save__alive
+    jsl HudOpponentHost_RetireX
+ActorBehavior_Save__alive:
     rts
 
 S5_HostRandom03:

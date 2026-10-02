@@ -172,9 +172,10 @@ Spawn_Play's own shift):
                                    min/max -- see core/spawn.pasm's
                                    SPAWN_KIND_MASK/SPAWN_MAP_SHIFT. Bits 5-7
                                    (G8 item/pickup slice): PICKUP_TYPE_*
-                                   (0-4), real only when kind==
-                                   RECORD_KIND_PROP -- see classify_pickup's
-                                   own docstring and core/spawn.pasm's
+                                   (0-5), or 7 for the non-reward Steamer
+                                   driver, real only when kind==RECORD_KIND_
+                                   PROP -- see classify_pickup's own
+                                   docstring and core/spawn.pasm's
                                    SPAWN_PICKUP_SHIFT/MASK. All 8 bits of
                                    this byte are now in use.
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
@@ -291,12 +292,12 @@ SUBTYPE_BIKER = 1
 # fixed record format while allowing later imported levels to retain their
 # authored model identity.
 SUBTYPE_IDENTIFIED_ENEMY = 2
-SUBTYPE_STEAMER = 3
 
 MAP_SHIFT = 3
 PICKUP_SHIFT = 5   # G8 item/pickup slice: record_kind bits 5-7 (spare --
                    # kind uses 0-2, map uses 3-4). See core/spawn.pasm's
                    # SPAWN_PICKUP_SHIFT/MASK and main.pasm's PICKUP_TYPE_*.
+PICKUP_TYPE_STEAMER = 7  # Reserved non-reward prop driver; pickup values end at 5.
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
 # else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
@@ -566,11 +567,7 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None, 
         is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
-        if entity_type == 'steamer':
-            # TYPE_STEAMER is a non-actor prop in the source, but it needs a
-            # distinct runtime driver so it can emit Steam children.
-            record_kind |= (SUBTYPE_STEAMER << SUBTYPE_SHIFT)
-        elif not is_prop:
+        if not is_prop:
             entity = (entity_lookup or {}).get(e.character.lower()) or {}
             if str(entity.get('subtype') or '').lower() == 'biker':
                 record_kind |= (SUBTYPE_BIKER << SUBTYPE_SHIFT)
@@ -586,7 +583,7 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None, 
             is_prop and item_roster_idx is not None) else 0
 
         # G8 item/pickup slice: a prop record's real contained/standalone
-        # item EFFECT, packed into record_kind's remaining spare bits (5-7).
+        # item EFFECT, packed into record_kind's remaining bits (5-7).
         # Two real sources, both verified against the shipped/buildable pak
         # data: (a) an `obstacle`-type prop's own `item <name>` line
         # (Table->Apple, Chair->Money -- DATA\EASY\1BEASY.TXT); (b) an
@@ -601,6 +598,12 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None, 
                 pickup_type = classify_pickup(e.character, entity_lookup.get(e.character.lower()))
             elif entity_type == 'obstacle' and e.item:
                 pickup_type = classify_pickup(e.item, entity_lookup.get(e.item.lower()))
+        if entity_type == 'steamer':
+            # Values 0-5 are real pickup effects. Seven is the reserved
+            # non-reward prop-driver sentinel, so it cannot alias MONEY (3)
+            # or any other authored pickup when the subtype/pickup fields
+            # share this packed byte.
+            pickup_type = PICKUP_TYPE_STEAMER
         record_kind |= (pickup_type << PICKUP_SHIFT)
         if e.health is None:
             spawn_hp = CHAR_HP_MAX

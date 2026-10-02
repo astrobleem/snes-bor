@@ -103,7 +103,6 @@ src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Init__slot2tile
 src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Init__tile2slot
 src/core/stream_cache_fp.pasm:Core_StreamCacheFp_Test__loop
 src/main.pasm:Anim_Play_Attack__advance
-src/main.pasm:Anim_Play__ai_attack
 src/main.pasm:Anim_Play__ai_dx_have
 src/main.pasm:Anim_Play__ai_dy_have
 src/main.pasm:Anim_Play__check_attack_trigger
@@ -142,7 +141,6 @@ src/main.pasm:Character_PlayFrame__hi_store
 src/main.pasm:Character_PlayFrame__not_stunned_x
 src/main.pasm:Character_PlayFrame__not_stunned_y
 src/main.pasm:Character_PlayFrame__up
-src/main.pasm:Core_StreamScrollFp_CommitColumn__row
 src/main.pasm:Core_StreamScrollFp_ResolveRows__col_free
 src/main.pasm:Core_StreamScrollFp_ResolveRows__commit
 src/main.pasm:Core_StreamScrollFp_ResolveRows__no_vflip

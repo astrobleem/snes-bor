@@ -1770,6 +1770,17 @@ Character_HitApply__ApplyPickup:
     php
     sep #$20
 .a8
+    cmp #6
+    bne Character_HitApply__ApplyPickup__legacy
+    ; S8 kind6 uses explicit physical item X, never a guessed DP/roster ID.
+    rep #$30
+.a16
+.i16
+    jsl StageTimerHost_CollectFromOverlap
+    plp
+    rtl
+Character_HitApply__ApplyPickup__legacy:
+.a8
     sta.l G13_PickupAmount
     cmp #PICKUP_TYPE_APPLE
     beq Character_HitApply__ApplyPickup__heal_apple
@@ -2317,6 +2328,9 @@ Character_Pickup_CheckOverlap__vs1_dy_have:
     rts                         ; no overlap on Y
 Character_Pickup_CheckOverlap__vs1_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot1
+    bcs Character_Pickup_CheckOverlap__vs1_no
+    jsl HudOpponentHost_Collect1
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity1_PickupType
     pha
@@ -2383,6 +2397,9 @@ Character_Pickup_CheckOverlap__vs2_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs2_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot2
+    bcs Character_Pickup_CheckOverlap__vs2_no
+    jsl HudOpponentHost_Collect2
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity2_PickupType
     pha
@@ -2449,6 +2466,9 @@ Character_Pickup_CheckOverlap__vs3_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs3_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot3
+    bcs Character_Pickup_CheckOverlap__vs3_no
+    jsl HudOpponentHost_Collect3
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity3_PickupType
     pha
@@ -2514,6 +2534,9 @@ Character_Pickup_CheckOverlap__vs4_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs4_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot4
+    bcs Character_Pickup_CheckOverlap__vs4_no
+    jsl HudOpponentHost_Collect4
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity4_PickupType
     pha
@@ -2579,6 +2602,9 @@ Character_Pickup_CheckOverlap__vs5_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs5_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot5
+    bcs Character_Pickup_CheckOverlap__vs5_no
+    jsl HudOpponentHost_Collect5
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity5_PickupType
     pha
@@ -2812,27 +2838,35 @@ Anim_BikerDrive:
     lda CHAR_POS_X
     clc
     adc #2
-    sta CHAR_POS_X
     cmp.l WorldMaxX
-    bcc Anim_BikerDrive__done
+    bcc Anim_BikerDrive__right_store
+    lda.l WorldMaxX
+    sta CHAR_POS_X
     sep #$20
 .a8
     lda #1
     sta CHAR_FACING_LEFT
+    rtl
+Anim_BikerDrive__right_store:
+    sta CHAR_POS_X
     rtl
 Anim_BikerDrive__left:
     rep #$31
 .a16
 .i16
     lda CHAR_POS_X
+    cmp #2
+    bcc Anim_BikerDrive__left_clamp
     sec
     sbc #2
     sta CHAR_POS_X
-    bpl Anim_BikerDrive__done
+    rtl
+Anim_BikerDrive__left_clamp:
+    lda #0
+    sta CHAR_POS_X
     sep #$20
 .a8
     stz CHAR_FACING_LEFT
-Anim_BikerDrive__done:
     rtl
 
 Anim_EnterHole:

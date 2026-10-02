@@ -216,8 +216,9 @@ def scan_family(family: str, pak: Path) -> dict:
                 identity = source_character_identity(family, upper_source)
                 ref["character_identity"] = identity
                 ref["reachability"] = "shipped-reachable" if identity in SHIPPED_CHARACTERS[family] else "unshipped-source-content"
-            elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
-                ref["reachability"] = "shipped-reachable" if Path(upper_source).name in shipped_levels(family) else "unshipped-source-content"
+            elif any(c['family'] == family and norm(c['source_level']) == upper_source
+                     for c in STAGE_CONFIGS):
+                ref["reachability"] = "shipped-reachable"
             else:
                 ref["reachability"] = "shipped-reachable" if (
                     ("\\SCENES\\ENDING.TXT" in upper_source and family == ACTIVE_ENDING_FAMILY)
@@ -260,6 +261,8 @@ def scan_family(family: str, pak: Path) -> dict:
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
     if family in ("bor-original", "tmnt"):
         for semantic in ENGINE_GLOBAL_AUDIO:
+            if family not in semantic.get("families", ("bor-original", "tmnt")):
+                continue
             requested_global_asset = semantic["asset"]
             resolved_global_asset = requested_global_asset
             fallback = None

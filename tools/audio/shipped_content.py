@@ -1,7 +1,8 @@
 """Authoritative shipped BOR/TMNT stage and character source identities."""
 from __future__ import annotations
 
-STAGE_CONFIGS = [
+# Accepted encoded media, in legacy physical order; BOR progression is source-owned.
+STAGE_MEDIA_BINDINGS = [
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1AEASY.TXT", "bg": "out/bg_stage1a", "frontpanel": "out/fp_stage1a", "spawn": "out/spawn_stage1a/spawn_table.bin"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1BEASY.TXT", "bg": "out/bg_stage1b", "frontpanel": None, "spawn": "out/spawn_stage1b/spawn_table.bin"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1CEASY.TXT", "bg": "out/bg_bor_1c", "frontpanel": None, "spawn": "out/spawn_bor_1c/spawn_table.bin"},
@@ -26,68 +27,21 @@ STAGE_CONFIGS = [
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6AEASY.TXT", "bg": "out/bg_6aeasy", "frontpanel": "out/fp_6aeasy", "spawn": "out/spawn_6aeasy/spawn_table.bin", "scroll_direction": "left", "source_direction": "left", "source_mirror": True},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6BEASY.TXT", "bg": "out/bg_6beasy", "frontpanel": "out/fp_6beasy", "spawn": "out/spawn_6beasy/spawn_table.bin", "scroll_direction": "left", "source_direction": "left"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6CEASY.TXT", "bg": "out/bg_6ceasy", "frontpanel": "out/fp_6ceasy", "spawn": "out/spawn_6ceasy/spawn_table.bin"},
-    # G15-R2: Normal 1A is an append-only physical encounter record.  Its
-    # presentation assets are intentionally shared with Easy 1A; the spawn
-    # blob remains independent and source-specific.
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\1A.TXT", "bg": "out/bg_stage1a", "frontpanel": "out/fp_stage1a", "spawn": "out/spawn_normal1a/spawn_table.bin", "audio_source_level": "DATA\\EASY\\1AEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\1B.TXT", "bg": "out/bg_stage1b", "frontpanel": None, "spawn": "out/spawn_normal1b/spawn_table.bin", "audio_source_level": "DATA\\EASY\\1BEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\1C.TXT", "bg": "out/bg_bor_1c", "frontpanel": None, "spawn": "out/spawn_normal1c/spawn_table.bin", "audio_source_level": "DATA\\EASY\\1CEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\2.TXT", "bg": "out/bg_2easy", "frontpanel": None, "spawn": "out/spawn_normal2/spawn_table.bin", "audio_source_level": "DATA\\EASY\\2EASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\3A.TXT", "bg": "out/bg_3easy", "frontpanel": None, "spawn": "out/spawn_normal3a/spawn_table.bin", "audio_source_level": "DATA\\EASY\\3AEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\3B.TXT", "bg": "out/bg_3beasy", "frontpanel": "out/fp_3beasy", "spawn": "out/spawn_normal3b/spawn_table.bin", "audio_source_level": "DATA\\EASY\\3BEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\3C.TXT", "bg": "out/bg_3ceasy", "frontpanel": "out/fp_3ceasy", "spawn": "out/spawn_normal3c/spawn_table.bin", "audio_source_level": "DATA\\EASY\\3CEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\4A.TXT", "bg": "out/bg_4aeasy", "frontpanel": None, "spawn": "out/spawn_normal4a/spawn_table.bin", "audio_source_level": "DATA\\EASY\\4AEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\4B.TXT", "bg": "out/bg_4beasy", "frontpanel": "out/fp_4beasy", "spawn": "out/spawn_normal4b/spawn_table.bin", "audio_source_level": "DATA\\EASY\\4BEASY.TXT"},
-    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\NORMAL\\5A.TXT", "bg": "out/bg_5aeasy", "frontpanel": None, "spawn": "out/spawn_normal5a/spawn_table.bin", "audio_source_level": "DATA\\EASY\\5AEASY.TXT", "scroll_direction": "down"},
 ]
 
-# Logical authored campaigns are deliberately separate from STAGE_CONFIGS.
-# STAGE_CONFIGS is the physical MSU asset catalog; these source identities
-# come from each pak's LEVELS file and are resolved to physical indices by
-# build_rom.py. Keep incomplete BOR coverage explicit rather than allowing
-# the packed catalog tail to become an accidental campaign continuation.
-BOR_EASY_SOURCE_LEVELS = [
-    "DATA\\EASY\\1AEASY.TXT",
-    "DATA\\EASY\\1BEASY.TXT",
-    "DATA\\EASY\\1CEASY.TXT",
-    "DATA\\EASY\\2EASY.TXT",
-    "DATA\\EASY\\3AEASY.TXT",
-    "DATA\\EASY\\3BEASY.TXT",
-    "DATA\\EASY\\3CEASY.TXT",
-    "DATA\\EASY\\4AEASY.TXT",
-    "DATA\\EASY\\4BEASY.TXT",
-    "DATA\\EASY\\5AEASY.TXT",
-    "DATA\\EASY\\5BEASY.TXT",
-    "DATA\\EASY\\6AEASY.TXT",
-    "DATA\\EASY\\6BEASY.TXT",
-    "DATA\\EASY\\6CEASY.TXT",
-]
+# Legacy physical ABI pins, expressed as source-stage ordinals (scenes do not
+# consume catalog slots). The linker appends Normal in source order after the
+# accepted Easy/foreign media. These ranges pin IDs, never campaign length.
+LEGACY_BOR_STAGE_IDS = {
+    "Easy": (0, 1, 2, *range(11, 22)),
+    "Normal": tuple(range(22, 32)),
+}
+LEGACY_FOREIGN_STAGE_IDS = tuple(range(3, 11))
+STAGE_CONFIGS = STAGE_MEDIA_BINDINGS
 
+# Only foreign campaigns require explicit bindings here. The compiler creates
+# both BOR campaigns, including scene positions and next boundaries, from source.
 CAMPAIGN_CONFIGS = {
-    "BOR_ORIGINAL": {
-        "family": "bor-original",
-        "source_levels_file": "DATA\\LEVELS.TXT",
-        "source_levels": BOR_EASY_SOURCE_LEVELS,
-        "entries": [
-            *({"kind": "stage", "source_level": level}
-              for level in BOR_EASY_SOURCE_LEVELS
-            if level.upper() != "DATA\\EASY\\6CEASY.TXT"),
-            {"kind": "scene", "scene_id": "RUGAL"},
-            {"kind": "stage", "source_level": "DATA\\EASY\\6CEASY.TXT"},
-            {"kind": "scene", "scene_id": "ENDING"},
-        ],
-        "incomplete_boundary": "TITLE",
-    },
-    # Verifier-only partial import. It is intentionally not a BorSet mapping
-    # and is never selectable by the normal BOR set path.
-    "BOR_NORMAL_1A_INTERNAL": {
-        "family": "bor-original",
-        "source_levels_file": "DATA\\LEVELS.TXT",
-        "source_levels": ["DATA\\NORMAL\\1A.TXT", "DATA\\NORMAL\\1B.TXT", "DATA\\NORMAL\\1C.TXT", "DATA\\NORMAL\\2.TXT", "DATA\\NORMAL\\3A.TXT", "DATA\\NORMAL\\3B.TXT", "DATA\\NORMAL\\3C.TXT", "DATA\\NORMAL\\4A.TXT", "DATA\\NORMAL\\4B.TXT", "DATA\\NORMAL\\5A.TXT"],
-        "entries": [{"kind": "stage", "source_level": level}
-                    for level in ("DATA\\NORMAL\\1A.TXT", "DATA\\NORMAL\\1B.TXT", "DATA\\NORMAL\\1C.TXT", "DATA\\NORMAL\\2.TXT", "DATA\\NORMAL\\3A.TXT", "DATA\\NORMAL\\3B.TXT", "DATA\\NORMAL\\3C.TXT", "DATA\\NORMAL\\4A.TXT", "DATA\\NORMAL\\4B.TXT", "DATA\\NORMAL\\5A.TXT")],
-        "incomplete_boundary": "TITLE",
-    },
     "TMNT": {
         "family": "tmnt",
         "source_levels_file": "DATA\\LEVELS00.TXT",
@@ -163,6 +117,10 @@ ROSTER_CONFIGS = [
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TROLLY", "converted_prefix": "out/trolly", "playable": False},
     # G15-M 6CEASY runtime-only boss identity; never selectable.
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RUGAL", "converted_prefix": "out/rugal", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\RAMON", "converted_prefix": "out/ramon", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (1,), "accepted_legacy_unbound_sets": (0,)},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TIME", "converted_prefix": "out/time", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (1,), "accepted_legacy_unbound_sets": (0,)},
 ]
 
 # Scene support is intentionally explicit and narrow.  Rugal is the only
@@ -261,3 +219,14 @@ def shipped_characters() -> dict[str, set[str]]:
 
 def shipped_levels(family: str) -> set[str]:
     return {stage["source_level"].split("\\")[-1] for stage in STAGE_CONFIGS if stage["family"] == family}
+
+
+# Source owns the complete selected campaigns. The preceding records are
+# accepted encoded-media/physical-ID bindings, not logical progression.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / 'bor_compile'))
+from production_campaign import link_campaigns as _link_campaigns
+STAGE_CONFIGS, CAMPAIGN_CONFIGS, COMPILER_CAMPAIGN_COVERAGE = _link_campaigns(
+    STAGE_CONFIGS, CAMPAIGN_CONFIGS, SCENE_CONFIGS,
+    legacy_stage_ids=LEGACY_BOR_STAGE_IDS)

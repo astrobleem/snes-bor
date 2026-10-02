@@ -72,8 +72,8 @@ def emit_code(sym,roster,role,chunks,transfers,payload,*,stream=False,_defer_com
     beq {nxt}
     lda.l S6Bridge_Policy+{row}
     and #255
-    cmp #1
-    bne {nxt}
+    cmp #3
+    bcs {nxt}
     lda #${ctx:04X}
     tcd
     lda $F6
@@ -92,13 +92,15 @@ def emit_code(sym,roster,role,chunks,transfers,payload,*,stream=False,_defer_com
     lda.l $7E0A00+CHAR_MAP_INDEX+{row}
     and #255
     bne {nxt}
+    lda #{row}
+    sta $7A
     lda $14
-    jsl S6Bridge_Project
+    jsl S6Bridge_ProjectPolicy
     sec
     sbc.l Screen_PosX
     sta.l ${dest:06X}
     lda $16
-    jsl S6Bridge_Project
+    jsl S6Bridge_ProjectPolicy
     sec
     sbc $18
     sta.l ${dest+2:06X}
@@ -153,6 +155,36 @@ def emit_code(sym,roster,role,chunks,transfers,payload,*,stream=False,_defer_com
     sta.l S7Pub_State+14
     lda.l S7Pub_State+34,x
     sta.l S7Pub_State+16
+    ; Normal source actors bypass Character_RenderFrame and emit a whole source
+    ; metasprite here. Apply the native pit-foot projection before any source
+    ; piece reaches the OAM shadow.
+    stz.l S7Pub_State+8
+    tdc
+    sec
+    sbc #$0A00
+    tax
+    lda.l StageBounds_State,x
+    beq S7Publisher_EmitPieces__bounds_ready
+    cmp #2
+    beq S7Publisher_EmitPieces__bounds_hidden
+    lda.l StageBounds_DrawY,x
+    cmp #240
+    bcs S7Publisher_EmitPieces__bounds_hidden
+    sta.l S7Pub_State+16
+    lda #1
+    sta.l S7Pub_State+8
+    bra S7Publisher_EmitPieces__bounds_ready
+S7Publisher_EmitPieces__bounds_hidden:
+    .a16
+    .i16
+    lda #2
+    sta.l S7Pub_State+8
+    rts
+S7Publisher_EmitPieces__bounds_ready:
+    .a16
+    .i16
+    lda.l S7Pub_State+12
+    tax
     lda.l S7Pub_State+36,x
     sta.l S7Pub_State+18
     lda.l S7Pub_State+44,x
@@ -209,6 +241,15 @@ S7Publisher_EmitPieces__attr:
     .a8
     .i16
     sta.l OamSetSprite_Attr
+    lda.l S7Pub_State+8
+    cmp #1
+    bne S7Publisher_EmitPieces__priority_ready
+    lda.l OamSetSprite_Attr
+    and #$CF                     ; source-sized pit pieces pass behind panels
+    sta.l OamSetSprite_Attr
+S7Publisher_EmitPieces__priority_ready:
+    .a8
+    .i16
     jsl Core_Oam_SetSprite_Long
 S7Publisher_EmitPieces__next:
     rep #$30

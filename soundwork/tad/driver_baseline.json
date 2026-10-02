@@ -22,7 +22,7 @@
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
     "driver_size_after_patch": 3437,
     "driver_sha256_after_patch": "a0d4a0b37dbd41ec85c6afbaabc2ebc9744822a9be5eb1115f5864ee7db39730",
-    "audio_data_sha256_after_patch": "34c261f9ad54cfd55d8747705bf111c57b704aea93c677980429d7b504a05c1a",
+    "audio_data_sha256_after_patch": "4c2ff4eb3713c6ce7a511cccc07929fa140425441c659e365db63d6761aefe8f",
     "data_table": "$018E14",
     "resident_jump": {
       "source_asset": "DATA\\SOUNDS\\JUMP.WAV",
@@ -87,7 +87,7 @@
     },
     "stream_voice0_patch": {
       "path": "soundwork/tad/patches/tad-v0.3.0-stream-voice0-srcn.patch",
-      "sha256": "2b44ae332389c159ad1e54cbeb7f4be5413acae1e7fa931fd013d2ee2581f88f",
+      "sha256": "68d0e91fcae658ae79fbeda94f868eb135c10fa7a13626fb0e375b59bba076c6",
       "mode": "source-level stream voice-0 directory fix"
     },
     "parent_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",

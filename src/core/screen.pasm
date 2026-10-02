@@ -217,10 +217,18 @@ Core_Screen_FocusImmediate:
 	bcc Core_Screen_FocusImmediate__clamp
 		lda Screen_TargetX
 		sta Screen_PosX
+		sep #$20
+.a8
 		stz.w Screen_PosXFrac_Lo
+		rep #$30
+.a16
 		lda Screen_TargetY
 		sta Screen_PosY
+		sep #$20
+.a8
 		stz.w Screen_PosYFrac_Lo
+		rep #$30
+.a16
 
 Core_Screen_FocusImmediate__clamp:
 	jsr Core_Screen__ClampToScreen
@@ -412,7 +420,7 @@ Core_Screen__AddStepX:
 	clc
 	adc Screen_PosXFrac
 	sta Screen_PosXFrac
-	rep #$31
+	rep #$30
 .a16
 	pla
 	xba
@@ -433,7 +441,7 @@ Core_Screen__SubStepX:
 	sec
 	sbc Screen__StepLo
 	sta Screen_PosXFrac
-	rep #$31
+	rep #$30
 .a16
 	pla
 	xba
@@ -452,7 +460,7 @@ Core_Screen__AddStepY:
 	clc
 	adc Screen_PosYFrac
 	sta Screen_PosYFrac
-	rep #$31
+	rep #$30
 .a16
 	pla
 	xba
@@ -473,7 +481,7 @@ Core_Screen__SubStepY:
 	sec
 	sbc Screen__StepLo
 	sta Screen_PosYFrac
-	rep #$31
+	rep #$30
 .a16
 	pla
 	xba
@@ -605,12 +613,64 @@ Core_Screen_Play__shake_negative:
 
 Core_Screen_Play__ease:
 	jsr Core_Screen__SetTargetPosition
-	bcc Core_Screen_Play__clamp
+	bcc Core_Screen_Play__no_focus
+
+Core_Screen_Play__target_available:
+
+	; The ease LUT deliberately goes to zero at short distances.  If the
+	; followed target is beyond the right playfield bound, that deadband can
+	; leave Screen_PosX just short of Screen_MaxX forever.  A source queue may
+	; legitimately place its final wait/spawn trigger exactly at that bound
+	; (Normal 4A does), so finish the final camera approach when only the
+	; last eight pixels remain.  The ordinary easing curve is unchanged
+	; everywhere else.
+	lda Screen_TargetX
+	cmp Screen_MaxX
+	bcc Core_Screen_Play__normal_ease
+	lda Screen_MaxX
+	sec
+	sbc Screen_PosX
+	cmp #9
+	bcs Core_Screen_Play__ease_to_right_edge
+	lda Screen_MaxX
+	sta Screen_PosX
+	sep #$20
+.a8
+	stz.w Screen_PosXFrac_Lo
+	rep #$30
+.a16
+	bra Core_Screen_Play__clamp
+
+; The followed object can be well beyond the legal camera range (for example
+; during a source-authored terminal wait).  Feeding that unbounded target to
+; the easing LUT selects its saturated far-distance step and can strand the
+; camera short of the edge.  Ease toward the legal edge instead; this keeps
+; the ordinary curve while ensuring a bounded target distance.
+Core_Screen_Play__ease_to_right_edge:
+	lda Screen_MaxX
+	jsr Core_Screen__EaseX
+	lda Screen_TargetY
+	jsr Core_Screen__EaseY
+	bra Core_Screen_Play__clamp
+
+Core_Screen_Play__normal_ease:
 
 	lda Screen_TargetX
 	jsr Core_Screen__EaseX
 	lda Screen_TargetY
 	jsr Core_Screen__EaseY
+	bra Core_Screen_Play__clamp
+
+; A focus can briefly stop returning camera data while a source actor is
+; leaving the view.  Preserve the freeze for ordinary stale targets, but do
+; not leave the camera short of the hard right edge when its last target was
+; already beyond that edge; the bounded final approach is still required by
+; a queue trigger at Screen_MaxX.
+Core_Screen_Play__no_focus:
+	lda Screen_TargetX
+	cmp Screen_MaxX
+	bcc Core_Screen_Play__clamp
+	bra Core_Screen_Play__target_available
 
 Core_Screen_Play__clamp:
 	jsr Core_Screen__ClampToScreen

@@ -61,8 +61,11 @@
 ;     stage load. It gates ALL further queue advancement, not just
 ;     spawns: once `count_ents(TYPE_ENEMY) >= Spawn_GroupMin`, NOTHING
 ;     in the queue is even looked at (not spawns, not the next wait/group
-;     marker) until enough enemies die to drop back under it. This is what
-;     makes `group 1-2`/`group 3-3` read as real wave gates.
+;     marker) until enough enemies die to drop back under it. The authored
+;     `group 0 0` pair disables that gate, allowing the queue to continue
+;     (Normal 6B uses it before its opening wait/wave). This is what makes
+;     `group 1-2`/`group 3-3` read as real wave gates without treating the
+;     explicit no-cap pair as an impossible zero-enemy window.
 ;   - "enemy count" excludes props, matching BOR.C's own `TYPE_ENEMY`
 ;     filter -- free here via `EntityN_InputDriven != CHAR_INPUT_DRIVEN_
 ;     PROP`, no new state needed to track it.
@@ -153,9 +156,9 @@ Spawn_ScratchIdx    = $7E5507   ; .dw -- zero-extended copy of Spawn_Index for t
 Spawn_ScratchX      = $7E5509   ; .dw -- captured spawn_x, held across slot search (clobbers X)
 Spawn_ScratchY      = $7E550B   ; .db -- captured spawn_y
 Spawn_ScratchFacing = $7E550C   ; .db -- captured facing_left
-Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
-                                 ; (spawn tables are packed in ascending
-                                 ; trigger order -- see this file's header),
+Spawn_LastTriggerX  = $7E550D   ; .dw -- greatest trigger_x in this stage's
+                                 ; authored queue (record order is preserved
+                                 ; and triggers need not be monotonic),
                                  ; cached by Spawn_Init. Phase G4's win-
                                  ; condition soft camera-hold reads this
                                  ; (core/game_state.pasm's Stage_Load) --
@@ -362,10 +365,12 @@ Spawn_B2Hp = $7E58FF            ; .db
 ;                              build_spawn_table.py's own "Entity kind"
 ;                              section for that history). Bits 3-4: map
 ;                              index (0-3, SPAWN_MAP_SHIFT/SPAWN_MAP_MASK).
-;                              Bits 5-7 no longer used (was a 3-bit roster
-;                              index, 0-7 -- moved to its own +8 byte by the
-;                              roster-growth slice once the roster cap grew
-;                              past 8 and needed a 4th bit).
+;                              Bits 5-7: prop pickup type (0-5), or 7 for
+;                              the non-reward Steamer driver. The 7 sentinel
+;                              avoids aliasing pickup MONEY (3) with the
+;                              enemy-subtype field decoded from these bits.
+;                              Runtime clears the sentinel before storing it
+;                              in actor pickup state.
 ;   +7    spawn_hp    (u8)  -- health-override slice (follow-up to G8): the
 ;                              level's own `health` line, scaled to
 ;                              0..CHAR_HP_MAX. Read for enemy/boss slots
@@ -436,8 +441,10 @@ SPAWN_MAP_SHIFT   = 3
 SPAWN_MAP_MASK    = $03   ; explicit mask AFTER the >>3 shift
 SPAWN_PICKUP_SHIFT = 5    ; G8 item/pickup slice: record_kind bits 5-7 (3
                           ; bits, 0-7, PICKUP_TYPE_* in main.pasm only use
-                          ; 0-4) -- real only when kind==SPAWN_KIND_PROP.
+                          ; 0-5; value 7 is the Steamer driver sentinel --
+                          ; real only when kind==SPAWN_KIND_PROP.
 SPAWN_PICKUP_MASK  = $07  ; explicit mask AFTER the >>5 shift
+SPAWN_PICKUP_STEAMER = 7  ; reserved prop-driver sentinel; never a reward.
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -588,14 +595,33 @@ Spawn_Init__read:
     cmp.l Spawn_CountX8
     bcc Spawn_Init__read
 
-    ; --- cache the last record's trigger_x (Spawn_CountX8 - 10 is its base
-    ; offset; records are packed in ascending trigger order, see header) ---
+    ; --- cache the greatest trigger_x in the authored queue. Queue record
+    ; order is semantically significant but source files do not guarantee
+    ; monotonically increasing trigger coordinates (Normal 3A ends
+    ; 1760,1680,1680). Using only the final record can clamp the camera
+    ; before an earlier queued record's trigger and deadlock the stage. ---
+    lda #0
+    sta.l Spawn_LastTriggerX
+    ldx #0
+Spawn_Init__max_trigger:
+    lda.l SpawnTable_Wram,x
+    cmp.l Spawn_LastTriggerX
+    bcc Spawn_Init__max_trigger_next
+    sta.l Spawn_LastTriggerX
+Spawn_Init__max_trigger_next:
+    txa
+    clc
+    adc #10
+    tax
+    txa
+    cmp.l Spawn_CountX8
+    bcc Spawn_Init__max_trigger
+    ; Preserve Spawn_Init's existing X exit value (last-record base offset);
+    ; the full-queue scan must not change the caller-visible convention.
     lda.l Spawn_CountX8
     sec
     sbc #10
     tax
-    lda.l SpawnTable_Wram,x
-    sta.l Spawn_LastTriggerX
 
     plp
     rtl
@@ -712,6 +738,7 @@ Spawn_Play__wc_sum_done6:
     bne Spawn_Play__wait_check_done   ; still >=1 real enemy alive -- stay blocked
     lda #0
     sta.l Spawn_Waiting
+    jsl StageTimer_Reset100
     lda.l Stage_Cleared
     bne Spawn_Play__wait_check_done   ; already cleared -- win-check owns Screen_MaxX now
     rep #$31
@@ -819,6 +846,12 @@ Spawn_Play__gc_slot5:
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__gc_sum_done6:
+    ; 0/0 is the source's explicit no-cap group state. Without this bypass,
+    ; count>=min and count>=max are both true at zero, so the queue deadlocks
+    ; immediately after a `group 0 0` record (Normal 6B's opening sequence).
+    lda.l Spawn_GroupMin
+    ora.l Spawn_GroupMax
+    beq Spawn_Play__active
     lda.l Spawn_ScratchEnemyCount
     cmp.l Spawn_GroupMin
     bcc Spawn_Play__group_ok        ; EnemyCount < GroupMin -- proceed
@@ -1119,22 +1152,22 @@ Spawn_Play__find_slot:
 .a8
     lda.l G13_TwoPlayerEnabled
     bne Spawn_Play__find_slot_check2
-    jsl ActorBehavior_Slot1Busy
+    jsl StageTimerHost_Slot1Busy
     bne Spawn_Play__find_slot_check2
     jmp Spawn_Play__slot1
 Spawn_Play__find_slot_check2:
-    jsl ActorBehavior_Slot2Busy
+    jsl StageTimerHost_Slot2Busy
     bne Spawn_Play__find_slot_check3
     jmp Spawn_Play__slot2
 Spawn_Play__find_slot_check3:
     ; plan_game.md G8 grew slot1/slot2's own bodies (kind-conditional
     ; CHAR_INPUT_DRIVEN/HP) past this chain's original beq range -- jmp has
     ; no such limit, same fix as game_state.pasm's own G5 dispatch chain.
-    jsl ActorBehavior_Slot3Busy
+    jsl StageTimerHost_Slot3Busy
     bne Spawn_Play__find_slot_check4
     jmp Spawn_Play__slot3
 Spawn_Play__find_slot_check4:
-    jsl ActorBehavior_Slot4Busy
+    jsl StageTimerHost_Slot4Busy
     bne Spawn_Play__find_slot_check5
     rep #$30
 .a16
@@ -1143,7 +1176,7 @@ Spawn_Play__find_slot_check4:
     tax
     jmp Spawn_Play__slot45
 Spawn_Play__find_slot_check5:
-    jsl ActorBehavior_Slot5Busy
+    jsl StageTimerHost_Slot5Busy
     bne Spawn_Play__find_slot_none
     rep #$30
 .a16
@@ -1230,6 +1263,16 @@ Spawn_Play__slot1_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; A reused native slot starts a fresh actor incarnation. Clear the old
+    ; occupant's grab relationship just like the shared slot-4/5 path below;
+    ; otherwise a stale slot ID can make the persistent source bridge reject
+    ; an otherwise ordinary, unlinked spawn.
+    lda #$FF
+    sta.l Entity1_GrabTarget
+    sta.l Entity1_GrabbedBy
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN+CHAR_GRAB_OFFSET
     ; plan_game.md G8: CHAR_INPUT_DRIVEN and starting HP both now depend on
     ; the record's own record_kind -- a slot that alternates between an
     ; enemy record and a prop record across two different waves must be
@@ -1241,8 +1284,8 @@ Spawn_Play__slot1_prevflag_done:
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot1_not_prop
-    lda.l Spawn_ScratchSubtype
-    cmp #SPAWN_SUBTYPE_STEAM
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
     bne Spawn_Play__slot1_prop_normal
     lda #CHAR_INPUT_DRIVEN_STEAMER
     sta.l Entity1_InputDriven
@@ -1261,7 +1304,11 @@ Spawn_Play__slot1_prop_fields:
     sta.l Entity1_Hp
     lda #0
     sta.l Entity1_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot1_prop_store_pickup
+    lda #0
+Spawn_Play__slot1_prop_store_pickup:
     sta.l Entity1_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity1_ItemRosterIdx
@@ -1566,11 +1613,18 @@ Spawn_Play__slot2_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; Slot reuse begins unlinked; existing grabs belong to the old actor.
+    lda #$FF
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_TARGET
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRABBED_BY
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_OFFSET
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot2_not_prop
-    lda.l Spawn_ScratchSubtype
-    cmp #SPAWN_SUBTYPE_STEAM
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
     bne Spawn_Play__slot2_prop_normal
     lda #CHAR_INPUT_DRIVEN_STEAMER
     sta.l Entity2_InputDriven
@@ -1589,7 +1643,11 @@ Spawn_Play__slot2_prop_fields:
     sta.l Entity2_Hp
     lda #0
     sta.l Entity2_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot2_prop_store_pickup
+    lda #0
+Spawn_Play__slot2_prop_store_pickup:
     sta.l Entity2_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity2_ItemRosterIdx
@@ -1832,11 +1890,19 @@ Spawn_Play__slot3_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; Keep the three legacy slot-specific spawn branches consistent with the
+    ; shared slot-4/5 branch's fresh-incarnation grab reset.
+    lda #$FF
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_TARGET
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRABBED_BY
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_OFFSET
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot3_not_prop
-    lda.l Spawn_ScratchSubtype
-    cmp #SPAWN_SUBTYPE_STEAM
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
     bne Spawn_Play__slot3_prop_normal
     lda #CHAR_INPUT_DRIVEN_STEAMER
     sta.l Entity3_InputDriven
@@ -1855,7 +1921,11 @@ Spawn_Play__slot3_prop_fields:
     sta.l Entity3_Hp
     lda #0
     sta.l Entity3_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot3_prop_store_pickup
+    lda #0
+Spawn_Play__slot3_prop_store_pickup:
     sta.l Entity3_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity3_ItemRosterIdx
@@ -2087,14 +2157,23 @@ Spawn_Play__slot45:
 .a8
     lda.l Spawn_ScratchY
     sta CHAR_POS_Y
+    ; A collected timer prop may leave the full Y word at $7FFF in this
+    ; reusable slot. Spawn coordinates carry only the low lane byte here;
+    ; clear the stale high byte before a combat actor is source-bound.
+    stz CHAR_POS_Y+1
     lda.l Spawn_ScratchFacing
     sta CHAR_FACING_LEFT
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    bne Spawn_Play__slot45_non_prop
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
+    beq Spawn_Play__slot45_steam
+    jml Spawn_Play__slot45_prop
+Spawn_Play__slot45_non_prop:
     lda.l Spawn_ScratchSubtype
     cmp #SPAWN_SUBTYPE_STEAM
     beq Spawn_Play__slot45_steam
-    lda.l Spawn_ScratchKind
-    cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_prop
     lda.l Spawn_ScratchSubtype
 Spawn_Play__slot45_not_steam:
     cmp #SPAWN_SUBTYPE_BIKER
@@ -2267,6 +2346,7 @@ Spawn_Play__advance:
     beq Spawn_Play__environment_base
     jsl StageEnv_ApplySpawnMap
 Spawn_Play__environment_base:
+    jsl StageBoundsHost_ResetSpawn
     jsl StageEnv_ApplySpawnBase
     jsl StageEnv_ApplySpawnAlias
 Spawn_Play__environment_done:
@@ -2285,6 +2365,14 @@ Spawn_Play__environment_done:
     bne Spawn_Play__advance_index
     lda.l Spawn_ScratchSubtype
     cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__advance_index
+    ; Normal's identified biker driver is a non-boss (the slot's IsBoss
+    ; initialization follows the same discriminator). Do not start boss
+    ; music for its ordinary source spawn. Preserve Easy's legacy cue policy.
+    cmp #SPAWN_SUBTYPE_BIKER
+    bne Spawn_Play__advance_boss_music
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
     beq Spawn_Play__advance_index
 Spawn_Play__advance_boss_music:
     jsl Music_SelectBossTrack_Long

@@ -19,11 +19,11 @@ from dataclasses import asdict
 from actor_s5_isolated import ROOT, Source, parse_model, lower_model, sha
 from actor_s5_entity_fixture import symbols
 from source_actor_link import link_scheduler, link_world_contexts
-from source_actor_world_link import link_world_program
+from source_actor_world_link import link_normal_campaign_world_program, link_world_program
 from compiler import stage
 
 
-def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=False,layout_dispatch=False,publisher=False,second_action=False,player2_x=32,stream_publisher=False,instance_leases=False,stagger_ticks=0,compact_residency=False,publication_requests=None,presentation_divisor=1,base_dir=None,base_rom=None):
+def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=False,layout_dispatch=False,publisher=False,second_action=False,player2_x=32,stream_publisher=False,instance_leases=False,stagger_ticks=0,compact_residency=False,publication_requests=None,presentation_divisor=1,base_dir=None,base_rom=None,normal_campaign_models=None):
     if not 1<=enemy_copies<=4:raise ValueError('SIX_SLOT_WORLD_LIMIT')
     sym = symbols(ROOT / 'src/main.sym')
     media_root=Path(base_dir) if base_dir is not None else ROOT/'distribution'
@@ -33,26 +33,72 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
     import sys
     sys.path.insert(0, str(ROOT / 'tools/audio'))
     from shipped_content import ROSTER_CONFIGS, STAGE_CONFIGS
+    normal_runtime = normal_campaign_models is not None
     data = bytearray()
+    player_data = bytearray()
+    player_data_base = 0x228000
     models = []
+    model_record_count = 0
     records = bytearray()
     model_names=list(dict.fromkeys(['Kula','Joe']+[r['name'] for r in (publication_requests or [])]))
-    for name in model_names:
-        request=next((r for r in (publication_requests or []) if r['name']==name),None)
-        actor = lower_model(parse_model(source, request['path'] if request else f'data/chars/{name}/{name}.txt',
-                                       name, 's6-world-control', 'historical-bor'))
-        blob, metadata = link_scheduler(actor, bank_base=0x1DC000 + len(data))
-        data.extend(blob)
-        roster = request['runtime_id'] if request else next(i for i, c in enumerate(ROSTER_CONFIGS)
+    model_specs = ([dict(name=row['name'], path=row['source_definition'],
+                         runtime_id=row['runtime_slot'], playable=row['playable'])
+                    for row in normal_campaign_models]
+                   if normal_runtime else
+                   [dict(name=name,
+                         path=next((r['path'] for r in (publication_requests or [])
+                                    if r['name']==name), f'data/chars/{name}/{name}.txt'),
+                         runtime_id=None, playable=False)
+                    for name in model_names])
+    data_base = 0x238000 if normal_runtime else 0x1DC000
+    for request in model_specs:
+        name=request['name']
+        actor = lower_model(parse_model(source, request['path'],
+                                       name, 's8-normal-sa1' if normal_runtime else 's6-world-control',
+                                       'historical-bor'))
+        if normal_runtime and actor.get('stats', {}).get('type') == 'player':
+            blob, metadata = link_scheduler(actor, bank_base=player_data_base + len(player_data))
+            player_data.extend(blob)
+        else:
+            blob, metadata = link_scheduler(actor, bank_base=data_base + len(data))
+            data.extend(blob)
+        roster = request['runtime_id'] if request['runtime_id'] is not None else next(i for i, c in enumerate(ROSTER_CONFIGS)
                       if c['source_character'].replace('\\', '/').rsplit('/', 1)[-1].casefold() == name.casefold())
-        if request and request.get('animation_only_probe'):
+        if normal_runtime:
+            if actor.get('stats', {}).get('type') == 'player':
+                if not request['playable']:
+                    raise ValueError('NORMAL_PLAYER_ROSTER_NOT_SELECTABLE')
+                player_program, player_admission = link_normal_campaign_world_program(
+                    actor, metadata, roster, controlled_player_action=True)
+                records.extend(player_program)
+                model_record_count += 1
+                models.append(dict(name=name, roster=roster, scheduler=metadata,
+                                   world_program=player_admission, playable=True))
+                continue
+            program, admission = link_normal_campaign_world_program(actor, metadata, roster)
+            records.extend(program)
+            model_record_count += 1
+            if request['playable']:
+                player_program, player_admission = link_normal_campaign_world_program(
+                    actor, metadata, roster, controlled_player_action=True)
+                records.extend(player_program)
+                model_record_count += 1
+                models.append(dict(name=name, roster=roster, scheduler=metadata,
+                                   world_program=admission, player_program=player_admission,
+                                   playable=True))
+            else:
+                models.append(dict(name=name, roster=roster, scheduler=metadata,
+                                   world_program=admission, playable=False))
+            continue
+        probe_request=next((r for r in (publication_requests or []) if r['name']==name),None)
+        if probe_request and probe_request.get('animation_only_probe'):
             # TEST-ONLY animation execution isolation. The exact source roles,
             # frames, type and stats remain unchanged. No source AI certification.
             roles={r['role']:r['role_id'] for r in metadata['roles']}
             kind={'player':1,'enemy':2,'none':0,'item':4}[actor['stats']['type']]
             hp=int(actor['stats']['health']);assert 0<=hp<256
             ptr=metadata['role_table']
-            values=(roster,kind,hp,0,ptr&65535,ptr>>16,len(roles),roles[request['role']],
+            values=(roster,kind,hp,0,ptr&65535,ptr>>16,len(roles),roles[probe_request['role']],
                     65535,65535,65535,65535,0,0,0,32768)
             program=struct.pack('<16H',*values)
             admission=dict(scope='ANIMATION_ONLY_PUBLICATION_PROBE',source_type=kind,
@@ -62,19 +108,23 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
                 controlled_player_action=actor['stats']['type']=='player')
         records.extend(program)
         models.append(dict(name=name, roster=roster, scheduler=metadata,world_program=admission))
-    model_address = 0x1DC000 + len(data)
+    model_address = data_base + len(data)
     data.extend(records)
-    slot_address = 0x1DC000 + len(data)
+    slot_address = data_base + len(data)
     context_layout = tuple(range(0x1900, 0x1F00, 256))
     slots, layout = link_world_contexts(context_layout,
         world_address=0x1700, table_address=slot_address,
         reserved_regions=[(0x100, 0x162A), (0x1800, 0x1900)])
     data.extend(slots)
-    assert len(data) <= 0x4000
+    assert len(data) <= (0x8000 if normal_runtime else 0x4000), ('MODEL_DATA_BANK_CAPACITY', len(data))
+    if normal_runtime:
+        assert len(player_data) <= 0x8000, ('NORMAL_PLAYER_DATA_BANK_CAPACITY', len(player_data))
     names = ('scheduler', 'damage', 'hit', 'rng', 'target', 'lifecycle',
              'world', 'ai', 'bridge', 'host')
     modules = [ROOT / f'src/core/actor_source_{n}.pasm' for n in names]
     modules.append(ROOT/'src/core/actor_s6_world_fixture.pasm')
+    if normal_runtime:
+        modules.append(ROOT/'src/core/actor_s8_normal_sa1_runtime.pasm')
     if deadline_wait:
         modules.append(ROOT/'src/core/actor_source_deadline_wait.pasm')
     publication=None
@@ -92,39 +142,45 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
     # already reside in the accepted image, and are not duplicated here.
     tokens = set(re.findall(r'\b[A-Za-z_][A-Za-z_0-9]*\b', text))
     imports = {k: v for k, v in sym.items() if k in tokens and
-               (k.startswith(('CHAR_', 'StageEnv_', 'S5_', 'G13_')) or
+               (k.startswith(('CHAR_', 'StageEnv_', 'S5_', 'G13_',
+                              'SourceVisual_')) or
                 k in ('Screen_PosX', 'Spawn_HoleCount', 'Game_StageIndex', 'Bg_LoadScene_StageIndex',
+                      'StageBounds_Row', 'StageDrop_State', 'WorldMaxX',
                       'Nmi_FrameCounter', 'Stage_LoadAndRespawn_Long',
                       'VMSTAT_DONE', 'VmState_Status',
-                      'PlayerEntity_Hp',
+                      'PlayerEntity_Hp', 'Game_CampaignId', 'Game_Campaign_ResolveNext',
+                      'JUMP_INITIAL_VEL', 'JUMP_GRAVITY', 'Jump_PlayerInputGate',
                       'Actor_InvulnFrames',
                       'CharacterEntity_Play__no_context_exit', 'Character_RenderPass',
                       'ActorBehavior_EntityAlive__source'))}
     if publication:
         imports.update(publication['imports'])
         imports.pop('Character_RenderPass',None)
-    physical = next(i for i,c in enumerate(STAGE_CONFIGS)
-                    if c['source_level'] == 'DATA\\EASY\\5BEASY.TXT')
-    ir = stage(source, STAGE_CONFIGS[physical]['source_level'])
-    assert not ir.environment and ir.scroll == 'right' and not ir.diagnostics
-    source_index, selected = next((i,q) for i,q in enumerate(ir.queue)
-        if q.character == 'Joe' and q.coords == (-30,220) and q.at == 0)
-    assert selected.altitude in (None,0) and selected.map == 0 and selected.health is None
-    msu = bytearray((media_root/'bor.msu').read_bytes())
-    directory = struct.unpack_from('<I',msu,12)[0]
-    queue_offset, count = struct.unpack_from('<IH',msu,directory+40*physical+32)
-    # This accepted legacy enemy record uses the ordinary default catalog
-    # identity, not the identified-enemy subtype's byte9 override. The live
-    # birth gate must independently check its final roster after Spawn_Play.
-    record = bytes(msu[queue_offset+10*source_index:queue_offset+10*source_index+10])
-    assert struct.unpack('<HhBBBBBB',record) == (0,-24,176,1,0,64,0,0)
-    if stream_publisher:
-        # An explicit source identity must not depend on which free production
-        # slot receives the queue record (1P may allocate the former P2 slot).
-        record=record[:6]+bytes([5|(2<<5)])+record[7:9]+bytes([models[1]['roster']])
-    msu[queue_offset:queue_offset+10*enemy_copies] = record*enemy_copies
-    struct.pack_into('<H',msu,directory+40*physical+36,enemy_copies)
-    (folder/'bor.msu').write_bytes(msu)
+    if normal_runtime:
+        physical = -1
+    else:
+        physical = next(i for i,c in enumerate(STAGE_CONFIGS)
+                        if c['source_level'] == 'DATA\\EASY\\5BEASY.TXT')
+        ir = stage(source, STAGE_CONFIGS[physical]['source_level'])
+        assert not ir.environment and ir.scroll == 'right' and not ir.diagnostics
+        source_index, selected = next((i,q) for i,q in enumerate(ir.queue)
+            if q.character == 'Joe' and q.coords == (-30,220) and q.at == 0)
+        assert selected.altitude in (None,0) and selected.map == 0 and selected.health is None
+        msu = bytearray((media_root/'bor.msu').read_bytes())
+        directory = struct.unpack_from('<I',msu,12)[0]
+        queue_offset, count = struct.unpack_from('<IH',msu,directory+40*physical+32)
+        # This accepted legacy enemy record uses the ordinary default catalog
+        # identity, not the identified-enemy subtype's byte9 override. The live
+        # birth gate must independently check its final roster after Spawn_Play.
+        record = bytes(msu[queue_offset+10*source_index:queue_offset+10*source_index+10])
+        assert struct.unpack('<HhBBBBBB',record) == (0,-24,176,1,0,64,0,0)
+        if stream_publisher:
+            # An explicit source identity must not depend on which free production
+            # slot receives the queue record (1P may allocate the former P2 slot).
+            record=record[:6]+bytes([5|(2<<5)])+record[7:9]+bytes([models[1]['roster']])
+        msu[queue_offset:queue_offset+10*enemy_copies] = record*enemy_copies
+        struct.pack_into('<H',msu,directory+40*physical+36,enemy_copies)
+        (folder/'bor.msu').write_bytes(msu)
     for pcm in media_root.glob('bor-*.pcm'):
         target=folder/pcm.name
         if target.exists():
@@ -146,30 +202,125 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
     if deadline_wait:
         asm+=f'S7Deadline_WaitLoop = ${sym["Core_Nmi_WaitFrame__loop"]:X}\n'
         asm+=f'S7Deadline_WaitReturn = ${sym["Core_Nmi_WaitFrame__loop"]+6:X}\n'
-    asm += f'S6Host_ModelTable = ${model_address:X}\nS6Host_ModelCount = {len(models)}\n'
-    asm += f'S6Host_SlotTable = ${slot_address:X}\n.bank 30\n.org $8000\n'
+    asm += f'S6Host_ModelTable = ${model_address:X}\nS6Host_ModelCount = {model_record_count if normal_runtime else len(models)}\n'
+    asm += f'S6Host_SlotTable = ${slot_address:X}\nS6Host_ModelRecordSize = 32\n.bank 30\n.org $8000\n'
     if presentation_divisor not in (1,2):
         raise ValueError('PRESENTATION_DIVISOR_DOMAIN')
-    asm += f'S6Game_Stage = {physical}\nS6Game_PresentationDivisor = {presentation_divisor}\n'
+    asm += f'S6Game_Stage = {max(0, physical)}\nS6Game_PresentationDivisor = {presentation_divisor}\n'
     if not 0 <= player2_x <= 255:
         raise ValueError('PLAYER2_FIXTURE_POSITION_DOMAIN')
     asm += f'S6Game_Player2X = {player2_x}\n'
     asm += f'S6Game_ExpectedBirths = {enemy_copies}\n'
-    asm += f'S7Resident_Enabled = {int(resident)}\n'
-    asm += f'S6Game_EnemyRoster = {models[1]["roster"]}\n'
+    # S7Resident_Owner is a three-state protocol: 0=disabled/production,
+    # 1=acquire on this source tick, 2=persistent resident owner. A resident
+    # build must keep writing state 2 across elapsed fields; Boolean True
+    # (state 1) silently fell back through the S-CPU import path every field.
+    asm += f'S7Resident_Enabled = {2 if resident else 0}\n'
+    asm += f'S6Game_EnemyRoster = {models[min(1, len(models)-1)]["roster"]}\n'
     asm += f'S6Game_InitialAction = {0 if scenario in ("kula", "kula_samepass") and not publication_requests else 65535}\n'
     asm += 'S6Game_PlayerFacing = 0\n'
     asm += f'S6Game_Profile = {int(scenario!="compat")}\n'
     asm += f'S6Game_ControlPlacement = {int(scenario in ("kula","kula_samepass","samepass","compat"))}\n'
     asm += f'S6Game_StopSlot = {0 if scenario in ("kula","kula_samepass") else 2}\n'
-    asm += f'S6Game_StopDriver = {65535 if scenario=="wait_probe" else (8 if scenario in ("kula","kula_samepass") else 13)}\n'
+    # Normal production campaigns must not inherit the bounded S8 fixture's
+    # observer-only stop at the pre-runoff driver; that sentinel remains for
+    # noncampaign probes, while campaign lifecycle is owned by authored BOR.
+    stop_driver = (65535 if normal_runtime or scenario == 'wait_probe' else
+                   (8 if scenario in ('kula', 'kula_samepass') else 13))
+    asm += f'S6Game_StopDriver = {stop_driver}\n'
     asm += f'S6Game_EntityResume = ${sym["CharacterEntity_Play"]+7:X}\n'
     asm += f'S6Game_BindResume = ${sym["ActorBehavior_Bind"]+4:X}\n'
+    if normal_runtime:
+        asm += f'S6Normal_BindResume = ${sym["ActorBehavior_Bind"]+4:X}\n'
     asm += f'S6Game_AliveResume = ${sym["ActorBehavior_EntityAlive"]+4:X}\n'
     asm += f'S6Game_SlotBusyResume = ${sym["ActorBehavior_SlotBusy"]+4:X}\n'
     for p in modules:
         if p.name=='actor_source_host.pasm':
             host=p.read_text()
+            if normal_runtime:
+                host=host.replace(
+                    '    lda.l S6Host_ModelTable,x\n'
+                    '    cmp.l $7E1758\n'
+                    '    beq S6Host_BindExisting__model_found\n',
+                    '    lda.l S6Host_ModelTable,x\n'
+                    '    cmp.l $7E1758\n'
+                    '    bne S6Host_BindExisting__model_next\n'
+                    '    lda CHAR_INPUT_DRIVEN\n'
+                    '    and #$00FF\n'
+                    '    cmp.l S6Host_ModelTable+2,x\n'
+                    '    beq S6Host_BindExisting__model_found\n'
+                    'S6Host_BindExisting__model_next:\n')
+                host=host.replace(
+                    '    lda.l S6Host_ModelTable+4,x\n'
+                    '    cmp #256\n'
+                    '    bcs S6Host_BindExisting__bad_slot\n',
+                    '    lda.l S6Host_ModelTable+4,x\n'
+                    '    cmp #$FFFF\n'
+                    '    beq S6Normal_BindExisting__keep_health\n'
+                    '    cmp #256\n'
+                    '    bcs S6Host_BindExisting__bad_slot\n'
+                    'S6Normal_BindExisting__keep_health:\n')
+                host=host.replace(
+                    '    lda.l S6Host_ModelTable+4,x\n'
+                    '    sep #$20\n'
+                    '    .a8\n'
+                    '    sta CHAR_HP\n'
+                    '    rep #$30\n'
+                    '    .a16\n'
+                    '    .i16\n'
+                    '    bra S6Host_BindExisting__player\n',
+                    '    lda.l S6Host_ModelTable+4,x\n'
+                    '    cmp #$FFFF\n'
+                    '    beq S6Normal_BindExisting__health_ready\n'
+                    '    sep #$20\n'
+                    '    .a8\n'
+                    '    sta CHAR_HP\n'
+                    '    rep #$30\n'
+                    '    .a16\n'
+                    '    .i16\n'
+                    'S6Normal_BindExisting__health_ready:\n'
+                    '    bra S6Host_BindExisting__player\n')
+                host=host.replace(
+                    'S6Host_Tick__unbound_health:\n'
+                    '    .a16\n'
+                    '    .i16\n'
+                    '    lda.l $7E0A00+CHAR_HP,x\n'
+                    '    and #$00FF\n'
+                    '    beq S6Host_Tick__empty\n'
+                    '    jmp S6Host_Tick__unbound\n',
+                    'S6Host_Tick__unbound_health:\n'
+                    '    .a16\n'
+                    '    .i16\n'
+                    '    lda.l $7E0A00+CHAR_INPUT_DRIVEN,x\n'
+                    '    and #$00FF\n'
+                    '    cmp #1\n'
+                    '    beq S6Normal_Tick__check_unbound_roster\n'
+                    '    cmp #2\n'
+                    '    bne S6Host_Tick__empty\n'
+'S6Normal_Tick__check_unbound_roster:\n'
+                    '    lda.l $7E0A00+CHAR_HP,x\n'
+                    '    and #$00FF\n'
+                    '    beq S6Host_Tick__empty\n'
+                    '    lda.l $7E0A00+CHAR_ROSTER_INDEX,x\n'
+                    '    and #$00FF\n'
+                    '    cmp #28\n'
+                    '    beq S6Host_Tick__empty\n'
+                    '    jsl S6Normal_IsRosterBound\n'
+                    '    bcs S6Normal_Tick__catalogued_unbound\n'
+                    '    jmp S6Host_Tick__empty\n'
+                    'S6Normal_Tick__catalogued_unbound:\n'
+                    '    jmp S6Host_Tick__unbound\n')
+                if host.count('    bcc S6Host_Tick__import\n') != 1:
+                    raise ValueError('NORMAL_HOST_IMPORT_BACKEDGE_COUNT')
+                host=host.replace(
+                    '    bcc S6Host_Tick__import\n',
+                    '    bcs S6Normal_Tick__import_done\n'
+                    '    brl S6Host_Tick__import\n'
+                    'S6Normal_Tick__import_done:\n')
+                if ('S6Host_BindExisting__model_next:' not in host or
+                        'S6Normal_BindExisting__health_ready:' not in host or
+                        'S6Normal_Tick__catalogued_unbound:' not in host):
+                    raise ValueError('NORMAL_HOST_ADAPTER_SEAM_MISSING')
             if publication_requests and any(r.get('animation_only_probe') for r in publication_requests):
                 host=host.replace('S6Host_BindExisting__model_found:\n',
                     'S6Host_BindExisting__model_found:\n    rep #$30\n.a16\n.i16\n    lda.l S6Host_ModelTable+30,x\n    bpl S7Probe_NormalBind\n    txa\n    sta.l $7E1756\n    jmp S6Host_BindExisting__player\nS7Probe_NormalBind:\n.a16\n.i16\n')
@@ -184,7 +335,7 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
                     checks=''.join(f'    cpx #{slot}*CHAR_ZP_LEN\n    beq S6Host_Tick__empty\n' for slot in compat_slots)
                     host=host.replace('    beq S6Host_Tick__bound\n','    beq S6Host_Tick__bound\n'+checks)
                     host=host.replace('    bcc S6Host_Tick__import\n','    bcs S7Probe_ImportDone\n    brl S6Host_Tick__import\nS7Probe_ImportDone:\n.a16\n.i16\n')
-            if scenario in ('kula','kula_samepass','samepass','enemy','retarget'):
+            if scenario in ('kula','kula_samepass','samepass','enemy','retarget','normal'):
                 hit_effect='''    sta.l S6Host_HitEvents
     sep #$20
     .a8
@@ -401,13 +552,29 @@ S6Game_PlayRender__check_error:
                 raise ValueError('WAIT_PROBE_DRAIN_SEAM_NOT_FOUND')
             fixture=fixture.replace(marker,replacement,1)
             asm+=fixture+'\n'
+        elif normal_runtime and p.name=='actor_s8_normal_sa1_runtime.pasm':
+            runtime=p.read_text()
+            # Normal flushes at binding/reuse, player lifecycle, physical-stage
+            # reset, native-prop type changes, and source stage-bound updates
+            # before shared state is edited.
+            if runtime.count('jsl S7Resident_Flush') != 6:
+                raise ValueError('NORMAL_ACTOR_BOUNDARY_FLUSH_SEAM_COUNT')
+            runtime=runtime.replace('    bra S6Normal_Init__return\n',
+                                    '    jmp S6Normal_Init__return\n')
+            asm += runtime + '\n'
         else:
             asm += f'.include "{p.as_posix()}"\n'
     clock = (ROOT/'src/core/actor_s5_clock_isolated.pasm').read_text().replace('S5_', 'S6Clock_')
     asm += clock + '\n'
     if publication:
         asm+=publication['assembly']
-    asm += '.bank 29\n.org $C000\n'
+    if normal_runtime:
+        asm += '.bank 34\n.org $8000\n'
+        asm += '\n'.join('    .db ' + ','.join(str(b) for b in player_data[i:i+16])
+                         for i in range(0, len(player_data), 16)) + '\n'
+        asm += '.bank 35\n.org $8000\n'
+    else:
+        asm += '.bank 29\n.org $C000\n'
     asm += '\n'.join('    .db ' + ','.join(str(b) for b in data[i:i+16])
                      for i in range(0, len(data), 16)) + '\n'
     pasm = folder / 'world.pasm'
@@ -424,7 +591,11 @@ S6Game_PlayRender__check_error:
     if clone[sfx_shim_offset:sfx_shim_offset+8]!=bytes(8):
         raise RuntimeError('HIT_SFX_SHIM_ROM_OWNERSHIP_CHANGED')
     clone[sfx_shim_offset:sfx_shim_offset+8]=sfx_shim
-    for bank in ((29,30,31,32,33,34) if instance_leases else ((29,30,31,32,33) if stream_publisher else ((29,30,31,32) if publication else (29,30)))):
+    copy_banks = ((29,30,31,32,33,34,35) if normal_runtime else
+                  ((29,30,31,32,33,34) if instance_leases else
+                   ((29,30,31,32,33) if stream_publisher else
+                    ((29,30,31,32) if publication else (29,30)))))
+    for bank in copy_banks:
         start = bank * 32768
         assert original[start:start+32768] == bytes(32768), 'insertion bank occupied'
         payload = emitted[start:min(start+32768, len(emitted))]
@@ -458,10 +629,25 @@ S6Game_PlayRender__check_error:
         clone[offset:offset+len(expected)] = replacement
         patches.append(dict(address=address, before=expected.hex(), after=replacement.hex(), target=target))
     patch(sym['CharacterEntity_Play'], b'\xC2\x31\x0B\x22'+sym['G13_PlayerLifecycleIsOut'].to_bytes(3,'little'), 'S6Game_Entity')
+    # Native player lifecycle re-enters the original bank-$1E body through
+    # the patched bank-$00 JSR seam. Replace its terminal LDA/RTS pair with a
+    # far-return trampoline; otherwise PBR remains $1E and gameplay freezes
+    # when the actor returns from fall/respawn processing.
+    native_return_pc=sym['CharacterEntity_Play__no_context_exit']+2
+    patch(native_return_pc,b'\xA9\x00\x00\x60',
+          'S6Game_Entity__native_return',0x5C)
     if deadline_wait:
         patch(sym['Core_Nmi_WaitFrame'],b'\xC2\x31\xAF'+sym['Nmi_FrameCounter'].to_bytes(3,'little'),
               'S7Deadline_Wait')
-    patch(sym['ActorBehavior_Bind'], b'\x08\xC2\x31\xDA', 'S6Game_Bind')
+    patch(sym['ActorBehavior_Bind'], b'\x08\xC2\x31\xDA',
+          'S6Normal_Bind' if normal_runtime else 'S6Game_Bind')
+    if normal_runtime:
+        stage_reset_call = sym['StageEnv_ResetActors__worker_call']
+        stage_reset_target = (b'\x22' +
+                              sym['StageEnv_ResetActors__worker_hook'].to_bytes(3, 'little'))
+        patch(stage_reset_call, stage_reset_target, 'S6Normal_ResetStageWorld', 0x22)
+        patch(sym['StageDrop_PersistentHandoff'], bytes.fromhex('18 6B EA EA'),
+              'S6Normal_DropHandoff', 0x5C)
     alive_offset=(sym['ActorBehavior_EntityAlive']>>16)*32768+(sym['ActorBehavior_EntityAlive']&65535)-32768
     expected=bytes((0xC9,sym['CHAR_INPUT_DRIVEN_NONCOMBAT'],0xF0,3))
     patch(sym['ActorBehavior_EntityAlive'],expected,'S6Game_Alive')
@@ -497,25 +683,58 @@ S6Game_PlayRender__check_error:
     stage_off=(stage_start>>16)*32768+(stage_start&65535)-32768
     render_off=original.index(render_needle,stage_off,stage_off+0x200)
     seam=stage_start + (render_off-stage_off)
-    patch(seam,render_needle,'S6Game_PlayRender',0x22)
-    start=sym['Game_State_Play__no_pause_press']
-    end=sym['Game_State_Play__no_death']
-    off=start-0x8000
+    patch(seam,render_needle,'S6Normal_RenderHook' if normal_runtime else 'S6Game_PlayRender',0x22)
+    if normal_runtime:
+        resolver_call=b'\x22'+sym['Game_Campaign_ResolveNext'].to_bytes(3,'little')
+        begin=sym['BorSet_BeginSelectedRun']
+        begin_off=(begin>>16)*32768+(begin&65535)-32768
+        call_at=original.find(resolver_call,begin_off,begin_off+0x60)
+        if call_at < 0:
+            raise ValueError('NORMAL_SELECTED_RUN_RESOLVER_CALL_MISSING')
+        call_pc=(begin&0xFF0000)+0x8000+call_at-(begin>>16)*32768
+        patch(call_pc,resolver_call,'S6Normal_BeginResolve',0x22)
     needle=b'\x22'+sym['G13_HandleP2Death'].to_bytes(3,'little')
-    death_at=original.find(needle,off,end-0x8000)
-    if death_at >= 0:
-        patch(death_at+0x8000,needle,'S6Game_DeathService',0x22)
+    if normal_runtime:
+        # Current gameplay routes player lifecycle through the normal
+        # StageTimerHost service, not a direct call in Game_State_Play.
+        # Interpose at its one native G13 call so SA-1-owned dead players are
+        # unlinked before the exact stock fall/respawn handler runs.
+        start=sym['StageTimerHost_ServiceDeaths__normal']
+        end=sym['StageTimerHost_ServiceDeaths__restore']
+        start_off=(start>>16)*32768+(start&65535)-32768
+        end_off=(end>>16)*32768+(end&65535)-32768
+        death_at=original.find(needle,start_off,end_off)
+        if death_at < 0:
+            raise ValueError('NORMAL_DEATH_SERVICE_CALL_MISSING')
+        call_pc=(start&0xFF0000)+0x8000+death_at-(start>>16)*32768
+        patch(call_pc,needle,'S6Normal_DeathService',0x22)
+    else:
+        start=sym['Game_State_Play__no_pause_press']
+        end=sym['Game_State_Play__no_death']
+        off=start-0x8000
+        death_at=original.find(needle,off,end-0x8000)
+        if death_at >= 0:
+            patch(death_at+0x8000,needle,'S6Game_DeathService',0x22)
     clone[0x7FDC:0x7FE0] = bytes((255, 255, 0, 0))
     checksum = sum(clone) & 65535
     struct.pack_into('<HH', clone, 0x7FDC, checksum ^ 65535, checksum)
     (folder / 'bor.sfc').write_bytes(clone)
     report = dict(status='LINK_ONLY_NOT_RUNTIME_PROOF', scenario=scenario, deadline_wait=deadline_wait,resident=resident,
                   models=models, layout=layout, patches=patches,enemy_copies=enemy_copies,
-                  queue_fixture_note='Repeated source record for bounded concurrency, not original stage queue order',
+                  queue_fixture_note=(None if normal_runtime else 'Repeated source record for bounded concurrency, not original stage queue order'),
                   runtime_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in modules},
                   production_symbols_sha256=sha(ROOT/'src/main.sym'),
-                  source_queue=dict(path=ir.source_path,index=source_index,record=asdict(selected),
-                                    physical=physical,packed_record=record.hex(),original_count=count),
+                  source_queue=(None if normal_runtime else
+                                dict(path=ir.source_path,index=source_index,record=asdict(selected),
+                                     physical=physical,packed_record=record.hex(),original_count=count)),
+                  normal_campaign=dict(runtime='OPT_IN_PERSISTENT_SA1',
+                      model_records=model_record_count,
+                      source_combat_models=[m['name'] for m in models],
+                      scheduler_and_table_bytes=len(data),
+                      data_rom_range=[data_base,data_base+len(data)] if normal_runtime else None,
+                      player_scheduler_bytes=len(player_data),
+                      player_data_rom_range=[player_data_base,player_data_base+len(player_data)]
+                          if normal_runtime else None),
                   production_rom_sha256=sha(source_rom),
                   fixture_rom_sha256=sha(folder/'bor.sfc'),
                   hit_sfx_long_shim=dict(address=sfx_shim_address,offset=sfx_shim_offset,

@@ -80,13 +80,7 @@ VmLoad_Crc2    = $7FE0C5   ; .db -- accumulator byte 2
 VmLoad_Crc3    = $7FE0C6   ; .db -- accumulator byte 3 (MSB)
 VmLoad_Cursor  = $7FE0C7   ; .dw -- module byte offset being folded in
 
-VM_MSU_OFFSET   = $585D10   ; finalized S4 full palette emission; build checks exact offset
-                            ; (rerun the build, paste its reported value) any
-                            ; time an earlier roster/BG/FP/spawn asset changes
-                            ; size, or the shipped level changes.
-VM_MODULE_SIZE  = 424       ; tools/verify/vm_fixtures/boot_spawn_wave1_module.bin, likewise
-                            ; checked at build time. Also cross-checked against
-                            ; the module's own header field at +$34 below.
+; VM_MSU_OFFSET and VM_MODULE_SIZE are linker-owned in campaign_layout.pasm.
 
 ; --- Vm_Init -- zero every VmState_* cell and lay down both guard regions.
 ; Called by Vm_Load before anything else touches VM WRAM. Leaves

@@ -1,10 +1,19 @@
 ; Private production-image hooks. No production include/default policy change.
 ; Command1 loads the selected real stage; its one retained authored queue record
 ; remains owned by normal Spawn_Play. Player positions are fixture preconditions.
+; StageTimer_FieldCounter is the unconditional-NMI field clock. Unlike
+; Nmi_FrameCounter it includes busy/skipped visual commits and is therefore
+; the correct source-time input for an elapsed-field catch-up batch.
+StageTimer_FieldCounter = $7E5914
 S6Game_Command = $7E1770
 S6Game_LastField = $7E1772
 S6Game_TickCommit = $7E1774
 S6Game_BirthCount = $7E177E ; fixture-owned, cleared by whole world-context reset
+; The source host's direct page is the physical $7E1700 WRAM mirror. Keep
+; catch-up scratch outside that world/scheduler page: $7A/$7C are live host
+; scratch, so using $177A/$177C corrupts the batch across source ticks.
+S6Game_BatchCount = $7E5922
+S6Game_BatchParity = $7E5924
 
 S6Game_Entity:
     php
@@ -20,6 +29,13 @@ S6Game_Entity:
     and #$00FF
     cmp #1
     beq S6Game_Entity__exact
+    ; The production Normal bridge uses policy 2 for its compiler-approved
+    ; rounded source/native coordinate projection. It still has one
+    ; canonical actor world: dispatching those rows through the legacy
+    ; per-field CharacterEntity_Play path would independently mutate AI,
+    ; hits, grabs and animation between SA-1 snapshots.
+    cmp #2
+    beq S6Game_Entity__normal_gate
     plx
     plp
     rep #$31
@@ -34,6 +50,109 @@ S6Game_Entity__exact:
     plx
     plp
     jml CharacterEntity_Play__no_context_exit
+S6Game_Entity__normal_gate:
+    ; Before the persistent owner epoch has actually been acquired (and
+    ; during the bounded bootstrap windows that park it), policy-2 rows must
+    ; retain the ordinary actor path. A policy byte by itself is not proof
+    ; that SA-1 owns their canonical state.
+    lda.l S7Resident_Owner
+    cmp #2
+    beq S6Game_Entity__normal
+    plx
+    plp
+    rep #$31
+    .a16
+    .i16
+    phd
+    jsl G13_PlayerLifecycleIsOut
+    jml S6Game_EntityResume
+S6Game_Entity__normal:
+    ; A player retired by the source worker still needs BOR's existing
+    ; S-CPU fall animation/stock/respawn service. Only that absent player
+    ; incarnation re-enters CharacterEntity_Play; live rows and retired
+    ; opponents remain SA-1-only. The respawn seam rebinds one new row.
+    lda.l S6Bridge_Exists,x
+    and #$00FF
+    bne S6Game_Entity__owned_return
+    tdc
+    cmp #$0A00
+    beq S6Game_Entity__player_lifecycle
+    cmp #$0A00+CHAR_ZP_LEN
+    bne S6Game_Entity__owned_return
+    sep #$20
+    .a8
+    lda.l G13_TwoPlayerEnabled
+    beq S6Game_Entity__owned_return
+    rep #$30
+    .a16
+    .i16
+S6Game_Entity__player_lifecycle:
+    plx
+    plp
+    rep #$31
+    .a16
+    .i16
+    phd
+    jsl G13_PlayerLifecycleIsOut
+    jml S6Game_EntityResume
+S6Game_Entity__owned_return:
+    ; Persistent Normal rows bypass CharacterEntity_Play, but BOR's existing
+    ; player jump is an S-CPU 60-Hz substate (Jump_PlayerTick owns its Z
+    ; integration and the source bridge intentionally leaves those fields
+    ; native). Keep that narrow action seam live at the same per-field actor
+    ; boundary; the source worker still owns ground movement/combat and sees
+    ; the jump discriminator at the next committed input boundary.
+    tdc
+    cmp #$0A00
+    beq S6Game_Entity__owned_player1
+    cmp #$0A00+CHAR_ZP_LEN
+    beq S6Game_Entity__owned_player2
+    bra S6Game_Entity__owned_return_path
+S6Game_Entity__owned_player1:
+    sep #$20
+    .a8
+    jsl Jump_PlayerInputGate
+    rep #$30
+    .a16
+    .i16
+    bra S6Game_Entity__owned_return_path
+S6Game_Entity__owned_player2:
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    beq S6Game_Entity__owned_return_path
+    jsl G13_Player2_ContextEnter
+    sep #$20
+    .a8
+    jsl Jump_PlayerInputGate
+    rep #$30
+    .a16
+    .i16
+    jsl G13_Player2_ContextExit
+S6Game_Entity__owned_return_path:
+    plx
+    plp
+    rep #$31
+    .a16
+    .i16
+    ; CharacterEntity_Play is installed as a JML into bank $1E, while its
+    ; caller is Core_Oop_Play's bank-0 indirect JSR. RTS would pop the
+    ; caller's 16-bit address but leave PBR=$1E, fetching the return site
+    ; from the worker bank. Rebuild that JSR frame as the equivalent RTL
+    ; frame. Core_Oop_Play reloads OopObjIndex after dispatch, so X is safe
+    ; as the temporary return-PC register here.
+    pla
+    tax
+    sep #$20
+    .a8
+    lda #0
+    pha
+    rep #$30
+    .a16
+    .i16
+    txa
+    pha
+    lda #0
+    rtl
 
 S6Game_Bind:
     php
@@ -88,7 +207,7 @@ S6Game_Bind__ready:
     sta.l S6Host_Mode
     lda #S6Game_InitialAction
     sta.l S6Host_Action
-    lda.l Nmi_FrameCounter
+    lda.l StageTimer_FieldCounter
     sta.l S6Game_LastField
 S6Game_Bind__done:
     .a16
@@ -307,7 +426,7 @@ S6Game_PlayRender__no_remove:
     lda.l S6Host_Mode
     cmp #3
     bne S6Game_PlayRender__running
-    lda.l Nmi_FrameCounter
+    lda.l StageTimer_FieldCounter
     sta.l S6Game_LastField
     lda #S6Game_Profile
     bne S6Game_PlayRender__exact_start
@@ -336,51 +455,67 @@ S6Game_PlayRender__check_error:
     jmp S6Game_PlayRender__return
 S6Game_PlayRender__measure:
     ; Render-loop passes may repeat within one physical field. Advance source
-    ; time only for newly committed NMI fields, and catch up every elapsed
-    ; field if a busy pass crossed more than one boundary.
+    ; time for every physical field, including busy/skipped NMI commits. The
+    ; StageTimer counter is NMI-owned and advances before that skip decision;
+    ; Nmi_FrameCounter intentionally excludes skipped presentation commits.
     .a16
     .i16
-    lda.l Nmi_FrameCounter
+    lda.l StageTimer_FieldCounter
     sec
     sbc.l S6Game_LastField
-    ; Nmi_FrameCounter is an 8-bit monotonic field counter in production;
-    ; discard the adjacent byte before using the elapsed-field count.
-    and #$00FF
+    ; The physical field counter is a 16-bit word. Preserve the full interval:
+    ; source-sized MSU sheet/piece reads can keep the pre-render path busy for
+    ; more than 30 physical fields, but every field still has to reach the
+    ; source clock in order.
     bne S6Game_PlayRender__has_elapsed
     jmp S6Game_PlayRender__return
 S6Game_PlayRender__has_elapsed:
     .a16
     .i16
-    cmp #30
-    bcc S6Game_PlayRender__field
-    lda #16                  ; bounded catch-up domain, never silently skip time
+    ; A gap of half the 16-bit physical-field domain is ambiguous.
+    cmp #$8000
+    bcc S6Game_PlayRender__delta_valid
+    lda #16                  ; fail closed only for genuinely ambiguous time
     sta.l S6Host_Error
-    bra S6Game_PlayRender__return
-S6Game_PlayRender__field:
-    .a16
-    .i16
-    sta.l $7E177A
-    lda #S7Resident_Enabled
-    sta.l S7Resident_Owner
-    lda.l Nmi_FrameCounter
-    sta.l S6Game_LastField
-    ; Reconstruct preceding alternating NTSC fields, oldest first. This is
-    ; elapsed clock batching, not permission to drop source scheduler ticks.
-    lda.l $7E177A
+    jmp S6Game_PlayRender__return
+S6Game_PlayRender__delta_valid:
+    ; Process at most 120 physical fields per render pass. Keep the parity of
+    ; the oldest pending field from the FULL elapsed gap before bounding this
+    ; batch; any remaining backlog is consumed by the following pass.
+    pha
     dec a
     and #1
     xba
     lsr a
-    sta.l $7E177C
+    sta.l S6Game_BatchParity
     sep #$20
     .a8
     lda $213F
     and #$80
-    eor.l $7E177C
-    sta.l $7E177C
+    eor.l S6Game_BatchParity
+    sta.l S6Game_BatchParity
     rep #$30
     .a16
     .i16
+    pla
+    ; One bounded production visual admission is a 1-KiB sheet chunk plus at
+    ; most 65 sixteen-byte piece rows. A slow display pass may accrue more
+    ; than 120 fields; chunk rather than discard or fault that source debt.
+    cmp #120
+    bcc S6Game_PlayRender__field
+    lda #120
+S6Game_PlayRender__field:
+    .a16
+    .i16
+    sta.l S6Game_BatchCount
+    lda #S7Resident_Enabled
+    sta.l S7Resident_Owner
+    ; Advance only by this chunk. If more elapsed fields remain, the next
+    ; render pass starts at this exact source-time boundary.
+    lda.l S6Game_LastField
+    clc
+    adc.l S6Game_BatchCount
+    sta.l S6Game_LastField
 S6Game_PlayRender__elapsed_field:
     .a16
     .i16
@@ -392,7 +527,7 @@ S6Game_PlayRender__elapsed_field:
     sta $02
     sep #$20
     .a8
-    lda.l $7E177C
+    lda.l S6Game_BatchParity
     and #$80
     beq S6Game_PlayRender__clock
     rep #$20
@@ -409,14 +544,17 @@ S6Game_PlayRender__clock:
     .a16
     .i16
     jsl S6Clock_ClockAdvance
-    lda.l $7E177C
+S6Game_PlayRender__clock_returned:
+    lda.l S6Game_BatchParity
     eor #$80
-    sta.l $7E177C
-    lda.l $7E177A
+    sta.l S6Game_BatchParity
+    lda.l S6Game_BatchCount
     dec a
-    sta.l $7E177A
+    sta.l S6Game_BatchCount
     bne S6Game_PlayRender__elapsed_field
+S6Game_PlayRender__flush:
     jsl S7Resident_Flush
+S6Game_PlayRender__post_flush:
 S6Game_PlayRender__return:
     rep #$30
     .a16
@@ -602,3 +740,22 @@ S6Game_DeathService__compat:
     .i16
     plp
     jml G13_HandleP2Death
+
+; The hooked CharacterEntity_Play is entered from Core_Oop_Play's bank-0
+; indirect JSR but its original body resides in bank $1E. Native lifecycle
+; returns (notably player fall/respawn after a worker unlink) therefore need
+; the same explicit 24-bit return-frame conversion as the worker-owned path.
+S6Game_Entity__native_return:
+    pla
+    tax
+    sep #$20
+    .a8
+    lda #0
+    pha
+    rep #$30
+    .a16
+    .i16
+    txa
+    pha
+    lda #0
+    rtl

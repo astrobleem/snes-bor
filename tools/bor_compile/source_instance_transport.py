@@ -9,7 +9,7 @@ def emit_jobs(jobs):
         raise ValueError('INSTANCE_JOB_FENCE_IDENTITY')
     for j in jobs:
         if (not 0<j['size']<2816-544 or j['size']%2 or j['target']%2 or
-                not 0x8000<=j['target']<j['target']+j['size']<=0xA000 or
+                not 0x8000<=j['target']<j['target']+j['size']<=0xC000 or
                 not 0x8000<=j['source']<j['source']+j['size']<=0x10000 or
                 not 0<=j['lease']<=j['frame']<=255):
             raise ValueError('INSTANCE_JOB_RESOURCE_ABI')

@@ -130,6 +130,20 @@
 ; core/charselect.pasm reaches via `jsl`); exit via `rtl`.
 ; ----------------------------------------------------------------------
 Game_State_NewGameReset:
+    jsl BorSet_BeginSelectedRun
+    bcs Game_State_NewGameReset__selected
+    ; Fail closed if a generated gate changed after prompt confirmation.
+    sep #$20
+.a8
+    lda #0
+    sta.l BorDifficulty_Chosen
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_CHARSELECT
+    sta.l Game_State
+    rtl
+Game_State_NewGameReset__selected:
     rep #$20
 .a16
     lda #GAME_LIVES_START
@@ -143,7 +157,6 @@ Game_State_NewGameReset:
     sta.l G13_P1Out
     sta.l G13_P2Out
     sta.l StageComplete_Active
-    jsl BorSet_BeginEasyRun
     lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared
@@ -163,8 +176,28 @@ Game_State_NewGameReset:
     sta.l HudCachedP2Score32
     sta.l HudCachedLives16
     sta.l HudCachedP2Lives16
-    lda #0
+    ; A generated scene-first campaign must dispatch the scene, not load a
+    ; scene ID as a physical stage. Its existing continuation loads entry 1.
+    sep #$20
+.a8
+    lda.l Game_Campaign_ResolvedKind
+    cmp #CAMPAIGN_ENTRY_SCENE
+    bne Game_State_NewGameReset__stage
+    jsl Game_Campaign_DispatchResolved
+    rtl
+Game_State_NewGameReset__stage:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Campaign_ResolvedValue
+    and #$00FF
     sta.l Game_StageIndex
+    sep #$20
+.a8
+    sta.l Bg_LoadScene_StageIndex
+    rep #$31
+.a16
+.i16
     jsl Stage_LoadAndRespawn_Long
     jsl G13_ReapplyP1Out
     ; Stage_Load reinitializes the five non-player windows.  In two-player
@@ -673,12 +706,13 @@ StageComplete_Update:
     lda.l StageComplete_Tick
     inc a
     sta.l StageComplete_Tick
-    ; BOR.C's FLAG_ANYBUTTON is Start/Special/Attack/Jump, not a d-pad
-    ; movement.  Input_trigger is the shared edge path used by the rest of
-    ; BOR; both controller ports participate in the source bothnewkeys word.
+    ; BOR.C's FLAG_ANYBUTTON is Start/Special/Attack/Jump, not d-pad
+    ; movement. On the SNES input word Start is bit $1000 (the high-byte
+    ; $10 edge used by TITLE/CHARSELECT); include it alongside the other
+    ; action bits. Both controller ports participate in this source edge.
     lda.l Input_trigger
     ora.l Input2_trigger
-    and #$E0D0
+    and #$F0D0
     beq StageComplete_Update__no_skip
     jsr StageComplete_Flush
     lda #0
@@ -965,22 +999,17 @@ StageComplete_Dispatch:
     rep #$31
 .a16
 .i16
-    lda.l Game_CampaignId
+    ; A pending transition owns exactly one completion presentation. Normal
+    ; reads authored next; Easy preserves S7 completion on pending Rugal
+    ; continuation as well as every physical stage. Ending has no pending.
+    lda.l Stage_LoadPending
     and #$00FF
-    cmp #CAMPAIGN_BOR_ORIGINAL
-    beq StageComplete_Dispatch__source_next
-    cmp #CAMPAIGN_BOR_NORMAL_DEV
-    bne StageComplete_Dispatch__legacy
-    sep #$20
-.a8
-.i16
-    lda.l Game_CampaignOrdinal
-    tax
-    lda.l Campaign_BorNormalDev_NextFlags,x
-    beq StageComplete_Dispatch__legacy
-    rep #$31
-.a16
-.i16
+    bne StageComplete_Dispatch__pending
+    rtl
+StageComplete_Dispatch__pending:
+    jsl Game_Campaign_HasNextFlag
+    bcs StageComplete_Dispatch__source_next
+    jmp StageComplete_Dispatch__legacy
 StageComplete_Dispatch__source_next:
     rep #$31
 .a16

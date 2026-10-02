@@ -1080,8 +1080,23 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     width_tiles = manifest["width_tiles"]
     height_tiles = manifest["height_tiles"]
     tile_count = manifest["unique_tiles"]
+    bg2 = manifest.get('layer') == 'BG2_frontpanel'
+    if bg2:
+        # Same fail-closed compiler/runtime admission used for generated media.
+        import sys
+        from pathlib import Path
+        compiler_dir = str(Path(__file__).resolve().parents[1]/'bor_compile')
+        if compiler_dir not in sys.path: sys.path.insert(0,compiler_dir)
+        from stage_frontpanel_bg2 import validate_bg2
+        validate_bg2(Path(fp_dir))
+    bytes_per_tile = 32 if bg2 else FP_BYTES_PER_TILE
+    if bg2 and (manifest.get('bpp') != 4 or
+                manifest.get('full_fp_adapter') != 'ACCEPTED_COMPAT_NORMAL_FULL_FP_BG2_V1' or
+                manifest.get('owner_width_tiles') != expected_width_tiles or
+                height_tiles != 28):
+        raise ValueError(f'{fp_dir}: unbound full Normal BG2 frontpanel ABI')
 
-    if width_tiles != expected_width_tiles:
+    if not bg2 and width_tiles != expected_width_tiles:
         raise ValueError(f"{fp_dir}: width_tiles={width_tiles} does not match "
                          f"the owning BG's width_tiles={expected_width_tiles} "
                          f"-- both layers must share one camera-column index")
@@ -1092,18 +1107,20 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     if len(tilemap) != expected_tilemap_bytes:
         raise ValueError(f"{fp_dir}: tilemap.bin is {len(tilemap)}B, expected "
                          f"{expected_tilemap_bytes}")
-    if len(tiles) != tile_count * FP_BYTES_PER_TILE:
+    if len(tiles) != tile_count * bytes_per_tile:
         raise ValueError(f"{fp_dir}: tiles.bin is {len(tiles)}B, expected "
-                         f"{tile_count * FP_BYTES_PER_TILE}")
+                         f"{tile_count * bytes_per_tile}")
     if tile_count > FP_MAX_TILES:
         raise ValueError(f"{fp_dir}: {tile_count} tiles exceeds the "
                          f"{FP_MAX_TILES}-tile field ceiling")
 
     tilemap_offset = data_offset + FP_RECORD_SIZE + FP_PALETTE_BYTES
     tiles_offset = tilemap_offset + len(tilemap)
+    if bg2 and not 0 <= data_offset < tiles_offset+len(tiles) <= 0x1000000:
+        raise ValueError(f'{fp_dir}: full Normal FP exceeds runtime 24-bit MSU address domain')
     header = struct.pack(
-        "<HBxH2xII",
-        width_tiles, height_tiles, tile_count,
+        "<HBBH2xII",
+        width_tiles, height_tiles, 4 if bg2 else 0, tile_count,
         tilemap_offset, tiles_offset,
     )
     assert len(header) == FP_RECORD_SIZE

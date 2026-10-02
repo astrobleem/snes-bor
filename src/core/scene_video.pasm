@@ -29,6 +29,39 @@ SCENE_VIDEO_PLAY_READY        = 2
 SCENE_CONTINUE_TITLE          = 0
 SCENE_CONTINUE_CAMPAIGN       = 1
 
+; Production cold initialization. In particular MsuDmaProbe is a control
+; input, not harmless telemetry: nonzero deliberately disables prefetch.
+; It must never inherit power-on WRAM. This range contains only scene-owned
+; control/scratch/telemetry; the borrowed frame staging ends before it.
+SceneVideo_Init:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    sep #$20
+.a8
+    lda #0
+    ldx #0
+SceneVideo_Init__clear:
+.a8
+.i16
+    sta.l SceneVideo_TestRequest,x
+    inx
+    cpx #(SceneVideo_MsuDmaProbe-SceneVideo_TestRequest+1)
+    bcc SceneVideo_Init__clear
+    sta.l SceneVideo_PlayState
+    sta.l SceneVideo_SequenceActive
+    sta.l SceneVideo_SkipPending
+    rep #$30
+.a16
+.i16
+    plx
+    pla
+    plp
+    rtl
+
 ; A is a generated scene ID and X is the continuation selector. This request
 ; deliberately leaves Game_StatePrev to the normal state machinery.
 SceneVideo_Request:
@@ -41,6 +74,10 @@ SceneVideo_Request:
     sta.l SceneVideo_RequestedSceneId
     txa
     sta.l SceneVideo_Continuation
+    ; A real authored request always selects real streaming. Diagnostic
+    ; fixtures can still opt into the raw TestRequest seam after init.
+    lda #0
+    sta.l SceneVideo_MsuDmaProbe
     sep #$20
 .a8
     lda #SCENE_VIDEO_REQUEST_START
@@ -1607,10 +1644,11 @@ SceneVideo_LatchInputEdge:
     lda.l SceneVideo_InputPollCount
     inc a
     sta.l SceneVideo_InputPollCount
+    ; Each trigger is already a complete 16-bit word. Reading at +1 would
+    ; also consume the adjacent Input_old low byte and manufacture an edge
+    ; from a held button (notably a completion-screen skip entering a scene).
     lda.l Input_trigger
-    ora.l Input_trigger+1
     ora.l Input2_trigger
-    ora.l Input2_trigger+1
     beq SceneVideo_LatchInputEdge__none
     lda.l Input_last_raw_Addr
     sta.l SceneVideo_InputRawAtSkip

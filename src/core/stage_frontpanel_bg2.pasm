@@ -73,15 +73,69 @@ StageFp_BG2Init__loop:
 ; No PPU MMIO here. NMI alone publishes BG2 screen/character-base changes.
 StageFp_BG2Reset:
     php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
     sep #$20
 .a8
-    pha
     lda #0
     sta.l StageFp_BG2Loaded
     sta.l StageFp_BG2DmaPending
     sta.l StageFp_BG2Fault
     sta.l StreamScrollFp_Enabled
     sta.l StreamScrollFp_ColPending
+    sta.l StreamCache_NormalLayout
+    sta.l StreamCache_BG2Capacity
+    sta.l StreamCache_LegacyFpActive
+    rep #$30
+.a16
+.i16
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    beq StageFp_BG2Reset__normal
+    brl StageFp_BG2Reset__legacy
+StageFp_BG2Reset__normal:
+    sep #$20
+.a8
+    lda #1
+    sta.l StreamCache_NormalLayout
+    rep #$30
+.a16
+.i16
+    lda.l Game_StageIndex
+    and #$00FF
+    cmp #StageFp_MapCount
+    bcs StageFp_BG2Reset__done
+    tax
+    sep #$20
+.a8
+    lda.l StageFp_ModeMap,x
+    beq StageFp_BG2Reset__done
+    lda.l StageFp_BG2CapacityMap,x
+    sta.l StreamCache_BG2Capacity
+    bra StageFp_BG2Reset__done
+StageFp_BG2Reset__legacy:
+.a16
+.i16
+    lda.l Game_StageIndex
+    and #$00FF
+    cmp #StageFp_MapCount
+    bcs StageFp_BG2Reset__done
+    tax
+    sep #$20
+.a8
+    lda.l StageFp_ModeMap,x
+    beq StageFp_BG2Reset__done
+    lda #1
+    sta.l StreamCache_LegacyFpActive
+StageFp_BG2Reset__done:
+    rep #$30
+.a16
+.i16
+    plx
     pla
     plp
     rtl
@@ -273,6 +327,25 @@ StageFp_BG2HistoryInit__cols:
     bcc StageFp_BG2HistoryInit__cols
     lda #0
     sta.l StageFp_BG2SlotScan
+    ; BG2 uses logical cache slots 1..K, where K is the compiler-proven
+    ; 34-column active-plus-pending residency. Permanently pin the remainder
+    ; so an unexpected source demand fails closed instead of overwriting BG1.
+    lda.l StreamCache_BG2Capacity
+    and #$00FF
+    inc a
+    asl a
+    tax
+    lda #1
+StageFp_BG2HistoryInit__reserve:
+.a16
+.i16
+    cpx #512
+    bcs StageFp_BG2HistoryInit__done
+    sta.l StageFp_BG2Refs,x
+    inx
+    inx
+    bra StageFp_BG2HistoryInit__reserve
+StageFp_BG2HistoryInit__done:
     rts
 
 ; Retire columns only AFTER their replacement was committed by NMI.
@@ -1101,7 +1174,7 @@ StageFp_BG2CommitDispatch__owned:
     sta.l $002108             ; BG2 64x32 map at word $6C00
     lda.l Nmi_BgTilesVram12
     and #$0F
-    ora #$40
+    ora #$30
     sta.l Nmi_BgTilesVram12
     lda.l Nmi_MainScreen
     ora #2

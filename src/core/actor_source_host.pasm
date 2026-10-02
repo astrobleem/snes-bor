@@ -13,6 +13,15 @@ S6Host_HitEvents = $7E176E
 S6Host_Action = StageEnv_Actors+74
 S6Host_Frame = StageEnv_Actors+84
 S6Host_Role = StageEnv_Actors+86
+; Normal's stage-boundary command, projected into source coordinates once per
+; physical stage. This follows the six-byte native-target mask at $412D00.
+S6Host_PlayerWorldMaxX = $412D06
+; Persistent production input record for the source tick currently executing.
+; Relay publishes these words from the sequenced 8-byte-per-tick input ring.
+S6Host_InputP1Press = $412020
+S6Host_InputP1Trigger = $412022
+S6Host_InputP2Press = $412024
+S6Host_InputP2Trigger = $412026
 ; Private opt-in catch-up transaction: 0=production owner, 1=acquire on tick,
 ; 2=resident source owner. World $5E is reserved; not an actor-context offset.
 ; Caller must flush before any outside-world consumer or mutation.
@@ -21,7 +30,7 @@ S7Resident_Owner = $7E175E
 ; Bind an EXISTING production slot. Caller owns normal spawn/respawn and must
 ; have a compiler-approved source spawn record (in particular no random drop).
 ; ModelTable records32: roster,type,health,flags,roleptr low/high,count,
-; idle,pain,rise,attack1,walk,range low/high,unsupported features,reserved.
+; idle,pain,rise,attack1,walk,range low/high,unsupported features,speed20.
 ; flags1=grounded single-attack opponent,2=controlled source player action.
 ; No model-name selection, no slot allocation. Failure never delegates.
 S6Host_BindExisting:
@@ -103,6 +112,7 @@ S6Host_BindExisting__model_found:
     cmp #2
     bne S6Host_BindExisting__bad_slot
     lda.l S6Host_ModelTable+6,x
+    and #$FFFB
     cmp #1
     bne S6Host_BindExisting__bad_slot
     lda.l S6Host_ModelTable+4,x
@@ -117,8 +127,11 @@ S6Host_BindExisting__player_policy:
     .a16
     .i16
     lda.l S6Host_ModelTable+6,x
+    and #$FFFB
     cmp #2
-    bne S6Host_BindExisting__bad_slot
+    beq S6Host_BindExisting__player_policy_valid
+    jmp S6Host_BindExisting__bad_slot
+S6Host_BindExisting__player_policy_valid:
 S6Host_BindExisting__player:
     .a16
     .i16
@@ -138,7 +151,19 @@ S6Host_BindExisting__clear:
     tax
     lda.l $7E1754
     sta.l S6Bridge_Context,x
+    ; Model flag bit 2 selects the Normal compiler's rounded 4/5 XY bridge.
+    ; Existing measured/reference model records retain exact policy 1.
+    lda.l $7E1756
+    tax
+    lda.l S6Host_ModelTable+6,x
+    and #4
+    beq S6Host_BindExisting__exact_bridge
+    lda #$0102
+    bra S6Host_BindExisting__bridge_policy
+S6Host_BindExisting__exact_bridge:
     lda #$0101
+S6Host_BindExisting__bridge_policy:
+    ldx $7A
     sta.l S6Bridge_Policy,x
     lda #$FFFF
     sta.l S6Host_Action,x
@@ -163,19 +188,35 @@ S6Host_BindExisting__clear:
     adc #$17B0
     sta $B0
     jsl S6_StopMovement
+    ; Normal's sequenced worker ring owns a zero-based 32-bit tick epoch.
+    ; S6Host_Mode changes from the bind barrier (3) to active owner (1), so
+    ; it cannot select the clock domain. Use the ring producer's committed
+    ; timestamp for every Normal bind; the legacy fallback uses caller time.
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne S6Host_BindExisting__clock_legacy
+    lda.l S6Game_TickCommit
+    sta $D0
+    lda.l S6Game_TickCommit+2
+    sta $D2
+    bra S6Host_BindExisting__clock_ready
+S6Host_BindExisting__clock_legacy:
+    .a16
+    .i16
     lda.l $7E173C
     sta $D0
-    clc
-    adc #1
-    sta $E8
     lda.l $7E173E
     sta $D2
-    adc #0
-    sta $EA
+S6Host_BindExisting__clock_ready:
+    .a16
+    .i16
     ldx $7A
     jsl S6Bridge_Import
     lda $FC
-    bne S6Host_BindExisting__error
+    beq S6Host_BindExisting__bridge_ok
+    jmp S6Host_BindExisting__error
+S6Host_BindExisting__bridge_ok:
     lda.l $7E1756
     tax
     lda.l S6Host_ModelTable+8,x
@@ -200,6 +241,8 @@ S6Host_BindExisting__clear:
     sta $A4
     lda.l S6Host_ModelTable+28,x
     sta $A8
+    lda.l S6Host_ModelTable+30,x
+    sta $C6
     lda.l S6Host_ModelTable+2,x
     sta $F2
     cmp #1
@@ -220,7 +263,19 @@ S6Host_BindExisting__driver:
     lda $38
     jsl S6_SetRole
     lda $FC
-    beq S6Host_BindExisting__return
+    bne S6Host_BindExisting__error
+    ; S5_LoadFrame uses E8/EA as scratch while S6_SetRole enters the initial
+    ; authored frame. Set the first think deadline after that transaction so
+    ; the scheduler fields cannot be clobbered by frame preparation.
+    lda $D0
+    clc
+    adc #1
+    sta $E8
+    lda $D2
+    adc #0
+    sta $EA
+S6Host_BindExisting__scheduled:
+    bra S6Host_BindExisting__return
 S6Host_BindExisting__error:
     .a16
     .i16
@@ -292,6 +347,8 @@ S6Host_Tick__import:
     and #$00FF
     cmp #1
     beq S6Host_Tick__bound
+    cmp #2
+    beq S6Host_Tick__bound
     cpx #CHAR_ZP_LEN
     bne S6Host_Tick__unbound_health
     lda.l G13_TwoPlayerEnabled
@@ -337,10 +394,14 @@ S6Host_Tick__imported:
     lda $52
     beq S6Host_Tick__player0
     cmp #CHAR_ZP_LEN
-    bne S6Host_Tick__unbound
+    beq S6Host_Tick__player1_slot
+    jmp S6Host_Tick__unbound
+S6Host_Tick__player1_slot:
     lda.l G13_TwoPlayerEnabled
     and #$00FF
-    beq S6Host_Tick__unbound
+    bne S6Host_Tick__player1_enabled
+    jmp S6Host_Tick__unbound
+S6Host_Tick__player1_enabled:
     lda $54
     sta $46
     bra S6Host_Tick__next_import
@@ -373,6 +434,16 @@ S6Host_Tick__resident_execute:
 S6Host_Tick__world_done:
     .a16
     .i16
+    ; In the persistent SA-1 runtime, S6Host_Tick__resident_execute has
+    ; already queued the tick and deliberately did not mutate the S-CPU
+    ; world error/context mirrors.  Return to the source clock here: the
+    ; coherent snapshot is exported once at the presentation boundary by
+    ; S7Resident_Flush.  Running the synchronous error/export tail against
+    ; stale S-CPU contexts both consumed per-tick CPU and could mistake the
+    ; untouched $3A scratch for a world callback failure.
+    lda $5E
+    cmp #2
+    beq S6Host_Tick__return
     lda $3A
     bne S6Host_Tick__fault
 S6Host_Tick__export_all:
@@ -388,7 +459,10 @@ S6Host_Tick__export:
     lda.l S6Bridge_Policy,x
     and #$00FF
     cmp #1
+    beq S6Host_Tick__export_bound
+    cmp #2
     bne S6Host_Tick__next_export
+S6Host_Tick__export_bound:
     phd
     lda $54
     tcd
@@ -491,7 +565,9 @@ S7Resident_Flush__publish:
 
 ; Remove an actual production handle (A=entity DP). Source kill owns this
 ; operation; it does not free/move the persistent OOP character allocation.
-; The existing player OUT bit mirrors absence, not a fabricated death/credit.
+; Player life stock and OUT remain owned by G13_SourcePlayerDeathP1/P2 after
+; this bridge publishes HP=0. Worker absence is not equivalent to exhausted
+; stock and must not short-circuit BOR's native fall/decrement/respawn path.
 S6Host_RemoveHandle:
     php
     rep #$30
@@ -504,6 +580,8 @@ S6Host_RemoveHandle:
     sec
     sbc #$0A00
     tax
+    txa
+    sta.l SourceVisual_RetireEntityOffset
     ldy #6
 S6Host_RemoveHandle__validate:
     .a16
@@ -530,13 +608,41 @@ S6Host_RemoveHandle__valid:
     lda.l S6Bridge_Context,x
     beq S6Host_RemoveHandle__bad
     tcd
+    ; $FC is actor scratch as well as this transaction's status word. The
+    ; resident worker intentionally does not import/export the whole context
+    ; for unlink, so initialize the return status before either path.
+    stz $FC
     lda.l S7Resident_Owner
     cmp #2
     beq S6Host_RemoveHandle__resident
     jsl S6Bridge_Import
     lda $FC
     bne S6Host_RemoveHandle__error
+    bra S6Host_RemoveHandle__temporary
 S6Host_RemoveHandle__resident:
+    .a16
+    .i16
+    ; The ordered unlink came from SA-1 after it already ran
+    ; S6_KillUnlinked against canonical state. The S-CPU actor page is only
+    ; a sampled mirror and can have an older environment base; replaying
+    ; kill/export here duplicates lifecycle and can reject a valid unlink on
+    ; that stale projection. Publish only the native-slot consequences.
+    ldx $7A
+    lda #0
+    sta.l S6Bridge_DisplayedHealth,x
+    sep #$20
+    .a8
+    sta.l S6Bridge_Exists,x
+    sta.l $7E0A00+CHAR_HP,x
+    rep #$30
+    .a16
+    .i16
+    jsl S6Host_ClearRemovedReferences
+    lda.l SourceVisual_RetireEntityOffset
+    tax
+    jsl SourceVisual_QueueRetireEntityOffset
+    bra S6Host_RemoveHandle__return
+S6Host_RemoveHandle__temporary:
     .a16
     .i16
     jsl S6_KillUnlinked
@@ -544,25 +650,9 @@ S6Host_RemoveHandle__resident:
     lda $FC
     bne S6Host_RemoveHandle__error
     jsl S6Host_ClearRemovedReferences
-    lda $F2
-    cmp #1
-    bne S6Host_RemoveHandle__return
-    ldx $7A
-    beq S6Host_RemoveHandle__p1
-    cpx #CHAR_ZP_LEN
-    bne S6Host_RemoveHandle__bad
-    sep #$20
-    .a8
-    lda #1
-    sta.l G13_P2Out
-    bra S6Host_RemoveHandle__return
-S6Host_RemoveHandle__p1:
-    .a16
-    .i16
-    sep #$20
-    .a8
-    lda #1
-    sta.l G13_P1Out
+    lda.l SourceVisual_RetireEntityOffset
+    tax
+    jsl SourceVisual_QueueRetireEntityOffset
     bra S6Host_RemoveHandle__return
 S6Host_RemoveHandle__bad:
     rep #$30
@@ -678,17 +768,40 @@ S6Host_ClearRemovedReferences__next:
     bcc S6Host_ClearRemovedReferences__slot
     rtl
 
-; Explicit source action fixture adapter, not a complete player controller.
-; ActionFFFF means no request. Only metadata-selected attack1 is admitted.
+; Normal's persistent player controller consumes only the current worker-tick
+; input words. Held directions advance the canonical source position at the
+; model's authored speed20, using the same twentieth-pixel accumulator as the
+; source enemy driver. Attack remains an edge from that same tick record.
 S6Host_PlayerAction:
+    sep #$20
+    .a8
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_JUMP
+    bne S6Host_PlayerAction__grounded
+    ; BOR's Jump_PlayerTick remains the sole owner of the existing 60-Hz
+    ; airborne X/Z transition. Do not apply the persistent 200-Hz grounded
+    ; controller while that native substate is active.
+    jml S6Host_PlayerAction__done
+S6Host_PlayerAction__grounded:
+    rep #$30
+    .a16
+    .i16
+    jsl S6Host_PlayerMove
+    jsl S6Host_PlayerInputTrigger
+    and #$4000
+    bne S6Host_PlayerAction__attack
+S6Host_PlayerAction__ordinary:
     .a16
     .i16
     ldx $7A
     lda.l S6Host_Action,x
     cmp #$FFFF
-    beq S6Host_PlayerAction__done
+    beq S6Host_PlayerAction__locomotion
     cmp $A0
-    bne S6Host_PlayerAction__unsupported
+    beq S6Host_PlayerAction__attack
+    jml S6Host_PlayerAction__unsupported
+S6Host_PlayerAction__attack:
+    ldx $7A
     lda #$FFFF
     sta.l S6Host_Action,x
     stz $FA
@@ -698,6 +811,20 @@ S6Host_PlayerAction:
     ora #1
     sta $08
     lda #9
+    sta $E6
+    rtl
+S6Host_PlayerAction__locomotion:
+    jsl S6Host_PlayerInputHeld
+    and #$0F00
+    beq S6Host_PlayerAction__idle
+    lda $A6
+    bra S6Host_PlayerAction__set_locomotion
+S6Host_PlayerAction__idle:
+    lda $38
+S6Host_PlayerAction__set_locomotion:
+    stz $FA
+    jsl S6_SetRole
+    lda #8
     sta $E6
 S6Host_PlayerAction__done:
     .a16
@@ -712,6 +839,7 @@ S6Host_PlayerAction__unsupported:
 S6Host_PlayerAttack:
     .a16
     .i16
+    jsl S6Host_PlayerMove
     lda $10
     bne S6Host_PlayerAction__done
     lda $08
@@ -736,6 +864,159 @@ S6Host_PlayerIdle:
     sta $E6
     rtl
 
+; Return the per-tick held or edge word for the currently bound player.
+; Production P1/P2 occupy physical context rows 0 and CHAR_ZP_LEN.
+S6Host_PlayerInputHeld:
+    .a16
+    .i16
+    lda $7A
+    cmp #CHAR_ZP_LEN
+    beq S6Host_PlayerInputHeld__p2
+    lda.l S6Host_InputP1Press
+    rtl
+S6Host_PlayerInputHeld__p2:
+    lda.l S6Host_InputP2Press
+    rtl
+
+S6Host_PlayerInputTrigger:
+    .a16
+    .i16
+    lda $7A
+    cmp #CHAR_ZP_LEN
+    beq S6Host_PlayerInputTrigger__p2
+    lda.l S6Host_InputP1Trigger
+    rtl
+S6Host_PlayerInputTrigger__p2:
+    lda.l S6Host_InputP2Trigger
+    rtl
+
+; Move the player in SOURCE_EXACT coordinates. The PAK-derived model speed is
+; stored in twentieths; S6_EnemyApplyAxis retains signed twentieth-pixel
+; remainders in this actor context, so 0.9/1.2 authored speeds do not drift.
+; Left wins over right and up wins over down, matching Character_PlayFrame.
+; B doubles speed. Direction/role and coordinates all belong to this one SA-1
+; pass; the S-CPU consumes only the next coherent snapshot.
+S6Host_PlayerMove:
+    .a16
+    .i16
+    jsl S6Host_PlayerInputHeld
+    sta $B4
+    and #$0300
+    beq S6Host_PlayerMove__x_stop
+    and #$0200
+    beq S6Host_PlayerMove__x_right
+    lda $C6
+    eor #$FFFF
+    inc a
+    bra S6Host_PlayerMove__x_speed
+S6Host_PlayerMove__x_right:
+    lda $C6
+S6Host_PlayerMove__x_speed:
+    sta $B6
+    lda $B4
+    and #$8000
+    beq S6Host_PlayerMove__x_load
+    lda $B6
+    asl a
+    sta $B6
+S6Host_PlayerMove__x_load:
+    lda $B6
+    bra S6Host_PlayerMove__x_store
+S6Host_PlayerMove__x_stop:
+    lda #0
+    sta $B6
+S6Host_PlayerMove__x_store:
+    ldx $B0
+    sta.l $7E0000,x
+    stz $90
+    stz $92
+    stz $94
+    jsl S6_EnemyApplyAxis
+    ; The S-CPU's Character_PlayFrame clamps player X to WorldMaxX after a
+    ; horizontal step. Persistent ownership must preserve that stage-local
+    ; rule too; otherwise an actor carried from a wider previous stage can
+    ; walk past the new stage and eventually exceed the snapshot bridge's
+    ; admitted source-coordinate domain. Left wins over right, and only the
+    ; selected direction's native clamp is applied.
+    lda.l S6Host_Mode
+    cmp #1
+    bne S6Host_PlayerMove__x_bound_done
+    lda.l S7Resident_Owner
+    cmp #2
+    bne S6Host_PlayerMove__x_bound_done
+    lda $B4
+    and #$0300
+    beq S6Host_PlayerMove__x_bound_done
+    and #$0200
+    beq S6Host_PlayerMove__x_bound_right
+    lda $14
+    bpl S6Host_PlayerMove__x_bound_done
+    stz $14
+    bra S6Host_PlayerMove__x_bound_done
+S6Host_PlayerMove__x_bound_right:
+    lda $14
+    cmp.l S6Host_PlayerWorldMaxX
+    bcc S6Host_PlayerMove__x_bound_done
+    beq S6Host_PlayerMove__x_bound_done
+    lda.l S6Host_PlayerWorldMaxX
+    sta $14
+S6Host_PlayerMove__x_bound_done:
+
+    lda $B4
+    and #$0C00
+    beq S6Host_PlayerMove__y_stop
+    and #$0800
+    beq S6Host_PlayerMove__y_down
+    lda $C6
+    eor #$FFFF
+    inc a
+    bra S6Host_PlayerMove__y_speed
+S6Host_PlayerMove__y_down:
+    lda $C6
+S6Host_PlayerMove__y_speed:
+    sta $B6
+    lda $B4
+    and #$8000
+    beq S6Host_PlayerMove__y_load
+    lda $B6
+    asl a
+    sta $B6
+S6Host_PlayerMove__y_load:
+    lda $B6
+    bra S6Host_PlayerMove__y_store
+S6Host_PlayerMove__y_stop:
+    lda #0
+    sta $B6
+S6Host_PlayerMove__y_store:
+    sta $B6
+    ldx $B0
+    txa
+    clc
+    adc #4
+    tax
+    lda $B6
+    sta.l $7E0000,x
+    lda #2
+    sta $90
+    sta $92
+    lda #4
+    sta $94
+    jsl S6_EnemyApplyAxis
+
+    lda $B4
+    and #$0300
+    beq S6Host_PlayerMove__done
+    and #$0200
+    bne S6Host_PlayerMove__left
+    lda #1
+    sta $1A
+    rtl
+S6Host_PlayerMove__left:
+    lda #0
+    sta $1A
+S6Host_PlayerMove__done:
+    rtl
+
 S6_FrameChanged:
     rep #$30
     .a16
@@ -744,6 +1025,40 @@ S6_FrameChanged:
     lda $06
     sta.l S6Host_Frame,x
     lda $E4
+    cmp $38
+    beq S6_FrameChanged__idle
+    cmp $A6
+    beq S6_FrameChanged__walk
+    cmp $A0
+    beq S6_FrameChanged__attack
+    cmp $3A
+    beq S6_FrameChanged__pain
+    cmp $3C
+    beq S6_FrameChanged__rise
+    lda $A8
+    and #$00FF
+    cmp $E4
+    beq S6_FrameChanged__jump
+    lda #$00FF
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__idle:
+    lda #0
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__walk:
+    lda #1
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__attack:
+    lda #2
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__rise:
+    lda #5
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__jump:
+    lda #7
+    bra S6_FrameChanged__store_role
+S6_FrameChanged__pain:
+    lda #8
+S6_FrameChanged__store_role:
     sta.l S6Host_Role,x
     lda.l S6Host_FrameEvents
     inc a
@@ -761,7 +1076,10 @@ S6_WorldLost:
     .a16
     .i16
     lda.l Screen_PosX
-    jsl S6Bridge_Unproject
+    ; The display camera need not land on the exact 4-pixel source lattice.
+    ; Use each bound actor's compiler-selected inverse policy, just like
+    ; bridge import; Normal's 5/4 projection is intentionally rounded.
+    jsl S6Bridge_UnprojectPolicy
     bcs S6Host_EnvironmentBlocked
     sec
     sbc #1000
@@ -779,24 +1097,25 @@ S6Host_LostRemove:
     .a16
     .i16
     jml S6_KillUnlinked
+S6Host_EnvironmentBlocked:
+    ; Projection failure from S6_WorldLost is still fail-closed. Gravity no
+    ; longer branches here because its former $C2 test read actor scratch.
+    .a16
+    .i16
+    lda #10
+    sta $FC
+    rtl
 
 S6_WorldGravity:
     rep #$30
     .a16
     .i16
-    ; Bounded ground-only certificate. Compiler also excludes authored
-    ; endholes/water/rocking before linking this host to a selected stage.
-    lda $C2
-    bne S6Host_EnvironmentBlocked
-    lda.l Spawn_HoleCount
-    and #$00FF
-    bne S6Host_EnvironmentBlocked
-    rtl
-S6Host_EnvironmentBlocked:
-    .a16
-    .i16
-    lda #10
-    sta $FC
+    ; This pass has no source actor-local gravity state to apply. $C2 is
+    ; scratch beyond CharacterEntity's 133-byte contract (e.g. DriftTick's
+    ; signed-bound temporary), not a gravity/hole certificate; treating a
+    ; stale nonzero value as fatal faulted ordinary Normal actors. Authored
+    ; stage hazards are serviced by StageBoundsHost_Physics/Enter on the
+    ; gameplay path before the resident-world tick.
     rtl
 
 S6_WorldAttack:

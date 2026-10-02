@@ -11,6 +11,7 @@ StageEnv_DataBank = $0D0000
 ; parallel metadata uses the same byte offset as its corresponding actor.
 ; Six rows reserve $7E550F..$7E582C, before existing scratch at $7E5893.
 StageEnv_Actors = $7E550F
+StageEnv_ActorRowsBytes = 798 ; six 133-byte sidecar rows
 StageEnv_BaseFraction = $7E550F
 StageEnv_BaseInteger = $7E5511
 StageEnv_AliasId = $7E5513
@@ -19,6 +20,11 @@ StageEnv_ChildInteger = $7E5832
 
 StageEnv_ResetActors:
     jsl ActorBehavior_PreserveRoster
+StageEnv_ResetActors__worker_call:
+    ; Default builds keep this as a no-op. The opt-in Normal/SA-1 linker
+    ; redirects this one reset boundary so the resident world is retired
+    ; before StageEnv rows are cleared and reused by the next authored stage.
+    jsl StageEnv_ResetActors__worker_hook
     php
     rep #$31
 .a16
@@ -33,11 +39,14 @@ StageEnv_ResetActors__loop:
     sta.l StageEnv_Actors,x
     inx
     inx
-    cpx #CHAR_ZP_LEN*6
+    cpx #StageEnv_ActorRowsBytes
     bcc StageEnv_ResetActors__loop
     plx
     plp
     jsl ActorBehavior_RestoreRoster
+    rtl
+
+StageEnv_ResetActors__worker_hook:
     rtl
 
 StageEnv_ApplySpawnBase:

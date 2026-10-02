@@ -220,7 +220,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\2.TXT",
@@ -230,7 +230,7 @@
               "semantic_event": "boss-music",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\3C.TXT",
@@ -240,7 +240,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\4B.TXT",
@@ -250,7 +250,7 @@
               "semantic_event": "boss-music",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\5B.TXT",
@@ -260,7 +260,7 @@
               "semantic_event": "boss-music",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\1CHARD.TXT",
@@ -330,7 +330,7 @@
           "raw_reference_count": 16,
           "engine_global_reference_count": 0,
           "total_reference_count": 16,
-          "shipped_reachable_reference_count": 5,
+          "shipped_reachable_reference_count": 10,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\1BOSS.BOR"
@@ -372,7 +372,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\ASC.BOR",
               "resolved_source_path": "DATA\\MUSIC\\ASC.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\1AHARD.TXT",
@@ -392,7 +392,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\ASC.BOR"
@@ -487,7 +487,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
               "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\NORMAL\\3A.TXT",
@@ -497,7 +497,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\CONTROL.BOR",
               "resolved_source_path": "DATA\\MUSIC\\CONTROL.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\3AHARD.TXT",
@@ -527,7 +527,7 @@
           "raw_reference_count": 6,
           "engine_global_reference_count": 0,
           "total_reference_count": 6,
-          "shipped_reachable_reference_count": 2,
+          "shipped_reachable_reference_count": 4,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\CONTROL.BOR"
@@ -569,7 +569,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\EXIST.BOR",
               "resolved_source_path": "DATA\\MUSIC\\EXIST.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\6BHARD.TXT",
@@ -589,7 +589,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\EXIST.BOR"
@@ -702,7 +702,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\GOARGE.BOR",
               "resolved_source_path": "DATA\\MUSIC\\GOARGE.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\5BHARD.TXT",
@@ -722,7 +722,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\GOARGE.BOR"
@@ -807,7 +807,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\JOE.BOR",
               "resolved_source_path": "DATA\\MUSIC\\JOE.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\6CHARD.TXT",
@@ -827,7 +827,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\JOE.BOR"
@@ -869,7 +869,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\KOF.BOR",
               "resolved_source_path": "DATA\\MUSIC\\KOF.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\1BHARD.TXT",
@@ -889,7 +889,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\KOF.BOR"
@@ -961,7 +961,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
               "resolved_source_path": "DATA\\MUSIC\\NECKTIE.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\4BHARD.TXT",
@@ -981,7 +981,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\NECKTIE.BOR"
@@ -1053,7 +1053,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
               "resolved_source_path": "DATA\\MUSIC\\SAVIOUR.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\2HARD.TXT",
@@ -1073,7 +1073,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\SAVIOUR.BOR"
@@ -1115,7 +1115,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
               "resolved_source_path": "DATA\\MUSIC\\SCORCHER.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\4AHARD.TXT",
@@ -1135,7 +1135,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\SCORCHER.BOR"
@@ -1177,7 +1177,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
               "resolved_source_path": "DATA\\MUSIC\\SUPERTB.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\5AHARD.TXT",
@@ -1197,7 +1197,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\SUPERTB.BOR"
@@ -1292,7 +1292,7 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\TRICK.BOR",
               "resolved_source_path": "DATA\\MUSIC\\TRICK.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\HARD\\6AHARD.TXT",
@@ -1312,7 +1312,7 @@
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\TRICK.BOR"
@@ -1650,8 +1650,8 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\DIE1.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\DIE1.WAV",
-              "character_identity": null,
-              "reachability": "unshipped-source-content"
+              "character_identity": "RAMON",
+              "reachability": "shipped-reachable"
             },
             {
               "source_file": "DATA\\CHARS\\YASHIRO\\YASHIRO.TXT",
@@ -1716,7 +1716,7 @@
           "raw_reference_count": 9,
           "engine_global_reference_count": 0,
           "total_reference_count": 9,
-          "shipped_reachable_reference_count": 8,
+          "shipped_reachable_reference_count": 9,
           "shipped_reachable": true,
           "batch_b_runtime": {
             "backend": "stream_voice0",
@@ -2700,10 +2700,10 @@
               "resolved_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
               "fallback": null,
               "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
+              "reachability": "shipped-reachable",
+              "snes_reachable": true,
               "audio_implemented": false,
-              "reachability_reason": "OpenBOR time-over call requires a level countdown reaching zero; current SNES runtime has no level timer state or expiration transition"
+              "reachability_reason": "S8 BOR Normal campaign3 timer expiration requires the real TIMEOVER resident effect; physical audio acceptance remains separate"
             }
           ],
           "converter_representation": null,
@@ -2713,9 +2713,9 @@
           "raw_reference_count": 0,
           "engine_global_reference_count": 1,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unshipped-source-content"
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "bor-original",
@@ -6613,33 +6613,17 @@
             "sample_count": 20160,
             "duration_seconds": 0.914285714
           },
-          "references": [
-            {
-              "source_file": "OpenBOR bcec7cb765eebec555c74aac64a23aa73f1cfe21: engine/openbor.c:load_special_sounds",
-              "line": null,
-              "directive": "engine-global-default",
-              "semantic_event": "time-over",
-              "engine_global_sample": "global_sample_list.time_over",
-              "requested_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
-              "resolved_global_asset": "DATA\\SOUNDS\\TIMEOVER.WAV",
-              "fallback": null,
-              "source_evidence": "load_special_sounds() maps the global sample; reachability reason is recorded in engine_audio_semantics.py",
-              "reachability": "content-inapplicable",
-              "snes_reachable": false,
-              "audio_implemented": false,
-              "reachability_reason": "OpenBOR time-over call requires a level countdown reaching zero; current SNES runtime has no level timer state or expiration transition"
-            }
-          ],
+          "references": [],
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
           "msu_track_id": null,
           "raw_reference_count": 0,
-          "engine_global_reference_count": 1,
-          "total_reference_count": 1,
+          "engine_global_reference_count": 0,
+          "total_reference_count": 0,
           "shipped_reachable_reference_count": 0,
           "shipped_reachable": false,
-          "implementation_classification": "unshipped-source-content"
+          "implementation_classification": "unused-by-shipped-content"
         },
         {
           "family": "tmnt",

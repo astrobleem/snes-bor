@@ -317,6 +317,15 @@ G13_EnableP2Session__init_slot:
     ; Use the existing bank-0 JSR/RTL trampoline so the loader executes in
     ; its owning bank without leaving the long-call return byte on the stack.
     jsl Anim_LoadCharacter_Long
+    ; Stage_Load starts both players grounded. Do not carry a previous
+    ; airborne Q8.8 state into the reset P2 actor after clearing jump mode.
+    rep #$20
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    sep #$20
+.a8
     jsl G13_Player2_ContextExit
     pld
 
@@ -363,14 +372,18 @@ G13_RespawnP2:
     sta CHAR_ATTACK_VARIANT
     sta CHAR_HIT_APPLIED
     sta CHAR_GRAB_TIMER
-    sta CHAR_THROW_ZPOS
-    sta CHAR_THROW_ZVEL
     lda #$FF
     sta CHAR_FRAME_INDEX
     sta CHAR_GRAB_TARGET
     sta CHAR_GRABBED_BY
     lda #0
     sta CHAR_FALL_STATE_TIMER
+    rep #$20
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sep #$20
+.a8
     lda #CHAR_SELECTED_JUMP
     sta CHAR_SELECTED
     lda #0
@@ -382,8 +395,6 @@ G13_RespawnP2:
     sta CHAR_THROW_ZVEL
     sep #$20
 .a8
-    lda #0
-    sta CHAR_THROW_ZPOS
     lda #0
     sta.l G13_P2Out
     lda #PLAYER_RESPAWN_Y

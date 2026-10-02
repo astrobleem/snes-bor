@@ -124,8 +124,8 @@
       "physical": 22,
       "source_path": "DATA\\NORMAL\\1A.TXT",
       "accepted_frontpanel": "out/fp_stage1a",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/4b61a55e3d21ef07ca58a0120477cdceaf41a7001cffca119a35f7bd2a68d73c",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/55a31ac70fded423734fdad5c352c81910af6041e751bd92431cd1abf7e9bf2f",
+      "reused": true,
       "fingerprint": "611176a35bec0801cbd54255a1e84a8152d9675dec4cb7baa7af76e812fdb6eb",
       "sequence": [
         {
@@ -170,9 +170,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/5d4e3dc9fc2c335c8490de9d979ea126738a7e1ab9bee3cf7e125eb72a83f58c",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "4b61a55e3d21ef07ca58a0120477cdceaf41a7001cffca119a35f7bd2a68d73c",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/779b1be651049f27d02ca9673a5b9fa37d01f3ced1b3489a02cf54e6bf837683",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "55a31ac70fded423734fdad5c352c81910af6041e751bd92431cd1abf7e9bf2f",
       "full_fp_blob_sha256": {
         "tiles.bin": "0974ae6019506eba7c01b796b3589d1727ca837fd31cbd7fe3f2075f892af1f7",
         "tilemap.bin": "dcf1c2ccf9e9665838b7aa3be69db3f99607ebeb074575614e88f7db48ff7b97",
@@ -444,6 +444,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -467,11 +478,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -499,7 +505,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "5d4e3dc9fc2c335c8490de9d979ea126738a7e1ab9bee3cf7e125eb72a83f58c",
+      "clean_bg_fingerprint": "779b1be651049f27d02ca9673a5b9fa37d01f3ced1b3489a02cf54e6bf837683",
       "clean_bg_hashes": {
         "tiles.bin": "e9754aeccf708f1d850f0afe72327972f46ce4e2040e8d7bbf7909d567593ce0",
         "tilemap.bin": "308b7f8fc811b2c155ca8825faf6527f6dc7ecafe175a43f69637998a38130ab",
@@ -510,8 +516,8 @@
       "physical": 27,
       "source_path": "DATA\\NORMAL\\3B.TXT",
       "accepted_frontpanel": "out/fp_3beasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/61008c705e214020128b153084cbf9f3dfd8f1de40de64015d67bb413ac342c2",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/94ff63a0f35feec1f2ea7943e454357399e8636b13a8e46ae1606c55a4776d22",
+      "reused": true,
       "fingerprint": "251794a1380b2658040f5423dbedfd2fd75a73ffc0e454f3a013b7ae8fe414fe",
       "sequence": [
         {
@@ -541,9 +547,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/30dddd465fdbb2bef1cf1c3bfc32c4ad245a2ca4257f22d0f15f78c880cd66c1",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "61008c705e214020128b153084cbf9f3dfd8f1de40de64015d67bb413ac342c2",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/01505d5e0e14d06e6b18507b334c7d723b5f34a9c14ce81a6269f57d90ee3072",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "94ff63a0f35feec1f2ea7943e454357399e8636b13a8e46ae1606c55a4776d22",
       "full_fp_blob_sha256": {
         "tiles.bin": "f978ca8716ca80bce2bf9ccf68fada95421809f86bfa5b5765ccf70e783db65c",
         "tilemap.bin": "1aa803a033ac12745e51c4abb31bdb1c50302101cd562ce3c4d3aa52b7af7134",
@@ -815,6 +821,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -838,11 +855,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -870,7 +882,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "30dddd465fdbb2bef1cf1c3bfc32c4ad245a2ca4257f22d0f15f78c880cd66c1",
+      "clean_bg_fingerprint": "01505d5e0e14d06e6b18507b334c7d723b5f34a9c14ce81a6269f57d90ee3072",
       "clean_bg_hashes": {
         "tiles.bin": "bd59fc46a1aef2f96658c44e37eea4956adce4107ee324d36f9d794b162fff4f",
         "tilemap.bin": "1a965b8ec32ce80626c29e1b14b0343daa2e0534df21357c3520a190e27664c9",
@@ -881,8 +893,8 @@
       "physical": 28,
       "source_path": "DATA\\NORMAL\\3C.TXT",
       "accepted_frontpanel": "out/fp_3ceasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/03da1ad9e959d23111237468ee322d63c20f2683c5cc83f1df48546c9bced89d",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/73f571d37dd470f1d5bc0781481e69a2df64023bd25bc7ddcdc73bf10c050a9e",
+      "reused": true,
       "fingerprint": "4ca368bd125f2f003d3848d8a2a86feba058eba060a2eb2bc21484979b365128",
       "sequence": [
         {
@@ -912,9 +924,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/7d0776fde6b946efca1a24333d1f56ba369140a625cd5641c240e722ca72ae28",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "03da1ad9e959d23111237468ee322d63c20f2683c5cc83f1df48546c9bced89d",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/582da21e3b4c4b3914a264342e8fc00c5233ec226a9d416dfc4481879e00c579",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "73f571d37dd470f1d5bc0781481e69a2df64023bd25bc7ddcdc73bf10c050a9e",
       "full_fp_blob_sha256": {
         "tiles.bin": "28461e363b88101b0910c87acda4c1356d63b03eaaabd5ae978980b0e4963328",
         "tilemap.bin": "5760a3e766fcda169738ecab64842d6a9f06f72c783f7f7d294cc5494398a55c",
@@ -1186,6 +1198,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -1209,11 +1232,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -1241,7 +1259,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "7d0776fde6b946efca1a24333d1f56ba369140a625cd5641c240e722ca72ae28",
+      "clean_bg_fingerprint": "582da21e3b4c4b3914a264342e8fc00c5233ec226a9d416dfc4481879e00c579",
       "clean_bg_hashes": {
         "tiles.bin": "1ab31b447038bf434c2fa38ee3763fca574e3f649c4a6cfbbbe5ab3f7487f240",
         "tilemap.bin": "7ff6d638a79e4e34386413e7e70e120fbfe59f4c3294ea43cde9584bd2b220c7",
@@ -1252,8 +1270,8 @@
       "physical": 30,
       "source_path": "DATA\\NORMAL\\4B.TXT",
       "accepted_frontpanel": "out/fp_4beasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/da47ebd61a4d66522ddb1e54695aa1047d804a063f9aaea28f00edfa4e028a8d",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/8fa59d35c5b3ebe409560bc1bb53193d93f82220fc8213c95f8f18d6d86e4f55",
+      "reused": true,
       "fingerprint": "b3fdef90e27eee3a412f50796fc283f68363f6626cbe7e72f471afaf7bff2856",
       "sequence": [
         {
@@ -1283,9 +1301,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/3226afb9d04a22c5dbbe2ce12ec5d076858d51782be2864a6c59c82f06cff452",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "da47ebd61a4d66522ddb1e54695aa1047d804a063f9aaea28f00edfa4e028a8d",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/36fe3944ec5d71e7fd18f1b5470a575263bfbd773175e010a411a4ea03e65e0d",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "8fa59d35c5b3ebe409560bc1bb53193d93f82220fc8213c95f8f18d6d86e4f55",
       "full_fp_blob_sha256": {
         "tiles.bin": "cb859b19ac9f717be867adf8df671700434ccbb5b0c0c935267b209d4a3e6a5a",
         "tilemap.bin": "4a6c0a87654f363466466bd3af16e625dc1f98c2ca092d529428daabff67c075",
@@ -1557,6 +1575,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -1580,11 +1609,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -1612,7 +1636,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "3226afb9d04a22c5dbbe2ce12ec5d076858d51782be2864a6c59c82f06cff452",
+      "clean_bg_fingerprint": "36fe3944ec5d71e7fd18f1b5470a575263bfbd773175e010a411a4ea03e65e0d",
       "clean_bg_hashes": {
         "tiles.bin": "14d69cf19fdd2a31ebb32df9bc9de84c6de73bd469ad302a49d33b7c8644c0b2",
         "tilemap.bin": "7328fa160010e9381a9c15c759127af0dad9b7e42c3337ecc8f6b047ed5b23fa",
@@ -1623,8 +1647,8 @@
       "physical": 33,
       "source_path": "DATA\\NORMAL\\6A.TXT",
       "accepted_frontpanel": "out/fp_6aeasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/3a86049ae12fc33a33716bbb70545e270abd56340bc61a672426aa84a47ec615",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/bfba9da11408e3a8121a5de254d210963952804954d6d2435751ece50f43f1a3",
+      "reused": true,
       "fingerprint": "81137b5b0f606a46359f86e4ca853a8f667aa879bafa0f8dd068d6e45de6de7e",
       "sequence": [
         {
@@ -1654,9 +1678,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/cc39c008d81341cdbf1753292743a536ea1920632e0e89f3b3f9081e63fa920d",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "3a86049ae12fc33a33716bbb70545e270abd56340bc61a672426aa84a47ec615",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/e0ae6d697a71774b376c37255ea7f4fdbc213b48981afe84646b06aa09343bc1",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "bfba9da11408e3a8121a5de254d210963952804954d6d2435751ece50f43f1a3",
       "full_fp_blob_sha256": {
         "tiles.bin": "71ea33042e1f7abe9f878b8c1363268e35aab456a9a21f111db045520b5de526",
         "tilemap.bin": "9be0780aa0e2fe7588bf39cf0604726a6f9ed3ecfd2f539321b388ebc380697c",
@@ -1928,6 +1952,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -1951,11 +1986,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -1983,7 +2013,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "cc39c008d81341cdbf1753292743a536ea1920632e0e89f3b3f9081e63fa920d",
+      "clean_bg_fingerprint": "e0ae6d697a71774b376c37255ea7f4fdbc213b48981afe84646b06aa09343bc1",
       "clean_bg_hashes": {
         "tiles.bin": "552822b1c22afadcd700a6e23a2409f48972e94f12343aca341aae1a97807cbd",
         "tilemap.bin": "42192fa479d4d49c3e4c7562bbc4b801f4131019a1fab345307388391169576a",
@@ -1994,8 +2024,8 @@
       "physical": 34,
       "source_path": "DATA\\NORMAL\\6B.TXT",
       "accepted_frontpanel": "out/fp_6beasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/f410c448f126d83a26c911b6286cc119c888795eeaee842b9cebd0489dadd7de",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/e621a2dff480dc7b680bf3c443753d757e790111e6e1e88890cee16c3ea9a2b8",
+      "reused": true,
       "fingerprint": "c73a88b3705a03541a0434c6448787b179e4a37726ddf61a289b776ff433c22a",
       "sequence": [
         {
@@ -2025,9 +2055,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/e92985806a47e85cbe195472b235b036a892ddae36807d745b97ff6b260ac894",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "f410c448f126d83a26c911b6286cc119c888795eeaee842b9cebd0489dadd7de",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/e0447ce0c3ba000410f485f314bae10fefa39eee107d292a7c0d1c3ee16a75e6",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "e621a2dff480dc7b680bf3c443753d757e790111e6e1e88890cee16c3ea9a2b8",
       "full_fp_blob_sha256": {
         "tiles.bin": "98874fc70ff485a802734dca57982c47cda9b12848a23f2c25c6a60d4fb83954",
         "tilemap.bin": "0bf84008cb14991cfba6cfff4f98c1850f98e03b58d083ff3c297ac8c6e0c344",
@@ -2299,6 +2329,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -2322,11 +2363,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -2354,7 +2390,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "e92985806a47e85cbe195472b235b036a892ddae36807d745b97ff6b260ac894",
+      "clean_bg_fingerprint": "e0447ce0c3ba000410f485f314bae10fefa39eee107d292a7c0d1c3ee16a75e6",
       "clean_bg_hashes": {
         "tiles.bin": "39bd90313109b5d36f60198f1c23bbfce67ee4efd0dd87f07bb8a5e0f6e7a564",
         "tilemap.bin": "bbe7a277fd3718c6a46b2df277c24cd7a6467b8d2d630c76e8bd88cfa3703e83",
@@ -2365,8 +2401,8 @@
       "physical": 35,
       "source_path": "DATA\\NORMAL\\6C.TXT",
       "accepted_frontpanel": "out/fp_6ceasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/1af51aa4d93dfd11e43bb3d43297002b3898d9f920f9916e32c58412724e5702",
-      "reused": false,
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/ec1daff92ba7df978204a1052fc6ff021dd730dc4cdaf92aaa28d9458700e143",
+      "reused": true,
       "fingerprint": "06f49d21ea34c66c8ff18fd76fb840cdf3e85e1e06f0bee2c4f6febc8189008d",
       "sequence": [
         {
@@ -2396,9 +2432,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/24bfe1074cca96ec3445300b3d35f02b35ce20410f3952536c507398963511cc",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "1af51aa4d93dfd11e43bb3d43297002b3898d9f920f9916e32c58412724e5702",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/1762a5f74c95782cd57a36672f2900cede6fd1e5381b6ba556db5c0a6f2692cc",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "ec1daff92ba7df978204a1052fc6ff021dd730dc4cdaf92aaa28d9458700e143",
       "full_fp_blob_sha256": {
         "tiles.bin": "98874fc70ff485a802734dca57982c47cda9b12848a23f2c25c6a60d4fb83954",
         "tilemap.bin": "f624d0de3400a0c6abcedbf2531f0ad64e7f718a3d4ea6c7ce2fde8141e1ad7a",
@@ -2670,6 +2706,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -2693,11 +2740,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -2725,7 +2767,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "24bfe1074cca96ec3445300b3d35f02b35ce20410f3952536c507398963511cc",
+      "clean_bg_fingerprint": "1762a5f74c95782cd57a36672f2900cede6fd1e5381b6ba556db5c0a6f2692cc",
       "clean_bg_hashes": {
         "tiles.bin": "920bdfc949802da6f3d6cc75e51f39035a4c1e3b29f708b3f340749649a7a4d5",
         "tilemap.bin": "6d97a03839b864c63cc612dff248249a34b7f4f46804d8dec0596fb37cf522de",
@@ -2755,6 +2797,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 799,
+      "combined_character_tiles": 1023,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -3017,6 +3061,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -3040,11 +3095,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -3094,6 +3144,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 652,
+      "combined_character_tiles": 802,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -3356,6 +3408,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -3379,11 +3442,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -3433,6 +3491,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 625,
+      "combined_character_tiles": 789,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -3695,6 +3755,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -3718,11 +3789,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -3772,6 +3838,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 918,
+      "combined_character_tiles": 999,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -4034,6 +4102,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -4057,11 +4136,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -4111,6 +4185,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 353,
+      "combined_character_tiles": 460,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -4373,6 +4449,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -4396,11 +4483,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -4450,6 +4532,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 439,
+      "combined_character_tiles": 530,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -4712,6 +4796,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -4735,11 +4830,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,
@@ -4789,6 +4879,8 @@
       "rows": 28,
       "window_columns": 33,
       "staging_union_columns": 34,
+      "bg1_window_unique_tiles": 397,
+      "combined_character_tiles": 488,
       "layout": {
         "char_base": 12288,
         "map_base": 27648,
@@ -5051,6 +5143,17 @@
           253,
           254
         ],
+        "bg1_fixed_reserved_tiles": [
+          [
+            512,
+            518
+          ],
+          [
+            656,
+            704
+          ]
+        ],
+        "bg2_cache_limit": 255,
         "runs": [
           {
             "tile_id": 0,
@@ -5074,11 +5177,6 @@
         "blank_tile": 255,
         "font_tiles_sha256": "907d95078fda598c7c1b13c59a274b3b9c9d410f6968c9db68fde46d8ff3553f",
         "owners": [
-          {
-            "name": "BG1 cache",
-            "start": 0,
-            "end": 8192
-          },
           {
             "name": "HUD",
             "start": 8192,

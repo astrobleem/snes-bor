@@ -28,7 +28,7 @@ def layout_proof():
                           'BG3_TILES_VRAM_WORD':0x2000, 'BG3_TILEMAP_VRAM_WORD':0x6800},
         'src/core/text.pasm': {'FONT_TILES_VRAM_WORD':0x2900},
         'src/core/stage_frontpanel_bg2.pasm': {'StageFp_BG2Map':MAP_WORD,
-            'StageFp_BG2Char':CHAR_WORD,'StageFp_BG2Rows':28,'StageFp_BG2Slots':255}}
+            'StageFp_BG2Char':CHAR_WORD,'StageFp_BG2Rows':28}}
     for filename,constants in bindings.items():
         text = (ROOT/filename).read_text()
         for name,expected in constants.items():
@@ -38,10 +38,11 @@ def layout_proof():
                 raise ValueError('FRONTPANEL_BG2_LAYOUT_UNBOUND: '+name)
             actual = int(literal[1:],16) if literal.startswith('$') else int(literal)
             if actual != expected: raise ValueError('FRONTPANEL_BG2_LAYOUT_CHANGED: '+name)
+    _validate_runtime_char_base((ROOT/'src/core/stage_frontpanel_bg2.pasm').read_text())
     font = (ROOT/'src/assets/font_tiles.bin').read_bytes()
     if not 0 < len(font) <= (0x3000-0x2900)*2:
         raise ValueError('FRONTPANEL_BG2_FONT_VRAM_OVERLAP')
-    owners = [('BG1 cache',0,0x2000),('HUD',0x2000,0x2060),
+    owners = [('HUD',0x2000,0x2060),
               ('font',0x2900,0x2900+len(font)//2),
               ('OBJ/source gameplay region',0x4000,0x6000),
               ('BG1 maps',0x6000,0x6800),('BG3 HUD map',0x6800,0x6C00)]
@@ -59,16 +60,27 @@ def layout_proof():
             if max(lo,a) < min(hi,b):
                 raise ValueError(f'FRONTPANEL_BG2_VRAM_OVERLAP: {name}/{other}')
     return dict(char_base=CHAR_WORD,map_base=MAP_WORD,map_words=2048,slots=slots,
+                bg1_fixed_reserved_tiles=[(0x2000//16,0x2060//16),(0x2900//16,(0x2900+len(font)//2+15)//16)],
+                bg2_cache_limit=255,
                 runs=[dict(tile_id=a,count=b,word_start=CHAR_WORD+a*16,word_end=CHAR_WORD+(a+b)*16)
                       for a,b in RUNS],blank_tile=BLANK_TILE,font_tiles_sha256=hashlib.sha256(font).hexdigest(),
                 owners=[dict(name=n,start=a,end=b) for n,a,b in owners])
 
 
+def _validate_runtime_char_base(runtime):
+    commit = runtime.split('StageFp_BG2CommitDispatch__owned:',1)[1].split('StageFp_BG2CommitDispatch__max:',1)[0]
+    expected = ((CHAR_WORD >> 12) & 0x0F) << 4
+    match = re.search(r'lda\.l\s+Nmi_BgTilesVram12\s*\n\s*and\s+#\$0F\s*\n\s*ora\s+#\$([0-9a-fA-F]+)',commit)
+    if not match or int(match.group(1),16) != expected:
+        raise ValueError('FRONTPANEL_BG2_RUNTIME_CHAR_BASE')
+
+
 def motion_tables(configs, normal_ir):
     layout = layout_proof()
-    modes,periods = [0]*len(configs),[0]*len(configs)
+    modes,periods,capacities = [0]*len(configs),[0]*len(configs),[0]*len(configs)
     rows = []
     for i,ir in normal_ir.items():
+        bg1_demand = streaming_bg1_window_demand(Path(configs[i]['bg']))
         if not any(d.name == 'frontpanel' for d in ir.directives): continue
         m,hashes,working = validate_bg2(Path(configs[i]['frontpanel']))
         if ir.scroll not in ('right','left','down'):
@@ -78,17 +90,41 @@ def motion_tables(configs, normal_ir):
             raise ValueError('FRONTPANEL_MOTION_COORDINATE_OVERFLOW')
         modes[i] = 2 if ir.scroll == 'down' else 1
         periods[i] = m['target_cycle_width']//8
+        capacities[i] = working['34']
+        required = bg1_demand + capacities[i] + 54 + 1 + 1
+        if required > 1024:
+            raise ValueError(f'NORMAL_BG1_BG2_VRAM_CAPACITY: stage={i} bg1={bg1_demand} '
+                             f'bg2={capacities[i]} fixed=54 blank=2 total={required}')
         rows.append(dict(physical=i,source_path=ir.source_path,direction=ir.scroll,
             adapter=ADAPTER,period_columns=periods[i],source_stride=m['source_stride'],
             max_camera=max_camera,max_adapted_camera=max_camera*7//5,
             working_set=working,blob_sha256=hashes,rows=28,window_columns=33,
-            staging_union_columns=34,layout=layout))
+            staging_union_columns=34,bg1_window_unique_tiles=bg1_demand,
+            combined_character_tiles=required,layout=layout))
     text = '; Generated full Normal FP BG2: ACCEPTED_COMPAT, not source timing exact.\n'
     text += f'StageFp_MapCount = {len(configs)}\nStageFp_ModeMap:\n    .db '+','.join(map(str,modes))+'\n'
-    text += 'StageFp_PeriodMap:\n    .dw '+','.join(map(str,periods))+'\nStageFp_BG2SlotMap:\n'
+    text += 'StageFp_PeriodMap:\n    .dw '+','.join(map(str,periods))+'\n'
+    text += 'StageFp_BG2CapacityMap:\n    .db '+','.join(map(str,capacities))+'\nStageFp_BG2SlotMap:\n'
     for start in range(0,len(layout['slots']),16):
         text += '    .dw '+','.join(map(str,layout['slots'][start:start+16]))+'\n'
     return text,rows
+
+
+def streaming_bg1_window_demand(path, window=33):
+    """Worst live 28-row BG1 cache set from final emitted column-major media."""
+    import snes_tiles as st
+    manifest = json.loads((path/'manifest.json').read_text())
+    width,height = manifest.get('width_tiles',0),manifest.get('height_tiles',0)
+    tilemap = (path/'tilemap.bin').read_bytes()
+    if (manifest.get('streaming') is not True or width < 1 or height != 28
+            or len(tilemap) != width*height*3):
+        return 0
+    entries = st.decode_tilemap_column_major(tilemap,width,height)
+    columns = min(window,width)
+    return max(len({entries[row*width+col][0]
+                    for row in range(height)
+                    for col in range(start,min(start+columns,width))})
+               for start in range(max(1,width-columns+1)))
 
 
 def validate_bg2(path):
@@ -122,7 +158,7 @@ def validate_bg2(path):
     extended = period+34
     ring = [entries[y*w+x%period] for y in range(28) for x in range(extended)]
     working = {str(columns):verify_window_budget(ring,extended,28,columns)[0] for columns in (33,34)}
-    if working['34'] > 256:
+    if working['34'] > 255:
         raise ValueError('FRONTPANEL_BG2_RESIDENT_UNION_CAPACITY')
     return m,{k:hashlib.sha256(v).hexdigest() for k,v in blobs.items()},working
 

@@ -1,0 +1,19 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\TIMEOVER.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "b2b70433a077412a3e3f6d0fd8c9f1a31ad9f6047dc6901e21201d967ee20018",
+  "raw_frames": 20160,
+  "raw_sample_rate_hz": 22050,
+  "canonical_path": "soundwork/tad/project/samples/timeover.wav",
+  "canonical_sha256": "18ec5ae10c26a48755d08b845e3c7bba39f51404712c5964d7ab50207d89f30e",
+  "canonical_frames": 10080,
+  "canonical_rate_hz": 11025,
+  "duration_ticks": 115,
+  "brr_bytes": 5670,
+  "resampler": "ffmpeg mono PCM u8 22050 to 11025; full duration, original pitch",
+  "resampler_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+  "backend": "resident_tad_sfx",
+  "effect": "sfx_timeover",
+  "scope": "BOR Normal campaign timer expiration only"
+}

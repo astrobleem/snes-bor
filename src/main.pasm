@@ -185,6 +185,7 @@ SFX_BEEP2_ID = 8
 SFX_SPIN_ID = 9
 SFX_DASH_ID = 10
 SFX_METAL_ID = 11
+STAGE_TIMER_TIMEOVER_SFX_ID = 12 ; TAD sfx_timeover; checked by check_sfx_id_sync.py
 
 ; G11 hardening: verification-only telemetry, NOT gameplay state. Incremented
 ; exactly once at each of the two real accepted-landed-damage SFX call sites
@@ -229,6 +230,7 @@ AUDIO_SEMANTIC_RHINO      = $19
 AUDIO_SEMANTIC_KLUNK      = $1A
 AUDIO_SEMANTIC_WOOD       = $1B
 AUDIO_SEMANTIC_DIE2       = $1C
+AUDIO_SEMANTIC_TIMEOVER   = $1D ; source TIMEOVER, Normal timer host only
 AudioSemantic_JumpRequestCount = $7E281E ; .dw
 AudioSemantic_RequestCount        = $7E2806 ; .dw
 AudioSemantic_TraceWriteIndex     = $7E2808 ; .db
@@ -2539,6 +2541,7 @@ Oam_CursorResetDone = $7E2332 ; .db -- plan.md Phase 1b Step 3: per-FRAME (not
 .include "core/oam.pasm"
 .include "core/stream_cache.pasm"
 .include "core/stream_cache_fp.pasm"
+.include "core/stage_frontpanel_host.pasm"
 .include "core/game_state.pasm"
 
 ; ============================================================================
@@ -2666,7 +2669,7 @@ ANIM_WALK_BASE = $8C00
 ; changes -- see Anim_UpdateFacing below.
 ANIM_TILEMAP_ROW_BYTES = 8          ; 4 columns * 2 bytes/entry
 ANIM_TILEMAP_ROW_STRIDE = $40       ; byte distance between rows in the 32-
-                                     ; column-wide tilemap ($5C00 base, word
+                                     ; column-wide tilemap ($6C00 base, word
                                      ; stride 32 -> byte stride 64 = $40)
 ANIM_TILEMAP_RIGHT_BASE = ANIM_WALK_BASE   ; walk's old pixel-data blob (which used to
                               ; sit before this) is gone -- see the comment above
@@ -3179,6 +3182,9 @@ CHAR_PALETTE_BASE_HI = 51  ; .db
 CHAR_MAP_INDEX       = 52  ; .db -- 0 = base palette; 1..255 = bounded alternate map
 CHAR_MAP_BASE_LO     = 53  ; .dw
 CHAR_MAP_BASE_HI     = 55  ; .db
+; Visual policy is independent from gameplay policy.  It lives in the
+; parallel StageEnv row because the actor DP ABI already owns offset 67 for
+; throw height.  Zero preserves the accepted fixed-render path.
 ; plan_game.md 7 (G7 remaining, "attack2"): a real second attack move
 ; (RALF=upper, JOE=grab, JHUN=jumpattack; YASHIRO has none -- FCOUNT==0).
 ; Generic role, not a hardcoded character name -- see convert_character.py's
@@ -3757,7 +3763,7 @@ BG1_TILEMAP_WORDS_WIDE = 2048  ; two concatenated 32x32 pages (bg_record
                                  ; A, not after 28 rows), page B = $6400-$67FF
                                  ; (cols 32-63). This is why BG3's tilemap had to
                                  ; move to $6800 first -- see BG3_TILEMAP_VRAM_WORD.
-BG3_TILES_VRAM_WORD   = $5000  ; 2bpp HUD tiles
+BG3_TILES_VRAM_WORD   = $2000  ; 2bpp HUD tiles (gameplay map)
 BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
                                  ; Phase 8 (plan.md 2.7) to free $6400-$67FF so
                                  ; BG1's tilemap can grow to a real 64x32 map
@@ -3769,7 +3775,7 @@ BG3_TILEMAP_VRAM_WORD = $6800  ; 32x32 map. Was $6400 (Phase 6); moved here in
 BG3_TILEMAP_WORDS     = 1024
 
 ; --- Phase 10 (plan.md 2.10) BG3 frontpanel foreground layer ---
-FP_TILES_VRAM_WORD = $5100     ; 2bpp streaming-cache tiles: 256 slots * 8
+FP_TILES_VRAM_WORD = $2100     ; 2bpp streaming-cache tiles: 256 slots * 8
                                  ; words/tile (see STREAM_FP_CACHE_USABLE) =
                                  ; 2048 words, $5100-$58FF. HUD's 12 tiles
                                  ; occupy $5000-$505F (see BG3_TILES_VRAM_WORD)
@@ -4243,6 +4249,7 @@ Anim_Play__check_reselect:
 Anim_Play__reselect_ok:
     sta.l CharSelect_Index
     sta CHAR_ROSTER_INDEX
+
     jsr Anim_LoadCharacter        ; sets/restores its own widths, see its header
     sep #$20
 .a8
@@ -4537,7 +4544,7 @@ Anim_Play__no_attack_trigger:
     brl Anim_Play__want_got
 Anim_Play__want_idle:
     lda #0
-    bra Anim_Play__want_got
+    brl Anim_Play__want_got
     ; --- mode 2: AI seek (plan.md Phase 3) -- walk toward Entity #0
     ; (`PlayerEntity_PosX/Y`, the fixed-slot-0 shortcut) unless within
     ; ANIM_AI_ATTACK_RANGE pixels on BOTH axes, in which case attack
@@ -4645,6 +4652,18 @@ Anim_Play__ai_dy_have:
     lda #1
     bra Anim_Play__want_got
 Anim_Play__ai_attack:
+.a8
+    ; Sparse source enemies cannot invent an attack from adjacent MSU data.
+    ; Existing accepted combat actors all have at least one authored attack.
+    lda CHAR_ATTACK_FCOUNT
+    ora CHAR_ATTACK2_FCOUNT
+    ora CHAR_ATTACK3_FCOUNT
+    ora CHAR_ATTACK4_FCOUNT
+    bne Anim_Play__ai_attack_present
+    lda #0
+    bra Anim_Play__want_got
+Anim_Play__ai_attack_present:
+.a8
     lda #2
     sta CHAR_SELECTED
     ; notjustfreespecial.txt item 3 (AI grab/throw reachability): real AI
@@ -4751,11 +4770,10 @@ Anim_Play__rise:
 
 ; Checks currently-held dpad Left/Right (Input_press, not Input_trigger --
 ; facing should track the held direction continuously, not just its first
-; press) and updates Anim_FacingLeft if it differs. Neither direction held
-; -> keep the last facing (matches how real games hold facing through
-; idle/attack). Called once per Anim_Play invocation, regardless of which
-; animation is active -- facing is independent of Anim_Selected. Exits in
-; .a16/.i16, same convention as its caller.
+; press) and updates Anim_FacingLeft if it differs. The special Biker driver
+; owns its facing and must not inherit the player's controller direction.
+; Neither direction held -> keep the last facing. Called once per Anim_Play
+; invocation; exits in .a16/.i16, same convention as its caller.
 ;
 ; No longer does any DMA of its own -- now that the character renders as a
 ; real OAM sprite (see Character_PlayFrame) instead of a BG2 tilemap
@@ -4771,18 +4789,14 @@ Anim_Play__rise:
 Anim_UpdateFacing:
     sep #$20
 .a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #CHAR_INPUT_DRIVEN_BIKER
+    beq Anim_UpdateFacing__done
     lda.l Input_press+1
     and #$03
-    bne Anim_UpdateFacing__have_input
-    brl Anim_UpdateFacing__done   ; neither held -- keep current facing (too far for an 8-bit beq from here)
-Anim_UpdateFacing__have_input:
+    beq Anim_UpdateFacing__done
     and #$02                       ; bit9 (Left) of the word = bit1 of this byte
-    beq Anim_UpdateFacing__want_right
-    lda #1
-    bra Anim_UpdateFacing__want_got
-Anim_UpdateFacing__want_right:
-    lda #0
-Anim_UpdateFacing__want_got:
+    lsr a
     sta CHAR_FACING_LEFT
 Anim_UpdateFacing__done:
     rep #$31
@@ -5261,25 +5275,6 @@ Anim_Play_Rise__frame_ok:
 Msu1_LoadFrame:
     php
     sei
-    rep #$31
-.a16
-.i16
-    and #$00FF                  ; zero-extend frame_index
-    sta.l AnimHeaderStaging+12  ; scratch = n
-    asl a
-    clc
-    adc.l AnimHeaderStaging+12  ; a = n*3
-    sta.l AnimHeaderStaging+14  ; scratch16 = n*3
-    tdc
-    sta.l AudioSemantic_FrameSoundEntityBase
-
-    ; --- Precompute this instance's row-DMA target byte offset,
-    ; CHAR_TILE_COLUMN*128 (plan.md Phase 1b Step 3 -- see the row-DMA
-    ; comment below for the *128 derivation). Done here, after the
-    ; frame_index parameter above is already safely captured off the
-    ; accumulator into WRAM, since A can't be clobbered before that. ---
-    sep #$20
-.a8
     ; SOURCE_SIZED owns the actor's presentation resources.  The accepted
     ; gameplay animation still advances and its frame sound remains routed,
     ; but the legacy 768-byte OBJ upload must not overwrite the compiler
@@ -5302,6 +5297,25 @@ Msu1_LoadFrame:
 .i16
     rts
 Msu1_LoadFrame__legacy:
+    rep #$31
+.a16
+.i16
+    and #$00FF                  ; zero-extend frame_index
+    sta.l AnimHeaderStaging+12  ; scratch = n
+    asl a
+    clc
+    adc.l AnimHeaderStaging+12  ; a = n*3
+    sta.l AnimHeaderStaging+14  ; scratch16 = n*3
+    tdc
+    sta.l AudioSemantic_FrameSoundEntityBase
+
+    ; --- Precompute this instance's row-DMA target byte offset,
+    ; CHAR_TILE_COLUMN*128 (plan.md Phase 1b Step 3 -- see the row-DMA
+    ; comment below for the *128 derivation). Done here, after the
+    ; frame_index parameter above is already safely captured off the
+    ; accumulator into WRAM, since A can't be clobbered before that. ---
+    sep #$20
+.a8
     lda CHAR_TILE_COLUMN
     rep #$31
 .a16
@@ -5833,6 +5847,13 @@ Character_BlankPadding_Guarded:
 ; problem (raw-byte-verified at the time: without the guard, the label
 ; resolved 1 byte early onto the preceding routine's `rts`).
 Character_PlayFrame:
+    jsl StageBoundsHost_BeforeActor
+    bcc Character_PlayFrame__bounds_unowned
+    rep #$31
+.a16
+.i16
+    rts
+Character_PlayFrame__bounds_unowned:
 .a16
     ; --- Actor depth-sort slice: OAM emission (tile/attr/hi/jump-visual-
     ; offset/dead-hide/Core_Oam_SetSprite) no longer happens inline here --
@@ -6163,6 +6184,7 @@ Character_PlayFrame__hold_y:
     lda CHAR_POS_Y
 Character_PlayFrame__store_y:
     sta CHAR_POS_Y
+    jsl StageBoundsHost_Clamp
     ; Real ground/depth position committed -- see this routine's header for
     ; why OAM emission (previously right here) is now deferred to Character_
     ; RenderFrame, called later in depth-sorted order.
@@ -6228,6 +6250,7 @@ Character_RenderFrame:
     ; cell is. Player only, airborne only; own bank (jump.pasm) for ROM
     ; budget. ---
     jsl Jump_ApplyOamYOffset
+    jsl StageWater_ApplyOamY
 
     ; --- OBJ base tile: this instance's CHAR_TILE_COLUMN*4 (each entity
     ; occupies a 4-tile-wide column slice of the 16-tile-wide OBJ sheet --
@@ -6251,6 +6274,7 @@ Character_RenderFrame:
     lda CHAR_PALETTE_SLOT
     asl a
     ora #$30
+    jsl StageFp_BG2OamAttr
     sta.l OamSetSprite_Attr
     lda CHAR_FACING_LEFT
     beq Character_PlayFrame__no_flip
@@ -6327,12 +6351,17 @@ Character_PlayFrame__not_dead_hide:
     rep #$31
 .a16
 .i16
+    jsl StageBoundsHost_Render
+    php
     jsr Core_Oam_SetSprite        ; normal image, cursor -> 4
+    plp
+    bcs Character_RenderFrame__bounds_done
 
     ; BOR `mirror 1` is an independent reflected entity image, not a
     ; horizontal stage reversal. The bounded helper emits that second image
     ; from the same OAM request without enlarging the actor pool.
     jsl Character_MirrorEmit
+Character_RenderFrame__bounds_done:
     rtl
 
 ; ============================================================================
@@ -6478,7 +6507,7 @@ Character_HitApply__attacking:
     beq Character_HitApply__do_vs_player
     bra Character_HitApply__done   ; mode 0 (static) -- no defined "other entity"
 Character_HitApply__do_vs_all_ai:
-    jsl Character_HitApply_VsAllGeneric
+    jsl StageTimerHost_VsAllGeneric
     bra Character_HitApply__done
 Character_HitApply__do_vs_player:
     jsr Character_HitApply_VsPlayer
@@ -6917,7 +6946,7 @@ Character_HitApply_VsPlayer__not_invuln:
     bcs Character_HitApply_VsPlayer__hp_ok
     lda #0
 Character_HitApply_VsPlayer__hp_ok:
-    sta.l PlayerEntity_Hp,x
+    jsl HudOpponentHost_StorePlayerHp
     lda #1
     sta CHAR_HIT_APPLIED
     ; G11: this leaf deliberately does NOT route through Character_HitApply__
@@ -7726,6 +7755,13 @@ Core_Dma_Enqueue_Long:
     jsr Core_Dma_Enqueue
     rtl
 
+; Core_Dma_HasFreeSlot_Long -- bank-0 trampoline for source-sized visual
+; publication.  Core_Dma_HasFreeSlot is an RTS routine, so callers outside
+; bank 0 must not JSL it directly and consume the caller's return bank.
+Core_Dma_HasFreeSlot_Long:
+    jsr Core_Dma_HasFreeSlot
+    rtl
+
 ; Core_Text_DrawLabeledNumber_Long -- same trampoline pattern, for
 ; core/pausemenu.pasm's Phase G5 volume row (Core_Text_DrawLabeledNumber,
 ; also same-bank-only, ends in `rts`). MUST be genuine bank-0 code, same as
@@ -8180,6 +8216,11 @@ CharacterEntity_Play:
     ; D use.  The P2 exit must be tested against the actor window that was
     ; entered, not against whatever D the grab/throw or hit path leaves live.
     phd
+    jsl StageBoundsHost_BeforeActor
+    bcc CharacterEntity_Play__bounds_unowned
+    pld
+    brl CharacterEntity_Play__no_context_exit
+CharacterEntity_Play__bounds_unowned:
     jsl G13_PlayerLifecycleIsOut
     bcc CharacterEntity_Play__not_out
     pld
@@ -8391,6 +8432,7 @@ CharacterEntity_OnCommand__camera:
 Bg_LoadScene:
     php
     sei
+    jsl StageFp_BG2SceneReset
 
     ; --- VMAIN: increment by one word AFTER the $2119 (high-byte) write ---
     ; Set here rather than relying on the caller: this routine runs from
@@ -8669,7 +8711,7 @@ Bg_LoadScene__hud:
     dex
     bne Bg_LoadScene__hud
 Bg_LoadScene__hud_done:
-
+    jsl StageWater_ClearGuard
     plp
     rts
 
@@ -8751,7 +8793,7 @@ Bg_LoadScene_Streaming:
 .a16
 .i16
 
-    jsl Stage_StreamInitialColumn
+    jsl Core_StreamCache_InitialColumnSetup
     ; Seek to the rightmost initial viewport while still writing it into
     ; VRAM columns 0..31.  Runtime streaming then walks world columns down
     ; from this window as Screen_PosX decreases.
@@ -9235,6 +9277,13 @@ StageColumn_FetchTilePixels__read:
 ; Phase 10. Unconditional on every FP tile, not data-driven.
 ; ============================================================================
 Bg_LoadSceneFp_Streaming:
+    php
+    jsl StageFp_BG2BootDispatch
+    bcc Bg_LoadSceneFp_Streaming__legacy
+    plp
+    rts
+Bg_LoadSceneFp_Streaming__legacy:
+    plp
     php
     sei
 
@@ -10484,7 +10533,7 @@ Core_StreamScroll_CommitColumn__done:
 Core_StreamScroll_ClampCamera:
     sep #$20
 .a8
-    lda StreamScroll_Enabled
+    lda.l StreamScroll_Enabled
     bne Core_StreamScroll_ClampCamera__active
     rts
 Core_StreamScroll_ClampCamera__active:
@@ -10504,10 +10553,10 @@ Core_StreamScroll_ClampCamera__active:
     txa
     clc
     adc #(STREAM_STAGE_VIEWPORT_COLS - 1)
-    cmp StreamScroll_StagedHi
+    cmp.l StreamScroll_StagedHi
     bcc Core_StreamScroll_ClampCamera__right_ok
     beq Core_StreamScroll_ClampCamera__right_ok
-    lda StreamScroll_StagedHi
+    lda.l StreamScroll_StagedHi
     sec
     sbc #(STREAM_STAGE_VIEWPORT_COLS - 1)
     bpl Core_StreamScroll_ClampCamera__have_right_col
@@ -10527,9 +10576,9 @@ Core_StreamScroll_ClampCamera__right_ok:
     ; StreamScroll_StagedLo -- the resolver's ring can evict/repurpose
     ; columns below its own low watermark too. ---
     txa
-    cmp StreamScroll_StagedLo
+    cmp.l StreamScroll_StagedLo
     bcs Core_StreamScroll_ClampCamera__left_ok
-    lda StreamScroll_StagedLo
+    lda.l StreamScroll_StagedLo
     asl a
     asl a
     asl a
@@ -11138,77 +11187,7 @@ Core_StreamScrollFp_ResolveRows__window_done:
 ; (a fixed constant here, not a variable HeightTiles like BG1's, since FP
 ; never resolves the other 21 blank rows -- see this block's own header).
 Core_StreamScrollFp_CommitColumn:
-    ; Called from core/nmi.pasm's Core_Nmi_Play, which forces DBR=0 -- every
-    ; $7Exxxx access in THIS routine must be explicit .l, not bare .w, same
-    ; reason Core_StreamScroll_CommitColumn's own header comment gives.
-    sep #$20
-.a8
-    lda.l StreamScrollFp_ColPending
-    bne Core_StreamScrollFp_CommitColumn__go
-    rep #$31
-.a16
-.i16
-    rts
-Core_StreamScrollFp_CommitColumn__go:
-    ; VMAIN must be freshly set here too, not assumed from Core_StreamScroll_
-    ; CommitColumn's own write just above this call in Core_Nmi_Play -- see
-    ; that routine's header comment for the exact word-vs-byte shear bug
-    ; this guards against. Harmless if it's already $80 (this call runs
-    ; right after that one every frame), but re-asserting costs nothing and
-    ; removes any ordering assumption between the two.
-    sep #$20
-.a8
-    lda #$80
-    sta $2115
-    rep #$31
-.a16
-.i16
-    ldx #0
-Core_StreamScrollFp_CommitColumn__row:
-    txa
-    cmp #FP_CONTENT_ROW_COUNT
-    bcs Core_StreamScrollFp_CommitColumn__done
-    asl a
-    asl a
-    asl a
-    asl a
-    asl a                       ; A = row * 32 (words between rows in VRAM)
-    clc
-    adc.l StreamScrollFp_ColTargetWord
-    sta $2116
-    ; ColBuf index MUST be X, not Y -- see Core_StreamScroll_CommitColumn's
-    ; own header comment for the confirmed Poppy bug (`.l Symbol,y` silently
-    ; falls back to a wrong-bank, wrong-length absolute,Y) this avoids.
-    phx
-    txa
-    asl a                       ; A = row * 2 (ColBuf is word-indexed)
-    tax
-    lda.l StreamScrollFp_ColBuf,x
-    sep #$20
-.a8
-    sta $2118
-    rep #$31
-.a16
-.i16
-    lda.l StreamScrollFp_ColBuf,x
-    xba
-    sep #$20
-.a8
-    sta $2119
-    rep #$31
-.a16
-.i16
-    plx                          ; restore the row counter
-    inx
-    bra Core_StreamScrollFp_CommitColumn__row
-Core_StreamScrollFp_CommitColumn__done:
-    sep #$20
-.a8
-    lda #0
-    sta.l StreamScrollFp_ColPending
-    rep #$31
-.a16
-.i16
+    jsl StageFp_BG2LegacyCommit
     rts
 
 ; Call once per scpu_main_loop iteration, right after Core_StreamScroll_Play
@@ -11227,6 +11206,13 @@ Core_StreamScrollFp_CommitColumn__done:
 ; own declaration comment for the real risk this combination carries and
 ; why it must be stress-tested, not just trusted, before shipping.
 Core_StreamScrollFp_Play:
+    php
+    jsl StageFp_BG2PlayDispatch
+    bcc Core_StreamScrollFp_Play__legacy
+    plp
+    rts
+Core_StreamScrollFp_Play__legacy:
+    plp
     php
     sei
     rep #$31
@@ -11363,14 +11349,22 @@ Hud_DrawBar__have:
 ; would mean an HP-only change also re-running the text path's own checks
 ; for no reason, and vice versa.
 ; ============================================================================
+; Keep this 17-byte cross-bank wrapper in the audited $B880-$C0FF gap.
+; Emitting it at the tail of bank 0 put its JSL/return across fixed scpu_boot
+; at $FC03; assembly accepted the overlap, replacing the boss-call bank byte
+; and the return tail with boot opcodes. The bar/text leaves end below $B880;
+; the test sprite occupies $B200-$B7FF, and the next fixed code starts $C100.
+.org $B880
 Hud_Play:
     php
     jsr Hud_Play__bar
     jsr Hud_Play__text
     jsl Hud_Play__2p
+Hud_Play__after_2p:
     ; Hud_Play__boss_bar lives in its own bank (core/hud_boss.pasm) -- ROM
     ; budget, see that file's own header. jsl/rtl, not jsr/rts.
     jsl Hud_Play__boss_bar
+Hud_Play__after_boss:
     plp
     rts
 
@@ -11380,7 +11374,10 @@ Hud_Play:
 ; header and plan.md 2.4 both record that a per-frame subsystem which
 ; unconditionally enqueues DMA work is exactly what overran Core_Nmi_Play's
 ; forced-blank commit bracket into active display and corrupted the top of
-; every frame.
+; every frame. Keep this leaf and the following text trampoline in the
+; verified bank-0 $B800-$C0FF gap: the HUD growth had crossed $FC03, where
+; scpu_boot is fixed, and the .org silently overlaid its return path.
+.org $B800
 Hud_Play__bar:
     sep #$20
 .a8
@@ -11463,74 +11460,7 @@ Hud_Play__bar_clean:
 ; single one-way transition with no later frame to catch up on).
 ; ============================================================================
 Hud_Play__text:
-    rep #$31
-.a16
-.i16
-    lda.l Game_Score32
-    cmp.l HudCachedScore32
-    bne Hud_Play__text_score_changed
-    lda.l Game_Score32+2
-    cmp.l HudCachedScore32+2
-    beq Hud_Play__text_check_lives
-Hud_Play__text_score_changed:
-    lda.l Game_Score32
-    sta.l HudCachedScore32
-    sta.l Text_ScoreValue32
-    lda.l Game_Score32+2
-    sta.l HudCachedScore32+2
-    sta.l Text_ScoreValue32+2
-    sep #$20
-.a8
-    lda #1
-    sta.l Text_ScoreMode
-    lda #HUD_ROW_SCORE
-.i16
-    ldx #HUD_LABEL_COL
-    ldy #(Text_Str_HudScore - Text_StringPool)
-    jsr Core_Text_DrawLabeledNumber
-    bra Hud_Play__text_marked
-
-Hud_Play__text_check_lives:
-    rep #$31
-.a16
-.i16
-    lda.l Game_Lives
-    cmp.l HudCachedLives
-    beq Hud_Play__text_check_stage
-    sta.l HudCachedLives
-    sta.l Text_LabelValue
-    sep #$20
-.a8
-    lda #HUD_ROW_LIVES
-.i16
-    ldx #HUD_LABEL_COL
-    ldy #(Text_Str_HudLives - Text_StringPool)
-    jsr Core_Text_DrawLabeledNumber
-    bra Hud_Play__text_marked
-
-Hud_Play__text_check_stage:
-    rep #$31
-.a16
-.i16
-    lda.l Game_StageIndex
-    inc a                    ; 1-based for display
-    cmp.l HudCachedStageIndex
-    beq Hud_Play__text_done
-    sta.l HudCachedStageIndex
-    sta.l Text_LabelValue
-    sep #$20
-.a8
-    lda #HUD_ROW_STAGE
-    rep #$10
-.i16
-    ldx #HUD_LABEL_COL
-    ldy #(Text_Str_HudStage - Text_StringPool)
-    jsr Core_Text_DrawLabeledNumber
-Hud_Play__text_marked:
-    sec
-    rts
-Hud_Play__text_done:
-    clc
+    jsl Hud_Play__text_banked
     rts
 
 ; ============================================================================
@@ -11602,7 +11532,8 @@ scpu_boot:
     ; reset/NMI/IRQ layout without changing its initialization semantics.
     sep #$20
 .a8
-    jsl Tad_StreamInit
+    ; Banked cold setup preserves ordering before BG load and NMI enable.
+    jsl StageFp_BG2ColdInit
     rep #$31
 .a16
 .i16
@@ -12099,12 +12030,12 @@ scpu_clear_ppu:
     lda #$68
     sta $2109               ; BG3SC: tilemap at word $6800 (Phase 8: moved
                              ; from $6400 to free room for a wider BG1 map)
-    lda #$5C
-    sta $2108               ; BG2SC: tilemap at word $5C00
-    lda #$20
-    sta $210B               ; BG12NBA: BG1 tiles $0000, BG2 tiles $2000
-    lda #$05
-    sta $210C               ; BG34NBA: BG3 tiles at word $5000
+    lda #$6C
+    sta $2108               ; BG2SC: gameplay frontpanel map at word $6C00
+    lda #$30
+    sta $210B               ; BG12NBA: BG1 tiles $0000, BG2 tiles $3000
+    lda #$02
+    sta $210C               ; BG34NBA: BG3 tiles at word $2000
     lda #$05
     sta $212C               ; TM: BG1 + BG3 on main screen
     stz $212D               ; TS: nothing on subscreen
@@ -12464,9 +12395,9 @@ scpu_boot__bg1sc_done:
     lda #$68             ; BG3SC: tilemap at word $6800 (Phase 8: moved from
                           ; $6400 to free room for a wider BG1 map)
     sta.l Nmi_Bg3TilemapVram
-    lda #$20
+    lda #$30
     sta.l Nmi_BgTilesVram12
-    lda #$05             ; BG34NBA: BG3 tiles at word $5000
+    lda #$02             ; BG34NBA: BG3 tiles at word $2000
     sta.l Nmi_BgTilesVram34
     lda #$15             ; TM: BG1 + BG3 + OBJ ($01 | $04 | $10) on main screen
                           ; -- BG2 dropped: the BOR character no longer renders
@@ -12592,6 +12523,7 @@ scpu_main_loop:
 scpu_bank0_runtime_end:
 .org $FFA0
 nmi_handler:
+    jsl StageWater_Nmi
     jsr Core_Nmi_Play
     rti
 nmi_handler_end:
@@ -12649,6 +12581,7 @@ __Tad_AudioData_0:
 .include "core/vm/vm_dec16_heavy.pasm"
 .include "core/vm/vm_native_engine.pasm"
 .include "core/vm/audio_batch_b_generated.pasm"
+.include "core/normal_audio_generated.pasm"
 .include "core/campaign.pasm"
 .include "../tools/audio/bor_player_select_config.pasm"
 
@@ -13596,4 +13529,39 @@ Footdie_StreamSource:
 .include "core/ending.pasm"
 .include "core/stage_environment.pasm"
 .include "core/actor_behavior.pasm"
+
+; Compiler-owned Normal environment presentation; explicit compatibility
+; adaptation. Easy and source-exact fixture execution do not select it.
+.bank 14
+.org $8000
+.include "core/stage_water.pasm"
+.include "generated/stage_water_tables.pasm"
+
+.bank 15
+.org $8000
+.include "core/stage_bounds.pasm"
+.include "core/stage_bounds_host.pasm"
+.include "generated/stage_bounds_tables.pasm"
+
+.bank 16
+.org $8000
+.include "core/stage_timer.pasm"
+.include "generated/production_source_visual.pasm"
+.include "core/stage_timer_host.pasm"
+.include "core/source_visual_production.pasm"
+
+.bank 17
+.org $8000
+.include "core/set_select.pasm"
+
+.bank 18
+.org $8000
+.include "core/stage_frontpanel.pasm"
+.include "core/stage_frontpanel_bg2.pasm"
+.include "core/stage_frontpanel_legacy.pasm"
+.include "generated/stage_frontpanel_tables.pasm"
+
+.bank 19
+.org $8000
+.include "generated/production_source_visual_keys.pasm"
 

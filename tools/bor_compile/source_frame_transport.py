@@ -16,14 +16,14 @@ def compile_frames(source, manifest, *, group_future=False, compact=False):
     future=[]
     if group_future:
         baseline=compile_frames(source,manifest,compact=compact)
-        image=bytearray(8192)
+        image=bytearray(16384)
         for f in baseline['frames']:
             for w in f['writes']:
                 at=w['destination']-0x8000;image[at:at+len(w['payload'])]=w['payload']
             future.append({b''.join(image[(c['tile']+row*16)*32:(c['tile']+row*16)*32+64]
                                     for row in range(4)) for c in f['chunks']})
     mapping={original:local for local,original in enumerate(manifest['source_palette_indices'])}
-    cache={};last_use={};previous=set();history=[];frames=[];entry=bytearray(8192)
+    cache={};last_use={};previous=set();history=[];frames=[];entry=bytearray(16384)
     for index,frame in enumerate(manifest['frames']):
         raw=source.read(frame['source_path'])
         if hashlib.sha256(raw).hexdigest()!=frame['asset_sha256']:
@@ -98,7 +98,7 @@ def compile_frames(source, manifest, *, group_future=False, compact=False):
             source=frame,ready=False))
         previous=required
         history.append(required)
-    return dict(entry_image=bytes(entry),frames=frames,vram_byte_range=(0x8000,0xA000),
+    return dict(entry_image=bytes(entry),frames=frames,vram_byte_range=(0x8000,0xC000),
                 native_fences_connected=False,deadline_certified=False)
 
 
@@ -116,8 +116,8 @@ def retained_working_set(plan, displayed, pending):
             if slot in placements and placements[slot]!=resource:conflicts.append(slot)
             placements[slot]=resource
     size=len(resources)*256
-    return dict(encoded_blocks=len(resources),bytes=size,available_bytes=8192,
+    return dict(encoded_blocks=len(resources),bytes=size,available_bytes=16384,
                 layout_conflicts=sorted(set(conflicts)),
-                status='VRAM_WORKING_SET_BLOCKED' if size>8192 else
+                status='VRAM_WORKING_SET_BLOCKED' if size>16384 else
                        'STATIC_LAYOUT_CONFLICT' if conflicts else 'FITS_STATIC_LAYOUT',
                 hardware_ready=False)

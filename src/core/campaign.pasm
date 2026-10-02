@@ -232,17 +232,23 @@ Game_Campaign_ResolveNext__standalone_first:
 
 ; ----------------------------------------------------------------------
 ; BOR source-set state.  Set IDs are positional IDs emitted from the
-; authoritative DATA/LEVELS.TXT parser. Carry clear means the requested
+; authoritative DATA/LEVELS.TXT parser. Carry set means the requested
 ; predicate is true; invalid IDs are false.  Availability is deliberately
 ; independent from source unlock state so unported sets cannot become a
 ; fake playable campaign.
 ; ----------------------------------------------------------------------
 BorSet_IsUnlocked:
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    tax
+    sep #$20
 .a8
     cmp #BOR_SET_COUNT
     bcs BorSet_IsUnlocked__false
-    tax
-    lda.l Bor_TimesCompleted+2
+    lda.l Bor_TimesCompleted+1
+    ora.l Bor_TimesCompleted+2
     ora.l Bor_TimesCompleted+3
     bne BorSet_IsUnlocked__true
     lda.l Bor_TimesCompleted
@@ -256,11 +262,19 @@ BorSet_IsUnlocked__true:
     rtl
 
 BorSet_IsAvailable:
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    tax
+    sep #$20
 .a8
     cmp #BOR_SET_COUNT
     bcs BorSet_IsAvailable__false
-    tax
     lda.l BorSet_ContentAvailable,x
+    beq BorSet_IsAvailable__false
+    lda.l BorSet_CampaignMap,x
+    cmp #BOR_SET_UNMAPPED
     beq BorSet_IsAvailable__false
     sec
     rtl
@@ -281,31 +295,125 @@ BorSet_IsSelectable__false_pop:
     clc
     rtl
 
-; Current shipped BOR starts the source-default Easy set. This is the
-; single set-to-campaign resolution point used by the real new-run path.
+; Compatibility entry for callers explicitly requesting source-default Easy.
+; The real prompt/new-game path uses BeginSelectedRun and retains its cursor.
 BorSet_BeginEasyRun:
+    sep #$20
 .a8
     lda #0
     sta.l BorSet_Selected
+    jml BorSet_BeginSelectedRun
+
+; Revalidate at the actual new-run boundary. No unavailable/unlocked-only
+; selection may become a playable campaign. Resolve typed logical entry 0,
+; never a hardcoded physical catalog index. A8/I16 out, C=success.
+BorSet_BeginSelectedRun:
+    sep #$20
+.a8
+    lda.l BorSet_Selected
+    jsl BorSet_IsSelectable
+    bcc BorSet_BeginSelectedRun__no
+    lda.l BorSet_CampaignMap,x
     sta.l Game_CampaignId
+    lda #$FF
+    sta.l Game_CampaignOrdinal
+    lda #0
+    sta.l Game_Campaign_AdvanceCount
+    jsl Game_Campaign_ResolveNext
+    bcs BorSet_BeginSelectedRun__no
+    lda.l Game_Campaign_ResolvedKind
+    cmp #CAMPAIGN_ENTRY_SCENE+1
+    bcs BorSet_BeginSelectedRun__no
+    lda #0
     sta.l BorSet_CompletionCredited
     lda #1
     sta.l BorSet_RunActive
+    sec
+    rtl
+BorSet_BeginSelectedRun__no:
+.a8
     lda #0
-    sta.l Game_CampaignOrdinal
+    sta.l BorSet_RunActive
+    clc
     rtl
 
-; Credit one completed selected BOR set. The run latch prevents repeated
+; BOR.C load_levelorder() attaches `next` to the preceding typed entry;
+; playgame() calls showcomplete() only for that entry's gonext flag.
+; Normal returns authored next; Easy uses the explicit S7 presentation
+; compatibility lowering (including pending nonterminal scene continuation).
+; Return carry clear for other campaigns or an
+; invalid ordinal. Entry/exit A16/I16; mask byte cells before indexing so
+; the hidden accumulator high byte cannot become part of X.
+Game_Campaign_HasNextFlag:
+    rep #$31
+.a16
+.i16
+    lda.l Game_CampaignOrdinal
+    and #$00FF
+    tax
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #CAMPAIGN_BOR_ORIGINAL
+    beq Game_Campaign_HasNextFlag__easy
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
+    bne Game_Campaign_HasNextFlag__false
+    cpx #Campaign_BorNormalDev_EntryCount
+    bcs Game_Campaign_HasNextFlag__false
+    lda.l Campaign_BorNormalDev_NextFlags,x
+    bra Game_Campaign_HasNextFlag__test
+Game_Campaign_HasNextFlag__easy:
+.a16
+.i16
+    cpx #Campaign_Bor_EntryCount
+    bcs Game_Campaign_HasNextFlag__false
+    lda.l Campaign_Bor_CompleteFlags,x
+Game_Campaign_HasNextFlag__test:
+.a16
+    and #$00FF
+    beq Game_Campaign_HasNextFlag__false
+    sec
+    rtl
+Game_Campaign_HasNextFlag__false:
+    clc
+    rtl
+
+; Credit one completed BOR set. The run latch prevents repeated
 ; end-handler processing from turning one completion into multiple counts.
+; Campaign 3 retains its compatibility name but represents source set 1
+; (Normal) once all 16 typed entries exist. Availability is a separate gate.
 BorSet_CreditCompletion:
 .a8
     lda.l Game_CampaignId
     cmp #CAMPAIGN_BOR_ORIGINAL
+    beq BorSet_CreditCompletion__run
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
     bne BorSet_CreditCompletion__done
+    ; Never credit an older partial development array or a pre-ending end.
+    lda #Campaign_BorNormalDev_EntryCount
+    cmp #16
+    bne BorSet_CreditCompletion__done
+    lda.l Game_CampaignOrdinal
+    cmp #(Campaign_BorNormalDev_EntryCount - 1)
+    bne BorSet_CreditCompletion__done
+BorSet_CreditCompletion__run:
+.a8
     lda.l BorSet_RunActive
     beq BorSet_CreditCompletion__done
     lda.l BorSet_CompletionCredited
     bne BorSet_CreditCompletion__done
+    ; Derive the completed source set from the actual campaign, including
+    ; internal Normal starts which bypass the Easy-only new-run selector.
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
+    beq BorSet_CreditCompletion__normal
+    lda #0
+    bra BorSet_CreditCompletion__selected
+BorSet_CreditCompletion__normal:
+.a8
+    lda #1
+BorSet_CreditCompletion__selected:
+.a8
+    sta.l BorSet_Selected
     lda.l Bor_TimesCompleted
     inc a
     sta.l Bor_TimesCompleted
@@ -378,8 +486,9 @@ Game_Campaign_HandleEnd__tmnt:
 
 ; Called by the shared scene-video cleanup after natural completion or skip.
 ; It advances the logical entry ordinal rather than hard-coding TITLE in the
-; scene implementation. The current Rugal boundary has no further imported
-; entry, so the normal typed campaign end handler selects TITLE.
+; scene implementation. Rewinding leaves the completed scene as the current
+; entry: its generated zero next flag prevents a second completion bonus
+; before loading the following stage (or dispatching another scene).
 Game_Campaign_AdvanceAfterScene:
     rep #$31
 .a16

@@ -170,7 +170,9 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
         if not patch_path.exists():
             raise SystemExit(f"FAIL: source patch is missing: {patch_path}")
         expected_patch = stream_patch.get("sha256", "").lower()
-        actual_patch = sha256_of(patch_path).lower()
+        # Git may check text patches out as CRLF on Windows. The baseline
+        # records repository (LF) bytes; compiler and binary hashes stay raw.
+        actual_patch = hashlib.sha256(patch_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         if actual_patch != expected_patch:
             raise SystemExit(
                 f"FAIL: {patch_name} identity mismatch: expected "

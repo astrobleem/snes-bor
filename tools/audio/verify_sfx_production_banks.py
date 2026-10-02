@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -83,4 +84,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--runtime-actions", action="store_true",
+                        help="verify the linked resident/stream runtime, not the legacy reload-fixture catalog")
+    args = parser.parse_args()
+    if args.runtime_actions:
+        from verify_runtime_audio import main as verify_runtime
+        raise SystemExit(verify_runtime())
     raise SystemExit(main())

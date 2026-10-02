@@ -7,8 +7,8 @@ This is not an audio-complete claim. `implemented-and-gated` requires a real sou
 ## bor-original
 
 PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
-- SFX WAV assets: 29 total; 29 raw-referenced; 50 shipped-reachable references; 0 unused.
-- BOR music assets: 19 total; 16 raw-referenced; 20 shipped-reachable references; 3 unused.
+- SFX WAV assets: 29 total; 29 raw-referenced; 52 shipped-reachable references; 0 unused.
+- BOR music assets: 19 total; 16 raw-referenced; 37 shipped-reachable references; 3 unused.
 
 | Asset | References | Classification | Runtime mapping |
 |---|---:|---|---|
@@ -57,14 +57,14 @@ PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 | `DATA\SOUNDS\MONEY.WAV` | 1 | `implemented-and-gated` | `none` |
 | `DATA\SOUNDS\PUNCH.WAV` | 1 | `implemented-and-gated` | `none` |
 | `DATA\SOUNDS\SHAAH.WAV` | 1 | `present-not-implemented` | `none` |
-| `DATA\SOUNDS\TIMEOVER.WAV` | 1 | `unshipped-source-content` | `none` |
+| `DATA\SOUNDS\TIMEOVER.WAV` | 1 | `present-not-implemented` | `none` |
 | `DATA\SOUNDS\WOOD.WAV` | 5 | `implemented-and-gated` | `voice0 stream source 4 (wood); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch` |
 | `DATA\SOUNDS\ZOEF.WAV` | 1 | `present-not-implemented` | `none` |
 
 ## tmnt
 
 PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
-- SFX WAV assets: 55 total; 33 raw-referenced; 43 shipped-reachable references; 22 unused.
+- SFX WAV assets: 55 total; 32 raw-referenced; 43 shipped-reachable references; 23 unused.
 - BOR music assets: 25 total; 11 raw-referenced; 15 shipped-reachable references; 14 unused.
 
 | Asset | References | Classification | Runtime mapping |
@@ -144,7 +144,7 @@ PAK: `Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak`
 | `DATA\SOUNDS\SHAAH.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\SPIN.WAV` | 6 | `implemented-and-gated` | `TAD SFX::sfx_spin; Audio_FrameSoundDispatch` |
 | `DATA\SOUNDS\THROW.WAV` | 5 | `implemented-and-gated` | `voice0 stream source 13 (throw); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch` |
-| `DATA\SOUNDS\TIMEOVER.WAV` | 1 | `unshipped-source-content` | `none` |
+| `DATA\SOUNDS\TIMEOVER.WAV` | 0 | `unused-by-shipped-content` | `none` |
 | `DATA\SOUNDS\TURTLE~1.WAV` | 1 | `implemented-and-gated` | `voice0 stream source 7 (turtle1); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch` |
 | `DATA\SOUNDS\WAVE.WAV` | 1 | `implemented-and-gated` | `voice0 stream source 14 (wave); AudioSemantic_EmitDiesound/Audio_FrameSoundDispatch` |
 | `DATA\SOUNDS\WOOD.WAV` | 5 | `unshipped-source-content` | `none` |

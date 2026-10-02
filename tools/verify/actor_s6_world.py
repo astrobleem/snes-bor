@@ -61,7 +61,7 @@ def main():
     target_cases=[]
     dp(0x1800);add(put(0x44,0x1200));add(put(0x46,0x1300))
     target_grid=list(itertools.product((-16,0,16),(-16,0,16),(-16,0,16),(0,1)))
-    target_grid+=list(itertools.product((-4096,4095),(-4096,4095),(-4096,4095),(0,1)))
+    target_grid+=list(itertools.product((-8192,8191),(-8192,8191),(-8192,8191),(0,1)))
     for sx,p0x,p1x,direction in target_grid:
         sz,p0z,p1z=0,4,-4
         for actor,x,z in ((0x1000,sx,sz),(0x1200,p0x,p0z),(0x1300,p1x,p1z)):
@@ -80,7 +80,7 @@ def main():
     for p0,p1,sx,expected,error in (
         (0,0,0,0,0),(0,0x1300,0,0x1300,0),(0x1200,0,0,0x1200,0),
         (0x1201,0,0,0,9),(0,0x1F00,0,0,9),
-        (0x1200,0x1300,4096,0,10),(0x1200,0x1300,-4097,0,10)):
+        (0x1200,0x1300,8192,0,10),(0x1200,0x1300,-8193,0,10)):
         dp(0x1800);add(put(0x44,p0));add(put(0x46,p1))
         dp(0x1000);add(put(0xFC,0));add(put(0x14,sx&65535))
         call('S6_SelectTarget')
@@ -116,6 +116,7 @@ def main():
     # Component test against the real ABI offsets, NOT an organic world gate.
     production_symbols=symbols(ROOT/'src/main.sym')
     constants=('CHAR_ZP_LEN','CHAR_POS_X','CHAR_POS_Y','CHAR_HP','CHAR_FACING_LEFT',
+               'CHAR_INPUT_DRIVEN','CHAR_SELECTED','CHAR_SELECTED_JUMP',
                'CHAR_GRAB_TARGET','CHAR_GRABBED_BY',
                'CHAR_THROW_ZPOS','CHAR_THROW_ZVEL','StageEnv_Actors',
                'StageEnv_BaseFraction','StageEnv_BaseInteger')
@@ -174,8 +175,17 @@ def main():
         [0x7E10F0,0x7E10E6,0x7E10B4,0x7E101A,0x7E1074,0x7E10FC],[32,7,198,1,0,0])
     add(put(0x76,1));add('    lda #5\n    ldx #0\n    ldy #0');call('S6_GroundDamage')
     life_snapshot('source-player-friendly-damage-halves-integer-force',[0x7E10F0,0x7E10FC],[30,0])
+    for off,value in ((0xB0,0x17B0),(0xF2,1),(0xF0,30),(0x76,1),(0xC2,0),
+                      (0xC4,0),(0x18,0),(0x14,100),(0xB8,150),(0x74,0),
+                      (0xD0,100),(0xD2,0),(0x3A,1),(0xFC,0)):
+        add(put(off,value))
+    absolute(0x7E17B0,0xFFEE)
+    absolute(0x7E17B2,0)
+    add('    lda #5\n    ldx #0\n    ldy #0');call('S6_GroundDamage')
+    life_snapshot('source-player-damage-reverses-supported-moving-xdir',
+        [0x7E10F0,0x7E17B0,0x7E10E6,0x7E10FC],[28,18,7,0])
     add(put(0x18,65285));add('    lda #5\n    ldx #0\n    ldy #0');call('S6_GroundDamage')
-    life_snapshot('source-player-pit-death-is-not-faked-as-pain',[0x7E10F0,0x7E10FC],[30,4])
+    life_snapshot('source-player-pit-death-is-not-faked-as-pain',[0x7E10F0,0x7E10FC],[28,4])
     includes=('actor_s5_isolated.pasm','actor_source_scheduler.pasm','actor_source_world.pasm',
               'actor_source_target.pasm','actor_source_lifecycle.pasm','actor_source_bridge.pasm',
               'actor_source_damage.pasm','actor_source_rng.pasm','actor_source_ai.pasm')
@@ -314,7 +324,7 @@ S5_HostRandom03:
     (folder/'cases.json').write_text(json.dumps(cases,indent=2))
     from _harness import McpSession,MESEN_EXE,_free_tcp_port,run_frames_exact
     with McpSession(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),boot_wait=1,stderr_log=folder/'mesen.log') as m:
-        m.reset_emulator();run_frames_exact(m,10);m.pause();ram=m.read_memory('snesMemory',0x7E0000,65536)
+        m.reset_emulator();run_frames_exact(m,60);m.pause();ram=m.read_memory('snesMemory',0x7E0000,65536)
     (folder/'wram.bin').write_bytes(ram)
     assert struct.unpack_from('<H',ram,0x2000)[0]==0x5736,'fixture did not finish'
     for case in cases:

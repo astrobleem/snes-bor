@@ -136,6 +136,15 @@
       "evaluator": "default",
       "ignore_gaussian_overflow": false,
       "envelope": "gain F127"
+    },
+    {
+      "name": "timeover",
+      "source": "samples/timeover.wav",
+      "sample_rates": [11025],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
     }
   ],
   "default_sfx_flags": {
@@ -155,7 +164,8 @@
     "sfx_beep2",
     "sfx_spin",
     "sfx_dash",
-    "sfx_metal"
+    "sfx_metal",
+    "sfx_timeover"
   ],
   "low_priority_sound_effects": [],
   "sound_effect_file": "sound-effects.txt",

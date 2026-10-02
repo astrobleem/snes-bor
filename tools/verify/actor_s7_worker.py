@@ -16,7 +16,8 @@ from actor_s5_isolated import ROOT
 POINTER_OFFSETS = (0x34,0x36,0xB0)
 REGIONS = {'save':(0,8),'legacy_canvas':(0x3000,0x6f00),
            'resident_window':(0x10000,0x12000),'job':(0x12000,0x12010),
-           'callback_fields':(0x12100,0x12424)}
+           'callback_fields':(0x12100,0x12424),
+           'bridge_scratch':(0x12D20,0x12D30)}
 
 
 def install(folder):
@@ -24,6 +25,8 @@ def install(folder):
     assert admission.get('resident') and admission.get('layout',{}).get('source_slot_count')==6, 'WORKER_PILOT_REQUIRES_SIX_SOURCE_SLOTS'
     sym=symbols(ROOT/'src/main.sym')
     ws=symbols(folder/'world.sym')
+    old_worker_sym_path = folder/'worker.sym'
+    old_worker_sy = symbols(old_worker_sym_path) if old_worker_sym_path.is_file() else {}
     rom=bytearray((folder/'bor.sfc').read_bytes())
     assert rom[0x7fd8]==8, 'WORKER_REQUIRES_AUDITED_256K_BWRAM'
     def blank(bank):
@@ -45,7 +48,10 @@ def install(folder):
     prefix='\n'.join((ROOT/f'src/core/actor_source_{n}.pasm').read_text() for n in names)
     code=(ROOT/'src/core/actor_s5_isolated.pasm').read_text()+'\n'+prefix+'\nS6_Think:'+host.split('\nS6_Think:',1)[1]
     bridge=(ROOT/'src/core/actor_source_bridge.pasm').read_text()
-    code+='\nS6Bridge_Unproject:'+bridge.split('\nS6Bridge_Unproject:',1)[1]
+    code+='\nS6Bridge_UnprojectPolicy:'+bridge.split(
+        '\nS6Bridge_UnprojectPolicy:',1)[1].split('\nS6Bridge_ProjectPolicy:',1)[0]
+    code+='\nS6Bridge_UnprojectRounded:'+bridge.split(
+        '\nS6Bridge_UnprojectRounded:',1)[1]
     # Cross-context addresses use the BW-RAM window's equivalent linear base.
     code=re.sub(r'\$7E00([0-9A-Fa-f]{2})',r'$40A0\1',code)
     code=code.replace('#$1F00','#$7F00').replace('#$1FF9','#$7FF9')
@@ -61,8 +67,20 @@ def install(folder):
         assert not re.search(r'\$7[EF][0-9A-Fa-f]{4}',instruction),instruction
     defs=dict(CHAR_ZP_LEN=sym['CHAR_ZP_LEN'],Screen_PosX=0x412420,
         Spawn_HoleCount=0x412422,WBridge_TargetHandle=0x412100+70,
+        WBridge_Policy=0x412100+64,
+        WBridge_Temp78=0x412D20,WBridge_Temp7C=0x412D22,
+        WBridge_Temp80=0x412D24,WBridge_Temp82=0x412D26,
+        WBridge_Temp84=0x412D28,WBridge_Temp86=0x412D2A,
+        WBridge_Temp88=0x412D2C,WBridge_Temp8A=0x412D2E,
         WHost_Action=0x412100+74,WHost_Frame=0x412100+84,WHost_Role=0x412100+86,
+        WHost_InputP1Press=0x412020,WHost_InputP1Trigger=0x412022,
+        WHost_InputP2Press=0x412024,WHost_InputP2Trigger=0x412026,
+        WHost_Mode=0x411760,WHost_Error=0x411764,
+        WHost_PlayerWorldMaxX=0x412D06,
+        S7Resident_Owner=0x41175e,
         WHost_FrameEvents=0x41176c,WHost_HitEvents=0x41176e)
+    defs['CHAR_SELECTED'] = sym['CHAR_SELECTED']
+    defs['CHAR_SELECTED_JUMP'] = sym['CHAR_SELECTED_JUMP']
     asm='.snes\n'+''.join(f'{k} = ${v:X}\n' for k,v in defs.items())
     asm+=f'.bank {worker_bank}\n.org $8000\n'+code+'\nWHost_SlotTable:\n    .dw $7900,$7A00,$7B00,$7C00,$7D00,$7E00\n'
     asm+='\nW5_HostRandom03:\n    .a16\n    .i16\n    lda #$FFFF\n    sta $BE\n    lda #10\n    sta $FC\n    rtl\n'
@@ -373,7 +391,7 @@ Relay_Timeout:
     execute_at=offset(ws['S6Host_Tick__execute'])
     assert rom[execute_at]==0x22,'WORKER_SOURCE_UPDATE_CALLSITE_NOT_JSL'
     update_target=int.from_bytes(rom[execute_at+1:execute_at+4],'little')
-    if update_target==ws['S6_UpdateWorld']:
+    if update_target in (ws['S6_UpdateWorld'], ws.get('S6_UpdateWorldBound')):
         old_relay_bank=None
     else:
         old_relay_bank=update_target>>16
@@ -383,12 +401,14 @@ Relay_Timeout:
     render_start=offset(ws['S6Game_PlayRender'])
     render_end=offset(ws['S6Game_PlayRender__return'])
     flush_source=ROOT/'src/core/actor_s6_world_fixture.pasm'
-    expected=sum(line.strip()=='jsl S7Resident_Flush' for line in flush_source.read_text().splitlines())
+    source_expected=sum(line.strip()=='jsl S7Resident_Flush' for line in flush_source.read_text().splitlines())
+    expected=source_expected+(1 if admission.get('scenario')=='wait_probe' else 0)
     flush_sites=[]
     for at in range(render_start,render_end-3):
         if rom[at]!=0x22:continue
         target=int.from_bytes(rom[at+1:at+4],'little')
-        if target==ws['S7Resident_Flush'] or (old_relay_bank is not None and target>>16==old_relay_bank):
+        if (target==ws['S7Resident_Flush'] or
+                (old_relay_bank is not None and target==old_worker_sy.get('Relay_Flush'))):
             flush_sites.append(at)
     assert len(flush_sites)==expected and expected>0,('S7Resident_Flush',len(flush_sites),expected)
     for at in flush_sites:rom[at+1:at+4]=sy['Relay_Flush'].to_bytes(3,'little')
@@ -398,17 +418,22 @@ Relay_Timeout:
     # Relocate only the observer read, using the current source symbols.
     observe_start=offset(ws['S6Clock_HostSourceTick__running'])
     observe_end=offset(ws['S6Clock_HostSourceTick__done'])
-    observer_reads=(b'\xAF'+(0x7e19e6).to_bytes(3,'little'),
-                    b'\xAF'+(0x4119e6).to_bytes(3,'little'))
+    stop_slot=0 if admission.get('scenario')=='kula' else 2
+    observer_source=b'\xAF'+(0x7e19e6+stop_slot*256).to_bytes(3,'little')
+    observer_target=b'\xAF'+(0x4119e6+stop_slot*256).to_bytes(3,'little')
+    observer_legacy_target=b'\xAF'+(0x4119e6).to_bytes(3,'little')
+    observer_reads=tuple(dict.fromkeys(
+        (observer_source,observer_target,observer_legacy_target)))
     sites=[]
     for needle in observer_reads:
         at=rom.find(needle,observe_start,observe_end)
         while at>=0:
-            sites.append(at)
+            sites.append((needle,at))
             at=rom.find(needle,at+1,observe_end)
     assert len(sites)==1,('S6Clock_HostSourceTick observer',len(sites))
-    at=sites[0]
-    rom[at+1:at+4]=(0x4119e6).to_bytes(3,'little')
+    needle,at=sites[0]
+    if needle!=observer_target:
+        rom[at+1:at+4]=(0x4119e6+stop_slot*256).to_bytes(3,'little')
     (folder/'bor.sfc').write_bytes(rom)
     (folder/'worker-manifest.json').write_text(json.dumps(dict(
         status='PRIVATE_PILOT_NOT_PRODUCTION',bwram_regions=REGIONS,
