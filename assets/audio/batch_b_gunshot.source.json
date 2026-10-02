@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4",
+  "raw_bytes": 10699,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 10584,
+  "canonical_path": "assets/audio/batch_b/canonical/gunshot.wav",
+  "canonical_sha256": "a4fbaca421f8610cf7ebc1d4c7535e521509bbb0ea1ce4aa3d5536a76b7bd421",
+  "canonical_frames": 10592,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.9607256235827665,
+  "duration_ticks": 121,
+  "brr_bytes": 5958,
+  "brr_blocks": 662,
+  "brr_sha256": "008d177e2c6a00d807cced353b48e440da38011cbdc05d184c0ff81094e9b33d",
+  "single_effect_common_bytes": 6005,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/gunshot.brr"
+}

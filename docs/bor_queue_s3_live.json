@@ -1,0 +1,79 @@
+{
+  "runs": [
+    {
+      "mode": "before",
+      "rom_sha256": "d96adbe4bacdaa574450f4aea29503e491ec4c8cb10a562a2327434a9f028b10",
+      "trace_sha256": "7db294f038b15c2c6dba1f21c3ec8d5dd8053a96ad1a1fabc123803b680b257b",
+      "rows": [
+        {
+          "source": "DATA\\EASY\\6AEASY.TXT",
+          "physical": 19,
+          "queue_base": 8279311,
+          "capacity": 90,
+          "guard": 8280211,
+          "count": 92,
+          "copy_bytes": 920,
+          "before": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "after": "900be004a801182d0000900b9803ac01452d001eb4b5b6b7b8b9babbbcbd0000",
+          "guard_intact": false,
+          "expected_sha256": "22a25ba4dce23e8660fc8f67bd8a6215b87d786b796a7e0b3deddf3113a7d316",
+          "loaded_sha256": "22a25ba4dce23e8660fc8f67bd8a6215b87d786b796a7e0b3deddf3113a7d316",
+          "expected_overflow": "900be004a801182d0000900b9803ac01452d001e",
+          "reached_playing": true,
+          "exact_copy_trace": true,
+          "copy_write_count": 920,
+          "copy_first_frame": 948,
+          "copy_last_frame": 948
+        }
+      ]
+    },
+    {
+      "mode": "after",
+      "rom_sha256": "0337ad98d9262616caac2efd6208baf71da59a973a38899a0e9ac064b4d8ebb6",
+      "trace_sha256": "aee0419ce06a89a0261ac8cf7abdc381e31a6d7352230d1b36cb8fcd13fca691",
+      "rows": [
+        {
+          "source": "DATA\\EASY\\6AEASY.TXT",
+          "physical": 19,
+          "queue_base": 8360448,
+          "capacity": 92,
+          "guard": 8361368,
+          "count": 92,
+          "copy_bytes": 920,
+          "before": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "after": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "guard_intact": true,
+          "expected_sha256": "22a25ba4dce23e8660fc8f67bd8a6215b87d786b796a7e0b3deddf3113a7d316",
+          "loaded_sha256": "22a25ba4dce23e8660fc8f67bd8a6215b87d786b796a7e0b3deddf3113a7d316",
+          "expected_overflow": "",
+          "reached_playing": true,
+          "exact_copy_trace": true,
+          "copy_write_count": 920,
+          "copy_first_frame": 949,
+          "copy_last_frame": 949
+        },
+        {
+          "source": "DATA\\EASY\\1BEASY.TXT",
+          "physical": 1,
+          "queue_base": 8360448,
+          "capacity": 92,
+          "guard": 8361368,
+          "count": 35,
+          "copy_bytes": 350,
+          "before": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "after": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf",
+          "guard_intact": true,
+          "expected_sha256": "29213b8ad518b9e4c22c69374759ad3b46378b19513dddd8b9d879690417766e",
+          "loaded_sha256": "29213b8ad518b9e4c22c69374759ad3b46378b19513dddd8b9d879690417766e",
+          "expected_overflow": "",
+          "reached_playing": true,
+          "exact_copy_trace": true,
+          "copy_write_count": 350,
+          "copy_first_frame": 1667,
+          "copy_last_frame": 1667
+        }
+      ]
+    }
+  ],
+  "msu_sha256": "e7fe744af2928939f926a1c9121f6ac9e7f1d378533b95366e4afefd6bfe90af"
+}

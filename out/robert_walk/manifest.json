@@ -1,0 +1,92 @@
+{
+  "entity": "Robert",
+  "anim": "walk",
+  "loop": 1,
+  "scale": 0.41739130434782606,
+  "hotspot_canvas": [
+    10,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        30,
+        115
+      ],
+      "bbox": [
+        11,
+        12,
+        41,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        30,
+        115
+      ],
+      "bbox": [
+        11,
+        12,
+        41,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        30,
+        115
+      ],
+      "bbox": [
+        11,
+        12,
+        41,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        30,
+        115
+      ],
+      "bbox": [
+        11,
+        12,
+        41,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        30,
+        115
+      ],
+      "bbox": [
+        11,
+        12,
+        41,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

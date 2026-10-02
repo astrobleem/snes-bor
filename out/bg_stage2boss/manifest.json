@@ -1,0 +1,29 @@
+{
+  "level_entry": "data\\LEVELS\\BEBOP.TXT",
+  "background": "data\\bgs\\streets2\\sky.gif",
+  "panels": [
+    "data\\bgs\\streets2\\wall.gif",
+    "data\\bgs\\streets2\\window.gif",
+    "data\\bgs\\streets2\\door.gif",
+    "data\\bgs\\streets2\\sewer.gif",
+    "data\\bgs\\streets2\\space1.gif",
+    "data\\bgs\\streets2\\space2.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 1280,
+  "height_px": 224,
+  "width_tiles": 160,
+  "height_tiles": 28,
+  "content_width_tiles": 160,
+  "unique_tiles": 2315,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 74080,
+  "tilemap_bytes": 13440,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

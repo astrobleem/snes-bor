@@ -1,0 +1,25 @@
+LEO (roster slot 12) Player_JumpFCount=22
+LEO has real jump frame data loaded (Player_JumpFCount != 0): PASS
+after A press: zpos=0 zvel=1280 selected=5 mode=0
+A press while grounded enters CHAR_SELECTED_JUMP: PASS
+matched simulated tick count: 0
+observed (zpos, zvel) after A press exactly matches the real-sourced integration from JUMP_INITIAL_VEL/JUMP_GRAVITY at some small elapsed tick count: PASS
+height samples (first 12): [0, 2534, 2534, 4964, 4964, 6140, 7290, 9512, 10584, 10584, 11630, 12650] ... peak=32150 at sample 49, total samples=100
+height rose above 0 at some point (real upward velocity applied): PASS
+height came back down after the peak (gravity integrated, not static): PASS
+landed=True final: zpos=0 zvel=0 selected=0
+lands within a bounded frame count: PASS
+CHAR_THROW_ZPOS resets to 0 on landing: PASS
+CHAR_THROW_ZVEL resets to 0 on landing: PASS
+CHAR_SELECTED returns to idle(0) or walk(1) on landing: PASS
+base_y=150, airborne oam_y samples=[150, 150, 141, 136, 131, 127, 122, 122]
+OAM Y while airborne differs from the grounded base Y (visual offset applied): PASS
+after landing: selected=0 oam_y=150 (base_y=150)
+OAM Y offset is gone once landed (matches grounded base Y again): PASS
+Player_JumpBaseLo=0x20ea Player_JumpAttackBaseLo=0x62ea
+jump and jumpattack stream from genuinely different MSU base offsets: PASS
+after A then Y mid-air: selected=5 mode=1
+Y trigger mid-air (mode 0) enters jumpattack (Player_JumpAnimMode=1): PASS
+still CHAR_SELECTED_JUMP during jumpattack (not a separate state): PASS
+
+GATE G7-JUMP: PASS

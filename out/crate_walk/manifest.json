@@ -1,0 +1,28 @@
+{
+  "entity": "Crate",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 0.5614035087719298,
+  "hotspot_canvas": [
+    17,
+    38
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        30,
+        67
+      ],
+      "bbox": [
+        0,
+        -20,
+        57,
+        80
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

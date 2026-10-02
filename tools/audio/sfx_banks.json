@@ -1,0 +1,5361 @@
+{
+  "schema_version": 1,
+  "logical_signature_count": 278,
+  "bank_count": 8,
+  "capacity_bytes": 60828,
+  "engineering_reserve_bytes": 1024,
+  "banks": [
+    {
+      "bank_id": 0,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\METAL.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        []
+      ],
+      "common_bytes": 58573
+    },
+    {
+      "bank_id": 1,
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ]
+      ],
+      "common_bytes": 57664
+    },
+    {
+      "bank_id": 2,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ]
+      ],
+      "common_bytes": 59735
+    },
+    {
+      "bank_id": 3,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+          "tmnt:DATA\\SOUNDS\\THROW.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ]
+      ],
+      "common_bytes": 59257
+    },
+    {
+      "bank_id": 4,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\DASH.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\METAL.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ]
+      ],
+      "common_bytes": 58484
+    },
+    {
+      "bank_id": 5,
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\FALL.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+          "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+        ]
+      ],
+      "common_bytes": 58712
+    },
+    {
+      "bank_id": 6,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+          "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+          "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+        ],
+        [
+          "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+        ],
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+        ]
+      ],
+      "common_bytes": 59099
+    },
+    {
+      "bank_id": 7,
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "logical_signatures": [
+        [
+          "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+          "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+          "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+        ]
+      ],
+      "common_bytes": 39133
+    }
+  ],
+  "assignments": [
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 4
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\METAL.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 5
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\FALL.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 3
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "bank": 6
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ],
+      "bank": 7
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ],
+      "bank": 2
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "bank": 0
+    },
+    {
+      "signature": [
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "bank": 1
+    },
+    {
+      "signature": [],
+      "bank": 0
+    }
+  ],
+  "largest_common_bytes": 59735,
+  "smallest_margin_bytes": 1093,
+  "total_common_payload_bytes": 450657
+}

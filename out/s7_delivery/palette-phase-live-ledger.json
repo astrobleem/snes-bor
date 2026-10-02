@@ -1,0 +1,1022 @@
+{
+  "peak_minimum_emitted_block_bytes": 6144,
+  "available_bytes": 8192,
+  "pinned_admitted_bytes": 7680,
+  "fragmentation_bytes": 0,
+  "peak_blocks": [
+    {
+      "sha256": "010429b39a34cebbafc88e579ac9b0bc81556a7fd92328460dd625b55fbb3e4c",
+      "size": 256,
+      "placement_slot": 0,
+      "vram_byte_ranges": [
+        [
+          32768,
+          32832
+        ],
+        [
+          33280,
+          33344
+        ],
+        [
+          33792,
+          33856
+        ],
+        [
+          34304,
+          34368
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "010429b39a34cebbafc88e579ac9b0bc81556a7fd92328460dd625b55fbb3e4c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 19,
+          "ownership": "displayed"
+        },
+        {
+          "sha256": "010429b39a34cebbafc88e579ac9b0bc81556a7fd92328460dd625b55fbb3e4c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111187300
+    },
+    {
+      "sha256": "0dcff3da3de3da2c075a1cbb24c18fe6f5f1b1f716c417578f3a1735d160f87c",
+      "size": 256,
+      "placement_slot": 1,
+      "vram_byte_ranges": [
+        [
+          32832,
+          32896
+        ],
+        [
+          33344,
+          33408
+        ],
+        [
+          33856,
+          33920
+        ],
+        [
+          34368,
+          34432
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "0dcff3da3de3da2c075a1cbb24c18fe6f5f1b1f716c417578f3a1735d160f87c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 19,
+          "ownership": "displayed"
+        },
+        {
+          "sha256": "0dcff3da3de3da2c075a1cbb24c18fe6f5f1b1f716c417578f3a1735d160f87c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111187300
+    },
+    {
+      "sha256": "0f721b28c56920a8aa4c81176f805e08e58e67e1ac3b3a063db1515c9c5fb610",
+      "size": 256,
+      "placement_slot": 2,
+      "vram_byte_ranges": [
+        [
+          32896,
+          32960
+        ],
+        [
+          33408,
+          33472
+        ],
+        [
+          33920,
+          33984
+        ],
+        [
+          34432,
+          34496
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "0f721b28c56920a8aa4c81176f805e08e58e67e1ac3b3a063db1515c9c5fb610",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "100ffb074a74d21ea25b3e3ec53e475706ba63085dea6181c92a56cdd56a8003",
+      "size": 256,
+      "placement_slot": 3,
+      "vram_byte_ranges": [
+        [
+          32960,
+          33024
+        ],
+        [
+          33472,
+          33536
+        ],
+        [
+          33984,
+          34048
+        ],
+        [
+          34496,
+          34560
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "100ffb074a74d21ea25b3e3ec53e475706ba63085dea6181c92a56cdd56a8003",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "17e433c87f5d0ff084fd2d156622be1afd5d0c2819b5fe25f651db6163c7247f",
+      "size": 256,
+      "placement_slot": 5,
+      "vram_byte_ranges": [
+        [
+          33088,
+          33152
+        ],
+        [
+          33600,
+          33664
+        ],
+        [
+          34112,
+          34176
+        ],
+        [
+          34624,
+          34688
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "17e433c87f5d0ff084fd2d156622be1afd5d0c2819b5fe25f651db6163c7247f",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "1b35e2c4a4b545cd9415963e9fa00f10adf1742f9b96fbf796196dc671a1329e",
+      "size": 256,
+      "placement_slot": 6,
+      "vram_byte_ranges": [
+        [
+          33152,
+          33216
+        ],
+        [
+          33664,
+          33728
+        ],
+        [
+          34176,
+          34240
+        ],
+        [
+          34688,
+          34752
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "1b35e2c4a4b545cd9415963e9fa00f10adf1742f9b96fbf796196dc671a1329e",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "27301c5ac42f030d8b180899e86b2f55ab5b046650f2e1a1f549c544de9e83ff",
+      "size": 256,
+      "placement_slot": 7,
+      "vram_byte_ranges": [
+        [
+          33216,
+          33280
+        ],
+        [
+          33728,
+          33792
+        ],
+        [
+          34240,
+          34304
+        ],
+        [
+          34752,
+          34816
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "27301c5ac42f030d8b180899e86b2f55ab5b046650f2e1a1f549c544de9e83ff",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "40ea85858f869940a62340866d4bdd64d5660ca764a60778a119b5d1916e33c7",
+      "size": 256,
+      "placement_slot": 8,
+      "vram_byte_ranges": [
+        [
+          34816,
+          34880
+        ],
+        [
+          35328,
+          35392
+        ],
+        [
+          35840,
+          35904
+        ],
+        [
+          36352,
+          36416
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "40ea85858f869940a62340866d4bdd64d5660ca764a60778a119b5d1916e33c7",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "43cbcf22f6fb97751c4cf34b12303e95c519a3257bf7e7e61a4a5c507193ee59",
+      "size": 256,
+      "placement_slot": 9,
+      "vram_byte_ranges": [
+        [
+          34880,
+          34944
+        ],
+        [
+          35392,
+          35456
+        ],
+        [
+          35904,
+          35968
+        ],
+        [
+          36416,
+          36480
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "43cbcf22f6fb97751c4cf34b12303e95c519a3257bf7e7e61a4a5c507193ee59",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "5c30fe326f4d3447617ed266aca9e96856de86238fd7b83dd9a22583091da8e8",
+      "size": 256,
+      "placement_slot": 10,
+      "vram_byte_ranges": [
+        [
+          34944,
+          35008
+        ],
+        [
+          35456,
+          35520
+        ],
+        [
+          35968,
+          36032
+        ],
+        [
+          36480,
+          36544
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "5c30fe326f4d3447617ed266aca9e96856de86238fd7b83dd9a22583091da8e8",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "6ad177a202a4db119324f253d1d07a28f5be10aa764e5791c6c8aa2649ccf892",
+      "size": 256,
+      "placement_slot": 11,
+      "vram_byte_ranges": [
+        [
+          35008,
+          35072
+        ],
+        [
+          35520,
+          35584
+        ],
+        [
+          36032,
+          36096
+        ],
+        [
+          36544,
+          36608
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "6ad177a202a4db119324f253d1d07a28f5be10aa764e5791c6c8aa2649ccf892",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 19,
+          "ownership": "displayed"
+        },
+        {
+          "sha256": "6ad177a202a4db119324f253d1d07a28f5be10aa764e5791c6c8aa2649ccf892",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111187300
+    },
+    {
+      "sha256": "6d32b094fa1b1b893834a2dcb8dd74cb7159afd69250bfbd804a1e07a3ad9482",
+      "size": 256,
+      "placement_slot": 12,
+      "vram_byte_ranges": [
+        [
+          35072,
+          35136
+        ],
+        [
+          35584,
+          35648
+        ],
+        [
+          36096,
+          36160
+        ],
+        [
+          36608,
+          36672
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "6d32b094fa1b1b893834a2dcb8dd74cb7159afd69250bfbd804a1e07a3ad9482",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "6eaab02f91f66e688b8e473096911cf29e32734e5fd1f8988db70a5e645ab8aa",
+      "size": 256,
+      "placement_slot": 13,
+      "vram_byte_ranges": [
+        [
+          35136,
+          35200
+        ],
+        [
+          35648,
+          35712
+        ],
+        [
+          36160,
+          36224
+        ],
+        [
+          36672,
+          36736
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "6eaab02f91f66e688b8e473096911cf29e32734e5fd1f8988db70a5e645ab8aa",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "7157dba144b821fe3f3875ec7fd35dbdb3a8f0470875bfd7cd082085b9877bfd",
+      "size": 256,
+      "placement_slot": 14,
+      "vram_byte_ranges": [
+        [
+          35200,
+          35264
+        ],
+        [
+          35712,
+          35776
+        ],
+        [
+          36224,
+          36288
+        ],
+        [
+          36736,
+          36800
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "7157dba144b821fe3f3875ec7fd35dbdb3a8f0470875bfd7cd082085b9877bfd",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "8e307f1be17282d31a8e224c5551a8cda70d81f9b657d753c9cbaca7e59a38bc",
+      "size": 256,
+      "placement_slot": 16,
+      "vram_byte_ranges": [
+        [
+          36864,
+          36928
+        ],
+        [
+          37376,
+          37440
+        ],
+        [
+          37888,
+          37952
+        ],
+        [
+          38400,
+          38464
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "8e307f1be17282d31a8e224c5551a8cda70d81f9b657d753c9cbaca7e59a38bc",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "8e59e643e2c1c267b65d7bc157a5594bc760109e7975c82335adc939fe91a5d8",
+      "size": 256,
+      "placement_slot": 17,
+      "vram_byte_ranges": [
+        [
+          36928,
+          36992
+        ],
+        [
+          37440,
+          37504
+        ],
+        [
+          37952,
+          38016
+        ],
+        [
+          38464,
+          38528
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "8e59e643e2c1c267b65d7bc157a5594bc760109e7975c82335adc939fe91a5d8",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "cf77a99dc6dfe2e2f1b3e12230b83a5104a3897d3e5772c0e662b36e84d473e6",
+      "size": 256,
+      "placement_slot": 19,
+      "vram_byte_ranges": [
+        [
+          37056,
+          37120
+        ],
+        [
+          37568,
+          37632
+        ],
+        [
+          38080,
+          38144
+        ],
+        [
+          38592,
+          38656
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "cf77a99dc6dfe2e2f1b3e12230b83a5104a3897d3e5772c0e662b36e84d473e6",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "d435c6a6dc77cde0a1dbc891ae92e7cb4abaad2dd070a4f56704e59f968cd6cf",
+      "size": 256,
+      "placement_slot": 20,
+      "vram_byte_ranges": [
+        [
+          37120,
+          37184
+        ],
+        [
+          37632,
+          37696
+        ],
+        [
+          38144,
+          38208
+        ],
+        [
+          38656,
+          38720
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "d435c6a6dc77cde0a1dbc891ae92e7cb4abaad2dd070a4f56704e59f968cd6cf",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "dc034b86456c56b6e81eeed61a56e066c2b028e495a5c9d9ac92b9914073d687",
+      "size": 256,
+      "placement_slot": 22,
+      "vram_byte_ranges": [
+        [
+          37248,
+          37312
+        ],
+        [
+          37760,
+          37824
+        ],
+        [
+          38272,
+          38336
+        ],
+        [
+          38784,
+          38848
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "dc034b86456c56b6e81eeed61a56e066c2b028e495a5c9d9ac92b9914073d687",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "f0d65f772bcb3d40250f7e2db199df5bdfe43818aaafa2023bc32ca6495d1da0",
+      "size": 256,
+      "placement_slot": 23,
+      "vram_byte_ranges": [
+        [
+          37312,
+          37376
+        ],
+        [
+          37824,
+          37888
+        ],
+        [
+          38336,
+          38400
+        ],
+        [
+          38848,
+          38912
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "f0d65f772bcb3d40250f7e2db199df5bdfe43818aaafa2023bc32ca6495d1da0",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    },
+    {
+      "sha256": "f23282a2aef2153f00f3fba76736c3be3346af65faf698ee3096dc5c45a9aa13",
+      "size": 256,
+      "placement_slot": 24,
+      "vram_byte_ranges": [
+        [
+          38912,
+          38976
+        ],
+        [
+          39424,
+          39488
+        ],
+        [
+          39936,
+          40000
+        ],
+        [
+          40448,
+          40512
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "f23282a2aef2153f00f3fba76736c3be3346af65faf698ee3096dc5c45a9aa13",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "f5121a3528cf468da412dbc32ee3a03e1a8a10bd64bcd6553d5f097d1bc81b84",
+      "size": 256,
+      "placement_slot": 26,
+      "vram_byte_ranges": [
+        [
+          39040,
+          39104
+        ],
+        [
+          39552,
+          39616
+        ],
+        [
+          40064,
+          40128
+        ],
+        [
+          40576,
+          40640
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "f5121a3528cf468da412dbc32ee3a03e1a8a10bd64bcd6553d5f097d1bc81b84",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "fd947f420e750931556b2c1faaa57b5df981d10c5a2cb959633aa009ad65dfa3",
+      "size": 256,
+      "placement_slot": 28,
+      "vram_byte_ranges": [
+        [
+          39168,
+          39232
+        ],
+        [
+          39680,
+          39744
+        ],
+        [
+          40192,
+          40256
+        ],
+        [
+          40704,
+          40768
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "fd947f420e750931556b2c1faaa57b5df981d10c5a2cb959633aa009ad65dfa3",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 26,
+          "ownership": "queued:8d00:7"
+        }
+      ],
+      "last_actual_consumption": 111902036
+    },
+    {
+      "sha256": "fe0d17dd4172988ea4f17ea143581ef010b767344f979f31010ead1127ab9cbd",
+      "size": 256,
+      "placement_slot": 29,
+      "vram_byte_ranges": [
+        [
+          39232,
+          39296
+        ],
+        [
+          39744,
+          39808
+        ],
+        [
+          40256,
+          40320
+        ],
+        [
+          40768,
+          40832
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "fe0d17dd4172988ea4f17ea143581ef010b767344f979f31010ead1127ab9cbd",
+          "slot": 1,
+          "model": 29,
+          "role": 3,
+          "frame": 0,
+          "map": 4,
+          "snapshot": 19,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 110115012
+    }
+  ],
+  "events": [
+    {
+      "clock": 106991752,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 107183604,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 107565702,
+      "event": "QUEUED",
+      "live_bytes": 3072,
+      "pending_packets": 1
+    },
+    {
+      "clock": 107970842,
+      "event": "CONSUMED",
+      "live_bytes": 3072,
+      "pending_packets": 0
+    },
+    {
+      "clock": 108156436,
+      "event": "QUEUED",
+      "live_bytes": 3072,
+      "pending_packets": 1
+    },
+    {
+      "clock": 108328182,
+      "event": "CONSUMED",
+      "live_bytes": 3072,
+      "pending_packets": 0
+    },
+    {
+      "clock": 108664274,
+      "event": "QUEUED",
+      "live_bytes": 3072,
+      "pending_packets": 1
+    },
+    {
+      "clock": 109042932,
+      "event": "CONSUMED",
+      "live_bytes": 3072,
+      "pending_packets": 0
+    },
+    {
+      "clock": 109272554,
+      "event": "QUEUED",
+      "live_bytes": 3840,
+      "pending_packets": 1
+    },
+    {
+      "clock": 109400276,
+      "event": "CONSUMED",
+      "live_bytes": 3072,
+      "pending_packets": 0
+    },
+    {
+      "clock": 109801442,
+      "event": "QUEUED",
+      "live_bytes": 3072,
+      "pending_packets": 1
+    },
+    {
+      "clock": 110115012,
+      "event": "CONSUMED",
+      "live_bytes": 3072,
+      "pending_packets": 0
+    },
+    {
+      "clock": 110754550,
+      "event": "QUEUED",
+      "live_bytes": 6144,
+      "pending_packets": 1
+    },
+    {
+      "clock": 111187300,
+      "event": "CONSUMED",
+      "live_bytes": 3840,
+      "pending_packets": 0
+    },
+    {
+      "clock": 111492036,
+      "event": "QUEUED",
+      "live_bytes": 4608,
+      "pending_packets": 1
+    },
+    {
+      "clock": 111902036,
+      "event": "CONSUMED",
+      "live_bytes": 3840,
+      "pending_packets": 0
+    },
+    {
+      "clock": 112063228,
+      "event": "QUEUED",
+      "live_bytes": 3840,
+      "pending_packets": 1
+    },
+    {
+      "clock": 112174912,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 112757918,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    }
+  ],
+  "terminal_displayed_bytes": 0,
+  "terminal_pending_packets": 0,
+  "terminal_shared_source_excluded_packets": 1,
+  "source_pixel_global_minimum_proven": false
+}

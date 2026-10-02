@@ -1,0 +1,84 @@
+{
+  "entity": "K9999",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.2601626016260163,
+  "hotspot_canvas": [
+    13,
+    24
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": [
+        37,
+        9,
+        43,
+        64,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": [
+        22,
+        38,
+        64,
+        34,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": [
+        15,
+        63,
+        76,
+        35,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": [
+        3,
+        81,
+        100,
+        21,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

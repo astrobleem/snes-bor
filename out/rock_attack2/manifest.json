@@ -1,0 +1,104 @@
+{
+  "entity": "Rock",
+  "anim": "attack2",
+  "loop": 0,
+  "scale": 0.15384615384615385,
+  "hotspot_canvas": [
+    9,
+    26
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": [
+        45,
+        50,
+        65,
+        150
+      ],
+      "attack": [
+        110,
+        40,
+        110,
+        40,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": [
+        45,
+        50,
+        65,
+        150
+      ],
+      "attack": [
+        110,
+        40,
+        110,
+        40,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": [
+        45,
+        50,
+        65,
+        150
+      ],
+      "attack": [
+        110,
+        40,
+        110,
+        40,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        70,
+        190
+      ],
+      "bbox": [
+        45,
+        50,
+        65,
+        150
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

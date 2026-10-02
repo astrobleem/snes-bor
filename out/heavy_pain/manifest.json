@@ -1,0 +1,60 @@
+{
+  "entity": "Heavy",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.3902439024390244,
+  "hotspot_canvas": [
+    13,
+    45
+  ],
+  "frames": [
+    {
+      "delay": 3,
+      "offset": [
+        42,
+        120
+      ],
+      "bbox": [
+        17,
+        6,
+        43,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        42,
+        120
+      ],
+      "bbox": [
+        17,
+        6,
+        43,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        42,
+        120
+      ],
+      "bbox": [
+        17,
+        6,
+        43,
+        120
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

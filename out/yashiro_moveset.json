@@ -1,0 +1,122 @@
+{
+  "entity": "Yashiro",
+  "prefix": "out/yashiro",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/yashiro_idle",
+      "frames": 16
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/yashiro_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/yashiro_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/yashiro_fall",
+      "frames": 3
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/yashiro_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/yashiro_attack1",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31710,
+      25468,
+      17215,
+      20182,
+      10844,
+      12718,
+      0,
+      6583,
+      8490,
+      16615,
+      2320,
+      13476,
+      8258,
+      0,
+      0
+    ],
+    [
+      0,
+      29662,
+      25468,
+      17215,
+      18102,
+      10844,
+      11729,
+      0,
+      6583,
+      6444,
+      6536,
+      2320,
+      3368,
+      1188,
+      1188,
+      0
+    ],
+    [
+      0,
+      29662,
+      25468,
+      17215,
+      18102,
+      10844,
+      11729,
+      0,
+      6583,
+      6444,
+      8630,
+      2320,
+      6444,
+      2248,
+      1188,
+      0
+    ]
+  ]
+}

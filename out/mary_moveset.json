@@ -1,0 +1,165 @@
+{
+  "entity": "Mandy",
+  "prefix": "out/mary",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/mary_idle",
+      "frames": 7
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/mary_walk",
+      "frames": 10
+    },
+    {
+      "ordinal": 2,
+      "name": "get",
+      "dir": "out/mary_get",
+      "frames": 7
+    },
+    {
+      "ordinal": 3,
+      "name": "attack1",
+      "dir": "out/mary_attack1",
+      "frames": 6
+    },
+    {
+      "ordinal": 4,
+      "name": "attack2",
+      "dir": "out/mary_attack2",
+      "frames": 6
+    },
+    {
+      "ordinal": 5,
+      "name": "attack3",
+      "dir": "out/mary_attack3",
+      "frames": 9
+    },
+    {
+      "ordinal": 6,
+      "name": "special",
+      "dir": "out/mary_special",
+      "frames": 9
+    },
+    {
+      "ordinal": 7,
+      "name": "freespecial",
+      "dir": "out/mary_freespecial",
+      "frames": 9
+    },
+    {
+      "ordinal": 8,
+      "name": "jump",
+      "dir": "out/mary_jump",
+      "frames": 11
+    },
+    {
+      "ordinal": 9,
+      "name": "jumpattack",
+      "dir": "out/mary_jumpattack",
+      "frames": 4
+    },
+    {
+      "ordinal": 10,
+      "name": "jumpattack2",
+      "dir": "out/mary_jumpattack2",
+      "frames": 3
+    },
+    {
+      "ordinal": 11,
+      "name": "grab",
+      "dir": "out/mary_grab",
+      "frames": 1
+    },
+    {
+      "ordinal": 12,
+      "name": "grabattack",
+      "dir": "out/mary_grabattack",
+      "frames": 3
+    },
+    {
+      "ordinal": 13,
+      "name": "grabattack2",
+      "dir": "out/mary_grabattack2",
+      "frames": 12
+    },
+    {
+      "ordinal": 14,
+      "name": "throw",
+      "dir": "out/mary_throw",
+      "frames": 11
+    },
+    {
+      "ordinal": 15,
+      "name": "pain",
+      "dir": "out/mary_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 16,
+      "name": "fall",
+      "dir": "out/mary_fall",
+      "frames": 5
+    },
+    {
+      "ordinal": 17,
+      "name": "rise",
+      "dir": "out/mary_rise",
+      "frames": 4
+    },
+    {
+      "ordinal": 18,
+      "name": "land",
+      "dir": "out/mary_land",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 15,
+    "fall": 16,
+    "rise": 17,
+    "backwalk": null,
+    "jump": 8,
+    "jumpattack": 9,
+    "jumpattack2": 10,
+    "special": 6,
+    "waiting": null,
+    "get": 2,
+    "attack": 3,
+    "attack3": 5,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": 12,
+    "freespecial": 7,
+    "attack2": 4,
+    "attack2_is_grab": false,
+    "grab": 11
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      21343,
+      13151,
+      17215,
+      7834,
+      10844,
+      6583,
+      13874,
+      0,
+      4369,
+      19777,
+      16609,
+      7596,
+      12416,
+      3368,
+      4160
+    ]
+  ]
+}

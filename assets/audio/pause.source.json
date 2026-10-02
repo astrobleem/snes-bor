@@ -1,0 +1,9 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\PAUSE.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "source_present": false,
+  "fallback_asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+  "backend": "resident_tad_sfx_shared_beep2",
+  "reason": "OpenBOR load_special_sounds falls back global_sample_list.pause to beep_2 when PAUSE.WAV is absent"
+}

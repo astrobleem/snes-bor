@@ -1,0 +1,260 @@
+{
+  "entity": "Max",
+  "anim": "attack3",
+  "loop": 0,
+  "scale": 0.2206896551724138,
+  "hotspot_canvas": [
+    10,
+    32
+  ],
+  "frames": [
+    {
+      "delay": 3,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        36,
+        35,
+        38,
+        115
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        36,
+        35,
+        38,
+        115
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        32,
+        35,
+        38,
+        115
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        32,
+        35,
+        38,
+        115
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        29,
+        35,
+        38,
+        115
+      ],
+      "attack": [
+        9,
+        23,
+        25,
+        42,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        37,
+        35,
+        38,
+        115
+      ],
+      "attack": [
+        3,
+        34,
+        38,
+        39,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        52,
+        44,
+        38,
+        106
+      ],
+      "attack": [
+        15,
+        62,
+        49,
+        42,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame06.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        74,
+        44,
+        33,
+        106
+      ],
+      "attack": [
+        38,
+        65,
+        106,
+        55,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame07.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        62,
+        43,
+        33,
+        106
+      ],
+      "attack": [
+        93,
+        10,
+        39,
+        90,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame08.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        60,
+        33,
+        33,
+        116
+      ],
+      "attack": [
+        72,
+        10,
+        35,
+        27,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame09.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        65,
+        33,
+        30,
+        116
+      ],
+      "attack": [
+        72,
+        10,
+        35,
+        27,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame10.bin"
+    },
+    {
+      "delay": 5,
+      "offset": [
+        49,
+        148
+      ],
+      "bbox": [
+        65,
+        33,
+        30,
+        116
+      ],
+      "attack": [
+        72,
+        10,
+        35,
+        27,
+        20,
+        1
+      ],
+      "move": null,
+      "bin": "frame11.bin"
+    }
+  ]
+}

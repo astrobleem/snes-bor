@@ -1,0 +1,44 @@
+{
+  "entity": "Mouser",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.5333333333333333,
+  "hotspot_canvas": [
+    12,
+    25
+  ],
+  "frames": [
+    {
+      "delay": 15,
+      "offset": [
+        50,
+        65
+      ],
+      "bbox": [
+        30,
+        15,
+        30,
+        55
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        50,
+        65
+      ],
+      "bbox": [
+        30,
+        15,
+        30,
+        55
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

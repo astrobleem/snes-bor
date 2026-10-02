@@ -1,0 +1,1145 @@
+{
+  "dialect": "unspecified",
+  "entries": [
+    {
+      "authored_path": "data/levels/Guile2.txt",
+      "authored_queue_count": 33,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "at requires one value and a pending queue entry",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics",
+        "spawn-instance display name has no runtime queue/HUD binding; never changes model identity",
+        "unbound animation role",
+        "unknown directive; no registered semantics",
+        "unsupported attack arity",
+        "unsupported frame-state arity"
+      ],
+      "global_control_blockers": 20,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 100,
+      "next_after": false,
+      "ordinal": 0,
+      "packed_queue_candidate_count": 33,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "knightbot",
+        "skeletor"
+      ],
+      "set_name": "Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/levels/holes.txt",
+      "authored_queue_count": 1,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "expected one asset path",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics",
+        "unbound animation role",
+        "unsupported attack arity",
+        "unsupported frame-state arity"
+      ],
+      "global_control_blockers": 20,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 0,
+      "next_after": true,
+      "ordinal": 1,
+      "packed_queue_candidate_count": 1,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "skeletor"
+      ],
+      "set_name": "Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "DATA\\LEVELS\\HOLES.TXT",
+      "status": "BLOCKED"
+    }
+  ],
+  "global_controls": [
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "rush",
+      "line": 4,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "1",
+        "1",
+        "Hits:",
+        "3",
+        "3",
+        "MEGA!",
+        "3",
+        "3"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1rush",
+      "line": 11,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "15",
+        "100",
+        "80",
+        "100",
+        "15",
+        "120",
+        "80",
+        "120"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "hiscorebg",
+      "line": 12,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "custfade",
+      "line": 16,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "100"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lives",
+      "line": 17,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "3"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credits",
+      "line": 18,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "10"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "nosame",
+      "line": 19,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lbarsize",
+      "line": 20,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "100",
+        "5",
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 21,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "160",
+        "240",
+        "{BGheight}"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1life",
+      "line": 22,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "21",
+        "15"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1icon",
+      "line": 23,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "3",
+        "6"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e1life",
+      "line": 24,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "21",
+        "33"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e1icon",
+      "line": 25,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "3",
+        "24"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "timeloc",
+      "line": 26,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "147",
+        "4",
+        "16",
+        "15",
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p2life",
+      "line": 27,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "193",
+        "15"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e2life",
+      "line": 28,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "193",
+        "33"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p2icon",
+      "line": 29,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "175",
+        "6"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e2icon",
+      "line": 30,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "175",
+        "24"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 33,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "DATA\\LEVELS.TXT",
+      "value": [
+        "220",
+        "232",
+        "180"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "maxfollows",
+      "line": 2,
+      "reason": "uninterpreted model/global control",
+      "source_file": "DATA/MODELS.TXT",
+      "value": [
+        "10"
+      ]
+    }
+  ],
+  "input_name": "Masters of the Universe [v.3.0 Build 4086].pak",
+  "inventory": {
+    "levels": {
+      "credits": 1,
+      "custfade": 1,
+      "e1icon": 1,
+      "e1life": 1,
+      "e2icon": 1,
+      "e2life": 1,
+      "file": 2,
+      "hiscorebg": 1,
+      "lbarsize": 1,
+      "lives": 1,
+      "next": 1,
+      "nosame": 1,
+      "p1icon": 1,
+      "p1life": 1,
+      "p1rush": 1,
+      "p2icon": 1,
+      "p2life": 1,
+      "rush": 1,
+      "set": 1,
+      "timeloc": 1,
+      "z": 2
+    },
+    "model": {
+      "@cmd": 65,
+      "@end_script": 5,
+      "@script": 5,
+      "aimove": 1,
+      "alpha": 3,
+      "alternatepal": 3,
+      "anim": 80,
+      "animationscript": 6,
+      "atchain": 2,
+      "attack": 45,
+      "bbox": 98,
+      "blockodds": 1,
+      "burn": 1,
+      "candamage": 8,
+      "changeentityproperty(self,": 6,
+      "com": 9,
+      "counterattack": 2,
+      "custentity": 1,
+      "delay": 159,
+      "diesound": 3,
+      "dropv": 20,
+      "energycost": 1,
+      "flash": 1,
+      "float": 6,
+      "fmap": 2,
+      "forcedirection": 1,
+      "frame": 836,
+      "freeze": 5,
+      "gfxshadow": 4,
+      "health": 4,
+      "hitflash": 7,
+      "hitfx": 9,
+      "hostile": 3,
+      "icon": 4,
+      "if": 2,
+      "if(": 7,
+      "if(health": 3,
+      "int": 4,
+      "jumpframe": 4,
+      "jumpheight": 2,
+      "killentity(self);": 1,
+      "landframe": 5,
+      "lifespan": 9,
+      "load": 6,
+      "loop": 15,
+      "makeinv": 2,
+      "move": 2,
+      "name": 16,
+      "noatflash": 1,
+      "nodrop": 1,
+      "nolife": 5,
+      "noquake": 1,
+      "offscreenkill": 1,
+      "offset": 84,
+      "palette": 3,
+      "quakeframe": 2,
+      "range": 4,
+      "rangez": 3,
+      "remove": 1,
+      "riseinv": 2,
+      "risetime": 2,
+      "running": 2,
+      "seta": 8,
+      "shadow": 5,
+      "shock": 1,
+      "sound": 28,
+      "spawnframe": 1,
+      "speed": 6,
+      "subject_to_gravity": 3,
+      "subject_to_maxz": 2,
+      "subject_to_minz": 2,
+      "toflip": 2,
+      "type": 16,
+      "void": 5,
+      "weaploss": 2,
+      "weaponframe": 2,
+      "weapons": 2,
+      "}": 14
+    },
+    "scene": {},
+    "stage": {
+      "alias": 20,
+      "at": 35,
+      "background": 2,
+      "boss": 1,
+      "bossmusic": 2,
+      "coords": 22,
+      "flip": 1,
+      "frontpanel": 5,
+      "group": 5,
+      "health": 7,
+      "map": 5,
+      "music": 2,
+      "order": 2,
+      "palette": 1,
+      "panel": 2,
+      "spawn": 22,
+      "wait": 7
+    }
+  },
+  "mode": "analysis-only",
+  "models": {
+    "geysern": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 10,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/fx/geysern.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 2
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+      "stats": {
+        "lifespan": "1",
+        "name": "GeyserN",
+        "subject_to_maxz": "1",
+        "subject_to_minz": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "hbreath": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 0,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/he-man/fx/hbreath.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 40
+      },
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "stats": {
+        "alpha": "1",
+        "candamage": [
+          "enemy",
+          "obstacle"
+        ],
+        "lifespan": "1.5",
+        "name": "HBreath",
+        "subject_to_gravity": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "he_man": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 3,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "unbound animation role",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/he-man/he-man.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 9,
+        "fall": 4,
+        "freespecial": 9,
+        "freespecial2": 12,
+        "freespecial3": 4,
+        "freespecial4": 15,
+        "get": 7,
+        "idle": 8,
+        "jump": 5,
+        "jumpattack": 7,
+        "jumpdelay": 1,
+        "jumpland": 3,
+        "land": 3,
+        "pain": 5,
+        "rise": 5,
+        "run": 6,
+        "runattack": 8,
+        "select": 131,
+        "special": 12,
+        "waiting": 1,
+        "walk": 10
+      },
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+      "stats": {
+        "animationscript": "data/scripts/script.c",
+        "atchain": "1",
+        "com": [
+          "D",
+          "U",
+          "J",
+          "freespecial4"
+        ],
+        "diesound": "data/chars/he-man/death.wav",
+        "gfxshadow": "1",
+        "health": "150",
+        "icon": "data/chars/he-man/icon.png",
+        "jumpheight": "4.5",
+        "makeinv": "4",
+        "name": "He_Man",
+        "riseinv": "1",
+        "risetime": "100",
+        "running": [
+          "20",
+          "4.5",
+          "2",
+          "1",
+          "0"
+        ],
+        "speed": "10",
+        "type": "player",
+        "weaploss": "3",
+        "weapons": [
+          "He_ManB",
+          "He_Man"
+        ]
+      },
+      "status": "BLOCKED"
+    },
+    "he_manb": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 4,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "unbound animation role",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/he-man/he-manb.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 5,
+        "attack2": 7,
+        "attack3": 9,
+        "fall": 4,
+        "freespecial": 8,
+        "freespecial2": 8,
+        "freespecial3": 14,
+        "freespecial4": 7,
+        "freespecial5": 13,
+        "freespecial6": 4,
+        "get": 7,
+        "idle": 7,
+        "jump": 5,
+        "jumpattack": 3,
+        "jumpdelay": 1,
+        "jumpland": 3,
+        "land": 3,
+        "pain": 5,
+        "rise": 5,
+        "run": 6,
+        "runattack": 4,
+        "walk": 8
+      },
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+      "stats": {
+        "animationscript": "data/scripts/script.c",
+        "atchain": [
+          "1",
+          "2",
+          "1",
+          "2",
+          "1",
+          "3"
+        ],
+        "com": [
+          "B",
+          "B",
+          "A",
+          "freespecial5"
+        ],
+        "diesound": "data/chars/he-man/death.wav",
+        "gfxshadow": "1",
+        "health": "150",
+        "icon": "data/chars/he-man/icon.png",
+        "jumpheight": "4.5",
+        "makeinv": "4",
+        "name": "He_ManB",
+        "riseinv": "1",
+        "risetime": "100",
+        "running": [
+          "20",
+          "4.5",
+          "2",
+          "1",
+          "0"
+        ],
+        "speed": "12",
+        "type": "none",
+        "weaploss": "3",
+        "weapons": [
+          "He_ManB",
+          "He_Man"
+        ]
+      },
+      "status": "BLOCKED"
+    },
+    "hwwind": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 1,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/he-man/fx/hwwind.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 39
+      },
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+      "stats": {
+        "alpha": "1",
+        "candamage": [
+          "enemy",
+          "obstacle"
+        ],
+        "lifespan": "2",
+        "name": "HWWind",
+        "subject_to_gravity": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "knightbot": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 5,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/knbot/knbot.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 12,
+        "fall": 2,
+        "idle": 3,
+        "pain": 6,
+        "rise": 3,
+        "walk": 3
+      },
+      "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+      "stats": {
+        "aimove": "chasez",
+        "alternatepal": "data/chars/knbot/frozen.png",
+        "animationscript": "data/scripts/enemy.c",
+        "flash": "flash",
+        "fmap": "2",
+        "gfxshadow": "1",
+        "health": "70",
+        "hostile": [
+          "player",
+          "npc"
+        ],
+        "icon": "data/chars/knbot/icon.png",
+        "name": "KnightBot",
+        "noatflash": "1",
+        "nodrop": "2",
+        "noquake": "1",
+        "palette": "data/chars/knbot/knbot1.png",
+        "speed": "8",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "shock": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 7,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/misc/flash/shock.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 10
+      },
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "stats": {
+        "name": "Shock",
+        "shadow": "0",
+        "toflip": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "shockball": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 6,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/knbot/shkball.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 12
+      },
+      "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "npc"
+        ],
+        "lifespan": "2",
+        "name": "ShockBall",
+        "offscreenkill": "30",
+        "speed": "15",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "shwave": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 2,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/he-man/fx/shwave.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+      "stats": {
+        "candamage": [
+          "enemy",
+          "obstacle"
+        ],
+        "lifespan": "1",
+        "name": "ShWave",
+        "nolife": "1",
+        "remove": "0",
+        "speed": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "skeletor": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 15,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics",
+        "unbound animation role",
+        "unsupported attack arity",
+        "unsupported frame-state arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/skeletor.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 18,
+        "attack2": 5,
+        "attack3": 7,
+        "block": 5,
+        "fall": 6,
+        "follow1": 4,
+        "follow2": 46,
+        "follow3": 12,
+        "follow4": 38,
+        "follow5": 10,
+        "follow6": 24,
+        "freespecial": 11,
+        "freespecial3": 11,
+        "idle": 6,
+        "pain": 5,
+        "rise": 18,
+        "spawn": 3,
+        "walk": 8
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "stats": {
+        "alternatepal": "data/chars/skeletor/frozen.png",
+        "animationscript": "data/chars/skeletor/skeletor.c",
+        "blockodds": "1",
+        "diesound": "data/chars/skeletor/death.wav",
+        "fmap": "1",
+        "gfxshadow": "1",
+        "health": "400",
+        "icon": "data/chars/skeletor/icon.png",
+        "name": "Skeletor",
+        "palette": "data/chars/skeletor/entry01.png",
+        "speed": "12",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "skfball": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 11,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/fx/skfball.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 22
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+      "stats": {
+        "alpha": "1",
+        "candamage": [
+          "player",
+          "npc"
+        ],
+        "lifespan": "1",
+        "name": "SkFBall",
+        "nolife": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "skgeyser": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 12,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "missing source asset: data/sounds/xplos.wav",
+        "unbound animation role",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/fx/skgeyser.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 6,
+        "spawn": 2
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "npc"
+        ],
+        "lifespan": "1",
+        "name": "SkGeyser",
+        "nolife": "1",
+        "shadow": "2",
+        "subject_to_maxz": "1",
+        "subject_to_minz": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "skgeysert": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 13,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "missing source asset: data/sounds/xplos.wav",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/fx/skgeysert.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 8
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+      "stats": {
+        "animationscript": "data/chars/skeletor/fx/fx.c",
+        "candamage": [
+          "player",
+          "npc"
+        ],
+        "hostile": [
+          "player",
+          "npc"
+        ],
+        "lifespan": "2",
+        "name": "SkGeyserT",
+        "nolife": "1",
+        "palette": "data/chars/skeletor/fx/geyser1.png",
+        "shadow": "2",
+        "subject_to_gravity": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "sktorn": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 14,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unsupported attack arity"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/skeletor/fx/sktorn.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 4
+      },
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+      "stats": {
+        "animationscript": "data/chars/skeletor/fx/tornado.c",
+        "candamage": [
+          "player",
+          "obstacle",
+          "npc"
+        ],
+        "hostile": "player",
+        "lifespan": "3",
+        "name": "SkTorn",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "slash": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 8,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/misc/flash/slash.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 7
+      },
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+      "stats": {
+        "name": "Slash",
+        "toflip": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "spark": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 9,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+        "data/chars/misc/flash/spark.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 16
+      },
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+      "stats": {
+        "name": "Spark",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    }
+  },
+  "project_id": "98d9029e36969db72db48d01e95445d40b30a517fc0e99db7b813874c59bc7f4",
+  "publication": {
+    "enabled": false,
+    "reason": "dry run; model IR is not an executable actor artifact"
+  },
+  "resources": {
+    "actor_catalog_exceeded": false,
+    "actor_id_limit_exceeded": false,
+    "limits": {
+      "actor_canvas": [
+        32,
+        48
+      ],
+      "actor_id_hardware_limit": 255,
+      "alternate_palettes": 3,
+      "bytes_per_palette": 32,
+      "current_actor_catalog_capacity": 45,
+      "current_stage_catalog_capacity": 32,
+      "final_msu_bytes": null,
+      "frame_bytes": 768,
+      "frame_count_limit": 255,
+      "note": "null footprints require successful encoding/link, not an invented estimate; catalog maxima are current build settings",
+      "queue_record_bytes": 10,
+      "queue_records": 90,
+      "rom_bytes": null,
+      "scene_canvas": [
+        256,
+        192
+      ],
+      "scene_tile_limit": 384,
+      "stage_id_hardware_limit": 255
+    },
+    "max_model_maps": 0,
+    "required_audio": [
+      "data/music/GB.bor",
+      "data/music/eternia.bor",
+      "data/music/jungle.bor"
+    ],
+    "source_model_count": 16,
+    "source_scene_count": 0,
+    "source_stage_count": 2,
+    "unique_frame_assets": 468
+  },
+  "schema": 1,
+  "sets": [
+    {
+      "ifcomplete": 0,
+      "name": "Demo",
+      "source_id": 0
+    }
+  ],
+  "summary": {
+    "adapter_candidates": 0,
+    "blocked_source_or_runtime": 2,
+    "certified": 0,
+    "scene_entries": 0,
+    "sets": 1,
+    "source_models": 16,
+    "stage_entries": 2
+  }
+}

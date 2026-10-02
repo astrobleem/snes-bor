@@ -1,0 +1,80 @@
+{
+  "entity": "Mouser",
+  "prefix": "out/mouser",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/mouser_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "backwalk",
+      "dir": "out/mouser_backwalk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "walk",
+      "dir": "out/mouser_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 3,
+      "name": "pain",
+      "dir": "out/mouser_pain",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "fall",
+      "dir": "out/mouser_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 5,
+      "name": "rise",
+      "dir": "out/mouser_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 6,
+      "name": "attack1",
+      "dir": "out/mouser_attack1",
+      "frames": 9
+    },
+    {
+      "ordinal": 7,
+      "name": "upper",
+      "dir": "out/mouser_upper",
+      "frames": 9
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 2,
+    "pain": 3,
+    "fall": 4,
+    "rise": 5,
+    "backwalk": 1,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack": 6,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 7,
+    "upper": 7,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

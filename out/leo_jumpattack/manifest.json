@@ -1,0 +1,51 @@
+{
+  "entity": "LEO",
+  "anim": "jumpattack",
+  "loop": 0,
+  "scale": 0.20915032679738563,
+  "hotspot_canvas": [
+    14,
+    31
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        80,
+        155
+      ],
+      "bbox": [
+        40,
+        6,
+        43,
+        92
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 100,
+      "offset": [
+        80,
+        155
+      ],
+      "bbox": [
+        35,
+        20,
+        70,
+        90
+      ],
+      "attack": [
+        130,
+        95,
+        40,
+        43,
+        7,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

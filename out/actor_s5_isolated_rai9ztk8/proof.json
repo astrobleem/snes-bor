@@ -1,0 +1,536 @@
+{
+  "status": "PASS",
+  "output": "E:\\gh\\snes-bor\\out\\actor_s5_isolated_rai9ztk8",
+  "protected_before": {
+    "build_rom.py": "d87ac21f34c4f9d6c30025191baae1055564eab543d11636c054d4657ad9c891",
+    "src\\main.pasm": "59ae6c8b22a16967126a495e78ea62195c0de552ed63dfac92a6fb0856608237",
+    "tools\\bor_compile\\accepted_actor_policy.py": "188740567b16c487fd1ccc5754b06cf9fb94d69eb68d48d4e2f6909732be5dac",
+    "tools\\bor_compile\\actor_catalog.py": "29da00bf1879dd7e302a81f62a5c606fbcfd9711e6234a4033bd4380f886ea94",
+    "tools\\bor_compile\\actor_frame_abi.py": "ecf6269730734d0e7eae8a959ea31ae3f8070fee70233d3a6080e5d4b7c1db43",
+    "tools\\bor_compile\\actor_lowering.py": "665a710c18bce9053aa5133160a04e97b0d1bc8a0ed57054606dcc1101b46c70",
+    "tools\\bor_compile\\analyze.py": "f4d110f86d66dc56f6416aef3690e6aaf3b646ae01207f7929e249e1834e9e80",
+    "tools\\bor_compile\\certify.py": "3e6dddc96d9338f073e847f9c28ceb3cac10ff23408bf1e400010720571917e2",
+    "tools\\bor_compile\\certify_actors.py": "67f9cd6df829eccb76e14ec8d97943d60989c368fce07a46abcb897a737be03c",
+    "tools\\bor_compile\\certify_environment.py": "3fa1234b9a2cab1ae1574f43367125b8e48e9e4a81cc4cca68a41b7913736930",
+    "tools\\bor_compile\\compiler.py": "6b2a450a79c524fa0dc918569ea485b28bd4f4ee6b29ea28e9f3d5b1ad5ce427",
+    "tools\\bor_compile\\environment_capabilities.py": "b7d3e2c03229e9e5a47366515586d0da2caf06adceaf63cc698fb8f428b4a384",
+    "tools\\bor_compile\\environment_inventory.py": "93d95fd945686cf92a4b7ce1ab75a697e4f8e24568a972cd161d6b358b8b985c",
+    "tools\\bor_compile\\environment_semantics.py": "f229e569a8f79e9d8f572a01b22fb59f079a54989c1c1ddc8e340765e5985c06",
+    "tools\\bor_compile\\generate_environment.py": "57a05e25c096c4262e58c6d71e047f2d8ccccce99fab7712217ada271ac71800",
+    "tools\\bor_compile\\live_actor_evidence.py": "6f97a2ed3a13b8374cfcf77dc6c7209dd3f48a3d39c144fbd4b48cff541358ff",
+    "tools\\bor_compile\\lowering_policy.py": "aad799c807b1eae2e5df0f9b1e0208f1097d2c3f849d72c0633fcfff562f2023",
+    "tools\\bor_compile\\model_ir.py": "c942dc1bbd47623e067166e2669ac49db71444e084105f715fc4d1abd04ee542",
+    "tools\\bor_compile\\queue_capacity.py": "c385485f96b200e6cdebef9b4fd6ffeb418524a0b2fcc9bbcf01aa20937293c7",
+    "tools\\bor_compile\\recertify_actor_entries.py": "c8a78f3ae6f301fbf240dc67240a1be08f7c9a071a12b10755a60abdcf388233",
+    "tools\\bor_compile\\regenerate_queues.py": "8c753e5bba78dfb2eb1ce870133298cfe4ce86bdb31c0f2617291d25dfaa1e74",
+    "tools\\bor_compile\\test_actor_catalog.py": "1aac81e6bd6817e3a0ac3fe8cad2d2f7d8f10b92668cd060c693cf1a09e5985a",
+    "tools\\bor_compile\\test_actor_lowering.py": "74c5439f5956cb4c93ac30e4a282733eb62b6d3251f3995fff6e8b8be0735237",
+    "tools\\bor_compile\\test_certify.py": "1a9b37f329167664ca1c94f0cc5c0712505cfdd3ca78efc5c94ef111b5ed84dd",
+    "tools\\bor_compile\\test_compiler.py": "c2eca32a01b633729c2f4d6baa94dda8e47230b98a04cf5e05f81c1ec22596b3",
+    "tools\\bor_compile\\test_environment.py": "f8a5bb26f7fa47bc86d7b3c2b336ecc18516274ff352c77784ca92c00cb5c288",
+    "tools\\bor_compile\\test_lowering_policy.py": "cee6c2b148fe596143b2c8cd060dfc761907af48344dbf1e109f94b44bf54912",
+    "tools\\bor_compile\\test_models.py": "1141a11086ba6ee07cf2710ca09ec4e4acec01f8374691c351338e84e4af3edf",
+    "tools\\bor_compile\\test_queue_capacity.py": "4eaab01005a0e7575135244421dd80213fd99926f8b1159b8b0e9447b62914b0",
+    "src\\generated\\queue_abi.json": "22adb837a7c161c496d9a2b5e3f037cc1f00472851d22fb3d53cd8b91cbcc9c7",
+    "src\\generated\\queue_abi.pasm": "079b604ff6ac1c92415ad9b205c3faa7d5aaea10b6e3f2b59b38343b2f4d1fed",
+    "src\\generated\\scene_sequence_meta.pasm": "452f44b314e4e18ed6adf17fb6925e717e155e37edab085178b5ecae33fdb9a0",
+    "src\\generated\\scene_video_meta.bin": "ca476a0b4ede3e35c63d0d165be8c91ef1938e17b29489c4fad722b9a8e1e1b9",
+    "src\\generated\\scene_video_meta.pasm": "fb2542b17b6ec22ecf553cae051b218a8c76d22f593a5cd6547dd9807e47af77",
+    "src\\generated\\stage_environment_bases.pasm": "197bf14d1a13471b22a755b1bec6470061df46844ae34ea6eb51b727aee966db",
+    "src\\generated\\stage_environment_maps.pasm": "65d9b64c24739719c8adf5d252c209a46770936e3a949adf9e8d625d83228bcc",
+    "build\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "build\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc",
+    "distribution\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "distribution\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc"
+  },
+  "source_url": "https://raw.githubusercontent.com/Plombo/beatsofrage/eba02fe6c9e97e388126c51560a92024f406d8c0/BOR.C",
+  "source_sha256": {
+    "Kula": "92e1354aed3d5d90e8f21c96c497701440f62db37f3e4f31fc71c1489c127503",
+    "Lobster": "4d5cb4c3aefd3dacec1c4db1dc40ebafb0ea81427a655b1791fccbd59efef052",
+    "Crab": "53e48d630dadf18ff5c0a8041ac5bd30a4d5763d733ca16585f2f70c19c3a103",
+    "Ramon": "65f5f8ed2cb607d610f09c5a137c964353d31dce4876b88454693c025203c197"
+  },
+  "source_fingerprint": "3a5827ec109521a97d08b5765b484bf38e2db4c8209d9faf09f280732087a14d",
+  "profiles": {
+    "SOURCE_EXACT": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SOURCE_EXACT_RUNTIME_CERTIFICATION_REQUIRED"
+      ]
+    },
+    "ACCEPTED_COMPAT": {
+      "status": "BLOCKED",
+      "blockers": [
+        "ACCEPTED_RUNTIME_EQUIVALENCE_PROOF_REQUIRED"
+      ]
+    }
+  },
+  "compatibility_control": {
+    "baseline": "isolated-user-approved-Kula-control",
+    "source_identity": [
+      "s5-isolated-fixture",
+      "data/chars/kula/kula.txt"
+    ],
+    "source_sha256": "92e1354aed3d5d90e8f21c96c497701440f62db37f3e4f31fc71c1489c127503",
+    "runtime_id": 0,
+    "animations": {
+      "attack1": {
+        "delay": 4,
+        "geometry": "fixed accepted control"
+      }
+    },
+    "contract": {
+      "damage": 4,
+      "collision": [
+        32,
+        64
+      ],
+      "behavior": "host attack-state flag",
+      "stats": "unbound",
+      "effects": "unbound",
+      "palettes": "unbound"
+    }
+  },
+  "numeric_units_per_pixel": 2560,
+  "random_binding": "host supplies one sample in integer [0,7680); RNG algorithm/distribution unproven",
+  "rom_sha256": "8df20ff5ba3178f202f6320838f878397797fc5e36c33a13d5d819e5803f7217",
+  "poppy_sha256": "2ff9aea492a8126737bf8f205a9964c6ea6ae7284ad72bba28f118a173747918",
+  "fixture_build_id": "8e295885b33be50a3627352513c185461165851bcccb71d894ba5bed68cf2fb2",
+  "runtime_sha256": {
+    "actor_s5_isolated.pasm": "b618317a8f1cbffdac8660b4762ce6e87e747bcb6ee2a1c29957d753b98486a6",
+    "actor_s5_clock_isolated.pasm": "51085a831b18941ffb27784e5284a05aa75be1dae5d7d213211f476626377d16"
+  },
+  "proof": {
+    "status": "PASS",
+    "emulator_sha256": "66fc84e03481dedc521b095d0aa3022297f09e48ddcc3b8beabd019f96c0b268",
+    "static_live_cases": [
+      {
+        "name": "kula_frame0_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame0_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame0_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame0_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame1_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame1_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame1_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame1_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame2_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame2_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame2_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame2_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame3_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame3_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame3_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame3_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame4_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame4_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame4_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame4_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame5_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame5_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame5_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "kula_frame5_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame0_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame0_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame0_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame0_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame1_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame1_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame1_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame1_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame24_flags0",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame24_flags1",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame24_flags2",
+        "status": "PASS"
+      },
+      {
+        "name": "lobster_frame24_flags4",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame0",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame1",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame2",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame3",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame4",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_kula_frame5",
+        "status": "PASS"
+      },
+      {
+        "name": "past_end",
+        "status": "PASS"
+      },
+      {
+        "name": "negative",
+        "status": "PASS"
+      },
+      {
+        "name": "empty",
+        "status": "PASS"
+      },
+      {
+        "name": "invalid_policy",
+        "status": "PASS"
+      },
+      {
+        "name": "box_overlap",
+        "status": "PASS"
+      },
+      {
+        "name": "box_touch_x",
+        "status": "PASS"
+      },
+      {
+        "name": "box_miss_x",
+        "status": "PASS"
+      },
+      {
+        "name": "box_left",
+        "status": "PASS"
+      },
+      {
+        "name": "box_target_left",
+        "status": "PASS"
+      },
+      {
+        "name": "box_depth12",
+        "status": "PASS"
+      },
+      {
+        "name": "box_depth13",
+        "status": "PASS"
+      },
+      {
+        "name": "box_depth_minus13",
+        "status": "PASS"
+      },
+      {
+        "name": "box_altitude_miss",
+        "status": "PASS"
+      },
+      {
+        "name": "box_same_entity",
+        "status": "PASS"
+      },
+      {
+        "name": "box_zero_body",
+        "status": "PASS"
+      },
+      {
+        "name": "box_negative_world",
+        "status": "PASS"
+      },
+      {
+        "name": "box_different_body_frame",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_31_63",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_32_63",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_31_64",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_-31_-63",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_-32_0",
+        "status": "PASS"
+      },
+      {
+        "name": "compat_box_0_-64",
+        "status": "PASS"
+      },
+      {
+        "name": "zero_delay_not_coerced",
+        "status": "PASS"
+      },
+      {
+        "name": "ramon_idle",
+        "status": "PASS"
+      },
+      {
+        "name": "ramon_walk",
+        "status": "PASS"
+      },
+      {
+        "name": "ramon_pain",
+        "status": "PASS"
+      },
+      {
+        "name": "ramon_fall",
+        "status": "PASS"
+      },
+      {
+        "name": "absolute_deadline_u32_wrap",
+        "status": "PASS"
+      },
+      {
+        "name": "loop_per_frame_delays",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_sample0",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_sample_mid",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_sample_max",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_lower_edge",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_upper_edge",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_below",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_above",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_camera_lower",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_camera_upper",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_non_none",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_no_walk",
+        "status": "PASS"
+      },
+      {
+        "name": "drift_bad_rng",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_one_second_200_ticks",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_sub_tick",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_carry_to_next_tick",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_zero_rate",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_invalid_remainder",
+        "status": "PASS"
+      },
+      {
+        "name": "clock_overflow",
+        "status": "PASS"
+      }
+    ],
+    "logical_source_hz": 200,
+    "logical_think_hz": 100,
+    "vblank_intervals": 70,
+    "source_ticks": 232,
+    "kula_transition_ticks": [
+      8,
+      16,
+      24,
+      32,
+      36,
+      40
+    ],
+    "crab_first_outside_tick": 10,
+    "crab_removed_tick": 12,
+    "cpu_execution": true,
+    "organic_spawn_proof": false,
+    "graphics_proof": false,
+    "real_hardware_proof": false,
+    "source_float_rng_equivalence": false,
+    "full_source_actor_certificate": false,
+    "immutable_compat_delegate_certificate": false
+  },
+  "protected_after": {
+    "build_rom.py": "d87ac21f34c4f9d6c30025191baae1055564eab543d11636c054d4657ad9c891",
+    "src\\main.pasm": "59ae6c8b22a16967126a495e78ea62195c0de552ed63dfac92a6fb0856608237",
+    "tools\\bor_compile\\accepted_actor_policy.py": "188740567b16c487fd1ccc5754b06cf9fb94d69eb68d48d4e2f6909732be5dac",
+    "tools\\bor_compile\\actor_catalog.py": "29da00bf1879dd7e302a81f62a5c606fbcfd9711e6234a4033bd4380f886ea94",
+    "tools\\bor_compile\\actor_frame_abi.py": "ecf6269730734d0e7eae8a959ea31ae3f8070fee70233d3a6080e5d4b7c1db43",
+    "tools\\bor_compile\\actor_lowering.py": "665a710c18bce9053aa5133160a04e97b0d1bc8a0ed57054606dcc1101b46c70",
+    "tools\\bor_compile\\analyze.py": "f4d110f86d66dc56f6416aef3690e6aaf3b646ae01207f7929e249e1834e9e80",
+    "tools\\bor_compile\\certify.py": "3e6dddc96d9338f073e847f9c28ceb3cac10ff23408bf1e400010720571917e2",
+    "tools\\bor_compile\\certify_actors.py": "67f9cd6df829eccb76e14ec8d97943d60989c368fce07a46abcb897a737be03c",
+    "tools\\bor_compile\\certify_environment.py": "3fa1234b9a2cab1ae1574f43367125b8e48e9e4a81cc4cca68a41b7913736930",
+    "tools\\bor_compile\\compiler.py": "6b2a450a79c524fa0dc918569ea485b28bd4f4ee6b29ea28e9f3d5b1ad5ce427",
+    "tools\\bor_compile\\environment_capabilities.py": "b7d3e2c03229e9e5a47366515586d0da2caf06adceaf63cc698fb8f428b4a384",
+    "tools\\bor_compile\\environment_inventory.py": "93d95fd945686cf92a4b7ce1ab75a697e4f8e24568a972cd161d6b358b8b985c",
+    "tools\\bor_compile\\environment_semantics.py": "f229e569a8f79e9d8f572a01b22fb59f079a54989c1c1ddc8e340765e5985c06",
+    "tools\\bor_compile\\generate_environment.py": "57a05e25c096c4262e58c6d71e047f2d8ccccce99fab7712217ada271ac71800",
+    "tools\\bor_compile\\live_actor_evidence.py": "6f97a2ed3a13b8374cfcf77dc6c7209dd3f48a3d39c144fbd4b48cff541358ff",
+    "tools\\bor_compile\\lowering_policy.py": "aad799c807b1eae2e5df0f9b1e0208f1097d2c3f849d72c0633fcfff562f2023",
+    "tools\\bor_compile\\model_ir.py": "c942dc1bbd47623e067166e2669ac49db71444e084105f715fc4d1abd04ee542",
+    "tools\\bor_compile\\queue_capacity.py": "c385485f96b200e6cdebef9b4fd6ffeb418524a0b2fcc9bbcf01aa20937293c7",
+    "tools\\bor_compile\\recertify_actor_entries.py": "c8a78f3ae6f301fbf240dc67240a1be08f7c9a071a12b10755a60abdcf388233",
+    "tools\\bor_compile\\regenerate_queues.py": "8c753e5bba78dfb2eb1ce870133298cfe4ce86bdb31c0f2617291d25dfaa1e74",
+    "tools\\bor_compile\\test_actor_catalog.py": "1aac81e6bd6817e3a0ac3fe8cad2d2f7d8f10b92668cd060c693cf1a09e5985a",
+    "tools\\bor_compile\\test_actor_lowering.py": "74c5439f5956cb4c93ac30e4a282733eb62b6d3251f3995fff6e8b8be0735237",
+    "tools\\bor_compile\\test_certify.py": "1a9b37f329167664ca1c94f0cc5c0712505cfdd3ca78efc5c94ef111b5ed84dd",
+    "tools\\bor_compile\\test_compiler.py": "c2eca32a01b633729c2f4d6baa94dda8e47230b98a04cf5e05f81c1ec22596b3",
+    "tools\\bor_compile\\test_environment.py": "f8a5bb26f7fa47bc86d7b3c2b336ecc18516274ff352c77784ca92c00cb5c288",
+    "tools\\bor_compile\\test_lowering_policy.py": "cee6c2b148fe596143b2c8cd060dfc761907af48344dbf1e109f94b44bf54912",
+    "tools\\bor_compile\\test_models.py": "1141a11086ba6ee07cf2710ca09ec4e4acec01f8374691c351338e84e4af3edf",
+    "tools\\bor_compile\\test_queue_capacity.py": "4eaab01005a0e7575135244421dd80213fd99926f8b1159b8b0e9447b62914b0",
+    "src\\generated\\queue_abi.json": "22adb837a7c161c496d9a2b5e3f037cc1f00472851d22fb3d53cd8b91cbcc9c7",
+    "src\\generated\\queue_abi.pasm": "079b604ff6ac1c92415ad9b205c3faa7d5aaea10b6e3f2b59b38343b2f4d1fed",
+    "src\\generated\\scene_sequence_meta.pasm": "452f44b314e4e18ed6adf17fb6925e717e155e37edab085178b5ecae33fdb9a0",
+    "src\\generated\\scene_video_meta.bin": "ca476a0b4ede3e35c63d0d165be8c91ef1938e17b29489c4fad722b9a8e1e1b9",
+    "src\\generated\\scene_video_meta.pasm": "fb2542b17b6ec22ecf553cae051b218a8c76d22f593a5cd6547dd9807e47af77",
+    "src\\generated\\stage_environment_bases.pasm": "197bf14d1a13471b22a755b1bec6470061df46844ae34ea6eb51b727aee966db",
+    "src\\generated\\stage_environment_maps.pasm": "65d9b64c24739719c8adf5d252c209a46770936e3a949adf9e8d625d83228bcc",
+    "build\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "build\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc",
+    "distribution\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "distribution\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc"
+  },
+  "protected_unchanged": true,
+  "shared_source_concurrency": "main coordinator and Kepler may edit compiler/main/generated; differences are observations, not fixture attribution",
+  "shared_source_changes": [],
+  "production_artifacts_unchanged": true
+}

@@ -1,0 +1,45 @@
+{
+  "entity": "Eiji",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.4444444444444444,
+  "hotspot_canvas": [
+    18,
+    36
+  ],
+  "frames": [
+    {
+      "delay": 15,
+      "offset": [
+        41,
+        83
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        41,
+        83
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        41,
+        83
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

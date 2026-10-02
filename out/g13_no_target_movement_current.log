@@ -1,0 +1,15 @@
+DONE_RUN_UNTIL_RESULT {'reason': 'hookFired', 'framesAdvanced': 1, 'isPaused': True}
+valid first pass populated a target: PASS
+selector writes explicit no-target sentinel: FAIL
+stale target coordinates remain unchanged diagnostics: PASS
+target-valid helper executes: FAIL
+invalid target bypasses X target-valid path: PASS
+invalid target reaches Y hold tail: FAIL
+invalid target bypasses player hit leaf: PASS
+AI X has no changed write: PASS
+AI Y writes are absent or same-value: PASS
+no post-fixture player HP/stun/grab writes: PASS
+NO_TARGET_MOVEMENT {'events_to_first_oop_done': [], 'stale': {'x': 80, 'y': 150, 'slot': 0}, 'before_selector_entry': {'x': 134, 'y': 116, 'p1_hp': 64, 'p2_hp': 64, 'p1_stun': 0, 'p2_stun': 0, 'p1_grab': 255, 'p2_grab': 255, 'p1_by': 255, 'p2_by': 255, 'ai_by': 255, 'stale_x': 80, 'stale_y': 150}, 'target_slot_write_values': [], 'after': {'x_writes': [], 'y_writes': [], 'player_write_events': []}, 'first_oop_done_seen': False, 'confirmed_busy_denials': None}
+
+GATE G13-NO-TARGET-MOVEMENT: FAIL
+  failed: ['selector writes explicit no-target sentinel', 'target-valid helper executes', 'invalid target reaches Y hold tail']

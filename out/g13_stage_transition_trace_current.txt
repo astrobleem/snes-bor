@@ -1,0 +1,47 @@
+G13 stage-transition trace retained for advisor review
+ROM SHA256: 324830FC8EDCE6D0ED3852DE1199D930900D751C4633104AF3E41973B54EEC37
+MSU SHA256: CB44CF710C4F9A964AD5E96EE3AA5A6D50227CD1E15EDFE02F13C93AF0B6F0A0
+Emulator: E:\gh\Mesen2\bin\win-x64\Release\Mesen.exe
+Mesen SHA256: 66FC84E03481DEDC521B095D0AA3022297F09E48DDCC3B8BEABD019F96C0B268
+
+Execution-hook setup (unmodified ROM):
+  07:86B2 G13_ClearOldStageActors entry
+  07:8708 first/final slot stores
+  07:870C final STA.L $7E58B9
+  07:8710 PLD
+  07:8711 PLP
+  07:8712 RTL
+  00:DA55 expected caller continuation
+  07:8656 G13_ReapplyP1Out
+  00:DA59 / 07:840C later post-load path
+
+Ordered same-run events (frame 149):
+  07:86B2 clear entry
+  07:8706 after slot helper JSR
+  07:8708 slot store
+  07:870C final slot store
+  WRITE $7E58B9 = $00
+  07:8710 PLD
+  07:8711 PLP
+  07:8712 RTL
+  No 00:DA55, 07:8656, or later G13 caller event observed.
+
+Final WRAM/state for that run:
+  Game_State = $0005 STAGECLEAR
+  Game_StageIndex = 1
+  Stage_LoadPending = 0
+  G13_TwoPlayerEnabled = 0
+  Nmi_InterruptFlags = $81
+  Nmi_FrameCounter = $92 at final observation
+
+NMI stack sampler retained from the subsequent unmodified run:
+  clear entry and RTL executed; repeated samples at $001FFA-$001FFC were
+  54 DA 00. Entry S was not independently established, so these bytes are
+  not classified as interrupted PBR:PC. No emulator or G13 corruption
+  conclusion is drawn.
+
+Bounds:
+  Organic stage-clear fixture; hook notifications were collected in one
+  Mesen MCP process. Earlier functional G4 run reached stage 1 products and
+  showed Nmi_FrameCounter advancing, but remained STAGECLEAR after the G13
+  RTL boundary. No new diagnostic variant was run for this checkpoint.

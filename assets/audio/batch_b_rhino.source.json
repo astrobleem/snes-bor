@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13",
+  "raw_bytes": 15466,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 15338,
+  "canonical_path": "assets/audio/batch_b/canonical/rhino.wav",
+  "canonical_sha256": "093cfe9d910fea7f345dadc44ed4f8531f311485e2ee164f29c86301d7956016",
+  "canonical_frames": 15344,
+  "canonical_rate_hz": 22050,
+  "duration_seconds": 0.6958730158730159,
+  "duration_ticks": 87,
+  "brr_bytes": 8631,
+  "brr_blocks": 959,
+  "brr_sha256": "3153950ad3640f1b3bea36ecc329451d237a12e1488eb71f26fd99dc7e63edbc",
+  "single_effect_common_bytes": 8678,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/rhino.brr"
+}

@@ -1,0 +1,27 @@
+width-directive check (poppy#386): 1750 branch/jump-target labels, 23 NEW, 180 baselined, 0 baseline entries now clean
+  NEW  src/core/game_state.pasm:542  Game_State_Play__title_wait_check_p1:  reaches "and #$0010" with no explicit width directive
+  NEW  src/main.pasm:7752  CharacterEntity_Init__role3_lower_tile:  reaches "lda #120" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2288  AudioSemantic_EmitFall__queue:  reaches "lda #SFX_FALL_ID" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2474  AudioSemantic_EmitDiesound__not_foot:  reaches "cmp #AUDIO_STREAM_SOURCE_NONE" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2730  Audio_FrameSoundDispatch__selected_ok:  reaches "cmp #$FF" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2741  Audio_FrameSoundDispatch__variant_ok:  reaches "cmp #$FF" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2986  Game_State_AnyActorAlive__some:  reaches "lda #$01" with no explicit width directive
+  NEW  src/core/vm/vm_native_engine.pasm:2990  Game_State_AnyActorAlive__none:  reaches "lda #$00" with no explicit width directive
+  NEW  src/main.pasm:12558  Tad_StreamServiceFootdie__pending:  reaches "lda #2" with no explicit width directive
+  NEW  src/main.pasm:12641  Tad_StreamServiceFootdie__consume_budget:  reaches "sbc #144" with no explicit width directive
+  NEW  src/main.pasm:12739  Tad_StreamSendFootdieFrame__write_destination_high:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:626  Spawn_Play__wait_release_active:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:661  Spawn_Play__wc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:670  Spawn_Play__wc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:750  Spawn_Play__gc_sum_done:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:759  Spawn_Play__gc_slot5:  reaches "cmp #CHAR_INPUT_DRIVEN_PROP" with no explicit width directive
+  NEW  src/core/spawn.pasm:1784  Spawn_Play__slot45_boss5:  reaches "lda #0" with no explicit width directive
+  NEW  src/core/spawn.pasm:1800  Spawn_Play__slot45_mark_boss:  reaches "cmp #CHAR_ZP_LEN*4" with no explicit width directive
+  NEW  src/core/spawn.pasm:1807  Spawn_Play__slot45_mark_boss5:  reaches "lda #1" with no explicit width directive
+  NEW  src/core/spawn.pasm:1810  Spawn_Play__slot45_boss_mark_done:  reaches "cmp #SPAWN_KIND_PROP" with no explicit width directive
+  NEW  src/core/charselect.pasm:163  Game_State_Play__charselect_left_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
+  NEW  src/core/charselect.pasm:186  Game_State_Play__charselect_right_set:  reaches "lda #AUDIO_SEMANTIC_BEEP" with no explicit width directive
+  NEW  src/core/input.pasm:125  Core_Input_Poll__no_pad1:  reaches "lda #0" with no explicit width directive
+
+Add an explicit `sep #$20` / `.a8` (or `rep #$30` / `.a16 .i16`) immediately after each label above.
+It is a runtime no-op when the width already matches -- see poppy#386 and CLAUDE.md.

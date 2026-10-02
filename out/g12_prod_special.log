@@ -1,0 +1,30 @@
+roster selected to LEO (index 12): PASS
+CharSelect_Loaded==1 after reselect: PASS
+LEO special: fcount=6 delay=6 (expected frames=6)
+LEO CHAR_SPECIAL_FCOUNT matches its real special frame count: PASS
+LEO CHAR_SPECIAL_FCOUNT is nonzero (has a real special move): PASS
+special_base: actual=361450 expected(attack2_base+sum(fcounts)*768)=361450 (attack2_fc=6 jump_fc=22 jumpattack_fc=2 jumpattack2_fc=9)
+CHAR_SPECIAL_BASE matches independent recomputation: PASS
+map_base: actual=382954 expected=(special_base+sum(special/attack3/attack4/grab/slide/riseattack/grabattack/freespecial/get/waiting fc)*768)=382954 (fcounts sp=6 a3=5 a4=5 gm=1 sl=1 ra=0 ga=3 fs=5 get=1 wa=1)
+LEO has real content in every new move slot but riseattack: PASS
+LEO has real waiting (char-select portrait) data: PASS
+CHAR_MAP_BASE matches independent recomputation (10-hop chain): PASS
+L press triggers CHAR_SELECTED=2: PASS
+L press sets CHAR_ATTACK_VARIANT=2: PASS
+special frame index never exceeds its real frame count: PASS
+special completes and reverts CHAR_SELECTED to idle (0): PASS
+player HP before/after special: 60 -> 60
+using special deducts no HP (real data: no energycost for LEO): PASS
+organic R grab attempt 1/5: player.CHAR_GRAB_TARGET=1 entity1.CHAR_GRABBED_BY=0
+LEO's own R-triggered `grab` swing organically establishes a real mutual-lock (player.CHAR_GRAB_TARGET != $FF) via the same Character_HitApply__TryGrab path JOE uses: PASS
+after L with a real, organically-established grab link: CHAR_GRAB_TARGET=255 Entity1.CHAR_GRABBED_BY=255
+special trigger releases self.CHAR_GRAB_TARGET ($FF): PASS
+special trigger releases the victim's own CHAR_GRABBED_BY ($FF): PASS
+LEO CHAR_ATTACK_FCOUNT (attack1) unchanged by this slice: PASS
+Y press triggers CHAR_SELECTED=2: PASS
+Y press sets CHAR_ATTACK_VARIANT=0 (attack1, not special): PASS
+roster selected to RALF (index 0): PASS
+RALF CHAR_SPECIAL_FCOUNT==0 (real data: no special move): PASS
+L press on RALF never triggers CHAR_SELECTED=2 (no crash, no-op): PASS
+
+GATE G7-SPECIAL: PASS

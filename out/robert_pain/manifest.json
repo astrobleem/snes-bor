@@ -1,0 +1,60 @@
+{
+  "entity": "Robert",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.4485981308411215,
+  "hotspot_canvas": [
+    14,
+    45
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        37,
+        104
+      ],
+      "bbox": [
+        13,
+        10,
+        38,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 50,
+      "offset": [
+        37,
+        104
+      ],
+      "bbox": [
+        13,
+        10,
+        38,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        37,
+        104
+      ],
+      "bbox": [
+        13,
+        10,
+        38,
+        99
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

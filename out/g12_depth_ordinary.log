@@ -1,0 +1,26 @@
+4-actor ground Y: [70, 40, 90, 55]
+4-actor OAM by actor: {0: (2, 70), 1: (4, 40), 2: (0, 90), 3: (3, 55)}
+4-actor expected order: [2, 0, 3, 1]
+4-actor actual order: [2, 0, 3, 1]
+4-actor ground Y held: PASS
+4-actor every intended actor appears exactly once in hardware OAM: PASS
+4-actor descending ground depth and equal-depth tie order: PASS
+4-actor grounded OAM Y matches ground Y: PASS
+6-actor ground Y: [70, 40, 90, 55, 90, 25]
+6-actor OAM by actor: {0: (2, 70), 1: (4, 40), 2: (0, 90), 3: (3, 55), 4: (1, 90), 5: (5, 25)}
+6-actor expected order: [2, 4, 0, 3, 1, 5]
+6-actor actual order: [2, 4, 0, 3, 1, 5]
+6-actor ground Y held: PASS
+6-actor every intended actor appears exactly once in hardware OAM: PASS
+6-actor descending ground depth and equal-depth tie order: PASS
+6-actor grounded OAM Y matches ground Y: PASS
+LEO real jump data loaded: PASS
+six-actor player became airborne: PASS
+six-actor rank ignores jump altitude: PASS
+six-actor player OAM Y moved while airborne: PASS
+six-actor landing restores depth order: PASS
+six-actor landing restores OAM Y: PASS
+six-actor crossover changes rank in both directions: PASS
+six-actor crossover included airborne samples: PASS
+
+GATE G7-DEPTH-SORT: PASS

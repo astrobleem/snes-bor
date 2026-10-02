@@ -1,0 +1,128 @@
+{
+  "entity": "Joe",
+  "prefix": "out/joe",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/joe_idle",
+      "frames": 10
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/joe_walk",
+      "frames": 7
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/joe_pain",
+      "frames": 5
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/joe_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/joe_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/joe_attack1",
+      "frames": 11
+    },
+    {
+      "ordinal": 6,
+      "name": "grab",
+      "dir": "out/joe_grab",
+      "frames": 17
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": true,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31743,
+      19165,
+      23318,
+      12892,
+      3645,
+      6583,
+      12814,
+      0,
+      4369,
+      6536,
+      18798,
+      12586,
+      3210,
+      6309,
+      0
+    ],
+    [
+      0,
+      31743,
+      17215,
+      26392,
+      15070,
+      3645,
+      7675,
+      12814,
+      0,
+      1334,
+      8490,
+      9743,
+      7596,
+      3210,
+      3368,
+      0
+    ],
+    [
+      0,
+      31743,
+      19165,
+      23318,
+      12892,
+      3645,
+      6583,
+      12814,
+      0,
+      4369,
+      6536,
+      12501,
+      9298,
+      3210,
+      8237,
+      4160
+    ]
+  ]
+}

@@ -1,0 +1,700 @@
+{
+  "schema_version": 1,
+  "bank_plan_hash": "a90350b2dadc621b0863961a7a9a97409bb0b3d5c27fc1bb15b296dce5cf68f4",
+  "global_ids_hash": "54899b365fa5327b804a5d27f440f66cdebc25b7f790576cd69a149e6e3f9962",
+  "maps": [
+    {
+      "bank_id": 0,
+      "global_id": 1,
+      "local_id": 0,
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 2,
+      "local_id": 1,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 3,
+      "local_id": 2,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 8,
+      "local_id": 3,
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 14,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 18,
+      "local_id": 5,
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "exact_alias_key": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 19,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "exact_alias_key": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 20,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 23,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "exact_alias_key": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 24,
+      "local_id": 3,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 25,
+      "local_id": 9,
+      "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "exact_alias_key": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 28,
+      "local_id": 10,
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "exact_alias_key": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 31,
+      "local_id": 11,
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "exact_alias_key": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139"
+    },
+    {
+      "bank_id": 0,
+      "global_id": 32,
+      "local_id": 12,
+      "asset": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "exact_alias_key": "9e027ac6ca48abf564f07858e4afe18338a6fa3952d62001dda2d19467dc68fb"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 14,
+      "local_id": 0,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 18,
+      "local_id": 3,
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "exact_alias_key": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 19,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "exact_alias_key": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 20,
+      "local_id": 5,
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 23,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "exact_alias_key": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 24,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 25,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "exact_alias_key": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 28,
+      "local_id": 9,
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "exact_alias_key": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 29,
+      "local_id": 10,
+      "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "exact_alias_key": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 31,
+      "local_id": 11,
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "exact_alias_key": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139"
+    },
+    {
+      "bank_id": 1,
+      "global_id": 34,
+      "local_id": 12,
+      "asset": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "exact_alias_key": "61710a9acf2dbfaad18c145852bd73dad9208a9608dc29f29641156f69b63077"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 1,
+      "local_id": 0,
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 2,
+      "local_id": 1,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 3,
+      "local_id": 2,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 6,
+      "local_id": 3,
+      "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "338ef562041e9e1ac97987ed3257d197e38e86fa476281cc8d55fe0028a07f33"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 8,
+      "local_id": 4,
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 14,
+      "local_id": 5,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 20,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 23,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "exact_alias_key": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 24,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 27,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "exact_alias_key": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 28,
+      "local_id": 9,
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "exact_alias_key": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 31,
+      "local_id": 10,
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "exact_alias_key": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139"
+    },
+    {
+      "bank_id": 2,
+      "global_id": 34,
+      "local_id": 11,
+      "asset": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "exact_alias_key": "61710a9acf2dbfaad18c145852bd73dad9208a9608dc29f29641156f69b63077"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 1,
+      "local_id": 0,
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 2,
+      "local_id": 1,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 3,
+      "local_id": 2,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 6,
+      "local_id": 3,
+      "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "338ef562041e9e1ac97987ed3257d197e38e86fa476281cc8d55fe0028a07f33"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 8,
+      "local_id": 4,
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 11,
+      "local_id": 5,
+      "asset": "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+      "exact_alias_key": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 14,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 20,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 24,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 28,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "exact_alias_key": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 29,
+      "local_id": 9,
+      "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "exact_alias_key": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 31,
+      "local_id": 10,
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "exact_alias_key": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 32,
+      "local_id": 11,
+      "asset": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "exact_alias_key": "9e027ac6ca48abf564f07858e4afe18338a6fa3952d62001dda2d19467dc68fb"
+    },
+    {
+      "bank_id": 3,
+      "global_id": 34,
+      "local_id": 12,
+      "asset": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "exact_alias_key": "61710a9acf2dbfaad18c145852bd73dad9208a9608dc29f29641156f69b63077"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 1,
+      "local_id": 0,
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 2,
+      "local_id": 1,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 3,
+      "local_id": 2,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 6,
+      "local_id": 3,
+      "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "338ef562041e9e1ac97987ed3257d197e38e86fa476281cc8d55fe0028a07f33"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 8,
+      "local_id": 4,
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 11,
+      "local_id": 5,
+      "asset": "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+      "exact_alias_key": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 14,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 18,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "exact_alias_key": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 19,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "exact_alias_key": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 23,
+      "local_id": 9,
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "exact_alias_key": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 24,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 25,
+      "local_id": 10,
+      "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "exact_alias_key": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d"
+    },
+    {
+      "bank_id": 4,
+      "global_id": 27,
+      "local_id": 11,
+      "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "exact_alias_key": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 14,
+      "local_id": 0,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 18,
+      "local_id": 3,
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "exact_alias_key": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 20,
+      "local_id": 4,
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "exact_alias_key": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 24,
+      "local_id": 5,
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "exact_alias_key": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 27,
+      "local_id": 6,
+      "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "exact_alias_key": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 28,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "exact_alias_key": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
+    },
+    {
+      "bank_id": 5,
+      "global_id": 29,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "exact_alias_key": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 1,
+      "local_id": 0,
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 2,
+      "local_id": 1,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 3,
+      "local_id": 2,
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 4,
+      "local_id": 3,
+      "asset": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "exact_alias_key": "4ee3087ad3812e2f301720762289f9bcbc5718d59e8f5e2fca835f143e6ec3a6"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 5,
+      "local_id": 4,
+      "asset": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "exact_alias_key": "2a9a6285f00fe3d41364c311f6af78a169f26f6aef9c96b4a32dffe3199c809d"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 9,
+      "local_id": 5,
+      "asset": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "exact_alias_key": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 12,
+      "local_id": 6,
+      "asset": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "exact_alias_key": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 14,
+      "local_id": 7,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 15,
+      "local_id": 8,
+      "asset": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+      "exact_alias_key": "2e632920037553d5a001ef18e3a3294fcb625ecf3624c0846859a14f3a47bb80"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 6,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 7,
+      "global_id": 14,
+      "local_id": 0,
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "exact_alias_key": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
+    },
+    {
+      "bank_id": 7,
+      "global_id": 16,
+      "local_id": 1,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "exact_alias_key": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
+    },
+    {
+      "bank_id": 7,
+      "global_id": 17,
+      "local_id": 2,
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "exact_alias_key": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
+    },
+    {
+      "bank_id": 7,
+      "global_id": 30,
+      "local_id": 3,
+      "asset": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+      "exact_alias_key": "e4eeb10434950a51c06e79b0339686815dcf329f3192367dc29697cecaf36aa7"
+    }
+  ]
+}

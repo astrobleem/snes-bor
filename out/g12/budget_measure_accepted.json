@@ -1,0 +1,31 @@
+{
+  "accepted_trace": {
+    "max_dma_active_at_sample_boundary": 8,
+    "max_dma_budget_at_sample_boundary": 848,
+    "nmi_delta": 600,
+    "nmi_over_samples": 0,
+    "sample_frames": 600
+  },
+  "budget_cap_bytes": 2816,
+  "cpu_cycle_measurement": "UNAVAILABLE: installed MCP endpoint rejects get_cpu_state",
+  "dma_payload_bytes": {
+    "hud_max": 256,
+    "oam": 544,
+    "one_frame": 768,
+    "two_frames": 1536
+  },
+  "dma_payload_cycles": {
+    "hud_max": 2048,
+    "oam": 4352,
+    "one_frame": 6144,
+    "two_frames": 12288
+  },
+  "note": "Current ROM has no grouped queue; two-frame CPU/NMI behavior is not claimed here.",
+  "proposed_two_frame_plus_oam_plus_hud_bytes": 2336,
+  "proposed_two_frame_plus_oam_plus_hud_headroom_bytes": 480,
+  "rom_scope": "accepted distribution/bor.sfc; measurement only",
+  "symbols": {
+    "done": 53874,
+    "entry": 53590
+  }
+}

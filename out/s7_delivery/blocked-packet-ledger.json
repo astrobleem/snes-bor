@@ -1,0 +1,1084 @@
+{
+  "status": "RESOURCE_BLOCKED",
+  "required_bytes": 16640,
+  "available_bytes": 8192,
+  "fragmentation_bytes": 0,
+  "required_palette_slots": 1,
+  "available_palette_slots": 2,
+  "palette_lifetime_policy": "SIMULTANEOUS_PINNED_IDENTITIES",
+  "referenced_palette_identities": 1,
+  "optional_only_bytes": 0,
+  "blocks": [
+    {
+      "sha256": "004fca07013e7e4add562fe63ea0ff372cbcf84137b6ee76b6466be720574b63",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "02c8880079535ca62e6df0d00531974f05a8479204293492af115549279a0df7",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "02d5475636b63e9707d48a23a0b78adf0dc0b70f403da79a7ea030a27950c995",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "0337f645b49bf36b245ac3fcce0de30f906f9ef98f17637b534431752adcec8b",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "042ee7b5c17a76c9383b7849267ff77765c504c92f7d1c758aa38c6b8532be2a",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "08bc27d5e173e788b20f67eea9f8d803a931e9590c07a07f074b2bc38091c6fb",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "0b8e131d0dfac44fde3ad635de134c7bc87330974c9090c35d4c2ef3d362b75d",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "0c20fc65754486da9bd28390b244e683cda81de56cf495f1180a58eb5cc8ee2e",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "116cd2175206db69bc7299c82fbfbfbb713434f020c587e5f8235bcb7059036e",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "154ccdf04063c8fcbc2acd12a4749cb7a26e61e026c8720c3150ab22d8a5bc0d",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "2e44ce4cd81bff441bb9a95238781154bc6cefacbe99c01ee72d421425d4892a",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "379f320d45d69f2342acb8997aeb58a328ecced72653a6f65d7f6a72b836f5eb",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "3e5bde0184a32ec9169d9b1b219d350c7a28f9ba1c01d3219541dc38435dbe25",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "40db323738248282bddbd670e39c7fef07c39e9c0538d53505cafedd8983cb46",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "41f581634c0aeb44987752f8b61336912677263671800f7c0a5963f0e84c7e01",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "42a863d94a850a3392cb4f1070f72e0d02a6b8c735f776a5f50edc12b480d366",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "44229c24c2ab351e5b64af8875e715adde6396910447ab8c28b8969c2d0bc628",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "459ffcc71eed724b7de8e8e77b3da19644f0af046b5187fc21c25fd2ecbbb081",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "46467f1c2762a028bbd570c00ce0ca2db9bbaea2428f269e65f3887ccc77be58",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "4b5f47e44be5df9bc9a98f990bce0bfc90ac19cfb5984c75c8e24148c18869b1",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "5182820f810dccf460b5e1bcea7b86ae9d8b1e4e2e2b46e932e6b02e31f8a0e8",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "5665a6e5b0c5b2ce635ba04890a0fefde67985b99e1b090a7bcc124e484e2c83",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "58675f315fcd58edc3d7d8f01f895b17ae67c49ba0b24cfda0dd244af30864c7",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "5e7d49af71e55e7de4ccba4cdc5a07edf02fea8d6f1e2cb6a6c5a100f2ea9aab",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "626796e96cd807ffa8261ea030760f7a0cc69fc2c36af34a0d6163aab15ec785",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        },
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "687684454a7da6b0830222f3706923e64d4b1c4b1d779b7743dab4886db570fe",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "6f224ad69cad645b2fdc382e92d12d0dae2f74399d1e4ffeb3034599e255fbd6",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "6f7db471be8a1373cf28183d52b00d1b7f10687240b51379ba066dee9b348a9b",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "81a2d94d338df13a0bc820eaec4d2b21a529b1fe515f7fdccbf7c56a208e1711",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "82a187e1e5068dcc06ab13177db46a4a62d93967f25774c1da666a17b0fd0509",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "8fd02d770615d9c5dc45cd8c1598fdf8d243d8edbd373991738e9a25b9118a42",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "902f4581511cfb79684e8d877ec30be22198dfcac5e969c6433be407ded610f9",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "91d303d481d8d4082bcd3c38e0ad67eb95d6f2724720da790eda846c3f8a208a",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "9361bc07a39644dbe036ab92b863a2d23782bb7a8c341a4d9461a01a709491a9",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "97923e8bcef8d9e693b948c2a34f9c0b90dd10b5097b594462bfc9c2545b20fc",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        },
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "991b6b0116535e0d275e029316de0ea3ba32fb1a897cbe6ab3b9e8b69cf8b417",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "9a23d761ec8cb0c9bb8a914cb65b4f5b69530cd4feb359625954fe4a4d2b9b21",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "9b4a8a2755c7083f0c8241f88bdf10e502cb533c2b6ed23a99fd4a30bf1cba46",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "9bdd158f6ce83bb5e0ede352137cdc9ad9b205eb5d829743f09096aaf7f27561",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "a4b01005fb7e2984149d32f261a04ff090b9f2f6c4eff3b15d7f91dcc9bf266e",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "a4f7a748ffe57b9a3108d93ddba0a1a84e5a4edbce4fff150d029030446e9d2c",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "a9508cffd8b69d2e1ece0a296837a9f1d5e27b7a28601825a422a11486e5d0b4",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "a96657eb80f90635e11024e8273c3b34a4017ed8a4ed5f66affb8117b18858c4",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "a9c94685829c8a530db7eebfb6213357eaa5739583848ce2782e58dc14c0d5a5",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        },
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "ab216ffcbfdaebe1c4eb2072954d0a3cc7dd3c03136fd715074a3b2f4a47fe5a",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "b64040f62a1e967d2346b5317ecfe9f93dc915574633048ba6f38b7e0227c551",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        },
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "bd4ccfb932e678e92291ce07974c978b0083d9a2b60724202ade316dafb97ca8",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "c5beb04ec27cf420ca71267bef4ccae0076cfdf954fb9fa783d46b0e2f35ead8",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "c627336830cd77dc4bb22dcc32fd83e5b0b557cbbbc10e88fabad2eeb84c543d",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "c6b3550f9ef4e4d3207cc7d78ff6bad8612e35d3594fb0ac7c79f47d50798b9d",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "cae687cc9299963b506b34074e26f5a2b89e949222e7f206f063cc6302b8e3f6",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "d50094940a454749443df55fc50bca719cefe3110ee06dff03630ba5bcf6eaaa",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        },
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 4,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "d6c6b08e2e21d8e068f350f1124958166bd47064659308b3d3c9d2ac2dac25b9",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "d8005be361e7bb6436c4ac477ed72050307b33fc70c86ca56ed18effa44f4e55",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "ddb043a473078e020a12d3269aaf0a6277bb151c733e04c39ff75f7004964575",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "e4ce0657a29f29b2738f5e728f12b1e421e770a5941d9e22bf37b2356aab98e7",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "e89643866231899319a2731b3606e4e0a5737bfbf1d0d983f75745c131413911",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 0,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "e8fddf6b930733b391549798e2077e288e4d55b6810ca05fbcfb6445fd35081b",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 3,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "e9372d90db3670ea7e370a3436af71cda0cb7da6dc47e98481eccb6020aa03d5",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 5,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "ebf6fd1aff93d062b88b9166cdc80cfc4c9f7798f31e144f39a9db070d892149",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "f276bc484db6234c6614974bfdff1b8a6f24c9d5d01a258a69e94809ac20da97",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "f3a9c2b9603b3647cb73415d747022d8347e286778da6b0ad5c51285f4497a47",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "f9a853a3503a931f974af37aecd667ba8908236869aa16c54cec21d2f14d9508",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "fadf6cb885759459b02c22b4f51c8e595ee3e77a0d213f6d909fd24a9e932512",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 1,
+          "map": 0
+        }
+      ]
+    },
+    {
+      "sha256": "ffb64a90ebe5c27d7f86456273cbd90facb2f769170558c82265c05ad1b807c8",
+      "size": 256,
+      "shape": "4x64-byte rows at 512-byte stride",
+      "references": [
+        {
+          "packet": "six-independent-source-frames",
+          "ownership": "new_packet",
+          "model": 22,
+          "role": 0,
+          "frame": 2,
+          "map": 0
+        }
+      ]
+    }
+  ],
+  "palettes": {
+    "c9d5b98e29acf58cbfaf8659f179d1bb4f9236aba986dd6689043636a5a33500": [
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 0,
+        "map": 0
+      },
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 1,
+        "map": 0
+      },
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 2,
+        "map": 0
+      },
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 3,
+        "map": 0
+      },
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 4,
+        "map": 0
+      },
+      {
+        "packet": "six-independent-source-frames",
+        "ownership": "new_packet",
+        "model": 22,
+        "role": 0,
+        "frame": 5,
+        "map": 0
+      }
+    ]
+  },
+  "minimum_for_emitted_indivisible_block_abi": 16640,
+  "source_pixel_global_minimum_proven": false,
+  "hardware_ownership_evidence": "CALLER_REQUIRED",
+  "scope": "Dry simultaneous-packet layout diagnostic, not a six-actor runtime benchmark"
+}

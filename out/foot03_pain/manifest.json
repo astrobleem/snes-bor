@@ -1,0 +1,60 @@
+{
+  "entity": "Foot03",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.2318840579710145,
+  "hotspot_canvas": [
+    20,
+    30
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        90,
+        195
+      ],
+      "bbox": [
+        25,
+        60,
+        100,
+        140
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        85,
+        195
+      ],
+      "bbox": [
+        25,
+        60,
+        100,
+        140
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        85,
+        195
+      ],
+      "bbox": [
+        25,
+        60,
+        100,
+        140
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

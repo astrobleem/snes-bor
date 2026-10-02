@@ -1,0 +1,561 @@
+{
+  "capability_union_count": 1,
+  "floors": [
+    {
+      "asset_count": 14,
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ],
+      "common_data_bytes": 55812,
+      "common_data_sha256": "c77539530f1c9959054036220bfdcf00aa3590bdce6501e273536e629fddb93b",
+      "effect_count": 11,
+      "executable_roles": [
+        "idle",
+        "walk",
+        "jump",
+        "jumpattack",
+        "jumpattack2",
+        "special",
+        "get",
+        "attack",
+        "attack3",
+        "attack4",
+        "slide",
+        "grabattack",
+        "freespecial",
+        "attack2"
+      ],
+      "global_events": [
+        "attack-swing",
+        "jump",
+        "landed-hit",
+        "pause-entry",
+        "ui-beep",
+        "ui-beep-secondary"
+      ],
+      "identity": "LEO",
+      "margin": 5016,
+      "player": "out/leo",
+      "sample_count": 11
+    }
+  ],
+  "global_ids_hash": "54899b365fa5327b804a5d27f440f66cdebc25b7f790576cd69a149e6e3f9962",
+  "inventory": [
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\1UP.WAV",
+      "brr_bytes": 19908,
+      "canonical_pcm_hash": "ecdb9f9aaf50beee4318e26b069be6c2ca99ae153b21872726bd5905a465309b",
+      "duration_seconds": 1.605079365079365,
+      "duration_ticks": 201,
+      "effect_identity": "16fcba5d8787b7341a3b14d01f70195297fa737befc609245c808742d1a0a8f2",
+      "sample_identity": "63f8c55ee9c0f5c180f8d97a36b9d3b464b274359c75493351923fa8ac4ebc4e",
+      "single_asset_common_bytes": 19955,
+      "source_frames": 35392,
+      "source_sample_rate": 22050,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEAT1.WAV",
+      "brr_bytes": 2349,
+      "canonical_pcm_hash": "690e6c144dd3e4ef9eb674cb9a1f1d8d987bba4c6ec0338506ca3cb3e1544dbe",
+      "duration_seconds": 0.3787755102040816,
+      "duration_ticks": 48,
+      "effect_identity": "6478e79d41371bc9958b4b69c65a1ef668772f59ad14e0661c498b9acbc9f228",
+      "sample_identity": "758bf684ac86ddf6b13f6c6ae4777dbc6f54461f34ef02445635ead989975a6a",
+      "single_asset_common_bytes": 2396,
+      "source_frames": 4176,
+      "source_sample_rate": 11025,
+      "users": [
+        "landed-hit",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP.WAV",
+      "brr_bytes": 1899,
+      "canonical_pcm_hash": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+      "duration_seconds": 0.15310657596371882,
+      "duration_ticks": 20,
+      "effect_identity": "65786829ddd514fa157095431b118795afabcc5dfd11527a6dcb2e5a886c5a6c",
+      "sample_identity": "e86b572ffea07ebfcaf79a9554a725af81cc581680d81952843e06c159e76c7b",
+      "single_asset_common_bytes": 1946,
+      "source_frames": 3376,
+      "source_sample_rate": 22050,
+      "users": [
+        "player:LEO",
+        "ui-beep"
+      ]
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\BEEP2.WAV",
+      "brr_bytes": 2484,
+      "canonical_pcm_hash": "9f1272b31b8c3299c0165de78e2e5bd6a8eba60fb7aefeeda820243b44b78456",
+      "duration_seconds": 0.2002721088435374,
+      "duration_ticks": 26,
+      "effect_identity": "97aa2c0172390b28fb4cf2201cad406d951916fdba7be708bef6888cc6a23232",
+      "sample_identity": "e24c9ac56309f1a457449bb009be37ca2523ca0a81072bb06ae5a99147cf9824",
+      "single_asset_common_bytes": 2531,
+      "source_frames": 4416,
+      "source_sample_rate": 22050,
+      "users": [
+        "pause-entry",
+        "player:LEO",
+        "ui-beep-secondary"
+      ]
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "brr_bytes": 4203,
+      "canonical_pcm_hash": "6ac521a18137da4b9a90fe6b3f7b247f6cf71c844804d7bf0c882422f544095e",
+      "duration_seconds": 0.6777324263038549,
+      "duration_ticks": 85,
+      "effect_identity": "f283af9b6f1d9e0fe3c81981f9ff8af507444faf0cfe15d6692426cad1201bdc",
+      "sample_identity": "7faa3e36ec25f62645e46a7822ac29548e7d5f02f5810f65f9e61dc78499a91e",
+      "single_asset_common_bytes": 4250,
+      "source_frames": 7472,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "brr_bytes": 6219,
+      "canonical_pcm_hash": "f7c9f35f417a2e048feeee5e776c74dbbe9d20eb7d6b3737b5138380ad9b6c9d",
+      "duration_seconds": 1.00281179138322,
+      "duration_ticks": 126,
+      "effect_identity": "9c1ab62b05ac1e0ff97eb3e85906b4c4a725ab049d3dbb1d9187aab1241cd555",
+      "sample_identity": "2b6423f2c45b75426903a1b47426206e983d978e5dcea8334073aa5039fe8ca0",
+      "single_asset_common_bytes": 6266,
+      "source_frames": 11056,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\FALL.WAV",
+      "brr_bytes": 3069,
+      "canonical_pcm_hash": "c1b4b54f3d8d85516b96903f9b87de4e22025bf3f26440d158886c10e0d4e8b6",
+      "duration_seconds": 0.494875283446712,
+      "duration_ticks": 62,
+      "effect_identity": "e1e7979ff7e613ca3083693c4deec582ae1a3fe7ed349e1fc44c782126006075",
+      "sample_identity": "f3d9a8407e3d03326b45386e9c6beaa9ce52674732c85a9889a8c6168f3686cc",
+      "single_asset_common_bytes": 3116,
+      "source_frames": 5456,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\GET.WAV",
+      "brr_bytes": 2016,
+      "canonical_pcm_hash": "0527be5a3d9755658523a5291fc8c39765ee21aebc062504ee52d3e878815419",
+      "duration_seconds": 0.3250793650793651,
+      "duration_ticks": 41,
+      "effect_identity": "5dc7e18ae9339855293177bb3729e1e64f9337d5acc0b9793f5f891035ea2479",
+      "sample_identity": "ecf01647460ad87ee0ad55f60881cd7025533053dee7581c79af5e2d5b6f7464",
+      "single_asset_common_bytes": 2063,
+      "source_frames": 3584,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\JUMP.WAV",
+      "brr_bytes": 3348,
+      "canonical_pcm_hash": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "duration_seconds": 0.5398639455782313,
+      "duration_ticks": 68,
+      "effect_identity": "9eaa373f94ae751362e2e754df49999327c82473457c33b71dfbee5b7e311ad1",
+      "sample_identity": "5b90dacbd6736e579528fece4f9015fa90160704c7e744476477a741423a560f",
+      "single_asset_common_bytes": 3395,
+      "source_frames": 5952,
+      "source_sample_rate": 11025,
+      "users": [
+        "jump",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "brr_bytes": 4572,
+      "canonical_pcm_hash": "7cb4118ee602f63a496093172dee98e1a0a89bc4427c439dd0e059abe44bfc3e",
+      "duration_seconds": 0.737233560090703,
+      "duration_ticks": 93,
+      "effect_identity": "4307e1ea18cffb2640300f76b6bafda5783f610fd40be6827443c4f84363a51c",
+      "sample_identity": "392c85763b94ef1b1abec9bfdf7153d1e396157e157988d4c55610c9ae5233a4",
+      "single_asset_common_bytes": 4619,
+      "source_frames": 8128,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+      "brr_bytes": 5517,
+      "canonical_pcm_hash": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+      "duration_seconds": 0.8896145124716553,
+      "duration_ticks": 112,
+      "effect_identity": "b61d6b89b18ecc37cf16e2ac3f88f2fe7f69d1f2a507a0360b06ec58cc07e13a",
+      "sample_identity": "a771b7ba4b092adc795cddd3e9265e5d00d16e50b2c2081cd3999d6a693abe6e",
+      "single_asset_common_bytes": 5564,
+      "source_frames": 9808,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\PUNCH.WAV",
+      "brr_bytes": 2277,
+      "canonical_pcm_hash": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1",
+      "duration_seconds": 0.18358276643990928,
+      "duration_ticks": 23,
+      "effect_identity": "8013e4e98c4bbce84e22d095a75f807d3e0bff71a7b952b1bce0fa15bd72acfa",
+      "sample_identity": "a8d1ef59b0fb8f0c8095a397e305db2befe40e787312ed3baacbe615962778bf",
+      "single_asset_common_bytes": 2324,
+      "source_frames": 4048,
+      "source_sample_rate": 22050,
+      "users": [
+        "attack-swing",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "brr_bytes": 2520,
+      "canonical_pcm_hash": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf",
+      "duration_seconds": 0.40634920634920635,
+      "duration_ticks": 51,
+      "effect_identity": "52ccfd7b4b60e5653bc73aa994fb1922f0ab31cec3703c0b5720389a653c9639",
+      "sample_identity": "78e36db15aa6c26741bd2dda31ec6fc0c3fe615f3263d1340c2ce9e0728ed157",
+      "single_asset_common_bytes": 2567,
+      "source_frames": 4480,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\1UP.WAV",
+      "brr_bytes": 19908,
+      "canonical_pcm_hash": "ecdb9f9aaf50beee4318e26b069be6c2ca99ae153b21872726bd5905a465309b",
+      "duration_seconds": 1.605079365079365,
+      "duration_ticks": 201,
+      "effect_identity": "16fcba5d8787b7341a3b14d01f70195297fa737befc609245c808742d1a0a8f2",
+      "sample_identity": "63f8c55ee9c0f5c180f8d97a36b9d3b464b274359c75493351923fa8ac4ebc4e",
+      "single_asset_common_bytes": 19955,
+      "source_frames": 35392,
+      "source_sample_rate": 22050,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+      "brr_bytes": 1917,
+      "canonical_pcm_hash": "dff2040abaa165adb7b37c43736701e42f25f7e003204c929eef5e9588a87269",
+      "duration_seconds": 0.3091156462585034,
+      "duration_ticks": 39,
+      "effect_identity": "993220816c3a622cd611ee8019df2772c15550d94a375b2f41420ca542997488",
+      "sample_identity": "85c874f4dec0fdffca351d57c558a24116fd4288f5a8fd1ca720bc584105a01f",
+      "single_asset_common_bytes": 1964,
+      "source_frames": 3408,
+      "source_sample_rate": 11025,
+      "users": [
+        "landed-hit",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+      "brr_bytes": 32733,
+      "canonical_pcm_hash": "237073ade06e80200a4555c3ff6ee68880c774fa94aa1d5914fd7db7a0702b87",
+      "duration_seconds": 5.278185941043084,
+      "duration_ticks": 660,
+      "effect_identity": "a8eaf28015a7fa07dfeb646ea9b2ebac7d47a4db8675878f157edae28abcb6d9",
+      "sample_identity": "36d7ed64d9b11dcd0dbeb33eb5d6a151c4c82342fcd025ecc364747336251be1",
+      "single_asset_common_bytes": 32782,
+      "source_frames": 58192,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+      "brr_bytes": 1899,
+      "canonical_pcm_hash": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+      "duration_seconds": 0.15310657596371882,
+      "duration_ticks": 20,
+      "effect_identity": "65786829ddd514fa157095431b118795afabcc5dfd11527a6dcb2e5a886c5a6c",
+      "sample_identity": "e86b572ffea07ebfcaf79a9554a725af81cc581680d81952843e06c159e76c7b",
+      "single_asset_common_bytes": 1946,
+      "source_frames": 3376,
+      "source_sample_rate": 22050,
+      "users": [
+        "player:LEO",
+        "ui-beep"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+      "brr_bytes": 2484,
+      "canonical_pcm_hash": "9f1272b31b8c3299c0165de78e2e5bd6a8eba60fb7aefeeda820243b44b78456",
+      "duration_seconds": 0.2002721088435374,
+      "duration_ticks": 26,
+      "effect_identity": "97aa2c0172390b28fb4cf2201cad406d951916fdba7be708bef6888cc6a23232",
+      "sample_identity": "e24c9ac56309f1a457449bb009be37ca2523ca0a81072bb06ae5a99147cf9824",
+      "single_asset_common_bytes": 2531,
+      "source_frames": 4416,
+      "source_sample_rate": 22050,
+      "users": [
+        "pause-entry",
+        "player:LEO",
+        "ui-beep-secondary"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+      "brr_bytes": 9927,
+      "canonical_pcm_hash": "0d5688a1128bf8f012aef0b76d4337266675d18c33f3d2957655c8031fff7eab",
+      "duration_seconds": 0.8003628117913832,
+      "duration_ticks": 101,
+      "effect_identity": "9244451f5ed90615f803a8000eb01b6e8f707e77fd041ecda53a19c87c52b68f",
+      "sample_identity": "615bd25c928466826a38b7ad934167afc722583c70a151542ddd7da849a80128",
+      "single_asset_common_bytes": 9974,
+      "source_frames": 17648,
+      "source_sample_rate": 22050,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "brr_bytes": 2160,
+      "canonical_pcm_hash": "d36cefbaf0cbe3270609ed5788393ab74760d8fb01f17d06f2f2757cf48dc64c",
+      "duration_seconds": 0.34829931972789113,
+      "duration_ticks": 44,
+      "effect_identity": "815fb90fed45a807fd939e3de193421c3354154eabea6fd3537cd14c3df40821",
+      "sample_identity": "b66db28444a351a40e3434b6d47c073c372f1a93e840023fd50f5417b17cd078",
+      "single_asset_common_bytes": 2207,
+      "source_frames": 3840,
+      "source_sample_rate": 11025,
+      "users": [
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\FALL.WAV",
+      "brr_bytes": 6453,
+      "canonical_pcm_hash": "4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91",
+      "duration_seconds": 0.5202721088435374,
+      "duration_ticks": 66,
+      "effect_identity": "965a64a61e059784f2006b8842b8e02d21077ba647d0957a976a31a34b748e27",
+      "sample_identity": "d9407dd8dfa5b4592a59fde0406d7388ef3b624f0f2bed253d93f160e3ce5b72",
+      "single_asset_common_bytes": 6500,
+      "source_frames": 11472,
+      "source_sample_rate": 22050,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "brr_bytes": 32733,
+      "canonical_pcm_hash": "7a1b298b5599c86137edce7fb55955f9073a18e5894e22f798b134087dc8fa11",
+      "duration_seconds": 5.278185941043084,
+      "duration_ticks": 660,
+      "effect_identity": "a2fa8f8b8fd6ff8b2bc06a9c0ceaa30b64223a35bb92632c42ae90677c1300e6",
+      "sample_identity": "9289f511d85586673e7ba37f9f8f869f7538105b15483fc32e1d8099f4cafeff",
+      "single_asset_common_bytes": 32782,
+      "source_frames": 58192,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\GET.WAV",
+      "brr_bytes": 9450,
+      "canonical_pcm_hash": "b4962d6bd03e77bde7287cf8e14f519ae43120bd8730fee4c3d7f3c5ea9d2fc3",
+      "duration_seconds": 1.5238095238095237,
+      "duration_ticks": 191,
+      "effect_identity": "8efd2fd8a9a232a6c244cc05a7fad6a164e1c570e2b11338b97d0a38d98044d2",
+      "sample_identity": "ca02897f85e03b52456ab0331474b2e99b383bac9897be4ac04b377864c9f954",
+      "single_asset_common_bytes": 9497,
+      "source_frames": 16800,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "brr_bytes": 5958,
+      "canonical_pcm_hash": "a4fbaca421f8610cf7ebc1d4c7535e521509bbb0ea1ce4aa3d5536a76b7bd421",
+      "duration_seconds": 0.9607256235827665,
+      "duration_ticks": 121,
+      "effect_identity": "509a2dffa7f2aecdb23dc909bed64f4980e978fc6de3689ed4b056e7db86691c",
+      "sample_identity": "92cab87c99a17614f59cc753361c3a7a937c7a03cdfcb6c69609ba127c72bb8a",
+      "single_asset_common_bytes": 6005,
+      "source_frames": 10592,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+      "brr_bytes": 3348,
+      "canonical_pcm_hash": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "duration_seconds": 0.5398639455782313,
+      "duration_ticks": 68,
+      "effect_identity": "9eaa373f94ae751362e2e754df49999327c82473457c33b71dfbee5b7e311ad1",
+      "sample_identity": "5b90dacbd6736e579528fece4f9015fa90160704c7e744476477a741423a560f",
+      "single_asset_common_bytes": 3395,
+      "source_frames": 5952,
+      "source_sample_rate": 11025,
+      "users": [
+        "jump",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "brr_bytes": 2736,
+      "canonical_pcm_hash": "89b6561539c196f51fabbbe194889922a4400a89fd1fce5f14dbd7a384d61f57",
+      "duration_seconds": 0.44117913832199546,
+      "duration_ticks": 56,
+      "effect_identity": "028034fca12a2cda24136e5bf1e53159af9b96970559f3aef397f0def7540045",
+      "sample_identity": "2c39a346d7b5e37c92ac8dd719c334d0271f255a5dbf24304b0c4d121e8f01c8",
+      "single_asset_common_bytes": 2783,
+      "source_frames": 4864,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+      "brr_bytes": 5517,
+      "canonical_pcm_hash": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+      "duration_seconds": 0.8896145124716553,
+      "duration_ticks": 112,
+      "effect_identity": "b61d6b89b18ecc37cf16e2ac3f88f2fe7f69d1f2a507a0360b06ec58cc07e13a",
+      "sample_identity": "a771b7ba4b092adc795cddd3e9265e5d00d16e50b2c2081cd3999d6a693abe6e",
+      "single_asset_common_bytes": 5564,
+      "source_frames": 9808,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "brr_bytes": 20097,
+      "canonical_pcm_hash": "e0f5d6500a4c9ef8a8290621c334cbdda885bbd744e13dd2c329281428960e68",
+      "duration_seconds": 1.6203174603174604,
+      "duration_ticks": 203,
+      "effect_identity": "839f08343011596db0325e2218aabc167510a98394c97a9992a4c702e23fa559",
+      "sample_identity": "6239202ed7d19dd196e1426a25305b6fadc8c6e4d109b1dc34e78bd4f0e004fa",
+      "single_asset_common_bytes": 20144,
+      "source_frames": 35728,
+      "source_sample_rate": 22050,
+      "users": [
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "brr_bytes": 3771,
+      "canonical_pcm_hash": "f4a221a3127164858fc7a1a56546de72553846efcd64588a4f3a6f0fe9db7781",
+      "duration_seconds": 0.30403628117913833,
+      "duration_ticks": 39,
+      "effect_identity": "fa9943347c88c6e94c0b526560f76a7a77372c852f7667c1e0891c8852862ea3",
+      "sample_identity": "3908531cb8d9137225db8635f3be42504155ec95cfefb0a2b025d4d943f5a777",
+      "single_asset_common_bytes": 3818,
+      "source_frames": 6704,
+      "source_sample_rate": 22050,
+      "users": [
+        "attack-swing",
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "brr_bytes": 8631,
+      "canonical_pcm_hash": "093cfe9d910fea7f345dadc44ed4f8531f311485e2ee164f29c86301d7956016",
+      "duration_seconds": 0.6958730158730159,
+      "duration_ticks": 87,
+      "effect_identity": "15a01e66a4476a2ed8791ccf963b9010046233fd8f2dd857f8555059cf2a6d6a",
+      "sample_identity": "3663626269966f2f311f1aea7a96af4e55666873b0ad1faf00adcc888038e977",
+      "single_asset_common_bytes": 8678,
+      "source_frames": 15344,
+      "source_sample_rate": 22050,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+      "brr_bytes": 32733,
+      "canonical_pcm_hash": "e6ae32ffc748c877b56be9359f338aabebabb2f1ce2549bd60d176197504556a",
+      "duration_seconds": 5.278185941043084,
+      "duration_ticks": 660,
+      "effect_identity": "3bccf9b40c3936e7efc0c68c44250cff2b0fc3ecdebf76aaeae235a75e6b00f7",
+      "sample_identity": "0f67e31a89117ee26dc22803f2109774a93d44e05ded4ddd0d14466c956b408b",
+      "single_asset_common_bytes": 32782,
+      "source_frames": 58192,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "brr_bytes": 639,
+      "canonical_pcm_hash": "e94abcd89a43e535689641901b9b5990cf19c74aea231baf33482c01d9b3d0fa",
+      "duration_seconds": 0.10303854875283447,
+      "duration_ticks": 13,
+      "effect_identity": "884ba78757bea830cfb69aa4c08c0ed63687a77a54e986ee5295b4f44614c6a9",
+      "sample_identity": "9d75d2a9601f5ecc4e249d900ab89e9c5ac61a2208c45f6e40ecd9d83b57d9d9",
+      "single_asset_common_bytes": 686,
+      "source_frames": 1136,
+      "source_sample_rate": 11025,
+      "users": [
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "brr_bytes": 14652,
+      "canonical_pcm_hash": "b2831fc76bec3348550572e8b34db928bbbcd300fa2d70c6998c1dea84927914",
+      "duration_seconds": 1.1813151927437642,
+      "duration_ticks": 148,
+      "effect_identity": "160a77fe401943f4f1fc3839b92ba20c1c4fafb148b30650b456758714d4bca1",
+      "sample_identity": "8201fd7a9f63b65bbf1bc25a5298cae81bfd78d8d27af50c725c52ec3f30e023",
+      "single_asset_common_bytes": 14699,
+      "source_frames": 26048,
+      "source_sample_rate": 22050,
+      "users": [
+        "player:LEO"
+      ]
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+      "brr_bytes": 32733,
+      "canonical_pcm_hash": "bc8a5fa74286ae64a6d3eb938f3cd35910842d17ea0eabdfe50e59e9c3e7ac49",
+      "duration_seconds": 5.278185941043084,
+      "duration_ticks": 660,
+      "effect_identity": "d8b77c036f30bb56b3abf7ec71342ecc3fe53e490d2711013dff856eaf6ad77f",
+      "sample_identity": "06a358ff032d5af9ee3a0ee7339cc3549ef7ae8f575cb3432e6f352efd97848a",
+      "single_asset_common_bytes": 32782,
+      "source_frames": 58192,
+      "source_sample_rate": 11025,
+      "users": []
+    },
+    {
+      "asset": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "brr_bytes": 7488,
+      "canonical_pcm_hash": "c890a6f3c9c7cf04ad0b69b1714e025c27bae8883040a2b40e14ebc4349f592b",
+      "duration_seconds": 0.603718820861678,
+      "duration_ticks": 76,
+      "effect_identity": "9a65b2fee423d42f046e58c7e5b189fb4d04e4d2e1102e2de689e5f7f3ec8939",
+      "sample_identity": "0b6676b6235f05d33450f45b22752cdc5ff0094d44707a8681730ea73ac53d2f",
+      "single_asset_common_bytes": 7535,
+      "source_frames": 13312,
+      "source_sample_rate": 22050,
+      "users": []
+    }
+  ],
+  "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",
+  "policy": "baseline-policy capacity; not final shipping policy",
+  "schema_version": 2,
+  "terminology": "player capability union; not a proven always-resident floor",
+  "total_distinct_effect_identities": 30,
+  "total_distinct_inventory_assets": 35,
+  "total_distinct_sample_identities": 30,
+  "total_individual_brr_bytes": 318348
+}

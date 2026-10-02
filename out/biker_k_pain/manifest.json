@@ -1,0 +1,30 @@
+{
+  "entity": "Biker-K'",
+  "anim": "pain",
+  "loop": 1,
+  "scale": 0.24427480916030533,
+  "hotspot_canvas": [
+    16,
+    21
+  ],
+  "frames": [
+    {
+      "delay": 5,
+      "offset": [
+        71,
+        100
+      ],
+      "bbox": null,
+      "attack": [
+        101,
+        61,
+        37,
+        40,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

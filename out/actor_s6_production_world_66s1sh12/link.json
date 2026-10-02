@@ -1,0 +1,549 @@
+{
+  "status": "LINK_ONLY_NOT_RUNTIME_PROOF",
+  "scenario": "enemy",
+  "models": [
+    {
+      "name": "Kula",
+      "roster": 22,
+      "scheduler": {
+        "format": "SOURCE_SCHEDULER_V1",
+        "profile": "SOURCE_EXACT",
+        "frame_bytes": 32,
+        "role_bytes": 16,
+        "role_table": 1954208,
+        "roles": [
+          {
+            "role": "attack1",
+            "role_id": 0,
+            "frame_count": 6,
+            "frame_pointer": 1949696,
+            "loop": 0,
+            "behavior": "enemy_attack"
+          },
+          {
+            "role": "attack2",
+            "role_id": 1,
+            "frame_count": 7,
+            "frame_pointer": 1949888,
+            "loop": 0,
+            "behavior": "enemy_attack"
+          },
+          {
+            "role": "attack3",
+            "role_id": 2,
+            "frame_count": 9,
+            "frame_pointer": 1950112,
+            "loop": 0,
+            "behavior": "enemy_attack"
+          },
+          {
+            "role": "fall",
+            "role_id": 3,
+            "frame_count": 5,
+            "frame_pointer": 1950400,
+            "loop": 0,
+            "behavior": "airborne_lifecycle"
+          },
+          {
+            "role": "freespecial",
+            "role_id": 4,
+            "frame_count": 23,
+            "frame_pointer": 1950560,
+            "loop": 0,
+            "behavior": null
+          },
+          {
+            "role": "get",
+            "role_id": 5,
+            "frame_count": 5,
+            "frame_pointer": 1951296,
+            "loop": 0,
+            "behavior": "pickup_lifecycle"
+          },
+          {
+            "role": "grab",
+            "role_id": 6,
+            "frame_count": 1,
+            "frame_pointer": 1951456,
+            "loop": 0,
+            "behavior": "linked_grab"
+          },
+          {
+            "role": "grabattack",
+            "role_id": 7,
+            "frame_count": 5,
+            "frame_pointer": 1951488,
+            "loop": 0,
+            "behavior": null
+          },
+          {
+            "role": "grabattack2",
+            "role_id": 8,
+            "frame_count": 10,
+            "frame_pointer": 1951648,
+            "loop": 0,
+            "behavior": null
+          },
+          {
+            "role": "idle",
+            "role_id": 9,
+            "frame_count": 18,
+            "frame_pointer": 1951968,
+            "loop": 1,
+            "behavior": "hold_or_loop"
+          },
+          {
+            "role": "jump",
+            "role_id": 10,
+            "frame_count": 6,
+            "frame_pointer": 1952544,
+            "loop": 0,
+            "behavior": "player_jump"
+          },
+          {
+            "role": "jumpattack",
+            "role_id": 11,
+            "frame_count": 2,
+            "frame_pointer": 1952736,
+            "loop": 0,
+            "behavior": "jump_attack"
+          },
+          {
+            "role": "jumpattack2",
+            "role_id": 12,
+            "frame_count": 4,
+            "frame_pointer": 1952800,
+            "loop": 0,
+            "behavior": "jump_attack"
+          },
+          {
+            "role": "land",
+            "role_id": 13,
+            "frame_count": 1,
+            "frame_pointer": 1952928,
+            "loop": 0,
+            "behavior": "player_land"
+          },
+          {
+            "role": "pain",
+            "role_id": 14,
+            "frame_count": 3,
+            "frame_pointer": 1952960,
+            "loop": 0,
+            "behavior": "pain_wait"
+          },
+          {
+            "role": "rise",
+            "role_id": 15,
+            "frame_count": 4,
+            "frame_pointer": 1953056,
+            "loop": 0,
+            "behavior": "rise_wait"
+          },
+          {
+            "role": "special",
+            "role_id": 16,
+            "frame_count": 19,
+            "frame_pointer": 1953184,
+            "loop": 0,
+            "behavior": "special_attack"
+          },
+          {
+            "role": "throw",
+            "role_id": 17,
+            "frame_count": 3,
+            "frame_pointer": 1953792,
+            "loop": 0,
+            "behavior": "linked_throw"
+          },
+          {
+            "role": "walk",
+            "role_id": 18,
+            "frame_count": 10,
+            "frame_pointer": 1953888,
+            "loop": 1,
+            "behavior": "signed_loop"
+          }
+        ],
+        "blockers": [
+          {
+            "capability": "ROLE_TRANSITION",
+            "role": "freespecial",
+            "reason": "unknown source role semantics"
+          },
+          {
+            "capability": "ROLE_TRANSITION",
+            "role": "grabattack",
+            "reason": "unknown source role semantics"
+          },
+          {
+            "capability": "ROLE_TRANSITION",
+            "role": "grabattack2",
+            "reason": "unknown source role semantics"
+          }
+        ],
+        "full_actor_certification": false
+      },
+      "world_program": {
+        "format": "SOURCE_WORLD_PROGRAM_V1",
+        "bytes": 32,
+        "source_identity": [
+          "s6-world-control",
+          "data/chars/kula/kula.txt"
+        ],
+        "runtime_id": 22,
+        "source_sha256": "92e1354aed3d5d90e8f21c96c497701440f62db37f3e4f31fc71c1489c127503",
+        "scope": "CONTROLLED_ATTACK1_ACTION",
+        "source_type": 1,
+        "source_health": 100,
+        "source_range": [
+          -10,
+          80
+        ],
+        "profile": "SOURCE_EXACT",
+        "source_certified": false,
+        "required_domain": [
+          "unlinked",
+          "grounded",
+          "integral_source_lattice",
+          "source_health_fits_byte",
+          "bounded_camera_and_position"
+        ],
+        "excluded": [
+          "general_movement",
+          "airborne_damage",
+          "whole_player_controller",
+          "source_hit_effect_entities",
+          "source_raster_compositor"
+        ]
+      }
+    },
+    {
+      "name": "Joe",
+      "roster": 2,
+      "scheduler": {
+        "format": "SOURCE_SCHEDULER_V1",
+        "profile": "SOURCE_EXACT",
+        "frame_bytes": 32,
+        "role_bytes": 16,
+        "role_table": 1956400,
+        "roles": [
+          {
+            "role": "attack1",
+            "role_id": 0,
+            "frame_count": 11,
+            "frame_pointer": 1954512,
+            "loop": 0,
+            "behavior": "enemy_attack"
+          },
+          {
+            "role": "fall",
+            "role_id": 1,
+            "frame_count": 4,
+            "frame_pointer": 1954864,
+            "loop": 0,
+            "behavior": "airborne_lifecycle"
+          },
+          {
+            "role": "grab",
+            "role_id": 2,
+            "frame_count": 17,
+            "frame_pointer": 1954992,
+            "loop": 0,
+            "behavior": "linked_grab"
+          },
+          {
+            "role": "idle",
+            "role_id": 3,
+            "frame_count": 10,
+            "frame_pointer": 1955536,
+            "loop": 1,
+            "behavior": "hold_or_loop"
+          },
+          {
+            "role": "pain",
+            "role_id": 4,
+            "frame_count": 5,
+            "frame_pointer": 1955856,
+            "loop": 0,
+            "behavior": "pain_wait"
+          },
+          {
+            "role": "rise",
+            "role_id": 5,
+            "frame_count": 5,
+            "frame_pointer": 1956016,
+            "loop": 0,
+            "behavior": "rise_wait"
+          },
+          {
+            "role": "walk",
+            "role_id": 6,
+            "frame_count": 7,
+            "frame_pointer": 1956176,
+            "loop": 1,
+            "behavior": "signed_loop"
+          }
+        ],
+        "blockers": [],
+        "full_actor_certification": false
+      },
+      "world_program": {
+        "format": "SOURCE_WORLD_PROGRAM_V1",
+        "bytes": 32,
+        "source_identity": [
+          "s6-world-control",
+          "data/chars/joe/joe.txt"
+        ],
+        "runtime_id": 2,
+        "source_sha256": "d56feb7f6d13e75ce2e0ec38511fa745039f5500019e44c4368d46fce5743f2e",
+        "scope": "GROUNDED_IN_RANGE_SINGLE_ATTACK",
+        "source_type": 2,
+        "source_health": 100,
+        "source_range": [
+          -10,
+          80
+        ],
+        "profile": "SOURCE_EXACT",
+        "source_certified": false,
+        "required_domain": [
+          "unlinked",
+          "grounded",
+          "integral_source_lattice",
+          "source_health_fits_byte",
+          "bounded_camera_and_position"
+        ],
+        "excluded": [
+          "general_movement",
+          "airborne_damage",
+          "whole_player_controller",
+          "source_hit_effect_entities",
+          "source_raster_compositor"
+        ]
+      }
+    }
+  ],
+  "layout": {
+    "format": "SOURCE_WORLD_V1",
+    "profile": "SOURCE_EXACT",
+    "world_address": 5888,
+    "table_address": 1956576,
+    "source_slot_count": 6,
+    "occupied_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "actor_context_bytes": 256,
+    "actor_bytes": 1536,
+    "world_context_bytes": 256,
+    "mirror_address_limit": 7936,
+    "source_slot_limit": 150,
+    "reserved_regions": [
+      [
+        256,
+        5674
+      ],
+      [
+        6144,
+        6400
+      ]
+    ],
+    "full_actor_certification": false,
+    "required_hooks": [
+      "lost_entities",
+      "gravity_and_holes",
+      "think_driver",
+      "frame_events",
+      "attack_target_scan_and_effects",
+      "displayed_health"
+    ]
+  },
+  "patches": [
+    {
+      "address": 60004,
+      "before": "c2310b22da8507",
+      "after": "5cca8f1eeaeaea",
+      "target": "S6Game_Entity"
+    },
+    {
+      "address": 891071,
+      "before": "08c231da",
+      "after": "5cf38f1e",
+      "target": "S6Game_Bind"
+    },
+    {
+      "address": 890745,
+      "before": "c907f003",
+      "after": "5c47921e",
+      "target": "S6Game_Alive"
+    },
+    {
+      "address": 890799,
+      "before": "bf0f0a7e",
+      "after": "5c7e921e",
+      "target": "S6Game_SlotBusy"
+    },
+    {
+      "address": 229633,
+      "before": "afa80a7e",
+      "after": "2296921e",
+      "target": "S6Game_CountSlot1"
+    },
+    {
+      "address": 229666,
+      "before": "af2d0b7e",
+      "after": "229c921e",
+      "target": "S6Game_CountSlot2"
+    },
+    {
+      "address": 229699,
+      "before": "afb20b7e",
+      "after": "22a2921e",
+      "target": "S6Game_CountSlot3"
+    },
+    {
+      "address": 229732,
+      "before": "af370c7e",
+      "after": "22a8921e",
+      "target": "S6Game_CountSlot4"
+    },
+    {
+      "address": 229765,
+      "before": "afbc0c7e",
+      "after": "22ae921e",
+      "target": "S6Game_CountSlot5"
+    },
+    {
+      "address": 229854,
+      "before": "afa80a7e",
+      "after": "2296921e",
+      "target": "S6Game_CountSlot1"
+    },
+    {
+      "address": 229887,
+      "before": "af2d0b7e",
+      "after": "229c921e",
+      "target": "S6Game_CountSlot2"
+    },
+    {
+      "address": 229920,
+      "before": "afb20b7e",
+      "after": "22a2921e",
+      "target": "S6Game_CountSlot3"
+    },
+    {
+      "address": 229953,
+      "before": "af370c7e",
+      "after": "22a8921e",
+      "target": "S6Game_CountSlot4"
+    },
+    {
+      "address": 229986,
+      "before": "afbc0c7e",
+      "after": "22ae921e",
+      "target": "S6Game_CountSlot5"
+    },
+    {
+      "address": 827744,
+      "before": "afa80a7e",
+      "after": "2296921e",
+      "target": "S6Game_CountSlot1"
+    },
+    {
+      "address": 827760,
+      "before": "af2d0b7e",
+      "after": "229c921e",
+      "target": "S6Game_CountSlot2"
+    },
+    {
+      "address": 827776,
+      "before": "afb20b7e",
+      "after": "22a2921e",
+      "target": "S6Game_CountSlot3"
+    },
+    {
+      "address": 827792,
+      "before": "af370c7e",
+      "after": "22a8921e",
+      "target": "S6Game_CountSlot4"
+    },
+    {
+      "address": 827808,
+      "before": "afbc0c7e",
+      "after": "22ae921e",
+      "target": "S6Game_CountSlot5"
+    },
+    {
+      "address": 64226,
+      "before": "af230a7e",
+      "after": "22c2921e",
+      "target": "S6Game_HudHealth"
+    },
+    {
+      "address": 64242,
+      "before": "af230a7e",
+      "after": "22c2921e",
+      "target": "S6Game_HudHealth"
+    },
+    {
+      "address": 55766,
+      "before": "220d8109",
+      "after": "2248901e",
+      "target": "S6Game_PlayRender"
+    },
+    {
+      "address": 55522,
+      "before": "220a8607",
+      "after": "22da921e",
+      "target": "S6Game_DeathService"
+    }
+  ],
+  "runtime_sha256": {
+    "src/core/actor_source_scheduler.pasm": "ebe69a97bfe3165eebc8eb64ec3a9fe227036bbb6f9644da84ab2a84e0a06f34",
+    "src/core/actor_source_damage.pasm": "ab6fd078693cbdec197045750a224cb5e3dc12b56c2ebccd7e139c2020095dc4",
+    "src/core/actor_source_hit.pasm": "5acff5005d98b353860d3da676853766a78d7c4c046205a4017ab4a123890a35",
+    "src/core/actor_source_rng.pasm": "2ca275c17ab70901558983a91fc5d9178c72f58fb18b9a234666e3f810205100",
+    "src/core/actor_source_target.pasm": "edc00d54f000e0bb1aaa9a26cc6453054b3ae9d001d4cf818925490748b045aa",
+    "src/core/actor_source_lifecycle.pasm": "a887f705b7c04a6249771c74ca1a56da8d0436f71ddbc8b47056f80b44ec611a",
+    "src/core/actor_source_world.pasm": "2a46024375b739f0b9d4fc66087c9707c4d5c944f79fe14612b65f59ebd47745",
+    "src/core/actor_source_ai.pasm": "b1c6f689d6649dd6f006b60a1eefbc4e303d9a3b2cbbcfb3ee3576138d0deddd",
+    "src/core/actor_source_bridge.pasm": "c31533a3001394128b34f2bf4985ef783e47285d735d460b869d39a1d6c0040a",
+    "src/core/actor_source_host.pasm": "22ceb3cd582e65694a9263bb099373b6556030d590cdf1c4e4267f7e40e5df1c",
+    "src/core/actor_s6_world_fixture.pasm": "eb7fc8f74b27fed41e867c18615ce1bae8641fafcddbb31a133eff034672d75f"
+  },
+  "production_symbols_sha256": "cc622d51cd2a792046313f6039cf41b0e53e8cfa05ca665e37b55489effc0173",
+  "source_queue": {
+    "path": "DATA\\EASY\\5BEASY.TXT",
+    "index": 86,
+    "record": {
+      "kind": "spawn",
+      "at": 0,
+      "character": "Joe",
+      "coords": [
+        -30,
+        220
+      ],
+      "altitude": null,
+      "health": null,
+      "alias": null,
+      "map": 0,
+      "item": null,
+      "if2p": false,
+      "boss": false,
+      "flip": 0,
+      "group_min": 0,
+      "group_max": 0
+    },
+    "physical": 18,
+    "packed_record": "0000e8ffb00100400000",
+    "original_count": 87
+  },
+  "production_rom_sha256": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+  "fixture_rom_sha256": "75f5c2e141a05ac0ef502f77870ae1f236050390bcd94c96ae7e7d08cfb4e6e4",
+  "production_changed": false,
+  "live_world_proof": false
+}

@@ -1,0 +1,142 @@
+{
+  "entity": "Billy",
+  "prefix": "out/billy",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/billy_idle",
+      "frames": 9
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/billy_walk",
+      "frames": 6
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/billy_pain",
+      "frames": 5
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/billy_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/billy_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/billy_attack1",
+      "frames": 9
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      21343,
+      15070,
+      7675,
+      1334,
+      19029,
+      0,
+      7675,
+      1334,
+      174,
+      174,
+      11628,
+      2057,
+      9448,
+      6309,
+      0
+    ],
+    [
+      0,
+      21343,
+      15070,
+      7675,
+      1334,
+      3229,
+      0,
+      1334,
+      174,
+      174,
+      3210,
+      22,
+      2057,
+      17,
+      3210,
+      0
+    ],
+    [
+      0,
+      15990,
+      10704,
+      6444,
+      2248,
+      9743,
+      0,
+      3645,
+      1334,
+      2248,
+      174,
+      7596,
+      0,
+      3368,
+      1188,
+      0
+    ],
+    [
+      0,
+      10844,
+      6583,
+      1334,
+      174,
+      18798,
+      0,
+      18960,
+      12586,
+      3210,
+      6405,
+      15628,
+      5283,
+      10376,
+      4160,
+      0
+    ]
+  ]
+}

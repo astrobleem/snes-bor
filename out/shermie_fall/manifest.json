@@ -1,0 +1,95 @@
+{
+  "entity": "Shermie",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.21476510067114093,
+  "hotspot_canvas": [
+    16,
+    13
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        80,
+        83
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        80,
+        83
+      ],
+      "bbox": null,
+      "attack": [
+        54,
+        69,
+        58,
+        15,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        80,
+        83
+      ],
+      "bbox": null,
+      "attack": [
+        54,
+        69,
+        58,
+        15,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        80,
+        83
+      ],
+      "bbox": null,
+      "attack": [
+        44,
+        64,
+        65,
+        15,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        80,
+        83
+      ],
+      "bbox": null,
+      "attack": [
+        44,
+        64,
+        65,
+        15,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

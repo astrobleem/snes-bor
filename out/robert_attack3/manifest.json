@@ -1,0 +1,152 @@
+{
+  "entity": "Robert",
+  "anim": "attack3",
+  "loop": 0,
+  "scale": 0.3368421052631579,
+  "hotspot_canvas": [
+    11,
+    37
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        57,
+        28,
+        36,
+        36,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        64,
+        7,
+        37,
+        41,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        64,
+        7,
+        37,
+        41,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        64,
+        7,
+        37,
+        41,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        57,
+        28,
+        36,
+        36,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        37,
+        116
+      ],
+      "bbox": [
+        22,
+        13
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame06.bin"
+    }
+  ]
+}

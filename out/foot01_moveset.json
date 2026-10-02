@@ -1,0 +1,127 @@
+{
+  "entity": "Foot01",
+  "prefix": "out/foot01",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/foot01_idle",
+      "frames": 4
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/foot01_walk",
+      "frames": 6
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/foot01_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/foot01_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/foot01_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/foot01_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/foot01_attack2",
+      "frames": 5
+    },
+    {
+      "ordinal": 7,
+      "name": "attack3",
+      "dir": "out/foot01_attack3",
+      "frames": 5
+    },
+    {
+      "ordinal": 8,
+      "name": "upper",
+      "dir": "out/foot01_upper",
+      "frames": 5
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack": 5,
+    "attack3": 7,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "upper": 8,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [
+    1,
+    2,
+    3
+  ],
+  "remap_palettes": [
+    [
+      0,
+      11034,
+      19092,
+      20843,
+      11595,
+      15628,
+      0,
+      3229,
+      10376,
+      10502,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      11034,
+      19092,
+      16615,
+      11595,
+      10376,
+      0,
+      3229,
+      4160,
+      7232,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}

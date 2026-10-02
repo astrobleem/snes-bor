@@ -1,0 +1,23 @@
+{
+  "entity": "K'",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.7272727272727273,
+  "hotspot_canvas": [
+    19,
+    40
+  ],
+  "frames": [
+    {
+      "delay": 40,
+      "offset": [
+        41,
+        176
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

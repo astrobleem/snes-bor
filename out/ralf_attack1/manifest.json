@@ -1,0 +1,116 @@
+{
+  "entity": "Ralf",
+  "anim": "attack1",
+  "loop": 0,
+  "scale": 0.3404255319148936,
+  "hotspot_canvas": [
+    10,
+    36
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        39,
+        111
+      ],
+      "bbox": [
+        27,
+        9,
+        29,
+        102
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        39,
+        111
+      ],
+      "bbox": [
+        27,
+        9,
+        29,
+        102
+      ],
+      "attack": [
+        56,
+        17,
+        47,
+        21,
+        10
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        39,
+        111
+      ],
+      "bbox": [
+        27,
+        9,
+        29,
+        102
+      ],
+      "attack": [
+        56,
+        17,
+        47,
+        21,
+        10
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        111
+      ],
+      "bbox": [
+        27,
+        9,
+        29,
+        102
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        39,
+        111
+      ],
+      "bbox": [
+        27,
+        9,
+        29,
+        102
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

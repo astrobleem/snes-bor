@@ -1,0 +1,247 @@
+[
+  {
+    "project": "tmnt",
+    "model": "leo",
+    "source": "data\\CHARS\\LEO\\STILL01.GIF",
+    "sha256": "2a910b2c083d301056cb7694096d4d80c316201df413d3cdeb570e6edbf6644e",
+    "role": "idle",
+    "frame": 0,
+    "source_dialect": "unspecified",
+    "dimensions": [
+      200,
+      200
+    ],
+    "nontransparent_bbox": [
+      25,
+      25,
+      135,
+      200
+    ],
+    "pieces": 17,
+    "tile_bytes_upper_bound": 8960,
+    "unique_indexed_tile_bytes": 5824,
+    "viewport": {
+      "viewport": [
+        256,
+        224
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "oam_entries": 17,
+      "scanline_objs": 5,
+      "scanline_slivers": 14,
+      "limit_oam": 128,
+      "limit_scanline_objs": 32,
+      "limit_slivers": 34,
+      "fits": true,
+      "hardware_verified": false
+    },
+    "nontransparent_colors": 12,
+    "palette_requirement_minimum": 1,
+    "raw_geometry_lossless": true,
+    "compiler_image_decode": "PASS",
+    "generic_single_palette_encoding": "WITHIN_COLOR_COUNT",
+    "publication": "DIALECT_BLOCKED",
+    "reason": "Foreign transparency/global palette/remap interpretation is not certified; no BOR compatibility fallback.",
+    "caveat": "Geometry is conditional on index-zero transparency. Packing is an upper bound; whole-image tile demand is not a viewport or hardware-impossibility proof.",
+    "input_report_sha256": "33a9d392368947801def574f2cd44b90e90251ed7ed209f31f1aee9616ce2096"
+  },
+  {
+    "project": "tmnt",
+    "model": "foot01",
+    "source": "data\\CHARS\\FOOT01\\FOOT.GIF",
+    "sha256": "4dc35d67cc1a5661210fab0a2946e976201a562decaf1b2853ce861d51a8568e",
+    "role": "idle",
+    "frame": 0,
+    "source_dialect": "unspecified",
+    "dimensions": [
+      200,
+      200
+    ],
+    "nontransparent_bbox": [
+      3,
+      52,
+      136,
+      200
+    ],
+    "pieces": 19,
+    "tile_bytes_upper_bound": 8704,
+    "unique_indexed_tile_bytes": 5632,
+    "viewport": {
+      "viewport": [
+        256,
+        224
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "oam_entries": 19,
+      "scanline_objs": 5,
+      "scanline_slivers": 16,
+      "limit_oam": 128,
+      "limit_scanline_objs": 32,
+      "limit_slivers": 34,
+      "fits": true,
+      "hardware_verified": false
+    },
+    "nontransparent_colors": 9,
+    "palette_requirement_minimum": 1,
+    "raw_geometry_lossless": true,
+    "compiler_image_decode": "PASS",
+    "generic_single_palette_encoding": "WITHIN_COLOR_COUNT",
+    "publication": "DIALECT_BLOCKED",
+    "reason": "Foreign transparency/global palette/remap interpretation is not certified; no BOR compatibility fallback.",
+    "caveat": "Geometry is conditional on index-zero transparency. Packing is an upper bound; whole-image tile demand is not a viewport or hardware-impossibility proof.",
+    "input_report_sha256": "33a9d392368947801def574f2cd44b90e90251ed7ed209f31f1aee9616ce2096"
+  },
+  {
+    "project": "tmnt",
+    "model": "yellowb",
+    "source": "data\\CHARS\\MISC\\YELLOW.GIF",
+    "sha256": "0ed78397e946e69efa3575c2d05db111a02b0d25eb886096a3cf1a80e02ec632",
+    "role": "idle",
+    "frame": 0,
+    "source_dialect": "unspecified",
+    "dimensions": [
+      660,
+      550
+    ],
+    "nontransparent_bbox": [
+      0,
+      0,
+      660,
+      550
+    ],
+    "pieces": 189,
+    "tile_bytes_upper_bound": 193536,
+    "unique_indexed_tile_bytes": 171584,
+    "viewport": {
+      "viewport": [
+        256,
+        224
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "oam_entries": 32,
+      "scanline_objs": 8,
+      "scanline_slivers": 32,
+      "limit_oam": 128,
+      "limit_scanline_objs": 32,
+      "limit_slivers": 34,
+      "fits": true,
+      "hardware_verified": false
+    },
+    "nontransparent_colors": 250,
+    "palette_requirement_minimum": 17,
+    "raw_geometry_lossless": true,
+    "compiler_image_decode": "PASS",
+    "generic_single_palette_encoding": "ENCODER_PALETTE_SPLIT_REQUIRED",
+    "publication": "DIALECT_BLOCKED",
+    "reason": "Foreign transparency/global palette/remap interpretation is not certified; no BOR compatibility fallback.",
+    "caveat": "Geometry is conditional on index-zero transparency. Packing is an upper bound; whole-image tile demand is not a viewport or hardware-impossibility proof.",
+    "input_report_sha256": "33a9d392368947801def574f2cd44b90e90251ed7ed209f31f1aee9616ce2096"
+  },
+  {
+    "project": "motu",
+    "model": "he_man",
+    "source": "DATA\\CHARS\\HE-MAN\\IDLE1.PNG",
+    "sha256": "3fe1ccfa5d9a979157a8be660129cabf6fa004ecccfdeb6acf9af7eb2ab64d87",
+    "role": "idle",
+    "frame": 0,
+    "source_dialect": "unspecified",
+    "dimensions": [
+      310,
+      220
+    ],
+    "nontransparent_bbox": [
+      53,
+      85,
+      167,
+      201
+    ],
+    "pieces": 14,
+    "tile_bytes_upper_bound": 5120,
+    "unique_indexed_tile_bytes": 3136,
+    "viewport": {
+      "viewport": [
+        256,
+        224
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "oam_entries": 14,
+      "scanline_objs": 5,
+      "scanline_slivers": 14,
+      "limit_oam": 128,
+      "limit_scanline_objs": 32,
+      "limit_slivers": 34,
+      "fits": true,
+      "hardware_verified": false
+    },
+    "nontransparent_colors": 31,
+    "palette_requirement_minimum": 3,
+    "raw_geometry_lossless": true,
+    "compiler_image_decode": "PASS",
+    "generic_single_palette_encoding": "ENCODER_PALETTE_SPLIT_REQUIRED",
+    "publication": "DIALECT_BLOCKED",
+    "reason": "Foreign transparency/global palette/remap interpretation is not certified; no BOR compatibility fallback.",
+    "caveat": "Geometry is conditional on index-zero transparency. Packing is an upper bound; whole-image tile demand is not a viewport or hardware-impossibility proof.",
+    "input_report_sha256": "962c52a553ed29cb4ccaa20783ad0eff717d549cdfa2429c0e70db39037c24d4"
+  },
+  {
+    "project": "motu",
+    "model": "knightbot",
+    "source": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+    "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+    "role": "idle",
+    "frame": 0,
+    "source_dialect": "unspecified",
+    "dimensions": [
+      50,
+      50
+    ],
+    "nontransparent_bbox": [
+      4,
+      2,
+      45,
+      48
+    ],
+    "pieces": 3,
+    "tile_bytes_upper_bound": 1536,
+    "unique_indexed_tile_bytes": 1056,
+    "viewport": {
+      "viewport": [
+        256,
+        224
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "oam_entries": 3,
+      "scanline_objs": 2,
+      "scanline_slivers": 6,
+      "limit_oam": 128,
+      "limit_scanline_objs": 32,
+      "limit_slivers": 34,
+      "fits": true,
+      "hardware_verified": false
+    },
+    "nontransparent_colors": 16,
+    "palette_requirement_minimum": 2,
+    "raw_geometry_lossless": true,
+    "compiler_image_decode": "PASS",
+    "generic_single_palette_encoding": "ENCODER_PALETTE_SPLIT_REQUIRED",
+    "publication": "DIALECT_BLOCKED",
+    "reason": "Foreign transparency/global palette/remap interpretation is not certified; no BOR compatibility fallback.",
+    "caveat": "Geometry is conditional on index-zero transparency. Packing is an upper bound; whole-image tile demand is not a viewport or hardware-impossibility proof.",
+    "input_report_sha256": "962c52a553ed29cb4ccaa20783ad0eff717d549cdfa2429c0e70db39037c24d4"
+  }
+]

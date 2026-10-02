@@ -1,0 +1,156 @@
+{
+  "entity": "Mighty",
+  "anim": "jump",
+  "loop": 1,
+  "scale": 1.2307692307692308,
+  "hotspot_canvas": [
+    15,
+    31
+  ],
+  "frames": [
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame06.bin"
+    },
+    {
+      "delay": 3,
+      "offset": [
+        13,
+        26
+      ],
+      "bbox": null,
+      "attack": [
+        1,
+        1,
+        26,
+        26,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame07.bin"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "stale": {
+    "x": 80,
+    "y": 150,
+    "slot": 0
+  },
+  "before_selector_entry": {
+    "x": 136,
+    "y": 114,
+    "p1_hp": 64,
+    "p2_hp": 64,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "p1_by": 255,
+    "p2_by": 255,
+    "ai_by": 255,
+    "stale_x": 80,
+    "stale_y": 150
+  },
+  "at_no_target": {
+    "x": 136,
+    "y": 114,
+    "p1_hp": 64,
+    "p2_hp": 0,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "p1_by": 255,
+    "p2_by": 255,
+    "ai_by": 255
+  },
+  "no_target_slot": 0,
+  "no_target_stale": {
+    "x": 20,
+    "y": 150
+  },
+  "at_hold_y": {
+    "x": 134,
+    "y": 116,
+    "p1_hp": 64,
+    "p2_hp": 0,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "p1_by": 255,
+    "p2_by": 255,
+    "ai_by": 255
+  },
+  "at_done": {
+    "x": 134,
+    "y": 116,
+    "p1_hp": 64,
+    "p2_hp": 0,
+    "p1_stun": 0,
+    "p2_stun": 0,
+    "p1_grab": 255,
+    "p2_grab": 255,
+    "p1_by": 255,
+    "p2_by": 255,
+    "ai_by": 255
+  },
+  "selector_to_no_target": {
+    "reason": "hookFired",
+    "framesAdvanced": 1,
+    "isPaused": true
+  },
+  "selector_to_hold": {
+    "reason": "hookFired",
+    "framesAdvanced": 1,
+    "isPaused": true
+  },
+  "hold_target_slot": 0,
+  "hold_stale": {
+    "x": 20,
+    "y": 150
+  },
+  "confirmed_busy_denials": null
+}

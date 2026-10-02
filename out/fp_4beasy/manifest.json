@@ -1,0 +1,19 @@
+{
+  "level_entry": "DATA\\EASY\\4BEASY.TXT",
+  "frontpanel": "data\\bgs\\warehous\\front.gif",
+  "streaming": true,
+  "layer": "BG3_frontpanel",
+  "width_px": 5504,
+  "height_px": 224,
+  "width_tiles": 688,
+  "height_tiles": 28,
+  "content_width_tiles": 688,
+  "unique_tiles": 349,
+  "num_palettes": 3,
+  "palette_offset": 1,
+  "colors_per_palette": 4,
+  "tiles_bytes": 5584,
+  "tilemap_bytes": 57792,
+  "palette_bytes": 32,
+  "frontpanel_y": 0
+}

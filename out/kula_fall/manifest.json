@@ -1,0 +1,67 @@
+{
+  "entity": "Kula",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.29357798165137616,
+  "hotspot_canvas": [
+    15,
+    25
+  ],
+  "frames": [
+    {
+      "delay": 8,
+      "offset": [
+        51,
+        95
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        51,
+        95
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        51,
+        95
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        51,
+        95
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        51,
+        95
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

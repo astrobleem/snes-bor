@@ -1,0 +1,1051 @@
+{
+  "families": [
+    {
+      "family": "bor-original",
+      "models_path": "DATA\\MODELS.TXT",
+      "models_sha256": "4c71e72d7abb0486e899acaaf6302b3089c546303ed3b201bcf92206ea5254e7",
+      "pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+      "runtime_rows": [
+        {
+          "ai_spawnable": true,
+          "character": "RALF",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Ralf",
+            "normal_player": false,
+            "path": "data/chars/ralf/ralf.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "JHUN",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Jhun",
+            "normal_player": false,
+            "path": "data/chars/jhun/jhun.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "JOE",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Joe",
+            "normal_player": false,
+            "path": "data/chars/joe/joe.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "YASHIRO",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Yashiro",
+            "normal_player": false,
+            "path": "data/chars/yashiro/yashiro.txt"
+          }
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\APPLE",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\MONEY",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\MEAT",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\1UP",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\GOLD",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\TRASH",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\CHAIR",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        },
+        {
+          "ai_spawnable": false,
+          "character": "MISC\\TABLE",
+          "normal_player": false,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": null
+        }
+      ],
+      "source_rows": [
+        {
+          "directive": "load",
+          "model_type": "none",
+          "name": "Flash",
+          "normal_player": false,
+          "path": "data/chars/misc/flash.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "player",
+          "name": "Kula",
+          "normal_player": true,
+          "path": "data/chars/kula/kula.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "player",
+          "name": "Max",
+          "normal_player": true,
+          "path": "data/chars/maxima/maxima.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "player",
+          "name": "Mandy",
+          "normal_player": true,
+          "path": "data/chars/mary/mary.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "player",
+          "name": "Mighty",
+          "normal_player": true,
+          "path": "data/chars/mighty/mighty.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Apple",
+          "normal_player": false,
+          "path": "data/chars/misc/apple.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Meat",
+          "normal_player": false,
+          "path": "data/chars/misc/meat.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "1up",
+          "normal_player": false,
+          "path": "data/chars/misc/1up.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Money",
+          "normal_player": false,
+          "path": "data/chars/misc/money.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Gold",
+          "normal_player": false,
+          "path": "data/chars/misc/gold.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Time",
+          "normal_player": false,
+          "path": "data/chars/misc/time.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Box",
+          "normal_player": false,
+          "path": "data/chars/misc/box.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Crate",
+          "normal_player": false,
+          "path": "data/chars/misc/crate.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Trash",
+          "normal_player": false,
+          "path": "data/chars/misc/trash.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Table",
+          "normal_player": false,
+          "path": "data/chars/misc/table.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Chair",
+          "normal_player": false,
+          "path": "data/chars/misc/chair.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Fence",
+          "normal_player": false,
+          "path": "data/chars/misc/fence.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Drum",
+          "normal_player": false,
+          "path": "data/chars/misc/drum.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Trolly",
+          "normal_player": false,
+          "path": "data/chars/misc/trolly.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "K'",
+          "normal_player": false,
+          "path": "data/chars/k/k.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "biker-K'",
+          "normal_player": false,
+          "path": "data/chars/biker-k/biker-k.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Yashiro",
+          "normal_player": false,
+          "path": "data/chars/yashiro/yashiro.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Ralf",
+          "normal_player": false,
+          "path": "data/chars/ralf/ralf.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Shermie",
+          "normal_player": false,
+          "path": "data/chars/shermie/shermie.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Eiji",
+          "normal_player": false,
+          "path": "data/chars/eiji/eiji.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Joe",
+          "normal_player": false,
+          "path": "data/chars/joe/joe.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Yamazaki",
+          "normal_player": false,
+          "path": "data/chars/yamazaki/yamazaki.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Angel",
+          "normal_player": false,
+          "path": "data/chars/angel/angel.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Billy",
+          "normal_player": false,
+          "path": "data/chars/billy/billy.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Jhun",
+          "normal_player": false,
+          "path": "data/chars/jhun/jhun.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Mrbig",
+          "normal_player": false,
+          "path": "data/chars/mrbig/mrbig.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Robert",
+          "normal_player": false,
+          "path": "data/chars/robert/robert.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Heavy",
+          "normal_player": false,
+          "path": "data/chars/heavy/heavy.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "K9999",
+          "normal_player": false,
+          "path": "data/chars/K9999/K9999.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Rugal",
+          "normal_player": false,
+          "path": "data/chars/Rugal/Rugal.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Ramon",
+          "normal_player": false,
+          "path": "data/chars/ramon/ramon.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Knife",
+          "normal_player": false,
+          "path": "data/chars/misc/knife.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Shot",
+          "normal_player": false,
+          "path": "data/chars/misc/shot.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Star",
+          "normal_player": false,
+          "path": "data/chars/misc/star.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Steam",
+          "normal_player": false,
+          "path": "data/chars/misc/steam.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "steamer",
+          "name": "Steamer",
+          "normal_player": false,
+          "path": "data/chars/misc/steamer.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Furnace",
+          "normal_player": false,
+          "path": "data/chars/misc/furnace.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Crab",
+          "normal_player": false,
+          "path": "data/chars/crab/crab.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Lobster",
+          "normal_player": false,
+          "path": "data/chars/Lobster/Lobster.txt"
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "models_path": "DATA\\MODELS.TXT",
+      "models_sha256": "c88178bcc8f37481e9004eed06f81b43b6215e5dd7a074564ae88f542b8864b2",
+      "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+      "runtime_rows": [
+        {
+          "ai_spawnable": true,
+          "character": "MOUSER",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "mouser",
+            "normal_player": false,
+            "path": "data/chars/mouser/mouser.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "FOOT01",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "foot01",
+            "normal_player": false,
+            "path": "data/chars/foot01/foot01.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "ROCK",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Rock",
+            "normal_player": false,
+            "path": "data/chars/Rock/Rock.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "LEATHER",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Leather",
+            "normal_player": false,
+            "path": "data/chars/Leather/Leather.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "BEBOP",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "Bebop",
+            "normal_player": false,
+            "path": "data/chars/Bebop/Bebop.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "FOOT02",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "foot02",
+            "normal_player": false,
+            "path": "data/chars/foot02/foot02.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "FOOT03",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "foot03",
+            "normal_player": false,
+            "path": "data/chars/foot03/foot03.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "FOOT04",
+          "normal_player": false,
+          "optional_bonus_player": true,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "know",
+            "model_type": "enemy",
+            "name": "foot04",
+            "normal_player": false,
+            "path": "data/chars/foot04/foot04.txt"
+          }
+        },
+        {
+          "ai_spawnable": true,
+          "character": "LEO",
+          "normal_player": true,
+          "optional_bonus_player": false,
+          "runtime_roster_member": true,
+          "source_model": {
+            "directive": "load",
+            "model_type": "player",
+            "name": "leo",
+            "normal_player": true,
+            "path": "data/chars/leo/leo.txt"
+          }
+        }
+      ],
+      "source_rows": [
+        {
+          "directive": "load",
+          "model_type": "none",
+          "name": "Flash",
+          "normal_player": false,
+          "path": "data/chars/misc/flash.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "none",
+          "name": "Flash2",
+          "normal_player": false,
+          "path": "data/chars/misc/Flash/flash2.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "none",
+          "name": "Blood",
+          "normal_player": false,
+          "path": "data/chars/misc/Blood/Blood.txt"
+        },
+        {
+          "directive": "load",
+          "model_type": "player",
+          "name": "leo",
+          "normal_player": true,
+          "path": "data/chars/leo/leo.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Smoke",
+          "normal_player": false,
+          "path": "data/chars/misc/Smoke/Smoke.TXT"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Wdrop",
+          "normal_player": false,
+          "path": "data/chars/misc/Wdrop.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Pizza",
+          "normal_player": false,
+          "path": "data/chars/misc/Pizza.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "item",
+          "name": "Time",
+          "normal_player": false,
+          "path": "data/chars/misc/time.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Wfence",
+          "normal_player": false,
+          "path": "data/chars/misc/wfence.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "YellowD",
+          "normal_player": false,
+          "path": "data/chars/misc/YellowD.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "YellowB",
+          "normal_player": false,
+          "path": "data/chars/misc/YellowB.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "WhiteD",
+          "normal_player": false,
+          "path": "data/chars/misc/WhiteD.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "WhiteB",
+          "normal_player": false,
+          "path": "data/chars/misc/WhiteB.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "WhiteC",
+          "normal_player": false,
+          "path": "data/chars/misc/WhiteC.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Orange",
+          "normal_player": false,
+          "path": "data/chars/misc/Orange.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Pipef2",
+          "normal_player": false,
+          "path": "data/chars/misc/pipef2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Pipef",
+          "normal_player": false,
+          "path": "data/chars/misc/pipef.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Waterf",
+          "normal_player": false,
+          "path": "data/chars/misc/waterf.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Waterf2",
+          "normal_player": false,
+          "path": "data/chars/misc/waterf2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Epolef3",
+          "normal_player": false,
+          "path": "data/chars/misc/epolef3.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Epolef2",
+          "normal_player": false,
+          "path": "data/chars/misc/epolef2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Epolef",
+          "normal_player": false,
+          "path": "data/chars/misc/epolef.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Trashf",
+          "normal_player": false,
+          "path": "data/chars/misc/trashf.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Trashf2",
+          "normal_player": false,
+          "path": "data/chars/misc/trashf2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Guy",
+          "normal_player": false,
+          "path": "data/chars/misc/guy.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Car",
+          "normal_player": false,
+          "path": "data/chars/misc/car.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Ptc",
+          "normal_player": false,
+          "path": "data/chars/misc/ptc.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Steamf",
+          "normal_player": false,
+          "path": "data/chars/misc/steamf.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "steamer",
+          "name": "Steamerf",
+          "normal_player": false,
+          "path": "data/chars/misc/steamerf.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Fg",
+          "normal_player": false,
+          "path": "data/chars/misc/fg.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "panel",
+          "name": "Bg2",
+          "normal_player": false,
+          "path": "data/chars/misc/bg2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Parkm",
+          "normal_player": false,
+          "path": "data/chars/misc/parkm.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Epole",
+          "normal_player": false,
+          "path": "data/chars/misc/epole.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Epole2",
+          "normal_player": false,
+          "path": "data/chars/misc/epole2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Tree",
+          "normal_player": false,
+          "path": "data/chars/misc/tree.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Hydrant",
+          "normal_player": false,
+          "path": "data/chars/misc/Hydrant.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Hydrany",
+          "normal_player": false,
+          "path": "data/chars/misc/Hydrany.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "mail",
+          "normal_player": false,
+          "path": "data/chars/misc/mail.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "trash1",
+          "normal_player": false,
+          "path": "data/chars/misc/trash1.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "trash2",
+          "normal_player": false,
+          "path": "data/chars/misc/trash2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "trash3",
+          "normal_player": false,
+          "path": "data/chars/misc/trash3.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Box",
+          "normal_player": false,
+          "path": "data/chars/misc/box.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Crate",
+          "normal_player": false,
+          "path": "data/chars/misc/crate.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Trash",
+          "normal_player": false,
+          "path": "data/chars/misc/trash.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Table",
+          "normal_player": false,
+          "path": "data/chars/misc/table.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Chair",
+          "normal_player": false,
+          "path": "data/chars/misc/chair.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Fence",
+          "normal_player": false,
+          "path": "data/chars/misc/fence.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Drum",
+          "normal_player": false,
+          "path": "data/chars/misc/drum.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Trolly",
+          "normal_player": false,
+          "path": "data/chars/misc/trolly.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Light",
+          "normal_player": false,
+          "path": "data/chars/misc/Lightb.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Light2",
+          "normal_player": false,
+          "path": "data/chars/misc/Light2.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "obstacle",
+          "name": "Plant",
+          "normal_player": false,
+          "path": "data/chars/misc/Plant.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "mouser",
+          "normal_player": false,
+          "path": "data/chars/mouser/mouser.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "foot01",
+          "normal_player": false,
+          "path": "data/chars/foot01/foot01.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "foot02",
+          "normal_player": false,
+          "path": "data/chars/foot02/foot02.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "foot03",
+          "normal_player": false,
+          "path": "data/chars/foot03/foot03.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "foot04",
+          "normal_player": false,
+          "path": "data/chars/foot04/foot04.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "foot05",
+          "normal_player": false,
+          "path": "data/chars/foot05/foot05.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Rock",
+          "normal_player": false,
+          "path": "data/chars/Rock/Rock.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Bebop",
+          "normal_player": false,
+          "path": "data/chars/Bebop/Bebop.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Leather",
+          "normal_player": false,
+          "path": "data/chars/Leather/Leather.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Knife",
+          "normal_player": false,
+          "path": "data/chars/misc/knife.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Shot",
+          "normal_player": false,
+          "path": "data/chars/misc/shot.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "enemy",
+          "name": "Star",
+          "normal_player": false,
+          "path": "data/chars/misc/star.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Steam",
+          "normal_player": false,
+          "path": "data/chars/misc/steam.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "steamer",
+          "name": "Steamer",
+          "normal_player": false,
+          "path": "data/chars/misc/steamer.txt"
+        },
+        {
+          "directive": "know",
+          "model_type": "none",
+          "name": "Furnace",
+          "normal_player": false,
+          "path": "data/chars/misc/furnace.txt"
+        }
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "source_of_truth": "PAK DATA\\MODELS.TXT and referenced model type directives"
+}

@@ -1,0 +1,23 @@
+camera samples: {'target_x': 12, 'pos_x': 6, 'size_x': 256, 'min_x': 0, 'max_x': 863, 'p1_x': 80, 'p2_x': 200, 'two_player': 1} {'target_x': 12, 'pos_x': 6, 'size_x': 256, 'min_x': 0, 'max_x': 863, 'p1_x': 200, 'p2_x': 80, 'two_player': 1}
+both-live midpoint target 12 == 12: PASS
+swapped midpoint target invariant (12): PASS
+odd midpoint floors (12): PASS
+left target does not wrap (0): PASS
+right camera position is clamped (18 <= 300): PASS
+tether left stays in shared viewport (114 >= 50): PASS
+tether right stays in shared viewport (272 <= 275): PASS
+live camera eases right with players: PASS
+live camera eases left with players: PASS
+players moving apart remain ordered and tethered: PASS
+1P proposed X is not G13-tethered (20): PASS
+P1 Start enters PAUSED/WAIT (3,3): PASS
+P1 pause freezes gameplay but NMI advances: PASS
+P1 Start resumes PLAYING (0): PASS
+P2 Start enters PAUSED/WAIT (3,3): PASS
+P2 Start resumes PLAYING (0): PASS
+1P P2 Start does not pause (0): PASS
+1P P1 Start still pauses (3): PASS
+simultaneous Start enters PAUSED once (3): PASS
+simultaneous Start remains one global pause: PASS
+
+GATE G13-CAMERA-PAUSE: PASS

@@ -1,0 +1,14 @@
+{
+  "_comment": "claude_close_g7_g8_before_g10.md Part 4: the single authoritative machine-readable source for phase completion status. verify_phase_status.py cross-checks this against plan_game.md's own `> **Status: ...**` markers and against tools/coverage_ledger/ledger.json (no partial/unhandled-error rows may exist while any phase here is marked done). Update this file, not just prose, whenever a phase's real status changes -- it is the thing the verifier trusts.",
+  "G1": "done",
+  "G2": "done",
+  "G3": "done",
+  "G4": "done",
+  "G5": "done",
+  "G6": "done",
+  "G7": "done",
+  "G8": "done",
+  "G9": "done",
+  "G10": "done",
+  "G11": "done"
+}

@@ -1,0 +1,841 @@
+{
+  "gate": "G13-SEMANTIC-BOUNDARY",
+  "first_frame": {
+    "requested": 3,
+    "startFrame": 234,
+    "endFrame": 237,
+    "framesAdvanced": 3,
+    "isPaused": true,
+    "timedOut": false
+  },
+  "run_until": null,
+  "hold_results": {
+    "port0": {
+      "port": 0,
+      "buttons": 2048,
+      "held": true
+    },
+    "port1": {
+      "port": 1,
+      "buttons": 2048,
+      "held": true
+    }
+  },
+  "raw_read_events": [
+    {
+      "handle": 12,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16920,
+      "value": 0,
+      "frame": 234
+    },
+    {
+      "handle": 13,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16921,
+      "value": 0,
+      "frame": 234
+    },
+    {
+      "handle": 14,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16922,
+      "value": 0,
+      "frame": 234
+    },
+    {
+      "handle": 15,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16923,
+      "value": 0,
+      "frame": 234
+    },
+    {
+      "handle": 12,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16920,
+      "value": 0,
+      "frame": 235
+    },
+    {
+      "handle": 13,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16921,
+      "value": 64,
+      "frame": 235
+    },
+    {
+      "handle": 14,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16922,
+      "value": 0,
+      "frame": 235
+    },
+    {
+      "handle": 15,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16923,
+      "value": 64,
+      "frame": 235
+    },
+    {
+      "handle": 12,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16920,
+      "value": 0,
+      "frame": 236
+    },
+    {
+      "handle": 13,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16921,
+      "value": 64,
+      "frame": 236
+    },
+    {
+      "handle": 14,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16922,
+      "value": 0,
+      "frame": 236
+    },
+    {
+      "handle": 15,
+      "kind": "Read",
+      "cpuType": "Snes",
+      "address": 16923,
+      "value": 64,
+      "frame": 236
+    }
+  ],
+  "symbols": {
+    "Core_Input_Poll": "0x780d8",
+    "Core_Input_Poll_P2": "0x78124",
+    "Core_Oop_Play__loop": "0xcb5c",
+    "CharacterEntity_Play": "0xeab9",
+    "G13_Player2_ContextEnter": "0x78162",
+    "Anim_Play__player_input": "0xdc71",
+    "Jump_PlayerInputGate": "0x884e7",
+    "Jump_AtchainTrigger": "0x883fe",
+    "Jump_AtchainTrigger__pressed": "0x8840f",
+    "G13_Player2_ContextExit": "0x7829f",
+    "Core_Oop_Play__done": "0xcb99"
+  },
+  "events": [
+    {
+      "event": "Core_Input_Poll",
+      "frame": 234,
+      "address": "0x780d8",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll_P2",
+      "frame": 234,
+      "address": "0x78124",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Anim_Play__player_input",
+      "frame": 234,
+      "address": "0xdc71",
+      "value": 34,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Jump_PlayerInputGate",
+      "frame": 234,
+      "address": "0x884e7",
+      "value": 165,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextEnter",
+      "frame": 234,
+      "address": "0x78162",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Anim_Play__player_input",
+      "frame": 234,
+      "address": "0xdc71",
+      "value": 34,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Jump_PlayerInputGate",
+      "frame": 234,
+      "address": "0x884e7",
+      "value": 165,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextExit",
+      "frame": 234,
+      "address": "0x7829f",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 234,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 234,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__done",
+      "frame": 234,
+      "address": "0xcb99",
+      "value": 40,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll",
+      "frame": 235,
+      "address": "0x780d8",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll_P2",
+      "frame": 235,
+      "address": "0x78124",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Anim_Play__player_input",
+      "frame": 235,
+      "address": "0xdc71",
+      "value": 34,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Jump_PlayerInputGate",
+      "frame": 235,
+      "address": "0x884e7",
+      "value": 165,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextEnter",
+      "frame": 235,
+      "address": "0x78162",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Anim_Play__player_input",
+      "frame": 235,
+      "address": "0xdc71",
+      "value": 34,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Jump_PlayerInputGate",
+      "frame": 235,
+      "address": "0x884e7",
+      "value": 165,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextExit",
+      "frame": 235,
+      "address": "0x7829f",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 235,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 235,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__done",
+      "frame": 235,
+      "address": "0xcb99",
+      "value": 40,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll",
+      "frame": 236,
+      "address": "0x780d8",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Input_Poll_P2",
+      "frame": 236,
+      "address": "0x78124",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextEnter",
+      "frame": 236,
+      "address": "0x78162",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "G13_Player2_ContextExit",
+      "frame": 236,
+      "address": "0x7829f",
+      "value": 8,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__loop",
+      "frame": 236,
+      "address": "0xcb5c",
+      "value": 142,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "CharacterEntity_Play",
+      "frame": 236,
+      "address": "0xeab9",
+      "value": 194,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    },
+    {
+      "event": "Core_Oop_Play__done",
+      "frame": 236,
+      "address": "0xcb99",
+      "value": 40,
+      "cpu_at_stop_unavailable_for_async_hook": true
+    }
+  ],
+  "input_latches": {
+    "joy1": "0040",
+    "joy2": "0040",
+    "p1_context": "004000000040",
+    "p2_context": "004000000040"
+  },
+  "actors_at_boundary": {
+    "p1": {
+      "dp_base": "0x7e0a00",
+      "selected": 2,
+      "input_driven": 1,
+      "hp": 64
+    },
+    "p2": {
+      "dp_base": "0x7e0a85",
+      "selected": 2,
+      "input_driven": 1,
+      "hp": 64
+    }
+  },
+  "measurement_status": {
+    "event_time_cpu_registers": "unavailable: this installed MCP exposes no get_cpu_state tool; hook order and the P2-only context entry are retained",
+    "same_update_identity": "hook frame ordering plus Core_Oop_Play__done boundary"
+  },
+  "semantic_action_state": {
+    "p1_selected": 2,
+    "p2_selected": 2,
+    "selected_write_notifications": [],
+    "selected_store_event_status": "not retained: installed WRAM write-hook endpoint emitted no events"
+  },
+  "semantic_invocations": [
+    {
+      "input_poll_frame": 235,
+      "entity_pass_start_frame": 235,
+      "entity_pass_end_frame": 235,
+      "events": [
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Anim_Play__player_input",
+          "frame": 235,
+          "address": "0xdc71",
+          "value": 34,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Jump_PlayerInputGate",
+          "frame": 235,
+          "address": "0x884e7",
+          "value": 165,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextEnter",
+          "frame": 235,
+          "address": "0x78162",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Anim_Play__player_input",
+          "frame": 235,
+          "address": "0xdc71",
+          "value": 34,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Jump_PlayerInputGate",
+          "frame": 235,
+          "address": "0x884e7",
+          "value": 165,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextExit",
+          "frame": 235,
+          "address": "0x7829f",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 235,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 235,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__done",
+          "frame": 235,
+          "address": "0xcb99",
+          "value": 40,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        }
+      ]
+    },
+    {
+      "input_poll_frame": 236,
+      "entity_pass_start_frame": 236,
+      "entity_pass_end_frame": 236,
+      "events": [
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextEnter",
+          "frame": 236,
+          "address": "0x78162",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "G13_Player2_ContextExit",
+          "frame": 236,
+          "address": "0x7829f",
+          "value": 8,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__loop",
+          "frame": 236,
+          "address": "0xcb5c",
+          "value": 142,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "CharacterEntity_Play",
+          "frame": 236,
+          "address": "0xeab9",
+          "value": 194,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        },
+        {
+          "event": "Core_Oop_Play__done",
+          "frame": 236,
+          "address": "0xcb99",
+          "value": 40,
+          "cpu_at_stop_unavailable_for_async_hook": true
+        }
+      ]
+    }
+  ]
+}
+Core_Oop_Play semantic end reached: PASS
+both actions accepted in one Core_Oop_Play update: PASS
+entity dispatch and P2 context both observed: PASS
+both synchronized raw Y words retained: PASS
+P1/P2 action state at boundary: PASS
+
+GATE G13-SEMANTIC-BOUNDARY: PASS

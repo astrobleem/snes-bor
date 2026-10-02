@@ -1,0 +1,21 @@
+{
+  "asset": "bor-original:DATA\\SOUNDS\\MONEY.WAV",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "raw_sha256": "52d26d9929b5a4ae7853e44e2f342d088d4f9388aad3aa1b9c8d18b41ef53f77",
+  "raw_bytes": 9852,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_format": "unsigned 8-bit PCM",
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 9794,
+  "raw_duration_seconds": 0.888344671201814,
+  "canonical_path": "soundwork/tad/project/samples/money.wav",
+  "canonical_sha256": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+  "canonical_frames": 9808,
+  "canonical_duration_seconds": 0.8896145124716553,
+  "padding_rule": "canonical_wav pads to a complete 16-sample BRR block",
+  "brr_bytes": 5517,
+  "brr_blocks": 613,
+  "backend": "resident_tad_sfx"
+}

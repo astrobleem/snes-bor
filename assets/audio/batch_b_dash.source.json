@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915",
+  "raw_bytes": 4563,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 3827,
+  "canonical_path": "assets/audio/batch_b/canonical/dash.wav",
+  "canonical_sha256": "d36cefbaf0cbe3270609ed5788393ab74760d8fb01f17d06f2f2757cf48dc64c",
+  "canonical_frames": 3840,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.34829931972789113,
+  "duration_ticks": 44,
+  "brr_bytes": 2160,
+  "brr_blocks": 240,
+  "brr_sha256": "ce7e669baa528edfc956222f169bfd0b2780573ab7a7894fa1c4b650410cf23e",
+  "single_effect_common_bytes": 2207,
+  "backend": "resident_tad_sfx",
+  "project_sample_path": "soundwork/tad/project/samples/dash.wav"
+}

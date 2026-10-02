@@ -1,0 +1,60 @@
+{
+  "entity": "K9999",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.42105263157894735,
+  "hotspot_canvas": [
+    15,
+    44
+  ],
+  "frames": [
+    {
+      "delay": 4,
+      "offset": [
+        39,
+        107
+      ],
+      "bbox": [
+        22,
+        3,
+        47,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 16,
+      "offset": [
+        39,
+        107
+      ],
+      "bbox": [
+        22,
+        3,
+        47,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 8,
+      "offset": [
+        39,
+        107
+      ],
+      "bbox": [
+        22,
+        3,
+        47,
+        105
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

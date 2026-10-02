@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "source_revision": "bcec7cb765eebec555c74aac64a23aa73f1cfe21",
+  "resident": [
+    "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+    "tmnt:DATA\\SOUNDS\\DASH.WAV",
+    "tmnt:DATA\\SOUNDS\\METAL.WAV"
+  ],
+  "stream": [
+    "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+    "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+    "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+    "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+    "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+    "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+    "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+    "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+    "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+    "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+    "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+    "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+    "tmnt:DATA\\SOUNDS\\THROW.WAV",
+    "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+  ],
+  "diesounds": {
+    "0": {
+      "semantic": "DIE1",
+      "source": 1
+    },
+    "1": {
+      "semantic": "DIE2",
+      "source": 2
+    },
+    "2": {
+      "semantic": "DIE1",
+      "source": 1
+    },
+    "3": {
+      "semantic": "DIE1",
+      "source": 1
+    },
+    "4": {
+      "semantic": "NONE"
+    },
+    "5": {
+      "semantic": "FOOTDIE",
+      "source": 0
+    },
+    "6": {
+      "semantic": "ROCKDIE",
+      "source": 6
+    },
+    "7": {
+      "semantic": "RHINO",
+      "source": 11
+    },
+    "8": {
+      "semantic": "BEBOPDIE",
+      "source": 5
+    },
+    "9": {
+      "semantic": "FOOTDIE",
+      "source": 0
+    },
+    "10": {
+      "semantic": "FOOTDIE",
+      "source": 0
+    },
+    "11": {
+      "semantic": "FOOTDIE",
+      "source": 0
+    },
+    "12": {
+      "semantic": "TURTLEDIE",
+      "source": 7
+    },
+    "13": {
+      "semantic": "NONE"
+    },
+    "14": {
+      "semantic": "NONE"
+    },
+    "15": {
+      "semantic": "NONE"
+    },
+    "16": {
+      "semantic": "NONE"
+    },
+    "17": {
+      "semantic": "NONE"
+    },
+    "18": {
+      "semantic": "KLUNK",
+      "source": 3
+    },
+    "19": {
+      "semantic": "WOOD",
+      "source": 4
+    },
+    "20": {
+      "semantic": "WOOD",
+      "source": 4
+    }
+  },
+  "frame_sounds": [
+    {
+      "semantic": "METAL",
+      "backend": "resident",
+      "source": "tmnt:DATA\\SOUNDS\\METAL.WAV",
+      "roster": 4,
+      "selected": 2,
+      "variants": [
+        0,
+        1
+      ],
+      "frames": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "semantic": "GUNSHOT",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+      "roster": 6,
+      "selected": 2,
+      "variants": [
+        0
+      ],
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "semantic": "WAVE",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\WAVE.WAV",
+      "roster": 8,
+      "selected": 2,
+      "variants": [
+        0
+      ],
+      "frames": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "semantic": "DASH",
+      "backend": "resident",
+      "source": "tmnt:DATA\\SOUNDS\\DASH.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        6
+      ],
+      "frames": [
+        0
+      ]
+    },
+    {
+      "semantic": "PIZZA1",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        10
+      ],
+      "frames": [
+        0
+      ]
+    },
+    {
+      "semantic": "PUNCH0",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        0,
+        1
+      ],
+      "frames": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "semantic": "PUNCH0",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        3,
+        9
+      ],
+      "frames": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "semantic": "PUNCH0",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        8
+      ],
+      "frames": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "semantic": "THROW",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        2
+      ],
+      "frames": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "semantic": "THROW",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\THROW.WAV",
+      "roster": 12,
+      "selected": 2,
+      "variants": [
+        4
+      ],
+      "frames": [
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "semantic": "SPIN",
+      "backend": "resident",
+      "source": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+      "roster": 12,
+      "selected": 5,
+      "jump_modes": [
+        0
+      ],
+      "frames": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "semantic": "PUNCH0",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "roster": 12,
+      "selected": 5,
+      "jump_modes": [
+        1
+      ],
+      "frames": [
+        1
+      ]
+    },
+    {
+      "semantic": "PUNCH0",
+      "backend": "stream",
+      "source": "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+      "roster": 12,
+      "selected": 5,
+      "jump_modes": [
+        2
+      ],
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "pain_sounds": [
+    {
+      "roster": 8,
+      "semantic": "BOAR",
+      "source": "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+    }
+  ]
+}

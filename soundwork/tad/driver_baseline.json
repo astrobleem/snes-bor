@@ -1,0 +1,111 @@
+{
+  "upstream": {
+    "repository": "E:/gh/terrific-audio-driver",
+    "commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+    "tag": "v0.3.0",
+    "compiler": "tad-compiler 0.3.0"
+  },
+  "shared_armory": {
+    "repository": "astrobleem/terrific-audio-driver",
+    "remote": "https://github.com/astrobleem/terrific-audio-driver.git",
+    "branch": "bor-poppy-stage-a-v0.3.0",
+    "base": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+    "source_commit": "2aae713e68c2a2b5962c643eb9631f630a00eadd",
+    "poppy_api_commit": "97d2a189150d8c1a16930a9e55ec35a1c5e4cf4b",
+    "poppy_api_path": "audio-driver/poppy-api/tad-stream.pasm"
+  },
+  "runtime_graph": {
+    "project": "soundwork/tad/project/02_coin.terrificaudio",
+    "blob": "soundwork/tad/build/audio-data.bin",
+    "driver_offset": 116,
+    "driver_size_before_patch": 3250,
+    "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
+    "driver_size_after_patch": 3437,
+    "driver_sha256_after_patch": "a0d4a0b37dbd41ec85c6afbaabc2ebc9744822a9be5eb1115f5864ee7db39730",
+    "audio_data_sha256_after_patch": "34c261f9ad54cfd55d8747705bf111c57b704aea93c677980429d7b504a05c1a",
+    "data_table": "$018E14",
+    "resident_jump": {
+      "source_asset": "DATA\\SOUNDS\\JUMP.WAV",
+      "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "source_raw_sha256": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9",
+      "canonical_wav_sha256": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+      "sample_rate_hz": 11025,
+      "source_frames": 5941,
+      "canonical_frames": 5952,
+      "duration_seconds": 0.5398639455782313,
+      "brr_bytes": 3348,
+      "brr_blocks": 209,
+      "decoded_samples": 5952,
+      "backend": "resident_tad_sfx",
+      "local_effect": "sfx_jump"
+    },
+    "resident_fall": {
+      "source_asset": "DATA\\SOUNDS\\FALL.WAV",
+      "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "source_raw_sha256": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef",
+      "canonical_wav_sha256": "4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91",
+      "sample_rate_hz": 22050,
+      "source_frames": 11466,
+      "canonical_frames": 11472,
+      "duration_seconds": 0.52,
+      "brr_bytes": 6453,
+      "brr_blocks": 717,
+      "decoded_samples": 11472,
+      "backend": "resident_tad_sfx",
+      "local_effect": "sfx_fall"
+    },
+    "generated_symbols": "soundwork/tad/build/tad_blob_syms.pasm",
+    "rom_loader": "src/main.pasm:Tad_Init",
+    "resident_batch_b": {
+      "sources": [
+        "spin",
+        "dash",
+        "metal"
+      ],
+      "local_effects": [
+        "sfx_spin",
+        "sfx_dash",
+        "sfx_metal"
+      ]
+    }
+  },
+  "legacy_vendor": {
+    "path": "soundwork/tad/vendor/tad-audio-driver.bin",
+    "size": 3221,
+    "sha256": "96ceef04fba19c9895fb42051a54acf6c45064a4bedf2141c0e2b4997fb99422",
+    "runtime_reference_status": "legacy/non-runtime; only reconstruction_oracle metadata reference"
+  },
+  "patch": {
+    "path": "soundwork/tad/patches/tad-v0.3.0-reserve-voice0.patch",
+    "sha256": "a93560dad40a1853c4d3a832b4dd1f1a9c4fc527d95d5968847401edbf525417",
+    "source_sha256": "85f71196e1a91b702203acd96eb5105ad71c09dd9f880cde2a2bae988f7f030a",
+    "mode": "source-level build-time reservation",
+    "stream_transport_patch": {
+      "path": "soundwork/tad/patches/tad-v0.3.0-stream-transport.patch",
+      "sha256": "fd1ec0a776a1e1ff641b0e2323bbaf47b40901c3a17c3a052c19e1b7ce7a8a91",
+      "mode": "source-level TAD stream transport extension"
+    },
+    "stream_voice0_patch": {
+      "path": "soundwork/tad/patches/tad-v0.3.0-stream-voice0-srcn.patch",
+      "sha256": "2b44ae332389c159ad1e54cbeb7f4be5413acae1e7fa931fd013d2ee2581f88f",
+      "mode": "source-level stream voice-0 directory fix"
+    },
+    "parent_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+    "reserved_physical_voice": 0,
+    "normal_sfx_voices": [
+      6,
+      7
+    ]
+  },
+  "patched_toolchain": {
+    "compiler_path": "E:/gh/terrific-audio-driver/target/release/tad-compiler.exe",
+    "compiler_sha256": "666688e5f4d9c1ff02bac2456eb24742f9788c0b50a1e59821b5b88d2c0c73c9",
+    "source_bundle_sha256": "1cb68f2131092df755ee0784faa81b6359ea353a364a5df2d5d8861961aa6f87",
+    "source_files_sha256": {
+      "E:/gh/terrific-audio-driver/audio-driver/src/audio-driver.asm": "484f16acbd9e0c35ad778819f3bc52cf984986f6c5b0cdf06ad90678757dc402",
+      "E:/gh/terrific-audio-driver/audio-driver/src/common-memmap.inc": "fde1b0578655f3cccf704a049ef3a5b615f2607fd7cc99ab73714a031bc45f4d",
+      "E:/gh/terrific-audio-driver/audio-driver/src/io-commands.inc": "7f2052e024951c799738167ad9dc03e348f243c71875f756d56b39744702722c",
+      "E:/gh/terrific-audio-driver/crates/compiler/src/driver_constants.rs": "3de3ee7cf0106d32e072e37a80362fed770e7fc0fd266eb12320a4f41f5460cb"
+    }
+  }
+}

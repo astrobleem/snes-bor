@@ -1,0 +1,31 @@
+Spawn positions (X,Y): [(120, 150), (40, 150), (200, 150), (120, 40)]
+all four entities have distinct spawn positions: PASS
+Hardware OAM slot 0-3 positions: [(110, 63), (173, 191), (198, 195), (223, 65)]
+all four entities have distinct hardware OAM positions: PASS
+slice 0 padding row6 all zero ($8C00): PASS
+slice 0 padding row7 all zero ($8E00): PASS
+slice 1 padding row6 all zero ($8C80): PASS
+slice 1 padding row7 all zero ($8E80): PASS
+slice 2 padding row6 all zero ($8D00): PASS
+slice 2 padding row7 all zero ($8F00): PASS
+slice 3 padding row6 all zero ($8D80): PASS
+slice 3 padding row7 all zero ($8F80): PASS
+CGRAM palette slot 0 written (non-zero): PASS
+CGRAM palette slot 1 written (non-zero): PASS
+CGRAM palette slot 2 written (non-zero): PASS
+CGRAM palette slot 3 written (non-zero): PASS
+palette slot 2 (JOE) distinct from slot 0 (Ralf) -- different source colors: PASS
+palette slot 3 (Yashiro) distinct from slot 1 (JHUN) -- different source colors: PASS
+KNOWN BUG (not blocking): slot 0 color 1 wrong vs ground truth -- not fixed this phase: PASS
+CHAR_FRAME_INDEX at 6 samples over 240 frames: [[4, 4, 0, 0], [3, 0, 0, 0], [1, 1, 0, 0], [0, 2, 0, 0], [5, 3, 0, 0], [4, 4, 0, 0]]
+entity 0 CHAR_FRAME_INDEX varies across 240 frames: PASS
+entity 1 CHAR_FRAME_INDEX varies across 240 frames: PASS
+AI entities 2/3 are either unspawned, a prop, or fully spawned (0, CHAR_HP_PER_HIT, or CHAR_HP_MAX): PASS
+Nmi_FrameCounter before/after 700 frames: 349 -> 1049
+Nmi_FrameCounter still advancing after 700 frames: PASS
+  player CHAR_HIT_STUN over 14 samples/518 frames: [0, 2, 5, 0, 0, 7, 10, 0, 0, 13, 16, 0, 0, 0]
+  player CHAR_HIT_STUN over 14 samples/518 frames: [0, 2, 5, 0, 0, 7, 10, 0, 0, 13, 16, 0, 0, 0]
+  player CHAR_HIT_STUN over 14 samples/518 frames: [0, 3, 6, 0, 0, 8, 11, 0, 0, 14, 17, 0, 0, 0]
+player CHAR_HIT_STUN goes nonzero from an AI attack: [True, True, True] -> PASS
+
+PHASE 5: PASS

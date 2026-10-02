@@ -1,0 +1,13 @@
+boot production states: [(56, 1, 120, 150), (64, 2, 150, 150), (4, 3, 128, 184), (4, 3, 160, 176), (0, 2, 120, 40), (0, 2, 120, 40)]
+post-production prop cleanup: [(44, 1), (64, 2), (0, 3), (0, 3), (0, 2), (0, 2)]
+post-fixture production states: [(64, 1, 16, 150), (64, 2, 46, 150), (64, 2, 46, 146), (64, 2, 46, 147), (64, 2, 46, 146), (64, 2, 46, 147)]
+game remains in PLAYING for capacity fixture: PASS
+slot 0 remains input-driven P1: PASS
+slot 1 is a live production NPC in one-player mode: PASS
+slots 1-5 are all simultaneously live combat NPCs: PASS
+one-player production queue advanced through Spawn_Play: PASS
+five-NPC capacity is not falsely Stage_Cleared: PASS
+live NPC slots: [1, 2, 3, 4, 5]
+queue index/count: 4 4 stage_cleared: 0
+
+GATE G13-ONE-PLAYER-CAPACITY: PASS

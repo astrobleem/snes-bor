@@ -1,0 +1,49 @@
+value,name,class,record_operands,runtime_effect
+0,CONSTSTR,link/no-op,a=preinitialized destination slot,Constant string is materialized by the host linker; runtime instruction is inert.
+1,CONSTDBL,link/no-op,a=preinitialized destination slot,Constant decimal is materialized by the host linker; runtime instruction is inert.
+2,CONSTINT,link/no-op,a=preinitialized destination slot,Constant signed 32-bit integer is materialized by the host linker; runtime instruction is inert.
+3,LOAD,data,"a=destination slot, b=source variable slot",Copy the current variable value into the instruction result slot.
+4,SAVE,data,"a=destination variable slot, b=source expression slot",Copy the expression value into the variable slot.
+5,INC,unary in-place,a=operand slot,Increment integer or decimal in place; other types are unchanged in the historical VM.
+6,DEC,unary in-place,a=operand slot,Decrement integer or decimal in place; other types are unchanged in the historical VM.
+7,FIELD,reserved/fault,none,Present in the numeric ABI but absent from historical compile and runtime switches. Trap deterministically.
+8,CALL,control/call,"a=target ID, b=result slot, c=callsite metadata ID",Invoke script/import/native target using the callsite argument-slot list.
+9,POS,unary in-place,a=operand slot,Unary plus. Historical implementation is intentionally inert.
+10,NEG,unary in-place,a=operand slot,Negate integer or decimal in place. Verify the exact Build 4086 decimal quirk with an oracle.
+11,NOT,unary in-place,a=operand slot,Replace operand with VT_INTEGER 0 or 1 using VM truthiness.
+12,MUL,binary,"a=destination, b=left, c=right",Numeric multiplication; decimal result if either operand is decimal.
+13,DIV,binary,"a=destination, b=left, c=right",Numeric division; integer division truncates toward zero. Divide-by-zero becomes EMPTY in historical code.
+14,MOD,binary,"a=destination, b=left, c=right",Integer-converted remainder. Historical zero divisor is unsafe; SA-1 VM must fault deterministically.
+15,ERR,fault,none,Set VM fault status immediately.
+16,ADD,binary,"a=destination, b=left, c=right","Numeric addition, or string concatenation when either operand is a string."
+17,SUB,binary,"a=destination, b=left, c=right",Numeric subtraction; decimal result if either operand is decimal.
+18,SHL,binary,"a=destination, b=left, c=right",Convert operands to 32-bit integer; unsigned logical left shift.
+19,SHR,binary,"a=destination, b=left, c=right",Convert operands to 32-bit integer; unsigned logical right shift.
+20,JUMP,control,a=target instruction index,Set IP to target.
+21,PJUMP,control,a=target instruction index,Same runtime effect as JUMP after host linking. The old compile pass discarded one compile-stack item.
+22,GE,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER boolean for left >= right.
+23,LE,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER boolean for left <= right.
+24,LT,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER boolean for left < right.
+25,GT,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER boolean for left > right.
+26,EQ,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER boolean for equality.
+27,NE,binary comparison,"a=destination, b=left, c=right",Store VT_INTEGER truth value for inequality. Verify historical string-result normalization.
+28,OR,binary logical,"a=destination, b=left, c=right",Store VT_INTEGER 0/1 from truth(left) OR truth(right). Both operands have already been evaluated.
+29,AND,binary logical,"a=destination, b=left, c=right",Store VT_INTEGER 0/1 from truth(left) AND truth(right). Both operands have already been evaluated.
+30,BIT_OR,binary bitwise,"a=destination, b=left, c=right",Integer-convert operands and store signed 32-bit bitwise OR.
+31,XOR,binary bitwise,"a=destination, b=left, c=right",Integer-convert operands and store signed 32-bit XOR.
+32,BIT_AND,binary bitwise,"a=destination, b=left, c=right",Integer-convert operands and store signed 32-bit bitwise AND.
+33,NOOP,no-op,none,No runtime effect.
+34,PUSH,link/no-op,none,Compile-time symbol-scope marker; no runtime effect after linking.
+35,POP,link/no-op,none,Compile-time symbol-scope marker; no runtime effect after linking.
+36,Branch_FALSE,control branch,"a=target, b=condition slot",Branch when condition is false by VM truthiness.
+37,Branch_TRUE,control branch,"a=target, b=condition slot",Branch when condition is true by VM truthiness.
+38,Branch_EQUAL,control branch,"a=target, b=left, c=right",Branch when equality comparison is true.
+39,DATA,link/no-op,a=declared variable slot,Compile-time symbol declaration; no runtime effect after linking.
+40,PARAM,call/data,a=destination parameter slot,Copy the next argument from the active call frame; clear to EMPTY when absent.
+41,IMMEDIATE,link/no-op,none,Marks immediate-code range for the host linker; no ordinary runtime effect.
+42,DEFERRED,link/no-op,none,Ends immediate-code range for the host linker; no ordinary runtime effect.
+43,RET,control/return,none,"Complete current call, copy any staged return value, and resume caller or finish the root invocation."
+44,CHECKARG,link/no-op,a=expected argument count,Historical runtime check is disabled. Exporter may validate statically.
+45,CLEAN,link/no-op,none,Compile-stack cleanup marker; no runtime effect after linking.
+46,JUMPR,control/return,"a=function epilogue target, b=return-value source slot","Stage return source in current frame, then jump to the function epilogue."
+47,FUNCDECL,link/no-op,a=entry metadata ID,Function declaration marker; no runtime effect after linking.

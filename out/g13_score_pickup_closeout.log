@@ -1,0 +1,46 @@
+real TITLE->CHARSELECT->PLAYING reset clears both scores/lives: PASS
+real reset preserves active P2 ownership: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+P2 apple heals only P2 and consumes item: PASS
+P2 LEO enters its own GET pose: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+P1 apple heals only P1 and leaves P2 action untouched: PASS
+pickup owner selector clears after each transaction: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p1_money score owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_money score owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p1_gold score owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_gold score owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p1_oneup life owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_oneup life owner: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+true simultaneous overlap has one P1-first reward: PASS
+true tie does not double reward on P2 pass: PASS
+true tie owner selector clears: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p1 money threshold adds exactly one life: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2 money threshold adds exactly one life: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+P2 money saturates score without wrap: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_meat_10 heals P2 and clamps at max: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_meat_59 heals P2 and clamps at max: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p2_instant uses production instant reward path: PASS
+p2_instant credits only attacker: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+p1_instant uses production instant reward path: PASS
+p1_instant credits only attacker: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+owner leak P2 then P1 remains isolated: PASS
+SETUP {'mode': 1, 'p2_input': 1, 'p2_hp': 64, 'p2_get': 1, 'game_state': 0, 'item_input': 3}
+owner leak P1 then P2 remains isolated: PASS
+
+GATE G13-SCORE-PICKUP: PASS

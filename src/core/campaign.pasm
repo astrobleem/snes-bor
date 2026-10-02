@@ -1,0 +1,407 @@
+; Logical campaign resolver. This lives in bank 12 so separating campaign
+; progression does not consume the bank-0 runtime/vector budget.
+.include "../../tools/audio/campaign_config.pasm"
+
+; Source startup scene adaptation. The PAK's LOGO.TXT displays senile.gif,
+; then INTRO.TXT displays city.gif followed by flashes.gif. Preserve that
+; ordering and input-advance contract with two full-row text cards; the GIF
+; pixel animation remains a documented presentation adaptation.
+Game_State_Play__intro:
+    php
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda #0
+    sta.l SceneVideo_Continuation
+    rep #$31
+.a16
+.i16
+    ; L3A's external frame-test request reuses the existing INTRO dispatch as
+    ; a bounded bank-12 entry point; no gameplay/campaign route is changed.
+    jsl SceneVideo_TestService
+    bcs Game_State_Play__intro_done
+    ; This boot-time zero-init is deferred into the first source startup
+    ; frame to keep the fixed bank-0 boot window within its hard boundary.
+    lda #0
+    sta.l Player_InvulnFrames
+    sep #$20
+.a8
+    lda.l Intro_Step
+    cmp #2
+    bcs Game_State_Play__intro_wait
+    cmp #1
+    beq Game_State_Play__intro_story
+    lda #10
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_IntroLogo - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+    sep #$20
+.a8
+    lda #1
+    sta.l Intro_Step
+    plp
+    rtl
+Game_State_Play__intro_story:
+    sep #$20
+.a8
+    lda #10
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_IntroStory - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+    sep #$20
+.a8
+    lda #2
+    sta.l Intro_Step
+    plp
+    rtl
+Game_State_Play__intro_wait:
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger
+    ora.l Input_trigger+1
+    beq Game_State_Play__intro_done
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
+    sep #$20
+.a8
+    lda #0
+    sta.l Intro_Step
+Game_State_Play__intro_done:
+    plp
+    rtl
+
+; Resolve the next logical typed campaign entry.  The result is written to
+; Game_Campaign_ResolvedKind/Value; carry set means the campaign has ended.
+; Stage values are physical catalog indices; scene values are generated scene
+; IDs.  Game_StageIndex is deliberately untouched for scene entries.
+Game_Campaign_ResolveNext:
+    sep #$20
+.a8
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_BOR_ORIGINAL
+    beq Game_Campaign_ResolveNext__bor
+    cmp #CAMPAIGN_TMNT
+    beq Game_Campaign_ResolveNext__tmnt
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
+    bne Game_Campaign_ResolveNext__not_bor_normal_dev
+    brl Game_Campaign_ResolveNext__bor_normal_dev
+Game_Campaign_ResolveNext__not_bor_normal_dev:
+    jmp Game_Campaign_ResolveNext__standalone
+Game_Campaign_ResolveNext__bor:
+    .a8
+    lda.l Game_CampaignOrdinal
+    cmp #$FF
+    beq Game_Campaign_ResolveNext__bor_first
+    inc a
+    cmp #Campaign_Bor_EntryCount
+    bcs Game_Campaign_ResolveNext__bor_end
+    sta.l Game_CampaignOrdinal
+    tax
+    lda.l Campaign_Bor_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Bor_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    lda.l Game_Campaign_AdvanceCount
+    inc a
+    sta.l Game_Campaign_AdvanceCount
+    clc
+    rtl
+Game_Campaign_ResolveNext__bor_end:
+    sec
+    rtl
+Game_Campaign_ResolveNext__bor_first:
+    .a8
+    .i16
+    ldx #0
+    lda #0
+    sta.l Game_CampaignOrdinal
+    lda.l Campaign_Bor_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Bor_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    lda.l Game_Campaign_AdvanceCount
+    inc a
+    sta.l Game_Campaign_AdvanceCount
+    clc
+    rtl
+Game_Campaign_ResolveNext__tmnt:
+    .a8
+    lda.l Game_CampaignOrdinal
+    cmp #$FF
+    beq Game_Campaign_ResolveNext__tmnt_first
+    inc a
+    cmp #Campaign_Tmnt_EntryCount
+    bcs Game_Campaign_ResolveNext__tmnt_end
+    sta.l Game_CampaignOrdinal
+    tax
+    lda.l Campaign_Tmnt_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Tmnt_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+Game_Campaign_ResolveNext__tmnt_end:
+    sec
+    rtl
+Game_Campaign_ResolveNext__tmnt_first:
+    .a8
+    .i16
+    ldx #0
+    lda #0
+    sta.l Game_CampaignOrdinal
+    lda.l Campaign_Tmnt_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Tmnt_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+Game_Campaign_ResolveNext__bor_normal_dev:
+    .a8
+    lda.l Game_CampaignOrdinal
+    cmp #$FF
+    beq Game_Campaign_ResolveNext__bor_normal_dev_first
+    inc a
+    cmp #Campaign_BorNormalDev_EntryCount
+    bcs Game_Campaign_ResolveNext__bor_normal_dev_end
+    sta.l Game_CampaignOrdinal
+    tax
+    lda.l Campaign_BorNormalDev_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_BorNormalDev_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+Game_Campaign_ResolveNext__bor_normal_dev_end:
+    sec
+    rtl
+Game_Campaign_ResolveNext__bor_normal_dev_first:
+    .a8
+    .i16
+    ldx #0
+    lda #0
+    sta.l Game_CampaignOrdinal
+    lda.l Campaign_BorNormalDev_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_BorNormalDev_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+Game_Campaign_ResolveNext__standalone:
+    .a8
+    lda.l Game_CampaignOrdinal
+    cmp #$FF
+    beq Game_Campaign_ResolveNext__standalone_first
+    inc a
+    cmp #Campaign_Standalone_EntryCount
+    bcs Game_Campaign_ResolveNext__standalone_end
+    sta.l Game_CampaignOrdinal
+    tax
+    lda.l Campaign_Standalone_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Standalone_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+Game_Campaign_ResolveNext__standalone_end:
+    sec
+    rtl
+Game_Campaign_ResolveNext__standalone_first:
+    .a8
+    .i16
+    ldx #0
+    lda #0
+    sta.l Game_CampaignOrdinal
+    lda.l Campaign_Standalone_EntryKinds,x
+    sta.l Game_Campaign_ResolvedKind
+    lda.l Campaign_Standalone_EntryValues,x
+    sta.l Game_Campaign_ResolvedValue
+    clc
+    rtl
+
+; ----------------------------------------------------------------------
+; BOR source-set state.  Set IDs are positional IDs emitted from the
+; authoritative DATA/LEVELS.TXT parser. Carry clear means the requested
+; predicate is true; invalid IDs are false.  Availability is deliberately
+; independent from source unlock state so unported sets cannot become a
+; fake playable campaign.
+; ----------------------------------------------------------------------
+BorSet_IsUnlocked:
+.a8
+    cmp #BOR_SET_COUNT
+    bcs BorSet_IsUnlocked__false
+    tax
+    lda.l Bor_TimesCompleted+2
+    ora.l Bor_TimesCompleted+3
+    bne BorSet_IsUnlocked__true
+    lda.l Bor_TimesCompleted
+    cmp.l BorSet_IfComplete,x
+    bcs BorSet_IsUnlocked__true
+BorSet_IsUnlocked__false:
+    clc
+    rtl
+BorSet_IsUnlocked__true:
+    sec
+    rtl
+
+BorSet_IsAvailable:
+.a8
+    cmp #BOR_SET_COUNT
+    bcs BorSet_IsAvailable__false
+    tax
+    lda.l BorSet_ContentAvailable,x
+    beq BorSet_IsAvailable__false
+    sec
+    rtl
+BorSet_IsAvailable__false:
+    clc
+    rtl
+
+BorSet_IsSelectable:
+.a8
+    pha
+    jsl BorSet_IsUnlocked
+    bcc BorSet_IsSelectable__false_pop
+    pla
+    jsl BorSet_IsAvailable
+    rtl
+BorSet_IsSelectable__false_pop:
+    pla
+    clc
+    rtl
+
+; Current shipped BOR starts the source-default Easy set. This is the
+; single set-to-campaign resolution point used by the real new-run path.
+BorSet_BeginEasyRun:
+.a8
+    lda #0
+    sta.l BorSet_Selected
+    sta.l Game_CampaignId
+    sta.l BorSet_CompletionCredited
+    lda #1
+    sta.l BorSet_RunActive
+    lda #0
+    sta.l Game_CampaignOrdinal
+    rtl
+
+; Credit one completed selected BOR set. The run latch prevents repeated
+; end-handler processing from turning one completion into multiple counts.
+BorSet_CreditCompletion:
+.a8
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_BOR_ORIGINAL
+    bne BorSet_CreditCompletion__done
+    lda.l BorSet_RunActive
+    beq BorSet_CreditCompletion__done
+    lda.l BorSet_CompletionCredited
+    bne BorSet_CreditCompletion__done
+    lda.l Bor_TimesCompleted
+    inc a
+    sta.l Bor_TimesCompleted
+    bne BorSet_CreditCompletion__store
+    lda.l Bor_TimesCompleted+1
+    inc a
+    sta.l Bor_TimesCompleted+1
+    bne BorSet_CreditCompletion__store
+    lda.l Bor_TimesCompleted+2
+    inc a
+    sta.l Bor_TimesCompleted+2
+    bne BorSet_CreditCompletion__store
+    lda.l Bor_TimesCompleted+3
+    inc a
+    sta.l Bor_TimesCompleted+3
+BorSet_CreditCompletion__store:
+.a8
+    lda #1
+    sta.l BorSet_CompletionCredited
+    jsl Options_SaveBorCompletion
+BorSet_CreditCompletion__done:
+    rtl
+
+; Convert a resolved typed entry to the existing stage-clear caller's small
+; contract.  A contains the physical stage index and carry is clear for a
+; stage.  A scene request is performed here in bank 12 and returns carry set;
+; this keeps the fixed bank-0 stage loader unchanged.
+Game_Campaign_DispatchResolved:
+    sep #$20
+.a8
+    lda.l Game_Campaign_ResolvedKind
+    cmp #CAMPAIGN_ENTRY_SCENE
+    beq Game_Campaign_DispatchResolved__scene
+    lda.l Game_Campaign_ResolvedValue
+    sta.l Game_StageIndex
+    clc
+    rtl
+Game_Campaign_DispatchResolved__scene:
+    sep #$20
+.a8
+    lda.l Game_Campaign_ResolvedValue
+    ldx #SCENE_CONTINUE_CAMPAIGN
+    jsl SceneVideo_Request
+    sec
+    rtl
+
+; Handle a logical campaign end without allowing a physical catalog tail to
+; become an accidental continuation. BOR/standalone use the temporary TITLE
+; boundary; TMNT retains the existing ending presentation.
+Game_Campaign_HandleEnd:
+    sep #$20
+.a8
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_TMNT
+    beq Game_Campaign_HandleEnd__tmnt
+    jsl BorSet_CreditCompletion
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
+    sta.l $7E2752
+    rtl
+Game_Campaign_HandleEnd__tmnt:
+    .a8
+    jsl Music_SelectEndingTrack_Long
+    lda #GAME_STATE_ENDING
+    sta.l Game_State
+    rtl
+
+; Called by the shared scene-video cleanup after natural completion or skip.
+; It advances the logical entry ordinal rather than hard-coding TITLE in the
+; scene implementation. The current Rugal boundary has no further imported
+; entry, so the normal typed campaign end handler selects TITLE.
+Game_Campaign_AdvanceAfterScene:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Campaign_EndCount
+    inc a
+    sta.l Game_Campaign_EndCount
+    jsl Game_Campaign_ResolveNext
+    bcs Game_Campaign_AdvanceAfterScene__end
+    ; The ordinary stage-clear path will resolve the same next stage again.
+    ; Rewind the ordinal so its single increment consumes, rather than skips,
+    ; the entry already selected here.
+    lda.l Game_CampaignOrdinal
+    dec a
+    sta.l Game_CampaignOrdinal
+    sep #$20
+.a8
+    lda #1
+    sta.l Stage_LoadPending
+    lda #GAME_STATE_STAGECLEAR
+    sta.l Game_State
+    rtl
+Game_Campaign_AdvanceAfterScene__end:
+    jsl Game_Campaign_HandleEnd
+    rtl

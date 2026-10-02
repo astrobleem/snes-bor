@@ -1,0 +1,27 @@
+{
+  "level_entry": "DATA\\EASY\\5BEASY.TXT",
+  "background": "data\\bgs\\factory\\back.gif",
+  "panels": [
+    "data\\bgs\\factory\\p00.gif",
+    "data\\bgs\\factory\\p01.gif",
+    "data\\bgs\\factory\\p02.gif",
+    "data\\bgs\\factory\\p03.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 4800,
+  "height_px": 224,
+  "width_tiles": 600,
+  "height_tiles": 28,
+  "content_width_tiles": 600,
+  "unique_tiles": 1668,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 53376,
+  "tilemap_bytes": 50400,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

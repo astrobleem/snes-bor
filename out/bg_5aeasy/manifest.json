@@ -1,0 +1,24 @@
+{
+  "level_entry": "DATA\\EASY\\5AEASY.TXT",
+  "background": "data\\bgs\\elevator\\back.gif",
+  "panels": [
+    "data\\bgs\\elevator\\platform.gif"
+  ],
+  "frontpanel": null,
+  "width_px": 256,
+  "height_px": 224,
+  "width_tiles": 32,
+  "height_tiles": 32,
+  "unique_tiles": 896,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 28672,
+  "tilemap_bytes": 2048,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0,
+  "scroll_x": 0,
+  "vertical_repeat": true
+}

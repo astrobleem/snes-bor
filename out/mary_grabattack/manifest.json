@@ -1,0 +1,68 @@
+{
+  "entity": "Mandy",
+  "anim": "grabattack",
+  "loop": 0,
+  "scale": 0.5517241379310345,
+  "hotspot_canvas": [
+    9,
+    47
+  ],
+  "frames": [
+    {
+      "delay": 6,
+      "offset": [
+        33,
+        98
+      ],
+      "bbox": [
+        34,
+        24,
+        19,
+        93
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        33,
+        98
+      ],
+      "bbox": [
+        34,
+        24,
+        19,
+        93
+      ],
+      "attack": [
+        47,
+        42,
+        30,
+        31,
+        6
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        33,
+        98
+      ],
+      "bbox": [
+        34,
+        24,
+        19,
+        93
+      ],
+      "attack": [
+        0
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

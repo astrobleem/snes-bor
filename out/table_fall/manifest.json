@@ -1,0 +1,23 @@
+{
+  "entity": "Table",
+  "anim": "fall",
+  "loop": 1,
+  "scale": 0.47058823529411764,
+  "hotspot_canvas": [
+    17,
+    30
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        36,
+        64
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "entity": "Eiji",
+  "anim": "idle",
+  "loop": 1,
+  "scale": 0.49230769230769234,
+  "hotspot_canvas": [
+    14,
+    45
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        32,
+        98
+      ],
+      "bbox": [
+        19,
+        17,
+        32,
+        81
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

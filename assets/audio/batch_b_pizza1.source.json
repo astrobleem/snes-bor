@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21",
+  "raw_bytes": 35836,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 35721,
+  "canonical_path": "assets/audio/batch_b/canonical/pizza1.wav",
+  "canonical_sha256": "e0f5d6500a4c9ef8a8290621c334cbdda885bbd744e13dd2c329281428960e68",
+  "canonical_frames": 35728,
+  "canonical_rate_hz": 22050,
+  "duration_seconds": 1.6203174603174604,
+  "duration_ticks": 203,
+  "brr_bytes": 20097,
+  "brr_blocks": 2233,
+  "brr_sha256": "e99f4bfaf13fe3ca570ff87230d67bb536fc2cce3afe19e64685fddb89d6314e",
+  "single_effect_common_bytes": 20144,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/pizza1.brr"
+}

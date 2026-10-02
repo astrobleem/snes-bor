@@ -1,0 +1,86 @@
+{
+  "entity": "Bebop",
+  "prefix": "out/bebop",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/bebop_idle",
+      "frames": 2
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/bebop_walk",
+      "frames": 12
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/bebop_pain",
+      "frames": 2
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/bebop_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/bebop_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "riseattack",
+      "dir": "out/bebop_riseattack",
+      "frames": 5
+    },
+    {
+      "ordinal": 6,
+      "name": "attack1",
+      "dir": "out/bebop_attack1",
+      "frames": 3
+    },
+    {
+      "ordinal": 7,
+      "name": "attack2",
+      "dir": "out/bebop_attack2",
+      "frames": 4
+    },
+    {
+      "ordinal": 8,
+      "name": "upper",
+      "dir": "out/bebop_upper",
+      "frames": 4
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "attack": 6,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": 5,
+    "grabattack": null,
+    "freespecial": null,
+    "upper": 8,
+    "attack2": 7,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

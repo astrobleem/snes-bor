@@ -1,0 +1,74 @@
+{
+  "entity": "Mandy",
+  "anim": "jumpattack2",
+  "loop": 0,
+  "scale": 0.5245901639344263,
+  "hotspot_canvas": [
+    10,
+    33
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        22,
+        66
+      ],
+      "bbox": [
+        10,
+        5,
+        28,
+        53
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 1000,
+      "offset": [
+        22,
+        66
+      ],
+      "bbox": [
+        10,
+        5,
+        28,
+        53
+      ],
+      "attack": [
+        33,
+        16,
+        32,
+        37,
+        6,
+        0
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 1000,
+      "offset": [
+        22,
+        66
+      ],
+      "bbox": [
+        10,
+        5,
+        28,
+        53
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

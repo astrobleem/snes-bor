@@ -1,0 +1,242 @@
+{
+  "arena_end_exclusive": 8364032,
+  "buffer_base": 8360448,
+  "buffer_bytes": 920,
+  "buffer_end_exclusive": 8361368,
+  "capacity": 92,
+  "catalog_count_bits": 16,
+  "copy_count_bits": 16,
+  "error_address": 8364031,
+  "guard_bytes": 32,
+  "record_size": 10,
+  "runtime_count_bits": 8,
+  "runtime_index_bits": 8,
+  "stages": [
+    {
+      "packed_records": 41,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\1AEASY.TXT",
+      "stage": 0
+    },
+    {
+      "packed_records": 35,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\1BEASY.TXT",
+      "stage": 1
+    },
+    {
+      "packed_records": 20,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\1CEASY.TXT",
+      "stage": 2
+    },
+    {
+      "packed_records": 3,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "standalone",
+      "source_path": "DATA\\LEVELS\\BEBOP.TXT",
+      "stage": 3
+    },
+    {
+      "packed_records": 3,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "standalone",
+      "source_path": "DATA\\LEVELS\\ROCK.TXT",
+      "stage": 4
+    },
+    {
+      "packed_records": 2,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "standalone",
+      "source_path": "DATA\\LEVELS\\LEATHER.TXT",
+      "stage": 5
+    },
+    {
+      "packed_records": 63,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "Play_Demo",
+      "source_path": "DATA\\LEVELS\\SEWER0.TXT",
+      "stage": 6
+    },
+    {
+      "packed_records": 67,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "Play_Demo",
+      "source_path": "DATA\\LEVELS\\STREETS.TXT",
+      "stage": 7
+    },
+    {
+      "packed_records": 86,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "Play_Demo",
+      "source_path": "DATA\\LEVELS\\STREETS2.TXT",
+      "stage": 8
+    },
+    {
+      "packed_records": 46,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "Play_Demo",
+      "source_path": "DATA\\LEVELS\\SEWER.TXT",
+      "stage": 9
+    },
+    {
+      "packed_records": 1,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "set": "standalone",
+      "source_path": "DATA\\LEVELS\\FOOT.TXT",
+      "stage": 10
+    },
+    {
+      "packed_records": 77,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\2EASY.TXT",
+      "stage": 11
+    },
+    {
+      "packed_records": 38,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\3AEASY.TXT",
+      "stage": 12
+    },
+    {
+      "packed_records": 38,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\3BEASY.TXT",
+      "stage": 13
+    },
+    {
+      "packed_records": 31,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\3CEASY.TXT",
+      "stage": 14
+    },
+    {
+      "packed_records": 55,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\4AEASY.TXT",
+      "stage": 15
+    },
+    {
+      "packed_records": 50,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\4BEASY.TXT",
+      "stage": 16
+    },
+    {
+      "packed_records": 54,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\5AEASY.TXT",
+      "stage": 17
+    },
+    {
+      "packed_records": 87,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\5BEASY.TXT",
+      "stage": 18
+    },
+    {
+      "packed_records": 92,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\6AEASY.TXT",
+      "stage": 19
+    },
+    {
+      "packed_records": 15,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\6BEASY.TXT",
+      "stage": 20
+    },
+    {
+      "packed_records": 34,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Easy",
+      "source_path": "DATA\\EASY\\6CEASY.TXT",
+      "stage": 21
+    },
+    {
+      "packed_records": 43,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\1A.TXT",
+      "stage": 22
+    },
+    {
+      "packed_records": 37,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\1B.TXT",
+      "stage": 23
+    },
+    {
+      "packed_records": 22,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\1C.TXT",
+      "stage": 24
+    },
+    {
+      "packed_records": 84,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\2.TXT",
+      "stage": 25
+    },
+    {
+      "packed_records": 45,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\3A.TXT",
+      "stage": 26
+    },
+    {
+      "packed_records": 40,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\3B.TXT",
+      "stage": 27
+    },
+    {
+      "packed_records": 31,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\3C.TXT",
+      "stage": 28
+    },
+    {
+      "packed_records": 63,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\4A.TXT",
+      "stage": 29
+    },
+    {
+      "packed_records": 52,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\4B.TXT",
+      "stage": 30
+    },
+    {
+      "packed_records": 64,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Normal",
+      "source_path": "DATA\\NORMAL\\5A.TXT",
+      "stage": 31
+    }
+  ],
+  "target_capacity": 255,
+  "version": 1
+}

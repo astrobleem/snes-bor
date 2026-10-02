@@ -1,0 +1,23 @@
+{
+  "entity": "Mighty",
+  "anim": "get",
+  "loop": 0,
+  "scale": 1.0666666666666667,
+  "hotspot_canvas": [
+    15,
+    26
+  ],
+  "frames": [
+    {
+      "delay": 40,
+      "offset": [
+        15,
+        26
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

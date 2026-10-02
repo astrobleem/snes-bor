@@ -1,0 +1,14 @@
+P1_VS_NPC {'p1_hp_before': 64, 'p2_hp_before': 64, 'npc_hp_before': 64, 'p1_hp_after': 64, 'p2_hp_after': 64, 'npc_hp_after': 60, 'p1_stun': 0, 'p2_stun': 0}
+P2_VS_NPC {'p1_hp_before': 64, 'p2_hp_before': 64, 'npc_hp_before': 64, 'p1_hp_after': 64, 'p2_hp_after': 64, 'npc_hp_after': 60, 'p1_stun': 0, 'p2_stun': 0}
+P1 damages NPC only: PASS
+P2 damages NPC only: PASS
+AI_TARGETS {'p1': {'target_slot': 0, 'target_offset': 0, 'target_x': 50, 'p1_hp': 60, 'p2_hp': 64}, 'p2': {'target_slot': 1, 'target_offset': 133, 'target_x': 54218, 'p1_hp': 64, 'p2_hp': 60}, 'tie': {'target_slot': 0, 'target_offset': 0, 'target_x': 50, 'p1_hp': 64, 'p2_hp': 64}, 'p2_only': {'target_slot': 1, 'target_offset': 133, 'target_x': 200, 'p1_hp': 0, 'p2_hp': 64}, 'p1_only': {'target_slot': 0, 'target_offset': 0, 'target_x': 50, 'p1_hp': 64, 'p2_hp': 0}, 'both_dead': {'target_slot': 255, 'target_offset': 0, 'target_x': 16, 'p1_hp': 64, 'p2_hp': 0}}
+AI nearest P1 selects slot 0: PASS
+AI nearest P2 selects slot 1: PASS
+AI exact tie selects lower P1 slot: PASS
+dead P1 leaves live P2 targetable: PASS
+dead P2 leaves live P1 targetable: PASS
+both dead returns explicit no-target sentinel: PASS
+INVULN_SNAPSHOT_ONLY {'p1': {'before': (64, 64, 0, 0, 9, 0), 'after': (64, 64, 0, 0, 8, 0)}, 'p2': {'before': (64, 64, 0, 0, 0, 9), 'after': (64, 64, 0, 0, 0, 7)}}
+
+GATE G13-COMBAT-AI: PASS

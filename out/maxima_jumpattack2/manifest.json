@@ -1,0 +1,83 @@
+{
+  "entity": "Max",
+  "anim": "jumpattack2",
+  "loop": 0,
+  "scale": 0.25,
+  "hotspot_canvas": [
+    18,
+    27
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        70,
+        107
+      ],
+      "bbox": [
+        49,
+        0,
+        40,
+        87
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        70,
+        107
+      ],
+      "bbox": [
+        27,
+        3,
+        66,
+        87
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        70,
+        107
+      ],
+      "bbox": [
+        30,
+        4,
+        58,
+        84
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        70,
+        107
+      ],
+      "bbox": [
+        23,
+        5,
+        77,
+        62
+      ],
+      "attack": [
+        79,
+        11,
+        23,
+        43,
+        7,
+        0
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

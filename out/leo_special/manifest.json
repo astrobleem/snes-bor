@@ -1,0 +1,106 @@
+{
+  "entity": "LEO",
+  "anim": "special",
+  "loop": 0,
+  "scale": 0.1032258064516129,
+  "hotspot_canvas": [
+    16,
+    18
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        155,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        0,
+        45,
+        300,
+        90,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        155,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        0,
+        45,
+        300,
+        90,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        155,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        0,
+        45,
+        300,
+        90,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        155,
+        195
+      ],
+      "bbox": null,
+      "attack": [
+        0,
+        45,
+        300,
+        90,
+        10,
+        1
+      ],
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

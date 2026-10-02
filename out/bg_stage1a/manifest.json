@@ -1,0 +1,31 @@
+{
+  "level_entry": "DATA\\EASY\\1AEASY.TXT",
+  "background": "data\\bgs\\street\\back.gif",
+  "panels": [
+    "data\\bgs\\street\\n01.gif",
+    "data\\bgs\\street\\n02.gif",
+    "data\\bgs\\street\\n03.gif",
+    "data\\bgs\\street\\n04.gif",
+    "data\\bgs\\street\\n05.gif",
+    "data\\bgs\\street\\n06.gif",
+    "data\\bgs\\street\\n07.gif",
+    "data\\bgs\\street\\n05.gif"
+  ],
+  "frontpanel": "data\\bgs\\street\\f03.gif",
+  "streaming": true,
+  "width_px": 3264,
+  "height_px": 224,
+  "width_tiles": 408,
+  "height_tiles": 28,
+  "content_width_tiles": 408,
+  "unique_tiles": 3730,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 119360,
+  "tilemap_bytes": 34272,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

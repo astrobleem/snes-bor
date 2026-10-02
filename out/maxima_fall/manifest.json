@@ -1,0 +1,48 @@
+{
+  "entity": "Max",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.22377622377622378,
+  "hotspot_canvas": [
+    15,
+    15
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        67,
+        67
+      ],
+      "bbox": null,
+      "attack": [
+        38,
+        16,
+        44,
+        49,
+        17,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        67,
+        67
+      ],
+      "bbox": null,
+      "attack": [
+        13,
+        48,
+        107,
+        26,
+        17,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    }
+  ]
+}

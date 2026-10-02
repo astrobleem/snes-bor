@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "executable_audit": {
+    "watcom_source_fp3.exe": {
+      "sha256": "fa39f8c051eea888c114b7c55bc59a2c431f456d9e4b793ad58c5924bc5d9701",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_source_fpc.exe": {
+      "sha256": "9e833e0ebb42560a8b406d92a2728d46276d3bff72a1061e1e2c01089a2e2fdb",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_source_fp3od.exe": {
+      "sha256": "21ffd55cb8bdb7e6ef6f5421dd65a095af781006adbf8cf534e0b1d45dfc9972",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_values_fpc.exe": {
+      "sha256": "c2e59de0721b745823c1ea2e53c1ba1535791ee8b334292be6ee08a4d8cedb3a",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_values_od.exe": {
+      "sha256": "4fc111c59c6220bb1d37f3a6449b8db1c10213de1b7ad5441a35420ad5b9131b",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_source_fp3op.exe": {
+      "sha256": "664f7e69799d6010114d4f5fb1edba3b5f339691c9633b445e2eefdb58751c8a",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_values_op.exe": {
+      "sha256": "2cd8e29367356f92a56427e2a731b14ee70b853ff669f1320526bd0bba3d18af",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_values_default.exe": {
+      "sha256": "c661c613ba2f890ecd757bd4783c4cbf9e44187d8fb4135e7f36e5e7910192e9",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_source_fpi87.exe": {
+      "sha256": "55fa3b0f056ffd1659f23a3875912796cdde0c257a687fddfe6dac3f64408c21",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    },
+    "watcom_source_fp2.exe": {
+      "sha256": "fa39f8c051eea888c114b7c55bc59a2c431f456d9e4b793ad58c5924bc5d9701",
+      "pe_signature": 17744,
+      "subsystem": 3,
+      "machine": 332
+    }
+  },
+  "reference": "docs/bor_actor_s6_numeric_preflight.md",
+  "scope": "retained_open_watcom_1_9_nt_probes",
+  "bor_sha256": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+  "audit": [
+    "All ten retained executables have PE signatures and were rerun on Windows; no DOS execution is established.",
+    "DOS fp3/fpc objects establish compilation only. Switch names follow retained filenames and preflight, not recovered historical build commands.",
+    "Casts of +/-1.9 are constant expressions; bor_cast(float) exists in the object probe but is not called by either executable harness.",
+    "Walk initializes speed=0.9 directly; it does not exercise authored speed parsing.",
+    "Inair harness inlines the conditional subtraction; BOR.C calls diff returning float.",
+    "Gravity is an isolated 70-update loop, omitting entity lifecycle, pit and callback behavior.",
+    "randf substitutes a supplied word for rand32; it does not prove RNG integration.",
+    "No unique 2004 binary, DOS startup/control word, unrestricted domain, or canonical arithmetic policy is established."
+  ],
+  "sources": {
+    "watcom_fp_values.c": "#include <stdio.h>\n#include <string.h>\n\nfloat bor_randf(unsigned long, float);\n\nstatic unsigned bits(float value){\n    unsigned result;\n    memcpy(&result, &value, sizeof(result));\n    return result;\n}\n\nint main(void){\n    float x=20.0, speed=0.9, v=1.0, a=240.0, base=0.0;\n    unsigned i;\n    for(i=0;i<70;i++){\n        a += v;\n        if(v > -6) v -= 0.1;\n        if(a <= base) a = base;\n    }\n    for(i=0;i<10;i++) x += speed;\n    printf(\"gravity70 a=%08x v=%08x branch=%u\\n\",bits(a),bits(v),v>-6);\n    printf(\"drift10 x=%08x pixel=%d\\n\",bits(x),(int)x);\n    printf(\"randf(40,r=118)= %08x\\n\",bits(bor_randf(118,40.0)));\n    printf(\"casts +1.9=%d -1.9=%d\\n\",(int)1.9,(int)-1.9);\n    return 0;\n}\n",
+    "watcom_fp_source_cases.c": "/* Bounded probes copied from the pinned BOR.C gameplay expressions. */\n#include <stdio.h>\n#include <string.h>\n\nstatic unsigned bits(float value){\n    unsigned result;\n    memcpy(&result, &value, sizeof(result));\n    return result;\n}\n\nstatic float source_randf(unsigned long r, float max){\n    float f;\n    if(max==0) return 0;\n    f = (r % 1000);\n    f /= (1000/max);\n    return f;\n}\n\nstatic void source_gravity(void){\n    float a=240.0, base=0.0, tossv=1.0;\n    unsigned i;\n    for(i=0;i<70;i++){\n        a += tossv;\n        if(tossv > -6) tossv -= 0.1;\n        if(a <= base) a = base;\n    }\n    printf(\"gravity a=%08x v=%08x branch=%u\\n\", bits(a), bits(tossv), tossv>-6);\n}\n\nstatic void source_anything_walk(void){\n    float x=20.0, speed=0.9, xdir;\n    unsigned i;\n    xdir = speed + source_randf(0, 3.0);\n    for(i=0;i<10;i++) x += xdir;\n    printf(\"anything_walk x=%08x pixel=%d xdir=%08x\\n\", bits(x), (int)x, bits(xdir));\n}\n\nstatic void source_inair(void){\n    float a=1.0, base=0.0;\n    printf(\"inair a=%08x result=%u\\n\", bits(a), (a<base ? base-a : a-base)>=0.1);\n}\n\nint main(void){\n    source_gravity();\n    source_anything_walk();\n    source_inair();\n    printf(\"casts +1.9=%d -1.9=%d\\n\", (int)1.9, (int)-1.9);\n    return 0;\n}\n",
+    "watcom_fp_probe.c": "/* Isolated expressions copied from the pinned BOR gameplay paths. */\nfloat bor_randf(unsigned long r, float max){\n    float f;\n    if(max==0) return 0;\n    f = r % 1000;\n    f /= (1000/max);\n    return f;\n}\n\nfloat bor_gravity(float a, float v, float base){\n    a += v;\n    if(v > -6) v -= 0.1;\n    if(a <= base) a = base;\n    return a + v;\n}\n\nfloat bor_drift(float x, float speed, unsigned long r){\n    return x + speed + (3 * (r % 1000)) / (1000 / speed);\n}\n\nint bor_cast(float value){ return (int)value; }\n\nfloat bor_diff(float a, float b){\n    if(a < b) return b-a;\n    return a-b;\n}\n"
+  },
+  "runs": {
+    "watcom_values_od.exe": [
+      "gravity70 a=42890006 v=c0bffff9 branch=1",
+      "drift10 x=41e7fffe pixel=28",
+      "randf(40,r=118)= 40970a3d",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_values_fpc.exe": [
+      "gravity70 a=42890006 v=c0bffff9 branch=1",
+      "drift10 x=41e7fffe pixel=28",
+      "randf(40,r=118)= 40970a3d",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_values_op.exe": [
+      "gravity70 a=42890006 v=c0bffff9 branch=1",
+      "drift10 x=41e7fffe pixel=28",
+      "randf(40,r=118)= 40970a3d",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fp3.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fp3od.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_values_default.exe": [
+      "gravity70 a=42890006 v=c0bffff9 branch=1",
+      "drift10 x=41e7fffe pixel=28",
+      "randf(40,r=118)= 40970a3d",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fp3op.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fp2.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fpi87.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ],
+    "watcom_source_fpc.exe": [
+      "gravity a=42890006 v=c0bffff9 branch=1",
+      "anything_walk x=41e7fffe pixel=28 xdir=3f666666",
+      "inair a=3f800000 result=1",
+      "casts +1.9=1 -1.9=-1"
+    ]
+  },
+  "vectors": [
+    {
+      "id": "gravity70",
+      "input": {
+        "a_literal": "240.0",
+        "base_literal": "0.0",
+        "tossv_literal": "1.0",
+        "updates": 70
+      },
+      "output": {
+        "a_bits": "42890006",
+        "v_bits": "c0bffff9",
+        "branch": 1
+      },
+      "harness": "watcom_fp_source_cases.c"
+    },
+    {
+      "id": "anything_walk10",
+      "input": {
+        "x_literal": "20.0",
+        "speed_literal": "0.9",
+        "random_word": 0,
+        "max_literal": "3.0",
+        "updates": 10
+      },
+      "output": {
+        "x_bits": "41e7fffe",
+        "pixel": 28,
+        "xdir_bits": "3f666666"
+      },
+      "harness": "watcom_fp_source_cases.c"
+    },
+    {
+      "id": "inair_inline",
+      "input": {
+        "a_literal": "1.0",
+        "base_literal": "0.0"
+      },
+      "output": {
+        "a_bits": "3f800000",
+        "result": 1
+      },
+      "harness": "watcom_fp_source_cases.c"
+    },
+    {
+      "id": "constant_casts",
+      "input": {
+        "positive_literal": "1.9",
+        "negative_literal": "-1.9"
+      },
+      "output": {
+        "positive": 1,
+        "negative": -1
+      },
+      "harness": "watcom_fp_source_cases.c"
+    },
+    {
+      "id": "randf40",
+      "input": {
+        "random_word": 118,
+        "max_literal": "40.0"
+      },
+      "output": {
+        "bits": "40970a3d"
+      },
+      "harness": "watcom_fp_values.c"
+    }
+  ]
+}

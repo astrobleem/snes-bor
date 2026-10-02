@@ -1,0 +1,34 @@
+{
+  "entity": "Max",
+  "anim": "grabattack",
+  "loop": 0,
+  "scale": 0.43243243243243246,
+  "hotspot_canvas": [
+    7,
+    48
+  ],
+  "frames": [
+    {
+      "delay": 35,
+      "offset": [
+        34,
+        125
+      ],
+      "bbox": [
+        30,
+        16,
+        34,
+        123
+      ],
+      "attack": [
+        41,
+        60,
+        31,
+        41,
+        10
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

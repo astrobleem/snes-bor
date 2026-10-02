@@ -1,0 +1,30 @@
+roster selected to JOE (index 2): PASS
+CharSelect_Loaded==1 after reselect: PASS
+JOE attack2: fcount=17 delay=12 (expected frames=17)
+JOE CHAR_ATTACK2_FCOUNT matches its real grab frame count: PASS
+JOE CHAR_ATTACK2_FCOUNT is nonzero (has a real second move): PASS
+attack2_base: actual=82730 expected(rise_base+rise_fc*768)=82730
+CHAR_ATTACK2_BASE matches independent recomputation: PASS
+X press triggers CHAR_SELECTED=2: PASS
+X press sets CHAR_ATTACK_VARIANT=1: PASS
+attack2 frame index never exceeds its real frame count: PASS
+attack2 completes and reverts CHAR_SELECTED to idle (0): PASS
+JOE CHAR_ATTACK_FCOUNT (attack1) unchanged by this slice: PASS
+Y press triggers CHAR_SELECTED=2: PASS
+Y press sets CHAR_ATTACK_VARIANT=0 (attack1, not attack2): PASS
+roster selected to YASHIRO (index 3): PASS
+YASHIRO CHAR_ATTACK2_FCOUNT==0 (real data: no second move): PASS
+X press on YASHIRO never triggers CHAR_SELECTED=2 (no crash, no-op): PASS
+YASHIRO Y press enters attack1 variant 0: PASS
+YASHIRO attack1 presented source: (0, 114346)
+YASHIRO attack1 presents the matching packed MSU frame: PASS
+roster selected to MOUSER (index 4): PASS
+MOUSER attack2: fcount=9 (expected upper=9, backwalk would have been=8)
+MOUSER CHAR_ATTACK2_FCOUNT matches real upper frame count: PASS
+MOUSER attack2 frame count is NOT backwalk's frame count (the real bug this checks for): PASS
+X press triggers MOUSER attack2 (CHAR_SELECTED=2): PASS
+X press sets CHAR_ATTACK_VARIANT=1 for MOUSER: PASS
+MOUSER attack2 frame index never exceeds its real (upper) frame count: PASS
+MOUSER attack2 completes and reverts to idle: PASS
+
+GATE G7-ATTACK2: PASS

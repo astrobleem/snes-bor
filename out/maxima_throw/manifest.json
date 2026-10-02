@@ -1,0 +1,100 @@
+{
+  "entity": "Max",
+  "anim": "throw",
+  "loop": 0,
+  "scale": 0.24242424242424243,
+  "hotspot_canvas": [
+    20,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame06.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        82,
+        115
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame07.bin"
+    }
+  ]
+}

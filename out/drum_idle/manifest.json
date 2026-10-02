@@ -1,0 +1,28 @@
+{
+  "entity": "Drum",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 0.7164179104477612,
+  "hotspot_canvas": [
+    16,
+    45
+  ],
+  "frames": [
+    {
+      "delay": 100,
+      "offset": [
+        22,
+        63
+      ],
+      "bbox": [
+        0,
+        -25,
+        43,
+        92
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

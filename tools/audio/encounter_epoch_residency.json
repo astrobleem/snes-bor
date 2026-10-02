@@ -1,0 +1,791 @@
+{
+  "boundary_policy": "WAIT only; GROUP is not a boundary",
+  "epochs": [
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "carry_over_roster_indices": [
+        2,
+        8
+      ],
+      "classification": "fail",
+      "common_data_bytes": 179721,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (179721 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 0,
+      "group_records_not_boundaries": [],
+      "margin": -118893,
+      "player": "out/leo",
+      "queue_end": 2,
+      "queue_start": 0,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT",
+      "users": [
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 2,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 3,
+          "queue_start": 3,
+          "stage": "tmnt:DATA\\LEVELS\\BEBOP.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        2
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 179721,
+      "whole_stage_context_id": "2e0d0946fc19acd4ecb3bcff62f1422f974645445db0489ee1b3f8343c2f2576",
+      "whole_stage_margin": -118893
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "carry_over_roster_indices": [
+        1,
+        6
+      ],
+      "classification": "fail",
+      "common_data_bytes": 178911,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (178911 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 0,
+      "group_records_not_boundaries": [],
+      "margin": -118083,
+      "player": "out/leo",
+      "queue_end": 2,
+      "queue_start": 0,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT",
+      "users": [
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 2,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 3,
+          "queue_start": 3,
+          "stage": "tmnt:DATA\\LEVELS\\ROCK.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        2
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 178911,
+      "whole_stage_context_id": "ea4cc5151b9f3fd9e113793cbdf04ffb57a2c81b12e691f6aead5aa41bdfd553",
+      "whole_stage_margin": -118083
+    },
+    {
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "carry_over_roster_indices": [
+        7
+      ],
+      "classification": "fail",
+      "common_data_bytes": 133948,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (133948 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 0,
+      "group_records_not_boundaries": [],
+      "margin": -73120,
+      "player": "out/leo",
+      "queue_end": 1,
+      "queue_start": 0,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT",
+      "users": [
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 1,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 2,
+          "queue_start": 2,
+          "stage": "tmnt:DATA\\LEVELS\\LEATHER.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        1
+      ],
+      "whole_stage_assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 133948,
+      "whole_stage_context_id": "fc3906f65e9a64cc00eee23090d53b48732c16095924925d5f8b355eb6efa5fb",
+      "whole_stage_margin": -73120
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "carry_over_roster_indices": [
+        1,
+        2,
+        3
+      ],
+      "classification": "fail",
+      "common_data_bytes": 135756,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (135756 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 0,
+      "group_records_not_boundaries": [],
+      "margin": -74928,
+      "player": "out/leo",
+      "queue_end": 26,
+      "queue_start": 0,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT",
+      "users": [
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 26,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 43,
+          "queue_start": 27,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+        },
+        {
+          "epoch": 2,
+          "player": "out/leo",
+          "queue_end": 62,
+          "queue_start": 44,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+        },
+        {
+          "epoch": 3,
+          "player": "out/leo",
+          "queue_end": 63,
+          "queue_start": 63,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER0.TXT"
+        },
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 14,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 19,
+          "queue_start": 15,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 2,
+          "player": "out/leo",
+          "queue_end": 25,
+          "queue_start": 20,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 3,
+          "player": "out/leo",
+          "queue_end": 31,
+          "queue_start": 26,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 4,
+          "player": "out/leo",
+          "queue_end": 36,
+          "queue_start": 32,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 5,
+          "player": "out/leo",
+          "queue_end": 43,
+          "queue_start": 37,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 6,
+          "player": "out/leo",
+          "queue_end": 50,
+          "queue_start": 44,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 7,
+          "player": "out/leo",
+          "queue_end": 57,
+          "queue_start": 51,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        },
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 9,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 14,
+          "queue_start": 10,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 2,
+          "player": "out/leo",
+          "queue_end": 19,
+          "queue_start": 15,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 3,
+          "player": "out/leo",
+          "queue_end": 26,
+          "queue_start": 20,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 4,
+          "player": "out/leo",
+          "queue_end": 32,
+          "queue_start": 27,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 5,
+          "player": "out/leo",
+          "queue_end": 37,
+          "queue_start": 33,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 6,
+          "player": "out/leo",
+          "queue_end": 42,
+          "queue_start": 38,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 7,
+          "player": "out/leo",
+          "queue_end": 49,
+          "queue_start": 43,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 8,
+          "player": "out/leo",
+          "queue_end": 55,
+          "queue_start": 50,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 9,
+          "player": "out/leo",
+          "queue_end": 61,
+          "queue_start": 56,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 10,
+          "player": "out/leo",
+          "queue_end": 69,
+          "queue_start": 62,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 11,
+          "player": "out/leo",
+          "queue_end": 74,
+          "queue_start": 70,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 12,
+          "player": "out/leo",
+          "queue_end": 81,
+          "queue_start": 75,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        },
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 6,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 1,
+          "player": "out/leo",
+          "queue_end": 15,
+          "queue_start": 7,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 2,
+          "player": "out/leo",
+          "queue_end": 19,
+          "queue_start": 16,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 3,
+          "player": "out/leo",
+          "queue_end": 26,
+          "queue_start": 20,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 4,
+          "player": "out/leo",
+          "queue_end": 30,
+          "queue_start": 27,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 5,
+          "player": "out/leo",
+          "queue_end": 35,
+          "queue_start": 31,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 6,
+          "player": "out/leo",
+          "queue_end": 40,
+          "queue_start": 36,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 7,
+          "player": "out/leo",
+          "queue_end": 45,
+          "queue_start": 41,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        },
+        {
+          "epoch": 8,
+          "player": "out/leo",
+          "queue_end": 46,
+          "queue_start": 46,
+          "stage": "tmnt:DATA\\LEVELS\\SEWER.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        26,
+        43,
+        62
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 135756,
+      "whole_stage_context_id": "a23aec5f0da6a238cb42e9e78780b38b20c40782f4a924d54ac5668fa4292faa",
+      "whole_stage_margin": -74928
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "carry_over_roster_indices": [
+        1,
+        2,
+        3,
+        6
+      ],
+      "classification": "fail",
+      "common_data_bytes": 183131,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (183131 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 8,
+      "group_records_not_boundaries": [],
+      "margin": -122303,
+      "player": "out/leo",
+      "queue_end": 67,
+      "queue_start": 58,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT",
+      "users": [
+        {
+          "epoch": 8,
+          "player": "out/leo",
+          "queue_end": 67,
+          "queue_start": 58,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        14,
+        19,
+        25,
+        31,
+        36,
+        43,
+        50,
+        57
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 183131,
+      "whole_stage_context_id": "2dd0cdfe38a5503a19bf7c7c844f1182e4d05241aa6aa05aadb6877b3e0f0c6f",
+      "whole_stage_margin": -122303
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "carry_over_roster_indices": [
+        1,
+        2,
+        3,
+        8
+      ],
+      "classification": "fail",
+      "common_data_bytes": 185957,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (185957 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 13,
+      "group_records_not_boundaries": [],
+      "margin": -125129,
+      "player": "out/leo",
+      "queue_end": 86,
+      "queue_start": 82,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT",
+      "users": [
+        {
+          "epoch": 13,
+          "player": "out/leo",
+          "queue_end": 86,
+          "queue_start": 82,
+          "stage": "tmnt:DATA\\LEVELS\\STREETS2.TXT"
+        }
+      ],
+      "wait_boundaries": [
+        9,
+        14,
+        19,
+        26,
+        32,
+        37,
+        42,
+        49,
+        55,
+        61,
+        69,
+        74,
+        81
+      ],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ],
+      "whole_stage_common_data_bytes": 185957,
+      "whole_stage_context_id": "2b53cca7113318a668eca34ab0bd534aaa16a34e60418a60b439eec7658a9228",
+      "whole_stage_margin": -125129
+    },
+    {
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "carry_over_roster_indices": [
+        1
+      ],
+      "classification": "fail",
+      "common_data_bytes": 131536,
+      "common_data_sha256": null,
+      "compile_error": "Cannot compile common audio data: common audio data is too large (131536 bytes, max: 60828)",
+      "effect_count": null,
+      "epoch": 0,
+      "group_records_not_boundaries": [],
+      "margin": -70708,
+      "player": "out/leo",
+      "queue_end": 1,
+      "queue_start": 0,
+      "sample_count": null,
+      "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT",
+      "users": [
+        {
+          "epoch": 0,
+          "player": "out/leo",
+          "queue_end": 1,
+          "queue_start": 0,
+          "stage": "tmnt:DATA\\LEVELS\\FOOT.TXT"
+        }
+      ],
+      "wait_boundaries": [],
+      "whole_stage_assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+        "tmnt:DATA\\SOUNDS\\1UP.WAV",
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV",
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV",
+        "tmnt:DATA\\SOUNDS\\DASH.WAV",
+        "tmnt:DATA\\SOUNDS\\FALL.WAV",
+        "tmnt:DATA\\SOUNDS\\GET.WAV",
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV",
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV",
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV",
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV",
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+        "tmnt:DATA\\SOUNDS\\THROW.WAV",
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ],
+      "whole_stage_common_data_bytes": 131536,
+      "whole_stage_context_id": "84443c2a28ef38353eea145f0b6acd02a3b8c67d33e91e7f6d752d38090e797c",
+      "whole_stage_margin": -70708
+    }
+  ],
+  "manifest_hash": "0e4ee17e1e392ca42a4cbb26cfad1df5d6a1a2989e35cce2a7bf855d2baff0b2",
+  "nominal_epoch_context_count": 43,
+  "policy": "baseline-policy capacity; not final shipping policy",
+  "schema_version": 2,
+  "scope": "canonical source-normal player/stage contexts only; bonus runtime roster excluded",
+  "unique_logical_union_count": 7
+}

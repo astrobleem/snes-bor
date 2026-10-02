@@ -1,0 +1,168 @@
+{
+  "_about": {
+    "file_type": "Terrific Audio Driver project file",
+    "version": "0.3.0"
+  },
+  "instruments": [],
+  "samples": [
+    {
+      "name": "beat1",
+      "source": "samples/beat1.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "jump",
+      "source": "samples/jump.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "fall",
+      "source": "samples/fall.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "get",
+      "source": "samples/get.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "money",
+      "source": "samples/money.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "punch",
+      "source": "samples/punch.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "oneup",
+      "source": "samples/oneup.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "beep",
+      "source": "samples/beep.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "beep2",
+      "source": "samples/beep2.wav",
+      "sample_rates": [
+        22050
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "spin",
+      "source": "samples/spin.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "dash",
+      "source": "samples/dash.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    },
+    {
+      "name": "metal",
+      "source": "samples/metal.wav",
+      "sample_rates": [
+        11025
+      ],
+      "loop": "none",
+      "evaluator": "default",
+      "ignore_gaussian_overflow": false,
+      "envelope": "gain F127"
+    }
+  ],
+  "default_sfx_flags": {
+    "one_channel": true,
+    "interruptible": true
+  },
+  "high_priority_sound_effects": [],
+  "sound_effects": [
+    "sfx_hit",
+    "sfx_fall",
+    "sfx_jump",
+    "sfx_get",
+    "sfx_money",
+    "sfx_punch",
+    "sfx_oneup",
+    "sfx_beep",
+    "sfx_beep2",
+    "sfx_spin",
+    "sfx_dash",
+    "sfx_metal"
+  ],
+  "low_priority_sound_effects": [],
+  "sound_effect_file": "sound-effects.txt",
+  "songs": [
+    {
+      "name": "blank_sfx_only",
+      "source": "mml/00_blank.mml"
+    }
+  ]
+}

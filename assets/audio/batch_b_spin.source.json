@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\SPIN.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139",
+  "raw_bytes": 1863,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 11025,
+  "raw_frames": 1127,
+  "canonical_path": "assets/audio/batch_b/canonical/spin.wav",
+  "canonical_sha256": "e94abcd89a43e535689641901b9b5990cf19c74aea231baf33482c01d9b3d0fa",
+  "canonical_frames": 1136,
+  "canonical_rate_hz": 11025,
+  "duration_seconds": 0.10303854875283447,
+  "duration_ticks": 13,
+  "brr_bytes": 639,
+  "brr_blocks": 71,
+  "brr_sha256": "c60be48fa63d45b6680a292b97b081336a4b29b9d83106c045b35f3561d266fe",
+  "single_effect_common_bytes": 686,
+  "backend": "resident_tad_sfx",
+  "project_sample_path": "soundwork/tad/project/samples/spin.wav"
+}

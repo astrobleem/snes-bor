@@ -1,0 +1,23 @@
+{
+  "entity": "LEO",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.25396825396825395,
+  "hotspot_canvas": [
+    17,
+    27
+  ],
+  "frames": [
+    {
+      "delay": 25,
+      "offset": [
+        70,
+        195
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

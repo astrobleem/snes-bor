@@ -1,0 +1,45 @@
+{
+  "entity": "Ralf",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.2689075630252101,
+  "hotspot_canvas": [
+    16,
+    20
+  ],
+  "frames": [
+    {
+      "delay": 15,
+      "offset": [
+        65,
+        80
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        75,
+        80
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": 10,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        85,
+        80
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": 10,
+      "bin": "frame02.bin"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+=== sfx_hit ===
+    set_instrument beat1
+    play_note 0 48
+=== sfx_fall ===
+    set_instrument fall
+    play_note 0 65
+=== sfx_jump ===
+    set_instrument jump
+    play_note 0 68
+=== sfx_get ===
+    set_instrument get
+    play_note 0 41
+=== sfx_money ===
+    set_instrument money
+    play_note 0 112
+=== sfx_punch ===
+    set_instrument punch
+    play_note 0 23
+=== sfx_oneup ===
+    set_instrument oneup
+    play_note 0 201
+=== sfx_beep ===
+    set_instrument beep
+    play_note 0 20
+=== sfx_beep2 ===
+    set_instrument beep2
+    play_note 0 26
+=== sfx_spin ===
+    set_instrument spin
+    play_note 0 13
+=== sfx_dash ===
+    set_instrument dash
+    play_note 0 44
+=== sfx_metal ===
+    set_instrument metal
+    play_note 0 56

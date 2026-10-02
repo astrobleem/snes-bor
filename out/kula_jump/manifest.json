@@ -1,0 +1,108 @@
+{
+  "entity": "Kula",
+  "anim": "jump",
+  "loop": 0,
+  "scale": 0.32989690721649484,
+  "hotspot_canvas": [
+    16,
+    37
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        40,
+        42,
+        17,
+        73
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        44,
+        27,
+        14,
+        93
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        38,
+        29,
+        11,
+        62
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        36,
+        27,
+        28,
+        45
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        41,
+        30,
+        18,
+        52
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 1000,
+      "offset": [
+        50,
+        113
+      ],
+      "bbox": [
+        41,
+        26,
+        21,
+        54
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

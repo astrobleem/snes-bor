@@ -1,0 +1,108 @@
+{
+  "entity": "Gold",
+  "anim": "idle",
+  "loop": 1,
+  "scale": 1.8823529411764706,
+  "hotspot_canvas": [
+    17,
+    24
+  ],
+  "frames": [
+    {
+      "delay": 200,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 15,
+      "offset": [
+        9,
+        13
+      ],
+      "bbox": [
+        0,
+        0,
+        17,
+        13
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

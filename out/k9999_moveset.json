@@ -1,0 +1,101 @@
+{
+  "entity": "K9999",
+  "prefix": "out/k9999",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/k9999_idle",
+      "frames": 10
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/k9999_walk",
+      "frames": 14
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/k9999_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/k9999_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/k9999_rise",
+      "frames": 4
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/k9999_attack1",
+      "frames": 12
+    },
+    {
+      "ordinal": 6,
+      "name": "special",
+      "dir": "out/k9999_special",
+      "frames": 25
+    },
+    {
+      "ordinal": 7,
+      "name": "upper",
+      "dir": "out/k9999_upper",
+      "frames": 17
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": 6,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 7,
+    "upper": 7,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31775,
+      31775,
+      31775,
+      8258,
+      8635,
+      31775,
+      2057,
+      0,
+      31775,
+      4248,
+      31775,
+      2057,
+      2057,
+      31775,
+      31775
+    ]
+  ]
+}

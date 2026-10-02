@@ -1,0 +1,23 @@
+APPLE: killed=True hp 10->29 (expect +19)
+attack lands and kills the prop (CHAR_HP reaches 0): PASS
+APPLE pickup heals the player by exactly PICKUP_HEAL_APPLE (19): PASS
+CHAR_PICKUP_TYPE cleared to 0 after consuming the effect: PASS
+MEAT: killed=True hp 10->64 (expect min(CHAR_HP_MAX, +64))
+MEAT pickup heals the player by PICKUP_HEAL_MEAT (64), clamped at CHAR_HP_MAX: PASS
+MEAT (near-full start): killed=True hp 59->64
+MEAT pickup clamps at CHAR_HP_MAX (never overflows past the HUD bar's own max): PASS
+MONEY: killed=True score 0->1000 (expect +1000, touch-collected, no attack landed -- see comment above)
+MONEY pickup adds PICKUP_SCORE_MONEY (1000) to Game_Score via real touch-collect (no combat-kill hit landed since the item was already gone): PASS
+out/spawn_stage1b/spawn_table.bin real PICKUP_TYPE_GOLD records: [(27, 20, 17)]
+stage 1B's real packed spawn data contains a genuine PICKUP_TYPE_GOLD record (a real Table-wraps-Gold spawn, not just a synthetic test scenario): PASS
+GOLD: killed=True score 1000->6000 (expect +5000, touch-collected)
+GOLD pickup adds PICKUP_SCORE_GOLD (5000, distinct from MONEY's 1000) to Game_Score via real touch-collect: PASS
+1UP: killed=True lives 21->22
+1up pickup adds exactly 1 life (real OpenBOR name=="1up" special case): PASS
+no-pickup prop regression: killed=True player_hp 40->40 score 6000->6100 lives 22->22
+regression: killing the prop: PASS
+regression: a pickup_type==0 prop kill leaves the player's own CHAR_HP unchanged (no accidental self-heal): PASS
+regression: a pickup_type==0 prop kill still awards the ordinary combat-kill score (unchanged pre-slice behavior), and nothing more: PASS
+regression: a pickup_type==0 prop kill leaves Game_Lives unchanged (no accidental extra life): PASS
+
+GATE G8-PICKUP: PASS

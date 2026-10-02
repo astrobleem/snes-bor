@@ -1,0 +1,184 @@
+{
+  "entity": "LEO",
+  "prefix": "out/leo",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "waiting",
+      "dir": "out/leo_waiting",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "idle",
+      "dir": "out/leo_idle",
+      "frames": 20
+    },
+    {
+      "ordinal": 2,
+      "name": "slide",
+      "dir": "out/leo_slide",
+      "frames": 1
+    },
+    {
+      "ordinal": 3,
+      "name": "walk",
+      "dir": "out/leo_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 4,
+      "name": "get",
+      "dir": "out/leo_get",
+      "frames": 1
+    },
+    {
+      "ordinal": 5,
+      "name": "jump",
+      "dir": "out/leo_jump",
+      "frames": 22
+    },
+    {
+      "ordinal": 6,
+      "name": "jumpattack",
+      "dir": "out/leo_jumpattack",
+      "frames": 2
+    },
+    {
+      "ordinal": 7,
+      "name": "jumpattack2",
+      "dir": "out/leo_jumpattack2",
+      "frames": 9
+    },
+    {
+      "ordinal": 8,
+      "name": "attack1",
+      "dir": "out/leo_attack1",
+      "frames": 6
+    },
+    {
+      "ordinal": 9,
+      "name": "attack2",
+      "dir": "out/leo_attack2",
+      "frames": 6
+    },
+    {
+      "ordinal": 10,
+      "name": "attack3",
+      "dir": "out/leo_attack3",
+      "frames": 5
+    },
+    {
+      "ordinal": 11,
+      "name": "attack4",
+      "dir": "out/leo_attack4",
+      "frames": 5
+    },
+    {
+      "ordinal": 12,
+      "name": "grab",
+      "dir": "out/leo_grab",
+      "frames": 1
+    },
+    {
+      "ordinal": 13,
+      "name": "throw",
+      "dir": "out/leo_throw",
+      "frames": 2
+    },
+    {
+      "ordinal": 14,
+      "name": "pain",
+      "dir": "out/leo_pain",
+      "frames": 1
+    },
+    {
+      "ordinal": 15,
+      "name": "fall",
+      "dir": "out/leo_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 16,
+      "name": "rise",
+      "dir": "out/leo_rise",
+      "frames": 1
+    },
+    {
+      "ordinal": 17,
+      "name": "special",
+      "dir": "out/leo_special",
+      "frames": 6
+    },
+    {
+      "ordinal": 18,
+      "name": "freespecial",
+      "dir": "out/leo_freespecial",
+      "frames": 5
+    },
+    {
+      "ordinal": 19,
+      "name": "grabattack",
+      "dir": "out/leo_grabattack",
+      "frames": 3
+    },
+    {
+      "ordinal": 20,
+      "name": "land",
+      "dir": "out/leo_land",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 1,
+    "walk": 3,
+    "pain": 14,
+    "fall": 15,
+    "rise": 16,
+    "backwalk": null,
+    "jump": 5,
+    "jumpattack": 6,
+    "jumpattack2": 7,
+    "special": 17,
+    "waiting": 0,
+    "get": 4,
+    "attack": 8,
+    "attack3": 10,
+    "attack4": 11,
+    "slide": 2,
+    "riseattack": null,
+    "grabattack": 19,
+    "freespecial": 18,
+    "attack2": 9,
+    "attack2_is_grab": false,
+    "grab": 12
+  },
+  "atchain": [
+    1,
+    2,
+    3,
+    1,
+    2,
+    4
+  ],
+  "remap_palettes": [
+    [
+      0,
+      31743,
+      13151,
+      23318,
+      7834,
+      26354,
+      18960,
+      4647,
+      9481,
+      367,
+      2403,
+      6408,
+      24841,
+      2248,
+      12416,
+      0
+    ]
+  ]
+}

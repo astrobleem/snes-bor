@@ -1,0 +1,67 @@
+{
+  "entity": "Joe",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.29906542056074764,
+  "hotspot_canvas": [
+    18,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        62,
+        97
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        62,
+        97
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        62,
+        97
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        62,
+        97
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        62,
+        97
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

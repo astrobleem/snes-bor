@@ -1,0 +1,28 @@
+{
+  "entity": "Apple",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 2.0,
+  "hotspot_canvas": [
+    16,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        8,
+        14
+      ],
+      "bbox": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

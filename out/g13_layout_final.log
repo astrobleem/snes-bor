@@ -1,0 +1,80 @@
+3440 symbols loaded from src/main.sym
+
+.org 0x8000  (8 labels, 0 drifted)
+
+.org 0x8800  (73 labels, 0 drifted)
+
+.org 0x8c60  (21 labels, 0 drifted)
+
+.org 0x9000  (286 labels, 0 drifted)
+
+.org 0xb001  (10 labels, 0 drifted)
+
+.org 0xac00  (2 labels, 0 drifted)
+
+.org 0xb000  (1 labels, 0 drifted)
+
+.org 0xc100  (700 labels, 0 drifted)
+
+.org 0xb100  (1 labels, 0 drifted)
+
+.org 0xfc00  (15 labels, 0 drifted)
+
+.org 0xffa0  (2 labels, 0 drifted)
+
+.org 0xffb0  (2 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (271 labels, 0 drifted)
+
+.org 0x8000  (2 labels, 0 drifted)
+
+.org 0x8000  (38 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (1 labels, 0 drifted)
+
+.org 0x8000  (92 labels, 0 drifted)
+
+.org 0x8000  (27 labels, 0 drifted)
+
+.org 0x8000  (12 labels, 0 drifted)
+
+.org 0x8000  (52 labels, 0 drifted)
+
+.org 0x8000  (67 labels, 0 drifted)
+
+.org 0x8000  (156 labels, 0 drifted)
+
+.org 0x8000  (10 labels, 0 drifted)
+
+.org 0x8000  (42 labels, 0 drifted)
+
+SUMMARY: 1905 labels checked, 0 drifted from main.sym, 0 referenced elsewhere (live bugs), 0 unreferenced (benign).
+No drifted-and-referenced labels found under the M1/M2/M3 model (see docstring for what this does and does not cover).

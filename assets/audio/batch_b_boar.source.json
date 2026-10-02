@@ -1,0 +1,23 @@
+{
+  "asset": "tmnt:DATA\\SOUNDS\\BOAR.WAV",
+  "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "source_pak_sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182",
+  "raw_sha256": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d",
+  "raw_bytes": 17768,
+  "raw_channels": 1,
+  "raw_sample_width_bytes": 1,
+  "raw_sample_rate_hz": 22050,
+  "raw_frames": 17639,
+  "canonical_path": "assets/audio/batch_b/canonical/boar.wav",
+  "canonical_sha256": "0d5688a1128bf8f012aef0b76d4337266675d18c33f3d2957655c8031fff7eab",
+  "canonical_frames": 17648,
+  "canonical_rate_hz": 22050,
+  "duration_seconds": 0.8003628117913832,
+  "duration_ticks": 101,
+  "brr_bytes": 9927,
+  "brr_blocks": 1103,
+  "brr_sha256": "bba75f07ca3f9a7ef76be4552ea87fe7d695f10eab6589bf687fa3f2b2165c6b",
+  "single_effect_common_bytes": 9974,
+  "backend": "stream_voice0",
+  "stream_brr_path": "assets/audio/batch_b/boar.brr"
+}

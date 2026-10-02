@@ -1,0 +1,102 @@
+{
+  "entity": "Rugal",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.2191780821917808,
+  "hotspot_canvas": [
+    15,
+    17
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        79
+      ],
+      "bbox": null,
+      "attack": [
+        50,
+        36,
+        23,
+        32,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        79
+      ],
+      "bbox": null,
+      "attack": [
+        27,
+        59,
+        45,
+        11,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        79
+      ],
+      "bbox": null,
+      "attack": [
+        21,
+        60,
+        65,
+        10,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        79
+      ],
+      "bbox": null,
+      "attack": [
+        21,
+        60,
+        65,
+        10,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        69,
+        79
+      ],
+      "bbox": null,
+      "attack": [
+        21,
+        60,
+        65,
+        10,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

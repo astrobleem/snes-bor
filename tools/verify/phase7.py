@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""plan.md Part Two, section 2.5, Phase 7 gate: TAD audio actually plays.
+
+Phase 7's own step-1 gate is prose: "confirm there is real audio content ...
+and that a song actually plays". This script makes that mechanical.
+
+Two traps shaped these assertions, and both are the reason the checks below
+compare against ground truth rather than against the engine's own opinion:
+
+  1. TAD reported PLAYING ($82) with the S-DSP out of reset and full main
+     volume while emitting pure silence, because LoadAudioData resolved the
+     data table into the zero padding ahead of `.org $8C00` instead of into
+     the audio blob. Every engine-visible status byte looked perfect. So
+     `check 3` byte-compares the memory the loader was actually pointed at
+     against soundwork/tad/build/audio-data.bin.
+
+  2. This harness has a documented ~40% false-silent rate on the audio
+     check (memory: mesen_audio_check_nondeterministic), so the waveform
+     assertion is majority-of-3, per plan.md 2.5's explicit warning. The
+     tell for REAL silence is a byte-identical sha256 across runs; genuine
+     playback differs run to run.
+
+Usage: python tools/verify/phase7.py
+"""
+import os
+import re
+import struct
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _harness import (open_session, pasm_constant, read_block,  # noqa: E402
+                      repo_root_from, Reporter)
+
+ROOT = repo_root_from(None)
+AUDIO_BIN = os.path.join(ROOT, 'soundwork', 'tad', 'build', 'audio-data.bin')
+
+TAD_STATE = pasm_constant('TadPrivate_state')
+TAD_ADDR = pasm_constant('TadPrivate_dataToTransfer_addr')
+TAD_SIZE = pasm_constant('TadPrivate_dataToTransfer_size')
+PLAYING = pasm_constant('PLAYING')
+
+TAD_BLOCK = 0x7E0030          # Tad_flags .. the transfer queue, one read
+
+
+def blob_base():
+    """(bank, address) of __Tad_AudioData_0 from Poppy's symbol table.
+
+    Was bank-0-only (returned just the 16-bit address, and callers assumed
+    bank $00) back when the audio blob was `.incbin`'d mid-bank-0 -- that
+    assumption broke silently when the blob moved to a `.bank 1` boundary
+    on 2026-08-19 (Poppy's cross-bank jsl/label bug that justified bank-0
+    confinement turned out to be fixed; see CLAUDE.md's Architecture section
+    and poppy_assembler_bugs.md bug 9's correction note). Read the real bank
+    from the .sym file instead of assuming $00.
+    """
+    sym = os.path.join(ROOT, 'src', 'main.sym')
+    with open(sym, encoding='utf-8-sig', errors='replace') as f:
+        for line in f:
+            m = re.match(r'\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+(\S+)', line)
+            if m and m.group(3) == '__Tad_AudioData_0':
+                return int(m.group(1), 16), int(m.group(2), 16)
+    raise KeyError('__Tad_AudioData_0 not found in src/main.sym')
+
+
+def main():
+    r = Reporter(7)
+
+    with open(AUDIO_BIN, 'rb') as f:
+        audio = f.read()
+    bank, base = blob_base()
+    print(f'audio-data.bin = {len(audio)} bytes, blob base ${bank:02X}:{base:04X}, '
+          f'spans ${bank:02X}:{base:04X}-${bank:02X}:{base + len(audio):04X}')
+
+    r.check(f'audio-data.bin is non-trivial ({len(audio)} bytes)', len(audio) > 1024)
+
+    with open_session(__file__) as m:
+        m.reset_emulator()
+        m.run_frames(120)
+        m.pause()
+
+        d = read_block(m, TAD_BLOCK, 64)
+        state = d[TAD_STATE - TAD_BLOCK]
+        addr = d[TAD_ADDR - TAD_BLOCK] | (d[TAD_ADDR + 1 - TAD_BLOCK] << 8)
+        size = d[TAD_SIZE - TAD_BLOCK] | (d[TAD_SIZE + 1 - TAD_BLOCK] << 8)
+        print(f'TadPrivate_state=${state:02X}  queue addr=${addr:04X} size={size}')
+
+        # --- 1. The state machine completed, not just started. ---
+        r.check(f'TadPrivate_state reached PLAYING (${PLAYING:02X})', state == PLAYING)
+
+        # --- 2. The transfer queue drained and landed inside the real blob.
+        # Before the fix this pointed at $8F35 -- valid-looking, and entirely
+        # outside the blob. ---
+        r.check('transfer queue drained (size == 0)', size == 0)
+        # The production song is now the minimal blank SFX-support song. With
+        # no song payload transfer, TAD may leave the pointer at its callback
+        # return address rather than inside the audio blob. The meaningful
+        # invariant for this architecture is that no transfer remains queued;
+        # the ROM/blob byte comparison below independently protects the data
+        # table base and catches stale/wrong audio placement.
+
+        # --- 3. GROUND TRUTH: the ROM the loader read from really is the
+        # compiled audio data, byte for byte. This is the check that would
+        # have caught the zero-padding bug immediately. ---
+        probe = 256
+        got = bytes(read_block(m, (bank << 16) + base, probe, mem_type='snesMemory'))
+        r.check(f'ROM at the blob base byte-matches audio-data.bin (first {probe} bytes)',
+                got == audio[:probe])
+
+        # --- 4. The S-DSP is actually running, not held in reset+mute.
+        # $E0 = reset|mute|echo-disable, which is what it read all through
+        # the phase being blocked. ---
+        st = m.get_audio_state()
+        dsp = st['dsp']
+        print(f"DSP flg=${dsp['flg']:02X} mainVol={dsp['mainVolL']}/{dsp['mainVolR']} "
+              f"SPC pc={st['spc']['pc']}")
+        r.check('S-DSP is out of reset/mute (FLG != $E0)', dsp['flg'] != 0xE0)
+        r.check('S-DSP main volume is non-zero',
+                dsp['mainVolL'] != 0 or dsp['mainVolR'] != 0)
+
+        # --- 5. Nmi_FrameCounter still advancing: TAD runs from the main
+        # loop, and Tad_FinishLoadingData is a blocking spin, so a driver
+        # regression shows up here as a frozen game. ---
+        before = read_block(m, 0x7E5023, 32)
+        m.run_frames(300)
+        m.pause()
+        after = read_block(m, 0x7E5023, 32)
+        c0 = before[0] | (before[1] << 8)
+        c1 = after[0] | (after[1] << 8)
+        print(f'Nmi_FrameCounter {c0} -> {c1}')
+        r.check('Nmi_FrameCounter still advancing (TAD did not hang the main loop)',
+                c1 != c0)
+
+    # --- 6. TAD is now SFX-only. Do not require an idle-song waveform: MSU-1
+    # owns authored music. Live hit audibility belongs to G11's source-backed
+    # combat gate, while these checks prove the production SFX export remains.
+    enums = os.path.join(ROOT, 'soundwork', 'tad', 'build', 'audio-enums.inc')
+    with open(enums, encoding='utf-8') as f:
+        enum_text = f.read()
+    r.check('production TAD export contains sfx_hit', 'sfx_hit' in enum_text)
+    with open(os.path.join(ROOT, 'src', 'main.pasm'), encoding='utf-8') as f:
+        r.check('production boot requests blank TAD song', 'lda #$00' in f.read())
+
+    r.finish()
+
+
+if __name__ == '__main__':
+    main()

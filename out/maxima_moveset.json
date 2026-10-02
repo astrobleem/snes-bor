@@ -1,0 +1,159 @@
+{
+  "entity": "Max",
+  "prefix": "out/maxima",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/maxima_idle",
+      "frames": 10
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/maxima_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "get",
+      "dir": "out/maxima_get",
+      "frames": 7
+    },
+    {
+      "ordinal": 3,
+      "name": "jump",
+      "dir": "out/maxima_jump",
+      "frames": 7
+    },
+    {
+      "ordinal": 4,
+      "name": "jumpattack",
+      "dir": "out/maxima_jumpattack",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "jumpattack2",
+      "dir": "out/maxima_jumpattack2",
+      "frames": 4
+    },
+    {
+      "ordinal": 6,
+      "name": "attack1",
+      "dir": "out/maxima_attack1",
+      "frames": 5
+    },
+    {
+      "ordinal": 7,
+      "name": "attack2",
+      "dir": "out/maxima_attack2",
+      "frames": 7
+    },
+    {
+      "ordinal": 8,
+      "name": "attack3",
+      "dir": "out/maxima_attack3",
+      "frames": 12
+    },
+    {
+      "ordinal": 9,
+      "name": "grab",
+      "dir": "out/maxima_grab",
+      "frames": 1
+    },
+    {
+      "ordinal": 10,
+      "name": "throw",
+      "dir": "out/maxima_throw",
+      "frames": 8
+    },
+    {
+      "ordinal": 11,
+      "name": "pain",
+      "dir": "out/maxima_pain",
+      "frames": 5
+    },
+    {
+      "ordinal": 12,
+      "name": "fall",
+      "dir": "out/maxima_fall",
+      "frames": 2
+    },
+    {
+      "ordinal": 13,
+      "name": "rise",
+      "dir": "out/maxima_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 14,
+      "name": "special",
+      "dir": "out/maxima_special",
+      "frames": 8
+    },
+    {
+      "ordinal": 15,
+      "name": "freespecial",
+      "dir": "out/maxima_freespecial",
+      "frames": 26
+    },
+    {
+      "ordinal": 16,
+      "name": "grabattack",
+      "dir": "out/maxima_grabattack",
+      "frames": 1
+    },
+    {
+      "ordinal": 17,
+      "name": "land",
+      "dir": "out/maxima_land",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 11,
+    "fall": 12,
+    "rise": 13,
+    "backwalk": null,
+    "jump": 3,
+    "jumpattack": 4,
+    "jumpattack2": 5,
+    "special": 14,
+    "waiting": null,
+    "get": 2,
+    "attack": 6,
+    "attack3": 8,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": 16,
+    "freespecial": 15,
+    "attack2": 7,
+    "attack2_is_grab": false,
+    "grab": 9
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31775,
+      13806,
+      31775,
+      31775,
+      31775,
+      29662,
+      9512,
+      11557,
+      31775,
+      31775,
+      31775,
+      1188,
+      0,
+      31775,
+      0
+    ]
+  ]
+}

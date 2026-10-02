@@ -1,0 +1,2708 @@
+[
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "ralf",
+    "source": "out/ralf_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 6,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "jhun",
+    "source": "out/jhun_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "jumpattack",
+    "ordinal": 6,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y button mid-air (Player_JumpAnimMode=1), reuses JUMP state",
+    "owning_gates": [
+      "game_g7_jump.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 10,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 7,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 11,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "joe",
+    "source": "out/joe_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "grab",
+    "ordinal": 6,
+    "frames": 17,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 16,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "yashiro",
+    "source": "out/yashiro_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "backwalk",
+    "ordinal": 1,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit: real OpenBOR `backwalk`/ANI_WALKBACK content (only MOUSER ships it, TMNT pak, checked directly against all 13 shipped roster .TXT files -- no other character declares it). This project implements a single generic Walk state with no distinct backward-movement mechanic; adding one is a new AI-movement feature, not part of this converter-role-selection defect class. Was previously the actual DEFECT (silently mis-claimed by the old attack2 fallback heuristic, wiring MOUSER's attack2 input to a walking animation instead of his real second attack, `upper`) -- now correctly excluded from that fallback and left honestly unmapped instead of silently wrong.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 2,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 4,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 5,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 6,
+    "frames": 9,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "mouser",
+    "source": "out/mouser_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 7,
+    "frames": 9,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack2",
+    "ordinal": 6,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack3",
+    "ordinal": 7,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_PlayMoveSlotAdvance generic slot (variant 3), reached via atchain step (LEO/FOOT01/FOOT02)",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 8,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot01",
+    "source": "out/foot01_moveset.json",
+    "animation": "atchain [1, 2, 3]",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_AtchainTrigger (core/jump.pasm), CHAR_ATCHAIN0-5/CHAR_CHAINLENGTH/CHAR_COMBOSTEP/CHAR_COMBOTIMER",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 12,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "riseattack",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "UP+Y while CHAR_SELECTED==FALL (holding phase), Jump_RiseattackTrigger, Jump_PlayMoveSlotAdvance slot. Player-only by explicit sourced design: real BOR.C player_lie_check() is called only from the player's own think()/playerframe() path, never from any AI think function -- there is no real \"AI rise-attacks\" mechanism to port (same class of finding as `block`/`land`).",
+    "owning_gates": [
+      "game_g7_riseattack.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 6,
+    "frames": 9,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack2",
+    "ordinal": 7,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "rock",
+    "source": "out/rock_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 8,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 12,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "riseattack",
+    "ordinal": 5,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "UP+Y while CHAR_SELECTED==FALL (holding phase), Jump_RiseattackTrigger, Jump_PlayMoveSlotAdvance slot. Player-only by explicit sourced design: real BOR.C player_lie_check() is called only from the player's own think()/playerframe() path, never from any AI think function -- there is no real \"AI rise-attacks\" mechanism to port (same class of finding as `block`/`land`).",
+    "owning_gates": [
+      "game_g7_riseattack.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 6,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leather",
+    "source": "out/leather_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 7,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 12,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "riseattack",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "UP+Y while CHAR_SELECTED==FALL (holding phase), Jump_RiseattackTrigger, Jump_PlayMoveSlotAdvance slot. Player-only by explicit sourced design: real BOR.C player_lie_check() is called only from the player's own think()/playerframe() path, never from any AI think function -- there is no real \"AI rise-attacks\" mechanism to port (same class of finding as `block`/`land`).",
+    "owning_gates": [
+      "game_g7_riseattack.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 6,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack2",
+    "ordinal": 7,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "bebop",
+    "source": "out/bebop_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 8,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack2",
+    "ordinal": 6,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack3",
+    "ordinal": 7,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_PlayMoveSlotAdvance generic slot (variant 3), reached via atchain step (LEO/FOOT01/FOOT02)",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 8,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "claude_close_g7_g8_before_g10.md Part 1 audit. `upper` is real BOR/TMNT data in two shapes: (a) RALF/LEATHER/FOOT03/FOOT04/MOUSER declare it with no literal `attack2` -- there it genuinely IS the character's one real second attack, shipped as the `attack2` role (see that entry) and gated by game_g7_attack2.py/game_g7_grab.py; this row only appears for the OTHER shape. (b) FOOT01/FOOT02/ROCK/BEBOP declare BOTH a literal `attack2` AND a separate `upper`; source evidence it is not a genuinely distinct third move for these four: FOOT01/FOOT02's own real `atchain 1 2 3` explicitly excludes it from OpenBOR's real combo-chain (perform_atchain(), DCurrent/openbor engine/openbor.c); ROCK/BEBOP declare no atchain at all and their `upper` stanza is a near byte-identical duplicate of their own `attack2` (same source GIFs/hit coordinates, only cosmetic delay/range/offset drift) -- consistent with `upper` being the same legacy attack2-name convention as shape (a), kept declared rather than removed once the newer literal `attack2` name was authored. This project implements no per-model AI decision table or openborscript content (see openbor_script_vm_gap project memory), so there is no real, source-derived trigger for a genuinely separate third move here; inventing one (a spare button, an unbacked AI-random third choice) would be fabricated behavior, not implemented source content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot02",
+    "source": "out/foot02_moveset.json",
+    "animation": "atchain [1, 2, 3]",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_AtchainTrigger (core/jump.pasm), CHAR_ATCHAIN0-5/CHAR_CHAINLENGTH/CHAR_COMBOSTEP/CHAR_COMBOTIMER",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot03",
+    "source": "out/foot03_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 6,
+    "frames": 4,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 2,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 5,
+    "frames": 7,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "foot04",
+    "source": "out/foot04_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "upper",
+    "ordinal": 6,
+    "frames": 7,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "waiting",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "CharSelect_PortraitUpdate (core/jump.pasm, called via jsl from Game_State_Play__charselect). Real OPTIONAL_ROLE_NAMES role (convert_character.py) -> pack_msu_roster.py OPTIONAL_ROLE_WAITING (CHAR_WAITING_FCOUNT/DELAY/BASE_LO/BASE_HI, chained last in the per-entity base-offset hop). Only LEO ships real data (1 frame, `select.gif`, `loop 1`) -- FCOUNT==0 for the other 12 roster members is the correctly-measured real-content outcome, not an unbuilt gap. CHARSELECT never ran ANY OAM render path before this (Game_State_Play only dispatches Core_Oop_Play/Character_RenderPass/Core_Oam_Play from GAME_STATE_PLAYING, confirmed by inspection) -- added a self-contained portrait render path (deferred one frame past a reselect, to avoid stacking Msu1_LoadFrame's DMA-queue cost on top of Anim_LoadCharacter's own palette DMA in the same frame, a real regression this slice hit and fixed). Streams the real converted frame via the same Msu1_LoadFrame mechanism every other animation uses; hides (OAM Y=$F0) for every character without real data; torn down automatically on the first GAME_STATE_PLAYING frame (same OAM slot 0, no explicit teardown code needed -- Character_RenderPass overwrites it before that frame's vblank commits).",
+    "owning_gates": [
+      "game_g5_portrait.py",
+      "game_g5_menus.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G5",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 1,
+    "frames": 20,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "slide",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "LEO only: Down+A trigger, Jump_PlayMoveSlotAdvance slot, real damage via shared hit check",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 3,
+    "frames": 8,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "get",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_Pickup_CheckOverlap__TriggerGet + Jump_PlayGetAdvance (core/jump.pasm), redirected from bank 8's Jump_PlayMoveSlotAdvance (no bank-0 ROM budget left for its own dispatch check). Real OPTIONAL_ROLE_NAMES role (convert_character.py) -> pack_msu_roster.py NEW_MOVE_SLOT_NAMES's \"get\" entry (CHAR_GET_FCOUNT/DELAY/BASE_LO/HI, own dedicated non-indexed struct fields, GET_MOVE_VARIANT=10) -- chained via Jump_ComputeBases right before waiting_base. Real OpenBOR source (player_test_pickable/player_test_touch, didfind_item) traced: GET is a cosmetic pose on touch-collect (constrains movement, excluded from combat damage in Character_HitApply__attacking) with the reward applied instantly, not gated on the animation completing. Only LEO ships real data (1 frame, `still01.gif`) -- GetFcount==0 for every other roster member correctly falls back to the pre-existing silent instant-collect with no animation (RALF etc, the real source-defined fallback for a character with no ANI_GET), not an unbuilt gap.",
+    "owning_gates": [
+      "game_g8_get_leo.py",
+      "game_g7_special.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "jump",
+    "ordinal": 5,
+    "frames": 22,
+    "claimed_by_role": true,
+    "runtime_handler": "Player-only jump state machine (Jump_PlayerTick) now stores its height/velocity in the SAME per-entity CHAR_THROW_ZPOS/ZVEL struct fields throw already used -- no more separate player-global Player_JumpZPos/ZVel cells. Jump_ApplyOamYOffset reads one shared field for both JUMP and THROWN.",
+    "owning_gates": [
+      "game_g7_jump.py",
+      "game_g7_throw.py",
+      "game_g7_depth_sort.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "jumpattack",
+    "ordinal": 6,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Y button mid-air (Player_JumpAnimMode=1), reuses JUMP state",
+    "owning_gates": [
+      "game_g7_jump.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "jumpattack2",
+    "ordinal": 7,
+    "frames": 9,
+    "claimed_by_role": true,
+    "runtime_handler": "X button mid-air (Player_JumpAnimMode=2), reuses JUMP state",
+    "owning_gates": [
+      "game_g7_jump.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack1",
+    "ordinal": 8,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack2",
+    "ordinal": 9,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "X-button attack2 trigger; JOE gets real mutual-lock (Character_Grab_Play) via attack2_is_grab, everyone else gets instant-damage dispatch",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_grab.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack3",
+    "ordinal": 10,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_PlayMoveSlotAdvance generic slot (variant 3), reached via atchain step (LEO/FOOT01/FOOT02)",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack4",
+    "ordinal": 11,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_PlayMoveSlotAdvance generic slot (variant 4), reached only as the LAST step of LEO's real atchain (1 2 3 1 2 4)",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "grab",
+    "ordinal": 12,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "LEO and JOE both now land through the SAME real mutual-lock machinery (Character_HitApply__TryGrab, vm_native_engine.pasm): LEO's R-button `grab` (CHAR_GRABMOVE_FCOUNT, variant 5) and JOE's attack2_is_grab (variant 1) are two real move-slot shapes both accepted by TryGrab's condition check, both establishing the same CHAR_GRAB_TARGET/CHAR_GRABBED_BY link, rigid follow-drag (Character_Grab_Play), and victim-input suppression. Jump_PlayerInputGate's R dispatch is now gated on hold state (CHAR_GRAB_TARGET==$FF) so a new grab attempt cannot restart while already holding.",
+    "owning_gates": [
+      "game_g7_content_audit.py (LEO)",
+      "game_g7_grab.py (JOE)"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "throw",
+    "ordinal": 13,
+    "frames": 2,
+    "claimed_by_role": false,
+    "runtime_handler": "Character_Grab_Throw, generic on its grabber (player or AI), per-entity CHAR_THROW_ZPOS/ZVEL -- now the SAME storage/tick jump uses (notjustfreespecial.txt item 4), no more duplicate gravity-integration copy.",
+    "owning_gates": [
+      "game_g7_throw.py",
+      "game_g7_jump.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "pain",
+    "ordinal": 14,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "CHAR_HIT_STUN-driven reaction, no distinct anim slot of its own (this project reuses the same hit-stun path regardless of the raw `pain` anim's own ordinal)",
+    "owning_gates": [
+      "phase5.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 15,
+    "frames": 2,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 16,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "special",
+    "ordinal": 17,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "LEO only: L-button trigger (Jump_PlayerInputGate), CHAR_SPECIAL_* base chain, releases an active grab link first (Character_Special_ReleaseGrab). Stale-evidence fix: the grab-release check used to force CHAR_GRAB_TARGET via a raw WRAM write; rewritten to organically establish the link first (real R-press retry loop on LEO's own `grab` swing, via the SAME Character_HitApply__TryGrab mutual-lock path JOE's attack2 uses) before pressing L to trigger the release, then checking BOTH sides of the lock (self.CHAR_GRAB_TARGET and the victim's own CHAR_GRABBED_BY) return to $FF -- verified passing.",
+    "owning_gates": [
+      "game_g7_special.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "freespecial",
+    "ordinal": 18,
+    "frames": 5,
+    "claimed_by_role": true,
+    "runtime_handler": "LEO only: double-tap-forward+attack FSM (Jump_FreespecialTrigger), Jump_PlayMoveSlotAdvance slot (variant 9), checked before special/grab/slide in Jump_PlayerInputGate",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "grabattack",
+    "ordinal": 19,
+    "frames": 3,
+    "claimed_by_role": true,
+    "runtime_handler": "LEO only: Jump_PlayerInputGate R+Y dispatch sets CHAR_ATTACK_VARIANT=8 (Jump_PlayMoveSlotAdvance slot) -- now requires an active hold (CHAR_GRAB_TARGET!=$FF) before it can fire, matching real BOR's grabattack() precondition (previously fired unconditionally on any R+Y press).",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "land",
+    "ordinal": 20,
+    "frames": 1,
+    "claimed_by_role": false,
+    "runtime_handler": "Character_Throw_Play__land (vm_native_engine.pasm). notjustfreespecial.txt item 7 re-audit (sourced from real DCurrent/openbor engine/openbor.c): the prior \"zero forcedirection/projectile/blast/autoland/ATTACK_FORCE config anywhere\" claim was WRONG -- LEO ships a real, uncommented `anim land` entry (1 frame, reuses rise01.gif); JHUN's `#anim land` is genuinely disabled/commented data. Real doland() is normally gated on BLAST_TOSS attack-force config (none shipped here), but player_fall_check() is a SEPARATE, player-only trigger: holding UP+JUMP while CHAR_SELECTED_THROWN lands via ANI_LAND instead of the ordinary FALL reaction, gated only on the real global autoland default (0 == enabled) -- independent of any per-model flag. Reuses the existing idle transition, no new streaming pathway, matching this project's jumpattack2/throw \"no unique art\" precedent. Cross-checked against raw pak source by the standalone game_g7_land_audit.py finding-reporter.",
+    "owning_gates": [
+      "game_g7_throw.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "leo",
+    "source": "out/leo_moveset.json",
+    "animation": "atchain [1, 2, 3, 1, 2, 4]",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "Jump_AtchainTrigger (core/jump.pasm), CHAR_ATCHAIN0-5/CHAR_CHAINLENGTH/CHAR_COMBOSTEP/CHAR_COMBOTIMER",
+    "owning_gates": [
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "apple",
+    "source": "out/apple_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "apple",
+    "source": "out/apple_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "apple",
+    "source": "out/apple_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "apple",
+    "source": "out/apple_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "apple",
+    "source": "out/apple_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "money",
+    "source": "out/money_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "money",
+    "source": "out/money_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "money",
+    "source": "out/money_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "money",
+    "source": "out/money_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "money",
+    "source": "out/money_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "meat",
+    "source": "out/meat_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "meat",
+    "source": "out/meat_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "meat",
+    "source": "out/meat_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "meat",
+    "source": "out/meat_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "meat",
+    "source": "out/meat_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "1up",
+    "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "1up",
+    "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "1up",
+    "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "1up",
+    "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "1up",
+    "source": "out/1up_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "gold",
+    "source": "out/gold_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 6,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "trash",
+    "source": "out/trash_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "chair",
+    "source": "out/chair_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "idle",
+    "ordinal": 0,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Anim_Play (main.pasm), every entity, boot default",
+    "owning_gates": [
+      "phase5.py",
+      "phase12_roster.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "walk",
+    "ordinal": 1,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_PlayFrame movement dispatch (main.pasm)",
+    "owning_gates": [
+      "phase8.py",
+      "phase9.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "attack",
+    "ordinal": 2,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Y-button attack1 trigger (main.pasm Anim_Play__no_atchain)",
+    "owning_gates": [
+      "game_g7_attack2.py",
+      "game_g7_content_audit.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "fall",
+    "ordinal": 3,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Character_HitApply sets CHAR_SELECTED=FALL on a real hit (knockdown), CHAR_FALL_STATE_TIMER-driven state machine",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": "table",
+    "source": "out/table_moveset.json (converted; raw PAK path not retained in this artifact -- see convert_character.py call site for the real .pak/.TXT pair used)",
+    "animation": "rise",
+    "ordinal": 4,
+    "frames": 1,
+    "claimed_by_role": true,
+    "runtime_handler": "Automatic transition out of FALL after CHAR_FALL_STATE_TIMER",
+    "owning_gates": [
+      "game_g7_knockdown.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G7",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "health",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "Spawn_ApplyHealthOverride (core/spawn.pasm)",
+    "owning_gates": [
+      "game_health_override.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "map",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "Spawn_ApplyRemapPalette (core/spawn.pasm)",
+    "owning_gates": [
+      "game_map_remap.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G8",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "wait",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "SPAWN_KIND_WAIT dispatch (core/spawn.pasm)",
+    "owning_gates": [
+      "game_g9_wait_group_boss.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "group",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "real BOR.C-sourced group spawn semantics (core/spawn.pasm)",
+    "owning_gates": [
+      "game_g9_wait_group_boss.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "boss",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": "EntityN_IsBoss + boss health bar (core/spawn.pasm, main.pasm)",
+    "owning_gates": [
+      "game_g9_boss_bar.py",
+      "game_g9_tmnt_boss.py",
+      "game_g9_wait_group_boss.py"
+    ],
+    "classification": "implemented-and-gated",
+    "evidence": "",
+    "phase": "G9",
+    "phase_note": ""
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "blockade",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "Real BOR.C keyword is `blocked` (pit hazard), not a scroll-back blockade -- zero real enabled usage in either shipped pak. See 8a_final_audit project memory.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "direction",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "TMNT's `rightleft` is a real no-op per BOR.C source; no shipped level uses direction-reversal content.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  },
+  {
+    "character": null,
+    "source": "level .TXT keyword (not a character animation)",
+    "animation": "settime",
+    "ordinal": null,
+    "frames": null,
+    "claimed_by_role": true,
+    "runtime_handler": null,
+    "owning_gates": [],
+    "classification": "content-inapplicable",
+    "evidence": "Zero real enabled usage anywhere in either shipped pak, per 8a_final_audit's own re-check against real BOR.C.",
+    "phase": "foundational",
+    "phase_note": "Predates the G-numbered phase system (proven by pre-G \"Phase N\" gates or a real per-model/per-pak content-inapplicable audit) -- no G-phase's own completion depends on this row."
+  }
+]
