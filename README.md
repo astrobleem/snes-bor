@@ -1,5 +1,9 @@
 # snes-bor — Beats of Rage SNES Engine Proof-of-Concept
 
+The source compiler is **BYOR — Bring Your Own Rage**. It compiles supported
+Beats of Rage/OpenBOR source features to the SNES runtime and reports unsupported
+capabilities explicitly. See [BYOR build commands and capability scope](docs/BYOR.md).
+
 A Super Nintendo Entertainment System (SNES) proof-of-concept targeting real SA-1 coprocessor hardware, with MSU-1 asset streaming and a ported Terrific Audio Driver (TAD).
 
 **This is a hardware-pipeline proof-of-concept with an accepted two-player gameplay slice.** Six actor slots render simultaneously: P1 is slot 0, P2 is an independently selected source-normal player in slot 1, and production NPCs use slots 2–5. The accepted G13 line provides independent P1/P2 input, movement, combat, score/lives/continue ownership, either-controller pause, shared camera/tether behavior, and one-player/four-NPC and two-player/four-NPC stage handoff. G1–G10, G12, G13, and the source-normal startup/selection P1 slice are complete for their accepted scopes. The audio content remains deliberately bounded to the accepted G11/SOUND scope; do not reopen it as an architecture task. Future work is tracked in [plan_game.md](plan_game.md), the only active roadmap. There is no script VM in this project.

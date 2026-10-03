@@ -22,10 +22,10 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_compile"))
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 
 
-def _campaign_inputs():
+def _campaign_inputs(source_set='Normal'):
     from normal_coverage import inventory
     from shipped_content import ROSTER_CONFIGS, normal_player_entries
-    coverage = inventory()
+    coverage = inventory(source_set=source_set)
     normal_player_slots = {slot for slot, _ in normal_player_entries("bor-original")}
     combat_models = []
     for name, binding in sorted(coverage["model_bindings"].items()):
@@ -57,7 +57,7 @@ def _campaign_inputs():
     return coverage, combat_models
 
 
-def _build_overlay(output: Path, source: Path, *, output_is_source=False):
+def _build_overlay(output: Path, source: Path, *, output_is_source=False, source_set='Normal'):
     from actor_s6_production_world import build as build_world
     from actor_s7_persistent_worker import install
     from actor_s7_production_runtime import source_visual_identity
@@ -73,7 +73,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False):
     elif not (output / "bor.msu").is_file():
         raise FileNotFoundError("in-place source image has no bor.msu")
 
-    coverage, combat_models = _campaign_inputs()
+    coverage, combat_models = _campaign_inputs(source_set)
     source_rom = source / "bor.sfc"
     if not source_rom.is_file():
         raise FileNotFoundError(f"compiler source ROM missing: {source_rom}")
@@ -87,7 +87,10 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False):
                          normal_campaign_models=combat_models)
     worker_symbols = install(output, production_runtime=True)
     manifest = dict(
-            status="OPT_IN_PERSISTENT_SA1_NORMAL_CAMPAIGN_CANDIDATE",
+            status=("OPT_IN_PERSISTENT_SA1_NORMAL_CAMPAIGN_CANDIDATE" if source_set == 'Normal'
+                    else "PERSISTENT_SA1_HARD_CAMPAIGN_CANDIDATE"),
+            compiler="BYOR — Bring Your Own Rage",
+            source_set_id=coverage['source_set_id'],
             selectable_normal=True,
             fallback="unchanged distribution/bor.sfc S-CPU path",
             production_distribution_modified=False,
@@ -97,10 +100,9 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False):
                                (output / "bor.sfc").read_bytes()).hexdigest(),
                            msu_sha256=hashlib.sha256(
                                (output / "bor.msu").read_bytes()).hexdigest()),
-            workload=dict(campaign="BOR Normal", logical_entries=16,
-                          authored_order=["1A", "1B", "1C", "2", "3A", "3B", "3C",
-                                          "4A", "4B", "5A", "5B", "6A", "6B",
-                                          "RUGAL", "6C", "ENDING"],
+            selectable_hard=source_set == 'Hard',
+            workload=dict(campaign=f"BOR {source_set}", logical_entries=len(coverage['entries']),
+                          authored_order=[row['source_path'] for row in coverage['entries']],
                           source_clock_hz=200, presentation_hz=30,
                           active_actor_limit=6, combat_models=len(combat_models),
                           playable_rosters=sum(row["playable"] for row in combat_models)),
@@ -136,7 +138,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False):
 
 
 def build_from_source(output: Path, source_image: Path, *, in_place=False,
-                      relink_source=False):
+                      relink_source=False, source_set='Normal'):
     output = output.resolve()
     source = source_image.resolve()
     if in_place and output != source:
@@ -149,10 +151,10 @@ def build_from_source(output: Path, source_image: Path, *, in_place=False,
         # expensive media/compiler stage from being repeated.
         import build_rom
         (source / "bor.sfc").write_bytes(build_rom.link_rom())
-    return _build_overlay(output, source, output_is_source=in_place)
+    return _build_overlay(output, source, output_is_source=in_place, source_set=source_set)
 
 
-def build(output: Path, reuse_audio_from: str | None = None):
+def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Normal'):
     output = output.resolve()
     if output.exists():
         raise FileExistsError(f"refuse to replace existing candidate directory: {output}")
@@ -162,13 +164,15 @@ def build(output: Path, reuse_audio_from: str | None = None):
     with tempfile.TemporaryDirectory(prefix="normal-source-", dir=ROOT / "out") as temporary:
         source = Path(temporary)
         build_rom.main(reuse_audio_from, normal_candidate=True,
-                       source_sized_visual=True, candidate_dir=source)
-        return _build_overlay(output, source)
+                       source_sized_visual=True, candidate_dir=source,
+                       hard_candidate=source_set == 'Hard')
+        return _build_overlay(output, source, source_set=source_set)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--source-set", choices=('Normal', 'Hard'), default='Normal')
     parser.add_argument("--reuse-audio-from",
                         help="reuse pinned unchanged audio inputs from a Git ref")
     parser.add_argument("--source-image", type=Path,
@@ -185,9 +189,9 @@ def main():
     if args.source_image:
         candidate, manifest = build_from_source(
             args.output, args.source_image, in_place=args.in_place_source_image,
-            relink_source=args.relink_source_image)
+            relink_source=args.relink_source_image, source_set=args.source_set)
     else:
-        candidate, manifest = build(args.output, args.reuse_audio_from)
+        candidate, manifest = build(args.output, args.reuse_audio_from, source_set=args.source_set)
     result = {
         "output": str(candidate),
         "status": manifest["status"],

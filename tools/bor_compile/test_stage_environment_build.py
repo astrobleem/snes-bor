@@ -23,7 +23,10 @@ import stage_frontpanel_bg2 as full
 class StageEnvironmentBuildTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.configs = copy.deepcopy(build_rom.STAGE_CONFIGS)
+        # Keep this cache-corruption fixture bounded to its reviewed Normal
+        # physical catalog. Hard membership/materialization has its own gate.
+        cls.configs = copy.deepcopy([c for c in build_rom.STAGE_CONFIGS
+                                    if c.get('source_set_id') != 2])
         cls.roster = copy.deepcopy(build_rom.ROSTER_CONFIGS)
         cls.sources, cls.normal = water.normal_stage_inputs(cls.configs)
         cls.accepted = {ir.source_path:json.loads((Path(cls.configs[i]['bg'])/'manifest.json').read_text())

@@ -1,6 +1,7 @@
 ; Logical campaign resolver. This lives in bank 12 so separating campaign
 ; progression does not consume the bank-0 runtime/vector budget.
 .include "../../tools/audio/campaign_config.pasm"
+.include "../../tools/audio/audio_music_ids.pasm"
 
 ; Source startup scene adaptation. The PAK's LOGO.TXT displays senile.gif,
 ; then INTRO.TXT displays city.gif followed by flashes.gif. Preserve that
@@ -173,30 +174,57 @@ Game_Campaign_ResolveNext__bor_normal_dev:
     cmp #$FF
     beq Game_Campaign_ResolveNext__bor_normal_dev_first
     inc a
-    cmp #Campaign_BorNormalDev_EntryCount
+    bra Game_Campaign_ResolveNext__source_index
+Game_Campaign_ResolveNext__bor_normal_dev_first:
+    lda #0
+Game_Campaign_ResolveNext__source_index:
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    jsl Game_Campaign_SourceIndex
     bcs Game_Campaign_ResolveNext__bor_normal_dev_end
+    sep #$20
+.a8
     sta.l Game_CampaignOrdinal
-    tax
-    lda.l Campaign_BorNormalDev_EntryKinds,x
+    lda.l Campaign_Source_Kinds,x
     sta.l Game_Campaign_ResolvedKind
-    lda.l Campaign_BorNormalDev_EntryValues,x
+    lda.l Campaign_Source_Values,x
     sta.l Game_Campaign_ResolvedValue
     clc
     rtl
 Game_Campaign_ResolveNext__bor_normal_dev_end:
     sec
     rtl
-Game_Campaign_ResolveNext__bor_normal_dev_first:
-    .a8
-    .i16
-    ldx #0
-    lda #0
-    sta.l Game_CampaignOrdinal
-    lda.l Campaign_BorNormalDev_EntryKinds,x
-    sta.l Game_Campaign_ResolvedKind
-    lda.l Campaign_BorNormalDev_EntryValues,x
-    sta.l Game_Campaign_ResolvedValue
+; ABI 3 is the shared persistent source-world campaign family. Selected
+; source identity, ordinal and generated offsets resolve the actual route.
+; A16/I16: A = proposed ordinal; return A unchanged, X = flattened entry,
+; carry set for an invalid source set or ordinal. No physical adjacency.
+Game_Campaign_SourceIndex:
+.a16
+.i16
+    pha
+    lda.l BorSet_Selected
+    and #$00FF
+    tax
+    cpx #BOR_SET_COUNT
+    bcs Game_Campaign_SourceIndex__invalid
+    lda.l Campaign_Source_Counts,x
+    and #$00FF
+    cmp $01,s
+    beq Game_Campaign_SourceIndex__invalid
+    bcc Game_Campaign_SourceIndex__invalid
+    lda.l Campaign_Source_Offsets,x
+    and #$00FF
     clc
+    adc $01,s
+    tax
+    pla
+    clc
+    rtl
+Game_Campaign_SourceIndex__invalid:
+    pla
+    sec
     rtl
 Game_Campaign_ResolveNext__standalone:
     .a8
@@ -357,9 +385,10 @@ Game_Campaign_HasNextFlag:
     beq Game_Campaign_HasNextFlag__easy
     cmp #CAMPAIGN_BOR_NORMAL_DEV
     bne Game_Campaign_HasNextFlag__false
-    cpx #Campaign_BorNormalDev_EntryCount
+    txa
+    jsl Game_Campaign_SourceIndex
     bcs Game_Campaign_HasNextFlag__false
-    lda.l Campaign_BorNormalDev_NextFlags,x
+    lda.l Campaign_Source_CompleteFlags,x
     bra Game_Campaign_HasNextFlag__test
 Game_Campaign_HasNextFlag__easy:
 .a16
@@ -387,14 +416,34 @@ BorSet_CreditCompletion:
     cmp #CAMPAIGN_BOR_ORIGINAL
     beq BorSet_CreditCompletion__run
     cmp #CAMPAIGN_BOR_NORMAL_DEV
-    bne BorSet_CreditCompletion__done
-    ; Never credit an older partial development array or a pre-ending end.
-    lda #Campaign_BorNormalDev_EntryCount
-    cmp #16
-    bne BorSet_CreditCompletion__done
+    beq BorSet_CreditCompletion__source
+    rtl
+BorSet_CreditCompletion__source:
+    ; Credit only the terminal authored entry of the selected linked set.
+    rep #$30
+.a16
+.i16
     lda.l Game_CampaignOrdinal
-    cmp #(Campaign_BorNormalDev_EntryCount - 1)
-    bne BorSet_CreditCompletion__done
+    and #$00FF
+    jsl Game_Campaign_SourceIndex
+    bcc BorSet_CreditCompletion__valid
+    rtl
+BorSet_CreditCompletion__valid:
+    inc a
+    pha
+    lda.l BorSet_Selected
+    and #$00FF
+    tax
+    lda.l Campaign_Source_Counts,x
+    and #$00FF
+    cmp $01,s
+    beq BorSet_CreditCompletion__terminal
+    pla
+    rtl
+BorSet_CreditCompletion__terminal:
+    pla
+    sep #$20
+.a8
 BorSet_CreditCompletion__run:
 .a8
     lda.l BorSet_RunActive
@@ -410,7 +459,7 @@ BorSet_CreditCompletion__run:
     bra BorSet_CreditCompletion__selected
 BorSet_CreditCompletion__normal:
 .a8
-    lda #1
+    lda.l BorSet_Selected
 BorSet_CreditCompletion__selected:
 .a8
     sta.l BorSet_Selected
