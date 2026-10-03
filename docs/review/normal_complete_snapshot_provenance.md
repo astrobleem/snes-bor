@@ -38,6 +38,9 @@ This export is not a self-contained reproducible-build claim. Only the single ca
 - Prior failed push status is historical. This export update is published only after the remote branch SHA is independently verified.
 ## Reconstructed verifier-source update
 
+This section supersedes the earlier verifier-source-unresolved statements in the historical sections above; those accurately described prior snapshot states, but are no longer the current status. Current status is SOURCE_RECONSTRUCTED_OFFLINE, not full campaign-equivalence certification.
+
+
 - Local development commit supplying this update: 61c48d45727e2bdb5fb6a3fa1e5b92ee353c9595 (its parent is the prior task-local evidence commit ae7afde76c8c26681c70360567aff950e8f18ebe).
 - This review-only snapshot is a child of the previously published review tip e2ba02dd12d462c20573cee50530e63805dad47d; its commit message maps it to the local development commit. No original development commit is attached as a parent.
 - Status: SOURCE_RECONSTRUCTED_OFFLINE. The readable verifier is reconstructed, not the original lost source. It has no runtime dependency on retained bytecode; the active and protected 160,137-byte CPython 3.10 copies remain unchanged at SHA-256 4b8596c4b6b2081ef3c4acf68306af00068fec06cbd786d5a76915f62c92522.
