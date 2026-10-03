@@ -7,11 +7,11 @@ This is a review-only Git snapshot export, not replacement development history a
 - Original review base: 6bf609890563aa93835266213632b81f4c0b3723
 - Original final committed revision: f20073b4ece3c6a0a1ad895aca1f49f33ff2aff2
 - Original commits in the reviewed range:
-  - 26fd15081156e1417df109ce488dd60e4d7a7e75 — feat(game): integrate compiler-owned Normal campaign
-  - cea4b91a199c60de1f52a5660ab99ca99d209eff — test(game): certify complete Normal campaign routes
-  - fe0feb72c9c428d3bd8154922882e40f4a1f2d6a — fix(build): track source visual catalog generator
-  - 0c87d74200da03635c0208cf1bb253cb5268b690 — fix(game): correct Normal projection and slot boundaries
-  - f20073b4ece3c6a0a1ad895aca1f49f33ff2aff2 — docs(review): publish Normal code review handoff
+  - 26fd15081156e1417df109ce488dd60e4d7a7e75 - feat(game): integrate compiler-owned Normal campaign
+  - cea4b91a199c60de1f52a5660ab99ca99d209eff - test(game): certify complete Normal campaign routes
+  - fe0feb72c9c428d3bd8154922882e40f4a1f2d6a - fix(build): track source visual catalog generator
+  - 0c87d74200da03635c0208cf1bb253cb5268b690 - fix(game): correct Normal projection and slot boundaries
+  - f20073b4ece3c6a0a1ad895aca1f49f33ff2aff2 - docs(review): publish Normal code review handoff
 
 ## Snapshot mapping and export omission
 
@@ -28,3 +28,11 @@ This is a review-only Git snapshot export, not replacement development history a
 The campaign verifier's readable tracked-source restoration remains unresolved; this export does not include the protected bytecode recovery copy or claim to resolve that issue. No new runtime validation was performed for this snapshot task. Prior campaign receipts apply only to their recorded original candidate hashes; they are not new acceptance evidence for this export. Manual combat/visual acceptance remains outstanding.
 
 This export is not a self-contained reproducible-build claim. Only the single catalog JSON path named above is omitted; other committed source, generators, evidence, and tracked inputs retain their original blob IDs and modes.
+## Evidence reconciliation and source-recovery update
+
+- Local development commit supplying this update: ae7afde76c8c26681c70360567aff950e8f18ebe (parent: f20073b4ece3c6a0a1ad895aca1f49f33ff2aff2).
+- Review export is a snapshot-only child of the prior published review tip 52238f6ed3b310d0343f2b294967938d313ca384; its commit message records the same local development commit mapping. No original development commit is attached as a parent.
+- Corrected acceptance evidence is listed in docs/review/normal_complete_receipt_manifest.json; final Normal acceptance is supported by the luna29, luna27, and luna25 receipts for candidate ROM 05edd46023b3173f8432087f8cfcbf182726c35ecfb918b5c996ec23e414ba1f. Earlier luna01 receipts are historical for ROM 7ef9d232e688c77d8aa54c01c45d44d3868dbc21ef5a67a3750fccd2bb9186dd.
+- Verifier status remains SOURCE_RECOVERY_UNRESOLVED: current wrapper overrides and code-object rewrites depend on the preserved CPython 3.10 bytecode; the tracked readable implementation is incomplete. Protected and active bytecode copies were verified unchanged at SHA-256 4b8596c4b6b2081ef3c4acf68306af00068fec06cbd786d5a76915f62c92522.
+- During this update: receipt contents and hashes were reconciled; the manifest was consistency-checked; documentation diff hygiene was checked. No source-only verifier import/CLI proof was possible without complete source. No ROM build, Mesen session, gameplay run, or campaign traversal was performed.
+- Prior failed push status is historical. This export update is published only after the remote branch SHA is independently verified.

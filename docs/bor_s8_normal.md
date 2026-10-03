@@ -192,6 +192,21 @@ results, not S8 completion or SOURCE_EXACT certification.
 
 ## NORMAL_COMPLETE closure — 2026-10-02
 
+The closure candidate identity is ROM SHA-256
+`05edd46023b3173f8432087f8cfcbf182726c35ecfb918b5c996ec23e414ba1f` and
+MSU SHA-256 `8eb71123e3baa3e2bb3f696775ca3d0dad42a5fa2d64ea7373b1dfd6f50bf3c6`.
+The full hashes for all recorded artifacts, receipt digests, and extracted
+route/completion evidence are in
+`docs/review/normal_complete_receipt_manifest.json`.
+
+These `luna29/luna27/luna25` receipts are the final-closure evidence because
+their embedded ROM hash matches this candidate. The earlier
+`s8_normal_sa1_*_luna01.json` receipts are historical evidence for the distinct
+ROM SHA-256 `7ef9d232e688c77d8aa54c01c45d44d3868dbc21ef5a67a3750fccd2bb9186dd`;
+their passing runs do not validate this final candidate. Neither receipt set
+is a campaign rerun of the subsequent focused runtime repairs. Those repairs
+have focused tests and assembly evidence only.
+
 The final compiler-owned Normal candidate is selectable and traversed on the
 persistent SA-1/source-sized path. This closure supersedes the earlier
 candidate-only status notes above; it does not change the independent manual
