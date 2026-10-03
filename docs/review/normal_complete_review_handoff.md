@@ -96,55 +96,48 @@ the specific source-visual/resource observations documented in
 
 ## Verifier source recovery
 
-Status for this evidence update: `SOURCE_RECOVERY_UNRESOLVED`.
-The runtime wrapper still loads
-`tools/verify/__pycache__/game_s8_normal_campaign.cpython-310.pyc` and applies
-code-object modifications. The original 160,137-byte bytecode and its protected
-copy have SHA-256
+Status: `SOURCE_RECONSTRUCTED_OFFLINE`.
+
+The reviewer-provided `s8_verifier_source_recovery.zip` supplies a readable
+reconstruction, not the original lost source text. The runtime now imports
+`tools/verify/_game_s8_normal_campaign_base.py` from the source-backed public
+wrapper in `tools/verify/game_s8_normal_campaign.py`; it has no mandatory
+SourcelessFileLoader, retained-bytecode dependency, or runtime code-object
+rewriting. The known wrapper corrections are represented in readable source.
+The 160,137-byte active and protected CPython 3.10 bytecode copies were both
+verified unchanged at SHA-256
 `4b8596c4b6b2081ef3c4acf68306af00068fec06cbd786d5a76915f62c92522`.
-The untracked decompiler candidate
-`out/normal_review_repair/game_s8_normal_campaign.py` is not accepted source:
-AST parsing fails at line 283 on a leading-zero integer; its emitted main/error
-path is also malformed. The 89-byte root-level decompiler stub is not source.
-Neither recovery copy was modified.
 
-The targeted local session record confirms that the original untracked source
-was truncated by a failed disk-full patch on 2026-09-26. It contains no intact
-original source body. The retained depyo candidate fails Python AST parsing at
-line 283 on a leading-zero integer. The prior pycrefine attempt is also
-unparsable. One bounded pycdc attempt against the CPython 3.10 copy emitted
-unsupported-opcode/stack warnings and invalid Python at line 114. None of
-these outputs is adopted.
+Native CPython 3.10 offline comparison against the preserved reference passed:
+13,869 helper/Lua cases, 108 nested-helper cases, and 18 stubbed control-flow
+scenarios. The scenarios include mock natural/skip routes across 16 entries
+and a three-entry Easy route; they are not real campaigns. A separate isolated
+source-only check of the repository runtime files passed import and `--help`
+with no `.pyc`, `__pycache__`, project helpers, ROM, or PAK; its process guard
+observed zero external process launches.
 
-The wrapper contains readable source-level replacements for
-traversal_actor_coordinates, traversal_blocking_props,
-traversal_combat_target_blocks, traversal_combat_engagement_needed,
-traversal_chase_axis, traversal_terminal_clamp, traversal_camera_wait,
-traversal_prop_chase_action, traversal_pickup_needed, traversal_pickup_action,
-traversal_combat_attack_opportunity, observer_spawn_watchdog_due,
-traversal_script, and validate_admission. Those do not supply a complete
-standalone verifier because the following active base bodies remain opaque:
-observer_stale_fields, bridge_owns_source_actor, traversal_signed16,
-traversal_biker_approaches, traversal_biker_attack_window,
-traversal_biker_action, traversal_target_key, traversal_slots_full,
-traversal_group_gate_blocks_spawn, traversal_terminal_prop_clear_required,
-traversal_biker_attack_mask, traversal_prop_bypass_complete,
-traversal_prop_bypass_action, traversal_lifecycle_input, traversal_attack_held,
-traversal_jump_held, traversal_session, traversal_plan, read_traversal, and
-main. The run body is also still bytecode-backed, with code-object rewrites
-applied in memory. CLI modes, route/control behavior, admission validation,
-completion assertions, and receipt generation therefore remain dependent on
-the retained bytecode. No source-only import/CLI pass or full behavioral
-equivalence is claimed.
+Repository offline tests passed for all 39 Normal projection tests and five
+selected traversal-contract tests. They used small in-memory build metadata
+stubs. The full `test_game_s8_spawn_traversal` module was attempted, but its
+module setup imports `build_rom`, which requires the absent
+`Beats of Rage Original [v.3.0 Build 4086].pak` to derive source queues. No PAK
+was copied or substituted, so source-queue/spawn validation from that suite
+remains unrun. One stale test that counted code-object patches was rewritten
+as AST assertions for the same inclusive left-edge and camera-button behavior.
+The traversal contract test also caught and prompted correction of an
+accelerator control-flow mismatch against the preserved bytecode.
+
+These results support an offline reconstruction, not full execution-path
+equivalence: real PAK-backed spawn traversal, emulator I/O, and a campaign run
+were not performed. This does not alter or extend the original campaign
+receipts, nor close manual visual acceptance.
 
 ## Scope and checks
 
-This evidence update read and SHA-256 hashed the six named receipt JSON files,
-validated the machine-readable manifest against all six receipts (routes,
-check booleans, counters, spawn counts, and ROM/MSU hashes matched), and
-compared those fields with the final closure. It verified both original and
-protected bytecode copies against the expected SHA-256 after the bounded
-decompiler attempt. It inspected the targeted local session record; no
-recoverable original source was found. No receipt was edited; no source-visual
-catalog was regenerated. No ROM build, Mesen session, or campaign traversal
-was run.
+The receipt manifest still describes the six unchanged historical receipt
+files and their recorded ROM/MSU identities. For source recovery, this update
+verified the reviewer package's target wrapper blob, ran native CPython 3.10
+comparisons and source-only import/CLI checks, ran the focused offline project
+tests described above, and rechecked both protected bytecode hashes. No
+receipt was edited or rerun; no ROM build, Mesen session, or campaign traversal
+was performed.

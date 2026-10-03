@@ -2,8 +2,7 @@ import re
 import unittest
 from pathlib import Path
 import importlib.util
-import dis
-import types
+import ast
 import os
 from unittest.mock import patch
 
@@ -26,51 +25,65 @@ def round_ratio_away(numerator, denominator):
 
 
 class NormalCoordinateBridgeTests(unittest.TestCase):
-    def test_retained_campaign_accelerator_uses_the_inclusive_left_edge(self):
+    def test_source_campaign_accelerator_uses_the_inclusive_left_edge(self):
         fixture_path = ROOT / 'tools/verify/game_s8_normal_campaign.py'
         spec = importlib.util.spec_from_file_location(
             '_s8_normal_left_edge_fixture', fixture_path)
         fixture = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(fixture)
-        self.assertEqual(fixture._left_clear_patch_count, 1)
-        self.assertEqual(fixture._forward_camera_patch_count, 1)
-        code = fixture._impl.run.__code__
-        pending = [code]
-        while pending:
-            current = pending.pop()
-            pending.extend(value for value in current.co_consts
-                           if isinstance(value, types.CodeType))
-            if current.co_name == 'accelerate':
-                code = current
-                break
-        else:
-            self.fail('retained accelerator code object not found')
-        instructions = list(dis.get_instructions(code))
-        message_index = next(
-            index for index, item in enumerate(instructions)
-            if item.argval ==
-            'left clear predicate requires positive Screen_MinX')
-        self.assertEqual(instructions[message_index + 2].opname, 'POP_TOP')
-        edge_index = next(
-            index for index, item in enumerate(instructions[:-2])
-            if item.opname == 'LOAD_FAST' and item.argval == 'edge'
-            and instructions[index + 1].opname == 'LOAD_CONST'
-            and instructions[index + 2].opname == 'BINARY_SUBTRACT')
-        self.assertEqual(instructions[edge_index + 1].argval, 0)
-        run_instructions = list(dis.get_instructions(fixture._impl.run.__code__))
-        camera_index = next(
-            index for index, item in enumerate(run_instructions)
-            if item.argval == 'traversal_camera_wait')
-        camera_call_index = next(
-            index for index in range(camera_index + 1, len(run_instructions))
-            if run_instructions[index].opname == 'CALL_FUNCTION'
-            and run_instructions[index].arg == 4)
-        branch_index = next(
-            index for index in range(camera_call_index + 1, len(run_instructions))
-            if run_instructions[index].opname == 'POP_JUMP_IF_FALSE')
-        self.assertEqual(run_instructions[branch_index + 1].opname, 'LOAD_GLOBAL')
-        self.assertEqual(run_instructions[branch_index + 1].argval,
-                         'traversal_camera_wait_button_value')
+        self.assertFalse(hasattr(fixture, '_left_clear_patch_count'))
+        self.assertFalse(hasattr(fixture, '_forward_camera_patch_count'))
+        source = (ROOT / 'tools/verify/_game_s8_normal_campaign_base.py').read_text()
+        module = ast.parse(source)
+        run = next(node for node in module.body
+                   if isinstance(node, ast.FunctionDef) and node.name == 'run')
+        accelerate = next(node for node in ast.walk(run)
+                          if isinstance(node, ast.FunctionDef)
+                          and node.name == 'accelerate')
+
+        def edge_is_zero(node):
+            return (
+                isinstance(node, ast.Compare)
+                and isinstance(node.left, ast.Name)
+                and node.left.id == 'edge'
+                and len(node.ops) == 1
+                and isinstance(node.ops[0], ast.Eq)
+                and len(node.comparators) == 1
+                and isinstance(node.comparators[0], ast.Constant)
+                and node.comparators[0].value == 0
+            )
+
+        zero_edge_checks = [node for node in ast.walk(accelerate)
+                            if isinstance(node, ast.If)
+                            and edge_is_zero(node.test)]
+        self.assertTrue(zero_edge_checks)
+        self.assertTrue(any(
+            node.body and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Call)
+            and isinstance(node.body[0].value.func, ast.Name)
+            and node.body[0].value.func.id == 'AssertionError'
+            for node in zero_edge_checks
+        ))
+        self.assertTrue(any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == 'm'
+            and node.func.attr == 'write_u16'
+            and len(node.args) == 2
+            and ast.unparse(node.args[0]) == 'legal.SCREEN_POS_X'
+            and isinstance(node.args[1], ast.Name)
+            and node.args[1].id == 'edge'
+            for node in ast.walk(accelerate)
+        ))
+        self.assertTrue(any(
+            isinstance(node, ast.Assign)
+            and any(isinstance(target, ast.Name) and target.id == 'button'
+                    for target in node.targets)
+            and isinstance(node.value, ast.Name)
+            and node.value.id == 'traversal_camera_wait_button_value'
+            for node in ast.walk(run)
+        ))
 
     def test_empty_combat_lane_advances_camera_to_pending_spawn_trigger(self):
         fixture_path = ROOT / 'tools/verify/game_s8_normal_campaign.py'

@@ -971,7 +971,7 @@ class TraversalTests(unittest.TestCase):
         self.assertIn('real player input and native lifecycle', strings)
         self.assertIn('initial_ai', strings)
         self.assertIn('combat_interactions', strings)
-        self.assertIn('worker_player', strings)
+        self.assertIn('worker_player', names)
         self.assertNotIn('initial_ai_scanned_stages', names | strings)
 
 

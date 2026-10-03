@@ -1,17 +1,13 @@
-"""Temporary source bridge for the retained S8 Normal campaign verifier.
+"""Source-backed S8 Normal campaign verifier recovery candidate.
 
-The original verifier source was lost during a full-volume incident, but its
-CPython 3.10 bytecode and campaign evidence are retained.
+The recovered base is readable Python, not a .pyc loader. Existing source-level
+controller/observer overrides below are preserved. See RECOVERY.md.
 """
-from importlib.machinery import SourcelessFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-import dis
 import json
 import os
 from pathlib import Path
 import sys
 import types
-
 
 ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE_DIR = Path(os.environ.get(
@@ -23,19 +19,10 @@ if str(ROOT) not in sys.path:
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-# The original source is retained as CPython 3.10 bytecode.  Always execute
-# this bridge with `python -B`; otherwise Python may replace that evidence
-# cache with bytecode for this temporary wrapper.
-if sys.version_info[:2] != (3, 10):
-    raise RuntimeError("campaign fixture bridge requires CPython 3.10")
-_pyc = Path(__file__).resolve().parent / "__pycache__" / (
-    "game_s8_normal_campaign.cpython-310.pyc"
-)
-_loader = SourcelessFileLoader("_s8_normal_campaign_impl", str(_pyc))
-_spec = spec_from_loader(_loader.name, _loader)
-_impl = module_from_spec(_spec)
-_loader.exec_module(_impl)
+import _game_s8_normal_campaign_base as _impl
 _impl.ROOT = ROOT
+# Preserve the public harness pathname expected by existing project helpers.
+_impl.__file__ = __file__
 
 
 def _validate_admission(actual, expected):
@@ -101,153 +88,8 @@ if _stall_limit_override is not None:
     _impl.TRAVERSAL_STALL_LIMIT_FIELDS = _stall_limit
 
 
-# The retained fixture accelerates a left clear by placing Screen_PosX one
-# pixel beyond Screen_MinX, and rejects Screen_MinX == 0. The production
-# clear edge is now inclusive because Core_Screen clamps the camera at its
-# minimum. Patch only that nested fixture instruction sequence in memory:
-# clear at the legal boundary, without underflow or changing the saved pyc.
-_left_clear_patch_count = 0
-_forward_camera_patch_count = 0
-_debug_start_action_patch_count = 0
-
-
-def _patch_left_clear_boundary(code):
-    global _left_clear_patch_count
-    constants = tuple(
-        _patch_left_clear_boundary(value)
-        if isinstance(value, types.CodeType) else value
-        for value in code.co_consts
-    )
-    code = code.replace(co_consts=constants)
-    if (code.co_name != "accelerate"
-            or "left clear predicate requires positive Screen_MinX"
-            not in constants):
-        return code
-    instructions = list(dis.get_instructions(code))
-    bytecode = bytearray(code.co_code)
-    message_index = next(
-        index for index, item in enumerate(instructions)
-        if item.argval == "left clear predicate requires positive Screen_MinX"
-    )
-    guard = next(item for item in instructions[message_index + 1:]
-                 if item.opname == "RAISE_VARARGS" and item.arg == 1)
-    bytecode[guard.offset] = dis.opmap["POP_TOP"]
-    bytecode[guard.offset + 1] = 0
-    edge_subtract = next(
-        instructions[index + 1]
-        for index, item in enumerate(instructions[:-2])
-        if item.opname == "LOAD_FAST" and item.argval == "edge"
-        and instructions[index + 1].opname == "LOAD_CONST"
-        and instructions[index + 1].argval == 1
-        and instructions[index + 2].opname == "BINARY_SUBTRACT"
-    )
-    zero_index = next(index for index, value in enumerate(constants)
-                      if type(value) is int and value == 0)
-    if zero_index >= 256:
-        raise RuntimeError("left-clear fixture patch needs a narrow zero constant")
-    bytecode[edge_subtract.offset + 1] = zero_index
-    _left_clear_patch_count += 1
-    return code.replace(co_code=bytes(bytecode))
-
-
-def _patch_forward_camera_control(code):
-    global _forward_camera_patch_count
-    constants = tuple(
-        _patch_forward_camera_control(value)
-        if isinstance(value, types.CodeType) else value
-        for value in code.co_consts
-    )
-    code = code.replace(co_consts=constants)
-    if (code.co_name != "run"
-            or "traversal_camera_wait" not in code.co_names):
-        return code
-    instructions = list(dis.get_instructions(code))
-    camera_call = next(index for index, item in enumerate(instructions)
-                       if item.argval == "traversal_camera_wait")
-    # The call arguments include a conditional Screen_SizeX fallback, so the
-    # first conditional after LOAD_GLOBAL is not the result branch. Anchor on
-    # traversal_camera_wait's four-argument call, then patch its false arm.
-    call = next(index for index in range(camera_call + 1, len(instructions))
-                if instructions[index].opname == "CALL_FUNCTION"
-                and instructions[index].arg == 4)
-    branch = next(index for index in range(call + 1, len(instructions))
-                  if instructions[index].opname == "POP_JUMP_IF_FALSE")
-    load_button = instructions[branch + 1]
-    store_button = instructions[branch + 2]
-    if (load_button.opname != "LOAD_CONST" or load_button.argval != 0
-            or store_button.opname != "STORE_FAST"
-            or store_button.argval != "button"):
-        raise RuntimeError("retained camera-wait branch shape changed")
-    names = list(code.co_names)
-    global_name = "traversal_camera_wait_button_value"
-    if global_name not in names:
-        names.append(global_name)
-    name_index = names.index(global_name)
-    if name_index >= 256:
-        raise RuntimeError("forward-camera fixture patch needs a narrow global index")
-    bytecode = bytearray(code.co_code)
-    bytecode[load_button.offset] = dis.opmap["LOAD_GLOBAL"]
-    bytecode[load_button.offset + 1] = name_index
-    _forward_camera_patch_count += 1
-    return code.replace(co_names=tuple(names), co_code=bytes(bytecode))
-
-
-def _patch_debug_start_action(code):
-    global _debug_start_action_patch_count
-    constants = tuple(
-        _patch_debug_start_action(value)
-        if isinstance(value, types.CodeType) else value
-        for value in code.co_consts
-    )
-    code = code.replace(co_consts=constants)
-    if (code.co_name != "run"
-            or "debug_start_ordinal" not in code.co_names
-            or "start_advance_before" not in code.co_varnames):
-        return code
-    instructions = list(dis.get_instructions(code))
-    anchor = next(
-        index for index, item in enumerate(instructions)
-        if item.opname == "STORE_FAST"
-        and item.argval == "start_advance_before"
-    )
-    action = next(
-        item for item in instructions[anchor + 1:]
-        if item.opname == "LOAD_ATTR" and item.argval == "BTN_START"
-    )
-    names = list(code.co_names)
-    if "BTN_A" not in names:
-        names.append("BTN_A")
-    action_index = names.index("BTN_A")
-    if action_index >= 256:
-        raise RuntimeError("debug-start fixture action needs a narrow name index")
-    bytecode = bytearray(code.co_code)
-    bytecode[action.offset + 1] = action_index
-    _debug_start_action_patch_count += 1
-    return code.replace(co_names=tuple(names), co_code=bytes(bytecode))
-
-
-for _fixture_value in vars(_impl).values():
-    if isinstance(_fixture_value, types.FunctionType):
-        _fixture_value.__code__ = _patch_forward_camera_control(
-            _patch_debug_start_action(
-                _patch_left_clear_boundary(_fixture_value.__code__)
-            )
-        )
-if _left_clear_patch_count != 1:
-    raise RuntimeError(
-        f"expected one retained left-clear fixture patch, got {_left_clear_patch_count}"
-    )
-if _forward_camera_patch_count != 1:
-    raise RuntimeError(
-        "expected one retained forward-camera fixture patch, "
-        f"got {_forward_camera_patch_count}"
-    )
-if _debug_start_action_patch_count != 1:
-    raise RuntimeError(
-        "expected one diagnostic showcomplete action-edge patch, "
-        f"got {_debug_start_action_patch_count}"
-    )
-
+# The left-clear, forward-camera, and debug-start corrections are now ordinary
+# source in _game_s8_normal_campaign_base.py. No code-object rewriting occurs.
 # The retained verifier bytecode gives each scene 9000 poll iterations.  The
 # authored Normal Ending is 1997 media frames; the real Mesen traversal had
 # presented only 517 by that bound, while playback and the sequence remained
@@ -258,21 +100,7 @@ if _scene_fields_text is not None:
     _scene_fields = int(_scene_fields_text)
     if _scene_fields < 9000:
         raise ValueError("S8_NORMAL_SCENE_FIELDS must be at least 9000")
-    _run_code = _impl.run.__code__
-    _scene_budget_indices = [
-        index for index, value in enumerate(_run_code.co_consts)
-        if value == 9000
-    ]
-    if len(_scene_budget_indices) != 1:
-        raise RuntimeError(
-            "retained scene-budget fingerprint changed: "
-            f"expected one 9000 constant, got {_scene_budget_indices}"
-        )
-    _scene_budget_constants = list(_run_code.co_consts)
-    _scene_budget_constants[_scene_budget_indices[0]] = _scene_fields
-    _impl.run.__code__ = _run_code.replace(
-        co_consts=tuple(_scene_budget_constants)
-    )
+    _impl.SCENE_FIELD_BUDGET = _scene_fields
 
 
 def _traversal_chase_axis(dx, dy):
@@ -2457,34 +2285,15 @@ def _campaign_spawn_watchdog_due(index, count, stale_fields, limit):
 
 _impl.observer_spawn_watchdog_due = _campaign_spawn_watchdog_due
 
-# Make the report describe the opt-in behavior accurately instead of
-# retaining the old blanket promise that every first actor fights to death.
-_scope_old = (
-    "all source queue admissions; retained initial AI is handled by real source combat"
-)
-_scope_new = (
-    "all source queue admissions; each initial AI takes observed real damage "
-    "before sequenced worker unlink"
-)
-
-
-def _replace_scope_constant(code):
-    constants = tuple(
-        _replace_scope_constant(value)
-        if isinstance(value, types.CodeType) else
-        _scope_new if value == _scope_old else value
-        for value in code.co_consts
-    )
-    return code.replace(co_consts=constants)
-
-
-_impl.run.__code__ = _replace_scope_constant(_impl.run.__code__)
+# The accurate traversal scope string is present in the recovered base source.
 
 globals().update(
     {name: value for name, value in vars(_impl).items() if not name.startswith("__")}
 )
 
 if __name__ == "__main__":
+    if "--help" in sys.argv[1:] or "-h" in sys.argv[1:]:
+        raise SystemExit(_impl.main())
     from collections import deque
     import _harness
 

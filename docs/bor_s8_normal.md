@@ -281,3 +281,29 @@ py -3.10 -B tools/verify/game_s8_normal_campaign.py --mode natural --spawn-trave
 py -3.10 -B tools/verify/game_s8_normal_campaign.py --mode skip --stage-fields 300000 --report out/s8_normal_skip_review.json
 py -3.10 -B tools/verify/game_s8_normal_campaign.py --mode easy --stage-fields 300000 --report out/s8_easy_review.json
 ```
+
+## Verifier source reconstruction update — 2026-10-03
+
+The public campaign verifier now runs from readable reconstructed Python in
+`tools/verify/game_s8_normal_campaign.py` and
+`tools/verify/_game_s8_normal_campaign_base.py`; it no longer requires the
+retained CPython 3.10 bytecode at runtime. This is a reconstruction, not the
+original lost source text. The active and protected 160,137-byte bytecode
+copies remain unchanged at SHA-256
+`4b8596c4b6b2081ef3c4acf68306af00068fec06cbd786d5a76915f62c92522`.
+
+Native CPython 3.10 offline comparison passed 13,869 helper/Lua cases, 108
+nested-helper cases, and 18 stubbed control-flow scenarios. An isolated,
+cache-free import/`--help` check passed against the repository runtime sources
+with no external process launch. Focused repository tests passed: 39 Normal
+projection tests and five selected traversal-contract tests, using small
+in-memory metadata stubs. The full source-queue traversal test module remains
+blocked at import because its setup requires the absent original BOR PAK; no
+PAK was copied or replaced. Consequently these checks are not proof of real
+PAK-backed spawn traversal or full emulator-path equivalence.
+
+No campaign receipt, ROM build, Mesen session, or gameplay traversal was run
+for this source reconstruction. Existing receipts continue to validate only
+their embedded candidate ROM/MSU hashes. See
+`docs/review/normal_complete_review_handoff.md` for the exact test scope and
+remaining validation limits.
