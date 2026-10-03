@@ -1,0 +1,3038 @@
+{
+  "dialect": "unspecified",
+  "entries": [
+    {
+      "authored_path": "data/scenes/STORY.TXT",
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [],
+      "global_control_blockers": 33,
+      "kind": "SCENE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "next_after": false,
+      "ordinal": 0,
+      "set_name": "Play_Demo",
+      "source_path": "data\\SCENES\\STORY.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/levels/sewer0.txt",
+      "authored_queue_count": 63,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "at requires one value and a pending queue entry",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type",
+        "unknown directive; no registered semantics",
+        "unsupported scroll mode/parameters"
+      ],
+      "global_control_blockers": 33,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 0,
+      "next_after": false,
+      "ordinal": 1,
+      "packed_queue_candidate_count": 63,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "mouser",
+        "whited"
+      ],
+      "set_name": "Play_Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "data\\LEVELS\\SEWER0.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/levels/streets.txt",
+      "authored_queue_count": 67,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "at requires one value and a pending queue entry",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "model is not declared in this project",
+        "spawn-instance display name has no runtime queue/HUD binding; never changes model identity",
+        "unbound model subtype",
+        "unbound model type",
+        "unknown directive; no registered semantics",
+        "unsupported scroll mode/parameters"
+      ],
+      "global_control_blockers": 33,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 0,
+      "next_after": true,
+      "ordinal": 2,
+      "packed_queue_candidate_count": 67,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "car",
+        "epole",
+        "epole2",
+        "foot01",
+        "foot02",
+        "foot03",
+        "guy",
+        "hydrant",
+        "light2",
+        "lightb",
+        "mail",
+        "pizza",
+        "plant",
+        "ptc",
+        "rock",
+        "smoke",
+        "trash1",
+        "trash2",
+        "trash3",
+        "tree",
+        "wdrop",
+        "whiteb"
+      ],
+      "set_name": "Play_Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "data\\LEVELS\\STREETS.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/levels/streets2.txt",
+      "authored_queue_count": 86,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "at requires one value and a pending queue entry",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "model is not declared in this project",
+        "no certified target event/attack-type lowering",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics",
+        "spawn-instance display name has no runtime queue/HUD binding; never changes model identity",
+        "unbound model subtype",
+        "unbound model type",
+        "unknown directive; no registered semantics",
+        "unsupported scroll mode/parameters"
+      ],
+      "global_control_blockers": 33,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 0,
+      "next_after": true,
+      "ordinal": 3,
+      "packed_queue_candidate_count": 86,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "bebop",
+        "epolef",
+        "epolef2",
+        "epolef3",
+        "foot01",
+        "foot02",
+        "foot03",
+        "foot04",
+        "hydrany",
+        "lightb",
+        "parkm",
+        "pizza",
+        "trash1",
+        "trashf",
+        "trashf2",
+        "wdrop",
+        "whitec"
+      ],
+      "set_name": "Play_Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "data\\LEVELS\\STREETS2.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/levels/sewer.txt",
+      "authored_queue_count": 46,
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "at requires one value and a pending queue entry",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "spawn-instance display name has no runtime queue/HUD binding; never changes model identity",
+        "texture wave renderer (wave parameter min 2) is not bound",
+        "unbound model type",
+        "unknown directive; no registered semantics",
+        "unsupported scroll mode/parameters"
+      ],
+      "global_control_blockers": 33,
+      "kind": "STAGE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "max_group_requirement": 0,
+      "next_after": false,
+      "ordinal": 4,
+      "packed_queue_candidate_count": 46,
+      "packed_queue_count": null,
+      "queue_inventory_complete": false,
+      "required_models": [
+        "foot01",
+        "foot02",
+        "foot03",
+        "foot04",
+        "mouser",
+        "pipef",
+        "pipef2",
+        "wdrop",
+        "whited"
+      ],
+      "set_name": "Play_Demo",
+      "simultaneous_actor_verdict": "requires scheduler capacity proof; group bound is not total spawns",
+      "source_path": "data\\LEVELS\\SEWER.TXT",
+      "status": "BLOCKED"
+    },
+    {
+      "authored_path": "data/scenes/ENDING.TXT",
+      "capability": "BLOCKED_SOURCE_OR_RUNTIME",
+      "diagnostics": [],
+      "global_control_blockers": 33,
+      "kind": "SCENE",
+      "link_blocker": "project-local media/actor encoding and final build backend required",
+      "next_after": false,
+      "ordinal": 5,
+      "set_name": "Play_Demo",
+      "source_path": "data\\SCENES\\ENDING.TXT",
+      "status": "BLOCKED"
+    }
+  ],
+  "global_controls": [
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "timeloc",
+      "line": 14,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "150",
+        "500",
+        "37",
+        "35",
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "maxplayers",
+      "line": 15,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1score",
+      "line": 17,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "9",
+        "10",
+        "1",
+        "500",
+        "1",
+        "500"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1icon",
+      "line": 18,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "5",
+        "5"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1life",
+      "line": 19,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "9",
+        "27"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1lifex",
+      "line": 20,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "130",
+        "500"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1lifen",
+      "line": 21,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "145",
+        "500"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e1icon",
+      "line": 22,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1",
+        "35"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e1life",
+      "line": 23,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "26",
+        "52"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "e1name",
+      "line": 24,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "26",
+        "35"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "p1smenu",
+      "line": 28,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1",
+        "1",
+        "0",
+        "260"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lbarsize",
+      "line": 29,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "100",
+        "5",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "showcomplete",
+      "line": 30,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "0",
+        "20",
+        "115",
+        "20",
+        "140",
+        "20"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "clearbonus",
+      "line": 31,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "0",
+        "485",
+        "0",
+        "485",
+        "0",
+        "485",
+        "485",
+        "0",
+        "85"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lifebonus",
+      "line": 32,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "0",
+        "485",
+        "0",
+        "485",
+        "0",
+        "485",
+        "485",
+        "0",
+        "85"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "totalscore",
+      "line": 33,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "0",
+        "485",
+        "0",
+        "485",
+        "0",
+        "485",
+        "485",
+        "0",
+        "85"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "completebg",
+      "line": 34,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 41,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "315",
+        "475",
+        "300"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lives",
+      "line": 42,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credits",
+      "line": 43,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 46,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "285",
+        "475",
+        "200"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lives",
+      "line": 47,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credits",
+      "line": 48,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 53,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "285",
+        "475",
+        "200"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lives",
+      "line": 54,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credits",
+      "line": 55,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "z",
+      "line": 60,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "300",
+        "475",
+        "300"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lives",
+      "line": 61,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credits",
+      "line": 62,
+      "reason": "uninterpreted progression/global control; retained, scope not guessed",
+      "source_file": "data\\LEVELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "nocost",
+      "line": 8,
+      "reason": "uninterpreted model/global control",
+      "source_file": "DATA/MODELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "nodropen",
+      "line": 9,
+      "reason": "uninterpreted model/global control",
+      "source_file": "DATA/MODELS.TXT",
+      "value": [
+        "1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "lifescore",
+      "line": 10,
+      "reason": "uninterpreted model/global control",
+      "source_file": "DATA/MODELS.TXT",
+      "value": [
+        "-1"
+      ]
+    },
+    {
+      "category": "UNKNOWN_SOURCE_SEMANTIC",
+      "directive": "credscore",
+      "line": 11,
+      "reason": "uninterpreted model/global control",
+      "source_file": "DATA/MODELS.TXT",
+      "value": [
+        "0"
+      ]
+    }
+  ],
+  "input_name": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+  "inventory": {
+    "levels": {
+      "clearbonus": 1,
+      "completebg": 1,
+      "credits": 4,
+      "e1icon": 1,
+      "e1life": 1,
+      "e1name": 1,
+      "file": 4,
+      "lbarsize": 1,
+      "lifebonus": 1,
+      "lives": 4,
+      "maxplayers": 1,
+      "next": 2,
+      "p1icon": 1,
+      "p1life": 1,
+      "p1lifen": 1,
+      "p1lifex": 1,
+      "p1score": 1,
+      "p1smenu": 1,
+      "scene": 2,
+      "set": 1,
+      "showcomplete": 1,
+      "timeloc": 1,
+      "totalscore": 1,
+      "z": 4
+    },
+    "model": {
+      "alpha": 15,
+      "anim": 191,
+      "atchain": 3,
+      "attack": 80,
+      "bbox": 120,
+      "candamage": 10,
+      "cantgrab": 9,
+      "death": 3,
+      "delay": 281,
+      "diesound": 50,
+      "dive": 1,
+      "flash": 1,
+      "frame": 698,
+      "fshadow": 1,
+      "gfxshadow": 22,
+      "health": 59,
+      "hitflash": 22,
+      "icon": 56,
+      "jumpframe": 1,
+      "jumpheight": 1,
+      "jumpmove": 1,
+      "load": 4,
+      "loop": 127,
+      "makeinv": 1,
+      "name": 67,
+      "noatflash": 1,
+      "nodieblink": 9,
+      "nodrop": 3,
+      "nolife": 44,
+      "offset": 201,
+      "range": 27,
+      "remap": 9,
+      "setlayer": 12,
+      "shadow": 67,
+      "shootframe": 1,
+      "sound": 26,
+      "speed": 10,
+      "speedf": 21,
+      "subtype": 1,
+      "toflip": 1,
+      "type": 67
+    },
+    "scene": {
+      "animation": 2,
+      "music": 2
+    },
+    "stage": {
+      "=============================================": 1,
+      "===========================================================": 1,
+      "==============================================================": 2,
+      "alias": 102,
+      "at": 291,
+      "background": 4,
+      "bglayer": 2,
+      "blockade": 25,
+      "boss": 2,
+      "bossmusic": 4,
+      "coords": 230,
+      "direction": 4,
+      "flip": 10,
+      "health": 84,
+      "light": 4,
+      "map": 34,
+      "maxenemy": 1,
+      "music": 4,
+      "order": 4,
+      "panel": 43,
+      "settime": 4,
+      "spawn": 230,
+      "wait": 32,
+      "water": 1
+    }
+  },
+  "mode": "analysis-only",
+  "models": {
+    "bebop": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 0,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "no certified target event/attack-type lowering",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/bebop/bebop.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 3,
+        "attack2": 4,
+        "fall": 2,
+        "idle": 2,
+        "pain": 2,
+        "rise": 1,
+        "riseattack": 5,
+        "upper": 4,
+        "walk": 12
+      },
+      "source_path": "data\\CHARS\\BEBOP\\BEBOP.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "diesound": "data/sounds/BebopDie.wav",
+        "gfxshadow": "1",
+        "health": "400",
+        "icon": "data/chars/bebop/icon.gif",
+        "name": "Bebop",
+        "nodieblink": "3",
+        "nodrop": "0",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "15",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "bg2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 8,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/bg2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\BG2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/bgs/test/bg2.gif",
+        "name": "bg2",
+        "nolife": "1",
+        "setlayer": "-200",
+        "shadow": "0",
+        "speedf": "0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "blood": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 9,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/blood/blood.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 4
+      },
+      "source_path": "data\\CHARS\\MISC\\BLOOD\\BLOOD.TXT",
+      "stats": {
+        "alpha": "2",
+        "name": "Blood",
+        "shadow": "0",
+        "toflip": "1",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "box": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 10,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/box.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\BOX.TXT",
+      "stats": {
+        "diesound": "data/sounds/wood.wav",
+        "health": "1",
+        "icon": "data/chars/misc/boxicon.gif",
+        "name": "Box",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "car": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 11,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/car.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\CAR.TXT",
+      "stats": {
+        "health": "-1",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Car",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "chair": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 12,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/chair.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\CHAIR.TXT",
+      "stats": {
+        "diesound": "data/sounds/wood.wav",
+        "health": "1",
+        "icon": "data/chars/misc/charicon.gif",
+        "name": "Chair",
+        "shadow": "3",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "crate": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 13,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/crate.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\CRATE.TXT",
+      "stats": {
+        "diesound": "data/sounds/wood.wav",
+        "health": "1",
+        "icon": "data/chars/misc/boxicon.gif",
+        "name": "Crate",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "drum": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 14,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/drum.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\DRUM.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "1",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Drum",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "epole": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 15,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/epole.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\EPOLE.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Epole",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "epole2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 16,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/epole2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\EPOLE2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Epole2",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "epolef": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 17,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/epolef.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\EPOLEF.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Epolef",
+        "nolife": "1",
+        "shadow": "4",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "epolef2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 18,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/epolef2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\EPOLEF2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Epolef2",
+        "nolife": "1",
+        "shadow": "4",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "epolef3": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 19,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/epolef3.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\EPOLEF3.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Epolef3",
+        "nolife": "1",
+        "shadow": "4",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "fence": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 20,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/fence.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\FENCE.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "1",
+        "icon": "data/chars/misc/trasicon.gif",
+        "name": "fence",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "fg": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 21,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/fg.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\FG.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/bgs/test/fg.gif",
+        "name": "fg",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "flash": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 22,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/flash.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 11
+      },
+      "source_path": "data\\CHARS\\MISC\\FLASH.TXT",
+      "stats": {
+        "alpha": "1",
+        "name": "Flash",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "flash2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 23,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/flash/flash2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 5
+      },
+      "source_path": "data\\CHARS\\MISC\\FLASH\\FLASH2.TXT",
+      "stats": {
+        "alpha": "1",
+        "name": "Flash2",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "foot01": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 1,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/foot01/foot01.txt"
+      ],
+      "remap_count": 2,
+      "roles": {
+        "attack1": 5,
+        "attack2": 5,
+        "attack3": 5,
+        "fall": 2,
+        "idle": 4,
+        "pain": 3,
+        "rise": 1,
+        "upper": 5,
+        "walk": 6
+      },
+      "source_path": "data\\CHARS\\FOOT01\\FOOT01.TXT",
+      "stats": {
+        "atchain": [
+          "1",
+          "2",
+          "3"
+        ],
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "diesound": "data/sounds/FootDie.wav",
+        "gfxshadow": "1",
+        "health": "70",
+        "icon": "data/chars/foot01/icon.gif",
+        "name": "Foot01",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "9",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "foot02": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 2,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/foot02/foot02.txt"
+      ],
+      "remap_count": 2,
+      "roles": {
+        "attack1": 5,
+        "attack2": 5,
+        "attack3": 5,
+        "fall": 2,
+        "idle": 6,
+        "pain": 3,
+        "rise": 1,
+        "upper": 5,
+        "walk": 8
+      },
+      "source_path": "data\\CHARS\\FOOT02\\FOOT02.TXT",
+      "stats": {
+        "atchain": [
+          "1",
+          "2",
+          "3"
+        ],
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "death": "2",
+        "diesound": "data/sounds/FootDie.wav",
+        "gfxshadow": "1",
+        "health": "70",
+        "icon": "data/chars/foot01/icon.gif",
+        "name": "Foot02",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "9",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "foot03": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 3,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/foot03/foot03.txt"
+      ],
+      "remap_count": 2,
+      "roles": {
+        "attack1": 4,
+        "fall": 2,
+        "idle": 1,
+        "pain": 3,
+        "rise": 1,
+        "upper": 4,
+        "walk": 6
+      },
+      "source_path": "data\\CHARS\\FOOT03\\FOOT03.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "death": "2",
+        "diesound": "data/sounds/FootDie.wav",
+        "gfxshadow": "1",
+        "health": "70",
+        "icon": "data/chars/foot01/icon.gif",
+        "name": "Foot03",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "9",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "foot04": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 4,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/foot04/foot04.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 7,
+        "fall": 2,
+        "idle": 1,
+        "pain": 3,
+        "rise": 1,
+        "upper": 7,
+        "walk": 6
+      },
+      "source_path": "data\\CHARS\\FOOT04\\FOOT04.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "diesound": "data/sounds/FootDie.wav",
+        "gfxshadow": "1",
+        "health": "70",
+        "icon": "data/chars/foot01/icon.gif",
+        "name": "Foot04",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "8",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "foot05": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 5,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/foot05/foot05.txt"
+      ],
+      "remap_count": 2,
+      "roles": {
+        "attack1": 2,
+        "fall": 2,
+        "idle": 6,
+        "pain": 4,
+        "rise": 1,
+        "upper": 3,
+        "walk": 8
+      },
+      "source_path": "data\\CHARS\\FOOT05\\FOOT05.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "death": "2",
+        "diesound": "data/sounds/FootDie.wav",
+        "gfxshadow": "1",
+        "health": "70",
+        "icon": "data/chars/foot01/icon.gif",
+        "name": "Foot05",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "9",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "furnace": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 24,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/furnace.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 8
+      },
+      "source_path": "data\\CHARS\\MISC\\FURNACE.TXT",
+      "stats": {
+        "name": "Furnace",
+        "shadow": "0",
+        "type": "None"
+      },
+      "status": "BLOCKED"
+    },
+    "guy": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 25,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/guy.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 56
+      },
+      "source_path": "data\\CHARS\\MISC\\GUY.TXT",
+      "stats": {
+        "health": "-1",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Guy",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "hydrant": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 26,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/hydrant.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\HYDRANT.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Hydrant",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "hydrany": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 27,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/hydrany.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\HYDRANY.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Hydrany",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "knife": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 28,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/knife.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\KNIFE.TXT",
+      "stats": {
+        "health": "1",
+        "name": "Knife",
+        "shadow": "0",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "leather": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 6,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/leather/leather.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 5,
+        "fall": 2,
+        "idle": 2,
+        "pain": 2,
+        "rise": 1,
+        "riseattack": 6,
+        "upper": 5,
+        "walk": 12
+      },
+      "source_path": "data\\CHARS\\LEATHER\\LEATHER.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "diesound": "data/sounds/rhino.wav",
+        "gfxshadow": "1",
+        "health": "300",
+        "icon": "data/chars/Rock/icon.gif",
+        "name": "Leather",
+        "nodieblink": "3",
+        "nodrop": "0",
+        "shadow": "6",
+        "speed": "11",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "leo": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 7,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "missing source asset: data/sounds/TurtleDie.wav",
+        "no certified target event/attack-type lowering"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/leo/leo.txt"
+      ],
+      "remap_count": 1,
+      "roles": {
+        "attack1": 6,
+        "attack2": 6,
+        "attack3": 5,
+        "attack4": 5,
+        "fall": 2,
+        "freespecial": 5,
+        "get": 1,
+        "grab": 1,
+        "grabattack": 3,
+        "idle": 20,
+        "jump": 22,
+        "jumpattack": 2,
+        "jumpattack2": 9,
+        "land": 1,
+        "pain": 1,
+        "rise": 1,
+        "slide": 1,
+        "special": 6,
+        "throw": 2,
+        "waiting": 1,
+        "walk": 8
+      },
+      "source_path": "data\\CHARS\\LEO\\LEO.TXT",
+      "stats": {
+        "atchain": [
+          "1",
+          "2",
+          "3",
+          "1",
+          "2",
+          "4"
+        ],
+        "candamage": "enemy",
+        "gfxshadow": "1",
+        "health": "100",
+        "icon": "data/chars/leo/icon.gif",
+        "jumpheight": "5",
+        "jumpmove": [
+          "3",
+          "0"
+        ],
+        "makeinv": "2",
+        "name": "LEO",
+        "shadow": "6",
+        "speed": "20",
+        "type": "player"
+      },
+      "status": "BLOCKED"
+    },
+    "light": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 30,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/lightb.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 33
+      },
+      "source_path": "data\\CHARS\\MISC\\LIGHTB.TXT",
+      "stats": {
+        "alpha": "5",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "-1",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Lightb",
+        "setlayer": "10",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "light2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 29,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/light2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\LIGHT2.TXT",
+      "stats": {
+        "alpha": "5",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "-1",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Light2",
+        "setlayer": "10",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "mail": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 31,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/mail.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\MAIL.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "mail",
+        "nolife": "1",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "mouser": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 65,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/mouser/mouser.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 9,
+        "backwalk": 8,
+        "fall": 2,
+        "idle": 1,
+        "pain": 2,
+        "rise": 1,
+        "upper": 9,
+        "walk": 8
+      },
+      "source_path": "data\\CHARS\\MOUSER\\MOUSER.TXT",
+      "stats": {
+        "candamage": "player",
+        "cantgrab": "1",
+        "flash": "Flash2",
+        "gfxshadow": "1",
+        "health": "1",
+        "icon": "data/chars/mouser/icon.gif",
+        "name": "Mouser",
+        "noatflash": "1",
+        "nodieblink": "3",
+        "nolife": "1",
+        "shadow": "3",
+        "speed": "10",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "orange": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 32,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/orange.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\ORANGE.TXT",
+      "stats": {
+        "alpha": "2",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Orange",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "parkm": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 33,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/parkm.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 2
+      },
+      "source_path": "data\\CHARS\\MISC\\PARKM.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Parkm",
+        "nolife": "1",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "pipef": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 34,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/pipef.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\PIPEF.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Pipef",
+        "nolife": "1",
+        "setlayer": "300",
+        "shadow": "0",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "pipef2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 35,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/pipef2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\PIPEF2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Pipef2",
+        "nolife": "1",
+        "setlayer": "300",
+        "shadow": "0",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "pizza": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 36,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model subtype"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/pizza.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\PIZZA.TXT",
+      "stats": {
+        "gfxshadow": "1",
+        "health": "100",
+        "icon": "data/chars/misc/applicon.gif",
+        "name": "Pizza",
+        "nolife": "1",
+        "shadow": "5",
+        "subtype": "touch",
+        "type": "item"
+      },
+      "status": "BLOCKED"
+    },
+    "plant": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 37,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/plant.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\PLANT.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Plant",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "ptc": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 38,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/ptc.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 6
+      },
+      "source_path": "data\\CHARS\\MISC\\PTC.TXT",
+      "stats": {
+        "health": "-1",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "PTC",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "rock": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 66,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/rock/rock.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "attack1": 9,
+        "attack2": 4,
+        "fall": 2,
+        "idle": 6,
+        "pain": 2,
+        "rise": 1,
+        "riseattack": 5,
+        "upper": 4,
+        "walk": 12
+      },
+      "source_path": "data\\CHARS\\ROCK\\ROCK.TXT",
+      "stats": {
+        "candamage": [
+          "player",
+          "enemy"
+        ],
+        "cantgrab": "1",
+        "diesound": "data/sounds/RockDie.wav",
+        "gfxshadow": "1",
+        "health": "400",
+        "icon": "data/chars/Rock/icon.gif",
+        "name": "Rock",
+        "nodieblink": "3",
+        "nodrop": "0",
+        "nolife": "1",
+        "shadow": "6",
+        "speed": "15",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "shot": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 39,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/shot.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 4
+      },
+      "source_path": "data\\CHARS\\MISC\\SHOT.TXT",
+      "stats": {
+        "health": "1",
+        "name": "Shot",
+        "shadow": "0",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "smoke": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 40,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/smoke/smoke.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 4
+      },
+      "source_path": "data\\CHARS\\MISC\\SMOKE\\SMOKE.TXT",
+      "stats": {
+        "alpha": "1",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "-1",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Smoke",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "star": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 41,
+      "diagnostics": [
+        "active attack boxes outside attack roles require generic hit-dispatch binding",
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/star.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 4
+      },
+      "source_path": "data\\CHARS\\MISC\\STAR.TXT",
+      "stats": {
+        "health": "1",
+        "name": "Star",
+        "shadow": "0",
+        "type": "enemy"
+      },
+      "status": "BLOCKED"
+    },
+    "steam": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 42,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/steam.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 11
+      },
+      "source_path": "data\\CHARS\\MISC\\STEAM.TXT",
+      "stats": {
+        "alpha": "1",
+        "name": "Steam",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "steamer": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 43,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/steamer.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\STEAMER.TXT",
+      "stats": {
+        "name": "Steamer",
+        "shadow": "0",
+        "type": "steamer"
+      },
+      "status": "BLOCKED"
+    },
+    "steamerf": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 44,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "project-local dependency has explicit compatibility blockers; inspect its model diagnostics"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/steamerf.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\STEAMERF.TXT",
+      "stats": {
+        "name": "Steamerf",
+        "shadow": "0",
+        "type": "steamer"
+      },
+      "status": "BLOCKED"
+    },
+    "steamf": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 45,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/steamf.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 11
+      },
+      "source_path": "data\\CHARS\\MISC\\STEAMF.TXT",
+      "stats": {
+        "name": "Steamf",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "table": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 46,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/table.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TABLE.TXT",
+      "stats": {
+        "diesound": "data/sounds/wood.wav",
+        "health": "1",
+        "icon": "data/chars/misc/tablicon.gif",
+        "name": "Table",
+        "shadow": "5",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "time": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 47,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/time.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TIME.TXT",
+      "stats": {
+        "health": "0",
+        "icon": "data/chars/misc/timeicon.gif",
+        "name": "Time",
+        "shadow": "0",
+        "type": "item"
+      },
+      "status": "BLOCKED"
+    },
+    "trash": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 48,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trash.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASH.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "1",
+        "icon": "data/chars/misc/trasicon.gif",
+        "name": "Trash",
+        "nolife": "1",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "trash1": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 49,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trash1.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASH1.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "trash1",
+        "nolife": "1",
+        "shadow": "5",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "trash2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 50,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trash2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASH2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "trash2",
+        "nolife": "1",
+        "shadow": "5",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "trash3": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 51,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trash3.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASH3.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "trash3",
+        "nolife": "1",
+        "shadow": "5",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "trashf": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 52,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trashf.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASHF.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "trashf",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "trashf2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 53,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trashf2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TRASHF2.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "trashf2",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "tree": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 54,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/tree.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TREE.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "gfxshadow": "1",
+        "health": "2147483647",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Tree",
+        "nolife": "1",
+        "shadow": "4",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "trolly": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 55,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/trolly.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\TROLLY.TXT",
+      "stats": {
+        "diesound": "data/sounds/wood.wav",
+        "health": "1",
+        "icon": "data/chars/misc/carticon.gif",
+        "name": "Trolly",
+        "shadow": "0",
+        "type": "obstacle"
+      },
+      "status": "BLOCKED"
+    },
+    "waterf": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 56,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/waterf.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 9
+      },
+      "source_path": "data\\CHARS\\MISC\\WATERF.TXT",
+      "stats": {
+        "alpha": "6",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Waterf",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "waterf2": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 57,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/waterf2.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 9
+      },
+      "source_path": "data\\CHARS\\MISC\\WATERF2.TXT",
+      "stats": {
+        "alpha": "6",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "Waterf2",
+        "nolife": "1",
+        "shadow": "0",
+        "speedf": "-0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "wdrop": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 58,
+      "diagnostics": [
+        "behavior/defaults require dialect validation"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/wdrop.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 27
+      },
+      "source_path": "data\\CHARS\\MISC\\WDROP.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "-1",
+        "icon": "data/chars/misc/drumicon.gif",
+        "name": "Wdrop",
+        "shadow": "0",
+        "type": "none"
+      },
+      "status": "BLOCKED"
+    },
+    "wfence": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 59,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/wfence.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\WFENCE.TXT",
+      "stats": {
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/bgs/streets2/wfence.gif",
+        "name": "wfence",
+        "nolife": "1",
+        "setlayer": "-50",
+        "shadow": "0",
+        "speedf": "0.2",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "whiteb": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 60,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/whiteb.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\WHITEB.TXT",
+      "stats": {
+        "alpha": "2",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "WhiteB",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "whitec": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 61,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/whitec.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\WHITEC.TXT",
+      "stats": {
+        "alpha": "2",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "WhiteC",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "whited": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 62,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/whited.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\WHITED.TXT",
+      "stats": {
+        "alpha": "2",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "WhiteD",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "yellowb": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 63,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/yellowb.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\YELLOWB.TXT",
+      "stats": {
+        "alpha": "5",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "YellowB",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    },
+    "yellowd": {
+      "behavior": {
+        "reason": "engine defaults/behavior not established for this dialect",
+        "status": "UNKNOWN_SOURCE_SEMANTIC"
+      },
+      "candidate_id": 64,
+      "diagnostics": [
+        "behavior/defaults require dialect validation",
+        "directive retained without an established dialect meaning",
+        "unbound model type"
+      ],
+      "identity": [
+        "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+        "data/chars/misc/yellowd.txt"
+      ],
+      "remap_count": 0,
+      "roles": {
+        "fall": 1,
+        "idle": 1
+      },
+      "source_path": "data\\CHARS\\MISC\\YELLOWD.TXT",
+      "stats": {
+        "alpha": "4",
+        "diesound": "data/sounds/klunk.wav",
+        "health": "2147483647",
+        "icon": "data/chars/misc/empty.gif",
+        "name": "YellowD",
+        "nolife": "1",
+        "setlayer": "310",
+        "shadow": "0",
+        "speedf": "1",
+        "type": "panel"
+      },
+      "status": "BLOCKED"
+    }
+  },
+  "project_id": "9b0a36e29147177a0a8603f78adeaa3ce227aef83557d2cc7ff6964d46cdd8c3",
+  "publication": {
+    "enabled": false,
+    "reason": "dry run; model IR is not an executable actor artifact"
+  },
+  "resources": {
+    "actor_catalog_exceeded": true,
+    "actor_id_limit_exceeded": false,
+    "limits": {
+      "actor_canvas": [
+        32,
+        48
+      ],
+      "actor_id_hardware_limit": 255,
+      "alternate_palettes": 3,
+      "bytes_per_palette": 32,
+      "current_actor_catalog_capacity": 45,
+      "current_stage_catalog_capacity": 32,
+      "final_msu_bytes": null,
+      "frame_bytes": 768,
+      "frame_count_limit": 255,
+      "note": "null footprints require successful encoding/link, not an invented estimate; catalog maxima are current build settings",
+      "queue_record_bytes": 10,
+      "queue_records": 90,
+      "rom_bytes": null,
+      "scene_canvas": [
+        256,
+        192
+      ],
+      "scene_tile_limit": 384,
+      "stage_id_hardware_limit": 255
+    },
+    "max_model_maps": 2,
+    "required_audio": [
+      "data/music/TMNT.BOR",
+      "data/music/TMNTEnd.bor",
+      "data/music/boss.bor",
+      "data/music/remix/Boss.bor",
+      "data/music/remix/Gliese86.bor",
+      "data/music/remix/Painovo.bor",
+      "data/music/remix/Tau1.bor",
+      "data/music/remix/Zeta1.bor"
+    ],
+    "source_model_count": 67,
+    "source_scene_count": 2,
+    "source_stage_count": 4,
+    "unique_frame_assets": 367
+  },
+  "schema": 1,
+  "sets": [
+    {
+      "ifcomplete": 0,
+      "name": "Play_Demo",
+      "source_id": 0
+    }
+  ],
+  "summary": {
+    "adapter_candidates": 0,
+    "blocked_source_or_runtime": 6,
+    "certified": 0,
+    "scene_entries": 2,
+    "sets": 1,
+    "source_models": 67,
+    "stage_entries": 4
+  }
+}

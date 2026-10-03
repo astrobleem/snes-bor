@@ -1,0 +1,64 @@
+{
+  "entity": "Biker-K'",
+  "prefix": "out/biker_k",
+  "subtype": "biker",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/biker_k_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "pain",
+      "dir": "out/biker_k_pain",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": null,
+    "pain": 1,
+    "fall": null,
+    "rise": null,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": null,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      23388,
+      8911,
+      19092,
+      9743,
+      12718,
+      0,
+      19777,
+      2403,
+      1188,
+      3368,
+      5352,
+      31775,
+      12416,
+      1188,
+      31775
+    ]
+  ]
+}

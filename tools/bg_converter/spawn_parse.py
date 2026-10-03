@@ -70,7 +70,7 @@ does with it" in separate, individually-inspectable layers.
 import sys
 
 
-SPAWN_KEYS = {'alias', 'map', 'health', 'item', 'boss', 'flip', 'coords'}
+SPAWN_KEYS = {'alias', 'map', 'health', 'item', '2pitem', 'boss', 'flip', 'coords'}
 
 
 class SpawnEvent:
@@ -83,6 +83,7 @@ class SpawnEvent:
         self.map = 0
         self.health = None
         self.item = None
+        self.if2p = False
         self.boss = False
         self.flip = 0
         self.coords = (0, 0)
@@ -149,6 +150,10 @@ def parse_spawns(text):
                 pending.health = int(parts[1])
             elif keyword == 'item':
                 pending.item = parts[1] if len(parts) > 1 else None
+                pending.if2p = False
+            elif keyword == '2pitem':
+                pending.item = parts[1] if len(parts) > 1 else None
+                pending.if2p = True
             elif keyword == 'boss':
                 pending.boss = bool(int(parts[1]))
             elif keyword == 'flip':

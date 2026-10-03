@@ -1,0 +1,166 @@
+{
+  "entity": "Angel",
+  "prefix": "out/angel",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/angel_idle",
+      "frames": 8
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/angel_walk",
+      "frames": 11
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/angel_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/angel_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/angel_rise",
+      "frames": 4
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/angel_attack1",
+      "frames": 18
+    },
+    {
+      "ordinal": 6,
+      "name": "throw",
+      "dir": "out/angel_throw",
+      "frames": 6
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      29662,
+      23487,
+      21239,
+      17215,
+      12922,
+      6547,
+      3229,
+      19029,
+      0,
+      11628,
+      22,
+      17,
+      2320,
+      6344,
+      0
+    ],
+    [
+      0,
+      23487,
+      23487,
+      11034,
+      17215,
+      12922,
+      6547,
+      6583,
+      18881,
+      0,
+      14729,
+      4369,
+      174,
+      2320,
+      10502,
+      0
+    ],
+    [
+      0,
+      11034,
+      23487,
+      4597,
+      17215,
+      12922,
+      6547,
+      18798,
+      19777,
+      0,
+      16609,
+      15628,
+      10376,
+      2320,
+      12416,
+      0
+    ],
+    [
+      0,
+      8959,
+      23487,
+      3645,
+      15070,
+      9784,
+      6547,
+      12718,
+      12718,
+      0,
+      8490,
+      8490,
+      6344,
+      174,
+      6344,
+      0
+    ],
+    [
+      0,
+      17215,
+      23487,
+      8959,
+      17215,
+      12922,
+      6547,
+      7675,
+      9743,
+      0,
+      7596,
+      1334,
+      174,
+      2320,
+      3368,
+      0
+    ]
+  ]
+}

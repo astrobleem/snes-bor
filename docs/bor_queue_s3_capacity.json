@@ -1,0 +1,2776 @@
+{
+  "baseline_layout": {
+    "allocated_bytes": 900,
+    "base": "0x7e550f",
+    "capacity": 90,
+    "commit": "28c71f99c51428bb3d18457b434fd5973048a01e",
+    "following_region": {
+      "0x7e5893": [
+        "Spawn_ScratchKind"
+      ],
+      "0x7e5894": [
+        "Spawn_ScratchHp"
+      ],
+      "0x7e5895": [
+        "Spawn_GroupMin"
+      ],
+      "0x7e5896": [
+        "Spawn_GroupMax"
+      ],
+      "0x7e5897": [
+        "Spawn_Waiting"
+      ],
+      "0x7e5898": [
+        "Spawn_PreClearHoldX"
+      ],
+      "0x7e589a": [
+        "Entity1_IsBoss"
+      ],
+      "0x7e589b": [
+        "Entity2_IsBoss"
+      ],
+      "0x7e589c": [
+        "Entity3_IsBoss"
+      ],
+      "0x7e589d": [
+        "Spawn_ScratchEnemyCount"
+      ],
+      "0x7e589e": [
+        "Spawn_ScratchMap"
+      ],
+      "0x7e589f": [
+        "MapApply_Index"
+      ],
+      "0x7e58a0": [
+        "MapApply_PaletteBaseLo"
+      ],
+      "0x7e58a2": [
+        "MapApply_PaletteBaseHi"
+      ],
+      "0x7e58a3": [
+        "MapApply_MapBaseLo"
+      ],
+      "0x7e58a5": [
+        "MapApply_MapBaseHi"
+      ],
+      "0x7e58a6": [
+        "MapApply_PaletteSlot"
+      ],
+      "0x7e58a7": [
+        "Spawn_ScratchRosterIdx"
+      ],
+      "0x7e58a8": [
+        "Spawn_ScratchPickupType"
+      ],
+      "0x7e58a9": [
+        "Spawn_ScratchPrevWasProp"
+      ],
+      "0x7e58aa": [
+        "Spawn_SavedCharSelectIndex"
+      ],
+      "0x7e58ab": [
+        "Entity1_ItemRosterIdx"
+      ],
+      "0x7e58ac": [
+        "Entity2_ItemRosterIdx"
+      ],
+      "0x7e58ad": [
+        "Entity3_ItemRosterIdx"
+      ],
+      "0x7e58ae": [
+        "Spawn_ScratchItemRosterIdx"
+      ],
+      "0x7e58af": [
+        "Spawn_ScratchSlotOfs"
+      ],
+      "0x7e58b6": [
+        "Entity4_IsBoss"
+      ],
+      "0x7e58b7": [
+        "Entity5_IsBoss"
+      ],
+      "0x7e58b8": [
+        "Entity4_ItemRosterIdx"
+      ],
+      "0x7e58b9": [
+        "Entity5_ItemRosterIdx"
+      ],
+      "0x7e58ba": [
+        "Spawn_SavedCharSelectLoaded"
+      ],
+      "0x7e58bb": [
+        "Spawn_SavedCharSelectCount"
+      ],
+      "0x7e58bc": [
+        "Spawn_RosterLoadResult"
+      ],
+      "0x7e58c1": [
+        "G12_StageTrace_Entry"
+      ],
+      "0x7e58c2": [
+        "G12_StageTrace_Hp1"
+      ],
+      "0x7e58c3": [
+        "G12_StageTrace_Hp2"
+      ],
+      "0x7e58c4": [
+        "G12_StageTrace_Hp3"
+      ],
+      "0x7e58c5": [
+        "G12_StageTrace_Hp4"
+      ],
+      "0x7e58c6": [
+        "G12_StageTrace_Hp5"
+      ],
+      "0x7e58c7": [
+        "G12_StageTrace_Carry"
+      ],
+      "0x7e58c8": [
+        "G12_AnimTrace_Index"
+      ],
+      "0x7e58c9": [
+        "G12_AnimTrace_Overflow"
+      ],
+      "0x7e58ca": [
+        "G12_AnimTrace_SavedA"
+      ],
+      "0x7e58cb": [
+        "G12_AnimTrace_Event"
+      ],
+      "0x7e58cc": [
+        "G12_AnimTrace_LastDp"
+      ],
+      "0x7e58ce": [
+        "G12_AnimTrace_LastEvent"
+      ],
+      "0x7e58cf": [
+        "G12_AnimTrace_LastValue"
+      ],
+      "0x7e58d0": [
+        "G12_AnimTrace_LastInput"
+      ],
+      "0x7e58d9": [
+        "HudCachedScore"
+      ],
+      "0x7e58dd": [
+        "HudCachedP2Score"
+      ],
+      "0x7e58e5": [
+        "HudCachedLives16",
+        "HudCachedLives"
+      ],
+      "0x7e58e7": [
+        "HudCachedP2Lives16",
+        "HudCachedP2Lives"
+      ],
+      "0x7e58f0": [
+        "Spawn_HoleCount"
+      ],
+      "0x7e58f1": [
+        "Spawn_HolePos1"
+      ],
+      "0x7e58f3": [
+        "Spawn_HolePos2"
+      ],
+      "0x7e58f5": [
+        "Spawn_HolePos3"
+      ],
+      "0x7e58f7": [
+        "Spawn_ScratchSubtype"
+      ],
+      "0x7e58f8": [
+        "Spawn_HoleTilt1"
+      ],
+      "0x7e58fa": [
+        "Spawn_HoleTilt2"
+      ],
+      "0x7e58fc": [
+        "Spawn_B2Kind"
+      ],
+      "0x7e58fd": [
+        "Spawn_B2Subtype"
+      ],
+      "0x7e58fe": [
+        "Spawn_B2Roster"
+      ],
+      "0x7e58ff": [
+        "Spawn_B2Hp"
+      ]
+    },
+    "overflow": [
+      {
+        "bytes_copied": 920,
+        "first_oob": "0x7e5893",
+        "last_oob": "0x7e58a6",
+        "overflow_bytes": 20,
+        "overwritten_object_starts": {
+          "0x7e5893": [
+            "Spawn_ScratchKind"
+          ],
+          "0x7e5894": [
+            "Spawn_ScratchHp"
+          ],
+          "0x7e5895": [
+            "Spawn_GroupMin"
+          ],
+          "0x7e5896": [
+            "Spawn_GroupMax"
+          ],
+          "0x7e5897": [
+            "Spawn_Waiting"
+          ],
+          "0x7e5898": [
+            "Spawn_PreClearHoldX"
+          ],
+          "0x7e589a": [
+            "Entity1_IsBoss"
+          ],
+          "0x7e589b": [
+            "Entity2_IsBoss"
+          ],
+          "0x7e589c": [
+            "Entity3_IsBoss"
+          ],
+          "0x7e589d": [
+            "Spawn_ScratchEnemyCount"
+          ],
+          "0x7e589e": [
+            "Spawn_ScratchMap"
+          ],
+          "0x7e589f": [
+            "MapApply_Index"
+          ],
+          "0x7e58a0": [
+            "MapApply_PaletteBaseLo"
+          ],
+          "0x7e58a2": [
+            "MapApply_PaletteBaseHi"
+          ],
+          "0x7e58a3": [
+            "MapApply_MapBaseLo"
+          ],
+          "0x7e58a5": [
+            "MapApply_MapBaseHi"
+          ],
+          "0x7e58a6": [
+            "MapApply_PaletteSlot"
+          ]
+        },
+        "records": 92
+      },
+      {
+        "bytes_copied": 940,
+        "first_oob": "0x7e5893",
+        "last_oob": "0x7e58ba",
+        "overflow_bytes": 40,
+        "overwritten_object_starts": {
+          "0x7e5893": [
+            "Spawn_ScratchKind"
+          ],
+          "0x7e5894": [
+            "Spawn_ScratchHp"
+          ],
+          "0x7e5895": [
+            "Spawn_GroupMin"
+          ],
+          "0x7e5896": [
+            "Spawn_GroupMax"
+          ],
+          "0x7e5897": [
+            "Spawn_Waiting"
+          ],
+          "0x7e5898": [
+            "Spawn_PreClearHoldX"
+          ],
+          "0x7e589a": [
+            "Entity1_IsBoss"
+          ],
+          "0x7e589b": [
+            "Entity2_IsBoss"
+          ],
+          "0x7e589c": [
+            "Entity3_IsBoss"
+          ],
+          "0x7e589d": [
+            "Spawn_ScratchEnemyCount"
+          ],
+          "0x7e589e": [
+            "Spawn_ScratchMap"
+          ],
+          "0x7e589f": [
+            "MapApply_Index"
+          ],
+          "0x7e58a0": [
+            "MapApply_PaletteBaseLo"
+          ],
+          "0x7e58a2": [
+            "MapApply_PaletteBaseHi"
+          ],
+          "0x7e58a3": [
+            "MapApply_MapBaseLo"
+          ],
+          "0x7e58a5": [
+            "MapApply_MapBaseHi"
+          ],
+          "0x7e58a6": [
+            "MapApply_PaletteSlot"
+          ],
+          "0x7e58a7": [
+            "Spawn_ScratchRosterIdx"
+          ],
+          "0x7e58a8": [
+            "Spawn_ScratchPickupType"
+          ],
+          "0x7e58a9": [
+            "Spawn_ScratchPrevWasProp"
+          ],
+          "0x7e58aa": [
+            "Spawn_SavedCharSelectIndex"
+          ],
+          "0x7e58ab": [
+            "Entity1_ItemRosterIdx"
+          ],
+          "0x7e58ac": [
+            "Entity2_ItemRosterIdx"
+          ],
+          "0x7e58ad": [
+            "Entity3_ItemRosterIdx"
+          ],
+          "0x7e58ae": [
+            "Spawn_ScratchItemRosterIdx"
+          ],
+          "0x7e58af": [
+            "Spawn_ScratchSlotOfs"
+          ],
+          "0x7e58b6": [
+            "Entity4_IsBoss"
+          ],
+          "0x7e58b7": [
+            "Entity5_IsBoss"
+          ],
+          "0x7e58b8": [
+            "Entity4_ItemRosterIdx"
+          ],
+          "0x7e58b9": [
+            "Entity5_ItemRosterIdx"
+          ],
+          "0x7e58ba": [
+            "Spawn_SavedCharSelectLoaded"
+          ]
+        },
+        "records": 94
+      }
+    ]
+  },
+  "complete_normal": {
+    "arena_end_exclusive": 8364032,
+    "buffer_base": 8360448,
+    "buffer_bytes": 1070,
+    "buffer_end_exclusive": 8361518,
+    "capacity": 107,
+    "catalog_count_bits": 16,
+    "copy_count_bits": 16,
+    "error_address": 8364031,
+    "guard_bytes": 32,
+    "record_size": 10,
+    "runtime_count_bits": 8,
+    "runtime_index_bits": 8,
+    "stages": [
+      {
+        "authored_at_directives": 43,
+        "authored_records": 43,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 43,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 43,
+        "required_bytes": 430,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\1A.TXT",
+        "stage": 0
+      },
+      {
+        "authored_at_directives": 37,
+        "authored_records": 37,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 37,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 37,
+        "required_bytes": 370,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\1B.TXT",
+        "stage": 1
+      },
+      {
+        "authored_at_directives": 22,
+        "authored_records": 22,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 22,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 22,
+        "required_bytes": 220,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\1C.TXT",
+        "stage": 2
+      },
+      {
+        "authored_at_directives": 81,
+        "authored_records": 81,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 84,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 81,
+        "required_bytes": 840,
+        "runtime_added_records": 3,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\2.TXT",
+        "stage": 3
+      },
+      {
+        "authored_at_directives": 45,
+        "authored_records": 45,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 45,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 45,
+        "required_bytes": 450,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\3A.TXT",
+        "stage": 4
+      },
+      {
+        "authored_at_directives": 40,
+        "authored_records": 40,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 40,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 40,
+        "required_bytes": 400,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\3B.TXT",
+        "stage": 5
+      },
+      {
+        "authored_at_directives": 31,
+        "authored_records": 31,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 31,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 31,
+        "required_bytes": 310,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\3C.TXT",
+        "stage": 6
+      },
+      {
+        "authored_at_directives": 63,
+        "authored_records": 63,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 63,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 63,
+        "required_bytes": 630,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\4A.TXT",
+        "stage": 7
+      },
+      {
+        "authored_at_directives": 52,
+        "authored_records": 52,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 52,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 52,
+        "required_bytes": 520,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\4B.TXT",
+        "stage": 8
+      },
+      {
+        "authored_at_directives": 64,
+        "authored_records": 64,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 64,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 64,
+        "required_bytes": 640,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\5A.TXT",
+        "stage": 9
+      },
+      {
+        "authored_at_directives": 94,
+        "authored_records": 94,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 94,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 94,
+        "required_bytes": 940,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\5B.TXT",
+        "stage": 10
+      },
+      {
+        "authored_at_directives": 107,
+        "authored_records": 107,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 107,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 107,
+        "required_bytes": 1070,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\6A.TXT",
+        "stage": 11
+      },
+      {
+        "authored_at_directives": 19,
+        "authored_records": 19,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 19,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 19,
+        "required_bytes": 190,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\6B.TXT",
+        "stage": 12
+      },
+      {
+        "authored_at_directives": 34,
+        "authored_records": 34,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 34,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 34,
+        "required_bytes": 340,
+        "runtime_added_records": 0,
+        "set": "Normal",
+        "source_path": "DATA\\NORMAL\\6C.TXT",
+        "stage": 14
+      }
+    ],
+    "target_capacity": 255,
+    "version": 1
+  },
+  "production": {
+    "arena_end_exclusive": 8364032,
+    "buffer_base": 8360448,
+    "buffer_bytes": 920,
+    "buffer_end_exclusive": 8361368,
+    "capacity": 92,
+    "catalog_count_bits": 16,
+    "copy_count_bits": 16,
+    "error_address": 8364031,
+    "guard_bytes": 32,
+    "record_size": 10,
+    "runtime_count_bits": 8,
+    "runtime_index_bits": 8,
+    "stages": [
+      {
+        "packed_records": 41,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\1AEASY.TXT",
+        "stage": 0
+      },
+      {
+        "packed_records": 35,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\1BEASY.TXT",
+        "stage": 1
+      },
+      {
+        "packed_records": 20,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\1CEASY.TXT",
+        "stage": 2
+      },
+      {
+        "packed_records": 3,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\BEBOP.TXT",
+        "stage": 3
+      },
+      {
+        "packed_records": 3,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\ROCK.TXT",
+        "stage": 4
+      },
+      {
+        "packed_records": 2,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\LEATHER.TXT",
+        "stage": 5
+      },
+      {
+        "packed_records": 63,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\SEWER0.TXT",
+        "stage": 6
+      },
+      {
+        "packed_records": 67,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\STREETS.TXT",
+        "stage": 7
+      },
+      {
+        "packed_records": 86,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\STREETS2.TXT",
+        "stage": 8
+      },
+      {
+        "packed_records": 46,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\SEWER.TXT",
+        "stage": 9
+      },
+      {
+        "packed_records": 1,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "set": "production",
+        "source_path": "DATA\\LEVELS\\FOOT.TXT",
+        "stage": 10
+      },
+      {
+        "packed_records": 77,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\2EASY.TXT",
+        "stage": 11
+      },
+      {
+        "packed_records": 38,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\3AEASY.TXT",
+        "stage": 12
+      },
+      {
+        "packed_records": 38,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\3BEASY.TXT",
+        "stage": 13
+      },
+      {
+        "packed_records": 31,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\3CEASY.TXT",
+        "stage": 14
+      },
+      {
+        "packed_records": 55,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\4AEASY.TXT",
+        "stage": 15
+      },
+      {
+        "packed_records": 50,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\4BEASY.TXT",
+        "stage": 16
+      },
+      {
+        "packed_records": 54,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\5AEASY.TXT",
+        "stage": 17
+      },
+      {
+        "packed_records": 87,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\5BEASY.TXT",
+        "stage": 18
+      },
+      {
+        "packed_records": 92,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\6AEASY.TXT",
+        "stage": 19
+      },
+      {
+        "packed_records": 15,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\6BEASY.TXT",
+        "stage": 20
+      },
+      {
+        "packed_records": 34,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\EASY\\6CEASY.TXT",
+        "stage": 21
+      },
+      {
+        "packed_records": 43,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\1A.TXT",
+        "stage": 22
+      },
+      {
+        "packed_records": 37,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\1B.TXT",
+        "stage": 23
+      },
+      {
+        "packed_records": 22,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\1C.TXT",
+        "stage": 24
+      },
+      {
+        "packed_records": 84,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\2.TXT",
+        "stage": 25
+      },
+      {
+        "packed_records": 45,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\3A.TXT",
+        "stage": 26
+      },
+      {
+        "packed_records": 40,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\3B.TXT",
+        "stage": 27
+      },
+      {
+        "packed_records": 31,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\3C.TXT",
+        "stage": 28
+      },
+      {
+        "packed_records": 63,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\4A.TXT",
+        "stage": 29
+      },
+      {
+        "packed_records": 52,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\4B.TXT",
+        "stage": 30
+      },
+      {
+        "packed_records": 64,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "set": "production",
+        "source_path": "DATA\\NORMAL\\5A.TXT",
+        "stage": 31
+      }
+    ],
+    "target_capacity": 255,
+    "version": 1
+  },
+  "production_max": {
+    "packed_records": 92,
+    "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+    "set": "production",
+    "source_path": "DATA\\EASY\\6AEASY.TXT",
+    "stage": 19
+  },
+  "projects": [
+    {
+      "complete_packed_inventory": true,
+      "maximum_authored_at": {
+        "authored_at_directives": 184,
+        "authored_records": 184,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 184,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 184,
+        "required_bytes": 1840,
+        "runtime_added_records": 0,
+        "set": "Bonus",
+        "source_path": "DATA\\EXTRA.TXT",
+        "stage": 0
+      },
+      "maximum_packed": {
+        "authored_at_directives": 184,
+        "authored_records": 184,
+        "capacity_status": "PASS",
+        "diagnostics": [],
+        "packed_records": 184,
+        "payload_emitted": false,
+        "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+        "recognized_records": 184,
+        "required_bytes": 1840,
+        "runtime_added_records": 0,
+        "set": "Bonus",
+        "source_path": "DATA\\EXTRA.TXT",
+        "stage": 0
+      },
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "rows": [
+        {
+          "authored_at_directives": 41,
+          "authored_records": 41,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 41,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 41,
+          "required_bytes": 410,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\1AEASY.TXT",
+          "stage": 0
+        },
+        {
+          "authored_at_directives": 35,
+          "authored_records": 35,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 35,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 35,
+          "required_bytes": 350,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\1BEASY.TXT",
+          "stage": 1
+        },
+        {
+          "authored_at_directives": 20,
+          "authored_records": 20,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 20,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 20,
+          "required_bytes": 200,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\1CEASY.TXT",
+          "stage": 2
+        },
+        {
+          "authored_at_directives": 74,
+          "authored_records": 74,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 77,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 74,
+          "required_bytes": 770,
+          "runtime_added_records": 3,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\2EASY.TXT",
+          "stage": 3
+        },
+        {
+          "authored_at_directives": 38,
+          "authored_records": 38,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 38,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 38,
+          "required_bytes": 380,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\3AEASY.TXT",
+          "stage": 4
+        },
+        {
+          "authored_at_directives": 38,
+          "authored_records": 38,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 38,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 38,
+          "required_bytes": 380,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\3BEASY.TXT",
+          "stage": 5
+        },
+        {
+          "authored_at_directives": 31,
+          "authored_records": 31,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 31,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 31,
+          "required_bytes": 310,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\3CEASY.TXT",
+          "stage": 6
+        },
+        {
+          "authored_at_directives": 55,
+          "authored_records": 55,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 55,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 55,
+          "required_bytes": 550,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\4AEASY.TXT",
+          "stage": 7
+        },
+        {
+          "authored_at_directives": 50,
+          "authored_records": 50,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 50,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 50,
+          "required_bytes": 500,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\4BEASY.TXT",
+          "stage": 8
+        },
+        {
+          "authored_at_directives": 54,
+          "authored_records": 54,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 54,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 54,
+          "required_bytes": 540,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\5AEASY.TXT",
+          "stage": 9
+        },
+        {
+          "authored_at_directives": 87,
+          "authored_records": 87,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 87,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 87,
+          "required_bytes": 870,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\5BEASY.TXT",
+          "stage": 10
+        },
+        {
+          "authored_at_directives": 92,
+          "authored_records": 92,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 92,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 92,
+          "required_bytes": 920,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\6AEASY.TXT",
+          "stage": 11
+        },
+        {
+          "authored_at_directives": 15,
+          "authored_records": 15,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 15,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 15,
+          "required_bytes": 150,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\6BEASY.TXT",
+          "stage": 12
+        },
+        {
+          "authored_at_directives": 34,
+          "authored_records": 34,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 34,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 34,
+          "required_bytes": 340,
+          "runtime_added_records": 0,
+          "set": "Easy",
+          "source_path": "DATA\\EASY\\6CEASY.TXT",
+          "stage": 14
+        },
+        {
+          "authored_at_directives": 43,
+          "authored_records": 43,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 43,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 43,
+          "required_bytes": 430,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\1A.TXT",
+          "stage": 0
+        },
+        {
+          "authored_at_directives": 37,
+          "authored_records": 37,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 37,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 37,
+          "required_bytes": 370,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\1B.TXT",
+          "stage": 1
+        },
+        {
+          "authored_at_directives": 22,
+          "authored_records": 22,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 22,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 22,
+          "required_bytes": 220,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\1C.TXT",
+          "stage": 2
+        },
+        {
+          "authored_at_directives": 81,
+          "authored_records": 81,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 84,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 81,
+          "required_bytes": 840,
+          "runtime_added_records": 3,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\2.TXT",
+          "stage": 3
+        },
+        {
+          "authored_at_directives": 45,
+          "authored_records": 45,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 45,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 45,
+          "required_bytes": 450,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\3A.TXT",
+          "stage": 4
+        },
+        {
+          "authored_at_directives": 40,
+          "authored_records": 40,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 40,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 40,
+          "required_bytes": 400,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\3B.TXT",
+          "stage": 5
+        },
+        {
+          "authored_at_directives": 31,
+          "authored_records": 31,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 31,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 31,
+          "required_bytes": 310,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\3C.TXT",
+          "stage": 6
+        },
+        {
+          "authored_at_directives": 63,
+          "authored_records": 63,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 63,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 63,
+          "required_bytes": 630,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\4A.TXT",
+          "stage": 7
+        },
+        {
+          "authored_at_directives": 52,
+          "authored_records": 52,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 52,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 52,
+          "required_bytes": 520,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\4B.TXT",
+          "stage": 8
+        },
+        {
+          "authored_at_directives": 64,
+          "authored_records": 64,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 64,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 64,
+          "required_bytes": 640,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\5A.TXT",
+          "stage": 9
+        },
+        {
+          "authored_at_directives": 94,
+          "authored_records": 94,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 94,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 94,
+          "required_bytes": 940,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\5B.TXT",
+          "stage": 10
+        },
+        {
+          "authored_at_directives": 107,
+          "authored_records": 107,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 107,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 107,
+          "required_bytes": 1070,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\6A.TXT",
+          "stage": 11
+        },
+        {
+          "authored_at_directives": 19,
+          "authored_records": 19,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 19,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 19,
+          "required_bytes": 190,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\6B.TXT",
+          "stage": 12
+        },
+        {
+          "authored_at_directives": 34,
+          "authored_records": 34,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 34,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 34,
+          "required_bytes": 340,
+          "runtime_added_records": 0,
+          "set": "Normal",
+          "source_path": "DATA\\NORMAL\\6C.TXT",
+          "stage": 14
+        },
+        {
+          "authored_at_directives": 51,
+          "authored_records": 51,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 51,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 51,
+          "required_bytes": 510,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\1AHARD.TXT",
+          "stage": 0
+        },
+        {
+          "authored_at_directives": 41,
+          "authored_records": 41,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 41,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 41,
+          "required_bytes": 410,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\1BHARD.TXT",
+          "stage": 1
+        },
+        {
+          "authored_at_directives": 38,
+          "authored_records": 38,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 38,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 38,
+          "required_bytes": 380,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\1CHARD.TXT",
+          "stage": 2
+        },
+        {
+          "authored_at_directives": 112,
+          "authored_records": 112,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 115,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 112,
+          "required_bytes": 1150,
+          "runtime_added_records": 3,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\2HARD.TXT",
+          "stage": 3
+        },
+        {
+          "authored_at_directives": 55,
+          "authored_records": 55,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 55,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 55,
+          "required_bytes": 550,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\3AHARD.TXT",
+          "stage": 4
+        },
+        {
+          "authored_at_directives": 45,
+          "authored_records": 45,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 45,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 45,
+          "required_bytes": 450,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\3BHARD.TXT",
+          "stage": 5
+        },
+        {
+          "authored_at_directives": 31,
+          "authored_records": 31,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 31,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 31,
+          "required_bytes": 310,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\3CHARD.TXT",
+          "stage": 6
+        },
+        {
+          "authored_at_directives": 73,
+          "authored_records": 73,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 73,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 73,
+          "required_bytes": 730,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\4AHARD.TXT",
+          "stage": 7
+        },
+        {
+          "authored_at_directives": 76,
+          "authored_records": 76,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 76,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 76,
+          "required_bytes": 760,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\4BHARD.TXT",
+          "stage": 8
+        },
+        {
+          "authored_at_directives": 73,
+          "authored_records": 73,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 73,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 73,
+          "required_bytes": 730,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\5AHARD.TXT",
+          "stage": 9
+        },
+        {
+          "authored_at_directives": 104,
+          "authored_records": 104,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 104,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 104,
+          "required_bytes": 1040,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\5BHARD.TXT",
+          "stage": 10
+        },
+        {
+          "authored_at_directives": 119,
+          "authored_records": 119,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 119,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 119,
+          "required_bytes": 1190,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\6AHARD.TXT",
+          "stage": 11
+        },
+        {
+          "authored_at_directives": 24,
+          "authored_records": 24,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 24,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 24,
+          "required_bytes": 240,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\6BHARD.TXT",
+          "stage": 12
+        },
+        {
+          "authored_at_directives": 34,
+          "authored_records": 34,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 34,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 34,
+          "required_bytes": 340,
+          "runtime_added_records": 0,
+          "set": "Hard",
+          "source_path": "DATA\\HARD\\6CHARD.TXT",
+          "stage": 14
+        },
+        {
+          "authored_at_directives": 184,
+          "authored_records": 184,
+          "capacity_status": "PASS",
+          "diagnostics": [],
+          "packed_records": 184,
+          "payload_emitted": false,
+          "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+          "recognized_records": 184,
+          "required_bytes": 1840,
+          "runtime_added_records": 0,
+          "set": "Bonus",
+          "source_path": "DATA\\EXTRA.TXT",
+          "stage": 0
+        }
+      ],
+      "target_capacity": 255
+    },
+    {
+      "complete_packed_inventory": false,
+      "maximum_authored_at": {
+        "authored_at_directives": 99,
+        "authored_records": null,
+        "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+        "diagnostics": [
+          {
+            "directive": "settime",
+            "line": 4,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "0"
+            ]
+          },
+          {
+            "directive": "bglayer",
+            "line": 6,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "data/bgs/streets2/wfence.gif",
+              "0.2",
+              "1",
+              "1",
+              "130",
+              "0",
+              "0",
+              "40",
+              "1",
+              "1",
+              "0"
+            ]
+          },
+          {
+            "directive": "==============================================================",
+            "line": 9,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": []
+          },
+          {
+            "directive": "light",
+            "line": 70,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "-0",
+              "-250"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 155,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "000"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 189,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "200"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 270,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "600"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 347,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1000"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 434,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1400"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 478,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1800"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 528,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2200"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 567,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2600"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 610,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3000"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 629,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2900"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 643,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3500"
+            ]
+          },
+          {
+            "directive": "blockade",
+            "line": 651,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3600"
+            ]
+          },
+          {
+            "directive": "direction",
+            "line": 3,
+            "reason": "unsupported scroll mode/parameters",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "rightleft"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 71,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "00"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 156,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "600"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 190,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "800"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 271,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1200"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 348,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1600"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 435,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2000"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 479,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2400"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 529,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "2800"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 568,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3200"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 611,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3600"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 630,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3500"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 644,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "3800"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 652,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "data\\LEVELS\\STREETS2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "4000"
+            ]
+          }
+        ],
+        "packed_records": null,
+        "payload_emitted": false,
+        "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+        "recognized_records": 86,
+        "required_bytes": null,
+        "runtime_added_records": 0,
+        "set": "Play_Demo",
+        "source_path": "data\\LEVELS\\STREETS2.TXT",
+        "stage": 3
+      },
+      "maximum_packed": null,
+      "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+      "rows": [
+        {
+          "authored_at_directives": 66,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "settime",
+              "line": 4,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "0"
+              ]
+            },
+            {
+              "directive": "bglayer",
+              "line": 5,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "data/bgs/sewer0/holebg.gif",
+                "0.2",
+                "1",
+                "1",
+                "00",
+                "0",
+                "0",
+                "40",
+                "1",
+                "1",
+                "0"
+              ]
+            },
+            {
+              "directive": "==============================================================",
+              "line": 8,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": []
+            },
+            {
+              "directive": "light",
+              "line": 37,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "-0",
+                "-250"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 220,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 300,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "700"
+              ]
+            },
+            {
+              "directive": "direction",
+              "line": 3,
+              "reason": "unsupported scroll mode/parameters",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "rightleft"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 38,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "00"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 221,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 301,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER0.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1300"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+          "recognized_records": 63,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Play_Demo",
+          "source_path": "data\\LEVELS\\SEWER0.TXT",
+          "stage": 1
+        },
+        {
+          "authored_at_directives": 75,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "settime",
+              "line": 4,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "0"
+              ]
+            },
+            {
+              "directive": "maxenemy",
+              "line": 5,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "4"
+              ]
+            },
+            {
+              "directive": "=============================================",
+              "line": 10,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": []
+            },
+            {
+              "directive": "light",
+              "line": 74,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "0",
+                "-250"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 229,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 289,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "600"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 376,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1000"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 420,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1400"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 443,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1800"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 466,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 485,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2400"
+              ]
+            },
+            {
+              "directive": "direction",
+              "line": 3,
+              "reason": "unsupported scroll mode/parameters",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "rightleft"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 75,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "00"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 230,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 290,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1200"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 377,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1600"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 421,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2000"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 444,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2400"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 467,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 486,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3000"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+          "recognized_records": 67,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Play_Demo",
+          "source_path": "data\\LEVELS\\STREETS.TXT",
+          "stage": 2
+        },
+        {
+          "authored_at_directives": 99,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "settime",
+              "line": 4,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "0"
+              ]
+            },
+            {
+              "directive": "bglayer",
+              "line": 6,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "data/bgs/streets2/wfence.gif",
+                "0.2",
+                "1",
+                "1",
+                "130",
+                "0",
+                "0",
+                "40",
+                "1",
+                "1",
+                "0"
+              ]
+            },
+            {
+              "directive": "==============================================================",
+              "line": 9,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": []
+            },
+            {
+              "directive": "light",
+              "line": 70,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "-0",
+                "-250"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 155,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "000"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 189,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 270,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "600"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 347,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1000"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 434,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1400"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 478,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1800"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 528,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 567,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2600"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 610,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3000"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 629,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2900"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 643,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3500"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 651,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3600"
+              ]
+            },
+            {
+              "directive": "direction",
+              "line": 3,
+              "reason": "unsupported scroll mode/parameters",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "rightleft"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 71,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "00"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 156,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "600"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 190,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 271,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1200"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 348,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1600"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 435,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2000"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 479,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2400"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 529,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 568,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3200"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 611,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3600"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 630,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3500"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 644,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "3800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 652,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\STREETS2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "4000"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+          "recognized_records": 86,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Play_Demo",
+          "source_path": "data\\LEVELS\\STREETS2.TXT",
+          "stage": 3
+        },
+        {
+          "authored_at_directives": 51,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "settime",
+              "line": 4,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "0"
+              ]
+            },
+            {
+              "directive": "===========================================================",
+              "line": 6,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": []
+            },
+            {
+              "directive": "light",
+              "line": 39,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "-0",
+                "-250"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 146,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "200"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 206,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "600"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 267,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1000"
+              ]
+            },
+            {
+              "directive": "blockade",
+              "line": 296,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1400"
+              ]
+            },
+            {
+              "directive": "direction",
+              "line": 3,
+              "reason": "unsupported scroll mode/parameters",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "rightleft"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 40,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "00"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 147,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "800"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 207,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1200"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 268,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1600"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 297,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "data\\LEVELS\\SEWER.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "2000"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
+          "recognized_records": 46,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Play_Demo",
+          "source_path": "data\\LEVELS\\SEWER.TXT",
+          "stage": 4
+        }
+      ],
+      "target_capacity": 255
+    },
+    {
+      "complete_packed_inventory": false,
+      "maximum_authored_at": {
+        "authored_at_directives": 34,
+        "authored_records": null,
+        "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+        "diagnostics": [
+          {
+            "directive": "palette",
+            "line": 4,
+            "reason": "unknown directive; no registered semantics",
+            "source_file": "DATA\\LEVELS\\GUILE2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "data/bgs/jungle/jungpal.gif"
+            ]
+          },
+          {
+            "directive": "at",
+            "line": 244,
+            "reason": "at requires one value and a pending queue entry",
+            "source_file": "DATA\\LEVELS\\GUILE2.TXT",
+            "status": "UNSUPPORTED",
+            "value": [
+              "1800"
+            ]
+          }
+        ],
+        "packed_records": null,
+        "payload_emitted": false,
+        "project": "Masters of the Universe [v.3.0 Build 4086].pak",
+        "recognized_records": 33,
+        "required_bytes": null,
+        "runtime_added_records": 0,
+        "set": "Demo",
+        "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+        "stage": 0
+      },
+      "maximum_packed": null,
+      "project": "Masters of the Universe [v.3.0 Build 4086].pak",
+      "rows": [
+        {
+          "authored_at_directives": 34,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "palette",
+              "line": 4,
+              "reason": "unknown directive; no registered semantics",
+              "source_file": "DATA\\LEVELS\\GUILE2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "data/bgs/jungle/jungpal.gif"
+              ]
+            },
+            {
+              "directive": "at",
+              "line": 244,
+              "reason": "at requires one value and a pending queue entry",
+              "source_file": "DATA\\LEVELS\\GUILE2.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "1800"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Masters of the Universe [v.3.0 Build 4086].pak",
+          "recognized_records": 33,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Demo",
+          "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+          "stage": 0
+        },
+        {
+          "authored_at_directives": 1,
+          "authored_records": null,
+          "capacity_status": "BLOCKED_UNKNOWN_QUEUE_SHAPE",
+          "diagnostics": [
+            {
+              "directive": "bossmusic",
+              "line": 3,
+              "reason": "expected one asset path",
+              "source_file": "DATA\\LEVELS\\HOLES.TXT",
+              "status": "UNSUPPORTED",
+              "value": [
+                "data/music/GB.bor",
+                "1557365"
+              ]
+            }
+          ],
+          "packed_records": null,
+          "payload_emitted": false,
+          "project": "Masters of the Universe [v.3.0 Build 4086].pak",
+          "recognized_records": 1,
+          "required_bytes": null,
+          "runtime_added_records": 0,
+          "set": "Demo",
+          "source_path": "DATA\\LEVELS\\HOLES.TXT",
+          "stage": 1
+        }
+      ],
+      "target_capacity": 255
+    }
+  ]
+}

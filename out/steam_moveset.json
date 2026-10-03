@@ -1,0 +1,54 @@
+{
+  "entity": "Steam",
+  "prefix": "out/steam",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/steam_idle",
+      "frames": 11
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/steam_walk",
+      "frames": 11
+    },
+    {
+      "ordinal": 2,
+      "name": "attack",
+      "dir": "out/steam_attack",
+      "frames": 11
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/steam_fall",
+      "frames": 11
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/steam_rise",
+      "frames": 11
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "attack": 2,
+    "fall": 3,
+    "rise": 4,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

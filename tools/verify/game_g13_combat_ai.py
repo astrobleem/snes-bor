@@ -224,7 +224,7 @@ def player_hit_case(port):
             'npc_hp_after': u8(m, ENTITIES[2] + HP),
             'score_before': score_before, 'score_after': u16(m, GAME_SCORE),
             'p2_score_before': p2_score_before, 'p2_score_after': u16(m, P2_SCORE),
-            'lives_before': u8(m, GAME_LIVES), 'p2_lives': u8(m, P2_LIVES),
+            'lives_before': u16(m, GAME_LIVES), 'p2_lives': u16(m, P2_LIVES),
             'p1_stun': u8(m, P1 + HITSTUN), 'p2_stun': u8(m, P2 + HITSTUN),
             'actor_invuln_after_prepare': inv_after_prepare,
             'actor_invuln_after_fixture_normalization': inv_after_fixture,

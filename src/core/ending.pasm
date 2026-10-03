@@ -130,16 +130,33 @@
 ; core/charselect.pasm reaches via `jsl`); exit via `rtl`.
 ; ----------------------------------------------------------------------
 Game_State_NewGameReset:
+    jsl BorSet_BeginSelectedRun
+    bcs Game_State_NewGameReset__selected
+    ; Fail closed if a generated gate changed after prompt confirmation.
     sep #$20
 .a8
+    lda #0
+    sta.l BorDifficulty_Chosen
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_CHARSELECT
+    sta.l Game_State
+    rtl
+Game_State_NewGameReset__selected:
+    rep #$20
+.a16
     lda #GAME_LIVES_START
     sta.l Game_Lives
     sta.l G13_P2Lives
+    sep #$20
+.a8
+    lda #4
+    sta.l Game_Credits
     lda #0
     sta.l G13_P1Out
     sta.l G13_P2Out
-    sta.l Game_CampaignId
-    sta.l Game_CampaignOrdinal
+    sta.l StageComplete_Active
     lda #0
     sta.l Bg_LoadScene_StageIndex
     sta.l Stage_Cleared
@@ -148,9 +165,39 @@ Game_State_NewGameReset:
 .a16
 .i16
     lda #0
-    sta.l Game_Score
-    sta.l G13_P2Score
+    sta.l Game_Score32
+    sta.l Game_Score32+2
+    sta.l G13_P2Score32
+    sta.l G13_P2Score32+2
+    sta.l HudCachedScore32+2
+    sta.l HudCachedP2Score32+2
+    lda #$FFFF
+    sta.l HudCachedScore32
+    sta.l HudCachedP2Score32
+    sta.l HudCachedLives16
+    sta.l HudCachedP2Lives16
+    ; A generated scene-first campaign must dispatch the scene, not load a
+    ; scene ID as a physical stage. Its existing continuation loads entry 1.
+    sep #$20
+.a8
+    lda.l Game_Campaign_ResolvedKind
+    cmp #CAMPAIGN_ENTRY_SCENE
+    bne Game_State_NewGameReset__stage
+    jsl Game_Campaign_DispatchResolved
+    rtl
+Game_State_NewGameReset__stage:
+    rep #$31
+.a16
+.i16
+    lda.l Game_Campaign_ResolvedValue
+    and #$00FF
     sta.l Game_StageIndex
+    sep #$20
+.a8
+    sta.l Bg_LoadScene_StageIndex
+    rep #$31
+.a16
+.i16
     jsl Stage_LoadAndRespawn_Long
     jsl G13_ReapplyP1Out
     ; Stage_Load reinitializes the five non-player windows.  In two-player
@@ -585,4 +632,502 @@ Game_State_Play__ending_done:
     rep #$31
 .a16
 .i16
+    rtl
+
+; ----------------------------------------------------------------------
+; BOR.C showcomplete() -- bounded completion presentation.  BOR advances its
+; GAME_SPEED=200 clock independently of the 60Hz display; the phase below
+; therefore emits three or four source ticks per display frame.  Each source
+; tick gives each player one canonical +10 addscore quantum (clear bonus,
+; then life bonus).  The source displays a player row only when lives > 0,
+; but calls addscore for both slots and flushes both remainders on exit.
+; ----------------------------------------------------------------------
+StageComplete_Start:
+    php
+    rep #$31
+.a16
+.i16
+    lda #1
+    sta.l StageComplete_Active
+    sep #$20
+.a8
+    lda #0
+    sta.l StageComplete_Step
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l StageComplete_Phase
+    sta.l StageComplete_FinishTicks
+    sta.l StageComplete_AddCount
+    sta.l StageComplete_Tick
+    sta.l StageComplete_AdvanceCount
+    lda #10000
+    sta.l StageComplete_P1Clear
+    sta.l StageComplete_P2Clear
+    lda.l P1_Lives16
+    ldx #1000
+    jsl G13_Core_Math_Mul32_Long
+    sta.l StageComplete_P1Life
+    txa
+    sta.l StageComplete_P1Life+2
+    lda.l P2_Lives16
+    ldx #1000
+    jsl G13_Core_Math_Mul32_Long
+    sta.l StageComplete_P2Life
+    txa
+    sta.l StageComplete_P2Life+2
+    lda #10000
+    clc
+    adc.l StageComplete_P1Life
+    sta.l StageComplete_P1Target
+    lda #0
+    adc.l StageComplete_P1Life+2
+    sta.l StageComplete_P1Target+2
+    lda #10000
+    clc
+    adc.l StageComplete_P2Life
+    sta.l StageComplete_P2Target
+    lda #0
+    adc.l StageComplete_P2Life+2
+    sta.l StageComplete_P2Target+2
+    jsl Music_SelectCompletionTrack_Long
+    plp
+    clc
+    rtl
+
+StageComplete_Update:
+    php
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_Tick
+    inc a
+    sta.l StageComplete_Tick
+    ; BOR.C's FLAG_ANYBUTTON is Start/Special/Attack/Jump, not d-pad
+    ; movement. On the SNES input word Start is bit $1000 (the high-byte
+    ; $10 edge used by TITLE/CHARSELECT); include it alongside the other
+    ; action bits. Both controller ports participate in this source edge.
+    lda.l Input_trigger
+    ora.l Input2_trigger
+    and #$F0D0
+    beq StageComplete_Update__no_skip
+    jsr StageComplete_Flush
+    lda #0
+    sta.l StageComplete_Active
+    lda.l StageComplete_AdvanceCount
+    inc a
+    sta.l StageComplete_AdvanceCount
+    ply
+    plx
+    plp
+    sec
+    rtl
+StageComplete_Update__no_skip:
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_Phase
+    clc
+    adc #200
+    sta.l StageComplete_Phase
+StageComplete_Update__ticks:
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_Phase
+    cmp #60
+    bcc StageComplete_Update__presentation
+    sec
+    sbc #60
+    sta.l StageComplete_Phase
+    jsr StageComplete_Add10
+    bra StageComplete_Update__ticks
+
+StageComplete_Update__presentation:
+    ; The shared text queue permits one row per frame.  These source labels
+    ; are exact; the live score/HUD rows continue to show the canonical
+    ; incremented values while the completion rows are being dripped.
+    sep #$20
+.a8
+    lda.l StageComplete_Step
+    cmp #0
+    bne StageComplete_Update__clear
+    lda #10
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_CompleteHeader - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+    bra StageComplete_Update__step
+StageComplete_Update__clear:
+    sep #$20
+.a8
+    cmp #1
+    bne StageComplete_Update__life
+    lda #11
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_CompleteClear - Text_StringPool)
+    lda.l StageComplete_P1Clear
+    sta.l Text_LabelValue
+    jsl Core_Text_DrawLabeledNumber_Long
+    bra StageComplete_Update__step
+StageComplete_Update__life:
+    sep #$20
+.a8
+    cmp #2
+    bne StageComplete_Update__score
+    lda #12
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_CompleteLife - Text_StringPool)
+    lda.l StageComplete_P1Life
+    sta.l Text_LabelValue
+    jsl Core_Text_DrawLabeledNumber_Long
+    bra StageComplete_Update__step
+StageComplete_Update__score:
+    sep #$20
+.a8
+    lda #13
+    sta.l Text_ScoreMode
+    rep #$31
+.a16
+.i16
+    lda.l Game_Score32
+    sta.l Text_ScoreValue32
+    lda.l Game_Score32+2
+    sta.l Text_ScoreValue32+2
+    ldx #0
+    ldy #(Text_Str_CompleteScore - Text_StringPool)
+    jsl Core_Text_DrawLabeledNumber_Long
+StageComplete_Update__step:
+    sep #$20
+.a8
+    lda.l StageComplete_Step
+    inc a
+    and #3
+    sta.l StageComplete_Step
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P1Clear
+    ora.l StageComplete_P1Life
+    ora.l StageComplete_P1Life+2
+    ora.l StageComplete_P2Clear
+    ora.l StageComplete_P2Life
+    ora.l StageComplete_P2Life+2
+    bne StageComplete_Update__active
+    lda.l StageComplete_FinishTicks
+    bne StageComplete_Update__finishing
+    lda #800
+    sta.l StageComplete_FinishTicks
+StageComplete_Update__finishing:
+    rep #$31
+.a16
+.i16
+    ; 200 source units/sec: phase consumes three units on the display path;
+    ; this keeps the final four-second source hold bounded and deterministic.
+    lda.l StageComplete_FinishTicks
+    cmp #3
+    bcc StageComplete_Update__done
+    sec
+    sbc #3
+    sta.l StageComplete_FinishTicks
+StageComplete_Update__active:
+    ply
+    plx
+    plp
+    clc
+    rtl
+StageComplete_Update__done:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l StageComplete_Active
+    lda.l StageComplete_AdvanceCount
+    inc a
+    sta.l StageComplete_AdvanceCount
+    ply
+    plx
+    plp
+    sec
+    rtl
+
+; One source-time pass, in BOR's player order, through canonical addscore.
+StageComplete_Add10:
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P1Clear
+    beq StageComplete_Add10__p1life
+    lda #10
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    sec
+    lda.l StageComplete_P1Clear
+    sbc #10
+    sta.l StageComplete_P1Clear
+StageComplete_Add10__p1life:
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P1Clear
+    bne StageComplete_Add10__p2
+    lda.l StageComplete_P1Life
+    ora.l StageComplete_P1Life+2
+    beq StageComplete_Add10__p2
+    lda #10
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    sec
+    lda.l StageComplete_P1Life
+    sbc #10
+    sta.l StageComplete_P1Life
+    lda.l StageComplete_P1Life+2
+    sbc #0
+    sta.l StageComplete_P1Life+2
+StageComplete_Add10__p2:
+    sep #$20
+.a8
+    lda #1
+    sta.l G13_PickupForP2
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P2Clear
+    beq StageComplete_Add10__p2life
+    lda #10
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    sec
+    lda.l StageComplete_P2Clear
+    sbc #10
+    sta.l StageComplete_P2Clear
+StageComplete_Add10__p2life:
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P2Clear
+    bne StageComplete_Add10__done
+    lda.l StageComplete_P2Life
+    ora.l StageComplete_P2Life+2
+    beq StageComplete_Add10__done
+    lda #10
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    sec
+    lda.l StageComplete_P2Life
+    sbc #10
+    sta.l StageComplete_P2Life
+    lda.l StageComplete_P2Life+2
+    sbc #0
+    sta.l StageComplete_P2Life+2
+StageComplete_Add10__done:
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_AddCount
+    inc a
+    sta.l StageComplete_AddCount
+    rts
+
+; showcomplete() flushes the exact remainder when a button exits the
+; presentation.  These are still canonical addscore calls, preserving the
+; cap and strict threshold behavior; the source's final flush is not a row
+; of synthetic +10 events.
+StageComplete_Flush:
+    sep #$20
+.a8
+    lda #0
+    sta.l G13_PickupForP2
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P1Clear
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    lda.l StageComplete_P1Life
+    lda.l StageComplete_P1Life+2
+    tax
+    lda.l StageComplete_P1Life
+    jsl G13_PlayerScore_Add32
+    sep #$20
+.a8
+    lda #1
+    sta.l G13_PickupForP2
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_P2Clear
+    ldx #0
+    jsl G13_PlayerScore_Add32
+    lda.l StageComplete_P2Life+2
+    tax
+    lda.l StageComplete_P2Life
+    jsl G13_PlayerScore_Add32
+    lda #0
+    sta.l StageComplete_P1Clear
+    sta.l StageComplete_P2Clear
+    sta.l StageComplete_P1Life
+    sta.l StageComplete_P1Life+2
+    sta.l StageComplete_P2Life
+    sta.l StageComplete_P2Life+2
+    sta.l G13_PickupForP2
+    rts
+
+; Bank-13 owner of the completion state also owns the former stage-clear
+; dispatch body, keeping the bank-0 dispatcher small.  The legacy handoff is
+; intentionally unchanged after the presentation returns carry set.
+StageComplete_Dispatch:
+    rep #$31
+.a16
+.i16
+    ; A pending transition owns exactly one completion presentation. Normal
+    ; reads authored next; Easy preserves S7 completion on pending Rugal
+    ; continuation as well as every physical stage. Ending has no pending.
+    lda.l Stage_LoadPending
+    and #$00FF
+    bne StageComplete_Dispatch__pending
+    rtl
+StageComplete_Dispatch__pending:
+    jsl Game_Campaign_HasNextFlag
+    bcs StageComplete_Dispatch__source_next
+    jmp StageComplete_Dispatch__legacy
+StageComplete_Dispatch__source_next:
+    rep #$31
+.a16
+.i16
+    lda.l StageComplete_Active
+    and #$00FF
+    bne StageComplete_Dispatch__update
+    jsl StageComplete_Start
+    rtl
+StageComplete_Dispatch__update:
+    jsl StageComplete_Update
+    bcc StageComplete_Dispatch__done
+    sep #$20
+.a8
+    lda.l Stage_LoadPending
+    beq StageComplete_Dispatch__done
+    lda #0
+    sta.l Stage_LoadPending
+    rep #$31
+.a16
+.i16
+    jsl Game_Campaign_ResolveNext
+    bcs StageComplete_Dispatch__campaign_end
+    jsl Game_Campaign_DispatchResolved
+    bcs StageComplete_Dispatch__done
+    sep #$20
+.a8
+    sta.l Bg_LoadScene_StageIndex
+    rep #$31
+.a16
+.i16
+    jsl Stage_Load_Long
+    jsl G13_ClearOldStageActors
+    jsl G13_ReapplyP1Out
+    jsl G13_EnsureP2AfterStage
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
+StageComplete_Dispatch__done:
+    rtl
+StageComplete_Dispatch__campaign_end:
+    jsl Game_Campaign_HandleEnd
+    rtl
+StageComplete_Dispatch__legacy:
+    sep #$20
+.a8
+    lda.l Stage_LoadPending
+    beq StageComplete_Dispatch__done
+    lda #0
+    sta.l Stage_LoadPending
+    rep #$31
+.a16
+.i16
+    jsl Game_Campaign_ResolveNext
+    bcs StageComplete_Dispatch__legacy_end
+    jsl Game_Campaign_DispatchResolved
+    bcs StageComplete_Dispatch__done
+    sep #$20
+.a8
+    sta.l Bg_LoadScene_StageIndex
+    rep #$31
+.a16
+.i16
+    jsl Stage_Load_Long
+    jsl G13_ClearOldStageActors
+    jsl G13_ReapplyP1Out
+    jsl G13_EnsureP2AfterStage
+    lda #GAME_STATE_PLAYING
+    sta.l Game_State
+    rtl
+StageComplete_Dispatch__legacy_end:
+    jsl Game_Campaign_HandleEnd
+    rtl
+
+; Source BOR gameover(): this is a frozen presentation, not a continue
+; screen. The source waits for GAME_SPEED*8 or any button, then returns to
+; the outer title loop. GameOver_ContinueTimer is the bounded display timer;
+; it is never used to restore a player or consume a credit here.
+Game_State_Play__gameover_Long:
+    rep #$31
+.a16
+.i16
+    lda.l GameOver_ContinueTimer
+    cmp #BOR_GAME_OVER_DISPLAY_FRAMES
+    bne Game_State_Play__gameover_check_input
+    sep #$20
+.a8
+    lda #TITLE_ROW_MAIN
+    rep #$31
+.a16
+.i16
+    ldx #0
+    ldy #(Text_Str_GameOver - Text_StringPool)
+    jsl Core_Text_DrawString_Long
+Game_State_Play__gameover_check_input:
+    rep #$31
+.a16
+.i16
+    lda.l Input_trigger
+    bne Game_State_Play__gameover_to_title
+    lda.l Input2_trigger
+    bne Game_State_Play__gameover_to_title
+    rep #$31
+.a16
+.i16
+    lda.l GameOver_ContinueTimer
+    beq Game_State_Play__gameover_to_title
+    dec a
+    sta.l GameOver_ContinueTimer
+    rtl
+Game_State_Play__gameover_to_title:
+    sep #$20
+.a8
+    lda #0
+    sta.l GameOver_ContinueTimer
+    rep #$31
+.a16
+.i16
+    jsl G13_DisableP2Session
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
     rtl

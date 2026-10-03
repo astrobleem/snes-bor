@@ -5,16 +5,25 @@ import re
 import subprocess
 import sys
 import shutil
+import hashlib
+import json
+from pathlib import Path
 
 ROM_SIZE = 0x400000
 BANK0_SIZE = 0x8000
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'bor_converter'))
 import pack_msu_roster
+from queue_abi import packed_count, plan_build, write_contract, source_set_names, assert_layout
+from bor_levels import parse_levels_from_pak
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'scene_video'))
+import convert_rugal
+import convert_ending
+import scene_sequences
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'audio'))
 from shipped_content import (CAMPAIGN_CONFIGS, PLAYABLE_ROSTER_COUNT,
-                              ROSTER_PREFIXES, STAGE_CONFIGS,
-                              normal_player_entries)
+                              ROSTER_CONFIGS, ROSTER_PREFIXES, STAGE_CONFIGS,
+                              SCENE_CONFIGS, normal_player_entries)
 import build_audio
 
 # Fixed initial roster for runtime MSU-1 character selection (see the plan
@@ -158,18 +167,38 @@ if tuple(stage["source_level"].upper() for stage in STAGE_CONFIGS[:3]) != BOR_CA
 
 
 def resolve_campaigns():
-    """Resolve authored source identities to the physical MSU catalog."""
+    """Resolve authored typed campaign identities to physical/runtime values."""
     by_source = {}
     for index, stage in enumerate(STAGE_CONFIGS):
         key = stage["source_level"].replace('/', '\\').upper()
         if key in by_source:
             raise SystemExit(f"campaign guard: duplicate catalog source {key}")
         by_source[key] = (index, stage)
+    scene_ids = {entry["scene_id"].upper(): entry["runtime_id"]
+                 for entry in SCENE_CONFIGS}
     resolved = {}
+    typed = {}
     for campaign_id, campaign in CAMPAIGN_CONFIGS.items():
         indices = []
+        entries = []
         seen = set()
-        for source in campaign["source_levels"]:
+        authored = campaign.get("entries")
+        if authored is None:
+            authored = [{"kind": "stage", "source_level": source}
+                        for source in campaign["source_levels"]]
+        for entry in authored:
+            kind = str(entry.get("kind", "")).lower()
+            if kind not in ("stage", "scene"):
+                raise SystemExit(f"campaign guard: unknown entry kind {kind!r} in {campaign_id}")
+            if kind == "scene":
+                name = str(entry.get("scene_id", "")).upper()
+                if name not in scene_ids:
+                    raise SystemExit(f"campaign guard: {campaign_id} scene is not registered: {name}")
+                entries.append(("scene", scene_ids[name], name))
+                continue
+            source = entry.get("source_level")
+            if not source:
+                raise SystemExit(f"campaign guard: stage entry missing source in {campaign_id}")
             key = source.replace('/', '\\').upper()
             if key in seen:
                 raise SystemExit(f"campaign guard: duplicate {key} in {campaign_id}")
@@ -180,38 +209,143 @@ def resolve_campaigns():
             if campaign["family"] != "standalone" and stage["family"] != campaign["family"]:
                 raise SystemExit(f"campaign guard: family mismatch for {key}")
             indices.append(index)
+            entries.append(("stage", index, key))
         resolved[campaign_id] = indices
-    if resolved["BOR_ORIGINAL"] != list(range(len(resolved["BOR_ORIGINAL"]))):
-        raise SystemExit("campaign guard: BOR prefix is not the authored physical prefix")
+        typed[campaign_id] = entries
+    bor_prefix = [by_source[source.replace('/', '\\').upper()][0]
+                  for source in BOR_CAMPAIGN_PREFIX]
+    if resolved["BOR_ORIGINAL"][:3] != bor_prefix:
+        raise SystemExit("campaign guard: BOR 1A/1B/1C order is not preserved")
     if set(resolved["TMNT"]) & set(resolved["STANDALONE_TEST_CONTENT"]):
         raise SystemExit("campaign guard: standalone content overlaps TMNT campaign")
-    return resolved
+    return resolved, typed
 
 
-CAMPAIGN_STAGE_MAPS = resolve_campaigns()
+CAMPAIGN_STAGE_MAPS, CAMPAIGN_ENTRY_MAPS = resolve_campaigns()
 
 
-def write_campaign_include():
+def write_campaign_include(normal_candidate=False):
     """Emit the small assembly lookup used by runtime stage progression."""
     labels = {
         "BOR_ORIGINAL": "Bor",
+        "BOR_NORMAL_1A_INTERNAL": "BorNormalDev",
         "TMNT": "Tmnt",
         "STANDALONE_TEST_CONTENT": "Standalone",
     }
+    bor_stage = next(stage for stage in STAGE_CONFIGS if stage["family"] == "bor-original")
+    bor_sets = parse_levels_from_pak(bor_stage["pak"], "DATA\\LEVELS.TXT")
+    if [s.name for s in bor_sets] != ["Easy", "Normal", "Hard", "Bonus"]:
+        raise SystemExit("BOR set guard: unexpected source set order")
+    # An isolated native candidate is not a production release decision.
+    available = {"Easy": True, "Normal": bool(normal_candidate), "Hard": False, "Bonus": False}
+    campaign_symbols = {"Easy": "CAMPAIGN_BOR_ORIGINAL",
+                        "Normal": "CAMPAIGN_BOR_NORMAL_DEV"}
     lines = [
         "; Generated by build_rom.py from shipped_content.CAMPAIGN_CONFIGS.",
         "; Physical indices are resolved from source identities; do not edit.",
+        "CAMPAIGN_ENTRY_STAGE = 0",
+        "CAMPAIGN_ENTRY_SCENE = 1",
+        "CAMPAIGN_BOR_NORMAL_DEV = 3",
+        "BOR_SET_UNMAPPED = $FF",
+        f"BOR_SET_COUNT = {len(bor_sets)}",
+        "BorSet_Ids:",
+        "    .db " + ", ".join(str(s.set_id) for s in bor_sets),
+        "BorSet_IfComplete:",
+        "    .db " + ", ".join(str(s.ifcomplete) for s in bor_sets),
+        "BorSet_ContentAvailable:",
+        "    .db " + ", ".join("1" if available[s.name] else "0" for s in bor_sets),
+        "BorSet_CampaignMap:",
+        "    .db " + ", ".join(campaign_symbols[s.name] if available[s.name]
+                               else "BOR_SET_UNMAPPED" for s in bor_sets),
+        "BOR_SET_NAME_WIDTH = 8",
+        "BorSet_Names:",
     ]
+    for source_set in bor_sets:
+        encoded = source_set.name.encode('ascii')
+        if len(encoded) >= 8:
+            raise SystemExit(f"BOR set name too long: {source_set.name}")
+        lines.append("    .db " + ", ".join(str(b) for b in encoded + b"\0" + bytes(7 - len(encoded))))
+    lines.append("")
     for campaign_id, label in labels.items():
         values = ", ".join(str(value) for value in CAMPAIGN_STAGE_MAPS[campaign_id])
+        entries = CAMPAIGN_ENTRY_MAPS[campaign_id]
+        kinds = ", ".join("CAMPAIGN_ENTRY_SCENE" if kind == "scene"
+                          else "CAMPAIGN_ENTRY_STAGE" for kind, _, _ in entries)
+        value_expr = ", ".join("SceneSequence_" + name.capitalize() if kind == "scene"
+                               else str(value)
+                               for kind, value, name in entries)
         lines += [
+            f"Campaign_{label}_EntryCount = {len(entries)}",
+            f"Campaign_{label}_EntryKinds:",
+            f"    .db {kinds}",
+            f"Campaign_{label}_EntryValues:",
+            f"    .db {value_expr}",
+            "",
             f"Campaign_{label}_StageCount = {len(CAMPAIGN_STAGE_MAPS[campaign_id])}",
             f"Campaign_{label}_StageMap:",
             f"    .db {values}",
             "",
         ]
+        if campaign_id in ("BOR_ORIGINAL", "BOR_NORMAL_1A_INTERNAL"):
+            authored = CAMPAIGN_CONFIGS[campaign_id]["entries"]
+            if len(authored) != len(entries):
+                raise SystemExit(f"BOR source guard: {campaign_id} entry metadata drift")
+            flags_by_file = []
+            for entry in authored:
+                flag = entry.get("next_after")
+                if flag not in (False, True, 0, 1):
+                    raise SystemExit(f"BOR source guard: {campaign_id} missing/invalid next_after")
+                flags_by_file.append(int(flag))
+            flags = ", ".join(str(value) for value in flags_by_file)
+            completion = CAMPAIGN_CONFIGS[campaign_id]['completion_flags']
+            if len(completion) != len(entries) or any(type(v) is not int or v not in (0, 1) for v in completion):
+                raise SystemExit(f"BOR completion policy drift: {campaign_id}")
+            lines += [
+                f"Campaign_{label}_NextFlags:",
+                f"    .db {flags}",
+                f"Campaign_{label}_CompleteFlags:",
+                "    .db " + ", ".join(map(str, completion)),
+                "",
+            ]
     with open("tools/audio/campaign_config.pasm", "w", encoding="ascii", newline="\n") as f:
         f.write("\n".join(lines))
+
+def write_stage_scroll_include():
+    """Emit the physical-stage scroll-direction table used by the runtime."""
+    values = []
+    max_triggers = []
+    mirrors = []
+    for stage in STAGE_CONFIGS:
+        direction = str(stage.get("scroll_direction", "right")).lower()
+        if direction not in ("right", "left", "down"):
+            raise SystemExit(f"unsupported shipped scroll direction: {direction}")
+        values.append({"right": "STAGE_SCROLL_RIGHT", "left": "STAGE_SCROLL_LEFT", "down": "STAGE_SCROLL_DOWN"}[direction])
+        mirrors.append(1 if stage.get("source_mirror", False) else 0)
+        spawn_path = stage.get("spawn")
+        if direction == "down" and spawn_path and os.path.exists(spawn_path):
+            with open(spawn_path, "rb") as f:
+                blob = f.read()
+            max_triggers.append(max(
+                (int.from_bytes(blob[i:i + 2], "little")
+                 for i in range(0, len(blob), 10)),
+                default=0))
+        else:
+            max_triggers.append(0)
+    lines = [
+        "; Generated by build_rom.py from shipped_content.STAGE_CONFIGS.",
+        "; One byte per physical BG catalog entry; do not edit.",
+        "STAGE_SCROLL_RIGHT = 0",
+        "STAGE_SCROLL_DOWN = 1",
+        "STAGE_SCROLL_LEFT = 2",
+        "Stage_ScrollDirectionMap:",
+        "    .db " + ", ".join(values),
+        "Stage_ScrollMaxTriggerMap:",
+        "    .db " + ", ".join(str(value) for value in max_triggers),
+        "Stage_MirrorMap:",
+        "    .db " + ", ".join(str(value) for value in mirrors),
+    ]
+    with open("tools/audio/stage_scroll_config.pasm", "w", encoding="ascii", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
 
 def write_bor_player_select_include():
     """Emit source-order BOR player ordinals mapped to physical MSU slots."""
@@ -264,67 +398,32 @@ def assemble():
         print(f"Poppy CLI not found: {POPPY_DLL}. Set POPPY_DLL to the built poppy.dll.",
               file=sys.stderr)
         sys.exit(1)
-    result = subprocess.run([DOTNET, POPPY_DLL, 'src/main.pasm', '-s', 'src/main.sym'])
+    result = subprocess.run([
+        DOTNET, POPPY_DLL, 'src/main.pasm',
+        '-o', 'src/main.bin',
+        '-s', 'src/main.sym',
+    ])
     if result.returncode != 0:
         print(f"Poppy assembly failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)
 
-def check_stage_count(roster_sidecar):
-    """Phase G4 (plan_game.md 4): cross-checks core/game_state.pasm's
-    hand-synced STAGE_COUNT constant against the packed bor.msu's real
-    bg_count. STAGE_COUNT can't be computed by the engine itself (it gates
-    Game_State_Play__stageclear's "no more stages -> ENDING" check before
-    any MSU read happens that frame) so it's hand-synced, same accepted-
-    risk pattern as this file's other build-time cross-checks.
-    """
-    import re
-    text = open('src/core/game_state.pasm', encoding='utf-8').read()
-    m = re.search(r'STAGE_COUNT\s*=\s*(\d+)', text)
-    if not m:
-        print("check_stage_count: couldn't find STAGE_COUNT in "
-              "src/core/game_state.pasm", file=sys.stderr)
-        sys.exit(1)
-    pasm_count = int(m.group(1))
-    real_count = roster_sidecar["bg_count"]
-    if pasm_count != real_count:
-        print(f"check_stage_count: MISMATCH -- src/core/game_state.pasm has "
-              f"STAGE_COUNT={pasm_count}, but the just-packed bor.msu has "
-              f"bg_count={real_count} (BG_SCREENS has {len(BG_SCREENS)} "
-              f"entries). Update src/core/game_state.pasm to match and "
-              f"rebuild.", file=sys.stderr)
-        sys.exit(1)
-    print(f"check_stage_count: OK (STAGE_COUNT={pasm_count})")
-
-
-def check_vm_constants(roster_sidecar):
-    """The check_spawn_constants pattern, applied to the script VM's module
-    (Gate 0a, plan_vm.md 1). src/core/vm/vm_load.pasm hand-syncs
-    VM_MSU_OFFSET/VM_MODULE_SIZE because neither can be computed by main.pasm
-    -- the module's file offset depends on every character/BG/FP/spawn blob
-    packed before it. Without this check, any future asset that changes size
-    shifts the module and the loader silently reads whatever bytes now sit
-    there: a garbage module with a plausible-looking header.
-    """
-    import re
-    text = open('src/core/vm/vm_load.pasm', encoding='utf-8').read()
-    offset_m = re.search(r'VM_MSU_OFFSET\s*=\s*\$([0-9A-Fa-f]+)', text)
-    size_m = re.search(r'VM_MODULE_SIZE\s*=\s*(\d+)', text)
-    if not offset_m or not size_m:
-        print("check_vm_constants: couldn't find VM_MSU_OFFSET/VM_MODULE_SIZE "
-              "in src/core/vm/vm_load.pasm", file=sys.stderr)
-        sys.exit(1)
-    pasm_offset = int(offset_m.group(1), 16)
-    pasm_size = int(size_m.group(1))
-    real_offset = roster_sidecar["vm_offset"]
-    real_size = roster_sidecar["vm_size"]
-    if pasm_offset != real_offset or pasm_size != real_size:
-        print(f"check_vm_constants: MISMATCH -- src/core/vm/vm_load.pasm has "
-              f"VM_MSU_OFFSET=${pasm_offset:06X} VM_MODULE_SIZE={pasm_size}, "
-              f"but the just-packed bor.msu has vm_offset=${real_offset:06X} "
-              f"vm_size={real_size}. Update src/core/vm/vm_load.pasm to match "
-              f"and rebuild.", file=sys.stderr)
-        sys.exit(1)
-    print(f"check_vm_constants: OK (offset=${real_offset:06X}, size={real_size})")
+def write_campaign_layout_include(roster_sidecar):
+    """Emit runtime constants from the finalized pack, before assembly."""
+    stage_count = roster_sidecar["bg_count"]
+    vm_offset = roster_sidecar["vm_offset"]
+    vm_size = roster_sidecar["vm_size"]
+    if stage_count != len(STAGE_CONFIGS) or not 0 < stage_count <= 255:
+        raise SystemExit("campaign layout guard: packed stage count/catalog mismatch")
+    if not 0 <= vm_offset <= 0xFFFFFFFF or not 0 < vm_size <= 0xFFFF:
+        raise SystemExit("campaign layout guard: VM offset/size exceeds runtime fields")
+    os.makedirs("src/generated", exist_ok=True)
+    with open("src/generated/campaign_layout.pasm", "w",
+              encoding="ascii", newline="\n") as f:
+        f.write(
+            "; Generated by build_rom.py from finalized packed metadata; do not edit.\n"
+            f"STAGE_COUNT = {stage_count}\n"
+            f"VM_MSU_OFFSET = ${vm_offset:08X}\n"
+            f"VM_MODULE_SIZE = {vm_size}\n")
 
 
 def check_spawn_table_freshness():
@@ -337,14 +436,25 @@ def check_spawn_table_freshness():
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     'tools', 'bg_converter'))
     from build_spawn_table import build_from_pak
+    from production_campaign import compile_queues
+    compiler_queues = compile_queues(STAGE_CONFIGS, ROSTER_CONFIGS)
     roster_lookup = {prefix.rsplit('/', 1)[-1].lower(): i
                      for i, prefix in enumerate(ROSTER_PREFIXES)}
+    # Resolve source spawn aliases as well as converted directory names. K'
+    # is authored as DATA\\CHARS\\K\\K.TXT but its converted directory is
+    # k_prime; source identity must survive the spawn-table boundary.
+    for index, entry in enumerate(ROSTER_CONFIGS):
+        source_name = entry['source_character'].replace('\\', '/').rsplit('/', 1)[-1].lower()
+        roster_lookup.setdefault(source_name, index)
     for stage in STAGE_CONFIGS:
         pak = os.path.abspath(stage['pak'])
         table = os.path.abspath(stage['spawn'])
         if not os.path.exists(pak) or not os.path.exists(table):
             continue
-        _, expected = build_from_pak(pak, stage['source_level'], roster_lookup)
+        if stage['family'] == 'bor-original':
+            expected = compiler_queues[stage['spawn']]
+        else:
+            _, expected = build_from_pak(pak, stage['source_level'], roster_lookup)
         with open(table, 'rb') as f:
             actual = f.read()
         if actual != expected:
@@ -362,7 +472,9 @@ def _load_poppy_symbols(path):
     symbols = {}
     with open(path, encoding='utf-8') as f:
         for line in f:
-            match = re.match(r'^\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4})\s+(\S+)', line)
+            # Poppy prints ROM offsets as four hex digits but WRAM equates
+            # as the complete 24-bit address after the bank prefix.
+            match = re.match(r'^\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4,6})\s+(\S+)', line)
             if match:
                 bank, address, name = match.groups()
                 symbols[name] = (int(bank, 16) << 16) | int(address, 16)
@@ -440,6 +552,84 @@ def validate_text_bank_layout(symbol_path):
           f'name_ptrs=${name_ptrs:06X})')
 
 
+def validate_score_layout(symbol_path):
+    """Keep the S1A 32-bit score/cache block at its audited WRAM ownership."""
+    symbols = _load_poppy_symbols(symbol_path)
+    required = {
+        'Game_Score32': 0x7E58D1,
+        'G13_P2Score32': 0x7E58D5,
+        'HudCachedScore32': 0x7E58D9,
+        'HudCachedP2Score32': 0x7E58DD,
+        'P1_Lives16': 0x7E58E1,
+        'P2_Lives16': 0x7E58E3,
+        'HudCachedLives16': 0x7E58E5,
+        'HudCachedP2Lives16': 0x7E58E7,
+        'G12_AnimTrace_LastInput': 0x7E58D0,
+        'VmCode_Wram': 0x7E6000,
+        'G1_NumberSnapshotOffset': 0x7E2852,
+        'Text_ScoreValue32': 0x7E2854,
+        'Text_ScorePlace32': 0x7E2858,
+        'Text_ScoreMode': 0x7E285C,
+        'TadPrivate_stream_frame': 0x7E28A0,
+    }
+    missing = [name for name in required if name not in symbols]
+    if missing:
+        raise SystemExit('score layout guard: missing symbols: ' + ', '.join(missing))
+
+    fields = ('Game_Score32', 'G13_P2Score32', 'HudCachedScore32',
+              'HudCachedP2Score32')
+    life_fields = ('P1_Lives16', 'P2_Lives16', 'HudCachedLives16',
+                   'HudCachedP2Lives16')
+    scratch = ('Text_ScoreValue32', 'Text_ScorePlace32')
+    for name, expected in required.items():
+        if name in fields and symbols[name] != expected:
+            raise SystemExit(f'score layout guard: {name} is ${symbols[name]:06X}, '
+                             f'expected ${expected:06X}')
+
+    intervals = []
+    for name in fields + life_fields + scratch:
+        start = symbols[name]
+        end = start + (1 if name in life_fields else 3)
+        intervals.append((start, end, name))
+    for start, end, name in intervals:
+        if name in fields and start <= symbols['G12_AnimTrace_LastInput']:
+            raise SystemExit(f'score layout guard: {name} overlaps G12 trace state')
+        if name in fields + life_fields and end >= symbols['VmCode_Wram']:
+            raise SystemExit(f'score layout guard: {name} reaches VM WRAM')
+        if name in scratch and (start <= symbols['G1_NumberSnapshotOffset'] or
+                                end >= symbols['TadPrivate_stream_frame']):
+            raise SystemExit(f'score layout guard: {name} overlaps text/audio state')
+    if not (symbols['Text_ScoreMode'] > symbols['Text_ScorePlace32'] + 3 and
+            symbols['Text_ScoreMode'] < symbols['TadPrivate_stream_frame']):
+        raise SystemExit('score layout guard: Text_ScoreMode overlaps text/audio state')
+    for index, (start, end, name) in enumerate(intervals):
+        for other_start, other_end, other_name in intervals[index + 1:]:
+            if start <= other_end and other_start <= end:
+                raise SystemExit(f'score layout guard: {name} overlaps {other_name}')
+    aliases = {
+        'Game_Lives': 'P1_Lives16',
+        'G13_P2Lives': 'P2_Lives16',
+        'HudCachedLives': 'HudCachedLives16',
+        'HudCachedP2Lives': 'HudCachedP2Lives16',
+    }
+    for alias, canonical in aliases.items():
+        if symbols.get(alias) != symbols[canonical]:
+            raise SystemExit(f'score layout guard: {alias} is not an alias of {canonical}')
+    if symbols['P1_Lives16'] <= symbols['HudCachedP2Score32'] + 3:
+        raise SystemExit('score layout guard: P1 life block does not follow score block')
+    if symbols['HudCachedP2Lives16'] + 1 >= symbols['VmCode_Wram']:
+        raise SystemExit('score layout guard: P2 life cache reaches VM WRAM')
+
+    print('score layout guard: PASS '
+          '(Game_Score32=$7E58D1-$7E58D4, '
+          'G13_P2Score32=$7E58D5-$7E58D8, '
+          'HudCachedScore32=$7E58D9-$7E58DC, '
+          'HudCachedP2Score32=$7E58DD-$7E58E0, '
+          'P1_Lives16=$7E58E1-$7E58E2, P2_Lives16=$7E58E3-$7E58E4, '
+          'HudCachedLives16=$7E58E5-$7E58E6, '
+          'HudCachedP2Lives16=$7E58E7-$7E58E8)')
+
+
 def bank0_layout_guard_self_test():
     symbols = {
         'scpu_boot': 0x00FC00,
@@ -459,16 +649,284 @@ def bank0_layout_guard_self_test():
         raise SystemExit('bank0 layout guard self-test: FAILED')
 
 
-def main():
-    bank0_layout_guard_self_test()
-    write_campaign_include()
-    write_bor_player_select_include()
-    build_audio.main()
+def prepare_campaign_queues():
+    from production_campaign import compile_queues
+    from pathlib import Path
+    for path, data in compile_queues(STAGE_CONFIGS, ROSTER_CONFIGS).items():
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.exists() or target.read_bytes() != data:
+            target.write_bytes(data)
+
+
+def prepare_stage_environment_assets(configs=None, roster_configs=None, *,
+                                     output_root='out/compiler_campaign/stage_water',
+                                     generated_dir='src/generated', bor_c=None):
+    """Materialize Normal water/FP cycles and emit water/bounds/HUD before assembly.
+
+    Return private physical bindings for this pack; accepted Easy media and
+    the shared catalog stay unchanged. All three helpers share source objects,
+    and water/bounds consume the same parsed Normal IR.
+    """
+    from pathlib import Path
+    from stage_water import normal_stage_inputs, materialize_normal, emit_tables
+    from stage_frontpanel_bg2 import materialize_normal as materialize_frontpanels
+    from stage_frontpanel_bg2 import motion_tables as frontpanel_motion_tables
+    from stage_frontpanel_wram import allocation_proof as frontpanel_allocation_proof
+    from stage_bounds import from_ir, emit_pasm
+    from generate_hud_names import family_sources, render as render_hud_names
+    from compiler import Source
+    configs = STAGE_CONFIGS if configs is None else configs
+    roster_configs = ROSTER_CONFIGS if roster_configs is None else roster_configs
+    bor_c = bor_c or Path(__file__).resolve().parent/'out/bor_compile_s6/BOR.C'
+    frontpanel_wram = frontpanel_allocation_proof()
+    sources, normal_ir = normal_stage_inputs(configs)
+    bounds = [None]*len(configs)
+    for physical, ir in normal_ir.items():
+        bounds[physical] = from_ir(ir)
+    bounds_text = emit_pasm(bounds, bank=15)
+    family_cache = {family:sources[str(path.resolve())]
+                    for family,path in family_sources(configs).items()}
+    # Explicit roster PAKs use the same source cache as family-bound models.
+    hud_roster = [dict(cfg) for cfg in roster_configs]
+    for cfg in hud_roster:
+        if cfg.get('pak'):
+            origin = str(Path(cfg['pak']).resolve())
+            if origin not in sources:
+                sources[origin] = Source(origin)
+            cfg['pak'] = sources[origin]
+    hud_text, hud_rows = render_hud_names(hud_roster, family_cache)
+    materialized, water_rows, water_media = materialize_normal(
+        configs, sources, normal_ir, bor_c, output_root)
+    materialized, frontpanel_media = materialize_frontpanels(
+        materialized, sources, normal_ir, bor_c, Path(output_root).parent/'stage_frontpanel')
+    frontpanel_motion_text, frontpanel_motion = frontpanel_motion_tables(materialized, normal_ir)
+    outputs = {
+        'stage_frontpanel_tables.pasm': frontpanel_motion_text,
+        'stage_water_tables.pasm': emit_tables(water_rows),
+        'stage_bounds_tables.pasm': bounds_text,
+        'hud_opponent_names.pasm': hud_text,
+        'stage_environment_materialization.json': json.dumps(dict(
+            normal_physical_ids=list(normal_ir), water_media=water_media, frontpanel_media=frontpanel_media,
+            frontpanel_motion=frontpanel_motion,
+            frontpanel_wram=frontpanel_wram,
+            bounds=[dict(physical=i, source_path=normal_ir[i].source_path,
+                         source_width=bounds[i].source_width, blocked=bounds[i].blocked,
+                         endhole=bounds[i].endhole) for i in normal_ir],
+            hud_names=hud_rows), indent=2)+'\n',
+    }
+    target = Path(generated_dir)
+    target.mkdir(parents=True, exist_ok=True)
+    for name,text in outputs.items():
+        path = target/name
+        if not path.exists() or path.read_text(encoding='ascii') != text:
+            path.write_text(text, encoding='ascii', newline='\n')
+    print(f'environment metadata: {len(normal_ir)} Normal stages, '
+          f'{len(water_media)} water/rock BGs, {len(frontpanel_media)} Normal FP bindings, {len(hud_rows)} HUD names')
+    return materialized
+
+
+def build_msu_assets(write_output=True, source_sized_visual=False):
+    """Build MSU data and generated metadata before ROM assembly.
+
+    Scene aliases in campaign_config.pasm are assembled from the generated
+    scene-video include, so that include must describe the same finalized
+    records before Poppy reads main.pasm.
+    """
+    os.makedirs('build', exist_ok=True)
+    os.makedirs('distribution', exist_ok=True)
+    environment_configs = prepare_stage_environment_assets()
+    # Queues are derived outputs, never a manually maintained campaign input.
+    prepare_campaign_queues()
+    missing = [p for p in SPAWN_TABLES + [VM_MODULE] if not os.path.exists(p)]
+    if missing:
+        raise SystemExit("missing required generated input(s): " + ", ".join(missing))
+    check_spawn_table_freshness()
+    spawn_blobs = [open(p, 'rb').read() for p in SPAWN_TABLES]
+    queue_rows=[]
+    set_paths={}
+    from pak_extract import extract
+    for pak in {s['pak'] for s in STAGE_CONFIGS}:
+        for path,name in source_set_names(extract(pak,'DATA\\LEVELS.TXT').decode('latin1')).items():
+            set_paths[(pak,path)]=name
+    for i,(stage,blob) in enumerate(zip(STAGE_CONFIGS,spawn_blobs)):
+        context=dict(project=stage['pak'],set_name=set_paths.get((stage['pak'],stage['source_level'].replace('\\','/').lower()),'standalone'),
+                     stage=i,source_path=stage['source_level'])
+        count=packed_count(blob,**context)
+        queue_rows.append(dict(project=context['project'],set=context['set_name'],stage=i,
+                               source_path=context['source_path'],packed_records=count))
+    queue_plan=plan_build(queue_rows)
+    vm_blob = open(VM_MODULE, 'rb').read()
+    rugal_payload, rugal_stats = convert_rugal.build_payload(STAGE_CONFIGS[0]['pak'])
+    ending_payloads = convert_ending.build_payloads(STAGE_CONFIGS[0]['pak'])
+    scene_video_entries = [{
+        'scene_id': 1,
+        'flags': 0,
+        'width': convert_rugal.WIDTH,
+        'height': convert_rugal.HEIGHT,
+        'fps_num': 25,
+        'fps_den': 1,
+        'frame_count': convert_rugal.SOURCE_FRAMES,
+        'payload': rugal_payload,
+    }] + [{
+        'scene_id': convert_ending.CLIP_IDS[name],
+        'flags': stats['flags'], 'width': stats['width'], 'height': stats['height'],
+        'fps_num': stats['fps_num'], 'fps_den': stats['fps_den'],
+        'frame_count': stats['frame_count'], 'payload': payload,
+    } for name, (payload, stats) in ending_payloads.items()]
+    # Directory reservation follows the actual physical catalog.
+    pack_msu_roster.MAX_BGS = len(BG_SCREENS)
+    msu_data, roster_sidecar = pack_msu_roster.pack_roster(
+        ROSTER_PREFIXES,
+        bgs=[(cfg['bg'], BG_SCREENS[i][1]) for i,cfg in enumerate(environment_configs)],
+        fps=[cfg['frontpanel'] for cfg in environment_configs], spawns=spawn_blobs,
+        vm_blob=vm_blob, playable_count=PLAYABLE_ROSTER_COUNT,
+        scene_video_entries=scene_video_entries, extended_maps=True)
+    if source_sized_visual:
+        visual_blob = Path('src/generated/production_source_visual.bin').read_bytes()
+        visual_catalog = json.loads(Path('src/generated/production_source_visual.json').read_text(encoding='utf-8'))
+        visual_offset = len(msu_data)
+        msu_data += visual_blob
+        roster_sidecar['source_visual'] = {
+            'format': 'SVIS1',
+            'entry_count': visual_catalog['summary']['entry_count'],
+            'data_offset': visual_offset,
+            'data_size': len(visual_blob),
+            'sha256': hashlib.sha256(visual_blob).hexdigest(),
+        }
+    # Layout audits flatten main's includes, so publish these finalized
+    # pack-derived constants before auditing the queue's WRAM ownership.
+    write_campaign_layout_include(roster_sidecar)
+    from stage_environment_abi import write_model_map_counts
+    write_model_map_counts(ROSTER_PREFIXES, 'src/generated/stage_environment_maps.pasm')
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'tools', 'bor_compile'))
+    from generate_environment import generate as generate_environment
+    generate_environment(STAGE_CONFIGS, 'src/generated/stage_environment_bases.pasm')
+    if roster_sidecar['queue_abi']['capacity']!=queue_plan['capacity']:
+        raise SystemExit('queue compiler/linker capacity mismatch')
+    write_contract(queue_plan,'src/generated/queue_abi')
+    print('queue ABI/layout:', assert_layout(os.path.dirname(os.path.abspath(__file__)),queue_plan))
+    pack_msu_roster.write_scene_video_metadata(
+        'src/generated/scene_video_meta.pasm', roster_sidecar['scene_video'])
+
+    def generated_track(symbol):
+        for line in open('tools/audio/audio_music_ids.pasm', encoding='ascii'):
+            if line.startswith(symbol + ' ='):
+                return int(line.split('=', 1)[1].strip())
+        raise SystemExit('generated scene music track is missing: ' + symbol)
+
+    scene_sequences.write('src/generated/scene_sequence_meta.pasm', [
+        {'scene_id': 1, 'audio_track': generated_track('Music_SceneTrack_RUGAL'),
+         'audio_repeat': 0, 'clips': [1]},
+        {'scene_id': 2, 'audio_track': generated_track('Music_EndingTrack'),
+         'audio_repeat': 1, 'clips': [convert_ending.CLIP_IDS[name] for name in convert_ending.CLIPS]},
+    ])
+    if write_output:
+        with open('build/bor.msu', 'wb') as f:
+            f.write(msu_data)
+    # Do not replace the runnable distribution's MSU while its ROM still
+    # describes an older catalog. Publish only after assembly/layout checks.
+    return msu_data, roster_sidecar
+
+
+def prepare_source_visual_catalog():
+    """Generate compiler-owned source-sized visual metadata for an opt-in build."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    'tools', 'bor_compile'))
+    from production_source_publication import write_catalog
+    return write_catalog(
+        ROSTER_CONFIGS,
+        'src/generated/production_source_visual.json',
+        'src/generated/production_source_visual.pasm')
+
+
+def write_source_visual_layout_include(sidecar, *, enabled=False):
+    visual = sidecar.get('source_visual') or {}
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    'tools', 'bor_compile'))
+    from production_source_publication import emit_policy_include
+    catalog = json.loads(Path('src/generated/production_source_visual.json').read_text(
+        encoding='utf-8'))
+    emit_policy_include(catalog, 'src/generated/production_source_visual.pasm',
+                        enabled=enabled, msu_offset=visual.get('data_offset', 0),
+                        msu_size=visual.get('data_size', 0),
+                        key_path='src/generated/production_source_visual_keys.pasm')
+
+
+def reuse_pinned_audio(ref):
+    """Non-audio rebuild: unchanged source inputs and hash-pinned encoded assets.
+
+    This does not regenerate or claim to repair historical explorer evidence.
+    """
+    def git(*args): return subprocess.check_output(['git',*args])
+    paths=git('ls-tree','-r','--name-only',ref,'--','tools/audio','soundwork/tad').decode().splitlines()
+    for path in paths:
+        # Git's own per-path text filters distinguish CRLF checkout text
+        # from binary assets; never normalize arbitrary binary bytes.
+        accepted=git('rev-parse',f'{ref}:{path}').strip()
+        current=git('hash-object','--path',path,path).strip()
+        if current!=accepted:
+            raise SystemExit('refuse pinned audio reuse: changed input '+path)
+    music=json.loads(git('show',f'{ref}:tools/audio/music_catalog.json'))
+    for track in music['tracks']:
+        if hashlib.sha256(open(track['msu_pcm_path'],'rb').read()).hexdigest()!=track['msu_pcm_hash']:
+            raise SystemExit('refuse pinned audio reuse: PCM hash mismatch')
+    sfx=json.loads(git('show',f'{ref}:tools/audio/sfx_production_banks.json'))
+    for bank in sfx['banks']:
+        path=f"soundwork/tad/build/sfx_banks/bank_{bank['bank_id']:02d}/common-data.bin"
+        if hashlib.sha256(open(path,'rb').read()).hexdigest()!=bank['common_data_sha256']:
+            raise SystemExit('refuse pinned audio reuse: SFX hash mismatch')
+    print(f"pinned audio reuse PASS: {len(paths)} unchanged inputs, {len(music['tracks'])} PCMs, {len(sfx['banks'])} banks; ref={ref}")
+
+
+def write_build_outputs(rom, msu_data, normal_candidate=False, candidate_dir=None):
+    """Publish only the selected target after assembly/layout checks succeed."""
+    if normal_candidate:
+        target = str(candidate_dir or 'build/s8_candidate')
+        # MSU music is resolved beside the loaded ROM. Copy only catalog-owned,
+        # hash-verified companions; never move or relink production artifacts.
+        with open('tools/audio/music_catalog.json', encoding='utf-8') as f:
+            catalog = json.load(f)
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'verify'))
+        from pcm_runtime import link_immutable_pcm
+        companions = []
+        for track in catalog['tracks']:
+            source = track['msu_pcm_path']
+            with open(source, 'rb') as f:
+                if hashlib.sha256(f.read()).hexdigest() != track['msu_pcm_hash']:
+                    raise SystemExit('candidate PCM hash mismatch: ' + source)
+            companions.append((source, f"{target}/bor-{int(track['track_id'])}.pcm"))
+        os.makedirs(target, exist_ok=True)
+        link_immutable_pcm(Path('distribution'), Path(target))
+        if {Path(destination).name for _, destination in companions} != {
+                p.name for p in Path(target).glob('bor-*.pcm')}:
+            raise SystemExit('candidate PCM sidecar set mismatch')
+        outputs = [(f'{target}/bor.sfc', rom), (f'{target}/bor.msu', msu_data)]
+    else:
+        os.makedirs('build', exist_ok=True)
+        os.makedirs('distribution', exist_ok=True)
+        outputs = [('build/bor.sfc', rom), ('distribution/bor.sfc', rom),
+                   ('distribution/bor.msu', msu_data)]
+    for path, data in outputs:
+        with open(path, 'wb') as f:
+            f.write(data)
+        print('Wrote ' + path)
+
+
+def link_rom():
+    """Assemble, validate, and return ROM bytes without publishing ROM/MSU.
+
+    Uses the existing generated includes and refreshes src/main.bin/main.sym
+    through assemble(). Diagnostic callers must supply matching existing MSU
+    data to write_build_outputs(); this does not regenerate or certify media.
+    """
     assemble()
-    poppy_data = bytearray(open('src/main.bin', 'rb').read())
+    with open('src/main.bin', 'rb') as f:
+        poppy_data = bytearray(f.read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
     validate_bank0_layout(poppy_data, 'src/main.sym')
     validate_text_bank_layout('src/main.sym')
+    validate_score_layout('src/main.sym')
 
     rom = bytearray(ROM_SIZE)
     # Historically clamped to BANK0_SIZE (32KB) because main.pasm was
@@ -478,7 +936,9 @@ def main():
     # fixed in the fork as of 2026-08-19, so main.pasm can now use more than
     # bank 0). Copy the whole assembled binary; ROM_SIZE (4MB) is already the
     # real ceiling.
-    copy_len = min(len(poppy_data), ROM_SIZE)
+    if len(poppy_data) > ROM_SIZE:
+        raise SystemExit('ROM resource overflow: assembled banks exceed target capacity')
+    copy_len = len(poppy_data)
     rom[0:copy_len] = poppy_data[0:copy_len]
 
     # SA-1's reset vector (CRV) is hardware-forced into bank $00 on every
@@ -540,31 +1000,38 @@ def main():
     rom[0x7FDE] = total & 0xFF
     rom[0x7FDF] = (total >> 8) & 0xFF
 
-    os.makedirs('build', exist_ok=True)
-    os.makedirs('distribution', exist_ok=True)
-    
-    # Write ROMs
-    with open('build/bor.sfc', 'wb') as f:
-        f.write(rom)
-    with open('distribution/bor.sfc', 'wb') as f:
-        f.write(rom)
+    return bytes(rom)
 
-    # Write MSU-1 data files
-    missing = [p for p in SPAWN_TABLES + [VM_MODULE] if not os.path.exists(p)]
-    if missing:
-        raise SystemExit("missing required generated input(s): " + ", ".join(missing))
-    check_spawn_table_freshness()
-    spawn_blobs = [open(p, 'rb').read() for p in SPAWN_TABLES]
-    vm_blob = open(VM_MODULE, 'rb').read()
-    msu_data, roster_sidecar = pack_msu_roster.pack_roster(
-        ROSTER_PREFIXES, bgs=BG_SCREENS, fps=FP_SCREENS, spawns=spawn_blobs,
-        vm_blob=vm_blob, playable_count=PLAYABLE_ROSTER_COUNT)
-    check_stage_count(roster_sidecar)
-    check_vm_constants(roster_sidecar)
-    with open('build/bor.msu', 'wb') as f:
-        f.write(msu_data)
-    with open('distribution/bor.msu', 'wb') as f:
-        f.write(msu_data)
+
+def main(reuse_audio_from=None, normal_candidate=False, source_sized_visual=False,
+         candidate_dir=None):
+    from production_campaign import materialize_actor_bindings
+    materialize_actor_bindings(ROSTER_CONFIGS)
+    if source_sized_visual:
+        catalog = prepare_source_visual_catalog()
+        if catalog['blockers']:
+            raise SystemExit('source-sized visual catalog has blockers: ' +
+                             json.dumps(catalog['blockers'][:8], sort_keys=True))
+    prepare_campaign_queues()
+    bank0_layout_guard_self_test()
+    write_campaign_include(normal_candidate=normal_candidate)
+    write_stage_scroll_include()
+    write_bor_player_select_include()
+    if reuse_audio_from: reuse_pinned_audio(reuse_audio_from)
+    else: build_audio.main()
+    # Shared compiler/packing paths stay unchanged; defer candidate MSU output
+    # so neither ordinary build/bor.msu nor distribution is published here.
+    if normal_candidate:
+        msu_data, roster_sidecar = build_msu_assets(
+            write_output=False, source_sized_visual=source_sized_visual)
+    else:
+        msu_data, roster_sidecar = build_msu_assets(
+            source_sized_visual=source_sized_visual)
+    write_source_visual_layout_include(roster_sidecar,
+                                       enabled=source_sized_visual)
+    rom = link_rom()
+    write_build_outputs(rom, msu_data, normal_candidate=normal_candidate,
+                        candidate_dir=candidate_dir)
 
     print(f"ROM: {len(rom)} bytes")
     print(f"MSU: {len(msu_data)} bytes (bor.msu), roster: {', '.join(ROSTER_PREFIXES)}")
@@ -585,4 +1052,16 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    exit(main())
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--reuse-audio-from',help='non-audio rebuild: verify/reuse encoded audio pinned to this Git ref')
+    parser.add_argument('--normal-candidate', action='store_true',
+                        help='enable Normal only in isolated build/s8_candidate/bor.* outputs; not a release')
+    parser.add_argument('--source-sized-visual', action='store_true',
+                        help='generate source-sized visual catalog for the opt-in migration build')
+    parser.add_argument('--candidate-dir', type=Path,
+                        help='write an isolated Normal candidate to this directory instead of build/s8_candidate')
+    args = parser.parse_args()
+    exit(main(args.reuse_audio_from, normal_candidate=args.normal_candidate,
+              source_sized_visual=args.source_sized_visual,
+              candidate_dir=args.candidate_dir))

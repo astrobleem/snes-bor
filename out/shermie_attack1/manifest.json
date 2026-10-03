@@ -1,0 +1,132 @@
+{
+  "entity": "Shermie",
+  "anim": "attack1",
+  "loop": 0,
+  "scale": 0.367816091954023,
+  "hotspot_canvas": [
+    13,
+    39
+  ],
+  "frames": [
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": null,
+      "move": 10,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": null,
+      "move": 10,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": [
+        61,
+        17,
+        37,
+        35,
+        15
+      ],
+      "move": 0,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": [
+        61,
+        15,
+        28,
+        32,
+        15
+      ],
+      "move": 0,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": [
+        61,
+        15,
+        28,
+        32,
+        15
+      ],
+      "move": 0,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 7,
+      "offset": [
+        46,
+        119
+      ],
+      "bbox": [
+        33,
+        11,
+        33,
+        111
+      ],
+      "attack": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "move": 0,
+      "bin": "frame05.bin"
+    }
+  ]
+}

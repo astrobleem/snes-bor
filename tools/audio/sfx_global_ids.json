@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "manifest_hash": "5b0a16f457526bb0fbdbdbab8c3db6fd36d32efb41049acde5279282da286212",
+  "manifest_hash": "52e46a158e24dbede044b2624df31f9e416234a399aad69c91007a6ba40a587c",
   "ids": {
     "bor-original:DATA\\SOUNDS\\1UP.WAV": {
       "global_id": 0,
@@ -32,148 +32,213 @@
       "symbol": "SFX_BOR_ORIGINAL_DIE2",
       "source_hash": "2a9a6285f00fe3d41364c311f6af78a169f26f6aef9c96b4a32dffe3199c809d"
     },
-    "bor-original:DATA\\SOUNDS\\FALL.WAV": {
+    "bor-original:DATA\\SOUNDS\\DRILL.WAV": {
       "global_id": 6,
+      "symbol": "SFX_BOR_ORIGINAL_DRILL",
+      "source_hash": "9b1afec4da000791dae0b9720efc40320bda544a0cf4c90d2d0b9cd7c0e3549e"
+    },
+    "bor-original:DATA\\SOUNDS\\EEK.WAV": {
+      "global_id": 7,
+      "symbol": "SFX_BOR_ORIGINAL_EEK",
+      "source_hash": "f4e7d378980c0c8076d08f3d72be1e59b1cb5be79eaefc4f7ca13fa2798c32bb"
+    },
+    "bor-original:DATA\\SOUNDS\\FALL.WAV": {
+      "global_id": 8,
       "symbol": "SFX_BOR_ORIGINAL_FALL",
       "source_hash": "338ef562041e9e1ac97987ed3257d197e38e86fa476281cc8d55fe0028a07f33"
     },
     "bor-original:DATA\\SOUNDS\\GET.WAV": {
-      "global_id": 7,
+      "global_id": 9,
       "symbol": "SFX_BOR_ORIGINAL_GET",
       "source_hash": "df44cae1360524e01e6d7c0e080788ba3f2085cca5de5fa12eeb08b60fa409e3"
     },
     "bor-original:DATA\\SOUNDS\\JUMP.WAV": {
-      "global_id": 8,
+      "global_id": 10,
       "symbol": "SFX_BOR_ORIGINAL_JUMP",
       "source_hash": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
     },
     "bor-original:DATA\\SOUNDS\\KLUNK.WAV": {
-      "global_id": 9,
+      "global_id": 11,
       "symbol": "SFX_BOR_ORIGINAL_KLUNK",
       "source_hash": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75"
     },
+    "bor-original:DATA\\SOUNDS\\KULABLOW.WAV": {
+      "global_id": 12,
+      "symbol": "SFX_BOR_ORIGINAL_KULABLOW",
+      "source_hash": "9e668a30a53ba5742f5c08aa2c9e9a80d50d7c103b67095a01c37876931d29b8"
+    },
+    "bor-original:DATA\\SOUNDS\\KULAHEY.WAV": {
+      "global_id": 13,
+      "symbol": "SFX_BOR_ORIGINAL_KULAHEY",
+      "source_hash": "0803d7fb880c87f1733b1184885138869b98d2d2499e2a5bbfd0ff4732a37d3e"
+    },
+    "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV": {
+      "global_id": 14,
+      "symbol": "SFX_BOR_ORIGINAL_LEONAHEY",
+      "source_hash": "7329fe89a252ee90e90d5519d3bd17e8f234a6c4d635951d61715d6f716eda06"
+    },
+    "bor-original:DATA\\SOUNDS\\MARYTOSS.WAV": {
+      "global_id": 15,
+      "symbol": "SFX_BOR_ORIGINAL_MARYTOSS",
+      "source_hash": "6d13f1285371dec12e725af1a78b3f1ccfaf28f46db289edd95594bae1885c3e"
+    },
+    "bor-original:DATA\\SOUNDS\\MARY_FFP.WAV": {
+      "global_id": 16,
+      "symbol": "SFX_BOR_ORIGINAL_MARY_FFP",
+      "source_hash": "6a7b556ed9895390baad33de02d6c6dcfb329588b320439b3291b1ac2b838d81"
+    },
+    "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV": {
+      "global_id": 17,
+      "symbol": "SFX_BOR_ORIGINAL_MAXBOOM",
+      "source_hash": "038b4bcd75a45a010bc2af6c19d4cf3266725c4ea37e64d2583b85dd7952020b"
+    },
+    "bor-original:DATA\\SOUNDS\\MAXROCKT.WAV": {
+      "global_id": 18,
+      "symbol": "SFX_BOR_ORIGINAL_MAXROCKT",
+      "source_hash": "327ef2948e2971a79696b83f226704fdceaff7ee289f62770ad6f25adb125f70"
+    },
+    "bor-original:DATA\\SOUNDS\\MAXUH.WAV": {
+      "global_id": 19,
+      "symbol": "SFX_BOR_ORIGINAL_MAXUH",
+      "source_hash": "6acb689e51366a1e8d910d97187495e5af054b03e28110bd44e64ae06e1d3f33"
+    },
     "bor-original:DATA\\SOUNDS\\MONEY.WAV": {
-      "global_id": 10,
+      "global_id": 20,
       "symbol": "SFX_BOR_ORIGINAL_MONEY",
       "source_hash": "52d26d9929b5a4ae7853e44e2f342d088d4f9388aad3aa1b9c8d18b41ef53f77"
     },
     "bor-original:DATA\\SOUNDS\\PUNCH.WAV": {
-      "global_id": 11,
+      "global_id": 21,
       "symbol": "SFX_BOR_ORIGINAL_PUNCH",
       "source_hash": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1"
     },
+    "bor-original:DATA\\SOUNDS\\SHAAH.WAV": {
+      "global_id": 22,
+      "symbol": "SFX_BOR_ORIGINAL_SHAAH",
+      "source_hash": "33a551a026418f89908e2a36e3bf6c233c28e6508c84f79cc139115aea31615a"
+    },
+    "bor-original:DATA\\SOUNDS\\TIMEOVER.WAV": {
+      "global_id": 23,
+      "symbol": "SFX_BOR_ORIGINAL_TIMEOVER",
+      "source_hash": "b2b70433a077412a3e3f6d0fd8c9f1a31ad9f6047dc6901e21201d967ee20018"
+    },
     "bor-original:DATA\\SOUNDS\\WOOD.WAV": {
-      "global_id": 12,
+      "global_id": 24,
       "symbol": "SFX_BOR_ORIGINAL_WOOD",
       "source_hash": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf"
     },
+    "bor-original:DATA\\SOUNDS\\ZOEF.WAV": {
+      "global_id": 25,
+      "symbol": "SFX_BOR_ORIGINAL_ZOEF",
+      "source_hash": "ea288d9b490d81bfdb0924f731bc08df9ce375c604ffba3efbdba2671e36aeaa"
+    },
     "tmnt:DATA\\SOUNDS\\1UP.WAV": {
-      "global_id": 13,
+      "global_id": 26,
       "symbol": "SFX_TMNT_1UP",
       "source_hash": "2a92eaad3b7de0047c78abc230eb78d9fa464833cb2492f153e8c91b9ce4cbad"
     },
     "tmnt:DATA\\SOUNDS\\BEAT1.WAV": {
-      "global_id": 14,
+      "global_id": 27,
       "symbol": "SFX_TMNT_BEAT1",
       "source_hash": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda"
     },
     "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": {
-      "global_id": 15,
+      "global_id": 28,
       "symbol": "SFX_TMNT_BEBOPDIE",
       "source_hash": "2e632920037553d5a001ef18e3a3294fcb625ecf3624c0846859a14f3a47bb80"
     },
     "tmnt:DATA\\SOUNDS\\BEEP0.WAV": {
-      "global_id": 16,
+      "global_id": 29,
       "symbol": "SFX_TMNT_BEEP0",
       "source_hash": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f"
     },
     "tmnt:DATA\\SOUNDS\\BEEP2.WAV": {
-      "global_id": 17,
+      "global_id": 30,
       "symbol": "SFX_TMNT_BEEP2",
       "source_hash": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a"
     },
     "tmnt:DATA\\SOUNDS\\BOAR.WAV": {
-      "global_id": 18,
+      "global_id": 31,
       "symbol": "SFX_TMNT_BOAR",
       "source_hash": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d"
     },
     "tmnt:DATA\\SOUNDS\\DASH.WAV": {
-      "global_id": 19,
+      "global_id": 32,
       "symbol": "SFX_TMNT_DASH",
       "source_hash": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915"
     },
     "tmnt:DATA\\SOUNDS\\FALL.WAV": {
-      "global_id": 20,
+      "global_id": 33,
       "symbol": "SFX_TMNT_FALL",
       "source_hash": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef"
     },
     "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": {
-      "global_id": 21,
+      "global_id": 34,
       "symbol": "SFX_TMNT_FOOTDIE",
       "source_hash": "4cf0ddeb36f63711db19d085732a15229224259abd631ee026795c00e60e3c2b"
     },
     "tmnt:DATA\\SOUNDS\\GET.WAV": {
-      "global_id": 22,
+      "global_id": 35,
       "symbol": "SFX_TMNT_GET",
       "source_hash": "2c4ca557f5744710e0819a73ddf4ba138e14e2550b4bf3eb89cbc05966e8aadf"
     },
     "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": {
-      "global_id": 23,
+      "global_id": 36,
       "symbol": "SFX_TMNT_GUNSHOT",
       "source_hash": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4"
     },
     "tmnt:DATA\\SOUNDS\\JUMP.WAV": {
-      "global_id": 24,
+      "global_id": 37,
       "symbol": "SFX_TMNT_JUMP",
       "source_hash": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9"
     },
     "tmnt:DATA\\SOUNDS\\METAL.WAV": {
-      "global_id": 25,
+      "global_id": 38,
       "symbol": "SFX_TMNT_METAL",
       "source_hash": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d"
     },
     "tmnt:DATA\\SOUNDS\\MONEY.WAV": {
-      "global_id": 26,
+      "global_id": 39,
       "symbol": "SFX_TMNT_MONEY",
       "source_hash": "52d26d9929b5a4ae7853e44e2f342d088d4f9388aad3aa1b9c8d18b41ef53f77"
     },
     "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": {
-      "global_id": 27,
+      "global_id": 40,
       "symbol": "SFX_TMNT_PIZZA1",
       "source_hash": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21"
     },
     "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": {
-      "global_id": 28,
+      "global_id": 41,
       "symbol": "SFX_TMNT_PUNCH0",
       "source_hash": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3"
     },
     "tmnt:DATA\\SOUNDS\\RHINO.WAV": {
-      "global_id": 29,
+      "global_id": 42,
       "symbol": "SFX_TMNT_RHINO",
       "source_hash": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13"
     },
     "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": {
-      "global_id": 30,
+      "global_id": 43,
       "symbol": "SFX_TMNT_ROCKDIE",
       "source_hash": "e4eeb10434950a51c06e79b0339686815dcf329f3192367dc29697cecaf36aa7"
     },
     "tmnt:DATA\\SOUNDS\\SPIN.WAV": {
-      "global_id": 31,
+      "global_id": 44,
       "symbol": "SFX_TMNT_SPIN",
       "source_hash": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139"
     },
     "tmnt:DATA\\SOUNDS\\THROW.WAV": {
-      "global_id": 32,
+      "global_id": 45,
       "symbol": "SFX_TMNT_THROW",
       "source_hash": "9e027ac6ca48abf564f07858e4afe18338a6fa3952d62001dda2d19467dc68fb"
     },
     "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": {
-      "global_id": 33,
+      "global_id": 46,
       "symbol": "SFX_TMNT_TURTLE_1",
       "source_hash": "e74501d1e2928a39addf7075823e7dde4d7e0f0e649131c2cca9f330d26ad201"
     },
     "tmnt:DATA\\SOUNDS\\WAVE.WAV": {
-      "global_id": 34,
+      "global_id": 47,
       "symbol": "SFX_TMNT_WAVE",
       "source_hash": "61710a9acf2dbfaad18c145852bd73dad9208a9608dc29f29641156f69b63077"
     }
@@ -200,5 +265,5 @@
       "tmnt:DATA\\SOUNDS\\MONEY.WAV"
     ]
   ],
-  "reachable_count": 35
+  "reachable_count": 48
 }

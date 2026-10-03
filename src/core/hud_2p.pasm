@@ -132,13 +132,23 @@ Hud_Play__2p_text:
     rep #$31
 .a16
 .i16
-    lda.l G13_P2Score
-    cmp.l HudCachedP2Score
+    lda.l G13_P2Score32
+    cmp.l HudCachedP2Score32
+    bne Hud_Play__2p_text_score_changed
+    lda.l G13_P2Score32+2
+    cmp.l HudCachedP2Score32+2
     beq Hud_Play__2p_text_lives
-    sta.l HudCachedP2Score
-    sta.l Text_LabelValue
+Hud_Play__2p_text_score_changed:
+    lda.l G13_P2Score32
+    sta.l HudCachedP2Score32
+    sta.l Text_ScoreValue32
+    lda.l G13_P2Score32+2
+    sta.l HudCachedP2Score32+2
+    sta.l Text_ScoreValue32+2
     sep #$20
 .a8
+    lda #1
+    sta.l Text_ScoreMode
     lda #HUD_ROW_P2_SCORE
     rep #$10
 .i16
@@ -151,14 +161,13 @@ Hud_Play__2p_text_lives:
 .a8
     lda.l G13_TwoPlayerEnabled
     beq Hud_Play__2p_text_done
+    rep #$31
+.a16
+.i16
     lda.l G13_P2Lives
     cmp.l HudCachedP2Lives
     beq Hud_Play__2p_text_done
     sta.l HudCachedP2Lives
-    rep #$31
-.a16
-.i16
-    and #$00FF
     sta.l Text_LabelValue
     sep #$20
 .a8

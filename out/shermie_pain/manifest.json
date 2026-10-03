@@ -1,0 +1,60 @@
+{
+  "entity": "Shermie",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.4485981308411215,
+  "hotspot_canvas": [
+    15,
+    48
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        64,
+        116
+      ],
+      "bbox": [
+        48,
+        9,
+        34,
+        108
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 50,
+      "offset": [
+        64,
+        116
+      ],
+      "bbox": [
+        48,
+        9,
+        34,
+        108
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        64,
+        116
+      ],
+      "bbox": [
+        48,
+        9,
+        34,
+        108
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

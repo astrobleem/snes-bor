@@ -240,6 +240,9 @@ Character_RenderPass:
     rep #$31
 .a16
 .i16
+    lda.l SourceVisual_RenderPassCount
+    inc a
+    sta.l SourceVisual_RenderPassCount
     ; Exactly one reset per frame, unconditionally -- this is now the ONLY
     ; place OAM entries are emitted (replaces the old per-entity Oam_
     ; CursorResetDone flag check that used to live in Character_PlayFrame).
@@ -256,6 +259,9 @@ Character_RenderPass:
 
     ldx #0
 Character_RenderPass__loop:
+    lda.l SourceVisual_RenderLoopCount
+    inc a
+    sta.l SourceVisual_RenderLoopCount
     ; --- entity id (0-3) for this render slot. Narrow to .a8 for the load
     ; ONLY -- 65816 8-bit LDA leaves the accumulator's high byte untouched
     ; (stale, not zeroed), a real, previously-shipped bug class in this
@@ -266,6 +272,7 @@ Character_RenderPass__loop:
     sep #$20
 .a8
     lda.l Depth_RenderOrder,x
+    sta.l SourceVisual_RenderLastId
     phx                            ; save the outer loop counter -- X gets
                                     ; repurposed below for the DP-base table
                                     ; index (a different value, entity_id*2)
@@ -282,8 +289,7 @@ Character_RenderPass__loop:
     bcc Character_RenderPass__render_live
     sep #$20
 .a8
-    lda #$F0
-    sta.l OamSetSprite_Y
+    jsl Core_Oam_HideRequest
     rep #$31
 .a16
 .i16
@@ -292,7 +298,22 @@ Character_RenderPass__loop:
 Character_RenderPass__render_live:
     sep #$20
 .a8
-    jsl Character_RenderFrame
+.i16
+    ; Empty non-player slots are already semantically hidden by
+    ; Character_RenderFrame.  Do that generic check before entering the
+    ; compatibility/source publication seam; fall-role actors remain on the
+    ; full path so their authored death/knockdown frames can still render.
+    lda CHAR_HP
+    beq Character_RenderPass__check_fall
+    bra Character_RenderPass__dispatch
+Character_RenderPass__check_fall:
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_FALL
+    beq Character_RenderPass__dispatch
+    jsl Core_Oam_HideRequest
+    bra Character_RenderPass__render_done
+Character_RenderPass__dispatch:
+    jsl StageTimerHost_RenderFrame
 Character_RenderPass__render_done:
     rep #$31
 .a16

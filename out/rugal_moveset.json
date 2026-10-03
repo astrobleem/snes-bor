@@ -1,0 +1,124 @@
+{
+  "entity": "Rugal",
+  "prefix": "out/rugal",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/rugal_idle",
+      "frames": 6
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/rugal_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/rugal_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/rugal_fall",
+      "frames": 5
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/rugal_rise",
+      "frames": 7
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/rugal_attack1",
+      "frames": 9
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/rugal_attack2",
+      "frames": 12
+    },
+    {
+      "ordinal": 7,
+      "name": "jumpattack",
+      "dir": "out/rugal_jumpattack",
+      "frames": 6
+    },
+    {
+      "ordinal": 8,
+      "name": "special",
+      "dir": "out/rugal_special",
+      "frames": 24
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": 7,
+    "jumpattack2": null,
+    "special": 8,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      29662,
+      23322,
+      21243,
+      2555,
+      14802,
+      9743,
+      6444,
+      9332,
+      9298,
+      12548,
+      0,
+      17,
+      5195,
+      8352,
+      0
+    ],
+    [
+      0,
+      29662,
+      23322,
+      21243,
+      2555,
+      14802,
+      9646,
+      6444,
+      9743,
+      7596,
+      174,
+      0,
+      17,
+      3368,
+      3210,
+      0
+    ]
+  ]
+}

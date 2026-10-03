@@ -1,0 +1,77 @@
+{
+  "entity": "Mrbig",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.23529411764705882,
+  "hotspot_canvas": [
+    10,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        50,
+        130
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        50,
+        130
+      ],
+      "bbox": null,
+      "attack": [
+        29,
+        34,
+        69,
+        58,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        50,
+        130
+      ],
+      "bbox": null,
+      "attack": [
+        35,
+        98,
+        98,
+        34,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        50,
+        130
+      ],
+      "bbox": null,
+      "attack": [
+        35,
+        98,
+        98,
+        34,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

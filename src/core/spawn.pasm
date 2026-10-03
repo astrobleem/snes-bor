@@ -61,8 +61,11 @@
 ;     stage load. It gates ALL further queue advancement, not just
 ;     spawns: once `count_ents(TYPE_ENEMY) >= Spawn_GroupMin`, NOTHING
 ;     in the queue is even looked at (not spawns, not the next wait/group
-;     marker) until enough enemies die to drop back under it. This is what
-;     makes `group 1-2`/`group 3-3` read as real wave gates.
+;     marker) until enough enemies die to drop back under it. The authored
+;     `group 0 0` pair disables that gate, allowing the queue to continue
+;     (Normal 6B uses it before its opening wait/wave). This is what makes
+;     `group 1-2`/`group 3-3` read as real wave gates without treating the
+;     explicit no-cap pair as an impossible zero-enemy window.
 ;   - "enemy count" excludes props, matching BOR.C's own `TYPE_ENEMY`
 ;     filter -- free here via `EntityN_InputDriven != CHAR_INPUT_DRIVEN_
 ;     PROP`, no new state needed to track it.
@@ -129,40 +132,11 @@
 ; other core/*.pasm file (see core/random.pasm's header for why).
 ; ============================================================================
 
-SPAWN_MAX_RECORDS = 90       ; roster-growth slice, REAL BUG found and fixed
-                              ; while regenerating every stage's spawn table
-                              ; for the RECORD_SIZE 8->9 change below: this
-                              ; was still 48 ("largest packed stage today is
-                              ; stage 1A's 41"), a stale claim left over from
-                              ; before the TMNT campaign slice shipped --
-                              ; stage7streets2 alone real-packs 86 records
-                              ; (63/67/46 for sewer0/streets/sewer, also all
-                              ; >48). Spawn_Init's boot-time read loop walks
-                              ; Spawn_Count (the stage's OWN real count, read
-                              ; from its bg record, not clamped to
-                              ; SPAWN_MAX_RECORDS), so every one of those 4
-                              ; stages was silently overrunning
-                              ; SpawnTable_Wram's WRAM allocation by hundreds
-                              ; of bytes into whatever followed it -- real,
-                              ; live corruption, not a hypothetical. 90 covers
-                              ; the real max (86) with small headroom -- if a
-                              ; future stage exceeds it, re-measure and bump
-                              ; again rather than trusting a round number.
+; S3: finalized build queues generate capacity and reserve a bank-$7F arena.
+; The retired $7E550F..$7E5892 buffer is unused; all scratch stays at its
+; original address. No per-stage or per-PAK allocation rule exists here.
+SPAWN_MAX_RECORDS = QUEUE_CAPACITY
 
-; --- WRAM layout: $7E5500 + SPAWN_MAX_RECORDS*9 bytes (810 for 90 records --
-; roster-growth slice grew RECORD_SIZE 8->9 AND SPAWN_MAX_RECORDS 48->90,
-; see that constant's own comment for why both), first free region after
-; Anim_*/CharSelect_*'s $7E53B0-$7E53C9 block (verified collision-free by
-; grep -- see main.pasm's own $7E53B6 note for the same verification
-; convention). SpawnTable_Wram now ends at $7E5892 (was $7E5838 before the
-; claude_close_g7_g8_before_g10.md Part 2/3 RECORD_SIZE 9->10 growth, $7E568F
-; slice); every scratch/state cell below moved to $7E5893+ to stay clear of
-; the grown table -- same relocation this file has done twice before as the
-; table grew (they used to sit at $7E5660, then $7E5690). Freshly grep-
-; verified clear of any other module's WRAM through at least $7E58AA (the
-; new highest cell, Spawn_ScratchRosterIdx, is $7E58A7) -- this is NEW
-; territory past the old $7E56FF-verified range, not a reuse of the old
-; "already checked" claim. ---
 Spawn_Index         = $7E5500   ; .db -- next pending record index, 0..Spawn_Count
 Spawn_Count         = $7E5501   ; .db -- this stage's own record count, read
                                  ; from its bg record by Bg_LoadScene (was a
@@ -182,9 +156,9 @@ Spawn_ScratchIdx    = $7E5507   ; .dw -- zero-extended copy of Spawn_Index for t
 Spawn_ScratchX      = $7E5509   ; .dw -- captured spawn_x, held across slot search (clobbers X)
 Spawn_ScratchY      = $7E550B   ; .db -- captured spawn_y
 Spawn_ScratchFacing = $7E550C   ; .db -- captured facing_left
-Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
-                                 ; (spawn tables are packed in ascending
-                                 ; trigger order -- see this file's header),
+Spawn_LastTriggerX  = $7E550D   ; .dw -- greatest trigger_x in this stage's
+                                 ; authored queue (record order is preserved
+                                 ; and triggers need not be monotonic),
                                  ; cached by Spawn_Init. Phase G4's win-
                                  ; condition soft camera-hold reads this
                                  ; (core/game_state.pasm's Stage_Load) --
@@ -192,22 +166,8 @@ Spawn_LastTriggerX  = $7E550D   ; .dw -- trigger_x of this stage's LAST record
                                  ; boundary derived from the level's own
                                  ; data is used instead of a separate
                                  ; hand-authored "combat zone" table.
-SpawnTable_Wram     = $7E550F   ; SPAWN_MAX_RECORDS*10 = 900 bytes, record
-                                 ; layout below. Grew from 48*8=384 to
-                                 ; 90*9=810 (roster-growth slice: +1 byte/
-                                 ; record for a dedicated roster_idx field,
-                                 ; AND SPAWN_MAX_RECORDS 48->90 to fix the
-                                 ; real overrun bug that constant's own
-                                 ; comment documents), then 90*9=810 ->
-                                 ; 90*10=900 (claude_close_g7_g8_before_g10.md
-                                 ; Part 2/3: split the old conflated +8
-                                 ; roster_idx byte into separate object/item
-                                 ; identity bytes) -- now ends at
-                                 ; $7E550F+$384 = $7E5893, so the scratch/
-                                 ; state cells below all moved well past
-                                 ; their previous ($7E5690-$7E56A4, then
-                                 ; $7E56C0-$7E56D4, then $7E5839-$7E5850)
-                                 ; addresses.
+SpawnTable_Wram = QUEUE_BUFFER_BASE ; QUEUE_BUFFER_BYTES, generated allocation
+
 Spawn_ScratchKind   = $7E5893   ; .db -- captured record_kind (record+6, see
                                  ; layout below), plan_game.md G8, relocated
                                  ; twice before (wait/group/boss slice, then
@@ -357,6 +317,20 @@ Spawn_ScratchItemRosterIdx = $7E58AE ; .db -- captured record+8 (item_roster_
                                    ; this one is stashed into the target
                                    ; slot's own EntityN_ItemRosterIdx instead,
                                    ; for later, see slot1/2/3 bodies).
+; B2 source-level hazard/subtype state. Hole positions are scaled source-X
+; coordinates; a hole record never consumes an actor slot. These cells remain
+; outside the accepted G12 trace block and the score/life allocation.
+Spawn_HoleCount = $7E58F0       ; .db
+Spawn_HolePos1  = $7E58F1       ; .dw
+Spawn_HolePos2  = $7E58F3       ; .dw
+Spawn_HolePos3  = $7E58F5       ; .dw
+Spawn_ScratchSubtype = $7E58F7 ; .db -- enemy subtype bits 5-6
+Spawn_HoleTilt1 = $7E58F8       ; .dw -- checkhole() temporary
+Spawn_HoleTilt2 = $7E58FA       ; .dw -- checkhole() temporary
+Spawn_B2Kind = $7E58FC          ; .db -- preserved across palette streaming
+Spawn_B2Subtype = $7E58FD       ; .db
+Spawn_B2Roster = $7E58FE        ; .db
+Spawn_B2Hp = $7E58FF            ; .db
 
 ; Record layout (10 bytes, LE), matches build_spawn_table.py exactly. Size
 ; was UNCHANGED by the wait/group/boss slice -- record_kind became a 5-way
@@ -391,10 +365,12 @@ Spawn_ScratchItemRosterIdx = $7E58AE ; .db -- captured record+8 (item_roster_
 ;                              build_spawn_table.py's own "Entity kind"
 ;                              section for that history). Bits 3-4: map
 ;                              index (0-3, SPAWN_MAP_SHIFT/SPAWN_MAP_MASK).
-;                              Bits 5-7 no longer used (was a 3-bit roster
-;                              index, 0-7 -- moved to its own +8 byte by the
-;                              roster-growth slice once the roster cap grew
-;                              past 8 and needed a 4th bit).
+;                              Bits 5-7: prop pickup type (0-5), or 7 for
+;                              the non-reward Steamer driver. The 7 sentinel
+;                              avoids aliasing pickup MONEY (3) with the
+;                              enemy-subtype field decoded from these bits.
+;                              Runtime clears the sentinel before storing it
+;                              in actor pickup state.
 ;   +7    spawn_hp    (u8)  -- health-override slice (follow-up to G8): the
 ;                              level's own `health` line, scaled to
 ;                              0..CHAR_HP_MAX. Read for enemy/boss slots
@@ -445,6 +421,12 @@ SPAWN_KIND_BOSS_IDENTIFIED = 5   ; spawn-driven roster-reassignment slice:
                               ; -- see Spawn_DoRosterReassign below for the
                               ; real mechanism and its real per-frame
                               ; streaming-budget guard).
+SPAWN_KIND_HOLE = 6              ; source hole marker; never consumes a slot
+SPAWN_SUBTYPE_SHIFT = 5
+SPAWN_SUBTYPE_MASK = $03
+SPAWN_SUBTYPE_BIKER = 1
+SPAWN_SUBTYPE_IDENTIFIED_ENEMY = 2
+SPAWN_SUBTYPE_STEAM = 3
 
 ; plan_game.md 8a row 3 (`map`): record_kind's spare high bits carry the
 ; spawn's remap-palette index (0-3), packed by build_spawn_table.py as
@@ -459,8 +441,10 @@ SPAWN_MAP_SHIFT   = 3
 SPAWN_MAP_MASK    = $03   ; explicit mask AFTER the >>3 shift
 SPAWN_PICKUP_SHIFT = 5    ; G8 item/pickup slice: record_kind bits 5-7 (3
                           ; bits, 0-7, PICKUP_TYPE_* in main.pasm only use
-                          ; 0-4) -- real only when kind==SPAWN_KIND_PROP.
+                          ; 0-5; value 7 is the Steamer driver sentinel --
+                          ; real only when kind==SPAWN_KIND_PROP.
 SPAWN_PICKUP_MASK  = $07  ; explicit mask AFTER the >>5 shift
+SPAWN_PICKUP_STEAMER = 7  ; reserved prop-driver sentinel; never a reward.
 
 ; Spawn_Init -- call once per stage load (boot AND every Stage_Load
 ; transition), after Bg_LoadScene has populated Spawn_MsuOffsetLo/Hi/
@@ -473,13 +457,39 @@ SPAWN_PICKUP_MASK  = $07  ; explicit mask AFTER the >>5 shift
 ; than the previous one leaves no stale tail data live (SpawnTable_Wram
 ; entries at/past Spawn_Count are simply never indexed by Spawn_Play, which
 ; loops on Spawn_Count, not SPAWN_MAX_RECORDS).
-Spawn_Init:
-    php
+; Invalid linked content is a fatal diagnostic, never a truncated stage.
+; Build/link reject this first; the runtime guard also covers ROM/MSU mismatch.
+Queue_CapacityFault:
     sei
     sep #$20
 .a8
+    lda #1
+    sta.l QUEUE_ERROR
+Queue_CapacityFault__halt:
+.a8
+    bra Queue_CapacityFault__halt
+
+Spawn_Init:
+    jsl StageEnv_ResetActors
+    php
+    sei
+    rep #$20
+.a16
+    lda.l Spawn_Count
+    and #$00FF
+    cmp #QUEUE_COUNT_CEILING
+    bcc Spawn_Init__capacity_ok
+    jsl Queue_CapacityFault
+Spawn_Init__capacity_ok:
+    sep #$20
+.a8
     lda #0
+    sta.l QUEUE_ERROR
     sta.l Spawn_Index
+    sta.l Spawn_HoleCount
+    sta.l Spawn_HolePos1
+    sta.l Spawn_HolePos2
+    sta.l Spawn_HolePos3
 
     ; --- wait/group/boss slice: reset the global group pool state to
     ; BOR.C's own `unload_level()` defaults (groupmin=groupmax=100,
@@ -585,14 +595,33 @@ Spawn_Init__read:
     cmp.l Spawn_CountX8
     bcc Spawn_Init__read
 
-    ; --- cache the last record's trigger_x (Spawn_CountX8 - 10 is its base
-    ; offset; records are packed in ascending trigger order, see header) ---
+    ; --- cache the greatest trigger_x in the authored queue. Queue record
+    ; order is semantically significant but source files do not guarantee
+    ; monotonically increasing trigger coordinates (Normal 3A ends
+    ; 1760,1680,1680). Using only the final record can clamp the camera
+    ; before an earlier queued record's trigger and deadlock the stage. ---
+    lda #0
+    sta.l Spawn_LastTriggerX
+    ldx #0
+Spawn_Init__max_trigger:
+    lda.l SpawnTable_Wram,x
+    cmp.l Spawn_LastTriggerX
+    bcc Spawn_Init__max_trigger_next
+    sta.l Spawn_LastTriggerX
+Spawn_Init__max_trigger_next:
+    txa
+    clc
+    adc #10
+    tax
+    txa
+    cmp.l Spawn_CountX8
+    bcc Spawn_Init__max_trigger
+    ; Preserve Spawn_Init's existing X exit value (last-record base offset);
+    ; the full-queue scan must not change the caller-visible convention.
     lda.l Spawn_CountX8
     sec
     sbc #10
     tax
-    lda.l SpawnTable_Wram,x
-    sta.l Spawn_LastTriggerX
 
     plp
     rtl
@@ -635,6 +664,10 @@ Spawn_Play__wait_release_active:
     lda.l Entity1_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__wc_slot2
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__wc_slot2
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__wc_slot2
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
@@ -645,6 +678,10 @@ Spawn_Play__wc_slot2:
     beq Spawn_Play__wc_slot3
     lda.l Entity2_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_slot3
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__wc_slot3
+    cmp #CHAR_INPUT_DRIVEN_STEAM
     beq Spawn_Play__wc_slot3
     lda.l Spawn_ScratchEnemyCount
     inc a
@@ -657,6 +694,10 @@ Spawn_Play__wc_slot3:
     lda.l Entity3_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__wc_sum_done
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__wc_sum_done
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__wc_sum_done
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
@@ -667,6 +708,10 @@ Spawn_Play__wc_sum_done:
     beq Spawn_Play__wc_slot5
     lda.l Entity4_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__wc_slot5
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__wc_slot5
+    cmp #CHAR_INPUT_DRIVEN_STEAM
     beq Spawn_Play__wc_slot5
     lda.l Spawn_ScratchEnemyCount
     inc a
@@ -679,6 +724,10 @@ Spawn_Play__wc_slot5:
     lda.l Entity5_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__wc_sum_done6
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__wc_sum_done6
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__wc_sum_done6
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
@@ -689,6 +738,7 @@ Spawn_Play__wc_sum_done6:
     bne Spawn_Play__wait_check_done   ; still >=1 real enemy alive -- stay blocked
     lda #0
     sta.l Spawn_Waiting
+    jsl StageTimer_Reset100
     lda.l Stage_Cleared
     bne Spawn_Play__wait_check_done   ; already cleared -- win-check owns Screen_MaxX now
     rep #$31
@@ -728,6 +778,10 @@ Spawn_Play__have_queue:
     lda.l Entity1_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__gc_slot2
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__gc_slot2
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__gc_slot2
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
@@ -738,6 +792,10 @@ Spawn_Play__gc_slot2:
     beq Spawn_Play__gc_slot3
     lda.l Entity2_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_slot3
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__gc_slot3
+    cmp #CHAR_INPUT_DRIVEN_STEAM
     beq Spawn_Play__gc_slot3
     lda.l Spawn_ScratchEnemyCount
     inc a
@@ -750,6 +808,10 @@ Spawn_Play__gc_slot3:
     lda.l Entity3_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__gc_sum_done
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__gc_sum_done
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__gc_sum_done
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
@@ -760,6 +822,10 @@ Spawn_Play__gc_sum_done:
     beq Spawn_Play__gc_slot5
     lda.l Entity4_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__gc_slot5
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__gc_slot5
+    cmp #CHAR_INPUT_DRIVEN_STEAM
     beq Spawn_Play__gc_slot5
     lda.l Spawn_ScratchEnemyCount
     inc a
@@ -772,10 +838,20 @@ Spawn_Play__gc_slot5:
     lda.l Entity5_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
     beq Spawn_Play__gc_sum_done6
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__gc_sum_done6
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__gc_sum_done6
     lda.l Spawn_ScratchEnemyCount
     inc a
     sta.l Spawn_ScratchEnemyCount
 Spawn_Play__gc_sum_done6:
+    ; 0/0 is the source's explicit no-cap group state. Without this bypass,
+    ; count>=min and count>=max are both true at zero, so the queue deadlocks
+    ; immediately after a `group 0 0` record (Normal 6B's opening sequence).
+    lda.l Spawn_GroupMin
+    ora.l Spawn_GroupMax
+    beq Spawn_Play__active
     lda.l Spawn_ScratchEnemyCount
     cmp.l Spawn_GroupMin
     bcc Spawn_Play__group_ok        ; EnemyCount < GroupMin -- proceed
@@ -814,7 +890,22 @@ Spawn_Play__active:
                                  ; record size grew 9->10)
     tax                         ; X = this record's base offset, 0..(SPAWN_MAX_RECORDS-1)*10
 
+    lda.l Stage_ScrollDirection
+    and #$00FF
+    cmp #STAGE_SCROLL_DOWN
+    beq Spawn_Play__use_vertical_levelpos
+    cmp #STAGE_SCROLL_LEFT
+    beq Spawn_Play__use_left_levelpos
     lda Screen_PosX
+    bra Spawn_Play__compare_trigger
+Spawn_Play__use_left_levelpos:
+    lda.l Stage_TrueMaxX
+    sec
+    sbc Screen_PosX
+    bra Spawn_Play__compare_trigger
+Spawn_Play__use_vertical_levelpos:
+    lda.w Screen_PosY_Lo
+Spawn_Play__compare_trigger:
     cmp.l SpawnTable_Wram,x     ; Screen_PosX - trigger_x
     bcs Spawn_Play__triggered   ; Screen_PosX >= trigger_x: armed, fall through
     brl Spawn_Play__not_yet     ; Screen_PosX < trigger_x: stay pending -- brl,
@@ -846,9 +937,24 @@ Spawn_Play__triggered:
     sta.l Spawn_ScratchY
     inx                         ; X -> record+5 (facing_left)
     lda.l SpawnTable_Wram,x
+    pha
+    and #1
     sta.l Spawn_ScratchFacing
+    pla
+    and #$7E
+    asl a                       ; +5 bits 1..6 -> map bits 2..7
+    sta.l Spawn_ScratchMap
     inx                         ; X -> record+6 (entity_kind, plan_game.md G8)
     lda.l SpawnTable_Wram,x
+    pha
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    and #SPAWN_SUBTYPE_MASK
+    sta.l Spawn_ScratchSubtype
+    pla
     ; plan_game.md 8a row 3 (`map`): this byte packs TWO fields (kind: bits
     ; 0-2, map: bits 3-4) -- decode each with its own shift+mask. Roster
     ; index moved to its own +8 byte (roster-growth slice), read separately
@@ -867,13 +973,35 @@ Spawn_Play__triggered:
     lsr a
     lsr a
     and #SPAWN_MAP_MASK
+    ora.l Spawn_ScratchMap
     sta.l Spawn_ScratchMap
     pla
     and #SPAWN_KIND_MASK
     sta.l Spawn_ScratchKind
+    lda.l Spawn_ScratchKind
+    sta.l Spawn_B2Kind
+    lda.l Spawn_ScratchSubtype
+    sta.l Spawn_B2Subtype
     inx                         ; X -> record+7 (spawn_hp, health-override slice)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchHp
+    ; build_spawn_table.py preserves source `2pitem` in the high bit of
+    ; this otherwise <=64 health byte. Carry it in pickup metadata; the low
+    ; seven bits remain the actual health value.
+    lda.l Spawn_ScratchHp
+    and #$80
+    beq Spawn_Play__no_2pitem_flag
+    lda.l Spawn_ScratchPickupType
+    ora #PICKUP_TYPE_2P_FLAG
+    sta.l Spawn_ScratchPickupType
+    lda.l Spawn_ScratchHp
+    and #$7F
+    sta.l Spawn_ScratchHp
+Spawn_Play__no_2pitem_flag:
+    lda.l Spawn_ScratchHp
+    sta.l Spawn_B2Hp
+    sep #$20
+.a8
     inx                         ; X -> record+8 (item_roster_idx, claude_
                                  ; close_g7_g8_before_g10.md Part 2/3)
     lda.l SpawnTable_Wram,x
@@ -881,18 +1009,38 @@ Spawn_Play__triggered:
     inx                         ; X -> record+9 (object_roster_idx)
     lda.l SpawnTable_Wram,x
     sta.l Spawn_ScratchRosterIdx
+    lda.l Spawn_ScratchRosterIdx
+    sta.l Spawn_B2Roster
 
     ; --- wait/group/boss slice: wait/group markers dequeue unconditionally
     ; once triggered+group-gated (matching BOR.C -- they don't wait on a
     ; free AI slot, unlike an actual spawn), so dispatch them BEFORE
     ; find_slot below. ---
     lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_HOLE
+    bne Spawn_Play__check_wait_kind
+    brl Spawn_Play__do_hole
+Spawn_Play__check_wait_kind:
+    sep #$20
+.a8
     cmp #SPAWN_KIND_WAIT
-    beq Spawn_Play__do_wait
+    bne Spawn_Play__check_group_kind
+    brl Spawn_Play__do_wait
+Spawn_Play__check_group_kind:
+    sep #$20
+.a8
     cmp #SPAWN_KIND_GROUP
-    beq Spawn_Play__do_group
+    bne Spawn_Play__check_identified_kind
+    brl Spawn_Play__do_group
+Spawn_Play__check_identified_kind:
+    sep #$20
+.a8
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
-    beq Spawn_Play__gate_stream
+    bne Spawn_Play__check_prop_kind
+    brl Spawn_Play__gate_stream
+Spawn_Play__check_prop_kind:
+    sep #$20
+.a8
     ; Real prop/pickup sprite art (notjustfreespecial.txt follow-up): a
     ; SPAWN_KIND_PROP record with a real +8 roster_idx (build_spawn_table.py
     ; found this item's own real converted sprite in the actual shipped
@@ -901,9 +1049,12 @@ Spawn_Play__triggered:
     ; streams a frame. roster_idx==0 (no matching converted prop slot yet)
     ; skips this gate entirely, unchanged pre-existing behavior.
     cmp #SPAWN_KIND_PROP
-    bne Spawn_Play__find_slot
+    beq Spawn_Play__prop_kind
+    brl Spawn_Play__find_slot
+Spawn_Play__prop_kind:
     lda.l Spawn_ScratchRosterIdx
-    beq Spawn_Play__find_slot
+    bne Spawn_Play__gate_stream
+    brl Spawn_Play__find_slot
 Spawn_Play__gate_stream:
     ; --- roster-reassignment slice: gate the WHOLE record (not just the
     ; reassignment step below) on Msu1_StreamBusy, BEFORE find_slot runs
@@ -918,9 +1069,60 @@ Spawn_Play__gate_stream:
     ; attempt (matches this file's existing "stay pending" convention for
     ; trigger-not-reached/no-free-slot). ---
     lda.l Msu1_StreamBusy
-    beq Spawn_Play__find_slot
+    bne Spawn_Play__gate_busy
+    brl Spawn_Play__find_slot
+Spawn_Play__gate_busy:
     plp
     rtl
+
+Spawn_Play__do_hole:
+    sep #$20
+.a8
+    lda.l Spawn_HoleCount
+    cmp #3
+    bcc Spawn_Play__hole_count_ok
+    brl Spawn_Play__advance
+Spawn_Play__hole_count_ok:
+    sep #$20
+.a8
+    beq Spawn_Play__hole_3
+    cmp #1
+    beq Spawn_Play__hole_2
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_ScratchX
+    sta.l Spawn_HolePos1
+    sep #$20
+.a8
+    lda.l Spawn_HoleCount
+    inc a
+    sta.l Spawn_HoleCount
+    brl Spawn_Play__advance
+Spawn_Play__hole_2:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_ScratchX
+    sta.l Spawn_HolePos2
+    sep #$20
+.a8
+    lda.l Spawn_HoleCount
+    inc a
+    sta.l Spawn_HoleCount
+    brl Spawn_Play__advance
+Spawn_Play__hole_3:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_ScratchX
+    sta.l Spawn_HolePos3
+    sep #$20
+.a8
+    lda.l Spawn_HoleCount
+    inc a
+    sta.l Spawn_HoleCount
+    brl Spawn_Play__advance
 
 Spawn_Play__do_wait:
     sep #$20
@@ -950,22 +1152,22 @@ Spawn_Play__find_slot:
 .a8
     lda.l G13_TwoPlayerEnabled
     bne Spawn_Play__find_slot_check2
-    lda.l Entity1_Hp
+    jsl StageTimerHost_Slot1Busy
     bne Spawn_Play__find_slot_check2
     jmp Spawn_Play__slot1
 Spawn_Play__find_slot_check2:
-    lda.l Entity2_Hp
+    jsl StageTimerHost_Slot2Busy
     bne Spawn_Play__find_slot_check3
     jmp Spawn_Play__slot2
 Spawn_Play__find_slot_check3:
     ; plan_game.md G8 grew slot1/slot2's own bodies (kind-conditional
     ; CHAR_INPUT_DRIVEN/HP) past this chain's original beq range -- jmp has
     ; no such limit, same fix as game_state.pasm's own G5 dispatch chain.
-    lda.l Entity3_Hp
+    jsl StageTimerHost_Slot3Busy
     bne Spawn_Play__find_slot_check4
     jmp Spawn_Play__slot3
 Spawn_Play__find_slot_check4:
-    lda.l Entity4_Hp
+    jsl StageTimerHost_Slot4Busy
     bne Spawn_Play__find_slot_check5
     rep #$30
 .a16
@@ -974,7 +1176,7 @@ Spawn_Play__find_slot_check4:
     tax
     jmp Spawn_Play__slot45
 Spawn_Play__find_slot_check5:
-    lda.l Entity5_Hp
+    jsl StageTimerHost_Slot5Busy
     bne Spawn_Play__find_slot_none
     rep #$30
 .a16
@@ -986,6 +1188,10 @@ Spawn_Play__find_slot_none:
     plp
     rtl                         ; no free slot -- record stays pending
 Spawn_Play__slot1:
+    rep #$20
+.a16
+    lda #CHAR_ZP_LEN
+    sta.l Spawn_ScratchSlotOfs
     ; Capture BEFORE anything below overwrites Entity1_InputDriven -- see
     ; Spawn_ScratchPrevWasProp's own header comment.
     sep #$20
@@ -994,7 +1200,16 @@ Spawn_Play__slot1:
     sta.l Spawn_ScratchPrevWasProp
     lda.l Entity1_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__slot1_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__slot1_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__slot1_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_NONCOMBAT
     bne Spawn_Play__slot1_prevflag_not_prop
+Spawn_Play__slot1_prevflag_prop:
+    sep #$20
+.a8
     lda #1
     sta.l Spawn_ScratchPrevWasProp
 Spawn_Play__slot1_prevflag_not_prop:
@@ -1048,6 +1263,16 @@ Spawn_Play__slot1_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; A reused native slot starts a fresh actor incarnation. Clear the old
+    ; occupant's grab relationship just like the shared slot-4/5 path below;
+    ; otherwise a stale slot ID can make the persistent source bridge reject
+    ; an otherwise ordinary, unlinked spawn.
+    lda #$FF
+    sta.l Entity1_GrabTarget
+    sta.l Entity1_GrabbedBy
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN+CHAR_GRAB_OFFSET
     ; plan_game.md G8: CHAR_INPUT_DRIVEN and starting HP both now depend on
     ; the record's own record_kind -- a slot that alternates between an
     ; enemy record and a prop record across two different waves must be
@@ -1059,13 +1284,31 @@ Spawn_Play__slot1_prevflag_done:
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot1_not_prop
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot1_prop_normal
+    lda #CHAR_INPUT_DRIVEN_STEAMER
+    sta.l Entity1_InputDriven
+    lda #1
+    sta.l Entity1_KnockdownTimer
+    bra Spawn_Play__slot1_prop_fields
+Spawn_Play__slot1_prop_normal:
+    sep #$20
+.a8
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity1_InputDriven
+Spawn_Play__slot1_prop_fields:
+    sep #$20
+.a8
     lda #CHAR_HP_PER_HIT
     sta.l Entity1_Hp
     lda #0
     sta.l Entity1_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot1_prop_store_pickup
+    lda #0
+Spawn_Play__slot1_prop_store_pickup:
     sta.l Entity1_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity1_ItemRosterIdx
@@ -1085,6 +1328,7 @@ Spawn_Play__slot1_prevflag_done:
 Spawn_Play__slot1_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot1_not_prop:
+    jsl Spawn_ApplyVerticalDrop1
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
@@ -1098,6 +1342,30 @@ Spawn_Play__slot1_not_prop:
     sta.l Entity1_PickupType
     sta.l Entity1_ItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2:
                                    ; same stale-state guard for the reveal target
+    ; Biker identity must be loaded before the shared palette stream, whose
+    ; scratch use is allowed to replace the spawn decode cells.
+    lda.l Spawn_B2Subtype
+    cmp #SPAWN_SUBTYPE_BIKER
+    bne Spawn_Play__slot1_biker_ready
+    rep #$30
+.a16
+.i16
+    lda.l Spawn_B2Roster
+    sta.l Spawn_ScratchRosterIdx
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jsr Spawn_DoRosterReassign
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_BIKER
+    sta.l Entity1_InputDriven
+    lda.l Spawn_B2Hp
+    sta.l Entity1_Hp
+    lda #0
+    sta.l Entity1_IsBoss
+Spawn_Play__slot1_biker_ready:
     ; plan_game.md 8a row 3 (`map`): apply this spawn's remap palette (0 =
     ; the character's own base palette) -- fill Anim_ApplyMapPalette's param
     ; block from this slot's own struct fields (set once at character load,
@@ -1120,7 +1388,7 @@ Spawn_Play__slot1_not_prop:
     sta.l MapApply_MapBaseHi
     lda.l Entity1_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
@@ -1181,7 +1449,7 @@ Spawn_Play__slot1_is_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity1_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot1_boss_no_restore:
@@ -1200,6 +1468,34 @@ Spawn_Play__slot1_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_BIKER
+    beq Spawn_Play__slot1_identified_biker
+    cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__slot1_identified_enemy
+    bra Spawn_Play__slot1_identified_boss
+Spawn_Play__slot1_identified_biker:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_BIKER
+    sta.l Entity1_InputDriven
+    lda.l Spawn_ScratchHp
+    sta.l Entity1_Hp
+    lda #0
+    sta.l Entity1_IsBoss
+    bra Spawn_Play__slot1_identified_palette
+Spawn_Play__slot1_identified_enemy:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity1_IsBoss
+    bra Spawn_Play__slot1_identified_palette
+Spawn_Play__slot1_identified_boss:
+    sep #$20
+.a8
+    lda #1
+    sta.l Entity1_IsBoss
+Spawn_Play__slot1_identified_palette:
     ; Re-apply the map palette after reassignment -- see the boss-restore
     ; branch's own comment above for the real bug this closes.
     rep #$31
@@ -1217,7 +1513,7 @@ Spawn_Play__slot1_boss_identified:
     sta.l MapApply_MapBaseHi
     lda.l Entity1_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1261,12 +1557,16 @@ Spawn_Play__slot1_not_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity1_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot1_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2:
+    rep #$20
+.a16
+    lda #CHAR_ZP_LEN*2
+    sta.l Spawn_ScratchSlotOfs
     ; See slot1's own identical comment/pattern (unconditional Msu1_
     ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
     ; not just a prop restore; see slot1's full explanation).
@@ -1276,7 +1576,16 @@ Spawn_Play__slot2:
     sta.l Spawn_ScratchPrevWasProp
     lda.l Entity2_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__slot2_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__slot2_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__slot2_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_NONCOMBAT
     bne Spawn_Play__slot2_prevflag_not_prop
+Spawn_Play__slot2_prevflag_prop:
+    sep #$20
+.a8
     lda #1
     sta.l Spawn_ScratchPrevWasProp
 Spawn_Play__slot2_prevflag_not_prop:
@@ -1304,16 +1613,41 @@ Spawn_Play__slot2_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; Slot reuse begins unlinked; existing grabs belong to the old actor.
+    lda #$FF
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_TARGET
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRABBED_BY
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN*2+CHAR_GRAB_OFFSET
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot2_not_prop
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot2_prop_normal
+    lda #CHAR_INPUT_DRIVEN_STEAMER
+    sta.l Entity2_InputDriven
+    lda #1
+    sta.l Entity2_KnockdownTimer
+    bra Spawn_Play__slot2_prop_fields
+Spawn_Play__slot2_prop_normal:
+    sep #$20
+.a8
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity2_InputDriven
+Spawn_Play__slot2_prop_fields:
+    sep #$20
+.a8
     lda #CHAR_HP_PER_HIT
     sta.l Entity2_Hp
     lda #0
     sta.l Entity2_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot2_prop_store_pickup
+    lda #0
+Spawn_Play__slot2_prop_store_pickup:
     sta.l Entity2_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity2_ItemRosterIdx
@@ -1330,6 +1664,7 @@ Spawn_Play__slot2_prevflag_done:
 Spawn_Play__slot2_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_not_prop:
+    jsl Spawn_ApplyVerticalDrop2
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
@@ -1357,7 +1692,7 @@ Spawn_Play__slot2_not_prop:
     sta.l MapApply_MapBaseHi
     lda.l Entity2_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
@@ -1401,15 +1736,13 @@ Spawn_Play__slot2_is_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity2_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot2_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot2_boss_identified:
 .a8
-    lda #1
-    sta.l Entity2_IsBoss
     rep #$30
 .a16
 .i16
@@ -1417,6 +1750,34 @@ Spawn_Play__slot2_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_BIKER
+    beq Spawn_Play__slot2_identified_biker
+    cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__slot2_identified_enemy
+    bra Spawn_Play__slot2_identified_boss
+Spawn_Play__slot2_identified_biker:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_BIKER
+    sta.l Entity2_InputDriven
+    lda.l Spawn_ScratchHp
+    sta.l Entity2_Hp
+    lda #0
+    sta.l Entity2_IsBoss
+    bra Spawn_Play__slot2_identified_palette
+Spawn_Play__slot2_identified_enemy:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity2_IsBoss
+    bra Spawn_Play__slot2_identified_palette
+Spawn_Play__slot2_identified_boss:
+    sep #$20
+.a8
+    lda #1
+    sta.l Entity2_IsBoss
+Spawn_Play__slot2_identified_palette:
     ; Re-apply the map palette after reassignment -- see slot1's own
     ; comment for the real bug this closes.
     rep #$31
@@ -1434,7 +1795,7 @@ Spawn_Play__slot2_boss_identified:
     sta.l MapApply_MapBaseHi
     lda.l Entity2_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1473,12 +1834,16 @@ Spawn_Play__slot2_not_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity2_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot2_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3:
+    rep #$20
+.a16
+    lda #CHAR_ZP_LEN*3
+    sta.l Spawn_ScratchSlotOfs
     ; See slot1's own identical comment/pattern (unconditional Msu1_
     ; StreamBusy gate -- Anim_ApplyMapPalette below fires every spawn,
     ; not just a prop restore; see slot1's full explanation).
@@ -1488,7 +1853,16 @@ Spawn_Play__slot3:
     sta.l Spawn_ScratchPrevWasProp
     lda.l Entity3_InputDriven
     cmp #CHAR_INPUT_DRIVEN_PROP
+    beq Spawn_Play__slot3_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAMER
+    beq Spawn_Play__slot3_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_STEAM
+    beq Spawn_Play__slot3_prevflag_prop
+    cmp #CHAR_INPUT_DRIVEN_NONCOMBAT
     bne Spawn_Play__slot3_prevflag_not_prop
+Spawn_Play__slot3_prevflag_prop:
+    sep #$20
+.a8
     lda #1
     sta.l Spawn_ScratchPrevWasProp
 Spawn_Play__slot3_prevflag_not_prop:
@@ -1516,16 +1890,42 @@ Spawn_Play__slot3_prevflag_done:
     jsl Spawn_ResetKnockdownFall
     sep #$20
 .a8
+    ; Keep the three legacy slot-specific spawn branches consistent with the
+    ; shared slot-4/5 branch's fresh-incarnation grab reset.
+    lda #$FF
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_TARGET
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRABBED_BY
+    lda #0
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_TIMER
+    sta.l $7E0A00+CHAR_ZP_LEN*3+CHAR_GRAB_OFFSET
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     bne Spawn_Play__slot3_not_prop
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot3_prop_normal
+    lda #CHAR_INPUT_DRIVEN_STEAMER
+    sta.l Entity3_InputDriven
+    lda #1
+    sta.l Entity3_KnockdownTimer
+    bra Spawn_Play__slot3_prop_fields
+Spawn_Play__slot3_prop_normal:
+    sep #$20
+.a8
     lda #CHAR_INPUT_DRIVEN_PROP
     sta.l Entity3_InputDriven
+Spawn_Play__slot3_prop_fields:
+    sep #$20
+.a8
     lda #CHAR_HP_PER_HIT
     sta.l Entity3_Hp
     lda #0
     sta.l Entity3_IsBoss
-    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice
+    lda.l Spawn_ScratchPickupType   ; G8 item/pickup slice; 7 is driver-only.
+    cmp #SPAWN_PICKUP_STEAMER
+    bne Spawn_Play__slot3_prop_store_pickup
+    lda #0
+Spawn_Play__slot3_prop_store_pickup:
     sta.l Entity3_PickupType
     lda.l Spawn_ScratchItemRosterIdx   ; claude_close_g7_g8_before_g10.md Part 2
     sta.l Entity3_ItemRosterIdx
@@ -1542,6 +1942,7 @@ Spawn_Play__slot3_prevflag_done:
 Spawn_Play__slot3_prop_no_reassign:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_not_prop:
+    jsl Spawn_ApplyVerticalDrop3
     sep #$20
 .a8
     lda #CHAR_INPUT_DRIVEN_AI
@@ -1569,7 +1970,7 @@ Spawn_Play__slot3_not_prop:
     sta.l MapApply_MapBaseHi
     lda.l Entity3_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     lda.l Spawn_ScratchKind
@@ -1613,15 +2014,13 @@ Spawn_Play__slot3_is_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity3_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot3_boss_no_restore:
     jmp Spawn_Play__advance
 Spawn_Play__slot3_boss_identified:
 .a8
-    lda #1
-    sta.l Entity3_IsBoss
     rep #$30
 .a16
 .i16
@@ -1629,6 +2028,34 @@ Spawn_Play__slot3_boss_identified:
     jsr Spawn_DoRosterReassign
     sep #$20
 .a8
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_BIKER
+    beq Spawn_Play__slot3_identified_biker
+    cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__slot3_identified_enemy
+    bra Spawn_Play__slot3_identified_boss
+Spawn_Play__slot3_identified_biker:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_BIKER
+    sta.l Entity3_InputDriven
+    lda.l Spawn_ScratchHp
+    sta.l Entity3_Hp
+    lda #0
+    sta.l Entity3_IsBoss
+    bra Spawn_Play__slot3_identified_palette
+Spawn_Play__slot3_identified_enemy:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity3_IsBoss
+    bra Spawn_Play__slot3_identified_palette
+Spawn_Play__slot3_identified_boss:
+    sep #$20
+.a8
+    lda #1
+    sta.l Entity3_IsBoss
+Spawn_Play__slot3_identified_palette:
     ; Re-apply the map palette after reassignment -- see slot1's own
     ; comment for the real bug this closes.
     rep #$31
@@ -1646,7 +2073,7 @@ Spawn_Play__slot3_boss_identified:
     sta.l MapApply_MapBaseHi
     lda.l Entity3_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
     jmp Spawn_Play__advance
@@ -1685,7 +2112,7 @@ Spawn_Play__slot3_not_boss:
     sta.l MapApply_MapBaseHi
     lda.l Entity3_PaletteSlot
     sta.l MapApply_PaletteSlot
-    jsl Anim_ApplyMapPalette
+    ; Map applied once by StageEnv_ApplySpawnMap after final model selection.
     sep #$20
 .a8
 Spawn_Play__slot3_no_restore:
@@ -1718,8 +2145,9 @@ Spawn_Play__slot45:
     tcd
     lda.l Spawn_ScratchSlotOfs
     tax
-    sep #$20
-.a8
+    rep #$30
+.a16
+.i16
     jsl Spawn_ResetKnockdownFall
     rep #$20
 .a16
@@ -1729,13 +2157,58 @@ Spawn_Play__slot45:
 .a8
     lda.l Spawn_ScratchY
     sta CHAR_POS_Y
+    ; A collected timer prop may leave the full Y word at $7FFF in this
+    ; reusable slot. Spawn coordinates carry only the low lane byte here;
+    ; clear the stale high byte before a combat actor is source-bound.
+    stz CHAR_POS_Y+1
     lda.l Spawn_ScratchFacing
     sta CHAR_FACING_LEFT
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
-    beq Spawn_Play__slot45_prop
-    lda #CHAR_INPUT_DRIVEN_AI
+    bne Spawn_Play__slot45_non_prop
+    lda.l Spawn_ScratchPickupType
+    cmp #SPAWN_PICKUP_STEAMER
+    beq Spawn_Play__slot45_steam
+    jml Spawn_Play__slot45_prop
+Spawn_Play__slot45_non_prop:
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_STEAM
+    beq Spawn_Play__slot45_steam
+    lda.l Spawn_ScratchSubtype
+Spawn_Play__slot45_not_steam:
+    cmp #SPAWN_SUBTYPE_BIKER
+    bne Spawn_Play__slot45_ordinary_ai
+    lda #CHAR_INPUT_DRIVEN_BIKER
+    bra Spawn_Play__slot45_set_input
+Spawn_Play__slot45_steam:
+    sep #$20
+.a8
+    ; The shared subtype distinguishes steam-family data, not ownership:
+    ; PROP is the fixed-base emitter; ENEMY is its rising transient child.
+    lda.l Spawn_ScratchKind
+    cmp #SPAWN_KIND_PROP
+    bne Spawn_Play__slot45_steam_child
+    lda #CHAR_INPUT_DRIVEN_STEAMER
+    bra Spawn_Play__slot45_steam_driver
+Spawn_Play__slot45_steam_child:
+    sep #$20
+.a8
+    stz CHAR_MAP_INDEX           ; generated children load a fresh base palette
+    lda #CHAR_INPUT_DRIVEN_STEAM
+Spawn_Play__slot45_steam_driver:
+    sep #$20
+.a8
     sta CHAR_INPUT_DRIVEN
+    lda #1
+    sta CHAR_KNOCKDOWN_TIMER
+    bra Spawn_Play__slot45_after_input
+Spawn_Play__slot45_ordinary_ai:
+    sep #$20
+.a8
+    lda #CHAR_INPUT_DRIVEN_AI
+Spawn_Play__slot45_set_input:
+    sta CHAR_INPUT_DRIVEN
+Spawn_Play__slot45_after_input:
     lda.l Spawn_ScratchHp
     sta CHAR_HP
     stz CHAR_PICKUP_TYPE
@@ -1809,6 +2282,11 @@ Spawn_Play__slot45_boss_done:
     beq Spawn_Play__slot45_mark_boss
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     bne Spawn_Play__slot45_boss_mark_done
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_BIKER
+    beq Spawn_Play__slot45_boss_mark_done
+    cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__slot45_boss_mark_done
 Spawn_Play__slot45_mark_boss:
     rep #$31
 .a16
@@ -1832,6 +2310,10 @@ Spawn_Play__slot45_boss_mark_done:
     lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_PROP
     beq Spawn_Play__slot45_reassign
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_STEAM
+    beq Spawn_Play__slot45_reassign
+    lda.l Spawn_ScratchKind
     cmp #SPAWN_KIND_BOSS
     beq Spawn_Play__slot45_reassign
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
@@ -1853,6 +2335,26 @@ Spawn_Play__slot45_done:
 Spawn_Play__advance:
     sep #$20
 .a8
+    lda.l Spawn_B2Kind
+    cmp #SPAWN_KIND_WAIT
+    beq Spawn_Play__environment_done
+    cmp #SPAWN_KIND_GROUP
+    beq Spawn_Play__environment_done
+    cmp #SPAWN_KIND_HOLE
+    beq Spawn_Play__environment_done
+    cmp #$FF
+    beq Spawn_Play__environment_base
+    jsl StageEnv_ApplySpawnMap
+Spawn_Play__environment_base:
+    jsl StageBoundsHost_ResetSpawn
+    jsl StageEnv_ApplySpawnBase
+    jsl StageEnv_ApplySpawnAlias
+Spawn_Play__environment_done:
+    sep #$20
+.a8
+    lda.l Spawn_B2Kind
+    cmp #$FF
+    beq Spawn_Play__advance_steamer_child
     ; OpenBOR switches to level bossmusic when the real boss entity is
     ; spawned.  This remains a data-driven stage lookup; non-boss records
     ; and stages without an authored bossmusic directive are no-ops.
@@ -1861,6 +2363,17 @@ Spawn_Play__advance:
     beq Spawn_Play__advance_boss_music
     cmp #SPAWN_KIND_BOSS_IDENTIFIED
     bne Spawn_Play__advance_index
+    lda.l Spawn_ScratchSubtype
+    cmp #SPAWN_SUBTYPE_IDENTIFIED_ENEMY
+    beq Spawn_Play__advance_index
+    ; Normal's identified biker driver is a non-boss (the slot's IsBoss
+    ; initialization follows the same discriminator). Do not start boss
+    ; music for its ordinary source spawn. Preserve Easy's legacy cue policy.
+    cmp #SPAWN_SUBTYPE_BIKER
+    bne Spawn_Play__advance_boss_music
+    lda.l Game_CampaignId
+    cmp #CAMPAIGN_BOR_NORMAL_DEV
+    beq Spawn_Play__advance_index
 Spawn_Play__advance_boss_music:
     jsl Music_SelectBossTrack_Long
 Spawn_Play__advance_index:
@@ -1869,8 +2382,150 @@ Spawn_Play__advance_index:
     sta.l Spawn_Index
     plp
     rtl
+Spawn_Play__advance_steamer_child:
+    lda.l Spawn_ScratchIdx
+    sta.l Spawn_Index
+    plp
+    rtl
 Spawn_Play__not_yet:
     plp
+    rtl
+
+; B2 source hazard predicate. This is the SNES fixed-point representation of
+; BOR.C checkhole(): the authored hole X is scaled with the stage, the source
+; z threshold is scaled to the converted 256px scene, and the two projected
+; tilt edges retain the source 1/4 and *2 perspective test. Carry set means
+; the current grounded entity occupies a hole; no actor identity is tested.
+Spawn_CheckHole:
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #CHAR_INPUT_DRIVEN_NONCOMBAT
+    bne Spawn_CheckHole__legacy
+    clc
+    rtl
+Spawn_CheckHole__legacy:
+    .a8
+    lda.l Spawn_HoleCount
+    bne Spawn_CheckHole__have_holes
+    brl Spawn_CheckHole__no
+Spawn_CheckHole__have_holes:
+    lda CHAR_THROW_ZPOS+1
+    beq Spawn_CheckHole__grounded
+    brl Spawn_CheckHole__no       ; airborne entities do not newly enter
+Spawn_CheckHole__grounded:
+    rep #$31
+.a16
+.i16
+    lda CHAR_POS_Y
+    and #$00FF
+    cmp #156
+    bcs Spawn_CheckHole__depth_ok
+    brl Spawn_CheckHole__no
+Spawn_CheckHole__depth_ok:
+    rep #$31
+.a16
+.i16
+    sec
+    sbc #156
+    sta.l Spawn_HoleTilt1
+    asl a
+    sta.l Spawn_HoleTilt2
+    lda.l Spawn_HoleTilt1
+    lsr a
+    lsr a
+    clc
+    adc CHAR_POS_X
+    sta.l Spawn_HoleTilt1
+    lda CHAR_POS_X
+    sec
+    sbc.l Spawn_HoleTilt2
+    sta.l Spawn_HoleTilt2
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos1
+    bcc Spawn_CheckHole__next2
+    lda.l Spawn_HolePos1
+    clc
+    adc #9
+    cmp.l Spawn_HoleTilt1
+    bcc Spawn_CheckHole__hole1_lower_ok
+    bra Spawn_CheckHole__next2
+Spawn_CheckHole__hole1_lower_ok:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos1
+    bcc Spawn_CheckHole__next2
+    lda.l Spawn_HolePos1
+    clc
+    adc #160
+    cmp.l Spawn_HoleTilt2
+    bcc Spawn_CheckHole__next2
+    sec
+    rtl
+Spawn_CheckHole__next2:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_HoleCount
+    cmp #1
+    beq Spawn_CheckHole__no
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos2
+    bcc Spawn_CheckHole__next3
+    lda.l Spawn_HolePos2
+    clc
+    adc #9
+    cmp.l Spawn_HoleTilt1
+    bcc Spawn_CheckHole__hole2_lower_ok
+    bra Spawn_CheckHole__next3
+Spawn_CheckHole__hole2_lower_ok:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos2
+    bcc Spawn_CheckHole__next3
+    lda.l Spawn_HolePos2
+    clc
+    adc #160
+    cmp.l Spawn_HoleTilt2
+    bcc Spawn_CheckHole__next3
+    sec
+    rtl
+Spawn_CheckHole__next3:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_HoleCount
+    cmp #3
+    bcc Spawn_CheckHole__no
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos3
+    bcc Spawn_CheckHole__no
+    lda.l Spawn_HolePos3
+    clc
+    adc #9
+    cmp.l Spawn_HoleTilt1
+    bcc Spawn_CheckHole__hole3_lower_ok
+    bra Spawn_CheckHole__no
+Spawn_CheckHole__hole3_lower_ok:
+    rep #$31
+.a16
+.i16
+    lda.l Spawn_HoleTilt1
+    cmp.l Spawn_HolePos3
+    bcc Spawn_CheckHole__no
+    lda.l Spawn_HolePos3
+    clc
+    adc #160
+    cmp.l Spawn_HoleTilt2
+    bcc Spawn_CheckHole__no
+    sec
+    rtl
+Spawn_CheckHole__no:
+    clc
     rtl
 
 ; ============================================================================
@@ -1914,6 +2569,12 @@ Spawn_Play__not_yet:
 ; Spawn_Play's SPAWN_KIND_BOSS_IDENTIFIED dispatch above for the real
 ; gate/defer logic -- gated once, before find_slot even runs, not here.
 ; ============================================================================
+Spawn_DoRosterReassign_Long:
+    rep #$30
+.a16
+.i16
+    jsr Spawn_DoRosterReassign
+    rtl
 Spawn_DoRosterReassign:
 .a16
 .i16
@@ -1947,6 +2608,7 @@ Spawn_DoRosterReassign:
     ; SavedCharSelectIndex's own header comment for the real bug this
     ; closes (a spawn-driven reassignment must never observably disturb
     ; the player's own persistent char-select/Select-button state).
+    jsl ActorBehavior_CaptureRoster
     lda.l CharSelect_Index
     sta.l Spawn_SavedCharSelectIndex
     lda.l Spawn_ScratchRosterIdx
@@ -2109,6 +2771,10 @@ Spawn_RevealPendingItems__do:
     lda.l Msu1_StreamBusy
     bne Spawn_RevealPendingItems__do__busy
     pla
+    pha
+    jsr Spawn_RevealPendingItems__filter_2p
+    bcc Spawn_RevealPendingItems__do__discard
+    pla
     sta.l Spawn_ScratchRosterIdx
     rep #$30
 .a16
@@ -2186,4 +2852,178 @@ Spawn_RevealPendingItems__do__load_failed:
     rts
 Spawn_RevealPendingItems__do__busy:
     pla
+    rts
+Spawn_RevealPendingItems__do__discard:
+    pla
+    rts
+
+; Filter the source `2pitem` flag at the break/reveal boundary. X selects the
+; already-identified prop slot. Carry set means the item may be revealed;
+; carry clear discards the contained item for a one-player session. The
+; source predicate is count_ents(TYPE_PLAYER)>1, represented here by the
+; two player-out flags (an OUT player is no longer an existing player).
+Spawn_RevealPendingItems__filter_2p:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN
+    bne Spawn_RevealPendingItems__filter_2p__check2
+    lda.l Entity1_PickupType
+    bra Spawn_RevealPendingItems__filter_2p__have
+Spawn_RevealPendingItems__filter_2p__check2:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*2
+    bne Spawn_RevealPendingItems__filter_2p__check3
+    lda.l Entity2_PickupType
+    bra Spawn_RevealPendingItems__filter_2p__have
+Spawn_RevealPendingItems__filter_2p__check3:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*3
+    bne Spawn_RevealPendingItems__filter_2p__check4
+    lda.l Entity3_PickupType
+    bra Spawn_RevealPendingItems__filter_2p__have
+Spawn_RevealPendingItems__filter_2p__check4:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*4
+    bne Spawn_RevealPendingItems__filter_2p__check5
+    lda.l Entity4_PickupType
+    bra Spawn_RevealPendingItems__filter_2p__have
+Spawn_RevealPendingItems__filter_2p__check5:
+    lda.l Entity5_PickupType
+Spawn_RevealPendingItems__filter_2p__have:
+    sep #$20
+.a8
+    and #PICKUP_TYPE_2P_FLAG
+    beq Spawn_RevealPendingItems__filter_2p__allowed
+    lda #0
+    sta.l Spawn_ScratchEnemyCount
+    lda.l G13_P1Out
+    bne Spawn_RevealPendingItems__filter_2p__p1_done
+    lda #1
+    sta.l Spawn_ScratchEnemyCount
+Spawn_RevealPendingItems__filter_2p__p1_done:
+    lda.l G13_TwoPlayerEnabled
+    beq Spawn_RevealPendingItems__filter_2p__count_done
+    lda.l G13_P2Out
+    bne Spawn_RevealPendingItems__filter_2p__count_done
+    lda.l Spawn_ScratchEnemyCount
+    inc a
+    sta.l Spawn_ScratchEnemyCount
+Spawn_RevealPendingItems__filter_2p__count_done:
+    sep #$20
+.a8
+    lda.l Spawn_ScratchEnemyCount
+    cmp #2
+    bcc Spawn_RevealPendingItems__filter_2p__discard
+    ; Clear only the metadata flag; the low pickup kind remains the normal
+    ; collector-owned item effect.
+    jmp Spawn_RevealPendingItems__filter_2p__clear_flag
+Spawn_RevealPendingItems__filter_2p__allowed:
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__clear_flag:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN
+    bne Spawn_RevealPendingItems__filter_2p__clear2
+    lda.l Entity1_PickupType
+    and #$7F
+    sta.l Entity1_PickupType
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__clear2:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*2
+    bne Spawn_RevealPendingItems__filter_2p__clear3
+    lda.l Entity2_PickupType
+    and #$7F
+    sta.l Entity2_PickupType
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__clear3:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*3
+    bne Spawn_RevealPendingItems__filter_2p__clear4
+    lda.l Entity3_PickupType
+    and #$7F
+    sta.l Entity3_PickupType
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__clear4:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*4
+    bne Spawn_RevealPendingItems__filter_2p__clear5
+    lda.l Entity4_PickupType
+    and #$7F
+    sta.l Entity4_PickupType
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__clear5:
+    sep #$20
+.a8
+    lda.l Entity5_PickupType
+    and #$7F
+    sta.l Entity5_PickupType
+    sec
+    rts
+Spawn_RevealPendingItems__filter_2p__discard:
+    sep #$20
+.a8
+    ; Drop the broken object and forget its contained item. It is already at
+    ; the source-equivalent break sentinel, so zero HP returns this slot to
+    ; the normal free-slot pool without producing a pickup.
+    cpx #CHAR_ZP_LEN
+    bne Spawn_RevealPendingItems__filter_2p__discard2
+    lda #0
+    sta.l Entity1_Hp
+    sta.l Entity1_PickupType
+    sta.l Entity1_ItemRosterIdx
+    clc
+    rts
+Spawn_RevealPendingItems__filter_2p__discard2:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*2
+    bne Spawn_RevealPendingItems__filter_2p__discard3
+    lda #0
+    sta.l Entity2_Hp
+    sta.l Entity2_PickupType
+    sta.l Entity2_ItemRosterIdx
+    clc
+    rts
+Spawn_RevealPendingItems__filter_2p__discard3:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*3
+    bne Spawn_RevealPendingItems__filter_2p__discard4
+    lda #0
+    sta.l Entity3_Hp
+    sta.l Entity3_PickupType
+    sta.l Entity3_ItemRosterIdx
+    clc
+    rts
+Spawn_RevealPendingItems__filter_2p__discard4:
+    sep #$20
+.a8
+    cpx #CHAR_ZP_LEN*4
+    bne Spawn_RevealPendingItems__filter_2p__discard5
+    lda #0
+    sta.l Entity4_Hp
+    sta.l Entity4_PickupType
+    sta.l Entity4_ItemRosterIdx
+    clc
+    rts
+Spawn_RevealPendingItems__filter_2p__discard5:
+    sep #$20
+.a8
+    lda #0
+    sta.l Entity5_Hp
+    sta.l Entity5_PickupType
+    sta.l Entity5_ItemRosterIdx
+    clc
     rts

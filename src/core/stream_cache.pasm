@@ -39,14 +39,11 @@
 ; ============================================================================
 
 ; --- Ring buffer sizing ---
-; 1023 real hardware VRAM tile slots are usable for streaming (BG1 char data
-; spans words $0000-$3FFF, 1024 tiles; slot 0 is reserved as a known-blank
-; tile, matching this project's existing Character_BlankPadding convention
-; of a reserved blank source, so streamed content never accidentally reads
-; tile 0 as "real"). Usable range for allocation is slots 1-1022.
-STREAM_CACHE_SLOTS   = 1023
-STREAM_CACHE_USABLE  = 1022      ; slots 1..1022
-STREAM_CACHE_STRIDE  = 337       ; coprime with 1022 (=2*7*73; 337 is prime
+; BG1 spans 1024 4bpp slots at words $0000-$3FFF. Slot 0 is the known blank.
+; Stage-scoped reservations keep allocations out of BG3 and active BG2 owners.
+STREAM_CACHE_SLOTS   = 1024
+STREAM_CACHE_USABLE  = 1023      ; slots 1..1023 before stage reservations
+STREAM_CACHE_STRIDE  = 337       ; coprime with 1023 (=3*11*31; 337 is prime
                                    ; and shares no factor) -- advances the
                                    ; persistent scan cursor BETWEEN calls so
                                    ; successive allocations don't all start
@@ -85,16 +82,15 @@ STREAM_MAX_TILE_IDS = 16384
 StreamCache_Tile2Slot = $7F0000   ; STREAM_MAX_TILE_IDS words (32768 bytes,
                                     ; $7F0000-$7F7FFF): tile ID -> VRAM slot,
                                     ; or $FFFF if not cached.
-StreamCache_Slot2Tile = $7F8000   ; STREAM_CACHE_SLOTS words (2046 bytes,
-                                    ; $7F8000-$7F87FD): VRAM slot -> tile ID,
+StreamCache_Slot2Tile = $7F8000   ; STREAM_CACHE_SLOTS words (2048 bytes,
+                                    ; $7F8000-$7F87FF): VRAM slot -> tile ID,
                                     ; or $FFFF if free.
 StreamCache_SlotStamp = $7F8800   ; STREAM_CACHE_SLOTS bytes
-                                    ; ($7F8800-$7F8BFE): VRAM slot -> the
+                                    ; ($7F8800-$7F8BFF): VRAM slot -> the
                                     ; StreamCache_CurrentStamp value at the
                                     ; time it was last allocated/touched.
 
-; --- Small $7E scratch (free gap after HudStaging's 256B block ending
-; $7E24FF -- see plan.md Phase 9 for how this was confirmed unused) ---
+; --- Small $7E scratch ---
 StreamCache_CurrentStamp = $7E2500   ; .db -- advanced externally (SyncScroll,
                                        ; not yet written); this module only
                                        ; reads it.
@@ -114,6 +110,14 @@ StreamCache_Test_CallCount = $7E251F ; .dw -- counts AllocateSlot entries total
                                        ; (not just this test's 8) -- cheap,
                                        ; kept permanently as a quick sanity
                                        ; check when debugging future callers.
+; Mode flags occupy the verified three-byte gap between StreamScroll's
+; FetchBufSel ($7E2599) and the frontpanel cache state ($7E25A0 onward).
+; Do not place these beside the cache allocator scratch: $7E2521-$7E2523
+; belongs to StreamScroll_Enabled/StagedLo, and aliasing it breaks the first
+; BG1 MSU seek during cold boot.
+StreamCache_NormalLayout = $7E259A ; .db -- Normal reclaims legacy BG3 FP cache
+StreamCache_BG2Capacity = $7E259B ; .db -- Normal BG2 cache slots admitted
+StreamCache_LegacyFpActive = $7E259C ; .db -- Easy retains BG3 FP cache ownership
 
 Core_StreamCache_Init:
 	php
@@ -135,6 +139,9 @@ Core_StreamCache_Init:
 	sta StreamCache_ScanCursor      ; cursor starts at slot 1 (0 is reserved)
 	lda #0
 	sta StreamCache_Test_CallCount  ; see its declaration's comment above
+	sta.l StreamCache_NormalLayout
+	sta.l StreamCache_BG2Capacity
+	sta.l StreamCache_LegacyFpActive
 
 	lda #$FFFF
 	ldx #0
@@ -219,9 +226,12 @@ Core_StreamCache_AllocateSlot__cursor_ok:
 
 	ldy #0                          ; scan counter
 Core_StreamCache_AllocateSlot__scan:
-	rep #$31
+rep #$31
 .a16
 .i16
+	lda StreamCache_Candidate
+	jsl Core_StreamCache_IsReserved
+	bcs Core_StreamCache_AllocateSlot__advance
 	; Slot2Tile[candidate] -- word index -> byte offset
 	lda StreamCache_Candidate
 	asl a
@@ -286,7 +296,21 @@ Core_StreamCache_AllocateSlot__advance_ok:
 	cpy #STREAM_CACHE_SCAN_LIMIT
 	bcc Core_StreamCache_AllocateSlot__scan
 
-	; scan budget exhausted -- force-evict whatever we last looked at
+	; scan budget exhausted -- force-evict a legal slot, never a live owner.
+	brl Core_StreamCache_AllocateSlot__force_find
+Core_StreamCache_AllocateSlot__force_find:
+	lda StreamCache_Candidate
+	jsl Core_StreamCache_IsReserved
+	bcc Core_StreamCache_AllocateSlot__force_choose
+	lda StreamCache_Candidate
+	inc a
+	cmp #STREAM_CACHE_USABLE+1
+	bcc Core_StreamCache_AllocateSlot__force_next
+	lda #1
+Core_StreamCache_AllocateSlot__force_next:
+	sta StreamCache_Candidate
+	bra Core_StreamCache_AllocateSlot__force_find
+Core_StreamCache_AllocateSlot__force_choose:
 	lda StreamCache_Candidate
 	sta StreamCache_Chosen
 
@@ -340,6 +364,121 @@ Core_StreamCache_AllocateSlot__no_evict:
 .a16
 .i16
 	rts
+
+; Carry set means the physical BG1 tile slot is owned by another live layer.
+; Normal reclaims the legacy BG3 foreground-cache band for BG1; Easy retains
+; that band only while its legacy foreground is active.
+; Bank $0C has grown through the former $8B00 helper address (scene-video
+; frame loading now occupies that range). Keep this shared allocator helper
+; in a dedicated ROM bank so later bank-$0C growth cannot replace its bytes
+; while leaving the symbol table apparently intact.
+.bank 27
+.org $8000
+Core_StreamCache_IsReserved:
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #512
+	bcc Core_StreamCache_IsReserved__legacy
+	cmp #518
+	bcc Core_StreamCache_IsReserved__yes ; BG3 HUD words $2000-$205F
+Core_StreamCache_IsReserved__legacy:
+	sep #$20
+.a8
+	lda.l StreamCache_NormalLayout
+	bne Core_StreamCache_IsReserved__font
+	lda.l StreamCache_LegacyFpActive
+	beq Core_StreamCache_IsReserved__font
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #528
+	bcc Core_StreamCache_IsReserved__font
+	cmp #656
+	bcc Core_StreamCache_IsReserved__yes ; Easy legacy BG3 foreground cache
+Core_StreamCache_IsReserved__font:
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #656
+	bcc Core_StreamCache_IsReserved__bg2
+	cmp #704
+	bcc Core_StreamCache_IsReserved__yes ; BG3 font words $2900-$2BF7
+Core_StreamCache_IsReserved__bg2:
+	sep #$20
+.a8
+	lda.l StreamCache_NormalLayout
+	beq Core_StreamCache_IsReserved__no
+	lda.l StreamCache_BG2Capacity
+	beq Core_StreamCache_IsReserved__no
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #1023
+	beq Core_StreamCache_IsReserved__yes ; BG2 transparent tile 255
+	cmp #768
+	bcc Core_StreamCache_IsReserved__no
+	sec
+	sbc #768
+	sta StreamCache_OldTile
+	sep #$20
+.a8
+	lda.l StreamCache_BG2Capacity
+	rep #$30
+.a16
+.i16
+	and #$00FF
+	cmp StreamCache_OldTile
+	bcc Core_StreamCache_IsReserved__no
+	beq Core_StreamCache_IsReserved__no
+Core_StreamCache_IsReserved__yes:
+	rep #$30
+.a16
+.i16
+	sec
+	rtl
+Core_StreamCache_IsReserved__no:
+	rep #$30
+.a16
+.i16
+	clc
+	rtl
+
+; The streamed tilemap encodes blank cells as cache slot 0. Power-on VRAM is
+; not guaranteed to be zero, so establish the reserved blank before computing
+; the first resident column. This wrapper preserves the existing initial-
+; column call while keeping the 32-byte PPU clear out of the full bank-0
+; runtime window.
+.org $8080
+Core_StreamCache_InitialColumnSetup:
+	sep #$20
+.a8
+	lda #$80
+	sta.l $002115             ; VMAIN: increment after the high-byte write
+	rep #$31
+.a16
+.i16
+	lda #BG1_TILES_VRAM_WORD
+	sta.l $002116             ; VMADD = BG1 tile slot 0
+	sep #$20
+.a8
+	lda #0
+	ldx #16                   ; one 4bpp tile = 16 VRAM words = 32 bytes
+Core_StreamCache_InitialColumnSetup__clear:
+	sta.l $002118
+	sta.l $002119
+	dex
+	bne Core_StreamCache_InitialColumnSetup__clear
+	rep #$31
+.a16
+.i16
+	jsl Stage_StreamInitialColumn
+	rtl
+.bank 0
 
 ; ----------------------------------------------------------------------
 ; Standalone smoke test (plan.md Phase 9 step 2): exercises AllocateSlot

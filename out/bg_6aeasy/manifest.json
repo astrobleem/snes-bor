@@ -1,0 +1,31 @@
+{
+  "level_entry": "DATA\\EASY\\6AEASY.TXT",
+  "background": "data\\bgs\\hotel\\back.gif",
+  "panels": [
+    "data\\bgs\\hotel\\p00.gif",
+    "data\\bgs\\hotel\\p01.gif",
+    "data\\bgs\\hotel\\p02.gif",
+    "data\\bgs\\hotel\\p03.gif",
+    "data\\bgs\\hotel\\p_mirror.gif",
+    "data\\bgs\\hotel\\p04.gif",
+    "data\\bgs\\hotel\\p05.gif",
+    "data\\bgs\\hotel\\p06.gif"
+  ],
+  "frontpanel": "data\\bgs\\hotel\\f00.gif",
+  "streaming": true,
+  "width_px": 4160,
+  "height_px": 224,
+  "width_tiles": 520,
+  "height_tiles": 28,
+  "content_width_tiles": 520,
+  "unique_tiles": 1130,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 36160,
+  "tilemap_bytes": 43680,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

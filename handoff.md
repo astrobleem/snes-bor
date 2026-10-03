@@ -1,15 +1,28 @@
 # Handoff
 
+> **Current authority (2026-09-11):** G15 BOR campaign content is complete
+> through `6CEASY -> ENDING -> TITLE`; physical stage index 21 is 6CEASY,
+> Rugal is logical scene ordinal 13, 6CEASY is ordinal 14, and ENDING is
+> ordinal 15. Batch P adds the source-faithful BOR stage-completion
+> presentation: per-player `10000 + lives*1000` bonus, canonical +10 score
+> quanta, source completion timing/input behavior, and completion audio. The
+> next source-fidelity work has not started.
+> 5AEASY's authored `direction down` is represented by the generic SCROLL_DOWN
+> runtime, including repeating background rows and source vertical drop entry.
+> 6AEASY's authored `direction left` is represented by generic SCROLL_LEFT;
+> its `mirror 1` flag is independent and emits reflected entity images.
+> The following
+> source stage has not started.
+
 > **Campaign model correction (2026-09-09):** physical `STAGE_CONFIGS`/MSU
 > indices are catalog identities only. Runtime progression uses generated
 > `Game_CampaignId` and `Game_CampaignOrdinal` maps derived from source
-> `LEVELS.TXT`; packed index and campaign ordinal are distinct. BOR currently
-> contains only `1A -> 1B -> 1C` and stops at a labeled temporary TITLE
-> boundary. TMNT main progression is its own authored campaign; Bebop, Rock,
-> Leather and Foot remain standalone test content. Do not start Batch B from
-> this note; review `docs/bor_source_fidelity_audit.md` first.
+> `LEVELS.TXT`; packed index and campaign ordinal are distinct. BOR now maps
+> `1A -> 1B -> 1C -> 2EASY -> 3AEASY` and stops at a labeled temporary TITLE boundary.
+> TMNT main progression is its own authored campaign; Bebop, Rock, Leather
+> and Foot remain standalone test content.
 
-> **Current authority — 2026-09-08:** G1–G10, G12, and G13 are complete for
+> **Current authority — 2026-09-09:** G1–G10, G12, and G13 are complete for
 > their accepted scopes. The production six-slot policy is P1 slot 0, source-
 > normal selected P2 slot 1, and NPC slots 2–5; one-player mode has five NPCs and
 > two-player mode has four. G13 provides the accepted fixed-session two-player
@@ -18,8 +31,12 @@
 > for its accepted scope:** P1 and P2 use the source-normal Kula/Max/Mary/Mighty
 > mapping with explicit presentation, and the HUD presents independent P1/P2 state.
 > The following major milestone is **G15 — finish the original Beats of Rage
-> campaign/content**; the current P1 source-fidelity work is in progress and
-> 2EASY/death-continue work has not started.
+> campaign/content**. P1 source-fidelity startup/player-selection work is
+> CLOSED/ACCEPTED, and campaign/catalog separation is COMPLETE. The next P1
+> source-fidelity corrections for represented lifecycle/scoring/2pitem
+> features are CLOSED/ACCEPTED. Batch B/C (2EASY/3AEASY) is implemented, including the
+> bounded source hole and Biker-K' runtime closure. Stage-completion score
+> animation is now CLOSED/ACCEPTED by Batch P.
 > This file retains historical debugging notes; do not treat older “next step”
 > sections below as current instructions.
 
@@ -35,7 +52,8 @@
 > `docs/text_drawstring_inherited_defect.md`. The current next work is the
 > the G15 source-fidelity audit and campaign/catalog separation in
 > `docs/bor_source_fidelity_audit.md` and
-> `docs/g15_bor_campaign_audit.md`. Batch B/2EASY has not started.
+> `docs/g15_bor_campaign_audit.md`. Batch B/C (2EASY/3AEASY) is complete; do not
+> start 3BEASY autonomously.
 
 Read this before doing anything else, then `CLAUDE.md` (build/test commands,
 architecture map) and `build.md` (register tables, CC-DMA mechanism, Mesen2
@@ -2046,12 +2064,27 @@ gate, not a regression.
 
 Batch A is complete and accepted: the shipped BOR prefix is the canonical
 `1AEASY -> 1BEASY -> 1CEASY`, with the existing TMNT development tail still
-following it. Batch B is next and will add `2EASY`; do not describe the
+following it. Batch B has now added `2EASY`; do not describe the
 current post-1C TMNT handoff as a BOR stage-2 result. Keep the six-actor bound, current animation
 transport, script-VM scope, G12/G13/G14, and SOUND architecture unchanged.
 
 See `docs/g15_batch_a_stage1.md` and
 `tools/verify/game_g15_stage1_campaign.py`.
+
+## G15 Batch M handoff
+
+Batch M imports the authoritative `DATA\\EASY\\6CEASY.TXT` as physical stage
+21 and logical BOR ordinal 14. The typed campaign tail is now
+`6BEASY -> RUGAL scene -> 6CEASY -> TITLE`; Rugal remains ordinal 13 and the
+temporary campaign boundary is after 6CEASY. The stage uses the existing Boss
+Hotel layers, rightward scrolling, JOE music, one wait, one group, and 34
+queue records. Runtime-only Rugal is appended at identity 44; the selectable
+roster remains 13 and actor capacity remains six. No new gameplay primitive
+was required.
+
+The focused Batch M gate proves both natural and real-input-skip Rugal
+handoffs enter 6CEASY directly, preserve score/lives/credits, select ordinary
+stage music, and clear 6CEASY to TITLE without catalog fall-through.
 
 ## Harness gotchas (Mesen2 / build)
 

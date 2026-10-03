@@ -1,0 +1,139 @@
+{
+  "schema": "normal-complete-receipt-reconciliation-v1",
+  "purpose": "Identify which retained campaign receipts support the final NORMAL_COMPLETE candidate; receipts are read-only evidence, not new runs.",
+  "source_field_mapping": {
+    "receipt_sha256": "SHA-256 over exact receipt file bytes.",
+    "mode_and_verdict": "mode and verdict.",
+    "artifact_hashes": "artifacts[recorded absolute artifact path]; candidate ROM/MSU are also named by rom_path and msu_path.",
+    "route": "route[*].ordinal, source, kind, saw_showcomplete, skip_sent, completion_expected, next_after, start, and end.",
+    "route_contract": "expected_entries, next_flags, completion_flags, completion_policy.",
+    "check_results": "checks[*][0] is the assertion label and checks[*][1] is its boolean result.",
+    "spawn_coverage": "spawn_traversal.status, expected, completed, expected[*].source_model, completed[*].load_result, and spawn_traversal.scope.",
+    "completion_counter": "times_before, times_after, route[15].end.times/state, and final.times/state/ordinal/stage.",
+    "scope_and_nonclaims": "scope and spawn_traversal.scope; absence of top-level failure/error fields is not expanded into a broader gameplay claim."
+  },
+  "final_closure_candidate": {
+    "rom_path": "build/s8_normal_sa1_rtl_candidate_luna05/bor.sfc",
+    "rom_sha256": "05edd46023b3173f8432087f8cfcbf182726c35ecfb918b5c996ec23e414ba1f",
+    "msu_path": "build/s8_normal_sa1_rtl_candidate_luna05/bor.msu",
+    "msu_sha256": "8eb71123e3baa3e2bb3f696775ca3d0dad42a5fa2d64ea7373b1dfd6f50bf3c6",
+    "symbols_sha256": "9a28b869d78ce6f477fd30ae1705e6b3ef74f0df9e2b0d9a8e6fcc27f7487e31",
+    "campaign_config_sha256": "e4492d18696db537d349e4d593bbd7bf8ddb75d030aa898d82bcf406424f3e0a",
+    "local_artifact_files_rechecked_read_only": true
+  },
+  "historical_candidate": {
+    "rom_path": "build/s8_normal_sa1_rtl_candidate_luna01/bor.sfc",
+    "rom_sha256": "7ef9d232e688c77d8aa54c01c45d44d3868dbc21ef5a67a3750fccd2bb9186dd",
+    "msu_sha256": "8eb71123e3baa3e2bb3f696775ca3d0dad42a5fa2d64ea7373b1dfd6f50bf3c6",
+    "symbols_sha256": "acffb1efc37f5a9521212cff70e9fa64e96acbdc11d416209fe97d2629141c35",
+    "campaign_config_sha256": "e4492d18696db537d349e4d593bbd7bf8ddb75d030aa898d82bcf406424f3e0a"
+  },
+  "normal_route_source_sequence": [
+    "DATA\\NORMAL\\1A.TXT", "DATA\\NORMAL\\1B.TXT",
+    "DATA\\NORMAL\\1C.TXT", "DATA\\NORMAL\\2.TXT",
+    "DATA\\NORMAL\\3A.TXT", "DATA\\NORMAL\\3B.TXT",
+    "DATA\\NORMAL\\3C.TXT", "DATA\\NORMAL\\4A.TXT",
+    "DATA\\NORMAL\\4B.TXT", "DATA\\NORMAL\\5A.TXT",
+    "DATA\\NORMAL\\5B.TXT", "DATA\\NORMAL\\6A.TXT",
+    "DATA\\NORMAL\\6B.TXT", "RUGAL", "DATA\\NORMAL\\6C.TXT", "ENDING"
+  ],
+  "route_profiles": {
+    "natural": {
+      "entry_count": 16,
+      "saw_showcomplete_ordinals_zero_based": [2, 3, 6, 8, 10, 14],
+      "skip_sent_ordinals_zero_based": [],
+      "completion_expected_ordinals_zero_based": [2, 3, 6, 8, 10, 14],
+      "ending": {"source": "ENDING", "kind": "scene", "skip_sent": false, "end_state": 1}
+    },
+    "skip": {
+      "entry_count": 16,
+      "saw_showcomplete_ordinals_zero_based": [2, 3, 6, 8, 10, 14],
+      "skip_sent_ordinals_zero_based": [2, 3, 6, 8, 10, 13, 14, 15],
+      "completion_expected_ordinals_zero_based": [2, 3, 6, 8, 10, 14],
+      "ending": {"source": "ENDING", "kind": "scene", "skip_sent": true, "end_state": 1}
+    },
+    "easy_bounded": {
+      "entry_count": 3,
+      "sources": ["DATA\\EASY\\1AEASY.TXT", "DATA\\EASY\\1BEASY.TXT", "DATA\\EASY\\1CEASY.TXT"],
+      "saw_showcomplete_ordinals_zero_based": [0, 1, 2],
+      "skip_sent_ordinals_zero_based": [0, 1, 2],
+      "completion_expected_ordinals_zero_based": [0, 1, 2],
+      "scope": "Easy first three legal clears only; no full Easy completion claim."
+    }
+  },
+  "receipts": [
+    {
+      "path": "out/s8_normal_full_natural_candidate_luna29.json",
+      "sha256": "f2cda573cde1426296a7e5eaa925b5e150baaca9c235dc088a18308a5978e14c",
+      "classification": "authoritative_final_closure_natural",
+      "candidate": "final_closure_candidate", "mode": "natural", "verdict": "PASS", "route_profile": "natural",
+      "checks": {"field": "checks[*][1]", "passed": 83, "failed": 0},
+      "spawn_coverage": {
+        "status": "PASS", "expected_count": 735, "completed_count": 735, "model_bearing_expected": 614,
+        "source_definition_expected": 614, "load_result_1_completed": 735,
+        "fields": ["spawn_traversal.status", "spawn_traversal.expected", "spawn_traversal.completed", "spawn_traversal.expected[*].source_model", "spawn_traversal.expected[*].source_definition", "spawn_traversal.completed[*].load_result"],
+        "scope": "all source queue admissions; each initial AI takes observed real damage before sequenced worker unlink"
+      },
+      "completion_counter": {"times_before": 7, "times_after": 8, "delta": 1, "ending_route_end_times": 8, "ending_route_end_state": 1, "final_ordinal": 15, "fields": ["times_before", "times_after", "route[15].end.times", "route[15].end.state", "final.ordinal", "final.times", "final.state"]},
+      "resource_observation": {"msu_busy_fields": 1246, "msu_busy_intervals": 420, "longest_msu_busy_interval_fields": 186, "visual_busy_error_map_raw": {"39": 467, "160": 580, "170": 6}, "field": "resource_policy"},
+      "scope_nonclaim": "Accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    },
+    {
+      "path": "out/s8_normal_full_skip_candidate_luna27.json",
+      "sha256": "1681c4e860703f5e1fc232a0d20e92d70e17724b191322b2277087af830695ce",
+      "classification": "authoritative_final_closure_skip",
+      "candidate": "final_closure_candidate", "mode": "skip", "verdict": "PASS", "route_profile": "skip",
+      "checks": {"field": "checks[*][1]", "passed": 68, "failed": 0},
+      "spawn_coverage": {"recorded": false, "field_absent": "spawn_traversal", "claim": "No all-spawn coverage claim from this receipt."},
+      "completion_counter": {"times_before": 6, "times_after": 7, "delta": 1, "ending_route_end_times": 7, "ending_route_end_state": 1, "final_ordinal": 15, "fields": ["times_before", "times_after", "route[15].end.times", "route[15].end.state", "final.ordinal", "final.times", "final.state"]},
+      "scope_nonclaim": "Accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    },
+    {
+      "path": "out/s8_normal_full_easy_candidate_luna25.json",
+      "sha256": "8ecda866604a4d5324004a18f60b2579478801b5d155bee560441e58ac0ce579",
+      "classification": "authoritative_bounded_easy_control_only",
+      "candidate": "final_closure_candidate", "mode": "easy", "verdict": "PASS", "route_profile": "easy_bounded",
+      "checks": {"field": "checks[*][1]", "passed": 25, "failed": 0},
+      "spawn_coverage": {"recorded": false, "field_absent": "spawn_traversal", "claim": "No all-spawn coverage claim from this receipt."},
+      "completion_counter": {"times_before": 6, "times_after": 6, "delta": 0, "route_end_times": 6, "route_end_ordinal": 2, "fields": ["times_before", "times_after", "route[2].end.times"]},
+      "scope_nonclaim": "Easy first three legal clears only; no full Easy completion claim.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    },
+    {
+      "path": "out/s8_normal_sa1_full_natural_luna11.json",
+      "sha256": "2abcd737638a3ed1d73d44b648b5015301e990a767a561ba929b501220bd3812",
+      "classification": "historical_earlier_candidate_natural_not_final_closure_identity",
+      "candidate": "historical_candidate", "mode": "natural", "verdict": "PASS", "route_profile": "natural",
+      "checks": {"field": "checks[*][1]", "passed": 85, "failed": 0},
+      "spawn_coverage": {"status": "PASS", "expected_count": 735, "completed_count": 735, "model_bearing_expected": 614, "source_definition_expected": 614, "fields": ["spawn_traversal.status", "spawn_traversal.expected", "spawn_traversal.completed", "spawn_traversal.expected[*].source_model", "spawn_traversal.expected[*].source_definition"]},
+      "completion_counter": {"times_before": 2, "times_after": 3, "delta": 1, "ending_route_end_times": 3, "ending_route_end_state": 1, "fields": ["times_before", "times_after", "route[15].end.times", "route[15].end.state"]},
+      "scope_nonclaim": "Accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    },
+    {
+      "path": "out/s8_normal_sa1_full_skip_luna01.json",
+      "sha256": "b7327d95618f33b811c3adbe33b91970a2b83de8faace91a77b0310d1c531941",
+      "classification": "historical_earlier_candidate_skip_not_final_closure_identity",
+      "candidate": "historical_candidate", "mode": "skip", "verdict": "PASS", "route_profile": "skip",
+      "checks": {"field": "checks[*][1]", "passed": 70, "failed": 0},
+      "spawn_coverage": {"recorded": false, "field_absent": "spawn_traversal", "claim": "No all-spawn coverage claim from this receipt."},
+      "completion_counter": {"times_before": 3, "times_after": 4, "delta": 1, "ending_route_end_times": 4, "ending_route_end_state": 1, "fields": ["times_before", "times_after", "route[15].end.times", "route[15].end.state"]},
+      "scope_nonclaim": "Accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    },
+    {
+      "path": "out/s8_normal_sa1_full_easy_luna01.json",
+      "sha256": "ba1e4de74ee6b9ab15c4792c93d43abeeb9000b30f787eafa5dde2566e0322f9",
+      "classification": "historical_earlier_candidate_bounded_easy_only",
+      "candidate": "historical_candidate", "mode": "easy", "verdict": "PASS", "route_profile": "easy_bounded",
+      "checks": {"field": "checks[*][1]", "passed": 25, "failed": 0},
+      "spawn_coverage": {"recorded": false, "field_absent": "spawn_traversal", "claim": "No all-spawn coverage claim from this receipt."},
+      "completion_counter": {"times_before": 4, "times_after": 4, "delta": 0, "route_end_times": 4, "route_end_ordinal": 2, "fields": ["times_before", "times_after", "route[2].end.times"]},
+      "scope_nonclaim": "Easy first three legal clears only; no full Easy completion claim.",
+      "failure_observation": {"failed_check_rows": 0, "top_level_failure_or_error_fields_present": false}
+    }
+  ],
+  "interpretation": "The luna01 set passes for the older 7ef9... ROM and remains historical evidence. The luna29/luna27/luna25 set matches the ROM hash in the final NORMAL_COMPLETE closure and is therefore the authoritative receipt set for that claim. Subsequent runtime repairs have focused tests and assembly evidence, not a new campaign run; manual combat/visual acceptance remains outstanding."
+}

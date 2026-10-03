@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "rom_sha256": "772454716e6364f9b31ef259de4fedeee5fc17276fa6c446257c2119b76b9e4f",
+  "production_changed": false,
+  "full_actor_certification": false,
+  "runtime_sha256": {
+    "actor_source_scheduler.pasm": "ebe69a97bfe3165eebc8eb64ec3a9fe227036bbb6f9644da84ab2a84e0a06f34",
+    "actor_source_damage.pasm": "ab6fd078693cbdec197045750a224cb5e3dc12b56c2ebccd7e139c2020095dc4",
+    "actor_source_hit.pasm": "5acff5005d98b353860d3da676853766a78d7c4c046205a4017ab4a123890a35",
+    "actor_source_rng.pasm": "2ca275c17ab70901558983a91fc5d9178c72f58fb18b9a234666e3f810205100",
+    "actor_s5_isolated.pasm": "b618317a8f1cbffdac8660b4762ce6e87e747bcb6ee2a1c29957d753b98486a6"
+  },
+  "source_reference_sha256": {
+    "BOR.C": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+    "RAND32.ASM": "a89ddbf982072216d971fdc6a739b51fb1655bd0131b8aeeaa4abfb999ce6a0a",
+    "RAND32.H": "41ab7452bc9200e4ed54482307586f384e4fa54392a09224fda7cc9bd61e6950"
+  },
+  "native_cases": 118,
+  "graphics_proof": false,
+  "world_ai_proof": false
+}

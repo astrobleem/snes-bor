@@ -92,8 +92,7 @@ PICKUP_HEAL_APPLE = pasm_constant('PICKUP_HEAL_APPLE')
 PICKUP_HEAL_MEAT = pasm_constant('PICKUP_HEAL_MEAT')
 PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
 HIT_SCORE = pasm_constant('HIT_SCORE')
-KILL_SCORE = pasm_constant('KILL_SCORE')
-COMBAT_KILL_AWARD = HIT_SCORE + KILL_SCORE
+COMBAT_KILL_AWARD = HIT_SCORE  # S1D source force=1; no universal kill bonus
 
 GS_PATH = 'src/core/game_state.pasm'
 GAME_STAGE_INDEX = pasm_constant_in(GS_PATH, 'Game_StageIndex')
@@ -423,7 +422,7 @@ def main():
                 # ground collects it instantly), not a bug -- verify the
                 # real effect (Game_Lives) directly instead of insisting on
                 # an unobservable intermediate state.
-                lives_before = byte_at(m, Game_Lives)
+                lives_before = word_at(m, Game_Lives)
                 m.write_u8(Entity1 + CHAR_HP, 0)
                 m.write_u8(SPAWN_INDEX, idx)
                 m.write_u16(SCREEN_POS_X, rec['trigger_x'])
@@ -431,7 +430,7 @@ def main():
                 m.pause()
                 collected = False
                 for _ in range(30):
-                    if byte_at(m, Game_Lives) == lives_before + 1:
+                    if word_at(m, Game_Lives) == lives_before + 1:
                         collected = True
                         break
                     m.run_frames(1)
@@ -439,7 +438,7 @@ def main():
                 r.check(f'1UP: real record #{idx} spawns and is collected (real '
                          f'trigger_x={rec["trigger_x"]}, a standalone ground item, '
                          f'no attack needed -- see comment above)', collected)
-                lives_after = byte_at(m, Game_Lives)
+                lives_after = word_at(m, Game_Lives)
                 pickup_effects.append((name, lives_before, lives_after))
                 r.check('1UP: collecting it adds exactly 1 life (real OpenBOR '
                          f'name=="1up" special case) ({lives_before} -> {lives_after})',

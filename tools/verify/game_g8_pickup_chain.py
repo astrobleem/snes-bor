@@ -80,8 +80,7 @@ ITEM_ROSTER_IDX_BY_BASE = {
 PICKUP_TYPE_MONEY = pasm_constant('PICKUP_TYPE_MONEY')
 PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
 HIT_SCORE = pasm_constant('HIT_SCORE')
-KILL_SCORE = pasm_constant('KILL_SCORE')
-COMBAT_KILL_AWARD = HIT_SCORE + KILL_SCORE
+COMBAT_KILL_AWARD = HIT_SCORE  # S1D source force=1; no universal kill bonus
 
 GAME_STATE = pasm_constant_in('src/core/game_state.pasm', 'Game_State')
 GAME_STATE_PLAYING = pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_PLAYING')

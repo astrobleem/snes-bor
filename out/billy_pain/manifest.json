@@ -1,0 +1,92 @@
+{
+  "entity": "Billy",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.3018867924528302,
+  "hotspot_canvas": [
+    16,
+    31
+  ],
+  "frames": [
+    {
+      "delay": 6,
+      "offset": [
+        58,
+        104
+      ],
+      "bbox": [
+        32,
+        9,
+        35,
+        96
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 6,
+      "offset": [
+        58,
+        104
+      ],
+      "bbox": [
+        32,
+        9,
+        35,
+        96
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 46,
+      "offset": [
+        58,
+        104
+      ],
+      "bbox": [
+        32,
+        9,
+        35,
+        96
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        58,
+        104
+      ],
+      "bbox": [
+        32,
+        9,
+        35,
+        96
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        58,
+        104
+      ],
+      "bbox": [
+        32,
+        9,
+        35,
+        96
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

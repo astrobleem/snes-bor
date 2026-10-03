@@ -37,7 +37,7 @@ def main() -> int:
             errors.append(f"track {track_id}: loop frame outside payload")
         if track.get("msu_loop_frame") != loop:
             errors.append(f"track {track_id}: catalog loop frame mismatch")
-        if track.get("repeat") is not True:
+        if track.get("repeat") is not True and not (track.get("scene_audio") and track.get("repeat") is False):
             errors.append(f"track {track_id}: runtime repeat semantic is not explicit")
         if hashlib.sha256(data).hexdigest() != track.get("msu_pcm_hash"):
             errors.append(f"track {track_id}: catalog hash mismatch")

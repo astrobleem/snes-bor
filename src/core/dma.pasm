@@ -73,6 +73,7 @@ DmaRequest_TypeFlags     = $7E0477   ; .db — DMA_TYPE_* | optional DMA_OPT_FIX
 ; --- Queue state ---
 DmaQueue_CurrentSlot = $7E0478   ; .dw — byte offset into DmaQueue, wraps at SLOTS*SIZE
 DmaQueue_BudgetTotal = $7E047A   ; .dw — bytes registered so far this frame
+DmaQueue_ProcessRemaining = $7E047E ; .dw — bounded NMI ring-scan count
 
 ; --- Queue storage: 8 slots x 8 bytes = 64 bytes ($7E0480-$7E04BF) ---
 ; Per-slot layout (offsets from the slot's own base):
@@ -82,6 +83,10 @@ DmaQueue_BudgetTotal = $7E047A   ; .dw — bytes registered so far this frame
 ;   +5,+6  sourceAddressLow (dw)
 ;   +7     sourceBank       (db)
 DmaQueue = $7E0480
+; Zero means no producer-specific completion fence.  Source-sized visual
+; publication uses tokens 1..6 here without changing the public eight-byte
+; queue-slot ABI.
+DmaQueue_Owner = $7E4600
 
 Core_Dma_Init:
 	rep #$31
@@ -89,6 +94,17 @@ Core_Dma_Init:
 	lda #0
 	sta DmaQueue_CurrentSlot
 	sta DmaQueue_BudgetTotal
+	sep #$20
+.a8
+	ldx #0
+	lda #0
+Core_Dma_Init__owner_clear:
+	sta.l DmaQueue_Owner,x
+	inx
+	cpx #DMA_QUEUE_SLOTS
+	bcc Core_Dma_Init__owner_clear
+	rep #$31
+.a16
 	ldx #0
 Core_Dma_Init__clear_loop:
 	sta.l DmaQueue,x
@@ -265,6 +281,9 @@ Core_Dma_ProcessQueue:
 	rep #$31
 .a16
 	lda DmaQueue_CurrentSlot
+	lda #DMA_QUEUE_SLOTS
+	sta DmaQueue_ProcessRemaining
+	lda DmaQueue_CurrentSlot
 
 Core_Dma_ProcessQueue__loop:
 	and #(DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE) - 1
@@ -275,7 +294,7 @@ Core_Dma_ProcessQueue__loop:
 .a8
 	lda.l DmaQueue+4,x
 	bit #DMA_OPT_ACTIVE
-	beq Core_Dma_ProcessQueue__done
+	beq Core_Dma_ProcessQueue__skip
 
 	and #~DMA_OPT_MASK
 	cmp #DMA_TYPE_VRAM
@@ -316,8 +335,40 @@ Core_Dma_ProcessQueue__next:
 .a8
 	lda #0
 	sta.l DmaQueue+4,x
+	; Clear the optional owner token at the same queue slot.
+	pha
+	txa
+	lsr a
+	lsr a
+	lsr a
+	tay
+	tya
+	tax
+	pla
+	sep #$20
+.a8
+	lda #0
+	sta.l DmaQueue_Owner,x
 	rep #$31
 .a16
+	lda.l DmaQueue_ProcessRemaining
+	dec a
+	sta.l DmaQueue_ProcessRemaining
+	beq Core_Dma_ProcessQueue__done
+	lda DmaQueue_CurrentSlot
+	clc
+	adc #DMA_QUEUE_SLOT_SIZE
+	bra Core_Dma_ProcessQueue__loop
+
+Core_Dma_ProcessQueue__skip:
+	; Empty slots do not terminate the ring scan.  Other producers may have
+	; occupied later slots while the rotating cursor is being serviced.
+	rep #$31
+.a16
+	lda.l DmaQueue_ProcessRemaining
+	dec a
+	sta.l DmaQueue_ProcessRemaining
+	beq Core_Dma_ProcessQueue__done
 	lda DmaQueue_CurrentSlot
 	clc
 	adc #DMA_QUEUE_SLOT_SIZE

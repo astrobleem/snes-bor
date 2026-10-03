@@ -75,13 +75,13 @@
 ; already does. Options_VolumeUp/Down need no such dance: they only WRITE
 ; SRAM, which was never diverted.
 ;
-; Layout (4 bytes, offset $0000-$0003 of the physical save RAM, i.e. S-CPU
-; $006000-$006003 -- leaves the other ~8KB of this window, and the entire
-; rest of the ~32KB(ish) chip, untouched):
+; Layout (8 bytes, offset $0000-$0007 of the physical save RAM, i.e. S-CPU
+; $006000-$006007 -- the first four bytes retain their old meaning):
 ;   $006000 = magic byte 0 (OPTIONS_MAGIC0_VALUE)
 ;   $006001 = magic byte 1 (OPTIONS_MAGIC1_VALUE)
 ;   $006002 = format version (OPTIONS_VERSION_CURRENT)
 ;   $006003 = music volume (0-255)
+;   $006004-$006007 = little-endian BOR savedata.times_completed
 ; A blank/erased chip reads all $00 or all $FF -- the two-byte magic is
 ; chosen to be neither, so first-boot-ever is detected reliably and
 ; defaults get written instead of treating garbage as a real save.
@@ -91,7 +91,8 @@ OPTIONS_SRAM_BASE = $006000
 
 OPTIONS_MAGIC0_VALUE     = $5A
 OPTIONS_MAGIC1_VALUE     = $B0
-OPTIONS_VERSION_CURRENT  = 1
+OPTIONS_VERSION_CURRENT  = 2
+OPTIONS_VERSION_LEGACY   = 1
 OPTIONS_MUSICVOL_DEFAULT = 200   ; real BOR's own savedata_defaults() default
                                    ; is 100 out of ITS OWN 0-200 scale (half);
                                    ; TAD's SET_GLOBAL_MUSIC_VOLUME scale is
@@ -114,6 +115,15 @@ Options_ScratchMagic0  = $7E27B2   ; .db
 Options_ScratchMagic1  = $7E27B3   ; .db
 Options_ScratchVersion = $7E27B4   ; .db
 Options_ScratchVolume  = $7E27B5   ; .db
+Options_ScratchTimes0   = $7E2900   ; .db, little-endian global BOR count
+Options_ScratchTimes1   = $7E2901
+Options_ScratchTimes2   = $7E2902
+Options_ScratchTimes3   = $7E2903
+
+; Source BOR stores savedata.times_completed as a C int.  Keep the SNES
+; representation explicitly 32-bit so unlock thresholds remain a count and
+; not a one-bit approximation.
+Bor_TimesCompleted      = $7E2904   ; .db x4, little endian
 
 ; main.pasm's sa1_loop configures character conversion once with
 ; `lda #$09 / sta $2231` (format=4bpp, width=4 tiles/line) before entering
@@ -144,6 +154,14 @@ Options_Init:
     sta.l Options_ScratchVersion
     lda.l OPTIONS_SRAM_BASE+3
     sta.l Options_ScratchVolume
+    lda.l OPTIONS_SRAM_BASE+4
+    sta.l Options_ScratchTimes0
+    lda.l OPTIONS_SRAM_BASE+5
+    sta.l Options_ScratchTimes1
+    lda.l OPTIONS_SRAM_BASE+6
+    sta.l Options_ScratchTimes2
+    lda.l OPTIONS_SRAM_BASE+7
+    sta.l Options_ScratchTimes3
     ; Restore format (bit7 clear) and re-arm exactly like sa1_loop's own
     ; steady-state re-arm (stz $2236 -- dest mid byte 0).
     lda #SA1_LOOP_CDMA_FORMAT
@@ -157,10 +175,33 @@ Options_Init:
     cmp #OPTIONS_MAGIC1_VALUE
     bne Options_Init_defaults
     lda.l Options_ScratchVersion
+    cmp #OPTIONS_VERSION_LEGACY
+    beq Options_Init_legacy
     cmp #OPTIONS_VERSION_CURRENT
     bne Options_Init_defaults
     lda.l Options_ScratchVolume
     sta.l Options_MusicVolume
+    lda.l Options_ScratchTimes0
+    sta.l Bor_TimesCompleted
+    lda.l Options_ScratchTimes1
+    sta.l Bor_TimesCompleted+1
+    lda.l Options_ScratchTimes2
+    sta.l Bor_TimesCompleted+2
+    lda.l Options_ScratchTimes3
+    sta.l Bor_TimesCompleted+3
+    rtl
+Options_Init_legacy:
+.a8
+    ; Version 1 had no completion field. Preserve its valid volume and
+    ; upgrade in place with a zero 32-bit count.
+    lda.l Options_ScratchVolume
+    sta.l Options_MusicVolume
+    lda #0
+    sta.l Bor_TimesCompleted
+    sta.l Bor_TimesCompleted+1
+    sta.l Bor_TimesCompleted+2
+    sta.l Bor_TimesCompleted+3
+    jsl Options_SaveBorCompletion
     rtl
 Options_Init_defaults:
 .a8
@@ -173,6 +214,35 @@ Options_Init_defaults:
     lda #OPTIONS_MUSICVOL_DEFAULT
     sta.l OPTIONS_SRAM_BASE+3
     sta.l Options_MusicVolume
+    lda #0
+    sta.l Bor_TimesCompleted
+    sta.l Bor_TimesCompleted+1
+    sta.l Bor_TimesCompleted+2
+    sta.l Bor_TimesCompleted+3
+    jsl Options_SaveBorCompletion
+    rtl
+
+; Persist the current options header and the 32-bit BOR completion count.
+; This is deliberately a small append-only SRAM format extension: a valid
+; version-1 record is upgraded without losing its volume byte.
+Options_SaveBorCompletion:
+.a8
+    lda #OPTIONS_MAGIC0_VALUE
+    sta.l OPTIONS_SRAM_BASE
+    lda #OPTIONS_MAGIC1_VALUE
+    sta.l OPTIONS_SRAM_BASE+1
+    lda #OPTIONS_VERSION_CURRENT
+    sta.l OPTIONS_SRAM_BASE+2
+    lda.l Options_MusicVolume
+    sta.l OPTIONS_SRAM_BASE+3
+    lda.l Bor_TimesCompleted
+    sta.l OPTIONS_SRAM_BASE+4
+    lda.l Bor_TimesCompleted+1
+    sta.l OPTIONS_SRAM_BASE+5
+    lda.l Bor_TimesCompleted+2
+    sta.l OPTIONS_SRAM_BASE+6
+    lda.l Bor_TimesCompleted+3
+    sta.l OPTIONS_SRAM_BASE+7
     rtl
 
 ; ----------------------------------------------------------------------

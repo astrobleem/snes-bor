@@ -163,7 +163,7 @@ def _enumerate_anims(pak_path, entity_entry_name):
 
 
 def _derive_remap_palettes(pak_path, base_dir, remaps, idle_loaded,
-                            idle_frame0_indices, base_palette, out_dir):
+                            idle_frame0_indices, base_palette, out_dir, image_resolver=None):
     """plan_game.md 8a row 3 (`map`). OpenBOR's real colourmap mechanism
     (BOR.C's load_colourmap()) is a per-pixel-index substitution table built
     by diffing a base image against a same-shape `remap` image -- confirmed
@@ -197,6 +197,8 @@ def _derive_remap_palettes(pak_path, base_dir, remaps, idle_loaded,
             alt_path = base_dir + '\\' + alt_path
 
         def _load_rgb(entry_path, tmp_name):
+            if image_resolver is not None:
+                entry_path = image_resolver(entry_path)
             data = extract(pak_path, entry_path)
             tmp_path = os.path.join(out_dir, tmp_name)
             with open(tmp_path, 'wb') as f:
@@ -447,7 +449,7 @@ def resolve_roles(anim_names):
     return roles
 
 
-def convert_character(pak_path, entity_entry_name, out_prefix):
+def convert_character(pak_path, entity_entry_name, out_prefix, *, image_resolver=None):
     entity, anim_names = _enumerate_anims(pak_path, entity_entry_name)
 
     loaded = [
@@ -501,11 +503,12 @@ def convert_character(pak_path, entity_entry_name, out_prefix):
         base_dir = entity_entry_name.replace('/', '\\').rsplit('\\', 1)[0]
         remap_palettes = _derive_remap_palettes(
             pak_path, base_dir, entity['remaps'], loaded[idle_ord],
-            per_anim_frame_indices[idle_ord][0], palette, out_prefix + '_idle')
+            per_anim_frame_indices[idle_ord][0], palette, out_prefix + '_idle', image_resolver)
 
     moveset = {
         'entity': entity['name'],
         'prefix': out_prefix,
+        'subtype': entity.get('subtype'),
         'animations': [
             {'ordinal': i, 'name': anim_name, 'dir': out_dir, 'frames': result['frames']}
             for i, (anim_name, out_dir, result) in enumerate(results)

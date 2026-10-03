@@ -1,0 +1,47 @@
+{
+  "base": "cea4b91a199c60de1f52a5660ab99ca99d209eff",
+  "committed_generated": {
+    "production_source_visual.bin": {
+      "bytes": 11369220,
+      "sha256": "3dca52015dc5be7e0b16b1efe7b9fb580e52800f7c6e698f0ca4b4c733c7ff46"
+    },
+    "production_source_visual.json": {
+      "bytes": 114194902,
+      "sha256": "c130dcda94090cf147e41995f5500f9222c793aabf466e68ac3a0084fa6ee22e"
+    }
+  },
+  "committed_generator": {
+    "elapsed_seconds": 146.398,
+    "entries": 3640,
+    "json_bytes": 112651131,
+    "json_sha256": "f0c29e648b63ebcf091df12138f04a9dc3463cbe6675fed1cbc9cf99050f7b2c",
+    "packed_bytes": 11779242,
+    "packed_sha256": "e717597b9e9243fa97d9e824dc544bcb4f7307267ff0c5c7d3b2895fe36164e3"
+  },
+  "dirty_generator": {
+    "elapsed_seconds": 145.664,
+    "entries": 3640,
+    "json_bytes": 114194902,
+    "json_sha256": "c130dcda94090cf147e41995f5500f9222c793aabf466e68ac3a0084fa6ee22e",
+    "packed_bytes": 11369220,
+    "packed_sha256": "3dca52015dc5be7e0b16b1efe7b9fb580e52800f7c6e698f0ca4b4c733c7ff46"
+  },
+  "python": "3.10.6 (tags/v3.10.6:9c7b4bd, Aug  1 2022, 21:53:49) [MSC v.1932 64 bit (AMD64)]",
+  "python_packages": {
+    "numpy": "1.23.5",
+    "scipy": "1.11.2",
+    "Pillow": "12.0.0"
+  },
+  "source_paks": {
+    "Beats of Rage Original [v.3.0 Build 4086].pak": {
+      "bytes": 62663611,
+      "exists": true,
+      "sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6"
+    },
+    "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak": {
+      "bytes": 34357090,
+      "exists": true,
+      "sha256": "f9ab7a086263f9e9e5d439388b2f69c85b4f054b1663e4f3f2b81dc6a951e182"
+    }
+  }
+}

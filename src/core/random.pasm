@@ -32,7 +32,7 @@ Core_Random_Init:
 	sta Random_state3
 	lda #$55
 	sta Random_state4
-	rts
+	rtl
 
 ; @return a<8-bit>  pseudo-random byte
 Core_Random_Get:
@@ -54,4 +54,4 @@ Core_Random_Get__use_state3:
 	sta Random_state1
 	plp
 	lda Random_state1
-	rts
+	rtl

@@ -1,0 +1,84 @@
+{
+  "entity": "Robert",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.24806201550387597,
+  "hotspot_canvas": [
+    13,
+    21
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        55,
+        105
+      ],
+      "bbox": null,
+      "attack": [
+        29,
+        38,
+        45,
+        28,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        55,
+        80
+      ],
+      "bbox": null,
+      "attack": [
+        17,
+        51,
+        55,
+        19,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        55,
+        74
+      ],
+      "bbox": null,
+      "attack": [
+        17,
+        51,
+        55,
+        19,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        55,
+        72
+      ],
+      "bbox": null,
+      "attack": [
+        14,
+        57,
+        80,
+        15,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

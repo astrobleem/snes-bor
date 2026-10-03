@@ -1,0 +1,28 @@
+{
+  "level_entry": "DATA\\EASY\\6CEASY.TXT",
+  "background": "data\\bgs\\boss\\back.gif",
+  "panels": [
+    "data\\bgs\\boss\\p01.gif",
+    "data\\bgs\\boss\\p02e.gif",
+    "data\\bgs\\boss\\p03e.gif",
+    "data\\bgs\\boss\\p04.gif",
+    "data\\bgs\\boss\\p05.gif"
+  ],
+  "frontpanel": "data\\bgs\\boss\\front.gif",
+  "streaming": true,
+  "width_px": 280,
+  "height_px": 224,
+  "width_tiles": 35,
+  "height_tiles": 28,
+  "content_width_tiles": 35,
+  "unique_tiles": 476,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 15232,
+  "tilemap_bytes": 2940,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

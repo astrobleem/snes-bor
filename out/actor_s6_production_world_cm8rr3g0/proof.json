@@ -1,0 +1,120 @@
+{
+  "status": "PASS_BOUNDED_WORLD_CORE",
+  "scenario": "retarget",
+  "source_ticks": 173,
+  "final": {
+    "field": 99,
+    "mode": 4,
+    "error": 0,
+    "tick": 173,
+    "hits": 1,
+    "rows": [
+      {
+        "slot": 0,
+        "roster": 22,
+        "hp": 0,
+        "x": 16,
+        "y": 176,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 0,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 9,
+        "frame": 0,
+        "driver": 8
+      },
+      {
+        "slot": 1,
+        "roster": 22,
+        "hp": 46,
+        "x": 32,
+        "y": 176,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 1,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 14,
+        "frame": 1,
+        "driver": 7
+      },
+      {
+        "slot": 2,
+        "roster": 2,
+        "hp": 100,
+        "x": 65512,
+        "y": 176,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 0,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 6,
+        "frame": 0,
+        "driver": 13
+      },
+      {
+        "slot": 3,
+        "roster": 3,
+        "hp": 0,
+        "x": 120,
+        "y": 40,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 0,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 0,
+        "frame": 0,
+        "driver": 0
+      },
+      {
+        "slot": 4,
+        "roster": 4,
+        "hp": 0,
+        "x": 120,
+        "y": 40,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 0,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 0,
+        "frame": 0,
+        "driver": 0
+      },
+      {
+        "slot": 5,
+        "roster": 5,
+        "hp": 0,
+        "x": 120,
+        "y": 40,
+        "selected": 0,
+        "compat_frame": 255,
+        "facing": 0,
+        "hit_stun": 0,
+        "context_error": 0,
+        "role": 0,
+        "frame": 0,
+        "driver": 0
+      }
+    ]
+  },
+  "accounting": {
+    "dead_existing_holds_wait": true,
+    "unlink_releases_wait": true,
+    "natural_airborne_death_proven": false
+  },
+  "production_changed": false,
+  "full_actor_certification": false,
+  "link_manifest_sha256": "f71e39dc426238c4d4092b33c2b564df9255d5609e267ffae0ca59eff6d69522",
+  "execution_policy": "SOURCE_EXACT",
+  "presentation_policy": "ACCEPTED_RENDERER_NOT_SOURCE_CERTIFIED",
+  "nonclaims": [
+    "source raster publication",
+    "hit flash/audio/combo effects",
+    "general fractional movement",
+    "natural airborne death"
+  ]
+}

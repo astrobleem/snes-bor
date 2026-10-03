@@ -1,0 +1,4439 @@
+{
+  "schema_version": 1,
+  "scope": "source action/event coverage; no concurrent residency claim",
+  "manifest_hash": "52e46a158e24dbede044b2624df31f9e416234a399aad69c91007a6ba40a587c",
+  "global_ids_hash": "a3d528582a1835845815b1f7bb3d6e623e5083e5579eac464ad92d9cf0e120f1",
+  "models": [
+    {
+      "family": "bor-original",
+      "identity": "RALF",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\RALF\\RALF.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "JHUN",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\JHUN\\JHUN.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "JOE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\JOE\\JOE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "YASHIRO",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\YASHIRO\\YASHIRO.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "MOUSER",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MOUSER\\MOUSER.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "backwalk",
+          "animation": "backwalk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\METAL.WAV"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT01",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\FOOT01\\FOOT01.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "ROCK",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\ROCK\\ROCK.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+          ]
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "LEATHER",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\LEATHER\\LEATHER.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\RHINO.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "BEBOP",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\BEBOP\\BEBOP.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+          ]
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+          ]
+        },
+        {
+          "role": "riseattack",
+          "animation": "riseattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT02",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\FOOT02\\FOOT02.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT03",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\FOOT03\\FOOT03.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "FOOT04",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\FOOT04\\FOOT04.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "tmnt",
+      "identity": "LEO",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\LEO\\LEO.TXT",
+      "diesound": "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+          ]
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\THROW.WAV"
+          ]
+        },
+        {
+          "role": "waiting",
+          "animation": "waiting",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+          ]
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack4",
+          "animation": "attack4",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\THROW.WAV"
+          ]
+        },
+        {
+          "role": "slide",
+          "animation": "slide",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\DASH.WAV"
+          ]
+        },
+        {
+          "role": "grabattack",
+          "animation": "grabattack",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "freespecial",
+          "animation": "freespecial",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": [
+            "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+          ]
+        },
+        {
+          "role": "grab",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "YAMAZAKI",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\YAMAZAKI\\YAMAZAKI.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\SHAAH.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\APPLE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\APPLE.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\MONEY",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\MONEY.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\MEAT",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\MEAT.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\1UP",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\1UP.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\GOLD",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\GOLD.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TRASH",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TRASH.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\CHAIR",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\CHAIR.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TABLE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TABLE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "KULA",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\KULA\\KULA.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\EEK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grabattack",
+          "animation": "grabattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "freespecial",
+          "animation": "freespecial",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\KULABLOW.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grab",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MAXIMA",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\MAXIMA\\MAXIMA.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+          ]
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grabattack",
+          "animation": "grabattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "freespecial",
+          "animation": "freespecial",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\MAXROCKT.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grab",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MARY",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\MARY\\MARY.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\EEK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grabattack",
+          "animation": "grabattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "freespecial",
+          "animation": "freespecial",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\MARY_FFP.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "grab",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MIGHTY",
+      "playable": true,
+      "source_file": "DATA\\CHARS\\MIGHTY\\MIGHTY.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jump",
+          "animation": "jump",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "get",
+          "animation": "get",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "grab",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "HEAVY",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\HEAVY\\HEAVY.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+          ]
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\FENCE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\FENCE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "BIKER-K",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\BIKER-K\\BIKER-K.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "ANGEL",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\ANGEL\\ANGEL.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\EEK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "throw",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "SHERMIE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\SHERMIE\\SHERMIE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\EEK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "K",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\K\\K.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "BILLY",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\BILLY\\BILLY.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\BOX",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\BOX.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\FURNACE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\FURNACE.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\STEAMER",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\STEAMER.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\CRATE",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\CRATE.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "ROBERT",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\ROBERT\\ROBERT.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack3",
+          "animation": "attack3",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\STEAM",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\STEAM.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\DRUM",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\DRUM.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\KLUNK.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "K9999",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\K9999\\K9999.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+          ]
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\DRILL.WAV"
+          ]
+        },
+        {
+          "role": "attack2",
+          "animation": "upper",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "upper",
+          "animation": "upper",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "EIJI",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\EIJI\\EIJI.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack2",
+          "animation": "jumpattack2",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MRBIG",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MRBIG\\MRBIG.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE2.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TROLLY",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TROLLY.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\WOOD.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "RUGAL",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\RUGAL\\RUGAL.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "jumpattack",
+          "animation": "jumpattack",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "special",
+          "animation": "special",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": [
+            "bor-original:DATA\\SOUNDS\\ZOEF.WAV"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "RAMON",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\RAMON\\RAMON.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\DIE1.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "MISC\\TIME",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\MISC\\TIME.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "owner": "bor-original:RALF",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RALF",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JHUN",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:JOE",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YASHIRO",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "backwalk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "attack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "attack2",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:MOUSER",
+      "event": "upper",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\METAL.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT01",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "pain",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "attack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "riseattack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:ROCK",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "pain",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "riseattack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEATHER",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\RHINO.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "pain",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BOAR.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "attack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\WAVE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "riseattack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:BEBOP",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT02",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT03",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:FOOT04",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "jump",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\SPIN.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "jumpattack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "jumpattack2",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "special",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "waiting",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "get",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PIZZA1.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "attack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "attack3",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "attack4",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\THROW.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "slide",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\DASH.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "grabattack",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "freespecial",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "attack2",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "grab",
+      "assets": []
+    },
+    {
+      "owner": "tmnt:LEO",
+      "event": "diesound",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "attack3",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\SHAAH.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:YAMAZAKI",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\APPLE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\APPLE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\APPLE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\APPLE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\APPLE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MONEY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MONEY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MONEY",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MONEY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MONEY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MEAT",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MEAT",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MEAT",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MEAT",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\MEAT",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\1UP",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\1UP",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\1UP",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\1UP",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\1UP",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\GOLD",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\GOLD",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\GOLD",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\GOLD",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\GOLD",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TRASH",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CHAIR",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TABLE",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "jump",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "jumpattack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "special",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "get",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "grabattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "freespecial",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KULABLOW.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "grab",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:KULA",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\EEK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "jump",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "jumpattack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "special",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "get",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "grabattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "freespecial",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MAXROCKT.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "grab",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MAXIMA",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "jump",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "jumpattack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "special",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "get",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "grabattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "freespecial",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MARY_FFP.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "grab",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MARY",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\EEK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "jump",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "get",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MIGHTY",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "special",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:HEAVY",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FENCE",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:BIKER-K",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BIKER-K",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "attack2",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:ANGEL",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\EEK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:SHERMIE",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\EEK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:BILLY",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\BOX",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\FURNACE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FURNACE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FURNACE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FURNACE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\FURNACE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAMER",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAMER",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAMER",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAMER",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAMER",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\CRATE",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "attack3",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:ROBERT",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\STEAM",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAM",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAM",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAM",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\STEAM",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\DRUM",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\DRUM",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\DRUM",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\KLUNK.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "special",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "attack",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DRILL.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "upper",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:K9999",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "jumpattack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:EIJI",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MRBIG",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:MISC\\TROLLY",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\WOOD.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "jumpattack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "special",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "attack2",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\ZOEF.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:RUGAL",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:RAMON",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RAMON",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RAMON",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RAMON",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:RAMON",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\DIE1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:MISC\\TIME",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "attack-swing",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\PUNCH.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "health-pickup",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\GET.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "jump",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\JUMP.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "landed-hit",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEAT1.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "one-up",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\1UP.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "ordinary-thrown-landing",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\FALL.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "pause-entry",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "score-pickup",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\MONEY.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "time-over",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\TIMEOVER.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "ui-beep",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEEP.WAV"
+      ]
+    },
+    {
+      "owner": "bor-original:engine",
+      "event": "ui-beep-secondary",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\BEEP2.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "attack-swing",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\PUNCH0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "health-pickup",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\GET.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "jump",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\JUMP.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "landed-hit",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEAT1.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "one-up",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\1UP.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "ordinary-thrown-landing",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\FALL.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "pause-entry",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "score-pickup",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\MONEY.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "ui-beep",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEEP0.WAV"
+      ]
+    },
+    {
+      "owner": "tmnt:engine",
+      "event": "ui-beep-secondary",
+      "assets": [
+        "tmnt:DATA\\SOUNDS\\BEEP2.WAV"
+      ]
+    }
+  ],
+  "source_hashes": {
+    "bor-original:DATA\\SOUNDS\\1UP.WAV": "2a92eaad3b7de0047c78abc230eb78d9fa464833cb2492f153e8c91b9ce4cbad",
+    "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b",
+    "bor-original:DATA\\SOUNDS\\BEEP.WAV": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+    "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a",
+    "bor-original:DATA\\SOUNDS\\DIE1.WAV": "4ee3087ad3812e2f301720762289f9bcbc5718d59e8f5e2fca835f143e6ec3a6",
+    "bor-original:DATA\\SOUNDS\\DIE2.WAV": "2a9a6285f00fe3d41364c311f6af78a169f26f6aef9c96b4a32dffe3199c809d",
+    "bor-original:DATA\\SOUNDS\\DRILL.WAV": "9b1afec4da000791dae0b9720efc40320bda544a0cf4c90d2d0b9cd7c0e3549e",
+    "bor-original:DATA\\SOUNDS\\EEK.WAV": "f4e7d378980c0c8076d08f3d72be1e59b1cb5be79eaefc4f7ca13fa2798c32bb",
+    "bor-original:DATA\\SOUNDS\\FALL.WAV": "338ef562041e9e1ac97987ed3257d197e38e86fa476281cc8d55fe0028a07f33",
+    "bor-original:DATA\\SOUNDS\\GET.WAV": "df44cae1360524e01e6d7c0e080788ba3f2085cca5de5fa12eeb08b60fa409e3",
+    "bor-original:DATA\\SOUNDS\\JUMP.WAV": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9",
+    "bor-original:DATA\\SOUNDS\\KLUNK.WAV": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+    "bor-original:DATA\\SOUNDS\\KULABLOW.WAV": "9e668a30a53ba5742f5c08aa2c9e9a80d50d7c103b67095a01c37876931d29b8",
+    "bor-original:DATA\\SOUNDS\\LEONAHEY.WAV": "7329fe89a252ee90e90d5519d3bd17e8f234a6c4d635951d61715d6f716eda06",
+    "bor-original:DATA\\SOUNDS\\MARY_FFP.WAV": "6a7b556ed9895390baad33de02d6c6dcfb329588b320439b3291b1ac2b838d81",
+    "bor-original:DATA\\SOUNDS\\MAXBOOM.WAV": "038b4bcd75a45a010bc2af6c19d4cf3266725c4ea37e64d2583b85dd7952020b",
+    "bor-original:DATA\\SOUNDS\\MAXROCKT.WAV": "327ef2948e2971a79696b83f226704fdceaff7ee289f62770ad6f25adb125f70",
+    "bor-original:DATA\\SOUNDS\\MONEY.WAV": "52d26d9929b5a4ae7853e44e2f342d088d4f9388aad3aa1b9c8d18b41ef53f77",
+    "bor-original:DATA\\SOUNDS\\PUNCH.WAV": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1",
+    "bor-original:DATA\\SOUNDS\\SHAAH.WAV": "33a551a026418f89908e2a36e3bf6c233c28e6508c84f79cc139115aea31615a",
+    "bor-original:DATA\\SOUNDS\\TIMEOVER.WAV": "b2b70433a077412a3e3f6d0fd8c9f1a31ad9f6047dc6901e21201d967ee20018",
+    "bor-original:DATA\\SOUNDS\\WOOD.WAV": "c305098e66af58fa78b04a0b59a3e3a31f37e780ce37dab09f9b72a20944efbf",
+    "bor-original:DATA\\SOUNDS\\ZOEF.WAV": "ea288d9b490d81bfdb0924f731bc08df9ce375c604ffba3efbdba2671e36aeaa",
+    "tmnt:DATA\\SOUNDS\\1UP.WAV": "2a92eaad3b7de0047c78abc230eb78d9fa464833cb2492f153e8c91b9ce4cbad",
+    "tmnt:DATA\\SOUNDS\\BEAT1.WAV": "92576d8a7f0dafabb8d5c2646ff24154c01a7d0b0695ab8b8c19083e3d5a7bda",
+    "tmnt:DATA\\SOUNDS\\BEBOPDIE.WAV": "2e632920037553d5a001ef18e3a3294fcb625ecf3624c0846859a14f3a47bb80",
+    "tmnt:DATA\\SOUNDS\\BEEP0.WAV": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+    "tmnt:DATA\\SOUNDS\\BEEP2.WAV": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a",
+    "tmnt:DATA\\SOUNDS\\BOAR.WAV": "474a157c3a83f027eb6b7c4e2bd71fc924721cc43ed0fa8ef2d89929763e1b8d",
+    "tmnt:DATA\\SOUNDS\\DASH.WAV": "0a0619f6e373d5cc36b3b095cc69a438f36d2807642eca167e0f3d863bc9b915",
+    "tmnt:DATA\\SOUNDS\\FALL.WAV": "b55008537a246b99b1a20f3f5056012f292997fb6dec083398fd394539ca89ef",
+    "tmnt:DATA\\SOUNDS\\FOOTDIE.WAV": "4cf0ddeb36f63711db19d085732a15229224259abd631ee026795c00e60e3c2b",
+    "tmnt:DATA\\SOUNDS\\GET.WAV": "2c4ca557f5744710e0819a73ddf4ba138e14e2550b4bf3eb89cbc05966e8aadf",
+    "tmnt:DATA\\SOUNDS\\GUNSHOT.WAV": "5f4d1c212895c8e35d7ebe2e8bf19d7f695646d7742662d009a6bf5a7364d0e4",
+    "tmnt:DATA\\SOUNDS\\JUMP.WAV": "0f9ffe9cfed79c7cc5af789b1ba2407f238d325918149a702bb294171e41faf9",
+    "tmnt:DATA\\SOUNDS\\METAL.WAV": "415f1f6bc03dba280d53fbb7a8040dd8e7c1e092841505650f257d447f5fa73d",
+    "tmnt:DATA\\SOUNDS\\MONEY.WAV": "52d26d9929b5a4ae7853e44e2f342d088d4f9388aad3aa1b9c8d18b41ef53f77",
+    "tmnt:DATA\\SOUNDS\\PIZZA1.WAV": "a5f92c1fa00592136949e482a4573259a4c94f549151047bfda3a7ffc1541b21",
+    "tmnt:DATA\\SOUNDS\\PUNCH0.WAV": "ef78583b65bc9cabcbc3b1906ca366791c828dfa88778a1dd2092cbaf0fd02d3",
+    "tmnt:DATA\\SOUNDS\\RHINO.WAV": "1166c6ef125d323bc36345ee4ca1b1315bcda6cae92e85000df54b55a10aed13",
+    "tmnt:DATA\\SOUNDS\\ROCKDIE.WAV": "e4eeb10434950a51c06e79b0339686815dcf329f3192367dc29697cecaf36aa7",
+    "tmnt:DATA\\SOUNDS\\SPIN.WAV": "26f7409eee0fa9ea3c5f6ab67d31c4cd7b69dc1562e62c21b28a01298c450139",
+    "tmnt:DATA\\SOUNDS\\THROW.WAV": "9e027ac6ca48abf564f07858e4afe18338a6fa3952d62001dda2d19467dc68fb",
+    "tmnt:DATA\\SOUNDS\\TURTLE~1.WAV": "e74501d1e2928a39addf7075823e7dde4d7e0f0e649131c2cca9f330d26ad201",
+    "tmnt:DATA\\SOUNDS\\WAVE.WAV": "61710a9acf2dbfaad18c145852bd73dad9208a9608dc29f29641156f69b63077"
+  }
+}

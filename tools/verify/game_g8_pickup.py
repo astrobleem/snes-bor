@@ -45,7 +45,8 @@ CHAR_HP==CHAR_HP_PER_HIT (one hit kills) and each real pickup type in turn:
    Spawn_Play reuses it), and an ordinary AI-mode kill (CHAR_INPUT_DRIVEN==
    CHAR_INPUT_DRIVEN_AI, CHAR_PICKUP_TYPE==0, the pre-G8-pickup-slice
    default) does NOT change Game_Score/Game_Lives/player CHAR_HP beyond the
-   existing HIT_SCORE/KILL_SCORE combat-score award (proves this slice
+   existing source force-based combat-score award (force=1 -> HIT_SCORE)
+   (proves this slice
    didn't accidentally make every kill a pickup).
 
 Usage: python tools/verify/game_g8_pickup.py
@@ -80,16 +81,9 @@ PICKUP_HEAL_MEAT = pasm_constant('PICKUP_HEAL_MEAT')
 PICKUP_SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY')
 PICKUP_SCORE_GOLD = pasm_constant('PICKUP_SCORE_GOLD')
 HIT_SCORE = pasm_constant('HIT_SCORE')
-KILL_SCORE = pasm_constant('KILL_SCORE')
-# A killing hit on ANY entity (prop or enemy) already awards HIT_SCORE+
-# KILL_SCORE via Character_HitApply__ScoreAndFinish -- pre-existing
-# behavior (game_g8_props.py's own slice never touched ScoreAndFinish),
-# unrelated to and unchanged by this pickup slice. A prop's real pickup
-# effect (below) is additive on top of that combat award, not a
-# replacement for it -- breaking open a real item source nets both the
-# fight-score AND the item's own value, same as it would for a normal
-# enemy kill that happened to also matter for score.
-COMBAT_KILL_AWARD = HIT_SCORE + KILL_SCORE
+# S1D routes the existing compatibility force=1 event through the source
+# score primitive. There is no universal kill bonus in BOR v1.0029.
+COMBAT_KILL_AWARD = HIT_SCORE
 
 GS_PATH = 'src/core/game_state.pasm'
 Game_Score = pasm_constant_in(GS_PATH, 'Game_Score')
@@ -247,7 +241,7 @@ def main():
         # CHAR_PICKUP_TYPE + CHAR_ItemRosterIdx==0 -- exactly the state
         # this test's own setup creates. So the item is genuinely touch-
         # collected the very first frame, before Character_HitApply's own
-        # combat path (ScoreAndFinish's HIT_SCORE+KILL_SCORE award) ever
+        # combat path (ScoreAndFinish's source force=1 award) ever
         # runs -- Entity2_Hp is already 0 by the time a real attack would
         # reach it, so combat's own dead-target early-out skips it
         # entirely. This is correct, real OpenBOR behavior (ground items
@@ -306,9 +300,9 @@ def main():
                 score_after == score_before + PICKUP_SCORE_GOLD)
 
         # --- 4. 1UP: real extra life. ---
-        lives_before = read_u8(m, Game_Lives)
+        lives_before = read_u16(m, Game_Lives)
         killed = land_hit_on_entity2(m, PICKUP_TYPE_ONEUP)
-        lives_after = read_u8(m, Game_Lives)
+        lives_after = read_u16(m, Game_Lives)
         print(f'1UP: killed={killed} lives {lives_before}->{lives_after}')
         r.check('1up pickup adds exactly 1 life (real OpenBOR name=="1up" '
                 'special case)', lives_after == lives_before + 1)
@@ -332,14 +326,14 @@ def main():
         overlap_entity2_with_player(m)
         hp_before = 40
         score_before = read_u16(m, Game_Score)
-        lives_before = read_u8(m, Game_Lives)
+        lives_before = read_u16(m, Game_Lives)
         m.set_input(m.BTN_Y, 1)
         killed = poll_until(m, lambda: read_u8(m, Entity2 + CHAR_HP) == 0, max_frames=30)
         m.run_frames(2)
         m.pause()
         hp_after = read_u8(m, PlayerEntity + CHAR_HP)
         score_after = read_u16(m, Game_Score)
-        lives_after = read_u8(m, Game_Lives)
+        lives_after = read_u16(m, Game_Lives)
         print(f'no-pickup prop regression: killed={killed} player_hp '
               f'{hp_before}->{hp_after} score {score_before}->{score_after} '
               f'lives {lives_before}->{lives_after}')

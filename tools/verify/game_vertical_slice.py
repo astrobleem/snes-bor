@@ -16,11 +16,8 @@ stage-load path in this engine; force_player_death -- direct HP=0 write,
 same idiom game_g3_death.py uses, since there is no scripted "get hit until
 you die" input sequence worth the frame count):
 
-  1. Title (G5): boots at GAME_STATE_PLAYING by design (this project's own
-     documented boot default) -- reach TITLE the same way game_g5_menus.py
-     does (a forced Game_State write, simulating the real GAME_OVER-timeout/
-     pause-quit fallback path that already lands here for real), then a
-     real Start press into CHARSELECT.
+  1. Title (G5): use the accepted source-normal startup helper, then a real
+     Start press into CHARSELECT.
   2. Char-select (G5): real header/name row drip, a real Right press
      re-streams the next roster character (CHAR_PALETTE_SLOT/CGRAM changes),
      a real Start press finishes the teardown drip and lands in PLAYING.
@@ -31,10 +28,8 @@ you die" input sequence worth the frame count):
      1B Chair/Money spawn record (same real chain game_g8_pickup_chain.py
      proves) -- a real landed attack breaks it, Game_Score gets the real
      PICKUP_SCORE_MONEY award, the OAM sprite hides.
-  5. Death + continue (G3): one forced death with lives remaining (auto-
-     respawn, stays PLAYING), then lives exhausted -> GAME_STATE_GAMEOVER
-     with the continue countdown armed, then a real Start press continues
-     back into PLAYING with fresh lives.
+  5. Death/lifecycle is covered by the dedicated P1-L2/L3/L4 gates; this
+     composed slice does not assert the retired synthetic continue behavior.
   6. Wave completion + stage transition (G4): the real win condition
      (Stage_Cleared) fires and Game_StageIndex advances.
   7. Boss (spawn-driven roster reassignment gate): continuing the SAME
@@ -212,30 +207,10 @@ def main():
                      f'({score_before} -> {score_after}, expect +{expected_delta})',
                      score_after == score_before + expected_delta)
 
-        # === 5. Death + continue (G3) ===
-        boot_lives = byte_at(m, GAME_LIVES)
-        force_player_death(m)
-        lives_after_1 = byte_at(m, GAME_LIVES)
-        r.check(f'a death with lives remaining decrements Game_Lives and stays '
-                 f'PLAYING (auto-respawn) ({boot_lives} -> {lives_after_1})',
-                 lives_after_1 == boot_lives - 1 and word_at(m, GAME_STATE) == GAME_STATE_PLAYING)
-        hp_after_respawn = byte_at(m, PlayerEntity_Hp)
-        r.check(f'player respawned at CHAR_HP_MAX ({hp_after_respawn})',
-                 hp_after_respawn == CHAR_HP_MAX)
-
-        for _ in range(lives_after_1 + 1):
-            force_player_death(m)
-        r.check('exhausting every remaining life reaches GAME_STATE_GAMEOVER',
-                 word_at(m, GAME_STATE) == GAME_STATE_GAMEOVER)
-        r.check('continue countdown armed (GameOver_ContinueTimer > 0)',
-                 word_at(m, GAMEOVER_CONTINUE_TIMER) > 0)
-
-        m.set_input(m.BTN_START, 10)
-        m.pause()
-        r.check('a real Start press continues back into PLAYING',
-                 word_at(m, GAME_STATE) == GAME_STATE_PLAYING)
-        r.check(f'continue restores fresh Game_Lives (GAME_LIVES_START={GAME_LIVES_START})',
-                 byte_at(m, GAME_LIVES) == GAME_LIVES_START)
+        # === 5. Death/lifecycle ownership ===
+        # P1-L2/L3/L4 are now authoritative dedicated gates.  This composed
+        # slice deliberately does not retain the former invented GAMEOVER
+        # countdown/Start-to-continue assertions.
 
         # === 6-8. Wave completion, stage transition, boss, stage transition
         # after the boss (G4 + spawn-driven roster reassignment) -- the SAME

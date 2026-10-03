@@ -1,0 +1,84 @@
+{
+  "entity": "Heavy",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.20125786163522014,
+  "hotspot_canvas": [
+    15,
+    18
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        78,
+        117
+      ],
+      "bbox": null,
+      "attack": [
+        59,
+        36,
+        25,
+        60,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        78,
+        117
+      ],
+      "bbox": null,
+      "attack": [
+        58,
+        43,
+        25,
+        31,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        78,
+        117
+      ],
+      "bbox": null,
+      "attack": [
+        46,
+        52,
+        43,
+        24,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        78,
+        117
+      ],
+      "bbox": null,
+      "attack": [
+        38,
+        64,
+        67,
+        14,
+        15,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

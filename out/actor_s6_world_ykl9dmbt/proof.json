@@ -1,0 +1,55 @@
+{
+  "status": "PASS_NATIVE_PASS_ORDER",
+  "cases": 7,
+  "production_changed": false,
+  "full_actor_certification": false,
+  "live_ai_proof": false,
+  "gravity_numeric_proof": false,
+  "native_discrete_target_cases": 77,
+  "native_world_consumer_cases": 20,
+  "rom_sha256": "8e767129a8ab168d8c3c8436cabd6d4bcc2af97ac7300fe214d575cc885ef20e",
+  "runtime_sha256": {
+    "actor_s5_isolated.pasm": "b618317a8f1cbffdac8660b4762ce6e87e747bcb6ee2a1c29957d753b98486a6",
+    "actor_source_scheduler.pasm": "ebe69a97bfe3165eebc8eb64ec3a9fe227036bbb6f9644da84ab2a84e0a06f34",
+    "actor_source_world.pasm": "2a46024375b739f0b9d4fc66087c9707c4d5c944f79fe14612b65f59ebd47745",
+    "actor_source_target.pasm": "edc00d54f000e0bb1aaa9a26cc6453054b3ae9d001d4cf818925490748b045aa",
+    "actor_source_lifecycle.pasm": "a887f705b7c04a6249771c74ca1a56da8d0436f71ddbc8b47056f80b44ec611a",
+    "actor_source_bridge.pasm": "c31533a3001394128b34f2bf4985ef783e47285d735d460b869d39a1d6c0040a",
+    "actor_source_damage.pasm": "ab6fd078693cbdec197045750a224cb5e3dc12b56c2ebccd7e139c2020095dc4",
+    "actor_source_rng.pasm": "2ca275c17ab70901558983a91fc5d9178c72f58fb18b9a234666e3f810205100",
+    "actor_source_ai.pasm": "b1c6f689d6649dd6f006b60a1eefbc4e303d9a3b2cbbcfb3ee3576138d0deddd"
+  },
+  "source_reference_sha256": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+  "world_layout": {
+    "format": "SOURCE_WORLD_V1",
+    "profile": "SOURCE_EXACT",
+    "world_address": 6144,
+    "table_address": 98528,
+    "source_slot_count": 4,
+    "occupied_slots": [
+      0,
+      2,
+      3
+    ],
+    "actor_context_bytes": 256,
+    "actor_bytes": 768,
+    "world_context_bytes": 256,
+    "mirror_address_limit": 7936,
+    "source_slot_limit": 150,
+    "reserved_regions": [
+      [
+        6400,
+        7936
+      ]
+    ],
+    "full_actor_certification": false,
+    "required_hooks": [
+      "lost_entities",
+      "gravity_and_holes",
+      "think_driver",
+      "frame_events",
+      "attack_target_scan_and_effects",
+      "displayed_health"
+    ]
+  }
+}

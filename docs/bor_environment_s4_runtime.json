@@ -1,0 +1,149 @@
+{
+  "rom_sha256": "35034ed9d838c0db9b078bb6fd71c5fe8039515fc42991cbfa99a62ebb97cbe3",
+  "msu_sha256": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc",
+  "checks": [
+    [
+      "cold reset enters INTRO, not TITLE/PLAYING",
+      true
+    ],
+    [
+      "cold reset is not PLAYING",
+      true
+    ],
+    [
+      "INTRO remains reachable through second scene card",
+      true
+    ],
+    [
+      "INTRO -> TITLE",
+      true
+    ],
+    [
+      "KULA runtime identity (22, expected 22)",
+      true
+    ],
+    [
+      "KULA campaign start",
+      true
+    ],
+    [
+      "normal Stage_Load reaches DATA\\EASY\\3CEASY.TXT",
+      true
+    ],
+    [
+      "organic fixed-base emitter exists",
+      true
+    ],
+    [
+      "signed source altitude preserved",
+      true
+    ],
+    [
+      "fixed base never becomes jump/throw Z",
+      true
+    ],
+    [
+      "fixed base reaches hardware OAM Y",
+      true
+    ],
+    [
+      "organic child inherits and rises from base",
+      true
+    ],
+    [
+      "child base does not become jump/throw state",
+      true
+    ],
+    [
+      "normal Stage_Load reaches DATA\\EASY\\5BEASY.TXT",
+      true
+    ],
+    [
+      "organic fixed-base emitter exists",
+      true
+    ],
+    [
+      "signed source altitude preserved",
+      true
+    ],
+    [
+      "fixed base never becomes jump/throw Z",
+      true
+    ],
+    [
+      "fixed base reaches hardware OAM Y",
+      true
+    ],
+    [
+      "organic child inherits and rises from base",
+      true
+    ],
+    [
+      "child base does not become jump/throw state",
+      true
+    ],
+    [
+      "organic Angel receives authored map 4",
+      true
+    ],
+    [
+      "map 4 emitted palette reaches CGRAM",
+      true
+    ]
+  ],
+  "passed": true,
+  "full_trace_sha256": "c62144b1ca90d8a2a38d6be44835321856fe43c8798e7ea8c8801830da432baf",
+  "runs": [
+    {
+      "source": "DATA\\EASY\\3CEASY.TXT",
+      "physical": 14,
+      "hygiene": "prior NPC HP/driver neutralized before direct Stage_Load; no new subject state seeded",
+      "oam_base_proof": {
+        "frame": 179,
+        "depth": 193,
+        "base": 2569011,
+        "y": 154,
+        "sprites": [
+          0
+        ]
+      },
+      "expected_base_q16_16": 2569011,
+      "emulator": {
+        "isRunning": true,
+        "isPaused": true,
+        "frameCount": 1122
+      },
+      "sample_count": 180,
+      "metadata_write_count": 636
+    },
+    {
+      "source": "DATA\\EASY\\5BEASY.TXT",
+      "physical": 18,
+      "hygiene": "prior NPC HP/driver neutralized before direct Stage_Load; no new subject state seeded",
+      "oam_base_proof": {
+        "frame": 179,
+        "depth": 124,
+        "base": -262144,
+        "y": 128,
+        "sprites": [
+          5
+        ]
+      },
+      "palette_proof": {
+        "frame": 179,
+        "slot": 4,
+        "map": 4,
+        "actual": "0000ff22bf5b3d0ede3a38269319ae31ae3100002a212a21c818ae00c8180000",
+        "expected": "0000ff22bf5b3d0ede3a38269319ae31ae3100002a212a21c818ae00c8180000"
+      },
+      "expected_base_q16_16": -262144,
+      "emulator": {
+        "isRunning": true,
+        "isPaused": true,
+        "frameCount": 1995
+      },
+      "sample_count": 180,
+      "metadata_write_count": 1186
+    }
+  ]
+}

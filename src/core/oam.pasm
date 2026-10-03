@@ -17,9 +17,8 @@
 ; upstream, the real hardware transfer goes through this project's existing
 ; DMA queue instead of a hand-rolled immediate DMA — dma.pasm already has
 ; DMA_TYPE_OAM wired to hardware channel 7, so there's no reason to bypass it.
-; PPU register writes (OBSEL) go through core/nmi.pasm's shadow registers,
-; not straight to hardware, matching this project's shadow-register PPU-sync
-; architecture.
+; OBSEL is static: Core_Oam_Init seeds the shadow and commits it once under
+; forced blank. The per-frame NMI need not rewrite that unchanged register.
 ;
 ; Same Poppy-assembler workarounds as every other core/*.pasm file this
 ; project has ported (see core/dma_channel.pasm's header for the .w/.l one,
@@ -89,7 +88,12 @@ Oam_HighWaterSlot = $7E53C8 ; .dw
 ; confirmed free via a project-wide grep for $7E53CA and up.
 Oam_NeedFullUpload = $7E53CA ; .dw
 
-OAM_DEFAULT_Y = $F0      ; off the visible 224-line frame -> sprite hidden
+; Mode 6 SMALL is 16x32: rows 224..255 do not wrap into visible rows 0..223.
+; X=-64 additionally excludes hidden entries from scanline evaluation (unlike
+; the PPU's special X=-256). High=1 means SMALL and X-high=1, X-low=$C0.
+OAM_DEFAULT_Y = $E0
+OAM_HIDDEN_X = $C0
+OAM_HIDDEN_HI = 1
 
 Core_Oam_Init:
     rep #$31
@@ -103,7 +107,6 @@ Core_Oam_Init__clear_loop:
     cpx #OamShadow_End - OamShadow_Start
     bcc Core_Oam_Init__clear_loop
 
-    lda #0
     sta.l Oam_HighWaterSlot
 
     jsr Core_Oam_ClearAll
@@ -146,9 +149,6 @@ Core_Oam_Init__clear_loop:
     ; Core_Nmi_Play -> Core_Dma_ProcessQueue path every other OAM upload
     ; uses, correctly vblank-timed and DBR-safe by construction, no raw
     ; register writes or NMI race here at all.
-    lda #1
-    sta.l Oam_NeedFullUpload
-
     ; default sprite tile base: VRAM word $4000
     lda #$4000
     sta Oam_VramStart
@@ -164,6 +164,7 @@ Core_Oam_Init__clear_loop:
                              ; (8x8/16x16) for the old decorative test/dpad
                              ; sprites only.
     sta.l Nmi_ObjSel
+    sta.l $002101          ; boot PPU setup, forced blank; DBR is not guaranteed 0
     rep #$31
 .a16
     rts
@@ -180,12 +181,10 @@ Core_Oam_ClearAll:
 
     ldx #0
 Core_Oam_ClearAll__loop:
-    lda #0
+    lda #OAM_DEFAULT_Y * 256 + OAM_HIDDEN_X
     sta.l Oam_Buffer,x
-    lda #OAM_DEFAULT_Y
-    sta.l Oam_Buffer+1,x
     lda #0
-    sta.l Oam_Buffer+3,x
+    sta.l Oam_Buffer+2,x
     inx
     inx
     inx
@@ -195,12 +194,22 @@ Core_Oam_ClearAll__loop:
 
     ldx #0
 Core_Oam_ClearAll__hi_loop:
-    lda #0
+    lda #$0101
     sta.l Oam_ExpandedHi,x
-    sta.l Oam_PackedHi,x
+    inx
     inx
     cpx #OAM_SLOTS
     bcc Core_Oam_ClearAll__hi_loop
+    ldx #OAM_SLOTS / 4 - 2
+    lda #$5555
+Core_Oam_ClearAll__packed_loop:
+.a16
+    sta.l Oam_PackedHi,x
+    dex
+    dex
+    bpl Core_Oam_ClearAll__packed_loop
+    lda #1
+    sta.l Oam_NeedFullUpload
     rts
 
 ; Post-upload per-frame reset, called by Core_Nmi_Play instead of
@@ -236,12 +245,10 @@ Core_Oam_ClearActive:
     tay
     ldx #0
 Core_Oam_ClearActive__main_loop:
-    lda #0
+    lda #OAM_DEFAULT_Y * 256 + OAM_HIDDEN_X
     sta.l Oam_Buffer,x
-    lda #OAM_DEFAULT_Y
-    sta.l Oam_Buffer+1,x
     lda #0
-    sta.l Oam_Buffer+3,x
+    sta.l Oam_Buffer+2,x
     inx
     inx
     inx
@@ -250,33 +257,34 @@ Core_Oam_ClearActive__main_loop:
     bne Core_Oam_ClearActive__main_loop
 Core_Oam_ClearActive__main_skip:
 
-    ; --- Hi table: ceil(sprite_count/4) bytes -- identical formula to
-    ; Core_Oam_Play's own hi-table DMA length, so this clears exactly the
-    ; byte range that could ever have actually been written to hardware. ---
+    ; Expanded high table has ONE byte per sprite, not one per four.
+    ; Packed bytes are regenerated over the high-water extent before DMA.
     lda.l Oam_HighWaterSlot
-    clc
-    adc #15
-    lsr a
-    lsr a
     lsr a
     lsr a
     beq Core_Oam_ClearActive__hi_skip
     tay
     ldx #0
+    sep #$20
+.a8
 Core_Oam_ClearActive__hi_loop:
-    lda #0
+    lda #OAM_HIDDEN_HI
     sta.l Oam_ExpandedHi,x
-    sta.l Oam_PackedHi,x
     inx
     dey
     bne Core_Oam_ClearActive__hi_loop
 Core_Oam_ClearActive__hi_skip:
+    rep #$20
+.a16
     rts
 
 ; Call once per frame after all sprites for this frame have been written
 ; into Oam_Buffer/Oam_ExpandedHi. Packs the hi-table and queues the upload;
 ; Core_Nmi_Play does the actual DMA and the post-upload buffer reset.
 ;
+; Upload extent includes the previous high-water mark, including zero-current
+; frames, so retired sprites reach hardware as hidden. Skips only a never-used
+; empty table when no full upload is pending. Historical active-only rationale:
 ; Skips the enqueue entirely when Oam_CurrentSlot is still 0, i.e. game code
 ; wrote no sprites this frame. Unconditionally enqueuing a fresh 544-byte
 ; OAM DMA request every single frame regardless of whether OAM content
@@ -298,6 +306,8 @@ Core_Oam_Play:
     rep #$31
 .a16
     lda Oam_CurrentSlot
+    bne Core_Oam_Play__has_sprites
+    lda.l Oam_HighWaterSlot
     bne Core_Oam_Play__has_sprites
     lda.l Oam_NeedFullUpload
     bne Core_Oam_Play__has_sprites
@@ -352,7 +362,7 @@ Core_Oam_Play__hwm_done:
     lda #OAM_SLOTS * 4
     bra Core_Oam_Play__main_len_done
 Core_Oam_Play__main_len_partial:
-    lda Oam_CurrentSlot
+    lda.l Oam_HighWaterSlot
                              ; every other branch target in this file guards with a nop; this one didn't,
                              ; the sibling bug below (Core_Oam_Play__hi_len_done) proved the risk is real
 Core_Oam_Play__main_len_done:
@@ -419,7 +429,7 @@ Core_Oam_Play__queued_main:
     lda #OAM_SLOTS / 4
     bra Core_Oam_Play__hi_len_done
 Core_Oam_Play__hi_len_partial:
-    lda Oam_CurrentSlot
+    lda.l Oam_HighWaterSlot
     clc
     adc #15
     lsr a
@@ -576,7 +586,7 @@ Core_Oam_TransformHiOam:
     ; was (together with Core_Oam_ClearAll's own full-128 walk) the
     ; dominant per-frame cost pushing Core_Nmi_Play's vblank commit past
     ; real vblank -- see Core_Oam_ClearActive's header for the full story.
-    lda Oam_CurrentSlot
+    lda.l Oam_HighWaterSlot
     clc
     adc #15
     lsr a

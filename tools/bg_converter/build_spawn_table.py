@@ -172,14 +172,18 @@ Spawn_Play's own shift):
                                    min/max -- see core/spawn.pasm's
                                    SPAWN_KIND_MASK/SPAWN_MAP_SHIFT. Bits 5-7
                                    (G8 item/pickup slice): PICKUP_TYPE_*
-                                   (0-4), real only when kind==
-                                   RECORD_KIND_PROP -- see classify_pickup's
-                                   own docstring and core/spawn.pasm's
+                                   (0-5), or 7 for the non-reward Steamer
+                                   driver, real only when kind==RECORD_KIND_
+                                   PROP -- see classify_pickup's own
+                                   docstring and core/spawn.pasm's
                                    SPAWN_PICKUP_SHIFT/MASK. All 8 bits of
                                    this byte are now in use.
     +7    spawn_hp    (u8)     -- scaled from the level's own `health` line
                                    (0..CHAR_HP_MAX); ignored for props and
-                                   wait/group records.
+                                   wait/group records. Bit 7 is the preserved
+                                   `2pitem` contained-item flag; prop health
+                                   is <= CHAR_HP_MAX and therefore uses only
+                                   the low 7 bits.
     +8    item_roster_idx (u8) -- claude_close_g7_g8_before_g10.md Part 2/3:
                                    real only when record_kind==RECORD_KIND_
                                    PROP AND this is an `obstacle`+`item`
@@ -278,15 +282,26 @@ RECORD_KIND_BOSS_IDENTIFIED = 5   # real spawn-driven roster-reassignment
                                   # core/spawn.pasm's Spawn_Play re-streams
                                   # that slot's own real character instead
                                   # of leaving it as a reskin.
+RECORD_KIND_HOLE = 6              # source hole marker; never consumes an actor slot
+SUBTYPE_SHIFT = 5
+SUBTYPE_MASK = 0x03
+SUBTYPE_NONE = 0
+SUBTYPE_BIKER = 1
+# Appended runtime-only source enemy identities use the same reassign stream
+# as identified bosses, but remain ordinary AI actors.  This preserves the
+# fixed record format while allowing later imported levels to retain their
+# authored model identity.
+SUBTYPE_IDENTIFIED_ENEMY = 2
 
 MAP_SHIFT = 3
 PICKUP_SHIFT = 5   # G8 item/pickup slice: record_kind bits 5-7 (spare --
                    # kind uses 0-2, map uses 3-4). See core/spawn.pasm's
                    # SPAWN_PICKUP_SHIFT/MASK and main.pasm's PICKUP_TYPE_*.
+PICKUP_TYPE_STEAMER = 7  # Reserved non-reward prop driver; pickup values end at 5.
 
 # Real OpenBOR entity types that mean "not a fighting enemy" -- everything
 # else (enemy, player, or an unset/unusual type) spawns as RECORD_KIND_ENEMY.
-PROP_ENTITY_TYPES = {'obstacle', 'item'}
+PROP_ENTITY_TYPES = {'obstacle', 'item', 'none', 'steamer'}
 
 # G8 item/pickup slice (notjustfreespecial.txt): real values sourced
 # straight from each pak's own DATA\CHARS\MISC .TXT files, matching
@@ -421,7 +436,8 @@ def build_entity_lookup(pak_path):
     return lookup
 
 
-def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
+def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None, holes=None,
+                   direction='right', level_width=0):
     """events: list of spawn_parse.SpawnEvent/WaitEvent/GroupEvent, in
     trigger order (spawn_parse.py already interleaves all three correctly --
     see core/spawn.pasm's own header for why this single ordered queue
@@ -437,6 +453,21 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
     from spawn_parse import SpawnEvent, WaitEvent, GroupEvent
 
     out = bytearray()
+    def roster_index(name):
+        if not roster_lookup or not name:
+            return None
+        key = name.lower()
+        value = roster_lookup.get(key)
+        if value is not None:
+            return value
+        # Source Biker-K' is named biker_k in the converted roster prefix.
+        return roster_lookup.get(key.replace("-", "_").replace("'", ""))
+    # Holes are level data, not spawnable actors.  They are emitted as
+    # zero-trigger records so Spawn_Play installs the authored hazard set
+    # before the ordinary queue begins.  The fixed record format is retained.
+    for hole_x in holes or []:
+        out += struct.pack('<HHBBBBBB', 0, round(hole_x * SCALE), 0, 0,
+                           RECORD_KIND_HOLE, 0, 0, 0)
     for e in events:
         if isinstance(e, WaitEvent):
             trigger_x = round(e.at * SCALE)
@@ -453,7 +484,22 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
 
         assert isinstance(e, SpawnEvent)
         trigger_x = round(e.at * SCALE)
-        spawn_x = round((e.at + e.coords[0]) * SCALE)
+        # BOR's vertical scrollers leave advancex unchanged: the authored X
+        # coordinate is already world-horizontal, while `at` belongs to the
+        # vertical levelpos progression. Horizontal stages retain the legacy
+        # at+coords transformation.
+        if direction == 'down':
+            spawn_x = round(e.coords[0] * SCALE)
+        elif direction == 'left':
+            # BOR smartspawn stores authored X relative to the camera at the
+            # logical trigger.  For SCROLL_LEFT the camera begins at the
+            # rightmost extent, so convert that authored local coordinate to
+            # the fixed SNES world coordinate without reversing the event.
+            if not level_width:
+                raise ValueError('SCROLL_LEFT conversion requires source level width')
+            spawn_x = round((level_width - 320 - e.at + e.coords[0]) * SCALE)
+        else:
+            spawn_x = round((e.at + e.coords[0]) * SCALE)
         spawn_y = round(e.coords[1] * SCALE)
         spawn_y = max(0, min(255, spawn_y))
         facing_left = 1 - (e.flip & 1)
@@ -491,14 +537,26 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
                 object_roster_idx = roster_lookup.get(e.character.lower())
                 if entity_type == 'obstacle' and e.item:
                     item_roster_idx = roster_lookup.get(e.item.lower())
-        elif e.boss and object_roster_idx is not None:
-            # roster-reassignment slice: this boss's real character IS in
-            # the actual shipped roster -- carry its index (+9 below) so
-            # core/spawn.pasm can re-stream this slot as its own real
-            # character instead of a reskin. Only bosses get this: ordinary
-            # enemies are never individually added to the (roster-capped)
-            # roster, so there is nothing real to identify them against.
+        elif str((entity_lookup or {}).get(e.character.lower(), {}).get('subtype') or '').lower() == 'biker':
+            # A biker is a real source subtype.  Reuse the existing
+            # identified-roster streaming path for its source model; the
+            # runtime subtype bits below keep it out of ordinary AI logic.
             record_kind = RECORD_KIND_BOSS_IDENTIFIED
+            object_roster_idx = roster_index(e.character)
+        elif e.boss and object_roster_idx is not None:
+            # A source boss remains a boss even when its real model is an
+            # appended runtime-only identity. The identified-boss subtype
+            # stays zero so Spawn_Do preserves boss status.
+            record_kind = RECORD_KIND_BOSS_IDENTIFIED
+        elif (roster_index(e.character) is not None
+              and roster_index(e.character) >= 29):
+            # The original runtime roster through Biker-K' is already part
+            # of accepted content.  Newly appended source enemy identities
+            # are identified records with an ordinary-enemy subtype, so the
+            # shared loader can select their real model without making them
+            # bosses or selectable players.
+            record_kind = RECORD_KIND_BOSS_IDENTIFIED
+            object_roster_idx = roster_index(e.character)
         elif e.boss:
             record_kind = RECORD_KIND_BOSS
         else:
@@ -509,6 +567,13 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
         is_boss_identified = (record_kind == RECORD_KIND_BOSS_IDENTIFIED)
         map_value = max(0, min(3, e.map))
         record_kind |= (map_value << MAP_SHIFT)
+        if not is_prop:
+            entity = (entity_lookup or {}).get(e.character.lower()) or {}
+            if str(entity.get('subtype') or '').lower() == 'biker':
+                record_kind |= (SUBTYPE_BIKER << SUBTYPE_SHIFT)
+            elif ((record_kind & 0x07) == RECORD_KIND_BOSS_IDENTIFIED
+                  and object_roster_idx >= 29 and not e.boss):
+                record_kind |= (SUBTYPE_IDENTIFIED_ENEMY << SUBTYPE_SHIFT)
         # object_roster_idx==0 always means "no reassign, keep whatever
         # generic character already happened to be loaded" (roster slot 0 is
         # RALF -- never a real boss/prop identity in practice).
@@ -518,7 +583,7 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
             is_prop and item_roster_idx is not None) else 0
 
         # G8 item/pickup slice: a prop record's real contained/standalone
-        # item EFFECT, packed into record_kind's remaining spare bits (5-7).
+        # item EFFECT, packed into record_kind's remaining bits (5-7).
         # Two real sources, both verified against the shipped/buildable pak
         # data: (a) an `obstacle`-type prop's own `item <name>` line
         # (Table->Apple, Chair->Money -- DATA\EASY\1BEASY.TXT); (b) an
@@ -533,25 +598,48 @@ def convert_events(events, type_lookup, roster_lookup=None, entity_lookup=None):
                 pickup_type = classify_pickup(e.character, entity_lookup.get(e.character.lower()))
             elif entity_type == 'obstacle' and e.item:
                 pickup_type = classify_pickup(e.item, entity_lookup.get(e.item.lower()))
+        if entity_type == 'steamer':
+            # Values 0-5 are real pickup effects. Seven is the reserved
+            # non-reward prop-driver sentinel, so it cannot alias MONEY (3)
+            # or any other authored pickup when the subtype/pickup fields
+            # share this packed byte.
+            pickup_type = PICKUP_TYPE_STEAMER
         record_kind |= (pickup_type << PICKUP_SHIFT)
         if e.health is None:
             spawn_hp = CHAR_HP_MAX
         else:
             spawn_hp = round(e.health * CHAR_HP_MAX / 100)
             spawn_hp = max(1, min(CHAR_HP_MAX, spawn_hp))
+        if is_prop and e.if2p:
+            spawn_hp |= 0x80
         out += struct.pack('<HHBBBBBB', trigger_x & 0xFFFF, spawn_x & 0xFFFF,
                             spawn_y, facing_left, record_kind, spawn_hp,
                             item_roster_idx_byte, object_roster_idx_byte)
-    return len(events), bytes(out)
+    return len(events) + len(holes or []), bytes(out)
 
 
 def build_from_pak(pak_path, entry_name, roster_lookup=None):
     sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parent))
     from spawn_parse import parse_spawns_from_pak
+    from level_parse import parse_level
+    from composite_scene import PakIndex, level_width
     events = parse_spawns_from_pak(pak_path, entry_name)
+    text = extract(pak_path, entry_name).decode('latin1')
+    level = parse_level(text, name=entry_name)
+    source_width = level_width(PakIndex(pak_path), level)
+    direction = 'right'
+    for raw in text.splitlines():
+        parts = raw.strip().split()
+        if len(parts) >= 2 and parts[0].lower() == 'direction':
+            direction = parts[1].lower()
+            break
+    holes = [int(parts[1]) for line in text.splitlines()
+             for parts in [line.strip().split()]
+             if len(parts) >= 2 and parts[0].lower() == 'hole']
     type_lookup = build_type_lookup(pak_path)
     entity_lookup = build_entity_lookup(pak_path)
-    return convert_events(events, type_lookup, roster_lookup, entity_lookup)
+    return convert_events(events, type_lookup, roster_lookup, entity_lookup, holes,
+                          direction=direction, level_width=source_width)
 
 
 def main():

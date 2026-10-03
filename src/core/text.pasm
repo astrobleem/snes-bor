@@ -26,12 +26,11 @@
 ; on-screen text needs a real answer (draw text on BG1 instead, or suspend
 ; the FP resolver while text/menus are up) -- not implemented here.
 ;
-; VRAM: font tiles at word FONT_TILES_VRAM_WORD ($5900), inside BG3's
-; existing $5000-$5FFF char-base block (BG34NBA, unchanged), past the HUD's
-; 12 tiles ($5000-$505F) and the frontpanel streaming cache's reserved
-; region ($5100-$58FF) -- see main.pasm's VRAM map comment above Bg_LoadScene
+; VRAM: font tiles at word FONT_TILES_VRAM_WORD ($2900), inside BG3's
+; $2000-$2FFF character window, after the HUD/cache allocation and before
+; BG2's $3000 character window -- see main.pasm's VRAM map above Bg_LoadScene
 ; for the full picture. 95 glyphs * 8 words = 760 words fits the remaining
-; $5900-$5FFF (1792 words) with room to spare.
+; $2900-$2FFF (1792 words) with room to spare.
 ;
 ; Tilemap: BG3's single 32x32 map at word BG3_TILEMAP_VRAM_WORD, same map the
 ; HUD (rows 0-3) and frontpanel (rows 21-27, when loaded) already share.
@@ -56,7 +55,7 @@
 ; ============================================================================
 
 FONT_DATA_BANK       = $02   ; Font_TilesData/Font_PaletteData/Text_StringPool's bank (main.pasm .bank 2)
-FONT_TILES_VRAM_WORD = $5900
+FONT_TILES_VRAM_WORD = $2900
 FONT_TILE_INDEX_BASE = (FONT_TILES_VRAM_WORD - BG3_TILES_VRAM_WORD) / 8   ; = 288
 FONT_CGRAM_PAL_ID    = 1
 FONT_CGRAM_BYTE_ADDR = FONT_CGRAM_PAL_ID * 4 * 2   ; = 8 (CGADD is a color index, DMA target is bytes)
@@ -114,6 +113,14 @@ G1_NumberSnapshotDmaTarget  = $7E284D   ; .dw (DMA byte address)
 G1_NumberSnapshotDmaLength  = $7E284F   ; .dw
 G1_NumberSnapshotDmaType    = $7E2851   ; .db
 G1_NumberSnapshotOffset     = $7E2852   ; .dw
+
+; S1B score-only conversion scratch.  The static layout audit confirms this
+; gap ends before the existing audio-stream declarations at $7E28A0; it is
+; not score state or a second cache.  It is used only while composing one
+; score row, before Text_FlushRow queues the shared TextStaging transfer.
+Text_ScoreValue32            = $7E2854   ; 4B little-endian remainder
+Text_ScorePlace32            = $7E2858   ; 4B little-endian decimal place
+Text_ScoreMode               = $7E285C   ; .db -- selects score path below
 
 ; TextStaging is ONE shared buffer reused by every DrawString/DrawNumber
 ; call, and Text_FlushRow's DMA is QUEUED, not synchronous (core/dma.pasm:
@@ -524,6 +531,14 @@ Core_Text_DrawLabeledNumber__label_loop:
     jsr Text_EmitGlyph
     bra Core_Text_DrawLabeledNumber__label_loop
 Core_Text_DrawLabeledNumber__label_done:
+    sep #$20
+.a8
+    lda.l Text_ScoreMode
+    beq Core_Text_DrawLabeledNumber__number
+    jmp Core_Text_DrawLabeledNumber__score
+Core_Text_DrawLabeledNumber__number:
+    sep #$20
+.a8
     ; --- number: same digit-place loop Core_Text_DrawNumber uses, sharing
     ; Text_NumberValue/Text_PlaceValue/Text_Started/Text_DigitScratch and
     ; Text_DrawNumber__digit itself (no leading zeros; continues from
@@ -592,9 +607,108 @@ Core_Text_DrawLabeledNumber__pad_loop:
     inx
     bra Core_Text_DrawLabeledNumber__pad_loop
 Core_Text_DrawLabeledNumber__pad_done:
+    sep #$20
+.a8
+    lda #0
+    sta.l Text_ScoreMode
     jsr Text_FlushRow
     plp
     rts
+
+; ============================================================================
+; Text_DrawScore32__digit -- emit one decimal digit from the bounded unsigned
+; 32-bit remainder in Text_ScoreValue32.  Text_ScorePlace32 is a 32-bit power
+; of ten selected by the caller.  Repeated subtraction is deliberately small
+; and bounded (each digit is at most nine); it avoids changing Core_Math_Div
+; or the generic 16-bit text callers.
+; ============================================================================
+Text_DrawScore32__digit:
+    sep #$20
+.a8
+    lda #0
+    sta.l Text_DigitScratch
+    rep #$31
+.a16
+.i16
+Text_DrawScore32__subtract:
+    lda.l Text_ScoreValue32+2
+    cmp.l Text_ScorePlace32+2
+    bcc Text_DrawScore32__show
+    bne Text_DrawScore32__do_subtract
+    lda.l Text_ScoreValue32
+    cmp.l Text_ScorePlace32
+    bcc Text_DrawScore32__show
+Text_DrawScore32__do_subtract:
+    lda.l Text_ScoreValue32
+    sec
+    sbc.l Text_ScorePlace32
+    sta.l Text_ScoreValue32
+    lda.l Text_ScoreValue32+2
+    sbc.l Text_ScorePlace32+2
+    sta.l Text_ScoreValue32+2
+    sep #$20
+.a8
+    lda.l Text_DigitScratch
+    inc a
+    sta.l Text_DigitScratch
+    rep #$31
+.a16
+.i16
+    bra Text_DrawScore32__subtract
+
+Text_DrawScore32__show:
+    sep #$20
+.a8
+    lda.l Text_Started
+    bne Text_DrawScore32__emit
+    lda.l Text_DigitScratch
+    bne Text_DrawScore32__emit
+    rep #$31
+.a16
+.i16
+    lda.l Text_ScorePlace32
+    cmp #1
+    bne Text_DrawScore32__done
+Text_DrawScore32__emit:
+    sep #$20
+.a8
+    lda #1
+    sta.l Text_Started
+    lda.l Text_DigitScratch
+    clc
+    adc #$30
+    jsr Text_EmitGlyph
+Text_DrawScore32__done:
+    rts
+
+Core_Text_DrawLabeledNumber__score:
+    rep #$30
+.a16
+.i16
+    lda #0
+    sta.l Text_Started
+    ldy #0
+Core_Text_DrawLabeledNumber__score_digit:
+    rep #$30
+.a16
+.i16
+    lda.w Text_ScorePlaces,y
+    sta.l Text_ScorePlace32
+    lda.w Text_ScorePlaces+2,y
+    sta.l Text_ScorePlace32+2
+    jsr Text_DrawScore32__digit
+    iny
+    iny
+    iny
+    iny
+    cpy #36
+    bne Core_Text_DrawLabeledNumber__score_digit
+    jmp Core_Text_DrawLabeledNumber__pad_loop
+
+; Nine powers of ten, little-endian words (low, high).
+Text_ScorePlaces:
+    .dw $E100, $05F5, $9680, $0098, $4240, $000F
+    .dw $86A0, $0001, 10000, 0, 1000, 0, 100, 0, 10, 0, 1, 0
 
 ; ============================================================================
 ; Core_Text_G1Demo -- one-shot Core_Text_DrawNumber proof, called from

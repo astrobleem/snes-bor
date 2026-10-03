@@ -1,0 +1,20 @@
+{
+  "entity": "Steamer",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 32.0,
+  "hotspot_canvas": [
+    0,
+    0
+  ],
+  "frames": [
+    {
+      "delay": 100,
+      "offset": null,
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

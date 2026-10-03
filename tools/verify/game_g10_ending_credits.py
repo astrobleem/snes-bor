@@ -244,7 +244,7 @@ def main():
         # to catch -- if Game_State_NewGameReset is missing/broken, these
         # poisoned values would still be here after CHARSELECT->PLAYING.
         m.write_u16(Game_Score, 12345)
-        m.write_memory('snesMemory', Game_Lives, '01')
+        m.write_u16(Game_Lives, 1)
 
         # TITLE -> CHARSELECT (real Start press, same technique
         # game_g5_menus.py already uses). Poll for Title_Step==WAIT first --
@@ -266,7 +266,7 @@ def main():
         # no later PLAYING frame has yet had a chance to collect 1AEASY's
         # trigger-0 1UP.
         reset_boundary = {'score': u16(m, Game_Score),
-                          'lives': u8(m, Game_Lives),
+                          'lives': u16(m, Game_Lives),
                           'stage': u16(m, Game_StageIndex),
                           'state': u16(m, GAME_STATE)}
         m.run_frames(60)
@@ -284,7 +284,7 @@ def main():
                 reset_boundary['score'] == 0 and reset_boundary['stage'] == 0 and
                 reset_boundary['state'] == GAME_STATE_PLAYING)
         r.check(f'1AEASY first gameplay window preserves legitimate pickup behavior '
-                f'(late lives={u8(m, Game_Lives)})', u8(m, Game_Lives) >= GAME_LIVES_START)
+                f'(late lives={u16(m, Game_Lives)})', u16(m, Game_Lives) >= GAME_LIVES_START)
 
     r.finish()
 

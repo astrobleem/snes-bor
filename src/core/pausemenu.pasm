@@ -461,6 +461,8 @@ Game_State_Play__pausemenu_endgame:
 .a8
     lda #PAUSE_STEP_DRAW_HEADER
     sta.l Pause_Step            ; reset for the next time PAUSED is entered
+    rep #$20
+.a16
     lda #0
     sta.l Game_Lives
     rep #$31

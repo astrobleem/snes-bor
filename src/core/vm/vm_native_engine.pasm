@@ -724,6 +724,7 @@ AnimBlink_ShouldHide__visible:
 Character_HitApply__ApplyDamage:
 .a16
 .i16
+    jsl HudOpponentHost_VictimX
     txa
     sta.l HitApply_EntityBase
 
@@ -941,11 +942,13 @@ Character_HitApply__ApplyDamage__not_kill:
 Spawn_ResetKnockdownFall:
 .a16
 .i16
+    jsl HudOpponentHost_RetireX
     ; X (16-bit) does not have a `.l` long-addressing store form (CLAUDE.md's
     ; toolchain notes) -- route through A, same as Character_HitApply__
     ; ApplyDamage's own entry.
     txa
     sta.l HitApply_EntityBase
+    sta.l Spawn_ScratchSlotOfs
 
     lda.l HitApply_EntityBase
     clc
@@ -1364,6 +1367,7 @@ Character_HitApply__TryGrab__no:
     rtl
 Character_HitApply__TryGrab__do:
 .a8
+    jsl HudOpponentHost_Grab
     rep #$31
 .a16
 .i16
@@ -2063,8 +2067,28 @@ Character_Throw_Play:
     sep #$20
 .a8
     lda CHAR_SELECTED
+    ; THROWN owns airborne integration. Test the selector before loading
+    ; any velocity byte; FALL's legacy hole marker is a separate path.
     cmp #CHAR_SELECTED_THROWN
-    bne Character_Throw_Play__done
+    beq Character_Throw_Play__thrown
+    cmp #CHAR_SELECTED_FALL
+    beq Character_Throw_Play__check_hole_z
+    brl Character_Throw_Play__done
+Character_Throw_Play__check_hole_z:
+    sep #$20
+.a8
+    lda CHAR_THROW_ZVEL+1
+    cmp #$FF
+    bne Character_Throw_Play__check_thrown
+    brl Character_Throw_Play__hole
+Character_Throw_Play__check_thrown:
+    sep #$20
+.a8
+    lda CHAR_SELECTED
+    cmp #CHAR_SELECTED_THROWN
+    beq Character_Throw_Play__thrown
+    brl Character_Throw_Play__done
+Character_Throw_Play__thrown:
 
     rep #$31
 .a16
@@ -2164,8 +2188,42 @@ Character_Throw_Play__ordinary_land:
     lda #1
     sta CHAR_TICK_COUNTER
     rtl
-Character_Throw_Play__done:
+Character_Throw_Play__hole:
+    rep #$31
+.a16
+.i16
+    lda CHAR_THROW_ZPOS
+    clc
+    adc CHAR_THROW_ZVEL
+    sta CHAR_THROW_ZPOS
+    lda CHAR_THROW_ZVEL
+    clc
+    adc #JUMP_GRAVITY
+    sta CHAR_THROW_ZVEL
+    lda CHAR_THROW_ZPOS
+    cmp #$FA00                 ; PIT_DEPTH=-250 in Q8.8
+    bne Character_Throw_Play__hole_check_less
+    bra Character_Throw_Play__hole_reached
+Character_Throw_Play__hole_check_less:
+    bpl Character_Throw_Play__hole_still_falling
+Character_Throw_Play__hole_reached:
+    sep #$20
 .a8
+    lda #0
+    sta CHAR_HP
+    lda #CHAR_SELECTED_FALL
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rtl
+Character_Throw_Play__hole_still_falling:
+    sep #$20
+.a8
+    rtl
+Character_Throw_Play__done:
+    .a8
     rtl
 
 
@@ -2419,6 +2477,10 @@ AudioSemantic_EmitDiesound:
     beq AudioSemantic_EmitDiesound__slot2
     cmp #CHAR_ZP_LEN*3
     beq AudioSemantic_EmitDiesound__slot3
+    cmp #CHAR_ZP_LEN*4
+    beq AudioSemantic_EmitDiesound__slot4
+    cmp #CHAR_ZP_LEN*5
+    beq AudioSemantic_EmitDiesound__slot5
     sep #$20
 .a8
     lda #0
@@ -2437,8 +2499,23 @@ AudioSemantic_EmitDiesound__slot3:
     sep #$20
 .a8
     lda #3
+    bra AudioSemantic_EmitDiesound__slot_store
+AudioSemantic_EmitDiesound__slot4:
+    sep #$20
+.a8
+    lda #4
+    bra AudioSemantic_EmitDiesound__slot_store
+AudioSemantic_EmitDiesound__slot5:
+    sep #$20
+.a8
+    lda #5
 AudioSemantic_EmitDiesound__slot_store:
+.a8
+.i16
     sta.l AudioSemantic_CurrentActorSlot
+    lda.l Game_CampaignId
+    cmp #3
+    beq AudioSemantic_EmitDiesound__normal_load
     rep #$20
 .a16
     lda.l HitApply_EntityBase
@@ -2460,6 +2537,31 @@ AudioSemantic_EmitDiesound__roster_ok:
     .a8
     sta.l AudioSemantic_CurrentRoster
     lda.l AudioSemantic_DiesoundByRoster,x
+    bra AudioSemantic_EmitDiesound__check_identity
+AudioSemantic_EmitDiesound__normal_load:
+    rep #$20
+.a16
+    lda.l HitApply_EntityBase
+    tax
+    sep #$20
+.a8
+    lda.l AudioSemantic_EntityRoster,x
+    cmp #AUDIO_NORMAL_ROSTER_COUNT
+    bcc AudioSemantic_EmitDiesound__normal_roster_ok
+    jmp AudioSemantic_EmitDiesound__done
+AudioSemantic_EmitDiesound__normal_roster_ok:
+    rep #$30
+.a16
+.i16
+    and #$FF
+    tax
+    sep #$20
+.a8
+    sta.l AudioSemantic_CurrentRoster
+    lda.l AudioNormal_DiesoundByRoster,x
+AudioSemantic_EmitDiesound__check_identity:
+.a8
+.i16
     cmp #AUDIO_SEMANTIC_NONE
     bne AudioSemantic_EmitDiesound__identity_ok
     jmp AudioSemantic_EmitDiesound__done
@@ -2472,7 +2574,16 @@ AudioSemantic_EmitDiesound__identity_ok:
     inc
     sta.l AudioSemantic_FootDieRequestCount
 AudioSemantic_EmitDiesound__not_foot:
+    lda.l Game_CampaignId
+    cmp #3
+    beq AudioSemantic_EmitDiesound__normal_source
     lda.l AudioSemantic_DiesoundSourceByRoster,x
+    bra AudioSemantic_EmitDiesound__source_ready
+AudioSemantic_EmitDiesound__normal_source:
+    lda.l AudioNormal_DiesoundSourceByRoster,x
+AudioSemantic_EmitDiesound__source_ready:
+.a8
+.i16
     sta.l AudioStream_SourceId
     cmp #AUDIO_STREAM_SOURCE_NONE
     beq AudioSemantic_EmitDiesound__no_stream
@@ -2533,6 +2644,9 @@ AudioSemantic_EmitDiesound__overflow:
     inc
     sta.l AudioSemantic_TraceOverflow
 AudioSemantic_EmitDiesound__done:
+    rep #$30
+.a16
+.i16
     ply
     plx
     plp

@@ -7,7 +7,7 @@
 
 
 LAST_SONG_ID = 1
-N_SOUND_EFFECTS = 12
+N_SOUND_EFFECTS = 13
 
 ;; Song enum.
 ;; Input argument for `Tad_LoadSong`
@@ -33,4 +33,5 @@ N_SOUND_EFFECTS = 12
   sfx_spin = 9
   sfx_dash = 10
   sfx_metal = 11
+  sfx_timeover = 12
 .endenum
