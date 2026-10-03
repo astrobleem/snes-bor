@@ -1,0 +1,84 @@
+{
+  "entity": "Angel",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.27586206896551724,
+  "hotspot_canvas": [
+    13,
+    28
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        56,
+        105
+      ],
+      "bbox": null,
+      "attack": [
+        41,
+        18,
+        34,
+        84,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        56,
+        105
+      ],
+      "bbox": null,
+      "attack": [
+        30,
+        43,
+        59,
+        38,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        56,
+        105
+      ],
+      "bbox": null,
+      "attack": [
+        19,
+        67,
+        94,
+        20,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        56,
+        105
+      ],
+      "bbox": null,
+      "attack": [
+        17,
+        83,
+        94,
+        20,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

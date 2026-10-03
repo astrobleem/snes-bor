@@ -1,0 +1,94 @@
+{
+  "entity": "Mrbig",
+  "prefix": "out/mrbig",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/mrbig_idle",
+      "frames": 8
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/mrbig_walk",
+      "frames": 8
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/mrbig_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/mrbig_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/mrbig_rise",
+      "frames": 5
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/mrbig_attack1",
+      "frames": 14
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/mrbig_attack2",
+      "frames": 21
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      27518,
+      19165,
+      10844,
+      12760,
+      6583,
+      4369,
+      22,
+      0,
+      2320,
+      8237,
+      17,
+      13,
+      13,
+      0,
+      0
+    ]
+  ]
+}

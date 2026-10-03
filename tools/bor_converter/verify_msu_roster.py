@@ -123,12 +123,12 @@ def check_real_roster():
 
         print(f"  slot {slot} {prefix}: data_offset={data_offset} blob_size={cursor - data_offset} -- checked")
 
-    # Unused slots (2-7) must be fully zeroed.
-    for slot in range(len(prefixes), pmr.MAX_CHARACTERS):
-        off = pmr.DIRECTORY_BASE + slot * pmr.RECORD_SIZE
-        if msu_bytes[off:off + pmr.RECORD_SIZE] != b"\x00" * pmr.RECORD_SIZE:
-            print(f"  MISMATCH: unused slot {slot} is not fully zeroed")
-            mismatches += 1
+    # Only linked records are reserved. The first payload must follow them;
+    # unused hardware IDs are not phantom directory records inside that data.
+    first = parse_record(msu_bytes, 0)
+    if first['data_offset'] != pmr.roster_header_size(len(prefixes)):
+        print('  MISMATCH: first payload does not follow the linked directory')
+        mismatches += 1
 
     print(f"total file size: {len(msu_bytes)} bytes")
     print("PASS" if mismatches == 0 else f"FAIL ({mismatches} mismatches)")

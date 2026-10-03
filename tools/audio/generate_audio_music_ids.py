@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from shipped_content import STAGE_CONFIGS
+from shipped_content import SCENE_CONFIGS, STAGE_CONFIGS
 
 ROOT = Path(__file__).resolve().parents[2]
 def main() -> int:
@@ -12,7 +12,7 @@ def main() -> int:
     assets = [a for f in manifest["families"] for a in f["assets"] if a.get("track_key")]
     stages = []
     for stage in STAGE_CONFIGS:
-        level = stage["source_level"].upper()
+        level = stage.get("audio_source_level", stage["source_level"]).upper()
         refs = [r for a in assets for r in a["references"]
                 if r.get("reachability") == "shipped-reachable"
                 and a["family"] == stage["family"]
@@ -40,7 +40,7 @@ def main() -> int:
     text += "Music_StageRepeats:\n    .db " + ", ".join(str(value) for value in repeats) + "\n"
     boss_tracks = []
     for stage in STAGE_CONFIGS:
-        level = stage["source_level"].upper()
+        level = stage.get("audio_source_level", stage["source_level"]).upper()
         refs = [r for a in assets for r in a["references"]
                 if r.get("reachability") == "shipped-reachable"
                 and a["family"] == stage["family"]
@@ -61,7 +61,33 @@ def main() -> int:
         raise SystemExit(f"expected one reachable ending music directive for {ending_family}, got {len(ending_refs)}")
     text += "Music_EndingTrack = " + str(next(a["msu_track_id"] for a in assets if ending_refs[0] in a["references"])) + "\n"
     text += "Music_EndingRepeat = 1\n"
+    completion_key = "bor-original:DATA\\MUSIC\\COMPLETE.BOR"
+    if completion_key not in ids:
+        raise SystemExit("missing generated completion music mapping")
+    text += "Music_CompletionTrack = " + str(ids[completion_key]) + "\n"
+    text += "Music_CompletionRepeat = 0\n"
     text += f"Music_StageTrackCount = {len(STAGES)}\n"
+    scene_rows = []
+    for scene in SCENE_CONFIGS:
+        scene_file = scene["source_scene"].upper()
+        refs = [r for a in assets for r in a["references"]
+                if a["family"] == "bor-original"
+                and r.get("reachability") == "shipped-reachable"
+                and r.get("source_file", "").upper() == scene_file
+                and r.get("directive") == "music"]
+        if len(refs) != 1:
+            raise SystemExit(f"expected one authored scene music directive for {scene_file}, got {len(refs)}")
+        asset = next(a for a in assets if refs[0] in a["references"])
+        scene_rows.append((scene["scene_id"], asset["msu_track_id"],
+                           0 if refs[0].get("loop_argument") == "0" else 1))
+    text += "\nMusic_SceneTracks:\n    .db " + ", ".join(str(row[1]) for row in scene_rows) + "\n"
+    text += "Music_SceneRepeats:\n    .db " + ", ".join(str(row[2]) for row in scene_rows) + "\n"
+    text += "Music_SceneIds:\n    .dw " + ", ".join(str(index + 1) for index in range(len(scene_rows))) + "\n"
+    for index, (scene_id, _track, _repeat) in enumerate(scene_rows, 1):
+        text += f"Music_SceneId_{scene_id} = {index}\n"
+        text += f"Music_SceneTrack_{scene_id} = {_track}\n"
+        text += f"Music_SceneRepeat_{scene_id} = {_repeat}\n"
+    text += f"Music_SceneTrackCount = {len(scene_rows)}\n"
     (ROOT / "tools/audio/audio_music_ids.pasm").write_text(text, encoding="ascii")
     print("generated stage music IDs:", [ids[key] for key in STAGES])
     return 0

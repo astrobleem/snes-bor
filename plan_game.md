@@ -1,11 +1,24 @@
 # plan_game.md — from hardware proof-of-concept to a complete, releasable game
 
+> **Current G15 authority (2026-09-10):** Batch J/6AEASY is imported at
+> physical catalog index 20. The logical Easy campaign is
+> `1A -> 1B -> 1C -> 2EASY -> 3AEASY -> 3BEASY -> 3CEASY -> 4AEASY ->
+> 4BEASY -> 5AEASY -> 5BEASY -> 6AEASY -> 6BEASY -> TITLE`; physical catalog order remains separate from
+> logical campaign order. The authored `direction down` is represented by the
+> generic SCROLL_DOWN runtime, including repeating background rows and source
+> vertical drop entry. The
+> following source stage has not started.
+> 6AEASY's authored `direction left` is represented by generic SCROLL_LEFT;
+> `mirror 1` is an independent reflected-entity rendering flag.
+
 > **Source-fidelity correction (2026-09-09):** `STAGE_CONFIGS` is a physical
 > packed-stage catalog; it is not campaign progression. Build-generated
 > logical campaign maps now resolve BOR and TMNT authored `LEVELS.TXT` order
 > to physical entries. Standalone test/boss records are not implicit campaign
-> members. Current BOR ends at its temporary TITLE development boundary after
-> `1C`; Batch B/`2EASY` is not started. See
+> members. BOR Batch B/C/`2EASY`/`3AEASY` is implemented, including the
+> bounded source hole, Biker-K' runtime closure, and original 3AEASY boat
+> content; the logical campaign ends at its temporary TITLE development
+> boundary after `3AEASY`. See
 > [`docs/bor_source_fidelity_audit.md`](docs/bor_source_fidelity_audit.md) for
 > source-vs-runtime classifications. No gameplay-fidelity rewrite is implied.
 
@@ -31,9 +44,11 @@
 > and two-player/four-NPC regression are retained. Do not redesign transport,
 > increase actor count, add a script VM, or reopen unrelated audio work.
 > **Following milestone: G15 — finish the original Beats of Rage
-> campaign/content.** The source-fidelity audit and campaign/catalog
-> separation are now recorded; no 2EASY conversion has started. TEXT-1 is
-> closed at `3775afbc7af333853f852f6f1e2078949e509ebb`.
+> campaign/content.** P1 startup/player selection is CLOSED/ACCEPTED and
+> campaign/catalog separation and P1 represented-feature fidelity are
+> COMPLETE. G15 Batch B/C (`2EASY`/`3AEASY`) is implemented; remaining source gaps are
+> documented in the fidelity ledger. TEXT-1 is closed at
+> `3775afbc7af333853f852f6f1e2078949e509ebb`.
 >
 > Planning rule: new engine architecture is added only when reachable game
 > content proves that it is needed. Animation residency redesign, SA-1
@@ -641,21 +656,16 @@ selected index and the resulting state transition.
 > a shrinking value can never leave a stale trailing digit from a longer
 > previous draw.
 >
-> Scoring: `Character_HitApply_VsEntity1/2/3` (the player-lands-a-hit
-> leaves) now `jsr Game_Score_Award` right after their existing HP-clamp
-> step -- `HIT_SCORE` (10) always, `+KILL_SCORE` (90, a round 100 total)
-> when that hit also brings the target to exactly 0 HP. `Game_Score_Award`
-> also checks whether the addition crossed a new `EXTEND_LIFE_SCORE`
-> (5000) multiple and, if so, awards +1 `Game_Lives` -- reuses
-> `Core_Math_Div` (already used by `Text_DrawNumber__digit`) rather than a
-> new divide routine. `Character_HitApply_VsPlayer` (AI hits the player)
-> deliberately never calls this -- no score for taking damage. `Game_Score`
-> is a real, new piece of game state (`core/game_state.pasm`, alongside
-> `Game_Lives`/`Game_StageIndex`), clamped at 65535 (not wrapped --
-> `Core_Text_DrawNumber` only draws 16-bit values, a real documented
-> display ceiling), persists across a GAMEOVER continue (only zeroed at
-> boot, matching classic arcade convention of keeping score but resetting
-> lives on continue).
+> Scoring status: S1C now routes the existing `Game_Score_Award` wrapper
+> through the canonical BOR v1.0029 32-bit `addscore()` primitive: cap
+> `999999999`, derive `next1up` from the old score using 50,000, compare
+> strictly with `>`, and award every qualifying threshold to the owning
+> player's 16-bit life field. The exact-boundary skip is retained as a
+> source quirk, and one 1UP sound request is emitted per threshold award.
+> S1D now routes the represented ordinary player-hit event through source
+> `force * 5` scoring with no universal kill bonus; broader source call-site
+> migration remains bounded follow-up. `Character_HitApply_VsPlayer` still
+> awards no score. S1B already supplies the 32-bit HUD representation.
 >
 > **Real gate-writing lesson, not an engine bug**: an early version of
 > `game_g6_hud.py` tried forcing `CHAR_SELECTED=2` directly via WRAM write
@@ -1616,8 +1626,8 @@ before attributing either to this slice).
 > bank 8 for ROM budget, same pattern as this file's other routines).
 > Effects reuse this project's existing HP-clamp and `Game_Score`-clamp
 > idioms; a killing hit still also awards the ordinary combat
-> `HIT_SCORE+KILL_SCORE` on top (pre-existing behavior, unchanged by this
-> slice -- breaking a real item source nets both the fight-score and the
+> the source force-based combat award on top (pre-existing combat behavior,
+> unchanged by this slice -- breaking a real item source nets both the
 > item's own value).
 >
 > **Third slice DONE, same day: value-matched classification + full TMNT
@@ -2521,7 +2531,8 @@ pool's bank ownership; see `docs/text_drawstring_inherited_defect.md`.
 
 G15 Batch A is complete and accepted: the shipped original BOR prefix is
 `1AEASY -> 1BEASY -> 1CEASY` (3 of 14 Easy parts), while the existing TMNT
-development tail remains after it. Batch B is next, starting with `2EASY`.
+development boundary remains after it. Batch B is complete; later original BOR
+stage imports remain future work.
 The remaining campaign is still audit/plan-only at this point;
 the source-backed audit is `docs/g15_bor_campaign_audit.md`.
 

@@ -1,0 +1,60 @@
+{
+  "entity": "Mrbig",
+  "anim": "pain",
+  "loop": 0,
+  "scale": 0.41025641025641024,
+  "hotspot_canvas": [
+    14,
+    43
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        42,
+        110
+      ],
+      "bbox": [
+        18,
+        10,
+        51,
+        100
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 50,
+      "offset": [
+        42,
+        110
+      ],
+      "bbox": [
+        18,
+        10,
+        51,
+        100
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        42,
+        110
+      ],
+      "bbox": [
+        18,
+        10,
+        51,
+        100
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    }
+  ]
+}

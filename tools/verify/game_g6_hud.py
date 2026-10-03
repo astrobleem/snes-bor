@@ -9,7 +9,7 @@ G9) and adds SCORE/LIVES/STAGE text on the freed rows 1-3, plus a real
 scoring system: Character_HitApply_VsEntity1/2/3 (the player-lands-a-hit
 leaves) now jsr Game_Score_Award, which adds HIT_SCORE (+KILL_SCORE on a
 kill) to Game_Score and awards +1 Game_Lives on crossing an
-EXTEND_LIFE_SCORE multiple.
+the source 50,000 threshold.
 
 A REAL Y-button press (m.set_input, same mechanism phase8.py/phase12_roster.py
 already use for real dpad/Select input) drives the actual attack, not a
@@ -30,7 +30,7 @@ specifically excluded per mesen_screenshot_stale_hud_layer memory):
      "direct WRAM force is safe" pattern every gate this session uses, but
      the ATTACK itself is real button input) scores exactly HIT_SCORE when
      it doesn't kill, and HIT_SCORE+KILL_SCORE when it does.
-  2. Crossing EXTEND_LIFE_SCORE awards exactly +1 Game_Lives.
+  2. Crossing the source 50,000 threshold awards exactly +1 Game_Lives.
   3. After enough frames for Hud_Play__text's drip to catch up, BG3 tilemap
      rows 1/2/3 actually contain the SCORE/LIVES/STAGE labels (checked by
      decoding each row's first tile id back to its real glyph).
@@ -49,7 +49,7 @@ CHAR_HP_MAX = pasm_constant('CHAR_HP_MAX')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
 HIT_SCORE = pasm_constant('HIT_SCORE')
 KILL_SCORE = pasm_constant('KILL_SCORE')
-EXTEND_LIFE_SCORE = pasm_constant('EXTEND_LIFE_SCORE')
+SOURCE_SCORE_THRESHOLD = 50000
 HUD_TILE_CAP_LEFT = pasm_constant('HUD_TILE_CAP_LEFT')
 BG3_TILEMAP_WORD = pasm_constant('BG3_TILEMAP_VRAM_WORD')
 # FONT_TILE_INDEX_BASE is itself a computed expression in text.pasm, not a
@@ -156,14 +156,16 @@ def main():
 
         # --- extend-life threshold: force score to just under the next
         # multiple, then land one more guaranteed-non-killing HIT_SCORE hit. ---
-        lives_before = read_byte(m, Game_Lives)
-        just_under = ((score_after // EXTEND_LIFE_SCORE) + 1) * EXTEND_LIFE_SCORE - HIT_SCORE
+        lives_before = read_word(m, Game_Lives)
+        # S1C source contract: strict `new > next1up`; choose an old score
+        # that the existing temporary HIT_SCORE event crosses by one.
+        just_under = SOURCE_SCORE_THRESHOLD - HIT_SCORE + 1
         m.write_memory('snesMemory', Game_Score, f'{just_under & 0xFF:02X}{(just_under >> 8) & 0xFF:02X}')
         force_player_attack(m, CHAR_HP_MAX)
-        lives_after = read_byte(m, Game_Lives)
+        lives_after = read_word(m, Game_Lives)
         score_final = read_word(m, Game_Score)
         print(f'extend-life: score {just_under} -> {score_final}, lives {lives_before} -> {lives_after}')
-        r.check('crossing EXTEND_LIFE_SCORE awards exactly +1 life',
+        r.check('crossing source 50000 threshold awards exactly +1 life',
                 lives_after == lives_before + 1)
 
         # --- HUD text rows actually redrawn (give the drip several frames) ---

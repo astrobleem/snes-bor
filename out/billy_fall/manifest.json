@@ -1,0 +1,84 @@
+{
+  "entity": "Billy",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.24806201550387597,
+  "hotspot_canvas": [
+    16,
+    25
+  ],
+  "frames": [
+    {
+      "delay": 20,
+      "offset": [
+        66,
+        103
+      ],
+      "bbox": null,
+      "attack": [
+        47,
+        16,
+        50,
+        85,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        66,
+        103
+      ],
+      "bbox": null,
+      "attack": [
+        33,
+        20,
+        62,
+        74,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        66,
+        103
+      ],
+      "bbox": null,
+      "attack": [
+        18,
+        63,
+        54,
+        33,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 20,
+      "offset": [
+        66,
+        103
+      ],
+      "bbox": null,
+      "attack": [
+        17,
+        87,
+        92,
+        23,
+        12,
+        1
+      ],
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

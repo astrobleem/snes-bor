@@ -51,7 +51,11 @@ def main() -> int:
             if len(set(offsets)) != 1:
                 raise SystemExit(f"conflicting BOR loop offsets: {asset['source_path']}")
             offset = offsets[0]
-            repeat = True  # level music() and boss music() call the engine with loop=1
+            # Level/boss music keeps BOR's looping engine behavior.  A scene
+            # directive carries its own loop argument; Rugal's `music ... 0`
+            # is therefore the one current non-looping track.
+            repeat = not any(r.get("directive") == "music" and r.get("loop_argument") == "0"
+                             for r in asset["references"])
             meta = convert(bor, pcm, repeat=repeat, bor_loop_offset_bytes=offset)
             if hashlib.sha256(bor.read_bytes()).hexdigest() != source_hash:
                 raise SystemExit(f"source extraction drift: {asset['source_path']}")
@@ -65,6 +69,8 @@ def main() -> int:
                          "authored_loop_directive": loop_arguments,
                          "original_bor_loop": {"kind": "encoded-byte-offset", "offset_bytes": offset},
                          "repeat": repeat,
+                         "scene_audio": any("\\SCENES\\" in r.get("source_file", "")
+                                             for r in asset["references"]),
                          "bor_loop_offset_bytes": meta["bor_loop_offset_bytes"],
                          "decoded_source_loop_frame": meta["source_loop_frame"],
                          "msu_loop_frame": meta["msu_loop_frame"],

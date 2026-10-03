@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "record_size": 10,
+  "runtime_count_bits": 8,
+  "runtime_index_bits": 8,
+  "catalog_count_bits": 16,
+  "copy_count_bits": 16,
+  "arena_base": "0x7F9200",
+  "arena_end_exclusive": "0x7FA000",
+  "guard_bytes": 32,
+  "fault_bytes": 1
+}

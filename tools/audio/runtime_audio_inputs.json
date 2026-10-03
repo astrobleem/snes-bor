@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "inputs_sha256": {
+    "soundwork/tad/build/audio-data.bin": "4c2ff4eb3713c6ce7a511cccc07929fa140425441c659e365db63d6761aefe8f",
+    "soundwork/tad/build/audio-data.s": "a6d49d80f29b1a4e779ee0518f368e2f3701536098a5f645e8e5520bf3797b8b",
+    "soundwork/tad/build/audio-enums.inc": "34a4ba4f2da1060388aa6f3bc0d2c671c1ed8977e1cb54503ce630c329076390",
+    "soundwork/tad/build/tad_blob_syms.pasm": "ab2d71d082fc8b41123a58b074763fba42e430d665a7935634ba1aeeb5e39f52",
+    "soundwork/tad/project/02_coin.terrificaudio": "5e5d102833b7d40f6d09e1040f3348373810f50714f42a1d879566ee74fa7722",
+    "soundwork/tad/project/mml/00_blank.mml": "0e9a7efd04c96dc964c12454fe2b08b9536261e6640b769c21955a8ec536dc4c",
+    "soundwork/tad/project/samples/beat1.wav": "690e6c144dd3e4ef9eb674cb9a1f1d8d987bba4c6ec0338506ca3cb3e1544dbe",
+    "soundwork/tad/project/samples/beep.wav": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
+    "soundwork/tad/project/samples/beep2.wav": "9f1272b31b8c3299c0165de78e2e5bd6a8eba60fb7aefeeda820243b44b78456",
+    "soundwork/tad/project/samples/dash.wav": "d36cefbaf0cbe3270609ed5788393ab74760d8fb01f17d06f2f2757cf48dc64c",
+    "soundwork/tad/project/samples/fall.wav": "4a71174b6f9905fe6f9441b5f46c8429da0da2b75ae883b2933e5ae6d62f8f91",
+    "soundwork/tad/project/samples/get.wav": "0527be5a3d9755658523a5291fc8c39765ee21aebc062504ee52d3e878815419",
+    "soundwork/tad/project/samples/jump.wav": "d56fa9c2803e72f2d5823b93465cba4f397843ccbb8acb920a3043c92ff025e0",
+    "soundwork/tad/project/samples/metal.wav": "89b6561539c196f51fabbbe194889922a4400a89fd1fce5f14dbd7a384d61f57",
+    "soundwork/tad/project/samples/money.wav": "8e52c06220ad68518b1fbdd1ffe690f22a2baf14704323b7ead9dc1303f06922",
+    "soundwork/tad/project/samples/oneup.wav": "ecdb9f9aaf50beee4318e26b069be6c2ca99ae153b21872726bd5905a465309b",
+    "soundwork/tad/project/samples/punch.wav": "aefa21ba4960a65153ba6a2e2526f6c90d660afe7b3981d924da4dc3aee4f6e1",
+    "soundwork/tad/project/samples/spin.wav": "e94abcd89a43e535689641901b9b5990cf19c74aea231baf33482c01d9b3d0fa",
+    "soundwork/tad/project/samples/timeover.wav": "18ec5ae10c26a48755d08b845e3c7bba39f51404712c5964d7ab50207d89f30e",
+    "soundwork/tad/project/sound-effects.txt": "f00f80eb87d8baa04da8e2a0e52d0e8c6f9a08cd35b994814e7a7a5335b67b45"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "level_entry": "DATA\\EASY\\3AEASY.TXT",
+  "background": "data\\bgs\\boat2\\back.gif",
+  "panels": [
+    "data\\bgs\\boat2\\p00.gif",
+    "data\\bgs\\boat2\\p01.gif",
+    "data\\bgs\\boat2\\p02.gif",
+    "data\\bgs\\boat2\\p03.gif",
+    "data\\bgs\\boat2\\p04.gif",
+    "data\\bgs\\boat2\\p05.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 4800,
+  "height_px": 224,
+  "width_tiles": 600,
+  "height_tiles": 28,
+  "content_width_tiles": 600,
+  "unique_tiles": 1678,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 53696,
+  "tilemap_bytes": 50400,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

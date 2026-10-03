@@ -1,0 +1,33 @@
+{
+  "level_entry": "DATA\\EASY\\2EASY.TXT",
+  "background": "data\\bgs\\bridge\\harbor.gif",
+  "panels": [
+    "data\\bgs\\bridge\\bridge01.gif",
+    "data\\bgs\\bridge\\bridge02.gif",
+    "data\\bgs\\bridge\\bridge03.gif",
+    "data\\bgs\\bridge\\bridge04.gif",
+    "data\\bgs\\bridge\\bridge05.gif",
+    "data\\bgs\\bridge\\bridge06.gif",
+    "data\\bgs\\bridge\\bridge07.gif",
+    "data\\bgs\\bridge\\bridge08.gif",
+    "data\\bgs\\bridge\\bridge09.gif",
+    "data\\bgs\\bridge\\bridge10.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 3040,
+  "height_px": 224,
+  "width_tiles": 380,
+  "height_tiles": 28,
+  "content_width_tiles": 380,
+  "unique_tiles": 5943,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 190176,
+  "tilemap_bytes": 31920,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

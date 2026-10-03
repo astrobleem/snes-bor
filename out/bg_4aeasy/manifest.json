@@ -1,0 +1,28 @@
+{
+  "level_entry": "DATA\\EASY\\4AEASY.TXT",
+  "background": "data\\bgs\\pier\\back.gif",
+  "panels": [
+    "data\\bgs\\pier\\pier1.gif",
+    "data\\bgs\\pier\\pier2.gif",
+    "data\\bgs\\pier\\pier3.gif",
+    "data\\bgs\\pier\\pier4.gif",
+    "data\\bgs\\pier\\pier5.gif"
+  ],
+  "frontpanel": null,
+  "streaming": true,
+  "width_px": 3056,
+  "height_px": 224,
+  "width_tiles": 382,
+  "height_tiles": 28,
+  "content_width_tiles": 382,
+  "unique_tiles": 6879,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 220128,
+  "tilemap_bytes": 32088,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

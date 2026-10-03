@@ -1,0 +1,100 @@
+{
+  "entity": "Heavy",
+  "prefix": "out/heavy",
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/heavy_idle",
+      "frames": 7
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/heavy_walk",
+      "frames": 12
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/heavy_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/heavy_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/heavy_rise",
+      "frames": 7
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/heavy_attack1",
+      "frames": 10
+    },
+    {
+      "ordinal": 6,
+      "name": "special",
+      "dir": "out/heavy_special",
+      "frames": 19
+    },
+    {
+      "ordinal": 7,
+      "name": "upper",
+      "dir": "out/heavy_upper",
+      "frames": 8
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": 6,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 7,
+    "upper": 7,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31743,
+      29662,
+      26392,
+      18960,
+      2490,
+      15070,
+      13709,
+      7675,
+      19777,
+      16609,
+      3645,
+      1334,
+      12416,
+      174,
+      0
+    ]
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "entity": "Trolly",
+  "anim": "fall",
+  "loop": 0,
+  "scale": 0.5,
+  "hotspot_canvas": [
+    16,
+    30
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        34,
+        60
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

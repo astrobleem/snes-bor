@@ -1,0 +1,107 @@
+{
+  "entity": "Robert",
+  "prefix": "out/robert",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/robert_idle",
+      "frames": 10
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/robert_walk",
+      "frames": 5
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/robert_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/robert_fall",
+      "frames": 4
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/robert_rise",
+      "frames": 3
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/robert_attack1",
+      "frames": 17
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/robert_attack2",
+      "frames": 10
+    },
+    {
+      "ordinal": 7,
+      "name": "attack3",
+      "dir": "out/robert_attack3",
+      "frames": 7
+    },
+    {
+      "ordinal": 8,
+      "name": "upper",
+      "dir": "out/robert_upper",
+      "frames": 9
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": 7,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "upper": 8,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      31743,
+      21343,
+      31644,
+      15070,
+      26392,
+      7675,
+      0,
+      1334,
+      18960,
+      12586,
+      6583,
+      2320,
+      2057,
+      13,
+      0
+    ]
+  ]
+}

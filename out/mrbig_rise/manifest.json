@@ -1,0 +1,67 @@
+{
+  "entity": "Mrbig",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.29357798165137616,
+  "hotspot_canvas": [
+    14,
+    30
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        55,
+        109
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        55,
+        109
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        55,
+        109
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        55,
+        109
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        55,
+        109
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    }
+  ]
+}

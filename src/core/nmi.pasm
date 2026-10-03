@@ -217,6 +217,10 @@ Core_Nmi_Play:
     phb
     phd
 
+    ; S8 nominal-field timer must count busy/skipped visual commits too.
+    ; This private counter hook preserves registers and never touches PPU.
+    jsl StageTimer_NmiField
+
     sep #$20
 .a8
     lda #0
@@ -259,7 +263,7 @@ Core_Nmi_Play__do_commit:
     ; Phase 10 Step 2c (plan.md 2.10): same handoff for the BG3 frontpanel's
     ; own streaming resolver -- see Core_StreamScrollFp_CommitColumn's
     ; header comment.
-    jsr Core_StreamScrollFp_CommitColumn
+    jsl StageFp_BG2CommitDispatch
 
     sep #$20
 .a8

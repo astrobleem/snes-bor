@@ -1,0 +1,108 @@
+{
+  "entity": "Billy",
+  "anim": "walk",
+  "loop": 1,
+  "scale": 0.32323232323232326,
+  "hotspot_canvas": [
+    21,
+    34
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        64,
+        108
+      ],
+      "bbox": [
+        48,
+        9,
+        36,
+        101
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    }
+  ]
+}

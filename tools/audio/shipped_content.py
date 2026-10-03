@@ -1,7 +1,8 @@
 """Authoritative shipped BOR/TMNT stage and character source identities."""
 from __future__ import annotations
 
-STAGE_CONFIGS = [
+# Accepted encoded media, in legacy physical order; BOR progression is source-owned.
+STAGE_MEDIA_BINDINGS = [
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1AEASY.TXT", "bg": "out/bg_stage1a", "frontpanel": "out/fp_stage1a", "spawn": "out/spawn_stage1a/spawn_table.bin"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1BEASY.TXT", "bg": "out/bg_stage1b", "frontpanel": None, "spawn": "out/spawn_stage1b/spawn_table.bin"},
     {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\1CEASY.TXT", "bg": "out/bg_bor_1c", "frontpanel": None, "spawn": "out/spawn_bor_1c/spawn_table.bin"},
@@ -13,24 +14,34 @@ STAGE_CONFIGS = [
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\STREETS2.TXT", "bg": "out/bg_stage7streets2", "frontpanel": None, "spawn": "out/spawn_stage7streets2/spawn_table.bin"},
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\SEWER.TXT", "bg": "out/bg_stage8sewer", "frontpanel": None, "spawn": "out/spawn_stage8sewer/spawn_table.bin"},
     {"family": "tmnt", "pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak", "source_level": "DATA\\LEVELS\\FOOT.TXT", "bg": "out/bg_stage9foot", "frontpanel": None, "spawn": "out/spawn_stage9foot/spawn_table.bin"},
+    # Appended after the accepted TMNT/test catalog so physical indices stay
+    # stable; BOR campaign resolution is by source identity.
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\2EASY.TXT", "bg": "out/bg_2easy", "frontpanel": None, "spawn": "out/spawn_2easy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\3AEASY.TXT", "bg": "out/bg_3easy", "frontpanel": None, "spawn": "out/spawn_3easy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\3BEASY.TXT", "bg": "out/bg_3beasy", "frontpanel": "out/fp_3beasy", "spawn": "out/spawn_3beasy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\3CEASY.TXT", "bg": "out/bg_3ceasy", "frontpanel": "out/fp_3ceasy", "spawn": "out/spawn_3ceasy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\4AEASY.TXT", "bg": "out/bg_4aeasy", "frontpanel": None, "spawn": "out/spawn_4aeasy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\4BEASY.TXT", "bg": "out/bg_4beasy", "frontpanel": "out/fp_4beasy", "spawn": "out/spawn_4beasy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\5AEASY.TXT", "bg": "out/bg_5aeasy", "frontpanel": None, "spawn": "out/spawn_5aeasy/spawn_table.bin", "scroll_direction": "down"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\5BEASY.TXT", "bg": "out/bg_5beasy", "frontpanel": None, "spawn": "out/spawn_5beasy/spawn_table.bin"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6AEASY.TXT", "bg": "out/bg_6aeasy", "frontpanel": "out/fp_6aeasy", "spawn": "out/spawn_6aeasy/spawn_table.bin", "scroll_direction": "left", "source_direction": "left", "source_mirror": True},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6BEASY.TXT", "bg": "out/bg_6beasy", "frontpanel": "out/fp_6beasy", "spawn": "out/spawn_6beasy/spawn_table.bin", "scroll_direction": "left", "source_direction": "left"},
+    {"family": "bor-original", "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_level": "DATA\\EASY\\6CEASY.TXT", "bg": "out/bg_6ceasy", "frontpanel": "out/fp_6ceasy", "spawn": "out/spawn_6ceasy/spawn_table.bin"},
 ]
 
-# Logical authored campaigns are deliberately separate from STAGE_CONFIGS.
-# STAGE_CONFIGS is the physical MSU asset catalog; these source identities
-# come from each pak's LEVELS file and are resolved to physical indices by
-# build_rom.py. Keep incomplete BOR coverage explicit rather than allowing
-# the packed catalog tail to become an accidental campaign continuation.
+# Legacy physical ABI pins, expressed as source-stage ordinals (scenes do not
+# consume catalog slots). The linker appends Normal in source order after the
+# accepted Easy/foreign media. These ranges pin IDs, never campaign length.
+LEGACY_BOR_STAGE_IDS = {
+    "Easy": (0, 1, 2, *range(11, 22)),
+    "Normal": tuple(range(22, 32)),
+}
+LEGACY_FOREIGN_STAGE_IDS = tuple(range(3, 11))
+STAGE_CONFIGS = STAGE_MEDIA_BINDINGS
+
+# Only foreign campaigns require explicit bindings here. The compiler creates
+# both BOR campaigns, including scene positions and next boundaries, from source.
 CAMPAIGN_CONFIGS = {
-    "BOR_ORIGINAL": {
-        "family": "bor-original",
-        "source_levels_file": "DATA\\LEVELS.TXT",
-        "source_levels": [
-            "DATA\\EASY\\1AEASY.TXT",
-            "DATA\\EASY\\1BEASY.TXT",
-            "DATA\\EASY\\1CEASY.TXT",
-        ],
-        "incomplete_boundary": "TITLE",
-    },
     "TMNT": {
         "family": "tmnt",
         "source_levels_file": "DATA\\LEVELS00.TXT",
@@ -82,7 +93,56 @@ ROSTER_CONFIGS = [
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MAXIMA", "converted_prefix": "out/maxima", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MARY", "converted_prefix": "out/mary", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MIGHTY", "converted_prefix": "out/mighty", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\HEAVY", "converted_prefix": "out/heavy", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\FENCE", "converted_prefix": "out/fence", "playable": False},
+    # Original BOR subtype biker. Runtime-only; never part of normal player
+    # selection. Its sparse idle/pain model is consumed by the biker state
+    # machine rather than by the ordinary walk/attack animation path.
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\BIKER-K", "converted_prefix": "out/biker_k", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\ANGEL", "converted_prefix": "out/angel", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\SHERMIE", "converted_prefix": "out/shermie", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\K", "converted_prefix": "out/k_prime", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\BILLY", "converted_prefix": "out/billy", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\BOX", "converted_prefix": "out/box", "playable": False},
+    # G15-E 3CEASY-only runtime identities; appended to preserve prior indices.
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\FURNACE", "converted_prefix": "out/furnace", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\STEAMER", "converted_prefix": "out/steamer", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\CRATE", "converted_prefix": "out/crate", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\ROBERT", "converted_prefix": "out/robert", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\STEAM", "converted_prefix": "out/steam", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\DRUM", "converted_prefix": "out/drum", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\K9999", "converted_prefix": "out/k9999", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\EIJI", "converted_prefix": "out/eiji", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MRBIG", "converted_prefix": "out/mrbig", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TROLLY", "converted_prefix": "out/trolly", "playable": False},
+    # G15-M 6CEASY runtime-only boss identity; never selectable.
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\RUGAL", "converted_prefix": "out/rugal", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\RAMON", "converted_prefix": "out/ramon", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (1,), "accepted_legacy_unbound_sets": (0,)},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TIME", "converted_prefix": "out/time", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (1,), "accepted_legacy_unbound_sets": (0,)},
 ]
+
+# Scene support is intentionally explicit and narrow.  Rugal is the only
+# source scene currently entered by the BOR runtime (through the direct scene
+# video test seam); other scene assets remain source-present but unreachable.
+SCENE_CONFIGS = [
+    {"scene_id": "RUGAL", "runtime_id": 1,
+     "source_scene": "DATA\\SCENES\\RUGAL.TXT"},
+    {"scene_id": "ENDING", "runtime_id": 2,
+     "source_scene": "DATA\\SCENES\\ENDING.TXT"},
+]
+
+# BOR.C showcomplete() is an authored, non-looping completion presentation
+# between every `gonext` level, including 6CEASY before ENDING.  Keep this
+# source-backed declaration separate from campaign scenes: it is completion
+# presentation audio, not a campaign entry.
+BOR_COMPLETION_MUSIC = {
+    "family": "bor-original",
+    "source_path": "DATA\\MUSIC\\COMPLETE.BOR",
+    "source_file": "BOR.C:showcomplete()",
+    "loop_argument": "0",
+}
 
 # Source authority is the PAK's MODELS.TXT plus each referenced model's
 # `type` directive.  The existing runtime roster is broader than normal source
@@ -159,3 +219,14 @@ def shipped_characters() -> dict[str, set[str]]:
 
 def shipped_levels(family: str) -> set[str]:
     return {stage["source_level"].split("\\")[-1] for stage in STAGE_CONFIGS if stage["family"] == family}
+
+
+# Source owns the complete selected campaigns. The preceding records are
+# accepted encoded-media/physical-ID bindings, not logical progression.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / 'bor_compile'))
+from production_campaign import link_campaigns as _link_campaigns
+STAGE_CONFIGS, CAMPAIGN_CONFIGS, COMPILER_CAMPAIGN_COVERAGE = _link_campaigns(
+    STAGE_CONFIGS, CAMPAIGN_CONFIGS, SCENE_CONFIGS,
+    legacy_stage_ids=LEGACY_BOR_STAGE_IDS)

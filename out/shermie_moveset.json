@@ -1,0 +1,130 @@
+{
+  "entity": "Shermie",
+  "prefix": "out/shermie",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/shermie_idle",
+      "frames": 8
+    },
+    {
+      "ordinal": 1,
+      "name": "walk",
+      "dir": "out/shermie_walk",
+      "frames": 12
+    },
+    {
+      "ordinal": 2,
+      "name": "pain",
+      "dir": "out/shermie_pain",
+      "frames": 3
+    },
+    {
+      "ordinal": 3,
+      "name": "fall",
+      "dir": "out/shermie_fall",
+      "frames": 5
+    },
+    {
+      "ordinal": 4,
+      "name": "rise",
+      "dir": "out/shermie_rise",
+      "frames": 6
+    },
+    {
+      "ordinal": 5,
+      "name": "attack1",
+      "dir": "out/shermie_attack1",
+      "frames": 6
+    },
+    {
+      "ordinal": 6,
+      "name": "attack2",
+      "dir": "out/shermie_attack2",
+      "frames": 12
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": 1,
+    "pain": 2,
+    "fall": 3,
+    "rise": 4,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": 5,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": 6,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": [
+    [
+      0,
+      3229,
+      22,
+      21343,
+      17,
+      15070,
+      10844,
+      0,
+      13,
+      5462,
+      1334,
+      11569,
+      2057,
+      2320,
+      2320,
+      0
+    ],
+    [
+      0,
+      11034,
+      8959,
+      21343,
+      3645,
+      15070,
+      10844,
+      0,
+      1334,
+      5462,
+      7596,
+      11569,
+      2320,
+      10502,
+      3368,
+      0
+    ],
+    [
+      0,
+      18881,
+      14729,
+      21343,
+      10502,
+      15070,
+      10844,
+      0,
+      5283,
+      5462,
+      1334,
+      11569,
+      5283,
+      8237,
+      174,
+      0
+    ]
+  ]
+}

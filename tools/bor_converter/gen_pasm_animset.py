@@ -90,7 +90,12 @@ def load_manifest(anim_dir):
     with open(os.path.join(anim_dir, "manifest.json"), "r", encoding="utf-8") as f:
         m = json.load(f)
     frame_count = len(m["frames"])
-    delays = [f["delay"] for f in m["frames"]]
+    # This is the ACCEPTED_COMPAT animation adapter, not SOURCE_EXACT.
+    # A missing authored delay uses the target's zero-delay default. BOR's
+    # model loader initializes delay=0 (BOR.C:1231); sparse, entirely
+    # delay-free models previously crashed median(None). Preserve authored
+    # metadata in the manifest, and retain the existing median policy here.
+    delays = [0 if f["delay"] is None else f["delay"] for f in m["frames"]]
     delay = int(round(statistics.median(delays)))
     return frame_count, delay
 

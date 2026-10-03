@@ -1,4 +1,5 @@
 ; ============================================================================
+
 ; core/game_state.pasm -- Phase G2 (plan_game.md 2): the game state machine.
 ;
 ; Game_State_Play is the single entry point for the normal state machine.
@@ -23,10 +24,11 @@ GAME_STATE_PLAYING    = 0
 GAME_STATE_TITLE      = 1   ; title screen, waiting for Start
 GAME_STATE_CHARSELECT = 2   ; source-normal set/player select flow
 GAME_STATE_PAUSED     = 3   ; frozen, pause menu drawn (stub content, real freeze)
-GAME_STATE_GAMEOVER   = 4   ; game over, continue countdown (Phase G3 -- real, see below)
+GAME_STATE_GAMEOVER   = 4   ; source GAME OVER presentation, then TITLE
 GAME_STATE_STAGECLEAR = 5   ; stage cleared, transition (Phase G4 -- real, see below)
 GAME_STATE_ENDING     = 6   ; Phase G10 (plan_game.md 10): real ending/
                              ; credits sequence -- see core/ending.pasm.
+GAME_STATE_SCENE_FRAME = 7  ; L3A isolated one-frame scene-video test
 GAME_STATE_INTRO      = $8001 ; source LOGO/INTRO scene adaptation
 
 Game_State     = $7E2750   ; .dw -- current state, see GAME_STATE_* above
@@ -153,46 +155,42 @@ CharSelect_NextStep = $7E276B   ; .db -- before-the-call parameter cell for
 ; before Game_State_HandlePlayerDeath below reacts to CHAR_HP==0.
 ; ============================================================================
 
-GAME_LIVES_START             = 20    ; arbitrary arcade-style default; BOR
-                                       ; itself has no lives concept, this
-                                       ; project's own choice for a loss loop.
-                                       ; Set deliberately high (not a balance
-                                       ; choice): with 3, unattended AI combat
-                                       ; drove Game_Lives to 0 and reached
-                                       ; GAME_STATE_GAMEOVER by ~frame 1200 in
-                                       ; measured testing, and GAMEOVER skips
-                                       ; Game_State_Play__playing's entire body
-                                       ; (no Oop/Oam/Screen/streaming) -- long
-                                       ; verify gates (phase6.py alone runs
-                                       ; ~1720 cumulative frames with no player
-                                       ; input) were one unlucky combat RNG
-                                       ; roll from silently freezing mid-gate.
-                                       ; 20 gives ~6000 frames of organic-death
-                                       ; margin at the measured ~1 life/300f
-                                       ; rate -- real difficulty tuning is a
-                                       ; later phase's job, not this one's.
-PLAYER_RESPAWN_INVULN_FRAMES = 90     ; ~1.5s @ 60Hz
+GAME_LIVES_START             = 3     ; original BOR joined-player stock.
+                                       ; This is the source foundation only;
+                                       ; death/continue behavior remains the
+                                       ; later P1-L2/L3 correction slice.
+PLAYER_RESPAWN_INVULN_FRAMES = 90     ; retained generic compatibility storage;
+                                       ; BOR respawn no longer grants it
 PLAYER_RESPAWN_X_MARGIN      = 16     ; px inset from the camera's left edge,
                                        ; so the respawned player isn't flush
                                        ; against the screen boundary
 PLAYER_RESPAWN_Y             = 150    ; matches CharacterEntity_Init__player's
                                        ; own boot default
-GAME_OVER_CONTINUE_FRAMES    = 300    ; ~5s @ 60Hz to press Start before
-                                       ; falling back to GAME_STATE_TITLE
+; Source BOR's all-player-absent window is 10 * COUNTER_SPEED, or half a
+; counter second when no credits remain. These are the 60 Hz SNES equivalents
+; of those source timing relationships, not a continue countdown.
+BOR_ALL_OUT_GRACE_FRAMES      = 600
+BOR_NO_CREDIT_GRACE_FRAMES    = 30
+BOR_GAME_OVER_DISPLAY_FRAMES  = 480   ; source game_speed * 8 ~= 8 seconds
 
-Game_Lives             = $7E2754   ; .db -- remaining lives; a death at 0
-                                    ; lives triggers GAME_STATE_GAMEOVER
-                                    ; instead of a respawn
-Player_InvulnFrames    = $7E2755   ; .db -- brief post-respawn invulnerability
-                                    ; countdown; Character_HitApply_VsPlayer
-                                    ; skips stun/damage entirely while nonzero
-GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
-                                    ; GAME_STATE_GAMEOVER falls back to TITLE;
-                                    ; set once on the transition INTO
-                                    ; GAMEOVER (see
-                                    ; Game_State_HandlePlayerDeath), not
-                                    ; lazily -- ticking a stale/garbage value
-                                    ; down would be wrong on first entry
+P1_Lives16             = $7E58E1   ; .dw -- canonical unsigned P1 stock
+P2_Lives16             = $7E58E3   ; .dw -- canonical unsigned P2 stock
+Game_Lives             = $7E58E1   ; compatibility name for P1_Lives16
+G13_P2Lives            = $7E58E3   ; compatibility name for P2_Lives16
+                                    ; zero stock makes
+                                    ; the player OUT, and all-absent service
+                                    ; decides whether GAME OVER is reached
+Game_Credits           = $7E2694   ; .db -- one run-global BOR credit count;
+                                    ; reclaimed from the retired, grep-confirmed
+                                    ; CharDirSeekTmp scratch. Initialized at the
+                                    ; canonical new-run/player-selection reset;
+                                    ; not mirrored per player and not changed by
+                                    ; ordinary stage progression.
+Player_InvulnFrames    = $7E2755   ; .db -- generic compatibility countdown;
+                                    ; BOR source respawn does not write it
+GameOver_ContinueTimer = $7E2756   ; .dw -- source all-OUT grace timer, then
+                                    ; GAME OVER display timer; never restores
+                                    ; a player and never consumes a credit
 
 ; ============================================================================
 ; Phase G4 (plan_game.md 4): win condition and stage transition.
@@ -210,9 +208,9 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
 ; the player walk to Screen_MaxX from frame 1 would make "win" trivial and
 ; instant. Rather than hand-author a per-level "combat zone" table this
 ; project doesn't have, the hold boundary is DERIVED from data the level
-; already has: core/spawn.pasm's Spawn_LastTriggerX -- the trigger_x of the
-; stage's own LAST spawn record (spawn tables are packed in ascending
-; trigger order, so this is always the highest trigger in the table), which
+; already has: core/spawn.pasm's Spawn_LastTriggerX -- the highest trigger_x
+; anywhere in the stage's authored queue (record order is preserved and
+; trigger coordinates are not guaranteed to be monotonic), which
 ; is already expressed in the same Screen_PosX camera-space units Screen_MaxX
 ; itself uses. Stage_Load clamps Screen_MaxX down to this value at load
 ; time; Game_State_Play__playing's win check raises it back to the stage's
@@ -254,7 +252,7 @@ GameOver_ContinueTimer = $7E2756   ; .dw -- frames left to press Start before
 ; it against the packed bor.msu's real bg_count.
 ; ============================================================================
 
-STAGE_COUNT = 11  ; physical BG/FP/spawn catalog length; not campaign length
+.include "../generated/campaign_layout.pasm"
 
 ; Campaign maps are generated from authored LEVELS files and source identities.
 ; Game_StageIndex remains the physical packed-stage selector; campaign state
@@ -266,6 +264,12 @@ CAMPAIGN_STANDALONE_TEST_CONTENT = 2
 
 Game_CampaignId      = $7E275E ; .db -- BOR, TMNT, or standalone dev context
 Game_CampaignOrdinal = $7E275F ; .db -- ordinal within the active campaign
+
+; BOR source set identity is separate from campaign/stage identity. These
+; cells are session state; the completion count itself lives in options.pasm.
+BorSet_Selected       = $7E27A0 ; .db -- positional source set ID
+BorSet_RunActive      = $7E27A1 ; .db -- selected BOR run is in progress
+BorSet_CompletionCredited = $7E27A2 ; .db -- exactly-once per-run latch
 
 Game_StageIndex   = $7E2758   ; .dw -- 0-based index of the currently loaded
                                ; stage; Bg_LoadScene_StageIndex (main.pasm)
@@ -285,6 +289,16 @@ Stage_LoadPending = $7E275D   ; .db -- set the same frame Game_State enters
                                ; transition-edge OAM-hide at the top of
                                ; Game_State_Play runs first, same discipline
                                ; as every other PLAYING exit)
+Stage_ScrollDirection = $7E27AE ; .db -- physical stage direction from the
+                                ; generated Stage_ScrollDirectionMap
+Stage_Mirror          = $7E27AF ; .db -- source level mirror flag
+
+; 5AEASY's source `advancey` is 0.5 BOR pixels every GAME_SPEED/100 tick.
+; At 60Hz this is 50 source px/s, or 40 SNES px/s after the established 0.8
+; scene scale. Screen_PosY is the scaled levelpos; its fractional byte carries
+; the exact 2/3-pixel-per-frame adaptation and Nmi_Bg1ScrollY applies BOR's
+; background offset (advancey/2) by halving the integer progress.
+STAGE_DOWN_STEP_FRAC = 171
 
 ; ============================================================================
 ; Phase G6 (plan_game.md 6): score.
@@ -292,25 +306,29 @@ Stage_LoadPending = $7E275D   ; .db -- set the same frame Game_State enters
 ; Game_Score is the only new piece of game STATE this phase adds -- the HUD
 ; redesign that displays it (dropping the 3 raw AI HP bars for SCORE/LIVES/
 ; STAGE text rows) lives in main.pasm's Hud_Play, since that's where the BG3
-; tilemap/DMA machinery already is. Game_Score_Award (also main.pasm, next
-; to Character_HitApply which is its only caller) is the single place score
-; is ever added, so EXTEND_LIFE_SCORE's threshold check has one call site to
-; reason about, not three (one per Character_HitApply_VsEntityN).
+; tilemap/DMA machinery already is. S1C routes every existing score event
+; through the canonical 32-bit G13_PlayerScore_Add32 primitive. Event-specific
+; award amounts remain the temporary S1D-deferred values.
 ; ============================================================================
 
-Game_Score = $7E2761   ; .dw -- 0..65535, clamped (not wrapped -- a wrap would
-                        ; read as a score DROP, worse than a stuck ceiling).
-                        ; Core_Text_DrawNumber only draws 16-bit values, so
-                        ; this ceiling is a real, documented display limit,
-                        ; not an arbitrary safety margin.
-Game_ScoreAwardScratch      = $7E2763   ; .dw -- Game_Score_Award's own scratch
-Game_ScoreOldQuotientScratch = $7E2765  ; .dw -- ditto (see main.pasm's
-                                         ; Game_Score_Award for both)
-; G13: P2's score/lives are standalone player-owned state.  These cells sit
-; in the verified gap before CharSelect_Step and do not alter the actor
-; record or the fixed DP layout.
-G13_P2Score            = $7E2767 ; .dw
-G13_P2Lives            = $7E2769 ; .db
+; S1A: canonical score/cache fields occupy the audited free block after G12.
+; Compatibility names below alias the low words only; they do not allocate a
+; second score copy. Existing 16-bit scoring remains unchanged until later
+; source-scoring slices, so the high words are kept zero by reset paths.
+Game_Score32             = $7E58D1   ; 4B, little-endian canonical P1 score
+G13_P2Score32            = $7E58D5   ; 4B, little-endian canonical P2 score
+HudCachedScore32         = $7E58D9   ; 4B, little-endian P1 HUD cache
+HudCachedP2Score32       = $7E58DD   ; 4B, little-endian P2 HUD cache
+
+Game_Score               = $7E58D1            ; compatibility low-word alias
+G13_S1D_TestForce           = $7E2763   ; .db -- verification-only force input
+G13_S1C_TestRequest         = $7E2765   ; .dw -- verification-only trigger;
+                                         ; $51C0 invokes one request using
+                                         ; VmArith_Lo/Hi and the owner selector.
+; G13: P2's score/lives are standalone player-owned state.  The score and
+; life fields occupy the separately audited post-G12 block and do not alter
+; the actor record or fixed DP layout.
+G13_P2Score            = $7E58D5              ; compatibility low-word alias
 
 ; G7 second slice: post-hit invulnerability frames for AI entities, mirroring
 ; Player_InvulnFrames above but kept as standalone scalar bytes rather than a
@@ -347,9 +365,11 @@ Entity5_InvulnFrames = $7E58B5
 ; of re-asserting width at entry rather than trusting the caller).
 ; ----------------------------------------------------------------------
 Game_State_Play:
+    jsl StageWater_Begin
     php
     rep #$31
 .a16
+    jsl StageTimerHost_FrameService
     lda Game_State
     cmp Game_StatePrev
     beq Game_State_Play__no_transition
@@ -407,10 +427,22 @@ Game_State_Play__check_title:
     beq Game_State_Play__title
 Game_State_Play__check_intro:
     .a16
+    ; GAME_STATE_SCENE_FRAME is a positive value and must be tested before
+    ; the signed INTRO shortcut below, which otherwise catches every state
+    ; below $8000 as non-intro.
+    cmp #GAME_STATE_SCENE_FRAME
+    bne Game_State_Play__check_intro_state
+    brl Game_State_Play__scene_frame
+Game_State_Play__check_intro_state:
+    rep #$31
+.a16
+.i16
     ; All ordinary states here are positive; INTRO uses the high bit so the
     ; sign result from the TITLE comparison is a compact dispatch test.
-    bpl Game_State_Play__check_charselect
+    cmp #GAME_STATE_INTRO
+    bne Game_State_Play__check_charselect
     jsl Game_State_Play__intro
+    jmp Game_State_Play__done
 Game_State_Play__check_charselect:
     ; width already .a16 here -- check_title's own `rep #$30` just above
     ; runs unconditionally before either branch reaches this label.
@@ -458,6 +490,12 @@ Game_State_Play__not_stageclear:
     ; main.pasm's Stage_LoadAndRespawn_Long comment for the same crunch).
     jsl Game_State_Play__ending
 Game_State_Play__not_ending:
+    .a16
+    cmp #GAME_STATE_SCENE_FRAME
+    bne Game_State_Play__not_scene_frame
+Game_State_Play__scene_frame:
+    jsl SceneVideo_FrameTestHandler
+Game_State_Play__not_scene_frame:
     ; Nothing else defined yet -- Core_Nmi_WaitFrame (scpu_main_loop)
     ; already keeps pacing correct, nothing else needs to run here.
     jmp Game_State_Play__done
@@ -632,30 +670,13 @@ Game_State_Play__paused:
     jmp Game_State_Play__done
 
 Game_State_Play__gameover:
-    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
-.a16
-    ; Phase G3: continue countdown. Start before GameOver_ContinueTimer
-    ; hits 0 continues (fresh lives, full respawn, back to PLAYING);
-    ; letting it expire falls back to GAME_STATE_TITLE -- the existing
-    ; "nothing is running" holding state (G2). There's no better fallback
-    ; yet; a real "insert coin"/attract-mode content is G5's job.
-    jsl G13_HandleGameoverContinue
-    bcc Game_State_Play__gameover_no_continue
-    jmp Game_State_Play__done
-Game_State_Play__gameover_no_continue:
-    lda.l GameOver_ContinueTimer
-    beq Game_State_Play__gameover_timeout
-    dec a
-    sta.l GameOver_ContinueTimer
-    jmp Game_State_Play__done
-Game_State_Play__gameover_timeout:
-    ; width still .a16 -- same reasoning as Game_State_Play__playing above.
-.a16
-    jsl G13_DisableP2Session
-    lda #GAME_STATE_TITLE
-    sta.l Game_State
+    ; The long handler owns source GAME OVER presentation and TITLE return.
+    jsl Game_State_Play__gameover_Long
     jmp Game_State_Play__done
 
+; ----------------------------------------------------------------------
+; The rest of the game-state bank follows below.
+; ----------------------------------------------------------------------
 Game_State_Play__playing:
     ; width still .a16 -- reached only via the unconditional jmp above,
     ; itself reached with .a16 already active (see check_title's own
@@ -667,7 +688,7 @@ Game_State_Play__playing:
     ; bank-0 routine's own footprint minimal -- see that file's own
     ; Game_State_Pause_CheckEntry for the full check/set logic; carry
     ; comes back set only if PAUSED was just entered this frame.
-    jsl G13_HandleOutContinue
+    jsl StageTimerHost_HandleContinue
     bcc Game_State_Play__no_out_continue
     brl Game_State_Play__done
 Game_State_Play__no_out_continue:
@@ -684,13 +705,25 @@ Game_State_Play__no_pause_press:
     ; frame before, via the normal collision pass) -- that one frame of
     ; latency is harmless: the player is exempt from every AI-only dead
     ; check, so it just plays one more ordinary (already-stunned) frame.
-    jsl G13_HandleP2Death
+    jsl StageTimerHost_ServiceDeaths
     bcc Game_State_Play__no_death
+    ; An already-OUT player is still a handled lifecycle state. Give the
+    ; all-absent source terminal service a chance before stopping this frame.
+    jsl StageTimerHost_CheckAllOut
     jmp Game_State_Play__done
 Game_State_Play__no_death:
     ; width already .a16 on both paths in here (neither the bne above nor
     ; the beq above it changes width) -- no rep needed.
 .a16
+    ; Source BOR keeps an all-absent run alive for the credit/re-entry window.
+    ; A successful OUT-player join clears this timer before this check runs.
+    jsl StageTimerHost_CheckAllOut
+    bcc Game_State_Play__no_all_out
+    jmp Game_State_Play__done
+Game_State_Play__no_all_out:
+    rep #$31
+.a16
+.i16
     ; Phase G3: tick the post-respawn invulnerability window down once per
     ; frame regardless of whether a hit actually lands this frame --
     ; Character_HitApply_VsPlayer only READS this, never decrements it.
@@ -783,9 +816,27 @@ Game_State_Play__stage_check_edge:
     rep #$31
 .a16
 .i16
+    lda.l Stage_ScrollDirection
+    and #$00FF
+    cmp #STAGE_SCROLL_DOWN
+    beq Game_State_Play__stage_check_vertical_edge
+    cmp #STAGE_SCROLL_LEFT
+    beq Game_State_Play__stage_check_left_edge
     lda.l Screen_PosX
     cmp.l Stage_TrueMaxX
     bcc Game_State_Play__stage_no_win
+    bra Game_State_Play__stage_edge_ready
+Game_State_Play__stage_check_left_edge:
+    lda.l Screen_PosX
+    cmp.l Screen_MinX
+    bcc Game_State_Play__stage_edge_ready
+    beq Game_State_Play__stage_edge_ready
+    bra Game_State_Play__stage_no_win
+Game_State_Play__stage_check_vertical_edge:
+    lda.l Screen_PosY
+    cmp Screen_MaxY
+    bcc Game_State_Play__stage_no_win
+Game_State_Play__stage_edge_ready:
     sep #$20
 .a8
     lda #1
@@ -805,6 +856,7 @@ Game_State_Play__stage_no_win:
     ; The body every gate today already exercises from boot -- moved
     ; here verbatim from scpu_main_loop, same call order, same comments
     ; preserved at each call site below.
+    jsl StageBoundsHost_Physics
     jsr Core_Oop_Play
     ; Actor depth-sort slice (plan_game.md 7): emits this frame's OAM
     ; entries for all 4 fixed entities in real ground-depth order, now that
@@ -817,7 +869,11 @@ Game_State_Play__stage_no_win:
     ; core/depth_sort.pasm's own bank (.bank 9), same ROM-budget reason as
     ; the other .bank-N modules; ends in rtl.
     jsl Character_RenderPass
+    lda.l SourceVisual_AfterPassCount
+    inc a
+    sta.l SourceVisual_AfterPassCount
     jsr Core_Screen_Play
+    jsl Stage_ScrollPlay
     ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
     ; call per frame, same as the two lines above. Vm_Run itself is a
     ; no-op once the loaded script has reached VMSTAT_DONE/VMSTAT_FAULT,
@@ -866,10 +922,17 @@ Game_State_Play__stage_no_win:
     ; dirty-gated and enqueues nothing on a frame where no HP changed -- see its
     ; header for why that matters to the vblank budget.
     jsr Hud_Play
+Game_State_Play__after_hud:
+    ; Pair the outgoing OAM shadow with StageWater's immutable raster table,
+    ; but acquire the short NMI lease only after DMA-dependent world, BG, and
+    ; actor resource service has finished.
+    jsl StageWater_OamBegin
+Game_State_Play__after_water:
     jsr Core_Oam_Play
 
 Game_State_Play__done:
     plp
+    jsl StageWater_End
     rts
 
 ; ----------------------------------------------------------------------
@@ -882,90 +945,9 @@ Game_State_Play__done:
 ; Entry/exit convention: .a16/.i16 (Game_State_Play's).
 ; ----------------------------------------------------------------------
 Game_State_Play__stageclear:
-    sep #$20
-.a8
-    lda.l Stage_LoadPending
-    beq Game_State_Play__stageclear_done   ; already loaded -- no-op
-    lda #0
-    sta.l Stage_LoadPending
-
-    rep #$31
-.a16
-.i16
-    jsl Game_Campaign_ResolveNext
-    bcs Game_State_Play__campaign_end
-    rep #$31
-.a16
-.i16
-    bra Game_State_Play__stageclear_next
-Game_State_Play__campaign_end:
-    ; An incomplete campaign stops at TITLE rather than falling through into
-    ; the next physical catalog family. Bank-12 owns the compact end handler;
-    ; the authored TMNT campaign retains the existing ending adaptation.
-    jsl Game_Campaign_HandleEnd
-    jmp Game_State_Play__stageclear_done
-Game_State_Play__stageclear_next:
-    sep #$20
-.a8
-    sta.l Bg_LoadScene_StageIndex   ; A's low byte == the new Game_StageIndex
-                                     ; (STAGE_COUNT is tiny; always fits a byte)
-    rep #$31
-.a16
-.i16
-    jsr Stage_Load
-Game_State_Play__after_stage_load:
-    ; The old-stage cleanup runs after the blocking loader returns.  This is
-    ; still before the next PLAYING pass can dispatch the new queue, while
-    ; keeping its DP/stack work outside the forced-blank/MSU load contract.
-    jsl G13_ClearOldStageActors
-Game_State_Play__after_old_stage_clear:
-    jsl G13_ReapplyP1Out
-    ; Stage_Load reinitializes every non-player window.  In a two-player
-    ; session slot 1 is reserved for P2 for the entire session, so restore
-    ; its player role and fixed roster before gameplay resumes.  One-player
-    ; mode leaves this hook a no-op and retains the ordinary slot-1 spawn
-    ; path.
-    jsl G13_EnsureP2AfterStage
-Game_State_Play__after_p2_restore:
-    lda #GAME_STATE_PLAYING
-    sta.l Game_State
-Game_State_Play__after_playing_store:
-Game_State_Play__stageclear_done:
+    jsl StageComplete_Dispatch
     jmp Game_State_Play__done
 
-; ----------------------------------------------------------------------
-; Phase G3 (plan_game.md 3): called once, the instant PlayerEntity_Hp
-; reads 0 during PLAYING (see Game_State_Play__playing above). Decrements
-; Game_Lives; if lives remain, respawns the player in place (see
-; Game_State_RespawnPlayer below); otherwise arms the continue countdown
-; and transitions to GAME_STATE_GAMEOVER. Entry/exit convention: .a16/.i16
-; (Game_State_Play's).
-; ----------------------------------------------------------------------
-Game_State_HandlePlayerDeath:
-    rep #$31
-.a16
-.i16
-    lda.l Game_Lives
-    and #$00FF
-    beq Game_State_HandlePlayerDeath__gameover
-    sep #$20
-.a8
-    dec a
-    sta.l Game_Lives
-    rep #$31
-.a16
-    jsr Game_State_RespawnPlayer
-    rts
-
-Game_State_HandlePlayerDeath__gameover:
-    ; width already .a16 -- reached only via the beq above, still under
-    ; this routine's own entry rep #$31 with no sep in between.
-.a16
-    lda #GAME_OVER_CONTINUE_FRAMES
-    sta.l GameOver_ContinueTimer
-    lda #GAME_STATE_GAMEOVER
-    sta.l Game_State
-    rts
 ; ----------------------------------------------------------------------
 ; Phase G3: full player reset -- HP, hit-stun, facing, animation-selection
 ; (plan_game.md 3's own "watch out" list: "not just HP"), a brief
@@ -982,6 +964,8 @@ Game_State_RespawnPlayer:
     lda #0
     sta.l PlayerEntity_HitStun
     sta.l G13_P1Out
+    lda.l Stage_ScrollDirection
+    lsr a
     sta.l PlayerEntity_FacingLeft
     sta.l PlayerEntity_Selected
     lda #$FF
@@ -994,10 +978,12 @@ Game_State_RespawnPlayer:
     sta.l PlayerEntity_PosY
     rep #$31
 .a16
-    lda Screen_PosX
-    clc
-    adc #PLAYER_RESPAWN_X_MARGIN
-    sta.l PlayerEntity_PosX
+    ; This reset selects a grounded player state.  Clear both complete Q8.8
+    ; words so a prior jump cannot survive the stage/death respawn boundary.
+    lda #0
+    sta.l $7E0A00+CHAR_THROW_ZPOS
+    sta.l $7E0A00+CHAR_THROW_ZVEL
+    jsl Stage_RespawnP1Position
     rts
 
 ; ----------------------------------------------------------------------
@@ -1081,6 +1067,7 @@ Stage_Load:
     ; Bg_LoadScene_StageIndex already set by the caller. This also copies
     ; the new stage's own Spawn_MsuOffsetLo/Hi/Spawn_Count out of its bg
     ; record (see main.pasm's Bg_LoadScene, and core/spawn.pasm's header). ---
+    jsl Stage_SetScrollDirection
     jsr Bg_LoadScene
 
     ; --- BG3 tilemap clear: identical to scpu_boot's own scpu_bg3_map loop
@@ -1089,12 +1076,11 @@ Stage_Load:
     ; tilemap entries are still sitting in VRAM otherwise. $2115 (VMAIN,
     ; +1 word after $2119) is already set by Bg_LoadScene's own boot-time-
     ; style setup right at its own entry, so no need to re-set it here. ---
-    sep #$20
-.a8
-    lda #BG3_TILEMAP_VRAM_WORD
     rep #$31
 .a16
 .i16
+    ; Load both VRAM address bytes; never inherit the previous A high byte.
+    lda #BG3_TILEMAP_VRAM_WORD
     sta $2116
     ldx #BG3_TILEMAP_WORDS
     lda #$0000
@@ -1126,6 +1112,7 @@ Stage_Load__fp_done:
     ; already populated by Bg_LoadScene above) ---
     jsr Music_SelectStageTrack
     jsl Spawn_Init
+    jsl StageTimer_StartLevel
 
     ; --- force the next Hud_Play call to redraw unconditionally: the BG3
     ; clear above just wiped the HUD's own tilemap entries, and the
@@ -1187,7 +1174,7 @@ Stage_Load__border_go:
     ; own header for why this is a jsr, not inlined twice. ---
     jsr Stage_ApplyWinClamp
 
-    ; --- reset the camera to this stage's left edge. Screen_FocusNum/Id/
+    ; --- reset the camera to the source direction's entry edge. Screen_FocusNum/Id/
     ; Slot (core/screen.pasm) are untouched -- they already point at the
     ; player entity (never recreated across a stage transition, still
     ; entity 0), so Core_Screen_Play's normal per-frame easing picks up
@@ -1195,15 +1182,27 @@ Stage_Load__border_go:
     rep #$31
 .a16
 .i16
-    lda #0
-    sta.l Screen_PosX
-    sta.l Screen_PosXFrac
+    jsl Stage_SetEntryCamera
+    ; Install the new stage's physical direction before any vertical reset or
+    ; spawn path consults it; the previous stage's value is not authoritative.
+    jsl Stage_SetScrollDirection
+    lda.l Stage_ScrollDirection
+    and #$00FF
+    cmp #STAGE_SCROLL_DOWN
+    bne Stage_Load__keep_y
+    stz.w Screen_PosY_Lo
+    stz.w Screen_PosYFrac_Lo
+Stage_Load__keep_y:
 
-    ; --- full player reset at the new stage's left edge (HP, hit-stun,
+    ; --- full player reset at the new stage's entry edge (HP, hit-stun,
     ; facing, animation-selection, invuln window, position) -- reuses
     ; Game_State_RespawnPlayer verbatim; it reads Screen_PosX, which is
     ; now correctly 0 for the new stage. ---
     jsr Game_State_RespawnPlayer
+    ; Respawn establishes the player-side camera target; restore the source
+    ; entry edge after that reset so short left stages do not begin eased from
+    ; the stale prior-stage camera position.
+    jsl Stage_SetEntryCamera
 
     ; --- restore the real screen brightness (Nmi_ScreenBrightness's cached
     ; value, not a hardcoded constant -- matches whatever boot originally
@@ -1234,43 +1233,10 @@ Stage_Load__border_go:
 ; inline first draft here pushed that .org past $FC00-emitted bytes and
 ; failed to assemble). Caller must have already run Core_Screen_
 ; SetPlayfieldBorder (Screen_MaxX holds the stage's true width) and
-; Spawn_Init (Spawn_LastTriggerX holds this stage's last spawn record's
-; trigger_x, or 0 if it packs no spawn table at all) before calling this.
+; Spawn_Init (Spawn_LastTriggerX holds the highest trigger_x in this stage's
+; queue, or 0 if it packs no spawn table at all) before calling this.
 ; Entry/exit convention: .a16/.i16.
 ; ----------------------------------------------------------------------
 Stage_ApplyWinClamp:
-    php
-    rep #$31
-.a16
-.i16
-    lda Screen_MaxX
-    sta.l Stage_TrueMaxX
-
-    ; --- a stage with no spawn table (Spawn_Count == 0) has Spawn_
-    ; LastTriggerX forced to 0 by Spawn_Init -- guard against holding the
-    ; camera at the very start forever by only applying the hold when it's
-    ; nonzero and actually less than the true width. ---
-    lda.l Spawn_LastTriggerX
-    beq Stage_ApplyWinClamp__no_hold
-    cmp.l Stage_TrueMaxX
-    bcs Stage_ApplyWinClamp__no_hold   ; hold point >= true max -- nothing to hold
-    sta Screen_MaxX
-Stage_ApplyWinClamp__no_hold:
-    ; --- wait/group/boss slice: cache whatever Screen_MaxX now holds (the
-    ; hold-clamp value, or the true width if no hold applies) so
-    ; core/spawn.pasm's Spawn_Play can restore it when a `wait` block
-    ; releases and the stage isn't cleared yet -- this is the ONLY other
-    ; writer of Spawn_PreClearHoldX; Spawn_Play only ever restores what was
-    ; computed here, never derives its own value (see spawn.pasm's own
-    ; header for why that matters). ---
-    lda Screen_MaxX
-    sta.l Spawn_PreClearHoldX
-    sep #$20
-.a8
-    lda #0
-    sta.l Stage_Cleared
-    plp
-    rep #$31
-.a16
-.i16
+    jsl Stage_ApplyWinClamp_Banked
     rts

@@ -83,7 +83,8 @@ MAX_BG1_TILES = 1024
 
 
 def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
-            frontpanel_y=0, scroll_x=0, max_tiles=MAX_BG1_TILES, verbose=True):
+            frontpanel_y=0, scroll_x=0, max_tiles=MAX_BG1_TILES,
+            vertical_repeat=False, verbose=True):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -152,7 +153,16 @@ def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
             f'  truncating.')
 
     tiles_bin = st.encode_tileset(unique_tiles, bpp=4)
-    tilemap_bin = st.encode_tilemap(entries, W_TILES, H_TILES)
+    tilemap_rows = H_TILES
+    tilemap_entries = entries
+    if vertical_repeat:
+        # BG1 is configured as a real 32x32 SNES page.  The source elevator
+        # backdrop is one 224px image; repeat its first four tile rows in the
+        # otherwise-unused hardware rows so a 224px source-period scroll wraps
+        # without exposing the page's blank rows.
+        tilemap_rows = 32
+        tilemap_entries = entries + entries[:4 * W_TILES]
+    tilemap_bin = st.encode_tilemap(tilemap_entries, W_TILES, tilemap_rows)
     # Slot 0 stays zeroed here; make_hud_tiles.py owns CGRAM 0-15 and the
     # packer writes the HUD colors over it.
     cgram_palettes = [[0] * COLORS_PER_PALETTE] * PALETTE_OFFSET + list(palettes)
@@ -168,7 +178,7 @@ def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
         'panels': level.panels,
         'frontpanel': level.frontpanel,
         'width_px': SNES_W, 'height_px': SNES_H,
-        'width_tiles': W_TILES, 'height_tiles': H_TILES,
+        'width_tiles': W_TILES, 'height_tiles': tilemap_rows,
         'unique_tiles': n_tiles,
         'num_palettes': NUM_PALETTES,
         'palette_offset': PALETTE_OFFSET,
@@ -178,6 +188,7 @@ def convert(pak_path, level_entry, out_dir, panel_y=0, background_y=0,
         'palette_bytes': len(palette_bin),
         'panel_y': panel_y, 'background_y': background_y,
         'frontpanel_y': frontpanel_y, 'scroll_x': scroll_x,
+        'vertical_repeat': bool(vertical_repeat),
     }
     (out_dir / 'manifest.json').write_text(json.dumps(manifest, indent=2))
 
@@ -578,6 +589,8 @@ def main():
     ap.add_argument('--background-y', type=int, default=0)
     ap.add_argument('--frontpanel-y', type=int, default=0)
     ap.add_argument('--scroll-x', type=int, default=0)
+    ap.add_argument('--vertical-repeat', action='store_true',
+                    help='emit a 32-row static page by repeating the first four rows')
     ap.add_argument('--max-tiles', type=int, default=MAX_BG1_TILES)
     ap.add_argument('--whole-level', action='store_true',
                     help='composite the ENTIRE level (up to 64 SNES tiles wide) '
@@ -602,7 +615,7 @@ def main():
         convert(args.pak, args.level, args.output,
                 panel_y=args.panel_y, background_y=args.background_y,
                 frontpanel_y=args.frontpanel_y, scroll_x=args.scroll_x,
-                max_tiles=args.max_tiles)
+                max_tiles=args.max_tiles, vertical_repeat=args.vertical_repeat)
 
 
 if __name__ == '__main__':

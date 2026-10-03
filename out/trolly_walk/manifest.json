@@ -1,0 +1,28 @@
+{
+  "entity": "Trolly",
+  "anim": "idle",
+  "loop": 0,
+  "scale": 0.5161290322580645,
+  "hotspot_canvas": [
+    17,
+    27
+  ],
+  "frames": [
+    {
+      "delay": 255,
+      "offset": [
+        34,
+        60
+      ],
+      "bbox": [
+        2,
+        -22,
+        62,
+        85
+      ],
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    }
+  ]
+}

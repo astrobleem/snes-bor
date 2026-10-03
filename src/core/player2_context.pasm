@@ -219,12 +219,17 @@ G13_EnableP2Session:
 .a8
     lda #$FF
     sta.l HudCachedP2Hp
+    rep #$20
+.a16
+    lda #$FFFF
     sta.l HudCachedP2Lives
     rep #$31
 .a16
 .i16
     lda #$FFFF
     sta.l HudCachedP2Score
+    lda #0
+    sta.l HudCachedP2Score32+2
     jmp G13_EnableP2Session__init_slot
 
 G13_EnableP2Session__already_enabled:
@@ -312,6 +317,15 @@ G13_EnableP2Session__init_slot:
     ; Use the existing bank-0 JSR/RTL trampoline so the loader executes in
     ; its owning bank without leaving the long-call return byte on the stack.
     jsl Anim_LoadCharacter_Long
+    ; Stage_Load starts both players grounded. Do not carry a previous
+    ; airborne Q8.8 state into the reset P2 actor after clearing jump mode.
+    rep #$20
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sta CHAR_THROW_ZVEL
+    sep #$20
+.a8
     jsl G13_Player2_ContextExit
     pld
 
@@ -351,19 +365,36 @@ G13_RespawnP2:
     sta CHAR_HP
     lda #0
     sta CHAR_HIT_STUN
+    lda.l Stage_ScrollDirection
+    lsr a
     sta CHAR_FACING_LEFT
     sta CHAR_SELECTED
     sta CHAR_ATTACK_VARIANT
     sta CHAR_HIT_APPLIED
     sta CHAR_GRAB_TIMER
-    sta CHAR_THROW_ZPOS
-    sta CHAR_THROW_ZVEL
     lda #$FF
     sta CHAR_FRAME_INDEX
     sta CHAR_GRAB_TARGET
     sta CHAR_GRABBED_BY
-    lda #PLAYER_RESPAWN_INVULN_FRAMES
-    sta.l G13_P2_InvulnFrames
+    lda #0
+    sta CHAR_FALL_STATE_TIMER
+    rep #$20
+.a16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_JUMP
+    sta CHAR_SELECTED
+    lda #0
+    sta.l Player2_JumpAnimMode
+    rep #$31
+.a16
+.i16
+    lda #JUMP_INITIAL_VEL
+    sta CHAR_THROW_ZVEL
+    sep #$20
+.a8
     lda #0
     sta.l G13_P2Out
     lda #PLAYER_RESPAWN_Y
@@ -371,10 +402,7 @@ G13_RespawnP2:
     rep #$31
 .a16
 .i16
-    lda.l Screen_PosX
-    clc
-    adc #80
-    sta CHAR_POS_X
+    jsl Stage_RespawnP2Position
     pld
     plp
     rtl
@@ -415,126 +443,194 @@ G13_PlayerLifecycleIsOut__clear:
     clc
     rtl
 
-; P2's death/life-stock counterpart. Slot 1 remains reserved after OUT.
+; P1-L2 source death service. Player HP zero first enters the existing fall
+; animation. Stock is consumed only after Anim_Play_Fall reaches its terminal
+; blink marker ($FF). Zero stock hands off to OUT; P1-L3 owns re-entry/gameover.
 G13_HandleP2Death:
     php
-    rep #$31
-.a16
-.i16
-    ; This shared entry owns both player death checks. In 1P mode it exactly
-    ; retains the established P1 lives/game-over semantics; in 2P mode each
-    ; player has independent stock and only the second OUT enters GAMEOVER.
+    jsl G13_SourcePlayerDeathP1
+    bcs G13_HandleP2Death__handled
+    sep #$20
+.a8
     lda.l G13_TwoPlayerEnabled
-    and #$00FF
-    bne G13_HandleP2Death__two_player
-    lda.l PlayerEntity_Hp
-    and #$00FF
-    beq G13_HandleP2Death__p1_dead
-    brl G13_HandleP2Death__return
-G13_HandleP2Death__p1_dead:
-    rep #$31
-.a16
-.i16
-    lda.l Game_Lives
-    and #$00FF
-    beq G13_HandleP2Death__one_gameover
+    beq G13_HandleP2Death__return
+    jsl G13_SourcePlayerDeathP2
+    bcs G13_HandleP2Death__handled
+G13_HandleP2Death__return:
+    plp
+    clc
+    rtl
+G13_HandleP2Death__handled:
+    plp
+    sec
+    rtl
+
+G13_SourcePlayerDeathP1:
     sep #$20
 .a8
-    dec a
-    sta.l Game_Lives
-    jsl G13_RespawnP1
-    jmp G13_HandleP2Death__gameover_return
-G13_HandleP2Death__one_gameover:
-    rep #$31
-.a16
-.i16
-    lda #GAME_OVER_CONTINUE_FRAMES
-    sta.l GameOver_ContinueTimer
-    lda #GAME_STATE_GAMEOVER
-    sta.l Game_State
-    jmp G13_HandleP2Death__gameover_return
-G13_HandleP2Death__two_player:
-    rep #$31
-.a16
-.i16
     lda.l G13_P1Out
-    and #$00FF
-    bne G13_HandleP2Death__check_p2
+    bne G13_SourcePlayerDeathP1__handled
     lda.l PlayerEntity_Hp
-    and #$00FF
-    bne G13_HandleP2Death__check_p2
+    bne G13_SourcePlayerDeathP1__no
+    lda.l PlayerEntity_Selected
+    cmp #CHAR_SELECTED_FALL
+    bne G13_SourcePlayerDeathP1__begin
+    lda.l $7E0A00+48
+    cmp #$FF
+    bne G13_SourcePlayerDeathP1__no
+    rep #$20
+.a16
     lda.l Game_Lives
-    and #$00FF
-    beq G13_HandleP2Death__p1_out
-    sep #$20
-.a8
+    beq G13_SourcePlayerDeathP1__out
     dec a
     sta.l Game_Lives
-    jsl G13_RespawnP1
-    bra G13_HandleP2Death__check_p2
-G13_HandleP2Death__p1_out:
+    bne G13_SourcePlayerDeathP1__respawn
+G13_SourcePlayerDeathP1__out:
     sep #$20
 .a8
     lda #1
     sta.l G13_P1Out
     jsl G13_ReapplyP1Out
-G13_HandleP2Death__check_p2:
-    rep #$31
-.a16
-.i16
-    lda.l G13_P2Out
-    and #$00FF
-    bne G13_HandleP2Death__check_both_out
-    ; A living P2 is not a death candidate.  This shared handler runs once
-    ; per PLAYING service, so P2's life stock must not be consumed merely
-    ; because this call was reached while checking P1.
-    lda.l Entity1_Hp
-    and #$00FF
-    bne G13_HandleP2Death__return
-    lda.l G13_P2Lives
-    and #$00FF
-    beq G13_HandleP2Death__out
+G13_SourcePlayerDeathP1__handled:
+    sec
+    rtl
+G13_SourcePlayerDeathP1__respawn:
+    jsl G13_RespawnP1
+    jsl G13_DropAllEnemies
+    bra G13_SourcePlayerDeathP1__handled
+G13_SourcePlayerDeathP1__begin:
     sep #$20
 .a8
+    lda #CHAR_SELECTED_FALL
+    sta.l PlayerEntity_Selected
+    lda #$FF
+    sta.l PlayerEntity_FrameIndex
+    lda #1
+    sta.l PlayerEntity_TickCounter
+    lda #0
+    sta.l $7E0A00+48
+    sta.l PlayerEntity_HitStun
+G13_SourcePlayerDeathP1__no:
+    clc
+    rtl
+
+G13_SourcePlayerDeathP2:
+    sep #$20
+.a8
+    lda.l G13_P2Out
+    bne G13_SourcePlayerDeathP2__handled
+    lda.l Entity1_Hp
+    bne G13_SourcePlayerDeathP2__no
+    lda.l Entity1_Selected
+    cmp #CHAR_SELECTED_FALL
+    bne G13_SourcePlayerDeathP2__begin
+    lda.l Entity1_FallStateTimer
+    cmp #$FF
+    bne G13_SourcePlayerDeathP2__no
+    rep #$20
+.a16
+    lda.l G13_P2Lives
+    beq G13_SourcePlayerDeathP2__out
     dec a
     sta.l G13_P2Lives
-    jsl G13_RespawnP2
-    plp
-    rtl
-G13_HandleP2Death__out:
+    bne G13_SourcePlayerDeathP2__respawn
+G13_SourcePlayerDeathP2__out:
     sep #$20
 .a8
     lda #1
     sta.l G13_P2Out
-    lda #0
-    sta.l Entity1_Hp
-    sta.l Entity1_Selected
-    lda #$FF
-    sta.l Entity1_GrabTarget
-    sta.l Entity1_GrabbedBy
     jsl G13_ReapplyP2Out
-G13_HandleP2Death__check_both_out:
-    sep #$20
-.a8
-    lda.l G13_P1Out
-    beq G13_HandleP2Death__return
-    lda.l G13_P2Out
-    beq G13_HandleP2Death__return
-    rep #$31
-.a16
-.i16
-    lda #GAME_OVER_CONTINUE_FRAMES
-    sta.l GameOver_ContinueTimer
-    lda #GAME_STATE_GAMEOVER
-    sta.l Game_State
-G13_HandleP2Death__gameover_return:
-    plp
+G13_SourcePlayerDeathP2__handled:
     sec
     rtl
-G13_HandleP2Death__return:
-    plp
+G13_SourcePlayerDeathP2__respawn:
+    jsl G13_RespawnP2
+    jsl G13_DropAllEnemies
+    bra G13_SourcePlayerDeathP2__handled
+G13_SourcePlayerDeathP2__begin:
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_FALL
+    sta.l Entity1_Selected
+    lda #$FF
+    sta.l Entity1_FrameIndex
+    lda #1
+    sta.l Entity1_TickCounter
+    lda #0
+    sta.l Entity1_FallStateTimer
+    sta.l Entity1_HitStun
+G13_SourcePlayerDeathP2__no:
     clc
     rtl
+
+; BOR.C drop_all_enemies(): put every live, unlinked enemy into its fall
+; state, preserving the entity and its health.  Slot 1 is omitted while the
+; 2P session owns it as P2.  The existing fall/rise machine supplies
+; the bounded knockdown behavior; no enemy is despawned or damaged here.
+G13_DropAllEnemies:
+    php
+    sep #$20
+.a8
+    lda.l G13_TwoPlayerEnabled
+    bne G13_DropAllEnemies__slot2
+    phd
+    pea $0A85
+    pld
+    jsr G13_DropAllEnemies__one
+    pld
+G13_DropAllEnemies__slot2:
+    phd
+    pea $0B0A
+    pld
+    jsr G13_DropAllEnemies__one
+    pld
+G13_DropAllEnemies__slot3:
+    phd
+    pea $0B8F
+    pld
+    jsr G13_DropAllEnemies__one
+    pld
+G13_DropAllEnemies__slot4:
+    phd
+    pea $0C14
+    pld
+    jsr G13_DropAllEnemies__one
+    pld
+G13_DropAllEnemies__slot5:
+    phd
+    pea $0C97
+    pld
+    jsr G13_DropAllEnemies__one
+    pld
+G13_DropAllEnemies__done:
+    plp
+    rtl
+
+G13_DropAllEnemies__one:
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #CHAR_INPUT_DRIVEN_AI
+    bne G13_DropAllEnemies__return
+    lda CHAR_HP
+    beq G13_DropAllEnemies__return
+    lda CHAR_GRAB_TARGET
+    cmp #$FF
+    bne G13_DropAllEnemies__return
+    lda CHAR_GRABBED_BY
+    cmp #$FF
+    bne G13_DropAllEnemies__return
+    lda #CHAR_SELECTED_FALL
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    lda #0
+    sta CHAR_FALL_STATE_TIMER
+    sta CHAR_HIT_STUN
+G13_DropAllEnemies__return:
+    rts
 
 G13_RespawnP1:
     sep #$20
@@ -557,8 +653,21 @@ G13_RespawnP1:
     sta.l PlayerEntity_FrameIndex
     sta.l PlayerEntity_GrabTarget
     sta.l PlayerEntity_GrabbedBy
-    lda #PLAYER_RESPAWN_INVULN_FRAMES
-    sta.l Player_InvulnFrames
+    lda #0
+    sta.l $7E0A00+48
+    lda #CHAR_SELECTED_JUMP
+    sta.l PlayerEntity_Selected
+    lda #0
+    sta.l Player_JumpAnimMode
+    rep #$31
+.a16
+.i16
+    lda #JUMP_INITIAL_VEL
+    sta.l $7E0A00+69
+    sep #$20
+.a8
+    lda #0
+    sta.l PlayerEntity_ThrowZPos
     lda #PLAYER_RESPAWN_Y
     sta.l PlayerEntity_PosY
     rep #$31
@@ -566,7 +675,7 @@ G13_RespawnP1:
 .i16
     lda.l Screen_PosX
     clc
-    adc #PLAYER_RESPAWN_X_MARGIN
+    adc #20
     sta.l PlayerEntity_PosX
     rtl
 
@@ -704,46 +813,125 @@ G13_ClearOldStageActors__one:
     sta CHAR_GRABBED_BY
     rts
 
-; Consume an OUT player's own Start as a continue while the partner remains
-; in PLAYING.  Carry set means the caller must skip pause and gameplay for
-; this update, preventing one edge from doing two actions.
+; BOR source join/re-entry (predrawstatus()/selectplayer() contract).  An OUT
+; player is the bounded SNES equivalent of the source's absent entity/
+; joining state.  Its own Start edge consumes one run-global credit and
+; restores exactly GAME_LIVES_START stock through the existing player spawn
+; path.  Active players never enter this path, and a zero-credit attempt is
+; a no-op.  Carry set means the caller skips pause/gameplay for this update.
 G13_HandleOutContinue:
     php
+    rep #$31
+.a16
+.i16
+    lda.l G13_P1Out
+    and #$00FF
+    beq G13_HandleOutContinue__check_p2
+    lda.l Input_trigger+1
+    and #$0010
+    beq G13_HandleOutContinue__check_p2
+    lda.l Game_Credits
+    and #$00FF
+    beq G13_HandleOutContinue__check_p2
+    sep #$20
+.a8
+    lda.l Game_Credits
+    dec a
+    sta.l Game_Credits
+    rep #$31
+.a16
+.i16
+    lda #GAME_LIVES_START
+    sta.l Game_Lives
+    jsl G13_RespawnP1
+    lda #0
+    sta.l GameOver_ContinueTimer
+    bra G13_HandleOutContinue__yes
+G13_HandleOutContinue__check_p2:
     rep #$31
 .a16
 .i16
     lda.l G13_TwoPlayerEnabled
     and #$00FF
     beq G13_HandleOutContinue__no
-    lda.l G13_P1Out
-    and #$00FF
-    beq G13_HandleOutContinue__p2
-    lda.l Input_trigger+1
-    and #$0010
-    beq G13_HandleOutContinue__p2
-    lda #GAME_LIVES_START
-    sta.l Game_Lives
-    jsl G13_RespawnP1
-    bra G13_HandleOutContinue__yes
-G13_HandleOutContinue__p2:
-    rep #$31
-.a16
-.i16
     lda.l G13_P2Out
     and #$00FF
     beq G13_HandleOutContinue__no
     lda.l Input2_trigger+1
     and #$0010
     beq G13_HandleOutContinue__no
+    lda.l Game_Credits
+    and #$00FF
+    beq G13_HandleOutContinue__no
+    sep #$20
+.a8
+    lda.l Game_Credits
+    dec a
+    sta.l Game_Credits
+    rep #$31
+.a16
+.i16
     lda #GAME_LIVES_START
     sta.l G13_P2Lives
     jsl G13_RespawnP2
+    lda #0
+    sta.l GameOver_ContinueTimer
 G13_HandleOutContinue__yes:
     plp
     sec
     rtl
 G13_HandleOutContinue__no:
     plp
+    clc
+    rtl
+
+; Source all-player-absent terminal service. One absent player with an active
+; partner is not terminal. Once every configured player is absent, start the
+; source re-entry window; the P1/P2 Start path clears it on a successful join.
+; Carry set means GAME OVER was entered this frame.
+Game_State_Play__check_all_out:
+    rep #$31
+.a16
+.i16
+    lda.l G13_P1Out
+    and #$0001
+    beq Game_State_Play__all_out_no
+    lda.l G13_TwoPlayerEnabled
+    and #$0001
+    beq Game_State_Play__all_out_yes
+    lda.l G13_P2Out
+    and #$0001
+    beq Game_State_Play__all_out_no
+Game_State_Play__all_out_yes:
+    .a16
+    lda.l GameOver_ContinueTimer
+    bne Game_State_Play__all_out_tick
+    lda.l Game_Credits
+    beq Game_State_Play__all_out_arm_short
+    lda #BOR_ALL_OUT_GRACE_FRAMES
+    bra Game_State_Play__all_out_arm
+Game_State_Play__all_out_arm_short:
+    .a16
+    lda #BOR_NO_CREDIT_GRACE_FRAMES
+Game_State_Play__all_out_arm:
+    sta.l GameOver_ContinueTimer
+    clc
+    rtl
+Game_State_Play__all_out_tick:
+    .a16
+    dec a
+    sta.l GameOver_ContinueTimer
+    bne Game_State_Play__all_out_no
+    lda #BOR_GAME_OVER_DISPLAY_FRAMES
+    sta.l GameOver_ContinueTimer
+    rep #$31
+.a16
+.i16
+    lda #GAME_STATE_GAMEOVER
+    sta.l Game_State
+    sec
+    rtl
+Game_State_Play__all_out_no:
     clc
     rtl
 
@@ -1165,6 +1353,35 @@ G13_Pickup_CheckPlayers:
     rep #$31
 .a16
 .i16
+    ; Verification-only S1C/S1D direct score triggers. They reuse the retired
+    ; scratch cells and are inert for all normal gameplay values.
+    lda.l G13_S1C_TestRequest
+    cmp #$51C0
+    beq G13_Pickup_CheckPlayers__s1c_test
+    cmp #$51D0
+    bne G13_Pickup_CheckPlayers__no_s1c_test
+    lda #0
+    sta.l G13_S1C_TestRequest
+    lda.l G13_S1D_TestForce
+    sta.l VmArith_DivLo
+    asl a
+    asl a
+    clc
+    adc.l VmArith_DivLo
+    sta.l VmArith_Lo
+    lda #0
+    sta.l VmArith_Hi
+    jsr G13_PlayerScore_Add32__core
+    bra G13_Pickup_CheckPlayers__s1c_done
+G13_Pickup_CheckPlayers__s1c_test:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l G13_S1C_TestRequest
+    jsr G13_PlayerScore_Add32__core
+G13_Pickup_CheckPlayers__s1c_done:
+G13_Pickup_CheckPlayers__no_s1c_test:
     sep #$20
 .a8
     lda #0
@@ -1215,12 +1432,43 @@ G13_Pickup_CheckPlayers__done:
     plp
     rtl
 
-; One owner-aware score-add leaf for combat and pickups.  Entry is A16 with
-; A=amount and G13_PickupForP2 selecting the owner (0=P1, 1=P2).  The owner
-; selector is already bounded, non-reentrant pickup transaction state and is
-; explicitly cleared by each transaction wrapper.  This preserves the
-; original quotient-changed => exactly one extra-life contract for every
-; score source, including money and gold.
+; S1C canonical BOR addscore() primitive.
+;
+; G13_PlayerScore_Add32 entry contract:
+;   A16 = add low word, X16 = add high word
+;   G13_PickupForP2 = owner (0=P1, 1=P2)
+;   A/X/Y/flags are preserved for the caller.
+;
+; The leaf borrows the existing audited VM 32-bit arithmetic scratch cells:
+;   VmArith_Lo/Hi       = one 32-bit addend
+;   VmArith_QLo/QHi     = dividend / resulting score
+;   VmArith_DivLo/Hi    = divisor for the 32-bit quotient
+;   VmArith_RemLo/Hi    = next1up threshold
+; It is synchronous and non-reentrant on the main CPU; VM execution cannot
+; interleave with a score event. No score-specific WRAM is added here.
+;
+; Source ordering is literal BOR v1.0029:
+;   next1up=((old/50000)+1)*50000, add once, cap at 999999999, then award
+;   once for every strict `new > next1up` threshold. Equality deliberately
+;   skips that boundary (SOURCE_QUIRK).
+G13_PlayerScore_Add32:
+    php
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    sta.l VmArith_Lo
+    txa
+    sta.l VmArith_Hi
+    jsr G13_PlayerScore_Add32__core
+    ply
+    plx
+    plp
+    rtl
+
+; Compatibility entry for existing S1D-deferred event amounts. It preserves
+; the old A16 call ABI but routes the amount through the same 32-bit primitive.
 G13_PlayerScore_Add:
     php
     phx
@@ -1228,84 +1476,253 @@ G13_PlayerScore_Add:
     rep #$31
 .a16
 .i16
-    sta.l Game_ScoreAwardScratch
-    lda.l G13_PickupForP2
-    and #$00FF
-    beq G13_PlayerScore_Add__p1
-    lda.l G13_P2Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    sta.l Game_ScoreOldQuotientScratch
-    lda.l G13_P2Score
-    clc
-    adc.l Game_ScoreAwardScratch
-    bcc G13_PlayerScore_Add__p2_no_overflow
-    lda #$FFFF
-G13_PlayerScore_Add__p2_no_overflow:
-    rep #$31
-.a16
-.i16
-    sta.l G13_P2Score
-    lda.l G13_P2Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    cmp.l Game_ScoreOldQuotientScratch
-    beq G13_PlayerScore_Add__done
-    sep #$20
-.a8
-    lda.l G13_P2Lives
-    inc a
-    sta.l G13_P2Lives
-    bra G13_PlayerScore_Add__done
-G13_PlayerScore_Add__p1:
-    rep #$31
-.a16
-.i16
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    sta.l Game_ScoreOldQuotientScratch
-    lda.l Game_Score
-    clc
-    adc.l Game_ScoreAwardScratch
-    bcc G13_PlayerScore_Add__p1_no_overflow
-    lda #$FFFF
-G13_PlayerScore_Add__p1_no_overflow:
-    rep #$31
-.a16
-.i16
-    sta.l Game_Score
-    lda.l Game_Score
-    tax
-    lda #EXTEND_LIFE_SCORE
-    jsl G13_Core_Math_Div_Long
-    cmp.l Game_ScoreOldQuotientScratch
-    beq G13_PlayerScore_Add__done
-    sep #$20
-.a8
-    lda.l Game_Lives
-    inc a
-    sta.l Game_Lives
-G13_PlayerScore_Add__done:
+    sta.l VmArith_Lo
+    lda #0
+    sta.l VmArith_Hi
+    jsr G13_PlayerScore_Add32__core
     ply
     plx
     plp
     rtl
 
+G13_PlayerScore_Add32__core:
+.a16
+.i16
+    ; Select the canonical score field and compute old/50000. The quotient is
+    ; always <=19999 for the legal source score cap, so the existing 16x16
+    ; multiply safely produces the complete 32-bit threshold product.
+    lda.l G13_PickupForP2
+    and #$00FF
+    beq G13_PlayerScore_Add32__p1
+
+G13_PlayerScore_Add32__p2:
+    lda.l G13_P2Score32
+    sta.l VmArith_QLo
+    lda.l G13_P2Score32+2
+    sta.l VmArith_QHi
+    bra G13_PlayerScore_Add32__derive_threshold
+
+G13_PlayerScore_Add32__p1:
+    lda.l Game_Score32
+    sta.l VmArith_QLo
+    lda.l Game_Score32+2
+    sta.l VmArith_QHi
+
+G13_PlayerScore_Add32__derive_threshold:
+.a16
+.i16
+    lda #$C350
+    sta.l VmArith_DivLo
+    lda #0
+    sta.l VmArith_DivHi
+    jsl G13_Core_Math_Div32_Long
+
+    ; threshold = quotient * 50000 + 50000
+    lda.l VmArith_QLo
+    ldx #$C350
+    jsl G13_Core_Math_Mul32_Long
+    clc
+    adc #$C350
+    sta.l VmArith_RemLo
+    txa
+    adc #0
+    sta.l VmArith_RemHi
+
+    ; new = old + add, with a source cap rather than 16-bit saturation.
+    ; Reload old score because the divider consumed QLo/QHi.
+    lda.l G13_PickupForP2
+    and #$00FF
+    beq G13_PlayerScore_Add32__add_p1
+
+    lda.l G13_P2Score32
+    clc
+    adc.l VmArith_Lo
+    sta.l VmArith_QLo
+    lda.l G13_P2Score32+2
+    adc.l VmArith_Hi
+    sta.l VmArith_QHi
+    bcc G13_PlayerScore_Add32__cap_check_p2
+    bra G13_PlayerScore_Add32__cap_p2
+
+G13_PlayerScore_Add32__add_p1:
+    lda.l Game_Score32
+    clc
+    adc.l VmArith_Lo
+    sta.l VmArith_QLo
+    lda.l Game_Score32+2
+    adc.l VmArith_Hi
+    sta.l VmArith_QHi
+    bcc G13_PlayerScore_Add32__cap_check_p1
+    bra G13_PlayerScore_Add32__cap_p1
+
+G13_PlayerScore_Add32__cap_check_p2:
+.a16
+.i16
+    lda.l VmArith_QHi
+    cmp #$3B9A
+    bcc G13_PlayerScore_Add32__store_p2
+    bne G13_PlayerScore_Add32__cap_p2
+    lda.l VmArith_QLo
+    cmp #$C9FF
+    bcc G13_PlayerScore_Add32__store_p2
+    beq G13_PlayerScore_Add32__store_p2
+
+G13_PlayerScore_Add32__cap_p2:
+.a16
+.i16
+    lda #$C9FF
+    sta.l VmArith_QLo
+    lda #$3B9A
+    sta.l VmArith_QHi
+
+G13_PlayerScore_Add32__store_p2:
+    lda.l VmArith_QLo
+    sta.l G13_P2Score32
+    lda.l VmArith_QHi
+    sta.l G13_P2Score32+2
+    bra G13_PlayerScore_Add32__threshold_loop_p2
+
+G13_PlayerScore_Add32__cap_check_p1:
+.a16
+.i16
+    lda.l VmArith_QHi
+    cmp #$3B9A
+    bcc G13_PlayerScore_Add32__store_p1
+    bne G13_PlayerScore_Add32__cap_p1
+    lda.l VmArith_QLo
+    cmp #$C9FF
+    bcc G13_PlayerScore_Add32__store_p1
+    beq G13_PlayerScore_Add32__store_p1
+
+G13_PlayerScore_Add32__cap_p1:
+.a16
+.i16
+    lda #$C9FF
+    sta.l VmArith_QLo
+    lda #$3B9A
+    sta.l VmArith_QHi
+
+G13_PlayerScore_Add32__store_p1:
+    lda.l VmArith_QLo
+    sta.l Game_Score32
+    lda.l VmArith_QHi
+    sta.l Game_Score32+2
+    bra G13_PlayerScore_Add32__threshold_loop_p1
+
+; Compare the result unsigned against the 32-bit threshold and award every
+; strict crossing. One established 1UP sound request accompanies each award.
+G13_PlayerScore_Add32__threshold_loop_p2:
+    ; CMP has no long-addressing form on 65816. Stack-relative compares keep
+    ; both 16-bit halves explicit without adding another WRAM scratch cell.
+    lda.l VmArith_RemHi
+    pha
+    lda.l VmArith_QHi
+    cmp 1,s
+    bcc G13_PlayerScore_Add32__p2_high_less
+    bne G13_PlayerScore_Add32__p2_high_greater
+    pla
+    lda.l VmArith_RemLo
+    pha
+    lda.l VmArith_QLo
+    cmp 1,s
+    bcc G13_PlayerScore_Add32__p2_low_less
+    bne G13_PlayerScore_Add32__p2_low_greater
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p2_high_less:
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p2_high_greater:
+    pla
+    jmp G13_PlayerScore_Add32__award_p2
+G13_PlayerScore_Add32__p2_low_less:
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p2_low_greater:
+    pla
+G13_PlayerScore_Add32__award_p2:
+    lda.l G13_P2Lives
+    inc a
+    sta.l G13_P2Lives
+    sep #$20
+.a8
+    lda #AUDIO_SEMANTIC_ONEUP
+    ldx #SFX_ONEUP_ID
+    jsl Audio_QueueResidentSemantic
+    rep #$31
+.a16
+.i16
+    clc
+    lda.l VmArith_RemLo
+    adc #$C350
+    sta.l VmArith_RemLo
+    lda.l VmArith_RemHi
+    adc #0
+    sta.l VmArith_RemHi
+    bra G13_PlayerScore_Add32__threshold_loop_p2
+
+G13_PlayerScore_Add32__threshold_loop_p1:
+    lda.l VmArith_RemHi
+    pha
+    lda.l VmArith_QHi
+    cmp 1,s
+    bcc G13_PlayerScore_Add32__p1_high_less
+    bne G13_PlayerScore_Add32__p1_high_greater
+    pla
+    lda.l VmArith_RemLo
+    pha
+    lda.l VmArith_QLo
+    cmp 1,s
+    bcc G13_PlayerScore_Add32__p1_low_less
+    bne G13_PlayerScore_Add32__p1_low_greater
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p1_high_less:
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p1_high_greater:
+    pla
+    jmp G13_PlayerScore_Add32__award_p1
+G13_PlayerScore_Add32__p1_low_less:
+    pla
+    jmp G13_PlayerScore_Add32__done
+G13_PlayerScore_Add32__p1_low_greater:
+    pla
+G13_PlayerScore_Add32__award_p1:
+    lda.l Game_Lives
+    inc a
+    sta.l Game_Lives
+    sep #$20
+.a8
+    lda #AUDIO_SEMANTIC_ONEUP
+    ldx #SFX_ONEUP_ID
+    jsl Audio_QueueResidentSemantic
+    rep #$31
+.a16
+.i16
+    clc
+    lda.l VmArith_RemLo
+    adc #$C350
+    sta.l VmArith_RemLo
+    lda.l VmArith_RemHi
+    adc #0
+    sta.l VmArith_RemHi
+    bra G13_PlayerScore_Add32__threshold_loop_p1
+
+G13_PlayerScore_Add32__done:
+    rts
+
 ; Combat wrapper: derive ownership from the dispatcher's actor DP, convert
-; the kill flag to the established hit/kill amount, and route both players
-; through the shared score/life semantics above.
+; the source attack force to force*5, and route the player-caused award
+; through the shared score/life semantics above. A16 = source force.
 G13_Game_Score_Award:
     php
     phx
     phy
-    pha
     rep #$31
 .a16
 .i16
+    sta.l VmArith_DivLo
     tdc
     cmp #$0A85
     bne G13_Game_Score_Award__p1_owner
@@ -1322,21 +1739,19 @@ G13_Game_Score_Award__p1_owner:
     lda #0
     sta.l G13_PickupForP2
 G13_Game_Score_Award__amount:
-    pla
     rep #$31
 .a16
 .i16
-    and #$00FF
-    beq G13_Game_Score_Award__hit_only
-    lda #HIT_SCORE + KILL_SCORE
-    bra G13_Game_Score_Award__add
-G13_Game_Score_Award__hit_only:
-    rep #$31
-.a16
-.i16
-    lda #HIT_SCORE
-G13_Game_Score_Award__add:
-    jsl G13_PlayerScore_Add
+    lda.l VmArith_DivLo
+    sta.l VmArith_Lo
+    asl a
+    asl a
+    clc
+    adc.l VmArith_DivLo
+    sta.l VmArith_Lo
+    lda #0
+    sta.l VmArith_Hi
+    jsr G13_PlayerScore_Add32__core
     sep #$20
 .a8
     lda #0

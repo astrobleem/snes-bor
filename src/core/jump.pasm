@@ -805,11 +805,9 @@ Jump_LoadFreespecialRecord:
 ; a re-derived real magnitude, same class of deliberate simplification this
 ; project already applies to atchain's own combo window (ATCHAIN_COMBO_
 ; WINDOW just above). LEO is the only roster member with real freespecial
-; data (CHAR_FREESPECIAL_FCOUNT!=0) -- every other character's forward-tap
-; presses harmlessly advance/decay CHAR_FREESPECIAL_STEP/TIMER (both stay
-; unread since Jump_PlayMoveSlotAdvance never dispatches variant 9 for
-; them, CHAR_FREESPECIAL_FCOUNT==0 makes Jump_PlayerInputGate skip the
-; trigger check itself -- see below).
+; data (CHAR_FREESPECIAL_FCOUNT!=0). A character with no such animation
+; follows BOR.C's generic missing-ANI_FREESPECIAL dojump(2) fallback; the
+; command FSM is not suppressed for sparse source models.
 ;
 ;   in:  none (DP-local self, always the player -- only ever called from
 ;        Jump_PlayerInputGate, which only runs for CHAR_INPUT_DRIVEN==1).
@@ -874,6 +872,13 @@ Jump_FreespecialTrigger__no_forward:
     lda #0
     sta CHAR_FREESPECIAL_STEP
     sta CHAR_FREESPECIAL_TIMER
+    lda CHAR_FREESPECIAL_FCOUNT
+    bne Jump_FreespecialTrigger__real_anim
+    ; BOR.C player_think(): missing ANI_FREESPECIAL -> dojump(2).
+    jsl Jump_MissingFreespecialFallback
+    rtl
+Jump_FreespecialTrigger__real_anim:
+.a8
     lda #9                           ; freespecial's move-slot variant
     sta CHAR_ATTACK_VARIANT
     lda #2
@@ -917,11 +922,8 @@ Jump_PlayerInputGate:
     ; G7 reopened-again slice: freespecial checked FIRST, before special/
     ; grab/slide -- real player_preinput()->check_combo() runs BEFORE
     ; player_check_special() in player_think() (see Jump_FreespecialTrigger's
-    ; own header). No-ops entirely (falls through, STEP/TIMER left alone)
-    ; if this roster character has no real freespecial anim (CHAR_
-    ; FREESPECIAL_FCOUNT==0 -- every roster member but LEO).
-    lda CHAR_FREESPECIAL_FCOUNT
-    beq Jump_PlayerInputGate__no_freespecial
+    ; own header). The trigger applies BOR.C's generic missing-animation
+    ; fallback when the loaded model has no ANI_FREESPECIAL.
     jsl Jump_FreespecialTrigger
     bcs Jump_PlayerInputGate__freespecial_triggered
     bra Jump_PlayerInputGate__no_freespecial
@@ -1182,8 +1184,18 @@ Jump_PlayerInputGate__normal_jump:
 ; service without ever reading the absent attack blob.
 Jump_MissingAttackFallback:
 .a8
+    lda #1                          ; BOR.C dojump(1)
+    bra Jump_MissingJumpFallback__start
+Jump_MissingFreespecialFallback:
+.a8
+    lda #2                          ; BOR.C dojump(2)
+Jump_MissingJumpFallback__start:
+    sta.l JumpHopBaseLo             ; preserve selector across setup
     lda.l Player_JumpFCount
-    beq Jump_MissingAttackFallback__no
+    bne Jump_MissingJumpFallback__have_frames
+    jmp Jump_MissingAttackFallback__no
+Jump_MissingJumpFallback__have_frames:
+.a8
     lda #AUDIO_SEMANTIC_JUMP
     sta.l AudioSemantic_CurrentId
     lda.l AudioSemantic_JumpRequestCount
@@ -1205,7 +1217,16 @@ Jump_MissingAttackFallback:
     sta CHAR_THROW_ZPOS
     sep #$20
 .a8
-    lda #0
+    lda.l JumpHopBaseLo
+    cmp #2
+    bne Jump_MissingJumpFallback__normal_mode
+    lda #3                          ; mode 3 = missing-freespecial jump
+    bra Jump_MissingJumpFallback__store_mode
+Jump_MissingJumpFallback__normal_mode:
+.a8
+    lda #0                          ; mode 0 = missing-attack jump
+Jump_MissingJumpFallback__store_mode:
+.a8
     sta.l Player_JumpAnimMode
     lda #CHAR_SELECTED_JUMP
     sta CHAR_SELECTED
@@ -1290,6 +1311,54 @@ Jump_PlayerTick__airborne:
     rep #$31
 .a16
 .i16
+    lda CHAR_FACING_LEFT
+    and #$00FF
+    beq Jump_PlayerTick__x_right
+    lda.l Player_JumpAnimMode
+    cmp #3
+    beq Jump_PlayerTick__x_left_fast
+    lda.l PlayerEntity_PosX
+    sec
+    sbc #PLAYER_SPEED
+    bpl Jump_PlayerTick__x_nonnegative
+    bra Jump_PlayerTick__x_zero
+Jump_PlayerTick__x_left_fast:
+.a16
+.i16
+    lda.l PlayerEntity_PosX
+    sec
+    sbc #PLAYER_SPEED*2
+    bpl Jump_PlayerTick__x_nonnegative
+    bra Jump_PlayerTick__x_zero
+Jump_PlayerTick__x_right:
+.a16
+.i16
+    lda.l Player_JumpAnimMode
+    cmp #3
+    beq Jump_PlayerTick__x_right_fast
+    lda.l PlayerEntity_PosX
+    clc
+    adc #PLAYER_SPEED
+    bra Jump_PlayerTick__x_nonnegative
+Jump_PlayerTick__x_right_fast:
+.a16
+.i16
+    lda.l PlayerEntity_PosX
+    clc
+    adc #PLAYER_SPEED*2
+    bra Jump_PlayerTick__x_nonnegative
+Jump_PlayerTick__x_zero:
+.a16
+.i16
+    lda #0
+Jump_PlayerTick__x_nonnegative:
+    cmp.l WorldMaxX
+    bcc Jump_PlayerTick__x_store
+    lda.l WorldMaxX
+Jump_PlayerTick__x_store:
+.a16
+.i16
+    sta.l PlayerEntity_PosX
     lda CHAR_THROW_ZPOS
     clc
     adc CHAR_THROW_ZVEL
@@ -1531,10 +1600,13 @@ Anim_Play_Jump__mode2_ok:
 ; underlying Z storage and gravity tick were ever duplicated). ---
 Jump_ApplyOamYOffset:
 .a8
+    jsl StageEnv_ApplyBaseOffset
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_JUMP
     beq Jump_ApplyOamYOffset__apply
     cmp #CHAR_SELECTED_THROWN
+    beq Jump_ApplyOamYOffset__apply
+    cmp #CHAR_SELECTED_HOLE
     bne Jump_ApplyOamYOffset__done
 Jump_ApplyOamYOffset__apply:
 .a8
@@ -1647,8 +1719,7 @@ CharSelect_PortraitUpdate__no_stream:
 .a8
     lda CHAR_WAITING_FCOUNT
     bne CharSelect_PortraitUpdate__visible
-    lda #$F0
-    sta.l OamSetSprite_Y
+    jsl Core_Oam_HideRequest
     bra CharSelect_PortraitUpdate__set
 CharSelect_PortraitUpdate__visible:
     sep #$20
@@ -1699,20 +1770,35 @@ Character_HitApply__ApplyPickup:
     php
     sep #$20
 .a8
+    cmp #6
+    bne Character_HitApply__ApplyPickup__legacy
+    ; S8 kind6 uses explicit physical item X, never a guessed DP/roster ID.
+    rep #$30
+.a16
+.i16
+    jsl StageTimerHost_CollectFromOverlap
+    plp
+    rtl
+Character_HitApply__ApplyPickup__legacy:
+.a8
     sta.l G13_PickupAmount
     cmp #PICKUP_TYPE_APPLE
     beq Character_HitApply__ApplyPickup__heal_apple
     cmp #PICKUP_TYPE_MEAT
     beq Character_HitApply__ApplyPickup__heal_meat
     cmp #PICKUP_TYPE_MONEY
-    beq Character_HitApply__ApplyPickup__money
+    beq Character_HitApply__ApplyPickup__money_near
     cmp #PICKUP_TYPE_ONEUP
-    beq Character_HitApply__ApplyPickup__oneup
+    beq Character_HitApply__ApplyPickup__oneup_near
     cmp #PICKUP_TYPE_GOLD
     bne Character_HitApply__ApplyPickup__not_gold
     jmp Character_HitApply__ApplyPickup__gold
 Character_HitApply__ApplyPickup__not_gold:
     jmp Character_HitApply__ApplyPickup__done  ; unrecognized -- no-op
+Character_HitApply__ApplyPickup__oneup_near:
+    jmp Character_HitApply__ApplyPickup__oneup
+Character_HitApply__ApplyPickup__money_near:
+    jmp Character_HitApply__ApplyPickup__money
 Character_HitApply__ApplyPickup__heal_apple:
     sep #$20
 .a8
@@ -1771,11 +1857,15 @@ Character_HitApply__ApplyPickup__oneup:
 .a8
     lda.l G13_PickupForP2
     beq Character_HitApply__ApplyPickup__oneup_p1
+    rep #$20
+.a16
     lda.l G13_P2Lives
     inc a
     sta.l G13_P2Lives
     jmp Character_HitApply__ApplyPickup__done
 Character_HitApply__ApplyPickup__oneup_p1:
+    rep #$20
+.a16
     lda.l Game_Lives
     inc a
     sta.l Game_Lives
@@ -1802,6 +1892,44 @@ Character_HitApply__ApplyPickup__done:
     rtl
 
 ; ============================================================================
+; Return carry set when the source `count_ents(TYPE_PLAYER)>1` predicate is
+; true for the current SNES player representation. G13_TwoPlayerEnabled is
+; the session's joined-player mode; the OUT flags represent whether those
+; player entities are currently present/active. This is deliberately a
+; count predicate, never a P2 identity or pickup-owner test.
+Character_HitApply__2PItemAllowed:
+    sep #$20
+.a8
+    lda #0
+    lda.l G13_P1Out
+    bne Character_HitApply__2PItemAllowed__p1_absent
+    lda #1
+    bra Character_HitApply__2PItemAllowed__p1_counted
+Character_HitApply__2PItemAllowed__p1_absent:
+    sep #$20
+.a8
+    lda #0
+Character_HitApply__2PItemAllowed__p1_counted:
+    pha
+    lda.l G13_TwoPlayerEnabled
+    beq Character_HitApply__2PItemAllowed__finish
+    lda.l G13_P2Out
+    bne Character_HitApply__2PItemAllowed__finish
+    pla
+    inc a
+    pha
+Character_HitApply__2PItemAllowed__finish:
+    sep #$20
+.a8
+    pla
+    cmp #2
+    bcc Character_HitApply__2PItemAllowed__no
+    sec
+    rts
+Character_HitApply__2PItemAllowed__no:
+    clc
+    rts
+
 ; Character_HitApply__RevealOrPickup -- claude_close_g7_g8_before_g10.md
 ; Part 2. Moved here from main.pasm (bank 0 ran out of its own $C100-$FC00
 ; budget -- 3 near-identical inline copies of this dispatch, one per
@@ -1892,6 +2020,25 @@ Character_HitApply__RevealOrPickup__e1:
 Character_HitApply__RevealOrPickup__e1_has_pickup:
     sep #$20
 .a8
+    lda.l Entity1_PickupType
+    and #PICKUP_TYPE_2P_FLAG
+    beq Character_HitApply__RevealOrPickup__e1_normal
+    jsr Character_HitApply__2PItemAllowed
+    bcs Character_HitApply__RevealOrPickup__e1_allowed
+    lda #0
+    sta.l Entity1_Hp
+    sta.l Entity1_PickupType
+    sta.l Entity1_ItemRosterIdx
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e1_allowed:
+    sep #$20
+.a8
+    lda.l Entity1_PickupType
+    and #$7F
+    sta.l Entity1_PickupType
+Character_HitApply__RevealOrPickup__e1_normal:
+    sep #$20
+.a8
     lda.l Entity1_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e1_instant
     lda #1
@@ -1914,6 +2061,25 @@ Character_HitApply__RevealOrPickup__e2:
     bne Character_HitApply__RevealOrPickup__e2_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e2_has_pickup:
+    sep #$20
+.a8
+    lda.l Entity2_PickupType
+    and #PICKUP_TYPE_2P_FLAG
+    beq Character_HitApply__RevealOrPickup__e2_normal
+    jsr Character_HitApply__2PItemAllowed
+    bcs Character_HitApply__RevealOrPickup__e2_allowed
+    lda #0
+    sta.l Entity2_Hp
+    sta.l Entity2_PickupType
+    sta.l Entity2_ItemRosterIdx
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e2_allowed:
+    sep #$20
+.a8
+    lda.l Entity2_PickupType
+    and #$7F
+    sta.l Entity2_PickupType
+Character_HitApply__RevealOrPickup__e2_normal:
     sep #$20
 .a8
     lda.l Entity2_ItemRosterIdx
@@ -1940,6 +2106,25 @@ Character_HitApply__RevealOrPickup__e3:
 Character_HitApply__RevealOrPickup__e3_has_pickup:
     sep #$20
 .a8
+    lda.l Entity3_PickupType
+    and #PICKUP_TYPE_2P_FLAG
+    beq Character_HitApply__RevealOrPickup__e3_normal
+    jsr Character_HitApply__2PItemAllowed
+    bcs Character_HitApply__RevealOrPickup__e3_allowed
+    lda #0
+    sta.l Entity3_Hp
+    sta.l Entity3_PickupType
+    sta.l Entity3_ItemRosterIdx
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e3_allowed:
+    sep #$20
+.a8
+    lda.l Entity3_PickupType
+    and #$7F
+    sta.l Entity3_PickupType
+Character_HitApply__RevealOrPickup__e3_normal:
+    sep #$20
+.a8
     lda.l Entity3_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e3_instant
     lda #1
@@ -1964,6 +2149,25 @@ Character_HitApply__RevealOrPickup__e4:
 Character_HitApply__RevealOrPickup__e4_has_pickup:
     sep #$20
 .a8
+    lda.l Entity4_PickupType
+    and #PICKUP_TYPE_2P_FLAG
+    beq Character_HitApply__RevealOrPickup__e4_normal
+    jsr Character_HitApply__2PItemAllowed
+    bcs Character_HitApply__RevealOrPickup__e4_allowed
+    lda #0
+    sta.l Entity4_Hp
+    sta.l Entity4_PickupType
+    sta.l Entity4_ItemRosterIdx
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e4_allowed:
+    sep #$20
+.a8
+    lda.l Entity4_PickupType
+    and #$7F
+    sta.l Entity4_PickupType
+Character_HitApply__RevealOrPickup__e4_normal:
+    sep #$20
+.a8
     lda.l Entity4_ItemRosterIdx
     beq Character_HitApply__RevealOrPickup__e4_instant
     lda #1
@@ -1984,6 +2188,25 @@ Character_HitApply__RevealOrPickup__e5:
     bne Character_HitApply__RevealOrPickup__e5_has_pickup
     brl Character_HitApply__RevealOrPickup__done
 Character_HitApply__RevealOrPickup__e5_has_pickup:
+    sep #$20
+.a8
+    lda.l Entity5_PickupType
+    and #PICKUP_TYPE_2P_FLAG
+    beq Character_HitApply__RevealOrPickup__e5_normal
+    jsr Character_HitApply__2PItemAllowed
+    bcs Character_HitApply__RevealOrPickup__e5_allowed
+    lda #0
+    sta.l Entity5_Hp
+    sta.l Entity5_PickupType
+    sta.l Entity5_ItemRosterIdx
+    brl Character_HitApply__RevealOrPickup__done
+Character_HitApply__RevealOrPickup__e5_allowed:
+    sep #$20
+.a8
+    lda.l Entity5_PickupType
+    and #$7F
+    sta.l Entity5_PickupType
+Character_HitApply__RevealOrPickup__e5_normal:
     sep #$20
 .a8
     lda.l Entity5_ItemRosterIdx
@@ -2105,6 +2328,9 @@ Character_Pickup_CheckOverlap__vs1_dy_have:
     rts                         ; no overlap on Y
 Character_Pickup_CheckOverlap__vs1_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot1
+    bcs Character_Pickup_CheckOverlap__vs1_no
+    jsl HudOpponentHost_Collect1
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity1_PickupType
     pha
@@ -2171,6 +2397,9 @@ Character_Pickup_CheckOverlap__vs2_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs2_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot2
+    bcs Character_Pickup_CheckOverlap__vs2_no
+    jsl HudOpponentHost_Collect2
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity2_PickupType
     pha
@@ -2237,6 +2466,9 @@ Character_Pickup_CheckOverlap__vs3_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs3_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot3
+    bcs Character_Pickup_CheckOverlap__vs3_no
+    jsl HudOpponentHost_Collect3
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity3_PickupType
     pha
@@ -2302,6 +2534,9 @@ Character_Pickup_CheckOverlap__vs4_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs4_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot4
+    bcs Character_Pickup_CheckOverlap__vs4_no
+    jsl HudOpponentHost_Collect4
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity4_PickupType
     pha
@@ -2367,6 +2602,9 @@ Character_Pickup_CheckOverlap__vs5_dy_have:
     rts
 Character_Pickup_CheckOverlap__vs5_dy_ok:
 .a8
+    jsl StageTimerHost_CollectSlot5
+    bcs Character_Pickup_CheckOverlap__vs5_no
+    jsl HudOpponentHost_Collect5
     jsr Character_Pickup_CheckOverlap__TriggerGet
     lda.l Entity5_PickupType
     pha
@@ -2585,3 +2823,245 @@ G12_AnimTrace_Record:
     sta.l G12_AnimTrace_Overflow
 G12_AnimTrace_Record__done:
     rts
+
+; B2 source biker drive adaptation.  Kept in bank 8 so the normal animation
+; dispatcher remains within its fixed bank-0 budget.
+Anim_BikerDrive:
+    sep #$20
+.a8
+    stz CHAR_SELECTED
+    lda CHAR_FACING_LEFT
+    bne Anim_BikerDrive__left
+    rep #$31
+.a16
+.i16
+    lda CHAR_POS_X
+    clc
+    adc #2
+    cmp.l WorldMaxX
+    bcc Anim_BikerDrive__right_store
+    lda.l WorldMaxX
+    sta CHAR_POS_X
+    sep #$20
+.a8
+    lda #1
+    sta CHAR_FACING_LEFT
+    rtl
+Anim_BikerDrive__right_store:
+    sta CHAR_POS_X
+    rtl
+Anim_BikerDrive__left:
+    rep #$31
+.a16
+.i16
+    lda CHAR_POS_X
+    cmp #2
+    bcc Anim_BikerDrive__left_clamp
+    sec
+    sbc #2
+    sta CHAR_POS_X
+    rtl
+Anim_BikerDrive__left_clamp:
+    lda #0
+    sta CHAR_POS_X
+    sep #$20
+.a8
+    stz CHAR_FACING_LEFT
+    rtl
+
+Anim_EnterHole:
+    sep #$20
+.a8
+    lda #CHAR_SELECTED_FALL
+    sta CHAR_SELECTED
+    lda #$FF
+    sta CHAR_FRAME_INDEX
+    lda #1
+    sta CHAR_TICK_COUNTER
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta CHAR_THROW_ZPOS
+    lda #$FF00
+    sta CHAR_THROW_ZVEL
+    rtl
+
+; Source TYPE_STEAMER: emit Steam on GAME_SPEED/10 + (rand32() & 31)
+; cadence, and remove the emitter outside the advancex-80..advancex+400
+; camera window.  This bank-8 routine is called with the Steamer entity's
+; direct-page window active by Anim_Play.
+Anim_SteamerThink:
+    rep #$20
+.a16
+    lda CHAR_POS_X
+    clc
+    adc #80
+    cmp Screen_PosX
+    bcc Anim_SteamerThink__kill
+    lda Screen_PosX
+    clc
+    adc #400
+    cmp CHAR_POS_X
+    bcs Anim_SteamerThink__in
+Anim_SteamerThink__kill:
+    sep #$20
+.a8
+    stz CHAR_HP
+    rtl
+Anim_SteamerThink__in:
+    sep #$20
+.a8
+    lda CHAR_KNOCKDOWN_TIMER
+    beq Anim_SteamerThink__emit
+    dec a
+    sta CHAR_KNOCKDOWN_TIMER
+    rtl
+Anim_SteamerThink__emit:
+    sep #$20
+.a8
+    lda #20
+    sta CHAR_KNOCKDOWN_TIMER
+    jsl Spawn_SpawnSteamerChild
+    jsl Core_Random_Get
+    and #$1F
+    clc
+    adc #20
+    sta CHAR_KNOCKDOWN_TIMER
+Anim_SteamerThink__done:
+    rtl
+
+; Spawn_SpawnSteamerChild -- generic TYPE_STEAMER child emission.  This uses
+; the existing six actor windows and the normal slot45 initialization path;
+; the queue-index sentinel makes this an out-of-band child, so no authored
+; level record is consumed.  A full pool is a safe source-adaptation no-op.
+Spawn_SpawnSteamerChild:
+    php
+    jsl StageEnv_CaptureChildBase
+    sep #$20
+.a8
+    lda #0
+    sta.l Spawn_B2Kind
+    ; The child is emitted from an already-running actor tick.  Its normal
+    ; roster reassignment is itself the single stream owner for this call;
+    ; admission is still serialized by the actor-slot search below.
+    lda CHAR_POS_X
+    sta.l Spawn_ScratchX
+    lda CHAR_POS_Y
+    sta.l Spawn_ScratchY
+    lda CHAR_FACING_LEFT
+    sta.l Spawn_ScratchFacing
+    lda #SPAWN_KIND_ENEMY
+    sta.l Spawn_ScratchKind
+    lda #SPAWN_SUBTYPE_STEAM
+    sta.l Spawn_ScratchSubtype
+    sta.l Spawn_B2Subtype
+    lda #CHAR_HP_PER_HIT
+    sta.l Spawn_ScratchHp
+    sta.l Spawn_B2Hp
+    lda #38
+    sta.l Spawn_ScratchRosterIdx
+    sta.l Spawn_B2Roster
+    lda #0
+    sta.l Spawn_ScratchMap
+    sta.l Spawn_ScratchItemRosterIdx
+    lda #$FF
+    sta.l Spawn_B2Kind
+    lda.l Spawn_Index
+    sta.l Spawn_ScratchIdx
+    lda.l G13_TwoPlayerEnabled
+    bne Spawn_SpawnSteamerChild__skip1
+    lda.l Entity1_Hp
+    beq Spawn_SpawnSteamerChild__slot1
+Spawn_SpawnSteamerChild__skip1:
+    lda.l Entity2_Hp
+    beq Spawn_SpawnSteamerChild__slot2
+    lda.l Entity3_Hp
+    beq Spawn_SpawnSteamerChild__slot3
+    lda.l Entity4_Hp
+    beq Spawn_SpawnSteamerChild__slot4
+    lda.l Entity5_Hp
+    bne Spawn_SpawnSteamerChild__none
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*5
+    ; Tail-enter: Spawn_Play__advance consumes our PHP and RTL return.
+    ; A nested JSL would place its return bytes above that saved status.
+    jml Spawn_Play__slot45
+Spawn_SpawnSteamerChild__slot1:
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN
+    jml Spawn_Play__slot45
+Spawn_SpawnSteamerChild__slot2:
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*2
+    jml Spawn_Play__slot45
+Spawn_SpawnSteamerChild__slot3:
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*3
+    jml Spawn_Play__slot45
+Spawn_SpawnSteamerChild__slot4:
+    rep #$30
+.a16
+.i16
+    ldx #CHAR_ZP_LEN*4
+    jml Spawn_Play__slot45
+Spawn_SpawnSteamerChild__none:
+    plp
+    rtl
+
+; Source BOR mirror=1 helper. The source draws a second copy at the reflected
+; vertical/depth position. The current character metasprite is 64 pixels tall;
+; reflecting its top around the 208-pixel ground line is the SNES equivalent
+; of the source PLAYER_MIN_Z/PANEL_Z transform for this 224-line scene.
+; Bank-1 OAM request helper: does not touch actor position/state. All hidden
+; request writers share the same deterministic low/high representation.
+Core_Oam_HideRequest:
+    php
+    sep #$20
+.a8
+    lda #OAM_HIDDEN_X
+    sta.l OamSetSprite_X
+    lda #OAM_DEFAULT_Y
+    sta.l OamSetSprite_Y
+    lda #OAM_HIDDEN_HI
+    sta.l OamSetSprite_Hi
+    plp
+    rtl
+
+Character_MirrorEmit:
+    php
+    sep #$20
+.a8
+    lda.l Stage_Mirror
+    beq Character_MirrorEmit__done
+    lda.l OamSetSprite_Y
+    cmp #OAM_DEFAULT_Y
+    beq Character_MirrorEmit__done
+    rep #$31
+.a16
+.i16
+    lda #352
+    sec
+    sbc.l OamSetSprite_Y
+    cmp #$00EF
+    bcc Character_MirrorEmit__y_ok
+    lda #$00EF
+Character_MirrorEmit__y_ok:
+    sep #$20
+.a8
+    sta.l OamSetSprite_Y
+    jsl Core_Oam_SetSprite_Long
+Character_MirrorEmit__done:
+    plp
+    rep #$31
+.a16
+.i16
+    rtl

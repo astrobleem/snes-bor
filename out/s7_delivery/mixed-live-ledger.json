@@ -1,0 +1,884 @@
+{
+  "peak_minimum_emitted_block_bytes": 1536,
+  "available_bytes": 7168,
+  "pinned_admitted_bytes": 4608,
+  "fragmentation_bytes": 0,
+  "peak_blocks": [
+    {
+      "sha256": "010429b39a34cebbafc88e579ac9b0bc81556a7fd92328460dd625b55fbb3e4c",
+      "size": 256,
+      "placement_slot": 0,
+      "vram_byte_ranges": [
+        [
+          32768,
+          32832
+        ],
+        [
+          33280,
+          33344
+        ],
+        [
+          33792,
+          33856
+        ],
+        [
+          34304,
+          34368
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "010429b39a34cebbafc88e579ac9b0bc81556a7fd92328460dd625b55fbb3e4c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 16,
+          "ownership": "queued:8d00:6"
+        }
+      ],
+      "last_actual_consumption": 112616008
+    },
+    {
+      "sha256": "0dcff3da3de3da2c075a1cbb24c18fe6f5f1b1f716c417578f3a1735d160f87c",
+      "size": 256,
+      "placement_slot": 1,
+      "vram_byte_ranges": [
+        [
+          32832,
+          32896
+        ],
+        [
+          33344,
+          33408
+        ],
+        [
+          33856,
+          33920
+        ],
+        [
+          34368,
+          34432
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "0dcff3da3de3da2c075a1cbb24c18fe6f5f1b1f716c417578f3a1735d160f87c",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 16,
+          "ownership": "queued:8d00:6"
+        }
+      ],
+      "last_actual_consumption": 112616008
+    },
+    {
+      "sha256": "6ad177a202a4db119324f253d1d07a28f5be10aa764e5791c6c8aa2649ccf892",
+      "size": 256,
+      "placement_slot": 9,
+      "vram_byte_ranges": [
+        [
+          34880,
+          34944
+        ],
+        [
+          35392,
+          35456
+        ],
+        [
+          35904,
+          35968
+        ],
+        [
+          36416,
+          36480
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "6ad177a202a4db119324f253d1d07a28f5be10aa764e5791c6c8aa2649ccf892",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 1,
+          "map": 0,
+          "snapshot": 16,
+          "ownership": "queued:8d00:6"
+        }
+      ],
+      "last_actual_consumption": 112616008
+    },
+    {
+      "sha256": "88e1d7cd92fb84e95750b812a64bcc26e71505a8748d6c7dc57f45e3c0fc329e",
+      "size": 256,
+      "placement_slot": 14,
+      "vram_byte_ranges": [
+        [
+          35200,
+          35264
+        ],
+        [
+          35712,
+          35776
+        ],
+        [
+          36224,
+          36288
+        ],
+        [
+          36736,
+          36800
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "88e1d7cd92fb84e95750b812a64bcc26e71505a8748d6c7dc57f45e3c0fc329e",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 0,
+          "map": 0,
+          "snapshot": 13,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 135130058
+    },
+    {
+      "sha256": "f378c368a51ae339301f52a301759ad834b4734c0701432f416adf11904d78f2",
+      "size": 256,
+      "placement_slot": 20,
+      "vram_byte_ranges": [
+        [
+          37120,
+          37184
+        ],
+        [
+          37632,
+          37696
+        ],
+        [
+          38144,
+          38208
+        ],
+        [
+          38656,
+          38720
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "f378c368a51ae339301f52a301759ad834b4734c0701432f416adf11904d78f2",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 0,
+          "map": 0,
+          "snapshot": 13,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 135130058
+    },
+    {
+      "sha256": "fb1b15d2df6f81f2c428f2928602fd4701021072a6e96dc2cc671d41a00aac28",
+      "size": 256,
+      "placement_slot": 21,
+      "vram_byte_ranges": [
+        [
+          37184,
+          37248
+        ],
+        [
+          37696,
+          37760
+        ],
+        [
+          38208,
+          38272
+        ],
+        [
+          38720,
+          38784
+        ]
+      ],
+      "references": [
+        {
+          "sha256": "fb1b15d2df6f81f2c428f2928602fd4701021072a6e96dc2cc671d41a00aac28",
+          "slot": 0,
+          "model": 45,
+          "role": 1,
+          "frame": 0,
+          "map": 0,
+          "snapshot": 13,
+          "ownership": "displayed"
+        }
+      ],
+      "last_actual_consumption": 135130058
+    }
+  ],
+  "events": [
+    {
+      "clock": 109151868,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 109315970,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 109508930,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 109757070,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 109938946,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 110114440,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 110412300,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 110829188,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 110982548,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 111186540,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 111626718,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 111921432,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 112207218,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 112616008,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 112770230,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 112973358,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 113226008,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 113330728,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 113699976,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 114045488,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 114240900,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 114402826,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 114715768,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 115117594,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 115272260,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 115474958,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 115709356,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 115832292,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 116185958,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 116547042,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 116948764,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 117261752,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 117484940,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 117619110,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 117960248,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 118333858,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 118496634,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 118691222,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 118978496,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 119405952,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 119554374,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 119679574,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 120215874,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 120399686,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 120605952,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 120759158,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 120968118,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 121116514,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 121560306,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 121831232,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 122005672,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 122188602,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 122369936,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 122545980,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 122761510,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 122903380,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 123128844,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 123260724,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 123492302,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 123620164,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 123880602,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 123975424,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 124242066,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 124332820,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 124605504,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 124690190,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 125000394,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    },
+    {
+      "clock": 125040070,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 125614222,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 125862734,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 126191710,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 126553272,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 126702324,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 126910656,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 127206816,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 127625380,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 127780468,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 127982744,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 128237136,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 128340092,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 128711774,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 129054852,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 129253534,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 129412206,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 129728862,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 130126946,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 130282474,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 130484296,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 130926502,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 131223248,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 131487050,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 131913778,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 132069750,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 132271118,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 132508422,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 132628496,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 133009052,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 133343232,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 133521604,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 133700604,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 134027192,
+      "event": "QUEUED",
+      "live_bytes": 1536,
+      "pending_packets": 1
+    },
+    {
+      "clock": 134415358,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 134570478,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 134772690,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 135025396,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 135130058,
+      "event": "CONSUMED",
+      "live_bytes": 768,
+      "pending_packets": 0
+    },
+    {
+      "clock": 135501162,
+      "event": "QUEUED",
+      "live_bytes": 768,
+      "pending_packets": 1
+    },
+    {
+      "clock": 135761036,
+      "event": "CONSUMED",
+      "live_bytes": 0,
+      "pending_packets": 0
+    },
+    {
+      "clock": 136450928,
+      "event": "QUEUED",
+      "live_bytes": 0,
+      "pending_packets": 1
+    }
+  ],
+  "terminal_displayed_bytes": 0,
+  "terminal_pending_packets": 0,
+  "terminal_shared_source_excluded_packets": 1,
+  "source_pixel_global_minimum_proven": false
+}

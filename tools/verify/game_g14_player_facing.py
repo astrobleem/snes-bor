@@ -89,8 +89,8 @@ def main():
         r.check('P2 HP cache follows P2 state', u8(m, HUD_P2_HP) == u8(m, P2_HP))
         r.check('P1 score cache follows P1 score', u16(m, HUD_P1_SCORE) == u16(m, P1_SCORE))
         r.check('P2 score cache follows P2 score', u16(m, HUD_P2_SCORE) == u16(m, P2_SCORE))
-        r.check('P1 lives cache follows P1 lives', u8(m, HUD_P1_LIVES) == u8(m, P1_LIVES))
-        r.check('P2 lives cache follows P2 lives', u8(m, HUD_P2_LIVES) == u8(m, P2_LIVES))
+        r.check('P1 lives cache follows P1 lives', u16(m, HUD_P1_LIVES) == u16(m, P1_LIVES))
+        r.check('P2 lives cache follows P2 lives', u16(m, HUD_P2_LIVES) == u16(m, P2_LIVES))
 
         # Presentation-only state isolation fixture: change each owner’s
         # already-existing state between frames and verify its own cache.

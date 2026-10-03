@@ -29,6 +29,7 @@ SFX_IDS = {
     "sfx_spin": "SFX_SPIN_ID",
     "sfx_dash": "SFX_DASH_ID",
     "sfx_metal": "SFX_METAL_ID",
+    "sfx_timeover": "STAGE_TIMER_TIMEOVER_SFX_ID",
 }
 
 

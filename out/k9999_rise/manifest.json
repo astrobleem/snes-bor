@@ -1,0 +1,56 @@
+{
+  "entity": "K9999",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.3106796116504854,
+  "hotspot_canvas": [
+    11,
+    29
+  ],
+  "frames": [
+    {
+      "delay": 12,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 12,
+      "offset": [
+        52,
+        96
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    }
+  ]
+}

@@ -1,0 +1,1572 @@
+{
+  "status": "PASS",
+  "output": "E:\\gh\\snes-bor\\out\\actor_s5_entity_338c1885",
+  "shared_source_concurrency": true,
+  "production_rom_sha256": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+  "project_id": "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "clone_rom_sha256": "f65938b3f0f9e0fde396121db50244aaf5b765bb4fe2ac3d743b962dc08e7877",
+  "msu_sha256": "4e7b4b4968a248fbe2d276f3d7b7a35cf2eda944fcc8a5371e90172eaa615331",
+  "copied_symbol_sha256": "cc622d51cd2a792046313f6039cf41b0e53e8cfa05ca665e37b55489effc0173",
+  "entry_patch_address": "0xe391",
+  "central_entity_patch_address": "0xea64",
+  "central_original_bytes": "c2310b22da8507",
+  "directory_patch_address": "0xe621",
+  "extended_directory_offset": 28722218,
+  "original_prologue": "e220a50b",
+  "clone_bank": 31,
+  "roster": {
+    "Kula": 22,
+    "Joe": 2,
+    "Lobster": 45,
+    "Ramon": 46
+  },
+  "adapter_sha256": "bbe58e23dfc2da562295a6399e5f55a69761e04609d219b91e3b01184efc336c",
+  "core_sha256": "b618317a8f1cbffdac8660b4762ce6e87e747bcb6ee2a1c29957d753b98486a6",
+  "compiler_abi_sha256": "ecf6269730734d0e7eae8a959ea31ae3f8070fee70233d3a6080e5d4b7c1db43",
+  "source_hashes": {
+    "Kula": "92e1354aed3d5d90e8f21c96c497701440f62db37f3e4f31fc71c1489c127503",
+    "Lobster": "4d5cb4c3aefd3dacec1c4db1dc40ebafb0ea81427a655b1791fccbd59efef052",
+    "Joe": "d56feb7f6d13e75ce2e0ec38511fa745039f5500019e44c4368d46fce5743f2e",
+    "Ramon": "65f5f8ed2cb607d610f09c5a137c964353d31dce4876b88454693c025203c197"
+  },
+  "extended_fixture_media": {
+    "Lobster": {
+      "slot": 45,
+      "encoding": {
+        "status": "ENCODED",
+        "bytes": 62400,
+        "sha256": "69d980d5990a3a6a38c2783f2166b760125d6f989a21e25e0137b1df298d3528",
+        "palette_count": 5,
+        "frames": [
+          {
+            "role": "idle",
+            "source_count": 5,
+            "encoded_count": 5
+          },
+          {
+            "role": "pain",
+            "source_count": 3,
+            "encoded_count": 3
+          },
+          {
+            "role": "fall",
+            "source_count": 25,
+            "encoded_count": 25
+          },
+          {
+            "role": "walk",
+            "source_count": 12,
+            "encoded_count": 12
+          },
+          {
+            "role": "rise",
+            "source_count": 5,
+            "encoded_count": 5
+          },
+          {
+            "role": "attack1",
+            "source_count": 14,
+            "encoded_count": 14
+          },
+          {
+            "role": "attack2",
+            "source_count": 20,
+            "encoded_count": 20
+          }
+        ],
+        "packed_info": {
+          "idle_frame_count": 5,
+          "walk_frame_count": 12,
+          "attack_frame_count": 14,
+          "fall_frame_count": 25,
+          "rise_frame_count": 5,
+          "attack2_frame_count": 20,
+          "idle_delay": 10,
+          "walk_delay": 7,
+          "attack_delay": 4,
+          "fall_delay": 9,
+          "rise_delay": 15,
+          "attack2_delay": 3,
+          "attack2_is_grab": false,
+          "jump_frame_count": 0,
+          "jump_delay": 0,
+          "jumpattack_frame_count": 0,
+          "jumpattack_delay": 0,
+          "jumpattack2_frame_count": 0,
+          "jumpattack2_delay": 0,
+          "special_frame_count": 0,
+          "special_delay": 0,
+          "waiting_frame_count": 0,
+          "waiting_delay": 0,
+          "blob_size": 62400,
+          "attack3_frame_count": 0,
+          "attack3_delay": 0,
+          "attack4_frame_count": 0,
+          "attack4_delay": 0,
+          "grab_frame_count": 0,
+          "grab_delay": 0,
+          "slide_frame_count": 0,
+          "slide_delay": 0,
+          "riseattack_frame_count": 0,
+          "riseattack_delay": 0,
+          "grabattack_frame_count": 0,
+          "grabattack_delay": 0,
+          "freespecial_frame_count": 0,
+          "freespecial_delay": 0,
+          "get_frame_count": 0,
+          "get_delay": 0,
+          "atchain_variants": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "chainlength": 0
+        },
+        "source_default_bindings": [],
+        "runtime_certified": false,
+        "note": "existing raster adapter; conversion includes roles the fixed-slot packer may omit"
+      },
+      "record_hex": "050c0e0a0704190928d870001403050f00000000000000000000000000000000000000000000000000000000000000000000",
+      "media_extent": {
+        "offset": 7395368,
+        "bytes": 62400,
+        "end_exclusive": 7457768,
+        "address_bits": 24
+      },
+      "identity": "fixture-only, not accepted compatibility"
+    },
+    "Ramon": {
+      "slot": 46,
+      "encoding": {
+        "status": "ENCODED",
+        "bytes": 2336,
+        "sha256": "8f5aefb7b48d092c8cb12b07f7b0cfb3a7d8f987581a7f5fba5b83dcf6df1420",
+        "palette_count": 0,
+        "frames": [
+          {
+            "role": "idle",
+            "source_count": 1,
+            "encoded_count": 1
+          },
+          {
+            "role": "walk",
+            "source_count": 1,
+            "encoded_count": 1
+          },
+          {
+            "role": "pain",
+            "source_count": 1,
+            "encoded_count": 1
+          },
+          {
+            "role": "fall",
+            "source_count": 1,
+            "encoded_count": 1
+          }
+        ],
+        "packed_info": {
+          "idle_frame_count": 1,
+          "walk_frame_count": 1,
+          "attack_frame_count": 0,
+          "fall_frame_count": 1,
+          "rise_frame_count": 0,
+          "attack2_frame_count": 0,
+          "idle_delay": 0,
+          "walk_delay": 0,
+          "attack_delay": 0,
+          "fall_delay": 0,
+          "rise_delay": 0,
+          "attack2_delay": 0,
+          "attack2_is_grab": false,
+          "jump_frame_count": 0,
+          "jump_delay": 0,
+          "jumpattack_frame_count": 0,
+          "jumpattack_delay": 0,
+          "jumpattack2_frame_count": 0,
+          "jumpattack2_delay": 0,
+          "special_frame_count": 0,
+          "special_delay": 0,
+          "waiting_frame_count": 0,
+          "waiting_delay": 0,
+          "blob_size": 2336,
+          "attack3_frame_count": 0,
+          "attack3_delay": 0,
+          "attack4_frame_count": 0,
+          "attack4_delay": 0,
+          "grab_frame_count": 0,
+          "grab_delay": 0,
+          "slide_frame_count": 0,
+          "slide_delay": 0,
+          "riseattack_frame_count": 0,
+          "riseattack_delay": 0,
+          "grabattack_frame_count": 0,
+          "grabattack_delay": 0,
+          "freespecial_frame_count": 0,
+          "freespecial_delay": 0,
+          "get_frame_count": 0,
+          "get_delay": 0,
+          "atchain_variants": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "chainlength": 0
+        },
+        "source_default_bindings": [
+          {
+            "role": "idle",
+            "frame": 0,
+            "delay": 0
+          },
+          {
+            "role": "walk",
+            "frame": 0,
+            "delay": 0
+          },
+          {
+            "role": "pain",
+            "frame": 0,
+            "delay": 0
+          },
+          {
+            "role": "fall",
+            "frame": 0,
+            "delay": 0
+          }
+        ],
+        "runtime_certified": false,
+        "note": "existing raster adapter; conversion includes roles the fixed-slot packer may omit"
+      },
+      "record_hex": "0101000000000100e8cb71000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "media_extent": {
+        "offset": 7457768,
+        "bytes": 2336,
+        "end_exclusive": 7460104,
+        "address_bits": 24
+      },
+      "identity": "fixture-only, not accepted compatibility"
+    }
+  },
+  "descriptor_catalog": {
+    "sha256": "b2fb62b7e7e8705fe32297870f48a9df6ef38cd7a4ae7f2ef8aeb9ab6197b3c2",
+    "project_token": 1328303349,
+    "bytes": 10032,
+    "entries": 38,
+    "lookup_sha256": "b2603946ccb3150f2bc98a6a0ae94653b43a36029917fbdd3da85b7fb7bdb8db",
+    "binding": "actual entity runtime ID + source role ID + profile + actual frame; no mailbox table pointers"
+  },
+  "clone_clock_hook": {
+    "address": "0xffa3",
+    "original_bytes": "40000000",
+    "boundary": "after Core_Nmi_Play, preserving registers and original hardware RTI stack",
+    "production_changed": false,
+    "clock_core_sha256": "51085a831b18941ffb27784e5284a05aa75be1dae5d7d213211f476626377d16"
+  },
+  "private_scene_arena": {
+    "owner_scene_id": 2,
+    "catalog_offset": 5791416,
+    "catalog_record_hex": "020001000001c000190001004700000028d87000780b0f00",
+    "start": 7395368,
+    "end_exclusive": 8381344,
+    "original_extent_sha256": "8757769f30a99f90e38e347e3039cebb8a557751f554a468255401d65b8d0161",
+    "replacement_end_exclusive": 7460104,
+    "replacement_bytes": 64736,
+    "original_replaced_sha256": "800513586103a0f22fd633e074e448cbed4cac1e9707c4bd1c327df533317dc4",
+    "replacement_sha256": "e3604661ed3f1d3297b39abf2790ce39ad8a5679ac7c7b01a1aaa6e29f561a62",
+    "whole_game_publishable": false,
+    "unused_during_controlled_playing_fixture": true
+  },
+  "clone_map_count_patch": {
+    "address": "0xd86b4",
+    "before": 0,
+    "after": 5
+  },
+  "proof": {
+    "status": "PASS",
+    "cases": [
+      {
+        "actor": "Kula",
+        "case": "frame0",
+        "profile": 1,
+        "frame": 0,
+        "source_behavior_flags": 1,
+        "hit": 0,
+        "force": 0,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "frame1",
+        "profile": 1,
+        "frame": 1,
+        "source_behavior_flags": 1,
+        "hit": 0,
+        "force": 0,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "frame2",
+        "profile": 1,
+        "frame": 2,
+        "source_behavior_flags": 1,
+        "hit": 1,
+        "force": 5,
+        "hp_before": 64,
+        "hp_after": 59,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "frame3",
+        "profile": 1,
+        "frame": 3,
+        "source_behavior_flags": 1,
+        "hit": 1,
+        "force": 5,
+        "hp_before": 64,
+        "hp_after": 59,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "frame4",
+        "profile": 1,
+        "frame": 4,
+        "source_behavior_flags": 1,
+        "hit": 0,
+        "force": 0,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "frame5",
+        "profile": 1,
+        "frame": 5,
+        "source_behavior_flags": 1,
+        "hit": 0,
+        "force": 0,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "source_miss",
+        "profile": 1,
+        "frame": 2,
+        "source_behavior_flags": 1,
+        "hit": 0,
+        "force": 5,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "compat_control_frame0",
+        "profile": 2,
+        "frame": 0,
+        "source_behavior_flags": 1,
+        "hit": 1,
+        "force": 4,
+        "hp_before": 64,
+        "hp_after": 60,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Lobster",
+        "case": "fall_unflagged",
+        "profile": 1,
+        "frame": 1,
+        "source_behavior_flags": 0,
+        "hit": 0,
+        "force": 15,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 45,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Lobster",
+        "case": "fall_projectile",
+        "profile": 1,
+        "frame": 1,
+        "source_behavior_flags": 2,
+        "hit": 1,
+        "force": 15,
+        "hp_before": 64,
+        "hp_after": 49,
+        "actual_roster": 45,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Lobster",
+        "case": "fall_attacking",
+        "profile": 1,
+        "frame": 1,
+        "source_behavior_flags": 1,
+        "hit": 1,
+        "force": 15,
+        "hp_before": 64,
+        "hp_after": 49,
+        "actual_roster": 45,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Lobster",
+        "case": "fall_frame0",
+        "profile": 1,
+        "frame": 0,
+        "source_behavior_flags": 2,
+        "hit": 0,
+        "force": 0,
+        "hp_before": 64,
+        "hp_after": 64,
+        "actual_roster": 45,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Kula",
+        "case": "accepted_delegate_frame0",
+        "profile": 0,
+        "frame": 0,
+        "source_behavior_flags": 1,
+        "hit": 1,
+        "force": 4,
+        "hp_before": 64,
+        "hp_after": 60,
+        "actual_roster": 22,
+        "real_entity_dispatch": true
+      },
+      {
+        "actor": "Ramon",
+        "role": "idle",
+        "profile": 1,
+        "cpu_ack": 23,
+        "actual_roster": 46,
+        "delay_ticks": 0,
+        "vulnerable": false,
+        "hit": 0,
+        "hp_after": 64,
+        "packed_role_bound": true,
+        "pain_note": null
+      },
+      {
+        "actor": "Ramon",
+        "role": "walk",
+        "profile": 1,
+        "cpu_ack": 24,
+        "actual_roster": 46,
+        "delay_ticks": 0,
+        "vulnerable": false,
+        "hit": 0,
+        "hp_after": 64,
+        "packed_role_bound": true,
+        "pain_note": null
+      },
+      {
+        "actor": "Ramon",
+        "role": "pain",
+        "profile": 1,
+        "cpu_ack": 25,
+        "actual_roster": 46,
+        "delay_ticks": 0,
+        "vulnerable": false,
+        "hit": 0,
+        "hp_after": 64,
+        "packed_role_bound": false,
+        "pain_note": "descriptor-only; fixed packed format omits pain"
+      },
+      {
+        "actor": "Ramon",
+        "role": "fall",
+        "profile": 1,
+        "cpu_ack": 26,
+        "actual_roster": 46,
+        "delay_ticks": 0,
+        "vulnerable": false,
+        "hit": 0,
+        "hp_after": 64,
+        "packed_role_bound": true,
+        "pain_note": null
+      }
+    ],
+    "loaders": [
+      {
+        "actor": "Joe",
+        "entity_dp": 2826,
+        "roster": 2,
+        "cpu_ack": 1,
+        "loaded": 1
+      },
+      {
+        "actor": "Kula",
+        "entity_dp": 2560,
+        "roster": 22,
+        "cpu_ack": 2,
+        "loaded": 1
+      },
+      {
+        "actor": "Lobster",
+        "entity_dp": 2560,
+        "roster": 45,
+        "cpu_ack": 11,
+        "loaded": 1
+      },
+      {
+        "actor": "Kula",
+        "entity_dp": 2560,
+        "roster": 22,
+        "cpu_ack": 19,
+        "loaded": 1
+      },
+      {
+        "actor": "Ramon",
+        "entity_dp": 2560,
+        "roster": 46,
+        "cpu_ack": 22,
+        "loaded": 1
+      },
+      {
+        "actor": "Kula",
+        "entity_dp": 2560,
+        "roster": 22,
+        "cpu_ack": 29,
+        "loaded": 1
+      }
+    ],
+    "maps": [
+      {
+        "actor": "Lobster",
+        "source_identity": [
+          "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+          "data/chars/lobster/lobster.txt"
+        ],
+        "requested": 4,
+        "selected": 4,
+        "cpu_ack": 16,
+        "palette_slot": 0,
+        "expected_hex": "00009c7b54233826944acf22ae2527128d35280d000063090721a404280d0000",
+        "actual_hex": "00009c7b54233826944acf22ae2527128d35280d000063090721a404280d0000",
+        "consumer": "StageEnv_ApplySpawnMap -> Anim_ApplyMapPalette -> NMI DMA"
+      },
+      {
+        "actor": "Lobster",
+        "source_identity": [
+          "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+          "data/chars/lobster/lobster.txt"
+        ],
+        "requested": 5,
+        "selected": 5,
+        "cpu_ack": 17,
+        "palette_slot": 0,
+        "expected_hex": "0000fb52f266382632366e49ae25e7402c19280d0000a434c808a404401c0000",
+        "actual_hex": "0000fb52f266382632366e49ae25e7402c19280d0000a434c808a404401c0000",
+        "consumer": "StageEnv_ApplySpawnMap -> Anim_ApplyMapPalette -> NMI DMA"
+      },
+      {
+        "actor": "Lobster",
+        "source_identity": [
+          "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+          "data/chars/lobster/lobster.txt"
+        ],
+        "requested": 6,
+        "selected": 0,
+        "cpu_ack": 18,
+        "palette_slot": 0,
+        "expected_hex": "00001b577a3238263236b621ae2510092c19280d0000ae00c808a40409080000",
+        "actual_hex": "00001b577a3238263236b621ae2510092c19280d0000ae00c808a40409080000",
+        "consumer": "StageEnv_ApplySpawnMap -> Anim_ApplyMapPalette -> NMI DMA"
+      }
+    ],
+    "catalog_misses": [
+      {
+        "case": "unknown_role",
+        "cpu_ack": 27,
+        "hp": 64,
+        "lookup_status": 1
+      },
+      {
+        "case": "missing_compat_model",
+        "cpu_ack": 28,
+        "hp": 64,
+        "lookup_status": 1
+      }
+    ],
+    "clock_binding": {
+      "actor": "Kula",
+      "role": "attack1",
+      "source_identity": [
+        "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+        "data/chars/kula/kula.txt"
+      ],
+      "profile": 1,
+      "status": "PASS",
+      "cpu_start_ack": 30,
+      "source_ticks_applied": 40,
+      "actual_entity_frame": 5,
+      "delay_ticks": [
+        8,
+        8,
+        8,
+        8,
+        4,
+        4
+      ],
+      "transition_ticks": [
+        8,
+        16,
+        24,
+        32,
+        36,
+        40
+      ],
+      "master_clock_hz": 21477270,
+      "nmi_intervals": [
+        [
+          247,
+          128,
+          71472800
+        ],
+        [
+          248,
+          0,
+          71473600
+        ],
+        [
+          249,
+          128,
+          71472800
+        ],
+        [
+          250,
+          0,
+          71473600
+        ],
+        [
+          251,
+          128,
+          71472800
+        ],
+        [
+          252,
+          0,
+          71473600
+        ],
+        [
+          253,
+          128,
+          71472800
+        ],
+        [
+          254,
+          0,
+          71473600
+        ],
+        [
+          255,
+          128,
+          71472800
+        ],
+        [
+          256,
+          0,
+          71473600
+        ],
+        [
+          257,
+          128,
+          71472800
+        ],
+        [
+          258,
+          0,
+          71473600
+        ],
+        [
+          259,
+          128,
+          71472800
+        ]
+      ],
+      "rows": [
+        [
+          1,
+          0,
+          7,
+          1,
+          0,
+          247
+        ],
+        [
+          2,
+          0,
+          6,
+          1,
+          0,
+          247
+        ],
+        [
+          3,
+          0,
+          5,
+          1,
+          0,
+          247
+        ],
+        [
+          4,
+          0,
+          4,
+          1,
+          0,
+          248
+        ],
+        [
+          5,
+          0,
+          3,
+          1,
+          0,
+          248
+        ],
+        [
+          6,
+          0,
+          2,
+          1,
+          0,
+          248
+        ],
+        [
+          7,
+          0,
+          1,
+          1,
+          0,
+          249
+        ],
+        [
+          8,
+          1,
+          8,
+          1,
+          1,
+          249
+        ],
+        [
+          9,
+          1,
+          7,
+          1,
+          1,
+          249
+        ],
+        [
+          10,
+          1,
+          6,
+          1,
+          1,
+          250
+        ],
+        [
+          11,
+          1,
+          5,
+          1,
+          1,
+          250
+        ],
+        [
+          12,
+          1,
+          4,
+          1,
+          1,
+          250
+        ],
+        [
+          13,
+          1,
+          3,
+          1,
+          1,
+          250
+        ],
+        [
+          14,
+          1,
+          2,
+          1,
+          1,
+          251
+        ],
+        [
+          15,
+          1,
+          1,
+          1,
+          1,
+          251
+        ],
+        [
+          16,
+          2,
+          8,
+          1,
+          2,
+          251
+        ],
+        [
+          17,
+          2,
+          7,
+          1,
+          2,
+          252
+        ],
+        [
+          18,
+          2,
+          6,
+          1,
+          2,
+          252
+        ],
+        [
+          19,
+          2,
+          5,
+          1,
+          2,
+          252
+        ],
+        [
+          20,
+          2,
+          4,
+          1,
+          2,
+          253
+        ],
+        [
+          21,
+          2,
+          3,
+          1,
+          2,
+          253
+        ],
+        [
+          22,
+          2,
+          2,
+          1,
+          2,
+          253
+        ],
+        [
+          23,
+          2,
+          1,
+          1,
+          2,
+          253
+        ],
+        [
+          24,
+          3,
+          8,
+          1,
+          3,
+          254
+        ],
+        [
+          25,
+          3,
+          7,
+          1,
+          3,
+          254
+        ],
+        [
+          26,
+          3,
+          6,
+          1,
+          3,
+          254
+        ],
+        [
+          27,
+          3,
+          5,
+          1,
+          3,
+          255
+        ],
+        [
+          28,
+          3,
+          4,
+          1,
+          3,
+          255
+        ],
+        [
+          29,
+          3,
+          3,
+          1,
+          3,
+          255
+        ],
+        [
+          30,
+          3,
+          2,
+          1,
+          3,
+          256
+        ],
+        [
+          31,
+          3,
+          1,
+          1,
+          3,
+          256
+        ],
+        [
+          32,
+          4,
+          4,
+          1,
+          4,
+          256
+        ],
+        [
+          33,
+          4,
+          3,
+          1,
+          4,
+          256
+        ],
+        [
+          34,
+          4,
+          2,
+          1,
+          4,
+          257
+        ],
+        [
+          35,
+          4,
+          1,
+          1,
+          4,
+          257
+        ],
+        [
+          36,
+          5,
+          4,
+          1,
+          5,
+          257
+        ],
+        [
+          37,
+          5,
+          3,
+          1,
+          5,
+          258
+        ],
+        [
+          38,
+          5,
+          2,
+          1,
+          5,
+          258
+        ],
+        [
+          39,
+          5,
+          1,
+          1,
+          5,
+          258
+        ],
+        [
+          40,
+          5,
+          0,
+          0,
+          5,
+          259
+        ]
+      ],
+      "host_frame_writes_after_start": 0,
+      "lookup": "catalog actor/role/profile/frame",
+      "production_scheduler_bound": false,
+      "source_raster_cadence": false,
+      "clock": "rational 200Hz at private NMI-return hook, live hardware parity"
+    },
+    "synchronous_acknowledgements_required": true,
+    "timing": [
+      {
+        "actor": "Kula",
+        "role": "attack1",
+        "source_identity": [
+          "b6b8b03d39052b1f64ee11285927a7dd8664214e894e790818d105f246f542c4",
+          "data/chars/kula/kula.txt"
+        ],
+        "profile": 1,
+        "status": "PASS",
+        "cpu_start_ack": 30,
+        "source_ticks_applied": 40,
+        "actual_entity_frame": 5,
+        "delay_ticks": [
+          8,
+          8,
+          8,
+          8,
+          4,
+          4
+        ],
+        "transition_ticks": [
+          8,
+          16,
+          24,
+          32,
+          36,
+          40
+        ],
+        "master_clock_hz": 21477270,
+        "nmi_intervals": [
+          [
+            247,
+            128,
+            71472800
+          ],
+          [
+            248,
+            0,
+            71473600
+          ],
+          [
+            249,
+            128,
+            71472800
+          ],
+          [
+            250,
+            0,
+            71473600
+          ],
+          [
+            251,
+            128,
+            71472800
+          ],
+          [
+            252,
+            0,
+            71473600
+          ],
+          [
+            253,
+            128,
+            71472800
+          ],
+          [
+            254,
+            0,
+            71473600
+          ],
+          [
+            255,
+            128,
+            71472800
+          ],
+          [
+            256,
+            0,
+            71473600
+          ],
+          [
+            257,
+            128,
+            71472800
+          ],
+          [
+            258,
+            0,
+            71473600
+          ],
+          [
+            259,
+            128,
+            71472800
+          ]
+        ],
+        "rows": [
+          [
+            1,
+            0,
+            7,
+            1,
+            0,
+            247
+          ],
+          [
+            2,
+            0,
+            6,
+            1,
+            0,
+            247
+          ],
+          [
+            3,
+            0,
+            5,
+            1,
+            0,
+            247
+          ],
+          [
+            4,
+            0,
+            4,
+            1,
+            0,
+            248
+          ],
+          [
+            5,
+            0,
+            3,
+            1,
+            0,
+            248
+          ],
+          [
+            6,
+            0,
+            2,
+            1,
+            0,
+            248
+          ],
+          [
+            7,
+            0,
+            1,
+            1,
+            0,
+            249
+          ],
+          [
+            8,
+            1,
+            8,
+            1,
+            1,
+            249
+          ],
+          [
+            9,
+            1,
+            7,
+            1,
+            1,
+            249
+          ],
+          [
+            10,
+            1,
+            6,
+            1,
+            1,
+            250
+          ],
+          [
+            11,
+            1,
+            5,
+            1,
+            1,
+            250
+          ],
+          [
+            12,
+            1,
+            4,
+            1,
+            1,
+            250
+          ],
+          [
+            13,
+            1,
+            3,
+            1,
+            1,
+            250
+          ],
+          [
+            14,
+            1,
+            2,
+            1,
+            1,
+            251
+          ],
+          [
+            15,
+            1,
+            1,
+            1,
+            1,
+            251
+          ],
+          [
+            16,
+            2,
+            8,
+            1,
+            2,
+            251
+          ],
+          [
+            17,
+            2,
+            7,
+            1,
+            2,
+            252
+          ],
+          [
+            18,
+            2,
+            6,
+            1,
+            2,
+            252
+          ],
+          [
+            19,
+            2,
+            5,
+            1,
+            2,
+            252
+          ],
+          [
+            20,
+            2,
+            4,
+            1,
+            2,
+            253
+          ],
+          [
+            21,
+            2,
+            3,
+            1,
+            2,
+            253
+          ],
+          [
+            22,
+            2,
+            2,
+            1,
+            2,
+            253
+          ],
+          [
+            23,
+            2,
+            1,
+            1,
+            2,
+            253
+          ],
+          [
+            24,
+            3,
+            8,
+            1,
+            3,
+            254
+          ],
+          [
+            25,
+            3,
+            7,
+            1,
+            3,
+            254
+          ],
+          [
+            26,
+            3,
+            6,
+            1,
+            3,
+            254
+          ],
+          [
+            27,
+            3,
+            5,
+            1,
+            3,
+            255
+          ],
+          [
+            28,
+            3,
+            4,
+            1,
+            3,
+            255
+          ],
+          [
+            29,
+            3,
+            3,
+            1,
+            3,
+            255
+          ],
+          [
+            30,
+            3,
+            2,
+            1,
+            3,
+            256
+          ],
+          [
+            31,
+            3,
+            1,
+            1,
+            3,
+            256
+          ],
+          [
+            32,
+            4,
+            4,
+            1,
+            4,
+            256
+          ],
+          [
+            33,
+            4,
+            3,
+            1,
+            4,
+            256
+          ],
+          [
+            34,
+            4,
+            2,
+            1,
+            4,
+            257
+          ],
+          [
+            35,
+            4,
+            1,
+            1,
+            4,
+            257
+          ],
+          [
+            36,
+            5,
+            4,
+            1,
+            5,
+            257
+          ],
+          [
+            37,
+            5,
+            3,
+            1,
+            5,
+            258
+          ],
+          [
+            38,
+            5,
+            2,
+            1,
+            5,
+            258
+          ],
+          [
+            39,
+            5,
+            1,
+            1,
+            5,
+            258
+          ],
+          [
+            40,
+            5,
+            0,
+            0,
+            5,
+            259
+          ]
+        ],
+        "host_frame_writes_after_start": 0,
+        "lookup": "catalog actor/role/profile/frame",
+        "production_scheduler_bound": false,
+        "source_raster_cadence": false,
+        "clock": "rational 200Hz at private NMI-return hook, live hardware parity"
+      }
+    ],
+    "post_delegate_continuation": [
+      {
+        "cpu_ack": 21,
+        "hp": 60,
+        "central_entries": 12,
+        "game_updates": 2
+      }
+    ],
+    "actual_entity_hp_outcomes": true,
+    "actual_packed_actor_loader": true,
+    "organic_attack_selection": false,
+    "organic_spawn": false,
+    "source_raster_alignment": false,
+    "full_damage_callback": false,
+    "full_actor_certification": false,
+    "production_profile0_fallback": "displaced prologue replay plus original routine continuation"
+  },
+  "protected_before": {
+    "build_rom.py": "d87ac21f34c4f9d6c30025191baae1055564eab543d11636c054d4657ad9c891",
+    "src\\main.pasm": "59ae6c8b22a16967126a495e78ea62195c0de552ed63dfac92a6fb0856608237",
+    "tools\\bor_compile\\accepted_actor_policy.py": "188740567b16c487fd1ccc5754b06cf9fb94d69eb68d48d4e2f6909732be5dac",
+    "tools\\bor_compile\\actor_catalog.py": "29da00bf1879dd7e302a81f62a5c606fbcfd9711e6234a4033bd4380f886ea94",
+    "tools\\bor_compile\\actor_frame_abi.py": "ecf6269730734d0e7eae8a959ea31ae3f8070fee70233d3a6080e5d4b7c1db43",
+    "tools\\bor_compile\\actor_lowering.py": "8e55fe9b39ed4e10b1eb27b8254a72be63c586f3c2820d3d222007e3e6010b85",
+    "tools\\bor_compile\\analyze.py": "f4d110f86d66dc56f6416aef3690e6aaf3b646ae01207f7929e249e1834e9e80",
+    "tools\\bor_compile\\certify.py": "3e6dddc96d9338f073e847f9c28ceb3cac10ff23408bf1e400010720571917e2",
+    "tools\\bor_compile\\certify_actors.py": "67f9cd6df829eccb76e14ec8d97943d60989c368fce07a46abcb897a737be03c",
+    "tools\\bor_compile\\certify_environment.py": "3fa1234b9a2cab1ae1574f43367125b8e48e9e4a81cc4cca68a41b7913736930",
+    "tools\\bor_compile\\compiler.py": "6b2a450a79c524fa0dc918569ea485b28bd4f4ee6b29ea28e9f3d5b1ad5ce427",
+    "tools\\bor_compile\\environment_capabilities.py": "b7d3e2c03229e9e5a47366515586d0da2caf06adceaf63cc698fb8f428b4a384",
+    "tools\\bor_compile\\environment_inventory.py": "93d95fd945686cf92a4b7ce1ab75a697e4f8e24568a972cd161d6b358b8b985c",
+    "tools\\bor_compile\\environment_semantics.py": "f229e569a8f79e9d8f572a01b22fb59f079a54989c1c1ddc8e340765e5985c06",
+    "tools\\bor_compile\\generate_environment.py": "57a05e25c096c4262e58c6d71e047f2d8ccccce99fab7712217ada271ac71800",
+    "tools\\bor_compile\\live_actor_evidence.py": "6f97a2ed3a13b8374cfcf77dc6c7209dd3f48a3d39c144fbd4b48cff541358ff",
+    "tools\\bor_compile\\lowering_policy.py": "aad799c807b1eae2e5df0f9b1e0208f1097d2c3f849d72c0633fcfff562f2023",
+    "tools\\bor_compile\\model_ir.py": "014ebb3ed954d56df59760959ceae4dbf63d76b9fad5819f35a47fa9a01de7e8",
+    "tools\\bor_compile\\queue_capacity.py": "c385485f96b200e6cdebef9b4fd6ffeb418524a0b2fcc9bbcf01aa20937293c7",
+    "tools\\bor_compile\\recertify_actor_entries.py": "c8a78f3ae6f301fbf240dc67240a1be08f7c9a071a12b10755a60abdcf388233",
+    "tools\\bor_compile\\regenerate_queues.py": "8c753e5bba78dfb2eb1ce870133298cfe4ce86bdb31c0f2617291d25dfaa1e74",
+    "tools\\bor_compile\\test_actor_catalog.py": "1aac81e6bd6817e3a0ac3fe8cad2d2f7d8f10b92668cd060c693cf1a09e5985a",
+    "tools\\bor_compile\\test_actor_lowering.py": "74c5439f5956cb4c93ac30e4a282733eb62b6d3251f3995fff6e8b8be0735237",
+    "tools\\bor_compile\\test_certify.py": "1a9b37f329167664ca1c94f0cc5c0712505cfdd3ca78efc5c94ef111b5ed84dd",
+    "tools\\bor_compile\\test_compiler.py": "c2eca32a01b633729c2f4d6baa94dda8e47230b98a04cf5e05f81c1ec22596b3",
+    "tools\\bor_compile\\test_environment.py": "f8a5bb26f7fa47bc86d7b3c2b336ecc18516274ff352c77784ca92c00cb5c288",
+    "tools\\bor_compile\\test_lowering_policy.py": "cee6c2b148fe596143b2c8cd060dfc761907af48344dbf1e109f94b44bf54912",
+    "tools\\bor_compile\\test_models.py": "1141a11086ba6ee07cf2710ca09ec4e4acec01f8374691c351338e84e4af3edf",
+    "tools\\bor_compile\\test_queue_capacity.py": "4eaab01005a0e7575135244421dd80213fd99926f8b1159b8b0e9447b62914b0",
+    "src\\generated\\queue_abi.json": "22adb837a7c161c496d9a2b5e3f037cc1f00472851d22fb3d53cd8b91cbcc9c7",
+    "src\\generated\\queue_abi.pasm": "079b604ff6ac1c92415ad9b205c3faa7d5aaea10b6e3f2b59b38343b2f4d1fed",
+    "src\\generated\\scene_sequence_meta.pasm": "452f44b314e4e18ed6adf17fb6925e717e155e37edab085178b5ecae33fdb9a0",
+    "src\\generated\\scene_video_meta.bin": "ca476a0b4ede3e35c63d0d165be8c91ef1938e17b29489c4fad722b9a8e1e1b9",
+    "src\\generated\\scene_video_meta.pasm": "fb2542b17b6ec22ecf553cae051b218a8c76d22f593a5cd6547dd9807e47af77",
+    "src\\generated\\stage_environment_bases.pasm": "197bf14d1a13471b22a755b1bec6470061df46844ae34ea6eb51b727aee966db",
+    "src\\generated\\stage_environment_maps.pasm": "65d9b64c24739719c8adf5d252c209a46770936e3a949adf9e8d625d83228bcc",
+    "build\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "build\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc",
+    "distribution\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "distribution\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc"
+  },
+  "protected_after": {
+    "build_rom.py": "d87ac21f34c4f9d6c30025191baae1055564eab543d11636c054d4657ad9c891",
+    "src\\main.pasm": "59ae6c8b22a16967126a495e78ea62195c0de552ed63dfac92a6fb0856608237",
+    "tools\\bor_compile\\accepted_actor_policy.py": "188740567b16c487fd1ccc5754b06cf9fb94d69eb68d48d4e2f6909732be5dac",
+    "tools\\bor_compile\\actor_catalog.py": "29da00bf1879dd7e302a81f62a5c606fbcfd9711e6234a4033bd4380f886ea94",
+    "tools\\bor_compile\\actor_frame_abi.py": "ecf6269730734d0e7eae8a959ea31ae3f8070fee70233d3a6080e5d4b7c1db43",
+    "tools\\bor_compile\\actor_lowering.py": "8e55fe9b39ed4e10b1eb27b8254a72be63c586f3c2820d3d222007e3e6010b85",
+    "tools\\bor_compile\\analyze.py": "f4d110f86d66dc56f6416aef3690e6aaf3b646ae01207f7929e249e1834e9e80",
+    "tools\\bor_compile\\certify.py": "3e6dddc96d9338f073e847f9c28ceb3cac10ff23408bf1e400010720571917e2",
+    "tools\\bor_compile\\certify_actors.py": "67f9cd6df829eccb76e14ec8d97943d60989c368fce07a46abcb897a737be03c",
+    "tools\\bor_compile\\certify_environment.py": "3fa1234b9a2cab1ae1574f43367125b8e48e9e4a81cc4cca68a41b7913736930",
+    "tools\\bor_compile\\compiler.py": "6b2a450a79c524fa0dc918569ea485b28bd4f4ee6b29ea28e9f3d5b1ad5ce427",
+    "tools\\bor_compile\\environment_capabilities.py": "b7d3e2c03229e9e5a47366515586d0da2caf06adceaf63cc698fb8f428b4a384",
+    "tools\\bor_compile\\environment_inventory.py": "93d95fd945686cf92a4b7ce1ab75a697e4f8e24568a972cd161d6b358b8b985c",
+    "tools\\bor_compile\\environment_semantics.py": "f229e569a8f79e9d8f572a01b22fb59f079a54989c1c1ddc8e340765e5985c06",
+    "tools\\bor_compile\\generate_environment.py": "57a05e25c096c4262e58c6d71e047f2d8ccccce99fab7712217ada271ac71800",
+    "tools\\bor_compile\\live_actor_evidence.py": "6f97a2ed3a13b8374cfcf77dc6c7209dd3f48a3d39c144fbd4b48cff541358ff",
+    "tools\\bor_compile\\lowering_policy.py": "aad799c807b1eae2e5df0f9b1e0208f1097d2c3f849d72c0633fcfff562f2023",
+    "tools\\bor_compile\\model_ir.py": "014ebb3ed954d56df59760959ceae4dbf63d76b9fad5819f35a47fa9a01de7e8",
+    "tools\\bor_compile\\queue_capacity.py": "c385485f96b200e6cdebef9b4fd6ffeb418524a0b2fcc9bbcf01aa20937293c7",
+    "tools\\bor_compile\\recertify_actor_entries.py": "c8a78f3ae6f301fbf240dc67240a1be08f7c9a071a12b10755a60abdcf388233",
+    "tools\\bor_compile\\regenerate_queues.py": "8c753e5bba78dfb2eb1ce870133298cfe4ce86bdb31c0f2617291d25dfaa1e74",
+    "tools\\bor_compile\\test_actor_catalog.py": "1aac81e6bd6817e3a0ac3fe8cad2d2f7d8f10b92668cd060c693cf1a09e5985a",
+    "tools\\bor_compile\\test_actor_lowering.py": "74c5439f5956cb4c93ac30e4a282733eb62b6d3251f3995fff6e8b8be0735237",
+    "tools\\bor_compile\\test_certify.py": "1a9b37f329167664ca1c94f0cc5c0712505cfdd3ca78efc5c94ef111b5ed84dd",
+    "tools\\bor_compile\\test_compiler.py": "c2eca32a01b633729c2f4d6baa94dda8e47230b98a04cf5e05f81c1ec22596b3",
+    "tools\\bor_compile\\test_environment.py": "f8a5bb26f7fa47bc86d7b3c2b336ecc18516274ff352c77784ca92c00cb5c288",
+    "tools\\bor_compile\\test_lowering_policy.py": "cee6c2b148fe596143b2c8cd060dfc761907af48344dbf1e109f94b44bf54912",
+    "tools\\bor_compile\\test_models.py": "1141a11086ba6ee07cf2710ca09ec4e4acec01f8374691c351338e84e4af3edf",
+    "tools\\bor_compile\\test_queue_capacity.py": "4eaab01005a0e7575135244421dd80213fd99926f8b1159b8b0e9447b62914b0",
+    "src\\generated\\queue_abi.json": "22adb837a7c161c496d9a2b5e3f037cc1f00472851d22fb3d53cd8b91cbcc9c7",
+    "src\\generated\\queue_abi.pasm": "079b604ff6ac1c92415ad9b205c3faa7d5aaea10b6e3f2b59b38343b2f4d1fed",
+    "src\\generated\\scene_sequence_meta.pasm": "452f44b314e4e18ed6adf17fb6925e717e155e37edab085178b5ecae33fdb9a0",
+    "src\\generated\\scene_video_meta.bin": "ca476a0b4ede3e35c63d0d165be8c91ef1938e17b29489c4fad722b9a8e1e1b9",
+    "src\\generated\\scene_video_meta.pasm": "fb2542b17b6ec22ecf553cae051b218a8c76d22f593a5cd6547dd9807e47af77",
+    "src\\generated\\stage_environment_bases.pasm": "197bf14d1a13471b22a755b1bec6470061df46844ae34ea6eb51b727aee966db",
+    "src\\generated\\stage_environment_maps.pasm": "65d9b64c24739719c8adf5d252c209a46770936e3a949adf9e8d625d83228bcc",
+    "build\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "build\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc",
+    "distribution\\bor.sfc": "4f0314db7a03c196a7de0c772d77df924cfc956d111457c63a411f3b6bdf30be",
+    "distribution\\bor.msu": "b1c4e499d611445e83a67f80f5be88dc2c5c0e2d91ebc14901e7891b8bcd89fc"
+  },
+  "concurrent_shared_source_changes": [],
+  "production_artifacts_unchanged": true
+}

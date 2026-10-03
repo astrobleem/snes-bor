@@ -38,7 +38,6 @@ PT_MONEY = pasm_constant('PICKUP_TYPE_MONEY'); PT_ONEUP = pasm_constant('PICKUP_
 PT_GOLD = pasm_constant('PICKUP_TYPE_GOLD'); GET_VARIANT = pasm_constant('GET_MOVE_VARIANT')
 HEAL_APPLE = pasm_constant('PICKUP_HEAL_APPLE'); HEAL_MEAT = pasm_constant('PICKUP_HEAL_MEAT')
 SCORE_MONEY = pasm_constant('PICKUP_SCORE_MONEY'); SCORE_GOLD = pasm_constant('PICKUP_SCORE_GOLD')
-EXTEND = pasm_constant('EXTEND_LIFE_SCORE')
 GS = pasm_constant_in('src/core/game_state.pasm', 'Game_Score')
 LIVES = pasm_constant_in('src/core/game_state.pasm', 'Game_Lives')
 P2S = pasm_constant_in('src/core/game_state.pasm', 'G13_P2Score')
@@ -60,12 +59,19 @@ TICK = pasm_constant('CHAR_TICK_COUNTER')
 ATTACKED = pasm_constant('CHAR_HIT_APPLIED')
 ACTOR_INV = pasm_constant_in('src/core/game_state.pasm', 'Actor_InvulnFrames')
 CHAR_HP_PER_HIT = pasm_constant('CHAR_HP_PER_HIT')
-KILL_SCORE = pasm_constant('KILL_SCORE')
 HIT_SCORE = pasm_constant('HIT_SCORE')
 
 def u8(m, a): return read_block(m, a, 32)[0]
 def u16(m, a):
     b = read_block(m, a, 32); return b[0] | b[1] << 8
+
+def u32(m, a):
+    b = read_block(m, a, 32)
+    return b[0] | (b[1] << 8) | (b[2] << 16) | (b[3] << 24)
+
+def put32(m, a, value):
+    h = f'{value & 0xFFFFFFFF:08x}'
+    m.write_hex(a, h[6:8] + h[4:6] + h[2:4] + h[0:2])
 
 def symbol(name):
     rx = re.compile(r'^([0-9A-Fa-f]{2}):([0-9A-Fa-f]{4,6})\s+' + re.escape(name) + r'\s*$')
@@ -105,8 +111,8 @@ def setup(m):
     # required session-settle frames.  Reset only the session counters used
     # by these focused ownership/threshold assertions after that window.
     m.write_u16(GS, 0); m.write_u16(P2S, 0)
-    m.write_u8(LIVES, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
-    m.write_u8(P2L, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
+    m.write_u16(LIVES, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
+    m.write_u16(P2L, pasm_constant_in('src/core/game_state.pasm', 'GAME_LIVES_START'))
     print('SETUP', {'mode': u8(m, MODE), 'p2_input': u8(m, P2 + INPUT),
                     'p2_hp': u8(m, P2 + HP), 'p2_get': u8(m, P2 + GET_FCOUNT),
                     'game_state': u8(m, GAME_STATE), 'item_input': u8(m, ITEM + INPUT)}, flush=True)
@@ -278,7 +284,7 @@ def instant_break(m, owner, kind):
         m.release_input(port=owner)
         for hook in locals().get('hooks', []):
             m.remove_hook(hook)
-    expected = HIT_SCORE + KILL_SCORE + (SCORE_MONEY if kind == PT_MONEY else 0)
+    expected = HIT_SCORE + (SCORE_MONEY if kind == PT_MONEY else 0)
     return {'owner': owner, 'kind': kind, 'tooling_limited': False,
             'p1_score': transaction['p1_score'], 'p2_score': transaction['p2_score'],
             'item': transaction['item'], 'owner_final': transaction['owner_final'],
@@ -329,20 +335,20 @@ def real_new_game_reset(m, reporter):
     exact_input_edge(m, 0, 1, port=1)
     exact_input_edge(m, m.BTN_START, 1, port=0)
     # Dirty session state immediately before the production reset choke point.
-    m.write_u16(GS, 12345); m.write_u16(P2S, 23456); m.write_u8(LIVES, 3); m.write_u8(P2L, 7)
+    m.write_u16(GS, 12345); m.write_u16(P2S, 23456); m.write_u16(LIVES, 3); m.write_u16(P2L, 7)
     exact_input_edge(m, m.BTN_START, 1, port=0); clear_inputs(m)
     assert poll_until(m, lambda mm: u16(mm, GAME_STATE) == GAME_STATE_PLAYING, 240)
     reset_boundary = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
-                      'lives': u8(m, LIVES), 'p2_lives': u8(m, P2L),
+                      'lives': u16(m, LIVES), 'p2_lives': u16(m, P2L),
                       'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex')),
                       'game_state': u16(m, GAME_STATE)}
     run_frames_exact(m, 1)
     first_frame = {'score': u16(m, GS), 'p2_score': u16(m, P2S),
-            'lives': u8(m, LIVES), 'p2_lives': u8(m, P2L),
+            'lives': u16(m, LIVES), 'p2_lives': u16(m, P2L),
             'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex'))}
     return {'reset_boundary': reset_boundary, 'first_frame': first_frame,
-            'score': u16(m, GS), 'p2_score': u16(m, P2S), 'lives': u8(m, LIVES),
-            'p2_lives': u8(m, P2L), 'mode': u8(m, MODE), 'p1_hp': u8(m, P1 + HP),
+            'score': u16(m, GS), 'p2_score': u16(m, P2S), 'lives': u16(m, LIVES),
+            'p2_lives': u16(m, P2L), 'mode': u8(m, MODE), 'p1_hp': u8(m, P1 + HP),
             'p2_hp': u8(m, P2 + HP), 'p2_input': u8(m, P2 + INPUT),
             'p2_roster': u8(m, P2 + pasm_constant('CHAR_ROSTER_INDEX')),
             'stage': u8(m, pasm_constant_in('src/core/game_state.pasm', 'Game_StageIndex'))}
@@ -390,17 +396,18 @@ def main():
     for owner, label in ((0, 'p1'), (1, 'p2')):
         with open_session(__file__) as m:
             setup(m)
-            m.write_u16(GS if owner == 0 else P2S, EXTEND - 500)
-            m.write_u8(LIVES if owner == 0 else P2L, 7)
+            m.write_u16(GS if owner == 0 else P2S, 49999)
+            m.write_u16(LIVES if owner == 0 else P2L, 7)
             b,a = collect(m, owner, PT_MONEY)
             results[label + '_threshold'] = {'before':b,'after':a}
-            r.check(label + ' money threshold adds exactly one life',
-                    (a['lives'] == (8 if owner == 0 else 20) and
-                     a['p2_lives'] == (8 if owner == 1 else 20)))
+            r.check(label + ' money crosses source 50000 threshold exactly once',
+                    (a['lives'] == (8 if owner == 0 else 3) and
+                     a['p2_lives'] == (8 if owner == 1 else 3)))
     with open_session(__file__) as m:
-        setup(m); m.write_u16(P2S, 0xFFFA); b,a=collect(m,1,PT_MONEY)
+        setup(m); put32(m, P2S, 999999990); b,a=collect(m,1,PT_MONEY)
         results['p2_saturation']={'before':b,'after':a}
-        r.check('P2 money saturates score without wrap', a['p2_score'] == 0xFFFF)
+        r.check('P2 money reaches source score cap without wrap',
+                u32(m, P2S) == 999999999)
     for hp, expected, label in ((10, HP_MAX, 'p2_meat_10'), (HP_MAX - 5, HP_MAX, 'p2_meat_59')):
         with open_session(__file__) as m:
             setup(m); b, a = p2_meat(m, hp)
@@ -412,9 +419,9 @@ def main():
             setup(m)
             none = instant_break(m, owner, 0)
             results[label + '_none'] = none
-            r.check(label + ' NONE lethal control awards exactly 100',
+            r.check(label + ' NONE lethal control awards source hit score',
                     not none['tooling_limited'] and
-                    (none['p2_score'] if owner else none['p1_score']) == HIT_SCORE + KILL_SCORE and
+                    (none['p2_score'] if owner else none['p1_score']) == HIT_SCORE and
                     (none['p1_score'] if owner else none['p2_score']) == 0)
     instant_candidates = packed_alive_instant_candidates()
     results['synthetic_instant_money'] = {

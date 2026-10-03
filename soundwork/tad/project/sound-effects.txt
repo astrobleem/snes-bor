@@ -34,3 +34,6 @@
 === sfx_metal ===
     set_instrument metal
     play_note 0 56
+=== sfx_timeover ===
+    set_instrument timeover
+    play_note 0 115

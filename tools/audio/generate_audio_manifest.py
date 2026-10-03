@@ -23,7 +23,9 @@ sys.path.insert(0, str(ROOT / "tools" / "bor_converter"))
 from pak_extract import read_entries, extract  # noqa: E402
 sys.path.insert(0, str(ROOT / "tools" / "audio"))
 from decode_bor_music import parse_header  # noqa: E402
-from shipped_content import STAGE_CONFIGS, shipped_characters, shipped_levels, source_character_identity  # noqa: E402
+from shipped_content import (BOR_COMPLETION_MUSIC, SCENE_CONFIGS, STAGE_CONFIGS,
+                             shipped_characters, shipped_levels,
+                             source_character_identity)  # noqa: E402
 from engine_audio_semantics import ENGINE_GLOBAL_AUDIO, ENGINE_REVISION, ENGINE_SOURCE  # noqa: E402
 
 SHIPPED_CHARACTERS = shipped_characters()
@@ -75,6 +77,9 @@ MUSIC_RE = re.compile(r"^\s*(music|bossmusic)\s+(\S+)(?:\s+([+-]?\d+))?(?:\s|$)"
 
 def norm(value: str) -> str:
     return value.replace("/", "\\").upper()
+
+
+ACTIVE_SCENE_FILES = {norm(entry["source_scene"]): entry for entry in SCENE_CONFIGS}
 
 
 def sha256(data: bytes) -> str:
@@ -211,12 +216,16 @@ def scan_family(family: str, pak: Path) -> dict:
                 identity = source_character_identity(family, upper_source)
                 ref["character_identity"] = identity
                 ref["reachability"] = "shipped-reachable" if identity in SHIPPED_CHARACTERS[family] else "unshipped-source-content"
-            elif "\\LEVELS\\" in upper_source or "\\EASY\\" in upper_source:
-                ref["reachability"] = "shipped-reachable" if Path(upper_source).name in shipped_levels(family) else "unshipped-source-content"
+            elif any(c['family'] == family and norm(c['source_level']) == upper_source
+                     for c in STAGE_CONFIGS):
+                ref["reachability"] = "shipped-reachable"
             else:
                 ref["reachability"] = "shipped-reachable" if (
-                    "\\SCENES\\ENDING.TXT" in upper_source and family == ACTIVE_ENDING_FAMILY
+                    ("\\SCENES\\ENDING.TXT" in upper_source and family == ACTIVE_ENDING_FAMILY)
+                    or (upper_source in ACTIVE_SCENE_FILES and family == "bor-original")
                 ) else "unshipped-source-content"
+            if upper_source in ACTIVE_SCENE_FILES and family == "bor-original":
+                ref["scene_id"] = ACTIVE_SCENE_FILES[upper_source]["scene_id"]
             if asset is None:
                 # Keep the unresolved reference visible; the verifier reports it.
                 assets[requested_path] = {
@@ -228,11 +237,32 @@ def scan_family(family: str, pak: Path) -> dict:
                 }
             else:
                 asset["references"].append(ref)
+    # showcomplete() is source-authored engine behavior rather than a TXT
+    # directive.  Record that exact BOR.C call as a reachable reference so
+    # the normal allocator/converter owns COMPLETE.BOR without inventing a
+    # campaign scene or hand-picking a track number.
+    if family == BOR_COMPLETION_MUSIC["family"]:
+        completion = assets.get(BOR_COMPLETION_MUSIC["source_path"])
+        if completion is None:
+            raise SystemExit("BOR.C showcomplete() references missing COMPLETE.BOR")
+        completion["references"].append({
+            "source_file": BOR_COMPLETION_MUSIC["source_file"],
+            "line": None,
+            "directive": "completion-music",
+            "loop_argument": BOR_COMPLETION_MUSIC["loop_argument"],
+            "semantic_event": "completion-presentation-music",
+            "requested_source_path": BOR_COMPLETION_MUSIC["source_path"],
+            "resolved_source_path": BOR_COMPLETION_MUSIC["source_path"],
+            "reachability": "shipped-reachable",
+            "source_evidence": "BOR.C showcomplete()",
+        })
     # Engine-global samples are source-backed references, not inferred from
     # filenames or from the SNES implementation under test.
     beat1 = assets.get("DATA\\SOUNDS\\BEAT1.WAV")
     if family in ("bor-original", "tmnt"):
         for semantic in ENGINE_GLOBAL_AUDIO:
+            if family not in semantic.get("families", ("bor-original", "tmnt")):
+                continue
             requested_global_asset = semantic["asset"]
             resolved_global_asset = requested_global_asset
             fallback = None

@@ -1,0 +1,89 @@
+{
+  "entity": "Rugal",
+  "anim": "rise",
+  "loop": 0,
+  "scale": 0.3047619047619048,
+  "hotspot_canvas": [
+    12,
+    39
+  ],
+  "frames": [
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame00.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame01.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame02.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame03.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame04.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame05.bin"
+    },
+    {
+      "delay": 10,
+      "offset": [
+        43,
+        129
+      ],
+      "bbox": null,
+      "attack": null,
+      "move": null,
+      "bin": "frame06.bin"
+    }
+  ]
+}

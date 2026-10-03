@@ -38,7 +38,7 @@ File format (see the plan for the authoritative spec):
                last for this exact reason.
     0x0C-0x0F  bg_directory_offset (u32 LE, 0 when bg_count == 0)   [v2]
 
-    0x10       directory: MAX_CHARACTERS records x 17 bytes = 255 bytes
+    0x10       directory: roster_count records x RECORD_SIZE (currently 50 bytes)
                (0x10-0x10E) [grew 16->17 in the grab mutual-lock slice, see
                +16 below; grew 8->15 *records* in the roster-growth slice --
                main.pasm's seek math (index*17+0x10) is unaffected, since it
@@ -195,10 +195,8 @@ The BG section is appended AFTER the character blobs so that adding it does not
 move any character data_offset -- a v1-era reader that ignores the new header
 fields still finds every character exactly where it used to be.
 
-Unused directory slots (roster_count <= N < MAX_CHARACTERS) are left fully
-zeroed -- main.pasm's Anim_LoadCharacter treats a zero idle_frame_count as
-"no character here" (see the plan's Phase 5, MSU-absent / zero-frame-count
-path).
+Directory storage contains exactly roster_count records. Runtime admission
+checks the header count; unused IDs do not reserve phantom payload bytes.
 
 data_offset is a full 32-bit field even though realistic rosters stay under
 16MB, because a real multi-character roster can push it past 65536 well
@@ -228,6 +226,10 @@ import json
 import os
 import struct
 import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from queue_abi import RECORD_SIZE as QUEUE_RECORD_SIZE, packed_count, plan_build
+from stage_environment_abi import encode_palettes
+from actor_media_abi import check_actor_media_extent
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gen_pasm_animset
@@ -235,6 +237,14 @@ import bake_vram_frames
 
 MAGIC = b"BORMSU1\x00"
 FORMAT_VERSION = 4
+
+# Optional append-only scene-video extension. Existing BORMSU1 readers stop
+# before this section and remain byte-compatible until a later runtime slice
+# adds a reader.
+SCENE_VIDEO_MAGIC = b"BORVID1\x00"
+SCENE_VIDEO_VERSION = 1
+SCENE_VIDEO_HEADER_SIZE = 16
+SCENE_VIDEO_ENTRY_SIZE = 24
 # Bumped 8->15 (roster-growth slice): NOT an arbitrary round number -- 15 is
 # Real jump slice (plan_game.md 7): Anim_LoadCharacter's directory-seek
 # arithmetic was an 8-bit-only `offset = index*17 + 0x10` with no carry --
@@ -247,22 +257,10 @@ FORMAT_VERSION = 4
 # a record growth that immediately breaks the just-added LEO slot, the
 # engine side's seek got rewritten to a real 16-bit accumulate-by-repeated-
 # add loop (see main.pasm's Anim_LoadCharacter_SeekRecord) -- no more 8-bit
-# ceiling at all. MAX_CHARACTERS is a soft, adjustable Python-side sanity
-# cap only (roster_count's own field is a real u8, 1-255) -- bumped 15->17
-# (finish_g8_with_runtime_asset_swapping.md) to fit MONEY/MEAT/1UP's own
-# real catalog entries alongside the 13 playable fighters + APPLE already
-# shipped. Raise again freely if real content needs more; there is no
-# hardware wall left to hit.
-MAX_CHARACTERS = 26  # P1: append the four source-normal BOR players without
-                      # renumbering existing runtime identities.
-                      # identity for 1CEASY; this remains a soft packer cap.
-                      # claude_close_g7_g8_before_g10.md Part 3: 20->21 for
-                      # out/gold (real GOLD.TXT item, re-audit found it's
-                      # actually used by DATA\EASY\1BEASY.TXT, see build_
-                      # rom.py's ROSTER_PREFIXES comment) on top of the
-                      # earlier +3 for out/trash/chair/table -- still a
-                      # soft Python-side cap only, per this comment's own
-                      # note directly above.
+# ceiling at all. The compiler now reserves the actual linked directory;
+# the only catalog-count ceiling here is the runtime's unsigned byte.
+# Actor media offsets/extents retain their separate checked addressing bound.
+MAX_CHARACTERS = 255  # Actual unsigned-byte roster-count ABI; not catalog size.
 RECORD_SIZE = 50  # claude_close_g7_g8_before_g10.md Part 2: +2 bytes --
                    # get_frame_count/get_delay, the 8th generic move slot
                    # (NEW_MOVE_SLOT_NAMES' own comment), packed generically
@@ -301,13 +299,17 @@ RECORD_SIZE = 50  # claude_close_g7_g8_before_g10.md Part 2: +2 bytes --
                    # frame_count/delay, +17..+22). Was 17 before that (grab
                    # mutual-lock slice: +1 byte, +16 attack2_is_grab (u8)).
 DIRECTORY_BASE = 0x10
-HEADER_SIZE = DIRECTORY_BASE + MAX_CHARACTERS * RECORD_SIZE  # 0x90
+# Directory storage follows the linked roster, not a hand-maintained maximum.
+def roster_header_size(count):
+    if not isinstance(count, int) or not 1 <= count <= MAX_CHARACTERS:
+        raise ValueError(f'roster count must be 1-{MAX_CHARACTERS}, got {count}')
+    return DIRECTORY_BASE + count * RECORD_SIZE
 
 PALETTE_BYTES = 32  # 16 BGR555 colors, 2 bytes each
 ANIM_FRAME_BYTES = 768
 
 # --- BG section (v2 static, v3 adds streaming) ---
-MAX_BGS = 11  # G15 Batch A: add BOR 1CEASY to the 10 already-shipped stages.
+MAX_BGS = 32  # G15-R11: append verifier-only BOR Normal 5A catalog record.
               # bumped 5->9 adding the real 4-level TMNT main campaign
               # (sewer0/streets/streets2/sewer) alongside the 3 standalone
               # TMNT boss stages and the 2 original BOR levels, then 9->10
@@ -317,7 +319,7 @@ MAX_BGS = 11  # G15 Batch A: add BOR 1CEASY to the 10 already-shipped stages.
               # header, main.pasm has no MAX_BGS-shaped hardcode to update)
 BG_RECORD_SIZE = 40         # bumped 16->20 in v3, 20->32 in v4, 32->40 in v6 -- see module docstring
 
-SPAWN_RECORD_SIZE = 10      # claude_close_g7_g8_before_g10.md Part 2/3: grew
+SPAWN_RECORD_SIZE = QUEUE_RECORD_SIZE  # ten-byte queue ABI v1
                              # 9->10 (split object_roster_idx/item_roster_idx)
                              # -- see build_spawn_table.py's module docstring
                              # for the full record layout
@@ -355,7 +357,7 @@ def _expected_tilemap_bytes(mode, width_tiles, height_tiles=BG_HEIGHT_TILES):
     if mode == BG_MODE_STREAMING:
         return width_tiles * height_tiles * CACHE_ENTRY_BYTES
     if width_tiles == 32:
-        return BG_WIDTH_TILES * BG_HEIGHT_TILES * 2
+        return BG_WIDTH_TILES * height_tiles * 2
     if width_tiles == 64:
         return 64 * 32 * 2
     raise ValueError(f"unsupported static tilemap width_tiles={width_tiles} "
@@ -543,10 +545,12 @@ def _resolve_role_dirs(prefix):
             if role == "attack":
                 resolved[role] = None
                 continue
-            raise KeyError(
-                f"{moveset['entity']!r} ({prefix}): required role {role!r} not "
-                f"found among its converted animations {list(anims_by_ordinal.values())} "
-                f"-- main.pasm's fixed idle/walk/attack/fall/rise struct needs all 5")
+            # Some source entities are intentionally sparse.  In particular
+            # BOR's biker subtype has only idle/pain; its movement is a
+            # subtype state machine, not a request for fabricated walk/fall
+            # frames.  A zero role is therefore an honest packed absence.
+            resolved[role] = None
+            continue
         resolved[role] = anims_by_ordinal[ordinal]["dir"]
 
     # Optional: a real second attack move (plan_game.md 7, G7 remaining).
@@ -588,7 +592,7 @@ def _resolve_role_dirs(prefix):
     return resolved
 
 
-def pack_character_blob(prefix):
+def pack_character_blob(prefix, *, extended_maps=False):
     """Returns (blob_bytes, info_dict) for one character's palette + baked
     idle/walk/attack/fall/rise frames, resolved generically via
     <prefix>_moveset.json's role table (see _resolve_role_dirs) rather than
@@ -616,13 +620,16 @@ def pack_character_blob(prefix):
     waiting_dir = role_dirs[OPTIONAL_ROLE_WAITING]
 
     idle_count, idle_delay = gen_pasm_animset.load_manifest(idle_dir)
-    walk_count, walk_delay = gen_pasm_animset.load_manifest(walk_dir)
+    def load_optional_anim(anim_dir):
+        return gen_pasm_animset.load_manifest(anim_dir) if anim_dir is not None else (0, 0)
+
+    walk_count, walk_delay = load_optional_anim(walk_dir)
     if attack_dir is None:
         attack_count, attack_delay = 0, 0
     else:
         attack_count, attack_delay = gen_pasm_animset.load_manifest(attack_dir)
-    fall_count, fall_delay = gen_pasm_animset.load_manifest(fall_dir)
-    rise_count, rise_delay = gen_pasm_animset.load_manifest(rise_dir)
+    fall_count, fall_delay = load_optional_anim(fall_dir)
+    rise_count, rise_delay = load_optional_anim(rise_dir)
     if attack2_dir is not None:
         attack2_count, attack2_delay = gen_pasm_animset.load_manifest(attack2_dir)
     else:
@@ -701,10 +708,10 @@ def pack_character_blob(prefix):
     assert len(palette_bytes) == PALETTE_BYTES
 
     idle_bytes = bake_anim_bytes(idle_dir)
-    walk_bytes = bake_anim_bytes(walk_dir)
+    walk_bytes = bake_anim_bytes(walk_dir) if walk_dir is not None else b""
     attack_bytes = bake_anim_bytes(attack_dir) if attack_dir is not None else b""
-    fall_bytes = bake_anim_bytes(fall_dir)
-    rise_bytes = bake_anim_bytes(rise_dir)
+    fall_bytes = bake_anim_bytes(fall_dir) if fall_dir is not None else b""
+    rise_bytes = bake_anim_bytes(rise_dir) if rise_dir is not None else b""
     attack2_bytes = bake_anim_bytes(attack2_dir) if attack2_dir is not None else b""
     jump_bytes = bake_anim_bytes(jump_dir) if jump_dir is not None else b""
     jumpattack_bytes = bake_anim_bytes(jumpattack_dir) if jumpattack_dir is not None else b""
@@ -752,13 +759,12 @@ def pack_character_blob(prefix):
     with open(moveset_path, "r", encoding="utf-8") as f:
         moveset = json.load(f)
     remap_palettes = moveset.get("remap_palettes", [])
-    if len(remap_palettes) > 3:
-        raise ValueError(f"{prefix}: {len(remap_palettes)} remap palettes, "
-                          f"more than this packer's 2-bit `map` field (0-3) "
-                          f"can address -- see build_spawn_table.py's "
-                          f"record_kind bit-packing")
-    remap_bytes = b"".join(
-        b"".join(struct.pack("<H", v) for v in pal) for pal in remap_palettes)
+    if len(remap_palettes) > 3 and not extended_maps:
+        # Explicit pre-S4 binary-reproduction mode only. The environment-v1
+        # production emitter opts into all palettes; do not use this legacy
+        # oracle to certify higher authored maps.
+        remap_palettes = remap_palettes[:3]
+    remap_bytes = encode_palettes(remap_palettes)
     assert len(remap_bytes) == len(remap_palettes) * PALETTE_BYTES
 
     # Real jump slice: jump/jumpattack/jumpattack2 appended right after
@@ -916,8 +922,10 @@ def pack_bg_blob(bg_dir, hud_dir):
     mode = BG_MODE_STREAMING if bg_manifest.get("streaming") else BG_MODE_STATIC
     width_tiles = bg_manifest["width_tiles"]
     height_tiles = bg_manifest["height_tiles"]
-    if height_tiles != BG_HEIGHT_TILES:
-        raise ValueError(f"{bg_dir}: height_tiles={height_tiles}, expected {BG_HEIGHT_TILES}")
+    if mode == BG_MODE_STREAMING and height_tiles != BG_HEIGHT_TILES:
+        raise ValueError(f"{bg_dir}: streaming height_tiles={height_tiles}, expected {BG_HEIGHT_TILES}")
+    if mode == BG_MODE_STATIC and height_tiles not in (BG_HEIGHT_TILES, 32):
+        raise ValueError(f"{bg_dir}: static height_tiles={height_tiles}, expected 28 or 32")
 
     tile_count = bg_manifest["unique_tiles"]
     max_tiles = BG_MAX_TILES_STREAMING if mode == BG_MODE_STREAMING else BG_MAX_TILES_STATIC
@@ -1072,8 +1080,23 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     width_tiles = manifest["width_tiles"]
     height_tiles = manifest["height_tiles"]
     tile_count = manifest["unique_tiles"]
+    bg2 = manifest.get('layer') == 'BG2_frontpanel'
+    if bg2:
+        # Same fail-closed compiler/runtime admission used for generated media.
+        import sys
+        from pathlib import Path
+        compiler_dir = str(Path(__file__).resolve().parents[1]/'bor_compile')
+        if compiler_dir not in sys.path: sys.path.insert(0,compiler_dir)
+        from stage_frontpanel_bg2 import validate_bg2
+        validate_bg2(Path(fp_dir))
+    bytes_per_tile = 32 if bg2 else FP_BYTES_PER_TILE
+    if bg2 and (manifest.get('bpp') != 4 or
+                manifest.get('full_fp_adapter') != 'ACCEPTED_COMPAT_NORMAL_FULL_FP_BG2_V1' or
+                manifest.get('owner_width_tiles') != expected_width_tiles or
+                height_tiles != 28):
+        raise ValueError(f'{fp_dir}: unbound full Normal BG2 frontpanel ABI')
 
-    if width_tiles != expected_width_tiles:
+    if not bg2 and width_tiles != expected_width_tiles:
         raise ValueError(f"{fp_dir}: width_tiles={width_tiles} does not match "
                          f"the owning BG's width_tiles={expected_width_tiles} "
                          f"-- both layers must share one camera-column index")
@@ -1084,18 +1107,20 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     if len(tilemap) != expected_tilemap_bytes:
         raise ValueError(f"{fp_dir}: tilemap.bin is {len(tilemap)}B, expected "
                          f"{expected_tilemap_bytes}")
-    if len(tiles) != tile_count * FP_BYTES_PER_TILE:
+    if len(tiles) != tile_count * bytes_per_tile:
         raise ValueError(f"{fp_dir}: tiles.bin is {len(tiles)}B, expected "
-                         f"{tile_count * FP_BYTES_PER_TILE}")
+                         f"{tile_count * bytes_per_tile}")
     if tile_count > FP_MAX_TILES:
         raise ValueError(f"{fp_dir}: {tile_count} tiles exceeds the "
                          f"{FP_MAX_TILES}-tile field ceiling")
 
     tilemap_offset = data_offset + FP_RECORD_SIZE + FP_PALETTE_BYTES
     tiles_offset = tilemap_offset + len(tilemap)
+    if bg2 and not 0 <= data_offset < tiles_offset+len(tiles) <= 0x1000000:
+        raise ValueError(f'{fp_dir}: full Normal FP exceeds runtime 24-bit MSU address domain')
     header = struct.pack(
-        "<HBxH2xII",
-        width_tiles, height_tiles, tile_count,
+        "<HBBH2xII",
+        width_tiles, height_tiles, 4 if bg2 else 0, tile_count,
         tilemap_offset, tiles_offset,
     )
     assert len(header) == FP_RECORD_SIZE
@@ -1113,7 +1138,137 @@ def build_fp_blob(fp_dir, expected_width_tiles, data_offset):
     return blob, info
 
 
-def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playable_count=None):
+def append_scene_video_section(msu_bytes, entries):
+    """Append a fixed-format BORVID1 section to a finished BORMSU1 image."""
+    if not entries:
+        return msu_bytes, []
+    if len(entries) > 0xFFFF:
+        raise ValueError("too many BORVID1 scene entries")
+
+    directory_size = SCENE_VIDEO_ENTRY_SIZE * len(entries)
+    section_start = len(msu_bytes)
+    next_payload = section_start + SCENE_VIDEO_HEADER_SIZE + directory_size
+    directory = bytearray()
+    payloads = []
+    metadata = []
+    for entry in entries:
+        payload = bytes(entry["payload"])
+        values = (
+            int(entry["scene_id"]), int(entry.get("flags", 0)),
+            int(entry["width"]), int(entry["height"]),
+            int(entry["fps_num"]), int(entry["fps_den"]),
+            int(entry["frame_count"]), next_payload, len(payload),
+        )
+        if not 0 <= values[0] <= 0xFFFF or not 0 <= values[1] <= 0xFFFF:
+            raise ValueError("BORVID1 scene id/flags do not fit u16")
+        if not 0 < values[2] <= 0xFFFF or not 0 < values[3] <= 0xFFFF:
+            raise ValueError("BORVID1 dimensions must be positive u16 values")
+        if not 0 < values[4] <= 0xFFFF or not 0 < values[5] <= 0xFFFF:
+            raise ValueError("BORVID1 timing must be positive u16 values")
+        if not 0 <= values[6] <= 0xFFFFFFFF:
+            raise ValueError("BORVID1 frame count does not fit u32")
+        if not 0 <= values[7] <= 0xFFFFFFFF or not 0 <= values[8] <= 0xFFFFFFFF:
+            raise ValueError("BORVID1 payload range does not fit u32")
+        directory += struct.pack("<HHHHHHIII", *values)
+        payloads.append(payload)
+        metadata.append({
+            "scene_id": values[0], "flags": values[1],
+            "width": values[2], "height": values[3],
+            "fps_num": values[4], "fps_den": values[5],
+            "frame_count": values[6], "payload_offset": values[7],
+            "payload_size": values[8],
+        })
+        next_payload += len(payload)
+
+    section = (struct.pack("<8sHHI", SCENE_VIDEO_MAGIC,
+                           SCENE_VIDEO_VERSION, len(entries), directory_size)
+               + bytes(directory) + b"".join(payloads))
+    return msu_bytes + section, metadata
+
+
+def scene_video_metadata_pasm(entries):
+    """Render generated 65816 metadata from finalized BORVID1 records."""
+    lines = [
+        "; GENERATED by pack_msu_roster.py; do not edit.",
+        "; Scene records are the finalized BORVID1 directory records.",
+        "",
+        f"SceneVideo_Count = {len(entries)}",
+        f"SceneVideo_EntrySize = {SCENE_VIDEO_ENTRY_SIZE}",
+    ]
+    for index, entry in enumerate(entries):
+        prefix = f"SceneVideo_Record{index}_"
+        lines.extend([
+            f"{prefix}SceneId = {entry['scene_id']}",
+            f"{prefix}Flags = {entry['flags']}",
+            f"{prefix}Width = {entry['width']}",
+            f"{prefix}Height = {entry['height']}",
+            f"{prefix}FpsNum = {entry['fps_num']}",
+            f"{prefix}FpsDen = {entry['fps_den']}",
+            f"{prefix}FrameCount = {entry['frame_count']}",
+            f"{prefix}PayloadOffset = {entry['payload_offset']}",
+            f"{prefix}PayloadSize = {entry['payload_size']}",
+        ])
+    lines.extend([
+        "",
+        "; Indexed tables generated from the finalized BORVID records.",
+        "SceneVideo_RecordIds:",
+        "    .db " + ", ".join(str(entry['scene_id']) for entry in entries),
+        "SceneVideo_RecordWidths:",
+        "    .dw " + ", ".join(str(entry['width']) for entry in entries),
+        "SceneVideo_RecordHeights:",
+        "    .dw " + ", ".join(str(entry['height']) for entry in entries),
+        "SceneVideo_RecordFpsNums:",
+        "    .dw " + ", ".join(str(entry['fps_num']) for entry in entries),
+        "SceneVideo_RecordFpsDens:",
+        "    .dw " + ", ".join(str(entry['fps_den']) for entry in entries),
+        "SceneVideo_RecordFrameDurationMs:",
+        "    .dw " + ", ".join(str((1000 * entry['fps_den']) // entry['fps_num']) for entry in entries),
+        "SceneVideo_RecordFrameCountsLo:",
+        "    .dw " + ", ".join(str(entry['frame_count'] & 0xffff) for entry in entries),
+        "SceneVideo_RecordFrameCountsHi:",
+        "    .dw " + ", ".join(str((entry['frame_count'] >> 16) & 0xffff) for entry in entries),
+        "SceneVideo_RecordPayloadOffsetsLo:",
+        "    .dw " + ", ".join(str(entry['payload_offset'] & 0xffff) for entry in entries),
+        "SceneVideo_RecordPayloadOffsetsHi:",
+        "    .dw " + ", ".join(str((entry['payload_offset'] >> 16) & 0xffff) for entry in entries),
+        "SceneVideo_RecordPayloadSizesLo:",
+        "    .dw " + ", ".join(str(entry['payload_size'] & 0xffff) for entry in entries),
+        "SceneVideo_RecordPayloadSizesHi:",
+        "    .dw " + ", ".join(str((entry['payload_size'] >> 16) & 0xffff) for entry in entries),
+        "SceneVideo_RecordFlags:",
+        "    .dw " + ", ".join(str(entry['flags']) for entry in entries),
+        "SceneVideo_RecordPayloadOffsetBytes:",
+        "    .db " + ", ".join(str(byte) for entry in entries for byte in int(entry['payload_offset']).to_bytes(4, 'little')),
+        "SceneVideo_RecordPayloadSizeBytes:",
+        "    .db " + ", ".join(str(byte) for entry in entries for byte in int(entry['payload_size']).to_bytes(4, 'little')),
+    ])
+    for index, entry in enumerate(entries):
+        if entry['scene_id'] == 1:
+            lines.append("SceneVideo_Rugal = SceneVideo_Record%d_SceneId" % index)
+            break
+    return "\n".join(lines) + "\n"
+
+
+def write_scene_video_metadata(path, entries):
+    """Write generated ROM-side metadata for finalized scene records."""
+    with open(path, "w", encoding="ascii", newline="\n") as output:
+        output.write(scene_video_metadata_pasm(entries))
+    # Poppy's ROM data path is authoritative for executable consumption.  Keep
+    # the human-readable include as the generated contract, while supplying
+    # the exact bytes through incbin so numeric directive parsing cannot turn
+    # the table into zero-filled reservation space.
+    raw_path = os.path.splitext(path)[0] + ".bin"
+    with open(raw_path, "wb") as output:
+        for entry in entries:
+            output.write(struct.pack(
+                "<HHHHHHIII", entry["scene_id"], entry["flags"],
+                entry["width"], entry["height"], entry["fps_num"],
+                entry["fps_den"], entry["frame_count"],
+                entry["payload_offset"], entry["payload_size"]))
+
+
+def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None,
+                playable_count=None, scene_video_entries=None, extended_maps=False):
     """Returns (msu_bytes, manifest_sidecar_dict).
 
     `prefixes` is a list of 1-15 out/<name> character prefixes; unused
@@ -1170,13 +1325,15 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playabl
     if len(spawns) != len(bgs):
         raise ValueError(f"spawns must be the same length as bgs ({len(bgs)}), got {len(spawns)}")
 
-    directory = bytearray(RECORD_SIZE * MAX_CHARACTERS)
+    header_size = roster_header_size(len(prefixes))
+    directory = bytearray(RECORD_SIZE * len(prefixes))
     blobs = []
     sidecar_characters = []
 
-    data_offset = HEADER_SIZE
+    data_offset = header_size
     for slot, prefix in enumerate(prefixes):
-        blob, info = pack_character_blob(prefix)
+        blob, info = pack_character_blob(prefix, extended_maps=extended_maps)
+        check_actor_media_extent(data_offset,len(blob),model=str(prefix))
         record = build_record(info, data_offset)
         directory[slot * RECORD_SIZE:(slot + 1) * RECORD_SIZE] = record
 
@@ -1232,7 +1389,9 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playabl
             if sblob:
                 assert len(sblob) % SPAWN_RECORD_SIZE == 0, \
                     f"stage {slot} spawn blob is {len(sblob)}B, not a multiple of {SPAWN_RECORD_SIZE}"
-                spawn_info.append((running_offset, len(sblob) // SPAWN_RECORD_SIZE))
+                count=packed_count(sblob,project='linked-build',set_name='selected catalog',
+                                   stage=slot,source_path=str(bgs[slot][0]))
+                spawn_info.append((running_offset, count))
                 spawn_blobs.append(sblob)
                 running_offset += len(sblob)
             else:
@@ -1265,11 +1424,17 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playabl
         vm_size = len(vm_blob)
         msu_bytes = msu_bytes + vm_blob
 
+    msu_bytes, scene_video = append_scene_video_section(
+        msu_bytes, scene_video_entries or [])
+
     sidecar = {
+        "queue_abi": plan_build([dict(project='linked-build',set='selected catalog',stage=i,
+            source_path=str(bgs[i][0]),packed_records=packed_count(blob or b'',project='linked-build',
+            set_name='selected catalog',stage=i,source_path=str(bgs[i][0]))) for i,blob in enumerate(spawns)]),
         "format_version": FORMAT_VERSION,
         "roster_count": len(prefixes),
         "playable_count": playable_count,
-        "header_size": HEADER_SIZE,
+        "header_size": header_size,
         "total_size": len(msu_bytes),
         "characters": sidecar_characters,
         "bg_count": len(bgs),
@@ -1277,6 +1442,7 @@ def pack_roster(prefixes, bgs=None, fps=None, spawns=None, vm_blob=None, playabl
         "bgs": sidecar_bgs,
         "vm_offset": vm_offset,
         "vm_size": vm_size,
+        "scene_video": scene_video,
     }
     return msu_bytes, sidecar
 

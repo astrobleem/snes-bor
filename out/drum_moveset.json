@@ -1,0 +1,45 @@
+{
+  "entity": "Drum",
+  "prefix": "out/drum",
+  "subtype": null,
+  "animations": [
+    {
+      "ordinal": 0,
+      "name": "idle",
+      "dir": "out/drum_idle",
+      "frames": 1
+    },
+    {
+      "ordinal": 1,
+      "name": "fall",
+      "dir": "out/drum_fall",
+      "frames": 1
+    }
+  ],
+  "roles": {
+    "idle": 0,
+    "walk": null,
+    "pain": null,
+    "fall": 1,
+    "rise": null,
+    "backwalk": null,
+    "jump": null,
+    "jumpattack": null,
+    "jumpattack2": null,
+    "special": null,
+    "waiting": null,
+    "get": null,
+    "attack": null,
+    "attack3": null,
+    "attack4": null,
+    "slide": null,
+    "riseattack": null,
+    "grabattack": null,
+    "freespecial": null,
+    "attack2": null,
+    "attack2_is_grab": false,
+    "grab": null
+  },
+  "atchain": [],
+  "remap_palettes": []
+}

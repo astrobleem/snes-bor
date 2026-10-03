@@ -72,7 +72,10 @@ def cold_to_title(m, r):
     m.reset_emulator()
     # Boot performs the existing forced-blank hardware/content setup before
     # the first paced main-loop iteration; wait for that real boot boundary.
-    run_frames_exact(m, 180)
+    # Keep each MCP advance bounded so a transient tool timeout cannot leave
+    # the emulator two frames short and masquerade as a frozen boot.
+    for _ in range(18):
+        run_frames_exact(m, 10)
     r.check('cold reset enters INTRO, not TITLE/PLAYING', u16(m, STATE) == INTRO)
     r.check('cold reset is not PLAYING', u16(m, STATE) != PLAYING)
     run_frames_exact(m, 1)

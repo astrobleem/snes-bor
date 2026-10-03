@@ -53,7 +53,9 @@ reduce frontpanel content requirements, or claw back CGRAM from BG1's
 a converter change).
 """
 import argparse
+import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -123,6 +125,129 @@ def _composite_frontpanel_only(pak_index, level, width, frontpanel_y=0):
     return canvas
 
 
+def frontpanel_sequence_geometry(pak_index, sequence):
+    """BOR loadfrontpanel clips sprites; the first clipped width is the stride.
+
+    Full image masks retain the -clipl/-clipt sprite-center offsets without
+    cropping away their original placement. Declaration order is never sorted.
+    """
+    if isinstance(sequence, (str, bytes)) or not sequence:
+        raise ValueError('FRONTPANEL_SEQUENCE_EMPTY_OR_SCALAR')
+    images, provenance = [], []
+    for authored in sequence:
+        name = str(authored).replace('/', '\\')
+        rgb, mask = pak_index.image(name)
+        ys, xs = np.nonzero(mask)
+        bounds = [int(xs.min()),int(ys.min()),int(xs.max())+1,int(ys.max())+1] if len(xs) else [0]*4
+        images.append((rgb,mask))
+        provenance.append(dict(source_path=name,sha256=hashlib.sha256(pak_index.read(name)).hexdigest(),
+                               size=[rgb.shape[1],rgb.shape[0]],opaque_bounds=bounds))
+    stride = provenance[0]['opaque_bounds'][2]-provenance[0]['opaque_bounds'][0]
+    if stride <= 0:
+        raise ValueError('FRONTPANEL_SEQUENCE_ZERO_SOURCE_STRIDE')
+    return images,provenance,stride
+
+
+def composite_frontpanel_sequence(pak_index, sequence, width, frontpanel_y=0, *, scroll_x=0):
+    """Authored cycle at first-sprite stride; source-space integer offset.
+
+    This is a camera-aligned static target atlas when scroll_x=0, not an
+    implementation of source advancex*1.4 or the runtime BG3 scroll register.
+    """
+    from composite_scene import _blit
+    if width <= 0 or scroll_x < 0:
+        raise ValueError('FRONTPANEL_SEQUENCE_COORDINATES')
+    images, _, stride = frontpanel_sequence_geometry(pak_index,sequence)
+    canvas = np.full((BOR_SCREEN_H,width,3),TRANS_RGB,dtype=np.uint8)
+    first, remainder = divmod(scroll_x,stride)
+    for n,x in enumerate(range(-remainder,width+1,stride),first):
+        rgb,mask = images[n % len(images)]
+        _blit(canvas,rgb,mask,x,frontpanel_y)
+    return canvas
+
+
+def frontpanel_runtime_limits():
+    """Actual BG3 cache/row ownership, used only by the explicit sequence API."""
+    root = Path(__file__).resolve().parents[2]
+    cache = (root/'src/core/stream_cache_fp.pasm').read_text(encoding='utf-8')
+    main = (root/'src/main.pasm').read_text(encoding='utf-8')
+    motion = (root/'src/core/stage_frontpanel.pasm').read_text(encoding='utf-8')
+    def constant(text,name):
+        values = re.findall(r'^\s*'+name+r'\s*=\s*([^;\r\n]+)',text,re.MULTILINE)
+        if len(values) != 1 or not re.fullmatch(r'[0-9]+|\$[0-9A-Fa-f]+',values[0].strip()):
+            raise ValueError('FRONTPANEL_RUNTIME_CONSTANT_UNBOUND: '+name)
+        value = values[0].strip()
+        return int(value[1:],16) if value.startswith('$') else int(value)
+    limits = dict(tile_ids=constant(cache,'STREAM_FP_MAX_TILE_IDS'),
+                  usable_slots=constant(cache,'STREAM_FP_CACHE_USABLE'),
+                  viewport_columns=constant(motion,'StageFp_ViewportColumns'),
+                  row_start=constant(main,'STREAM_FP_TILEMAP_ROW_START'),
+                  row_count=constant(main,'FP_CONTENT_ROW_COUNT'))
+    if (not 1 <= limits['tile_ids'] <= 65535 or not 1 <= limits['usable_slots'] <= 1023
+            or not 1 <= limits['viewport_columns'] <= 64 or limits['row_start'] < 0
+            or not 1 <= limits['row_count'] <= H_TILES
+            or limits['row_start']+limits['row_count'] > H_TILES):
+        raise ValueError('FRONTPANEL_RUNTIME_LIMITS_INVALID')
+    return limits
+
+
+def verify_sequence_resources(entries, n_tiles, w_tiles, limits):
+    if not 1 <= n_tiles <= limits['tile_ids']:
+        raise ValueError(f'FRONTPANEL_TILE2SLOT_CAPACITY: {n_tiles} > {limits["tile_ids"]}')
+    if len(entries) != w_tiles*H_TILES:
+        raise ValueError('FRONTPANEL_SEQUENCE_MAP_SIZE')
+    visible = entries[limits['row_start']*w_tiles:(limits['row_start']+limits['row_count'])*w_tiles]
+    worst,col = verify_window_budget(visible,w_tiles,limits['row_count'],limits['viewport_columns'])
+    if worst > limits['usable_slots']:
+        raise ValueError(f'FRONTPANEL_RESIDENT_CAPACITY: {worst} > {limits["usable_slots"]}')
+    return dict(worst_unique_tiles=worst,worst_column=col,**limits)
+
+
+def normal_font_palette_binding():
+    """Bind CGRAM 4..7 to Core_Text_Init's actual ROM palette, fail closed."""
+    root = Path(__file__).resolve().parents[2]
+    main = (root/'src/main.pasm').read_text(encoding='utf-8')
+    owner = (root/'src/core/text.pasm').read_text(encoding='utf-8')
+    matches = re.findall(r'Font_PaletteData:\s*\.incbin\s+"([^"]+)"',main)
+    if (len(matches) != 1 or not re.search(r'^FONT_CGRAM_PAL_ID\s*=\s*1\b',owner,re.M)
+            or not re.search(r'^FONT_PALETTE_BYTES\s*=\s*8\b',owner,re.M)
+            or 'lda.l Font_PaletteData,x' not in owner):
+        raise ValueError('FRONTPANEL_FONT_PALETTE_UNBOUND')
+    path = root/'src'/matches[0]
+    data = path.read_bytes()
+    if len(data) != 8:
+        raise ValueError('FRONTPANEL_FONT_PALETTE_SIZE')
+    words = np.frombuffer(data,dtype='<u2').tolist()
+    if any(w > 32767 for w in words):
+        raise ValueError('FRONTPANEL_FONT_PALETTE_COLOR')
+    return words,dict(source_path=path.relative_to(root).as_posix(),
+        sha256=hashlib.sha256(data).hexdigest(),words=words,cgram_first=4,
+        owner='Core_Text_Init__pal_loop',adapter='ACCEPTED_COMPAT_FIXED_FONT_PAL1_OPTIMIZED_PAL2_3')
+
+
+def quantize_normal_frontpanel(unique_raw, trans_bgr):
+    fixed,binding = normal_font_palette_binding()
+    optimized,_,_ = build_palettes_tileaware(unique_raw,num_palettes=2,
+        colors_per_palette=4,trans_color=trans_bgr)
+    palettes = [fixed]+list(optimized)
+    flat = unique_raw.reshape(len(unique_raw),64).astype(np.int32)
+    rgb = np.stack((flat&31,(flat>>5)&31,(flat>>10)&31),axis=-1)
+    indices,errors = [],[]
+    for palette in palettes:
+        p = np.asarray(palette[1:],dtype=np.int32)
+        colors = np.stack((p&31,(p>>5)&31,(p>>10)&31),axis=-1)
+        distances = (((rgb[:,:,None,:]-colors)**2)*[2,4,1]).sum(axis=-1)
+        chosen = distances.argmin(axis=-1)
+        error = np.take_along_axis(distances,chosen[:,:,None],axis=-1)[:,:,0]
+        error[flat == trans_bgr] = 0
+        indices.append(chosen+1)
+        errors.append(error.sum(axis=1))
+    ids = np.asarray(errors).argmin(axis=0).astype(np.uint8)
+    indexed = np.asarray(indices)[ids,np.arange(len(ids))].reshape(unique_raw.shape).astype(np.uint8)
+    indexed[unique_raw == trans_bgr] = 0
+    return palettes,indexed,ids,binding
+
+
 def verify_window_budget(entries, w_tiles, h_tiles, window):
     """Recompute the worst-case unique-tile count in any `window`-column
     slice of the FINAL emitted tilemap -- ground truth from the actual
@@ -172,7 +297,8 @@ def render_preview_2bpp(tiles_bin, tilemap_bin, palette_bin, w_tiles, h_tiles, o
 
 def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
                                  frontpanel_y=0, max_tiles=MAX_STREAMING_TILES,
-                                 verbose=True):
+                                 verbose=True, *, frontpanel_sequence=None, normal_font_palette=False,
+                                 full_height=False):
     """Convert a level's frontpanel into a streaming BG3 source.
 
     `w_tiles` MUST equal the level's BG1 streaming conversion's own
@@ -193,17 +319,52 @@ def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
         print(f'frontpanel: {level.frontpanel}')
 
     bor_w = level_width(idx, level)
-    scene = _composite_frontpanel_only(idx, level, bor_w, frontpanel_y=frontpanel_y)
+    if frontpanel_sequence is None:
+        scene = _composite_frontpanel_only(idx, level, bor_w, frontpanel_y=frontpanel_y)
+    else:
+        if isinstance(frontpanel_sequence,(str,bytes)):
+            raise ValueError('FRONTPANEL_SEQUENCE_EMPTY_OR_SCALAR')
+        frontpanel_sequence = tuple(frontpanel_sequence)
+        _,sequence_sources,sequence_stride = frontpanel_sequence_geometry(idx,frontpanel_sequence)
+        scene = composite_frontpanel_sequence(idx,frontpanel_sequence,bor_w,frontpanel_y)
     Image.fromarray(scene).save(out_dir / 'scene_preview.png')
 
     scale = SNES_W / 320  # BOR_SCREEN_W, matching convert_bg.py's own constant
+    owner_width_tiles = w_tiles
     snes_w = w_tiles * st.TILE_SIZE
     snes_w_raw = round(bor_w * scale)
+    if frontpanel_sequence is not None and (snes_w_raw+7)//8 != w_tiles:
+        raise ValueError('FRONTPANEL_SEQUENCE_BG_WIDTH_MISMATCH')
 
-    snes_img = Image.fromarray(scene).resize((snes_w_raw, SNES_H), Image.NEAREST)
-    rgb = np.full((SNES_H, snes_w, 3), TRANS_RGB, dtype=np.uint8)
-    copy_w = min(snes_w_raw, snes_w)
-    rgb[:, :copy_w] = np.array(snes_img, dtype=np.uint8)[:, :copy_w]
+    if frontpanel_sequence is None:
+        snes_img = Image.fromarray(scene).resize((snes_w_raw, SNES_H), Image.NEAREST)
+        rgb = np.full((SNES_H, snes_w, 3), TRANS_RGB, dtype=np.uint8)
+        copy_w = min(snes_w_raw, snes_w)
+        rgb[:, :copy_w] = np.array(snes_img, dtype=np.uint8)[:, :copy_w]
+    else:
+        # Compile one complete cycle, then repeat at tile-aligned phase. A
+        # whole-level resize otherwise creates new tile IDs at every sub-tile
+        # occurrence (four 183px source panels exceeded the 768-ID FP domain).
+        # Explicit target adaptation: round the 4/5-scale cycle to nearest 8px.
+        source_cycle_width = sequence_stride*len(frontpanel_sequence)
+        # A sprite extending past its stride can overlap the next cycle.
+        # That needs a viewport-dependent compositor, not silent atlas clipping.
+        if any(r['opaque_bounds'][2] > sequence_stride for r in sequence_sources):
+            raise ValueError('FRONTPANEL_SEQUENCE_OVERHANG_UNSUPPORTED')
+        target_cycle_width = max(8,((source_cycle_width+5)//10)*8)
+        if full_height and target_cycle_width > snes_w:
+            snes_w = target_cycle_width
+            w_tiles = snes_w//8
+        cycle = composite_frontpanel_sequence(idx,frontpanel_sequence,source_cycle_width,frontpanel_y)
+        cycle = np.asarray(Image.fromarray(cycle).resize((target_cycle_width,SNES_H),Image.NEAREST))
+        rgb = np.tile(cycle,(1,(snes_w+target_cycle_width-1)//target_cycle_width,1))[:, :snes_w]
+    if frontpanel_sequence is not None:
+        limits = frontpanel_runtime_limits()
+        if full_height:
+            limits = dict(limits,row_start=0,row_count=H_TILES)
+        y0,y1 = limits['row_start']*8,(limits['row_start']+limits['row_count'])*8
+        if np.any(rgb[:y0] != TRANS_RGB) or np.any(rgb[y1:] != TRANS_RGB):
+            raise ValueError('FRONTPANEL_CONTENT_OUTSIDE_RUNTIME_ROWS')
 
     bgr = st.rgb_array_to_bgr555(rgb)
     raw_tiles = st.image_to_tiles(bgr)
@@ -215,9 +376,12 @@ def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
               f'(flip-aware)')
 
     trans_bgr = st.rgb_to_bgr555(*TRANS_RGB)
-    palettes, uniq_indexed, uniq_pal_ids = build_palettes_tileaware(
-        unique_raw, num_palettes=NUM_PALETTES, colors_per_palette=COLORS_PER_PALETTE,
-        trans_color=trans_bgr)
+    if normal_font_palette:
+        palettes,uniq_indexed,uniq_pal_ids,font_binding = quantize_normal_frontpanel(unique_raw,trans_bgr)
+    else:
+        palettes, uniq_indexed, uniq_pal_ids = build_palettes_tileaware(
+            unique_raw, num_palettes=NUM_PALETTES, colors_per_palette=COLORS_PER_PALETTE,
+            trans_color=trans_bgr)
 
     # build_palettes_tileaware's nearest-color pixel assignment NEVER maps a
     # pixel to index 0 (see its own `dist[:, :, 0] = np.inf` -- correct for
@@ -259,6 +423,9 @@ def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
             f'ERROR: {n_tiles} unique tiles exceeds the {max_tiles}-tile cache-entry\n'
             f'  tile-ID space. Not truncating.')
 
+    if frontpanel_sequence is not None:
+        sequence_resources = verify_sequence_resources(entries,n_tiles,w_tiles,limits)
+
     tiles_bin = st.encode_tileset(unique_tiles, bpp=2)
     tilemap_bin = st.encode_tilemap_column_major(entries, w_tiles, H_TILES)
     cgram_palettes = [[0] * COLORS_PER_PALETTE] * PALETTE_OFFSET + list(palettes)
@@ -285,6 +452,17 @@ def convert_frontpanel_streaming(pak_path, level_entry, out_dir, w_tiles,
         'palette_bytes': len(palette_bin),
         'frontpanel_y': frontpanel_y,
     }
+    if frontpanel_sequence is not None:
+        manifest.update(frontpanel_sequence=sequence_sources,source_stride=sequence_stride,
+                        source_cycle_width=source_cycle_width,target_cycle_width=target_cycle_width,
+                        target_cycle_rounding='nearest_8px_after_4_over_5_scale',
+                        sequence_resources=sequence_resources,
+                        sequence_adapter='NORMAL_ORDERED_FP_CYCLE_INTEGER_CAMERA_V1')
+    if normal_font_palette:
+        manifest['font_palette_binding'] = font_binding
+    if full_height:
+        manifest['full_height_frontpanel'] = True
+        manifest['owner_width_tiles'] = owner_width_tiles
     (out_dir / 'manifest.json').write_text(json.dumps(manifest, indent=2))
 
     render_preview_2bpp(tiles_bin, tilemap_bin, palette_bin, w_tiles, H_TILES,

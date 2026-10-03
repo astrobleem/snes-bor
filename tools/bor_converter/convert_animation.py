@@ -75,6 +75,11 @@ def _frame_bbox_and_bg(rgb_im):
             if dist2(px[x, y], bg_rgb) > BG_DIST_THRESHOLD ** 2:
                 minx, miny = min(minx, x), min(miny, y)
                 maxx, maxy = max(maxx, x), max(maxy, y)
+    if minx == w:
+        # Source MISC/STEAMER deliberately uses an empty frame. Preserve the
+        # absence of pixels as a one-pixel transparent crop rather than
+        # inventing artwork or failing with an inverted crop rectangle.
+        return (0, 0, 0, 0)
     return (minx, miny, maxx, maxy)
 
 
@@ -186,7 +191,13 @@ def _quantize_shared(canvases, masks):
               for i in range(len(canvases))
               for y in range(TARGET_H) for x in range(TARGET_W) if masks[i][y][x]]
     if not all_fg:
-        raise ValueError('no foreground pixels survived the background threshold in any frame')
+        # Empty source frames (for example MISC/STEAMER's deliberate
+        # placeholder frame) are valid content. Keep every pixel transparent
+        # and provide the minimal palette instead of inventing visible data.
+        return {0: (0, 0, 0)}, [
+            [[0] * TARGET_W for _ in range(TARGET_H)]
+            for _ in canvases
+        ]
     avg_fg = tuple(sum(c[k] for c in all_fg) // len(all_fg) for k in range(3))
 
     n = len(canvases)

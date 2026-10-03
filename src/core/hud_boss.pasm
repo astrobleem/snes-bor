@@ -1,5 +1,7 @@
 ; ============================================================================
 ; core/hud_boss.pasm -- Phase G9 (plan_game.md 9): boss health bar body.
+; S8: campaign 3 dispatches to hud_opponent.pasm; the historical description
+; below applies to the preserved legacy path for every other campaign.
 ; Own bank (like core/spawn.pasm/core/charselect.pasm before it) purely for
 ; $C100-$FC00 ROM budget -- this didn't fit alongside the rest of main.pasm's
 ; Hud_Play in that window. Entered via `jsl Hud_Play__boss_bar` from
@@ -41,6 +43,11 @@
 Hud_Play__boss_bar:
     sep #$20
 .a8
+    lda.l Game_CampaignId
+    cmp #3
+    bne Hud_Play__boss_bar_legacy
+    jml HudOpponent_Play
+Hud_Play__boss_bar_legacy:
     lda.l Entity1_IsBoss
     beq Hud_Play__boss_bar_check2
     lda.l Entity1_Hp
@@ -193,3 +200,7 @@ Hud_Play__boss_bar_drawbar_have:
     sta.l HudBossStaging,x
     inx
     rts
+
+; Normal implementation shares this ROM bank, but owns its DMA buffers.
+.include "hud_opponent.pasm"
+.include "hud_text_banked.pasm"

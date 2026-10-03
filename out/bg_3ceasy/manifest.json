@@ -1,0 +1,24 @@
+{
+  "level_entry": "DATA\\EASY\\3CEASY.TXT",
+  "background": "data\\bgs\\boat3\\back.gif",
+  "panels": [
+    "data\\bgs\\boat3\\mid.gif"
+  ],
+  "frontpanel": "data\\bgs\\boat3\\front.gif",
+  "streaming": true,
+  "width_px": 256,
+  "height_px": 224,
+  "width_tiles": 32,
+  "height_tiles": 28,
+  "content_width_tiles": 32,
+  "unique_tiles": 676,
+  "num_palettes": 7,
+  "palette_offset": 1,
+  "colors_per_palette": 16,
+  "tiles_bytes": 21632,
+  "tilemap_bytes": 2688,
+  "palette_bytes": 256,
+  "panel_y": 0,
+  "background_y": 0,
+  "frontpanel_y": 0
+}

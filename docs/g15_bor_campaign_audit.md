@@ -1,7 +1,7 @@
 # G15 — Original Beats of Rage campaign audit
 
-Status: audit and implementation plan only. No production source or content was
-changed by this audit.
+Status: implementation ledger. The original BOR campaign content is imported
+through 6AEASY; later-stage work remains intentionally out of scope.
 
 ## Authority and current boundary
 
@@ -11,11 +11,21 @@ Its `DATA\\LEVELS.TXT` Easy set is the source of campaign order. Normal and
 Hard repeat the same six-stage topology with difficulty-specific files. Bonus
 is conditional on completion and is separate from the main six-stage campaign.
 
-The Easy set contains 14 level parts in six stage groups. The current build
-ships two converted original parts (`1BEASY.TXT` then `1AEASY.TXT`) and
-ships no other original campaign part. Thus the main campaign has six groups,
-one partially represented group, and 12 unshipped level parts. The original
-bonus `extra.txt` is not part of the six-stage acceptance target.
+The Easy set contains 14 level parts in six stage groups. The current BOR
+logical campaign ships through `6BEASY.TXT`; physical catalog order remains
+separate, and TMNT/test entries are never reached by BOR campaign adjacency.
+The original bonus `extra.txt` is not part of this campaign target.
+
+6AEASY source `direction left` is represented as generic SCROLL_LEFT: the
+stage loads at the right edge, camera X decreases while logical levelpos
+increases, and authored spawn triggers remain in source order. Source
+`mirror 1` is tracked independently and emits an additional reflected
+metasprite image; it is not horizontal stage reversal. A one-pixel SNES
+viewport-rounding allowance applies at entry.
+
+`6BEASY.TXT` is physical catalog index 20 and follows 6AEASY logically. The
+source places `DATA\SCENES\RUGAL.TXT` between 6BEASY and 6CEASY; 6CEASY and
+that intervening scene remain outside the current temporary TITLE boundary.
 
 ## Campaign order
 
@@ -54,7 +64,7 @@ deferred.
 | boss flag | ALREADY_SUPPORTED / CONTENT_CONVERSION_ONLY | Boss path is implemented, but original bosses need real content assets or an explicit reskin decision. |
 | map/remap | ALREADY_SUPPORTED / CONTENT_CONVERSION_ONLY | Existing remap conversion applies where source art has matching palettes. |
 | music/bossmusic | CONTENT_CONVERSION_ONLY / AUDIO FOLLOW-UP | Carry metadata into stage records; do not expand audio architecture in G15 audit. |
-| hole/endhole/blocked | SMALL_RUNTIME_GAP | These are real level semantics requiring focused source/runtime review. `blocked` is a pit-hazard flag, not scroll-back. |
+| hole/endhole/blocked | PARTIAL_RUNTIME | `hole` is represented for 2EASY; `endhole`/`blocked` are not present in 2EASY and remain unexercised. |
 | water/rock/mirror/direction/2pitem | CONTENT AUDIT REQUIRED | Preserve and classify per occurrence; do not assume keyword meaning from names. They are not current campaign-wide blockers until an occurrence is shown to affect reachable behavior. |
 | openborscript references | SCRIPT_VM BLOCKED only if correctness depends on them | No Easy level entry was established by this audit as requiring a script for its core stage-clear path. Keep the VM shelved pending exact script-reference evidence. |
 | scenes/animation | SCENE/PRESENTATION_ADAPTATION | Use text/static-image adaptations; no FMV or animation transport redesign. |
@@ -167,11 +177,11 @@ The Batch-A physical catalog previously doubled as progression, which made
 `tools/audio/shipped_content.py` now keeps `STAGE_CONFIGS` as physical packed
 assets and defines logical `CAMPAIGN_CONFIGS` from the source `LEVELS.TXT`
 orders. Build-generated maps resolve those source identities to physical
-indices. BOR currently maps only `1A -> 1B -> 1C` and stops at a temporary
+indices. BOR now maps `1A -> 1B -> 1C -> 2EASY` and stops at a temporary
 TITLE development boundary; it does not enter TMNT or claim BOR completion.
 TMNT main maps independently to `sewer0 -> streets -> streets2 -> sewer`.
 Standalone Bebop/Rock/Leather/Foot records remain individually testable and
-are not implicit members of either campaign. No 2EASY conversion was begun.
+are not implicit members of either campaign.
 
 ## Batch A status (2026-09-09)
 
@@ -179,8 +189,9 @@ Batch A is complete. The shipped BOR prefix is now `1AEASY -> 1BEASY ->
 1CEASY` (3 of 14 Easy parts), followed by the existing TMNT development tail.
 The focused gate proves real Stage_Load transitions through all three BOR
 parts, 1CEASY's 20-record production wave, and the development-tail handoff.
-Batch B has not started; the next original BOR part remains 2EASY. Yamazaki
-is the only new Batch-A runtime identity, as the 1CEASY boss; the 13-entry
+Batch B is complete. 2EASY is the fourth logical BOR Easy stage and is packed
+at physical catalog index 11, after the already-published TMNT/test records.
+Yamazaki, Heavy, and Fence are runtime-only identities; the 13-entry
 playable prefix and six actor windows are unchanged. The 1CEASY `1boss.bor`
 music reference remains recorded metadata without reopening the accepted
 SOUND/audio architecture.
