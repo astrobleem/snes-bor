@@ -85,7 +85,9 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
                          presentation_divisor=2, base_dir=source,
                          base_rom=source_rom,
                          normal_campaign_models=combat_models)
-    worker_symbols = install(output, production_runtime=True)
+    # build_world just linked a clean host. Existing worker.sym in an in-place
+    # rebuild describes the prior ROM, not relocations in this new image.
+    worker_symbols = install(output, production_runtime=True, fresh_world=True)
     manifest = dict(
             status=("OPT_IN_PERSISTENT_SA1_NORMAL_CAMPAIGN_CANDIDATE" if source_set == 'Normal'
                     else "PERSISTENT_SA1_HARD_CAMPAIGN_CANDIDATE"),
