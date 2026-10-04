@@ -283,8 +283,12 @@ class NormalCoordinateBridgeTests(unittest.TestCase):
         self.assertIn('source worker still owns ground movement/combat', owned)
 
     def test_stage_respawn_clears_full_q8_player_height_state(self):
-        p1 = GAME_STATE.read_text().split('Game_State_RespawnPlayer:\n', 1)[1]
-        p1 = p1.split('\n; ----------------------------------------------------------------------', 1)[0]
+        shim = GAME_STATE.read_text().split('Game_State_RespawnPlayer:\n', 1)[1]
+        self.assertIn('jsl Game_State_RespawnPlayer_Long\n    rts', shim)
+        p1 = (ROOT / 'src/core/player_respawn.pasm').read_text()
+        self.assertIn('rep #$31\n.a16\n    lda #PLAYER_RESPAWN_Y\n    sta.l PlayerEntity_PosY', p1)
+        self.assertIn('sta.l Player_JumpAnimMode', p1)
+        self.assertIn('sta.l Player_JumpFCount', p1)
         self.assertIn('sta.l $7E0A00+CHAR_THROW_ZPOS', p1)
         self.assertIn('sta.l $7E0A00+CHAR_THROW_ZVEL', p1)
         p2 = PLAYER2.read_text().split('G13_EnsureP2AfterStage:\n', 1)[1]

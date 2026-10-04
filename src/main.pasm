@@ -13553,6 +13553,7 @@ Footdie_StreamSource:
 .bank 17
 .org $8000
 .include "core/set_select.pasm"
+.include "core/player_respawn.pasm"
 
 .bank 18
 .org $8000
