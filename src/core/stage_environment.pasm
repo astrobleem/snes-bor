@@ -286,6 +286,13 @@ StageEnv_ApplySpawnMap:
     pha
     plb
     jsl ActorBehavior_RestoreCompat
+    ; The ten-byte source queue supplies an unsigned lane byte. Hidden
+    ; collected pickups park their old Y word at $7FFF; slots 1-3 write only
+    ; the new low byte. Initialize the full new lane before the source-world
+    ; bind, so a reused actor cannot inherit the pickup's hidden high byte.
+    sep #$20
+.a8
+    stz CHAR_POS_Y+1
     rep #$20
 .a16
     lda CHAR_ROSTER_INDEX

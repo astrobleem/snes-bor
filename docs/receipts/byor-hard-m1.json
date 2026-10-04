@@ -1,0 +1,857 @@
+{
+  "classification": "BYOR_HARD_COMPLETE",
+  "compiler": "BYOR \u2014 Bring Your Own Rage",
+  "branch": "feat/byor-hard",
+  "canonical_master": "8ca34a84669c0f033385e1af7a8589f24d31060a",
+  "runtime_commit": "b13f59d9efaee39e471e8296c5cca81c2a4b43ad",
+  "verifier_commit": "bfb111bb3f541a9a65b60c227ea999d8a7381c37",
+  "hashes": {
+    "rom_sha256": "cd43ae27c8ab36d4b8d43522cd3b796f703250d4c622be0614dde2d2e526b809",
+    "msu_sha256": "74f469d407199549f57086d6c7844bd551880b43208504e7eec62a701c744a1a",
+    "source_inventory_sha256": "a072c9da2d90bbc036f8276b16ce29b2a17b42154d42e36714e800287b160d1d"
+  },
+  "source": {
+    "set_id": 2,
+    "thresholds": [
+      {
+        "name": "Easy",
+        "id": 0,
+        "ifcomplete": 0
+      },
+      {
+        "name": "Normal",
+        "id": 1,
+        "ifcomplete": 0
+      },
+      {
+        "name": "Hard",
+        "id": 2,
+        "ifcomplete": 0
+      },
+      {
+        "name": "Bonus",
+        "id": 3,
+        "ifcomplete": 1
+      }
+    ],
+    "totals": {
+      "entries": 16,
+      "stages": 14,
+      "source_queue_records": 876,
+      "packed_records": 879,
+      "source_spawns": 753
+    },
+    "new_spawn_identities": [],
+    "new_authored_maps": {
+      "billy": [
+        3
+      ],
+      "eiji": [
+        5,
+        6
+      ]
+    },
+    "new_stage_directives": []
+  },
+  "traversal": {
+    "verdict": "PASS",
+    "mode": "natural",
+    "scope": "accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance",
+    "controller_observations": 27186,
+    "traversal_step_fields": 4,
+    "native_records": 879,
+    "source_spawns": 753,
+    "stage_records": {
+      "36": 51,
+      "37": 41,
+      "38": 38,
+      "39": 115,
+      "40": 55,
+      "41": 45,
+      "42": 31,
+      "43": 73,
+      "44": 76,
+      "45": 73,
+      "46": 104,
+      "47": 119,
+      "48": 24,
+      "49": 34
+    },
+    "route": [
+      {
+        "ordinal": 0,
+        "kind": "stage",
+        "source": "DATA\\HARD\\1AHARD.TXT",
+        "physical_or_scene": 36,
+        "next_after": false
+      },
+      {
+        "ordinal": 1,
+        "kind": "stage",
+        "source": "DATA\\HARD\\1BHARD.TXT",
+        "physical_or_scene": 37,
+        "next_after": false
+      },
+      {
+        "ordinal": 2,
+        "kind": "stage",
+        "source": "DATA\\HARD\\1CHARD.TXT",
+        "physical_or_scene": 38,
+        "next_after": true
+      },
+      {
+        "ordinal": 3,
+        "kind": "stage",
+        "source": "DATA\\HARD\\2HARD.TXT",
+        "physical_or_scene": 39,
+        "next_after": true
+      },
+      {
+        "ordinal": 4,
+        "kind": "stage",
+        "source": "DATA\\HARD\\3AHARD.TXT",
+        "physical_or_scene": 40,
+        "next_after": false
+      },
+      {
+        "ordinal": 5,
+        "kind": "stage",
+        "source": "DATA\\HARD\\3BHARD.TXT",
+        "physical_or_scene": 41,
+        "next_after": false
+      },
+      {
+        "ordinal": 6,
+        "kind": "stage",
+        "source": "DATA\\HARD\\3CHARD.TXT",
+        "physical_or_scene": 42,
+        "next_after": true
+      },
+      {
+        "ordinal": 7,
+        "kind": "stage",
+        "source": "DATA\\HARD\\4AHARD.TXT",
+        "physical_or_scene": 43,
+        "next_after": false
+      },
+      {
+        "ordinal": 8,
+        "kind": "stage",
+        "source": "DATA\\HARD\\4BHARD.TXT",
+        "physical_or_scene": 44,
+        "next_after": true
+      },
+      {
+        "ordinal": 9,
+        "kind": "stage",
+        "source": "DATA\\HARD\\5AHARD.TXT",
+        "physical_or_scene": 45,
+        "next_after": false
+      },
+      {
+        "ordinal": 10,
+        "kind": "stage",
+        "source": "DATA\\HARD\\5BHARD.TXT",
+        "physical_or_scene": 46,
+        "next_after": true
+      },
+      {
+        "ordinal": 11,
+        "kind": "stage",
+        "source": "DATA\\HARD\\6AHARD.TXT",
+        "physical_or_scene": 47,
+        "next_after": false
+      },
+      {
+        "ordinal": 12,
+        "kind": "stage",
+        "source": "DATA\\HARD\\6BHARD.TXT",
+        "physical_or_scene": 48,
+        "next_after": false
+      },
+      {
+        "ordinal": 13,
+        "kind": "scene",
+        "source": "RUGAL",
+        "physical_or_scene": 1,
+        "next_after": false
+      },
+      {
+        "ordinal": 14,
+        "kind": "stage",
+        "source": "DATA\\HARD\\6CHARD.TXT",
+        "physical_or_scene": 49,
+        "next_after": true
+      },
+      {
+        "ordinal": 15,
+        "kind": "scene",
+        "source": "ENDING",
+        "physical_or_scene": 2,
+        "next_after": false
+      }
+    ],
+    "scenes": [
+      {
+        "source": "RUGAL",
+        "presented": 126,
+        "transitions": 0,
+        "completion": 1,
+        "skip": 0,
+        "late": 0,
+        "retries": 0
+      },
+      {
+        "source": "ENDING",
+        "presented": 1997,
+        "transitions": 4,
+        "completion": 1,
+        "skip": 0,
+        "late": 0,
+        "retries": 0
+      }
+    ],
+    "times_before": 10,
+    "times_after": 11,
+    "title_dwell_observations": 180,
+    "final_state": "TITLE",
+    "final_ordinal": 15,
+    "host_error": 0,
+    "worker_error": 0,
+    "event_overflow": 0,
+    "acceleration": {
+      "sequenced_enemy_removals": 609,
+      "prop_interactions": 152,
+      "pickup_interactions": 6,
+      "initial_ai_combat_targets": [
+        {
+          "stage": 36,
+          "slot": 1,
+          "offset": 133,
+          "roster": 1,
+          "object_num": 2,
+          "input": 2,
+          "hp": 64,
+          "x": 54,
+          "y": 150,
+          "handling": "real player input and native lifecycle"
+        }
+      ]
+    },
+    "checks": [
+      [
+        "compiler exposes 16 typed entries",
+        true
+      ],
+      [
+        "generated release gate permits selected set",
+        true
+      ],
+      [
+        "generated selected campaign mapping matches ABI",
+        true
+      ],
+      [
+        "generated next flags match source compiler",
+        true
+      ],
+      [
+        "generated completion flags match explicit compatibility policy",
+        true
+      ],
+      [
+        "source tail is 6B -> RUGAL -> 6C -> ENDING",
+        true
+      ],
+      [
+        "spawn traversal requires full Hard",
+        true
+      ],
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "cold TITLE helper passed",
+        true
+      ],
+      [
+        "Hard selected while difficulty prompt remains active",
+        true
+      ],
+      [
+        "player selector retains selected source set",
+        true
+      ],
+      [
+        "native campaign starts at compiler first stage",
+        true
+      ],
+      [
+        "new run completion latch is clear",
+        true
+      ],
+      [
+        "entry 0 native order/identity",
+        true
+      ],
+      [
+        "entry 0 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 0 completion policy behavior",
+        true
+      ],
+      [
+        "entry 1 native order/identity",
+        true
+      ],
+      [
+        "entry 1 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 1 completion policy behavior",
+        true
+      ],
+      [
+        "entry 2 native order/identity",
+        true
+      ],
+      [
+        "entry 2 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 2 completion policy behavior",
+        true
+      ],
+      [
+        "entry 2 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 3 native order/identity",
+        true
+      ],
+      [
+        "entry 3 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 3 completion policy behavior",
+        true
+      ],
+      [
+        "entry 3 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 4 native order/identity",
+        true
+      ],
+      [
+        "entry 4 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 4 completion policy behavior",
+        true
+      ],
+      [
+        "entry 5 native order/identity",
+        true
+      ],
+      [
+        "entry 5 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 5 completion policy behavior",
+        true
+      ],
+      [
+        "entry 6 native order/identity",
+        true
+      ],
+      [
+        "entry 6 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 6 completion policy behavior",
+        true
+      ],
+      [
+        "entry 6 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 7 native order/identity",
+        true
+      ],
+      [
+        "entry 7 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 7 completion policy behavior",
+        true
+      ],
+      [
+        "entry 8 native order/identity",
+        true
+      ],
+      [
+        "entry 8 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 8 completion policy behavior",
+        true
+      ],
+      [
+        "entry 8 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 9 native order/identity",
+        true
+      ],
+      [
+        "entry 9 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 9 completion policy behavior",
+        true
+      ],
+      [
+        "entry 10 native order/identity",
+        true
+      ],
+      [
+        "entry 10 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 10 completion policy behavior",
+        true
+      ],
+      [
+        "entry 10 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 11 native order/identity",
+        true
+      ],
+      [
+        "entry 11 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 11 completion policy behavior",
+        true
+      ],
+      [
+        "entry 12 native order/identity",
+        true
+      ],
+      [
+        "entry 12 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 12 completion policy behavior",
+        true
+      ],
+      [
+        "entry 13 native order/identity",
+        true
+      ],
+      [
+        "RUGAL campaign scene continuation",
+        true
+      ],
+      [
+        "RUGAL source scene audio selection",
+        true
+      ],
+      [
+        "RUGAL preserves score/lives/credits",
+        true
+      ],
+      [
+        "RUGAL clean scene transport",
+        true
+      ],
+      [
+        "RUGAL complete natural playback",
+        true
+      ],
+      [
+        "entry 14 native order/identity",
+        true
+      ],
+      [
+        "entry 14 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 14 completion policy behavior",
+        true
+      ],
+      [
+        "entry 14 showcomplete advances exactly once",
+        true
+      ],
+      [
+        "entry 15 native order/identity",
+        true
+      ],
+      [
+        "ENDING campaign scene continuation",
+        true
+      ],
+      [
+        "ENDING source scene audio selection",
+        true
+      ],
+      [
+        "ENDING preserves score/lives/credits",
+        true
+      ],
+      [
+        "ENDING clean scene transport",
+        true
+      ],
+      [
+        "ENDING complete natural playback",
+        true
+      ],
+      [
+        "ENDING has four clip transitions",
+        true
+      ],
+      [
+        "all 16 compiler entries consumed in order",
+        true
+      ],
+      [
+        "completion credited exactly once",
+        true
+      ],
+      [
+        "two scene continuations exactly once",
+        true
+      ],
+      [
+        "TITLE dwell has no late scene swaps",
+        true
+      ],
+      [
+        "all authored source spawn identities and every control record observed",
+        true
+      ],
+      [
+        "all gate checks passed",
+        true
+      ]
+    ]
+  },
+  "combat": {
+    "verdict": "PASS",
+    "fields": 600,
+    "scope": "real first-entry input, no accelerated unlink",
+    "host_mode": 1,
+    "host_error": 0,
+    "source_ticks": 905,
+    "enemy_damage": [
+      {
+        "field": 30,
+        "identity": [
+          1,
+          2,
+          1
+        ],
+        "before_hp": 64,
+        "after_hp": 59
+      },
+      {
+        "field": 480,
+        "identity": [
+          4,
+          5,
+          3
+        ],
+        "before_hp": 32,
+        "after_hp": 27
+      },
+      {
+        "field": 510,
+        "identity": [
+          4,
+          5,
+          3
+        ],
+        "before_hp": 27,
+        "after_hp": 22
+      },
+      {
+        "field": 540,
+        "identity": [
+          4,
+          5,
+          3
+        ],
+        "before_hp": 22,
+        "after_hp": 12
+      },
+      {
+        "field": 570,
+        "identity": [
+          4,
+          5,
+          3
+        ],
+        "before_hp": 12,
+        "after_hp": 0
+      }
+    ],
+    "resident_blocks": {
+      "checked": 57,
+      "mismatches": []
+    },
+    "resident_palettes": {
+      "checked": 6,
+      "mismatches": []
+    },
+    "ppu_obj_samples": [
+      {
+        "field": 0,
+        "stat77": 0
+      },
+      {
+        "field": 30,
+        "stat77": 0
+      },
+      {
+        "field": 60,
+        "stat77": 0
+      },
+      {
+        "field": 90,
+        "stat77": 0
+      },
+      {
+        "field": 120,
+        "stat77": 0
+      },
+      {
+        "field": 150,
+        "stat77": 0
+      },
+      {
+        "field": 180,
+        "stat77": 0
+      },
+      {
+        "field": 210,
+        "stat77": 0
+      },
+      {
+        "field": 240,
+        "stat77": 0
+      },
+      {
+        "field": 270,
+        "stat77": 0
+      },
+      {
+        "field": 300,
+        "stat77": 0
+      },
+      {
+        "field": 330,
+        "stat77": 0
+      },
+      {
+        "field": 360,
+        "stat77": 0
+      },
+      {
+        "field": 390,
+        "stat77": 0
+      },
+      {
+        "field": 420,
+        "stat77": 0
+      },
+      {
+        "field": 450,
+        "stat77": 0
+      },
+      {
+        "field": 480,
+        "stat77": 0
+      },
+      {
+        "field": 510,
+        "stat77": 0
+      },
+      {
+        "field": 540,
+        "stat77": 0
+      },
+      {
+        "field": 570,
+        "stat77": 0
+      }
+    ]
+  },
+  "selector": {
+    "verdict": "PASS",
+    "rows": [
+      {
+        "source_set": "Easy",
+        "verdict": "PASS",
+        "physical_stage": 0,
+        "source_path": "DATA\\EASY\\1AEASY.TXT",
+        "selected_source_set": 0,
+        "player_roster": 22,
+        "host_mode": 0,
+        "host_error": null,
+        "source_ticks": null,
+        "times_completed": 11
+      },
+      {
+        "source_set": "Normal",
+        "verdict": "PASS",
+        "physical_stage": 22,
+        "source_path": "DATA\\NORMAL\\1A.TXT",
+        "selected_source_set": 1,
+        "player_roster": 22,
+        "host_mode": 1,
+        "host_error": 0,
+        "source_ticks": 43,
+        "times_completed": 11
+      },
+      {
+        "source_set": "Hard",
+        "verdict": "PASS",
+        "physical_stage": 36,
+        "source_path": "DATA\\HARD\\1AHARD.TXT",
+        "selected_source_set": 2,
+        "player_roster": 22,
+        "host_mode": 1,
+        "host_error": 0,
+        "source_ticks": 43,
+        "times_completed": 11
+      }
+    ]
+  },
+  "visuals": {
+    "catalog_frames": 3640,
+    "catalog_bytes": 11369220,
+    "catalog_sha256": "3dca52015dc5be7e0b16b1efe7b9fb580e52800f7c6e698f0ca4b4c733c7ff46",
+    "obj_residency_bytes": 16384,
+    "native_admission_fault_log_bytes": 0,
+    "legacy_fallback": false,
+    "artwork_shrunk": false,
+    "actor_limit_reduced": false,
+    "claim": "Observed traversal admissions and bounded resident resource bytes; not exhaustive pixel/pose acceptance"
+  },
+  "focused_validation": {
+    "compiler": "41 passed, 59 subtests passed",
+    "runtime_fixture_visual": "127 passed, 1 deselected, 23 subtests passed",
+    "py_compile": "PASS",
+    "diff_check": "PASS",
+    "deselected": "pre-existing rom_override_default_relative_absolute_and_invalid: generic distribution BOR_TEST_ROM semantics outside candidate fixtures"
+  },
+  "footprint": {
+    "candidate": "build/byor-hard",
+    "files": 40,
+    "logical_bytes": 722322777,
+    "hardlinked_pcm_bytes": 672922568,
+    "unique_candidate_bytes": 49400209,
+    "rom_sha256": "cd43ae27c8ab36d4b8d43522cd3b796f703250d4c622be0614dde2d2e526b809",
+    "msu_sha256": "74f469d407199549f57086d6c7844bd551880b43208504e7eec62a701c744a1a",
+    "owned_output_files": 72,
+    "owned_output_bytes": 35235971,
+    "native_journal_directories": 12,
+    "native_journal_bytes": 2287671,
+    "reproducible_debug_tools_bytes": 6709362,
+    "cleanup": "Automatic approval review rejected recursive debug-tools removal; retained.",
+    "free_disk_bytes": 123098152960
+  },
+  "artifacts": {
+    "out\\byor-hard-evidence\\traversal.json": {
+      "bytes": 5080326,
+      "sha256": "186039eec57e13ea0657b00c24c4e09651842bebd72aba726f5baaa8d3bb29a3"
+    },
+    "out\\byor-hard-evidence\\combat.json": {
+      "bytes": 35888,
+      "sha256": "1f76af0e1e061b39e7e9426ea1dcb8182b94cda6273b5e3b49e0b216ccba2860"
+    },
+    "out\\byor-hard-evidence\\selector.json": {
+      "bytes": 1139,
+      "sha256": "e3c9e52738c59d9b782a9f31ab4a5e701ac2d0ee3908d9740452ca9d0b0adf9c"
+    },
+    "out\\byor-hard-evidence\\visual-admission-errors.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs\\receipts\\byor-hard-m1-admissions.txt": {
+      "bytes": 62650,
+      "sha256": "b0a47b78ee95b880745e9b4fc4724156bc268eab883599f1bf9a9cdbeac28ac7"
+    },
+    "docs\\receipts\\byor-hard-m1-combat.png": {
+      "bytes": 22093,
+      "sha256": "407647564c12efc846cc00c7e04570eafe8871366a1a5489b0661a3ea78306ce"
+    },
+    "build\\byor-hard\\production-runtime.json": {
+      "bytes": 112005,
+      "sha256": "1f6edbdfe777bfea42c617e1df900daca959ffb0ca803c0161e8aaba68dbbedb"
+    },
+    "build\\byor-hard\\link.json": {
+      "bytes": 93513,
+      "sha256": "0b9f90b5cfd16743ce2557a2f81838b8cacd20171154fe97b0bfdcbb94b817c6"
+    },
+    "build\\byor-hard\\worker-manifest.json": {
+      "bytes": 2709,
+      "sha256": "fd45b9933163a9a8312a124333d6f042544ca884afb5b01302ab6084a39dcd25"
+    }
+  },
+  "nonclaims": [
+    "queue.2pitem: Non-prop held drops and full source two-player semantics require separate native coverage.",
+    "queue.alias: Generated alias table and opponent-target lifecycle still need assembled/current native runtime proof.",
+    "queue.coords: Source coordinate fractions, offscreen depth and independent enemy-drop drivers are not preserved by the ten-byte queue.",
+    "queue.health: Authored absolute/native HP and damage semantics are not proven by the compatibility HUD byte.",
+    "queue.item: Enemy-held drops are not represented by this obstacle-only compatibility encoder.",
+    "queue.map: Palette selector transport alone does not prove correct visible CGRAM.",
+    "queue.spawn: Roster identity is not native AI/action implementation; legacy borrowed-slot cases remain explicit below.",
+    "scene.animation: Scaled/quantized scene encoding remains an adaptation; natural RUGAL/ENDING playback and exactly-once completion are proven for the accepted Hard candidate. Hard scene-skip cleanup was not separately exercised. This is not pixel-perfect/source-exact scene certification.",
+    "stage.blocked: Native movement/lifecycle fidelity needs host integration and live evidence; metadata alone is insufficient.",
+    "stage.endhole: Pit damage, retirement, actor reuse and player lives need native runtime evidence.",
+    "stage.frontpanel: Compiler and main/NMI hooks are checked statically. Native scrolling, layer priority, resource contention, transitions and pixel acceptance remain PENDING_NATIVE.",
+    "stage.hole: Fixed hazard capacity and integer geometry are not general native hole behavior.",
+    "stage.mirror: Fixed metasprite reflection does not establish arbitrary native actor reflection fidelity.",
+    "stage.rock: Source layer motion and hardware presentation remain unverified.",
+    "stage.water: Bounded flattened raster adaptation is not native texture/parallax or hardware visual acceptance."
+  ],
+  "workspace_safety": "Unrelated dirt unstaged. Twelve pre-existing dirty generated spawn tables were regenerated before original bytes were backed up; retained snapshots are after regeneration. Historical access receipt retained. No master merge or Bonus work."
+}

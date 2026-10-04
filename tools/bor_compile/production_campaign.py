@@ -18,7 +18,7 @@ def complete_presentation(source, ir):
     return presentation(source, ir), layers
 
 
-def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal"),
+def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Hard"),
                    legacy_stage_ids=None):
     configs = deepcopy(bindings)
     result = deepcopy(campaigns)
@@ -91,7 +91,8 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal"),
                                 next_after=entry.next_after))
         if len(levels) < len(pins):
             raise ValueError(f'LEGACY_STAGE_ID_DRIFT: {source_set.name} lost pinned stages')
-        campaign_id = {'Easy': 'BOR_ORIGINAL', 'Normal': 'BOR_NORMAL_1A_INTERNAL'}[source_set.name]
+        campaign_id = {'Easy': 'BOR_ORIGINAL', 'Normal': 'BOR_NORMAL_1A_INTERNAL',
+                       'Hard': 'BOR_HARD'}[source_set.name]
         result[campaign_id] = dict(family='bor-original', source_levels_file=ir.levels_path,
                                   source_levels=levels, entries=entries,
                                   completion_policy=('accepted-easy-s7' if source_set.name == 'Easy' else 'source-next'),
@@ -109,7 +110,7 @@ def completion_flags(entries, source_set):
     continuation also sets Stage_LoadPending and re-enters the same branch;
     terminal Ending goes directly to HandleEnd without setting pending.
     """
-    if source_set == 'Normal':
+    if source_set in ('Normal', 'Hard'):
         return [int(e['next_after']) for e in entries]
     if source_set != 'Easy' or any(e['kind'] not in ('stage', 'scene') for e in entries):
         raise ValueError('UNKNOWN_COMPLETION_POLICY: ' + source_set)
@@ -173,7 +174,7 @@ def compile_queues(configs, roster_configs):
                 path = key(model['source_path'])
                 matches = [i for i, r in enumerate(roster_configs)
                            if r['family'] == cfg['family'] and
-                           cfg.get('source_set_id') in r.get('runtime_binding_sets', (0, 1)) and
+                           cfg.get('source_set_id') in r.get('runtime_binding_sets', (0, 1, 2)) and
                            (key(r['source_character']) == path.rsplit('/', 1)[0]
                             or key(r['source_character']) == path.removesuffix('.txt'))]
                 if len(matches) > 1:

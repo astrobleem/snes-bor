@@ -1,0 +1,2724 @@
+{
+  "compiler": "BYOR \u2014 Bring Your Own Rage",
+  "evidence": "SOURCE_AND_IN_MEMORY_LINKAGE_ONLY",
+  "source_pak": "Beats of Rage Original [v.3.0 Build 4086].pak",
+  "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+  "levels_sha256": "53b2c8bc57c5f9babe19b6ba9e7bd3f0bef5d38e761049eefb857a258478c610",
+  "original_bor_c_sha256": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+  "completion_source": {
+    "file": "out/bor_compile_s6/BOR.C",
+    "load_levelorder_default_ifcomplete_line": 1761,
+    "preceding_entry_gonext_line": 1796,
+    "showcomplete_gonext_line": 5638,
+    "terminal_increment_line": 5647
+  },
+  "stage_lifecycle_source": {
+    "file": "out/bor_compile_s6/BOR.C",
+    "playlevel_line": 5514,
+    "entry_kill_all_line": 5516,
+    "exit_kill_all_line": 5533
+  },
+  "sets": [
+    {
+      "name": "Easy",
+      "id": 0,
+      "ifcomplete": 0
+    },
+    {
+      "name": "Normal",
+      "id": 1,
+      "ifcomplete": 0
+    },
+    {
+      "name": "Hard",
+      "id": 2,
+      "ifcomplete": 0
+    },
+    {
+      "name": "Bonus",
+      "id": 3,
+      "ifcomplete": 1
+    }
+  ],
+  "hard_set_id": 2,
+  "entries": [
+    {
+      "ordinal": 0,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\1AHARD.TXT",
+      "next_after": false,
+      "physical_id": 36,
+      "queue_records": 51,
+      "hole_prefix": 0,
+      "packed_records": 51,
+      "packed_sha256": "6f80ee0a7418b48d6031492b00e1a7348a3a69880098c0c874935dec5dcd0350",
+      "source_sha256": "78daa83ee01de392d8608744b277ad3787a5b5cdb53e67ca9e0d98b1a03cf341",
+      "queue_kinds": {
+        "spawn": 43,
+        "wait": 6,
+        "group": 2
+      },
+      "spawn_identities": {
+        "1up": 1,
+        "shermie": 14,
+        "yashiro": 13,
+        "trash": 4,
+        "ralf": 9,
+        "angel": 2
+      },
+      "groups": [
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        }
+      ],
+      "authored_maps": {
+        "1up": [
+          0
+        ],
+        "shermie": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "yashiro": [
+          0,
+          1,
+          2
+        ],
+        "trash": [
+          0
+        ],
+        "ralf": [
+          0,
+          1,
+          2
+        ],
+        "angel": [
+          0,
+          2
+        ]
+      },
+      "authored_health_overrides": {
+        "1up": [],
+        "shermie": [
+          30,
+          35,
+          40,
+          45,
+          50
+        ],
+        "yashiro": [
+          35,
+          40,
+          50,
+          60,
+          65,
+          70,
+          80
+        ],
+        "trash": [],
+        "ralf": [
+          50,
+          60,
+          70,
+          90
+        ],
+        "angel": [
+          150
+        ]
+      },
+      "environment": {},
+      "scroll": "right"
+    },
+    {
+      "ordinal": 1,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\1BHARD.TXT",
+      "next_after": false,
+      "physical_id": 37,
+      "queue_records": 41,
+      "hole_prefix": 0,
+      "packed_records": 41,
+      "packed_sha256": "6c83ca59b249d603c87ee96c5e3651e7c7a7110832f26c2d48ef1e2061e62f29",
+      "source_sha256": "8b3395ce8bebee0277ee28316aa79e9e26aa9539aee5faea1dff7bfbcf02608b",
+      "queue_kinds": {
+        "spawn": 34,
+        "wait": 5,
+        "group": 2
+      },
+      "spawn_identities": {
+        "table": 3,
+        "chair": 4,
+        "yashiro": 9,
+        "shermie": 4,
+        "ralf": 9,
+        "angel": 5
+      },
+      "groups": [
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        }
+      ],
+      "authored_maps": {
+        "table": [
+          0
+        ],
+        "chair": [
+          0
+        ],
+        "yashiro": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shermie": [
+          0,
+          1,
+          2
+        ],
+        "ralf": [
+          0,
+          1,
+          2
+        ],
+        "angel": [
+          0,
+          1,
+          4
+        ]
+      },
+      "authored_health_overrides": {
+        "table": [],
+        "chair": [],
+        "yashiro": [
+          60,
+          70
+        ],
+        "shermie": [
+          40,
+          50
+        ],
+        "ralf": [
+          60,
+          70,
+          80
+        ],
+        "angel": [
+          90,
+          100
+        ]
+      },
+      "environment": {},
+      "scroll": "right"
+    },
+    {
+      "ordinal": 2,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\1CHARD.TXT",
+      "next_after": true,
+      "physical_id": 38,
+      "queue_records": 38,
+      "hole_prefix": 0,
+      "packed_records": 38,
+      "packed_sha256": "d9da79304e78e3177c96da9a4494e6b576b9991ac37c2fdf1d19e15c1c1f5ac8",
+      "source_sha256": "33aa505ee5abc45b73e29a2e69f8b8b072be555a12a0033bc014bb50708c2646",
+      "queue_kinds": {
+        "spawn": 36,
+        "group": 2
+      },
+      "spawn_identities": {
+        "shermie": 6,
+        "yashiro": 10,
+        "trash": 2,
+        "yamazaki": 1,
+        "ralf": 9,
+        "angel": 8
+      },
+      "groups": [
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "shermie": [
+          0,
+          1
+        ],
+        "yashiro": [
+          0,
+          1,
+          3
+        ],
+        "trash": [
+          0
+        ],
+        "yamazaki": [
+          0
+        ],
+        "ralf": [
+          0,
+          1,
+          3
+        ],
+        "angel": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "shermie": [],
+        "yashiro": [
+          70,
+          80
+        ],
+        "trash": [],
+        "yamazaki": [
+          400
+        ],
+        "ralf": [
+          50,
+          60,
+          70
+        ],
+        "angel": [
+          80
+        ]
+      },
+      "environment": {
+        "blocked": [
+          1
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 3,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\2HARD.TXT",
+      "next_after": true,
+      "physical_id": 39,
+      "queue_records": 112,
+      "hole_prefix": 3,
+      "packed_records": 115,
+      "packed_sha256": "17f14f41508faf9dd598500c7e1cbfefd367b383c572b1ec0b2f8a16dd895f3b",
+      "source_sha256": "1a33ed12cdf37b811f85618711dcdd557c7c61dbc217e3abb792a2ed53daa6c5",
+      "queue_kinds": {
+        "spawn": 93,
+        "wait": 8,
+        "group": 11
+      },
+      "spawn_identities": {
+        "yashiro": 15,
+        "ralf": 19,
+        "fence": 8,
+        "shermie": 16,
+        "angel": 19,
+        "biker-k'": 8,
+        "k'": 4,
+        "heavy": 2,
+        "billy": 2
+      },
+      "groups": [
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 1
+        },
+        {
+          "min": 2,
+          "max": 2
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "yashiro": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ralf": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fence": [
+          0
+        ],
+        "shermie": [
+          0,
+          1
+        ],
+        "angel": [
+          0,
+          3,
+          4,
+          5
+        ],
+        "biker-k'": [
+          0,
+          1
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "heavy": [
+          0
+        ],
+        "billy": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "yashiro": [
+          60,
+          65,
+          70,
+          80
+        ],
+        "ralf": [
+          50,
+          60,
+          70,
+          90
+        ],
+        "fence": [],
+        "shermie": [
+          50
+        ],
+        "angel": [
+          80,
+          85,
+          90,
+          100
+        ],
+        "biker-k'": [
+          10,
+          100
+        ],
+        "k'": [
+          50,
+          60
+        ],
+        "heavy": [
+          300,
+          400
+        ],
+        "billy": [
+          200
+        ]
+      },
+      "environment": {
+        "hole": [
+          490,
+          1900,
+          2300
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 4,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\3AHARD.TXT",
+      "next_after": false,
+      "physical_id": 40,
+      "queue_records": 55,
+      "hole_prefix": 0,
+      "packed_records": 55,
+      "packed_sha256": "2ef6e67193b04313730fb3ee22a73f8d3ee0cdbdfb1b1b2be76a28fbef437377",
+      "source_sha256": "fa2f835773ac006b80213dee265275c98ed4d4fdcede02d70fe9e9a7371adbfe",
+      "queue_kinds": {
+        "spawn": 48,
+        "wait": 3,
+        "group": 4
+      },
+      "spawn_identities": {
+        "angel": 9,
+        "ralf": 10,
+        "yashiro": 10,
+        "shermie": 5,
+        "k'": 10,
+        "box": 2,
+        "billy": 2
+      },
+      "groups": [
+        {
+          "min": 2,
+          "max": 4
+        },
+        {
+          "min": 1,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "angel": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ralf": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "yashiro": [
+          0,
+          1,
+          2
+        ],
+        "shermie": [
+          0,
+          1,
+          2
+        ],
+        "k'": [
+          0,
+          1,
+          2
+        ],
+        "box": [
+          0
+        ],
+        "billy": [
+          2,
+          4
+        ]
+      },
+      "authored_health_overrides": {
+        "angel": [
+          100,
+          150
+        ],
+        "ralf": [
+          60,
+          70,
+          80,
+          100
+        ],
+        "yashiro": [
+          60,
+          70,
+          80,
+          100,
+          150
+        ],
+        "shermie": [],
+        "k'": [
+          55,
+          60,
+          80
+        ],
+        "box": [],
+        "billy": []
+      },
+      "environment": {
+        "rock": [
+          1
+        ],
+        "water": [
+          {
+            "source_path": "DATA\\BGS\\BOAT2\\WATER.GIF",
+            "mode": 15
+          }
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 5,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\3BHARD.TXT",
+      "next_after": false,
+      "physical_id": 41,
+      "queue_records": 45,
+      "hole_prefix": 0,
+      "packed_records": 45,
+      "packed_sha256": "9495974fa0f577f614833b17ef1cd8d838f4411e0cff56ed2af1d72eb8db5257",
+      "source_sha256": "8e392adf25eddcfb0352e29d5aece3833b71e64bbfe25f548907acd9e0d22db5",
+      "queue_kinds": {
+        "group": 4,
+        "spawn": 39,
+        "wait": 2
+      },
+      "spawn_identities": {
+        "ralf": 8,
+        "joe": 4,
+        "box": 4,
+        "shermie": 5,
+        "angel": 4,
+        "k'": 8,
+        "yashiro": 5,
+        "billy": 1
+      },
+      "groups": [
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        }
+      ],
+      "authored_maps": {
+        "ralf": [
+          0,
+          1
+        ],
+        "joe": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "box": [
+          0
+        ],
+        "shermie": [
+          0,
+          2
+        ],
+        "angel": [
+          0,
+          2,
+          3
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "yashiro": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "billy": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "ralf": [
+          70,
+          75,
+          80
+        ],
+        "joe": [
+          150
+        ],
+        "box": [],
+        "shermie": [
+          55,
+          60
+        ],
+        "angel": [
+          100,
+          110,
+          120
+        ],
+        "k'": [
+          60,
+          65,
+          70
+        ],
+        "yashiro": [
+          70,
+          75,
+          80
+        ],
+        "billy": [
+          120
+        ]
+      },
+      "environment": {
+        "rock": [
+          1
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 6,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\3CHARD.TXT",
+      "next_after": true,
+      "physical_id": 42,
+      "queue_records": 31,
+      "hole_prefix": 0,
+      "packed_records": 31,
+      "packed_sha256": "033f222b6fb86e69643a03b8d3c2c378714083fe7cc42c1b21632c7233634c4b",
+      "source_sha256": "128f7c099374c2793b1e1775849a1d238df4cfce4dc06d641d6858a4a45ab033",
+      "queue_kinds": {
+        "spawn": 30,
+        "group": 1
+      },
+      "spawn_identities": {
+        "furnace": 1,
+        "steamer": 1,
+        "1up": 1,
+        "crate": 2,
+        "robert": 1,
+        "yashiro": 4,
+        "ralf": 4,
+        "shermie": 4,
+        "k'": 4,
+        "angel": 4,
+        "joe": 4
+      },
+      "groups": [
+        {
+          "min": 3,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "furnace": [
+          0
+        ],
+        "steamer": [
+          0
+        ],
+        "1up": [
+          0
+        ],
+        "crate": [
+          0
+        ],
+        "robert": [
+          0
+        ],
+        "yashiro": [
+          0
+        ],
+        "ralf": [
+          0
+        ],
+        "shermie": [
+          0
+        ],
+        "k'": [
+          0
+        ],
+        "angel": [
+          0
+        ],
+        "joe": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "furnace": [],
+        "steamer": [],
+        "1up": [],
+        "crate": [],
+        "robert": [
+          400
+        ],
+        "yashiro": [],
+        "ralf": [],
+        "shermie": [],
+        "k'": [],
+        "angel": [],
+        "joe": []
+      },
+      "environment": {
+        "rock": [
+          1
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 7,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\4AHARD.TXT",
+      "next_after": false,
+      "physical_id": 43,
+      "queue_records": 73,
+      "hole_prefix": 0,
+      "packed_records": 73,
+      "packed_sha256": "2a5128b99ea249ddf6b796be55a4827e27a74b3d82dcb34d47014969a3426f5b",
+      "source_sha256": "aee7c9c2e74efd45ec7a7c87a93ba068e3b94b80e0745c057c7a421709d41629",
+      "queue_kinds": {
+        "group": 8,
+        "spawn": 61,
+        "wait": 4
+      },
+      "spawn_identities": {
+        "yashiro": 11,
+        "k'": 10,
+        "ralf": 13,
+        "shermie": 7,
+        "angel": 10,
+        "box": 1,
+        "crate": 4,
+        "biker-k'": 2,
+        "jhun": 3
+      },
+      "groups": [
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 1,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        }
+      ],
+      "authored_maps": {
+        "yashiro": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "k'": [
+          0,
+          1,
+          2
+        ],
+        "ralf": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shermie": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "angel": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "box": [
+          0
+        ],
+        "crate": [
+          0
+        ],
+        "biker-k'": [
+          0
+        ],
+        "jhun": [
+          0,
+          2
+        ]
+      },
+      "authored_health_overrides": {
+        "yashiro": [
+          70,
+          80,
+          85,
+          90
+        ],
+        "k'": [
+          60,
+          70,
+          75,
+          90
+        ],
+        "ralf": [
+          70,
+          75,
+          80
+        ],
+        "shermie": [
+          60,
+          65,
+          70
+        ],
+        "angel": [
+          100,
+          120,
+          130
+        ],
+        "box": [],
+        "crate": [],
+        "biker-k'": [
+          10
+        ],
+        "jhun": [
+          100,
+          120,
+          150
+        ]
+      },
+      "environment": {
+        "water": [
+          {
+            "source_path": "DATA\\BGS\\PIER\\WATER.GIF",
+            "mode": 2
+          }
+        ]
+      },
+      "scroll": "right"
+    },
+    {
+      "ordinal": 8,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\4BHARD.TXT",
+      "next_after": true,
+      "physical_id": 44,
+      "queue_records": 76,
+      "hole_prefix": 0,
+      "packed_records": 76,
+      "packed_sha256": "8b2fc0178bb0d01872679bca8e5b25e2dc678240fbebd58fb76a8b856b0da728",
+      "source_sha256": "1c86a9da8719bf2f18a6d32ffdffc3aa59366063df89b73a7d8588becf93bea8",
+      "queue_kinds": {
+        "spawn": 68,
+        "wait": 4,
+        "group": 4
+      },
+      "spawn_identities": {
+        "crate": 2,
+        "yashiro": 8,
+        "shermie": 7,
+        "ralf": 13,
+        "k'": 3,
+        "angel": 12,
+        "jhun": 10,
+        "box": 2,
+        "billy": 2,
+        "joe": 8,
+        "mrbig": 1
+      },
+      "groups": [
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "crate": [
+          0
+        ],
+        "yashiro": [
+          0,
+          2,
+          3
+        ],
+        "shermie": [
+          0,
+          2
+        ],
+        "ralf": [
+          0,
+          2,
+          3
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "angel": [
+          0,
+          2,
+          3
+        ],
+        "jhun": [
+          0,
+          1
+        ],
+        "box": [
+          0
+        ],
+        "billy": [
+          0,
+          1
+        ],
+        "joe": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "mrbig": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "crate": [],
+        "yashiro": [
+          80,
+          90,
+          100
+        ],
+        "shermie": [
+          40,
+          50,
+          70,
+          75
+        ],
+        "ralf": [
+          70,
+          80
+        ],
+        "k'": [
+          70
+        ],
+        "angel": [
+          100,
+          120,
+          130,
+          140,
+          150
+        ],
+        "jhun": [
+          80
+        ],
+        "box": [],
+        "billy": [
+          130
+        ],
+        "joe": [
+          100,
+          120
+        ],
+        "mrbig": [
+          400
+        ]
+      },
+      "environment": {},
+      "scroll": "right"
+    },
+    {
+      "ordinal": 9,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\5AHARD.TXT",
+      "next_after": false,
+      "physical_id": 45,
+      "queue_records": 73,
+      "hole_prefix": 0,
+      "packed_records": 73,
+      "packed_sha256": "a70ba969202fbe88f9ef16a98ebf616cb943af6a25a368969c52a85fbd4228b4",
+      "source_sha256": "f1e95c936b610e96664e977061a83d8dd4bab06a99ef8a99e83c8483c3082917",
+      "queue_kinds": {
+        "spawn": 64,
+        "group": 9
+      },
+      "spawn_identities": {
+        "drum": 2,
+        "time": 1,
+        "shermie": 7,
+        "yashiro": 14,
+        "ralf": 11,
+        "ramon": 1,
+        "k'": 7,
+        "angel": 11,
+        "billy": 5,
+        "joe": 3,
+        "jhun": 2
+      },
+      "groups": [
+        {
+          "min": 2,
+          "max": 3
+        },
+        {
+          "min": 1,
+          "max": 1
+        },
+        {
+          "min": 2,
+          "max": 3
+        },
+        {
+          "min": 2,
+          "max": 4
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 5,
+          "max": 5
+        },
+        {
+          "min": 1,
+          "max": 4
+        },
+        {
+          "min": 3,
+          "max": 3
+        }
+      ],
+      "authored_maps": {
+        "drum": [
+          0
+        ],
+        "time": [
+          0
+        ],
+        "shermie": [
+          0,
+          1,
+          2
+        ],
+        "yashiro": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "ralf": [
+          1,
+          2,
+          3
+        ],
+        "ramon": [
+          3
+        ],
+        "k'": [
+          0,
+          1,
+          2
+        ],
+        "angel": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "billy": [
+          0,
+          1,
+          2
+        ],
+        "joe": [
+          2,
+          3
+        ],
+        "jhun": [
+          1,
+          2
+        ]
+      },
+      "authored_health_overrides": {
+        "drum": [],
+        "time": [],
+        "shermie": [
+          50,
+          70,
+          90,
+          100
+        ],
+        "yashiro": [
+          50,
+          70,
+          90,
+          100
+        ],
+        "ralf": [
+          60,
+          80,
+          90,
+          100
+        ],
+        "ramon": [],
+        "k'": [
+          60,
+          80,
+          90,
+          100
+        ],
+        "angel": [
+          90,
+          100,
+          120
+        ],
+        "billy": [
+          100,
+          120
+        ],
+        "joe": [
+          120
+        ],
+        "jhun": [
+          100
+        ]
+      },
+      "environment": {
+        "endhole": [
+          1
+        ]
+      },
+      "scroll": "down"
+    },
+    {
+      "ordinal": 10,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\5BHARD.TXT",
+      "next_after": true,
+      "physical_id": 46,
+      "queue_records": 104,
+      "hole_prefix": 0,
+      "packed_records": 104,
+      "packed_sha256": "93b9023eded4196739d00441b47f83c10a0d5362dad42abe312d9e11a8949495",
+      "source_sha256": "9b4dfa63a354a2bb9b5f81c58f7e7bbb3f473ceb437b0d858557b2b8b9d2a31d",
+      "queue_kinds": {
+        "spawn": 90,
+        "wait": 4,
+        "group": 10
+      },
+      "spawn_identities": {
+        "drum": 7,
+        "steamer": 4,
+        "angel": 13,
+        "k'": 14,
+        "billy": 3,
+        "yashiro": 11,
+        "ralf": 11,
+        "shermie": 10,
+        "jhun": 3,
+        "eiji": 5,
+        "joe": 7,
+        "yamazaki": 1,
+        "k9999": 1
+      },
+      "groups": [
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 1,
+          "max": 1
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 1
+        },
+        {
+          "min": 1,
+          "max": 6
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 3
+        },
+        {
+          "min": 4,
+          "max": 4
+        }
+      ],
+      "authored_maps": {
+        "drum": [
+          0
+        ],
+        "steamer": [
+          0
+        ],
+        "angel": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "billy": [
+          0,
+          1
+        ],
+        "yashiro": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "ralf": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shermie": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "jhun": [
+          0,
+          1
+        ],
+        "eiji": [
+          0,
+          1,
+          3,
+          4
+        ],
+        "joe": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "yamazaki": [
+          1
+        ],
+        "k9999": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "drum": [],
+        "steamer": [],
+        "angel": [
+          120,
+          130,
+          140,
+          150
+        ],
+        "k'": [
+          60,
+          70,
+          80,
+          100,
+          110
+        ],
+        "billy": [
+          110,
+          140
+        ],
+        "yashiro": [
+          90,
+          95,
+          100
+        ],
+        "ralf": [
+          80,
+          85,
+          90
+        ],
+        "shermie": [
+          60,
+          70,
+          75,
+          80
+        ],
+        "jhun": [
+          110,
+          150
+        ],
+        "eiji": [
+          130,
+          150
+        ],
+        "joe": [
+          130,
+          140
+        ],
+        "yamazaki": [
+          200
+        ],
+        "k9999": [
+          700
+        ]
+      },
+      "environment": {},
+      "scroll": "right"
+    },
+    {
+      "ordinal": 11,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\6AHARD.TXT",
+      "next_after": false,
+      "physical_id": 47,
+      "queue_records": 119,
+      "hole_prefix": 0,
+      "packed_records": 119,
+      "packed_sha256": "7d0538fcc1f6899923c2de550df8219397f5c228c3b3b24ffb426ee1d0e03b28",
+      "source_sha256": "4a7503e8932bc2eccb2164075167364f429b7c87fd536a3482bcf2d05fec97ad",
+      "queue_kinds": {
+        "spawn": 95,
+        "wait": 13,
+        "group": 11
+      },
+      "spawn_identities": {
+        "1up": 1,
+        "shermie": 9,
+        "jhun": 4,
+        "yashiro": 15,
+        "ralf": 15,
+        "angel": 10,
+        "k'": 10,
+        "billy": 5,
+        "yamazaki": 1,
+        "trolly": 8,
+        "heavy": 1,
+        "joe": 9,
+        "robert": 1,
+        "mrbig": 1,
+        "eiji": 4,
+        "k9999": 1
+      },
+      "groups": [
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 1,
+          "max": 6
+        },
+        {
+          "min": 3,
+          "max": 3
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 4,
+          "max": 4
+        },
+        {
+          "min": 100,
+          "max": 100
+        },
+        {
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "authored_maps": {
+        "1up": [
+          0
+        ],
+        "shermie": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "jhun": [
+          0,
+          1,
+          2
+        ],
+        "yashiro": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ralf": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "angel": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "billy": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "yamazaki": [
+          0
+        ],
+        "trolly": [
+          0
+        ],
+        "heavy": [
+          1
+        ],
+        "joe": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "robert": [
+          1
+        ],
+        "mrbig": [
+          1
+        ],
+        "eiji": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "k9999": [
+          1
+        ]
+      },
+      "authored_health_overrides": {
+        "1up": [],
+        "shermie": [
+          75,
+          80,
+          90,
+          100
+        ],
+        "jhun": [
+          120,
+          130
+        ],
+        "yashiro": [
+          80,
+          90,
+          95,
+          100,
+          110
+        ],
+        "ralf": [
+          80,
+          90,
+          95,
+          100,
+          110
+        ],
+        "angel": [
+          120,
+          130,
+          140,
+          150,
+          160,
+          180
+        ],
+        "k'": [
+          80,
+          85,
+          90
+        ],
+        "billy": [
+          130,
+          140
+        ],
+        "yamazaki": [
+          250
+        ],
+        "trolly": [],
+        "heavy": [
+          270
+        ],
+        "joe": [
+          120,
+          130,
+          140,
+          180
+        ],
+        "robert": [
+          300
+        ],
+        "mrbig": [
+          300
+        ],
+        "eiji": [
+          130,
+          150
+        ],
+        "k9999": [
+          350
+        ]
+      },
+      "environment": {
+        "mirror": [
+          1
+        ]
+      },
+      "scroll": "left"
+    },
+    {
+      "ordinal": 12,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\6BHARD.TXT",
+      "next_after": false,
+      "physical_id": 48,
+      "queue_records": 24,
+      "hole_prefix": 0,
+      "packed_records": 24,
+      "packed_sha256": "d772da59ff1b107f971d27c79e98b8c104466b83b95e375e22dff6dee32ddd2d",
+      "source_sha256": "8891ffdc07f37ea0d2b6203dcecabefae4364b2dced94cdeeb8f393298d5b611",
+      "queue_kinds": {
+        "group": 2,
+        "wait": 2,
+        "spawn": 20
+      },
+      "spawn_identities": {
+        "shermie": 2,
+        "yashiro": 1,
+        "ralf": 2,
+        "k'": 2,
+        "angel": 4,
+        "billy": 3,
+        "joe": 2,
+        "jhun": 2,
+        "eiji": 2
+      },
+      "groups": [
+        {
+          "min": 0,
+          "max": 0
+        },
+        {
+          "min": 1,
+          "max": 5
+        }
+      ],
+      "authored_maps": {
+        "shermie": [
+          1,
+          2
+        ],
+        "yashiro": [
+          2
+        ],
+        "ralf": [
+          0,
+          2
+        ],
+        "k'": [
+          0,
+          1
+        ],
+        "angel": [
+          0,
+          2,
+          3,
+          5
+        ],
+        "billy": [
+          0,
+          1,
+          2
+        ],
+        "joe": [
+          2,
+          3
+        ],
+        "jhun": [
+          0
+        ],
+        "eiji": [
+          5,
+          6
+        ]
+      },
+      "authored_health_overrides": {
+        "shermie": [
+          80
+        ],
+        "yashiro": [
+          100
+        ],
+        "ralf": [
+          95
+        ],
+        "k'": [
+          80
+        ],
+        "angel": [
+          140,
+          150,
+          160
+        ],
+        "billy": [
+          110,
+          130,
+          140
+        ],
+        "joe": [
+          150
+        ],
+        "jhun": [
+          120,
+          150
+        ],
+        "eiji": [
+          150
+        ]
+      },
+      "environment": {},
+      "scroll": "left"
+    },
+    {
+      "ordinal": 13,
+      "kind": "scene",
+      "source_path": "DATA\\SCENES\\RUGAL.TXT",
+      "next_after": false,
+      "source_sha256": "ab24c7f350619ec13372686d77660d260424c73354fb1d35de6c4b624683ab86"
+    },
+    {
+      "ordinal": 14,
+      "kind": "stage",
+      "source_path": "DATA\\HARD\\6CHARD.TXT",
+      "next_after": true,
+      "physical_id": 49,
+      "queue_records": 34,
+      "hole_prefix": 0,
+      "packed_records": 34,
+      "packed_sha256": "664e28b292023d349be6af8f46f2f6e2535f5d5e9fc6f49009786e1fcabc0bf3",
+      "source_sha256": "2e830ef220e3e8aca8f32a2dc6e6efb08da60a620b7002ccd53c325648a6aa6e",
+      "queue_kinds": {
+        "wait": 1,
+        "group": 1,
+        "spawn": 32
+      },
+      "spawn_identities": {
+        "rugal": 1,
+        "yashiro": 4,
+        "ralf": 5,
+        "eiji": 3,
+        "k'": 4,
+        "angel": 5,
+        "joe": 4,
+        "jhun": 2,
+        "shermie": 3,
+        "billy": 1
+      },
+      "groups": [
+        {
+          "min": 5,
+          "max": 5
+        }
+      ],
+      "authored_maps": {
+        "rugal": [
+          1
+        ],
+        "yashiro": [
+          0
+        ],
+        "ralf": [
+          0
+        ],
+        "eiji": [
+          0
+        ],
+        "k'": [
+          0
+        ],
+        "angel": [
+          0
+        ],
+        "joe": [
+          0
+        ],
+        "jhun": [
+          0
+        ],
+        "shermie": [
+          0
+        ],
+        "billy": [
+          0
+        ]
+      },
+      "authored_health_overrides": {
+        "rugal": [
+          500
+        ],
+        "yashiro": [],
+        "ralf": [],
+        "eiji": [],
+        "k'": [],
+        "angel": [],
+        "joe": [],
+        "jhun": [],
+        "shermie": [],
+        "billy": []
+      },
+      "environment": {},
+      "scroll": "right"
+    },
+    {
+      "ordinal": 15,
+      "kind": "scene",
+      "source_path": "DATA\\SCENES\\ENDING.TXT",
+      "next_after": false,
+      "source_sha256": "f42f15412feb8cae15fad548266bb485c36da66ecbb9dd7096bc3fa813710228"
+    }
+  ],
+  "totals": {
+    "entries": 16,
+    "stages": 14,
+    "source_queue_records": 876,
+    "packed_records": 879,
+    "source_spawns": 753
+  },
+  "identities": {
+    "1up": {
+      "source_definition": "DATA\\CHARS\\MISC\\1UP.TXT",
+      "source_sha256": "a1ebd2c26c593d9be2e08fb95a79cfc9199c975a7aba4d40bdaa946f8c7d38cb",
+      "source_type": "item",
+      "runtime_slot": 17,
+      "source_health": 0,
+      "spawn_occurrences": 3
+    },
+    "angel": {
+      "source_definition": "DATA\\CHARS\\ANGEL\\ANGEL.TXT",
+      "source_sha256": "553e543b6b5659794223e6b5926fbc5d71093cb37cb1dee48c8a01aa795892ff",
+      "source_type": "enemy",
+      "runtime_slot": 29,
+      "source_health": 60,
+      "spawn_occurrences": 116
+    },
+    "apple": {
+      "source_definition": "DATA\\CHARS\\MISC\\APPLE.TXT",
+      "source_sha256": "50d4f00fa98b8c73c4e0dae836794bf43906e22e9abb63d574bb979d6a6af66d",
+      "source_type": "item",
+      "runtime_slot": 14,
+      "source_health": 30,
+      "spawn_occurrences": 0
+    },
+    "biker-k'": {
+      "source_definition": "DATA\\CHARS\\BIKER-K\\BIKER-K.TXT",
+      "source_sha256": "d2bab9b43e48478490d10d960ef7537dddad8e66dbfe5b1f9f339358cc72d00e",
+      "source_type": "enemy",
+      "runtime_slot": 28,
+      "source_health": 3,
+      "spawn_occurrences": 10
+    },
+    "billy": {
+      "source_definition": "DATA\\CHARS\\BILLY\\BILLY.TXT",
+      "source_sha256": "5fa6e61af9206ce71b037cc8e009f43e5fed58bec3f0e95ff8865c011ffef116",
+      "source_type": "enemy",
+      "runtime_slot": 32,
+      "source_health": 100,
+      "spawn_occurrences": 24
+    },
+    "box": {
+      "source_definition": "DATA\\CHARS\\MISC\\BOX.TXT",
+      "source_sha256": "489ce16fb410df3ff2da70c93a2da51f232ec71f0bd4f39776ff6a611ee0886c",
+      "source_type": "obstacle",
+      "runtime_slot": 33,
+      "source_health": 1,
+      "spawn_occurrences": 9
+    },
+    "chair": {
+      "source_definition": "DATA\\CHARS\\MISC\\CHAIR.TXT",
+      "source_sha256": "26c7d270beb81e26f7b8088eadefeb11784a4d3ce53e82590ae972867af1b6e6",
+      "source_type": "obstacle",
+      "runtime_slot": 20,
+      "source_health": 1,
+      "spawn_occurrences": 4
+    },
+    "crate": {
+      "source_definition": "DATA\\CHARS\\MISC\\CRATE.TXT",
+      "source_sha256": "a305d4c3273ebbfd704f681df53bb4b217cdeacedde4d1ce006df7b1b3b0649c",
+      "source_type": "obstacle",
+      "runtime_slot": 36,
+      "source_health": 1,
+      "spawn_occurrences": 8
+    },
+    "drum": {
+      "source_definition": "DATA\\CHARS\\MISC\\DRUM.TXT",
+      "source_sha256": "ceeb3e066b7c06d4a93ca0abe360ef9f287f8bc6af7d092829374cdb233db895",
+      "source_type": "obstacle",
+      "runtime_slot": 39,
+      "source_health": 1,
+      "spawn_occurrences": 9
+    },
+    "eiji": {
+      "source_definition": "DATA\\CHARS\\EIJI\\EIJI.TXT",
+      "source_sha256": "4a8128a1ba331090730d92647c4b71c68f504dd34f1ec46e35650d3c82570545",
+      "source_type": "enemy",
+      "runtime_slot": 41,
+      "source_health": 60,
+      "spawn_occurrences": 14
+    },
+    "fence": {
+      "source_definition": "DATA\\CHARS\\MISC\\FENCE.TXT",
+      "source_sha256": "33d68569b3b7bf36074d4270cb9947749b3dea19995b9417b4b31081b3e8c15e",
+      "source_type": "obstacle",
+      "runtime_slot": 27,
+      "source_health": 1,
+      "spawn_occurrences": 8
+    },
+    "furnace": {
+      "source_definition": "DATA\\CHARS\\MISC\\FURNACE.TXT",
+      "source_sha256": "2388400e55d7b0cf0f2719a9e57b612fa3a0c54c6cc8b89ac3ea0df0a358336d",
+      "source_type": "None",
+      "runtime_slot": 34,
+      "source_health": null,
+      "spawn_occurrences": 1
+    },
+    "gold": {
+      "source_definition": "DATA\\CHARS\\MISC\\GOLD.TXT",
+      "source_sha256": "3eb1577fef8a789d9ffaf5617132e1c932d67937f06b67b908beae35d914917f",
+      "source_type": "item",
+      "runtime_slot": 18,
+      "source_health": 0,
+      "spawn_occurrences": 0
+    },
+    "heavy": {
+      "source_definition": "DATA\\CHARS\\HEAVY\\HEAVY.TXT",
+      "source_sha256": "8ada9b6b6fdeaba3eaa47a4a9e65dd5710f6975901b83678d803503ad101a3b5",
+      "source_type": "enemy",
+      "runtime_slot": 26,
+      "source_health": 300,
+      "spawn_occurrences": 3
+    },
+    "jhun": {
+      "source_definition": "DATA\\CHARS\\JHUN\\JHUN.TXT",
+      "source_sha256": "437150d30ea747b53cd257ee0ee0fbe50b78e780be06d02f81284fc99c932e87",
+      "source_type": "enemy",
+      "runtime_slot": 1,
+      "source_health": 100,
+      "spawn_occurrences": 26
+    },
+    "joe": {
+      "source_definition": "DATA\\CHARS\\JOE\\JOE.TXT",
+      "source_sha256": "d56feb7f6d13e75ce2e0ec38511fa745039f5500019e44c4368d46fce5743f2e",
+      "source_type": "enemy",
+      "runtime_slot": 2,
+      "source_health": 100,
+      "spawn_occurrences": 41
+    },
+    "k'": {
+      "source_definition": "DATA\\CHARS\\K\\K.TXT",
+      "source_sha256": "4b063c426d3ad010b7e9e44fc7ad4b4de2fe0ce6aa3c393830b91541007b2e30",
+      "source_type": "enemy",
+      "runtime_slot": 31,
+      "source_health": 60,
+      "spawn_occurrences": 76
+    },
+    "k9999": {
+      "source_definition": "DATA\\CHARS\\K9999\\K9999.TXT",
+      "source_sha256": "765d27a8328c4c66d82fbbc12aa5b7cf92f80bf8ad453d0755ad7a2bcf2c4e32",
+      "source_type": "enemy",
+      "runtime_slot": 40,
+      "source_health": 300,
+      "spawn_occurrences": 2
+    },
+    "meat": {
+      "source_definition": "DATA\\CHARS\\MISC\\MEAT.TXT",
+      "source_sha256": "52e0f9fe3add0c37887ed35e681bb5600ce526b5e02b2fa24db4f71f19b0e0ae",
+      "source_type": "item",
+      "runtime_slot": 16,
+      "source_health": 100,
+      "spawn_occurrences": 0
+    },
+    "money": {
+      "source_definition": "DATA\\CHARS\\MISC\\MONEY.TXT",
+      "source_sha256": "2d22526d30c1274e616253f50e3c75a4c9f30b90afe01bc5f0e460d974d9d2a0",
+      "source_type": "item",
+      "runtime_slot": 15,
+      "source_health": 0,
+      "spawn_occurrences": 0
+    },
+    "mrbig": {
+      "source_definition": "DATA\\CHARS\\MRBIG\\MRBIG.TXT",
+      "source_sha256": "a7fdbe7bc12644a3abee0916b11ab9d21154639eca91d2b9d97a3fded4024ac2",
+      "source_type": "enemy",
+      "runtime_slot": 42,
+      "source_health": 300,
+      "spawn_occurrences": 2
+    },
+    "ralf": {
+      "source_definition": "DATA\\CHARS\\RALF\\RALF.TXT",
+      "source_sha256": "3909d2385bac1185ff04b1408c9d5a43715bc522a1eabba252b7a81e4cb8a9bd",
+      "source_type": "enemy",
+      "runtime_slot": 0,
+      "source_health": 55,
+      "spawn_occurrences": 138
+    },
+    "ramon": {
+      "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT",
+      "source_sha256": "65f5f8ed2cb607d610f09c5a137c964353d31dce4876b88454693c025203c197",
+      "source_type": "enemy",
+      "runtime_slot": 45,
+      "source_health": 10,
+      "spawn_occurrences": 1
+    },
+    "robert": {
+      "source_definition": "DATA\\CHARS\\ROBERT\\ROBERT.TXT",
+      "source_sha256": "6c302cc742a3076ea3caac25a59faeb2ac0db336994f4d9de9abc165e1eb3244",
+      "source_type": "enemy",
+      "runtime_slot": 37,
+      "source_health": 200,
+      "spawn_occurrences": 2
+    },
+    "rugal": {
+      "source_definition": "DATA\\CHARS\\RUGAL\\RUGAL.TXT",
+      "source_sha256": "aacce272e34c11c5f0b09b52ffb8797c3ebcbf304664bf2db3d2534dc4292278",
+      "source_type": "enemy",
+      "runtime_slot": 44,
+      "source_health": 300,
+      "spawn_occurrences": 1
+    },
+    "shermie": {
+      "source_definition": "DATA\\CHARS\\SHERMIE\\SHERMIE.TXT",
+      "source_sha256": "78aa0768a1790f042184c17a87843fbf878c57d628b6aceb5c69d5a9579c8d42",
+      "source_type": "enemy",
+      "runtime_slot": 30,
+      "source_health": 50,
+      "spawn_occurrences": 99
+    },
+    "steamer": {
+      "source_definition": "DATA\\CHARS\\MISC\\STEAMER.TXT",
+      "source_sha256": "8dc4777a1339d7049dd8ef7ae1f699eb03d606316a8b33a56418963574771527",
+      "source_type": "steamer",
+      "runtime_slot": 35,
+      "source_health": null,
+      "spawn_occurrences": 5
+    },
+    "table": {
+      "source_definition": "DATA\\CHARS\\MISC\\TABLE.TXT",
+      "source_sha256": "87dae0c3e408bf2edaecbfdc88805a9a5af9b99755fba6a80c8d216de900db79",
+      "source_type": "obstacle",
+      "runtime_slot": 21,
+      "source_health": 1,
+      "spawn_occurrences": 3
+    },
+    "time": {
+      "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT",
+      "source_sha256": "3ffecc50c154cc85e8c973d4d3b7543916c23f224c21f931540d720003ae788a",
+      "source_type": "item",
+      "runtime_slot": 46,
+      "source_health": 0,
+      "spawn_occurrences": 1
+    },
+    "trash": {
+      "source_definition": "DATA\\CHARS\\MISC\\TRASH.TXT",
+      "source_sha256": "381f910f5067c57d6117e7cc067ace11abaec52657f63f1f39b90fa9899cee28",
+      "source_type": "obstacle",
+      "runtime_slot": 19,
+      "source_health": 1,
+      "spawn_occurrences": 6
+    },
+    "trolly": {
+      "source_definition": "DATA\\CHARS\\MISC\\TROLLY.TXT",
+      "source_sha256": "bc8bb2ada8fb1c1e5153cadbd2d59e0fb59d9d76bec3bee793e60dc7bfc9d15f",
+      "source_type": "obstacle",
+      "runtime_slot": 43,
+      "source_health": 1,
+      "spawn_occurrences": 8
+    },
+    "yamazaki": {
+      "source_definition": "DATA\\CHARS\\YAMAZAKI\\YAMAZAKI.TXT",
+      "source_sha256": "01ae1925f076fa768676f13c0b2242138e172be870029818494f4eb7f7abfda5",
+      "source_type": "enemy",
+      "runtime_slot": 13,
+      "source_health": 300,
+      "spawn_occurrences": 3
+    },
+    "yashiro": {
+      "source_definition": "DATA\\CHARS\\YASHIRO\\YASHIRO.TXT",
+      "source_sha256": "5091c0dab78360563d45712dccd30a09ae02f43b7c8c3d6d3406b2c18ec55d61",
+      "source_type": "enemy",
+      "runtime_slot": 3,
+      "source_health": 50,
+      "spawn_occurrences": 130
+    }
+  },
+  "new_spawn_identities": [],
+  "new_authored_maps": {
+    "1up": [],
+    "angel": [],
+    "biker-k'": [],
+    "billy": [
+      3
+    ],
+    "box": [],
+    "chair": [],
+    "crate": [],
+    "drum": [],
+    "eiji": [
+      5,
+      6
+    ],
+    "fence": [],
+    "furnace": [],
+    "heavy": [],
+    "jhun": [],
+    "joe": [],
+    "k'": [],
+    "k9999": [],
+    "mrbig": [],
+    "ralf": [],
+    "ramon": [],
+    "robert": [],
+    "rugal": [],
+    "shermie": [],
+    "steamer": [],
+    "table": [],
+    "time": [],
+    "trash": [],
+    "trolly": [],
+    "yamazaki": [],
+    "yashiro": []
+  },
+  "new_stage_directives": [],
+  "stage_directives": [
+    "2pitem",
+    "alias",
+    "at",
+    "background",
+    "blocked",
+    "boss",
+    "bossmusic",
+    "coords",
+    "direction",
+    "endhole",
+    "flip",
+    "frontpanel",
+    "group",
+    "health",
+    "hole",
+    "item",
+    "map",
+    "mirror",
+    "music",
+    "order",
+    "panel",
+    "rock",
+    "spawn",
+    "wait",
+    "water"
+  ],
+  "compatibility_limitations": [
+    "queue.2pitem: Non-prop held drops and full source two-player semantics require separate native coverage.",
+    "queue.alias: Generated alias table and opponent-target lifecycle still need assembled/current native runtime proof.",
+    "queue.coords: Source coordinate fractions, offscreen depth and independent enemy-drop drivers are not preserved by the ten-byte queue.",
+    "queue.health: Authored absolute/native HP and damage semantics are not proven by the compatibility HUD byte.",
+    "queue.item: Enemy-held drops are not represented by this obstacle-only compatibility encoder.",
+    "queue.map: Palette selector transport alone does not prove correct visible CGRAM.",
+    "queue.spawn: Roster identity is not native AI/action implementation; legacy borrowed-slot cases remain explicit below.",
+    "scene.animation: Scaled/quantized scene encoding is an adaptation; playback, skip cleanup and exactly-once completion are NOT_RUN.",
+    "stage.blocked: Native movement/lifecycle fidelity needs host integration and live evidence; metadata alone is insufficient.",
+    "stage.endhole: Pit damage, retirement, actor reuse and player lives need native runtime evidence.",
+    "stage.frontpanel: Compiler and main/NMI hooks are checked statically. Native scrolling, layer priority, resource contention, transitions and pixel acceptance remain PENDING_NATIVE.",
+    "stage.hole: Fixed hazard capacity and integer geometry are not general native hole behavior.",
+    "stage.mirror: Fixed metasprite reflection does not establish arbitrary native actor reflection fidelity.",
+    "stage.rock: Source layer motion and hardware presentation remain unverified.",
+    "stage.water: Bounded flattened raster adaptation is not native texture/parallax or hardware visual acceptance."
+  ],
+  "held_items": {
+    "required_uses": 55,
+    "model_types": {
+      "obstacle": 55
+    },
+    "uses": [
+      {
+        "ordinal": 0,
+        "queue_index": 8,
+        "directive": "item",
+        "model": "Trash",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 0,
+        "queue_index": 27,
+        "directive": "item",
+        "model": "trash",
+        "model_type": "obstacle",
+        "item": "Meat"
+      },
+      {
+        "ordinal": 0,
+        "queue_index": 45,
+        "directive": "item",
+        "model": "trash",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 0,
+        "queue_index": 46,
+        "directive": "item",
+        "model": "trash",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 0,
+        "directive": "2pitem",
+        "model": "Table",
+        "model_type": "obstacle",
+        "item": "Apple"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 1,
+        "directive": "item",
+        "model": "Chair",
+        "model_type": "obstacle",
+        "item": "Money"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 31,
+        "directive": "item",
+        "model": "Table",
+        "model_type": "obstacle",
+        "item": "gold"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 32,
+        "directive": "2pitem",
+        "model": "Chair",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 33,
+        "directive": "item",
+        "model": "Chair",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 34,
+        "directive": "item",
+        "model": "Table",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 1,
+        "queue_index": 35,
+        "directive": "2pitem",
+        "model": "Chair",
+        "model_type": "obstacle",
+        "item": "Apple"
+      },
+      {
+        "ordinal": 2,
+        "queue_index": 3,
+        "directive": "item",
+        "model": "Trash",
+        "model_type": "obstacle",
+        "item": "Meat"
+      },
+      {
+        "ordinal": 2,
+        "queue_index": 4,
+        "directive": "2pitem",
+        "model": "Trash",
+        "model_type": "obstacle",
+        "item": "Meat"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 3,
+        "directive": "item",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 33,
+        "directive": "item",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 34,
+        "directive": "2pitem",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 47,
+        "directive": "item",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "1up"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 69,
+        "directive": "item",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 70,
+        "directive": "2pitem",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 92,
+        "directive": "item",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 3,
+        "queue_index": 93,
+        "directive": "2pitem",
+        "model": "Fence",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 4,
+        "queue_index": 25,
+        "directive": "item",
+        "model": "box",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 4,
+        "queue_index": 26,
+        "directive": "item",
+        "model": "box",
+        "model_type": "obstacle",
+        "item": "gold"
+      },
+      {
+        "ordinal": 5,
+        "queue_index": 7,
+        "directive": "item",
+        "model": "Box",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 5,
+        "queue_index": 8,
+        "directive": "2pitem",
+        "model": "Box",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 5,
+        "queue_index": 35,
+        "directive": "item",
+        "model": "Box",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 5,
+        "queue_index": 36,
+        "directive": "item",
+        "model": "Box",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 6,
+        "queue_index": 3,
+        "directive": "item",
+        "model": "Crate",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 6,
+        "queue_index": 4,
+        "directive": "2pitem",
+        "model": "Crate",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 7,
+        "queue_index": 36,
+        "directive": "item",
+        "model": "box",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 7,
+        "queue_index": 37,
+        "directive": "2pitem",
+        "model": "crate",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 7,
+        "queue_index": 54,
+        "directive": "item",
+        "model": "crate",
+        "model_type": "obstacle",
+        "item": "money"
+      },
+      {
+        "ordinal": 7,
+        "queue_index": 66,
+        "directive": "item",
+        "model": "crate",
+        "model_type": "obstacle",
+        "item": "Meat"
+      },
+      {
+        "ordinal": 7,
+        "queue_index": 67,
+        "directive": "2pitem",
+        "model": "crate",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 8,
+        "queue_index": 0,
+        "directive": "item",
+        "model": "Crate",
+        "model_type": "obstacle",
+        "item": "Gold"
+      },
+      {
+        "ordinal": 8,
+        "queue_index": 16,
+        "directive": "item",
+        "model": "box",
+        "model_type": "obstacle",
+        "item": "Apple"
+      },
+      {
+        "ordinal": 8,
+        "queue_index": 35,
+        "directive": "item",
+        "model": "box",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 8,
+        "queue_index": 36,
+        "directive": "2pitem",
+        "model": "Crate",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 9,
+        "queue_index": 0,
+        "directive": "item",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 9,
+        "queue_index": 1,
+        "directive": "2pitem",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 0,
+        "directive": "item",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "1up"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 1,
+        "directive": "item",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 27,
+        "directive": "item",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "Apple"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 31,
+        "directive": "2pitem",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "1up"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 32,
+        "directive": "2pitem",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 67,
+        "directive": "item",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 10,
+        "queue_index": 68,
+        "directive": "2pitem",
+        "model": "Drum",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 25,
+        "directive": "item",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 26,
+        "directive": "2pitem",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 54,
+        "directive": "item",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 55,
+        "directive": "2pitem",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 83,
+        "directive": "item",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 84,
+        "directive": "2pitem",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "meat"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 99,
+        "directive": "item",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "apple"
+      },
+      {
+        "ordinal": 11,
+        "queue_index": 100,
+        "directive": "2pitem",
+        "model": "Trolly",
+        "model_type": "obstacle",
+        "item": "apple"
+      }
+    ]
+  },
+  "structural_coverage": {
+    "status": "COMPLETE",
+    "entries": 16,
+    "stages": 14,
+    "directive_kinds": 31,
+    "occurrences": 3902,
+    "missing_definitions": [],
+    "queue_lowering": "EXECUTED_IN_MEMORY",
+    "meaning": "Every occurrence inventoried and traced; compatibility gaps remain explicit."
+  }
+}

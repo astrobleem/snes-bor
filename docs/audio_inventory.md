@@ -8,7 +8,7 @@ This is not an audio-complete claim. `implemented-and-gated` requires a real sou
 
 PAK: `Beats of Rage Original [v.3.0 Build 4086].pak`
 - SFX WAV assets: 29 total; 29 raw-referenced; 52 shipped-reachable references; 0 unused.
-- BOR music assets: 19 total; 16 raw-referenced; 37 shipped-reachable references; 3 unused.
+- BOR music assets: 19 total; 16 raw-referenced; 54 shipped-reachable references; 3 unused.
 
 | Asset | References | Classification | Runtime mapping |
 |---|---:|---|---|

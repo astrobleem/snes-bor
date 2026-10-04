@@ -1,9 +1,9 @@
 {
   "arena_end_exclusive": 8364032,
   "buffer_base": 8360448,
-  "buffer_bytes": 1070,
-  "buffer_end_exclusive": 8361518,
-  "capacity": 107,
+  "buffer_bytes": 1190,
+  "buffer_end_exclusive": 8361638,
+  "capacity": 119,
   "catalog_count_bits": 16,
   "copy_count_bits": 16,
   "error_address": 8364031,
@@ -263,6 +263,104 @@
       "set": "Normal",
       "source_path": "DATA\\NORMAL\\6C.TXT",
       "stage": 35
+    },
+    {
+      "packed_records": 51,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\1AHARD.TXT",
+      "stage": 36
+    },
+    {
+      "packed_records": 41,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\1BHARD.TXT",
+      "stage": 37
+    },
+    {
+      "packed_records": 38,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\1CHARD.TXT",
+      "stage": 38
+    },
+    {
+      "packed_records": 115,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\2HARD.TXT",
+      "stage": 39
+    },
+    {
+      "packed_records": 55,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\3AHARD.TXT",
+      "stage": 40
+    },
+    {
+      "packed_records": 45,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\3BHARD.TXT",
+      "stage": 41
+    },
+    {
+      "packed_records": 31,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\3CHARD.TXT",
+      "stage": 42
+    },
+    {
+      "packed_records": 73,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\4AHARD.TXT",
+      "stage": 43
+    },
+    {
+      "packed_records": 76,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\4BHARD.TXT",
+      "stage": 44
+    },
+    {
+      "packed_records": 73,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\5AHARD.TXT",
+      "stage": 45
+    },
+    {
+      "packed_records": 104,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\5BHARD.TXT",
+      "stage": 46
+    },
+    {
+      "packed_records": 119,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\6AHARD.TXT",
+      "stage": 47
+    },
+    {
+      "packed_records": 24,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\6BHARD.TXT",
+      "stage": 48
+    },
+    {
+      "packed_records": 34,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Hard",
+      "source_path": "DATA\\HARD\\6CHARD.TXT",
+      "stage": 49
     }
   ],
   "target_capacity": 255,

@@ -226,9 +226,10 @@ def required_use_status(identity, held_items, features, selection=None, frontpan
 
 
 def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=None,
-              media_bindings=None, root=ROOT):
+              media_bindings=None, root=ROOT, source_set='Normal'):
     """Inspect exact Normal IR and lower its queues in memory; no materialization."""
     source = source or Source(PAK)
+    campaign = {'Normal': CAMPAIGN, 'Hard': 'BOR_HARD'}[source_set]
     if any(value is None for value in (configs, campaigns, scenes, roster, media_bindings)):
         sys.path.insert(0, str(ROOT / 'tools/audio'))
         import shipped_content as shipped
@@ -244,17 +245,17 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
     active = False
     for d in source.lines(levels_path):
         if d.name == 'set':
-            active = d.values == ['Normal']
+            active = d.values == [source_set]
         if active:
             selected_lines.append(d)
     occurrences = audit_directives('project', levels_path, selected_lines)
     ir_project = project(source)
-    matches = [s for s in ir_project.sets if s.name == 'Normal']
+    matches = [s for s in ir_project.sets if s.name == source_set]
     if len(matches) != 1 or len(matches[0].entries) != 16:
         raise CoverageError('NORMAL_SHAPE_DRIFT: expected one Normal set with 16 entries')
     normal = matches[0]
-    authored = campaigns[CAMPAIGN]['entries']
-    if len(authored) != 16 or campaigns[CAMPAIGN]['source_set_id'] != normal.source_id:
+    authored = campaigns[campaign]['entries']
+    if len(authored) != 16 or campaigns[campaign]['source_set_id'] != normal.source_id:
         raise CoverageError('CAMPAIGN_BINDING_DRIFT')
     catalog = {}
     for physical, cfg in enumerate(configs):
@@ -269,7 +270,7 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
         definition = key(model['source_path'])
         candidates = [(i, r) for i, r in enumerate(roster)
                       if r['family'] == 'bor-original'
-                      and normal.source_id in r.get('runtime_binding_sets', (0, 1))
+                      and normal.source_id in r.get('runtime_binding_sets', (0, 1, 2))
                       and key(r['source_character']) in
                       (definition.rsplit('/', 1)[0], definition.removesuffix('.txt'))]
         if len(candidates) > 1:
@@ -432,7 +433,7 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
         rules.append(dict(domain=identity[0], directive=identity[1], occurrences=count,
                           **mapped, static_evidence=evidence, runtime_evidence='NOT_RUN',
                           required_source=required_use_status(identity, held_items, features, selection, frontpanel)))
-    return dict(schema_version=1, source_set='Normal', source_set_id=normal.source_id,
+    return dict(schema_version=1, source_set=source_set, source_set_id=normal.source_id,
                 source_hashes=source_hashes, entries=entries, directives=rules,
                 model_bindings={name: model_bindings[name] for name in sorted(used_models)},
                 occurrences=occurrences, features=features, selection_coverage=selection,

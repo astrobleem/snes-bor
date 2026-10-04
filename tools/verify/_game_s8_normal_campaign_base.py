@@ -143,6 +143,9 @@ def traversal_combat_target_blocks(target, player_x, player_y, queue_complete, t
 def traversal_combat_engagement_needed(target, player_x, player_y, *, group_gate_blocked=False, queue_complete=False, terminal=False, direction='right'):
     return group_gate_blocked or traversal_combat_target_blocks(target, player_x, player_y, queue_complete, terminal, direction)
 
+def traversal_continue_needed(player_out, credits):
+    return bool(player_out and credits)
+
 def traversal_group_gate_blocks_spawn(active_enemy_count, group_min):
     return group_min > 0 and active_enemy_count >= group_min
 
@@ -489,6 +492,55 @@ def traversal_script(symbols, journal, *, trace_runtime=False, trace_bind=False,
                 if not address is None:
                     at = lorom_offset(address)
                     script = script + ('\nemu.addMemoryCallback(function()\n _s8_stream_probe(' + str(json.dumps(label)) + ')\nend,emu.callbackType.exec,' + str(at) + ',' + str(at) + ',emu.cpuType.snes,emu.memType.snesPrgRom)\n')
+    visual_path = os.environ.get('S8_VISUAL_ADMISSION_TRACE')
+    if visual_path:
+        address = symbols['SourceVisual_RenderCurrent__fail']
+        script += f'''
+local _byor_visual_seen={{}}
+emu.addMemoryCallback(function()
+ local mt=emu.memType.snesMemory;local s=emu.getState()
+ local function byte(a) return emu.read(a,mt) end
+ local function word(a) return byte(a)+256*byte(a+1) end
+ if word({symbols['Game_State']})~=0 then return end
+ local error=byte({symbols['SourceVisual_Error']})
+ if error==0x27 then return end -- ordinary resource transfer pending
+ local stage=word({symbols['Game_StageIndex']})
+ local k={{byte(0x7E4A04),byte(0x7E4A05),byte(0x7E4A06),byte(0x7E4A07)}}
+ local key=stage..':'..table.concat(k,':')..':'..error
+ if _byor_visual_seen[key] then return end
+ _byor_visual_seen[key]=true
+ local d=s['cpu.d'] or 0;local actor=0x7E0000+d
+ local f=assert(io.open({json.dumps(str(Path(visual_path).resolve()).replace(chr(92), '/'))},'a'))
+ f:write(table.concat({{stage,s['ppu.frameCount'] or 0,k[1],k[2],k[3],k[4],error,
+ word(0x7E4B54),word(0x7E53A0),word(actor+{symbols['CHAR_POS_X']}),
+ word(actor+{symbols['CHAR_POS_Y']})}},'|'),'\\n')
+ f:close()
+end,emu.callbackType.exec,{lorom_offset(address)},{lorom_offset(address)},emu.cpuType.snes,emu.memType.snesPrgRom)
+'''
+    fault_path = os.environ.get('S8_BIND_FAULT_TRACE')
+    if fault_path and world_symbols:
+        for label in ('S6Bridge_Import__numeric', 'S6Bridge_Import__height_bad'):
+            address = world_symbols.get(label)
+            if address is None:
+                continue
+            script += f'''
+local _byor_fault_seen_{label}={{}}
+emu.addMemoryCallback(function()
+ local s=emu.getState();local mt=emu.memType.snesMemory
+ local function word(a) return emu.read(a,mt)+256*emu.read(a+1,mt) end
+ local x=s['cpu.x'] or 0;local stage=word({symbols['Game_StageIndex']})
+ local key=tostring(stage)..':'..tostring(x)
+ if _byor_fault_seen_{label}[key] then return end
+ _byor_fault_seen_{label}[key]=true
+ local actor=0x7E0A00+x
+ local f=assert(io.open({json.dumps(str(Path(fault_path).resolve()).replace(chr(92), '/'))},'a'))
+ f:write(table.concat({{'{label}',stage,x,s['cpu.d'] or 0,s['cpu.a'] or 0,
+ word(actor+{symbols['CHAR_POS_X']}),word(actor+{symbols['CHAR_POS_Y']}),
+ word(actor+{symbols['CHAR_THROW_ZPOS']}),word(actor+{symbols['CHAR_THROW_ZVEL']}),
+ word(0x7E550F+x),word(0x7E5511+x),word(0x7E1778),word(0x7E177C)}},'|'),'\\n')
+ f:close()
+end,emu.callbackType.exec,{lorom_offset(address)},{lorom_offset(address)},emu.cpuType.snes,emu.memType.snesPrgRom)
+'''
     return script
 
 @contextmanager
@@ -580,8 +632,9 @@ def traversal_plan(build, entries, start_ordinal=0):
                 expected.append(dict(stage=physical, index=index, source_queue_index=index - prefix, record=record.hex(), spawn=spawn, source_model=event.character if spawn else None, source_type=model['entity']['type'] if spawn else None, boss=bool(event.boss) if spawn else None, source_definition=models[event.character.casefold()]['source_path'] if spawn else None, roster=record[9] if spawn else None))
     expected_spawn_count = sum((row['spawn'] for row in expected))
     if start_ordinal == 0:
-        if expected_spawn_count != 614:
-            raise AssertionError('Normal source spawn contract changed: expected 614')
+        contract = {1: 614, 2: 753}[configs[0]['source_set_id']]
+        if expected_spawn_count != contract:
+            raise AssertionError(f'source spawn contract changed: expected {contract}')
     return expected
 
 def read_traversal(journal):
@@ -738,7 +791,10 @@ def run(args, report):
         linked = build._load_poppy_symbols(str(candidate_symbols))
         symbols.update({name: address for name, address in linked.items() if name.startswith(('S6Normal_', 'S6Host_', 'S6Game_', 'S7Resident_'))})
     pos_y, max_y, min_x = (symbols[n] for n in ('Screen_PosY', 'Screen_MaxY', 'Screen_MinX'))
-    cid = 'BOR_ORIGINAL' if args.mode == 'easy' else 'BOR_NORMAL_1A_INTERNAL'
+    source_set = getattr(args, 'source_set', 'Normal')
+    cid = 'BOR_ORIGINAL' if args.mode == 'easy' else (
+        'BOR_HARD' if source_set == 'Hard' else 'BOR_NORMAL_1A_INTERNAL')
+    report['source_set'] = 'Easy' if args.mode == 'easy' else source_set
     campaign_id = 0 if args.mode == 'easy' else 3
     entries = build.CAMPAIGN_ENTRY_MAPS[cid]
     authored = build.CAMPAIGN_CONFIGS[cid]['entries']
@@ -755,13 +811,13 @@ def run(args, report):
         if not match:
             raise AssertionError('missing generated table: ' + label)
         return [value.strip() for value in match[1].split(',')]
-    set_index = 0 if args.mode == 'easy' else 1
+    set_index = 0 if args.mode == 'easy' else (2 if source_set == 'Hard' else 1)
     require('generated release gate permits selected set', table('BorSet_ContentAvailable')[set_index] == '1')
     require('generated selected campaign mapping matches ABI', table('BorSet_CampaignMap')[set_index] == ('CAMPAIGN_BOR_ORIGINAL' if set_index == 0 else 'CAMPAIGN_BOR_NORMAL_DEV'))
-    label = 'Bor' if set_index == 0 else 'BorNormalDev'
+    label = {0: 'Bor', 1: 'BorNormalDev', 2: 'BorHard'}[set_index]
     require('generated next flags match source compiler', [int(v) for v in table('Campaign_' + str(label) + '_NextFlags')] == report['next_flags'])
     require('generated completion flags match explicit compatibility policy', [int(v) for v in table('Campaign_' + str(label) + '_CompleteFlags')] == completion_flags)
-    require('source tail is 6B -> RUGAL -> 6C -> ENDING', entries[-4][0] == 'stage' and (Path(entries[-4][2].replace('\\', '/')).stem in ('6B', '6BEASY') and (entries[-3][2] == 'RUGAL' and (entries[-2][0] == 'stage' and (Path(entries[-2][2].replace('\\', '/')).stem in ('6C', '6CEASY') and (entries[-1][2] == 'ENDING' and authored[-2]['next_after']))))))
+    require('source tail is 6B -> RUGAL -> 6C -> ENDING', entries[-4][0] == 'stage' and (Path(entries[-4][2].replace('\\', '/')).stem in ('6B', '6BEASY', '6BHARD') and (entries[-3][2] == 'RUGAL' and (entries[-2][0] == 'stage' and (Path(entries[-2][2].replace('\\', '/')).stem in ('6C', '6CEASY', '6CHARD') and (entries[-1][2] == 'ENDING' and authored[-2]['next_after']))))))
     report['rom_path'] = str(selected_rom)
     report['msu_path'] = str(selected_rom.with_suffix('.msu'))
     for path in (selected_rom, selected_rom.with_suffix('.msu'), ROOT / 'src/main.sym', ROOT / 'tools/audio/campaign_config.pasm'):
@@ -772,7 +828,7 @@ def run(args, report):
         report.setdefault('artifacts', {})[str(path.resolve())] = digest.hexdigest()
     traversal = bool(getattr(args, 'spawn_traversal', False))
     if traversal:
-        require('spawn traversal requires full Normal', args.mode != 'easy')
+        require(f'spawn traversal requires full {source_set}', args.mode != 'easy')
         plan = traversal_plan(build, entries, args.debug_start_ordinal)
         report['spawn_traversal'] = dict(expected=plan, completed=[], unlink_accelerations=[], prop_interactions=[], pickup_interactions=[], combat_interactions=[], initial_ai_combat_targets=[], controller_probe=[], input_trace=[], jump_inputs=[], status='INCOMPLETE', scope='all source queue admissions; each initial AI takes observed real damage before sequenced worker unlink')
     session = traversal_session(symbols, report, open_session, trace_runtime=getattr(args, 'trace_runtime', False), trace_bind=getattr(args, 'trace_bind', False), trace_sparse=getattr(args, 'trace_sparse', False), trace_player_move=getattr(args, 'trace_player_move', False), trace_ownership=getattr(args, 'trace_ownership', False), trace_pc_only=getattr(args, 'trace_pc_only', False), trace_player_lifecycle=getattr(args, 'trace_player_lifecycle', False)) if traversal else open_session(__file__)
@@ -856,6 +912,8 @@ def run(args, report):
                             admitted[actual['offset']] = (actual, report['frames_sampled'])
 
         def tick(button=None, *, button2=None, hold=False):
+            step_fields = (args.traversal_step_fields if traversal and hold
+                           and u16(legal.GAME_STATE) == legal.PLAYING else 1)
             if hold:
                 if button is None:
                     m.release_input(port=0)
@@ -873,19 +931,25 @@ def run(args, report):
                         m.hold_input(button2, port=1)
                 if not button is None:
                     if not button & m.BTN_A:
-                        run_frames_exact(m, 1)
+                        run_frames_exact(m, step_fields)
                     elif traversal:
                         p1_base = 8257536 + symbols['PlayerEntity_DpBase']
                         report['spawn_traversal']['jump_inputs'].append(dict(field=report['frames_sampled'] + 1, requested=int(button), raw=u16(8258588), press=u16(8258576), trigger=u16(8258578), selected=u8(p1_base + symbols['CHAR_SELECTED']), jump_mode=u8(symbols['Player_JumpAnimMode']), jump_fcount=u8(symbols['Player_JumpFCount']), zpos=u16(p1_base + symbols['CHAR_THROW_ZPOS']), zvel=u16(p1_base + symbols['CHAR_THROW_ZVEL']), x=u16(p1_base + symbols['CHAR_POS_X']), y=u8(p1_base + symbols['CHAR_POS_Y'])))
                         report['spawn_traversal']['jump_inputs'] = report['spawn_traversal']['jump_inputs'][-24:]
+                        if u16(legal.GAME_STATE) != legal.PLAYING:
+                            run_frames_exact(m, 1)
                 else:
-                    run_frames_exact(m, 1)
+                    run_frames_exact(m, step_fields)
             elif button is None:
                 run_frames_exact(m, 1)
             else:
                 exact_input_edge(m, button, 1, port=0)
             report['frames_sampled'] = report['frames_sampled'] + 1
             worker_faulted = traversal and (u16(legal.GAME_STATE) == legal.PLAYING and (u16(8263516) == 1 and bytes(read_block(m, 73728, 32, mem_type='snesSaveRam'))[10] != 0))
+            host_faulted = traversal and u16(legal.GAME_STATE) == legal.PLAYING and u16(8263516) == 1 and u16(symbols['S6Host_Error']) != 0
+            if host_faulted:
+                report['host_error_observation'] = dict(frame=report['frames_sampled'], runtime=runtime_diagnostics())
+                raise AssertionError('persistent source-world host bind fault')
             if worker_faulted:
                 runtime = runtime_diagnostics()
                 report['worker_error_observation'] = dict(frame=report['frames_sampled'], runtime=runtime)
@@ -930,14 +994,18 @@ def run(args, report):
             wait(lambda: u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1, 360, 'TITLE START reaches difficulty prompt')
             tick(m.BTN_RIGHT)
             wait(lambda: u8(selected) == 1, 120, 'difficulty RIGHT selects available Normal')
-            require('Normal selected while difficulty prompt remains active', u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1)
+            if source_set == 'Hard':
+                tick()
+                tick(m.BTN_RIGHT)
+                wait(lambda: u8(selected) == 2, 120, 'difficulty RIGHT selects available Hard')
+            require(f'{source_set} selected while difficulty prompt remains active', u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1)
             tick()
             tick(m.BTN_START)
 
             def normal_selector_timeout():
                 report['normal_selector_timeout'] = dict(state=u16(startup.STATE), difficulty=u8(startup.DIFFICULTY), char_step=u8(startup.CHAR_STEP), selected=u8(selected), campaign_id=u8(legal.CAMPAIGN_ID), p1_status=u8(symbols['G13_P1Out']), p2_status=u8(symbols['G13_P2Out']), player_mode=u8(symbols['G13_TwoPlayerEnabled']), source_mode=u8(symbols.get('Game_PlayerCount', symbols['G13_TwoPlayerEnabled'])))
             wait(lambda: u8(startup.DIFFICULTY) == 3 and u8(startup.CHAR_STEP) == 3, 360, 'Normal confirmation reaches player selector', on_timeout=normal_selector_timeout)
-        require('player selector retains selected source set', u16(startup.STATE) == startup.CHARSELECT and (u8(startup.DIFFICULTY) == 3 and (u8(startup.CHAR_STEP) == 3 and u8(selected) == (campaign_id == 3))))
+        require('player selector retains selected source set', u16(startup.STATE) == startup.CHARSELECT and (u8(startup.DIFFICULTY) == 3 and (u8(startup.CHAR_STEP) == 3 and u8(selected) == set_index)))
         if args.two_player:
             require('Normal co-op session is selected', u8(symbols['G13_TwoPlayerEnabled']) == 1)
         tick()
@@ -947,6 +1015,12 @@ def run(args, report):
         tick(m.BTN_START)
         wait(lambda: u16(startup.STATE) == startup.PLAYING, 600, 'character select reaches PLAYING')
         require('native campaign starts at compiler first stage', u8(legal.CAMPAIGN_ID) == campaign_id and (u8(legal.CAMPAIGN_ORDINAL) == 0 and u16(legal.STAGE_INDEX) == entries[0][1]))
+        if campaign_id == 3:
+            # PLAYING is published before the source-world bind/bootstrap
+            # boundary. Observe a committed worker tick before driving combat.
+            wait(lambda: u16(symbols['S6Host_Mode']) == 1
+                 and u16(symbols['S6Game_TickCommit']) > 0, 600,
+                 'persistent source-world ready before traversal input')
         if args.debug_start_ordinal:
             if args.spawn_traversal:
                 if args.mode != 'natural':
@@ -959,10 +1033,15 @@ def run(args, report):
                     m.write_u8(symbols['Stage_LoadPending'], 1)
                     m.write_u16(legal.GAME_STATE, pasm_constant_in('src/core/game_state.pasm', 'GAME_STATE_STAGECLEAR'))
                     tick()
+                    if completion_flags[target_ordinal - 1]:
+                        wait(lambda: u8(symbols['StageComplete_Active']) == 1,
+                             600, 'diagnostic SHOWCOMPLETE initialized')
                     start_advance_before = u16(symbols['StageComplete_AdvanceCount'])
-                    for _ in range(3):
-                        tick(m.BTN_A)
+                    for _ in range(240):
+                        tick(m.BTN_A if u8(symbols['StageComplete_Active']) else None, hold=True)
                         if u16(symbols['StageComplete_AdvanceCount']) != start_advance_before:
+                            break
+                        if u8(legal.CAMPAIGN_ORDINAL) == target_ordinal:
                             break
                         tick()
 
@@ -991,7 +1070,7 @@ def run(args, report):
                             for slot in range(1, 6):
                                 base = 8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_ZP_LEN'] * slot
                                 obj = u8(base + symbols['OOP_SELF_SLOT_OFS'])
-                                actors.append(dict(*(), **{'slot': slot, 'hp': u8(base + symbols['CHAR_HP']), 'input': u8(base + symbols['CHAR_INPUT_DRIVEN']), 'roster': u8(base + symbols['CHAR_ROSTER_INDEX']), 'selected': u8(base + symbols['CHAR_SELECTED']), 'facing_left': u8(base + symbols['CHAR_FACING_LEFT']), 'fall_timer': u8(base + symbols['CHAR_FALL_STATE_TIMER']), 'fall_frames': u8(base + symbols['CHAR_FALL_FCOUNT']), 'hit_stun': u8(base + symbols['CHAR_HIT_STUN']), 'grab_target': u8(base + symbols['CHAR_GRAB_TARGET']), 'grabbed_by': u8(base + symbols['CHAR_GRABBED_BY']), 'x': u16(base + symbols['CHAR_POS_X']), 'y': u8(base + symbols['CHAR_POS_Y']), 'idle': u8(base + symbols['CHAR_IDLE_FCOUNT']), 'object_num': u16(base + symbols['OOP_SELF_NUM_OFS']), 'object_slot': obj, 'object_live': obj < symbols['OOP_MAX_OBJECTS'] * 2 and (obj % 2 == 0 and (u16(symbols['OopFlags'] + obj) & 1 == 1 and (u16(symbols['OopDp'] + obj) == base % 65536 and u16(symbols['OopNum'] + obj) == u16(base + symbols['OOP_SELF_NUM_OFS']))))}))
+                                actors.append(dict(*(), **{'slot': slot, 'hp': u8(base + symbols['CHAR_HP']), 'input': u8(base + symbols['CHAR_INPUT_DRIVEN']), 'roster': u8(base + symbols['CHAR_ROSTER_INDEX']), 'selected': u8(base + symbols['CHAR_SELECTED']), 'facing_left': u8(base + symbols['CHAR_FACING_LEFT']), 'fall_timer': u8(base + symbols['CHAR_FALL_STATE_TIMER']), 'fall_frames': u8(base + symbols['CHAR_FALL_FCOUNT']), 'throw_zpos': u16(base + symbols['CHAR_THROW_ZPOS']), 'throw_zvel': u16(base + symbols['CHAR_THROW_ZVEL']), 'drop_state': u16(symbols['StageEnv_Actors'] + slot * symbols['CHAR_ZP_LEN'] + 102), 'hit_stun': u8(base + symbols['CHAR_HIT_STUN']), 'grab_target': u8(base + symbols['CHAR_GRAB_TARGET']), 'grabbed_by': u8(base + symbols['CHAR_GRABBED_BY']), 'x': u16(base + symbols['CHAR_POS_X']), 'y': u8(base + symbols['CHAR_POS_Y']), 'idle': u8(base + symbols['CHAR_IDLE_FCOUNT']), 'object_num': u16(base + symbols['OOP_SELF_NUM_OFS']), 'object_slot': obj, 'object_live': obj < symbols['OOP_MAX_OBJECTS'] * 2 and (obj % 2 == 0 and (u16(symbols['OopFlags'] + obj) & 1 == 1 and (u16(symbols['OopDp'] + obj) == base % 65536 and u16(symbols['OopNum'] + obj) == u16(base + symbols['OOP_SELF_NUM_OFS']))))}))
                             result['npc_slots'] = actors
                         return result
 
@@ -1130,7 +1209,7 @@ def run(args, report):
                                             initial_rows.append(values)
                             if initial_captured:
                                 if report['frames_sampled'] % 120 == 0:
-                                    if initial_rows:
+                                    if initial_captured:
                                         progress = dict(field=report['frames_sampled'], stage=stage_index, spawn_index=u8(legal.SPAWN_INDEX), spawn_count=u8(legal.SPAWN_COUNT), source_tick=u16(8263484), game_tick_commit=u16(symbols['S6Game_TickCommit']), camera_x=u16(legal.SCREEN_POS_X), player=dict(hp=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_HP']), x=u16(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_POS_X']), y=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_POS_Y']), lives=u16(symbols['P1_Lives16']), out=u8(symbols['G13_P1Out']), fall_timer=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_FALL_STATE_TIMER'])), worker=runtime_diagnostics(), initial_ai=[])
                                         for _, slot, offset, roster, object_num, input_mode in initial_rows:
                                             base = 8257536 + symbols['PlayerEntity_DpBase'] + offset
@@ -1283,7 +1362,7 @@ def run(args, report):
                                             if not u8(symbols['G13_P1Out']):
                                                 continue_waiting = False
                                                 continue_last_field = None
-                                            if u8(symbols['Game_Credits']):
+                                            if traversal_continue_needed(u8(symbols['G13_P1Out']), u8(symbols['Game_Credits'])):
                                                 if continue_waiting:
                                                     if not continue_last_field is None:
                                                         if elapsed - continue_last_field >= 30:
@@ -1305,7 +1384,7 @@ def run(args, report):
                                                 if not u8(symbols['G13_P2Out']):
                                                     continue_p2_waiting = False
                                                     continue_p2_last_field = None
-                                                if u8(symbols['Game_Credits']):
+                                                if traversal_continue_needed(u8(symbols['G13_P2Out']), u8(symbols['Game_Credits'])):
                                                     if continue_p2_waiting:
                                                         if not continue_p2_last_field is None:
                                                             if elapsed - continue_p2_last_field >= 30:
@@ -1329,7 +1408,12 @@ def run(args, report):
                                                     if not args.trace_player_move:
                                                         p1 = 8257536 + symbols['PlayerEntity_DpBase']
                                                         p1x = s16(p1 + symbols['CHAR_POS_X'])
-                                                        p1y = u8(p1 + symbols['CHAR_POS_Y'])
+                                                        # Canonical worker projection can exceed a byte.
+                                                        # Wrapping 438 to 182 sends prop steering to the
+                                                        # wrong source lane after a long campaign.
+                                                        p1y = (s16(p1 + symbols['CHAR_POS_Y'])
+                                                               if os.environ.get('S8_NORMAL_CANONICAL_P1_CONTROLLER') == '1'
+                                                               else u8(p1 + symbols['CHAR_POS_Y']))
                                                         raw_p1x = p1x
                                                         world_max = u16(symbols['WorldMaxX'])
                                                         if world_max:
@@ -1906,6 +1990,7 @@ def run(args, report):
                             row['exit_timeout']['elapsed_fields'] = budget
                             row['exit_timeout']['runtime'] = runtime_diagnostics()
                             report['last_observation'] = row['exit_timeout']['game']
+                            row['timeout_runtime'] = runtime_diagnostics()
                             require('entry ' + str(ordinal) + ' bounded native exit', False)
                         if kind == 'scene':
                             row['exit_observation'] = scene_observation()
@@ -2002,7 +2087,7 @@ def run(args, report):
                     for slot in range(1, 6):
                         base = 8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_ZP_LEN'] * slot
                         obj = u8(base + symbols['OOP_SELF_SLOT_OFS'])
-                        actors.append(dict(*(), **{'slot': slot, 'hp': u8(base + symbols['CHAR_HP']), 'input': u8(base + symbols['CHAR_INPUT_DRIVEN']), 'roster': u8(base + symbols['CHAR_ROSTER_INDEX']), 'selected': u8(base + symbols['CHAR_SELECTED']), 'facing_left': u8(base + symbols['CHAR_FACING_LEFT']), 'fall_timer': u8(base + symbols['CHAR_FALL_STATE_TIMER']), 'fall_frames': u8(base + symbols['CHAR_FALL_FCOUNT']), 'hit_stun': u8(base + symbols['CHAR_HIT_STUN']), 'grab_target': u8(base + symbols['CHAR_GRAB_TARGET']), 'grabbed_by': u8(base + symbols['CHAR_GRABBED_BY']), 'x': u16(base + symbols['CHAR_POS_X']), 'y': u8(base + symbols['CHAR_POS_Y']), 'idle': u8(base + symbols['CHAR_IDLE_FCOUNT']), 'object_num': u16(base + symbols['OOP_SELF_NUM_OFS']), 'object_slot': obj, 'object_live': obj < symbols['OOP_MAX_OBJECTS'] * 2 and (obj % 2 == 0 and (u16(symbols['OopFlags'] + obj) & 1 == 1 and (u16(symbols['OopDp'] + obj) == base % 65536 and u16(symbols['OopNum'] + obj) == u16(base + symbols['OOP_SELF_NUM_OFS']))))}))
+                        actors.append(dict(*(), **{'slot': slot, 'hp': u8(base + symbols['CHAR_HP']), 'input': u8(base + symbols['CHAR_INPUT_DRIVEN']), 'roster': u8(base + symbols['CHAR_ROSTER_INDEX']), 'selected': u8(base + symbols['CHAR_SELECTED']), 'facing_left': u8(base + symbols['CHAR_FACING_LEFT']), 'fall_timer': u8(base + symbols['CHAR_FALL_STATE_TIMER']), 'fall_frames': u8(base + symbols['CHAR_FALL_FCOUNT']), 'throw_zpos': u16(base + symbols['CHAR_THROW_ZPOS']), 'throw_zvel': u16(base + symbols['CHAR_THROW_ZVEL']), 'drop_state': u16(symbols['StageEnv_Actors'] + slot * symbols['CHAR_ZP_LEN'] + 102), 'hit_stun': u8(base + symbols['CHAR_HIT_STUN']), 'grab_target': u8(base + symbols['CHAR_GRAB_TARGET']), 'grabbed_by': u8(base + symbols['CHAR_GRABBED_BY']), 'x': u16(base + symbols['CHAR_POS_X']), 'y': u8(base + symbols['CHAR_POS_Y']), 'idle': u8(base + symbols['CHAR_IDLE_FCOUNT']), 'object_num': u16(base + symbols['OOP_SELF_NUM_OFS']), 'object_slot': obj, 'object_live': obj < symbols['OOP_MAX_OBJECTS'] * 2 and (obj % 2 == 0 and (u16(symbols['OopFlags'] + obj) & 1 == 1 and (u16(symbols['OopDp'] + obj) == base % 65536 and u16(symbols['OopNum'] + obj) == u16(base + symbols['OOP_SELF_NUM_OFS']))))}))
                     result['npc_slots'] = actors
                 return result
 
@@ -2141,7 +2226,7 @@ def run(args, report):
                                     initial_rows.append(values)
                     if initial_captured:
                         if report['frames_sampled'] % 120 == 0:
-                            if initial_rows:
+                            if initial_captured:
                                 progress = dict(field=report['frames_sampled'], stage=stage_index, spawn_index=u8(legal.SPAWN_INDEX), spawn_count=u8(legal.SPAWN_COUNT), source_tick=u16(8263484), game_tick_commit=u16(symbols['S6Game_TickCommit']), camera_x=u16(legal.SCREEN_POS_X), player=dict(hp=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_HP']), x=u16(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_POS_X']), y=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_POS_Y']), lives=u16(symbols['P1_Lives16']), out=u8(symbols['G13_P1Out']), fall_timer=u8(8257536 + symbols['PlayerEntity_DpBase'] + symbols['CHAR_FALL_STATE_TIMER'])), worker=runtime_diagnostics(), initial_ai=[])
                                 for _, slot, offset, roster, object_num, input_mode in initial_rows:
                                     base = 8257536 + symbols['PlayerEntity_DpBase'] + offset
@@ -2294,7 +2379,7 @@ def run(args, report):
                                     if not u8(symbols['G13_P1Out']):
                                         continue_waiting = False
                                         continue_last_field = None
-                                    if u8(symbols['Game_Credits']):
+                                    if traversal_continue_needed(u8(symbols['G13_P1Out']), u8(symbols['Game_Credits'])):
                                         if continue_waiting:
                                             if not continue_last_field is None:
                                                 if elapsed - continue_last_field >= 30:
@@ -2316,7 +2401,7 @@ def run(args, report):
                                         if not u8(symbols['G13_P2Out']):
                                             continue_p2_waiting = False
                                             continue_p2_last_field = None
-                                        if u8(symbols['Game_Credits']):
+                                        if traversal_continue_needed(u8(symbols['G13_P2Out']), u8(symbols['Game_Credits'])):
                                             if continue_p2_waiting:
                                                 if not continue_p2_last_field is None:
                                                     if elapsed - continue_p2_last_field >= 30:
@@ -2340,7 +2425,9 @@ def run(args, report):
                                             if not args.trace_player_move:
                                                 p1 = 8257536 + symbols['PlayerEntity_DpBase']
                                                 p1x = s16(p1 + symbols['CHAR_POS_X'])
-                                                p1y = u8(p1 + symbols['CHAR_POS_Y'])
+                                                p1y = (s16(p1 + symbols['CHAR_POS_Y'])
+                                                       if os.environ.get('S8_NORMAL_CANONICAL_P1_CONTROLLER') == '1'
+                                                       else u8(p1 + symbols['CHAR_POS_Y']))
                                                 raw_p1x = p1x
                                                 world_max = u16(symbols['WorldMaxX'])
                                                 if world_max:
@@ -2917,6 +3004,7 @@ def run(args, report):
                     row['exit_timeout']['elapsed_fields'] = budget
                     row['exit_timeout']['runtime'] = runtime_diagnostics()
                     report['last_observation'] = row['exit_timeout']['game']
+                    row['timeout_runtime'] = runtime_diagnostics()
                     require('entry ' + str(ordinal) + ' bounded native exit', False)
                 if kind == 'scene':
                     row['exit_observation'] = scene_observation()
@@ -2983,16 +3071,17 @@ def run(args, report):
             report['runtime_final'] = runtime_diagnostics()
             if traversal:
                 harvest()
-                require('all 614 source spawn identities and every control record observed', len(report['spawn_traversal']['completed']) == len(plan))
+                require('all authored source spawn identities and every control record observed', len(report['spawn_traversal']['completed']) == len(plan))
                 report['spawn_traversal']['status'] = 'PASS'
     require('all gate checks passed', all((ok for _, ok in r.results)))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=('natural', 'skip', 'easy'), required=True)
+    parser.add_argument('--source-set', choices=('Normal', 'Hard'), default='Normal')
     parser.add_argument('--report', type=Path, help='JSON path (default: out/game_s8_<mode>.json)')
     parser.add_argument('--screenshots', action='store_true')
-    parser.add_argument('--spawn-traversal', action='store_true', help='Normal only: observe every real queue admission; never skip Spawn_Index.')
+    parser.add_argument('--spawn-traversal', action='store_true', help='Observe every real source-world queue admission; never skip Spawn_Index.')
     parser.add_argument('--two-player', action='store_true', help='Use real co-op TITLE/CHARSELECT input and both sequenced worker controls.')
     parser.add_argument('--trace-runtime', action='store_true', help='Enable expensive per-routine runtime trace callbacks (diagnostic only).')
     parser.add_argument('--trace-bind', action='store_true', help='Capture only source-host bind rejection/unbound fault branches.')
@@ -3002,13 +3091,18 @@ def main():
     parser.add_argument('--trace-ownership', action='store_true', help='Trace only Normal worker ownership faults and host-error writes.')
     parser.add_argument('--trace-player-lifecycle', action='store_true', help='Sample player death-animation dispatch counts every 30 fields.')
     parser.add_argument('--stage-fields', type=int, default=6000, help='bounded per-stage observation fields (default 6000; diagnostics only)')
+    parser.add_argument('--traversal-step-fields', type=int, choices=range(1, 9), default=1,
+                        help='native fields per held gameplay control sample; queue observer still records every admission')
     parser.add_argument('--debug-start-ordinal', type=int, default=0, help='diagnostics only: real campaign resolver entry after initial stage startup')
     args = parser.parse_args()
     if args.two_player:
         if args.mode == 'easy':
             parser.error('--two-player currently applies to Normal campaign validation only')
     output = args.report or ROOT / 'out' / ('game_s8_' + str(args.mode) + str('_traversal' if args.spawn_traversal else '') + '.json')
-    report = dict(mode=args.mode, verdict='FAIL', route=[], frames_sampled=0, scope='accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance')
+    report = dict(mode=args.mode, verdict='FAIL', route=[], frames_sampled=0,
+                  traversal_step_fields=args.traversal_step_fields,
+                  sampling='frames_sampled counts controller observations; native admissions are observed independently',
+                  scope='accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance')
     try:
         try:
             run(args, report)

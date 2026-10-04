@@ -2079,7 +2079,7 @@
   },
   "linked_runtime_data": "PASS",
   "audio_blob_sha256": "4c2ff4eb3713c6ce7a511cccc07929fa140425441c659e365db63d6761aefe8f",
-  "action_inventory_sha256": "a8ec8c940970c0bb9d6af7622c949134e6e50dc7fad8c2e92f74ef7edf612933",
+  "action_inventory_sha256": "887aa5a9a0de3266e4223b5afe61b01d7898e03ecd2950cabed3e8af80bf7fa4",
   "uncovered_assets": [],
   "affected_requirements": [],
   "nonclaims": [

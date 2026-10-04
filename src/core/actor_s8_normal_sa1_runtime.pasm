@@ -223,6 +223,12 @@ S6Normal_ResetStageWorld__owned:
     ; following mutation fence makes the bulk stage reset atomic to SA-1.
     jsl S7Resident_Flush
     jsl S6Normal_MutationFenceBegin
+    ; BOR.C playlevel kills every old level entity before loading the next.
+    ; Typed native props are outside the six source contexts. In particular,
+    ; a hidden collected Time can still have HP while its suicide is pending;
+    ; StartLevel clears that countdown, so leaving its native row occupied
+    ; would strand it permanently in the next level.
+    jsl S6Normal_RetireStageNpcs
     ldx #0
     lda #0
 S6Normal_ResetStageWorld__native_prop_clear:
@@ -314,6 +320,67 @@ S6Normal_ResetStageWorld__return:
     pld
     plb
     ply
+    plx
+    plp
+    rtl
+
+; Retire old stage NPC state while the resident worker is parked. The fixed
+; OOP slot handles remain allocated for Spawn_Play's existing reuse ABI.
+; Player stock/health and the reserved co-op player row are preserved.
+S6Normal_RetireStageNpcs:
+    php
+    rep #$30
+    .a16
+    .i16
+    phx
+    ldx #CHAR_ZP_LEN
+S6Normal_RetireStageNpcs__row:
+    cpx #CHAR_ZP_LEN
+    bne S6Normal_RetireStageNpcs__clear
+    lda.l G13_TwoPlayerEnabled
+    and #$00FF
+    bne S6Normal_RetireStageNpcs__next
+S6Normal_RetireStageNpcs__clear:
+    sep #$20
+    .a8
+    lda #0
+    sta.l $7E0A00+CHAR_HP,x
+    sta.l $7E0A00+CHAR_INPUT_DRIVEN,x
+    sta.l $7E0A00+CHAR_PICKUP_TYPE,x
+    sta.l $7E0A00+CHAR_SELECTED,x
+    sta.l $7E0A00+CHAR_HIT_APPLIED,x
+    sta.l $7E0A00+CHAR_FALL_STATE_TIMER,x
+    sta.l $7E0A00+CHAR_GRAB_TIMER,x
+    lda #$FF
+    sta.l $7E0A00+CHAR_GRAB_TARGET,x
+    sta.l $7E0A00+CHAR_GRABBED_BY,x
+    rep #$30
+    .a16
+    .i16
+    lda #0
+    sta.l $7E0A00+CHAR_THROW_ZPOS,x
+    sta.l $7E0A00+CHAR_THROW_ZVEL,x
+S6Normal_RetireStageNpcs__next:
+    rep #$30
+    .a16
+    .i16
+    txa
+    clc
+    adc #CHAR_ZP_LEN
+    tax
+    cpx #CHAR_ZP_LEN*6
+    bcc S6Normal_RetireStageNpcs__row
+    sep #$20
+    .a8
+    lda #0
+    sta.l Entity1_ItemRosterIdx
+    sta.l Entity2_ItemRosterIdx
+    sta.l Entity3_ItemRosterIdx
+    sta.l Entity4_ItemRosterIdx
+    sta.l Entity5_ItemRosterIdx
+    rep #$30
+    .a16
+    .i16
     plx
     plp
     rtl

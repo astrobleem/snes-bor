@@ -50,6 +50,13 @@ def retained_child(function, name):
 
 
 class TraversalTests(unittest.TestCase):
+    def test_continue_input_requires_out_player_and_credit(self):
+        # Start pauses a live player; credits alone must never trigger it.
+        from _game_s8_normal_campaign_base import traversal_continue_needed
+        self.assertFalse(traversal_continue_needed(False, 5))
+        self.assertFalse(traversal_continue_needed(True, 0))
+        self.assertTrue(traversal_continue_needed(True, 5))
+
     @classmethod
     def setUpClass(cls):
         cls.plan = harness.traversal_plan(build, build.CAMPAIGN_ENTRY_MAPS['BOR_NORMAL_1A_INTERNAL'])
@@ -288,11 +295,9 @@ class TraversalTests(unittest.TestCase):
             self.assertIn(instruction, scan)
 
     def test_diagnostic_stage_entry_retries_a_real_showcomplete_action_edge(self):
-        source = (harness.ROOT / 'tools/verify/game_s8_normal_campaign.py').read_text()
-        self.assertIn('def _patch_debug_start_action(code):', source)
-        self.assertIn('action_index = names.index("BTN_A")', source)
-        self.assertEqual(harness._debug_start_action_patch_count, 1)
-        instructions = list(harness.dis.get_instructions(harness._impl.run.__code__))
+        # The source-backed verifier no longer needs a bytecode patch;
+        # retain the actual action-edge contract.
+        instructions = list(dis.get_instructions(harness._impl.run.__code__))
         anchor = next(i for i, item in enumerate(instructions)
                       if item.opname == 'STORE_FAST'
                       and item.argval == 'start_advance_before')

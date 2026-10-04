@@ -10,9 +10,9 @@ BorSet_Ids:
 BorSet_IfComplete:
     .db 0, 0, 0, 1
 BorSet_ContentAvailable:
-    .db 1, 1, 0, 0
+    .db 1, 1, 1, 0
 BorSet_CampaignMap:
-    .db CAMPAIGN_BOR_ORIGINAL, CAMPAIGN_BOR_NORMAL_DEV, BOR_SET_UNMAPPED, BOR_SET_UNMAPPED
+    .db CAMPAIGN_BOR_ORIGINAL, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, BOR_SET_UNMAPPED
 BOR_SET_NAME_WIDTH = 8
 BorSet_Names:
     .db 69, 97, 115, 121, 0, 0, 0, 0
@@ -50,6 +50,21 @@ Campaign_BorNormalDev_NextFlags:
 Campaign_BorNormalDev_CompleteFlags:
     .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
 
+Campaign_BorHard_EntryCount = 16
+Campaign_BorHard_EntryKinds:
+    .db CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_SCENE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_SCENE
+Campaign_BorHard_EntryValues:
+    .db 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending
+
+Campaign_BorHard_StageCount = 14
+Campaign_BorHard_StageMap:
+    .db 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+
+Campaign_BorHard_NextFlags:
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
+Campaign_BorHard_CompleteFlags:
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
+
 Campaign_Tmnt_EntryCount = 4
 Campaign_Tmnt_EntryKinds:
     .db CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE
@@ -69,3 +84,18 @@ Campaign_Standalone_EntryValues:
 Campaign_Standalone_StageCount = 4
 Campaign_Standalone_StageMap:
     .db 3, 4, 5, 10
+
+Campaign_Source_Offsets:
+    .db 0, 0, 16, 0
+
+Campaign_Source_Counts:
+    .db 0, 16, 16, 0
+
+Campaign_Source_Kinds:
+    .db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
+
+Campaign_Source_Values:
+    .db 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, SceneSequence_Rugal, 35, SceneSequence_Ending, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending
+
+Campaign_Source_CompleteFlags:
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0

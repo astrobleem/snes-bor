@@ -1,6 +1,7 @@
 ; Source-driven MSU-1 music selection. The table is generated from authored
 ; level directives; this routine owns MSU PCM registers, never TAD state.
-.include "../../tools/audio/audio_music_ids.pasm"
+; Immutable tables live beside campaign metadata in bank 12, allowing the
+; physical stage catalog to grow beyond the fixed bank-0 music-code gap.
 
 Music_SelectStageTrack:
 Music_MSU_PLAY = $01
@@ -18,7 +19,7 @@ Music_MSU_REPEAT = $02
     bcs Music_SelectStageTrack__done
     sep #$20
 .a8
-    lda Music_StageTracks,x
+    lda.l Music_StageTracks,x
     sta.l Music_LastTrack
     pha
     lda #MUSIC_TRANSITION_STAGE
@@ -28,7 +29,7 @@ Music_MSU_REPEAT = $02
     pla
     sta $2004
     stz $2005
-    lda Music_StageRepeats,x
+    lda.l Music_StageRepeats,x
     asl
     ora #Music_MSU_PLAY
     sta $2007
@@ -55,7 +56,7 @@ Music_SelectBossTrack:
     bcs Music_SelectBossTrack__done
     sep #$20
 .a8
-    lda Music_StageBossTracks,x
+    lda.l Music_StageBossTracks,x
     beq Music_SelectBossTrack__done
     sta.l Music_LastTrack
     pha
@@ -66,7 +67,7 @@ Music_SelectBossTrack:
     pla
     sta $2004
     stz $2005
-    lda Music_StageBossRepeats,x
+    lda.l Music_StageBossRepeats,x
     asl
     ora #Music_MSU_PLAY
     sta $2007

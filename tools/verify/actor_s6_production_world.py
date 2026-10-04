@@ -144,7 +144,9 @@ def build(folder,scenario='enemy',*,deadline_wait=False,enemy_copies=1,resident=
     imports = {k: v for k, v in sym.items() if k in tokens and
                (k.startswith(('CHAR_', 'StageEnv_', 'S5_', 'G13_',
                               'SourceVisual_')) or
-                k in ('Screen_PosX', 'Spawn_HoleCount', 'Game_StageIndex', 'Bg_LoadScene_StageIndex',
+                k in ('Entity1_ItemRosterIdx', 'Entity2_ItemRosterIdx', 'Entity3_ItemRosterIdx',
+                      'Entity4_ItemRosterIdx', 'Entity5_ItemRosterIdx',
+                      'Screen_PosX', 'Spawn_HoleCount', 'Game_StageIndex', 'Bg_LoadScene_StageIndex',
                       'StageBounds_Row', 'StageDrop_State', 'WorldMaxX',
                       'Nmi_FrameCounter', 'Stage_LoadAndRespawn_Long',
                       'VMSTAT_DONE', 'VmState_Status',

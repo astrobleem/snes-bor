@@ -117,6 +117,11 @@ SourceVisual_DebugEmitOam      = $7E4660 ; temporary native OAM witness
 SourceVisual_EmitBaseX         = $7E44A0
 SourceVisual_EmitBaseY         = $7E44A2
 SourceVisual_EmitBoundsMode    = $7E44A4 ; 1=pit depth projection / behind panels
+SourceVisual_EmitPieceX        = $7E44A6 ; signed viewport coordinates
+SourceVisual_EmitPieceY        = $7E44A8
+SourceVisual_VisiblePieces     = $7E44AA
+SourceVisual_EmitPieceWidth    = $7E44AC
+SourceVisual_EmitPieceHeight   = $7E44AE
 ; Persistent Normal rows publish a sampled runtime-role key/frame into the
 ; same 133-byte StageEnv row. A zero bridge policy remains S-CPU-owned and
 ; continues to use its native CHAR_SELECTED/CHAR_FRAME_INDEX mapping.
@@ -3210,7 +3215,7 @@ SourceVisual_ReadPalettePayload__slot_ok:
     sta.l DmaRequest_Length
     sep #$20
 .a8
-    lda #$7F
+    lda #((SourceVisual_PaletteStaging >> 16) & $FF)
     sta.l DmaRequest_SourceBank
     lda #DMA_TYPE_CGRAM
     sta.l DmaRequest_TypeFlags
@@ -3331,20 +3336,17 @@ SourceVisual_HasOwnedDma__scan:
     beq SourceVisual_HasOwnedDma__next
     lda.l DmaQueue+7,x
     cmp #$7E
-    beq SourceVisual_HasOwnedDma__tile_bank
-    cmp #$7F
     bne SourceVisual_HasOwnedDma__next
     rep #$31
 .a16
 .i16
     lda.l DmaQueue+5,x
-    ; Palette packets are bank $7F:$4300-$43FF; tile rows are bank
-    ; $7E:$5B00-$5EFF. Fence both staging regions independently.
-    cmp #$4300
-    bcc SourceVisual_HasOwnedDma__next16
-    cmp #$4400
+    ; Both staging buffers live in bank $7E. Fence the relocated palette
+    ; arena as well as tile rows before reusing their immutable payloads.
+    cmp #(SourceVisual_PaletteStaging & $FFFF)
+    bcc SourceVisual_HasOwnedDma__tile_bank
+    cmp #((SourceVisual_PaletteStaging & $FFFF) + 256)
     bcc SourceVisual_HasOwnedDma__owned
-    bra SourceVisual_HasOwnedDma__next16
 SourceVisual_HasOwnedDma__tile_bank:
     rep #$31
 .a16
@@ -3392,27 +3394,6 @@ SourceVisual_RefreshFence__busy:
     rts
 
 SourceVisual_Emit:
-    ; Reserve the complete actor packet before touching the OAM shadow.  A
-    ; larger source frame may contain 65 pieces, but the hardware shadow has
-    ; only 128 entries; fail the whole actor closed instead of overrunning it
-    ; or publishing a partial metasprite.
-    lda.l SourceVisual_PieceCount
-    asl a
-    asl a
-    clc
-    adc.l $7E53A0
-    cmp #513
-    bcc SourceVisual_Emit__oam_capacity_ok
-    sep #$20
-.a8
-    lda #$A7
-    sta.l SourceVisual_Error
-    rep #$31
-.a16
-.i16
-    clc
-    rts
-SourceVisual_Emit__oam_capacity_ok:
     rep #$31
 .a16
 .i16
@@ -3426,7 +3407,6 @@ SourceVisual_Emit__oam_capacity_ok:
     lda CHAR_POS_X
     sec
     sbc Screen_PosX
-    and #$00FF
     sta.l OamSetSprite_X
     sta.l SourceVisual_EmitBaseX
     lda #0
@@ -3451,6 +3431,47 @@ SourceVisual_Emit__ground_y:
     lda CHAR_POS_Y
     sta.l SourceVisual_EmitBaseY
 SourceVisual_Emit__y_ready:
+    ; Count only pieces intersecting the real viewport before reserving the
+    ; whole visible packet. World coordinates must not wrap into screen X:
+    ; old offscreen props otherwise consume OAM and can hide the player.
+    lda #0
+    sta.l SourceVisual_VisiblePieces
+    sta.l SourceVisual_PieceIndex
+SourceVisual_Emit__count_visible:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcs SourceVisual_Emit__reserve_visible
+    jsr SourceVisual_ViewportPiece
+    bcc SourceVisual_Emit__count_next
+    lda.l SourceVisual_VisiblePieces
+    inc a
+    sta.l SourceVisual_VisiblePieces
+SourceVisual_Emit__count_next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    bra SourceVisual_Emit__count_visible
+SourceVisual_Emit__reserve_visible:
+    lda.l SourceVisual_VisiblePieces
+    asl a
+    asl a
+    clc
+    adc.l $7E53A0
+    cmp #513
+    bcc SourceVisual_Emit__oam_capacity_ok
+    sep #$20
+.a8
+    lda #$A7
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_Emit__oam_capacity_ok:
+    rep #$31
+.a16
+.i16
     lda #0
     sta.l SourceVisual_PieceIndex
     bra SourceVisual_Emit__piece
@@ -3468,9 +3489,13 @@ SourceVisual_Emit__piece:
     bcc SourceVisual_Emit__have_piece
     brl SourceVisual_Emit__done
 SourceVisual_Emit__have_piece:
-    lda.l SourceVisual_EmitBaseX
+    jsr SourceVisual_ViewportPiece
+    bcs SourceVisual_Emit__visible_piece
+    brl SourceVisual_Emit__next_piece
+SourceVisual_Emit__visible_piece:
+    lda.l SourceVisual_EmitPieceX
     sta.l OamSetSprite_X
-    lda.l SourceVisual_EmitBaseY
+    lda.l SourceVisual_EmitPieceY
     sta.l OamSetSprite_Y
     lda.l SourceVisual_PieceIndex
     asl a
@@ -3478,6 +3503,7 @@ SourceVisual_Emit__have_piece:
     asl a
     asl a
     tax
+    sta.l SourceVisual_PieceOffset
     lda.l SourceVisual_PieceTable+14,x
     and #$01FF
     clc
@@ -3485,8 +3511,6 @@ SourceVisual_Emit__have_piece:
     sep #$20
 .a8
     sta.l OamSetSprite_Tile
-    txa
-    sta.l SourceVisual_PieceOffset
     lda.l SourceVisual_PieceTable+8,x
     sta.l SourceVisual_PaletteLocalSlot
     rep #$31
@@ -3509,8 +3533,13 @@ SourceVisual_Emit__have_piece:
 SourceVisual_Emit__palette_bad_near:
     brl SourceVisual_Emit__palette_fail
 SourceVisual_Emit__palette_ok:
+    rep #$20
+.a16
     lda.l SourceVisual_PieceOffset
     tax
+    sep #$20
+.a8
+    lda.l SourceVisual_DebugEmitPiece+60
     asl a
     ora #$30
     sta.l OamSetSprite_Attr
@@ -3534,27 +3563,11 @@ SourceVisual_Emit__name_table0:
 .a8
     lda CHAR_FACING_LEFT
     beq SourceVisual_Emit__right
-    lda.l SourceVisual_PieceTable+4,x
-    clc
-    adc.l OamSetSprite_X
-    sta.l OamSetSprite_X
-    lda.l SourceVisual_PieceTable+6,x
-    clc
-    adc.l OamSetSprite_Y
-    sta.l OamSetSprite_Y
     lda.l OamSetSprite_Attr
     ora #$40
     sta.l OamSetSprite_Attr
     bra SourceVisual_Emit__write
 SourceVisual_Emit__right:
-    lda.l SourceVisual_PieceTable+0,x
-    clc
-    adc.l OamSetSprite_X
-    sta.l OamSetSprite_X
-    lda.l SourceVisual_PieceTable+2,x
-    clc
-    adc.l OamSetSprite_Y
-    sta.l OamSetSprite_Y
 SourceVisual_Emit__write:
     lda.l SourceVisual_EmitBoundsMode
     beq SourceVisual_Emit__priority_ready
@@ -3581,6 +3594,17 @@ SourceVisual_Emit__small_obj:
     lda #0
 SourceVisual_Emit__obj_size_ready:
     sta.l OamSetSprite_Hi
+    rep #$20
+.a16
+    lda.l SourceVisual_EmitPieceX
+    and #$0100
+    beq SourceVisual_Emit__x_high_ready
+    sep #$20
+.a8
+    lda.l OamSetSprite_Hi
+    ora #1
+    sta.l OamSetSprite_Hi
+SourceVisual_Emit__x_high_ready:
     ; Keep the native OAM write in this loop.  The old helper boundary was
     ; same-bank code, but its return convention made the generic piece loop
     ; terminate after a prefix on the production path.  This is the same
@@ -3621,6 +3645,7 @@ SourceVisual_Emit__obj_size_ready:
     rep #$31
 .a16
 .i16
+SourceVisual_Emit__next_piece:
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
@@ -3672,6 +3697,72 @@ SourceVisual_Emit__palette_fail:
     rep #$31
 .a16
 .i16
+    clc
+    rts
+
+; A16/I16. Resolve one authored 16x32 or 32x64 piece without byte wrapping.
+; C=true iff at least one of its pixels can intersect the 256x224 viewport.
+; Count and emission use this same predicate, keeping OAM admission atomic.
+SourceVisual_ViewportPiece:
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+14,x
+    and #$8000
+    beq SourceVisual_ViewportPiece__small
+    lda #32
+    sta.l SourceVisual_EmitPieceWidth
+    lda #64
+    bra SourceVisual_ViewportPiece__height
+SourceVisual_ViewportPiece__small:
+    lda #16
+    sta.l SourceVisual_EmitPieceWidth
+    lda #32
+SourceVisual_ViewportPiece__height:
+    sta.l SourceVisual_EmitPieceHeight
+    lda CHAR_FACING_LEFT
+    and #$00FF
+    beq SourceVisual_ViewportPiece__right
+    lda.l SourceVisual_PieceTable+4,x
+    clc
+    adc.l SourceVisual_EmitBaseX
+    sta.l SourceVisual_EmitPieceX
+    lda.l SourceVisual_PieceTable+6,x
+    bra SourceVisual_ViewportPiece__y
+SourceVisual_ViewportPiece__right:
+    lda.l SourceVisual_PieceTable,x
+    clc
+    adc.l SourceVisual_EmitBaseX
+    sta.l SourceVisual_EmitPieceX
+    lda.l SourceVisual_PieceTable+2,x
+SourceVisual_ViewportPiece__y:
+    clc
+    adc.l SourceVisual_EmitBaseY
+    sta.l SourceVisual_EmitPieceY
+    lda.l SourceVisual_EmitPieceX
+    bmi SourceVisual_ViewportPiece__x_end
+    cmp #256
+    bcs SourceVisual_ViewportPiece__outside
+SourceVisual_ViewportPiece__x_end:
+    clc
+    adc.l SourceVisual_EmitPieceWidth
+    bmi SourceVisual_ViewportPiece__outside
+    beq SourceVisual_ViewportPiece__outside
+    lda.l SourceVisual_EmitPieceY
+    bmi SourceVisual_ViewportPiece__y_end
+    cmp #224
+    bcs SourceVisual_ViewportPiece__outside
+SourceVisual_ViewportPiece__y_end:
+    clc
+    adc.l SourceVisual_EmitPieceHeight
+    bmi SourceVisual_ViewportPiece__outside
+    beq SourceVisual_ViewportPiece__outside
+    sec
+    rts
+SourceVisual_ViewportPiece__outside:
     clc
     rts
 

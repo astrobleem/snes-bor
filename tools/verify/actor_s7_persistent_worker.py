@@ -9,7 +9,7 @@ from actor_s5_entity_fixture import symbols
 from actor_s5_isolated import ROOT
 
 
-def install(folder, *, production_runtime=False):
+def install(folder, *, production_runtime=False, fresh_world=False):
     """Install the async resident worker over the reviewed private pilot ABI."""
     main_sy = symbols(ROOT / 'src/main.sym')
     world_sy = symbols(folder / 'world.sym')
@@ -35,7 +35,7 @@ def install(folder, *, production_runtime=False):
     link_manifest=json.loads((folder/'link.json').read_text())
     previous_worker_sym_path = folder/'worker.sym'
     previous_worker_sy = (symbols(previous_worker_sym_path)
-                          if previous_worker_sym_path.is_file() else {})
+                          if previous_worker_sym_path.is_file() and not fresh_world else {})
     clock_patch = _patch_elapsed_source_clock(folder, main_sy, world_sy)
     legacy.install(folder)
     source = folder / 'worker.pasm'

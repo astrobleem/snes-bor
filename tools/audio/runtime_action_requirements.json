@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scope": "source action/event coverage; no concurrent residency claim",
-  "manifest_hash": "52e46a158e24dbede044b2624df31f9e416234a399aad69c91007a6ba40a587c",
-  "global_ids_hash": "a3d528582a1835845815b1f7bb3d6e623e5083e5579eac464ad92d9cf0e120f1",
+  "manifest_hash": "35a66505a525d4f48b73e5c68f6f54549b39ed8c2d4b38aec0ae9b008f16e4a7",
+  "global_ids_hash": "ad60b2cd916186f8d7cbae2d12c156dca1066668de2f80840226d13635bb98a8",
   "models": [
     {
       "family": "bor-original",

@@ -957,33 +957,7 @@ Game_State_Play__stageclear:
 ; convention: .a16/.i16.
 ; ----------------------------------------------------------------------
 Game_State_RespawnPlayer:
-    sep #$20
-.a8
-    lda #CHAR_HP_MAX
-    sta.l PlayerEntity_Hp
-    lda #0
-    sta.l PlayerEntity_HitStun
-    sta.l G13_P1Out
-    lda.l Stage_ScrollDirection
-    lsr a
-    sta.l PlayerEntity_FacingLeft
-    sta.l PlayerEntity_Selected
-    lda #$FF
-    sta.l PlayerEntity_FrameIndex
-    lda #1
-    sta.l PlayerEntity_TickCounter
-    lda #PLAYER_RESPAWN_INVULN_FRAMES
-    sta.l Player_InvulnFrames
-    lda #PLAYER_RESPAWN_Y
-    sta.l PlayerEntity_PosY
-    rep #$31
-.a16
-    ; This reset selects a grounded player state.  Clear both complete Q8.8
-    ; words so a prior jump cannot survive the stage/death respawn boundary.
-    lda #0
-    sta.l $7E0A00+CHAR_THROW_ZPOS
-    sta.l $7E0A00+CHAR_THROW_ZVEL
-    jsl Stage_RespawnP1Position
+    jsl Game_State_RespawnPlayer_Long
     rts
 
 ; ----------------------------------------------------------------------
