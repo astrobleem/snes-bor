@@ -107,7 +107,7 @@ class ExtendedSourceVisualAdmissionTests(unittest.TestCase):
                         render.index('jsr SourceVisual_FindEntry'))
         self.assertIn('lda.l StageBounds_State,x\n    cmp #2\n'
                       '    beq SourceVisual_RenderCurrent__retired', render)
-        emit = visual.split('SourceVisual_Emit__oam_capacity_ok:\n', 1)[1].split(
+        emit = visual.split('SourceVisual_Emit:\n', 1)[1].split(
             'SourceVisual_Emit__piece:', 1)[0]
         self.assertIn('lda.l StageBounds_DrawY,x\n'
                       '    cmp #240\n    bcs SourceVisual_Emit__hidden', emit)
@@ -149,7 +149,7 @@ class ExtendedSourceVisualAdmissionTests(unittest.TestCase):
                         render.index('jsr SourceVisual_FindEntry'))
         self.assertIn('lda.l StageBounds_State,x\n    cmp #2\n'
                       '    beq SourceVisual_RenderCurrent__retired', render)
-        emit = visual.split('SourceVisual_Emit__oam_capacity_ok:\n', 1)[1].split(
+        emit = visual.split('SourceVisual_Emit:\n', 1)[1].split(
             'SourceVisual_Emit__piece:', 1)[0]
         self.assertIn('lda.l StageBounds_DrawY,x\n'
                       '    cmp #240\n    bcs SourceVisual_Emit__hidden', emit)
