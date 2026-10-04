@@ -20,6 +20,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "tools/verify"),
 import build_rom as build
 import _harness as harness
 import production_campaign
+import compiler
 import build_normal_sa1_candidate as normal_sa1
 
 
@@ -64,11 +65,17 @@ class CandidateTests(unittest.TestCase):
         def table(name):
             text = Path("tools/audio/campaign_config.pasm").read_text()
             return re.search(rf"{name}:\s*\.db ([^\n]+)", text)[1]
-        with patch.object(build, "parse_levels_from_pak", return_value=sets):
+        authority = SimpleNamespace(sets=[SimpleNamespace(name=name, source_id=index, entries=[None] * 16)
+                                         for index, name in enumerate(('Normal', 'Hard'), 1)])
+        with patch.object(build, "parse_levels_from_pak", return_value=sets), \
+             patch.object(compiler, 'Source'), patch.object(compiler, 'project', return_value=authority):
             build.write_campaign_include()
             self.assertEqual(table("BorSet_ContentAvailable"), "1, 0, 0, 0")
             build.write_campaign_include(normal_candidate=True)
             self.assertEqual(table("BorSet_ContentAvailable"), "1, 1, 0, 0")
+            self.assertIn("CAMPAIGN_BOR_NORMAL_DEV", table("BorSet_CampaignMap"))
+            build.write_campaign_include(normal_candidate=True, hard_candidate=True)
+            self.assertEqual(table("BorSet_ContentAvailable"), "1, 1, 1, 0")
             self.assertIn("CAMPAIGN_BOR_NORMAL_DEV", table("BorSet_CampaignMap"))
             build.write_campaign_include()
             self.assertEqual(table("BorSet_ContentAvailable"), "1, 0, 0, 0")
@@ -172,7 +179,7 @@ class CandidateTests(unittest.TestCase):
             publish = stack.enter_context(patch.object(build, "write_build_outputs"))
             with self.assertRaisesRegex(RuntimeError, "assembly failed"):
                 build.main(normal_candidate=True)
-            gate.assert_called_once_with(normal_candidate=True)
+            gate.assert_called_once_with(normal_candidate=True, hard_candidate=False)
             pack.assert_called_once_with(write_output=False, source_sized_visual=False)
             publish.assert_not_called()
         self.assert_protected()

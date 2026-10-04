@@ -3678,4 +3678,4 @@ end,emu.eventType.endFrame)
         _session.set_input = _autofight_control_set
         _session.hold_input = _autofight_control_hold
 
-    _impl.main()
+    raise SystemExit(_impl.main())

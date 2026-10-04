@@ -19,12 +19,16 @@ def compact_inventory():
     counts = Counter()
     normal_models = set()
     normal_directives = set()
+    normal_maps = {}
     for entry in normal.entries:
         if entry.kind != 'STAGE':
             continue
         ir = stage(source, entry.source_path)
         normal_directives.update(d.name for d in ir.directives)
         normal_models.update(e.character.casefold() for e in ir.queue if e.character)
+        for e in ir.queue:
+            if e.character:
+                normal_maps.setdefault(e.character.casefold(), set()).add(e.map)
     rows = []
     directives = set()
     for entry, linked in zip(hard.entries, report['entries']):
@@ -41,6 +45,13 @@ def compact_inventory():
                                           for e in ir.queue if e.character))
             row['groups'] = [dict(min=e.group_min, max=e.group_max)
                              for e in ir.queue if e.kind == 'group']
+            row['authored_maps'] = {name: sorted({e.map for e in ir.queue
+                                      if e.character and e.character.casefold() == name})
+                                    for name in row['spawn_identities']}
+            row['authored_health_overrides'] = {name: sorted({e.health for e in ir.queue
+                                      if e.character and e.character.casefold() == name
+                                      and e.health is not None})
+                                    for name in row['spawn_identities']}
             row['environment'] = ir.environment
             row['scroll'] = ir.scroll
         rows.append(row)
@@ -53,6 +64,9 @@ def compact_inventory():
                     load_levelorder_default_ifcomplete_line=1761,
                     preceding_entry_gonext_line=1796,
                     showcomplete_gonext_line=5638, terminal_increment_line=5647),
+                stage_lifecycle_source=dict(file='out/bor_compile_s6/BOR.C',
+                    playlevel_line=5514, entry_kill_all_line=5516,
+                    exit_kill_all_line=5533),
                 sets=[dict(name=s.name, id=s.source_id, ifcomplete=s.ifcomplete) for s in sets],
                 hard_set_id=hard.source_id, entries=rows,
                 totals=dict(entries=len(rows), stages=sum(r['kind'] == 'stage' for r in rows),
@@ -65,6 +79,9 @@ def compact_inventory():
                        source_health=models[name]['entity'].get('health'),
                        spawn_occurrences=counts[name]) for name, b in report['model_bindings'].items()},
                 new_spawn_identities=sorted(counts.keys() - normal_models),
+                new_authored_maps={name: sorted(set().union(*(set(r.get('authored_maps', {}).get(name, ()))
+                                     for r in rows)) - normal_maps.get(name, set()))
+                                    for name in sorted(counts)},
                 new_stage_directives=sorted(directives - normal_directives),
                 stage_directives=sorted(directives),
                 compatibility_limitations=report['native_coverage']['compatibility_limitations'],
