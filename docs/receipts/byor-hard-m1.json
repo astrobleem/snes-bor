@@ -844,7 +844,7 @@
     "queue.item: Enemy-held drops are not represented by this obstacle-only compatibility encoder.",
     "queue.map: Palette selector transport alone does not prove correct visible CGRAM.",
     "queue.spawn: Roster identity is not native AI/action implementation; legacy borrowed-slot cases remain explicit below.",
-    "scene.animation: Scaled/quantized scene encoding is an adaptation; playback, skip cleanup and exactly-once completion are NOT_RUN.",
+    "scene.animation: Scaled/quantized scene encoding remains an adaptation; natural RUGAL/ENDING playback and exactly-once completion are proven for the accepted Hard candidate. Hard scene-skip cleanup was not separately exercised. This is not pixel-perfect/source-exact scene certification.",
     "stage.blocked: Native movement/lifecycle fidelity needs host integration and live evidence; metadata alone is insufficient.",
     "stage.endhole: Pit damage, retirement, actor reuse and player lives need native runtime evidence.",
     "stage.frontpanel: Compiler and main/NMI hooks are checked statically. Native scrolling, layer priority, resource contention, transitions and pixel acceptance remain PENDING_NATIVE.",
