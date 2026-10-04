@@ -936,7 +936,8 @@ def run(args, report):
                         p1_base = 8257536 + symbols['PlayerEntity_DpBase']
                         report['spawn_traversal']['jump_inputs'].append(dict(field=report['frames_sampled'] + 1, requested=int(button), raw=u16(8258588), press=u16(8258576), trigger=u16(8258578), selected=u8(p1_base + symbols['CHAR_SELECTED']), jump_mode=u8(symbols['Player_JumpAnimMode']), jump_fcount=u8(symbols['Player_JumpFCount']), zpos=u16(p1_base + symbols['CHAR_THROW_ZPOS']), zvel=u16(p1_base + symbols['CHAR_THROW_ZVEL']), x=u16(p1_base + symbols['CHAR_POS_X']), y=u8(p1_base + symbols['CHAR_POS_Y'])))
                         report['spawn_traversal']['jump_inputs'] = report['spawn_traversal']['jump_inputs'][-24:]
-                        run_frames_exact(m, step_fields)
+                        if u16(legal.GAME_STATE) != legal.PLAYING:
+                            run_frames_exact(m, 1)
                 else:
                     run_frames_exact(m, step_fields)
             elif button is None:
@@ -1407,7 +1408,12 @@ def run(args, report):
                                                     if not args.trace_player_move:
                                                         p1 = 8257536 + symbols['PlayerEntity_DpBase']
                                                         p1x = s16(p1 + symbols['CHAR_POS_X'])
-                                                        p1y = u8(p1 + symbols['CHAR_POS_Y'])
+                                                        # Canonical worker projection can exceed a byte.
+                                                        # Wrapping 438 to 182 sends prop steering to the
+                                                        # wrong source lane after a long campaign.
+                                                        p1y = (s16(p1 + symbols['CHAR_POS_Y'])
+                                                               if os.environ.get('S8_NORMAL_CANONICAL_P1_CONTROLLER') == '1'
+                                                               else u8(p1 + symbols['CHAR_POS_Y']))
                                                         raw_p1x = p1x
                                                         world_max = u16(symbols['WorldMaxX'])
                                                         if world_max:
@@ -2419,7 +2425,9 @@ def run(args, report):
                                             if not args.trace_player_move:
                                                 p1 = 8257536 + symbols['PlayerEntity_DpBase']
                                                 p1x = s16(p1 + symbols['CHAR_POS_X'])
-                                                p1y = u8(p1 + symbols['CHAR_POS_Y'])
+                                                p1y = (s16(p1 + symbols['CHAR_POS_Y'])
+                                                       if os.environ.get('S8_NORMAL_CANONICAL_P1_CONTROLLER') == '1'
+                                                       else u8(p1 + symbols['CHAR_POS_Y']))
                                                 raw_p1x = p1x
                                                 world_max = u16(symbols['WorldMaxX'])
                                                 if world_max:

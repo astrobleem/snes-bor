@@ -83,7 +83,8 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                     if field % 30 == 0:
                         samples.append(dict(field=field, ticks=u16('S6Game_TickCommit'),
                                             error=u16('S6Host_Error'), actors=actors(),
-                                            visual_error=u8('SourceVisual_Error')))
+                                            visual_error=u8('SourceVisual_Error'),
+                                            obj_status=bytes(h.read_snes_bus_block(m, 0x00213E, 32))[0]))
                 m.release_input()
                 row['combat_samples'] = samples
                 history = {}
@@ -103,6 +104,62 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                 assert all(s.get('error', 0) == 0 for s in samples)
                 if screenshot:
                     import shutil
+                    # Observe a published source packet, after its shared
+                    # stream fence, rather than photographing cold admission.
+                    warm = 0
+                    while warm < 900:
+                        lease = bytes(h.read_block(m, sym['SourceVisual_State'], 192))
+                        if lease[28] == 1:
+                            break
+                        h.run_frames_exact(m, 1)
+                        warm += 1
+                    row['visual_warm_fields'] = warm
+                    row['visual_lease'] = lease.hex()
+                    row['visual_last_error'] = u8('SourceVisual_DebugLastError')
+                    row['oam_cursor'] = int.from_bytes(h.read_block(m, 0x7E53A0, 32)[:2], 'little')
+                    assert lease[28] == 1, 'player source packet never became presentable'
+                    h.run_frames_exact(m, 4)
+                    row['oam_shadow'] = bytes(h.read_block(m, sym['Oam_Buffer'], 544)).hex()
+                    row['emit_debug'] = bytes(h.read_block(m, sym['SourceVisual_DebugEmitPiece'], 64)).hex()
+                    row['palette_cache'] = bytes(h.read_block(m, sym['SourceVisual_PaletteCache'], 64)).hex()
+                    row['cgram'] = bytes(m.read_memory('snesCgram', 0, 512)).hex()
+                    import struct
+                    metadata = json.loads((candidate / 'production-runtime.json').read_text())
+                    catalog_info = metadata['runtime']['source_sized_visual_catalog']
+                    catalog = (candidate / 'bor.msu').read_bytes()[catalog_info['msu_offset']:]
+                    _, entries, pieces, blocks, palettes, sheets, entry_bytes = struct.unpack_from('<6s6H', catalog)
+                    block_table = 18 + entries * entry_bytes + pieces * 16
+                    cache = bytes(h.read_block(m, sym['SourceVisual_BlockCache'], 512))
+                    vram = bytes(m.read_memory('snesVideoRam', 0x8000, 16384))
+                    mismatches = []
+                    checked = 0
+                    for slot in range(64):
+                        block_id, state = struct.unpack_from('<HH', cache, slot * 8)
+                        if state != 2 or not cache[slot * 8 + 4]:
+                            continue
+                        _, size, offset, _ = struct.unpack_from('<32sHII', catalog, block_table + block_id * 42)
+                        tile = (slot // 32) * 256 + (slot % 8) * 2 + ((slot % 32) // 8) * 64
+                        actual = b''.join(vram[tile * 32 + y * 512:tile * 32 + y * 512 + 64] for y in range(4))
+                        checked += 1
+                        if actual != catalog[offset:offset + size]:
+                            mismatches.append(dict(slot=slot, block_id=block_id, size=size))
+                    row['resident_block_check'] = dict(checked=checked, mismatches=mismatches)
+                    assert checked and not mismatches, 'resident source blocks differ from the source catalog'
+                    palette_table = block_table + blocks * 42
+                    palette_cache = bytes.fromhex(row['palette_cache'])
+                    cgram = bytes.fromhex(row['cgram'])
+                    palette_mismatches = []
+                    palette_checked = 0
+                    for slot in range(8):
+                        if not palette_cache[slot * 8 + 4] or not palette_cache[slot * 8 + 3]:
+                            continue
+                        palette_id = struct.unpack_from('<H', palette_cache, slot * 8)[0]
+                        _, size, offset, _ = struct.unpack_from('<32sHII', catalog, palette_table + palette_id * 42)
+                        palette_checked += 1
+                        if cgram[256 + slot * 32:288 + slot * 32] != catalog[offset:offset + size]:
+                            palette_mismatches.append(dict(slot=slot, palette_id=palette_id))
+                    row['resident_palette_check'] = dict(checked=palette_checked, mismatches=palette_mismatches)
+                    assert palette_checked and not palette_mismatches, 'resident OBJ palettes differ from the source catalog'
                     shot = m.take_screenshot()
                     screenshot.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(shot['path'], screenshot)

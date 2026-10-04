@@ -2633,7 +2633,7 @@ if __name__ == "__main__":
                         and worker_type == 1
                         and host_roster != 0
                         and 0 <= worker_x <= 6000
-                        and -512 <= worker_y <= 512
+                        and -4096 <= worker_y <= 4096
                     )
                     was_valid = _canonical_valid_seen[coordinate]
                     source_value = worker_x if coordinate == "x" else worker_y
