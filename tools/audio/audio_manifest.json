@@ -320,7 +320,7 @@
               "semantic_event": "boss-music",
               "requested_source_path": "DATA\\MUSIC\\1BOSS.BOR",
               "resolved_source_path": "DATA\\MUSIC\\1BOSS.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -330,7 +330,7 @@
           "raw_reference_count": 16,
           "engine_global_reference_count": 0,
           "total_reference_count": 16,
-          "shipped_reachable_reference_count": 15,
+          "shipped_reachable_reference_count": 16,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\1BOSS.BOR"
@@ -621,19 +621,20 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\FSOL.BOR",
               "resolved_source_path": "DATA\\MUSIC\\FSOL.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
-          "packed_runtime": null,
+          "packed_runtime": "MSU-1 track 6; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": null,
+          "msu_track_id": 6,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unshipped-source-content"
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "implemented-and-gated",
+          "track_key": "bor-original:DATA\\MUSIC\\FSOL.BOR"
         },
         {
           "family": "bor-original",
@@ -716,9 +717,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 6; music-selection",
+          "packed_runtime": "MSU-1 track 7; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 6,
+          "msu_track_id": 7,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -759,9 +760,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 7; music-selection",
+          "packed_runtime": "MSU-1 track 8; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 7,
+          "msu_track_id": 8,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -821,9 +822,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 8; music-selection",
+          "packed_runtime": "MSU-1 track 9; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 8,
+          "msu_track_id": 9,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -883,9 +884,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 9; music-selection",
+          "packed_runtime": "MSU-1 track 10; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 9,
+          "msu_track_id": 10,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -975,9 +976,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 10; music-selection",
+          "packed_runtime": "MSU-1 track 11; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 10,
+          "msu_track_id": 11,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -1067,9 +1068,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 11; music-selection",
+          "packed_runtime": "MSU-1 track 12; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 11,
+          "msu_track_id": 12,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -1129,9 +1130,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 12; music-selection",
+          "packed_runtime": "MSU-1 track 13; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 12,
+          "msu_track_id": 13,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -1191,9 +1192,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 13; music-selection",
+          "packed_runtime": "MSU-1 track 14; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 13,
+          "msu_track_id": 14,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -1240,17 +1241,18 @@
               "semantic_event": "music-selection",
               "requested_source_path": "DATA\\MUSIC\\TIME.BOR",
               "resolved_source_path": "DATA\\MUSIC\\TIME.BOR",
-              "reachability": "unshipped-source-content"
+              "reachability": "shipped-reachable",
+              "scene_id": "SEWER"
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 14; music-selection",
+          "packed_runtime": "MSU-1 track 15; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 14,
+          "msu_track_id": 15,
           "raw_reference_count": 2,
           "engine_global_reference_count": 0,
           "total_reference_count": 2,
-          "shipped_reachable_reference_count": 1,
+          "shipped_reachable_reference_count": 2,
           "shipped_reachable": true,
           "implementation_classification": "implemented-and-gated",
           "track_key": "bor-original:DATA\\MUSIC\\TIME.BOR"
@@ -1306,9 +1308,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 15; music-selection",
+          "packed_runtime": "MSU-1 track 16; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 15,
+          "msu_track_id": 16,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -1386,8 +1388,8 @@
               "semantic_event": "death",
               "requested_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
               "resolved_source_path": "DATA\\SOUNDS\\ALIEN.WAV",
-              "character_identity": null,
-              "reachability": "unshipped-source-content"
+              "character_identity": "LOBSTER",
+              "reachability": "shipped-reachable"
             }
           ],
           "converter_representation": null,
@@ -1397,9 +1399,9 @@
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
-          "shipped_reachable_reference_count": 0,
-          "shipped_reachable": false,
-          "implementation_classification": "unshipped-source-content"
+          "shipped_reachable_reference_count": 1,
+          "shipped_reachable": true,
+          "implementation_classification": "present-not-implemented"
         },
         {
           "family": "bor-original",
@@ -3006,9 +3008,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 16; boss-music",
+          "packed_runtime": "MSU-1 track 17; boss-music",
           "tad_sfx_id": null,
-          "msu_track_id": 16,
+          "msu_track_id": 17,
           "raw_reference_count": 6,
           "engine_global_reference_count": 0,
           "total_reference_count": 6,
@@ -3158,9 +3160,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 17; music-selection",
+          "packed_runtime": "MSU-1 track 18; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 17,
+          "msu_track_id": 18,
           "raw_reference_count": 3,
           "engine_global_reference_count": 0,
           "total_reference_count": 3,
@@ -3290,9 +3292,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 18; music-selection",
+          "packed_runtime": "MSU-1 track 19; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 18,
+          "msu_track_id": 19,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3402,9 +3404,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 19; boss-music",
+          "packed_runtime": "MSU-1 track 20; boss-music",
           "tad_sfx_id": null,
-          "msu_track_id": 19,
+          "msu_track_id": 20,
           "raw_reference_count": 2,
           "engine_global_reference_count": 0,
           "total_reference_count": 2,
@@ -3534,9 +3536,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 20; music-selection",
+          "packed_runtime": "MSU-1 track 21; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 20,
+          "msu_track_id": 21,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3576,9 +3578,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 21; music-selection",
+          "packed_runtime": "MSU-1 track 22; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 21,
+          "msu_track_id": 22,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3618,9 +3620,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 22; music-selection",
+          "packed_runtime": "MSU-1 track 23; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 22,
+          "msu_track_id": 23,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3660,9 +3662,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 23; music-selection",
+          "packed_runtime": "MSU-1 track 24; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 23,
+          "msu_track_id": 24,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3762,9 +3764,9 @@
             }
           ],
           "converter_representation": null,
-          "packed_runtime": "MSU-1 track 24; music-selection",
+          "packed_runtime": "MSU-1 track 25; music-selection",
           "tad_sfx_id": null,
-          "msu_track_id": 24,
+          "msu_track_id": 25,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,
@@ -3847,7 +3849,7 @@
           "converter_representation": null,
           "packed_runtime": null,
           "tad_sfx_id": null,
-          "msu_track_id": 25,
+          "msu_track_id": 26,
           "raw_reference_count": 1,
           "engine_global_reference_count": 0,
           "total_reference_count": 1,

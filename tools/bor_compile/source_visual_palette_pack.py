@@ -25,7 +25,8 @@ def palette_banks_for_frames(source, frames, *, colors_per_bank=15,
                              anneal_steps=40_000, slot_iterations=12_000,
                              max_frame_pieces=128,
                              collapse_cgram_aliases=False,
-                             palette_per_obj_piece=False):
+                             palette_per_obj_piece=False,
+                             allow_color_set_drift=False):
     """Return a deterministic shared color-index partition for source frames.
 
     The first frame supplies the optimization objective; all frames are
@@ -74,14 +75,15 @@ def palette_banks_for_frames(source, frames, *, colors_per_bank=15,
             bytes(aliases.get(pixel, 0) for pixel in image.getdata()))
                   for image in images]
 
-    visible = sorted({pixel for pixel in images[0].getdata() if pixel})
+    visible = sorted({pixel for image in (images if allow_color_set_drift else images[:1])
+                      for pixel in image.getdata() if pixel})
     banks_required = math.ceil(len(visible) / colors_per_bank)
     if not visible or banks_required > maximum_banks:
         raise ValueError(
             f"SOURCE_PALETTE_BANK_CAPACITY: required={banks_required}, "
             f"available={maximum_banks}"
         )
-    if any({pixel for pixel in image.getdata() if pixel} != set(visible)
+    if not allow_color_set_drift and any({pixel for pixel in image.getdata() if pixel} != set(visible)
            for image in images[1:]):
         raise ValueError("SOURCE_PALETTE_ANIMATION_COLOR_SET_DRIFT")
 
@@ -311,7 +313,7 @@ def palette_banks_for_frames(source, frames, *, colors_per_bank=15,
     return bank_tables, packed_frames, dict(
         solver="deterministic_cooccurrence_swap_v1",
         source_colors=len(visible), palette_count=bank_count,
-        cgram_aliases=len(aliases) - len(visible),
+        cgram_aliases=max(0,len(aliases) - len(visible)),
         palette_piece_cost=max(tile_stats["frame_piece_counts"]),
         **tile_stats,
     )

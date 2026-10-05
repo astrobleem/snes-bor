@@ -2,29 +2,32 @@
 ; Do not edit numeric IDs by hand; regenerate with generate_audio_music_ids.py.
 
 Music_StageTracks:
-    .db 2, 9, 1, 18, 17, 24, 21, 22, 23, 20, 17, 11, 4, 4, 1, 12, 10, 13, 6, 15, 5, 8, 2, 9, 1, 11, 4, 4, 1, 12, 10, 13, 6, 15, 5, 8, 2, 9, 1, 11, 4, 4, 1, 12, 10, 13, 6, 15, 5, 8
+    .db 2, 10, 1, 19, 18, 25, 22, 23, 24, 21, 18, 12, 4, 4, 1, 13, 11, 14, 7, 16, 5, 9, 2, 10, 1, 12, 4, 4, 1, 13, 11, 14, 7, 16, 5, 9, 2, 10, 1, 12, 4, 4, 1, 13, 11, 14, 7, 16, 5, 9, 6
 Music_StageRepeats:
-    .db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    .db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 Music_StageBossTracks:
-    .db 0, 0, 0, 16, 16, 16, 16, 19, 19, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0
+    .db 0, 0, 0, 17, 17, 17, 17, 20, 20, 17, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1
 Music_StageBossRepeats:
-    .db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-Music_EndingTrack = 14
+    .db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+Music_EndingTrack = 15
 Music_EndingRepeat = 1
 Music_CompletionTrack = 3
 Music_CompletionRepeat = 0
-Music_StageTrackCount = 50
+Music_StageTrackCount = 51
 
 Music_SceneTracks:
-    .db 7, 14
+    .db 8, 15, 15
 Music_SceneRepeats:
-    .db 0, 1
+    .db 0, 1, 1
 Music_SceneIds:
-    .dw 1, 2
+    .dw 1, 2, 3
 Music_SceneId_RUGAL = 1
-Music_SceneTrack_RUGAL = 7
+Music_SceneTrack_RUGAL = 8
 Music_SceneRepeat_RUGAL = 0
 Music_SceneId_ENDING = 2
-Music_SceneTrack_ENDING = 14
+Music_SceneTrack_ENDING = 15
 Music_SceneRepeat_ENDING = 1
-Music_SceneTrackCount = 2
+Music_SceneId_SEWER = 3
+Music_SceneTrack_SEWER = 15
+Music_SceneRepeat_SEWER = 1
+Music_SceneTrackCount = 3

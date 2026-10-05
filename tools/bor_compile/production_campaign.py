@@ -18,8 +18,8 @@ def complete_presentation(source, ir):
     return presentation(source, ir), layers
 
 
-def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Hard"),
-                   legacy_stage_ids=None):
+def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Hard", "Bonus"),
+                   legacy_stage_ids=None, media_bindings=None):
     configs = deepcopy(bindings)
     result = deepcopy(campaigns)
     pak = next(c['pak'] for c in configs if c['family'] == 'bor-original')
@@ -27,7 +27,7 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
     ir = project(source)
     by_source = {key(c['source_level']): c for c in configs}
     media = {}
-    for c in configs:
+    for c in (media_bindings or configs):
         if c['family'] != 'bor-original':
             continue
         parsed = stage(source, c['source_level'])
@@ -80,6 +80,8 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
                        scroll_direction=parsed.scroll,
                        source_direction=parsed.scroll,
                        source_mirror=bool(parsed.environment.get('mirror', [0])[-1]))
+            if binding.get('source_media'):
+                cfg['source_media'] = True
             if existing is None:
                 configs.append(cfg)
                 by_source[key(entry.source_path)] = cfg
@@ -92,7 +94,7 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
         if len(levels) < len(pins):
             raise ValueError(f'LEGACY_STAGE_ID_DRIFT: {source_set.name} lost pinned stages')
         campaign_id = {'Easy': 'BOR_ORIGINAL', 'Normal': 'BOR_NORMAL_1A_INTERNAL',
-                       'Hard': 'BOR_HARD'}[source_set.name]
+                       'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set.name]
         result[campaign_id] = dict(family='bor-original', source_levels_file=ir.levels_path,
                                   source_levels=levels, entries=entries,
                                   completion_policy=('accepted-easy-s7' if source_set.name == 'Easy' else 'source-next'),
@@ -110,7 +112,7 @@ def completion_flags(entries, source_set):
     continuation also sets Stage_LoadPending and re-enters the same branch;
     terminal Ending goes directly to HandleEnd without setting pending.
     """
-    if source_set in ('Normal', 'Hard'):
+    if source_set in ('Normal', 'Hard', 'Bonus'):
         return [int(e['next_after']) for e in entries]
     if source_set != 'Easy' or any(e['kind'] not in ('stage', 'scene') for e in entries):
         raise ValueError('UNKNOWN_COMPLETION_POLICY: ' + source_set)
@@ -174,7 +176,7 @@ def compile_queues(configs, roster_configs):
                 path = key(model['source_path'])
                 matches = [i for i, r in enumerate(roster_configs)
                            if r['family'] == cfg['family'] and
-                           cfg.get('source_set_id') in r.get('runtime_binding_sets', (0, 1, 2)) and
+                           cfg.get('source_set_id') in r.get('runtime_binding_sets', (0, 1, 2, 3)) and
                            (key(r['source_character']) == path.rsplit('/', 1)[0]
                             or key(r['source_character']) == path.removesuffix('.txt'))]
                 if len(matches) > 1:
@@ -241,3 +243,11 @@ def materialize_actor_bindings(roster_configs):
         if source_model is None:
             continue
         convert_character(cfg['pak'], source_model, cfg['converted_prefix'])
+
+
+def materialize_stage_bindings(configs):
+    """Convert explicitly admitted new source media with the shared encoder."""
+    from convert_bg import convert_streaming
+    for cfg in configs:
+        if cfg.get('source_media'):
+            convert_streaming(cfg['pak'], cfg['source_level'], cfg['bg'])

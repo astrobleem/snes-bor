@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PAK = ROOT / "Beats of Rage Original [v.3.0 Build 4086].pak"
 CLIPS = ("FALLA", "FALLB", "CONSP", "CREDS", "THANKS")
 CLIP_IDS = {name: index + 2 for index, name in enumerate(CLIPS)}
+CLIP_IDS["SEWER"] = 7
 WIDTH, HEIGHT = 256, 192
 TILEMAP_BYTES, MAX_TILES, BYTES_PER_TILE = 1536, 384, 32
 BORVID_FLAG_PER_FRAME_MS = 1

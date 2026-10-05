@@ -1,6 +1,6 @@
-; Generic live source NONE+WALK adapter. Bank 13; fixture-only activation.
+; Generic live source NONE+WALK adapter. Bank 13; compiler-owned production activation.
 ; Zero model flags delegate to the immutable accepted runtime. Flag 1 means
-; EXPERIMENTAL_NONE_WALK, NOT a source certificate. Unknown flags or missing spawn provenance
+; ACCEPTED_COMPAT_NONE_WALK, NOT a source certificate. Unknown flags or missing spawn provenance
 ; retire the exact actor with a fault; they NEVER fall back to compatibility.
 ;
 ; Fixture patch ABI v1 (ROM labels, never hardcoded file offsets):
@@ -26,10 +26,11 @@
 ; NTSC noninterlace 357368/357364-master-clock frame intervals selected by
 ; live STAT78 parity, with Mesen's 21477270 master-clock rate. Pause does not
 ; accrue simulation time; duplicate committed-frame calls are ignored.
-; The host feed has NOT been runtime validated and does NOT catch up missed
-; commits. Exact cadence is BLOCKED, as is exact source RNG. Capabilities
-; remain PARTIAL; neither this flag nor the primitive's policy selector is
-; a SOURCE_CERT, full Crab certificate or production activation authority.
+; In the source-world runtime, committed canonical source ticks feed drift
+; directly, including missed actor callbacks; pause/scenes park that epoch.
+; The isolated compatibility path retains the field-fed rational primitive.
+; Fixed-point/RNG/scheduler equivalence remains an explicit adaptation, never
+; a SOURCE_EXACT certificate. Compiler metadata authorizes model activation.
 ;
 ; WRAM: per-actor +6..+63 inside the existing 133-byte StageEnv rows;
 ; row+0..5 remains base/alias state. Shared $7E1800..18FF is serialized
@@ -38,16 +39,7 @@
 ; Include the existing Sagan primitive, do not implement a second drift.
 
 ActorBehavior_Start:
-ActorBehavior_ModelFlags:
-    .fill 256, 0
-ActorBehavior_ModelSpeed:
-    .fill 1024, 0
-ActorBehavior_ModelHealth:
-    .fill 512, 0
-ActorBehavior_SpawnCount:
-    .dw 0
-ActorBehavior_SpawnRecords:
-    .fill 256, 0
+.include "../generated/source_noncombat.pasm"
 ActorBehavior_ClockLongNumerator:
     .dw $99C0, $0442 ; 357368 * 200
 ActorBehavior_ClockShortNumerator:
@@ -66,6 +58,11 @@ ActorBehavior_SourceHealth = StageEnv_Actors+60 ; preserved u16 model stat
 ActorBehavior_CompatRoster = StageEnv_Actors+62 ; valid bit $100 + prior ID
 ActorBehavior_Context = $1800
 ActorBehavior_Row = $7E1812
+; Source-world public tick-commit word (actor_s6_world_fixture.pasm ABI).
+; It advances at the production 200Hz clock and parks during pause/scenes.
+ActorBehavior_SourceEpoch = $7E1774
+ActorBehavior_SourceDebt = $7E1834
+ActorBehavior_CanonicalClock = $7E1836
 
 ; A8/I16. The only two bank-0 life gates use these, preserving their
 ; different player/static exemptions. Return A8/Z, preserve X/Y/D/DBR.
@@ -514,9 +511,17 @@ ActorBehavior_Bind__find:
     ldx $12
     lda #1
     sta.l ActorBehavior_Samples,x
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne ActorBehavior_Bind__compat_clock
+    lda.l ActorBehavior_SourceEpoch
+    bra ActorBehavior_Bind__clock_epoch
+ActorBehavior_Bind__compat_clock:
     lda.l Nmi_FrameCounter
-    ; Spawn's first actor pass may share this frame: allow it one tick batch.
+    ; Legacy isolated adapter permits the first actor pass one tick batch.
     dec a
+ActorBehavior_Bind__clock_epoch:
     sta.l ActorBehavior_LastFrame,x
     jsr ActorBehavior_Save
     brl ActorBehavior_Return
@@ -608,7 +613,24 @@ ActorBehavior_Think:
 ActorBehavior_Think__live:
     .a16
 .i16
+    lda #0
+    sta.l ActorBehavior_CanonicalClock
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne ActorBehavior_Think__compat_clock
+    lda #1
+    sta.l ActorBehavior_CanonicalClock
+    lda.l ActorBehavior_SourceEpoch
+    bra ActorBehavior_Think__clock_epoch
+ActorBehavior_Think__compat_clock:
     lda.l Nmi_FrameCounter
+ActorBehavior_Think__clock_epoch:
+    pha
+    sec
+    sbc.l ActorBehavior_LastFrame,x
+    sta.l ActorBehavior_SourceDebt
+    pla
     cmp.l ActorBehavior_LastFrame,x
     bne ActorBehavior_Think__new_frame
     brl ActorBehavior_Return
@@ -655,6 +677,22 @@ ActorBehavior_Think__load:
     sta $A8
     lda $22
     sta $AA
+    lda.l ActorBehavior_CanonicalClock
+    beq ActorBehavior_Think__rational_clock
+    ; Catch up every committed source tick, independent of presentation and
+    ; per-object callback frequency. No host/worker context transfer occurs.
+ActorBehavior_Think__source_tick:
+    lda.l ActorBehavior_SourceDebt
+    beq ActorBehavior_Think__project
+    dec a
+    sta.l ActorBehavior_SourceDebt
+    inc $0C
+    bne ActorBehavior_Think__source_callback
+    inc $0E
+ActorBehavior_Think__source_callback:
+    jsl S5_HostSourceTick
+    bra ActorBehavior_Think__source_tick
+ActorBehavior_Think__rational_clock:
     lda.l ActorBehavior_ClockDenominator
     sta $08
     lda.l StageEnv_DataBank+ActorBehavior_ClockDenominator+2
