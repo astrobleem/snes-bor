@@ -835,3 +835,25 @@ Two variable ownership tests and two source-dispatch tests pass. The ROM audit
 passes with zero new width violations, and all 17 protected files are unchanged.
 The inherited static concurrent recovery failure remains open. Receipt:
 `byor-motu-script-variables-native.json`. No color reduction is applied.
+
+### Installed animation-local lifecycle
+
+The bank-28 frame gateway now accepts an opt-in owner BEGIN/END protocol.
+BEGIN validates the caller and animation instance, preflights capacity for
+all four installed names before changing the namespace, and installs the
+original self/frame/animnum/animhandle snapshots. Both model programs can share
+that boundary. END requires a terminal interpreter and the same original
+snapshot; it empties only the four installed values, retains their names and
+other persistent variables, and expires the source context. Busy/reentrant,
+wrong-scope, stale-snapshot and insufficient-capacity requests fail explicitly.
+Cold boot disables the protocol. Live world traversal remains unbound.
+
+Eleven native lifecycle cases and the twelve-case variable-store regression
+pass. Complete namespace bytes, caller-context lifetime and consumed requests
+are checked. The first attempt exposed incorrect literal/heap discrimination
+after adding internal ROM names; that bug is corrected and its failed attempt
+is retained. Three source ownership/lifecycle tests and the full ROM audit pass.
+All 17 protected files remain unchanged; bank 0 still has two bytes free.
+Concurrent static recovery remains FAIL in the fresh bounded smoke, with queue,
+cache and CPU diagnostics retained. Receipt:
+`byor-motu-callback-lifecycle-native.json`. No color reduction is applied.

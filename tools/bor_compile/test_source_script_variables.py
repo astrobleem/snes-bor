@@ -4,6 +4,19 @@ from source_script_variables import Instances,pack_record,validate_pool,descript
 
 
 class ScriptVariableOwnership(unittest.TestCase):
+    def test_installed_local_lifetime_spans_both_model_callbacks(self):
+        instances=Instances();owner=0x414050
+        current=instances.begin_animation(owner,4,44,36)
+        current.set('Loop',struct.pack('<BBHI',1,0,0,42))
+        current.set('frame',struct.pack('<BBHI',1,0,0,99))
+        default=instances.for_script(owner)
+        self.assertEqual(default.get('frame'),struct.pack('<BBHI',1,0,0,99))
+        instances.end_animation(owner)
+        for name in ['self','frame','animnum','animhandle']:self.assertEqual(default.get(name),bytes(8))
+        self.assertEqual(default.get('Loop'),struct.pack('<BBHI',1,0,0,42))
+        next_callback=instances.begin_animation(owner,5,44,36)
+        self.assertEqual(next_callback.get('frame'),struct.pack('<BBHI',1,0,0,5))
+        self.assertEqual(next_callback.get('Loop'),struct.pack('<BBHI',1,0,0,42))
     def test_entity_instance_and_callback_model_switch(self):
         instances=Instances();current=instances.for_script(1);default=instances.for_script(1)
         value=struct.pack('<BBHI',1,0,0,3)

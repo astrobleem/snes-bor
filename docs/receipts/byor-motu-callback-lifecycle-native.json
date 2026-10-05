@@ -1,0 +1,340 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_LIFECYCLE_V1",
+  "status": "PASS",
+  "rom_sha256": "3b81c5af1b6c7ddd6d67bb00c095b2628f668949d3887f0051516a2dbfc5ab0a",
+  "cases": [
+    {
+      "case": "begin",
+      "source": "void main(){void self=getlocalvar(\"self\");void frame=getlocalvar(\"frame\");void animnum=getlocalvar(\"animnum\");void handle=getlocalvar(\"animhandle\");setlocalvar(\"Loop\",42);}",
+      "status": 4,
+      "error": 0,
+      "fields": 2,
+      "checks": [
+        {
+          "local": "self",
+          "actual_hex": "05000000debc6a00",
+          "expected_hex": "05000000debc6a00"
+        },
+        {
+          "local": "frame",
+          "actual_hex": "0100000004000000",
+          "expected_hex": "0100000004000000"
+        },
+        {
+          "local": "animnum",
+          "actual_hex": "010000002c000000",
+          "expected_hex": "010000002c000000"
+        },
+        {
+          "local": "handle",
+          "actual_hex": "0100000024000000",
+          "expected_hex": "0100000024000000"
+        }
+      ],
+      "pool_sha256": "2e7086d025dcdafab0b8193633f2ef4b8d643441404fab618589749f1f53d3ad",
+      "expected_pool_sha256": "2e7086d025dcdafab0b8193633f2ef4b8d643441404fab618589749f1f53d3ad",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22946617
+      }
+    },
+    {
+      "case": "default_model_continuation",
+      "source": "void main(){void loop=getlocalvar(\"Loop\");setlocalvar(\"frame\",99);setlocalvar(\"self\",NULL());void frame=getlocalvar(\"frame\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "local": "loop",
+          "actual_hex": "010000002a000000",
+          "expected_hex": "010000002a000000"
+        },
+        {
+          "local": "frame",
+          "actual_hex": "0100000063000000",
+          "expected_hex": "0100000063000000"
+        }
+      ],
+      "pool_sha256": "9af6d79974a3459dc42abe4be1728ab0d097ffc317ee1e1549d3e44328baf64e",
+      "expected_pool_sha256": "9af6d79974a3459dc42abe4be1728ab0d097ffc317ee1e1549d3e44328baf64e",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23571128
+      }
+    },
+    {
+      "case": "end",
+      "source": "void main(){}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "632ec08f526fa3336046be4cdcb9aa75765489be2e380863d6c991346fea2a93",
+      "expected_pool_sha256": "632ec08f526fa3336046be4cdcb9aa75765489be2e380863d6c991346fea2a93",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24276973
+      }
+    },
+    {
+      "case": "next_begin",
+      "source": "void main(){void frame=getlocalvar(\"frame\");void loop=getlocalvar(\"Loop\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "local": "frame",
+          "actual_hex": "0100000004000000",
+          "expected_hex": "0100000004000000"
+        },
+        {
+          "local": "loop",
+          "actual_hex": "010000002a000000",
+          "expected_hex": "010000002a000000"
+        }
+      ],
+      "pool_sha256": "2e7086d025dcdafab0b8193633f2ef4b8d643441404fab618589749f1f53d3ad",
+      "expected_pool_sha256": "2e7086d025dcdafab0b8193633f2ef4b8d643441404fab618589749f1f53d3ad",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24448788
+      }
+    },
+    {
+      "case": "full_pool_preflight",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24805302
+      }
+    },
+    {
+      "case": "duplicate_begin",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25290042
+      }
+    },
+    {
+      "case": "end_without_begin",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25708205
+      }
+    },
+    {
+      "case": "busy_begin",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25792551
+      }
+    },
+    {
+      "case": "missing_context",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26292661
+      }
+    },
+    {
+      "case": "wrong_scope",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26716417
+      }
+    },
+    {
+      "case": "mismatched_end_snapshot",
+      "source": "void main(){}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 27225242
+      }
+    }
+  ],
+  "authority": "af23dc9 openborscript.c Varlist_*, Script_Copy(localclear=0), system_*localvar; List.c strcmp",
+  "namespace": "entity animation script instance; installed locals span current/default callbacks and are emptied after both",
+  "production_callback_owner_bound": false,
+  "live_callback_owner_bound": false,
+  "stored_string_values_bound": false,
+  "indexed_variables_bound": false,
+  "motu_gameplay_proven": false,
+  "native_fixture_report": "out/byor-motu-script-callback-lifecycle-native-fixed/report.json",
+  "variable_regression_report": "out/byor-motu-script-instance-vars-lifecycle-regression/report.json",
+  "rom_audit": "out/byor-motu-callback-lifecycle-audit.log: ALL CHECKS PASS",
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction_applied": true,
+  "first_attempt": "Internal ROM-name mode incorrectly routed source literal keys into heap; corrected mode discrimination; failed attempt retained",
+  "owner_protocol": "B4A5 ready; explicit BEGIN/END requests consumed by the bank-28 frame gateway; B4A6 active across both model programs",
+  "inherited_static_concurrent_recovery": "FAIL remains open"
+}

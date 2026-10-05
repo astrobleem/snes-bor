@@ -597,6 +597,9 @@ Vm_SourceVarsKeyByte:
     adc.l VmNativeVariant_KeyBase
     tax
     lda.l VmNativeVariant_KeyPool
+    cmp #2                         ; internal ROM names, never source arguments
+    beq Vm_SourceVarsKeyByte__internal
+    cmp #0
     bne Vm_SourceVarsBranch_52
     jmp Vm_SourceVarsKeyByte__literal
 Vm_SourceVarsBranch_52:
@@ -608,6 +611,11 @@ Vm_SourceVarsKeyByte__literal:
 .a16
 .i16
     lda.l VmCode_Wram,x
+    bra Vm_SourceVarsKeyByte__return
+Vm_SourceVarsKeyByte__internal:
+.a16
+.i16
+    lda.l Vm_SourceCallbackNames,x
 Vm_SourceVarsKeyByte__return:
 .a16
 .i16

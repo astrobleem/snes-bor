@@ -80,3 +80,13 @@ class Instances:
     def __init__(self):self.instances={}
     def for_script(self,entity_token,script_kind='animation'):
         return self.instances.setdefault((entity_token,script_kind),VariantList())
+    def begin_animation(self,entity_token,frame,animnum,animhandle):
+        variables=self.for_script(entity_token)
+        def variant(tag,value):return struct.pack('<BBHI',tag,0,0,value&0xffffffff)
+        for name,value in [('self',variant(5,entity_token)),('frame',variant(1,frame)),
+                           ('animnum',variant(1,animnum)),('animhandle',variant(1,animhandle))]:
+            variables.set(name,value)
+        return variables
+    def end_animation(self,entity_token):
+        variables=self.for_script(entity_token)
+        for name in ['self','frame','animnum','animhandle']:variables.set(name,bytes(8))

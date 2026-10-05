@@ -104,6 +104,15 @@ end,emu.eventType.endFrame)
         # $27 is also used for owned DMA/staging deferrals and is sticky.
         # Judge it by publication witnesses below, never by suppressing the byte.
         reporter.check('first stage remains PLAYING', startup.u16(m, startup.STATE) == startup.PLAYING)
+        diagnostics = dict(cpu=m.get_cpu_state(),
+            dma_queue_hex=read_block(m,0x7e0480,64).hex(),
+            dma_controls_hex=read_block(m,0x7e0470,32).hex(),
+            source_queue_hex=read_block(m,0x7e45d0,64).hex(),
+            source_state_hex=read_block(m,0x7e4b50,128).hex(),
+            source_calls_hex=read_block(m,0x7e4580,64).hex(),
+            source_block_cache_hex=read_block(m,0x7e4c00,512).hex(),
+            source_palette_cache_hex=read_block(m,0x7e4fa0,64).hex(),
+            source_piece_table_hex=read_block(m,0x7e4000,1040).hex())
         shot = m.tool('take_screenshot', {'format':'path'})
     shutil.copyfile(shot['path'], a.output/'screenshot.png')
     log = (a.output/'mesen.log').read_text(encoding='utf-8', errors='replace')
@@ -119,6 +128,7 @@ end,emu.eventType.endFrame)
     result = dict(rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),
         checks=reporter.results, campaign_state=campaign, source_visual_error=error, bus_samples=samples,
         source_visual_observer=visual,source_busy_deferrals_recovered=recovered,
+        final_diagnostics=diagnostics,
         player_visual_lease_hex=lease.hex(),actor_visual_leases_hex=leases.hex(),additional_admission_fields=extra,
         scope='Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.',
         no_pcm_copies=True)

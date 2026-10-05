@@ -28,6 +28,12 @@ Vm_SourceFrameGate:
     rep #$31
     phx
     phy
+    jsr Vm_SourceCallbackPoll
+    bcc Vm_SourceFrameGate__callback_ok
+    jmp Vm_SourceFrameGate__fault
+Vm_SourceFrameGate__callback_ok:
+.a16
+.i16
     lda.l VmSourceFrame_Pending
     cmp #$B4FC
     beq Vm_SourceFrameGate__job
