@@ -4,7 +4,7 @@ from pathlib import Path
 from compiler import Source
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
-from script_vm_reference import Machine,Value,integer
+from script_vm_reference import Machine,Value,integer,unary
 
 
 class ScriptBytecodeTests(unittest.TestCase):
@@ -13,6 +13,16 @@ class ScriptBytecodeTests(unittest.TestCase):
     def test_declared_int_does_not_truncate_variant_decimal(self):
         lib=self.compile('void f(){int x=1.5;return x;}')
         self.assertEqual(Machine(lib,{}).call('f'),Value('DECIMAL',1.5))
+
+    def test_4086_decimal_negation_union_fallthrough(self):
+        lib=self.compile('void f(){return -0.3;}')
+        result=Machine(lib,{}).call('f')
+        self.assertEqual(struct.pack('<d',result.data).hex(),'cdcccccc3333d3bf')
+        self.assertNotEqual(result.data,-0.3)
+        self.assertEqual(unary('NEG',Value('STRING','x')),Value('STRING','x'))
+        self.assertEqual(unary('POS',Value('POINTER',7)),Value('POINTER',7))
+        with self.assertRaisesRegex(ValueError,'SIGNED_OVERFLOW_UNPROVEN'):
+            unary('NEG',Value('DECIMAL',struct.unpack('<d',bytes.fromhex('000000800000f03f'))[0]))
 
     def test_engine_integer_division_and_empty_zero_result(self):
         lib=self.compile('void f(int x,int y){return x/y;}')

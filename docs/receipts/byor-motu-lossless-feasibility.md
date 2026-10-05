@@ -378,3 +378,24 @@ Receipt: `byor-motu-component-animation-native.json`. Artifact root:
 not original source cadence, an online SCREEN compositor, moving backgrounds,
 two-player concurrency, subsequent cache refill or production integration.
 No color reduction is applied.
+
+### Native script module lowering
+
+All seven source-derived animation programs lower to the existing slot VM,
+with explicit `ACCEPTED_COMPAT_Q16_16` policy and generic name/arity API IDs.
+The modules total 37,002 bytes; individually they range from 680 to 15,772
+bytes and fit the 32 KiB module bound. Shared loading and actor attachment
+remain unimplemented. Native APIs retain full arguments and source strings,
+without selecting the earlier fixed-player fixture hooks.
+
+A bounded Mesen probe on the unchanged original-BOR ROM executes the lowered
+branch/call/parameter/return instructions: independent source calculations
+produce 9, 7 and 97, matched natively with no fault and both guards intact.
+This admits lowering only; MOTU engine APIs and gameplay remain unproven.
+Fifteen focused host tests pass. Receipt: `byor-motu-script-native-lowering.json`.
+
+Build 4086 decimal NEG falls through from DOUBLE sign negation to LONG
+low-word negation in its union; unary POS does nothing for every variant.
+The binary64 host reference now retains those behaviors, with signed overflow
+refused. The native Q16 arithmetic remains an explicit adaptation and is
+not called numeric source equivalence. No color reduction is applied.

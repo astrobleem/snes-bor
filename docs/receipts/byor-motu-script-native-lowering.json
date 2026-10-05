@@ -1,0 +1,1307 @@
+{
+  "schema": "BYOR_SCRIPT_NATIVE_LOWERING_RECEIPT_V1",
+  "status": "NATIVE_CALL_BRANCH_LOWERING_PASS",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "models": [
+    {
+      "model": "He_Man",
+      "bytes": 6209,
+      "sha256": "d548528a28174d82012b2c8493014bcf6d70e1baf4be9f84bd4ee19aeb5f30b1",
+      "instructions": 461,
+      "slots": 132,
+      "callsites": 63,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "dasher": {
+          "Vx": 46,
+          "Vy": 47,
+          "Vz": 48,
+          "self": 49,
+          "dir": 50
+        },
+        "leaper": {
+          "Vx": 51,
+          "Vy": 52,
+          "Vz": 53,
+          "self": 54,
+          "dir": 55
+        },
+        "keyint": {
+          "Ani": 56,
+          "Frame": 57,
+          "Key": 58,
+          "Hflag": 59,
+          "self": 60,
+          "Health": 61,
+          "iPIndex": 62,
+          "iRKey": 63
+        },
+        "keyflip": {
+          "Inv": 64,
+          "self": 65,
+          "iPIndex": 66
+        },
+        "flip": {
+          "self": 67,
+          "Direction": 68
+        },
+        "block": {
+          "Flag": 69,
+          "self": 70
+        },
+        "spawn01": {
+          "vName": 71,
+          "fX": 72,
+          "fY": 73,
+          "fZ": 74,
+          "self": 75,
+          "vSpawn": 76,
+          "iDirection": 77
+        },
+        "shooter": {
+          "Shot": 78,
+          "dx": 79,
+          "dy": 80,
+          "dz": 81,
+          "Vx": 82,
+          "Vy": 83,
+          "Vz": 84,
+          "self": 85,
+          "Dir": 86,
+          "x": 87,
+          "y": 88,
+          "z": 89,
+          "vShot": 90
+        },
+        "main": {
+          "frame": 91,
+          "animhandle": 92
+        }
+      },
+      "function_stack_slots": {
+        "dasher": [
+          93,
+          94,
+          95,
+          96,
+          97
+        ],
+        "leaper": [
+          98,
+          99,
+          100,
+          101
+        ],
+        "keyint": [
+          102,
+          103,
+          104
+        ],
+        "keyflip": [
+          105,
+          106,
+          107
+        ],
+        "flip": [
+          108,
+          109,
+          110
+        ],
+        "block": [
+          111,
+          112,
+          113,
+          114
+        ],
+        "spawn01": [
+          115,
+          116,
+          117,
+          118,
+          119
+        ],
+        "shooter": [
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "main": [
+          128,
+          129,
+          130,
+          131
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 514,
+          "name": "changeentityproperty",
+          "arity": 4,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 518,
+          "name": "clearspawnentry",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 523,
+          "name": "openborconstant",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 525,
+          "name": "playerkeys",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 526,
+          "name": "projectile",
+          "arity": 8,
+          "bound": false
+        },
+        {
+          "id": 529,
+          "name": "setspawnentry",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 530,
+          "name": "spawn",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 531,
+          "name": "tossentity",
+          "arity": 4,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "He_ManB",
+      "bytes": 6672,
+      "sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4",
+      "instructions": 499,
+      "slots": 142,
+      "callsites": 66,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [
+        {
+          "source_bits": "000000000000f83f",
+          "source": 1.5,
+          "adapted": 1.5,
+          "error": 0.0
+        }
+      ],
+      "function_local_slots": {
+        "dasher": {
+          "Vx": 53,
+          "Vy": 54,
+          "Vz": 55,
+          "self": 56,
+          "dir": 57
+        },
+        "leaper": {
+          "Vx": 58,
+          "Vy": 59,
+          "Vz": 60,
+          "self": 61,
+          "dir": 62
+        },
+        "keyint": {
+          "Ani": 63,
+          "Frame": 64,
+          "Key": 65,
+          "Hflag": 66,
+          "self": 67,
+          "Health": 68,
+          "iPIndex": 69,
+          "iRKey": 70
+        },
+        "keyflip": {
+          "Inv": 71,
+          "self": 72,
+          "iPIndex": 73
+        },
+        "flip": {
+          "self": 74,
+          "Direction": 75
+        },
+        "block": {
+          "Flag": 76,
+          "self": 77
+        },
+        "spawn01": {
+          "vName": 78,
+          "fX": 79,
+          "fY": 80,
+          "fZ": 81,
+          "self": 82,
+          "vSpawn": 83,
+          "iDirection": 84
+        },
+        "shooter": {
+          "Shot": 85,
+          "dx": 86,
+          "dy": 87,
+          "dz": 88,
+          "Vx": 89,
+          "Vy": 90,
+          "Vz": 91,
+          "self": 92,
+          "Dir": 93,
+          "x": 94,
+          "y": 95,
+          "z": 96,
+          "vShot": 97
+        },
+        "main": {
+          "frame": 98,
+          "animhandle": 99
+        }
+      },
+      "function_stack_slots": {
+        "dasher": [
+          100,
+          101,
+          102,
+          103,
+          104
+        ],
+        "leaper": [
+          105,
+          106,
+          107,
+          108
+        ],
+        "keyint": [
+          109,
+          110,
+          111
+        ],
+        "keyflip": [
+          112,
+          113,
+          114
+        ],
+        "flip": [
+          115,
+          116,
+          117
+        ],
+        "block": [
+          118,
+          119,
+          120,
+          121
+        ],
+        "spawn01": [
+          122,
+          123,
+          124,
+          125,
+          126
+        ],
+        "shooter": [
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134
+        ],
+        "main": [
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 514,
+          "name": "changeentityproperty",
+          "arity": 4,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 518,
+          "name": "clearspawnentry",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 523,
+          "name": "openborconstant",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 525,
+          "name": "playerkeys",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 526,
+          "name": "projectile",
+          "arity": 8,
+          "bound": false
+        },
+        {
+          "id": 529,
+          "name": "setspawnentry",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 530,
+          "name": "spawn",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 531,
+          "name": "tossentity",
+          "arity": 4,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "Skeletor",
+      "bytes": 15772,
+      "sha256": "0b6ea8128dec7900a7f9fd0b44fcbf50e2276fa60f04fd47a77de079eca748c0",
+      "instructions": 1319,
+      "slots": 240,
+      "callsites": 170,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [
+        {
+          "source_bits": "000000000000f83f",
+          "source": 1.5,
+          "adapted": 1.5,
+          "error": 0.0
+        },
+        {
+          "source_bits": "000000000000e83f",
+          "source": 0.75,
+          "adapted": 0.75,
+          "error": 0.0
+        }
+      ],
+      "function_local_slots": {
+        "dasher": {
+          "Vx": 83,
+          "Vy": 84,
+          "Vz": 85,
+          "self": 86,
+          "dir": 87
+        },
+        "clearL": {},
+        "looper": {
+          "Frame": 88,
+          "Limit": 89,
+          "self": 90,
+          "loop": 91
+        },
+        "shoot": {
+          "Shot": 92,
+          "dx": 93,
+          "dy": 94,
+          "dz": 95,
+          "self": 96,
+          "Direction": 97,
+          "x": 98,
+          "y": 99,
+          "z": 100,
+          "vShot": 101
+        },
+        "shooter": {
+          "Shot": 102,
+          "dx": 103,
+          "dy": 104,
+          "dz": 105,
+          "Vx": 106,
+          "Vy": 107,
+          "Vz": 108,
+          "vShot": 109
+        },
+        "spawn01": {
+          "vName": 110,
+          "fX": 111,
+          "fY": 112,
+          "fZ": 113,
+          "self": 114,
+          "vSpawn": 115,
+          "iDirection": 116
+        },
+        "target": {
+          "Velx": 117,
+          "Velz": 118,
+          "dx": 119,
+          "dz": 120,
+          "Stop": 121,
+          "self": 122,
+          "dir": 123,
+          "x": 124,
+          "z": 125,
+          "target": 126,
+          "Tx": 127,
+          "Tz": 128,
+          "Disx": 129,
+          "Disz": 130
+        },
+        "shootT": {
+          "Shot": 131,
+          "dx": 132,
+          "dy": 133,
+          "dz": 134,
+          "self": 135,
+          "Direction": 136,
+          "x": 137,
+          "y": 138,
+          "z": 139,
+          "Vx": 140,
+          "Vz": 141,
+          "vShot": 142
+        },
+        "attack1": {
+          "RxMin": 143,
+          "RxMax": 144,
+          "Rz": 145,
+          "Ani": 146,
+          "self": 147,
+          "target": 148,
+          "x": 149,
+          "z": 150,
+          "dir": 151,
+          "Tx": 152,
+          "Tz": 153,
+          "Disx": 154,
+          "Disz": 155
+        },
+        "attackF": {
+          "Ani": 156,
+          "self": 157,
+          "target": 158,
+          "PAni": 159
+        },
+        "teledodgez": {
+          "dx": 160,
+          "dy": 161,
+          "dz": 162,
+          "self": 163,
+          "x": 164,
+          "z": 165,
+          "a": 166,
+          "dir": 167,
+          "H": 168,
+          "FZ": 169
+        },
+        "main": {
+          "frame": 170,
+          "animhandle": 171,
+          "self": 181,
+          "MHealth": 182,
+          "Health": 183,
+          "r": 184
+        }
+      },
+      "function_stack_slots": {
+        "dasher": [
+          185,
+          186,
+          187,
+          188,
+          189
+        ],
+        "clearL": [
+          190
+        ],
+        "looper": [
+          191,
+          192,
+          193
+        ],
+        "shoot": [
+          194,
+          195,
+          196,
+          197,
+          198,
+          199,
+          200,
+          201
+        ],
+        "shooter": [
+          202,
+          203,
+          204,
+          205,
+          206
+        ],
+        "spawn01": [
+          207,
+          208,
+          209,
+          210,
+          211
+        ],
+        "target": [
+          212,
+          213,
+          214,
+          215
+        ],
+        "shootT": [
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          222,
+          223
+        ],
+        "attack1": [
+          224,
+          225,
+          226
+        ],
+        "attackF": [
+          227,
+          228
+        ],
+        "teledodgez": [
+          229,
+          230,
+          231,
+          232,
+          233,
+          234
+        ],
+        "main": [
+          235,
+          236,
+          237,
+          238,
+          239
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 514,
+          "name": "changeentityproperty",
+          "arity": 4,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 516,
+          "name": "checkwall",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 517,
+          "name": "clearlocalvar",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 518,
+          "name": "clearspawnentry",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 519,
+          "name": "findtarget",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 523,
+          "name": "openborconstant",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 524,
+          "name": "performattack",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 526,
+          "name": "projectile",
+          "arity": 8,
+          "bound": false
+        },
+        {
+          "id": 527,
+          "name": "rand",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 528,
+          "name": "setlocalvar",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 529,
+          "name": "setspawnentry",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 530,
+          "name": "spawn",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 532,
+          "name": "updateframe",
+          "arity": 2,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "SkGeyser",
+      "bytes": 680,
+      "sha256": "8aae7bcbc41dcfd7812101d8357c1eb75dcf1c66f8a04ecd293d0416f9971b0a",
+      "instructions": 38,
+      "slots": 16,
+      "callsites": 7,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "main": {
+          "frame": 9,
+          "animhandle": 10,
+          "self": 11,
+          "z": 12
+        }
+      },
+      "function_stack_slots": {
+        "main": [
+          13,
+          14,
+          15
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 522,
+          "name": "killentity",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 523,
+          "name": "openborconstant",
+          "arity": 1,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "SkGeyserT",
+      "bytes": 1299,
+      "sha256": "8a15074b5cb3d2ca19862c55e58a6949a96beb19c4623336463cbd168396bcd6",
+      "instructions": 84,
+      "slots": 30,
+      "callsites": 15,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "teletarget": {
+          "dx": 12,
+          "dy": 13,
+          "dz": 14,
+          "self": 15,
+          "dir": 16,
+          "target": 17,
+          "Tx": 18,
+          "Tz": 19
+        },
+        "main": {
+          "frame": 20,
+          "animhandle": 21
+        }
+      },
+      "function_stack_slots": {
+        "teletarget": [
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "main": [
+          27,
+          28,
+          29
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 519,
+          "name": "findtarget",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 528,
+          "name": "setlocalvar",
+          "arity": 2,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "SkTorn",
+      "bytes": 3481,
+      "sha256": "1ad5ed2158da382d22657cba081a8956f4c37c716bc4ea779bf46c4d75283761",
+      "instructions": 289,
+      "slots": 48,
+      "callsites": 40,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [
+        {
+          "source_bits": "333333333333d33f",
+          "source": 0.3,
+          "adapted": 0.3000030517578125,
+          "error": 3.0517578125111022e-06
+        },
+        {
+          "source_bits": "333333333333c33f",
+          "source": 0.15,
+          "adapted": 0.149993896484375,
+          "error": -6.103515624994449e-06
+        }
+      ],
+      "function_local_slots": {
+        "target": {
+          "Velx": 16,
+          "Velz": 17,
+          "dx": 18,
+          "dz": 19,
+          "Stop": 20,
+          "self": 21,
+          "dir": 22,
+          "x": 23,
+          "z": 24,
+          "target": 25,
+          "Tx": 26,
+          "Tz": 27,
+          "Disx": 28,
+          "Disz": 29
+        },
+        "dash": {
+          "self": 30,
+          "Vx": 31,
+          "Vz": 32
+        },
+        "main": {
+          "frame": 33,
+          "animhandle": 34
+        }
+      },
+      "function_stack_slots": {
+        "target": [
+          35,
+          36,
+          37,
+          38
+        ],
+        "dash": [
+          39,
+          40,
+          41,
+          42
+        ],
+        "main": [
+          43,
+          44,
+          45,
+          46,
+          47
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 514,
+          "name": "changeentityproperty",
+          "arity": 4,
+          "bound": false
+        },
+        {
+          "id": 519,
+          "name": "findtarget",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 528,
+          "name": "setlocalvar",
+          "arity": 2,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    {
+      "model": "Knightbot",
+      "bytes": 2889,
+      "sha256": "0015ae31f4bf57d28a034364a6f4ce2eaab7f0416088713cf04aaa0742a4b341",
+      "instructions": 200,
+      "slots": 85,
+      "callsites": 25,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "dasher": {
+          "Vx": 16,
+          "Vy": 17,
+          "Vz": 18,
+          "self": 19,
+          "dir": 20
+        },
+        "flip": {
+          "self": 21,
+          "Direction": 22
+        },
+        "shoot": {
+          "Shot": 23,
+          "dx": 24,
+          "dy": 25,
+          "dz": 26,
+          "self": 27,
+          "Direction": 28,
+          "x": 29,
+          "y": 30,
+          "z": 31,
+          "vShot": 32
+        },
+        "shooter": {
+          "Shot": 33,
+          "dx": 34,
+          "dy": 35,
+          "dz": 36,
+          "Vx": 37,
+          "Vy": 38,
+          "Vz": 39,
+          "vShot": 40
+        },
+        "toss": {
+          "Bomb": 41,
+          "dx": 42,
+          "dy": 43,
+          "dz": 44,
+          "self": 45,
+          "Direction": 46,
+          "x": 47,
+          "y": 48,
+          "z": 49
+        },
+        "main": {
+          "frame": 50,
+          "animhandle": 51
+        }
+      },
+      "function_stack_slots": {
+        "dasher": [
+          52,
+          53,
+          54,
+          55,
+          56
+        ],
+        "flip": [
+          57,
+          58,
+          59
+        ],
+        "shoot": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67
+        ],
+        "shooter": [
+          68,
+          69,
+          70,
+          71,
+          72
+        ],
+        "toss": [
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80
+        ],
+        "main": [
+          81,
+          82,
+          83,
+          84
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 526,
+          "name": "projectile",
+          "arity": 8,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    }
+  ],
+  "native_probe": {
+    "schema": "BYOR_NATIVE_SCRIPT_LOWERING_PROOF_V1",
+    "status": "PASS",
+    "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a",
+    "source": "int f(int x){if(x<3)return x+7;return x-1;} void main(){int a=f(2);int b=f(8);return a*10+b;}",
+    "module": {
+      "bytes": 424,
+      "sha256": "7f3edc6767e69a283324eba86f37a887e6f28a5a8b1e4f6be1f2168131b74cdb",
+      "instructions": 27,
+      "slots": 14,
+      "callsites": 2,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "f": {
+          "x": 7
+        },
+        "main": {
+          "a": 8,
+          "b": 9
+        }
+      },
+      "function_stack_slots": {
+        "f": [
+          10,
+          11
+        ],
+        "main": [
+          12,
+          13
+        ]
+      },
+      "engine_api_requirements": [],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "samples": [
+      {
+        "field": 1,
+        "status": 1,
+        "error": 0
+      },
+      {
+        "field": 2,
+        "status": 1,
+        "error": 0
+      },
+      {
+        "field": 3,
+        "status": 4,
+        "error": 0
+      }
+    ],
+    "checks": [
+      {
+        "name": "a",
+        "slot": 8,
+        "type": 1,
+        "value": 9,
+        "expected": 9
+      },
+      {
+        "name": "b",
+        "slot": 9,
+        "type": 1,
+        "value": 7,
+        "expected": 7
+      },
+      {
+        "name": "return",
+        "slot": 12,
+        "type": 1,
+        "value": 97,
+        "expected": 97
+      }
+    ],
+    "guards": {
+      "VmGuardLo": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+      "VmGuardHi": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    },
+    "motu_native_apis_bound": false,
+    "motu_gameplay_proven": false,
+    "scope": "Existing native VM call/branch/parameter/return lowering only; debug memory injection; original ROM unchanged"
+  },
+  "module_total_bytes": 37002,
+  "engine_api_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction_applied": true,
+  "nonclaims": [
+    "No MOTU engine API native execution",
+    "No binary64 numeric equivalence",
+    "No production per-entity script attachment or module switching"
+  ]
+}

@@ -22,6 +22,20 @@ def text(v):
     return str(v.data)
 
 
+def unary(op,v):
+    if op=='NOT':return integer(not truth(v))
+    # Build 4086 Pos is an empty function, including for nonnumeric variants.
+    if op=='POS' or not numeric(v):return v
+    if v.kind=='INTEGER':return integer(-v.data)
+    # Neg falls through from dblVal to lVal in the same union. Preserve the
+    # observable little-endian, 32-bit LONG behavior instead of repairing it.
+    raw=bytearray(struct.pack('<d',-v.data))
+    low=struct.unpack_from('<i',raw)[0]
+    if low==-2147483648:raise ValueError('REFERENCE_DECIMAL_NEG_SIGNED_OVERFLOW_UNPROVEN')
+    struct.pack_into('<i',raw,0,-low)
+    return Value('DECIMAL',struct.unpack('<d',raw)[0])
+
+
 def binary(op,a,b):
     if op in ('AND','OR'):return integer((truth(a) and truth(b)) if op=='AND' else (truth(a) or truth(b)))
     if op in ('EQ','NE'):
@@ -93,12 +107,7 @@ class Machine:
                     else:value=self.call(self.names[operand],args)
                     stack.append(value)
                 elif op in ('NEG','POS','NOT'):
-                    v=stack.pop()
-                    if op=='NOT':stack.append(integer(not truth(v)))
-                    elif not numeric(v):stack.append(Value())
-                    else:
-                        value=-v.data if op=='NEG' else v.data
-                        stack.append(integer(value) if v.kind=='INTEGER' else Value('DECIMAL',value))
+                    stack.append(unary(op,stack.pop()))
                 else:
                     b=stack.pop();a=stack.pop();stack.append(binary(op,a,b))
             raise ValueError('REFERENCE_SCRIPT_NO_RETURN')

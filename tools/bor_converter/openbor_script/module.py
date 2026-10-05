@@ -23,7 +23,7 @@ class ModuleLimitError(Exception):
     pass
 
 
-def pack_module(m, vm_instr_max=4096, vm_slot_max=1024):
+def pack_module(m, vm_instr_max=4096, vm_slot_max=1024, native_arities=None):
     """m: compiler.Module. Enforces the engine's real bounds (vm_consts.pasm's
     VM_INSTR_MAX/VM_SLOT_MAX), not FORMAT.md's more permissive 0..8192/range --
     advisor note: "enforce the engine's numbers in the exporter so an
@@ -69,10 +69,14 @@ def pack_module(m, vm_instr_max=4096, vm_slot_max=1024):
         struct.pack('<H', o) for o in offsets) + b''.join(m.strings)
 
     natives_sorted = sorted(m.natives_used)
+    arities = NATIVES_ARGC if native_arities is None else native_arities
+    missing = set(natives_sorted) - set(arities)
+    if missing:
+        raise ModuleLimitError(f'undeclared native IDs: {sorted(missing)}')
     native_id_by_stable = {sid: sid for sid in natives_sorted}
     native_bytes = b''.join(
         struct.pack('<HHH', sid & 0xFFFF, argc & 0xFFFF, argc & 0xFFFF)
-        for sid, argc in ((sid, NATIVES_ARGC[sid]) for sid in natives_sorted)
+        for sid, argc in ((sid, arities[sid]) for sid in natives_sorted)
     )
 
     sections = [

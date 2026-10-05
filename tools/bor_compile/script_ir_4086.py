@@ -112,7 +112,9 @@ def inspect(source):
         variant_authority=dict(parser_path='engine/source/scriptlib/Parser.c',
             assignment_path='engine/source/scriptlib/ScriptVariant.c',
             declared_types_ignored=True,decimal_storage='DOUBLE',integer_division='truncate toward zero',
-            divide_by_zero='VT_EMPTY',native_numeric_equivalence_proven=False),
+            divide_by_zero='VT_EMPTY',unary_plus='NO_OP_ALL_VARIANTS',
+            decimal_negation='DOUBLE sign flip followed by LONG low-word negation through union fallthrough',
+            signed_overflow='UNPROVEN_FAIL_CLOSED',native_numeric_equivalence_proven=False),
         native_lowered=False,numeric_runtime_semantics_bound=False,
         status='SOURCE_SCRIPT_BINDINGS_PROVEN' if not errors else 'SOURCE_SCRIPT_BINDING_FAILURE',
         scope='Source syntax, function identity and arity only. No VM, native command execution or engine API admission.')
