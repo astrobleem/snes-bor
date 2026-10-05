@@ -35,96 +35,15 @@ Vm_SourceEntityGet__context:
 Vm_SourceEntityGet__args:
 .a16
 .i16
-    lda #0
-    jsr Vm_SourceEntityArgSlot
-    lda.l VmSlots_Wram,x
-    and #$00FF
-    bne Vm_SourceEntityGet__ptr
+    jsr Vm_SourceEntityLocate
+    bcc Vm_SourceEntityGet__located
+    rtl
+Vm_SourceEntityGet__located:
+.a16
+.i16
+    cmp #0
+    bne Vm_SourceEntityGet__found
     jmp Vm_NativeVariantDispatch__null_ok
-Vm_SourceEntityGet__ptr:
-.a16
-.i16
-    cmp #BOR_VT_PTR
-    beq Vm_SourceEntityGet__token
-    jmp Vm_SourceEntityGet__bad
-Vm_SourceEntityGet__token:
-.a16
-.i16
-    lda.l VmSlots_Wram+4,x
-    sta.l VmSourceEntity_TokenLo
-    ora.l VmSlots_Wram+6,x
-    bne Vm_SourceEntityGet__nonzero
-    jmp Vm_NativeVariantDispatch__null_ok
-Vm_SourceEntityGet__nonzero:
-.a16
-.i16
-    lda.l VmSlots_Wram+6,x
-    sta.l VmSourceEntity_TokenHi
-    lda.l VmSourceEntity_Ready
-    cmp #$B48B
-    beq Vm_SourceEntityGet__lease
-    jmp Vm_SourceEntityGet__bad
-Vm_SourceEntityGet__lease:
-.a16
-.i16
-    lda.l VmSourceEntity_Bank
-    and #$00FF
-    cmp #$007E
-    beq Vm_SourceEntityGet__bank_ok
-    cmp #$007F
-    beq Vm_SourceEntityGet__bank_ok
-    jmp Vm_SourceEntityGet__bad
-Vm_SourceEntityGet__bank_ok:
-.a16
-.i16
-    lda.l VmSourceEntity_Count
-    beq Vm_SourceEntityGet__bad
-    cmp #513
-    bcs Vm_SourceEntityGet__bad
-    asl a
-    asl a
-    asl a
-    asl a
-    sta.l VmSourceEntity_Read ; count*16
-    asl a
-    asl a
-    clc
-    adc.l VmSourceEntity_Read ; count*80, max 512*80 fits u16
-    clc
-    adc.l VmSourceEntity_Base
-    bcs Vm_SourceEntityGet__bad
-    lda #0
-    sta.l VmSourceEntity_Index
-    lda.l VmSourceEntity_Base
-    sta.l VmSourceEntity_Record
-Vm_SourceEntityGet__scan:
-.a16
-.i16
-    ldy #4
-    jsr Vm_SourceEntityRead16
-    cmp #1
-    bne Vm_SourceEntityGet__next
-    ldy #0
-    jsr Vm_SourceEntityRead16
-    cmp.l VmSourceEntity_TokenLo
-    bne Vm_SourceEntityGet__next
-    ldy #2
-    jsr Vm_SourceEntityRead16
-    cmp.l VmSourceEntity_TokenHi
-    beq Vm_SourceEntityGet__found
-Vm_SourceEntityGet__next:
-.a16
-.i16
-    lda.l VmSourceEntity_Index
-    inc a
-    sta.l VmSourceEntity_Index
-    cmp.l VmSourceEntity_Count
-    bcs Vm_SourceEntityGet__bad
-    lda.l VmSourceEntity_Record
-    clc
-    adc #80
-    sta.l VmSourceEntity_Record
-    bra Vm_SourceEntityGet__scan
 Vm_SourceEntityGet__bad:
 .a16
 .i16
@@ -252,6 +171,120 @@ Vm_SourceEntityGet__name_bad:
 .a16
 .i16
     jmp Vm_SourceEntityGet__bad
+
+; Shared checked entity lookup. A=0 null/EMPTY, A=1 found; carry set error.
+; Caller validates API arity and holds the source context.
+Vm_SourceEntityLocate:
+.a16
+.i16
+    lda #0
+    jsr Vm_SourceEntityArgSlot
+    lda.l VmSlots_Wram,x
+    and #$00FF
+    bne Vm_SourceEntityLocate__ptr
+    jmp Vm_SourceEntityLocate__null
+Vm_SourceEntityLocate__ptr:
+.a16
+.i16
+    cmp #BOR_VT_PTR
+    beq Vm_SourceEntityLocate__token
+    jmp Vm_SourceEntityLocate__bad
+Vm_SourceEntityLocate__token:
+.a16
+.i16
+    lda.l VmSlots_Wram+4,x
+    sta.l VmSourceEntity_TokenLo
+    ora.l VmSlots_Wram+6,x
+    bne Vm_SourceEntityLocate__nonzero
+    jmp Vm_SourceEntityLocate__null
+Vm_SourceEntityLocate__nonzero:
+.a16
+.i16
+    lda.l VmSlots_Wram+6,x
+    sta.l VmSourceEntity_TokenHi
+    lda.l VmSourceEntity_Ready
+    cmp #$B48B
+    beq Vm_SourceEntityLocate__lease
+    jmp Vm_SourceEntityLocate__bad
+Vm_SourceEntityLocate__lease:
+.a16
+.i16
+    lda.l VmSourceEntity_Bank
+    and #$00FF
+    cmp #$007E
+    beq Vm_SourceEntityLocate__bank_ok
+    cmp #$007F
+    beq Vm_SourceEntityLocate__bank_ok
+    jmp Vm_SourceEntityLocate__bad
+Vm_SourceEntityLocate__bank_ok:
+.a16
+.i16
+    lda.l VmSourceEntity_Count
+    beq Vm_SourceEntityLocate__bad
+    cmp #513
+    bcs Vm_SourceEntityLocate__bad
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l VmSourceEntity_Read ; count*16
+    asl a
+    asl a
+    clc
+    adc.l VmSourceEntity_Read ; count*80, max 512*80 fits u16
+    clc
+    adc.l VmSourceEntity_Base
+    bcs Vm_SourceEntityLocate__bad
+    lda #0
+    sta.l VmSourceEntity_Index
+    lda.l VmSourceEntity_Base
+    sta.l VmSourceEntity_Record
+Vm_SourceEntityLocate__scan:
+.a16
+.i16
+    ldy #4
+    jsr Vm_SourceEntityRead16
+    cmp #1
+    bne Vm_SourceEntityLocate__next
+    ldy #0
+    jsr Vm_SourceEntityRead16
+    cmp.l VmSourceEntity_TokenLo
+    bne Vm_SourceEntityLocate__next
+    ldy #2
+    jsr Vm_SourceEntityRead16
+    cmp.l VmSourceEntity_TokenHi
+    beq Vm_SourceEntityLocate__found
+Vm_SourceEntityLocate__next:
+.a16
+.i16
+    lda.l VmSourceEntity_Index
+    inc a
+    sta.l VmSourceEntity_Index
+    cmp.l VmSourceEntity_Count
+    bcs Vm_SourceEntityLocate__bad
+    lda.l VmSourceEntity_Record
+    clc
+    adc #80
+    sta.l VmSourceEntity_Record
+    bra Vm_SourceEntityLocate__scan
+Vm_SourceEntityLocate__bad:
+.a16
+.i16
+    sec
+    lda #VMERR_BAD_NATIVE
+    rts
+Vm_SourceEntityLocate__null:
+.a16
+.i16
+    lda #0
+    clc
+    rts
+Vm_SourceEntityLocate__found:
+.a16
+.i16
+    lda #1
+    clc
+    rts
 
 ; A = argument ordinal, X = byte offset of full variant in slot array.
 Vm_SourceEntityArgSlot:

@@ -737,3 +737,29 @@ selector/first-stage/player-source-publication checks pass on the new image,
 but the stronger concurrent actor recovery check still FAILS as before. That
 result is retained explicitly; it is not a passing gameplay regression gate.
 No color reduction is applied.
+
+### Checked source entity property mutations
+
+Generic source `changeentityproperty` now binds position, direction, x/z/a/y
+and health, with full EMPTY results. A separate authoritative mutation lease is
+required in addition to the V2 entity identity/read lease. No writes to the
+original-BOR actor layout are used. The production world owner and allocator
+remain unbound; these are bounded injected-owner primitive proofs.
+
+Thirteen native cases pass: full/partial position writes, independent numeric
+conversion failure, signed truncation, dynamic/case-folded property names,
+Q16 coordinate endpoints, read-only and stale rejection, null no-op, unsupported
+property rejection, coordinate range rejection and malformed record tag. Fields
+not named by the call remain byte-identical. Non-numeric position components
+remain unchanged independently, as the pinned source does. Integers outside the
+signed Q16 coordinate range fault explicitly instead of wrapping. Coordinates
+remain ACCEPTED_COMPAT_Q16_16, not a binary64 equivalence claim.
+
+The shared checked entity lookup passes the existing six-case typed read-view
+regression. The first mutation build failed because Poppy encoded a ROM
+`label+1,x` expression with bank zero; incrementing X and using the plain ROM
+label fixes the emitted operand. Failed attempts and bounded rejection traces
+are retained. The full ROM audit and 24 script tests pass; bank 0 still has two
+bytes free and all 17 protected tracked files are unchanged. The inherited
+concurrent static recovery failure remains open. Receipt:
+`byor-motu-property-mutation-native.json`. No color reduction is applied.

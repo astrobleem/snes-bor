@@ -1,0 +1,361 @@
+{
+  "schema": "BYOR_CHECKED_PROPERTY_MUTATION_V1",
+  "status": "PASS",
+  "artifacts": {
+    "mutation": "out/byor-motu-property-mutation-native-fixed/report.json",
+    "read_regression": "out/byor-motu-entity-native-shared-lookup/report.json"
+  },
+  "mutation": {
+    "schema": "BYOR_SOURCE_PROPERTY_MUTATION_NATIVE_V1",
+    "status": "PASS",
+    "rom_sha256": "f9624f78a99106aea684612b71285fa90189a87d9ca00fd5faae892301b2eb83",
+    "entity_fixture_base": 8370464,
+    "cases": [
+      {
+        "case": "position_and_direction",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"PoSiTiOn\",98.25,221,93.5);changeentityproperty(self,\"direction\",1);}",
+        "module_sha256": "5b809f8d3c66a1a423f2fddc7bf576c8748869e13cb4cf857906d524cfc3191c",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000805d0001000000240000000100000001000000010000006400000001000000010000000200000000406200020000000000dd0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000805d0001000000240000000100000001000000010000006400000001000000010000000200000000406200020000000000dd0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "one_component",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",99);}",
+        "module_sha256": "a5c7e80270d2b82a7c0a97c3d449b896faf2bb1987eca0a2b28c145da8d142af",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "two_components",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",99,222);}",
+        "module_sha256": "73689c0c06d633e51f7e395acb43a9fab4b15c91234e25c21b459159d51f62da",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000de0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000de0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "independent_conversion",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",\"bad\",222,94);}",
+        "module_sha256": "7e3dcba4ad51451b70852dedad9f7afc7414ac43d990bf62a9236f10637f2113",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000005e0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000de0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000005e0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000de0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "integer_truncation",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"direction\",-1.5);changeentityproperty(self,\"health\",400.99);}",
+        "module_sha256": "fb91a98ff335e473dab289a0ae44dfc3a25e92187986a29af6fa233c11b39599",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000000a00010000002400000001000000ffffffff010000009001000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a00010000002400000001000000ffffffff010000009001000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "q16_edges",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",-32768,32767,-32767.75);}",
+        "module_sha256": "283a32b6f1d14a23bd199f33f21a9b8e53c693fdded69ea0d0afdcc8333b27f6",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a0001000000020000000040008001000000240000000100000000000000010000006400000001000000010000000200000000000080020000000000ff7f01000000960000000000000000000000",
+        "expected_hex": "debc6a0001000000020000000040008001000000240000000100000000000000010000006400000001000000010000000200000000000080020000000000ff7f01000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "dynamic_property",
+        "source": "void main(){void self=getlocalvar(\"self\");void key=\"pos\"+\"ition\";changeentityproperty(self,key,99,222,94);}",
+        "module_sha256": "731b89b535c1abd8ba7a59e53cc395ead20562b6501d76c6b1b2df112b74c09c",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000005e0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000de0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000005e0001000000240000000100000000000000010000006400000001000000010000000200000000006300020000000000de0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "readonly",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",99,222,94);}",
+        "module_sha256": "8e375116926268c8b9f3dfa4205c414695b0efb8244a5e8c96f75ae025dc46d5",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "05000000debc6a00"
+      },
+      {
+        "case": "stale",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"direction\",1);}",
+        "module_sha256": "528fcb3e8f627d36209372e74305486504c58733e65f443edc6c97426196b6d7",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "05000000dfbc6a00"
+      },
+      {
+        "case": "null",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(NULL(),\"position\",99,222,94);}",
+        "module_sha256": "46d46e84e82a826adbaafe93ba20677d2f54307de4984f463baf01668087510e",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "0000000000000000"
+      },
+      {
+        "case": "unsupported",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"velocity\",1,2,3);}",
+        "module_sha256": "95a42965989c999f60e9e577ac3e849b230cb66c9387df38e339f9e622a53ad7",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "05000000debc6a00"
+      },
+      {
+        "case": "coordinate_range",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",32768);}",
+        "module_sha256": "4e0d4af5c24899f0fc7d48b88dc09586add0a18b8a752a38cb674942a144d6cb",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000200000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "05000000debc6a00"
+      },
+      {
+        "case": "bad_record_tag",
+        "source": "void main(){void self=getlocalvar(\"self\");changeentityproperty(self,\"position\",99);}",
+        "module_sha256": "a5c7e80270d2b82a7c0a97c3d449b896faf2bb1987eca0a2b28c145da8d142af",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "actual_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000100000000005000020000000000dc0001000000960000000000000000000000",
+        "expected_hex": "debc6a00010000000200000000000a0001000000240000000100000000000000010000006400000001000000010000000100000000005000020000000000dc0001000000960000000000000000000000",
+        "return_variant_hex": "05000000debc6a00"
+      }
+    ],
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "source_numeric_equivalence": false,
+    "live_world_owner_bound": false,
+    "entity_allocator_bound": false,
+    "motu_gameplay_proven": false,
+    "authority": "af23dc9 openborscript.c position/direction/health, ScriptVariant numeric conversions"
+  },
+  "read_regression": {
+    "status": "PASS",
+    "rom_sha256": "23663e3fa21529aac1cd0a1fcf29701b3be08ca2ad8bf7c9404110d55d80ea37",
+    "entity_fixture_base": 8370464,
+    "cases": [
+      {
+        "case": "valid",
+        "fields": 2,
+        "status": 4,
+        "error": 0,
+        "checks": [
+          {
+            "local": "a",
+            "actual": "0200000000005d00",
+            "expected": "0200000000005d00"
+          },
+          {
+            "local": "x",
+            "actual": "0200000000c0edff",
+            "expected": "0200000000c0edff"
+          },
+          {
+            "local": "z",
+            "actual": "020000000080dc00",
+            "expected": "020000000080dc00"
+          },
+          {
+            "local": "d",
+            "actual": "0100000000000000",
+            "expected": "0100000000000000"
+          },
+          {
+            "local": "hp",
+            "actual": "010000000f010000",
+            "expected": "010000000f010000"
+          },
+          {
+            "local": "pi",
+            "actual": "0100000001000000",
+            "expected": "0100000001000000"
+          },
+          {
+            "local": "an",
+            "actual": "0100000024000000",
+            "expected": "0100000024000000"
+          },
+          {
+            "local": "maxhp",
+            "actual": "0100000000100000",
+            "expected": "0100000000100000"
+          },
+          {
+            "local": "absent",
+            "actual": "0000000000000000",
+            "expected": "0000000000000000"
+          }
+        ],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22264596
+        }
+      },
+      {
+        "case": "stale",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22969427
+        }
+      },
+      {
+        "case": "no_lease",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 23523762
+        }
+      },
+      {
+        "case": "bank_spill",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24107986
+        }
+      },
+      {
+        "case": "old_abi",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24232888
+        }
+      },
+      {
+        "case": "bad_variant",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24482885
+        }
+      }
+    ],
+    "entity_world_allocator_bound": false,
+    "motu_gameplay_proven": false
+  },
+  "audit": "out/byor-motu-property-mutation-audit.log",
+  "audit_status": "ALL CHECKS PASS",
+  "bank0_free_before_nmi_bytes": 2,
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction_applied": true,
+  "live_world_owner_bound": false,
+  "entity_allocator_bound": false,
+  "motu_gameplay_proven": false,
+  "assembler_failure_scope": "ROM label+1,x encoded a bank-zero operand; INX followed by plain label,x preserves the bank. Failed pre-fix traces retained."
+}
