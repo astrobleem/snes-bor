@@ -39,6 +39,12 @@ StageFp_BG2Columns = $7EEA72      ; 34 world-column words = 68 B
 StageFp_BG2HistoryEnd = $7EEAB6   ; exclusive, before G12 trace $7EF000
 
 StageFp_BG2ColdInit:
+    php
+    sep #$20
+    .a8
+    lda #BOR_BOOT_CAMPAIGN
+    sta.l Game_CampaignId
+    plp
     jsl StageWater_ColdInit
     jsl StageFp_Init
     jml StageFp_BG2Init

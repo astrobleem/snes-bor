@@ -53,8 +53,10 @@ class ProductionCampaignTests(unittest.TestCase):
                              levels[:len(ids)])
         for i in shipped.LEGACY_FOREIGN_STAGE_IDS:
             self.assertEqual(shipped.STAGE_CONFIGS[i], accepted['STAGE_CONFIGS'][i])
-        self.assertEqual([c['spawn'] for c in shipped.STAGE_CONFIGS[:32]],
-                         [c['spawn'] for c in accepted['STAGE_CONFIGS'][:32]])
+        for c in shipped.STAGE_CONFIGS[:32]:
+            if c['family'] == 'bor-original':
+                self.assertTrue(c['spawn'].startswith('out/compiler_campaign/'))
+                self.assertEqual(c['queue_identity_policy'], 'source-identity')
         for actual, legacy in zip(shipped.STAGE_MEDIA_BINDINGS[:22], accepted['STAGE_CONFIGS']):
             self.assertEqual(actual, legacy)
         self.assertTrue(any(c['converted_prefix'] == 'out/ramon' for c in shipped.ROSTER_CONFIGS))

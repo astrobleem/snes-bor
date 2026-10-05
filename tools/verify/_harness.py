@@ -38,7 +38,18 @@ def repo_root_from(verify_script_file):
 
 
 def rom_path(verify_script_file):
-    return os.path.join(repo_root_from(verify_script_file), 'distribution', 'bor.sfc')
+    root = repo_root_from(verify_script_file)
+    override = os.environ.get('BOR_TEST_ROM')
+    if override is None:
+        return os.path.join(root, 'distribution', 'bor.sfc')
+    if not override.strip():
+        raise ValueError('BOR_TEST_ROM must name a ROM file')
+    path = os.path.abspath(os.path.join(root, override))
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    if not os.path.isfile(path):
+        raise ValueError('BOR_TEST_ROM must name a ROM file: ' + path)
+    return path
 
 
 def roster():

@@ -239,9 +239,9 @@ def write_campaign_include(normal_candidate=False, hard_candidate=False, bonus_c
     if [s.name for s in bor_sets] != ["Easy", "Normal", "Hard", "Bonus"]:
         raise SystemExit("BOR set guard: unexpected source set order")
     # An isolated native candidate is not a production release decision.
-    available = {"Easy": True, "Normal": bool(normal_candidate),
+    available = {"Easy": bool(normal_candidate), "Normal": bool(normal_candidate),
                  "Hard": bool(hard_candidate), "Bonus": bool(bonus_candidate)}
-    campaign_symbols = {"Easy": "CAMPAIGN_BOR_ORIGINAL",
+    campaign_symbols = {"Easy": "CAMPAIGN_BOR_NORMAL_DEV",
                         "Normal": "CAMPAIGN_BOR_NORMAL_DEV",
                         "Hard": "CAMPAIGN_BOR_NORMAL_DEV", "Bonus": "CAMPAIGN_BOR_NORMAL_DEV"}
     lines = [
@@ -250,6 +250,7 @@ def write_campaign_include(normal_candidate=False, hard_candidate=False, bonus_c
         "CAMPAIGN_ENTRY_STAGE = 0",
         "CAMPAIGN_ENTRY_SCENE = 1",
         "CAMPAIGN_BOR_NORMAL_DEV = 3",
+        "BOR_BOOT_CAMPAIGN = " + ("CAMPAIGN_BOR_NORMAL_DEV" if normal_candidate else "CAMPAIGN_BOR_ORIGINAL"),
         "BOR_SET_UNMAPPED = $FF",
         f"BOR_SET_COUNT = {len(bor_sets)}",
         "BorSet_Ids:",
@@ -317,7 +318,7 @@ def write_campaign_include(normal_candidate=False, hard_candidate=False, bonus_c
     source_entries = []
     offsets, counts = [], []
     for source_set in bor_sets:
-        cid = {"Normal": "BOR_NORMAL_1A_INTERNAL", "Hard": "BOR_HARD", "Bonus": "BOR_BONUS"}.get(source_set.name)
+        cid = {"Easy": "BOR_ORIGINAL", "Normal": "BOR_NORMAL_1A_INTERNAL", "Hard": "BOR_HARD", "Bonus": "BOR_BONUS"}.get(source_set.name)
         offsets.append(len(source_entries) if cid else 0)
         rows = CAMPAIGN_ENTRY_MAPS[cid] if cid else []
         counts.append(len(rows))
@@ -774,7 +775,10 @@ def build_msu_assets(write_output=True, source_sized_visual=False):
     if missing:
         raise SystemExit("missing required generated input(s): " + ", ".join(missing))
     check_spawn_table_freshness()
-    spawn_blobs = [open(p, 'rb').read() for p in SPAWN_TABLES]
+    from production_campaign import compile_queues
+    compiled_queues = compile_queues(STAGE_CONFIGS, ROSTER_CONFIGS)
+    spawn_blobs = [compiled_queues[p] if p in compiled_queues else open(p, 'rb').read()
+                   for p in SPAWN_TABLES]
     queue_rows=[]
     set_paths={}
     from pak_extract import extract

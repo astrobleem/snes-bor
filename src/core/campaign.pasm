@@ -176,6 +176,7 @@ Game_Campaign_ResolveNext__bor_normal_dev:
     inc a
     bra Game_Campaign_ResolveNext__source_index
 Game_Campaign_ResolveNext__bor_normal_dev_first:
+.a8
     lda #0
 Game_Campaign_ResolveNext__source_index:
     rep #$30
@@ -367,8 +368,7 @@ BorSet_BeginSelectedRun__no:
 
 ; BOR.C load_levelorder() attaches `next` to the preceding typed entry;
 ; playgame() calls showcomplete() only for that entry's gonext flag.
-; Normal returns authored next; Easy uses the explicit S7 presentation
-; compatibility lowering (including pending nonterminal scene continuation).
+; All original BOR source sets return compiler-owned authored next flags.
 ; Return carry clear for other campaigns or an
 ; invalid ordinal. Entry/exit A16/I16; mask byte cells before indexing so
 ; the hidden accumulator high byte cannot become part of X.
@@ -429,6 +429,8 @@ BorSet_CreditCompletion__source:
     bcc BorSet_CreditCompletion__valid
     rtl
 BorSet_CreditCompletion__valid:
+.a16
+.i16
     inc a
     pha
     lda.l BorSet_Selected
@@ -451,7 +453,7 @@ BorSet_CreditCompletion__run:
     lda.l BorSet_CompletionCredited
     bne BorSet_CreditCompletion__done
     ; Derive the completed source set from the actual campaign, including
-    ; internal Normal starts which bypass the Easy-only new-run selector.
+    ; internal source-family starts which bypass the public new-run selector.
     lda.l Game_CampaignId
     cmp #CAMPAIGN_BOR_NORMAL_DEV
     beq BorSet_CreditCompletion__normal

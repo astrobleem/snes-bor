@@ -119,9 +119,9 @@ ROSTER_CONFIGS = [
     # G15-M 6CEASY runtime-only boss identity; never selectable.
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RUGAL", "converted_prefix": "out/rugal", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RAMON", "converted_prefix": "out/ramon", "playable": False,
-     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2, 3), "accepted_legacy_unbound_sets": (0,)},
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (0, 1, 2, 3)},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TIME", "converted_prefix": "out/time", "playable": False,
-     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2, 3), "accepted_legacy_unbound_sets": (0,)},
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (0, 1, 2, 3)},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\CRAB", "converted_prefix": "out/crab", "playable": False,
      "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\CRAB\\CRAB.TXT", "source_defaults": True, "runtime_binding_sets": (3,)},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\LOBSTER", "converted_prefix": "out/lobster", "playable": False,

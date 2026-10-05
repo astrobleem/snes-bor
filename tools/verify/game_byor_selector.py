@@ -71,11 +71,11 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
             wait(lambda: u16('Game_State') == startup.PLAYING, 600)
             first = build_rom.CAMPAIGN_ENTRY_MAPS[cid][0]
             assert first[0] == 'stage'
-            assert u8('Game_CampaignId') == (0 if source_id == 0 else 3)
+            assert u8('Game_CampaignId') == 3
             assert u8('Game_CampaignOrdinal') == 0
             assert u16('Game_StageIndex') == first[1]
             h.run_frames_exact(m, 30)
-            if combat_fields and source_id:
+            if combat_fields:
                 samples = []
                 def actors():
                     rows = []
@@ -97,9 +97,12 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                     return rows
                 samples.append(dict(field=-1, actors=actors()))
                 from normal_coverage import inventory
-                authored_enemies = {b['runtime_slot'] for b in inventory(source_set=source_set)['model_bindings'].values()
-                                    if b['source_type'] == 'enemy'}
+                coverage = inventory(source_set=source_set)
+                first_bindings = coverage['entries'][0]['queue_bindings']
+                authored_enemies = {b['runtime_slot'] for b in first_bindings
+                                    if coverage['model_bindings'][b['model'].casefold()]['source_type'] == 'enemy'}
                 row['authored_enemy_rosters'] = sorted(authored_enemies)
+                row['combat_authority'] = 'first authored stage queue, excluding shared bootstrap actors not authored in that stage'
                 current = samples[-1]['actors']
                 interactions = []
                 previous = {}
@@ -131,7 +134,7 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                     h.run_frames_exact(m, 1)
                     if field % 30 == 0:
                         samples.append(dict(field=field, ticks=u16('S6Game_TickCommit'),
-                                            error=u16('S6Host_Error'), actors=actors(),
+                                            error=u16('S6Host_Error'), persistent_owner=u16('S7Resident_Owner'), actors=actors(),
                                             visual_error=u8('SourceVisual_Error'),
                                             obj_status=bytes(h.read_snes_bus_block(m, 0x00213E, 32))[0]))
                 m.release_input()
@@ -153,9 +156,27 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                 row['authored_combat_damage'] = [d for d in damage if d['identity'][2] in authored_enemies]
                 assert row['authored_combat_damage'], 'bounded attack input produced no observed authored enemy HP decrease'
                 assert all(s.get('error', 0) == 0 for s in samples)
-                assert all(s.get('visual_error',0) not in (0x21,0x22,0x23,0x24,0x26,0x2A) for s in samples), 'source visual admission failure during bounded combat'
+                assert all(s.get('persistent_owner', 2) == 2 for s in samples)
+                assert all(s.get('visual_error',0) not in (0x21,0x22,0x23,0x24,0x26,0x2A,0x2B) for s in samples), 'source visual admission failure during bounded combat'
                 if screenshot:
                     import shutil
+                    # Keep the bounded production controller's viewport policy
+                    # out of the visual claim: return on screen with real input.
+                    capture_inputs = []
+                    for field in range(600):
+                        player = actors()[0]
+                        screen_x = player['x'] - u16('Screen_PosX')
+                        if abs(screen_x - 128) <= 24:
+                            break
+                        buttons = m.BTN_LEFT if screen_x > 128 else m.BTN_RIGHT
+                        m.hold_input(buttons)
+                        h.run_frames_exact(m, 1)
+                        if field % 30 == 0:
+                            capture_inputs.append(dict(field=field, screen_x=screen_x, buttons=buttons))
+                    m.release_input()
+                    row['visual_capture_inputs'] = capture_inputs
+                    row['visual_capture_reposition_fields'] = field
+                    assert abs(actors()[0]['x'] - u16('Screen_PosX') - 128) <= 24, 'real input did not return player to visible capture area'
                     # Observe a published source packet, after its shared
                     # stream fence, rather than photographing cold admission.
                     warm = 0
@@ -170,7 +191,11 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                     row['visual_last_error'] = u8('SourceVisual_DebugLastError')
                     row['oam_cursor'] = int.from_bytes(h.read_block(m, 0x7E53A0, 32)[:2], 'little')
                     assert lease[28] == 1, 'player source packet never became presentable'
-                    h.run_frames_exact(m, 4)
+                    h.run_frames_exact(m, 2)
+                    row['ppu_oam'] = bytes(m.read_memory('snesSpriteRam', 0, 544)).hex()
+                    row['obj_select_shadow'] = u8('Nmi_ObjSel')
+                    row['source_piece_table'] = bytes(h.read_block(m, sym['SourceVisual_PieceTable'], 256)).hex()
+                    row['source_base_tile'] = u16('SourceVisual_BaseTile')
                     row['oam_shadow'] = bytes(h.read_block(m, sym['Oam_Buffer'], 544)).hex()
                     row['emit_debug'] = bytes(h.read_block(m, sym['SourceVisual_DebugEmitPiece'], 64)).hex()
                     row['palette_cache'] = bytes(h.read_block(m, sym['SourceVisual_PaletteCache'], 64)).hex()
@@ -216,18 +241,34 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                     screenshot.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(shot['path'], screenshot)
                     row['screenshot'] = str(screenshot)
+                    if __import__('os').environ.get('BYOR_CAPTURE_PROBE') == '1':
+                        row['ppu_state'] = m.get_ppu_state()
+                        for capture in range(12):
+                            h.run_frames_exact(m, 1)
+                            probe = m.take_screenshot()
+                            shutil.copyfile(probe['path'], screenshot.with_name(screenshot.stem+'-'+str(capture)+'.png'))
+            if not combat_fields:
+                # Bounded shared visual publication smoke, after source host boot.
+                published = False
+                for publication_fields in range(900):
+                    lease = bytes(h.read_block(m, sym['SourceVisual_State'], 32))
+                    if lease[28] == 1:
+                        published = True
+                        break
+                    h.run_frames_exact(m, 1)
+                assert published, 'first-stage player source packet did not publish'
+                assert lease[29] == 22 + player_ordinal, 'first-stage source identity differs from selected player'
+                row['source_packet_publication'] = dict(published=True, fields=publication_fields,
+                    catalog_entry=int.from_bytes(lease[:2], 'little'), roster=lease[29])
             row.update(physical_stage=first[1], source_path=first[2],
                        selected_source_set=u8('BorSet_Selected'),
                        player_roster=h.read_block(m, sym['PlayerEntity_DpBase'] + 0x7E0000
                                                    + sym['CHAR_ROSTER_INDEX'], 32)[0],
-                       host_mode=u16('S6Host_Mode'), host_error=u16('S6Host_Error'),
+                       host_mode=u16('S6Host_Mode'), persistent_owner=u16('S7Resident_Owner'), host_error=u16('S6Host_Error'),
                        source_ticks=u16('S6Game_TickCommit'),
                        times_completed=int.from_bytes(bytes(h.read_block(m, sym['Bor_TimesCompleted'], 32)[:4]), 'little'))
-            if source_id:
-                assert row['host_mode'] == 1 and row['host_error'] == 0
-                assert row['source_ticks'] > 0
-            else:
-                row.update(host_error=None, source_ticks=None)
+            assert row['host_mode'] == 1 and row['persistent_owner'] == 2 and row['host_error'] == 0
+            assert row['source_ticks'] > 0
             row['verdict'] = 'PASS'
     return rows
 

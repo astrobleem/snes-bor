@@ -1,0 +1,93 @@
+{
+  "verdict": "PASS",
+  "scope": "real selector and bounded first-entry source-world smoke",
+  "rows": [
+    {
+      "source_set": "Easy",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "source_packet_publication": {
+        "published": true,
+        "fields": 160,
+        "catalog_entry": 923,
+        "roster": 22
+      },
+      "physical_stage": 0,
+      "source_path": "DATA\\EASY\\1AEASY.TXT",
+      "selected_source_set": 0,
+      "player_roster": 22,
+      "host_mode": 1,
+      "persistent_owner": 2,
+      "host_error": 0,
+      "source_ticks": 356,
+      "times_completed": 0
+    },
+    {
+      "source_set": "Normal",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "source_packet_publication": {
+        "published": true,
+        "fields": 160,
+        "catalog_entry": 923,
+        "roster": 22
+      },
+      "physical_stage": 22,
+      "source_path": "DATA\\NORMAL\\1A.TXT",
+      "selected_source_set": 1,
+      "player_roster": 22,
+      "host_mode": 1,
+      "persistent_owner": 2,
+      "host_error": 0,
+      "source_ticks": 356,
+      "times_completed": 0
+    },
+    {
+      "source_set": "Hard",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "source_packet_publication": {
+        "published": true,
+        "fields": 170,
+        "catalog_entry": 925,
+        "roster": 22
+      },
+      "physical_stage": 36,
+      "source_path": "DATA\\HARD\\1AHARD.TXT",
+      "selected_source_set": 2,
+      "player_roster": 22,
+      "host_mode": 1,
+      "persistent_owner": 2,
+      "host_error": 0,
+      "source_ticks": 332,
+      "times_completed": 0
+    },
+    {
+      "source_set": "Bonus",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "locked_at_zero": {
+        "selectable": false,
+        "difficulty": 1,
+        "selected": 3
+      },
+      "fixture_unlock_completions": 1,
+      "source_packet_publication": {
+        "published": true,
+        "fields": 150,
+        "catalog_entry": 923,
+        "roster": 22
+      },
+      "physical_stage": 50,
+      "source_path": "DATA\\EXTRA.TXT",
+      "selected_source_set": 3,
+      "player_roster": 22,
+      "host_mode": 1,
+      "persistent_owner": 2,
+      "host_error": 0,
+      "source_ticks": 425,
+      "times_completed": 1
+    }
+  ],
+  "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a"
+}

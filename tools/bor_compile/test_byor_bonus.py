@@ -145,7 +145,7 @@ class BonusTests(unittest.TestCase):
             build_rom.write_campaign_include(normal_candidate=True,hard_candidate=True,bonus_candidate=True)
         self.assertIn('BorSet_ContentAvailable:\n    .db 1, 1, 1, 1',buf.getvalue())
         self.assertIn('BorSet_IfComplete:\n    .db 0, 0, 0, 1',buf.getvalue())
-        self.assertIn('Campaign_Source_Counts:\n    .db 0, 16, 16, 2',buf.getvalue())
+        self.assertIn('Campaign_Source_Counts:\n    .db 16, 16, 16, 2',buf.getvalue())
 
     def test_bonus_rejects_incomplete_candidate_family(self):
         with self.assertRaisesRegex(SystemExit,'BONUS_REQUIRES_COMPLETE_SOURCE_SIZED_CANDIDATE'):

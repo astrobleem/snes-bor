@@ -11905,7 +11905,7 @@ msu1_done:
                                    ; holding boot-time WRAM garbage
     sep #$20
 .a8
-    lda #CAMPAIGN_BOR_ORIGINAL
+    lda #BOR_BOOT_CAMPAIGN
     sta.l Game_CampaignId
     lda #0
     sta.l Game_CampaignOrdinal

@@ -94,7 +94,7 @@ class ExtendedSourceVisualAdmissionTests(unittest.TestCase):
             'SourceVisual_Emit__piece:\n', 1)[0]
         self.assertIn('adc.l $7E53A0', emit)
         self.assertIn('cmp #513', emit)  # 128 entries * four OAM bytes + sentinel
-        self.assertIn('lda #$A7', emit)
+        self.assertIn('lda #$2B', emit)
         self.assertLess(emit.index('SourceVisual_Emit__oam_capacity_ok:'),
                         text.index('SourceVisual_Emit__piece:'))
         self.assertIn('jsr SourceVisual_Emit\n    bcc SourceVisual_RenderCurrent__fail', text)
@@ -110,7 +110,7 @@ class ExtendedSourceVisualAdmissionTests(unittest.TestCase):
         emit = visual.split('SourceVisual_Emit:\n', 1)[1].split(
             'SourceVisual_Emit__piece:', 1)[0]
         self.assertIn('lda.l StageBounds_DrawY,x\n'
-                      '    cmp #240\n    bcs SourceVisual_Emit__hidden', emit)
+                      '    cmp #240\n    bcc SourceVisual_Emit__height_visible\n    brl SourceVisual_Emit__hidden', emit)
         self.assertIn('sta.l SourceVisual_EmitBaseY', emit)
         self.assertIn('SourceVisual_Emit__hidden:\n    sec\n    rts', emit)
         write = visual.split('SourceVisual_Emit__write:\n', 1)[1].split(
@@ -152,7 +152,7 @@ class ExtendedSourceVisualAdmissionTests(unittest.TestCase):
         emit = visual.split('SourceVisual_Emit:\n', 1)[1].split(
             'SourceVisual_Emit__piece:', 1)[0]
         self.assertIn('lda.l StageBounds_DrawY,x\n'
-                      '    cmp #240\n    bcs SourceVisual_Emit__hidden', emit)
+                      '    cmp #240\n    bcc SourceVisual_Emit__height_visible\n    brl SourceVisual_Emit__hidden', emit)
         self.assertIn('sta.l SourceVisual_EmitBaseY', emit)
         self.assertIn('SourceVisual_Emit__hidden:\n    sec\n    rts', emit)
         write = visual.split('SourceVisual_Emit__write:\n', 1)[1].split(

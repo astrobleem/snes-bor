@@ -30,7 +30,7 @@ def _campaign_inputs(source_set='Normal'):
     combat_models = []
     # One worker must serve every exposed source-world set. A shorter set's
     # encounter roster cannot remove bindings needed by Normal or Hard.
-    enabled = ('Normal', 'Hard', 'Bonus') if source_set == 'Bonus' else ('Normal', 'Hard') if source_set == 'Hard' else ('Normal',)
+    enabled = ('Easy', 'Normal', 'Hard', 'Bonus') if source_set in ('Easy', 'Bonus') else ('Easy', 'Normal', 'Hard') if source_set == 'Hard' else ('Easy', 'Normal')
     bindings = {}
     for name in enabled:
         bindings.update((coverage if name == source_set else inventory(source_set=name))['model_bindings'])
@@ -44,10 +44,10 @@ def _campaign_inputs(source_set='Normal'):
             runtime_slot=roster,
             playable=roster in normal_player_slots,
         ))
-    # The Normal selector has its own source-authored playable roster. It is
-    # not ROSTER_CONFIGS[*].playable (which describes the unrelated legacy
-    # Easy selector). Keep all 17 encounter enemies and add exactly the four
-    # selected Normal player models as controlled SA-1 records.
+    # The original BOR selector uses its source-authored playable roster.
+    # ROSTER_CONFIGS[*].playable also describes historical/internal compatibility
+    # content. Keep the linked encounter enemies and add exactly the four
+    # source player models as controlled SA-1 records.
     already_bound = {row["runtime_slot"] for row in combat_models}
     for slot, entry in normal_player_entries("bor-original"):
         if slot in already_bound:
@@ -101,7 +101,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
             compiler="BYOR — Bring Your Own Rage",
             source_set_id=coverage['source_set_id'],
             selectable_normal=True,
-            fallback="unchanged distribution/bor.sfc S-CPU path",
+            fallback="no original BOR legacy fallback; distribution ROM is not rebuilt",
             production_distribution_modified=False,
             source_image=dict(rom_sha256=source_rom_sha256,
                               msu_sha256=source_msu_sha256),
@@ -109,8 +109,8 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
                                (output / "bor.sfc").read_bytes()).hexdigest(),
                            msu_sha256=hashlib.sha256(
                                (output / "bor.msu").read_bytes()).hexdigest()),
-            selectable_hard=source_set in ('Hard', 'Bonus'),
-            bonus_content_available=source_set == 'Bonus',
+            selectable_hard=source_set in ('Easy', 'Hard', 'Bonus'),
+            bonus_content_available=source_set in ('Easy', 'Bonus'),
             unlock_threshold=coverage['ifcomplete'],
             workload=dict(campaign=f"BOR {source_set}", logical_entries=len(coverage['entries']),
                           authored_order=[row['source_path'] for row in coverage['entries']],
@@ -161,7 +161,7 @@ def build_from_source(output: Path, source_image: Path, *, in_place=False,
             raise ValueError('MEDIA_REPACK_REQUIRES_IN_PLACE_SOURCE')
         import build_rom
         build_rom.write_campaign_include(normal_candidate=True,
-            hard_candidate=source_set in ('Hard','Bonus'),bonus_candidate=source_set=='Bonus')
+            hard_candidate=source_set in ('Easy','Hard','Bonus'),bonus_candidate=source_set in ('Easy','Bonus'))
         media,sidecar=build_rom.build_msu_assets(write_output=False,source_sized_visual=True)
         build_rom.write_source_visual_layout_include(sidecar,enabled=True)
         (source/'bor.msu').write_bytes(media)
@@ -186,15 +186,15 @@ def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Norm
         source = Path(temporary)
         build_rom.main(reuse_audio_from, normal_candidate=True,
                        source_sized_visual=True, candidate_dir=source,
-                       hard_candidate=source_set in ('Hard', 'Bonus'),
-                       bonus_candidate=source_set == 'Bonus')
+                       hard_candidate=source_set in ('Easy', 'Hard', 'Bonus'),
+                       bonus_candidate=source_set in ('Easy', 'Bonus'))
         return _build_overlay(output, source, source_set=source_set)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--source-set", choices=('Normal', 'Hard', 'Bonus'), default='Normal')
+    parser.add_argument("--source-set", choices=('Easy', 'Normal', 'Hard', 'Bonus'), default='Normal')
     parser.add_argument("--reuse-audio-from",
                         help="reuse pinned unchanged audio inputs from a Git ref")
     parser.add_argument("--source-image", type=Path,

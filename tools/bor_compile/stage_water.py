@@ -260,15 +260,15 @@ def normal_stage_inputs(configs):
         if cfg['family'] != 'bor-original':
             continue
         if origin not in normal_sets:
-            matches = [s for s in project(source).sets if s.name in ('Normal', 'Hard', 'Bonus')]
-            if len(matches) != 3:
+            matches = [s for s in project(source).sets if s.name in ('Easy', 'Normal', 'Hard', 'Bonus')]
+            if len(matches) != 4:
                 raise ValueError('ENVIRONMENT_NORMAL_SET_AMBIGUOUS')
             normal_sets[origin] = {key(e.source_path): selected.source_id
                 for selected in matches for e in selected.entries if e.kind == 'STAGE'}
         members = normal_sets[origin]
         member = key(cfg['source_level']) in members
         declared = cfg.get('source_set_id')
-        if declared is not None and ((declared in (1, 2, 3)) != member
+        if declared is not None and ((declared in (0, 1, 2, 3)) != member
                 or member and declared != members[key(cfg['source_level'])]):
             raise ValueError('ENVIRONMENT_NORMAL_MEMBERSHIP_MISMATCH')
         if member:

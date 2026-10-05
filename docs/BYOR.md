@@ -14,8 +14,8 @@ rejects a different source rather than silently compiling the original game.
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell
-py -3.10 byor.py inventory --set Bonus --output out/byor-bonus-source.json
-py -3.10 byor.py build --set Bonus --output build/byor-bonus
+py -3.10 byor.py inventory --set Easy --output out/byor-easy-source.json
+py -3.10 byor.py build --set Easy --output build/byor-easy
 ```
 
 The optional `--reuse-audio-from` skips audio compilation only after verifying
@@ -31,7 +31,7 @@ residency. A sequenced event ring carries worker events. The compiler owns
 typed campaign entries, queue records, source-model/resource bindings,
 environment metadata, scenes and completion flags. Campaign ABI 3 names this
 shared source-world runtime family; the independently selected source-set ID
-resolves Normal, Hard or Bonus through generated offsets and typed entry tables.
+resolves Easy, Normal, Hard or Bonus through generated offsets and typed entry tables.
 Physical stage adjacency never defines a campaign route.
 
 `inventory` traces required source directives to lowering/consumer definitions,
@@ -43,13 +43,14 @@ including coordinate/health transport, flattened scenery and encoded palettes;
 they are not promoted to `SOURCE_EXACT`. There is no automatic artwork shrink
 or legacy 32×48 fallback for this source-sized build path.
 
-Normal, Hard and Bonus availability is emitted only for complete linked
-candidates. A Bonus candidate includes all four original sets. Content availability
+Original BOR source-set availability is emitted only for complete linked
+candidates. Easy and Bonus candidates include all four original sets. Content availability
 is independent of unlock: the real saved 32-bit `TimesCompleted` must meet the
 PAK's `ifcomplete` threshold. Easy/Normal/Hard require 0; Bonus requires 1.
 Locked names remain visible with a locked marker and cannot be confirmed.
-Easy uses its existing compatibility path; Normal, Hard and Bonus share the
-accepted source-world systems.
+All four original BOR sets share the compiler-owned source-world systems.
+Easy no longer selects the historical campaign-0 path. Foreign/test catalog
+bindings remain independent of this migration.
 
 Bonus is source set 3. Its complete authored route is `DATA/EXTRA.TXT` followed
 by `DATA/SCENES/SEWER.TXT`; neither entry has `next`. EXTRA has 184 packed queue
@@ -96,3 +97,38 @@ preserves compiled audio and hardlinked PCM companions. A normal fresh build
 performs this source/media compilation automatically.
 
 Native milestone evidence: [Bonus certification](receipts/byor-bonus-m2.md).
+
+
+Easy convergence (Milestone 3)
+
+Easy is source set 0 with `ifcomplete 0`. The source linker owns all 16 typed
+entries: 14 stages plus Rugal and Ending. Physical media IDs remain
+`0, 1, 2, 11..21`; logical route order comes exclusively from LEVELS.TXT.
+Queues contain 667 packed records (664 authored records plus three hole-prefix
+records), including 545 source spawns. Source-owned queues use private compiler
+output paths; the ROM packs fresh compiler bytes rather than unrelated dirty
+legacy queue outputs.
+
+The accepted pre-M3 Easy implementation used slot-owned compatibility enemies,
+fixed-size visuals and 15 completion presentations, including Rugal. The migration explicitly
+binds every spawn to its source identity, including Ramon and Time. The source's
+six `next` boundaries now control showcomplete; the legacy nine extra completion
+presentations are removed. All original BOR sets select the shared campaign ABI 3
+and source-sized visual path. The old campaign-0 resolver remains unexposed for
+historical/internal compatibility; no original BOR selector maps to it.
+
+Source `mirror` reuses the same source-sized pose, palette and tiles for its
+second image, with shared viewport/resource admission and foreground priority.
+Ground reflection uses BOR.C's foot formula through the existing coordinate
+adapter. Fixed-point placement, flattened layer/depth and airborne presentation
+remain explicit ACCEPTED_COMPAT adaptations rather than SOURCE_EXACT claims.
+
+The shared player controller remains bounded to its established movement and
+grounded attack support. Pending source-resource admissions can defer a pose;
+this milestone does not certify continuous presentation cadence or complete
+original-engine player behavior. The inherited shared bootstrap actor is outside
+authored queue coverage and is excluded from the representative enemy proof.
+
+The Easy semantic differential and native certification are recorded in
+[the Milestone 3 receipt](receipts/byor-easy-m3.md). Existing Milestone 2 receipts
+remain evidence of the accepted pre-M3 architecture.

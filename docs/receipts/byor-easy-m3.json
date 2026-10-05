@@ -1,0 +1,922 @@
+{
+  "classification": "BYOR_EASY_CONVERGED",
+  "project": "BYOR - Bring Your Own Rage",
+  "branch": "feat/byor-easy-convergence",
+  "base": "5d9ef2df66b3c132f046db57dcc13e302c5c247d",
+  "commands": [
+    "py -3.10 byor.py inventory --set Easy --output out/byor-easy-source.json",
+    "py -3.10 byor.py build --set Easy --output build/byor-easy"
+  ],
+  "source": {
+    "set_id": 0,
+    "ifcomplete": 0,
+    "entries": 16,
+    "stages": 14,
+    "scenes": 2,
+    "route": [
+      {
+        "ordinal": 0,
+        "kind": "stage",
+        "source": "DATA\\EASY\\1AEASY.TXT",
+        "physical_or_scene": 0,
+        "next_after": false
+      },
+      {
+        "ordinal": 1,
+        "kind": "stage",
+        "source": "DATA\\EASY\\1BEASY.TXT",
+        "physical_or_scene": 1,
+        "next_after": false
+      },
+      {
+        "ordinal": 2,
+        "kind": "stage",
+        "source": "DATA\\EASY\\1CEASY.TXT",
+        "physical_or_scene": 2,
+        "next_after": true
+      },
+      {
+        "ordinal": 3,
+        "kind": "stage",
+        "source": "DATA\\EASY\\2EASY.TXT",
+        "physical_or_scene": 11,
+        "next_after": true
+      },
+      {
+        "ordinal": 4,
+        "kind": "stage",
+        "source": "DATA\\EASY\\3AEASY.TXT",
+        "physical_or_scene": 12,
+        "next_after": false
+      },
+      {
+        "ordinal": 5,
+        "kind": "stage",
+        "source": "DATA\\EASY\\3BEASY.TXT",
+        "physical_or_scene": 13,
+        "next_after": false
+      },
+      {
+        "ordinal": 6,
+        "kind": "stage",
+        "source": "DATA\\EASY\\3CEASY.TXT",
+        "physical_or_scene": 14,
+        "next_after": true
+      },
+      {
+        "ordinal": 7,
+        "kind": "stage",
+        "source": "DATA\\EASY\\4AEASY.TXT",
+        "physical_or_scene": 15,
+        "next_after": false
+      },
+      {
+        "ordinal": 8,
+        "kind": "stage",
+        "source": "DATA\\EASY\\4BEASY.TXT",
+        "physical_or_scene": 16,
+        "next_after": true
+      },
+      {
+        "ordinal": 9,
+        "kind": "stage",
+        "source": "DATA\\EASY\\5AEASY.TXT",
+        "physical_or_scene": 17,
+        "next_after": false
+      },
+      {
+        "ordinal": 10,
+        "kind": "stage",
+        "source": "DATA\\EASY\\5BEASY.TXT",
+        "physical_or_scene": 18,
+        "next_after": true
+      },
+      {
+        "ordinal": 11,
+        "kind": "stage",
+        "source": "DATA\\EASY\\6AEASY.TXT",
+        "physical_or_scene": 19,
+        "next_after": false
+      },
+      {
+        "ordinal": 12,
+        "kind": "stage",
+        "source": "DATA\\EASY\\6BEASY.TXT",
+        "physical_or_scene": 20,
+        "next_after": false
+      },
+      {
+        "ordinal": 13,
+        "kind": "scene",
+        "source": "RUGAL",
+        "physical_or_scene": 1,
+        "next_after": false
+      },
+      {
+        "ordinal": 14,
+        "kind": "stage",
+        "source": "DATA\\EASY\\6CEASY.TXT",
+        "physical_or_scene": 21,
+        "next_after": true
+      },
+      {
+        "ordinal": 15,
+        "kind": "scene",
+        "source": "ENDING",
+        "physical_or_scene": 2,
+        "next_after": false
+      }
+    ],
+    "packed_records": 667,
+    "authored_records": 664,
+    "source_spawns": 545,
+    "groups": 69,
+    "waits": 50,
+    "hole_prefixes": 3,
+    "max_easy_queue": 92,
+    "max_linked_queue": 184,
+    "source_pak_sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+    "thresholds": {
+      "Easy": 0,
+      "Normal": 0,
+      "Hard": 0,
+      "Bonus": 1
+    }
+  },
+  "baseline": {
+    "artifact": "build/byor-bonus",
+    "rebuilt": false,
+    "rom_sha256": "34dda36cba7ca71766b4879bb2c398b75b015932d43e31425c37706b4c3c64f0",
+    "msu_sha256": "fce2a860bfdb406d230a30d9ff88dc737ebc28dce544c81d3fbe2339665c3dcf",
+    "campaign_id": 0,
+    "source_set": 0,
+    "host_mode": 0,
+    "visual_path": "fixed 32x48 legacy",
+    "native_selector": "PASS",
+    "actual_msu_queues_verified": 14,
+    "actual_msu_dimensions_preserved": 14,
+    "completion_presentations": 15
+  },
+  "architecture": {
+    "all_original_sets_compiler_owned": true,
+    "campaign_family": 3,
+    "physical_easy_stages": [
+      0,
+      1,
+      2,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "source_host_mode": 1,
+    "persistent_owner": 2,
+    "simulation_hz": 200,
+    "presentation_hz": 30,
+    "obj_residency_bytes": 16384,
+    "queue_record_bytes": 10,
+    "queue_count_bits": 8,
+    "source_visual_catalog_entries": 4153,
+    "legacy_catalog_entries": 0,
+    "blockers": 0,
+    "source_catalog_sha256": "6165342eeed7563da02f324b4f87f7f207132f15d20327b2ffc9e3f159bca3b5",
+    "runtime": "Persistent SA-1 canonical combat world; sequenced event transport; typed shared environment adapters; compiler source-next progression and shared scenes"
+  },
+  "differential": {
+    "counts": {
+      "LEGACY_EQUIVALENT": 512,
+      "SOURCE_CORRECTS_LEGACY": 249,
+      "ACCEPTED_COMPAT": 4,
+      "REGRESSION": 0,
+      "UNPROVEN": 0
+    },
+    "scope": "source/encoded semantic differential; native behavior requires separate baseline and migrated receipts",
+    "queue_corrections": {
+      "yashiro": 97,
+      "ralf": 98,
+      "joe": 22,
+      "jhun": 16,
+      "time": 1,
+      "ramon": 1,
+      "yamazaki": 2,
+      "heavy": 1
+    },
+    "extra_legacy_showcomplete_removed": [
+      "1AEASY",
+      "1BEASY",
+      "3AEASY",
+      "3BEASY",
+      "4AEASY",
+      "5AEASY",
+      "6AEASY",
+      "6BEASY",
+      "RUGAL"
+    ],
+    "ordered_foreground": "Source F00..F03 sequence replaces scalar F03 legacy binding",
+    "mirror": "Source-sized same-pose reflection through shared coordinate adapter replaces fixed metasprite mirror"
+  },
+  "native": {
+    "verdict": "PASS",
+    "packed_records": 667,
+    "source_spawns": 545,
+    "record_bytes_and_order_match": true,
+    "resource_binding_checks": {
+      "emitted_pieces": 34077,
+      "tile_faults": 0,
+      "block_faults": 0,
+      "palette_faults": 0,
+      "oam_hi_faults": 0
+    },
+    "mirrors": {
+      "emitted_pieces": 1624,
+      "physical_stages": [
+        19
+      ],
+      "source_rosters": [
+        22,
+        43
+      ],
+      "animation_roles": [
+        0,
+        1,
+        2
+      ],
+      "source_maps": "Not encoded in this low-word key observer; no map claim from mirror journal",
+      "resource_policy": "Shared source pose and resident tiles/palettes; ground equation uses established coordinate adapter; air and depth remain ACCEPTED_COMPAT"
+    },
+    "scenes": [
+      {
+        "ordinal": 13,
+        "source": "RUGAL",
+        "presented": 126,
+        "transitions": 0,
+        "completion": 1,
+        "skip": 0,
+        "late": 0,
+        "retries": 0
+      },
+      {
+        "ordinal": 15,
+        "source": "ENDING",
+        "presented": 1997,
+        "transitions": 4,
+        "completion": 1,
+        "skip": 0,
+        "late": 0,
+        "retries": 0
+      }
+    ],
+    "completion": {
+      "before": 0,
+      "after": 1,
+      "selected_source_set": 0,
+      "title_dwell_observations": 180
+    },
+    "sampling": "frames_sampled counts controller observations; native admissions are observed independently",
+    "native_interaction_sample": {
+      "verdict": "PASS",
+      "scope": "bounded unaccelerated real input after compiler-owned approach",
+      "limit_fields": 2400,
+      "source_prop_roster": 19,
+      "slot": 1,
+      "samples": [
+        {
+          "field": 0,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 470,
+            "y": 123
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 20,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 482,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 40,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 496,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 60,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 510,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 80,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 526,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 100,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 546,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 120,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 552,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 140,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 568,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 160,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 577,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 180,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 587,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 19,
+            "mode": 3,
+            "hp": 4,
+            "pickup": 3,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        },
+        {
+          "field": 200,
+          "player": {
+            "slot": 0,
+            "roster": 22,
+            "mode": 1,
+            "hp": 64,
+            "pickup": 0,
+            "x": 595,
+            "y": 130
+          },
+          "target": {
+            "slot": 1,
+            "roster": 15,
+            "mode": 3,
+            "hp": 0,
+            "pickup": 0,
+            "x": 616,
+            "y": 132
+          },
+          "host_error": 0
+        }
+      ],
+      "writes": "controller input only",
+      "drop_roster": 15,
+      "fields": 200,
+      "prop_damage": true,
+      "drop_observed": true,
+      "pickup_consumed": true,
+      "pickup_apply_events": [
+        "2429|3|9"
+      ],
+      "journal": "out\\byor-easy-evidence\\native-interaction-events-release.txt"
+    },
+    "visual_admission": {
+      "records": 14182,
+      "codes": {
+        "39": 14182
+      },
+      "hard_faults": 0,
+      "deferred_admission_policy": "Existing pending resource fences defer publication; no continuous cadence certification"
+    }
+  },
+  "selector": {
+    "verdict": "PASS",
+    "scope": "real selector and bounded first-entry source-world smoke",
+    "rows": [
+      {
+        "source_set": "Easy",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "source_packet_publication": {
+          "published": true,
+          "fields": 160,
+          "catalog_entry": 923,
+          "roster": 22
+        },
+        "physical_stage": 0,
+        "source_path": "DATA\\EASY\\1AEASY.TXT",
+        "selected_source_set": 0,
+        "player_roster": 22,
+        "host_mode": 1,
+        "persistent_owner": 2,
+        "host_error": 0,
+        "source_ticks": 356,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Normal",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "source_packet_publication": {
+          "published": true,
+          "fields": 160,
+          "catalog_entry": 923,
+          "roster": 22
+        },
+        "physical_stage": 22,
+        "source_path": "DATA\\NORMAL\\1A.TXT",
+        "selected_source_set": 1,
+        "player_roster": 22,
+        "host_mode": 1,
+        "persistent_owner": 2,
+        "host_error": 0,
+        "source_ticks": 356,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Hard",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "source_packet_publication": {
+          "published": true,
+          "fields": 170,
+          "catalog_entry": 925,
+          "roster": 22
+        },
+        "physical_stage": 36,
+        "source_path": "DATA\\HARD\\1AHARD.TXT",
+        "selected_source_set": 2,
+        "player_roster": 22,
+        "host_mode": 1,
+        "persistent_owner": 2,
+        "host_error": 0,
+        "source_ticks": 332,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Bonus",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "locked_at_zero": {
+          "selectable": false,
+          "difficulty": 1,
+          "selected": 3
+        },
+        "fixture_unlock_completions": 1,
+        "source_packet_publication": {
+          "published": true,
+          "fields": 150,
+          "catalog_entry": 923,
+          "roster": 22
+        },
+        "physical_stage": 50,
+        "source_path": "DATA\\EXTRA.TXT",
+        "selected_source_set": 3,
+        "player_roster": 22,
+        "host_mode": 1,
+        "persistent_owner": 2,
+        "host_error": 0,
+        "source_ticks": 425,
+        "times_completed": 1
+      }
+    ],
+    "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a"
+  },
+  "combat": {
+    "verdict": "PASS",
+    "fields": 600,
+    "authored_enemy_damage": [
+      {
+        "field": 330,
+        "identity": [
+          2,
+          3,
+          30
+        ],
+        "before_hp": 16,
+        "after_hp": 11
+      },
+      {
+        "field": 360,
+        "identity": [
+          2,
+          3,
+          30
+        ],
+        "before_hp": 11,
+        "after_hp": 1
+      },
+      {
+        "field": 390,
+        "identity": [
+          2,
+          3,
+          30
+        ],
+        "before_hp": 1,
+        "after_hp": 0
+      },
+      {
+        "field": 480,
+        "identity": [
+          3,
+          4,
+          30
+        ],
+        "before_hp": 19,
+        "after_hp": 4
+      },
+      {
+        "field": 510,
+        "identity": [
+          3,
+          4,
+          30
+        ],
+        "before_hp": 4,
+        "after_hp": 0
+      }
+    ],
+    "host_mode": 1,
+    "persistent_owner": 2,
+    "host_error": 0,
+    "resident_tiles": {
+      "checked": 14,
+      "mismatches": []
+    },
+    "resident_palettes": {
+      "checked": 1,
+      "mismatches": []
+    },
+    "snapshot_nonclaim": "Capture window can fall between deferred source admissions; byte checks and full-run emitted-piece observer are authoritative, no continuous visual cadence claim"
+  },
+  "legacy_retirement": {
+    "scope": "Production entry/queue/environment/visual/host exception audit, not wholesale legacy-code deletion",
+    "rows": [
+      {
+        "path": "byor.py",
+        "old": "Easy CLI compatibility dispatch",
+        "replacement": "shared source-set inventory/build",
+        "disposition": "BYPASSED"
+      },
+      {
+        "path": "tools/audio/shipped_content.py",
+        "old": "accepted-easy-s7 completion flags",
+        "replacement": "source-next, six authored next flags",
+        "disposition": "RETIRED"
+      },
+      {
+        "path": "tools/bor_compile/production_campaign.py",
+        "old": "source-set-0 accepted-legacy queue/unbound escape",
+        "replacement": "all BOR queues require source identity",
+        "disposition": "RETIRED_AFTER_NATIVE_GATES"
+      },
+      {
+        "path": "tools/audio/shipped_content.py",
+        "old": "Ramon/Time excluded from Easy and legacy unbound allowance",
+        "replacement": "source bindings 45/46 available to sets 0..3",
+        "disposition": "RETIRED"
+      },
+      {
+        "path": "build_rom.py",
+        "old": "Easy always available and selector campaign 0",
+        "replacement": "complete source linkage gate and shared campaign 3",
+        "disposition": "RETIRED"
+      },
+      {
+        "path": "tools/bor_compile/stage_water.py",
+        "old": "source environment IR collected for sets 1..3",
+        "replacement": "same adapters collect sets 0..3",
+        "disposition": "RETIRED"
+      },
+      {
+        "path": "src/main.pasm",
+        "old": "boot campaign 0 dispatch before foreground initialization",
+        "replacement": "compiler-generated source family boot campaign",
+        "disposition": "RETIRED"
+      },
+      {
+        "path": "src/core/campaign.pasm",
+        "old": "historical campaign-0 physical resolver",
+        "replacement": "unexposed by all original BOR selectors; retained internal/test compatibility",
+        "disposition": "BYPASSED"
+      },
+      {
+        "path": "src/core/campaign.pasm",
+        "old": "BorSet_BeginEasyRun wrapper",
+        "replacement": "source-default-set wrapper uses generated availability/dispatch",
+        "disposition": "RETAIN_SHARED_WRAPPER"
+      },
+      {
+        "path": "src/core/jump.pasm",
+        "old": "legacy fixed-size mirror/render compatibility",
+        "replacement": "source-policy actors use shared source-sized publisher/mirror; foreign/test compatibility remains",
+        "disposition": "BYPASSED"
+      },
+      {
+        "path": "src/core/actor_source_host.pasm",
+        "old": "host mode 0 compatibility service",
+        "replacement": "foreign/test/noncombat adapter service remains; source Easy combat host mode 1",
+        "disposition": "RETAIN_GENERIC"
+      },
+      {
+        "path": "tools/bor_compile/normal_coverage.py",
+        "old": "Easy non-contiguous physical media IDs",
+        "replacement": "source identity pins 0,1,2,11..21; authored order still LEVELS.TXT",
+        "disposition": "RETAIN_MEDIA_ABI"
+      }
+    ]
+  },
+  "shared_fixes": [
+    "Private SCPU event-unlink scratch prevents concurrent SA-1 producer D-register corruption",
+    "Byte OAM coordinate ABI",
+    "Pending lease actor-index reload",
+    "Disjoint palette scratch",
+    "Restored A16/I16 viewport join",
+    "Palette reuse content identity and actor ownership validation"
+  ],
+  "artifacts": {
+    "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a",
+    "msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "candidate": "build/byor-easy",
+    "post_retirement_relink_identical": true
+  },
+  "validation_receipt": "byor-easy-m3-validation.json",
+  "storage": {
+    "files": 568,
+    "logical_bytes": 832100195,
+    "unique_allocated_bytes": 832982832,
+    "exclusive_logical_bytes": 97914259,
+    "exclusive_allocated_bytes": 98742064,
+    "scope": "Deduplicated candidate, all M3 local evidence, tracked M3 receipts, and compiler-private media/queue directories referenced by linked original BOR sets; includes reused compiler cache assets, excludes pre-existing baseline and canonical shared PCM allocation from exclusive bytes",
+    "referenced_compiler_dirs": 97,
+    "candidate": {
+      "files": 41,
+      "logical_bytes": 784658854,
+      "unique_allocated_bytes": 784740616,
+      "exclusive_logical_bytes": 50472918,
+      "exclusive_allocated_bytes": 50499848
+    },
+    "pcm_hardlinks": {
+      "count": 26,
+      "all_samefile_distribution": true,
+      "exclusive_new_pcm_bytes": 0
+    },
+    "scratch_pruning": {
+      "rows": [
+        {
+          "path": "C:\\Users\\chad\\AppData\\Local\\Temp\\s8-spawn-traversal-at92zma7\\mesen.stderr.log",
+          "bytes": 160224097,
+          "sha256": "fa0439f7cbe3b1dfdde0c79fa0a2ee1ee6a5c2401e71aca16795e53cfe1e9098",
+          "reason": "M3-owned reproducible verbose emulator stderr; authoritative admissions and compact reports retained"
+        },
+        {
+          "path": "C:\\Users\\chad\\AppData\\Local\\Temp\\s8-spawn-traversal-ie415908\\mesen.stderr.log",
+          "bytes": 861667989,
+          "sha256": "9946e05599a771f462a3be44386b004228b61bde6a5718f5d4d967e87b890c20",
+          "reason": "M3-owned reproducible verbose emulator stderr; authoritative admissions and compact reports retained"
+        },
+        {
+          "path": "C:\\Users\\chad\\AppData\\Local\\Temp\\s8-spawn-traversal-ulx32hhn\\mesen.stderr.log",
+          "bytes": 228963581,
+          "sha256": "412b87cc4aff9e4939f8abbc49a4d76535819415e4434d29e82ca4f4c71d5815",
+          "reason": "M3-owned reproducible verbose emulator stderr; authoritative admissions and compact reports retained"
+        },
+        {
+          "path": "C:\\Users\\chad\\AppData\\Local\\Temp\\s8-spawn-traversal-upcn88wh\\mesen.stderr.log",
+          "bytes": 373301397,
+          "sha256": "1da93e89abfe9a3fc29be672e8297b01b8813a10669a46424cf044d42f04de96",
+          "reason": "M3-owned reproducible verbose emulator stderr; authoritative admissions and compact reports retained"
+        }
+      ],
+      "removed_bytes": 1624157064,
+      "scope": "Only exact stderr paths referenced by this milestone owned reports"
+    }
+  },
+  "preservation": {
+    "verdict": "PASS",
+    "tracked_before": 17,
+    "tracked_after_original": 17,
+    "all_sizes_hashes_unchanged": true,
+    "staged_count": 0,
+    "untracked_before": 47659,
+    "untracked_after": 48102,
+    "untracked_summary": {
+      "(root)": 2,
+      "docs/": 37,
+      "out/": 48013,
+      "tools/": 50
+    },
+    "untracked_presence": {
+      "recorded_paths": 2404,
+      "missing": [],
+      "scope": "Compact initial git status paths including directory entries; no exhaustive 47k file-content or membership certification"
+    },
+    "no_repository_deletions": true,
+    "final_original_dirty_path_set_unchanged": true
+  },
+  "methodology": {
+    "traversal": "Accepted accelerated-native: ordinary controller progression, bounded damage/unlink acceleration, source admissions read-only independently journaled; no queue-index/campaign-ordinal/completion-counter injection",
+    "save_fixture": "Easy completion counter initialized 0 before run; Bonus selector fixture 1 before run",
+    "positive_idle_overshoot": "Opt-in accepted wrapper allows only non-timeout positive idle-step overshoot; short steps and timeouts reject. Sampling counts controller observations. Final run did not create an overshoot journal.",
+    "timeout_policy": "UNKNOWN; never PASS",
+    "superseded_attempts": "Earlier diagnostic failures and interruptions remain local and are not final certificates; final accepted hash is authoritative"
+  },
+  "nonclaims": [
+    "No arbitrary OpenBOR compatibility",
+    "No SOURCE_EXACT promotion",
+    "No exhaustive pixel certification",
+    "No console-hardware certification",
+    "No complete unaccelerated campaign balance certification",
+    "No complete legacy gameplay replay or quantitative legacy/new AI equivalence",
+    "Existing HP saturation, coordinate/raster/depth and six-actor-pool adaptations remain ACCEPTED_COMPAT",
+    "Shared player controller remains bounded; no complete original-engine player controller claim",
+    "Shared bootstrap actor is outside authored stage queue coverage",
+    "No continuous source-pose presentation cadence certification; pending admissions can defer poses",
+    "Mirror low-word observer records roster/animation role, not map; no map claim from that journal",
+    "Inventory static/native feature diagnostics retain their bounded scope; native receipts do not promote all source semantics to exact",
+    "No separate scene-skip certification; accepted Easy scenes completed naturally"
+  ],
+  "receipt_files": [
+    "byor-easy-m3-admissions.txt",
+    "byor-easy-m3-baseline-selector.json",
+    "byor-easy-m3-baseline.json",
+    "byor-easy-m3-candidate-media-dimensions.json",
+    "byor-easy-m3-combat-release.json",
+    "byor-easy-m3-differential.json",
+    "byor-easy-m3-engine-authority.json",
+    "byor-easy-m3-event-relay-scratch-race.json",
+    "byor-easy-m3-legacy-path-audit.json",
+    "byor-easy-m3-mirror-release.txt.gz",
+    "byor-easy-m3-native-summary.json",
+    "byor-easy-m3-resource-snapshot.png",
+    "byor-easy-m3-selector-release.json",
+    "byor-easy-m3-shared-visual-fixes.json",
+    "byor-easy-m3-source.json",
+    "byor-easy-m3-traversal-release.json.gz",
+    "byor-easy-m3-validation.json",
+    "byor-easy-m3-visual-admissions-release.txt.gz"
+  ],
+  "implementation_commit": "7ef213692f07f4d06a8eccaa9c55b5236f54edf3"
+}

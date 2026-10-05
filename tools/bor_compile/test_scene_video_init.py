@@ -46,7 +46,7 @@ class SceneInitTests(unittest.TestCase):
         self.assertRegex(water, r'StageWater_ColdInit:\s+jsl Tad_StreamInit\s+jsl SceneVideo_Init\s+jml StageWater_Init')
         self.assertIn('jsl StageFp_BG2ColdInit', code('src/main.pasm'))
         foreground = code('src/core/stage_frontpanel_bg2.pasm')
-        self.assertRegex(foreground, r'StageFp_BG2ColdInit:\s+jsl StageWater_ColdInit\s+jsl StageFp_Init\s+jml StageFp_BG2Init')
+        self.assertRegex(foreground, r'StageFp_BG2ColdInit:\s+php\s+sep #\$20\s+\.a8\s+lda #BOR_BOOT_CAMPAIGN\s+sta\.l Game_CampaignId\s+plp\s+jsl StageWater_ColdInit\s+jsl StageFp_Init\s+jml StageFp_BG2Init')
         scene = code('src/core/scene_video.pasm')
         request = scene.split('SceneVideo_Request:', 1)[1].split('SceneVideo_ResolveSequence:', 1)[0]
         self.assertRegex(request, r'lda #0\s+sta\.l SceneVideo_MsuDmaProbe')
