@@ -281,6 +281,25 @@ This proof contains no live compositor, source-reachable combat, actual HUD
 drawing, moving actors, two-player certification or MOTU Demo completion.
 No color reduction is applied.
 
+## Foreign script frontend continuation
+
+`script_ir_4086.py` parses source function bodies generically with pycparser,
+preserves argument expressions, and resolves frame commands against each
+model's supplied animation script library. It parses five libraries containing
+27 functions, binds all 65 frame commands with exact arity, and retains five
+inline script bodies. Function names select source ASTs, not handwritten
+actor-specific implementations. Unsupported AST syntax fails explicitly.
+
+The exact 4086 parser ignores variable/parameter declared types; numeric
+spelling selects variant values. `ScriptVariant.h` stores decimals as DOUBLE,
+and `ScriptVariant.c` copies assignment types, truncates integer division
+toward zero, and produces VT_EMPTY on division by zero. Those facts are
+recorded as compiler requirements, not replaced by fixed-point assumptions.
+All authority paths refer to commit
+`af23dc9c2316bb7853bb266ccf40986aa9765aeb`. Native script execution, API hooks,
+inline wrapper semantics and numeric equivalence remain explicitly unbound.
+No foreign profile is admitted through the historical builder.
+
 ### Anchored palette identities and bounded tile caching
 
 The no-effect background/player/enemy context contains 101 final RGB555

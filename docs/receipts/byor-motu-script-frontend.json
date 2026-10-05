@@ -1,0 +1,104 @@
+{
+  "schema": "BYOR_SCRIPT_AST_4086_V1",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "diagnostics": [],
+  "engine_api_requirements": [
+    "NULL",
+    "changeentityproperty",
+    "checkwall",
+    "clearlocalvar",
+    "clearspawnentry",
+    "findtarget",
+    "getentityproperty",
+    "getlocalvar",
+    "killentity",
+    "openborconstant",
+    "performattack",
+    "playerkeys",
+    "projectile",
+    "rand",
+    "setlocalvar",
+    "setspawnentry",
+    "spawn",
+    "tossentity",
+    "updateframe"
+  ],
+  "frontend": {
+    "parser": "pycparser",
+    "version": "3.0"
+  },
+  "variant_authority": {
+    "parser_path": "engine/source/scriptlib/Parser.c",
+    "assignment_path": "engine/source/scriptlib/ScriptVariant.c",
+    "declared_types_ignored": true,
+    "decimal_storage": "DOUBLE",
+    "integer_division": "truncate toward zero",
+    "divide_by_zero": "VT_EMPTY",
+    "native_numeric_equivalence_proven": false
+  },
+  "native_lowered": false,
+  "numeric_runtime_semantics_bound": false,
+  "status": "SOURCE_SCRIPT_BINDINGS_PROVEN",
+  "scope": "Source syntax, function identity and arity only. No VM, native command execution or engine API admission.",
+  "libraries": [
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "asset_sha256": "fdf517b371ce1d5a3beb55df748972041ca6fe4830d5ef7b163666367ce9d9ba",
+      "functions": [
+        "dasher",
+        "leaper",
+        "keyint",
+        "keyflip",
+        "flip",
+        "block",
+        "spawn01",
+        "shooter"
+      ]
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "asset_sha256": "983edc927f5b7dd821488171abed37fd37d39db05c08205460c0e65c255686b8",
+      "functions": [
+        "dasher",
+        "clearL",
+        "looper",
+        "shoot",
+        "shooter",
+        "spawn01",
+        "target",
+        "shootT",
+        "attack1",
+        "attackF",
+        "teledodgez"
+      ]
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\FX.C",
+      "asset_sha256": "6f2fb352819e0c2e033cf88ed221badbdefac4180927c5da34f0302694969925",
+      "functions": [
+        "teletarget"
+      ]
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C",
+      "asset_sha256": "ffce8e0f6b983e06b43d5a9a01a9cefb77a03f6aef358f29c34dd7c6c0fa3b3c",
+      "functions": [
+        "target",
+        "dash"
+      ]
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "asset_sha256": "b57248ac56f362df3fb62dbb4f49a2b4bf3fdde5dc8100ad8775492f1d6653e7",
+      "functions": [
+        "dasher",
+        "flip",
+        "shoot",
+        "shooter",
+        "toss"
+      ]
+    }
+  ],
+  "frame_commands": 65,
+  "inline_scripts": 5
+}
