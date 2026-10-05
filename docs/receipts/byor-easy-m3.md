@@ -132,7 +132,8 @@ M3 reproducible stderr logs totaling 1,624,157,064 bytes were pruned after compa
 authority was retained. No protected historical evidence was deleted.
 
 All 17 original dirty tracked files retain exact sizes and SHA-256 hashes.
-Only milestone-owned files are staged. No reset, clean, stash or foreign dirt
+Only milestone-owned work was committed; all unrelated dirty tracked files
+remain unstaged. No reset, clean, stash or foreign dirt
 discard occurred. Untracked preservation uses compact presence checks and no
 repository deletion; it is not a per-file content certification of 47k paths.
 
