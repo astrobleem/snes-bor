@@ -3,6 +3,7 @@
 CAMPAIGN_ENTRY_STAGE = 0
 CAMPAIGN_ENTRY_SCENE = 1
 CAMPAIGN_BOR_NORMAL_DEV = 3
+BOR_BOOT_CAMPAIGN = CAMPAIGN_BOR_NORMAL_DEV
 BOR_SET_UNMAPPED = $FF
 BOR_SET_COUNT = 4
 BorSet_Ids:
@@ -12,7 +13,7 @@ BorSet_IfComplete:
 BorSet_ContentAvailable:
     .db 1, 1, 1, 1
 BorSet_CampaignMap:
-    .db CAMPAIGN_BOR_ORIGINAL, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV
+    .db CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV
 BOR_SET_NAME_WIDTH = 8
 BorSet_Names:
     .db 69, 97, 115, 121, 0, 0, 0, 0
@@ -33,7 +34,7 @@ Campaign_Bor_StageMap:
 Campaign_Bor_NextFlags:
     .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
 Campaign_Bor_CompleteFlags:
-    .db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
 
 Campaign_BorNormalDev_EntryCount = 16
 Campaign_BorNormalDev_EntryKinds:
@@ -101,16 +102,16 @@ Campaign_Standalone_StageMap:
     .db 3, 4, 5, 10
 
 Campaign_Source_Offsets:
-    .db 0, 0, 16, 32
+    .db 0, 16, 32, 48
 
 Campaign_Source_Counts:
-    .db 0, 16, 16, 2
+    .db 16, 16, 16, 2
 
 Campaign_Source_Kinds:
-    .db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1
+    .db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1
 
 Campaign_Source_Values:
-    .db 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, SceneSequence_Rugal, 35, SceneSequence_Ending, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending, 50, SceneSequence_Sewer
+    .db 0, 1, 2, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, SceneSequence_Rugal, 21, SceneSequence_Ending, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, SceneSequence_Rugal, 35, SceneSequence_Ending, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending, 50, SceneSequence_Sewer
 
 Campaign_Source_CompleteFlags:
-    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0

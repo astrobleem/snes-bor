@@ -10,7 +10,7 @@ SceneVideo_Record0_Height = 192
 SceneVideo_Record0_FpsNum = 25
 SceneVideo_Record0_FpsDen = 1
 SceneVideo_Record0_FrameCount = 126
-SceneVideo_Record0_PayloadOffset = 8148730
+SceneVideo_Record0_PayloadOffset = 8018722
 SceneVideo_Record0_PayloadSize = 1603792
 SceneVideo_Record1_SceneId = 2
 SceneVideo_Record1_Flags = 1
@@ -19,7 +19,7 @@ SceneVideo_Record1_Height = 192
 SceneVideo_Record1_FpsNum = 25
 SceneVideo_Record1_FpsDen = 1
 SceneVideo_Record1_FrameCount = 71
-SceneVideo_Record1_PayloadOffset = 9752522
+SceneVideo_Record1_PayloadOffset = 9622514
 SceneVideo_Record1_PayloadSize = 985976
 SceneVideo_Record2_SceneId = 3
 SceneVideo_Record2_Flags = 0
@@ -28,7 +28,7 @@ SceneVideo_Record2_Height = 192
 SceneVideo_Record2_FpsNum = 25
 SceneVideo_Record2_FpsDen = 1
 SceneVideo_Record2_FrameCount = 250
-SceneVideo_Record2_PayloadOffset = 10738498
+SceneVideo_Record2_PayloadOffset = 10608490
 SceneVideo_Record2_PayloadSize = 3397192
 SceneVideo_Record3_SceneId = 4
 SceneVideo_Record3_Flags = 1
@@ -37,7 +37,7 @@ SceneVideo_Record3_Height = 192
 SceneVideo_Record3_FpsNum = 25
 SceneVideo_Record3_FpsDen = 1
 SceneVideo_Record3_FrameCount = 175
-SceneVideo_Record3_PayloadOffset = 14135690
+SceneVideo_Record3_PayloadOffset = 14005682
 SceneVideo_Record3_PayloadSize = 1346776
 SceneVideo_Record4_SceneId = 5
 SceneVideo_Record4_Flags = 0
@@ -46,7 +46,7 @@ SceneVideo_Record4_Height = 192
 SceneVideo_Record4_FpsNum = 25
 SceneVideo_Record4_FpsDen = 1
 SceneVideo_Record4_FrameCount = 1500
-SceneVideo_Record4_PayloadOffset = 15482466
+SceneVideo_Record4_PayloadOffset = 15352458
 SceneVideo_Record4_PayloadSize = 15590908
 SceneVideo_Record5_SceneId = 6
 SceneVideo_Record5_Flags = 0
@@ -55,7 +55,7 @@ SceneVideo_Record5_Height = 192
 SceneVideo_Record5_FpsNum = 1
 SceneVideo_Record5_FpsDen = 5
 SceneVideo_Record5_FrameCount = 1
-SceneVideo_Record5_PayloadOffset = 31073374
+SceneVideo_Record5_PayloadOffset = 30943366
 SceneVideo_Record5_PayloadSize = 5998
 SceneVideo_Record6_SceneId = 7
 SceneVideo_Record6_Flags = 0
@@ -64,7 +64,7 @@ SceneVideo_Record6_Height = 192
 SceneVideo_Record6_FpsNum = 1
 SceneVideo_Record6_FpsDen = 10
 SceneVideo_Record6_FrameCount = 2
-SceneVideo_Record6_PayloadOffset = 31079372
+SceneVideo_Record6_PayloadOffset = 30949364
 SceneVideo_Record6_PayloadSize = 27800
 
 ; Indexed tables generated from the finalized BORVID records.
@@ -85,9 +85,9 @@ SceneVideo_RecordFrameCountsLo:
 SceneVideo_RecordFrameCountsHi:
     .dw 0, 0, 0, 0, 0, 0, 0
 SceneVideo_RecordPayloadOffsetsLo:
-    .dw 22266, 53194, 56130, 45450, 15970, 9310, 15308
+    .dw 23330, 54258, 57194, 46514, 17034, 10374, 16372
 SceneVideo_RecordPayloadOffsetsHi:
-    .dw 124, 148, 163, 215, 236, 474, 474
+    .dw 122, 146, 161, 213, 234, 472, 472
 SceneVideo_RecordPayloadSizesLo:
     .dw 30928, 2936, 54856, 36056, 58876, 5998, 27800
 SceneVideo_RecordPayloadSizesHi:
@@ -95,7 +95,7 @@ SceneVideo_RecordPayloadSizesHi:
 SceneVideo_RecordFlags:
     .dw 0, 1, 0, 1, 0, 0, 0
 SceneVideo_RecordPayloadOffsetBytes:
-    .db 250, 86, 124, 0, 202, 207, 148, 0, 66, 219, 163, 0, 138, 177, 215, 0, 98, 62, 236, 0, 94, 36, 218, 1, 204, 59, 218, 1
+    .db 34, 91, 122, 0, 242, 211, 146, 0, 106, 223, 161, 0, 178, 181, 213, 0, 138, 66, 234, 0, 134, 40, 216, 1, 244, 63, 216, 1
 SceneVideo_RecordPayloadSizeBytes:
     .db 208, 120, 24, 0, 120, 11, 15, 0, 72, 214, 51, 0, 216, 140, 20, 0, 252, 229, 237, 0, 110, 23, 0, 0, 152, 108, 0, 0
 SceneVideo_Rugal = SceneVideo_Record0_SceneId

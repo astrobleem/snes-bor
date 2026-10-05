@@ -65,12 +65,12 @@ class CandidateTests(unittest.TestCase):
         def table(name):
             text = Path("tools/audio/campaign_config.pasm").read_text()
             return re.search(rf"{name}:\s*\.db ([^\n]+)", text)[1]
-        authority = SimpleNamespace(sets=[SimpleNamespace(name=name, source_id=index, entries=[None] * 16)
-                                         for index, name in enumerate(('Normal', 'Hard'), 1)])
+        authority = SimpleNamespace(sets=[SimpleNamespace(name=name, source_id=index, entries=[None] * len(build.CAMPAIGN_ENTRY_MAPS[{"Easy":"BOR_ORIGINAL","Normal":"BOR_NORMAL_1A_INTERNAL","Hard":"BOR_HARD","Bonus":"BOR_BONUS"}[name]]))
+                                         for index, name in enumerate(('Easy', 'Normal', 'Hard', 'Bonus'))])
         with patch.object(build, "parse_levels_from_pak", return_value=sets), \
              patch.object(compiler, 'Source'), patch.object(compiler, 'project', return_value=authority):
             build.write_campaign_include()
-            self.assertEqual(table("BorSet_ContentAvailable"), "1, 0, 0, 0")
+            self.assertEqual(table("BorSet_ContentAvailable"), "0, 0, 0, 0")
             build.write_campaign_include(normal_candidate=True)
             self.assertEqual(table("BorSet_ContentAvailable"), "1, 1, 0, 0")
             self.assertIn("CAMPAIGN_BOR_NORMAL_DEV", table("BorSet_CampaignMap"))
@@ -78,7 +78,7 @@ class CandidateTests(unittest.TestCase):
             self.assertEqual(table("BorSet_ContentAvailable"), "1, 1, 1, 0")
             self.assertIn("CAMPAIGN_BOR_NORMAL_DEV", table("BorSet_CampaignMap"))
             build.write_campaign_include()
-            self.assertEqual(table("BorSet_ContentAvailable"), "1, 0, 0, 0")
+            self.assertEqual(table("BorSet_ContentAvailable"), "0, 0, 0, 0")
             self.assertNotIn("CAMPAIGN_BOR_NORMAL_DEV", table("BorSet_CampaignMap"))
 
     def test_candidate_outputs_and_music_are_isolated(self):
@@ -168,6 +168,8 @@ class CandidateTests(unittest.TestCase):
     def test_main_candidate_suppresses_shared_msu_and_assembly_failure_publishes_nothing(self):
         with contextlib.ExitStack() as stack:
             stack.enter_context(patch.object(production_campaign, "materialize_actor_bindings"))
+            stack.enter_context(patch.object(production_campaign, "materialize_stage_bindings"))
+            stack.enter_context(patch("source_noncombat.write_tables"))
             for name in ("prepare_campaign_queues", "bank0_layout_guard_self_test",
                          "write_stage_scroll_include", "write_bor_player_select_include",
                          "write_source_visual_layout_include"):
@@ -179,7 +181,7 @@ class CandidateTests(unittest.TestCase):
             publish = stack.enter_context(patch.object(build, "write_build_outputs"))
             with self.assertRaisesRegex(RuntimeError, "assembly failed"):
                 build.main(normal_candidate=True)
-            gate.assert_called_once_with(normal_candidate=True, hard_candidate=False)
+            gate.assert_called_once_with(normal_candidate=True, hard_candidate=False, bonus_candidate=False)
             pack.assert_called_once_with(write_output=False, source_sized_visual=False)
             publish.assert_not_called()
         self.assert_protected()

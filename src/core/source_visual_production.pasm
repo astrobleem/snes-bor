@@ -122,6 +122,7 @@ SourceVisual_EmitPieceY        = $7E44A8
 SourceVisual_VisiblePieces     = $7E44AA
 SourceVisual_EmitPieceWidth    = $7E44AC
 SourceVisual_EmitPieceHeight   = $7E44AE
+SourceVisual_PaletteTransferBit = $7E44B0 ; .dw, disjoint from persistent BaseTile
 ; Persistent Normal rows publish a sampled runtime-role key/frame into the
 ; same 133-byte StageEnv row. A zero bridge policy remains S-CPU-owned and
 ; continues to use its native CHAR_SELECTED/CHAR_FRAME_INDEX mapping.
@@ -313,6 +314,61 @@ SourceVisual_FrameInViewport__y_end:
     sec
     rts
 SourceVisual_FrameInViewport__outside:
+    jsr SourceVisual_FrameMirrorInViewport
+    rts
+ ; BOR display_ents mirror uses the same unflipped image at source foot
+; (PLAYER_MIN_Z-10)+(PLAYER_MIN_Z-z)-a. The established 4/5 coordinate
+; adapter gives ground foot 248-nativeY; authored pose offsets are unchanged.
+SourceVisual_FrameMirrorInViewport:
+    lda.l Stage_Mirror
+    and #$00FF
+    bne SourceVisual_FrameMirrorInViewport__active
+    clc
+    rts
+SourceVisual_FrameMirrorInViewport__active:
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    sta.l SourceVisual_EmitBaseX
+    lda CHAR_FACING_LEFT
+    and #$00FF
+    beq SourceVisual_FrameMirrorInViewport__right
+    lda.l SourceVisual_EmitBaseX
+    clc
+    adc.l SourceVisual_EntryScratch+8
+    inc a
+    sec
+    sbc.l SourceVisual_EntryScratch+4
+    bra SourceVisual_FrameMirrorInViewport__x
+SourceVisual_FrameMirrorInViewport__right:
+    lda.l SourceVisual_EmitBaseX
+    sec
+    sbc.l SourceVisual_EntryScratch+8
+SourceVisual_FrameMirrorInViewport__x:
+    bmi SourceVisual_FrameMirrorInViewport__x_end
+    cmp #256
+    bcs SourceVisual_FrameMirrorInViewport__outside
+SourceVisual_FrameMirrorInViewport__x_end:
+    clc
+    adc.l SourceVisual_EntryScratch+4
+    bmi SourceVisual_FrameMirrorInViewport__outside
+    beq SourceVisual_FrameMirrorInViewport__outside
+    lda #248
+    sec
+    sbc CHAR_POS_Y
+    sec
+    sbc.l SourceVisual_EntryScratch+10
+    bmi SourceVisual_FrameMirrorInViewport__y_end
+    cmp #224
+    bcs SourceVisual_FrameMirrorInViewport__outside
+SourceVisual_FrameMirrorInViewport__y_end:
+    clc
+    adc.l SourceVisual_EntryScratch+6
+    bmi SourceVisual_FrameMirrorInViewport__outside
+    beq SourceVisual_FrameMirrorInViewport__outside
+    sec
+    rts
+SourceVisual_FrameMirrorInViewport__outside:
     clc
     rts
 SourceVisual_RenderCurrent__fail:
@@ -714,6 +770,10 @@ SourceVisual_SelectResidency__clear_loop:
     sta.l SourceVisual_PaletteBase
     bra SourceVisual_SelectResidency__mark
 SourceVisual_SelectResidency__found:
+    ; ReadEntry clobbers X when an unfinished animation lease is resumed.
+    ; Resolve the actor record again before loading persistent lease fields.
+    lda.l SourceVisual_Record
+    tax
     lda.l SourceVisual_State+8,x
     sta.l SourceVisual_BaseTile
     lda.l SourceVisual_State+12,x
@@ -1231,8 +1291,20 @@ SourceVisual_AllocatePalettes__count_ok:
     beq SourceVisual_AllocatePalettes__already_mapped
     brl SourceVisual_AllocatePalettes__fail
 SourceVisual_AllocatePalettes__already_mapped:
+    ; Physical CGRAM slots can be reused after a retirement or failed
+    ; admission. A matching selector count is not an identity/ownership proof.
+    jsr SourceVisual_ValidatePaletteMap
+    bcc SourceVisual_AllocatePalettes__repair_map
     sec
     rts
+SourceVisual_AllocatePalettes__repair_map:
+    jsr SourceVisual_ReleaseActorPalettes
+    lda.l SourceVisual_Record
+    tax
+    lda #0
+    sta.l SourceVisual_State+4,x
+    sta.l SourceVisual_State+14,x
+    ; Rebuild every local selector below; stale physical pointers are ignored.
 
 SourceVisual_AllocatePalettes__map:
     lda.l SourceVisual_ActorSlot
@@ -1377,6 +1449,68 @@ SourceVisual_AllocatePalettes__fail:
     lda #0
     sta.l SourceVisual_State+12,x
     sta.l SourceVisual_State+14,x
+    clc
+    rts
+
+; A16/I16, C=true only when every immutable piece palette still resolves
+; to the actor-owned content identity. Transfer retirement is fenced later.
+SourceVisual_ValidatePaletteMap:
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_ValidatePaletteMap__owner:
+    cpx #0
+    beq SourceVisual_ValidatePaletteMap__owner_ready
+    asl a
+    dex
+    bra SourceVisual_ValidatePaletteMap__owner
+SourceVisual_ValidatePaletteMap__owner_ready:
+    sta.l SourceVisual_PaletteTransferBit
+    lda #0
+    sta.l SourceVisual_PieceIndex
+SourceVisual_ValidatePaletteMap__piece:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcs SourceVisual_ValidatePaletteMap__valid
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+10,x
+    sta.l SourceVisual_PaletteGlobalIndex
+    lda.l SourceVisual_PieceTable+8,x
+    and #$00FF
+    clc
+    adc.l SourceVisual_Record
+    clc
+    adc #16
+    tax
+    lda.l SourceVisual_State,x
+    and #$00FF
+    beq SourceVisual_ValidatePaletteMap__invalid
+    dec a
+    cmp #8
+    bcs SourceVisual_ValidatePaletteMap__invalid
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PaletteCache,x
+    cmp.l SourceVisual_PaletteGlobalIndex
+    bne SourceVisual_ValidatePaletteMap__invalid
+    lda.l SourceVisual_PaletteCache+4,x
+    and #$00FF
+    and.l SourceVisual_PaletteTransferBit
+    beq SourceVisual_ValidatePaletteMap__invalid
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    bra SourceVisual_ValidatePaletteMap__piece
+SourceVisual_ValidatePaletteMap__valid:
+    sec
+    rts
+SourceVisual_ValidatePaletteMap__invalid:
     clc
     rts
 
@@ -3119,13 +3253,13 @@ SourceVisual_QueuePalettes__mask_shift:
     dex
     bra SourceVisual_QueuePalettes__mask_shift
 SourceVisual_QueuePalettes__mask_ready:
-    sta.l SourceVisual_Temp+2
+    sta.l SourceVisual_PaletteTransferBit
     lda.l SourceVisual_PaletteMask
-    and.l SourceVisual_Temp+2
+    and.l SourceVisual_PaletteTransferBit
     beq SourceVisual_QueuePalettes__mask_new
     brl SourceVisual_QueuePalettes__next
 SourceVisual_QueuePalettes__mask_new:
-    lda.l SourceVisual_Temp+2
+    lda.l SourceVisual_PaletteTransferBit
     ora.l SourceVisual_PaletteMask
     sta.l SourceVisual_PaletteMask
 SourceVisual_QueuePalettes__palette_lookup:
@@ -3593,10 +3727,14 @@ SourceVisual_Emit:
     lda.l StageBounds_State,x
     beq SourceVisual_Emit__ground_y
     cmp #2
-    beq SourceVisual_Emit__hidden
+    bne SourceVisual_Emit__not_hidden
+    brl SourceVisual_Emit__hidden
+SourceVisual_Emit__not_hidden:
     lda.l StageBounds_DrawY,x
     cmp #240
-    bcs SourceVisual_Emit__hidden
+    bcc SourceVisual_Emit__height_visible
+    brl SourceVisual_Emit__hidden
+SourceVisual_Emit__height_visible:
     sta.l SourceVisual_EmitBaseY
     lda #1
     sta.l SourceVisual_EmitBoundsMode
@@ -3615,7 +3753,13 @@ SourceVisual_Emit__count_visible:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_Emit__reserve_visible
-    jsr SourceVisual_ViewportPiece
+    jsr SourceVisual_ViewportNormalPiece
+    bcc SourceVisual_Emit__count_mirror
+    lda.l SourceVisual_VisiblePieces
+    inc a
+    sta.l SourceVisual_VisiblePieces
+SourceVisual_Emit__count_mirror:
+    jsr SourceVisual_ViewportMirrorPiece
     bcc SourceVisual_Emit__count_next
     lda.l SourceVisual_VisiblePieces
     inc a
@@ -3635,7 +3779,7 @@ SourceVisual_Emit__reserve_visible:
     bcc SourceVisual_Emit__oam_capacity_ok
     sep #$20
 .a8
-    lda #$A7
+    lda #$2B
     sta.l SourceVisual_Error
     rep #$31
 .a16
@@ -3779,46 +3923,31 @@ SourceVisual_Emit__obj_size_ready:
     ora #1
     sta.l OamSetSprite_Hi
 SourceVisual_Emit__x_high_ready:
-    ; Keep the native OAM write in this loop.  The old helper boundary was
-    ; same-bank code, but its return convention made the generic piece loop
-    ; terminate after a prefix on the production path.  This is the same
-    ; shadow/cursor ABI as Core_Oam_SetSprite, with no actor-specific logic.
+    ; Negative screen X takes the A8 high-bit path above. Restore the
+    ; viewport helper ABI on both paths before reading 16-bit coordinates.
     rep #$31
 .a16
 .i16
-    lda.l $7E53A0
-    tax
+    jsr SourceVisual_ViewportNormalPiece
+    bcc SourceVisual_Emit__mirror
+    jsr SourceVisual_WriteCurrentPiece
+SourceVisual_Emit__mirror:
+    jsr SourceVisual_ViewportMirrorPiece
+    bcc SourceVisual_Emit__next_piece
+SourceVisual_WriteMirror:
+    ; Source mirror depth is behind the floor/frontpanel. No vflip, resize,
+    ; extra tile allocation, changed source pose or extra actor is involved.
     sep #$20
-.a8
-    lda.l OamSetSprite_X
-    sta.l Oam_Buffer,x
-    lda.l OamSetSprite_Y
-    sta.l Oam_Buffer+1,x
-    lda.l OamSetSprite_Tile
-    sta.l Oam_Buffer+2,x
+    .a8
     lda.l OamSetSprite_Attr
-    sta.l Oam_Buffer+3,x
+    and #$CF
+    ora #$20                    ; above clean BG1, behind foreground BG2
+    sta.l OamSetSprite_Attr
     rep #$31
-.a16
-.i16
-    lda.l $7E53A0
-    lsr a
-    lsr a
-    tax
-    sep #$20
-.a8
-    lda.l OamSetSprite_Hi
-    sta.l Oam_ExpandedHi,x
-    rep #$31
-.a16
-.i16
-    lda.l $7E53A0
-    clc
-    adc #4
-    sta.l $7E53A0
-    rep #$31
-.a16
-.i16
+    .a16
+    .i16
+SourceVisual_WriteMirror__emit:
+    jsr SourceVisual_WriteCurrentPiece
 SourceVisual_Emit__next_piece:
     lda.l SourceVisual_PieceIndex
     inc a
@@ -3874,10 +4003,68 @@ SourceVisual_Emit__palette_fail:
     clc
     rts
 
+SourceVisual_WriteCurrentPiece:
+    ; OAM request coordinates are bytes; A16 Y would clear adjacent Tile.
+    sep #$20
+    .a8
+    lda.l SourceVisual_EmitPieceX
+    sta.l OamSetSprite_X
+    lda.l SourceVisual_EmitPieceY
+    sta.l OamSetSprite_Y
+    sep #$20
+    .a8
+    lda.l OamSetSprite_Attr
+    jsl StageFp_BG2OamAttr
+    sta.l OamSetSprite_Attr
+    rep #$31
+.a16
+.i16
+    lda.l $7E53A0
+    tax
+    sep #$20
+.a8
+    lda.l OamSetSprite_X
+    sta.l Oam_Buffer,x
+    lda.l OamSetSprite_Y
+    sta.l Oam_Buffer+1,x
+    lda.l OamSetSprite_Tile
+    sta.l Oam_Buffer+2,x
+    lda.l OamSetSprite_Attr
+    sta.l Oam_Buffer+3,x
+    rep #$31
+.a16
+.i16
+    lda.l $7E53A0
+    lsr a
+    lsr a
+    tax
+    sep #$20
+.a8
+    lda.l OamSetSprite_Hi
+    sta.l Oam_ExpandedHi,x
+    rep #$31
+.a16
+.i16
+    lda.l $7E53A0
+    clc
+    adc #4
+    sta.l $7E53A0
+    rep #$31
+.a16
+.i16
+    rts
+
 ; A16/I16. Resolve one authored 16x32 or 32x64 piece without byte wrapping.
 ; C=true iff at least one of its pixels can intersect the 256x224 viewport.
 ; Count and emission use this same predicate, keeping OAM admission atomic.
 SourceVisual_ViewportPiece:
+    jsr SourceVisual_ViewportNormalPiece
+    bcs SourceVisual_ViewportPiece__union_visible
+    jsr SourceVisual_ViewportMirrorPiece
+SourceVisual_ViewportPiece__union_visible:
+    rts
+
+SourceVisual_ViewportNormalPiece:
     lda.l SourceVisual_PieceIndex
     asl a
     asl a
@@ -3937,6 +4124,46 @@ SourceVisual_ViewportPiece__y_end:
     sec
     rts
 SourceVisual_ViewportPiece__outside:
+    clc
+    rts
+
+SourceVisual_ViewportMirrorPiece:
+    lda.l Stage_Mirror
+    and #$00FF
+    bne SourceVisual_ViewportMirrorPiece__active
+    clc
+    rts
+SourceVisual_ViewportMirrorPiece__active:
+    jsr SourceVisual_ViewportNormalPiece
+    lda.l SourceVisual_EmitPieceY
+    sec
+    sbc.l SourceVisual_EmitBaseY
+    clc
+    adc #248
+    sec
+    sbc CHAR_POS_Y
+    sta.l SourceVisual_EmitPieceY
+    lda.l SourceVisual_EmitPieceX
+    bmi SourceVisual_ViewportMirrorPiece__x_end
+    cmp #256
+    bcs SourceVisual_ViewportMirrorPiece__outside
+SourceVisual_ViewportMirrorPiece__x_end:
+    clc
+    adc.l SourceVisual_EmitPieceWidth
+    bmi SourceVisual_ViewportMirrorPiece__outside
+    beq SourceVisual_ViewportMirrorPiece__outside
+    lda.l SourceVisual_EmitPieceY
+    bmi SourceVisual_ViewportMirrorPiece__y_end
+    cmp #224
+    bcs SourceVisual_ViewportMirrorPiece__outside
+SourceVisual_ViewportMirrorPiece__y_end:
+    clc
+    adc.l SourceVisual_EmitPieceHeight
+    bmi SourceVisual_ViewportMirrorPiece__outside
+    beq SourceVisual_ViewportMirrorPiece__outside
+    sec
+    rts
+SourceVisual_ViewportMirrorPiece__outside:
     clc
     rts
 

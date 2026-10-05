@@ -98,32 +98,24 @@ class NormalBindingTests(unittest.TestCase):
                 self.assertEqual(record[9], 46)
                 self.assertEqual(record[7], 1)  # live pickup slot, source health is zero
 
-    def test_easy_matches_accepted_queue_inputs(self):
+    def test_easy_uses_source_identity_bindings(self):
         configs = [c for c in STAGE_CONFIGS if c.get('source_set_id') == 0]
-        self.assertTrue(all(c['queue_identity_policy'] == 'accepted-legacy' for c in configs))
-        steamer_tag_offsets = {}
+        self.assertTrue(all(c['queue_identity_policy'] == 'source-identity' for c in configs))
+        blobs = compile_queues(configs, ROSTER_CONFIGS)
         for cfg in configs:
-            source = Source(cfg['pak'])
-            ir = stage(source, cfg['source_level'])
+            ir = stage(Source(cfg['pak']), cfg['source_level'])
             prefix = len(ir.environment.get('hole', []))
             for index, event in enumerate(ir.queue, prefix):
-                if event.kind == 'spawn' and event.character.casefold() == 'steamer':
-                    steamer_tag_offsets.setdefault(cfg['spawn'], set()).add(
-                        index * 10 + 6)
-        for path, data in compile_queues(configs, ROSTER_CONFIGS).items():
-            accepted = bytearray(subprocess.check_output(
-                ['git', 'show', 'c8cbd71b200cab869d3f953bdd07352c172577ed:' + path],
-                cwd=ROOT))
-            actual = bytearray(data)
-            allowed = steamer_tag_offsets.get(path, set())
-            changed = {i for i, (new, old) in enumerate(zip(actual, accepted))
-                       if new != old}
-            self.assertEqual(changed, allowed, path)
-            for offset in allowed:
-                self.assertEqual(actual[offset] & 0x1F, accepted[offset] & 0x1F, path)
-                self.assertEqual(actual[offset] >> 5, 7, path)
-                accepted[offset] = actual[offset]
-            self.assertEqual(actual, accepted, path)
+                if event.kind != 'spawn':
+                    continue
+                record = blobs[cfg['spawn']][index * 10:(index + 1) * 10]
+                if event.character.casefold() == 'steamer':
+                    self.assertEqual(record[6] >> 5, 7)
+                if event.character.casefold() == 'ramon':
+                    self.assertEqual(record[9], 45)
+                if event.character.casefold() == 'time':
+                    self.assertEqual(record[9], 46)
+                    self.assertEqual(record[6] >> 5, 6)
 
     def test_no_new_set_identity_fallback(self):
         configs = [c for c in STAGE_CONFIGS if c.get('source_set_id') == 1]

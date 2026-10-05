@@ -3,6 +3,7 @@ import ast
 from copy import deepcopy
 import dis
 from pathlib import Path
+import re
 import struct
 import sys
 import types
@@ -50,6 +51,21 @@ def retained_child(function, name):
 
 
 class TraversalTests(unittest.TestCase):
+    def test_left_stall_uses_authored_level_progress(self):
+        state=dict(stage=19,spawn_index=72,spawn_count=92,next_trigger=2240,
+                   stage_true_max_x=3903,camera_x=1952,camera_min_x=943,
+                   camera_max_x=1840,spawn_waiting=0,npc_slots=[])
+        for _ in range(121):
+            harness._traversal_terminal_clamp(state)
+        self.assertFalse(harness._traversal_queue_stall_latched)
+        state['camera_x']=1663
+        for _ in range(121):
+            harness._traversal_terminal_clamp(state)
+        self.assertTrue(harness._traversal_queue_stall_latched)
+        # Reset shared fixture latches so independent contracts stay isolated.
+        harness._traversal_terminal_clamp(dict(state,spawn_index=73,next_trigger=3000))
+
+
     def test_continue_input_requires_out_player_and_credit(self):
         # Start pauses a live player; credits alone must never trigger it.
         from _game_s8_normal_campaign_base import traversal_continue_needed
@@ -614,6 +630,22 @@ class TraversalTests(unittest.TestCase):
         self.assertIn('traversal_jump_held', names)
         self.assertIn('prop_interactions', strings)
         self.assertIn('hold_input', names)
+
+    def test_event_relay_cannot_overwrite_asynchronous_producer_scratch(self):
+        drain = persistent_worker._event_drain(
+            {'S6Host_RemoveHandle': 0x018000, 'S7_QueueHitSfxLong': 0x008000},
+            {'StageEnv_Actors': 0x7E4000, 'CHAR_ZP_LEN': 0x85})
+        producer_private = set(range(0x412436, 0x412440))
+        stores = {int(address, 16) for address in
+                  re.findall(r'\b(?:sta|stx|sty)\.l \$([0-9A-F]{6})', drain)}
+        self.assertFalse(stores & producer_private)
+        unlink = drain.split('Relay_DrainEvents__unlink:', 1)[1]
+        address = int(re.search(r'sbc #\$6000\s+;[^\n]*\n(?:\s*;[^\n]*\n)*\s*sta\.l \$([0-9A-F]{6})', unlink).group(1), 16)
+        # Reproduce the observed interleave: SA-1 saves the attacking player
+        # D, S-CPU handles the prior unlink, then SA-1 copies D into its row.
+        memory = {0x41243C: 0x7900}
+        memory[address] = 0x7E00 - 0x6000
+        self.assertEqual(memory[0x41243C], 0x7900)
 
     def test_event_unlink_defers_on_busy_removal_mailbox_without_ack(self):
         drain = persistent_worker._event_drain(

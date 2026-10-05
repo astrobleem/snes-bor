@@ -1285,7 +1285,10 @@ Relay_DrainEvents__hit:
     lda.l $412458,x
     sec
     sbc #$6000
-    sta.l $41243C
+    ; Producer scratch $412436-$41243E is SA-1-owned. The relay runs
+    ; concurrently: using its source-D cell here can corrupt the next
+    ; published record between S6_EventPush's TDC and row copy.
+    sta.l $7E176A
     ; Unlink events name one of the six fixed resident source pages. Reject
     ; malformed pages before searching the S-CPU bridge table.
     cmp #$1900
@@ -1297,7 +1300,7 @@ Relay_DrainEvents__hit:
     ldx #0
 Relay_DrainEvents__find:
     lda.l ${context:06X},x
-    cmp.l $41243C
+    cmp.l $7E176A
     bne Relay_DrainEvents__next_context
     jml Relay_DrainEvents__found
 Relay_DrainEvents__next_context:

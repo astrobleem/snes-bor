@@ -389,11 +389,17 @@ def _traversal_terminal_clamp(state):
                 )
             ).lower()
     stall_key = (stage_id, spawn_index, spawn_count)
-    trigger_passed = (
-        trigger is not None
-        and (camera_x - 16 <= trigger if queue_direction == "left"
-             else camera_x + 16 >= trigger)
-    )
+    # Authored `at` is distance advanced, including left-scrolling stages.
+    # Spawn_Play uses Stage_TrueMaxX - Screen_PosX there, never raw camera X.
+    # A false passed-trigger stall can reverse the bot toward optional props
+    # forever before the actual next trigger has even been reached.
+    if queue_direction == "left":
+        extent = state.get("stage_true_max_x")
+        trigger_passed = (trigger is not None and
+            (extent - camera_x + 16 >= trigger if extent is not None
+             else camera_x - 16 <= trigger))
+    else:
+        trigger_passed = trigger is not None and camera_x + 16 >= trigger
     queue_waiting_on_passed_trigger = (
         spawn_index is not None and spawn_count is not None
         and spawn_index < spawn_count
@@ -816,6 +822,9 @@ def _traversal_script_with_camera_state(
     )
     from byor_native_interaction import observer_script as interaction_observer_script
     script += interaction_observer_script(symbols)
+    from byor_source_mirror import observer_script as mirror_observer_script, resource_observer_script
+    script += mirror_observer_script(symbols)
+    script += resource_observer_script(symbols)
     visual_error_trace = os.environ.get("S8_NORMAL_VISUAL_ERROR_TRACE")
     if visual_error_trace:
         visual_symbols = (
@@ -848,7 +857,7 @@ local function _s8_visual_key()
   _s8_visual_read({key_addr}+2),_s8_visual_read({key_addr}+3))
 end
 local _s8_visual_bad={{[0x21]=true,[0x22]=true,[0x23]=true,
- [0x24]=true,[0x26]=true,[0x27]=true,[0x2a]=true}}
+ [0x24]=true,[0x26]=true,[0x27]=true,[0x2a]=true,[0x2b]=true}}
 local function _s8_visual_log(kind,code,first,last)
  local row={{kind,code,first or '',last or '',
   _s8_visual_key(),_s8_visual_word({host_d_addr}),

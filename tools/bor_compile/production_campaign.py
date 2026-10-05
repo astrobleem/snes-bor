@@ -67,16 +67,12 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
                                  f'{physical_id} != {pins[ordinal]}')
             spawn_path = ('out/compiler_campaign/' +
                           key(entry.source_path).removesuffix('.txt') + '/spawn_table.bin')
-            if source_set.name == 'Normal' and ordinal < len(pins):
-                slug = Path(key(entry.source_path)).stem
-                spawn_path = f'out/spawn_normal{slug}/spawn_table.bin'
             cfg = dict(family='bor-original', pak=pak,
                        source_set_id=source_set.source_id,
-                       queue_identity_policy=('accepted-legacy' if source_set.name == 'Easy'
-                                              else 'source-identity'),
+                       queue_identity_policy='source-identity',
                        source_level=entry.authored_path.replace('/', '\\').upper(),
                        bg=binding['bg'], frontpanel=binding.get('frontpanel'),
-                       spawn=existing['spawn'] if existing else spawn_path,
+                       spawn=spawn_path,
                        scroll_direction=parsed.scroll,
                        source_direction=parsed.scroll,
                        source_mirror=bool(parsed.environment.get('mirror', [0])[-1]))
@@ -97,7 +93,7 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
                        'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set.name]
         result[campaign_id] = dict(family='bor-original', source_levels_file=ir.levels_path,
                                   source_levels=levels, entries=entries,
-                                  completion_policy=('accepted-easy-s7' if source_set.name == 'Easy' else 'source-next'),
+                                  completion_policy='source-next',
                                   completion_flags=completion_flags(entries, source_set.name),
                                   source_set_id=source_set.source_id,
                                   ifcomplete=source_set.ifcomplete)
@@ -106,17 +102,10 @@ def link_campaigns(bindings, campaigns, scenes, selected=("Easy", "Normal", "Har
 
 
 def completion_flags(entries, source_set):
-    """Runtime presentation policy, separate from immutable authored next flags.
-
-    S7 Easy shows completion for every physical stage. Nonterminal scene
-    continuation also sets Stage_LoadPending and re-enters the same branch;
-    terminal Ending goes directly to HandleEnd without setting pending.
-    """
-    if source_set in ('Normal', 'Hard', 'Bonus'):
-        return [int(e['next_after']) for e in entries]
-    if source_set != 'Easy' or any(e['kind'] not in ('stage', 'scene') for e in entries):
+    """BOR.C gonext controls showcomplete on every original source set."""
+    if source_set not in ('Easy', 'Normal', 'Hard', 'Bonus'):
         raise ValueError('UNKNOWN_COMPLETION_POLICY: ' + source_set)
-    return [int(e['kind'] == 'stage' or i + 1 < len(entries)) for i, e in enumerate(entries)]
+    return [int(e['next_after']) for e in entries]
 
 
 def bind_queue_identities(parsed, blob, roster, entities):
@@ -161,10 +150,8 @@ def compile_queues(configs, roster_configs):
         if cfg['family'] != 'bor-original':
             continue
         policy = cfg.get('queue_identity_policy')
-        if policy not in ('accepted-legacy', 'source-identity'):
+        if policy != 'source-identity':
             raise ValueError(f'QUEUE_IDENTITY_POLICY: {policy}')
-        if cfg.get('source_set_id') != 0 and policy == 'accepted-legacy':
-            raise ValueError('QUEUE_IDENTITY_POLICY: legacy is only authorized for Easy')
         cache_key = cfg['pak'], cfg.get('source_set_id')
         if cache_key not in sources:
             source = Source(cfg['pak'])
@@ -201,13 +188,6 @@ def compile_queues(configs, roster_configs):
                     model = model_catalog(source).get(identity.casefold())
                     if model is None:
                         raise ValueError(f'MODEL_UNBOUND: {parsed.source_path}: {identity}')
-                    model_path = key(model['source_path'])
-                    # Preserve only explicitly inventoried historical bindings
-                    # for the accepted set. New set links never inherit them.
-                    if policy == 'accepted-legacy' and any(cfg.get('source_set_id') in r.get('accepted_legacy_unbound_sets', ())
-                           and key(r.get('source_definition', '__absent')) == model_path
-                           for r in roster_configs):
-                        continue
                     raise ValueError(f'MODEL_UNBOUND: {parsed.source_path}: {identity}')
         count, blob = lower_map_queue(parsed, roster, entities, dialect='historical-bor')
         from model_ir import pickup_effect
@@ -225,8 +205,7 @@ def compile_queues(configs, roster_configs):
                     pos = (index + prefix) * 10 + 6
                     blob[pos] = (blob[pos] & 31) | (6 << 5)
         blob = bytes(blob)
-        if policy == 'source-identity':
-            blob = bind_queue_identities(parsed, blob, roster, entities)
+        blob = bind_queue_identities(parsed, blob, roster, entities)
         output[cfg['spawn']] = blob
     return output
 

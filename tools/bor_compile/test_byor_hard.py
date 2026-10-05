@@ -42,7 +42,7 @@ class ByorHardTests(unittest.TestCase):
                              10 * (len(ir.queue) + len(ir.environment.get('hole', []))))
         _, parsed = normal_stage_inputs(shipped.STAGE_CONFIGS)
         self.assertEqual(Counter(shipped.STAGE_CONFIGS[i]['source_set_id'] for i in parsed),
-                         {1: 14, 2: 14, 3: 1})
+                         {0: 14, 1: 14, 2: 14, 3: 1})
 
     def test_missing_hard_model_fails_closed(self):
         configs = [c for c in shipped.STAGE_CONFIGS if c.get('source_set_id') == 2]
@@ -73,7 +73,7 @@ class ByorHardTests(unittest.TestCase):
         with patch('builtins.open', side_effect=output_only), patch.object(text, 'close'):
             build_rom.write_campaign_include(normal_candidate=True)
         self.assertIn('BorSet_ContentAvailable:\n    .db 1, 1, 0, 0', text.getvalue())
-        self.assertIn('Campaign_Source_Counts:\n    .db 0, 16, 16, 2', text.getvalue())
+        self.assertIn('Campaign_Source_Counts:\n    .db 16, 16, 16, 2', text.getvalue())
 
 
 if __name__ == '__main__':

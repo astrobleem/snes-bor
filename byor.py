@@ -14,7 +14,7 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command', required=True)
     for name in ('inventory', 'build'):
         cmd = sub.add_parser(name)
-        cmd.add_argument('--set', choices=('Normal', 'Hard', 'Bonus'), required=True,
+        cmd.add_argument('--set', choices=('Easy', 'Normal', 'Hard', 'Bonus'), required=True,
                          dest='source_set')
         cmd.add_argument('--source', type=Path,
                          default=ROOT / 'Beats of Rage Original [v.3.0 Build 4086].pak',

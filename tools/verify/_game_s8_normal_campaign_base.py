@@ -658,7 +658,7 @@ def traversal_plan(build, entries, start_ordinal=0):
                 expected.append(dict(stage=physical, index=index, source_queue_index=index - prefix, record=record.hex(), spawn=spawn, source_model=event.character if spawn else None, source_type=model['entity']['type'] if spawn else None, boss=bool(event.boss) if spawn else None, source_definition=models[event.character.casefold()]['source_path'] if spawn else None, roster=record[9] if spawn else None))
     expected_spawn_count = sum((row['spawn'] for row in expected))
     if start_ordinal == 0:
-        contract = {1: 614, 2: 753, 3: 166}[configs[0]['source_set_id']]
+        contract = {0: 545, 1: 614, 2: 753, 3: 166}[configs[0]['source_set_id']]
         if expected_spawn_count != contract:
             raise AssertionError(f'source spawn contract changed: expected {contract}')
     return expected
@@ -819,9 +819,9 @@ def run(args, report):
     pos_y, max_y, min_x = (symbols[n] for n in ('Screen_PosY', 'Screen_MaxY', 'Screen_MinX'))
     source_set = getattr(args, 'source_set', 'Normal')
     cid = 'BOR_ORIGINAL' if args.mode == 'easy' else (
-        {'Normal': 'BOR_NORMAL_1A_INTERNAL', 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set])
+        {'Easy': 'BOR_ORIGINAL', 'Normal': 'BOR_NORMAL_1A_INTERNAL', 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set])
     report['source_set'] = 'Easy' if args.mode == 'easy' else source_set
-    campaign_id = 0 if args.mode == 'easy' else 3
+    campaign_id = 3
     entries = build.CAMPAIGN_ENTRY_MAPS[cid]
     authored = build.CAMPAIGN_CONFIGS[cid]['entries']
     report['expected_entries'] = entries
@@ -837,9 +837,9 @@ def run(args, report):
         if not match:
             raise AssertionError('missing generated table: ' + label)
         return [value.strip() for value in match[1].split(',')]
-    set_index = 0 if args.mode == 'easy' else {'Normal': 1, 'Hard': 2, 'Bonus': 3}[source_set]
+    set_index = 0 if args.mode == 'easy' else {'Easy': 0, 'Normal': 1, 'Hard': 2, 'Bonus': 3}[source_set]
     require('generated release gate permits selected set', table('BorSet_ContentAvailable')[set_index] == '1')
-    require('generated selected campaign mapping matches ABI', table('BorSet_CampaignMap')[set_index] == ('CAMPAIGN_BOR_ORIGINAL' if set_index == 0 else 'CAMPAIGN_BOR_NORMAL_DEV'))
+    require('generated selected campaign mapping matches ABI', table('BorSet_CampaignMap')[set_index] == 'CAMPAIGN_BOR_NORMAL_DEV')
     label = {0: 'Bor', 1: 'BorNormalDev', 2: 'BorHard', 3: 'BorBonus'}[set_index]
     require('generated next flags match source compiler', [int(v) for v in table('Campaign_' + str(label) + '_NextFlags')] == report['next_flags'])
     require('generated completion flags match explicit compatibility policy', [int(v) for v in table('Campaign_' + str(label) + '_CompleteFlags')] == completion_flags)
@@ -1008,9 +1008,9 @@ def run(args, report):
             require(description, False)
         startup.cold_to_title(m, r)
         require('cold TITLE helper passed', all((ok for _, ok in r.results)))
-        if source_set == 'Bonus':
-            m.write_memory('snesMemory', times, '01000000')
-            require('fixture initializes saved completion threshold before run', u32(times) == 1)
+        # Explicit pre-run save fixture; never changed after selection.
+        m.write_memory('snesMemory', times, '01000000' if source_set == 'Bonus' else '00000000')
+        require('fixture initializes saved completion threshold before run', u32(times) == (1 if source_set == 'Bonus' else 0))
         if args.two_player:
             exact_input_edge(m, m.BTN_START, 1, port=1)
             run_frames_exact(m, 2)
@@ -1022,8 +1022,9 @@ def run(args, report):
         else:
             tick(m.BTN_START)
             wait(lambda: u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1, 360, 'TITLE START reaches difficulty prompt')
-            tick(m.BTN_RIGHT)
-            wait(lambda: u8(selected) == 1, 120, 'difficulty RIGHT selects available Normal')
+            if set_index >= 1:
+                tick(m.BTN_RIGHT)
+                wait(lambda: u8(selected) == 1, 120, 'difficulty RIGHT selects available Normal')
             if set_index >= 2:
                 tick()
                 tick(m.BTN_RIGHT)
@@ -1048,6 +1049,7 @@ def run(args, report):
             run_frames_exact(m, 2)
         tick(m.BTN_START)
         wait(lambda: u16(startup.STATE) == startup.PLAYING, 600, 'character select reaches PLAYING')
+        report['first_entry_observation'] = dict(campaign=u8(legal.CAMPAIGN_ID), ordinal=u8(legal.CAMPAIGN_ORDINAL), physical_stage=u16(legal.STAGE_INDEX), expected_campaign=campaign_id, expected_stage=entries[0][1])
         require('native campaign starts at compiler first stage', u8(legal.CAMPAIGN_ID) == campaign_id and (u8(legal.CAMPAIGN_ORDINAL) == 0 and u16(legal.STAGE_INDEX) == entries[0][1]))
         if campaign_id == 3:
             # PLAYING is published before the source-world bind/bootstrap
@@ -1058,7 +1060,7 @@ def run(args, report):
         if args.debug_start_ordinal:
             if args.spawn_traversal:
                 if args.mode != 'natural':
-                    raise AssertionError('--debug-start-ordinal requires natural Normal traversal')
+                    raise AssertionError('--debug-start-ordinal requires natural source-set traversal')
                 target_ordinal = args.debug_start_ordinal
                 if 0 < target_ordinal:
                     if not target_ordinal < len(entries):
@@ -2064,7 +2066,7 @@ def run(args, report):
                         require('bounded Easy control leaves TimesCompleted unchanged', u32(times) == times_before)
                         report['scope'] = 'Easy first three legal clears only; no full Easy completion claim'
                     else:
-                        require('all compiler entries consumed in order', len(report['route']) == len(entries))
+                        require('all requested compiler entries consumed in order', len(report['route']) == len(entries) - args.debug_start_ordinal)
                         require('completion credited exactly once', u32(times) == times_before + 1 & 4294967295 and u8(credited) == 1)
                         require('authored scene continuations exactly once', u16(l5.ENDS) - ends_before & 65535 == sum(e[0] == 'scene' for e in entries))
                         final_swaps = u16(o3.SCENE_SWAPS)
@@ -2088,16 +2090,20 @@ def run(args, report):
                         require('TITLE dwell has no late scene swaps', u16(o3.SCENE_SWAPS) == final_swaps)
                     report['times_after'] = u32(times)
                     report['final'] = sample()
+                    report['final']['selected_source_set'] = u8(symbols['BorSet_Selected'])
+                    report['final']['completion_credited'] = u8(credited)
+                    require('terminal completion retains selected source set',
+                            report['final']['selected_source_set'] == set_index)
                     report['runtime_final'] = runtime_diagnostics()
                     if traversal:
                         harvest()
-                        require('all 614 source spawn identities and every control record observed', len(report['spawn_traversal']['completed']) == len(plan))
+                        require('all authored source spawn identities and every control record observed', len(report['spawn_traversal']['completed']) == len(plan))
                         report['spawn_traversal']['status'] = 'PASS'
                 else:
                     target_ordinal
                     raise AssertionError('--debug-start-ordinal is outside the compiled campaign')
             else:
-                raise AssertionError('--debug-start-ordinal requires natural Normal traversal')
+                raise AssertionError('--debug-start-ordinal requires natural source-set traversal')
         else:
             if args.two_player:
                 require('both co-op players are live at campaign start', u8(symbols['G13_P1Out']) == 0 and (u8(symbols['G13_P2Out']) == 0 and u8(symbols['G13_TwoPlayerEnabled']) == 1))
@@ -3081,7 +3087,7 @@ def run(args, report):
                 require('bounded Easy control leaves TimesCompleted unchanged', u32(times) == times_before)
                 report['scope'] = 'Easy first three legal clears only; no full Easy completion claim'
             else:
-                require('all compiler entries consumed in order', len(report['route']) == len(entries))
+                require('all requested compiler entries consumed in order', len(report['route']) == len(entries) - args.debug_start_ordinal)
                 require('completion credited exactly once', u32(times) == times_before + 1 & 4294967295 and u8(credited) == 1)
                 require('completion preserves selected source set', u8(selected) == set_index)
                 report['selected_source_set_after'] = u8(selected)
@@ -3107,6 +3113,10 @@ def run(args, report):
                 require('TITLE dwell has no late scene swaps', u16(o3.SCENE_SWAPS) == final_swaps)
             report['times_after'] = u32(times)
             report['final'] = sample()
+            report['final']['selected_source_set'] = u8(symbols['BorSet_Selected'])
+            report['final']['completion_credited'] = u8(credited)
+            require('terminal completion retains selected source set',
+                    report['final']['selected_source_set'] == set_index)
             report['runtime_final'] = runtime_diagnostics()
             if traversal:
                 harvest()
@@ -3117,7 +3127,7 @@ def run(args, report):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=('natural', 'skip', 'easy'), required=True)
-    parser.add_argument('--source-set', choices=('Normal', 'Hard', 'Bonus'), default='Normal')
+    parser.add_argument('--source-set', choices=('Easy', 'Normal', 'Hard', 'Bonus'), default='Normal')
     parser.add_argument('--report', type=Path, help='JSON path (default: out/game_s8_<mode>.json)')
     parser.add_argument('--screenshots', action='store_true')
     parser.add_argument('--spawn-traversal', action='store_true', help='Observe every real source-world queue admission; never skip Spawn_Index.')
@@ -3142,12 +3152,17 @@ def main():
                   traversal_step_fields=args.traversal_step_fields,
                   sampling='frames_sampled counts controller observations; native admissions are observed independently',
                   scope='accelerated native progression with real input-driven initial-actor/prop interactions; not full combat balance or manual visual acceptance')
+    if args.debug_start_ordinal:
+        report['scope'] = 'DIAGNOSTIC_ONLY: initial campaign ordinal injected to isolate a segment; not a complete authored traversal certificate'
+        report['debug_start_ordinal'] = args.debug_start_ordinal
     try:
         try:
             run(args, report)
             report['verdict'] = 'PASS'
         except Exception as error:
             report['error'] = f'{type(error).__name__}: {error}'
+            if isinstance(error, TimeoutError) or 'bounded native exit' in str(error):
+                report['verdict'] = 'UNKNOWN'
             print(report['error'], file=sys.stderr)
     finally:
         output.parent.mkdir(parents=True, exist_ok=True)

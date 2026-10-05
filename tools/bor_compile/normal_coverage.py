@@ -50,7 +50,7 @@ RULES = {
     ('stage', 'background'): rule(MEDIA, 'src/core/game_state.pasm#Stage_Load', 'Content-hashed accepted flattened BG1 media, 320 -> 256 horizontal scaling; not independent source layers.'),
     ('stage', 'panel'): rule(MEDIA, 'src/core/game_state.pasm#Stage_Load', 'Ordered source panels flattened into accepted streamed BG1 tiles; quantized palette/tile budget.'),
     ('stage', 'order'): rule(MEDIA, 'src/core/game_state.pasm#Stage_Load', 'Concatenated authored order determines panel composition and width; logical campaign order remains independent.'),
-    ('stage', 'frontpanel'): rule('tools/bor_compile/production_campaign.py#complete_presentation tools/bor_compile/stage_frontpanel.py#sequence_directives tools/bor_compile/stage_frontpanel.py#materialize_normal tools/bor_compile/stage_frontpanel.py#lower_bg2 tools/bor_compile/stage_frontpanel_bg2.py#materialize_normal tools/bor_compile/stage_frontpanel_bg2.py#motion_tables tools/bor_compile/stage_frontpanel_bg2.py#encode_clean_background tools/bor_compile/stage_frontpanel_bg2.py#validate_bg2 build_rom.py#prepare_stage_environment_assets tools/bg_converter/convert_frontpanel.py#composite_frontpanel_sequence', 'src/core/stage_frontpanel_bg2.pasm#StageFp_BG2ColdInit src/core/stage_frontpanel_bg2.pasm#StageFp_BG2SceneReset src/core/stage_frontpanel_bg2.pasm#StageFp_BG2BootDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2PlayDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2CommitDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2OamAttr', 'Normal ordered full-height BG2 4bpp foreground, clean BG1 materialization, bounded column cache and 7/5 camera adapter; Easy legacy path retained.', 'Compiler and main/NMI hooks are checked statically. Native scrolling, layer priority, resource contention, transitions and pixel acceptance remain PENDING_NATIVE.'),
+    ('stage', 'frontpanel'): rule('tools/bor_compile/production_campaign.py#complete_presentation tools/bor_compile/stage_frontpanel.py#sequence_directives tools/bor_compile/stage_frontpanel.py#materialize_normal tools/bor_compile/stage_frontpanel.py#lower_bg2 tools/bor_compile/stage_frontpanel_bg2.py#materialize_normal tools/bor_compile/stage_frontpanel_bg2.py#motion_tables tools/bor_compile/stage_frontpanel_bg2.py#encode_clean_background tools/bor_compile/stage_frontpanel_bg2.py#validate_bg2 build_rom.py#prepare_stage_environment_assets tools/bg_converter/convert_frontpanel.py#composite_frontpanel_sequence', 'src/core/stage_frontpanel_bg2.pasm#StageFp_BG2ColdInit src/core/stage_frontpanel_bg2.pasm#StageFp_BG2SceneReset src/core/stage_frontpanel_bg2.pasm#StageFp_BG2BootDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2PlayDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2CommitDispatch src/core/stage_frontpanel_bg2.pasm#StageFp_BG2OamAttr', 'Normal ordered full-height BG2 4bpp foreground, clean BG1 materialization, bounded column cache and 7/5 camera adapter; All original source sets use the shared source-world dispatch.', 'Compiler and main/NMI hooks are checked statically. Native scrolling, layer priority, resource contention, transitions and pixel acceptance remain PENDING_NATIVE.'),
     ('stage', 'direction'): rule('tools/bg_converter/build_spawn_table.py#convert_events build_rom.py#write_stage_scroll_include', 'src/core/spawn.pasm#Spawn_Play__compare_trigger src/core/game_state.pasm#Game_State_Play__stage_check_edge', 'Explicit right/left/down camera and queue transforms at 4/5 scale; native float fractions are lost.'),
     ('stage', 'music'): rule('tools/audio/generate_audio_music_ids.py#main', 'src/core/audio_music.pasm#Music_SelectStageTrack', 'Source asset -> stage-indexed MSU PCM track; stage loop is explicit 1.'),
     ('stage', 'bossmusic'): rule('tools/audio/generate_audio_music_ids.py#main', 'src/core/audio_music.pasm#Music_SelectBossTrack', 'Authored boss track -> stage boss table; triggered by identified boss activation.'),
@@ -120,7 +120,7 @@ def selection_evidence(root=ROOT):
     texts = {}
     for path in paths:
         file = Path(root) / path
-        texts[path] = '\n'.join(s.split(';', 1)[0].strip() for s in file.read_text().splitlines()) if file.exists() else ''
+        texts[path] = '\n'.join(s.split(';', 1)[0].strip() for s in file.read_text(encoding='utf-8').splitlines()) if file.exists() else ''
     selector, charselect, campaign, ending, main = (texts[p] for p in paths)
     checks = {
         'difficulty_prompt_hooks': all('jsl BorSetSelect_' + n in charselect for n in ('Begin', 'Play', 'Finish')),
@@ -230,7 +230,7 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
               media_bindings=None, root=ROOT, source_set='Normal'):
     """Inspect exact Normal IR and lower its queues in memory; no materialization."""
     source = source or Source(PAK)
-    campaign = {'Normal': CAMPAIGN, 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set]
+    campaign = {'Easy': 'BOR_ORIGINAL', 'Normal': CAMPAIGN, 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set]
     if any(value is None for value in (configs, campaigns, scenes, roster, media_bindings)):
         sys.path.insert(0, str(ROOT / 'tools/audio'))
         import shipped_content as shipped

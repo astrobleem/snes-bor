@@ -74,12 +74,17 @@ def cold_to_title(m, r):
     # the first paced main-loop iteration; wait for that real boot boundary.
     # Keep each MCP advance bounded so a transient tool timeout cannot leave
     # the emulator two frames short and masquerade as a frozen boot.
-    for _ in range(18):
-        run_frames_exact(m, 10)
+    # Compiled ordered foregrounds can take longer than the old single-panel
+    # boot. Wait for the actual INTRO boundary, never treat an elapsed budget
+    # as evidence that boot completed.
+    if not poll_until(m, lambda session: u16(session, STATE) == INTRO, 1200, step=10):
+        raise AssertionError('cold boot did not reach INTRO within 1200 fields')
     r.check('cold reset enters INTRO, not TITLE/PLAYING', u16(m, STATE) == INTRO)
     r.check('cold reset is not PLAYING', u16(m, STATE) != PLAYING)
     run_frames_exact(m, 1)
     r.check('INTRO remains reachable through second scene card', u16(m, STATE) == INTRO)
+    if not poll_until(m, lambda session: u8(session, TITLE_STEP) == 2, 120):
+        raise AssertionError('INTRO did not reach its input wait')
     exact_input_edge(m, m.BTN_START, 1, port=0)
     if not wait_state(m, TITLE):
         raise AssertionError('INTRO did not transition to TITLE')

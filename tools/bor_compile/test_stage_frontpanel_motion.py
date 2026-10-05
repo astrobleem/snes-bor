@@ -34,14 +34,14 @@ class FrontpanelMotionTests(unittest.TestCase):
     def test_all_normal_fp_directions_and_resource_seams(self):
         normal = copy.deepcopy(self.normal)
         text,rows = fp.motion_tables(self.configs,normal)
-        self.assertEqual([r['physical'] for r in rows],[22,27,28,30,33,34,35])
+        self.assertEqual([r['physical'] for r in rows],[0,13,14,16,19,20,21,22,27,28,30,33,34,35,36,41,42,44,47,48,49])
         self.assertTrue(all(r['adapter'].startswith('ACCEPTED_COMPAT') for r in rows))
         for r in rows:
             self.assertEqual(r['window_columns'],33)
             self.assertLessEqual(r['working_set']['34'],256)
         modes = list(map(int,text.split('.db ')[1].splitlines()[0].split(',')))
-        self.assertEqual(modes[:22],[0]*22)
-        self.assertEqual(sum(modes),7)
+        self.assertEqual([i for i,m in enumerate(modes[:22]) if m],[0,13,14,16,19,20,21])
+        self.assertEqual(sum(modes),21)
         normal[22].scroll = 'down'
         text,_ = fp.motion_tables(self.configs,normal)
         self.assertEqual(int(text.split('.db ')[1].splitlines()[0].split(',')[22]),2)
