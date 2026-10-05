@@ -44,7 +44,7 @@ class ProductionCampaignTests(unittest.TestCase):
         accepted, _ = baseline('c8cbd71b200cab869d3f953bdd07352c172577ed')
         self.assertEqual([key(c['source_level']) for c in shipped.STAGE_CONFIGS[:32]],
                          [key(c['source_level']) for c in accepted['STAGE_CONFIGS'][:32]])
-        self.assertEqual(len(shipped.STAGE_MEDIA_BINDINGS), 22)
+        self.assertEqual(len(shipped.STAGE_MEDIA_BINDINGS), 23)
         for name, ids in shipped.LEGACY_BOR_STAGE_IDS.items():
             source_set = next(s for s in project(Source(shipped.STAGE_CONFIGS[0]['pak'])).sets
                               if s.name == name)
@@ -55,7 +55,7 @@ class ProductionCampaignTests(unittest.TestCase):
             self.assertEqual(shipped.STAGE_CONFIGS[i], accepted['STAGE_CONFIGS'][i])
         self.assertEqual([c['spawn'] for c in shipped.STAGE_CONFIGS[:32]],
                          [c['spawn'] for c in accepted['STAGE_CONFIGS'][:32]])
-        for actual, legacy in zip(shipped.STAGE_MEDIA_BINDINGS, accepted['STAGE_CONFIGS']):
+        for actual, legacy in zip(shipped.STAGE_MEDIA_BINDINGS[:22], accepted['STAGE_CONFIGS']):
             self.assertEqual(actual, legacy)
         self.assertTrue(any(c['converted_prefix'] == 'out/ramon' for c in shipped.ROSTER_CONFIGS))
         self.assertTrue(any(c['converted_prefix'] == 'out/time' for c in shipped.ROSTER_CONFIGS))

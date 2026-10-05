@@ -1,0 +1,793 @@
+{
+  "classification": "BYOR_BONUS_COMPLETE",
+  "canonical_master": "50a82175a4834bdce87333c35db024567e492635",
+  "branch": "feat/byor-bonus",
+  "rom_sha256": "34dda36cba7ca71766b4879bb2c398b75b015932d43e31425c37706b4c3c64f0",
+  "msu_sha256": "fce2a860bfdb406d230a30d9ff88dc737ebc28dce544c81d3fbe2339665c3dcf",
+  "source_set_id": 3,
+  "thresholds": {
+    "Easy": 0,
+    "Normal": 0,
+    "Hard": 0,
+    "Bonus": 1
+  },
+  "authored_route": [
+    "DATA/EXTRA.TXT",
+    "DATA/SCENES/SEWER.TXT"
+  ],
+  "next_flags": [
+    false,
+    false
+  ],
+  "showcomplete_flags": [
+    false,
+    false
+  ],
+  "queue": {
+    "records": 184,
+    "spawns": 166,
+    "groups": 11,
+    "waits": 7,
+    "hole_prefix_records": 0,
+    "capacity": 184,
+    "bytes": 1840,
+    "count_bits": 8,
+    "index_bits": 8,
+    "copy_count_bits": 16,
+    "maximum_linked_records": 184
+  },
+  "selector": {
+    "verdict": "PASS",
+    "scope": "real selector and bounded first-entry source-world smoke",
+    "rows": [
+      {
+        "source_set": "Easy",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "physical_stage": 0,
+        "source_path": "DATA\\EASY\\1AEASY.TXT",
+        "selected_source_set": 0,
+        "player_roster": 22,
+        "host_mode": 0,
+        "host_error": null,
+        "source_ticks": null,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Normal",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "physical_stage": 22,
+        "source_path": "DATA\\NORMAL\\1A.TXT",
+        "selected_source_set": 1,
+        "player_roster": 22,
+        "host_mode": 1,
+        "host_error": 0,
+        "source_ticks": 39,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Hard",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "physical_stage": 36,
+        "source_path": "DATA\\HARD\\1AHARD.TXT",
+        "selected_source_set": 2,
+        "player_roster": 22,
+        "host_mode": 1,
+        "host_error": 0,
+        "source_ticks": 46,
+        "times_completed": 0
+      },
+      {
+        "source_set": "Bonus",
+        "verdict": "PASS",
+        "fixture_initial_completions": 0,
+        "locked_at_zero": {
+          "selectable": false,
+          "difficulty": 1,
+          "selected": 3
+        },
+        "fixture_unlock_completions": 1,
+        "physical_stage": 50,
+        "source_path": "DATA\\EXTRA.TXT",
+        "selected_source_set": 3,
+        "player_roster": 22,
+        "host_mode": 1,
+        "host_error": 0,
+        "source_ticks": 53,
+        "times_completed": 1
+      }
+    ],
+    "rom_sha256": "34dda36cba7ca71766b4879bb2c398b75b015932d43e31425c37706b4c3c64f0"
+  },
+  "traversal": {
+    "verdict": "PASS",
+    "checks": [
+      [
+        "compiler exposes all source typed entries",
+        true
+      ],
+      [
+        "generated release gate permits selected set",
+        true
+      ],
+      [
+        "generated selected campaign mapping matches ABI",
+        true
+      ],
+      [
+        "generated next flags match source compiler",
+        true
+      ],
+      [
+        "generated completion flags match explicit compatibility policy",
+        true
+      ],
+      [
+        "spawn traversal requires full Bonus",
+        true
+      ],
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "cold TITLE helper passed",
+        true
+      ],
+      [
+        "fixture initializes saved completion threshold before run",
+        true
+      ],
+      [
+        "Bonus selected while difficulty prompt remains active",
+        true
+      ],
+      [
+        "player selector retains selected source set",
+        true
+      ],
+      [
+        "native campaign starts at compiler first stage",
+        true
+      ],
+      [
+        "new run completion latch is clear",
+        true
+      ],
+      [
+        "entry 0 native order/identity",
+        true
+      ],
+      [
+        "entry 0 every packed record consumed natively",
+        true
+      ],
+      [
+        "entry 0 completion policy behavior",
+        true
+      ],
+      [
+        "entry 1 native order/identity",
+        true
+      ],
+      [
+        "SEWER campaign scene continuation",
+        true
+      ],
+      [
+        "SEWER source scene audio selection",
+        true
+      ],
+      [
+        "SEWER preserves score/lives/credits",
+        true
+      ],
+      [
+        "SEWER clean scene transport",
+        true
+      ],
+      [
+        "SEWER complete natural playback",
+        true
+      ],
+      [
+        "all compiler entries consumed in order",
+        true
+      ],
+      [
+        "completion credited exactly once",
+        true
+      ],
+      [
+        "completion preserves selected source set",
+        true
+      ],
+      [
+        "authored scene continuations exactly once",
+        true
+      ],
+      [
+        "TITLE dwell has no late scene swaps",
+        true
+      ],
+      [
+        "all authored source spawn identities and every control record observed",
+        true
+      ],
+      [
+        "all gate checks passed",
+        true
+      ]
+    ],
+    "packed_executed": 184,
+    "source_spawns_observed": 166,
+    "journal": "docs/receipts/byor-bonus-m2-admissions.txt",
+    "journal_sha256": "e77f995cceeca7cbd52e69f0ec5387c21755005901ef4b1626d25471b3e7adf4",
+    "accelerations": 106,
+    "methodology": "all source queue admissions; each initial AI takes observed real damage before sequenced worker unlink",
+    "times_before": 1,
+    "times_after": 2,
+    "selected_source_set_after": 3,
+    "title_dwell_observations": 180,
+    "scene": {
+      "presented": 3,
+      "transitions": 1,
+      "completion": 1,
+      "skip": 0,
+      "late": 0,
+      "retries": 0
+    },
+    "native_interaction": {
+      "verdict": "PASS",
+      "scope": "bounded unaccelerated real input after compiler-owned approach",
+      "limit_fields": 2400,
+      "source_prop_roster": 39,
+      "slot": 1,
+      "writes": "controller input only",
+      "fields": 147,
+      "prop_damage": true,
+      "drop_observed": true,
+      "drop_roster": 14,
+      "pickup_consumed": true,
+      "pickup_apply_events": [
+        "1759|1|42"
+      ],
+      "journal": "E:\\gh\\snes-bor\\out\\byor-bonus-evidence\\native-interaction-events-lossless-final.txt"
+    },
+    "full_report": "docs/receipts/byor-bonus-m2-traversal.json.gz"
+  },
+  "combat": {
+    "verdict": "PASS",
+    "fields": 600,
+    "observed_hp_damage": 5,
+    "authored_hp_damage": 5,
+    "host_mode": 1,
+    "host_error": 0,
+    "source_ticks": 1377,
+    "resident_blocks": {
+      "checked": 26,
+      "mismatches": []
+    },
+    "resident_palettes": {
+      "checked": 4,
+      "mismatches": []
+    },
+    "screenshot": "docs/receipts/byor-bonus-m2-combat.png"
+  },
+  "visual_admission": {
+    "verdict": "PASS",
+    "trace_records": 3284,
+    "error_code_counts": {
+      "39": 3284
+    },
+    "hard_failures": {},
+    "rom_sha256": "34dda36cba7ca71766b4879bb2c398b75b015932d43e31425c37706b4c3c64f0"
+  },
+  "catalog": {
+    "blocker_count": 0,
+    "entry_count": 4153,
+    "legacy_fixed_entries": 0,
+    "roster_count": 40,
+    "source_sized_entries": 4153
+  },
+  "storage": {
+    "candidate": "build\\byor-bonus",
+    "logical_bytes": 784784294,
+    "unique_file_bytes": 784784294,
+    "exclusive_candidate_file_bytes": 50598358,
+    "shared_non_pcm_file_bytes": 0,
+    "pcm_logical_bytes": 734185936,
+    "pcm_new_storage_bytes": 0,
+    "pcm_count": 26,
+    "pcm_hardlinks_verified": true,
+    "pcm": [
+      {
+        "path": "build\\byor-bonus\\bor-1.pcm",
+        "bytes": 27454952,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-10.pcm",
+        "bytes": 16511112,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-11.pcm",
+        "bytes": 85409288,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-12.pcm",
+        "bytes": 58233864,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-13.pcm",
+        "bytes": 72817928,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-14.pcm",
+        "bytes": 14741144,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-15.pcm",
+        "bytes": 34435592,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-16.pcm",
+        "bytes": 46840328,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-17.pcm",
+        "bytes": 5248664,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-18.pcm",
+        "bytes": 7811000,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-19.pcm",
+        "bytes": 6749512,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-2.pcm",
+        "bytes": 42435080,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-20.pcm",
+        "bytes": 5493496,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-21.pcm",
+        "bytes": 16739128,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-22.pcm",
+        "bytes": 8575864,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-23.pcm",
+        "bytes": 13171272,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-24.pcm",
+        "bytes": 10285768,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-25.pcm",
+        "bytes": 14289976,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-26.pcm",
+        "bytes": 12847160,
+        "links": 2
+      },
+      {
+        "path": "build\\byor-bonus\\bor-3.pcm",
+        "bytes": 1556904,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-4.pcm",
+        "bytes": 68091912,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-5.pcm",
+        "bytes": 17154056,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-6.pcm",
+        "bytes": 61263368,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-7.pcm",
+        "bytes": 25718024,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-8.pcm",
+        "bytes": 627720,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-9.pcm",
+        "bytes": 59682824,
+        "links": 294
+      }
+    ],
+    "unique_files": [
+      {
+        "path": "build\\byor-bonus\\bor-1.pcm",
+        "bytes": 27454952,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-10.pcm",
+        "bytes": 16511112,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-11.pcm",
+        "bytes": 85409288,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-12.pcm",
+        "bytes": 58233864,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-13.pcm",
+        "bytes": 72817928,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-14.pcm",
+        "bytes": 14741144,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-15.pcm",
+        "bytes": 34435592,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-16.pcm",
+        "bytes": 46840328,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-17.pcm",
+        "bytes": 5248664,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-18.pcm",
+        "bytes": 7811000,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-19.pcm",
+        "bytes": 6749512,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-2.pcm",
+        "bytes": 42435080,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-20.pcm",
+        "bytes": 5493496,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-21.pcm",
+        "bytes": 16739128,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-22.pcm",
+        "bytes": 8575864,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-23.pcm",
+        "bytes": 13171272,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-24.pcm",
+        "bytes": 10285768,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-25.pcm",
+        "bytes": 14289976,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-26.pcm",
+        "bytes": 12847160,
+        "links": 2
+      },
+      {
+        "path": "build\\byor-bonus\\bor-3.pcm",
+        "bytes": 1556904,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-4.pcm",
+        "bytes": 68091912,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-5.pcm",
+        "bytes": 17154056,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-6.pcm",
+        "bytes": 61263368,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-7.pcm",
+        "bytes": 25718024,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-8.pcm",
+        "bytes": 627720,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor-9.pcm",
+        "bytes": 59682824,
+        "links": 294
+      },
+      {
+        "path": "build\\byor-bonus\\bor.msu",
+        "bytes": 43253382,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\bor.sfc",
+        "bytes": 4194304,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\link.json",
+        "bytes": 96973,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\poppy.log",
+        "bytes": 129,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\production-runtime.json",
+        "bytes": 111453,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker-build.log",
+        "bytes": 132,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker-manifest.json",
+        "bytes": 2709,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker.bin",
+        "bytes": 1222448,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker.pansy",
+        "bytes": 34450,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker.pasm",
+        "bytes": 146978,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\worker.sym",
+        "bytes": 20540,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\world.bin",
+        "bytes": 1179036,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\world.pansy",
+        "bytes": 37786,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\world.pasm",
+        "bytes": 267888,
+        "links": 1
+      },
+      {
+        "path": "build\\byor-bonus\\world.sym",
+        "bytes": 30150,
+        "links": 1
+      }
+    ]
+  },
+  "preservation": {
+    "verdict": "PASS",
+    "files": [
+      {
+        "path": "out/g13_camera_pause.json",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/g13_combat_ai.json",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/g13_jump_isolation.json",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/g13_score_pickup.json",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/g13_semantic_boundary.json",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "matches_precommand": true
+      },
+      {
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "matches_precommand": true
+      }
+    ],
+    "bytes": 605880
+  },
+  "validation": {
+    "focused_compiler_runtime": "114 passed, 3 historical gates deselected, 49 subtests passed",
+    "final_changed_visual_and_bonus": "29 passed",
+    "traversal_contract": "55 passed, 14 subtests passed (isolated verifier fixture process)",
+    "py_compile": {
+      "verdict": "PASS",
+      "files": [
+        "build_rom.py",
+        "byor.py",
+        "tools/audio/shipped_content.py",
+        "tools/bor_compile/build_normal_sa1_candidate.py",
+        "tools/bor_compile/normal_coverage.py",
+        "tools/bor_compile/production_campaign.py",
+        "tools/bor_compile/production_source_publication.py",
+        "tools/bor_compile/source_visual_palette_pack.py",
+        "tools/bor_compile/stage_water.py",
+        "tools/bor_compile/test_byor_hard.py",
+        "tools/bor_compile/test_normal_coverage.py",
+        "tools/bor_compile/test_production_campaign.py",
+        "tools/scene_video/convert_ending.py",
+        "tools/scene_video/scene_sequences.py",
+        "tools/verify/_game_s8_normal_campaign_base.py",
+        "tools/verify/actor_s7_production_runtime.py",
+        "tools/verify/game_byor_selector.py",
+        "tools/verify/game_s8_normal_campaign.py",
+        "tools/verify/test_actor_s8_normal_projection.py",
+        "tools/bor_compile/source_noncombat.py",
+        "tools/bor_compile/test_byor_bonus.py",
+        "tools/bor_compile/test_byor_bonus_visual.py",
+        "tools/verify/byor_native_interaction.py"
+      ]
+    },
+    "assembly_layout": "PASS: queue arena, bank0, text-bank and score layout guards",
+    "diff_check": "PASS"
+  },
+  "nonclaims": [
+    "No arbitrary OpenBOR compatibility",
+    "Existing ACCEPTED_COMPAT coordinate/health, scenery, RGB555/scene encoding and six-actor pool remain explicit",
+    "Crab fixed point/RNG/committed-clock adaptation is not SOURCE_EXACT",
+    "Accelerated traversal is queue/progression/completion evidence, not full unaccelerated campaign combat or balance certification",
+    "No exhaustive manual pixel certification or hardware-console certification",
+    "No full Normal/Hard replay or historical broad gate rerun"
+  ],
+  "retained_storage": {
+    "scope": [
+      "build\\byor-bonus",
+      "out\\byor-bonus-evidence",
+      "out\\bg_source_extra",
+      "out/byor-bonus-source.json",
+      "docs/receipts/byor-bonus-m2*"
+    ],
+    "exclusive_retained_bytes": 66401957,
+    "shared_existing_bytes": 734185936,
+    "exclusive_by_group": {
+      "build\\byor-bonus": 50598358,
+      "out\\byor-bonus-evidence": 14124067,
+      "out\\bg_source_extra": 898194,
+      "inventory-and-receipts": 781338
+    },
+    "unique_file_count": 167
+  },
+  "implementation_commit": "43e8fdf33394916b595f4c47f4b2ee2451023640"
+}

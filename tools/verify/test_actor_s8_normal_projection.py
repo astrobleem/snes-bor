@@ -305,11 +305,11 @@ class NormalCoordinateBridgeTests(unittest.TestCase):
         body = source.split('S6Bridge_ProjectRoundedLow:\n', 1)[1]
         body = body.split('\nS6Bridge_ProjectLow:', 1)[0]
         actual = [int(value, 16) for value in re.findall(r'\$([0-9A-Fa-f]{4})', body)]
-        expected = [round_ratio_away(4 * value, 5) for value in range(287)]
+        expected = [round_ratio_away(4 * value, 5) for value in range(319)]
         self.assertEqual(actual, expected)
 
     def test_normal_inverse_and_projection_roundtrip_all_native_coordinates(self):
-        for native in range(-6553, 6554):
+        for native in range(-13106, 13107):
             source = round_ratio_away(5 * native, 4)
             self.assertEqual(round_ratio_away(4 * source, 5), native)
 
@@ -319,16 +319,16 @@ class NormalCoordinateBridgeTests(unittest.TestCase):
         high = high.split('\nS6Bridge_ProjectRoundedLow:', 1)[0]
         high_values = [int(value, 16) for value in re.findall(
             r'\$([0-9A-Fa-f]{4})', high)]
-        self.assertEqual(high_values, [204 * nibble for nibble in range(32)])
+        self.assertEqual(high_values, [204 * nibble for nibble in range(64)])
         exact = source.split('S6Bridge_ProjectLow:\n', 1)[1]
         exact_values = [int(value, 16) for value in re.findall(
             r'\$([0-9A-Fa-f]{4})', exact)]
-        self.assertEqual(len(exact_values), 287)
+        self.assertEqual(len(exact_values), 319)
         self.assertEqual(exact_values, [
             4 * value // 5 if value % 5 == 0 else 0x8000
-            for value in range(287)])
+            for value in range(319)])
         target = (ROOT / 'src/core/actor_source_target.pasm').read_text()
-        self.assertIn('adc #8192\n    cmp #16384', target)
+        self.assertIn('adc #16384\n    cmp #32768', target)
 
     def test_exact_reference_policy_still_fails_closed_off_lattice(self):
         source = BRIDGE.read_text()
