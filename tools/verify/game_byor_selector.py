@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'tools/audio')]
 
 
-def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=None):
+def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=None, report_state=None):
     import build_rom
     import _harness as h
     import game_bor_startup_select as startup
@@ -20,9 +20,11 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
     # harness's fresh-power-on fixture rather than issuing a second soft reset.
     h.McpSession.reset_emulator = lambda self: None
     rows = []
+    if report_state is not None:
+        report_state['rows'] = rows
     for source_set, cid, source_id in (
             ('Easy', 'BOR_ORIGINAL', 0), ('Normal', 'BOR_NORMAL_1A_INTERNAL', 1),
-            ('Hard', 'BOR_HARD', 2)):
+            ('Hard', 'BOR_HARD', 2), ('Bonus', 'BOR_BONUS', 3)):
         if only_set and source_set != only_set:
             continue
         row = dict(source_set=source_set, verdict='FAIL')
@@ -43,12 +45,22 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
             r = h.Reporter('BYOR-' + source_set, kind='GATE')
             startup.cold_to_title(m, r)
             assert all(ok for _, ok in r.results)
+            m.write_memory('snesMemory', sym['Bor_TimesCompleted'], '00000000')
+            row['fixture_initial_completions'] = 0
             h.exact_input_edge(m, m.BTN_START, 1)
             wait(lambda: u16('Game_State') == startup.CHARSELECT and u8('BorDifficulty_Chosen') == 1, 360)
             for selected in range(1, source_id + 1):
                 h.run_frames_exact(m, 2)
                 h.exact_input_edge(m, m.BTN_RIGHT, 1)
                 wait(lambda: u8('BorSet_Selected') == selected, 120)
+            if source_id == 3:
+                h.exact_input_edge(m, m.BTN_START, 1)
+                h.run_frames_exact(m, 12)
+                assert u8('BorDifficulty_Chosen') == 1 and u8('BorSet_Selected') == 3
+                row['locked_at_zero'] = dict(selectable=False, difficulty=u8('BorDifficulty_Chosen'), selected=u8('BorSet_Selected'))
+                m.write_memory('snesMemory', sym['Bor_TimesCompleted'], '01000000')
+                h.run_frames_exact(m, 2)
+                row['fixture_unlock_completions'] = 1
             h.exact_input_edge(m, m.BTN_START, 1)
             wait(lambda: u8('BorDifficulty_Chosen') == 3 and u8('CharSelect_Step') == 3, 360)
             assert u8('BorSet_Selected') == source_id
@@ -74,11 +86,48 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                             roster=raw[sym['CHAR_ROSTER_INDEX']],
                             object_num=int.from_bytes(raw[1:3], 'little'),
                             mode=raw[sym['CHAR_INPUT_DRIVEN']],
+                            pickup=raw[sym['CHAR_PICKUP_TYPE']],
                             x=int.from_bytes(raw[4:6], 'little', signed=True), y=raw[6]))
+                    context=bytes(h.read_block(m,0x11900,256,mem_type='snesSaveRam'))
+                    if context[0xE6] in (8,9) and context[0xF2]==1:
+                        rows[0]['native_mirror']=[rows[0]['x'],rows[0]['y']]
+                        for name,offset in (('x',20),('y',22)):
+                            value=int.from_bytes(context[offset:offset+2],'little',signed=True)
+                            rows[0][name]=((4*abs(value)+2)//5)*(-1 if value<0 else 1)
                     return rows
                 samples.append(dict(field=-1, actors=actors()))
+                from normal_coverage import inventory
+                authored_enemies = {b['runtime_slot'] for b in inventory(source_set=source_set)['model_bindings'].values()
+                                    if b['source_type'] == 'enemy'}
+                row['authored_enemy_rosters'] = sorted(authored_enemies)
+                current = samples[-1]['actors']
+                interactions = []
+                previous = {}
                 for field in range(combat_fields):
-                    m.hold_input(m.BTN_RIGHT | (m.BTN_Y if field % 16 < 8 else 0))
+                    if field % 4 == 0:
+                        current = actors()
+                        for a in current[1:]:
+                            key=(a['slot'],a['object_num'],a['roster'])
+                            old=previous.get(key)
+                            if old and a['mode']==3 and (a['hp']<old['hp'] or (old['pickup'] and not a['pickup'])):
+                                interactions.append(dict(field=field,before=old,after=a))
+                            previous[key]=dict(a)
+                    player = current[0]
+                    targets = [a for a in current[1:] if a['hp'] and a['mode'] in (2, 4)
+                               and a['roster'] in authored_enemies]
+                    props=[a for a in current[1:] if a['hp'] and a['mode']==3]
+                    if props:
+                        targets=props
+                    buttons = m.BTN_RIGHT
+                    if targets:
+                        target = min(targets,key=lambda a: abs(a['x']-player['x'])+abs(a['y']-player['y']))
+                        dx,dy = target['x']-player['x'],target['y']-player['y']
+                        buttons = m.BTN_RIGHT if dx >= 0 else m.BTN_LEFT
+                        if abs(dy)>8:
+                            buttons |= m.BTN_DOWN if dy>0 else m.BTN_UP
+                        if abs(dx)<80 and field % 16 < 8:
+                            buttons |= m.BTN_Y
+                    m.hold_input(buttons)
                     h.run_frames_exact(m, 1)
                     if field % 30 == 0:
                         samples.append(dict(field=field, ticks=u16('S6Game_TickCommit'),
@@ -87,6 +136,7 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                                             obj_status=bytes(h.read_snes_bus_block(m, 0x00213E, 32))[0]))
                 m.release_input()
                 row['combat_samples'] = samples
+                row['prop_pickup_interactions'] = interactions
                 history = {}
                 damage = []
                 for sample in samples:
@@ -100,8 +150,10 @@ def run(candidate, player_ordinal=0, only_set=None, combat_fields=0, screenshot=
                                                before_hp=before, after_hp=actor['hp']))
                         history[key] = actor['hp']
                 row['combat_damage'] = damage
-                assert damage, 'bounded attack input produced no observed enemy HP decrease'
+                row['authored_combat_damage'] = [d for d in damage if d['identity'][2] in authored_enemies]
+                assert row['authored_combat_damage'], 'bounded attack input produced no observed authored enemy HP decrease'
                 assert all(s.get('error', 0) == 0 for s in samples)
+                assert all(s.get('visual_error',0) not in (0x21,0x22,0x23,0x24,0x26,0x2A) for s in samples), 'source visual admission failure during bounded combat'
                 if screenshot:
                     import shutil
                     # Observe a published source packet, after its shared
@@ -185,17 +237,19 @@ def main():
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--player-ordinal', type=int, choices=range(4), default=0)
-    parser.add_argument('--source-set', choices=('Easy', 'Normal', 'Hard'))
+    parser.add_argument('--source-set', choices=('Easy', 'Normal', 'Hard', 'Bonus'))
     parser.add_argument('--combat-fields', type=int, default=0)
     parser.add_argument('--screenshot', type=Path)
     args = parser.parse_args()
     report = dict(verdict='FAIL', scope='real selector and bounded first-entry source-world smoke')
     try:
         report['rows'] = run(args.candidate.resolve(), args.player_ordinal, args.source_set,
-                             args.combat_fields, args.screenshot)
+                             args.combat_fields, args.screenshot, report_state=report)
         report['rom_sha256'] = hashlib.sha256((args.candidate / 'bor.sfc').read_bytes()).hexdigest()
         report['verdict'] = 'PASS'
     except Exception as error:
+        import traceback
+        report['traceback'] = traceback.format_exc()
         report['error'] = f'{type(error).__name__}: {error}'
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2) + '\n')

@@ -541,6 +541,32 @@ emu.addMemoryCallback(function()
  f:close()
 end,emu.callbackType.exec,{lorom_offset(address)},{lorom_offset(address)},emu.cpuType.snes,emu.memType.snesPrgRom)
 '''
+    noncombat_path = os.environ.get('BYOR_NONCOMBAT_TRACE')
+    if noncombat_path:
+        script += f"""
+local _byor_none_field=0
+emu.addEventCallback(function()
+ _byor_none_field=_byor_none_field+1
+ if _byor_none_field%30~=0 then return end
+ local mt=emu.memType.snesMemory
+ local function byte(a) return emu.read(a,mt) end
+ local function word(a) return byte(a)+256*byte(a+1) end
+ for slot=1,5 do
+  local stride=slot*{symbols['CHAR_ZP_LEN']}
+  local actor=0x7E0000+{symbols['PlayerEntity_DpBase']}+stride
+  if byte(actor+{symbols['CHAR_INPUT_DRIVEN']})=={symbols['CHAR_INPUT_DRIVEN_NONCOMBAT']} then
+   local f=assert(io.open({json.dumps(str(Path(noncombat_path).resolve()).replace(chr(92), '/'))},'a'))
+   f:write(table.concat({{"NONE",_byor_none_field,word({symbols['Game_StageIndex']}),slot,
+    word(actor+{symbols['OOP_SELF_NUM_OFS']}),byte(actor+{symbols['CHAR_ROSTER_INDEX']}),
+    word(actor+{symbols['CHAR_POS_X']}),word({symbols['ActorBehavior_Alive']}+stride),
+    word({symbols['ActorBehavior_Ticks']}+stride)+65536*word({symbols['ActorBehavior_Ticks']}+stride+2),
+    word({symbols['ActorBehavior_Fault']}+stride),byte(actor+{symbols['CHAR_SELECTED']}),
+    byte(actor+{symbols['CHAR_FRAME_INDEX']}),word({symbols['ActorBehavior_SourceHealth']}+stride),
+    word({symbols['Nmi_FrameCounter']})}},'|'),'\\n');f:close()
+  end
+ end
+end,emu.eventType.endFrame)
+"""
     return script
 
 @contextmanager
@@ -632,7 +658,7 @@ def traversal_plan(build, entries, start_ordinal=0):
                 expected.append(dict(stage=physical, index=index, source_queue_index=index - prefix, record=record.hex(), spawn=spawn, source_model=event.character if spawn else None, source_type=model['entity']['type'] if spawn else None, boss=bool(event.boss) if spawn else None, source_definition=models[event.character.casefold()]['source_path'] if spawn else None, roster=record[9] if spawn else None))
     expected_spawn_count = sum((row['spawn'] for row in expected))
     if start_ordinal == 0:
-        contract = {1: 614, 2: 753}[configs[0]['source_set_id']]
+        contract = {1: 614, 2: 753, 3: 166}[configs[0]['source_set_id']]
         if expected_spawn_count != contract:
             raise AssertionError(f'source spawn contract changed: expected {contract}')
     return expected
@@ -793,7 +819,7 @@ def run(args, report):
     pos_y, max_y, min_x = (symbols[n] for n in ('Screen_PosY', 'Screen_MaxY', 'Screen_MinX'))
     source_set = getattr(args, 'source_set', 'Normal')
     cid = 'BOR_ORIGINAL' if args.mode == 'easy' else (
-        'BOR_HARD' if source_set == 'Hard' else 'BOR_NORMAL_1A_INTERNAL')
+        {'Normal': 'BOR_NORMAL_1A_INTERNAL', 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set])
     report['source_set'] = 'Easy' if args.mode == 'easy' else source_set
     campaign_id = 0 if args.mode == 'easy' else 3
     entries = build.CAMPAIGN_ENTRY_MAPS[cid]
@@ -803,7 +829,7 @@ def run(args, report):
     completion_flags = build.CAMPAIGN_CONFIGS[cid]['completion_flags']
     report['completion_flags'] = completion_flags
     report['completion_policy'] = build.CAMPAIGN_CONFIGS[cid]['completion_policy']
-    require('compiler exposes 16 typed entries', len(entries) == len(authored) and len(authored) == 16)
+    require('compiler exposes all source typed entries', len(entries) == len(authored) and len(authored) == (2 if source_set == 'Bonus' else 16))
     generated = (ROOT / 'tools/audio/campaign_config.pasm').read_text(encoding='ascii')
 
     def table(label):
@@ -811,13 +837,14 @@ def run(args, report):
         if not match:
             raise AssertionError('missing generated table: ' + label)
         return [value.strip() for value in match[1].split(',')]
-    set_index = 0 if args.mode == 'easy' else (2 if source_set == 'Hard' else 1)
+    set_index = 0 if args.mode == 'easy' else {'Normal': 1, 'Hard': 2, 'Bonus': 3}[source_set]
     require('generated release gate permits selected set', table('BorSet_ContentAvailable')[set_index] == '1')
     require('generated selected campaign mapping matches ABI', table('BorSet_CampaignMap')[set_index] == ('CAMPAIGN_BOR_ORIGINAL' if set_index == 0 else 'CAMPAIGN_BOR_NORMAL_DEV'))
-    label = {0: 'Bor', 1: 'BorNormalDev', 2: 'BorHard'}[set_index]
+    label = {0: 'Bor', 1: 'BorNormalDev', 2: 'BorHard', 3: 'BorBonus'}[set_index]
     require('generated next flags match source compiler', [int(v) for v in table('Campaign_' + str(label) + '_NextFlags')] == report['next_flags'])
     require('generated completion flags match explicit compatibility policy', [int(v) for v in table('Campaign_' + str(label) + '_CompleteFlags')] == completion_flags)
-    require('source tail is 6B -> RUGAL -> 6C -> ENDING', entries[-4][0] == 'stage' and (Path(entries[-4][2].replace('\\', '/')).stem in ('6B', '6BEASY', '6BHARD') and (entries[-3][2] == 'RUGAL' and (entries[-2][0] == 'stage' and (Path(entries[-2][2].replace('\\', '/')).stem in ('6C', '6CEASY', '6CHARD') and (entries[-1][2] == 'ENDING' and authored[-2]['next_after']))))))
+    if source_set != 'Bonus':
+        require('source tail is 6B -> RUGAL -> 6C -> ENDING', entries[-4][0] == 'stage' and (Path(entries[-4][2].replace('\\', '/')).stem in ('6B', '6BEASY', '6BHARD') and (entries[-3][2] == 'RUGAL' and (entries[-2][0] == 'stage' and (Path(entries[-2][2].replace('\\', '/')).stem in ('6C', '6CEASY', '6CHARD') and (entries[-1][2] == 'ENDING' and authored[-2]['next_after']))))))
     report['rom_path'] = str(selected_rom)
     report['msu_path'] = str(selected_rom.with_suffix('.msu'))
     for path in (selected_rom, selected_rom.with_suffix('.msu'), ROOT / 'src/main.sym', ROOT / 'tools/audio/campaign_config.pasm'):
@@ -981,6 +1008,9 @@ def run(args, report):
             require(description, False)
         startup.cold_to_title(m, r)
         require('cold TITLE helper passed', all((ok for _, ok in r.results)))
+        if source_set == 'Bonus':
+            m.write_memory('snesMemory', times, '01000000')
+            require('fixture initializes saved completion threshold before run', u32(times) == 1)
         if args.two_player:
             exact_input_edge(m, m.BTN_START, 1, port=1)
             run_frames_exact(m, 2)
@@ -994,10 +1024,14 @@ def run(args, report):
             wait(lambda: u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1, 360, 'TITLE START reaches difficulty prompt')
             tick(m.BTN_RIGHT)
             wait(lambda: u8(selected) == 1, 120, 'difficulty RIGHT selects available Normal')
-            if source_set == 'Hard':
+            if set_index >= 2:
                 tick()
                 tick(m.BTN_RIGHT)
                 wait(lambda: u8(selected) == 2, 120, 'difficulty RIGHT selects available Hard')
+            if set_index == 3:
+                tick()
+                tick(m.BTN_RIGHT)
+                wait(lambda: u8(selected) == 3, 120, 'difficulty RIGHT selects unlocked Bonus')
             require(f'{source_set} selected while difficulty prompt remains active', u16(startup.STATE) == startup.CHARSELECT and u8(startup.DIFFICULTY) == 1)
             tick()
             tick(m.BTN_START)
@@ -1314,8 +1348,8 @@ def run(args, report):
                                 report['last_observation'] = row['activation_timeout']['game']
                             wait(activated_or_skipped, 120, name + ' activates or fenced immediate skip', on_timeout=activation_timeout)
                             require(name + ' campaign scene continuation', u8(o3.SCENE_CONT) == 1)
-                            track = pasm_constant_in('tools/audio/audio_music_ids.pasm', 'Music_EndingTrack' if name == 'ENDING' else 'Music_SceneTrack_RUGAL')
-                            require(name + ' source scene audio selection', u8(o3.SCENE_TRACK) == track and u8(o3.SCENE_REPEAT) == (name == 'ENDING'))
+                            track = pasm_constant_in('tools/audio/audio_music_ids.pasm', 'Music_EndingTrack' if name == 'ENDING' else 'Music_SceneTrack_' + name)
+                            require(name + ' source scene audio selection', u8(o3.SCENE_TRACK) == track and u8(o3.SCENE_REPEAT) == (name in ('ENDING', 'SEWER')))
                         budget = SCENE_FIELD_BUDGET if kind == 'scene' else args.stage_fields
                         last_spawn_index = u8(legal.SPAWN_INDEX) if kind == 'stage' else 0
                         last_spawn_change_elapsed = 0
@@ -2014,7 +2048,7 @@ def run(args, report):
                             require(name + ' preserves score/lives/credits', l5.snapshot(m) == scene_before)
                             require(name + ' clean scene transport', row['scene']['late'] == row['scene']['retries'] and row['scene']['retries'] == 0)
                             if args.mode == 'natural':
-                                require(name + ' complete natural playback', row['scene']['presented'] == (1997 if name == 'ENDING' else 126) and (row['scene']['completion'] == 1 and row['scene']['skip'] == 0))
+                                require(name + ' complete natural playback', row['scene']['presented'] == ({'ENDING': 1997, 'RUGAL': 126, 'SEWER': 3}[name]) and (row['scene']['completion'] == 1 and row['scene']['skip'] == 0))
                                 if name == 'ENDING':
                                     require('ENDING has four clip transitions', row['scene']['transitions'] == 4)
                             else:
@@ -2030,9 +2064,9 @@ def run(args, report):
                         require('bounded Easy control leaves TimesCompleted unchanged', u32(times) == times_before)
                         report['scope'] = 'Easy first three legal clears only; no full Easy completion claim'
                     else:
-                        require('all 16 compiler entries consumed in order', len(report['route']) == 16)
+                        require('all compiler entries consumed in order', len(report['route']) == len(entries))
                         require('completion credited exactly once', u32(times) == times_before + 1 & 4294967295 and u8(credited) == 1)
-                        require('two scene continuations exactly once', u16(l5.ENDS) - ends_before & 65535 == 2)
+                        require('authored scene continuations exactly once', u16(l5.ENDS) - ends_before & 65535 == sum(e[0] == 'scene' for e in entries))
                         final_swaps = u16(o3.SCENE_SWAPS)
                         final_ends = u16(l5.ENDS)
                         for _ in range(180):
@@ -2331,8 +2365,8 @@ def run(args, report):
                         report['last_observation'] = row['activation_timeout']['game']
                     wait(activated_or_skipped, 120, name + ' activates or fenced immediate skip', on_timeout=activation_timeout)
                     require(name + ' campaign scene continuation', u8(o3.SCENE_CONT) == 1)
-                    track = pasm_constant_in('tools/audio/audio_music_ids.pasm', 'Music_EndingTrack' if name == 'ENDING' else 'Music_SceneTrack_RUGAL')
-                    require(name + ' source scene audio selection', u8(o3.SCENE_TRACK) == track and u8(o3.SCENE_REPEAT) == (name == 'ENDING'))
+                    track = pasm_constant_in('tools/audio/audio_music_ids.pasm', 'Music_EndingTrack' if name == 'ENDING' else 'Music_SceneTrack_' + name)
+                    require(name + ' source scene audio selection', u8(o3.SCENE_TRACK) == track and u8(o3.SCENE_REPEAT) == (name in ('ENDING', 'SEWER')))
                 budget = SCENE_FIELD_BUDGET if kind == 'scene' else args.stage_fields
                 last_spawn_index = u8(legal.SPAWN_INDEX) if kind == 'stage' else 0
                 last_spawn_change_elapsed = 0
@@ -2369,6 +2403,9 @@ def run(args, report):
                                         button = m.BTN_A
                                         skip_sent = True
                             elif state['state'] == legal.PLAYING:
+                                if traversal:
+                                    from byor_native_interaction import sample as sample_native_interaction
+                                    sample_native_interaction(m, symbols, report)
                                 accelerate(value)
                                 if traversal:
                                     current_spawn_index = u8(legal.SPAWN_INDEX)
@@ -3028,7 +3065,7 @@ def run(args, report):
                     require(name + ' preserves score/lives/credits', l5.snapshot(m) == scene_before)
                     require(name + ' clean scene transport', row['scene']['late'] == row['scene']['retries'] and row['scene']['retries'] == 0)
                     if args.mode == 'natural':
-                        require(name + ' complete natural playback', row['scene']['presented'] == (1997 if name == 'ENDING' else 126) and (row['scene']['completion'] == 1 and row['scene']['skip'] == 0))
+                        require(name + ' complete natural playback', row['scene']['presented'] == ({'ENDING': 1997, 'RUGAL': 126, 'SEWER': 3}[name]) and (row['scene']['completion'] == 1 and row['scene']['skip'] == 0))
                         if name == 'ENDING':
                             require('ENDING has four clip transitions', row['scene']['transitions'] == 4)
                     else:
@@ -3044,9 +3081,11 @@ def run(args, report):
                 require('bounded Easy control leaves TimesCompleted unchanged', u32(times) == times_before)
                 report['scope'] = 'Easy first three legal clears only; no full Easy completion claim'
             else:
-                require('all 16 compiler entries consumed in order', len(report['route']) == 16)
+                require('all compiler entries consumed in order', len(report['route']) == len(entries))
                 require('completion credited exactly once', u32(times) == times_before + 1 & 4294967295 and u8(credited) == 1)
-                require('two scene continuations exactly once', u16(l5.ENDS) - ends_before & 65535 == 2)
+                require('completion preserves selected source set', u8(selected) == set_index)
+                report['selected_source_set_after'] = u8(selected)
+                require('authored scene continuations exactly once', u16(l5.ENDS) - ends_before & 65535 == sum(e[0] == 'scene' for e in entries))
                 final_swaps = u16(o3.SCENE_SWAPS)
                 final_ends = u16(l5.ENDS)
                 for _ in range(180):
@@ -3078,7 +3117,7 @@ def run(args, report):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=('natural', 'skip', 'easy'), required=True)
-    parser.add_argument('--source-set', choices=('Normal', 'Hard'), default='Normal')
+    parser.add_argument('--source-set', choices=('Normal', 'Hard', 'Bonus'), default='Normal')
     parser.add_argument('--report', type=Path, help='JSON path (default: out/game_s8_<mode>.json)')
     parser.add_argument('--screenshots', action='store_true')
     parser.add_argument('--spawn-traversal', action='store_true', help='Observe every real source-world queue admission; never skip Spawn_Index.')

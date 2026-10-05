@@ -11,8 +11,8 @@
 ; $0A00 would otherwise make scratch $80-$8A overwrite the next OOP header.
 ; Policy 1 requires the exact integral lattice. Normal policy 2 mirrors its
 ; compiler's nearest 4/5 spawn-coordinate rounding.
-; Both policies admit source-world coordinates through +/-8191 and native
-; coordinates through +/-6553, matching the world target-selection proof.
+; Both policies admit source-world coordinates through +/-16383 and native
+; coordinates through +/-13106, matching the world target-selection proof.
 ; General fractional movement and health outside0..255 fail closed.
 ; FC:1 policy/binding,10 unsupported coordinate/base,12 health/existence width.
 S6Bridge_Policy = StageEnv_Actors+64
@@ -342,8 +342,8 @@ S6Bridge_UnprojectRounded:
     .i16
     sta.l S6Bridge_Temp80
     clc
-    adc #6553
-    cmp #13107
+    adc #13106
+    cmp #26213
     bcs S6Bridge_Unproject__bad
     lda #0
     sta.l S6Bridge_Temp86
@@ -388,8 +388,8 @@ S6Bridge_Unproject:
     bne S6Bridge_Unproject__bad
     lda.l S6Bridge_Temp80
     clc
-    adc #6553
-    cmp #13107
+    adc #13106
+    cmp #26213
     bcs S6Bridge_Unproject__bad
     lda.l S6Bridge_Temp80
     cmp #$8000
@@ -412,7 +412,7 @@ S6Bridge_Unproject__bad:
 ; Signed source integer -> production integer on the admitted5-pixel lattice.
 ; Exact bounded integer conversion, not floating evaluation or approximation.
 ; abs(n)=256*h+l, 256=51*5+1, hence n/5=51*h+(h+l)/5.
-; h<=31 and h+l<=286. Tables reject every nonzero remainder. No hardware
+; h<=63 and h+l<=318. Tables reject every nonzero remainder. No hardware
 ; divider ownership/NMI dependency. X preserved; Y/scratch clobbered as before.
 S6Bridge_Project:
     .a16
@@ -420,8 +420,8 @@ S6Bridge_Project:
     phx
     sta.l S6Bridge_Temp80
     clc
-    adc #8191
-    cmp #16383
+    adc #16383
+    cmp #32767
     bcs S6Bridge_Project__bad
     lda #0
     sta.l S6Bridge_Temp86
@@ -439,7 +439,7 @@ S6Bridge_Project__positive:
     .i16
     sta.l S6Bridge_Temp80
     xba
-    and #$001F
+    and #$003F
     sta.l S6Bridge_Temp82
     asl a
     tax
@@ -485,8 +485,8 @@ S6Bridge_ProjectRounded:
     phx
     sta.l S6Bridge_Temp80
     clc
-    adc #8191
-    cmp #16383
+    adc #16383
+    cmp #32767
     bcs S6Bridge_ProjectRounded__bad
     lda #0
     sta.l S6Bridge_Temp86
@@ -502,7 +502,7 @@ S6Bridge_ProjectRounded:
 S6Bridge_ProjectRounded__positive:
     sta.l S6Bridge_Temp80
     xba
-    and #$001F
+    and #$003F
     sta.l S6Bridge_Temp82
     asl a
     tax
@@ -536,29 +536,32 @@ S6Bridge_ProjectRounded__bad:
 
 S6Bridge_ProjectHigh:
     .dw $0000,$00CC,$0198,$0264,$0330,$03FC,$04C8,$0594,$0660,$072C,$07F8,$08C4
-    .dw $0990,$0A5C,$0B28,$0BF4
-    .dw $0CC0,$0D8C,$0E58,$0F24,$0FF0,$10BC,$1188,$1254
-    .dw $1320,$13EC,$14B8,$1584,$1650,$171C,$17E8,$18B4
+    .dw $0990,$0A5C,$0B28,$0BF4,$0CC0,$0D8C,$0E58,$0F24,$0FF0,$10BC,$1188,$1254
+    .dw $1320,$13EC,$14B8,$1584,$1650,$171C,$17E8,$18B4,$1980,$1A4C,$1B18,$1BE4
+    .dw $1CB0,$1D7C,$1E48,$1F14,$1FE0,$20AC,$2178,$2244,$2310,$23DC,$24A8,$2574
+    .dw $2640,$270C,$27D8,$28A4,$2970,$2A3C,$2B08,$2BD4,$2CA0,$2D6C,$2E38,$2F04
+    .dw $2FD0,$309C,$3168,$3234
 S6Bridge_ProjectRoundedLow:
-    .dw $0000,$0001,$0002,$0002,$0003,$0004,$0005,$0006,$0006,$0007,$0008,$0009,$000a,$000a,$000b,$000c
-    .dw $000d,$000e,$000e,$000f,$0010,$0011,$0012,$0012,$0013,$0014,$0015,$0016,$0016,$0017,$0018,$0019
-    .dw $001a,$001a,$001b,$001c,$001d,$001e,$001e,$001f,$0020,$0021,$0022,$0022,$0023,$0024,$0025,$0026
-    .dw $0026,$0027,$0028,$0029,$002a,$002a,$002b,$002c,$002d,$002e,$002e,$002f,$0030,$0031,$0032,$0032
-    .dw $0033,$0034,$0035,$0036,$0036,$0037,$0038,$0039,$003a,$003a,$003b,$003c,$003d,$003e,$003e,$003f
-    .dw $0040,$0041,$0042,$0042,$0043,$0044,$0045,$0046,$0046,$0047,$0048,$0049,$004a,$004a,$004b,$004c
-    .dw $004d,$004e,$004e,$004f,$0050,$0051,$0052,$0052,$0053,$0054,$0055,$0056,$0056,$0057,$0058,$0059
-    .dw $005a,$005a,$005b,$005c,$005d,$005e,$005e,$005f,$0060,$0061,$0062,$0062,$0063,$0064,$0065,$0066
-    .dw $0066,$0067,$0068,$0069,$006a,$006a,$006b,$006c,$006d,$006e,$006e,$006f,$0070,$0071,$0072,$0072
-    .dw $0073,$0074,$0075,$0076,$0076,$0077,$0078,$0079,$007a,$007a,$007b,$007c,$007d,$007e,$007e,$007f
-    .dw $0080,$0081,$0082,$0082,$0083,$0084,$0085,$0086,$0086,$0087,$0088,$0089,$008a,$008a,$008b,$008c
-    .dw $008d,$008e,$008e,$008f,$0090,$0091,$0092,$0092,$0093,$0094,$0095,$0096,$0096,$0097,$0098,$0099
-    .dw $009a,$009a,$009b,$009c,$009d,$009e,$009e,$009f,$00a0,$00a1,$00a2,$00a2,$00a3,$00a4,$00a5,$00a6
-    .dw $00a6,$00a7,$00a8,$00a9,$00aa,$00aa,$00ab,$00ac,$00ad,$00ae,$00ae,$00af,$00b0,$00b1,$00b2,$00b2
-    .dw $00b3,$00b4,$00b5,$00b6,$00b6,$00b7,$00b8,$00b9,$00ba,$00ba,$00bb,$00bc,$00bd,$00be,$00be,$00bf
-    .dw $00c0,$00c1,$00c2,$00c2,$00c3,$00c4,$00c5,$00c6,$00c6,$00c7,$00c8,$00c9,$00ca,$00ca,$00cb,$00cc
-    .dw $00cd,$00ce,$00ce,$00cf,$00d0,$00d1,$00d2,$00d2,$00d3,$00d4,$00d5,$00d6,$00d6,$00d7,$00d8
-    .dw $00d9,$00da,$00da,$00db,$00dc,$00dd,$00de,$00de
-    .dw $00df,$00e0,$00e1,$00e2,$00e2,$00e3,$00e4,$00e5
+    .dw $0000,$0001,$0002,$0002,$0003,$0004,$0005,$0006,$0006,$0007,$0008,$0009,$000A,$000A,$000B,$000C
+    .dw $000D,$000E,$000E,$000F,$0010,$0011,$0012,$0012,$0013,$0014,$0015,$0016,$0016,$0017,$0018,$0019
+    .dw $001A,$001A,$001B,$001C,$001D,$001E,$001E,$001F,$0020,$0021,$0022,$0022,$0023,$0024,$0025,$0026
+    .dw $0026,$0027,$0028,$0029,$002A,$002A,$002B,$002C,$002D,$002E,$002E,$002F,$0030,$0031,$0032,$0032
+    .dw $0033,$0034,$0035,$0036,$0036,$0037,$0038,$0039,$003A,$003A,$003B,$003C,$003D,$003E,$003E,$003F
+    .dw $0040,$0041,$0042,$0042,$0043,$0044,$0045,$0046,$0046,$0047,$0048,$0049,$004A,$004A,$004B,$004C
+    .dw $004D,$004E,$004E,$004F,$0050,$0051,$0052,$0052,$0053,$0054,$0055,$0056,$0056,$0057,$0058,$0059
+    .dw $005A,$005A,$005B,$005C,$005D,$005E,$005E,$005F,$0060,$0061,$0062,$0062,$0063,$0064,$0065,$0066
+    .dw $0066,$0067,$0068,$0069,$006A,$006A,$006B,$006C,$006D,$006E,$006E,$006F,$0070,$0071,$0072,$0072
+    .dw $0073,$0074,$0075,$0076,$0076,$0077,$0078,$0079,$007A,$007A,$007B,$007C,$007D,$007E,$007E,$007F
+    .dw $0080,$0081,$0082,$0082,$0083,$0084,$0085,$0086,$0086,$0087,$0088,$0089,$008A,$008A,$008B,$008C
+    .dw $008D,$008E,$008E,$008F,$0090,$0091,$0092,$0092,$0093,$0094,$0095,$0096,$0096,$0097,$0098,$0099
+    .dw $009A,$009A,$009B,$009C,$009D,$009E,$009E,$009F,$00A0,$00A1,$00A2,$00A2,$00A3,$00A4,$00A5,$00A6
+    .dw $00A6,$00A7,$00A8,$00A9,$00AA,$00AA,$00AB,$00AC,$00AD,$00AE,$00AE,$00AF,$00B0,$00B1,$00B2,$00B2
+    .dw $00B3,$00B4,$00B5,$00B6,$00B6,$00B7,$00B8,$00B9,$00BA,$00BA,$00BB,$00BC,$00BD,$00BE,$00BE,$00BF
+    .dw $00C0,$00C1,$00C2,$00C2,$00C3,$00C4,$00C5,$00C6,$00C6,$00C7,$00C8,$00C9,$00CA,$00CA,$00CB,$00CC
+    .dw $00CD,$00CE,$00CE,$00CF,$00D0,$00D1,$00D2,$00D2,$00D3,$00D4,$00D5,$00D6,$00D6,$00D7,$00D8,$00D9
+    .dw $00DA,$00DA,$00DB,$00DC,$00DD,$00DE,$00DE,$00DF,$00E0,$00E1,$00E2,$00E2,$00E3,$00E4,$00E5,$00E6
+    .dw $00E6,$00E7,$00E8,$00E9,$00EA,$00EA,$00EB,$00EC,$00ED,$00EE,$00EE,$00EF,$00F0,$00F1,$00F2,$00F2
+    .dw $00F3,$00F4,$00F5,$00F6,$00F6,$00F7,$00F8,$00F9,$00FA,$00FA,$00FB,$00FC,$00FD,$00FE,$00FE
 S6Bridge_ProjectLow:
     .dw $0000,$8000,$8000,$8000,$8000,$0004,$8000,$8000,$8000,$8000,$0008,$8000
     .dw $8000,$8000,$8000,$000C,$8000,$8000,$8000,$8000,$0010,$8000,$8000,$8000
@@ -582,6 +585,8 @@ S6Bridge_ProjectLow:
     .dw $8000,$8000,$00B8,$8000,$8000,$8000,$8000,$00BC,$8000,$8000,$8000,$8000
     .dw $00C0,$8000,$8000,$8000,$8000,$00C4,$8000,$8000,$8000,$8000,$00C8,$8000
     .dw $8000,$8000,$8000,$00CC,$8000,$8000,$8000,$8000,$00D0,$8000,$8000,$8000
-    .dw $8000,$00D4,$8000,$8000,$8000,$8000,$00D8
-    .dw $8000,$8000,$8000,$8000,$00DC,$8000,$8000,$8000
-    .dw $8000,$00E0,$8000,$8000,$8000,$8000,$00E4,$8000
+    .dw $8000,$00D4,$8000,$8000,$8000,$8000,$00D8,$8000,$8000,$8000,$8000,$00DC
+    .dw $8000,$8000,$8000,$8000,$00E0,$8000,$8000,$8000,$8000,$00E4,$8000,$8000
+    .dw $8000,$8000,$00E8,$8000,$8000,$8000,$8000,$00EC,$8000,$8000,$8000,$8000
+    .dw $00F0,$8000,$8000,$8000,$8000,$00F4,$8000,$8000,$8000,$8000,$00F8,$8000
+    .dw $8000,$8000,$8000,$00FC,$8000,$8000,$8000

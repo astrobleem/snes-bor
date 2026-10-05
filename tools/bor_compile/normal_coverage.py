@@ -42,6 +42,7 @@ MEDIA = 'tools/bor_compile/production_campaign.py#complete_presentation tools/bg
 # promote it here. Each rule names executable lowering and consumer definitions.
 # Definition presence is traceability, NOT call-path, assembled-ROM or live proof.
 RULES = {
+    ('project', 'ifcomplete'): rule(LINK, 'src/core/campaign.pasm#BorSet_IsUnlocked', 'Authoritative threshold compared with real saved TimesCompleted.'),
     ('project', 'set'): rule(LINK, RESOLVE + ' src/core/set_select.pasm#BorSetSelect_Play src/core/campaign.pasm#BorSet_BeginSelectedRun', 'Source set identity -> legacy campaign ABI 3; CHARSELECT difficulty input validates selectable gates, new-run reset resolves the selected first typed entry.'),
     ('project', 'file'): rule(LINK, RESOLVE + ' src/core/game_state.pasm#Stage_Load', 'Source order -> typed entry -> physical catalog; legacy ID pins.'),
     ('project', 'scene'): rule(LINK, 'src/core/campaign.pasm#Game_Campaign_DispatchResolved src/core/scene_video.pasm#SceneVideo_Request', 'Registered scene IDs; compatibility scene continuation returns to typed dispatcher.'),
@@ -229,7 +230,7 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
               media_bindings=None, root=ROOT, source_set='Normal'):
     """Inspect exact Normal IR and lower its queues in memory; no materialization."""
     source = source or Source(PAK)
-    campaign = {'Normal': CAMPAIGN, 'Hard': 'BOR_HARD'}[source_set]
+    campaign = {'Normal': CAMPAIGN, 'Hard': 'BOR_HARD', 'Bonus': 'BOR_BONUS'}[source_set]
     if any(value is None for value in (configs, campaigns, scenes, roster, media_bindings)):
         sys.path.insert(0, str(ROOT / 'tools/audio'))
         import shipped_content as shipped
@@ -251,11 +252,11 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
     occurrences = audit_directives('project', levels_path, selected_lines)
     ir_project = project(source)
     matches = [s for s in ir_project.sets if s.name == source_set]
-    if len(matches) != 1 or len(matches[0].entries) != 16:
-        raise CoverageError('NORMAL_SHAPE_DRIFT: expected one Normal set with 16 entries')
+    if len(matches) != 1 or not matches[0].entries:
+        raise CoverageError('SOURCE_SET_SHAPE_DRIFT: expected one nonempty source set')
     normal = matches[0]
     authored = campaigns[campaign]['entries']
-    if len(authored) != 16 or campaigns[campaign]['source_set_id'] != normal.source_id:
+    if len(authored) != len(normal.entries) or campaigns[campaign]['source_set_id'] != normal.source_id:
         raise CoverageError('CAMPAIGN_BINDING_DRIFT')
     catalog = {}
     for physical, cfg in enumerate(configs):
@@ -270,7 +271,7 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
         definition = key(model['source_path'])
         candidates = [(i, r) for i, r in enumerate(roster)
                       if r['family'] == 'bor-original'
-                      and normal.source_id in r.get('runtime_binding_sets', (0, 1, 2))
+                      and normal.source_id in r.get('runtime_binding_sets', (0, 1, 2, 3))
                       and key(r['source_character']) in
                       (definition.rsplit('/', 1)[0], definition.removesuffix('.txt'))]
         if len(candidates) > 1:
@@ -370,7 +371,8 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
             import convert_rugal
             import convert_ending
             expected_clips = {'RUGAL': [key(convert_rugal.SOURCE_PATH)],
-                              'ENDING': [key(f'DATA/SCENES/{name}.GIF') for name in convert_ending.CLIPS]}
+                              'ENDING': [key(f'DATA/SCENES/{name}.GIF') for name in convert_ending.CLIPS],
+                              'SEWER': [key('DATA/SCENES/SEWER.GIF'), key('DATA/SCENES/THANKS.GIF')]}
             if [key(a['source_path']) for a in parsed.animations] != expected_clips.get(binding['scene_id']):
                 raise CoverageError(f'SCENE_CLIP_LOWERING_UNBOUND: {entry.source_path}')
             if binding['scene_id'] == 'RUGAL' and (
@@ -433,7 +435,9 @@ def inventory(source=None, *, configs=None, campaigns=None, scenes=None, roster=
         rules.append(dict(domain=identity[0], directive=identity[1], occurrences=count,
                           **mapped, static_evidence=evidence, runtime_evidence='NOT_RUN',
                           required_source=required_use_status(identity, held_items, features, selection, frontpanel)))
-    return dict(schema_version=1, source_set=source_set, source_set_id=normal.source_id,
+    return dict(schema_version=1, source_set=source_set, source_set_id=normal.source_id, ifcomplete=normal.ifcomplete,
+                source_pak_sha256=hashlib.sha256(source.path.read_bytes()).hexdigest() if source.path.is_file() else None,
+                source_sets=[dict(source_id=s.source_id, name=s.name, ifcomplete=s.ifcomplete) for s in ir_project.sets],
                 source_hashes=source_hashes, entries=entries, directives=rules,
                 model_bindings={name: model_bindings[name] for name in sorted(used_models)},
                 occurrences=occurrences, features=features, selection_coverage=selection,

@@ -7,6 +7,8 @@ visual catalog, full-visual 30-Hz gate, and persistent BW-RAM world owner.
 import argparse
 import hashlib
 import json
+import struct
+import json
 import os
 from pathlib import Path
 import re
@@ -30,7 +32,11 @@ def source_visual_identity(base_dir):
     size = int(values['SOURCE_VISUAL_MSU_SIZE'])
     blob = generated.read_bytes()
     msu = (base_dir / 'bor.msu').read_bytes()
-    if enabled != 1 or count != 3640 or size != len(blob):
+    metadata = json.loads((ROOT / 'src/generated/production_source_visual.json').read_text(encoding='utf-8'))
+    expected = metadata['summary']['entry_count']
+    packed_count = struct.unpack_from('<H', blob, 6)[0] if blob[:5] == b'SVIS1' else -1
+    if (enabled != 1 or count != expected or packed_count != count or count <= 0
+            or metadata['summary']['blocker_count'] or size != len(blob)):
         raise RuntimeError('PRODUCTION_SOURCE_VISUAL_CATALOG_NOT_ENABLED_OR_EXPECTED')
     if offset + size > len(msu) or msu[offset:offset + size] != blob:
         raise RuntimeError('PRODUCTION_SOURCE_VISUAL_MSU_BYTES_MISMATCH')

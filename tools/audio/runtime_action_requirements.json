@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "scope": "source action/event coverage; no concurrent residency claim",
-  "manifest_hash": "35a66505a525d4f48b73e5c68f6f54549b39ed8c2d4b38aec0ae9b008f16e4a7",
-  "global_ids_hash": "ad60b2cd916186f8d7cbae2d12c156dca1066668de2f80840226d13635bb98a8",
+  "manifest_hash": "3310ae5842abc8e4d2af49a73741a8d663d8a0818e368056d9b0092c5d2d609c",
+  "global_ids_hash": "adf69532d256d9e0447158865b35976c39009568157e3a109c7128bc48fcb6d2",
   "models": [
     {
       "family": "bor-original",
@@ -2206,6 +2206,69 @@
           "frame_sound_ids": []
         }
       ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "CRAB",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\CRAB\\CRAB.TXT",
+      "diesound": null,
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        }
+      ]
+    },
+    {
+      "family": "bor-original",
+      "identity": "LOBSTER",
+      "playable": false,
+      "source_file": "DATA\\CHARS\\LOBSTER\\LOBSTER.TXT",
+      "diesound": "bor-original:DATA\\SOUNDS\\ALIEN.WAV",
+      "actions": [
+        {
+          "role": "idle",
+          "animation": "idle",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "walk",
+          "animation": "walk",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "pain",
+          "animation": "pain",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "fall",
+          "animation": "fall",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "rise",
+          "animation": "rise",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack",
+          "animation": "attack1",
+          "frame_sound_ids": []
+        },
+        {
+          "role": "attack2",
+          "animation": "attack2",
+          "frame_sound_ids": []
+        }
+      ]
     }
   ],
   "requirements": [
@@ -4242,6 +4305,58 @@
       "assets": []
     },
     {
+      "owner": "bor-original:CRAB",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:CRAB",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "idle",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "walk",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "pain",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "fall",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "rise",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "attack",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "attack2",
+      "assets": []
+    },
+    {
+      "owner": "bor-original:LOBSTER",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\ALIEN.WAV"
+      ]
+    },
+    {
       "owner": "bor-original:engine",
       "event": "attack-swing",
       "assets": [
@@ -4391,6 +4506,7 @@
   ],
   "source_hashes": {
     "bor-original:DATA\\SOUNDS\\1UP.WAV": "2a92eaad3b7de0047c78abc230eb78d9fa464833cb2492f153e8c91b9ce4cbad",
+    "bor-original:DATA\\SOUNDS\\ALIEN.WAV": "35e66f9b0f8f8c57fc4a7d8dbe14fea621b405334d1fc4ee10a8b217ecf7b833",
     "bor-original:DATA\\SOUNDS\\BEAT1.WAV": "41802c8ad7e793cefb3576bc4ae5e53b96a9cdbfb6c7d001d89e6fe3d9dfe90b",
     "bor-original:DATA\\SOUNDS\\BEEP.WAV": "bd6176e03abdd0c5ca2a4a78a864075b7345bece23d0decb0d46a2ff838b5d0f",
     "bor-original:DATA\\SOUNDS\\BEEP2.WAV": "0c84854b2f8f8cff540a40623f383bc3db11c90356d7f8d46677979a347a020a",

@@ -195,13 +195,29 @@ SourceVisual_RenderCurrent__lookup:
     sta.l SourceVisual_PresentationMask
 SourceVisual_RenderCurrent__same_field:
     jsr SourceVisual_FindEntry
-    bcc SourceVisual_RenderCurrent__fail
+    bcc SourceVisual_RenderCurrent__fail_near
+    ; Admission must obey the same viewport as publication. Wholly offscreen
+    ; source frames cannot pin the bounded OBJ cache needed by visible actors.
+    jsr SourceVisual_FrameInViewport
+    bcs SourceVisual_RenderCurrent__visible
+    tdc
+    sec
+    sbc #$0A00
+    tax
+    jsl SourceVisual_QueueRetireEntityOffset
+    jsr SourceVisual_ProcessRetired
+    bra SourceVisual_RenderCurrent__retired
+SourceVisual_RenderCurrent__visible:
     jsr SourceVisual_SelectResidency
-    bcc SourceVisual_RenderCurrent__fail
+    bcc SourceVisual_RenderCurrent__fail_near
     jsr SourceVisual_LoadResources
-    bcc SourceVisual_RenderCurrent__fail
+    bcc SourceVisual_RenderCurrent__fail_near
     jsr SourceVisual_Emit
-    bcc SourceVisual_RenderCurrent__fail
+    bcc SourceVisual_RenderCurrent__fail_near
+    bra SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__fail_near:
+    brl SourceVisual_RenderCurrent__fail
+SourceVisual_RenderCurrent__publish:
     ; Once this exact source packet has reached the OAM shadow, mark the
     ; actor lease as presentable.  An in-flight lease is kept on its chosen
     ; catalog entry until it emits once; otherwise a fast animation can
@@ -233,6 +249,72 @@ SourceVisual_RenderCurrent__retired:
     plb
     plp
     rtl
+
+; Conservative source-image rectangle, before any resource lease is pinned.
+; SVIS carries source width/height and authored origin in bytes 4..11. The
+; artwork is unchanged; per-piece clipping still handles partially visible
+; frames. Signed world coordinates never wrap into the 256x224 viewport.
+SourceVisual_FrameInViewport:
+    rep #$31
+    .a16
+    .i16
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    sta.l SourceVisual_EmitBaseX
+    lda CHAR_FACING_LEFT
+    and #$00FF
+    beq SourceVisual_FrameInViewport__right
+    lda.l SourceVisual_EmitBaseX
+    clc
+    adc.l SourceVisual_EntryScratch+8
+    inc a                       ; authored mirrored offsets include +1
+    sec
+    sbc.l SourceVisual_EntryScratch+4
+    bra SourceVisual_FrameInViewport__x
+SourceVisual_FrameInViewport__right:
+    lda.l SourceVisual_EmitBaseX
+    sec
+    sbc.l SourceVisual_EntryScratch+8
+SourceVisual_FrameInViewport__x:
+    bmi SourceVisual_FrameInViewport__x_end
+    cmp #256
+    bcs SourceVisual_FrameInViewport__outside
+SourceVisual_FrameInViewport__x_end:
+    clc
+    adc.l SourceVisual_EntryScratch+4
+    bmi SourceVisual_FrameInViewport__outside
+    beq SourceVisual_FrameInViewport__outside
+    lda CHAR_POS_Y
+    sta.l SourceVisual_EmitBaseY
+    jsl StageBoundsHost_Normal
+    bcc SourceVisual_FrameInViewport__y
+    jsl StageBounds_Row
+    lda.l StageBounds_State,x
+    beq SourceVisual_FrameInViewport__y
+    cmp #2
+    beq SourceVisual_FrameInViewport__outside
+    lda.l StageBounds_DrawY,x
+    cmp #240
+    bcs SourceVisual_FrameInViewport__outside
+    sta.l SourceVisual_EmitBaseY
+SourceVisual_FrameInViewport__y:
+    lda.l SourceVisual_EmitBaseY
+    sec
+    sbc.l SourceVisual_EntryScratch+10
+    bmi SourceVisual_FrameInViewport__y_end
+    cmp #224
+    bcs SourceVisual_FrameInViewport__outside
+SourceVisual_FrameInViewport__y_end:
+    clc
+    adc.l SourceVisual_EntryScratch+6
+    bmi SourceVisual_FrameInViewport__outside
+    beq SourceVisual_FrameInViewport__outside
+    sec
+    rts
+SourceVisual_FrameInViewport__outside:
+    clc
+    rts
 SourceVisual_RenderCurrent__fail:
 .a16
 .i16
@@ -560,6 +642,16 @@ SourceVisual_SelectResidency__actor_found:
     tax
     lda.l SourceVisual_State+6,x
     beq SourceVisual_SelectResidency__replace
+    ; A reused physical slot is a new source identity. An unfinished packet
+    ; from its previous model must never be resumed for the new actor.
+    sep #$20
+    .a8
+    lda.l SourceVisual_State+29,x
+    cmp.l SourceVisual_Key
+    bne SourceVisual_SelectResidency__identity_changed
+    rep #$31
+    .a16
+    .i16
     lda.l SourceVisual_State,x
     cmp.l SourceVisual_EntryIndexSaved
     beq SourceVisual_SelectResidency__found
@@ -580,6 +672,11 @@ SourceVisual_SelectResidency__replace_ready:
     rep #$31
 .a16
 .i16
+    bra SourceVisual_SelectResidency__replace
+SourceVisual_SelectResidency__identity_changed:
+    rep #$31
+    .a16
+    .i16
 SourceVisual_SelectResidency__replace:
     ; The shared source staging buffer and queued DMA must be retired before
     ; the old lease can be returned to the bounded allocator.
@@ -603,6 +700,13 @@ SourceVisual_SelectResidency__clear_loop:
     tax
     lda.l SourceVisual_EntryIndexSaved
     sta.l SourceVisual_State,x
+    sep #$20
+    .a8
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_State+29,x
+    rep #$31
+    .a16
+    .i16
     lda #1
     sta.l SourceVisual_State+6,x
     lda #0
@@ -2121,26 +2225,27 @@ SourceVisual_PrepareBlocks__mask_ready:
     rep #$31
 .a16
 .i16
-    ; If this actor is already resident, rebuild physical tile origins in the
-    ; freshly-read piece table from its slot map.
-    lda.l SourceVisual_Record
-    tax
-    lda.l SourceVisual_State+6,x
-    cmp #2
-    bne SourceVisual_PrepareBlocks__needs_blocks
-    brl SourceVisual_PrepareBlocks__apply_all
 SourceVisual_PrepareBlocks__needs_blocks:
 
     jsr SourceVisual_ResumePendingBlock
     bcs SourceVisual_PrepareBlocks__scan_start
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__scan_start:
+    ; Camera/actor movement can expose new pieces without changing the pose.
+    ; Refresh ownership before admission, including every already-resident
+    ; visible block. Offscreen pieces cannot hold scarce OBJ slots hostage.
+    jsr SourceVisual_PinVisibleBlocks
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_PrepareBlocks__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PrepareBlocks__ready
+    jsr SourceVisual_ViewportPiece
+    bcs SourceVisual_PrepareBlocks__visible_piece
+    brl SourceVisual_PrepareBlocks__next_piece
+SourceVisual_PrepareBlocks__visible_piece:
+    lda.l SourceVisual_PieceIndex
     ; Read the globally assigned block ID at piece row +12.
     asl a
     asl a
@@ -2191,6 +2296,7 @@ SourceVisual_PrepareBlocks__found:
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__map_piece:
     jsr SourceVisual_MapCurrentPiece
+SourceVisual_PrepareBlocks__next_piece:
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
@@ -2208,7 +2314,10 @@ SourceVisual_PrepareBlocks__apply_loop:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PrepareBlocks__success
+    jsr SourceVisual_ViewportPiece
+    bcc SourceVisual_PrepareBlocks__apply_next
     jsr SourceVisual_ApplyMappedPiece
+SourceVisual_PrepareBlocks__apply_next:
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
@@ -2245,6 +2354,71 @@ SourceVisual_PrepareBlocks__oversized:
 .a16
 .i16
     clc
+    rts
+
+; Called only after ResumePendingBlock observes the shared DMA fence. Clear
+; this actor's ownership, retain resident content, then repin every visible
+; block before a missing block may evict an unowned cache record. This also
+; protects later pieces while an earlier visible piece uploads over fields.
+SourceVisual_PinVisibleBlocks:
+    sep #$20
+    .a8
+    lda.l SourceVisual_BlockActorMask
+    eor #$FF
+    sta.l SourceVisual_BlockOther2
+    rep #$31
+    .a16
+    .i16
+    ldx #0
+SourceVisual_PinVisibleBlocks__clear:
+    sep #$20
+    .a8
+    lda.l SourceVisual_BlockCache+4,x
+    and.l SourceVisual_BlockOther2
+    sta.l SourceVisual_BlockCache+4,x
+    rep #$31
+    .a16
+    .i16
+    txa
+    clc
+    adc #8
+    tax
+    cpx #SOURCE_VISUAL_TILE_BLOCKS*8
+    bcc SourceVisual_PinVisibleBlocks__clear
+    lda #0
+    sta.l SourceVisual_PieceIndex
+SourceVisual_PinVisibleBlocks__piece:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcs SourceVisual_PinVisibleBlocks__done
+    jsr SourceVisual_ViewportPiece
+    bcc SourceVisual_PinVisibleBlocks__next
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+12,x
+    sta.l SourceVisual_BlockIndex
+    jsr SourceVisual_FindBlock
+    bcc SourceVisual_PinVisibleBlocks__next
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_BlockCache+4,x
+    ora.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache+4,x
+    rep #$31
+    .a16
+    .i16
+SourceVisual_PinVisibleBlocks__next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    bra SourceVisual_PinVisibleBlocks__piece
+SourceVisual_PinVisibleBlocks__done:
     rts
 
 ; A cache record is {blockId:u16, state:u16, owners:u8, progress:u8,

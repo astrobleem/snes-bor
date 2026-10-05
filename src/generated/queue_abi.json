@@ -1,9 +1,9 @@
 {
   "arena_end_exclusive": 8364032,
   "buffer_base": 8360448,
-  "buffer_bytes": 1190,
-  "buffer_end_exclusive": 8361638,
-  "capacity": 119,
+  "buffer_bytes": 1840,
+  "buffer_end_exclusive": 8362288,
+  "capacity": 184,
   "catalog_count_bits": 16,
   "copy_count_bits": 16,
   "error_address": 8364031,
@@ -361,6 +361,13 @@
       "set": "Hard",
       "source_path": "DATA\\HARD\\6CHARD.TXT",
       "stage": 49
+    },
+    {
+      "packed_records": 184,
+      "project": "Beats of Rage Original [v.3.0 Build 4086].pak",
+      "set": "Bonus",
+      "source_path": "DATA\\EXTRA.TXT",
+      "stage": 50
     }
   ],
   "target_capacity": 255,

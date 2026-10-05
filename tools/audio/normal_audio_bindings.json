@@ -612,6 +612,20 @@
       "source_id": 255,
       "asset": null,
       "classification": "NEW_SOURCE_NO_DIESOUND"
+    },
+    {
+      "roster_index": 47,
+      "semantic": 255,
+      "source_id": 255,
+      "asset": null,
+      "classification": "NEW_SOURCE_NO_DIESOUND"
+    },
+    {
+      "roster_index": 48,
+      "semantic": 255,
+      "source_id": 255,
+      "asset": null,
+      "classification": "NEW_SOURCE_NO_DIESOUND"
     }
   ]
 }

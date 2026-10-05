@@ -4,8 +4,8 @@
 ; Output actor34=target, A=target. Scratch actor60..6C. FC=10 numeric domain,
 ; FC=9 bad binding. Missing player pointers retain source ordering semantics.
 ; Admission: source coordinates MUST already be proven integral, not rounded
-; from arbitrary floats. Each operand must be -8192..8191. Differences are
-; bounded to 16383 and Manhattan sums to 32766, exact signed16 values and
+; from arbitrary floats. Each operand must be -16384..16383. Differences are
+; bounded to 32767 (signed16); Manhattan sums through 65534 use unsigned16 and
 ; exactly representable at precision24+.
 ; This routine does not certify fractional AI or ordinary enemy execution.
 S6_SelectTarget:
@@ -182,8 +182,8 @@ S6_TargetCoordinate:
     .i16
     pha
     clc
-    adc #8192
-    cmp #16384
+    adc #16384
+    cmp #32768
     pla
     rtl
 

@@ -37,7 +37,7 @@ LEGACY_BOR_STAGE_IDS = {
     "Normal": tuple(range(22, 32)),
 }
 LEGACY_FOREIGN_STAGE_IDS = tuple(range(3, 11))
-STAGE_CONFIGS = STAGE_MEDIA_BINDINGS
+STAGE_CONFIGS = list(STAGE_MEDIA_BINDINGS)
 
 # Only foreign campaigns require explicit bindings here. The compiler creates
 # both BOR campaigns, including scene positions and next boundaries, from source.
@@ -98,7 +98,8 @@ ROSTER_CONFIGS = [
     # Original BOR subtype biker. Runtime-only; never part of normal player
     # selection. Its sparse idle/pain model is consumed by the biker state
     # machine rather than by the ordinary walk/attack animation path.
-    {"family": "bor-original", "source_character": "DATA\\CHARS\\BIKER-K", "converted_prefix": "out/biker_k", "playable": False},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\BIKER-K", "converted_prefix": "out/biker_k", "playable": False,
+     "source_visual_layout": "model-shared-lossless"},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\ANGEL", "converted_prefix": "out/angel", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\SHERMIE", "converted_prefix": "out/shermie", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\K", "converted_prefix": "out/k_prime", "playable": False},
@@ -118,19 +119,22 @@ ROSTER_CONFIGS = [
     # G15-M 6CEASY runtime-only boss identity; never selectable.
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RUGAL", "converted_prefix": "out/rugal", "playable": False},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\RAMON", "converted_prefix": "out/ramon", "playable": False,
-     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2), "accepted_legacy_unbound_sets": (0,)},
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\RAMON\\RAMON.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2, 3), "accepted_legacy_unbound_sets": (0,)},
     {"family": "bor-original", "source_character": "DATA\\CHARS\\MISC\\TIME", "converted_prefix": "out/time", "playable": False,
-     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2), "accepted_legacy_unbound_sets": (0,)},
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\MISC\\TIME.TXT", "source_defaults": True, "runtime_binding_sets": (1, 2, 3), "accepted_legacy_unbound_sets": (0,)},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\CRAB", "converted_prefix": "out/crab", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\CRAB\\CRAB.TXT", "source_defaults": True, "runtime_binding_sets": (3,)},
+    {"family": "bor-original", "source_character": "DATA\\CHARS\\LOBSTER", "converted_prefix": "out/lobster", "playable": False,
+     "pak": "Beats of Rage Original [v.3.0 Build 4086].pak", "source_definition": "DATA\\CHARS\\LOBSTER\\LOBSTER.TXT", "source_defaults": True, "runtime_binding_sets": (3,)},
 ]
 
-# Scene support is intentionally explicit and narrow.  Rugal is the only
-# source scene currently entered by the BOR runtime (through the direct scene
-# video test seam); other scene assets remain source-present but unreachable.
+# Scene identities bind authored ordered clips through production transport.
 SCENE_CONFIGS = [
     {"scene_id": "RUGAL", "runtime_id": 1,
      "source_scene": "DATA\\SCENES\\RUGAL.TXT"},
     {"scene_id": "ENDING", "runtime_id": 2,
      "source_scene": "DATA\\SCENES\\ENDING.TXT"},
+    {"scene_id": "SEWER", "runtime_id": 3, "source_scene": "DATA\\SCENES\\SEWER.TXT"},
 ]
 
 # BOR.C showcomplete() is an authored, non-looping completion presentation
@@ -221,6 +225,13 @@ def shipped_levels(family: str) -> set[str]:
     return {stage["source_level"].split("\\")[-1] for stage in STAGE_CONFIGS if stage["family"] == family}
 
 
+# Additional source presentation binding. It is allocated after all legacy
+# stages by the linker; conversion uses the shared streaming BG encoder.
+STAGE_MEDIA_BINDINGS.append(dict(family='bor-original',
+    pak='Beats of Rage Original [v.3.0 Build 4086].pak',
+    source_level='DATA\\EXTRA.TXT', bg='out/bg_source_extra', frontpanel=None,
+    spawn='out/compiler_campaign/data/extra/spawn_table.bin', source_media=True))
+
 # Source owns the complete selected campaigns. The preceding records are
 # accepted encoded-media/physical-ID bindings, not logical progression.
 import sys as _sys
@@ -229,4 +240,4 @@ _sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / 'bor_compile'))
 from production_campaign import link_campaigns as _link_campaigns
 STAGE_CONFIGS, CAMPAIGN_CONFIGS, COMPILER_CAMPAIGN_COVERAGE = _link_campaigns(
     STAGE_CONFIGS, CAMPAIGN_CONFIGS, SCENE_CONFIGS,
-    legacy_stage_ids=LEGACY_BOR_STAGE_IDS)
+    media_bindings=STAGE_MEDIA_BINDINGS, legacy_stage_ids=LEGACY_BOR_STAGE_IDS)

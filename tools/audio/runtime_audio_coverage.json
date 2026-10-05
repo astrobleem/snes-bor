@@ -1887,6 +1887,14 @@
       "classification": "NEW_SOURCE_BOUND"
     },
     {
+      "owner": "bor-original:LOBSTER",
+      "event": "diesound",
+      "assets": [
+        "bor-original:DATA\\SOUNDS\\ALIEN.WAV"
+      ],
+      "classification": "OUTSIDE_NORMAL_SCOPE"
+    },
+    {
       "owner": "bor-original:engine",
       "event": "attack-swing",
       "assets": [
@@ -2069,6 +2077,20 @@
       "source_id": 255,
       "asset": null,
       "classification": "NEW_SOURCE_NO_DIESOUND"
+    },
+    {
+      "roster_index": 47,
+      "semantic": 255,
+      "source_id": 255,
+      "asset": null,
+      "classification": "NEW_SOURCE_NO_DIESOUND"
+    },
+    {
+      "roster_index": 48,
+      "semantic": 255,
+      "source_id": 255,
+      "asset": null,
+      "classification": "NEW_SOURCE_NO_DIESOUND"
     }
   ],
   "time_item_audio": {
@@ -2079,7 +2101,7 @@
   },
   "linked_runtime_data": "PASS",
   "audio_blob_sha256": "4c2ff4eb3713c6ce7a511cccc07929fa140425441c659e365db63d6761aefe8f",
-  "action_inventory_sha256": "887aa5a9a0de3266e4223b5afe61b01d7898e03ecd2950cabed3e8af80bf7fa4",
+  "action_inventory_sha256": "70960f8c81e8124fd4b09c2fba1f0d01f051f3660a97be43418da42cab8c6456",
   "uncovered_assets": [],
   "affected_requirements": [],
   "nonclaims": [

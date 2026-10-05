@@ -1,0 +1,22 @@
+{
+  "path": "out\\bor_compile_s6\\BOR.C",
+  "sha256": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+  "semantics": {
+    "completion": {
+      "line": 5647,
+      "excerpt": "\t\t\t++current_level;\n\t\t}\n\t\tif(current_level >= num_levels[which_set]){\n\t\t\tsavedata.times_completed++;\n\t\t\tfade_out();\n\t\t}\n\t}\n\tsound_close_music();\n}"
+    },
+    "unlock": {
+      "line": 5691,
+      "excerpt": "\t\tif(bothnewkeys & FLAG_ANYBUTTON){\n\t\t\tsound_play_sample(smp_beep2, 0, savedata.effectvol,savedata.effectvol, 100);\n\t\t\tif(selector==i) quit = 1;\n\t\t\telse if(savedata.times_completed >= ifcomplete[selector]) return selector;\n\t\t}\n\t}\n\tbothnewkeys = 0;"
+    },
+    "none_walk": {
+      "line": 4663,
+      "excerpt": "\t\t\te->base = e->a;\n\t\t\tbreak;\n\n\t\tcase TYPE_NONE:\n\t\t\tif(e->model->animation[ANI_WALK]){\n\t\t\t\tif(props->x < 160) e->xdir = e->model->speed + randf(3);\n\t\t\t\telse e->xdir = -(e->model->speed + randf(3));\n\t\t\t\te->think = anything_walk;\n\t\t\t\tent_set_anim(e, ANI_WALK);\n\t\t\t}\n\t\t\tbreak;\n\t}\n\treturn e;\n}\n"
+    },
+    "none_think": {
+      "line": 3675,
+      "excerpt": "\n\n\nvoid anything_walk(void){\n\tif(self->x < advancex - 80 || self->x > advancex + 400){\n\t\tkill(self);\n\t\treturn;\n\t}\n\tself->x += self->xdir;\n}\n\n\n\n\nvoid knife_think(void){\n\tif(self->x < advancex - 80 || self->x > advancex + 400){\n\t\tkill(self);\n\t\treturn;\n\t}\n\tif(self->direction) self->x += 2;\n\telse self->x -= 2;"
+    }
+  }
+}

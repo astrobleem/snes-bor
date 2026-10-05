@@ -345,6 +345,22 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
         authored_roles_by_roster[roster_id] = {
             str(animation.role).lower() for animation in model.animations
         }
+        model_palette_plan = None
+        layout = cfg.get('source_visual_layout')
+        if layout:
+            if layout != 'model-shared-lossless':
+                raise ValueError('SOURCE_VISUAL_LAYOUT_UNSUPPORTED: '+layout)
+            # Stable source palette indices and a shared authored cover let
+            # live/death poses reuse identical pixels. No color quantization,
+            # geometry change or source animation substitution is introduced.
+            frames = {}
+            for animation in model.animations:
+                for f in animation.frames:
+                    frame = dict(source_path=f.source_path,offset=f.state['offset'])
+                    frames.setdefault((f.source_path,tuple(f.state['offset'])),frame)
+            banks, packed, stats = palette_banks_for_frames(
+                source,list(frames.values()),allow_color_set_drift=True)
+            model_palette_plan = (banks,dict(zip(frames,packed)),stats)
         for animation in model.animations:
             try:
                 raster = compile_animation(source, model, animation.role,
@@ -405,6 +421,9 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
                         if furnace_palette_plan is not None:
                             palette_banks_override = furnace_palette_plan[0]
                             packed_override = furnace_palette_plan[1][frame_index]
+                        if model_palette_plan is not None:
+                            palette_banks_override = model_palette_plan[0]
+                            packed_override = model_palette_plan[1][(frame['source_path'],tuple(frame['offset']))]
                         packed, pieces, palettes, blocks, sheet = _partition_frame(
                             source, frame, palette_override,
                             allow_full_obj_pack=normal_required_large_pose,
@@ -456,8 +475,8 @@ def build_catalog(roster_configs, *, pak_root=None, include_non_bor=False):
                     "source_palette_indices": sorted({c for p in pieces for c in p["source_colors"]}),
                     "source_delay": frame["source_delay"],
                     "packed_solver_status": packed.get("solver_status", "source_compact_packing"),
-                    "palette_cluster": (furnace_palette_plan[2]
-                                        if furnace_palette_plan is not None else None),
+                    "palette_cluster": (model_palette_plan[2] if model_palette_plan else
+                                        (furnace_palette_plan[2] if furnace_palette_plan is not None else None)),
                     })
     _pack_large_animation_entries(result["entries"])
     result["entries"].sort(key=lambda e: (e["roster"], e["role"], e["frame"], e["map"]))

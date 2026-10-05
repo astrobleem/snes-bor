@@ -48,6 +48,9 @@ def _validate_admission(actual, expected):
     source_type = expected.get("source_type")
     if source_type == "enemy":
         initialized = actual.get("hp", 0) > 0 and actual.get("mode") in (2, 4)
+    elif source_type == "none":
+        from _harness import pasm_constant
+        initialized = actual.get("mode") == pasm_constant('CHAR_INPUT_DRIVEN_NONCOMBAT')
     elif source_type == "steamer":
         initialized = actual.get("hp", 0) > 0 and actual.get("mode") == 5
     elif source_type == "item":
@@ -811,6 +814,8 @@ def _traversal_script_with_camera_state(
         trace_player_lifecycle=trace_player_lifecycle,
         world_symbols=world_symbols,
     )
+    from byor_native_interaction import observer_script as interaction_observer_script
+    script += interaction_observer_script(symbols)
     visual_error_trace = os.environ.get("S8_NORMAL_VISUAL_ERROR_TRACE")
     if visual_error_trace:
         visual_symbols = (
@@ -921,7 +926,10 @@ emu.addMemoryCallback(function(a,v)
   _s8_visual_detail_read(0x7e0a00+266+4,2),_s8_visual_detail_read(0x7e0a00+266+6,2),
   _s8_visual_detail_read(0x7e0a00+399+4,2),_s8_visual_detail_read(0x7e0a00+399+6,2),
   _s8_visual_detail_read(0x7e0a00+532+4,2),_s8_visual_detail_read(0x7e0a00+532+6,2),
-  _s8_visual_detail_read(0x7e0a00+665+4,2),_s8_visual_detail_read(0x7e0a00+665+6,2)}}
+  _s8_visual_detail_read(0x7e0a00+665+4,2),_s8_visual_detail_read(0x7e0a00+665+6,2),
+  _s8_visual_detail_hex(0x7e0a00,798),
+  _s8_visual_detail_hex({symbols['StageEnv_Actors']},798),
+  _s8_visual_detail_read({symbols['Spawn_Index']},1)}}
  for i=1,#row do row[i]=tostring(row[i]) end
  _s8_visual_error_detail:write(table.concat(row,'|'),'\\n')
  _s8_visual_error_detail:flush()
@@ -2632,7 +2640,7 @@ if __name__ == "__main__":
                         worker_driver in (8, 9)
                         and worker_type == 1
                         and host_roster != 0
-                        and 0 <= worker_x <= 6000
+                        and 0 <= worker_x <= 16383
                         and -4096 <= worker_y <= 4096
                     )
                     was_valid = _canonical_valid_seen[coordinate]

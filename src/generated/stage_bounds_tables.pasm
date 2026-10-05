@@ -1,5 +1,5 @@
 ; Generated source bounds: flags, clamp intercept, four hole intercepts, reserved.
-StageBounds_RecordCount = 50
+StageBounds_RecordCount = 51
 StageBounds_DataBank = $0F0000
 StageBounds_Records:
     .dw 0, 0, 0, 0, 0, 0, 0, 0
@@ -52,3 +52,4 @@ StageBounds_Records:
     .dw 0, 3950, 3976, 3975, 3975, 3975, 0, 0
     .dw 0, 126, 152, 151, 151, 151, 0, 0
     .dw 0, 70, 96, 95, 95, 95, 0, 0
+    .dw 0, 11310, 11336, 11335, 11335, 11335, 0, 0

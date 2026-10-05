@@ -28,7 +28,13 @@ def _campaign_inputs(source_set='Normal'):
     coverage = inventory(source_set=source_set)
     normal_player_slots = {slot for slot, _ in normal_player_entries("bor-original")}
     combat_models = []
-    for name, binding in sorted(coverage["model_bindings"].items()):
+    # One worker must serve every exposed source-world set. A shorter set's
+    # encounter roster cannot remove bindings needed by Normal or Hard.
+    enabled = ('Normal', 'Hard', 'Bonus') if source_set == 'Bonus' else ('Normal', 'Hard') if source_set == 'Hard' else ('Normal',)
+    bindings = {}
+    for name in enabled:
+        bindings.update((coverage if name == source_set else inventory(source_set=name))['model_bindings'])
+    for name, binding in sorted(bindings.items()):
         if binding["source_type"] != "enemy":
             continue
         roster = binding["runtime_slot"]
@@ -51,8 +57,8 @@ def _campaign_inputs(source_set='Normal'):
         combat_models.append(dict(name=name,
             source_definition=source_character + "\\" + name + ".TXT",
             runtime_slot=slot, playable=True))
-    if (sum(not row["playable"] for row in combat_models) != 17 or
-            sum(row["playable"] for row in combat_models) != 4):
+    if (not any(not row['playable'] for row in combat_models) or
+            sum(row['playable'] for row in combat_models) != 4):
         raise RuntimeError("NORMAL_COMBAT_ROSTER_SHAPE_DRIFT")
     return coverage, combat_models
 
@@ -61,7 +67,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
     from actor_s6_production_world import build as build_world
     from actor_s7_persistent_worker import install
     from actor_s7_production_runtime import source_visual_identity
-    from pcm_runtime import assert_no_pcm_copy
+    from pcm_runtime import assert_no_pcm_copy, link_immutable_pcm
 
     if not output_is_source:
         if output.exists():
@@ -73,6 +79,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
     elif not (output / "bor.msu").is_file():
         raise FileNotFoundError("in-place source image has no bor.msu")
 
+    link_immutable_pcm(ROOT / "distribution", output)
     coverage, combat_models = _campaign_inputs(source_set)
     source_rom = source / "bor.sfc"
     if not source_rom.is_file():
@@ -90,7 +97,7 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
     worker_symbols = install(output, production_runtime=True, fresh_world=True)
     manifest = dict(
             status=("OPT_IN_PERSISTENT_SA1_NORMAL_CAMPAIGN_CANDIDATE" if source_set == 'Normal'
-                    else "PERSISTENT_SA1_HARD_CAMPAIGN_CANDIDATE"),
+                    else f"PERSISTENT_SA1_{source_set.upper()}_CAMPAIGN_CANDIDATE"),
             compiler="BYOR — Bring Your Own Rage",
             source_set_id=coverage['source_set_id'],
             selectable_normal=True,
@@ -102,7 +109,9 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
                                (output / "bor.sfc").read_bytes()).hexdigest(),
                            msu_sha256=hashlib.sha256(
                                (output / "bor.msu").read_bytes()).hexdigest()),
-            selectable_hard=source_set == 'Hard',
+            selectable_hard=source_set in ('Hard', 'Bonus'),
+            bonus_content_available=source_set == 'Bonus',
+            unlock_threshold=coverage['ifcomplete'],
             workload=dict(campaign=f"BOR {source_set}", logical_entries=len(coverage['entries']),
                           authored_order=[row['source_path'] for row in coverage['entries']],
                           source_clock_hz=200, presentation_hz=30,
@@ -140,13 +149,23 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
 
 
 def build_from_source(output: Path, source_image: Path, *, in_place=False,
-                      relink_source=False, source_set='Normal'):
+                      relink_source=False, source_set='Normal', repack_media=False):
     output = output.resolve()
     source = source_image.resolve()
     if in_place and output != source:
         raise ValueError("IN_PLACE_SOURCE_OUTPUT_MUST_MATCH")
     if not source.is_dir() or not (source / "bor.msu").is_file():
         raise FileNotFoundError(f"compiler source image incomplete: {source}")
+    if repack_media:
+        if not in_place:
+            raise ValueError('MEDIA_REPACK_REQUIRES_IN_PLACE_SOURCE')
+        import build_rom
+        build_rom.write_campaign_include(normal_candidate=True,
+            hard_candidate=source_set in ('Hard','Bonus'),bonus_candidate=source_set=='Bonus')
+        media,sidecar=build_rom.build_msu_assets(write_output=False,source_sized_visual=True)
+        build_rom.write_source_visual_layout_include(sidecar,enabled=True)
+        (source/'bor.msu').write_bytes(media)
+        relink_source=True
     if in_place and (relink_source or not (source / "bor.sfc").is_file()):
         # The source build completed before a later overlay assembly failure.
         # Re-linking the already-generated main.bin is cheap and keeps the
@@ -167,14 +186,15 @@ def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Norm
         source = Path(temporary)
         build_rom.main(reuse_audio_from, normal_candidate=True,
                        source_sized_visual=True, candidate_dir=source,
-                       hard_candidate=source_set == 'Hard')
+                       hard_candidate=source_set in ('Hard', 'Bonus'),
+                       bonus_candidate=source_set == 'Bonus')
         return _build_overlay(output, source, source_set=source_set)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--source-set", choices=('Normal', 'Hard'), default='Normal')
+    parser.add_argument("--source-set", choices=('Normal', 'Hard', 'Bonus'), default='Normal')
     parser.add_argument("--reuse-audio-from",
                         help="reuse pinned unchanged audio inputs from a Git ref")
     parser.add_argument("--source-image", type=Path,

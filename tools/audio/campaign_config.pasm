@@ -10,9 +10,9 @@ BorSet_Ids:
 BorSet_IfComplete:
     .db 0, 0, 0, 1
 BorSet_ContentAvailable:
-    .db 1, 1, 1, 0
+    .db 1, 1, 1, 1
 BorSet_CampaignMap:
-    .db CAMPAIGN_BOR_ORIGINAL, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, BOR_SET_UNMAPPED
+    .db CAMPAIGN_BOR_ORIGINAL, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV, CAMPAIGN_BOR_NORMAL_DEV
 BOR_SET_NAME_WIDTH = 8
 BorSet_Names:
     .db 69, 97, 115, 121, 0, 0, 0, 0
@@ -65,6 +65,21 @@ Campaign_BorHard_NextFlags:
 Campaign_BorHard_CompleteFlags:
     .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
 
+Campaign_BorBonus_EntryCount = 2
+Campaign_BorBonus_EntryKinds:
+    .db CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_SCENE
+Campaign_BorBonus_EntryValues:
+    .db 50, SceneSequence_Sewer
+
+Campaign_BorBonus_StageCount = 1
+Campaign_BorBonus_StageMap:
+    .db 50
+
+Campaign_BorBonus_NextFlags:
+    .db 0, 0
+Campaign_BorBonus_CompleteFlags:
+    .db 0, 0
+
 Campaign_Tmnt_EntryCount = 4
 Campaign_Tmnt_EntryKinds:
     .db CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE, CAMPAIGN_ENTRY_STAGE
@@ -86,16 +101,16 @@ Campaign_Standalone_StageMap:
     .db 3, 4, 5, 10
 
 Campaign_Source_Offsets:
-    .db 0, 0, 16, 0
+    .db 0, 0, 16, 32
 
 Campaign_Source_Counts:
-    .db 0, 16, 16, 0
+    .db 0, 16, 16, 2
 
 Campaign_Source_Kinds:
-    .db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
+    .db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1
 
 Campaign_Source_Values:
-    .db 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, SceneSequence_Rugal, 35, SceneSequence_Ending, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending
+    .db 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, SceneSequence_Rugal, 35, SceneSequence_Ending, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, SceneSequence_Rugal, 49, SceneSequence_Ending, 50, SceneSequence_Sewer
 
 Campaign_Source_CompleteFlags:
-    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0
+    .db 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0

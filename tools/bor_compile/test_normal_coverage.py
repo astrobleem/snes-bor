@@ -76,10 +76,11 @@ class NormalCoverageTests(unittest.TestCase):
             with self.subTest(domain=domain), patch.dict(CAPABILITIES[parser_domain], teleport='SUPPORTED'):
                 with self.assertRaisesRegex(coverage.CoverageError, 'UNMAPPED_DIRECTIVE'):
                     coverage.audit_directives(domain, 'newsource.txt', [Directive(77, 'teleport', ['1'])])
-        # Also reject a known parser keyword not encountered/reviewed in the
-        # selected Normal block; an allowlist expansion requires review.
-        with self.assertRaisesRegex(coverage.CoverageError, 'project.ifcomplete'):
-            coverage.audit_directives('project', 'DATA/LEVELS.TXT', [Directive(39, 'ifcomplete', ['1'])])
+        # Bonus adds reviewed source unlock semantics; recognition alone still
+        # cannot authorize an unreviewed keyword above.
+        rows = coverage.audit_directives('project', 'DATA/LEVELS.TXT', [Directive(39, 'ifcomplete', ['1'])])
+        self.assertEqual(rows[0]['directive'], 'ifcomplete')
+        self.assertIn('src/core/campaign.pasm#BorSet_IsUnlocked', coverage.RULES['project', 'ifcomplete']['consumer'])
 
     def test_held_item_blockers_follow_required_source_types(self):
         report = self.report

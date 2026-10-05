@@ -27,16 +27,17 @@
     46,
     47,
     48,
-    49
+    49,
+    50
   ],
   "water_media": [
     {
       "physical": 26,
       "source_path": "DATA\\NORMAL\\3A.TXT",
       "accepted_bg": "out/bg_3easy",
-      "bg": "out/compiler_campaign/stage_water/d4d3111d5e51c73963b9a1957b637ed9f815b30ff6a21e1b2c004815edb38d6e",
-      "reused": false,
-      "fingerprint": "d4d3111d5e51c73963b9a1957b637ed9f815b30ff6a21e1b2c004815edb38d6e",
+      "bg": "out/compiler_campaign/stage_water/396834b60041a422faf13e6e00bd6ec5ee932e22dd12d4247c0e687295909c99",
+      "reused": true,
+      "fingerprint": "396834b60041a422faf13e6e00bd6ec5ee932e22dd12d4247c0e687295909c99",
       "water": {
         "physical": 26,
         "source_path": "DATA\\NORMAL\\3A.TXT",
@@ -61,9 +62,9 @@
       "physical": 27,
       "source_path": "DATA\\NORMAL\\3B.TXT",
       "accepted_bg": "out/bg_3beasy",
-      "bg": "out/compiler_campaign/stage_water/b2d7230c604d9864e0ee3ae80b62788c5fdcefd2aa671540761fbacdfa26fea6",
-      "reused": false,
-      "fingerprint": "b2d7230c604d9864e0ee3ae80b62788c5fdcefd2aa671540761fbacdfa26fea6",
+      "bg": "out/compiler_campaign/stage_water/2abeada5615b54077e778bc84a51d332bedf7bfc75933118d878212a7e1198cf",
+      "reused": true,
+      "fingerprint": "2abeada5615b54077e778bc84a51d332bedf7bfc75933118d878212a7e1198cf",
       "water": {
         "physical": 27,
         "source_path": "DATA\\NORMAL\\3B.TXT",
@@ -85,9 +86,9 @@
       "physical": 28,
       "source_path": "DATA\\NORMAL\\3C.TXT",
       "accepted_bg": "out/bg_3ceasy",
-      "bg": "out/compiler_campaign/stage_water/bcde71b7c898d88e1cd2b1b39c156b3319efd783a8de741d5fedf0d83d81aac7",
-      "reused": false,
-      "fingerprint": "bcde71b7c898d88e1cd2b1b39c156b3319efd783a8de741d5fedf0d83d81aac7",
+      "bg": "out/compiler_campaign/stage_water/ec33d9c70ee86bd127effc39074218e1bc496b14e52192368d9aff84d4ebd686",
+      "reused": true,
+      "fingerprint": "ec33d9c70ee86bd127effc39074218e1bc496b14e52192368d9aff84d4ebd686",
       "water": {
         "physical": 28,
         "source_path": "DATA\\NORMAL\\3C.TXT",
@@ -109,9 +110,9 @@
       "physical": 29,
       "source_path": "DATA\\NORMAL\\4A.TXT",
       "accepted_bg": "out/bg_4aeasy",
-      "bg": "out/compiler_campaign/stage_water/a7e04592dbd006767e65af3e87386610bbd65ab31d03c58ab957b66d756aab72",
-      "reused": false,
-      "fingerprint": "a7e04592dbd006767e65af3e87386610bbd65ab31d03c58ab957b66d756aab72",
+      "bg": "out/compiler_campaign/stage_water/bc5d85adb479d1217dccdc8309477d9990f59fde246a51934e017be52c508114",
+      "reused": true,
+      "fingerprint": "bc5d85adb479d1217dccdc8309477d9990f59fde246a51934e017be52c508114",
       "water": {
         "physical": 29,
         "source_path": "DATA\\NORMAL\\4A.TXT",
@@ -136,9 +137,9 @@
       "physical": 40,
       "source_path": "DATA\\HARD\\3AHARD.TXT",
       "accepted_bg": "out/bg_3easy",
-      "bg": "out/compiler_campaign/stage_water/8bff7ac3b6bbdf9fbcce62111b65acc113dc7607b8c4d96d8acb6bdd6c6a3807",
-      "reused": false,
-      "fingerprint": "8bff7ac3b6bbdf9fbcce62111b65acc113dc7607b8c4d96d8acb6bdd6c6a3807",
+      "bg": "out/compiler_campaign/stage_water/4f0803713fd1900e4a438106b0041182d670e51e96ac4ea9f72c0179e62c15cf",
+      "reused": true,
+      "fingerprint": "4f0803713fd1900e4a438106b0041182d670e51e96ac4ea9f72c0179e62c15cf",
       "water": {
         "physical": 40,
         "source_path": "DATA\\HARD\\3AHARD.TXT",
@@ -163,9 +164,9 @@
       "physical": 41,
       "source_path": "DATA\\HARD\\3BHARD.TXT",
       "accepted_bg": "out/bg_3beasy",
-      "bg": "out/compiler_campaign/stage_water/e211e7017b3f082b5e3e08e27fbf6b34ec5deb9359b9e40f98b6ac59cc9c89b2",
-      "reused": false,
-      "fingerprint": "e211e7017b3f082b5e3e08e27fbf6b34ec5deb9359b9e40f98b6ac59cc9c89b2",
+      "bg": "out/compiler_campaign/stage_water/ce2f84153ffab4629eaa1fe0e1e4b7b9a8bb1445b81b2463ed2b27c1e22fa482",
+      "reused": true,
+      "fingerprint": "ce2f84153ffab4629eaa1fe0e1e4b7b9a8bb1445b81b2463ed2b27c1e22fa482",
       "water": {
         "physical": 41,
         "source_path": "DATA\\HARD\\3BHARD.TXT",
@@ -187,9 +188,9 @@
       "physical": 42,
       "source_path": "DATA\\HARD\\3CHARD.TXT",
       "accepted_bg": "out/bg_3ceasy",
-      "bg": "out/compiler_campaign/stage_water/45f2e7978b90810ad8523cdfb61cb3e12f3b20ea4a72bad78ea3d52439483ba5",
-      "reused": false,
-      "fingerprint": "45f2e7978b90810ad8523cdfb61cb3e12f3b20ea4a72bad78ea3d52439483ba5",
+      "bg": "out/compiler_campaign/stage_water/3d823f85dc1f868e9d70895246456b8e80a64c3aa565246da04b2cdad7479ff1",
+      "reused": true,
+      "fingerprint": "3d823f85dc1f868e9d70895246456b8e80a64c3aa565246da04b2cdad7479ff1",
       "water": {
         "physical": 42,
         "source_path": "DATA\\HARD\\3CHARD.TXT",
@@ -211,9 +212,9 @@
       "physical": 43,
       "source_path": "DATA\\HARD\\4AHARD.TXT",
       "accepted_bg": "out/bg_4aeasy",
-      "bg": "out/compiler_campaign/stage_water/4036fd3cf80db8d3f350dc3d024214ce110d36e9853727635422ad8d1bdd4505",
-      "reused": false,
-      "fingerprint": "4036fd3cf80db8d3f350dc3d024214ce110d36e9853727635422ad8d1bdd4505",
+      "bg": "out/compiler_campaign/stage_water/59509b68fe30238b1cc843d934943887d51ca80bd47d140f65f3a9b3772e5e99",
+      "reused": true,
+      "fingerprint": "59509b68fe30238b1cc843d934943887d51ca80bd47d140f65f3a9b3772e5e99",
       "water": {
         "physical": 43,
         "source_path": "DATA\\HARD\\4AHARD.TXT",
@@ -632,9 +633,9 @@
       "physical": 27,
       "source_path": "DATA\\NORMAL\\3B.TXT",
       "accepted_frontpanel": "out/fp_3beasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/95663d6ad1bb2829074c0a6c155d8b23c92085e42c29089010a1988bbc313419",
-      "reused": false,
-      "fingerprint": "be21e07150a4e143f408fa5f187dffed82a63c137a9cd7bb50154056745eda06",
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/848d710af255c0703124be186ba9c892c833ef600e993997980be886ce939524",
+      "reused": true,
+      "fingerprint": "8f6cef053387e8a4f32f012e6b52046fe415710e143ead286442618929536460",
       "sequence": [
         {
           "source_path": "DATA\\BGS\\BOAT\\FRONT.GIF",
@@ -663,9 +664,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/38759eb3a90c33fc158a573dca5c9794d3d45cba9b2ee178b53649a4322c4c84",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "95663d6ad1bb2829074c0a6c155d8b23c92085e42c29089010a1988bbc313419",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/dc03101a166f694e6765562acc55b0bcd7c6fc990a6c5e6a12e4602e3bc4de21",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "848d710af255c0703124be186ba9c892c833ef600e993997980be886ce939524",
       "full_fp_blob_sha256": {
         "tiles.bin": "f978ca8716ca80bce2bf9ccf68fada95421809f86bfa5b5765ccf70e783db65c",
         "tilemap.bin": "1aa803a033ac12745e51c4abb31bdb1c50302101cd562ce3c4d3aa52b7af7134",
@@ -998,7 +999,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "38759eb3a90c33fc158a573dca5c9794d3d45cba9b2ee178b53649a4322c4c84",
+      "clean_bg_fingerprint": "dc03101a166f694e6765562acc55b0bcd7c6fc990a6c5e6a12e4602e3bc4de21",
       "clean_bg_hashes": {
         "tiles.bin": "bd59fc46a1aef2f96658c44e37eea4956adce4107ee324d36f9d794b162fff4f",
         "tilemap.bin": "1a965b8ec32ce80626c29e1b14b0343daa2e0534df21357c3520a190e27664c9",
@@ -1009,9 +1010,9 @@
       "physical": 28,
       "source_path": "DATA\\NORMAL\\3C.TXT",
       "accepted_frontpanel": "out/fp_3ceasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/91764cfad7d24302b569e08bec75467772e2c72b973c44a10fe99fd38e8cdb1f",
-      "reused": false,
-      "fingerprint": "7a56efacecf743e809739e181b717de5f06a5a7fe8840ab4098ef9bc8ffe6db9",
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/2901ff71332c2c138e3fe1bf898366a75758d28917dce06f921047f5a931dae0",
+      "reused": true,
+      "fingerprint": "b9bfce0d1a773dd1a64facb12d59348b7362fabba426e44d564adf5b6422a347",
       "sequence": [
         {
           "source_path": "DATA\\BGS\\BOAT3\\FRONT.GIF",
@@ -1040,9 +1041,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/1ae91d9e94763bd8fb2302abb912d45ece241e1e0a9d070153dc27209a3f464f",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "91764cfad7d24302b569e08bec75467772e2c72b973c44a10fe99fd38e8cdb1f",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/3725f5e2e7983ab96904a08a7c7fde36258e88e4c6df2d68b2326220d52b4e26",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "2901ff71332c2c138e3fe1bf898366a75758d28917dce06f921047f5a931dae0",
       "full_fp_blob_sha256": {
         "tiles.bin": "28461e363b88101b0910c87acda4c1356d63b03eaaabd5ae978980b0e4963328",
         "tilemap.bin": "5760a3e766fcda169738ecab64842d6a9f06f72c783f7f7d294cc5494398a55c",
@@ -1375,7 +1376,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "1ae91d9e94763bd8fb2302abb912d45ece241e1e0a9d070153dc27209a3f464f",
+      "clean_bg_fingerprint": "3725f5e2e7983ab96904a08a7c7fde36258e88e4c6df2d68b2326220d52b4e26",
       "clean_bg_hashes": {
         "tiles.bin": "1ab31b447038bf434c2fa38ee3763fca574e3f649c4a6cfbbbe5ab3f7487f240",
         "tilemap.bin": "7ff6d638a79e4e34386413e7e70e120fbfe59f4c3294ea43cde9584bd2b220c7",
@@ -2895,7 +2896,7 @@
       "source_path": "DATA\\HARD\\1AHARD.TXT",
       "accepted_frontpanel": "out/fp_stage1a",
       "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/4c77224130ac174ede150a863eb69231bc9d4c320eca032a41efb5279b1477a8",
-      "reused": false,
+      "reused": true,
       "fingerprint": "0ddf5c2d07898ddd57e306a889ffe2575c8533df7b3b7bc31e2d4051a4bb7602",
       "sequence": [
         {
@@ -2941,7 +2942,7 @@
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
       "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/0180f709027a0005461435187af038147d6477ef529678a27641b7d68eb58e8a",
-      "clean_bg_reused": false,
+      "clean_bg_reused": true,
       "full_fp_fingerprint": "4c77224130ac174ede150a863eb69231bc9d4c320eca032a41efb5279b1477a8",
       "full_fp_blob_sha256": {
         "tiles.bin": "0974ae6019506eba7c01b796b3589d1727ca837fd31cbd7fe3f2075f892af1f7",
@@ -3286,9 +3287,9 @@
       "physical": 41,
       "source_path": "DATA\\HARD\\3BHARD.TXT",
       "accepted_frontpanel": "out/fp_3beasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/7919a78e9866e1b3f44e7a1c50d12802950d64100c67de293775c76cf29ab1fc",
-      "reused": false,
-      "fingerprint": "fb488bfacecf1b41903af8b70accc76937add0cd96dc17081af8a745a8fe641f",
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/f30fdab92f916004c1d401cdb5f86220a14ced8ecfca835e1096102d4356ccfe",
+      "reused": true,
+      "fingerprint": "350ed3fe04f8f19dd232fd1a8138c359d769dfb5152dd93ffee6f536f06e5bb6",
       "sequence": [
         {
           "source_path": "DATA\\BGS\\BOAT\\FRONT.GIF",
@@ -3317,9 +3318,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/86939cb37e4bbfdc0594b9e78a895c2db4f96ce79b2cc1ea24283ff27c3ebc4f",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "7919a78e9866e1b3f44e7a1c50d12802950d64100c67de293775c76cf29ab1fc",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/d6a16c8fd3e740364f85a70826211598b7e55a9c1b8774fe9d9c2725c3eae178",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "f30fdab92f916004c1d401cdb5f86220a14ced8ecfca835e1096102d4356ccfe",
       "full_fp_blob_sha256": {
         "tiles.bin": "f978ca8716ca80bce2bf9ccf68fada95421809f86bfa5b5765ccf70e783db65c",
         "tilemap.bin": "1aa803a033ac12745e51c4abb31bdb1c50302101cd562ce3c4d3aa52b7af7134",
@@ -3652,7 +3653,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "86939cb37e4bbfdc0594b9e78a895c2db4f96ce79b2cc1ea24283ff27c3ebc4f",
+      "clean_bg_fingerprint": "d6a16c8fd3e740364f85a70826211598b7e55a9c1b8774fe9d9c2725c3eae178",
       "clean_bg_hashes": {
         "tiles.bin": "bd59fc46a1aef2f96658c44e37eea4956adce4107ee324d36f9d794b162fff4f",
         "tilemap.bin": "1a965b8ec32ce80626c29e1b14b0343daa2e0534df21357c3520a190e27664c9",
@@ -3663,9 +3664,9 @@
       "physical": 42,
       "source_path": "DATA\\HARD\\3CHARD.TXT",
       "accepted_frontpanel": "out/fp_3ceasy",
-      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/f260945862fe14350c53eadd75109cdec17f0be2240c01f0cfb3212d40e8cc2f",
-      "reused": false,
-      "fingerprint": "f1f4b8d86858438df49bcaeb16095d6b6a7ea29678ac757d5797cf8158ce7add",
+      "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/0508b875980378d6d6ea9a4c1869018ee9576418a37351beab41fb72c736619d",
+      "reused": true,
+      "fingerprint": "163603a8f0b347f2478aac08361052d3e5e2b08b2f59cb1b65ba5debd624ee76",
       "sequence": [
         {
           "source_path": "DATA\\BGS\\BOAT3\\FRONT.GIF",
@@ -3694,9 +3695,9 @@
       "source_horizontal_scroll": "trunc(advancex*1.4)",
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
-      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/ce6cad84ec31a2849945a375dbf3b6f498c6e50c7980b764d47bb6dbebe9d7a9",
-      "clean_bg_reused": false,
-      "full_fp_fingerprint": "f260945862fe14350c53eadd75109cdec17f0be2240c01f0cfb3212d40e8cc2f",
+      "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/3ed9d2414526e886cae9e4d45140e1766621eded6e2679c48768db753add5d05",
+      "clean_bg_reused": true,
+      "full_fp_fingerprint": "0508b875980378d6d6ea9a4c1869018ee9576418a37351beab41fb72c736619d",
       "full_fp_blob_sha256": {
         "tiles.bin": "28461e363b88101b0910c87acda4c1356d63b03eaaabd5ae978980b0e4963328",
         "tilemap.bin": "5760a3e766fcda169738ecab64842d6a9f06f72c783f7f7d294cc5494398a55c",
@@ -4029,7 +4030,7 @@
           }
         ]
       },
-      "clean_bg_fingerprint": "ce6cad84ec31a2849945a375dbf3b6f498c6e50c7980b764d47bb6dbebe9d7a9",
+      "clean_bg_fingerprint": "3ed9d2414526e886cae9e4d45140e1766621eded6e2679c48768db753add5d05",
       "clean_bg_hashes": {
         "tiles.bin": "1ab31b447038bf434c2fa38ee3763fca574e3f649c4a6cfbbbe5ab3f7487f240",
         "tilemap.bin": "7ff6d638a79e4e34386413e7e70e120fbfe59f4c3294ea43cde9584bd2b220c7",
@@ -4041,7 +4042,7 @@
       "source_path": "DATA\\HARD\\4BHARD.TXT",
       "accepted_frontpanel": "out/fp_4beasy",
       "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/7853515cf2df0008276790065b068b3f2fb615565a6e424050287fa367e5bd25",
-      "reused": false,
+      "reused": true,
       "fingerprint": "70c91a726f683ea1c7b74026bceeba7a642298808847ca677390d50dfed62143",
       "sequence": [
         {
@@ -4072,7 +4073,7 @@
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
       "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/ccecba6fd0d9e53e70172183be5447acc5f7a3a3cf00bc53bddc4043fc481d18",
-      "clean_bg_reused": false,
+      "clean_bg_reused": true,
       "full_fp_fingerprint": "7853515cf2df0008276790065b068b3f2fb615565a6e424050287fa367e5bd25",
       "full_fp_blob_sha256": {
         "tiles.bin": "cb859b19ac9f717be867adf8df671700434ccbb5b0c0c935267b209d4a3e6a5a",
@@ -4418,7 +4419,7 @@
       "source_path": "DATA\\HARD\\6AHARD.TXT",
       "accepted_frontpanel": "out/fp_6aeasy",
       "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/73d0cb17d3437e53a7ef71e0f105e70bfea97863b5fc0697840c179d7e4aac03",
-      "reused": false,
+      "reused": true,
       "fingerprint": "ec4fd7d0a50a46100a84e07c286e2a5ef350732d395e4e8faa0cdceb95d093fc",
       "sequence": [
         {
@@ -4449,7 +4450,7 @@
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
       "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/71483e71ca69d2b8d1290c40e8ae6fb2f8cd5c1126dd71a37411e18f4ce61442",
-      "clean_bg_reused": false,
+      "clean_bg_reused": true,
       "full_fp_fingerprint": "73d0cb17d3437e53a7ef71e0f105e70bfea97863b5fc0697840c179d7e4aac03",
       "full_fp_blob_sha256": {
         "tiles.bin": "71ea33042e1f7abe9f878b8c1363268e35aab456a9a21f111db045520b5de526",
@@ -4795,7 +4796,7 @@
       "source_path": "DATA\\HARD\\6BHARD.TXT",
       "accepted_frontpanel": "out/fp_6beasy",
       "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/0413ea772d42f408316a89d9acf26004c6b9434bfd99645a1eca2125ec1fadc2",
-      "reused": false,
+      "reused": true,
       "fingerprint": "14d7f1ecbe132e512915cd6757cf9e0ff1d644c07f2f3513320ae3ca6f72a5bd",
       "sequence": [
         {
@@ -4826,7 +4827,7 @@
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
       "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/3b4c191bc63e4b627e7e0fc18dd0decccd163b3a290bc70a530575d94e9cf85f",
-      "clean_bg_reused": false,
+      "clean_bg_reused": true,
       "full_fp_fingerprint": "0413ea772d42f408316a89d9acf26004c6b9434bfd99645a1eca2125ec1fadc2",
       "full_fp_blob_sha256": {
         "tiles.bin": "98874fc70ff485a802734dca57982c47cda9b12848a23f2c25c6a60d4fb83954",
@@ -5172,7 +5173,7 @@
       "source_path": "DATA\\HARD\\6CHARD.TXT",
       "accepted_frontpanel": "out/fp_6ceasy",
       "frontpanel": "out/compiler_campaign/stage_frontpanel/bg2/bda9a19d53e4fe456688f91d15d91c6edc66f2234bc9f972a9a7319aec9231ea",
-      "reused": false,
+      "reused": true,
       "fingerprint": "bc0a9aad3d31dc97a4b63e018dd37a9d02d82bd501261e1dbe6e87067a1133d4",
       "sequence": [
         {
@@ -5203,7 +5204,7 @@
       "source_vertical_scroll": 0,
       "runtime_camera": "ACCEPTED_COMPAT_NORMAL_FP_SCREEN_X_7_OVER_5_V1",
       "bg": "out/compiler_campaign/stage_frontpanel/clean_bg1/c0a008068042df87d101dcd6762ad73fd8b094f0e9eee7b73002e84877a53ae1",
-      "clean_bg_reused": false,
+      "clean_bg_reused": true,
       "full_fp_fingerprint": "bda9a19d53e4fe456688f91d15d91c6edc66f2234bc9f972a9a7319aec9231ea",
       "full_fp_blob_sha256": {
         "tiles.bin": "98874fc70ff485a802734dca57982c47cda9b12848a23f2c25c6a60d4fb83954",
@@ -10490,7 +10491,7 @@
     "camera_start": 8370052,
     "camera_end_exclusive": 8370080,
     "queue_target_capacity": 255,
-    "include_files": 84
+    "include_files": 86
   },
   "bounds": [
     {
@@ -10686,6 +10687,13 @@
       "physical": 49,
       "source_path": "DATA\\HARD\\6CHARD.TXT",
       "source_width": 350,
+      "blocked": false,
+      "endhole": false
+    },
+    {
+      "physical": 50,
+      "source_path": "DATA\\EXTRA.TXT",
+      "source_width": 14400,
       "blocked": false,
       "endhole": false
     }
@@ -10925,6 +10933,16 @@
       "runtime_id": 46,
       "source_path": "DATA\\CHARS\\MISC\\TIME.TXT",
       "display_name": "Time"
+    },
+    {
+      "runtime_id": 47,
+      "source_path": "DATA\\CHARS\\CRAB\\CRAB.TXT",
+      "display_name": "Crab"
+    },
+    {
+      "runtime_id": 48,
+      "source_path": "DATA\\CHARS\\LOBSTER\\LOBSTER.TXT",
+      "display_name": "Lobster"
     }
   ]
 }
