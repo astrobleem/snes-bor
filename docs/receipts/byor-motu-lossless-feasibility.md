@@ -548,3 +548,32 @@ All remaining ROM bytes are identical; source visual runtime bytes are unchanged
 This broader concurrent actor result remains FAIL. Its cause and relevance to
 production foreign-world integration remain open. No full original campaign
 was rerun. No color reduction is applied.
+
+### Authored caller binding and measured interpreter cost
+
+With a leased generic caller view, the actual He_ManB breath wrapper returns
+on frame 3 and reaches clearspawnentry (stable generic ID 518) on frame 4.
+Missing caller context still rejects getlocalvar; wrong external format and
+out-of-range ROM fetch still reject precisely. All five native cases pass;
+resident metadata hashes remain intact. This does not execute an effect spawn.
+
+The bounded observer exposed why arbitrary paused-field injection is unsafe:
+a CPU may already be inside the previous VM invocation. Injection now uses a
+Lua debugger break and verifies bank 0 PC Vm_Run+3, after PHP/REP and before
+the first VmState read. Clock observation starts at that exact boundary.
+Observed no-command wrapper: 24 instructions, 151,152 master clocks.
+Observed frame-4 path to the unbound spawn boundary: 41 instructions, 297,200
+master clocks. Execution windows include intervening runtime work and exclude
+host checkpoint waiting; entry PHP/REP and terminal return are outside them.
+Passing patched script-payload ROM:
+`477d6b87d23219af7c1734926d127e676c1f2b785a642b6e4fc21395d5ff326d`.
+
+Both intervals exceed a single 200 Hz time quantum (107,386 NTSC or 106,407
+PAL master clocks). Source animation callbacks occur on frame updates rather
+than every physics tick, so this is neither whole-workload infeasibility nor
+200 Hz timing admission. Offline frame dispatch and real event-burst/owner
+integration remain required. Source spawning, persistent locals, production
+loading and MOTU gameplay remain unbound. The seven current property bindings
+cover the C helper libraries; the authored inline bodies additionally require
+maxhealth, whose generic binding remains to be added. Receipt:
+`byor-motu-authored-script-cost.json`. No color reduction is applied.
