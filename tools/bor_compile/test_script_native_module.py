@@ -57,5 +57,19 @@ class NativeModuleTests(unittest.TestCase):
         recursive=self.library('void f(){f();} void main(){f();}')
         with self.assertRaisesRegex(ValueError,'RECURSION_UNSUPPORTED'):lower(recursive,numeric_policy=POLICY)
 
+    def test_export_roots_share_only_mutually_exclusive_temporary_slots(self):
+        lib=self.library('int f(int x){return x+7;} void a(){int x=f(2);return x;} '
+                         'void b(){int y=f(8);return y;}')
+        blob,report=lower(lib,entry='a',export_roots=['a','b'],numeric_policy=POLICY)
+        self.assertEqual(report['function_local_slots']['a']['x'],report['function_local_slots']['b']['y'])
+        self.assertNotEqual(report['function_local_slots']['a']['x'],report['function_local_slots']['f']['x'])
+        for name,result in [('a',9),('b',15)]:
+            m=unpack(blob);m.entry_main=report['export_entries'][name]
+            oracle=Oracle(m,{},{});oracle.run()
+            self.assertEqual(oracle.get(report['function_stack_slots'][name][0]),(1,result))
+        called=self.library('void a(){b();} void b(){}')
+        with self.assertRaisesRegex(ValueError,'ROOT_ENTRY_CALLED'):
+            lower(called,entry='a',export_roots=['b'],numeric_policy=POLICY)
+
 
 if __name__=='__main__':unittest.main()

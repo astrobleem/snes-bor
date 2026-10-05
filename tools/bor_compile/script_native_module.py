@@ -48,9 +48,10 @@ def decode(function):
     return rows,heights,peak
 
 
-def lower(library,entry='main',numeric_policy=None,native_ids=None):
+def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_roots=None,rom_link_input=False):
     if numeric_policy!=POLICY:raise ValueError('NATIVE_NUMERIC_POLICY_REQUIRED')
-    if entry not in library['functions'] or library['functions'][entry]['arity']:
+    roots=list(dict.fromkeys([entry]+list(export_roots or ())))
+    if any(name not in library['functions'] or library['functions'][name]['arity'] for name in roots):
         raise ValueError('NATIVE_ROOT_ENTRY_REQUIRED')
     names={v['id']:k for k,v in library['function_ids'].items()}
     decoded={name:decode(fn) for name,fn in library['functions'].items()}
@@ -60,7 +61,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
         if name in path:raise ValueError('NATIVE_FLAT_SLOT_RECURSION_UNSUPPORTED')
         for target in edges[name]:visit(target,path|{name})
     for name in edges:visit(name,set())
-    if any(entry in targets for targets in edges.values()):
+    if any(set(roots)&targets for targets in edges.values()):
         raise ValueError('NATIVE_ROOT_ENTRY_CALLED_AS_FUNCTION')
     requirements=sorted({(library['builtin_requirements'][arg&0x7fff],argc)
         for rows,_,_ in decoded.values() for op,arg,argc,nxt in rows.values()
@@ -85,15 +86,29 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
             if raw not in m.strings:m.strings.append(raw)
             s=slot(6,m.strings.index(raw),len(raw))
         constant_slots.append(s)
-    homes={name:[slot() for _ in fn['locals']] for name,fn in library['functions'].items()}
-    stacks={name:[slot() for _ in range(data[2])] for name,data in decoded.items()}
+    # Export roots cannot call one another and execute one at a time. Their
+    # temporary arenas may overlap; helper arenas must remain distinct.
+    if export_roots is None:
+        homes={name:[slot() for _ in fn['locals']] for name,fn in library['functions'].items()}
+        stacks={name:[slot() for _ in range(data[2])] for name,data in decoded.items()}
+    else:
+        root_homes=[slot() for _ in range(max(len(library['functions'][name]['locals']) for name in roots))]
+        root_stacks=[slot() for _ in range(max(decoded[name][2] for name in roots))]
+        homes={name:root_homes[:len(fn['locals'])] if name in roots else [slot() for _ in fn['locals']]
+               for name,fn in library['functions'].items()}
+        stacks={name:root_stacks[:data[2]] if name in roots else [slot() for _ in range(data[2])]
+                for name,data in decoded.items()}
     entries={};patches=[];arg_offset=0
     inverse={value:BINOP_OPCODE[key] for key,value in BINARY.items()}
     def emit(op,a=0,b=0,c=0):
         index=len(m.instructions);m.instructions.append(Instr(op,a,b,c));return index
-    for name in [entry]+[n for n in decoded if n!=entry]:
+    for name in roots+[n for n in decoded if n not in roots]:
         entries[name]=len(m.instructions);fn=library['functions'][name]
-        if name!=entry:
+        if export_roots is not None:
+            # Variant locals are fresh for each source invocation. MOV also
+            # releases any owned string left by a previous exported root.
+            for local in homes[name]:emit(4,local,empty)
+        if name not in roots:
             for local in homes[name][:fn['arity']]:emit(40,local)
         rows,heights,peak=decoded[name];targets={};returns=[]
         for address,(op,arg,argc,nxt) in rows.items():
@@ -109,7 +124,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
                 i=emit(36,0,empty if op=='JUMP' else stack[h-1])
                 patches.append((i,name,arg,'local'))
             elif op=='RETURN':
-                if name==entry:emit(43)
+                if name in roots:emit(43)
                 else:returns.append(emit(46,0,stack[h-1]))
             elif op=='CALL':
                 args=stack[h-argc:h];dest=stack[h-argc]
@@ -127,10 +142,10 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
     for i,name,cs,kind in patches:
         if kind=='function':m.instructions[i].a=entries[name];m.callsites[cs].target_id=entries[name]
     arities={native_ids[key]:key[1] for key in requirements}
-    blob=pack_module(m,native_arities=arities)
-    if len(blob)>17760:raise ValueError('NATIVE_MODULE_WRAM_CAPACITY')
+    blob=pack_module(m,native_arities=arities,vm_code_max=65535 if rom_link_input else 17760)
     report=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),instructions=len(m.instructions),
         slots=len(m.slots),callsites=len(m.callsites),numeric_policy=POLICY,decimal_constants=numeric,
+        export_entries={name:entries[name] for name in roots},rom_link_input=rom_link_input,
         function_local_slots={name:dict(zip(library['functions'][name]['locals'],slots)) for name,slots in homes.items()},
         function_stack_slots=stacks,
         engine_api_requirements=[dict(id=native_ids[k],name=k[0],arity=k[1],bound=False) for k in requirements],

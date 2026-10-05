@@ -595,3 +595,35 @@ Twenty-four focused host checks and the full ROM audit pass on ROM
 The NMI margin remains two bytes. The previously observed inherited all-actor
 static recovery failure remains open, not reclassified as PASS. Receipt:
 `byor-motu-entity-read-native-v2.json`. No color reduction is applied.
+
+### Offline frame routing and exported VM roots
+
+The generic frame compiler routes 576 of 687 authored scripted-model frames
+to an explicit empty entry. It preserves all source-order inline bodies and
+their frame guards, including the possibility of an inline assignment to the
+local frame snapshot. Non-inline command frames receive separate exported
+roots. Mutually exclusive root temporaries share an arena; helper temporaries
+remain separate, and exported-mode locals are cleared on each invocation.
+Authored animation scripts with their own main are explicitly unsupported by
+this optimization rather than discarded. The legacy single-root lowering path
+reproduces both previous linked instruction and metadata hashes exactly.
+
+All 1,374 frame/facing host comparisons preserve ordered engine effects.
+The linked output uses 3,127 instructions, 670 slots and 12,400 metadata bytes.
+A 2,678-byte ROM dispatch table includes global frame counts, checked identities,
+empty sentinels, payload CRC and paired instruction/metadata CRCs. Instructions
+and dispatch together occupy 27,694 bytes of the reserved 32 KiB ROM bank.
+Invalid caller context or frame identity must fail before an empty route skips
+the VM; the host contract checks this. Production dispatch remains unbound.
+
+The native frame-4 root reaches the same unbound clearspawnentry boundary with
+32 instructions and 210,134 observed master clocks, versus 41 instructions and
+290,732 clocks in a repeated baseline using the same corrected observer. All
+four specialized-entry cases and five baseline cases pass. The first attempt
+missed its initial timing span because the debugger checkpoint's exec callback
+had already fired. Observation now starts at the next instruction, after the
+first status LDA, and records every case. Failed and corrected reports are
+retained. These spans include intervening runtime work and exclude host waiting;
+they are partial callbacks, not source spawning or 200 Hz workload admission.
+Twenty-three focused script tests pass. Receipt: `byor-motu-frame-dispatch.json`.
+No color reduction is applied.

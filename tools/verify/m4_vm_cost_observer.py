@@ -8,6 +8,9 @@ ARM = 0x7ff65e
 
 
 def observed_session(output, symbols, instruction_count):
+    # The debugger's step stops at Run+3 after that address's exec callbacks
+    # have already fired. Observe the next instruction, after the four-byte
+    # status LDA, so a module installed at that stop cannot miss its first span.
     script=output/'vm_cost.lua'
     script.write_text('''local active=false;local start=0;local frame=0;local count=0;local spans=0
 local mt=emu.memType.snesMemory
@@ -20,7 +23,7 @@ end,emu.callbackType.exec,RUN,RUN,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  if spans>=32 or word(INSTRCOUNT)~=EXPECTED or emu.read(STATUS,mt)>=4 then return end
  local s=emu.getState();active=true;start=s.masterClock;frame=s['ppu.frameCount'];count=0
-end,emu.callbackType.exec,RUN+3,RUN+3,emu.cpuType.snes,mt)
+end,emu.callbackType.exec,RUN+7,RUN+7,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function() if active then count=count+1 end end,
  emu.callbackType.exec,FETCH,FETCH,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function(addr,value)

@@ -21,6 +21,7 @@ def main():
     p.add_argument('--linked',type=Path,help='B48R metadata/instructions/report directory')
     p.add_argument('--entity-view',action='store_true',help='Install a generic leased caller entity read view')
     p.add_argument('--observe-cost',action='store_true',help='Bounded native execution clocks/instruction observer')
+    p.add_argument('--frame-dispatch',action='store_true',help='Exercise the offline frame-4 entry; empty-route runtime dispatcher remains unbound')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -44,7 +45,14 @@ def main():
             target=a.output/path.name
             if not target.exists():os.link(path,target)
         entry=next(p['entry_ip'] for p in linked['programs'] if p['identity']['model']==item['model'])
+        if a.frame_dispatch:
+            location=next(p for p in linked['programs'] if p['identity']['model']==item['model'])
+            route=next(r for r in location['routes'] if r['animation_handle']==handle)
+            if route['entry_ips'][3] is not None:raise ValueError('FRAME_THREE_MUST_HAVE_EMPTY_ROUTE')
+            entry=route['entry_ips'][4]
+            if entry is None:raise ValueError('FRAME_FOUR_ENTRY_REQUIRED')
         compiled=linked|dict(sha256=linked['metadata_sha256'])
+    elif a.frame_dispatch:raise ValueError('FRAME_DISPATCH_LINK_REQUIRED')
     offsets=struct.unpack_from('<6I',blob,24);count,slotcount=struct.unpack_from('<2H',blob,8)
     reporter=Reporter('M4-AUTHORED-SCRIPT-GUARD',kind='GATE');cases=[]
     from actor_s5_entity_fixture import symbols
@@ -55,7 +63,8 @@ def main():
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_PLAYING_REQUIRED')
-        inputs=[(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)]
+        inputs=([(4,True,True,entry),(4,False,True,entry)] if a.frame_dispatch else
+                [(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)])
         if linked:inputs.extend([(3,True,False,0),(3,True,True,count)])
         for frame,lease,rom_mode,start_ip in inputs:
             if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_CASE_PLAYING_REQUIRED')
@@ -121,7 +130,8 @@ def main():
         model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
         rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
         entity_read_view_installed=a.entity_view,native_cpu_spans=observed,source_200hz_cadence_proven=False,
-        cost_scope='Vm_Run after entry PHP/REP through terminal status write; includes intervening runtime work; excludes checkpoint waiting',
+        offline_frame_entry=a.frame_dispatch,frame_dispatch_runtime_bound=False,
+        cost_scope='Vm_Run after entry PHP/REP and first status LDA through terminal status write; includes intervening runtime work; excludes checkpoint waiting',
         scope='Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting')
     (a.output/'report.json').write_text(json.dumps(result,indent=2)+'\n');reporter.finish()
 
