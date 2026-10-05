@@ -1,5 +1,5 @@
 ; Portable source spawn request, outside bank 0. This is request state only:
-; model-name resolution and smartspawn/world allocation remain unbound.
+; model-name resolution is separately bound; smartspawn/world allocation remains unbound.
 ; BOR 4086 clearspawnentry: memset zero, then index/itemindex/weaponindex=-1,
 ; *pretvar=NULL. Portable model identities use $FFFF for null model pointers.
 ; Supported request ABI fields; unimplemented setspawnentry properties fault.

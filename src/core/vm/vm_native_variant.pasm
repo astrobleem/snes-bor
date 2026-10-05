@@ -38,8 +38,14 @@ Vm_NativeVariantDispatch__local:
 .a16
 .i16
     cmp #$0209                     ; getlocalvar(key), stable source ABI
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__spawn_name
     jmp Vm_NativeVariantGetLocal
+Vm_NativeVariantDispatch__spawn_name:
+.a16
+.i16
+    cmp #$0211                     ; setspawnentry(property,value)
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourceSpawnSetName
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16
@@ -291,6 +297,22 @@ Vm_NativeVariantStore:
 Vm_NativeVariantStore__variant:
 .a16
 .i16
+Vm_NativeVariantStore__release_begin:
+.a16
+.i16
+    ; Source result destinations can still own a dynamic string argument.
+    ; Release it before replacing the slot with EMPTY/INT/DECIMAL/PTR. Source
+    ; natives returning STR remain unbound pending borrowed-result retention.
+    lda.l VmPriv_B
+    jsr Vm_SourceStr_ReleaseIfDynamic
+Vm_NativeVariantStore__release_end:
+.a16
+.i16
+    lda.l VmPriv_B
+    asl a
+    asl a
+    asl a
+    tax
 Vm_NativeVariantStore__copy:
 .a16
 .i16

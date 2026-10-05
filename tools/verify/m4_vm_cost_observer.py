@@ -13,7 +13,7 @@ def observed_session(output, symbols, instruction_count,include_dispatch=False):
     # status operation (now an opt-in gate JSL), so a module installed at that
     # stop cannot miss its first span. include_dispatch starts before that gate.
     script=output/'vm_cost.lua'
-    script.write_text('''local active=false;local start=0;local frame=0;local count=0;local spans=0
+    script.write_text('''local active=false;local start=0;local frame=0;local count=0;local spans=0;local returns=0
 local mt=emu.memType.snesMemory
 local function word(a) return emu.read(a,mt)+256*emu.read(a+1,mt) end
 emu.addMemoryCallback(function()
@@ -35,11 +35,21 @@ emu.addMemoryCallback(function(addr,value)
  ',"end_field":'..s['ppu.frameCount']..',"instructions":'..count..
  ',"status":'..value..',"error":'..word(ERROR)..',"native_id":'..word(NATIVE)..'}')
 end,emu.callbackType.write,STATUS,STATUS,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if returns>=128 or word(INSTRCOUNT)~=EXPECTED or word(NATIVE)<512 then return end
+ local s=emu.getState();local v={}
+ for i=0,7 do v[#v+1]=string.format('%02x',emu.read(RESULT+i,mt)) end
+ returns=returns+1
+ emu.log('M4VMRET|{"master_clock":'..s.masterClock..',"native_id":'..word(NATIVE)..
+ ',"variant_hex":"'..table.concat(v)..'","result_slot":'..word(DEST)..'}')
+end,emu.callbackType.exec,STORE,STORE,emu.cpuType.snes,mt)
 '''.replace('STARTPOINT',str(symbols['Vm_SourceFrameGate'] if include_dispatch else symbols['Vm_Run']+7))
         .replace('ARMADDRESS',str(ARM)).replace('INSTRCOUNT',str(symbols['VmState_InstrCount']))
         .replace('EXPECTED',str(instruction_count)).replace('STATUS',str(symbols['VmState_Status']))
         .replace('FETCH',str(symbols['Vm_Fetch'])).replace('RUN',str(symbols['Vm_Run']))
-        .replace('ERROR',str(symbols['VmState_Error'])).replace('NATIVE',str(symbols['VmCall_TargetId'])))
+        .replace('ERROR',str(symbols['VmState_Error'])).replace('NATIVE',str(symbols['VmCall_TargetId']))
+        .replace('RESULT',str(symbols['VmNativeVariant_Result'])).replace('DEST',str(symbols['VmPriv_B']))
+        .replace('STORE',str(symbols['Vm_NativeVariantStore'])))
 
     class Observed(McpSession):
         def __enter__(self):
@@ -53,6 +63,11 @@ end,emu.callbackType.write,STATUS,STATUS,emu.cpuType.snes,mt)
 def spans(log):
     return [json.loads(line.split('M4VMCPU|',1)[1]) for line in log.read_text(errors='replace').splitlines()
             if 'M4VMCPU|' in line]
+
+
+def native_returns(log):
+    return [json.loads(line.split('M4VMRET|',1)[1]) for line in log.read_text(errors='replace').splitlines()
+            if 'M4VMRET|' in line]
 
 
 def pause_for_injection(m, symbols):

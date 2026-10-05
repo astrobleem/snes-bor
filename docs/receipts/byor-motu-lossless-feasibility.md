@@ -628,6 +628,39 @@ they are partial callbacks, not source spawning or 200 Hz workload admission.
 Twenty-three focused script tests pass. Receipt: `byor-motu-frame-dispatch.json`.
 No color reduction is applied.
 
+### Source model identity, loaded-state lookup and result ownership
+
+The compiler now derives a generic B4MR model registry from the source cache
+declarations. The pinned engine uses those cache names as model identity and
+`findmodel` searches only loaded models after case folding. The 16-record MOTU
+table is 1,048 bytes; its immutable records include source health and alpha.
+`init_model` uses calloc and supplies no nonzero health/alpha initializer:
+undeclared effect health is zero, while He_Man/He_ManB are 150, Skeletor 400 and
+Knightbot 70. This table does not load models or allocate entities.
+
+Native `setspawnentry("name", value)` now resolves this table against a separate
+loaded-model bitmap and sets a portable model identity in the spawn request.
+Case-insensitive names, unloaded and missing models, and a missing table lease
+pass bounded native checks. Unknown/unloaded names produce a null identity and
+still return the complete INTEGER 1, as the source engine does. Other spawn
+properties remain explicitly unbound. Cold boot clears the table lease and
+loaded bitmap; the proof's checked leases are injected, not a production loader.
+
+The eleven-case authored frame proof passes on the rebuilt image. The breath
+callback reaches the next unbound API, `spawn()`, after 48 VM instructions and
+422,320 observed master clocks including routing and intervening runtime work.
+The native return observer captures the name setter's INTEGER 1 before later
+property calls overwrite the shared result buffer. This is not complete spawn
+execution or source cadence certification.
+
+Typed native results also release an owned dynamic string before overwriting
+their destination. An isolated seven-byte no-release control exhausts the
+64-object pool after 64 successful lookups; the fixed image completes 80 and
+leaves zero live strings. Returning a STR remains unbound until its separate
+retain/borrow ownership is implemented. The full ROM audit and focused host
+tests pass. The inherited concurrent static recovery failure remains open.
+Receipt: `byor-motu-model-name-native.json`. No color reduction is applied.
+
 ### Definite local initialization in exported scripts
 
 The exported-root lowering now uses checked CFG must-analysis to initialize

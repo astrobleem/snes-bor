@@ -25,7 +25,10 @@ def main():
     p.add_argument('--frame-dispatch',action='store_true',help='Exercise the offline frame-4 entry; empty-route runtime dispatcher remains unbound')
     p.add_argument('--native-frame-dispatch',action='store_true',help='Submit checked-table native jobs, including empty and invalid caller cases')
     p.add_argument('--check-spawn-reset',action='store_true',help='Seed the portable request and prove source clearspawnentry defaults and EMPTY result')
+    p.add_argument('--model-registry',type=Path,help='Checked B4MR table directory; install fixture loaded-model bits and bind setspawnentry name')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+    if a.model_registry and not (a.native_frame_dispatch and a.observe_cost):
+        raise ValueError('MODEL_REGISTRY_NATIVE_DISPATCH_AND_RETURN_OBSERVER_REQUIRED')
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
     blob,compiled=lower(item['program'],numeric_policy=POLICY);(a.output/'He_ManB.b48s').write_bytes(blob)
@@ -62,6 +65,12 @@ def main():
                     raise ValueError('FRAME_DISPATCH_PAIRED_CRC_LEASE_INVALID')
                 if len(instructions)+len(table)>32768:raise ValueError('FRAME_DISPATCH_ROM_BANK_CAPACITY')
                 raw[offset+len(instructions):offset+len(instructions)+len(table)]=table
+                if a.model_registry:
+                    from source_model_registry import unpack
+                    model_table=(a.model_registry/'models.b4mr').read_bytes();model_rows=unpack(model_table)
+                    model_rom_offset=len(instructions)+len(table)
+                    if model_rom_offset+len(model_table)>32768:raise ValueError('MODEL_REGISTRY_ROM_RESERVATION_CAPACITY')
+                    raw[offset+model_rom_offset:offset+model_rom_offset+len(model_table)]=model_table
                 (a.output/'bor.sfc').write_bytes(raw)
         compiled=linked|dict(sha256=linked['metadata_sha256'])
     elif a.frame_dispatch or a.native_frame_dispatch:raise ValueError('FRAME_DISPATCH_LINK_REQUIRED')
@@ -101,8 +110,9 @@ def main():
                 from source_entity_abi import record,view,STRIDE
                 from m4_source_entity_fixture import fixture_base
                 entity_base=fixture_base(root,STRIDE)
+                maxhealth=next(row['maxhealth'] for row in model_rows if row['lookup_name']==item['model'].lower()) if a.model_registry else 150
                 descriptor,data=view(entity_base,[record(0x6abcde,dict(a=0,animationid=handle,
-                    direction=0,health=100,playerindex=0,x=80*65536,z=220*65536,maxhealth=100))])
+                    direction=0,health=100,playerindex=0,x=80*65536,z=220*65536,maxhealth=maxhealth))])
                 m.write_memory('snesMemory',entity_base,data.hex())
                 m.write_memory('snesMemory',c('src/core/vm/vm_source_entity.pasm','VmSourceEntity_Base'),descriptor.hex())
             if linked:
@@ -136,6 +146,16 @@ def main():
                     name,value=mutations[scenario];m.write_u16(c(dispatch,name),value)
                 if scenario=='bad_handle':m.write_u16(c(variant,'VmNativeVariant_AnimHandle')+4,0)
                 if scenario=='busy_yield':m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_YIELDED'))
+            if a.model_registry:
+                models='src/core/vm/vm_source_models.pasm';model_address=rom_address+model_rom_offset
+                for name,value in [('VmSourceModels_Ready',0xb4a1),('VmSourceModels_Base',model_address&0xffff),
+                                   ('VmSourceModels_Count',len(model_rows)),('VmSourceModels_Bytes',len(model_table))]:
+                    m.write_u16(c(models,name),value)
+                m.write_u8(c(models,'VmSourceModels_Bank'),model_address>>16)
+                bitmap_bytes=c(models,'VM_SOURCE_MODELS_BITMAP_BYTES')
+                loaded=bytearray(bitmap_bytes)
+                for row in model_rows:loaded[row['id']//8]|=1<<(row['id']%8)
+                m.write_memory('snesMemory',c(models,'VmSourceModels_Loaded'),loaded.hex())
             base=c(const,'VM_STATE_FIRST')
             for field in range(1,61):
                 run_frames_exact(m,1);state=read_block(m,base,32)
@@ -164,14 +184,19 @@ def main():
                                   ('VmSourceSpawn_ItemIndex',4),('VmSourceSpawn_WeaponIndex',4)]:
                     offset=c(spawn,name)-spawn_base;expected[offset:offset+size]=b'\xff'*size
                 called=frame==4 and lease and a.entity_view
+                if a.model_registry and called:
+                    model=next(row['id'] for row in model_rows if row['lookup_name']=='hbreath')
+                    struct.pack_into('<H',expected,c(spawn,'VmSourceSpawn_Model')-spawn_base,model)
+                    struct.pack_into('<H',expected,c(spawn,'VmSourceSpawn_Flags')-spawn_base,1)
                 case['spawn_request_hex']=request.hex()
                 ready=struct.unpack('<H',read_block(m,c(spawn,'VmSourceSpawn_Ready'),32)[:2])[0]
                 reporter.check('clear resets source request; skipped/rejected calls do not mutate it',
                                request==(expected if called else b'\xa5'*spawn_bytes) and ready==(0xb4e1 if called else 0))
                 if called:
                     variant_result=read_block(m,c(variant,'VmNativeVariant_Result'),32)[:8]
-                    case['clear_return_variant_hex']=variant_result.hex()
-                    reporter.check('clearspawnentry returns complete EMPTY',variant_result==b'\x00'*8)
+                    case['last_native_result_hex' if a.model_registry else 'clear_return_variant_hex']=variant_result.hex()
+                    expected_result=struct.pack('<BBHI',1,0,0,1) if a.model_registry else bytes(8)
+                    if not a.model_registry:reporter.check('clearspawnentry returns complete EMPTY',variant_result==expected_result)
             cases.append(case)
             if a.native_frame_dispatch and scenario not in ('empty','command'):
                 reporter.check('native route rejects invalid context/frame/ROM lease before empty route',
@@ -183,28 +208,36 @@ def main():
             elif frame==3 and lease:
                 reporter.check('authored frame 3 returns before breath command',status==c(const,'VMSTAT_DONE') and error==0)
             else:
-                expected=(529 if a.entity_view else 520) if lease else 521
+                expected=((530 if a.model_registry else 529) if a.entity_view else 520) if lease else 521
                 reporter.check('frame '+str(frame)+' fails at precise unbound capability '+str(expected),
                     status==c(const,'VMSTAT_FAULT') and error==c(const,'VMERR_BAD_NATIVE') and target==expected)
     observed=[]
+    returned=[]
     if a.observe_cost:
-        from m4_vm_cost_observer import spans
+        from m4_vm_cost_observer import spans,native_returns
         observed=spans(a.output/'mesen.log')
+        returned=native_returns(a.output/'mesen.log')
         reporter.check('one bounded CPU span per authored case',len(observed)==len(cases))
         reporter.check('observed instruction counts are bounded',all((0 if a.native_frame_dispatch else 1)<=x['instructions']<=200 for x in observed))
         if a.native_frame_dispatch:
             reporter.check('empty and invalid jobs fetch no VM instructions',len(observed)==len(cases) and
                            all(span['instructions']==0 for case,span in zip(cases,observed) if case['dispatch_scenario']!='command'))
+        if a.model_registry:
+            name_returns=[x for x in returned if x['native_id']==529]
+            reporter.check('setspawnentry observed INTEGER 1 at its native return',len(name_returns)==1 and
+                           name_returns[0]['variant_hex']==struct.pack('<BBHI',1,0,0,1).hex())
     result=dict(schema='BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1',
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
         rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
         entity_read_view_installed=a.entity_view,native_cpu_spans=observed,source_200hz_cadence_proven=False,
+        native_return_trace=returned,
         entity_fixture_base=entity_base if a.entity_view else None,
         offline_frame_entry=a.frame_dispatch,native_frame_dispatch_executed=a.native_frame_dispatch,
         frame_dispatch_production_owner_bound=False,
         clearspawnentry_state_proven=a.check_spawn_reset,
+        model_name_registry_installed=bool(a.model_registry),live_model_loader_bound=False,
         cost_scope=('Vm_SourceFrameGate entry through terminal status write' if a.native_frame_dispatch else
                     'Vm_Run after entry PHP/REP and first status LDA through terminal status write')+'; includes intervening runtime work; excludes checkpoint waiting',
         scope='Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting')
