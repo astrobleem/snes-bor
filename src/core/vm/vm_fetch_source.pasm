@@ -11,9 +11,26 @@ Vm_FetchSourceInit:
 .i16
     php
     rep #$31
+    phx
     lda #0
     sta.l VmSourceInstr_Ready
     sta.l VmNativeVariant_ContextValid
+    sta.l VmSourceEntity_Ready
+    ; Dynamic pool headers need an actual cold-boot owner. Older string
+    ; fixtures cleared them through debug writes; random WRAM is not free.
+    ldx #0
+Vm_FetchSourceInit__pool:
+.a16
+.i16
+    lda #0
+    sta.l VmStrPool_Wram,x
+    txa
+    clc
+    adc #VMSTRPOOL_OBJ_SIZE
+    tax
+    cmp #VMSTRPOOL_OBJ_COUNT*VMSTRPOOL_OBJ_SIZE
+    bcc Vm_FetchSourceInit__pool
+    plx
     plp
     rtl
 

@@ -1,0 +1,505 @@
+{
+  "schema": "BYOR_GENERIC_ENTITY_READ_VIEW_NATIVE_V1",
+  "status": "NATIVE_TYPED_PROPERTIES_PASS",
+  "native": {
+    "schema": "BYOR_SOURCE_ENTITY_NATIVE_READ_VIEW_V1",
+    "status": "PASS",
+    "rom_sha256": "6fd85a1463aaaf4c3ff0e8a1e50df47c5f722663f6287e237cbbc96b656d35af",
+    "module": {
+      "bytes": 865,
+      "sha256": "f5824de9046be5845ad25b2569dc6f82a8cd75e8917bee431f1e1f2e1543296a",
+      "instructions": 44,
+      "slots": 25,
+      "callsites": 10,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "main": {
+          "self": 11,
+          "a": 12,
+          "x": 13,
+          "z": 14,
+          "d": 15,
+          "hp": 16,
+          "pi": 17,
+          "prefix": 18,
+          "suffix": 19,
+          "an": 20,
+          "absent": 21
+        }
+      },
+      "function_stack_slots": {
+        "main": [
+          22,
+          23,
+          24
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "source": "void main(){\n void self=getlocalvar(\"self\");\n void a=getentityproperty(self,\"a\"); void x=getentityproperty(self,\"X\");\n void z=getentityproperty(self,\"z\"); void d=getentityproperty(self,\"direction\");\n void hp=getentityproperty(self,\"health\"); void pi=getentityproperty(self,\"playerindex\");\n void prefix=\"anim\"; void suffix=\"ationID\";\n void an=getentityproperty(self,prefix+suffix);\n void absent=getentityproperty(NULL(),\"not_bound\");\n}",
+    "cases": [
+      {
+        "case": "valid",
+        "fields": 2,
+        "status": 4,
+        "error": 0,
+        "checks": [
+          {
+            "local": "a",
+            "actual": "0200000000005d00",
+            "expected": "0200000000005d00"
+          },
+          {
+            "local": "x",
+            "actual": "0200000000c0edff",
+            "expected": "0200000000c0edff"
+          },
+          {
+            "local": "z",
+            "actual": "020000000080dc00",
+            "expected": "020000000080dc00"
+          },
+          {
+            "local": "d",
+            "actual": "0100000000000000",
+            "expected": "0100000000000000"
+          },
+          {
+            "local": "hp",
+            "actual": "010000000f010000",
+            "expected": "010000000f010000"
+          },
+          {
+            "local": "pi",
+            "actual": "0100000001000000",
+            "expected": "0100000001000000"
+          },
+          {
+            "local": "an",
+            "actual": "0100000024000000",
+            "expected": "0100000024000000"
+          },
+          {
+            "local": "absent",
+            "actual": "0000000000000000",
+            "expected": "0000000000000000"
+          }
+        ]
+      },
+      {
+        "case": "stale",
+        "fields": 14,
+        "status": 5,
+        "error": 10,
+        "checks": []
+      },
+      {
+        "case": "no_lease",
+        "fields": 10,
+        "status": 5,
+        "error": 10,
+        "checks": []
+      },
+      {
+        "case": "bank_spill",
+        "fields": 12,
+        "status": 5,
+        "error": 10,
+        "checks": []
+      },
+      {
+        "case": "bad_variant",
+        "fields": 5,
+        "status": 5,
+        "error": 10,
+        "checks": []
+      }
+    ],
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "source_numeric_equivalence": false,
+    "entity_world_allocator_bound": false,
+    "motu_gameplay_proven": false,
+    "scope": "Generic typed read view with injected world records; no gameplay entity allocation"
+  },
+  "static_regression": {
+    "rom_sha256": "6fd85a1463aaaf4c3ff0e8a1e50df47c5f722663f6287e237cbbc96b656d35af",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "Kula selection reaches PLAYING",
+        true
+      ],
+      [
+        "Kula source roster identity",
+        true
+      ],
+      [
+        "persistent source campaign first stage",
+        true
+      ],
+      [
+        "static source presentation has no admission fault",
+        true
+      ],
+      [
+        "first stage remains PLAYING",
+        true
+      ],
+      [
+        "four bounded production fields observed",
+        true
+      ]
+    ],
+    "campaign_state": [
+      3,
+      0,
+      0
+    ],
+    "source_visual_error": 0,
+    "bus_samples": [
+      {
+        "field": 1,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "16896": 1,
+          "8466": 2,
+          "8465": 2,
+          "16907": 2,
+          "16908": 2,
+          "8464": 2,
+          "8463": 2,
+          "8448": 2,
+          "8462": 2,
+          "8450": 2,
+          "8451": 2,
+          "8452": 5,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175417934
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175418020
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175419134
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175420692
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 175428416
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 175428486
+          }
+        ]
+      },
+      {
+        "field": 2,
+        "counts": {
+          "17267": 7,
+          "17268": 7,
+          "17269": 7,
+          "17270": 7,
+          "8469": 7,
+          "8470": 7,
+          "8471": 7,
+          "8472": 393,
+          "8473": 393,
+          "16907": 7,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 7,
+          "17265": 7,
+          "17266": 7,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175775302
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175775388
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175776524
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175778216
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 175780836
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 232,
+            "masterClock": 175783448
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 234,
+            "masterClock": 175786068
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 236,
+            "masterClock": 175788680
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 237,
+            "masterClock": 175791300
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 241,
+            "masterClock": 175796710
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 241,
+            "masterClock": 175796780
+          }
+        ]
+      },
+      {
+        "field": 3,
+        "counts": {
+          "8460": 1,
+          "8461": 2,
+          "8492": 1,
+          "16908": 2,
+          "8464": 2,
+          "8465": 2,
+          "8466": 2,
+          "16896": 1,
+          "8453": 1,
+          "8463": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8462": 2,
+          "8459": 1,
+          "8448": 2
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 176132672
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 176132758
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 231,
+            "masterClock": 176139906
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 231,
+            "masterClock": 176139976
+          }
+        ]
+      },
+      {
+        "field": 4,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "8469": 2,
+          "8470": 2,
+          "8471": 2,
+          "8472": 32,
+          "8473": 32,
+          "16907": 2,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 176490036
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 176490122
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 176491258
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 176493102
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 176499994
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 176500064
+          }
+        ]
+      }
+    ],
+    "scope": "Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.",
+    "no_pcm_copies": true
+  },
+  "host_tests": 23,
+  "rom_audit": "ALL CHECKS PASS",
+  "bank0_free_before_nmi": 2,
+  "entity_world_allocator_bound": false,
+  "source_spawning_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction_applied": true
+}

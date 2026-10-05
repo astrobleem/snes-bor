@@ -484,3 +484,32 @@ Twenty-one focused host checks and the ROM audit pass. NMI margin remains
 production loading, entity/spawn APIs, world attachment and source 200 Hz
 cadence remain unproven. Receipt: `byor-motu-rom-script-native.json`.
 No color reduction is applied.
+
+### Generic typed entity read view
+
+A model-independent read view binds the seven getentityproperty names used by
+MOTU scripts: a, animationID, direction, health, playerindex, x and z. Altitude
+and positions retain DECIMAL variants; other fields retain INTEGER variants.
+The existing Q16.16 position representation remains ACCEPTED_COMPAT, not a
+claim of binary64 numeric equivalence. Names follow the authority's ASCII
+case-insensitive mapping; y and animnum aliases retain the same field/type.
+EMPTY and null pointer handles return EMPTY. No legacy player-index alias is
+used. A world owner must install a leased one-bank WRAM table with opaque
+32-bit tokens; dead/stale handles, absent leases, bank spill, unknown properties
+and malformed requested variants fail explicitly.
+
+The native proof supplies two generic records, selects the second by token,
+and reads all seven full variants, including signed/fractional coordinates.
+A dynamically concatenated animationID key works. Five bounded native cases
+pass: valid view, stale token, missing lease, bank spill and wrong variant tag.
+This exposed a real boot initialization omission: old string fixtures manually
+zeroed pool headers, but cold runtime boot did not. The boot owner now clears
+all 64 refcount/length headers before VM use, outside bank 0.
+
+Twenty-three focused host checks, the full ROM audit and original BOR
+selector/first-stage static smoke pass on ROM
+`6fd85a1463aaaf4c3ff0e8a1e50df47c5f722663f6287e237cbbc96b656d35af`.
+Code remains in bank 28; the runtime still has two bytes before NMI. This is a
+read-view binding proof with injected records, not a production world allocator,
+source effect spawn proof, 200 Hz cadence proof or MOTU gameplay certification.
+Receipt: `byor-motu-entity-read-native.json`. No color reduction is applied.

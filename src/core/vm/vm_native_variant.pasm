@@ -25,6 +25,12 @@ Vm_NativeVariantDispatch:
     lda.l VmCall_TargetId
     cmp #$0200                     ; generic NULL() source API
     beq Vm_NativeVariantDispatch__null
+    cmp #$0208                     ; getentityproperty(entity, property)
+    bne Vm_NativeVariantDispatch__local
+    jmp Vm_SourceEntityGet
+Vm_NativeVariantDispatch__local:
+.a16
+.i16
     cmp #$0209                     ; getlocalvar(key), stable source ABI
     bne Vm_NativeVariantDispatch__unbound
     jmp Vm_NativeVariantGetLocal

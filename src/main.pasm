@@ -13572,6 +13572,7 @@ Footdie_StreamSource:
 .org $8000
 .include "core/vm/vm_native_variant.pasm"
 .include "core/vm/vm_fetch_source.pasm"
+.include "core/vm/vm_source_entity.pasm"
 
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication
