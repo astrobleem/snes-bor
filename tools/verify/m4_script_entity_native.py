@@ -47,7 +47,9 @@ def main():
     values = dict(a=93*65536, animationid=36, direction=0, health=271,
                   playerindex=1, x=-(18*65536+16384), z=220*65536+32768,maxhealth=4096)
     records = [record(0x9abcde, {key: 0 for key in values}), record(token, values)]
-    descriptor, payload = view(0x7fb900, records)
+    from m4_source_entity_fixture import fixture_base
+    entity_base=fixture_base(root,len(records)*STRIDE)
+    descriptor, payload = view(entity_base, records)
     malformed = bytearray(payload); malformed[STRIDE+8] = 1
     cases = [('valid', token, descriptor, payload, True),
              ('stale', token+1, descriptor, payload, False),
@@ -74,7 +76,7 @@ def main():
             m.write_memory('snesMemory', c(variant,'VmNativeVariant_Self'), context.hex())
             m.write_u16(c(variant,'VmNativeVariant_ContextValid'),0xb48f)
             m.write_memory('snesMemory',c(entity,'VmSourceEntity_Base'),lease.hex())
-            m.write_memory('snesMemory',0x7fb900,data.hex())
+            m.write_memory('snesMemory',entity_base,data.hex())
             for key, value in [('VmState_Ip',0),('VmState_Error',0),('VmState_InstrCount',count),
                               ('VmState_SlotCount',slotcount),('VmState_FrameTop',0)]: m.write_u16(c(const,key),value)
             m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_READY'))
@@ -96,6 +98,7 @@ def main():
                     checks.append(dict(local=key,actual=actual.hex(),expected=expected.hex()))
             results.append(dict(case=name,fields=field,status=status,error=error,checks=checks,injection_checkpoint=checkpoint))
     result=dict(schema='BYOR_SOURCE_ENTITY_NATIVE_READ_VIEW_V2',view_magic=MAGIC,record_stride=STRIDE,
+        entity_fixture_base=entity_base,
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),module=compiled,
         source=SOURCE,cases=results,native_cpu_spans=spans(a.output/'mesen.log'),numeric_policy=POLICY,source_numeric_equivalence=False,

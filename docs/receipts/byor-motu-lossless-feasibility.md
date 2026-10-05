@@ -648,6 +648,36 @@ spawning and 200 Hz workload admission are not proven. The legacy single-root
 linked instruction and metadata hashes remain unchanged. Receipt:
 `byor-motu-frame-dispatch-optimized.json`. No color reduction is applied.
 
+### Native shared spawn-request reset and corrected fixture ownership
+
+The generic clearspawnentry binding implements the pinned engine's shared
+request reset and complete EMPTY return. The portable request uses explicit
+null model IDs and three signed 32-bit index fields set to -1; remaining
+supported fields default to zero. Model-name assignment, other spawn-entry
+properties and smartspawn/world allocation remain unbound and fail explicitly.
+The authored callback now passes clearspawnentry and stops at setspawnentry
+(stable API ID 529). It executes 22 VM instructions in 173,496 observed master
+clocks including dispatch. No entity has been spawned by this proof.
+
+An expanded seeded test exposed an invalid earlier fixture ownership claim:
+the frontpanel has 257 stamp bytes at $7FB800, so its final byte is $7FB900.
+The old fixture started on that owned byte. Fixture placement now derives the
+exclusive end from actual source constants and aligns after it at $7FB920.
+An ownership regression check rejects an oversized fixture reservation.
+Earlier injected read-view/script receipts do not prove absence of interference
+with that final stamp. They are superseded for fixture ownership by the corrected
+six-case entity read proof and eleven-case seeded spawn-reset proof. The earlier
+SA-1 mutation-fence halt is retained as a failed attempt; no causal claim beyond
+the demonstrated fixture overlap is made.
+
+All corrected native cases pass, including all eight entity properties, dynamic
+string property lookup, EMPTY/null handling and negative leases/identities.
+Only an actually executed clear mutates the seeded request; empty/invalid jobs
+leave it untouched. Full ROM audit, 24 script tests and the fixture ownership
+check pass. Bank 0 still has two bytes free. Receipt:
+`byor-motu-clearspawn-native.json`. The inherited concurrent static recovery
+failure remains open. No color reduction is applied.
+
 ### Native checked frame routing
 
 The opt-in native dispatcher consumes one submitted callback and validates the

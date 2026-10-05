@@ -24,6 +24,7 @@ def main():
     p.add_argument('--observe-cost',action='store_true',help='Bounded native execution clocks/instruction observer')
     p.add_argument('--frame-dispatch',action='store_true',help='Exercise the offline frame-4 entry; empty-route runtime dispatcher remains unbound')
     p.add_argument('--native-frame-dispatch',action='store_true',help='Submit checked-table native jobs, including empty and invalid caller cases')
+    p.add_argument('--check-spawn-reset',action='store_true',help='Seed the portable request and prove source clearspawnentry defaults and EMPTY result')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -97,10 +98,12 @@ def main():
             m.write_memory('snesMemory',c(variant,'VmNativeVariant_Self'),context.hex())
             m.write_u16(c(variant,'VmNativeVariant_ContextValid'),0xb48f if lease else 0)
             if a.entity_view:
-                from source_entity_abi import record,view
-                descriptor,data=view(0x7fb900,[record(0x6abcde,dict(a=0,animationid=handle,
+                from source_entity_abi import record,view,STRIDE
+                from m4_source_entity_fixture import fixture_base
+                entity_base=fixture_base(root,STRIDE)
+                descriptor,data=view(entity_base,[record(0x6abcde,dict(a=0,animationid=handle,
                     direction=0,health=100,playerindex=0,x=80*65536,z=220*65536,maxhealth=100))])
-                m.write_memory('snesMemory',0x7fb900,data.hex())
+                m.write_memory('snesMemory',entity_base,data.hex())
                 m.write_memory('snesMemory',c('src/core/vm/vm_source_entity.pasm','VmSourceEntity_Base'),descriptor.hex())
             if linked:
                 fetch='src/core/vm/vm_fetch_source.pasm'
@@ -110,6 +113,11 @@ def main():
             for name,value in [('VmState_Ip',start_ip),('VmState_Error',0),('VmState_InstrCount',count),
                 ('VmState_SlotCount',slotcount),('VmState_FrameTop',0)]:m.write_u16(c(const,name),value)
             m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_READY'))
+            if a.check_spawn_reset:
+                spawn='src/core/vm/vm_source_spawn.pasm';spawn_base=c(spawn,'VmSourceSpawn_Entry')
+                spawn_bytes=c(spawn,'VM_SOURCE_SPAWN_BYTES')
+                m.write_memory('snesMemory',spawn_base,(b'\xa5'*spawn_bytes).hex())
+                m.write_u16(c(spawn,'VmSourceSpawn_Ready'),0)
             if a.native_frame_dispatch:
                 dispatch='src/core/vm/vm_source_frame.pasm'
                 table_address=rom_address+len(instructions)
@@ -148,6 +156,22 @@ def main():
             case['resident_module_sha256']=hashlib.sha256(read_block(m,code,len(blob))).hexdigest()
             case['module_unchanged']=case['resident_module_sha256']==compiled['sha256']
             reporter.check('resident module identity remains intact',case['module_unchanged'])
+            if a.check_spawn_reset:
+                request=read_block(m,spawn_base,spawn_bytes)
+                expected=bytearray(spawn_bytes)
+                for name,size in [('VmSourceSpawn_Model',2),('VmSourceSpawn_ItemModel',2),
+                                  ('VmSourceSpawn_WeaponModel',2),('VmSourceSpawn_Index',4),
+                                  ('VmSourceSpawn_ItemIndex',4),('VmSourceSpawn_WeaponIndex',4)]:
+                    offset=c(spawn,name)-spawn_base;expected[offset:offset+size]=b'\xff'*size
+                called=frame==4 and lease and a.entity_view
+                case['spawn_request_hex']=request.hex()
+                ready=struct.unpack('<H',read_block(m,c(spawn,'VmSourceSpawn_Ready'),32)[:2])[0]
+                reporter.check('clear resets source request; skipped/rejected calls do not mutate it',
+                               request==(expected if called else b'\xa5'*spawn_bytes) and ready==(0xb4e1 if called else 0))
+                if called:
+                    variant_result=read_block(m,c(variant,'VmNativeVariant_Result'),32)[:8]
+                    case['clear_return_variant_hex']=variant_result.hex()
+                    reporter.check('clearspawnentry returns complete EMPTY',variant_result==b'\x00'*8)
             cases.append(case)
             if a.native_frame_dispatch and scenario not in ('empty','command'):
                 reporter.check('native route rejects invalid context/frame/ROM lease before empty route',
@@ -159,7 +183,7 @@ def main():
             elif frame==3 and lease:
                 reporter.check('authored frame 3 returns before breath command',status==c(const,'VMSTAT_DONE') and error==0)
             else:
-                expected=(518 if a.entity_view else 520) if lease else 521
+                expected=(529 if a.entity_view else 520) if lease else 521
                 reporter.check('frame '+str(frame)+' fails at precise unbound capability '+str(expected),
                     status==c(const,'VMSTAT_FAULT') and error==c(const,'VMERR_BAD_NATIVE') and target==expected)
     observed=[]
@@ -177,8 +201,10 @@ def main():
         model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
         rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
         entity_read_view_installed=a.entity_view,native_cpu_spans=observed,source_200hz_cadence_proven=False,
+        entity_fixture_base=entity_base if a.entity_view else None,
         offline_frame_entry=a.frame_dispatch,native_frame_dispatch_executed=a.native_frame_dispatch,
         frame_dispatch_production_owner_bound=False,
+        clearspawnentry_state_proven=a.check_spawn_reset,
         cost_scope=('Vm_SourceFrameGate entry through terminal status write' if a.native_frame_dispatch else
                     'Vm_Run after entry PHP/REP and first status LDA through terminal status write')+'; includes intervening runtime work; excludes checkpoint waiting',
         scope='Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting')
