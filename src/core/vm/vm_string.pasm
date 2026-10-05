@@ -700,7 +700,7 @@ Vm_LoadAndCompare:
     bcc Vm_LoadAndCompare__int
     jsr Vm_LoadBinaryStr
     bcc Vm_LoadAndCompare__str
-    sec
+    jsl Vm_SourceVariantCompareFallback
     rts
 
 Vm_LoadAndCompare__int:

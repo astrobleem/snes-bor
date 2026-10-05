@@ -4,7 +4,7 @@ from pathlib import Path
 from compiler import Source
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
-from script_vm_reference import Machine,Value,integer,unary
+from script_vm_reference import Machine,Value,integer,unary,text
 
 
 class ScriptBytecodeTests(unittest.TestCase):
@@ -13,6 +13,13 @@ class ScriptBytecodeTests(unittest.TestCase):
     def test_declared_int_does_not_truncate_variant_decimal(self):
         lib=self.compile('void f(){int x=1.5;return x;}')
         self.assertEqual(Machine(lib,{}).call('f'),Value('DECIMAL',1.5))
+
+    def test_pointer_text_uses_signed_long_for_source_script_keys(self):
+        for token,expected in [(0,'#0'),(1,'#1'),(0x80000000,'#-2147483648'),(0xffffffff,'#-1')]:
+            self.assertEqual(text(Value('POINTER',token)),expected)
+        lib=self.compile('void f(void self){return "T"+self;}')
+        self.assertEqual(Machine(lib,{}).call('f',[Value('POINTER',0xffffffff)]),Value('STRING','T#-1'))
+        with self.assertRaisesRegex(ValueError,'POINTER32'):text(Value('POINTER',0x100000000))
 
     def test_4086_decimal_negation_union_fallthrough(self):
         lib=self.compile('void f(){return -0.3;}')

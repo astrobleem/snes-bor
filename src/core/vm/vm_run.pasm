@@ -771,11 +771,9 @@ Vm_Op_Add__numeric_path:
     jmp Vm_Next
 
 Vm_Op_Add__to_bad_type:
-    rep #$31
 .a16
 .i16
-    lda #VMERR_BAD_TYPE
-    jmp Vm_Fault
+    jml Vm_SourceVariantAddFallback
 
 ; EQ -- INTEGER pair or STR pair (Gate 4, plan_vm.md §6 extends Gate 0's
 ; INTEGER-only rule the same way GE/LE/LT/GT/NE do -- see vm_arith32.pasm's

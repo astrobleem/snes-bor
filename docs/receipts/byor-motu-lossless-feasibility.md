@@ -513,3 +513,38 @@ Code remains in bank 28; the runtime still has two bytes before NMI. This is a
 read-view binding proof with injected records, not a production world allocator,
 source effect spawn proof, 200 Hz cadence proof or MOTU gameplay certification.
 Receipt: `byor-motu-entity-read-native.json`. No color reduction is applied.
+
+### Native source pointer keys and equality
+
+The source-context variant kernel now supports STR+PTR, PTR+STR, PTR/EMPTY
+EQ/NE and PTR truthiness. Build 4086 ScriptVariant.c formats pointers with #
+and signed 32-bit LONG decimal. Four native cases cover zero, one, the signed
+minimum and all bits set. Each proves both concatenation orders, self equality,
+PTR versus EMPTY inequality, EMPTY equality, and pointer truthiness. PTR zero
+remains a distinct type from EMPTY while being false in a condition. Opaque
+world tokens replace host addresses; no legacy character-index alias is used.
+Ordered pointers and other mixed variants still fail explicitly. Source caller
+leases enable the extension; legacy paths retain their prior behavior. All new
+logic resides in bank 28, with thin redirects reducing bank-0 VM bytes.
+
+Twenty-four focused host checks and the full ROM audit pass. The NMI margin
+remains two bytes. Native pointer proof ROM:
+`a4e5591cc56a4baab02a03439458b87e57680b810fd047f66e54840b368464c4`.
+Persistent script locals, world allocation, spawning and MOTU gameplay remain
+unbound. Receipt: `byor-motu-pointer-native.json`.
+
+The old static smoke sampled a sticky last-error byte after twelve fields.
+An observed $27 cannot establish a hard admission failure by itself: native
+source authority also uses it for pending owned DMA/staging and palette/block
+allocation deferrals. The strengthened bounded observer records post-Emit
+source OAM publication, deferrals by actor record and all other errors.
+Kula selector/first-stage entry and observed player source OAM publication pass
+in both images. A later in-flight lease can clear its presentable snapshot
+without erasing that observed earlier publication. The additional all-actor
+recovery check FAILS: record 32 has not published within the bounded window.
+A byte-checked previous-commit control reproduces this failure. Control ranges
+restore the VM window, bank 28 and the relocated G13 Div32 call operand together.
+All remaining ROM bytes are identical; source visual runtime bytes are unchanged.
+This broader concurrent actor result remains FAIL. Its cause and relevance to
+production foreign-world integration remain open. No full original campaign
+was rerun. No color reduction is applied.

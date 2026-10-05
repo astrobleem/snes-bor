@@ -17,7 +17,11 @@ def integer(n):
     return Value('INTEGER',int(n))
 def text(v):
     if v.kind=='EMPTY':return '<VT_EMPTY>   Unitialized'
-    if v.kind=='POINTER':return '#'+str(v.data)
+    if v.kind=='POINTER':
+        if not isinstance(v.data,int) or not 0<=v.data<=0xffffffff:
+            raise ValueError('REFERENCE_POINTER32_IDENTITY_REQUIRED')
+        # Build 4086 casts ptrVal to signed LONG for textual script keys.
+        return '#'+str(struct.unpack('<i',struct.pack('<I',v.data))[0])
     if v.kind=='DECIMAL':return format(v.data,'.6f')
     return str(v.data)
 

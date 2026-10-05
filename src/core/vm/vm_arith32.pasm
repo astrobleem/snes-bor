@@ -532,9 +532,8 @@ Vm_CompareInt__gt:
 ; ============================================================================
 ; Gate 4 (plan_vm.md §6) adds STR: truthy iff aux (cached length) is nonzero
 ; (README §6's truthiness table). Still INTEGER-nonzero-or-STR-nonempty-or-
-; falsy -- PTR truthiness is out of scope until a real typed-handle native
-; needs it, same "documented decision, not a guess" precedent this file's
-; header already uses for NEG's non-INTEGER case.
+; falsy in the legacy path. A leased source caller additionally admits PTR
+; truth by the full raw token, through the bank-28 source variant kernel.
 Vm_TruthySlot:
     php
     rep #$31
@@ -557,10 +556,7 @@ Vm_TruthySlot:
                                    ; needs no DECIMAL-specific code at all.
     cmp #BOR_VT_STR
     beq Vm_TruthySlot__str
-    rep #$31
-.a16
-.i16
-    lda #0
+    jsl Vm_SourceVariantTruthyFallback
     plp
     rts
 
