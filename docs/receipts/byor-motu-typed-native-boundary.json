@@ -1,0 +1,486 @@
+{
+  "schema": "BYOR_TYPED_NATIVE_BOUNDARY_RECEIPT_V1",
+  "status": "NULL_EMPTY_AND_LEGACY_REGRESSION_PASS",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "null_authority": "engine/openborscript.c system_NULL clears ScriptVariant to VT_EMPTY",
+  "bound_source_apis": [
+    "NULL"
+  ],
+  "unbound_source_apis": "all other declared entries fail VMERR_BAD_NATIVE",
+  "code_bank": 28,
+  "scratch_range": [
+    "0x7FF600",
+    "0x7FF607"
+  ],
+  "bank_zero_vm_bytes_freed": 7,
+  "runtime_free_before_nmi": 2,
+  "native_probe": {
+    "schema": "BYOR_NATIVE_SCRIPT_LOWERING_PROOF_V1",
+    "status": "PASS",
+    "rom_sha256": "4cc7ba32b5503514fc7590e6b6155c09263364143d837c1947211b09115f83f3",
+    "source": "int f(int x){if(x<3)return x+7;return x-1;} void main(){int a=f(2);int b=f(8);void n=NULL();return a*10+b;}",
+    "module": {
+      "bytes": 466,
+      "sha256": "2438dfe5dd2ec97c9ba67c982ffe8bdb8087e2356eb4de177c9cf6dd1b3b49e3",
+      "instructions": 29,
+      "slots": 15,
+      "callsites": 3,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "f": {
+          "x": 7
+        },
+        "main": {
+          "a": 8,
+          "b": 9,
+          "n": 10
+        }
+      },
+      "function_stack_slots": {
+        "f": [
+          11,
+          12
+        ],
+        "main": [
+          13,
+          14
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "samples": [
+      {
+        "field": 1,
+        "status": 1,
+        "error": 0
+      },
+      {
+        "field": 2,
+        "status": 1,
+        "error": 0
+      },
+      {
+        "field": 3,
+        "status": 2,
+        "error": 0
+      },
+      {
+        "field": 4,
+        "status": 4,
+        "error": 0
+      }
+    ],
+    "checks": [
+      {
+        "name": "a",
+        "slot": 8,
+        "type": 1,
+        "value": 9,
+        "expected": 9
+      },
+      {
+        "name": "b",
+        "slot": 9,
+        "type": 1,
+        "value": 7,
+        "expected": 7
+      },
+      {
+        "name": "return",
+        "slot": 13,
+        "type": 1,
+        "value": 97,
+        "expected": 97
+      }
+    ],
+    "guards": {
+      "VmGuardLo": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+      "VmGuardHi": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    },
+    "null_variant_hex": "0000000000000000",
+    "bound_source_apis": [
+      "NULL"
+    ],
+    "motu_native_apis_bound": false,
+    "motu_gameplay_proven": false,
+    "scope": "Existing native VM call/branch/parameter/return lowering only; debug memory injection; original ROM unchanged"
+  },
+  "original_static_smoke": {
+    "rom_sha256": "4cc7ba32b5503514fc7590e6b6155c09263364143d837c1947211b09115f83f3",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "Kula selection reaches PLAYING",
+        true
+      ],
+      [
+        "Kula source roster identity",
+        true
+      ],
+      [
+        "persistent source campaign first stage",
+        true
+      ],
+      [
+        "static source presentation has no admission fault",
+        true
+      ],
+      [
+        "first stage remains PLAYING",
+        true
+      ],
+      [
+        "four bounded production fields observed",
+        true
+      ]
+    ],
+    "campaign_state": [
+      3,
+      0,
+      0
+    ],
+    "source_visual_error": 0,
+    "bus_samples": [
+      {
+        "field": 1,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "16896": 1,
+          "8466": 2,
+          "8465": 2,
+          "16907": 2,
+          "16908": 2,
+          "8464": 2,
+          "8463": 2,
+          "8448": 2,
+          "8462": 2,
+          "8450": 2,
+          "8451": 2,
+          "8452": 5,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 174703208
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 174703294
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 174704408
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 174705974
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 174713698
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 174713768
+          }
+        ]
+      },
+      {
+        "field": 2,
+        "counts": {
+          "17267": 7,
+          "17268": 7,
+          "17269": 7,
+          "17270": 7,
+          "8469": 7,
+          "8470": 7,
+          "8471": 7,
+          "8472": 393,
+          "8473": 393,
+          "16907": 7,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 7,
+          "17265": 7,
+          "17266": 7,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175060568
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175060654
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175061790
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175063482
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 175066094
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 232,
+            "masterClock": 175068706
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 234,
+            "masterClock": 175071318
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 236,
+            "masterClock": 175073930
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 237,
+            "masterClock": 175076542
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 241,
+            "masterClock": 175081952
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 241,
+            "masterClock": 175082022
+          }
+        ]
+      },
+      {
+        "field": 3,
+        "counts": {
+          "8460": 1,
+          "8461": 2,
+          "8492": 1,
+          "16908": 2,
+          "8464": 2,
+          "8465": 2,
+          "8466": 2,
+          "16896": 1,
+          "8453": 1,
+          "8463": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8462": 2,
+          "8459": 1,
+          "8448": 2
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175417926
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175418012
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 231,
+            "masterClock": 175425160
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 231,
+            "masterClock": 175425230
+          }
+        ]
+      },
+      {
+        "field": 4,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "8469": 2,
+          "8470": 2,
+          "8471": 2,
+          "8472": 32,
+          "8473": 32,
+          "16907": 2,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175775334
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175775420
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175776556
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175778400
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 175785300
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 175785370
+          }
+        ]
+      }
+    ],
+    "scope": "Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.",
+    "no_pcm_copies": true
+  },
+  "audit_all": "PASS after correcting documented bank-0 address scope",
+  "width_guard": {
+    "new": 0,
+    "older_baselined": 183,
+    "stale": 2
+  },
+  "audit_scope_regression_tests": 2,
+  "no_color_reduction_applied": true,
+  "motu_gameplay_proven": false,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "nonclaims": [
+    "No per-actor engine API binding",
+    "No source pointer comparison admission",
+    "No native binary64 equivalence",
+    "No MOTU candidate/completion"
+  ]
+}

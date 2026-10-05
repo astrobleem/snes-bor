@@ -399,3 +399,28 @@ low-word negation in its union; unary POS does nothing for every variant.
 The binary64 host reference now retains those behaviors, with signed overflow
 refused. The native Q16 arithmetic remains an explicit adaptation and is
 not called numeric source equivalence. No color reduction is applied.
+
+### Typed native return boundary
+
+Native CALL now stores complete source variants through code in bank 28.
+Legacy IDs retain the existing INTEGER ABI. Seven bytes are freed in the
+bank-0 VM window; runtime still has two bytes before NMI. Stable source
+API IDs depend on name/arity, never a module requirement subset. Currently
+only NULL is bound; other source APIs fail explicitly. Build 4086 system_NULL
+clears its result to EMPTY. Native NULL returns all eight zero bytes.
+Typed entity locals, pointer comparisons and other engine APIs remain open.
+
+Fresh original-BOR regression ROM
+`4cc7ba32b5503514fc7590e6b6155c09263364143d837c1947211b09115f83f3`
+passes cold boot, Kula selection, first stage and static source presentation
+without faults. Native branch/call/parameter/return checks pass, including
+source NULL and both memory guards. MSU and PCM companions are hardlinks;
+no PCM copies and no complete campaign reruns were made.
+
+The ROM audit previously filtered cross-bank edges after recursively
+following them with flat bank-0 indexing. A shifted layout exposed a false
+bank-0 edge from that invalid walk. Its input is now bounded to the declared
+bank-0 scope before decoding. Two tests prove foreign bytes cannot manufacture
+a violation while a real unowned bank-0 call still fails. Full audit passes;
+width guard has zero new violations. No baseline failures are suppressed.
+Receipt: `byor-motu-typed-native-boundary.json`.

@@ -34,12 +34,19 @@ class NativeModuleTests(unittest.TestCase):
 
     def test_native_identity_keeps_name_arity_and_full_arguments(self):
         lib=self.library('void main(){effect("HBreath",18,93,0);effect("Shock");}',('effect',))
-        blob,report=lower(lib,numeric_policy=POLICY)
+        blob,report=lower(lib,numeric_policy=POLICY,native_ids={('effect',1):0x300,('effect',4):0x301})
         requirements=report['engine_api_requirements']
         self.assertEqual([(r['name'],r['arity']) for r in requirements],[('effect',1),('effect',4)])
         m=unpack(blob);self.assertEqual([c.argc for c in m.callsites],[4,1])
         self.assertNotEqual(m.callsites[0].target_id,m.callsites[1].target_id)
         self.assertFalse(report['entity_api_bound'])
+
+    def test_source_api_ids_do_not_alias_when_module_requirements_change(self):
+        lib=self.library('void main(){getlocalvar("self");}',('getlocalvar',))
+        blob,report=lower(lib,numeric_policy=POLICY)
+        self.assertEqual(report['engine_api_requirements'][0]['id'],521)
+        unknown=self.library('void main(){effect();}',('effect',))
+        with self.assertRaisesRegex(ValueError,'SIGNATURE_UNKNOWN'):lower(unknown,numeric_policy=POLICY)
 
     def test_numeric_policy_and_recursion_are_explicit(self):
         lib=self.library('void main(){return 0.3;}')

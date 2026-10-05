@@ -84,6 +84,11 @@ def run_one_seed_set(label, entry_addrs, data, labels_sorted, addrs, label_by_ad
     """Runs both the audit_jumps-style 'suspicious edge' check and the
     audit_ownership-style 'CALL target ownership' check against one
     disassembly walk, and returns True if this seed set is clean."""
+    # The walker uses flat address-minus-BASE indexing, not LoROM bank
+    # translation. Bound its input to the declared bank-0 scope BEFORE it
+    # explores callees. Filtering edges afterwards cannot prevent a fake
+    # cross-bank walk from decoding unrelated data and re-entering bank 0.
+    data = data[:0x10000 - BASE]
     entries = [(a, 1, 1, False) for a in entry_addrs]
     real_addrs, call_edges, all_edges, unknown = redo_call_edges(data, BASE, entries)
 

@@ -496,12 +496,7 @@ Vm_Op_Call__native_done:
 
 Vm_Op_Call__native_ok:
 .a16
-    lda.l VmPriv_B
-    sta.l VmPriv_A                 ; Vm_StoreIntResult's dest is VmPriv_A;
-                                    ; CALL's own operand A (script entry) is
-                                    ; irrelevant on the native path, safe to
-                                    ; overwrite.
-    jsr Vm_StoreIntResult
+    jsl Vm_NativeVariantStore       ; legacy INTEGER or opt-in full variant
     jmp Vm_Next
 
 ; ============================================================================

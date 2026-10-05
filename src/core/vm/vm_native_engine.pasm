@@ -130,6 +130,12 @@ Vm_NativeEng_Dispatch:
 .a16
 .i16
     lda.l VmCall_TargetId
+    cmp #$0200
+    bcc Vm_NativeEng_Dispatch__legacy
+    jml Vm_NativeVariantDispatch
+Vm_NativeEng_Dispatch__legacy:
+.a16
+.i16
     cmp #VM_NATIVE_GETLOCALVAR_SELF
     beq Vm_NativeEng_Dispatch__getlocalvar_self
     cmp #VM_NATIVE_GETENTITYPROP_X

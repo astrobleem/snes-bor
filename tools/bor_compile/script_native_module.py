@@ -15,6 +15,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_converter'))
 from openbor_script.compiler import Module,Instr,Callsite,BINOP_OPCODE
 from openbor_script.module import pack_module
 from script_bytecode import OPS,BINARY
+from script_native_api import IDS
 
 POLICY='ACCEPTED_COMPAT_Q16_16'
 
@@ -64,7 +65,9 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
     requirements=sorted({(library['builtin_requirements'][arg&0x7fff],argc)
         for rows,_,_ in decoded.values() for op,arg,argc,nxt in rows.values()
         if op=='CALL' and arg&0x8000})
-    native_ids=native_ids or {key:0x200+i for i,key in enumerate(requirements)}
+    native_ids=IDS if native_ids is None else native_ids
+    if any(key not in native_ids for key in requirements):
+        raise ValueError('NATIVE_SOURCE_API_SIGNATURE_UNKNOWN')
     if len(set(native_ids.values()))!=len(native_ids):raise ValueError('NATIVE_ID_COLLISION')
     m=Module();numeric=[]
     def slot(kind=0,value=0,aux=0):
@@ -148,7 +151,7 @@ def main():
         for fn in lib['functions'].values():
             for op,arg,argc,nxt in decode(fn)[0].values():
                 if op=='CALL' and arg&0x8000:keys.add((lib['builtin_requirements'][arg&0x7fff],argc))
-    ids={key:0x200+i for i,key in enumerate(sorted(keys))};reports=[]
+    ids=IDS;reports=[]
     for item in source['programs']:
         blob,report=lower(item['program'],item['entry_function'],a.numeric_policy,ids)
         (a.output/(item['model']+'.b48s')).write_bytes(blob);reports.append(dict(model=item['model'],**report))

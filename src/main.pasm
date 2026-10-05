@@ -13566,3 +13566,9 @@ Footdie_StreamSource:
 .org $8000
 .include "generated/production_source_visual_keys.pasm"
 
+; Generic typed script API boundary. Bank 28 is outside existing code/audio
+; banks 0..27. Source context is opt-in; unbound APIs fail explicitly.
+.bank 28
+.org $8000
+.include "core/vm/vm_native_variant.pasm"
+
