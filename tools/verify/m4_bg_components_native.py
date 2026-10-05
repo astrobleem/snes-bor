@@ -28,12 +28,16 @@ def tiles(indices,bpp):
     return b''.join(data),tilemap.tobytes()
 
 
-def compile_rom(report,assets,timer=180):
+def compile_rom(report,assets,timer=180,cache_assets=None):
     if report['bg_mode']!=4 or report['low_bpp']!=2 or report['high_palette_start']!=4 or report['high_opaque_capacity']!=236:
         raise ValueError('MODE4_COMPONENT_FIXTURE_CONTRACT')
     high=np.frombuffer((assets/'indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)+3
     low=np.frombuffer((assets/'low_indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)
     highchr,highmap=tiles(high,8);lowchr,lowmap=tiles(low,2);lowbase=report['low_chr_vram_base']
+    if cache_assets is not None:
+        highchr=(cache_assets/'high.chr').read_bytes();lowchr=(cache_assets/'low.chr').read_bytes()
+        highmap=(cache_assets/'0-high.map').read_bytes();lowmap=(cache_assets/'0-low.map').read_bytes()
+        lowbase=((len(highchr)+8191)//8192)*8192
     gaps=[(len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
     offsetmap=next((((first+2047)//2048)*2048 for first,last in gaps
                     if ((first+2047)//2048)*2048+2048<=last),None)

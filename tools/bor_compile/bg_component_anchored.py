@@ -10,13 +10,14 @@ from contiguous_palette import attempt
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--baseline',type=Path,required=True);p.add_argument('--canvas',type=Path,required=True)
-    p.add_argument('--output',type=Path,required=True);a=p.parse_args();bits=(0,1,1)
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--span',type=int)
+    a=p.parse_args();bits=(0,1,1)
     base=np.fromfile(a.baseline,dtype='<u2').reshape(224,256)
     pixels=np.fromfile(a.canvas,dtype='<u2').reshape(224,256)
     fixed=sorted(set(map(int,split_pixels(base,bits)[0].flat)));offset=len(fixed)
     high=split_pixels(pixels,bits)[0];lines=[set(map(int,row))-set(fixed) for row in high]
     solved=None
-    for span in range(1,33):
+    for span in ([a.span] if a.span else range(1,33)):
         for layout in ('first','last','frequency','persistent'):
             trial=attempt(lines,236-offset,span,layout)
             if 'states' in trial:solved=trial;break

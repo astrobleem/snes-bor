@@ -311,3 +311,30 @@ refill, live source blending/moving actors and full MOTU remain open.
 Optional previous-frame residency/slot-lock experiments retain explicit
 optimization failure classifications; their failures do not reject the
 successful contiguous path or all hardware renderers.
+
+### Native cached transition proof
+
+`m4_bg_component_animation.py` now preloads the shared two-pose cache and
+alternates br12/br13 every field. Both use 13-color contiguous bursts. Four
+successive displayed fields match their corresponding source canvases with
+zero mismatches across all 57,344 pixels; the first two fields are forced-blank
+preload. Two full CGRAM observer vectors match all 6,048 events each. Both
+tilemap observers match all 1,024 transition bytes, and 896 first/last CGDATA
+timing samples have zero unsafe writes. Measured transition service is
+14,430/14,440 master clocks, beginning on line 225 and ending on line 235,
+including 472 palette bytes, 1,024 VRAM bytes and descriptor setup.
+
+The animated foreground instruction phase exposed 75 unsafe sampled writes
+at dot 172, despite matching register identities. Moving the IRQ to dot 160
+eliminates those misses and restores pixel identity. This retains the hardware
+failure and corrects the fixture; static-dot-172 proof is not a general
+production timing admission. Mesen frame skipping is disabled per process,
+with `--donotsavesettings`; no user emulator settings are changed.
+
+The passing ROM hash is
+`366b4566fbce6b77696cedeb64689e5a508246095d7fac5c8a137c8b230d5b1e`.
+Receipt: `byor-motu-component-animation-native.json`. Artifact root:
+`out/byor-motu-bg-animation-native/`. This proves a bounded cached transition,
+not original source cadence, an online SCREEN compositor, moving backgrounds,
+two-player concurrency, subsequent cache refill or production integration.
+No color reduction is applied.
