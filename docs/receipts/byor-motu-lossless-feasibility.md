@@ -230,3 +230,53 @@ with I set, IRQ releases WAI and execution continues without another vector
 entry. The fixture has a fixed accumulator/index ABI. A production consumer
 must preserve the real caller's registers, widths, direct page and data bank,
 and measure the resulting overhead; the fixture cost is not that admission.
+
+## Lossless Mode 4 component presentation
+
+`bg_components.py` preserves every RGB555 bit by splitting each channel into
+disjoint high and low components. For the admitted Mode 4 configuration,
+BG2 carries the least significant green and blue bits in four colors
+`[0, 32, 1024, 1056]`; BG1 carries the remaining thirteen bits. Native additive
+color math recombines them exactly, without rounding, saturation or color
+reduction. Source SCREEN blending is computed in RGB8 before conversion and
+decomposition. This does not substitute SNES addition for BOR SCREEN.
+The exhaustive unit check reconstructs all 32,768 RGB555 colors.
+
+The same layered peak pose has 698 final colors, 433 high-component colors
+and at most 81 high-component colors per line. Its exact liveness scheduler
+fits seven updates per line into 236 high-component CGRAM slots. Slots 0--3
+hold BG2; slots 4--239 hold BG1; slots 240--255 remain reserved for HUD OBJ.
+High CHR is 42,880 bytes, low CHR is 9,984 bytes at VRAM byte address 49,152,
+and tilemaps occupy 61,440 and 63,488. A zero BG3 offset tilemap at 43,008
+prevents unintended Mode 4 offset-per-tile behavior. No IRQ is enabled.
+
+`m4_bg_components_native.py` verifies both br12 and adjacent br13 composed
+poses. Each passes 57,344 exact RGB555 pixels, 6,272 CGRAM register events,
+448 first/last transfer timing observations with zero active-window samples,
+and unchanged low-component/HUD palette hashes. Five fields advance exactly
+one at a time without observer timeout. Seven palette HDMA channels coexist
+with four APU-port bytes on channel 0; this is a bus stress fixture, not the
+production TAD protocol. VBlank restores 472 bytes and rearms channel 7 after
+DMA. Code resides in fixture bank 1; production bank 0 is unchanged.
+
+The br13 pose contains 697 final colors, 430 high-component colors and at
+most 77 high-component colors per line. High/low CHR are 43,072/10,016 bytes;
+the zero offset tilemap moves to 45,056. It also fits VRAM and seven updates.
+Native receipts are in `byor-motu-component-bg-native.json`; bounded artifact
+directories are `out/byor-motu-bg-components{,-next}-mode4/native/`.
+
+Animation upload admission remains open. Only 62 source tile cells change
+between these poses, but independently allocated high-component indices
+change all 896 cells. This would require 57,344 high-plane bytes with a stable
+tile-cell layout, plus 992 changed low-plane bytes, before maps/descriptors.
+The 2,816-byte existing queue policy cannot admit that upload in one field.
+It is an allocator problem, not proof that lossless BG animation is impossible.
+`bg_component_group.py` tests the sufficient strategy of one palette schedule
+for the union of both frames. All three two-bit decompositions are exactly
+infeasible under that additional union restriction and seven writes per line.
+Frame-specific schedules remain feasible; joint slot identity, hybrid OBJ
+placement and real production upload timing still require investigation.
+
+This proof contains no live compositor, source-reachable combat, actual HUD
+drawing, moving actors, two-player certification or MOTU Demo completion.
+No color reduction is applied.
