@@ -1,0 +1,398 @@
+{
+  "schema": "BYOR_NATIVE_SCRIPT_INSTANCE_VARIABLES_V1",
+  "status": "PASS",
+  "rom_sha256": "213ad1ec8cf82a982c34c72d3ecd0c28c0ec828cf7a4e6f1f73a506b6a3b53f7",
+  "cases": [
+    {
+      "case": "dynamic",
+      "source": "void main(){void before=getlocalvar(\"Loop\"+getlocalvar(\"self\"));void set=setlocalvar(\"Loop\"+getlocalvar(\"self\"),3);void after=getlocalvar(\"Loop\"+getlocalvar(\"self\"));void wrongcase=getlocalvar(\"loop\"+getlocalvar(\"self\"));}",
+      "status": 4,
+      "error": 0,
+      "fields": 4,
+      "checks": [
+        {
+          "local": "before",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        },
+        {
+          "local": "set",
+          "actual_hex": "0100000001000000",
+          "expected_hex": "0100000001000000"
+        },
+        {
+          "local": "after",
+          "actual_hex": "0100000003000000",
+          "expected_hex": "0100000003000000"
+        },
+        {
+          "local": "wrongcase",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        }
+      ],
+      "pool_sha256": "4999083df325be4289fc1e29c65588923b3a0ca138ae7774f8c838af28006eee",
+      "expected_pool_sha256": "4999083df325be4289fc1e29c65588923b3a0ca138ae7774f8c838af28006eee",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22946674
+      }
+    },
+    {
+      "case": "same_instance_next_callback",
+      "source": "void main(){void after=getlocalvar(\"Loop\"+getlocalvar(\"self\"));}",
+      "status": 4,
+      "error": 0,
+      "fields": 2,
+      "checks": [
+        {
+          "local": "after",
+          "actual_hex": "0100000003000000",
+          "expected_hex": "0100000003000000"
+        }
+      ],
+      "pool_sha256": "4999083df325be4289fc1e29c65588923b3a0ca138ae7774f8c838af28006eee",
+      "expected_pool_sha256": "4999083df325be4289fc1e29c65588923b3a0ca138ae7774f8c838af28006eee",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23636878
+      }
+    },
+    {
+      "case": "other_instance",
+      "source": "void main(){void old=getlocalvar(\"Loop\");void set=setlocalvar(\"Loop\",100);void after=getlocalvar(\"Loop\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 2,
+      "checks": [
+        {
+          "local": "old",
+          "actual_hex": "0100000063000000",
+          "expected_hex": "0100000063000000"
+        },
+        {
+          "local": "set",
+          "actual_hex": "0100000001000000",
+          "expected_hex": "0100000001000000"
+        },
+        {
+          "local": "after",
+          "actual_hex": "0100000064000000",
+          "expected_hex": "0100000064000000"
+        }
+      ],
+      "pool_sha256": "730f7df385e9b77416bee162e7b1bc780a5130154049eb0aa184b49f4da94edf",
+      "expected_pool_sha256": "730f7df385e9b77416bee162e7b1bc780a5130154049eb0aa184b49f4da94edf",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24276060
+      }
+    },
+    {
+      "case": "cleanup_retains_names",
+      "source": "void main(){clearlocalvar();void self=getlocalvar(\"self\");void loop=getlocalvar(\"Loop\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "local": "self",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        },
+        {
+          "local": "loop",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        }
+      ],
+      "pool_sha256": "9b67f5b8625e52638b10feaf1557fbc2f6d326fd05918dd4160cc7b5f0211bf5",
+      "expected_pool_sha256": "9b67f5b8625e52638b10feaf1557fbc2f6d326fd05918dd4160cc7b5f0211bf5",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24448124
+      }
+    },
+    {
+      "case": "overwrite_installed_self",
+      "source": "void main(){void set=setlocalvar(\"self\",NULL());void self=getlocalvar(\"self\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 2,
+      "checks": [
+        {
+          "local": "set",
+          "actual_hex": "0100000001000000",
+          "expected_hex": "0100000001000000"
+        },
+        {
+          "local": "self",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        }
+      ],
+      "pool_sha256": "361727b96f0c635b3ba0a377648b7ee05fd32e1621ac5b1870933a7ec55d073c",
+      "expected_pool_sha256": "361727b96f0c635b3ba0a377648b7ee05fd32e1621ac5b1870933a7ec55d073c",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24817258
+      }
+    },
+    {
+      "case": "empty_name",
+      "source": "void main(){void set=setlocalvar(\"\",\"unused string\");void value=getlocalvar(\"\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "local": "set",
+          "actual_hex": "0100000000000000",
+          "expected_hex": "0100000000000000"
+        },
+        {
+          "local": "value",
+          "actual_hex": "0000000000000000",
+          "expected_hex": "0000000000000000"
+        }
+      ],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25193375
+      }
+    },
+    {
+      "case": "stored_string_unbound",
+      "source": "void main(){setlocalvar(\"new\",\"value\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25593777
+      }
+    },
+    {
+      "case": "no_world_owner",
+      "source": "void main(){setlocalvar(\"new\",1);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25704627
+      }
+    },
+    {
+      "case": "wrong_instance_owner",
+      "source": "void main(){setlocalvar(\"new\",1);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26187825
+      }
+    },
+    {
+      "case": "long_key",
+      "source": "void main(){setlocalvar(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",1);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26642048
+      }
+    },
+    {
+      "case": "indexed_unbound",
+      "source": "void main(){setlocalvar(3,1);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 27146609
+      }
+    },
+    {
+      "case": "full_named_pool",
+      "source": "void main(){setlocalvar(\"new\",1);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "expected_pool_sha256": "bd674e2f9ce05ed2f72b89ba18913cdfb4e5903c9c11e11ce6676c8a1f2135f1",
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 27420767
+      }
+    }
+  ],
+  "authority": "af23dc9 openborscript.c Varlist_*, Script_Copy(localclear=0), system_*localvar; List.c strcmp",
+  "namespace": "entity script instance; current/default animation programs share it",
+  "live_callback_owner_bound": false,
+  "stored_string_values_bound": false,
+  "indexed_variables_bound": false,
+  "motu_gameplay_proven": false,
+  "native_fixture_report": "out/byor-motu-script-instance-vars-native/report.json",
+  "native_pool": "$41:8800..$41:e7ff; 384 named 64-byte records",
+  "protected_tracked_files_unchanged": 17,
+  "rom_audit": "ALL CHECKS PASS; 0 new width violations; bank-0 main-loop margin 4 bytes includes 2-byte final instruction",
+  "host_checks": "2 script-variable ownership tests and 2 source-dispatch tests PASS",
+  "indexed_variables_policy": "explicit unbound fault",
+  "stored_string_policy": "explicit unbound fault",
+  "inherited_static_concurrent_recovery": "FAIL remains open",
+  "no_color_reduction_applied": true
+}

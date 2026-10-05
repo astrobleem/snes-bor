@@ -811,3 +811,27 @@ free and all 17 protected tracked files are unchanged. Live source world ticking
 additional API policies, selector/combat/Demo completion and effect presentation
 are still unbound. The inherited concurrent static recovery failure remains open.
 Receipt: `byor-motu-world-birth-native.json`. No color reduction is applied.
+
+### Persistent entity script variables
+
+Pinned Script_Copy and Varlist authority establishes that variables belong to
+an entity script instance. Current/default animation callbacks share that list;
+model identity is not the namespace. Names are case-sensitive. Cleanup empties
+values while retaining the named nodes, including installed frame locals.
+
+An opt-in native store uses the separate $41:8800..$41:e7ff owner lease with
+384 named 64-byte records. It supports full EMPTY/INTEGER/DECIMAL/PTR variants.
+Stored STR values, indexed keys and oversized names fail explicitly. The
+instance owner is checked against the original caller snapshot, so changing
+the installed self variable does not change ownership of the variable list.
+Production callback installation, slot retirement/reuse and world startup are
+still unbound; fixtures install a checked namespace externally.
+
+Twelve native cases pass: dynamic names, persistence, another entity, cleanup,
+overwriting self, empty name, unsupported stored string/indexed key, absent
+owner, incorrect instance, oversized key and full store. Complete namespace
+bytes are checked against the source oracle; other owners/scopes are unchanged.
+Two variable ownership tests and two source-dispatch tests pass. The ROM audit
+passes with zero new width violations, and all 17 protected files are unchanged.
+The inherited static concurrent recovery failure remains open. Receipt:
+`byor-motu-script-variables-native.json`. No color reduction is applied.

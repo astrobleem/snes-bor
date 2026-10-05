@@ -31,6 +31,18 @@ Vm_NativeVariantDispatch:
 Vm_NativeVariantDispatch__standard:
 .a16
 .i16
+    cmp #$0205                     ; clearlocalvar(), instance-owned names
+    bne Vm_NativeVariantDispatch__setlocal
+    jmp Vm_SourceVarsClear
+Vm_NativeVariantDispatch__setlocal:
+.a16
+.i16
+    cmp #$0210                     ; setlocalvar(name, value)
+    bne Vm_NativeVariantDispatch__builtin
+    jmp Vm_SourceVarsSet
+Vm_NativeVariantDispatch__builtin:
+.a16
+.i16
     cmp #$0200                     ; generic NULL() source API
     beq Vm_NativeVariantDispatch__null
     cmp #$0206                     ; clearspawnentry(), stable source API
@@ -87,9 +99,22 @@ Vm_NativeVariantDispatch__null_ok:
     rtl
 
 ; Installed frame locals belong to the calling script context. Self is a
-; typed opaque entity pointer, never an implicit player index. Persistent
-; script variable writes remain unbound, so absent names are EMPTY.
+; typed opaque entity pointer, never an implicit player index. An owned
+; instance-variable lease selects persistent names; otherwise this bounded
+; installed-context path supplies the four frame locals and absent EMPTY.
 Vm_NativeVariantGetLocal:
+.a16
+.i16
+    lda.l VmSourceVars_Ready
+    beq Vm_NativeVariantGetLocal__installed
+    cmp #$B4A4
+    beq Vm_NativeVariantGetLocal__persistent
+    jmp Vm_NativeVariantGetLocal__bad
+Vm_NativeVariantGetLocal__persistent:
+.a16
+.i16
+    jmp Vm_SourceVarsGet
+Vm_NativeVariantGetLocal__installed:
 .a16
 .i16
     lda.l VmNativeVariant_ContextValid
