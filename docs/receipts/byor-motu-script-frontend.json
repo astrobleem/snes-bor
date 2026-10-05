@@ -100,5 +100,20 @@
     }
   ],
   "frame_commands": 65,
-  "inline_scripts": 5
+  "inline_scripts": 5,
+  "bytecode": {
+    "source_functions": 27,
+    "source_function_bytes": 3737,
+    "model_programs": 7,
+    "model_program_bytes": 7101,
+    "animation_handles": 80,
+    "native_vm_bound": false,
+    "entity_api_bound": false,
+    "native_numeric_equivalence_proven": false
+  },
+  "execution_authority": {
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "eager_logic": "engine/source/scriptlib/Parser.c:Parser_Log_and_expr2, Parser_Log_or_expr2",
+    "frame_script": "engine/openbor.c:execute_animation_script, update_frame, CMD_MODEL_AT_CMD, CMD_MODEL_AT_SCRIPT"
+  }
 }

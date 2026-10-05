@@ -300,6 +300,27 @@ All authority paths refer to commit
 inline wrapper semantics and numeric equivalence remain explicitly unbound.
 No foreign profile is admitted through the historical builder.
 
+`script_bytecode.py` now compiles all 27 source functions into 3,737 bytes of
+generic variant instructions. Constants retain signed INTEGER32 and binary64
+DECIMAL identity. Logical operands evaluate eagerly, as the exact 4086 parser
+emits AND/OR after both expressions. A bounded host reference requires explicit
+engine API hooks and fails when a hook or unproven numeric case is encountered.
+It does not stand in for native execution.
+
+`script_dispatch_4086.py` also derives per-model main wrappers from physical
+directive order: animation-handle guards, frame guards and inline script bodies.
+Seven model programs contain 7,101 instruction bytes and reference 80 immutable
+animation handles. Handle identity is compiler-remapped globally; it remains
+separate from gameplay ANI constants. The original default `nocmdcompatible=0`
+is verified; a nonzero policy fails explicitly pending its wrapper lowering.
+Host tests execute actual source bodies: left-facing spawn01 produces x-18,
+unchanged z and altitude+93, both ShWave commands on one frame execute in order,
+and a distinct default-model wrapper does not match the weapon model's handle.
+The runtime must execute current and distinct default model scripts, retain the
+local frame snapshot through script changes, and honor update_frame interruption
+before later frame side effects. Native VM/API binding and numeric certification
+remain open; these compiler artifacts are not a MOTU runtime candidate.
+
 ### Anchored palette identities and bounded tile caching
 
 The no-effect background/player/enemy context contains 101 final RGB555
