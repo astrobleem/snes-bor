@@ -1,0 +1,14 @@
+{
+  "schema": "BYOR_SOURCE_PROFILES_V1",
+  "profiles": [
+    {
+      "id": "original-bor-reviewed",
+      "sha256": "a2a55cdd5e1145e845607ecec3ad85a342529492e7120449a928f3a6eaea81d6",
+      "dialect": "historical-bor",
+      "builder": "build_normal_sa1_candidate",
+      "media_policy": "reviewed-original-source-media",
+      "runtime_policy": "persistent-sa1-source-world",
+      "canonical_source": "Beats of Rage Original [v.3.0 Build 4086].pak"
+    }
+  ]
+}

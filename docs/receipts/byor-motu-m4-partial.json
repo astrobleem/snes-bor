@@ -1,0 +1,523 @@
+{
+  "classification": "PRODUCT_DECISION_REQUIRED",
+  "milestone": "M4_PARTIAL",
+  "canonical_master": "ceb00643f32bb88db5dd56b6b54d200b5225c794",
+  "branch": "feat/byor-motu",
+  "source": {
+    "path": "E:\\gh\\snes-bor\\Masters of the Universe [v.3.0 Build 4086].pak",
+    "sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "archive_entries": 1052,
+    "filename_claim": "Masters of the Universe [v.3.0 Build 4086].pak",
+    "authenticated_engine_build": null,
+    "dialect_evidence": [
+      "@cmd",
+      "@script",
+      "alternatepal",
+      "animationscript",
+      "colourdepth",
+      "know"
+    ],
+    "dialect": "UNRESOLVED_FROM_SOURCE_FEATURES"
+  },
+  "sets": [
+    {
+      "id": 0,
+      "name": "Demo",
+      "ifcomplete": 0,
+      "entries": [
+        {
+          "ordinal": 0,
+          "kind": "STAGE",
+          "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+          "next_after": false,
+          "declaration": {
+            "source_path": "DATA\\LEVELS.TXT",
+            "line": 32,
+            "directive": "file",
+            "values": [
+              "data/levels/Guile2.txt"
+            ]
+          }
+        },
+        {
+          "ordinal": 1,
+          "kind": "STAGE",
+          "source_path": "DATA\\LEVELS\\HOLES.TXT",
+          "next_after": true,
+          "declaration": {
+            "source_path": "DATA\\LEVELS.TXT",
+            "line": 34,
+            "directive": "file",
+            "values": [
+              "data/levels/holes.txt"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "target_set": "Demo (planned, not certified)",
+  "source_complete_queue_records": 34,
+  "source_spawn_total": 22,
+  "maximum_complete_syntactic_queue": 33,
+  "packed_queue_total": null,
+  "players": [
+    {
+      "declaration": "He_Man",
+      "name": "He_Man",
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+      "registry_order": 3,
+      "secret": "0",
+      "maps": []
+    }
+  ],
+  "models": [
+    {
+      "declaration": "Shock",
+      "name": "Shock",
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 0
+    },
+    {
+      "declaration": "Slash",
+      "name": "Slash",
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 1
+    },
+    {
+      "declaration": "Spark",
+      "name": "Spark",
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 2
+    },
+    {
+      "declaration": "He_Man",
+      "name": "He_Man",
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+      "type": "player",
+      "subtype": null,
+      "registry_order": 3
+    },
+    {
+      "declaration": "He_ManB",
+      "name": "He_ManB",
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 4
+    },
+    {
+      "declaration": "HBreath",
+      "name": "HBreath",
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 5
+    },
+    {
+      "declaration": "HWWind",
+      "name": "HWWind",
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 6
+    },
+    {
+      "declaration": "ShWave",
+      "name": "ShWave",
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 7
+    },
+    {
+      "declaration": "Skeletor",
+      "name": "Skeletor",
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "type": "enemy",
+      "subtype": null,
+      "registry_order": 8
+    },
+    {
+      "declaration": "GeyserN",
+      "name": "GeyserN",
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 9
+    },
+    {
+      "declaration": "SkFBall",
+      "name": "SkFBall",
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 10
+    },
+    {
+      "declaration": "SkGeyser",
+      "name": "SkGeyser",
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 11
+    },
+    {
+      "declaration": "SkGeyserT",
+      "name": "SkGeyserT",
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 12
+    },
+    {
+      "declaration": "SkTorn",
+      "name": "SkTorn",
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 13
+    },
+    {
+      "declaration": "Knightbot",
+      "name": "KnightBot",
+      "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+      "type": "enemy",
+      "subtype": null,
+      "registry_order": 14
+    },
+    {
+      "declaration": "ShockBall",
+      "name": "ShockBall",
+      "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+      "type": "none",
+      "subtype": null,
+      "registry_order": 15
+    }
+  ],
+  "capability_counts": {
+    "BINDING_REQUIRED": 883,
+    "GENERIC_CAPABILITY_MISSING": 81,
+    "NOT_USED": 1611,
+    "RESOURCE_LIMIT": 15,
+    "SOURCE_DIALECT_VARIANT": 33,
+    "SUPPORTED": 20,
+    "SUPPORTED_ACCEPTED_COMPAT": 646,
+    "UNKNOWN_SEMANTICS": 163
+  },
+  "resource_decision": {
+    "peak": {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 26,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br12.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+      "asset_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+      "colors": 204,
+      "visible_pixels": 2751,
+      "maximum_scanline_colors": 54,
+      "maximum_adjacent_new_colors": 32,
+      "frame_palette_matches_authority": true
+    },
+    "available_colors": 120,
+    "required_static_palettes": 14,
+    "available_palettes": 8,
+    "static_color_deficit": 84,
+    "scope": "current static OBJ renderer; alternate architectures not disproven"
+  },
+  "validations": {
+    "tests": 41,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "py_compile": "PASS"
+  },
+  "layout": {
+    "width": {
+      "exit_code": 1,
+      "log": "out/byor-motu-width.log",
+      "sha256": "59692631a43c168b8fe5fc43184dde7de5db628e914f2405a3c9f28cc41e8c1a"
+    },
+    "layout": {
+      "exit_code": 1,
+      "log": "out/byor-motu-layout.log",
+      "sha256": "a2f2c68acba0b92eb03b488f45201bc04168956821048162a8aae47241e8c622"
+    },
+    "label-drift": {
+      "exit_code": 0,
+      "log": "out/byor-motu-label-drift.log",
+      "sha256": "3bc4ddc04d8e5d222ebf3ca278a2783de1b029015e3d97aea2ca63831255e742"
+    },
+    "src_unchanged": true,
+    "tools/rom_audit_unchanged": true,
+    "bank0": {
+      "symbols": {
+        "scpu_bank0_runtime_end": 65438,
+        "nmi_handler": 65440
+      },
+      "free_bytes": 2,
+      "new_capability_code_bytes": 0
+    }
+  },
+  "original_regression": [
+    {
+      "name": "Easy",
+      "id": 0,
+      "ifcomplete": 0,
+      "entries": 16,
+      "structural_coverage": "COMPLETE"
+    },
+    {
+      "name": "Normal",
+      "id": 1,
+      "ifcomplete": 0,
+      "entries": 16,
+      "structural_coverage": "COMPLETE"
+    },
+    {
+      "name": "Hard",
+      "id": 2,
+      "ifcomplete": 0,
+      "entries": 16,
+      "structural_coverage": "COMPLETE"
+    },
+    {
+      "name": "Bonus",
+      "id": 3,
+      "ifcomplete": 1,
+      "entries": 2,
+      "structural_coverage": "COMPLETE"
+    }
+  ],
+  "native": {
+    "boot_selector": "NOT_RUN",
+    "traversal": "NOT_RUN",
+    "combat": "NOT_RUN",
+    "prop_pickup": "NOT_RUN",
+    "scene": "NOT_RUN",
+    "completion": "NOT_RUN",
+    "resource_admission": "NOT_RUN"
+  },
+  "candidate": {
+    "produced": false,
+    "rom_sha256": null,
+    "msu_sha256": null,
+    "logical_bytes": 0,
+    "exclusive_allocated_bytes": 0,
+    "shared_hardlinked_pcm_bytes": 0
+  },
+  "protected_dirty": {
+    "paths": 17,
+    "identical_sizes_and_sha256": true,
+    "files": [
+      {
+        "path": "out/g13_camera_pause.json",
+        "size": 6836,
+        "sha256": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\g13_camera_pause.json"
+      },
+      {
+        "path": "out/g13_combat_ai.json",
+        "size": 8140,
+        "sha256": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\g13_combat_ai.json"
+      },
+      {
+        "path": "out/g13_jump_isolation.json",
+        "size": 550337,
+        "sha256": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\g13_jump_isolation.json"
+      },
+      {
+        "path": "out/g13_score_pickup.json",
+        "size": 16129,
+        "sha256": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\g13_score_pickup.json"
+      },
+      {
+        "path": "out/g13_semantic_boundary.json",
+        "size": 18448,
+        "sha256": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\g13_semantic_boundary.json"
+      },
+      {
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "size": 310,
+        "sha256": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_3ceasy\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "size": 870,
+        "sha256": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_5beasy\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "size": 430,
+        "sha256": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal1a\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "size": 370,
+        "sha256": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal1b\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "size": 220,
+        "sha256": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal1c\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "size": 840,
+        "sha256": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal2\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "size": 450,
+        "sha256": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal3a\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "size": 400,
+        "sha256": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal3b\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "size": 310,
+        "sha256": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal3c\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "size": 630,
+        "sha256": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal4a\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "size": 520,
+        "sha256": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal4b\\spawn_table.bin"
+      },
+      {
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "size": 640,
+        "sha256": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027",
+        "backup": "out\\byor-motu-preservation\\protected\\out\\spawn_normal5a\\spawn_table.bin"
+      }
+    ]
+  },
+  "artifact_footprint": {
+    "scope": "M4 code/docs and retained evidence plus preservation backups; excludes preexisting artifacts, git object storage and this receipt itself",
+    "logical_bytes": 18070435,
+    "exclusive_allocated_bytes": 11245080,
+    "shared_hardlinked_evidence_allocated_bytes": 6885376,
+    "unique_file_ids": 41,
+    "measurement": "GetFileInformationByHandleEx(FileStandardInfo).AllocationSize; deduplicated by NTFS file ID; all retained links belong to M4"
+  },
+  "evidence": [
+    {
+      "path": "out/byor-motu-build-diagnostics.json",
+      "bytes": 25524,
+      "sha256": "c58befef6d9836e0a603c55d63623f29e5acb5bd715eac5a608311c8a252d21b"
+    },
+    {
+      "path": "out/byor-motu-color-capacity.json",
+      "bytes": 29349,
+      "sha256": "4410fe03607badcb26aef6977ad2f9e19f09b1e874b253d1c2ec7816c44cb15b"
+    },
+    {
+      "path": "out/byor-motu-focused-tests.log",
+      "bytes": 146,
+      "sha256": "4519e5c69e31fb7930318df142085cd33a97735e1adecaf958ae88ee3b475193"
+    },
+    {
+      "path": "out/byor-motu-inventory-capabilities.json",
+      "bytes": 2161062,
+      "sha256": "67aafb397c8d57d94ae6ea1d181d53f3f0d550b38be7e9ce932f37ac068dd503"
+    },
+    {
+      "path": "out/byor-motu-inventory.json",
+      "bytes": 4716423,
+      "sha256": "fc9b48c2bfc6d8be38499c74698cad81c3cb069b10a519c32860aaf9c4a9d695"
+    },
+    {
+      "path": "out/byor-motu-inventory.md",
+      "bytes": 3111,
+      "sha256": "214aeff3e8b8716d40332343794a124f2e526ff692e2a86cd9a823785eafdde9"
+    },
+    {
+      "path": "out/byor-motu-label-drift.log",
+      "bytes": 107,
+      "sha256": "3bc4ddc04d8e5d222ebf3ca278a2783de1b029015e3d97aea2ca63831255e742"
+    },
+    {
+      "path": "out/byor-motu-layout-results.json",
+      "bytes": 741,
+      "sha256": "65042f5d52098814268869136e4cf3edf6741e8bfc894dc0ae2275c10583ef5a"
+    },
+    {
+      "path": "out/byor-motu-layout.log",
+      "bytes": 24794,
+      "sha256": "a2f2c68acba0b92eb03b488f45201bc04168956821048162a8aae47241e8c622"
+    },
+    {
+      "path": "out/byor-motu-original-easy-inventory.json",
+      "bytes": 1019786,
+      "sha256": "582eb529bd4ac194269d0b5879fe685fd910732b41037c4cb5ec493f75f45af8"
+    },
+    {
+      "path": "out/byor-motu-original-regression.json",
+      "bytes": 515,
+      "sha256": "4c93bb78138de70e3db12fc26a910079a776e7cd74f15d8323211266a882da00"
+    },
+    {
+      "path": "out/byor-motu-survey-capabilities.json",
+      "bytes": 2161062,
+      "sha256": "67aafb397c8d57d94ae6ea1d181d53f3f0d550b38be7e9ce932f37ac068dd503"
+    },
+    {
+      "path": "out/byor-motu-survey.json",
+      "bytes": 4716423,
+      "sha256": "fc9b48c2bfc6d8be38499c74698cad81c3cb069b10a519c32860aaf9c4a9d695"
+    },
+    {
+      "path": "out/byor-motu-survey.md",
+      "bytes": 3111,
+      "sha256": "214aeff3e8b8716d40332343794a124f2e526ff692e2a86cd9a823785eafdde9"
+    },
+    {
+      "path": "out/byor-motu-test-results.json",
+      "bytes": 99,
+      "sha256": "0f0a35520a649a721739d4d7adc282589235f1742b842031f4f846911910a56b"
+    },
+    {
+      "path": "out/byor-motu-width.log",
+      "bytes": 19294,
+      "sha256": "59692631a43c168b8fe5fc43184dde7de5db628e914f2405a3c9f28cc41e8c1a"
+    }
+  ],
+  "nonclaims": [
+    "No universal SNES rendering impossibility proof.",
+    "Color demand is before alpha compositing; alpha fidelity is a separate unresolved capability.",
+    "No quantization, artwork resize, source substitution or candidate build performed.",
+    "No MOTU candidate or native certification.",
+    "Width/layout guard fails on unchanged canonical source.",
+    "No TMNT work or merge."
+  ]
+}

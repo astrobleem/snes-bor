@@ -5,11 +5,60 @@ runtime and reports unsupported capabilities explicitly. It is a capability
 driven compiler, with the existing `tools/bor_compile` pipeline as its implementation.
 It does not promise compatibility with arbitrary OpenBOR games or scripts.
 
-The current production build adapter is bound to the original Beats of Rage
-PAK in this repository, the historical BOR dialect and its reviewed encoded
-media. Other source games need explicit source, model, media and runtime capability
-bindings before this adapter can build them. `SOURCE_PROFILE_UNCONFIGURED`
-rejects a different source rather than silently compiling the original game.
+The proven production build adapter remains bound to the original Beats of Rage
+PAK, the historical BOR dialect and reviewed encoded media. Its immutable SHA-256
+and adapter policies are recorded in `tools/bor_compile/source_profiles.json`.
+That catalog contains no campaigns, queues or model lists. `--set` is validated
+against the supplied source's discovered sets, rather than a CLI choice list.
+The legacy original-source media builder still requires its canonical source
+location; an identical PAK at another path is inspectable but fails build with
+`SOURCE_MEDIA_LOCATION_UNBOUND` until that media binding is generalized.
+
+Foreign PACK archives can now be inspected without an installed build profile:
+
+```powershell
+py -3.10 byor.py inspect --source "Masters of the Universe [v.3.0 Build 4086].pak" --output out/byor-motu-survey.json
+py -3.10 byor.py inventory --source "Masters of the Universe [v.3.0 Build 4086].pak" --set Demo --output out/byor-motu-inventory.json
+py -3.10 byor.py build --source "Masters of the Universe [v.3.0 Build 4086].pak" --set Demo --output build/byor-motu
+```
+
+`inspect` writes source documents/directive locations, discovered routes and
+registry order, player declarations, palette authorities, animation frames,
+scripts, image dimensions/delays/color requirements, audio identities, and raw
+queue records. It also writes a neighboring `*-capabilities.json` and `.md`
+summary. Unknown directives are retained. `inspect` exit 0 means inspection
+finished, not that a ROM can be compiled. Foreign `inventory` currently returns
+2 for unresolved capabilities; its source report is still written.
+
+Foreign `build` currently returns specific capability diagnostics and produces
+no candidate. It never invokes the original-game builder for an unknown source
+identity. Resource diagnostics include actual required/available capacities;
+schema diagnostics retain malformed queue locations. Classification counts
+count source uses, not unique implemented features. `NOT_USED` means outside
+the explicitly discovered campaign and declared model registry; implicit
+engine scene hooks and dynamic script references still require dialect review.
+
+MOTU milestone 4 is **partial**, not a compiled or native-certified game. The
+survey finds source set 0, `Demo`, threshold 0, two stages, 34 syntactically
+complete queue records and 22 stage spawns. An additional stray `at 1800` needs
+dialect resolution; these are not certified packed-record counts. `He_Man` is
+the sole loaded `type player`; `He_ManB` is a `type none` weapon form. The
+filename's Build 4086 claim is not authenticated engine metadata. Script
+commands, inline scripts and per-model palettes rule out treating it as the
+reviewed historical original BOR dialect.
+
+The shared `source_palette.py` helper resolves explicit palettes or first-frame
+palette authority, decodes PNG/ACT colors and retains source alternate palette
+indices. Its named RGB8-to-RGB555 conversion is a hardware adaptation. It does
+not reduce color count, borrow original-game palettes, or certify production
+runtime consumption. MOTU's HBreath peak frame still needs 204 opaque RGB555
+colors (at least 14 static OBJ palette banks); hardware provides eight banks
+of 15 opaque colors each. `source_color_capacity.py` produces reproducible
+requirements and sample reduction costs. That is a limitation of the current
+static OBJ renderer, not proof that a raster palette or BG renderer is
+impossible. Choosing a new color adaptation or pursuing a different renderer
+requires the measured presentation policy decision in
+[the M4 partial receipt](receipts/byor-motu-m4-partial.md).
 
 From the repository root, with Python 3.10 and the existing build dependencies:
 
