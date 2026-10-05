@@ -47,11 +47,10 @@ def main():
         compiled=linked|dict(sha256=linked['metadata_sha256'])
     offsets=struct.unpack_from('<6I',blob,24);count,slotcount=struct.unpack_from('<2H',blob,8)
     reporter=Reporter('M4-AUTHORED-SCRIPT-GUARD',kind='GATE');cases=[]
-    session_type=McpSession
-    if a.observe_cost:
-        from actor_s5_entity_fixture import symbols
-        from m4_vm_cost_observer import observed_session
-        session_type=observed_session(a.output,symbols(root/'src/main.sym'),count)
+    from actor_s5_entity_fixture import symbols
+    from m4_vm_cost_observer import observed_session,pause_for_injection
+    runtime_symbols=symbols(root/'src/main.sym')
+    session_type=observed_session(a.output,runtime_symbols,count)
     with session_type(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
@@ -59,17 +58,8 @@ def main():
         inputs=[(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)]
         if linked:inputs.extend([(3,True,False,0),(3,True,True,count)])
         for frame,lease,rom_mode,start_ip in inputs:
-            at_entry=None
             if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_CASE_PLAYING_REQUIRED')
-            if a.observe_cost:
-                from m4_vm_cost_observer import ARM
-                m.pause();m.write_u16(ARM,0xb48c)
-                m.run_until(max_frames=60)
-                at_entry=m.get_cpu_state()
-                # This Mesen Lua step break stops after PHP/REP, before the
-                # first VmState read. Verify the exact checkpoint, no polling guess.
-                if at_entry['pc']!=symbols(root/'src/main.sym')['Vm_Run']+3 or at_entry['k']!=0:
-                    raise ValueError('VM_INJECTION_CHECKPOINT_NOT_ENTRY:'+str(at_entry))
+            at_entry=pause_for_injection(m,runtime_symbols)
             m.pause();m.write_memory('snesMemory',code,blob.hex())
             m.write_memory('snesMemory',slots,blob[offsets[1]:offsets[1]+slotcount*8].hex())
             for file,name,value in [(run,'VmPriv_InstrOff',offsets[0]),(call,'VmCall_CallsitesOff',offsets[2]),
@@ -82,7 +72,7 @@ def main():
             if a.entity_view:
                 from source_entity_abi import record,view
                 descriptor,data=view(0x7fb900,[record(0x6abcde,dict(a=0,animationid=handle,
-                    direction=0,health=100,playerindex=0,x=80*65536,z=220*65536))])
+                    direction=0,health=100,playerindex=0,x=80*65536,z=220*65536,maxhealth=100))])
                 m.write_memory('snesMemory',0x7fb900,data.hex())
                 m.write_memory('snesMemory',c('src/core/vm/vm_source_entity.pasm','VmSourceEntity_Base'),descriptor.hex())
             if linked:

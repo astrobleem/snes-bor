@@ -10,16 +10,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'bor_compile'))
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
 from script_native_module import lower, POLICY
-from source_entity_abi import record, view, get_property
+from source_entity_abi import record, view, get_property, MAGIC, STRIDE
 from _harness import (McpSession, MESEN_EXE, _free_tcp_port, pasm_constant_in,
                       read_block, run_frames_exact, exact_input_edge, Reporter)
 import game_bor_startup_select as startup
+from actor_s5_entity_fixture import symbols
+from m4_vm_cost_observer import observed_session,pause_for_injection,spans
 
 SOURCE = '''void main(){
  void self=getlocalvar("self");
  void a=getentityproperty(self,"a"); void x=getentityproperty(self,"X");
  void z=getentityproperty(self,"z"); void d=getentityproperty(self,"direction");
  void hp=getentityproperty(self,"health"); void pi=getentityproperty(self,"playerindex");
+ void maxhp=getentityproperty(self,"maxhealth");
  void prefix="anim"; void suffix="ationID";
  void an=getentityproperty(self,prefix+suffix);
  void absent=getentityproperty(NULL(),"not_bound");
@@ -42,22 +45,26 @@ def main():
     offsets = struct.unpack_from('<6I', blob, 24); count, slotcount = struct.unpack_from('<2H', blob, 8)
     token = 0x6abcde
     values = dict(a=93*65536, animationid=36, direction=0, health=271,
-                  playerindex=1, x=-(18*65536+16384), z=220*65536+32768)
+                  playerindex=1, x=-(18*65536+16384), z=220*65536+32768,maxhealth=4096)
     records = [record(0x9abcde, {key: 0 for key in values}), record(token, values)]
     descriptor, payload = view(0x7fb900, records)
-    malformed = bytearray(payload); malformed[64+8] = 1
+    malformed = bytearray(payload); malformed[STRIDE+8] = 1
     cases = [('valid', token, descriptor, payload, True),
              ('stale', token+1, descriptor, payload, False),
              ('no_lease', token, descriptor[:6]+b'\0\0', payload, False),
-             ('bank_spill', token, struct.pack('<HBxHH', 0xffc0, 0x7f, 2, 0xb48d), payload, False),
+             ('bank_spill', token, struct.pack('<HBxHH', 0xffc0, 0x7f, 2, MAGIC), payload, False),
+             ('old_abi',token,descriptor[:6]+struct.pack('<H',0xb48d),payload,False),
              ('bad_variant', token, descriptor, bytes(malformed), False)]
     reporter = Reporter('M4-SOURCE-ENTITY-VIEW', kind='GATE'); results = []
-    with McpSession(rom=a.rom.resolve(), mesen=MESEN_EXE, port=_free_tcp_port(),
+    runtime_symbols=symbols(root/'src/main.sym')
+    session_type=observed_session(a.output,runtime_symbols,count)
+    with session_type(rom=a.rom.resolve(), mesen=MESEN_EXE, port=_free_tcp_port(),
                     stderr_log=a.output/'mesen.log') as m:
         with patch.object(m, 'reset_emulator', return_value=None): startup.cold_to_title(m, reporter)
         startup.title_to_charselect(m); exact_input_edge(m, m.BTN_START, 1, port=0)
         if not startup.wait_state(m, startup.PLAYING, 300): raise ValueError('ENTITY_VIEW_PLAYING_REQUIRED')
         for name, handle, lease, data, valid in cases:
+            checkpoint=pause_for_injection(m,runtime_symbols)
             m.pause(); m.write_memory('snesMemory', code, blob.hex())
             m.write_memory('snesMemory', slots, blob[offsets[1]:offsets[1]+slotcount*8].hex())
             for file, key, value in [('src/core/vm/vm_run.pasm','VmPriv_InstrOff',offsets[0]),
@@ -81,17 +88,17 @@ def main():
             checks=[]
             if valid:
                 for key, prop in [('a','a'),('x','x'),('z','z'),('d','direction'),('hp','health'),
-                                  ('pi','playerindex'),('an','animationID'),('absent',None)]:
+                                  ('pi','playerindex'),('an','animationID'),('maxhp','maxhealth'),('absent',None)]:
                     index=compiled['function_local_slots']['main'][key]
                     actual=read_block(m,slots+index*8,32)[:8]
                     expected=get_property(records,token,prop) if prop else bytes(8)
                     reporter.check(key+' full typed property',actual==expected)
                     checks.append(dict(local=key,actual=actual.hex(),expected=expected.hex()))
-            results.append(dict(case=name,fields=field,status=status,error=error,checks=checks))
-    result=dict(schema='BYOR_SOURCE_ENTITY_NATIVE_READ_VIEW_V1',
+            results.append(dict(case=name,fields=field,status=status,error=error,checks=checks,injection_checkpoint=checkpoint))
+    result=dict(schema='BYOR_SOURCE_ENTITY_NATIVE_READ_VIEW_V2',view_magic=MAGIC,record_stride=STRIDE,
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),module=compiled,
-        source=SOURCE,cases=results,numeric_policy=POLICY,source_numeric_equivalence=False,
+        source=SOURCE,cases=results,native_cpu_spans=spans(a.output/'mesen.log'),numeric_policy=POLICY,source_numeric_equivalence=False,
         entity_world_allocator_bound=False,motu_gameplay_proven=False,
         scope='Generic typed read view with injected world records; no gameplay entity allocation')
     (a.output/'report.json').write_text(json.dumps(result,indent=2)+'\n'); reporter.finish()

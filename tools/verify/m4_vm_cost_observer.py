@@ -48,3 +48,13 @@ end,emu.callbackType.write,STATUS,STATUS,emu.cpuType.snes,mt)
 def spans(log):
     return [json.loads(line.split('M4VMCPU|',1)[1]) for line in log.read_text(errors='replace').splitlines()
             if 'M4VMCPU|' in line]
+
+
+def pause_for_injection(m, symbols):
+    """Stop at a verified pre-state-read VM boundary, never a sampled field."""
+    m.pause();m.write_u16(ARM,0xb48c)
+    m.run_until(max_frames=60)
+    state=m.get_cpu_state()
+    if state['pc']!=symbols['Vm_Run']+3 or state['k']!=0:
+        raise ValueError('VM_INJECTION_CHECKPOINT_NOT_ENTRY:'+str(state))
+    return state

@@ -1,14 +1,15 @@
 ; Generic typed source entity read view. Bank 28, no bank-0 growth.
-; Host world owns/publishes 64-byte records; this code never aliases the
+; Host world owns/publishes 80-byte V2 records; this code never aliases the
 ; legacy player/CharacterEntity layout. Descriptor is a script-time lease,
 ; not a production world allocator. Q16.16 coordinates are ACCEPTED_COMPAT.
-; Header: opaque u32 token, alive u16, reserved u16. Seven eight-byte variant
-; properties follow: a, animationID, direction, health, playerindex, x, z.
+; Header: opaque u32 token, alive u16, reserved u16. Eight eight-byte variant
+; properties follow: a, animationID, direction, health, playerindex, x, z,
+; maxhealth (modeldata.health, not a copy of current entity health).
 ; Build 4086 af23dc9 openborscript.c is the property/type authority.
 VmSourceEntity_Base = $7FF642
 VmSourceEntity_Bank = $7FF644
 VmSourceEntity_Count = $7FF646
-VmSourceEntity_Ready = $7FF648 ; $B48D only while view owner holds lease
+VmSourceEntity_Ready = $7FF648 ; $B48B V2 only while view owner holds lease
 VmSourceEntity_TokenLo = $7FF64A
 VmSourceEntity_TokenHi = $7FF64C
 VmSourceEntity_Index = $7FF64E
@@ -60,7 +61,7 @@ Vm_SourceEntityGet__nonzero:
     lda.l VmSlots_Wram+6,x
     sta.l VmSourceEntity_TokenHi
     lda.l VmSourceEntity_Ready
-    cmp #$B48D
+    cmp #$B48B
     beq Vm_SourceEntityGet__lease
     jmp Vm_SourceEntityGet__bad
 Vm_SourceEntityGet__lease:
@@ -84,8 +85,11 @@ Vm_SourceEntityGet__bank_ok:
     asl a
     asl a
     asl a
+    sta.l VmSourceEntity_Read ; count*16
     asl a
     asl a
+    clc
+    adc.l VmSourceEntity_Read ; count*80, max 512*80 fits u16
     clc
     adc.l VmSourceEntity_Base
     bcs Vm_SourceEntityGet__bad
@@ -118,7 +122,7 @@ Vm_SourceEntityGet__next:
     bcs Vm_SourceEntityGet__bad
     lda.l VmSourceEntity_Record
     clc
-    adc #64
+    adc #80
     sta.l VmSourceEntity_Record
     bra Vm_SourceEntityGet__scan
 Vm_SourceEntityGet__bad:
@@ -241,7 +245,7 @@ Vm_SourceEntityGet__next_name:
     clc
     adc #16
     sta.l VmNativeVariant_NameIndex
-    cmp #144
+    cmp #160
     bcs Vm_SourceEntityGet__name_bad
     jmp Vm_SourceEntityGet__name
 Vm_SourceEntityGet__name_bad:
@@ -298,6 +302,7 @@ Vm_SourceEntityNames:
     .db 1,"z",0,0,0,0,0,0,0,0,0,0,0,0,56,2
     .db 1,"y",0,0,0,0,0,0,0,0,0,0,0,0,8,2
     .db 7,"animnum",0,0,0,0,0,0,16,1
+    .db 9,"maxhealth",0,0,0,0,64,1
 
 ; Resolve a complete STR variant at slot byte offset X into key scratch.
 Vm_SourceEntityResolveKey:

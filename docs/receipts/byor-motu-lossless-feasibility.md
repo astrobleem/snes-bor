@@ -577,3 +577,21 @@ loading and MOTU gameplay remain unbound. The seven current property bindings
 cover the C helper libraries; the authored inline bodies additionally require
 maxhealth, whose generic binding remains to be added. Receipt:
 `byor-motu-authored-script-cost.json`. No color reduction is applied.
+
+### Inline maxhealth binding and versioned entity view
+
+The authored inline bodies additionally read maxhealth. Build 4086 returns
+VT_INTEGER ent->modeldata.health, distinct from the current ent->health.
+The generic view now contains eight full variants in an 80-byte V2 record;
+magic B48B explicitly rejects old B48D descriptors rather than interpreting
+old strides silently. The native proof reads maxhealth 4096 and health 271
+independently, preserving their full integer width. All eight properties,
+dynamic animationID key, null handle and five negative cases pass. Six native
+cases use a verified pre-state-read VM injection checkpoint. World allocation
+and source spawning remain unbound; no gameplay certification is implied.
+
+Twenty-four focused host checks and the full ROM audit pass on ROM
+`7fee55439695ff3195cd8c550dc8de05be97e689602f1f98023ffe28b7931f82`.
+The NMI margin remains two bytes. The previously observed inherited all-actor
+static recovery failure remains open, not reclassified as PASS. Receipt:
+`byor-motu-entity-read-native-v2.json`. No color reduction is applied.

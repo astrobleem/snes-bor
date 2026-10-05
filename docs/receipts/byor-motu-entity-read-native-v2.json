@@ -1,0 +1,324 @@
+{
+  "schema": "BYOR_GENERIC_ENTITY_READ_VIEW_NATIVE_V2",
+  "status": "NATIVE_EIGHT_PROPERTIES_AND_VIEW_ABI_PASS",
+  "native": {
+    "schema": "BYOR_SOURCE_ENTITY_NATIVE_READ_VIEW_V2",
+    "view_magic": 46219,
+    "record_stride": 80,
+    "status": "PASS",
+    "rom_sha256": "7fee55439695ff3195cd8c550dc8de05be97e689602f1f98023ffe28b7931f82",
+    "module": {
+      "bytes": 940,
+      "sha256": "2086fb50230704f27b09201975179eccbe6b18bc4af0b589c020354155c5510b",
+      "instructions": 48,
+      "slots": 27,
+      "callsites": 11,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "main": {
+          "self": 12,
+          "a": 13,
+          "x": 14,
+          "z": 15,
+          "d": 16,
+          "hp": 17,
+          "pi": 18,
+          "maxhp": 19,
+          "prefix": 20,
+          "suffix": 21,
+          "an": 22,
+          "absent": 23
+        }
+      },
+      "function_stack_slots": {
+        "main": [
+          24,
+          25,
+          26
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "source": "void main(){\n void self=getlocalvar(\"self\");\n void a=getentityproperty(self,\"a\"); void x=getentityproperty(self,\"X\");\n void z=getentityproperty(self,\"z\"); void d=getentityproperty(self,\"direction\");\n void hp=getentityproperty(self,\"health\"); void pi=getentityproperty(self,\"playerindex\");\n void maxhp=getentityproperty(self,\"maxhealth\");\n void prefix=\"anim\"; void suffix=\"ationID\";\n void an=getentityproperty(self,prefix+suffix);\n void absent=getentityproperty(NULL(),\"not_bound\");\n}",
+    "cases": [
+      {
+        "case": "valid",
+        "fields": 2,
+        "status": 4,
+        "error": 0,
+        "checks": [
+          {
+            "local": "a",
+            "actual": "0200000000005d00",
+            "expected": "0200000000005d00"
+          },
+          {
+            "local": "x",
+            "actual": "0200000000c0edff",
+            "expected": "0200000000c0edff"
+          },
+          {
+            "local": "z",
+            "actual": "020000000080dc00",
+            "expected": "020000000080dc00"
+          },
+          {
+            "local": "d",
+            "actual": "0100000000000000",
+            "expected": "0100000000000000"
+          },
+          {
+            "local": "hp",
+            "actual": "010000000f010000",
+            "expected": "010000000f010000"
+          },
+          {
+            "local": "pi",
+            "actual": "0100000001000000",
+            "expected": "0100000001000000"
+          },
+          {
+            "local": "an",
+            "actual": "0100000024000000",
+            "expected": "0100000024000000"
+          },
+          {
+            "local": "maxhp",
+            "actual": "0100000000100000",
+            "expected": "0100000000100000"
+          },
+          {
+            "local": "absent",
+            "actual": "0000000000000000",
+            "expected": "0000000000000000"
+          }
+        ],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22296001
+        }
+      },
+      {
+        "case": "stale",
+        "fields": 13,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 23028660
+        }
+      },
+      {
+        "case": "no_lease",
+        "fields": 3,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24154056
+        }
+      },
+      {
+        "case": "bank_spill",
+        "fields": 8,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24528900
+        }
+      },
+      {
+        "case": "old_abi",
+        "fields": 3,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 25177313
+        }
+      },
+      {
+        "case": "bad_variant",
+        "fields": 11,
+        "status": 5,
+        "error": 10,
+        "checks": [],
+        "injection_checkpoint": {
+          "cpuType": "Snes",
+          "pc": 38465,
+          "k": 0,
+          "a": 256,
+          "x": 0,
+          "y": 1,
+          "sp": 8185,
+          "d": 0,
+          "dbr": 0,
+          "ps": 0,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 25627619
+        }
+      }
+    ],
+    "native_cpu_spans": [
+      {
+        "start_clock": 186181334,
+        "end_clock": 186222690,
+        "master_clocks": 41356,
+        "start_field": 521,
+        "end_field": 521,
+        "instructions": 6,
+        "status": 5,
+        "error": 10,
+        "native_id": 520
+      },
+      {
+        "start_clock": 191792620,
+        "end_clock": 191830178,
+        "master_clocks": 37558,
+        "start_field": 536,
+        "end_field": 536,
+        "instructions": 6,
+        "status": 5,
+        "error": 10,
+        "native_id": 520
+      },
+      {
+        "start_clock": 196125904,
+        "end_clock": 196176414,
+        "master_clocks": 50510,
+        "start_field": 548,
+        "end_field": 549,
+        "instructions": 6,
+        "status": 5,
+        "error": 10,
+        "native_id": 520
+      },
+      {
+        "start_clock": 199578516,
+        "end_clock": 199616074,
+        "master_clocks": 37558,
+        "start_field": 558,
+        "end_field": 558,
+        "instructions": 6,
+        "status": 5,
+        "error": 10,
+        "native_id": 520
+      },
+      {
+        "start_clock": 205991820,
+        "end_clock": 206038140,
+        "master_clocks": 46320,
+        "start_field": 576,
+        "end_field": 576,
+        "instructions": 6,
+        "status": 5,
+        "error": 10,
+        "native_id": 520
+      }
+    ],
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "source_numeric_equivalence": false,
+    "entity_world_allocator_bound": false,
+    "motu_gameplay_proven": false,
+    "scope": "Generic typed read view with injected world records; no gameplay entity allocation"
+  },
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb:openborscript.c:5970",
+  "maxhealth_semantics": "VT_INTEGER from ent->modeldata.health, distinct from ent->health",
+  "host_tests": 24,
+  "rom_audit": "ALL CHECKS PASS",
+  "bank0_free_before_nmi": 2,
+  "concurrent_actor_regression": "Previously measured inherited deferral remains unresolved; not reclassified PASS",
+  "entity_world_allocator_bound": false,
+  "source_spawning_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction_applied": true
+}
