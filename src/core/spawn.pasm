@@ -609,6 +609,7 @@ Spawn_Init__max_trigger:
     bcc Spawn_Init__max_trigger_next
     sta.l Spawn_LastTriggerX
 Spawn_Init__max_trigger_next:
+.a16
     txa
     clc
     adc #10
@@ -2171,6 +2172,7 @@ Spawn_Play__slot45:
     beq Spawn_Play__slot45_steam
     jml Spawn_Play__slot45_prop
 Spawn_Play__slot45_non_prop:
+.a8
     lda.l Spawn_ScratchSubtype
     cmp #SPAWN_SUBTYPE_STEAM
     beq Spawn_Play__slot45_steam

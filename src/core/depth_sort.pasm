@@ -307,6 +307,7 @@ Character_RenderPass__render_live:
     beq Character_RenderPass__check_fall
     bra Character_RenderPass__dispatch
 Character_RenderPass__check_fall:
+.a8
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_FALL
     beq Character_RenderPass__dispatch

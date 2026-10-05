@@ -195,6 +195,7 @@ SourceVisual_RenderCurrent__lookup:
     lda #0
     sta.l SourceVisual_PresentationMask
 SourceVisual_RenderCurrent__same_field:
+.a16
     jsr SourceVisual_FindEntry
     bcc SourceVisual_RenderCurrent__fail_near
     ; Admission must obey the same viewport as publication. Wholly offscreen
@@ -278,10 +279,12 @@ SourceVisual_FrameInViewport__right:
     sec
     sbc.l SourceVisual_EntryScratch+8
 SourceVisual_FrameInViewport__x:
+.a16
     bmi SourceVisual_FrameInViewport__x_end
     cmp #256
     bcs SourceVisual_FrameInViewport__outside
 SourceVisual_FrameInViewport__x_end:
+.a16
     clc
     adc.l SourceVisual_EntryScratch+4
     bmi SourceVisual_FrameInViewport__outside
@@ -300,6 +303,7 @@ SourceVisual_FrameInViewport__x_end:
     bcs SourceVisual_FrameInViewport__outside
     sta.l SourceVisual_EmitBaseY
 SourceVisual_FrameInViewport__y:
+.a16
     lda.l SourceVisual_EmitBaseY
     sec
     sbc.l SourceVisual_EntryScratch+10
@@ -320,12 +324,14 @@ SourceVisual_FrameInViewport__outside:
 ; (PLAYER_MIN_Z-10)+(PLAYER_MIN_Z-z)-a. The established 4/5 coordinate
 ; adapter gives ground foot 248-nativeY; authored pose offsets are unchanged.
 SourceVisual_FrameMirrorInViewport:
+.a16
     lda.l Stage_Mirror
     and #$00FF
     bne SourceVisual_FrameMirrorInViewport__active
     clc
     rts
 SourceVisual_FrameMirrorInViewport__active:
+.a16
     lda CHAR_POS_X
     sec
     sbc Screen_PosX
@@ -345,10 +351,12 @@ SourceVisual_FrameMirrorInViewport__right:
     sec
     sbc.l SourceVisual_EntryScratch+8
 SourceVisual_FrameMirrorInViewport__x:
+.a16
     bmi SourceVisual_FrameMirrorInViewport__x_end
     cmp #256
     bcs SourceVisual_FrameMirrorInViewport__outside
 SourceVisual_FrameMirrorInViewport__x_end:
+.a16
     clc
     adc.l SourceVisual_EntryScratch+4
     bmi SourceVisual_FrameMirrorInViewport__outside
@@ -433,6 +441,7 @@ SourceVisual_FindEntry:
     sta.l SourceVisual_Key+2
     brl SourceVisual_FindEntry__map_ready
 SourceVisual_FindEntry__source_jump:
+.a8
     ; The source-sized catalog keys the player's authored jump animation by
     ; its SOURCE runtime role 7, not the legacy physical selected value 5.
     ; Keep frame lookup on the native player frame index.
@@ -446,6 +455,7 @@ SourceVisual_FindEntry__source_jump_frame:
     sta.l SourceVisual_Key+2
     bra SourceVisual_FindEntry__map_ready
 SourceVisual_FindEntry__hole:
+.a8
     ; Pit descent is a per-instance physics state, but its authored visual is
     ; the model's first source fall pose. Do not inherit the interrupted role's
     ; frame or map while Z motion is active.
@@ -473,29 +483,37 @@ SourceVisual_FindEntry__native_state:
     beq SourceVisual_FindEntry__thrown
     brl SourceVisual_FindEntry__unsupported
 SourceVisual_FindEntry__idle:
+.a8
     lda #0
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__walk:
+.a8
     lda #1
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__attack:
+.a8
     lda CHAR_ATTACK_VARIANT
     beq SourceVisual_FindEntry__attack1
     lda #3
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__attack1:
+.a8
     lda #2
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__fall:
+.a8
     lda #4
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__rise:
+.a8
     lda #5
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__special:
+.a8
     lda #6
     bra SourceVisual_FindEntry__role
 SourceVisual_FindEntry__thrown:
+.a8
     ; THROWN is a physics substate, not a distinct authored visual role.
     ; Present the first source-sized fall pose until the native landing path
     ; enters CHAR_SELECTED_FALL. Its map is animation-specific, so do not
@@ -507,6 +525,7 @@ SourceVisual_FindEntry__thrown:
     sta.l SourceVisual_Key+3
     bra SourceVisual_FindEntry__key_ready
 SourceVisual_FindEntry__role:
+.a8
     sta.l SourceVisual_Key+1
     lda CHAR_FRAME_INDEX
     cmp #$FF
@@ -668,6 +687,7 @@ SourceVisual_SelectResidency:
     sbc #$0A00
     ldy #0
 SourceVisual_SelectResidency__actor_scan:
+.a16
     cmp #0
     beq SourceVisual_SelectResidency__actor_found
     sec
@@ -740,6 +760,7 @@ SourceVisual_SelectResidency__replace:
     bcc SourceVisual_SelectResidency__clear_record
     brl SourceVisual_SelectResidency__busy
 SourceVisual_SelectResidency__clear_record:
+.a16
     jsr SourceVisual_ReleaseActorBlocks
     jsr SourceVisual_ReleaseActorPalettes
     lda.l SourceVisual_Record
@@ -779,11 +800,13 @@ SourceVisual_SelectResidency__found:
     lda.l SourceVisual_State+12,x
     sta.l SourceVisual_PaletteBase
 SourceVisual_SelectResidency__mark:
+.a16
     ; Retain the per-field actor witness for runtime diagnostics.
     lda.l SourceVisual_ActorSlot
     tax
     lda #1
 SourceVisual_SelectResidency__mask_shift:
+.i16
     cpx #0
     beq SourceVisual_SelectResidency__mask_ready
     asl a
@@ -886,6 +909,7 @@ SourceVisual_CancelActorRetire:
     tay
     lda #1
 SourceVisual_CancelActorRetire__shift:
+.i16
     cpy #0
     beq SourceVisual_CancelActorRetire__mask
     asl a
@@ -920,6 +944,7 @@ SourceVisual_QueueRetireEntityOffset:
     txa
     ldy #0
 SourceVisual_QueueRetireEntityOffset__slot:
+.a16
     cmp #0
     beq SourceVisual_QueueRetireEntityOffset__bit
     sec
@@ -930,10 +955,12 @@ SourceVisual_QueueRetireEntityOffset__slot:
     bcc SourceVisual_QueueRetireEntityOffset__slot
     bra SourceVisual_QueueRetireEntityOffset__return
 SourceVisual_QueueRetireEntityOffset__bit:
+.i16
     cpy #6
     bcs SourceVisual_QueueRetireEntityOffset__return
     lda #1
 SourceVisual_QueueRetireEntityOffset__shift:
+.i16
     cpy #0
     beq SourceVisual_QueueRetireEntityOffset__mark
     asl a
@@ -974,6 +1001,7 @@ SourceVisual_ProcessRetired__mask_present:
     bcc SourceVisual_ProcessRetired__dma_idle
     brl SourceVisual_ProcessRetired__return
 SourceVisual_ProcessRetired__dma_idle:
+.a16
     lda.l SourceVisual_ActorSlot
     pha
     lda.l SourceVisual_Record
@@ -981,6 +1009,7 @@ SourceVisual_ProcessRetired__dma_idle:
     lda #0
     sta.l SourceVisual_RetireScan
 SourceVisual_ProcessRetired__scan:
+.a16
     lda.l SourceVisual_RetireScan
     cmp #6
     bcs SourceVisual_ProcessRetired__restore
@@ -988,6 +1017,7 @@ SourceVisual_ProcessRetired__scan:
     tay
     lda #1
 SourceVisual_ProcessRetired__bit:
+.i16
     cpy #0
     beq SourceVisual_ProcessRetired__check
     asl a
@@ -1059,6 +1089,7 @@ SourceVisual_ReleaseActorBlocks:
     tax
     lda #1
 SourceVisual_ReleaseActorBlocks__mask:
+.i16
     cpx #0
     beq SourceVisual_ReleaseActorBlocks__mask_ready
     asl a
@@ -1076,6 +1107,7 @@ SourceVisual_ReleaseActorBlocks__mask_ready:
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_ReleaseActorBlocks__scan:
+.a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
     bcs SourceVisual_ReleaseActorBlocks__done
@@ -1116,6 +1148,7 @@ SourceVisual_ReleaseActorPalettes:
     tax
     lda #1
 SourceVisual_ReleaseActorPalettes__owner_bit:
+.i16
     cpx #0
     beq SourceVisual_ReleaseActorPalettes__owner_ready
     asl a
@@ -1133,6 +1166,7 @@ SourceVisual_ReleaseActorPalettes__owner_ready:
     lda #0
     sta.l SourceVisual_PaletteScan
 SourceVisual_ReleaseActorPalettes__scan:
+.a16
     lda.l SourceVisual_PaletteScan
     cmp #8
     bcs SourceVisual_ReleaseActorPalettes__done
@@ -1180,6 +1214,7 @@ SourceVisual_AllocateTiles:
     sec
     rts
 SourceVisual_AllocateTiles__find:
+.a16
     lda.l SourceVisual_SheetBytes
     clc
     adc #SOURCE_VISUAL_TILE_BLOCK_BYTES-1
@@ -1196,9 +1231,11 @@ SourceVisual_AllocateTiles__find:
     bne SourceVisual_AllocateTiles__nonzero
     brl SourceVisual_AllocateTiles__fail
 SourceVisual_AllocateTiles__nonzero:
+.a16
     lda #0
     sta.l SourceVisual_AllocCandidate
 SourceVisual_AllocateTiles__candidate:
+.a16
     lda.l SourceVisual_AllocCandidate
     clc
     adc.l SourceVisual_AllocRequired
@@ -1206,10 +1243,12 @@ SourceVisual_AllocateTiles__candidate:
     bcc SourceVisual_AllocateTiles__range_ok
     brl SourceVisual_AllocateTiles__fail
 SourceVisual_AllocateTiles__range_ok:
+.a16
     sta.l SourceVisual_AllocEnd
     lda #0
     sta.l SourceVisual_AllocScan
 SourceVisual_AllocateTiles__scan:
+.a16
     lda.l SourceVisual_AllocScan
     cmp #6
     bcs SourceVisual_AllocateTiles__claim
@@ -1278,6 +1317,7 @@ SourceVisual_AllocatePalettes:
     bne SourceVisual_AllocatePalettes__count_nonzero
     brl SourceVisual_AllocatePalettes__fail
 SourceVisual_AllocatePalettes__count_nonzero:
+.a16
     cmp #9
     bcc SourceVisual_AllocatePalettes__count_ok
     brl SourceVisual_AllocatePalettes__fail
@@ -1298,6 +1338,7 @@ SourceVisual_AllocatePalettes__already_mapped:
     sec
     rts
 SourceVisual_AllocatePalettes__repair_map:
+.a16
     jsr SourceVisual_ReleaseActorPalettes
     lda.l SourceVisual_Record
     tax
@@ -1307,10 +1348,12 @@ SourceVisual_AllocatePalettes__repair_map:
     ; Rebuild every local selector below; stale physical pointers are ignored.
 
 SourceVisual_AllocatePalettes__map:
+.a16
     lda.l SourceVisual_ActorSlot
     tax
     lda #1
 SourceVisual_AllocatePalettes__owner_bit:
+.i16
     cpx #0
     beq SourceVisual_AllocatePalettes__owner_ready
     asl a
@@ -1353,16 +1396,19 @@ SourceVisual_AllocatePalettes__piece_present:
     bcc SourceVisual_AllocatePalettes__local_ok
     brl SourceVisual_AllocatePalettes__bad_map
 SourceVisual_AllocatePalettes__local_ok:
+.a16
     lda.l SourceVisual_PaletteLocalSlot
     tax
     lda #1
 SourceVisual_AllocatePalettes__piece_mask_shift:
+.i16
     cpx #0
     beq SourceVisual_AllocatePalettes__piece_mask_ready
     asl a
     dex
     bra SourceVisual_AllocatePalettes__piece_mask_shift
 SourceVisual_AllocatePalettes__piece_mask_ready:
+.a16
     sta.l SourceVisual_Temp
     lda.l SourceVisual_PaletteMask
     and.l SourceVisual_Temp
@@ -1393,6 +1439,7 @@ SourceVisual_AllocatePalettes__piece_next:
     brl SourceVisual_AllocatePalettes__piece
 
 SourceVisual_AllocatePalettes__complete:
+.a16
     lda #0
     sta.l SourceVisual_PaletteExpectedMask
     lda #1
@@ -1400,6 +1447,7 @@ SourceVisual_AllocatePalettes__complete:
     lda.l SourceVisual_AllocPaletteCount
     tax
 SourceVisual_AllocatePalettes__expected_loop:
+.i16
     cpx #0
     beq SourceVisual_AllocatePalettes__expected_ready
     lda.l SourceVisual_PaletteExpectedMask
@@ -1411,6 +1459,7 @@ SourceVisual_AllocatePalettes__expected_loop:
     dex
     bra SourceVisual_AllocatePalettes__expected_loop
 SourceVisual_AllocatePalettes__expected_ready:
+.a16
     lda.l SourceVisual_PaletteMask
     cmp.l SourceVisual_PaletteExpectedMask
     bne SourceVisual_AllocatePalettes__bad_map
@@ -1444,6 +1493,7 @@ SourceVisual_AllocatePalettes__clear_map:
 .a16
 .i16
 SourceVisual_AllocatePalettes__fail:
+.a16
     lda.l SourceVisual_Record
     tax
     lda #0
@@ -1455,20 +1505,24 @@ SourceVisual_AllocatePalettes__fail:
 ; A16/I16, C=true only when every immutable piece palette still resolves
 ; to the actor-owned content identity. Transfer retirement is fenced later.
 SourceVisual_ValidatePaletteMap:
+.a16
     lda.l SourceVisual_ActorSlot
     tax
     lda #1
 SourceVisual_ValidatePaletteMap__owner:
+.i16
     cpx #0
     beq SourceVisual_ValidatePaletteMap__owner_ready
     asl a
     dex
     bra SourceVisual_ValidatePaletteMap__owner
 SourceVisual_ValidatePaletteMap__owner_ready:
+.a16
     sta.l SourceVisual_PaletteTransferBit
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_ValidatePaletteMap__piece:
+.a16
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_ValidatePaletteMap__valid
@@ -1515,9 +1569,11 @@ SourceVisual_ValidatePaletteMap__invalid:
     rts
 
 SourceVisual_AllocatePaletteIdentity:
+.a16
     lda #0
     sta.l SourceVisual_PaletteScan
 SourceVisual_AllocatePaletteIdentity__find:
+.a16
     lda.l SourceVisual_PaletteScan
     cmp #8
     bcs SourceVisual_AllocatePaletteIdentity__free_start
@@ -1564,6 +1620,7 @@ SourceVisual_AllocatePaletteIdentity__free_start:
     lda #0
     sta.l SourceVisual_PaletteScan
 SourceVisual_AllocatePaletteIdentity__free:
+.a16
     lda.l SourceVisual_PaletteScan
     cmp #8
     bcs SourceVisual_AllocatePaletteIdentity__fail
@@ -1603,9 +1660,11 @@ SourceVisual_AllocatePaletteIdentity__fail:
     rts
 
 SourceVisual_MarkPaletteDmaRetired:
+.a16
     lda #0
     sta.l SourceVisual_PaletteScan
 SourceVisual_MarkPaletteDmaRetired__scan:
+.a16
     lda.l SourceVisual_PaletteScan
     cmp #8
     bcs SourceVisual_MarkPaletteDmaRetired__done
@@ -1787,6 +1846,7 @@ SourceVisual_LoadResources__record_match:
     brl SourceVisual_LoadResources__block_path
 
 SourceVisual_LoadResources__transparent:
+.a16
     ; An authored frame with no visible pixels is a valid zero-OAM
     ; presentation, not malformed resource metadata. No palette or tile lease
     ; is required; SelectResidency already released the actor's old resources.
@@ -1865,6 +1925,7 @@ SourceVisual_DebugCopySheetRow:
     bcc SourceVisual_LoadResources__sheet_ok
     brl SourceVisual_LoadResources__large
 SourceVisual_LoadResources__sheet_ok:
+.a16
     sta.l SourceVisual_SheetBytes
     clc
     adc #1023
@@ -1883,6 +1944,7 @@ SourceVisual_LoadResources__sheet_ok:
     bcs SourceVisual_LoadResources__tiles_allocated
     brl SourceVisual_LoadResources__tile_admission
 SourceVisual_LoadResources__tiles_allocated:
+.a16
     jsr SourceVisual_RefreshFence
     lda.l SourceVisual_Record
     tax
@@ -1897,6 +1959,7 @@ SourceVisual_LoadResources__not_ready:
     bcc SourceVisual_LoadResources__staging_free
     brl SourceVisual_LoadResources__pending
 SourceVisual_LoadResources__staging_free:
+.a16
     lda.l SourceVisual_Record
     tax
     lda.l SourceVisual_State+2,x
@@ -1906,6 +1969,7 @@ SourceVisual_LoadResources__staging_free:
     sta.l SourceVisual_State+6,x
     brl SourceVisual_LoadResources__ready
 SourceVisual_LoadResources__need_transfer:
+.a16
     ; Read only the next 1-KiB chunk. Re-reading the complete sheet here
     ; made the second admission take an entire serial MSU pass and prevented
     ; the per-actor fence from advancing.
@@ -1929,6 +1993,7 @@ SourceVisual_LoadResources__need_transfer:
     bcc SourceVisual_LoadResources__read_short
     lda #SOURCE_VISUAL_CHUNK_BYTES
 SourceVisual_LoadResources__read_short:
+.a16
     sta.l SourceVisual_ChunkBytes
     lda.l SourceVisual_RowScratch+34
     clc
@@ -2013,6 +2078,7 @@ SourceVisual_LoadResources__read_short:
     bcs SourceVisual_LoadResources__palette_ok
     brl SourceVisual_LoadResources__bad
 SourceVisual_LoadResources__palette_ok:
+.a16
     lda.l SourceVisual_Record
     tax
     lda #1
@@ -2032,6 +2098,7 @@ SourceVisual_LoadResources__sheet_queue_ok:
     ; The final chunk was only queued on this invocation.  It is not ready
     ; until the next compositor pass observes the completed DMA fence.
 SourceVisual_LoadResources__pending:
+.a16
     lda #33
     sta.l SourceVisual_DebugQueueStage
     sep #$20
@@ -2131,6 +2198,7 @@ SourceVisual_LoadResources__bad:
     rts
 
 SourceVisual_LoadResources__block_path:
+.a16
     ; Retain the catalog's source-sheet bound as the fail-closed guard for the
     ; known oversized frame set, but do not reserve or upload this padded sheet.
     lda.l SourceVisual_EntryScratch+20
@@ -2173,6 +2241,7 @@ SourceVisual_LoadResources__block_path:
     bcc SourceVisual_LoadResources__block_sheet_ok
     brl SourceVisual_LoadResources__large
 SourceVisual_LoadResources__block_sheet_ok:
+.a16
     sta.l SourceVisual_SheetBytes
 
     ; Read the source piece rows; their block identities are globally
@@ -2231,6 +2300,7 @@ SourceVisual_LoadResources__palettes_allocated:
     bcs SourceVisual_LoadResources__block_palette_queued
     brl SourceVisual_LoadResources__block_palette_pending
 SourceVisual_LoadResources__block_palette_queued:
+.a16
     lda.l SourceVisual_Record
     tax
     lda #1
@@ -2294,6 +2364,7 @@ SourceVisual_ReadPieces:
 .i16
     ldx #0
 SourceVisual_ReadPieces__loop:
+.i16
     txa
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_ReadPieces__done
@@ -2347,6 +2418,7 @@ SourceVisual_PrepareBlocks:
     tax
     lda #1
 SourceVisual_PrepareBlocks__mask:
+.i16
     cpx #0
     beq SourceVisual_PrepareBlocks__mask_ready
     asl a
@@ -2365,6 +2437,7 @@ SourceVisual_PrepareBlocks__needs_blocks:
     bcs SourceVisual_PrepareBlocks__scan_start
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__scan_start:
+.a16
     ; Camera/actor movement can expose new pieces without changing the pose.
     ; Refresh ownership before admission, including every already-resident
     ; visible block. Offscreen pieces cannot hold scarce OBJ slots hostage.
@@ -2436,12 +2509,14 @@ SourceVisual_PrepareBlocks__next_piece:
     sta.l SourceVisual_PieceIndex
     bra SourceVisual_PrepareBlocks__piece
 SourceVisual_PrepareBlocks__ready:
+.a16
     lda.l SourceVisual_Record
     tax
     lda #2
     sta.l SourceVisual_State+6,x
     brl SourceVisual_PrepareBlocks__apply_all
 SourceVisual_PrepareBlocks__apply_all:
+.a16
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_PrepareBlocks__apply_loop:
@@ -2564,6 +2639,7 @@ SourceVisual_FindBlock:
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_FindBlock__scan:
+.a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
     bcs SourceVisual_FindBlock__miss
@@ -2601,6 +2677,7 @@ SourceVisual_AllocateBlock:
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_AllocateBlock__scan:
+.a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
     bcs SourceVisual_AllocateBlock__fail
@@ -2630,6 +2707,7 @@ SourceVisual_AllocateBlock__next:
     sta.l SourceVisual_BlockScan
     bra SourceVisual_AllocateBlock__scan
 SourceVisual_AllocateBlock__claim:
+.a16
     txa
     sta.l SourceVisual_BlockRecord
     tax
@@ -2667,6 +2745,7 @@ SourceVisual_ResumePendingBlock:
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_ResumePendingBlock__scan:
+.a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
     bcs SourceVisual_ResumePendingBlock__none
@@ -2765,6 +2844,7 @@ SourceVisual_QueueBlockRows__has_row:
     bcs SourceVisual_QueueBlockRows__slot_available
     brl SourceVisual_QueueBlockRows__pending
 SourceVisual_QueueBlockRows__slot_available:
+.a16
     lda.l DmaQueue_BudgetTotal
     clc
     adc #64
@@ -2858,10 +2938,12 @@ SourceVisual_BlockSlotToTile:
     lda #256
     bra SourceVisual_BlockSlotToTile__page_ready
 SourceVisual_BlockSlotToTile__page0:
+.a16
     lda.l SourceVisual_BlockSlot
     sta.l SourceVisual_BlockTemp
     lda #0
 SourceVisual_BlockSlotToTile__page_ready:
+.a16
     sta.l SourceVisual_BlockTileBase
     lda.l SourceVisual_BlockTemp
     and #7
@@ -3057,6 +3139,7 @@ SourceVisual_QueueSheet__has_chunk:
     bcc SourceVisual_QueueSheet__short
     lda #SOURCE_VISUAL_CHUNK_BYTES
 SourceVisual_QueueSheet__short:
+.a16
     sta.l SourceVisual_ChunkBytes
     lda #1
     sta.l SourceVisual_DebugQueueStage
@@ -3073,6 +3156,7 @@ SourceVisual_QueueSheet__short:
     bcc SourceVisual_QueueSheet__budget_ok
     brl SourceVisual_QueueSheet__fail
 SourceVisual_QueueSheet__budget_ok:
+.a16
     lda #2
     sta.l SourceVisual_DebugQueueStage
     ; SourceVisual_ReadSheet reuses the single 1-KiB staging buffer for each
@@ -3120,6 +3204,7 @@ SourceVisual_QueueSheet__budget_ok:
     bcs SourceVisual_QueueSheet__enqueued
     bra SourceVisual_QueueSheet__fail
 SourceVisual_QueueSheet__enqueued:
+.a16
     lda #3
     sta.l SourceVisual_DebugQueueStage
     lda #31
@@ -3220,6 +3305,7 @@ rep #$31
     bcc SourceVisual_QueuePalettes__local_ok
     brl SourceVisual_QueuePalettes__fail
 SourceVisual_QueuePalettes__local_ok:
+.a16
     lda.l SourceVisual_Record
     clc
     adc #16
@@ -3232,6 +3318,7 @@ SourceVisual_QueuePalettes__local_ok:
     bne SourceVisual_QueuePalettes__mapped_slot
     brl SourceVisual_QueuePalettes__fail
 SourceVisual_QueuePalettes__mapped_slot:
+.a8
     dec a
     sta.l SourceVisual_PaletteSlot
     cmp #8
@@ -3247,6 +3334,7 @@ SourceVisual_QueuePalettes__palette_ok:
     tax
     lda #1
 SourceVisual_QueuePalettes__mask_shift:
+.i16
     cpx #0
     beq SourceVisual_QueuePalettes__mask_ready
     asl a
@@ -3349,6 +3437,7 @@ SourceVisual_QueuePalettes__done:
     sec
     rts
 SourceVisual_QueuePalettes__fail:
+.a16
     lda #7
     sta.l SourceVisual_DebugQueueStage
     sep #$20
@@ -3426,8 +3515,10 @@ SourceVisual_ReadPalettePayload__read:
     beq SourceVisual_ReadPalettePayload__copy6
     brl SourceVisual_ReadPalettePayload__copy7
 SourceVisual_ReadPalettePayload__copy0:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy0_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+0,x
     inx
@@ -3436,8 +3527,10 @@ SourceVisual_ReadPalettePayload__copy0_loop:
     bcc SourceVisual_ReadPalettePayload__copy0_loop
     brl SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy1:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy1_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+32,x
     inx
@@ -3446,8 +3539,10 @@ SourceVisual_ReadPalettePayload__copy1_loop:
     bcc SourceVisual_ReadPalettePayload__copy1_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy2:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy2_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+64,x
     inx
@@ -3456,8 +3551,10 @@ SourceVisual_ReadPalettePayload__copy2_loop:
     bcc SourceVisual_ReadPalettePayload__copy2_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy3:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy3_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+96,x
     inx
@@ -3466,8 +3563,10 @@ SourceVisual_ReadPalettePayload__copy3_loop:
     bcc SourceVisual_ReadPalettePayload__copy3_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy4:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy4_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+128,x
     inx
@@ -3476,8 +3575,10 @@ SourceVisual_ReadPalettePayload__copy4_loop:
     bcc SourceVisual_ReadPalettePayload__copy4_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy5:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy5_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+160,x
     inx
@@ -3486,8 +3587,10 @@ SourceVisual_ReadPalettePayload__copy5_loop:
     bcc SourceVisual_ReadPalettePayload__copy5_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy6:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy6_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+192,x
     inx
@@ -3496,8 +3599,10 @@ SourceVisual_ReadPalettePayload__copy6_loop:
     bcc SourceVisual_ReadPalettePayload__copy6_loop
     bra SourceVisual_ReadPalettePayload__queue
 SourceVisual_ReadPalettePayload__copy7:
+.i16
     ldx #0
 SourceVisual_ReadPalettePayload__copy7_loop:
+.i16
     lda.l SourceVisual_PaletteTemp,x
     sta.l SourceVisual_PaletteStaging+224,x
     inx
@@ -3511,6 +3616,7 @@ SourceVisual_ReadPalettePayload__queue:
     bcs SourceVisual_ReadPalettePayload__slot_ok
     brl SourceVisual_QueuePalettes__fail
 SourceVisual_ReadPalettePayload__slot_ok:
+.a16
     lda #SourceVisual_PaletteStaging
     clc
     adc.l SourceVisual_Temp
@@ -3687,6 +3793,7 @@ SourceVisual_HasOwnedDma__next:
     rts
 
 SourceVisual_RefreshFence:
+.a16
     jsr SourceVisual_HasOwnedDma
     bcs SourceVisual_RefreshFence__busy
     lda.l SourceVisual_Record
@@ -3730,11 +3837,13 @@ SourceVisual_Emit:
     bne SourceVisual_Emit__not_hidden
     brl SourceVisual_Emit__hidden
 SourceVisual_Emit__not_hidden:
+.a16
     lda.l StageBounds_DrawY,x
     cmp #240
     bcc SourceVisual_Emit__height_visible
     brl SourceVisual_Emit__hidden
 SourceVisual_Emit__height_visible:
+.a16
     sta.l SourceVisual_EmitBaseY
     lda #1
     sta.l SourceVisual_EmitBoundsMode
@@ -3743,6 +3852,7 @@ SourceVisual_Emit__ground_y:
     lda CHAR_POS_Y
     sta.l SourceVisual_EmitBaseY
 SourceVisual_Emit__y_ready:
+.a16
     ; Count only pieces intersecting the real viewport before reserving the
     ; whole visible packet. World coordinates must not wrap into screen X:
     ; old offscreen props otherwise consume OAM and can hide the player.
@@ -3770,6 +3880,7 @@ SourceVisual_Emit__count_next:
     sta.l SourceVisual_PieceIndex
     bra SourceVisual_Emit__count_visible
 SourceVisual_Emit__reserve_visible:
+.a16
     lda.l SourceVisual_VisiblePieces
     asl a
     asl a
@@ -3811,6 +3922,7 @@ SourceVisual_Emit__have_piece:
     bcs SourceVisual_Emit__visible_piece
     brl SourceVisual_Emit__next_piece
 SourceVisual_Emit__visible_piece:
+.a16
     lda.l SourceVisual_EmitPieceX
     sta.l OamSetSprite_X
     lda.l SourceVisual_EmitPieceY
@@ -3887,12 +3999,14 @@ SourceVisual_Emit__name_table0:
     bra SourceVisual_Emit__write
 SourceVisual_Emit__right:
 SourceVisual_Emit__write:
+.a8
     lda.l SourceVisual_EmitBoundsMode
     beq SourceVisual_Emit__priority_ready
     lda.l OamSetSprite_Attr
     and #$CF                     ; falling source pieces pass behind panels
     sta.l OamSetSprite_Attr
 SourceVisual_Emit__priority_ready:
+.a8
     lda #37
     sta.l SourceVisual_DebugQueueStage
     lda #1
@@ -3954,6 +4068,7 @@ SourceVisual_Emit__next_piece:
     sta.l SourceVisual_PieceIndex
     jmp SourceVisual_Emit__piece
 SourceVisual_Emit__done:
+.a16
     lda #38
     sta.l SourceVisual_DebugQueueStage
     lda.l Oam_Buffer
@@ -3964,6 +4079,7 @@ SourceVisual_Emit__done:
     sta.l SourceVisual_DebugStateCompare
     ldx #0
 SourceVisual_DebugEmitCopy:
+.i16
     lda.l SourceVisual_PieceTable,x
     sta.l SourceVisual_DebugEmitPiece,x
     inx
@@ -3980,6 +4096,7 @@ SourceVisual_DebugEmitCopy:
     sta.l SourceVisual_DebugEmitPiece+38
     ldx #0
 SourceVisual_DebugEmitOamCopy:
+.i16
     lda.l Oam_Buffer,x
     sta.l SourceVisual_DebugEmitOam,x
     inx
@@ -4065,6 +4182,7 @@ SourceVisual_ViewportPiece__union_visible:
     rts
 
 SourceVisual_ViewportNormalPiece:
+.a16
     lda.l SourceVisual_PieceIndex
     asl a
     asl a
@@ -4079,10 +4197,12 @@ SourceVisual_ViewportNormalPiece:
     lda #64
     bra SourceVisual_ViewportPiece__height
 SourceVisual_ViewportPiece__small:
+.a16
     lda #16
     sta.l SourceVisual_EmitPieceWidth
     lda #32
 SourceVisual_ViewportPiece__height:
+.a16
     sta.l SourceVisual_EmitPieceHeight
     lda CHAR_FACING_LEFT
     and #$00FF
@@ -4100,6 +4220,7 @@ SourceVisual_ViewportPiece__right:
     sta.l SourceVisual_EmitPieceX
     lda.l SourceVisual_PieceTable+2,x
 SourceVisual_ViewportPiece__y:
+.a16
     clc
     adc.l SourceVisual_EmitBaseY
     sta.l SourceVisual_EmitPieceY
@@ -4108,6 +4229,7 @@ SourceVisual_ViewportPiece__y:
     cmp #256
     bcs SourceVisual_ViewportPiece__outside
 SourceVisual_ViewportPiece__x_end:
+.a16
     clc
     adc.l SourceVisual_EmitPieceWidth
     bmi SourceVisual_ViewportPiece__outside
@@ -4128,12 +4250,14 @@ SourceVisual_ViewportPiece__outside:
     rts
 
 SourceVisual_ViewportMirrorPiece:
+.a16
     lda.l Stage_Mirror
     and #$00FF
     bne SourceVisual_ViewportMirrorPiece__active
     clc
     rts
 SourceVisual_ViewportMirrorPiece__active:
+.a16
     jsr SourceVisual_ViewportNormalPiece
     lda.l SourceVisual_EmitPieceY
     sec
@@ -4148,6 +4272,7 @@ SourceVisual_ViewportMirrorPiece__active:
     cmp #256
     bcs SourceVisual_ViewportMirrorPiece__outside
 SourceVisual_ViewportMirrorPiece__x_end:
+.a16
     clc
     adc.l SourceVisual_EmitPieceWidth
     bmi SourceVisual_ViewportMirrorPiece__outside

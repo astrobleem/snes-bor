@@ -299,6 +299,7 @@ Core_StreamCache_AllocateSlot__advance_ok:
 	; scan budget exhausted -- force-evict a legal slot, never a live owner.
 	brl Core_StreamCache_AllocateSlot__force_find
 Core_StreamCache_AllocateSlot__force_find:
+.a16
 	lda StreamCache_Candidate
 	jsl Core_StreamCache_IsReserved
 	bcc Core_StreamCache_AllocateSlot__force_choose

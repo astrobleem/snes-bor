@@ -99,6 +99,7 @@ Core_Dma_Init:
 	ldx #0
 	lda #0
 Core_Dma_Init__owner_clear:
+.i16
 	sta.l DmaQueue_Owner,x
 	inx
 	cpx #DMA_QUEUE_SLOTS

@@ -2862,6 +2862,7 @@ Anim_BikerDrive__left:
     sta CHAR_POS_X
     rtl
 Anim_BikerDrive__left_clamp:
+.a16
     lda #0
     sta CHAR_POS_X
     sep #$20

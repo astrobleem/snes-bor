@@ -1,0 +1,936 @@
+{
+  "status": "WIDTH_GUARD_REPAIRED_WITHOUT_BASELINE_ADDITIONS",
+  "new_violations_before": 132,
+  "new_violations_after": 0,
+  "existing_baselined": 183,
+  "annotated_sites": [
+    {
+      "label": "src/core/dma.pasm:Core_Dma_Init__owner_clear",
+      "line": 101,
+      "immediate": "cpx #DMA_QUEUE_SLOTS",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/screen.pasm:Core_Screen_Play__target_available",
+      "line": 618,
+      "immediate": "cmp #9",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/stream_cache.pasm:Core_StreamCache_AllocateSlot__force_find",
+      "line": 301,
+      "immediate": "cmp #STREAM_CACHE_USABLE+1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/spawn.pasm:Spawn_Init__max_trigger_next",
+      "line": 611,
+      "immediate": "adc #10",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/spawn.pasm:Spawn_Play__slot45_non_prop",
+      "line": 2173,
+      "immediate": "cmp #SPAWN_SUBTYPE_STEAM",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/jump.pasm:Anim_BikerDrive__left_clamp",
+      "line": 2864,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/depth_sort.pasm:Character_RenderPass__check_fall",
+      "line": 309,
+      "immediate": "cmp #CHAR_SELECTED_FALL",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_RenderCurrent__same_field",
+      "line": 197,
+      "immediate": "sbc #$0A00",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameInViewport__x",
+      "line": 280,
+      "immediate": "cmp #256",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameInViewport__x_end",
+      "line": 284,
+      "immediate": "cmp #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameInViewport__y",
+      "line": 302,
+      "immediate": "cmp #224",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameMirrorInViewport",
+      "line": 322,
+      "immediate": "and #$00FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameMirrorInViewport__active",
+      "line": 328,
+      "immediate": "and #$00FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameMirrorInViewport__x",
+      "line": 347,
+      "immediate": "cmp #256",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FrameMirrorInViewport__x_end",
+      "line": 351,
+      "immediate": "lda #248",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__source_jump",
+      "line": 435,
+      "immediate": "lda #7",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__hole",
+      "line": 448,
+      "immediate": "lda #4",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__idle",
+      "line": 475,
+      "immediate": "lda #0",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__walk",
+      "line": 478,
+      "immediate": "lda #1",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__attack",
+      "line": 481,
+      "immediate": "lda #3",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__attack1",
+      "line": 486,
+      "immediate": "lda #2",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__fall",
+      "line": 489,
+      "immediate": "lda #4",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__rise",
+      "line": 492,
+      "immediate": "lda #5",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__special",
+      "line": 495,
+      "immediate": "lda #6",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__thrown",
+      "line": 498,
+      "immediate": "lda #4",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindEntry__role",
+      "line": 509,
+      "immediate": "cmp #$FF",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_SelectResidency__actor_scan",
+      "line": 670,
+      "immediate": "cmp #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_SelectResidency__clear_record",
+      "line": 742,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_SelectResidency__mark",
+      "line": 781,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_SelectResidency__mask_shift",
+      "line": 786,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_CancelActorRetire__shift",
+      "line": 888,
+      "immediate": "cpy #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueRetireEntityOffset__slot",
+      "line": 922,
+      "immediate": "cmp #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueRetireEntityOffset__bit",
+      "line": 932,
+      "immediate": "cpy #6",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueRetireEntityOffset__shift",
+      "line": 936,
+      "immediate": "cpy #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ProcessRetired__dma_idle",
+      "line": 976,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ProcessRetired__scan",
+      "line": 983,
+      "immediate": "cmp #6",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ProcessRetired__bit",
+      "line": 990,
+      "immediate": "cpy #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReleaseActorBlocks__mask",
+      "line": 1061,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReleaseActorBlocks__scan",
+      "line": 1078,
+      "immediate": "cmp #SOURCE_VISUAL_TILE_BLOCKS",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReleaseActorPalettes__owner_bit",
+      "line": 1118,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReleaseActorPalettes__scan",
+      "line": 1135,
+      "immediate": "cmp #8",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateTiles__find",
+      "line": 1182,
+      "immediate": "adc #SOURCE_VISUAL_TILE_BLOCK_BYTES-1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateTiles__nonzero",
+      "line": 1198,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateTiles__candidate",
+      "line": 1201,
+      "immediate": "cmp #SOURCE_VISUAL_TILE_BLOCKS+1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateTiles__range_ok",
+      "line": 1208,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateTiles__scan",
+      "line": 1212,
+      "immediate": "cmp #6",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__count_nonzero",
+      "line": 1280,
+      "immediate": "cmp #9",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__repair_map",
+      "line": 1300,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__map",
+      "line": 1309,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__owner_bit",
+      "line": 1313,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__local_ok",
+      "line": 1355,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__piece_mask_shift",
+      "line": 1359,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__piece_mask_ready",
+      "line": 1365,
+      "immediate": "adc #16",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__complete",
+      "line": 1395,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__expected_loop",
+      "line": 1402,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__expected_ready",
+      "line": 1413,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePalettes__fail",
+      "line": 1446,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ValidatePaletteMap",
+      "line": 1457,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ValidatePaletteMap__owner",
+      "line": 1461,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ValidatePaletteMap__owner_ready",
+      "line": 1467,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ValidatePaletteMap__piece",
+      "line": 1471,
+      "immediate": "and #$00FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePaletteIdentity",
+      "line": 1517,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePaletteIdentity__find",
+      "line": 1520,
+      "immediate": "cmp #8",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocatePaletteIdentity__free",
+      "line": 1566,
+      "immediate": "cmp #8",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_MarkPaletteDmaRetired",
+      "line": 1605,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_MarkPaletteDmaRetired__scan",
+      "line": 1608,
+      "immediate": "cmp #8",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__transparent",
+      "line": 1789,
+      "immediate": "lda #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__sheet_ok",
+      "line": 1867,
+      "immediate": "adc #1023",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__tiles_allocated",
+      "line": 1885,
+      "immediate": "cmp #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__staging_free",
+      "line": 1899,
+      "immediate": "lda #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__need_transfer",
+      "line": 1908,
+      "immediate": "cmp #SOURCE_VISUAL_CHUNK_BYTES",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__read_short",
+      "line": 1931,
+      "immediate": "adc #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__palette_ok",
+      "line": 2015,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__pending",
+      "line": 2034,
+      "immediate": "lda #33",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__block_path",
+      "line": 2133,
+      "immediate": "adc #SOURCE_VISUAL_SHEET_OFFSET",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__block_sheet_ok",
+      "line": 2175,
+      "immediate": "adc #SOURCE_VISUAL_PIECE_OFFSET",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_LoadResources__block_palette_queued",
+      "line": 2233,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPieces__loop",
+      "line": 2296,
+      "immediate": "ldy #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_PrepareBlocks__mask",
+      "line": 2349,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_PrepareBlocks__scan_start",
+      "line": 2367,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_PrepareBlocks__ready",
+      "line": 2438,
+      "immediate": "lda #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_PrepareBlocks__apply_all",
+      "line": 2444,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_FindBlock__scan",
+      "line": 2566,
+      "immediate": "cmp #SOURCE_VISUAL_TILE_BLOCKS",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateBlock__scan",
+      "line": 2603,
+      "immediate": "cmp #SOURCE_VISUAL_TILE_BLOCKS",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_AllocateBlock__claim",
+      "line": 2632,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ResumePendingBlock__scan",
+      "line": 2669,
+      "immediate": "cmp #SOURCE_VISUAL_TILE_BLOCKS",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueBlockRows__slot_available",
+      "line": 2767,
+      "immediate": "adc #64",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_BlockSlotToTile__page0",
+      "line": 2860,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_BlockSlotToTile__page_ready",
+      "line": 2864,
+      "immediate": "and #7",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueSheet__short",
+      "line": 3059,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueSheet__budget_ok",
+      "line": 3075,
+      "immediate": "lda #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueueSheet__enqueued",
+      "line": 3122,
+      "immediate": "lda #3",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueuePalettes__local_ok",
+      "line": 3222,
+      "immediate": "adc #16",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueuePalettes__mapped_slot",
+      "line": 3234,
+      "immediate": "cmp #8",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueuePalettes__mask_shift",
+      "line": 3249,
+      "immediate": "cpx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_QueuePalettes__fail",
+      "line": 3351,
+      "immediate": "lda #7",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy0",
+      "line": 3428,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy0_loop",
+      "line": 3430,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy1",
+      "line": 3438,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy1_loop",
+      "line": 3440,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy2",
+      "line": 3448,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy2_loop",
+      "line": 3450,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy3",
+      "line": 3458,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy3_loop",
+      "line": 3460,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy4",
+      "line": 3468,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy4_loop",
+      "line": 3470,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy5",
+      "line": 3478,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy5_loop",
+      "line": 3480,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy6",
+      "line": 3488,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy6_loop",
+      "line": 3490,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy7",
+      "line": 3498,
+      "immediate": "ldx #0",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__copy7_loop",
+      "line": 3500,
+      "immediate": "cpx #32",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ReadPalettePayload__slot_ok",
+      "line": 3513,
+      "immediate": "lda #SourceVisual_PaletteStaging",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_RefreshFence",
+      "line": 3689,
+      "immediate": "lda #2",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__not_hidden",
+      "line": 3732,
+      "immediate": "cmp #240",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__height_visible",
+      "line": 3737,
+      "immediate": "lda #1",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__y_ready",
+      "line": 3745,
+      "immediate": "lda #0",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__reserve_visible",
+      "line": 3772,
+      "immediate": "cmp #513",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__visible_piece",
+      "line": 3813,
+      "immediate": "and #$01FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__write",
+      "line": 3889,
+      "immediate": "and #$CF",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__priority_ready",
+      "line": 3895,
+      "immediate": "lda #37",
+      "directive": ".a8",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_Emit__done",
+      "line": 3956,
+      "immediate": "lda #38",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_DebugEmitCopy",
+      "line": 3966,
+      "immediate": "cpx #16",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_DebugEmitOamCopy",
+      "line": 3982,
+      "immediate": "cpx #64",
+      "directive": ".i16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportNormalPiece",
+      "line": 4067,
+      "immediate": "and #$8000",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportPiece__small",
+      "line": 4081,
+      "immediate": "lda #16",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportPiece__height",
+      "line": 4085,
+      "immediate": "and #$00FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportPiece__y",
+      "line": 4102,
+      "immediate": "cmp #256",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportPiece__x_end",
+      "line": 4110,
+      "immediate": "cmp #224",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportMirrorPiece",
+      "line": 4130,
+      "immediate": "and #$00FF",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportMirrorPiece__active",
+      "line": 4136,
+      "immediate": "adc #248",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    },
+    {
+      "label": "src/core/source_visual_production.pasm:SourceVisual_ViewportMirrorPiece__x_end",
+      "line": 4150,
+      "immediate": "cmp #224",
+      "directive": ".a16",
+      "authority": "existing linear assembler width; emitted byte equality required"
+    }
+  ],
+  "assembly_byte_identical": true,
+  "assembly_bytes": 884906,
+  "assembly_sha256": "dc7b4ff89dd65e502b0dd77d85e84cdf86404d2951e3246741e0cda30a4be4ae",
+  "all_rom_audits_pass": true
+}

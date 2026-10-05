@@ -616,6 +616,7 @@ Core_Screen_Play__ease:
 	bcc Core_Screen_Play__no_focus
 
 Core_Screen_Play__target_available:
+.a16
 
 	; The ease LUT deliberately goes to zero at short distances.  If the
 	; followed target is beyond the right playfield bound, that deadband can
