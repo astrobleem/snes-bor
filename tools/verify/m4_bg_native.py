@@ -63,7 +63,7 @@ def compile_rom(report,assets):
     store(0x2105,3);store(0x2107,0x70);store(0x210b,0)
     store(0x210d,0);store(0x210d,0);store(0x210e,255);store(0x210e,255)
     store(0x212c,1);store(0x212d,0);store(0x2130,0);store(0x2131,0);store(0x2133,0)
-    cursor=0x9000
+    cursor=0x9000;channel7_table=None
     # Worst transfer width of the production TAD direct-HDMA channel 0.
     # This exercises bus contention, not production SPC protocol/audio.
     audio_table=bytes([0x81,0,0,0,0x57])*224+bytes([0])
@@ -71,6 +71,7 @@ def compile_rom(report,assets):
     rom[0x18000+(cursor-0x8000):0x18000+(cursor-0x8000)+len(audio_table)]=audio_table
     cursor+=len(audio_table)
     for ch,table in enumerate(tables,1):
+        if ch==7:channel7_table=cursor
         base=0x4300+ch*16
         for a,v in [(base,3),(base+1,0x21),(base+2,cursor&255),(base+3,cursor>>8),(base+4,3)]:store(a,v)
         rom[0x18000+(cursor-0x8000):0x18000+(cursor-0x8000)+len(table)]=table
@@ -79,7 +80,19 @@ def compile_rom(report,assets):
     # Enable in VBlank so the next field's HDMA init owns the first access.
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     store(0x420c,0xff);store(0x2100,15)
-    code.extend(bytes.fromhex('80 fe'))
+    # Restore owned early-row colors before replaying the next field.
+    loop=len(code)
+    code.extend(bytes.fromhex('ad 12 42 29 80 d0 f9'))
+    code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
+    store(0,1)  # Isolated fixture observer marker; no production WRAM claim.
+    store(0x2121,1);dma(0x8802,3,0x22,222,0);store(0x420b,0)
+    restore_bytes=222
+    if report['bg_opaque_slot_capacity']==175:
+        store(0x2121,192);dma(0x8980,3,0x22,128,0);store(0x420b,0)
+        restore_bytes+=128
+    store(0,0)
+    for a,v in [(0x4370,3),(0x4371,0x21),(0x4372,channel7_table&255),(0x4373,channel7_table>>8),(0x4374,3)]:store(a,v)
+    code.extend(bytes([0x4c,(0x8000+loop)&255,(0x8000+loop)>>8]))
     # All fixture presentation code is bank 1; bank 0 only reset trampoline.
     rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x8000:0x8000+len(code)]=code
     rom[0x10000:0x10000+len(chrdata)]=chrdata
@@ -88,6 +101,7 @@ def compile_rom(report,assets):
     rom[0x7fd5:0x7fdc]=bytes([0x20,0,7,0,1,0,0]);rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     return bytes(rom),dict(chr_bytes=len(chrdata),tilemap_bytes=2048,hdma_table_bytes=cursor-0x9000,code_bank=1,
         hdma_channels=list(range(8)),channel0_stress='4 bytes to APU ports per line; bus contention only',
+        per_field_initial_palette_restore_bytes=restore_bytes,channel7_restored_after_vblank_dma=True,
         palette_reserved_before_sha256=hashlib.sha256(palette[112:192].tobytes()).hexdigest())
 
 
@@ -98,10 +112,12 @@ def main():
     folder=assets/'native';folder.mkdir(exist_ok=True)
     rom,resources=compile_rom(report,assets);path=folder/'proof.sfc';path.write_bytes(rom)
     lua=folder/'observer.lua'
-    lua.write_text('''local active=false
-local rows={};local total=0;local frames=0
+    lua.write_text('''local active=false;local restoring=false
+local rows={};local total=0;local frames=0;local resetrows={}
+emu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0,0,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v) if v==15 then active=true end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)
+ if active and restoring and frames==2 then resetrows[#resetrows+1]=string.format('%04x:%02x',a,v);return end
  if active and frames==1 then
   total=total+1;rows[#rows+1]=string.format('%04x:%02x',a,v)
   if total%28==1 or total%28==0 then
@@ -112,6 +128,7 @@ end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory
 emu.addEventCallback(function()
  frames=frames+1
  if frames==2 then emu.log('M4BGTRACE|'..table.concat(rows,',')) end
+ if frames==3 then emu.log('M4BGRESET|'..table.concat(resetrows,',')) end
 end,emu.eventType.endFrame)
 ''')
     class Observed(McpSession):
@@ -123,6 +140,7 @@ end,emu.eventType.endFrame)
         advance=run_frames_exact(m,3)
         shot=m.tool('take_screenshot',{'format':'path','path':str(folder/'screenshot.png')})
         cgram=m.read_memory('SnesCgRam',0,512)
+        cpu=m.get_cpu_state()
     screenshot=Path(shot['path'])
     retained=folder/'screenshot.png';shutil.copyfile(screenshot,retained);screenshot=retained
     image=Image.open(screenshot).convert('RGB');rgb=np.asarray(image,dtype=np.int32)
@@ -141,16 +159,28 @@ end,emu.eventType.endFrame)
             else:slot=1;color=state[0] or 0
             expected_trace.extend([f'2121:{slot:02x}',f'2121:{slot:02x}',f'2122:{color&255:02x}',f'2122:{color>>8:02x}'])
     observer_identity=observed==expected_trace
-    (folder/'cgram-observer.json').write_text(json.dumps(dict(observed=observed,expected=expected_trace),separators=(',',':'))+'\n')
+    resets=[line.split('M4BGRESET|',1)[1] for line in log.splitlines() if 'M4BGRESET|' in line]
+    observed_reset=resets[0].split(',') if len(resets)==1 else []
+    expected_reset=['2121:01']+[f'2122:{b:02x}' for b in rom[0x18802:0x188e0]]
+    if report['bg_opaque_slot_capacity']==175:
+        expected_reset+=['2121:c0']+[f'2122:{b:02x}' for b in rom[0x18980:0x18a00]]
+    reset_identity=observed_reset==expected_reset
+    (folder/'cgram-observer.json').write_text(json.dumps(dict(observed=observed,expected=expected_trace,
+        observed_reset=observed_reset,expected_reset=expected_reset),separators=(',',':'))+'\n')
     times=[[int(x) for x in line.split('M4BGTIME|')[1].split(',')] for line in log.splitlines() if 'M4BGTIME|' in line]
     (folder/'timing.json').write_text(json.dumps(times)+'\n')
     result=dict(resources,rom_sha256=hashlib.sha256(rom).hexdigest(),frame_advance=advance,
+        cpu_state=cpu,
         screenshot=str(screenshot),pixel_identity_verified=identity,
         observer_palette_schedule_identity_verified=observer_identity,observed_register_writes=len(observed),
+        observer_vblank_restore_identity_verified=reset_identity,
         screenshot_size=image.size,cgram_reserved_after_sha256=hashlib.sha256(cgram[224:384]).hexdigest(),
         alpha='OFFLINE_BOR4086_SCREEN_COMPOSITING',runtime_compositor_proven=False,
         no_color_reduction=True,scope='One static context; no gameplay/native compositor claim.')
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+    if not (identity and observer_identity and reset_identity and
+            result['palette_reserved_before_sha256']==result['cgram_reserved_after_sha256']):
+        raise SystemExit(1)
 
 
 if __name__=='__main__':main()

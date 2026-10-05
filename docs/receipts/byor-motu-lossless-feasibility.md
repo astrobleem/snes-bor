@@ -107,6 +107,13 @@ is retained alongside the traces, not used alone as evidence. Each proof uses
 2,048 tilemap bytes and 8,968 HDMA-table bytes. Presentation code is in fixture
 bank 1; its separate bank-0 reset trampoline is not a production-bank edit.
 
+Replay now explicitly restores owned initial palette slots every VBlank:
+222 bytes for the jungle reservation, 350 for gray. The observer verifies those
+bytes independently. The queue-style DMA uses channel 7, then its HDMA mode,
+destination and table source are restored before the next field. Reserved
+actor/HUD entries are untouched by these transfers. This ongoing per-field
+cost must be included in production admission even when the scene is unchanged.
+
 Reproducible artifacts are under `out/byor-motu-bg-gray-seven/` and
 `out/byor-motu-bg-jungle-layers/`, with native ROM, screenshot, register observer,
 timing samples and result JSON under each `native/` directory. The raw HBlank

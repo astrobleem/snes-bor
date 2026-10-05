@@ -321,7 +321,7 @@ def inspect(path, *, measure_images=True):
                         blocks_compilation=True,
                         required_semantic_behavior='Preserve source-sized actor pixels after RGB555 conversion.',
                         nearest_byor_capability='source-sized masked OBJ palette banks',
-                        proposed_generic_resolution='Product choice: explicit source-color reduction or a separately proven raster/BG effect renderer.',
+                        proposed_generic_resolution='Derive and admit a generic lossless raster OBJ or BG/hybrid capability; static overflow is not a universal rendering limit.',
                         scope='current static OBJ/CGRAM architecture; not proof all SNES rendering strategies fail'))
     counts = Counter(r['classification'] for r in matrix)
     counts.update(r['classification'] for r in limits)
