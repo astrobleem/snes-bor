@@ -1,0 +1,37 @@
+{
+  "source_path": "out\\bor_compile_s6\\BOR.C",
+  "sha256": "68c54a190c5713b1a42b75898ae9ff5246896de0ded3f8c1247c507681735f41",
+  "excerpts": {
+    "source_next": {
+      "first_line": 1789,
+      "last_line": 1797,
+      "text": "\t\t\t\t\tshutdown(\"Error in level order: a set must be specified.\");\n\t\t\t\t}\n\t\t\t\t// Set 'gonext' flag of last loaded level\n\t\t\t\tif(num_levels[current_set]<1){\n\t\t\t\t\tfree(buf);\n\t\t\t\t\tshutdown(\"Error in level order (next before file)!\");\n\t\t\t\t}\n\t\t\t\tlevelorder[current_set][num_levels[current_set]-1]->gonext = 1;\n\t\t\t}"
+    },
+    "mirror": {
+      "first_line": 2844,
+      "last_line": 2858,
+      "text": "\tint use_mirror = (level && level->mirror);\n\n\tfor(i=0; i<MAX_ENTS; i++){\n\t\tif(ent_list[i]->exists && !(ent_list[i]->blink && (time%(GAME_SPEED/10))<(GAME_SPEED/20))){\n\t\t\te = ent_list[i];\n\t\t\tf = e->currentsprite;\n\t\t\tif(f<sprites_loaded){\n\t\t\t\tif(e->colourmap) spriteq_add(e->x - advancex, e->z-e->a + gfx_y_offset, e->z, sprites[e->direction&1][f], SFX_REMAP, e->colourmap);\n\t\t\t\telse if(e->screen) spriteq_add(e->x - advancex, e->z-e->a + gfx_y_offset, e->z, sprites[e->direction&1][f], SFX_BLEND, lut_screen);\n\t\t\t\telse spriteq_add(e->x - advancex, e->z-e->a + gfx_y_offset, e->z, sprites[e->direction&1][f], 0, NULL);\n\n\t\t\t\tif(use_mirror){\n\t\t\t\t\tif(e->colourmap) spriteq_add(e->x-advancex, (PLAYER_MIN_Z-10)+(PLAYER_MIN_Z - e->z)-e->a+gfx_y_offset, (PANEL_Z - e->z) + PANEL_Z-10, sprites[e->direction&1][f], SFX_REMAP, e->colourmap);\n\t\t\t\t\telse spriteq_add(e->x-advancex, (PLAYER_MIN_Z-10)+(PLAYER_MIN_Z - e->z)-e->a+gfx_y_offset, (PANEL_Z - e->z) + (PANEL_Z-10), sprites[e->direction&1][f], 0, NULL);\n\t\t\t\t}"
+    },
+    "terminal_completion": {
+      "first_line": 5634,
+      "last_line": 5652,
+      "text": "\t\t\telse if(!playlevel(levelorder[which_set][current_level]->filename)){\n\t\t\t\tif(player[0].lives <= 0 && player[1].lives <= 0) gameover();\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\tif(levelorder[which_set][current_level]->gonext){\n\t\t\t\tshowcomplete(stage);\n\t\t\t\tplayer[0].spawnhealth = 0;\n\t\t\t\tplayer[1].spawnhealth = 0;\n\t\t\t\t++stage;\n\t\t\t}\n\t\t\t++current_level;\n\t\t}\n\t\tif(current_level >= num_levels[which_set]){\n\t\t\tsavedata.times_completed++;\n\t\t\tfade_out();\n\t\t}\n\t}\n\tsound_close_music();\n}"
+    },
+    "unlock_display": {
+      "first_line": 5664,
+      "last_line": 5673,
+      "text": "\n\twhile(!quit){\n\t\tfont_printf(120,140, 2, \"Difficulty\");\n\t\tfor(i=0; i<num_difficulties; i++){\n\t\t\tif(savedata.times_completed >= ifcomplete[i]) font_printf(120,160+i*10, (selector==i), set_names[i]);\n\t\t\telse{\n\t\t\t\tif(ifcomplete[i]>1) font_printf(120,160+i*10, (selector==i), \"%s - finish game %i times to unlock\", set_names[i], ifcomplete[i]);\n\t\t\t\tfont_printf(120,160+i*10, (selector==i), \"%s - finish game to unlock\", set_names[i]);\n\t\t\t}\n\t\t}"
+    },
+    "unlock_confirmation": {
+      "first_line": 5687,
+      "last_line": 5693,
+      "text": "\t\tif(selector>i) selector = 0;\n\t\tif(bothnewkeys & FLAG_ANYBUTTON){\n\t\t\tsound_play_sample(smp_beep2, 0, savedata.effectvol,savedata.effectvol, 100);\n\t\t\tif(selector==i) quit = 1;\n\t\t\telse if(savedata.times_completed >= ifcomplete[selector]) return selector;\n\t\t}\n\t}"
+    }
+  },
+  "interpretation": {
+    "completion": "Every fully completed source set increments TimesCompleted once, not only Normal/Hard/Bonus.",
+    "showcomplete": "Only the preceding authored next/gonext entry requests showcomplete.",
+    "mirror": "Repeat the same current source sprite and remap at source reflected foot coordinate; no vertical art flip. Native ground foot 248-nativeY follows the existing 4/5 coordinate adapter. Air/fixed-point/depth remain explicit compatibility adaptations.",
+    "unlock": "Saved completion counter must meet the selected source ifcomplete threshold."
+  }
+}

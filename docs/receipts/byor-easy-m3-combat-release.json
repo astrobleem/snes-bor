@@ -1,0 +1,1774 @@
+{
+  "verdict": "PASS",
+  "scope": "real selector and bounded first-entry source-world smoke",
+  "rows": [
+    {
+      "source_set": "Easy",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "authored_enemy_rosters": [
+        0,
+        3,
+        29,
+        30
+      ],
+      "combat_authority": "first authored stage queue, excluding shared bootstrap actors not authored in that stage",
+      "combat_samples": [
+        {
+          "field": -1,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 16,
+              "y": 150,
+              "native_mirror": [
+                16,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ]
+        },
+        {
+          "field": 0,
+          "ticks": 39,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 16,
+              "y": 150,
+              "native_mirror": [
+                16,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 30,
+          "ticks": 109,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 41,
+              "y": 150,
+              "native_mirror": [
+                41,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 160,
+          "obj_status": 0
+        },
+        {
+          "field": 60,
+          "ticks": 143,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 53,
+              "y": 150,
+              "native_mirror": [
+                53,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 90,
+          "ticks": 206,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 76,
+              "y": 150,
+              "native_mirror": [
+                76,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 120,
+          "ticks": 242,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 89,
+              "y": 150,
+              "native_mirror": [
+                89,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 150,
+          "ticks": 312,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 114,
+              "y": 150,
+              "native_mirror": [
+                114,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 180,
+          "ticks": 369,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 134,
+              "y": 150,
+              "native_mirror": [
+                134,
+                150
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 17,
+              "object_num": 3,
+              "mode": 3,
+              "pickup": 0,
+              "x": 24,
+              "y": 184
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 210,
+          "ticks": 439,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 160,
+              "y": 144,
+              "native_mirror": [
+                160,
+                144
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 16,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 3,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 0,
+          "obj_status": 0
+        },
+        {
+          "field": 240,
+          "ticks": 489,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 178,
+              "y": 134,
+              "native_mirror": [
+                178,
+                134
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 16,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 270,
+          "ticks": 529,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 192,
+              "y": 134,
+              "native_mirror": [
+                192,
+                134
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 16,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 300,
+          "ticks": 575,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 209,
+              "y": 134,
+              "native_mirror": [
+                209,
+                134
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 16,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 160,
+          "obj_status": 0
+        },
+        {
+          "field": 330,
+          "ticks": 595,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 232,
+              "y": 134,
+              "native_mirror": [
+                232,
+                134
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 11,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 160,
+          "obj_status": 0
+        },
+        {
+          "field": 360,
+          "ticks": 618,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 225,
+              "y": 134,
+              "native_mirror": [
+                225,
+                134
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 1,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 390,
+          "ticks": 648,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 251,
+              "y": 137,
+              "native_mirror": [
+                251,
+                137
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 160,
+          "obj_status": 0
+        },
+        {
+          "field": 420,
+          "ticks": 668,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 242,
+              "y": 143,
+              "native_mirror": [
+                241,
+                143
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 39,
+          "obj_status": 0
+        },
+        {
+          "field": 450,
+          "ticks": 720,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 258,
+              "y": 159,
+              "native_mirror": [
+                255,
+                158
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 19,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 0,
+          "obj_status": 0
+        },
+        {
+          "field": 480,
+          "ticks": 752,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 273,
+              "y": 170,
+              "native_mirror": [
+                273,
+                170
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 4,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 160,
+          "obj_status": 0
+        },
+        {
+          "field": 510,
+          "ticks": 795,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 282,
+              "y": 170,
+              "native_mirror": [
+                282,
+                170
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 0,
+          "obj_status": 0
+        },
+        {
+          "field": 540,
+          "ticks": 828,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 302,
+              "y": 170,
+              "native_mirror": [
+                302,
+                170
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 288,
+              "y": 128
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 0,
+          "obj_status": 0
+        },
+        {
+          "field": 570,
+          "ticks": 868,
+          "error": 0,
+          "persistent_owner": 2,
+          "actors": [
+            {
+              "slot": 0,
+              "hp": 64,
+              "roster": 22,
+              "object_num": 1,
+              "mode": 1,
+              "pickup": 0,
+              "x": 309,
+              "y": 170,
+              "native_mirror": [
+                309,
+                170
+              ]
+            },
+            {
+              "slot": 1,
+              "hp": 64,
+              "roster": 1,
+              "object_num": 2,
+              "mode": 2,
+              "pickup": 0,
+              "x": 54,
+              "y": 150
+            },
+            {
+              "slot": 2,
+              "hp": 19,
+              "roster": 3,
+              "object_num": 3,
+              "mode": 2,
+              "pickup": 0,
+              "x": 440,
+              "y": 152
+            },
+            {
+              "slot": 3,
+              "hp": 0,
+              "roster": 30,
+              "object_num": 4,
+              "mode": 2,
+              "pickup": 0,
+              "x": 292,
+              "y": 176
+            },
+            {
+              "slot": 4,
+              "hp": 0,
+              "roster": 4,
+              "object_num": 5,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            },
+            {
+              "slot": 5,
+              "hp": 0,
+              "roster": 5,
+              "object_num": 6,
+              "mode": 2,
+              "pickup": 0,
+              "x": 120,
+              "y": 40
+            }
+          ],
+          "visual_error": 0,
+          "obj_status": 0
+        }
+      ],
+      "prop_pickup_interactions": [],
+      "combat_damage": [
+        {
+          "field": 330,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 16,
+          "after_hp": 11
+        },
+        {
+          "field": 360,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 11,
+          "after_hp": 1
+        },
+        {
+          "field": 390,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 1,
+          "after_hp": 0
+        },
+        {
+          "field": 480,
+          "identity": [
+            3,
+            4,
+            30
+          ],
+          "before_hp": 19,
+          "after_hp": 4
+        },
+        {
+          "field": 510,
+          "identity": [
+            3,
+            4,
+            30
+          ],
+          "before_hp": 4,
+          "after_hp": 0
+        }
+      ],
+      "authored_combat_damage": [
+        {
+          "field": 330,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 16,
+          "after_hp": 11
+        },
+        {
+          "field": 360,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 11,
+          "after_hp": 1
+        },
+        {
+          "field": 390,
+          "identity": [
+            2,
+            3,
+            30
+          ],
+          "before_hp": 1,
+          "after_hp": 0
+        },
+        {
+          "field": 480,
+          "identity": [
+            3,
+            4,
+            30
+          ],
+          "before_hp": 19,
+          "after_hp": 4
+        },
+        {
+          "field": 510,
+          "identity": [
+            3,
+            4,
+            30
+          ],
+          "before_hp": 4,
+          "after_hp": 0
+        }
+      ],
+      "visual_capture_inputs": [],
+      "visual_capture_reposition_fields": 0,
+      "visual_warm_fields": 190,
+      "visual_lease": "1d040000010002000000000000000100030000000000000000000000011600009f00000001000200000000000000020003010000000000000000000000010000fd010000000001000000000000000000000000000000000000000000000300009e080000010002000000000000000200010200000000000000000000011e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "visual_last_error": 39,
+      "oam_cursor": 44,
+      "ppu_oam": "c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e000005555555555555555555555555555555555555555555555555555555555555555",
+      "obj_select_shadow": 194,
+      "source_piece_table": "ebffa0ff0600a0ff0002c800c52d0c00ebffa8ff0600a8ff0002c80096224a00f3ff90fffeff90ff0002c800bd090800f3ffc8fffeffc8ff0002c800303e0600f3ffe8fffeffe8ff0002c800dd350800fbffa8fff6ffa8ff0002c800df230a00fbffc0fff6ffc0ff0002c80015240c00030088ffeeff88ff0002c8002b390e000300d8ffeeffd8ff0002c800353540000b00a8ffe6ffa8ff0002c800251342000b00c8ffe6ffc8ff0002c8009f0144000b00e8ffe6ffe8ff0002c80037274600130088ffdeff88ff0002c800591d48001b00a0ffd6ffa0ff0002c800902e4a000000e4fff1ffe4ff0101680145434c000800c4ffe9ffc4ff0001630086214e00",
+      "source_base_tile": 0,
+      "oam_shadow": "923e0064927e02648a4604648a86066482360a6482660e647a3640647a5642647a7e4464725e46646a7e4864c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e00000c0e000005555555555555555555555555555555555555555555555555555555555555555",
+      "emit_debug": "e6ffa0ff0b00a0ff00002000ce3f0000000000000000000000000000000000000b002c00c0e000000000000000000b0001000b00000000000b00000002000000",
+      "palette_cache": "00000000000000000000000000000000200000010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "cgram": "0000ff1c680cff6700000000ff7f00001f7c1f7c353229191f7cab29c40c1f7c0000820c672146198925a30c881941048000a825861d051587216529251920090000c61400004921261dc4106b25ad29850c6208ea312104e4144104051909080000c9186e2509328d100b2107196b218610a7296d3a910cf014ce2d090810000000c618b421e7182b19000070214d21e918554618264204d018a814ce31850c0000e418b44e0000104a8d3140102921852d2e369c3a941d830ce718251d41040000f7256308852d00004f218d100908e8180a32251d6b21c5147b36b3250b1900004a21a821a30ce414e929c829c514c725850c6b25e8180a36ad29ee31081d1f7c312d100936055f53de3a5c2aae0011000908561516000d001009b7199d0c1f7c0000000000000000000000000000000000000000000000000000000000001f7cd53052242d2040108939252df266556bda7bde731a2b32365c5bd239554a00009d0c16005f531100de3a5c2a00000d0056153605312d090810091009000000001f001036000009251600000000000000000000000000000000000000000000001a2b944a414d4b2d0c3d00009d0c42208030000000000000000000000000612a6469030ae2227756ce37ef7a5100d226f776fe2c647ab81bea611b4691057f616609df6035427930cf63641ff03c874d2512277d987fe9578a32423dfe3a",
+      "resident_block_check": {
+        "checked": 14,
+        "mismatches": []
+      },
+      "resident_palette_check": {
+        "checked": 1,
+        "mismatches": []
+      },
+      "screenshot": "out\\byor-easy-evidence\\combat-release.png",
+      "ppu_state": {
+        "frameCount": 1310,
+        "scanline": 246,
+        "forcedBlank": true,
+        "brightness": 0,
+        "bgMode": 1,
+        "mainScreenLayers": 23,
+        "subScreenLayers": 0,
+        "mainScreenWindowMask": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "subScreenWindowMask": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mosaicSize": 1,
+        "mosaicEnabled": 0,
+        "layers": [
+          {
+            "index": 0,
+            "tilemapAddr": 24576,
+            "chrAddr": 0,
+            "hscroll": 192,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": true,
+            "doubleHeight": false
+          },
+          {
+            "index": 1,
+            "tilemapAddr": 27648,
+            "chrAddr": 12288,
+            "hscroll": 268,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": true,
+            "doubleHeight": false
+          },
+          {
+            "index": 2,
+            "tilemapAddr": 26624,
+            "chrAddr": 8192,
+            "hscroll": 0,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          },
+          {
+            "index": 3,
+            "tilemapAddr": 0,
+            "chrAddr": 0,
+            "hscroll": 0,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          }
+        ]
+      },
+      "physical_stage": 0,
+      "source_path": "DATA\\EASY\\1AEASY.TXT",
+      "selected_source_set": 0,
+      "player_roster": 22,
+      "host_mode": 1,
+      "persistent_owner": 2,
+      "host_error": 0,
+      "source_ticks": 1341,
+      "times_completed": 0
+    }
+  ],
+  "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a"
+}

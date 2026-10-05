@@ -1,0 +1,32 @@
+{
+  "scope": "Measured generic source publication fixes, not a completion certificate",
+  "oam_coordinate_write": {
+    "cause": "16-bit store to byte OamSetSprite_Y at 7E53AC cleared Tile at 7E53AD",
+    "fix": "byte coordinate stores in shared source piece writer",
+    "diagnostic": "combat-oam.json"
+  },
+  "pending_lease": {
+    "cause": "LoadPendingEntry/ReadEntry clobbered X; found path read State+8 using X=24, selecting adjacent actor catalog entry 159 as atlas base",
+    "witness": "base-tile-writes.txt and oam-trace.txt",
+    "fix": "reload actor Record/X at found join"
+  },
+  "palette_scratch": {
+    "cause": "QueuePalettes Temp+2 overlapped persistent BaseTile",
+    "fix": "dedicated PaletteTransferBit at 7E44B0"
+  },
+  "negative_x": {
+    "cause": "X-high branch left A8 before 16-bit viewport helper",
+    "fix": "restore A16/I16 at shared emission join"
+  },
+  "palette_map_reuse": {
+    "measurement": "Mandy/KULA map 0 expected global palette 32; physical slot 0 contained Table palette 428, ready state 1",
+    "witness": "resource-bindings-resources.txt.faults",
+    "cause": "Mapped-palette fast path checked only selector count, allowing a reused CGRAM slot identity to escape validation",
+    "fix": "Validate every mapped source palette content identity and actor ownership; rebuild invalid maps and restart palette transfer fence through shared allocator"
+  },
+  "resolved": {
+    "rom_sha256": "46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a",
+    "native_summary": "byor-easy-m3-native-summary.json",
+    "all_resource_faults": 0
+  }
+}

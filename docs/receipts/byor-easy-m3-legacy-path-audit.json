@@ -1,0 +1,77 @@
+{
+  "scope": "Production entry/queue/environment/visual/host exception audit, not wholesale legacy-code deletion",
+  "rows": [
+    {
+      "path": "byor.py",
+      "old": "Easy CLI compatibility dispatch",
+      "replacement": "shared source-set inventory/build",
+      "disposition": "BYPASSED"
+    },
+    {
+      "path": "tools/audio/shipped_content.py",
+      "old": "accepted-easy-s7 completion flags",
+      "replacement": "source-next, six authored next flags",
+      "disposition": "RETIRED"
+    },
+    {
+      "path": "tools/bor_compile/production_campaign.py",
+      "old": "source-set-0 accepted-legacy queue/unbound escape",
+      "replacement": "all BOR queues require source identity",
+      "disposition": "RETIRED_AFTER_NATIVE_GATES"
+    },
+    {
+      "path": "tools/audio/shipped_content.py",
+      "old": "Ramon/Time excluded from Easy and legacy unbound allowance",
+      "replacement": "source bindings 45/46 available to sets 0..3",
+      "disposition": "RETIRED"
+    },
+    {
+      "path": "build_rom.py",
+      "old": "Easy always available and selector campaign 0",
+      "replacement": "complete source linkage gate and shared campaign 3",
+      "disposition": "RETIRED"
+    },
+    {
+      "path": "tools/bor_compile/stage_water.py",
+      "old": "source environment IR collected for sets 1..3",
+      "replacement": "same adapters collect sets 0..3",
+      "disposition": "RETIRED"
+    },
+    {
+      "path": "src/main.pasm",
+      "old": "boot campaign 0 dispatch before foreground initialization",
+      "replacement": "compiler-generated source family boot campaign",
+      "disposition": "RETIRED"
+    },
+    {
+      "path": "src/core/campaign.pasm",
+      "old": "historical campaign-0 physical resolver",
+      "replacement": "unexposed by all original BOR selectors; retained internal/test compatibility",
+      "disposition": "BYPASSED"
+    },
+    {
+      "path": "src/core/campaign.pasm",
+      "old": "BorSet_BeginEasyRun wrapper",
+      "replacement": "source-default-set wrapper uses generated availability/dispatch",
+      "disposition": "RETAIN_SHARED_WRAPPER"
+    },
+    {
+      "path": "src/core/jump.pasm",
+      "old": "legacy fixed-size mirror/render compatibility",
+      "replacement": "source-policy actors use shared source-sized publisher/mirror; foreign/test compatibility remains",
+      "disposition": "BYPASSED"
+    },
+    {
+      "path": "src/core/actor_source_host.pasm",
+      "old": "host mode 0 compatibility service",
+      "replacement": "foreign/test/noncombat adapter service remains; source Easy combat host mode 1",
+      "disposition": "RETAIN_GENERIC"
+    },
+    {
+      "path": "tools/bor_compile/normal_coverage.py",
+      "old": "Easy non-contiguous physical media IDs",
+      "replacement": "source identity pins 0,1,2,11..21; authored order still LEVELS.TXT",
+      "disposition": "RETAIN_MEDIA_ABI"
+    }
+  ]
+}

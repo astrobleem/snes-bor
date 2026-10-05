@@ -1,0 +1,174 @@
+{
+  "verdict": "PASS",
+  "rows": [
+    {
+      "physical": 0,
+      "old": [
+        408,
+        28
+      ],
+      "new": [
+        408,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 1,
+      "old": [
+        140,
+        28
+      ],
+      "new": [
+        140,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 2,
+      "old": [
+        64,
+        28
+      ],
+      "new": [
+        64,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 11,
+      "old": [
+        380,
+        28
+      ],
+      "new": [
+        380,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 12,
+      "old": [
+        600,
+        28
+      ],
+      "new": [
+        600,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 13,
+      "old": [
+        480,
+        28
+      ],
+      "new": [
+        480,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 14,
+      "old": [
+        32,
+        28
+      ],
+      "new": [
+        32,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 15,
+      "old": [
+        382,
+        28
+      ],
+      "new": [
+        382,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 16,
+      "old": [
+        688,
+        28
+      ],
+      "new": [
+        688,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 17,
+      "old": [
+        32,
+        32
+      ],
+      "new": [
+        32,
+        32
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 18,
+      "old": [
+        600,
+        28
+      ],
+      "new": [
+        600,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 19,
+      "old": [
+        520,
+        28
+      ],
+      "new": [
+        520,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 20,
+      "old": [
+        42,
+        28
+      ],
+      "new": [
+        42,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    },
+    {
+      "physical": 21,
+      "old": [
+        35,
+        28
+      ],
+      "new": [
+        35,
+        28
+      ],
+      "verdict": "LEGACY_EQUIVALENT"
+    }
+  ],
+  "adaptation": "Physical 17 down-scroller pads the 28-row source raster to 32 rows in both media images"
+}

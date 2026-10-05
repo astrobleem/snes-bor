@@ -1,0 +1,46 @@
+{
+  "py_compile": {
+    "verdict": "PASS",
+    "files": [
+      "build_rom.py",
+      "byor.py",
+      "tools/audio/shipped_content.py",
+      "tools/bor_compile/build_normal_sa1_candidate.py",
+      "tools/bor_compile/normal_coverage.py",
+      "tools/bor_compile/production_campaign.py",
+      "tools/bor_compile/stage_water.py",
+      "tools/bor_compile/test_byor_bonus.py",
+      "tools/bor_compile/test_byor_hard.py",
+      "tools/bor_compile/test_normal_bindings.py",
+      "tools/bor_compile/test_production_campaign.py",
+      "tools/bor_compile/test_scene_video_init.py",
+      "tools/bor_compile/test_source_visual_extended_admission.py",
+      "tools/bor_compile/test_stage_frontpanel_motion.py",
+      "tools/verify/_game_s8_normal_campaign_base.py",
+      "tools/verify/_harness.py",
+      "tools/verify/actor_s7_persistent_worker.py",
+      "tools/verify/game_bor_startup_select.py",
+      "tools/verify/game_byor_selector.py",
+      "tools/verify/game_s8_normal_campaign.py",
+      "tools/verify/test_game_s8_spawn_traversal.py",
+      "tools/verify/test_s8_candidate_build.py",
+      "tools/bor_compile/easy_differential.py",
+      "tools/bor_compile/test_byor_easy.py",
+      "tools/verify/byor_source_mirror.py"
+    ],
+    "count": 25
+  },
+  "focused_logs": {
+    "focused-final.log": "..................................... [ 59%]\n.........................                                  [100%]\n62 passed, 49 subtests passed in 41.25s",
+    "affected-runtime-tests.log": "........................................................................ [ 91%]\n.......                                                                  [100%]\n79 passed in 3.52s",
+    "affected-environment-tests.log": "........................                                                 [100%]\n24 passed in 20.38s",
+    "easy-closeout-tests.log": "{\n  \"compiler\": \"BYOR \\u2014 Bring Your Own Rage\",\n  \"output\": \"candidate\",\n  \"source_set\": \"Easy\"\n}\n...........\n----------------------------------------------------------------------\nRan 11 tests in 1.883s\n\nOK",
+    "campaign-closeout-tests.log": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.062s\n\nOK",
+    "publication-final-tests.log": "...........\n----------------------------------------------------------------------\nRan 11 tests in 185.975s\n\nOK",
+    "traversal-final-contract-tests.log": ".........................................................\n----------------------------------------------------------------------\nRan 57 tests in 0.355s\n\nOK",
+    "visual-final-tests.log": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.008s\n\nOK",
+    "worker-environment-final-tests.log": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.004s\n\nOK"
+  },
+  "assembly_layout": "Assembled src/main.pasm -> src/main.bin (884906 bytes + main.pansy)\nPoppy binary: 884906 bytes (0xD80AA)\nbank0 layout guard: PASS (runtime_end=$FF9E, free_before_nmi=2 bytes, header_window=$7FC0-$7FFF empty)\ntext bank layout guard: PASS (pool=$0285F8-$028B80, name_ptrs=$028980)\nscore layout guard: PASS (Game_Score32=$7E58D1-$7E58D4, G13_P2Score32=$7E58D5-$7E58D8, HudCachedScore32=$7E58D9-$7E58DC, HudCachedP2Score32=$7E58DD-$7E58E0, P1_Lives16=$7E58E1-$7E58E2, P2_Lives16=$7E58E3-$7E58E4, HudCachedLives16=$7E58E5-$7E58E6, HudCachedP2Lives16=$7E58E7-$7E58E8)\n{\n  \"compiler\": \"BYOR \\u2014 Bring Your Own Rage\",\n  \"output\": \"E:\\\\gh\\\\snes-bor\\\\build\\\\byor-easy\",\n  \"source_set\": \"Easy\",\n  \"rom_sha256\": \"46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a\",\n  \"msu_sha256\": \"eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf\"\n}\n",
+  "git_diff_check": "PASS"
+}

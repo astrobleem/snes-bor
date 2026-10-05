@@ -1,0 +1,32 @@
+{
+  "classification": "MEASURED_SHARED_RUNTIME_RACE",
+  "old_rom_sha256": "29ec98a5ef12ad667eb8138550e4046ef00c7551233b3a53c6b5f8f088f0e121",
+  "stage": 11,
+  "packed_index": 52,
+  "host_error": 23,
+  "worker_error": 0,
+  "event_overflow": 0,
+  "preceding_unlink": {
+    "sequence": 3062,
+    "kind": 3,
+    "tick": 25378,
+    "source_d": 32256,
+    "x": 665,
+    "y": 0,
+    "extra": 0
+  },
+  "corrupted_prop_query": {
+    "sequence": 3063,
+    "kind": 4,
+    "tick": 25378,
+    "source_d": 7680,
+    "x": 3390,
+    "y": 471,
+    "extra": 0
+  },
+  "producer_source_d_scratch": "0x41243C",
+  "old_relay_unlink_scratch": "0x41243C",
+  "new_relay_unlink_scratch": "0x7E176A",
+  "explanation": "Concurrent relay unlink subtracted 0x6000 from 0x7E00 into producer scratch while SA-1 was publishing its next native-prop record. The invalid recorded 0x1E00 owner exactly matches that value.",
+  "fix_scope": "Separate producer-owned scratch from consumer-owned S-CPU WRAM; no transport sequence/count/cadence changes."
+}

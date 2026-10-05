@@ -1,0 +1,20 @@
+{
+  "verdict": "PASS",
+  "scope": "real selector and bounded first-entry source-world smoke",
+  "rows": [
+    {
+      "source_set": "Easy",
+      "verdict": "PASS",
+      "fixture_initial_completions": 0,
+      "physical_stage": 0,
+      "source_path": "DATA\\EASY\\1AEASY.TXT",
+      "selected_source_set": 0,
+      "player_roster": 22,
+      "host_mode": 0,
+      "host_error": null,
+      "source_ticks": null,
+      "times_completed": 0
+    }
+  ],
+  "rom_sha256": "34dda36cba7ca71766b4879bb2c398b75b015932d43e31425c37706b4c3c64f0"
+}

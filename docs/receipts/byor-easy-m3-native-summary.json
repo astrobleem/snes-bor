@@ -1,0 +1,328 @@
+{
+  "verdict": "PASS",
+  "packed_records": 667,
+  "source_spawns": 545,
+  "record_bytes_and_order_match": true,
+  "resource_binding_checks": {
+    "emitted_pieces": 34077,
+    "tile_faults": 0,
+    "block_faults": 0,
+    "palette_faults": 0,
+    "oam_hi_faults": 0
+  },
+  "mirrors": {
+    "emitted_pieces": 1624,
+    "physical_stages": [
+      19
+    ],
+    "source_rosters": [
+      22,
+      43
+    ],
+    "animation_roles": [
+      0,
+      1,
+      2
+    ],
+    "source_maps": "Not encoded in this low-word key observer; no map claim from mirror journal",
+    "resource_policy": "Shared source pose and resident tiles/palettes; ground equation uses established coordinate adapter; air and depth remain ACCEPTED_COMPAT"
+  },
+  "scenes": [
+    {
+      "ordinal": 13,
+      "source": "RUGAL",
+      "presented": 126,
+      "transitions": 0,
+      "completion": 1,
+      "skip": 0,
+      "late": 0,
+      "retries": 0
+    },
+    {
+      "ordinal": 15,
+      "source": "ENDING",
+      "presented": 1997,
+      "transitions": 4,
+      "completion": 1,
+      "skip": 0,
+      "late": 0,
+      "retries": 0
+    }
+  ],
+  "completion": {
+    "before": 0,
+    "after": 1,
+    "selected_source_set": 0,
+    "title_dwell_observations": 180
+  },
+  "sampling": "frames_sampled counts controller observations; native admissions are observed independently",
+  "native_interaction_sample": {
+    "verdict": "PASS",
+    "scope": "bounded unaccelerated real input after compiler-owned approach",
+    "limit_fields": 2400,
+    "source_prop_roster": 19,
+    "slot": 1,
+    "samples": [
+      {
+        "field": 0,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 470,
+          "y": 123
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 20,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 482,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 40,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 496,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 60,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 510,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 80,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 526,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 100,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 546,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 120,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 552,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 140,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 568,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 160,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 577,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 180,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 587,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 19,
+          "mode": 3,
+          "hp": 4,
+          "pickup": 3,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      },
+      {
+        "field": 200,
+        "player": {
+          "slot": 0,
+          "roster": 22,
+          "mode": 1,
+          "hp": 64,
+          "pickup": 0,
+          "x": 595,
+          "y": 130
+        },
+        "target": {
+          "slot": 1,
+          "roster": 15,
+          "mode": 3,
+          "hp": 0,
+          "pickup": 0,
+          "x": 616,
+          "y": 132
+        },
+        "host_error": 0
+      }
+    ],
+    "writes": "controller input only",
+    "drop_roster": 15,
+    "fields": 200,
+    "prop_damage": true,
+    "drop_observed": true,
+    "pickup_consumed": true,
+    "pickup_apply_events": [
+      "2429|3|9"
+    ],
+    "journal": "out\\byor-easy-evidence\\native-interaction-events-release.txt"
+  },
+  "visual_admission": {
+    "records": 14182,
+    "codes": {
+      "39": 14182
+    },
+    "hard_faults": 0,
+    "deferred_admission_policy": "Existing pending resource fences defer publication; no continuous cadence certification"
+  }
+}
