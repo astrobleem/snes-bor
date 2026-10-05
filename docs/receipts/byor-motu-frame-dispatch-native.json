@@ -1,0 +1,4081 @@
+{
+  "schema": "BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1",
+  "status": "PASS",
+  "rom_sha256": "f15a04ab5f53c3f9c0be0fd3cd6abd6da724263d068f17526aae0f250709f889",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "model": "He_ManB",
+  "animation": "freespecial4",
+  "animation_handle": 36,
+  "module": {
+    "schema": "BYOR_ROM_SCRIPT_LINK_V1",
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "instruction_count": 3127,
+    "instruction_bytes": 25016,
+    "slot_count": 670,
+    "slot_bytes": 5360,
+    "metadata_bytes": 12400,
+    "callsites": 382,
+    "instruction_sha256": "676b411d7c2e8cb4a647b7893ece16e31645d9255f40c795ced188eb9d1d31b5",
+    "metadata_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+    "no_functions_removed": true,
+    "no_commands_removed": true,
+    "native_loader_bound": false,
+    "native_rom_fetch_bound": false,
+    "entity_api_bound": false,
+    "motu_gameplay_proven": false,
+    "frame_dispatch_bound": false,
+    "empty_route_requires_valid_context": true,
+    "dispatch_table_bytes": 2678,
+    "dispatch_table_sha256": "82ba65021115ebb44cdf132a818fff133880f8fb991a4619f6426a73accaa990",
+    "dispatch_rom_offset": 25016,
+    "total_rom_reservation_bytes": 27694,
+    "sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9"
+  },
+  "cases": [
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 4,
+      "error": 0,
+      "native_id": 26805,
+      "dispatch_scenario": "empty",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22264596
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32770,
+        "k": 27,
+        "a": 237,
+        "x": 236,
+        "y": 192,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22308762
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 4,
+      "context_lease": true,
+      "fields": 2,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "command",
+      "dispatch_entry": 544,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22837596
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32770,
+        "k": 27,
+        "a": 134,
+        "x": 133,
+        "y": 113,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22890979
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": false,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_context",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23363240
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54712,
+        "k": 0,
+        "a": 272,
+        "x": 135,
+        "y": 139,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23392391
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 1000,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_frame",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23909682
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54697,
+        "k": 0,
+        "a": 43,
+        "x": 42,
+        "y": 70,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 132,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23927508
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_fetch_lease",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24128293
+      },
+      "rom_fetch_enabled": false,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32770,
+        "k": 27,
+        "a": 28,
+        "x": 27,
+        "y": 67,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24151655
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_program",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24480934
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 50098,
+        "k": 0,
+        "a": 128,
+        "x": 8,
+        "y": 0,
+        "sp": 8160,
+        "d": 0,
+        "dbr": 0,
+        "ps": 132,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24509504
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_table_lease",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24809351
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 65440,
+        "k": 0,
+        "a": 985,
+        "x": 984,
+        "y": 49,
+        "sp": 8173,
+        "d": 0,
+        "dbr": 0,
+        "ps": 5,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24824365
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bank_spill",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25260002
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 33062,
+        "k": 16,
+        "a": 0,
+        "x": 0,
+        "y": 1,
+        "sp": 8164,
+        "d": 0,
+        "dbr": 0,
+        "ps": 3,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25284691
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "header_count_mismatch",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25373579
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54697,
+        "k": 0,
+        "a": 97,
+        "x": 96,
+        "y": 208,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 132,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25423957
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_handle",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25787759
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 33401,
+        "k": 14,
+        "a": 168,
+        "x": 1010,
+        "y": 123,
+        "sp": 8170,
+        "d": 0,
+        "dbr": 0,
+        "ps": 133,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25814939
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "busy_yield",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26244223
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 3127,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54720,
+        "k": 0,
+        "a": 1115,
+        "x": 2022,
+        "y": 147,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26277756
+      },
+      "resident_module_sha256": "9d960d09d6dc78a57973aace934957b875e219cc9afd9a3d995e1f6a834fb8c9",
+      "module_unchanged": true
+    }
+  ],
+  "rom_instruction_address": 2523136,
+  "source_effect_native_executed": false,
+  "motu_gameplay_proven": false,
+  "entity_read_view_installed": true,
+  "native_cpu_spans": [
+    {
+      "start_clock": 175822554,
+      "end_clock": 175834886,
+      "master_clocks": 12332,
+      "start_field": 492,
+      "end_field": 492,
+      "instructions": 0,
+      "status": 4,
+      "error": 0,
+      "native_id": 26805
+    },
+    {
+      "start_clock": 180375686,
+      "end_clock": 180609778,
+      "master_clocks": 234092,
+      "start_field": 504,
+      "end_field": 505,
+      "instructions": 32,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 184551210,
+      "end_clock": 184552160,
+      "master_clocks": 950,
+      "start_field": 516,
+      "end_field": 516,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 188890844,
+      "end_clock": 188901198,
+      "master_clocks": 10354,
+      "start_field": 528,
+      "end_field": 528,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 190622208,
+      "end_clock": 190624170,
+      "master_clocks": 1962,
+      "start_field": 533,
+      "end_field": 533,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 193419128,
+      "end_clock": 193421660,
+      "master_clocks": 2532,
+      "start_field": 541,
+      "end_field": 541,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 196024080,
+      "end_clock": 196025914,
+      "master_clocks": 1834,
+      "start_field": 548,
+      "end_field": 548,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 199601332,
+      "end_clock": 199603696,
+      "master_clocks": 2364,
+      "start_field": 558,
+      "end_field": 558,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 200499116,
+      "end_clock": 200505030,
+      "master_clocks": 5914,
+      "start_field": 561,
+      "end_field": 561,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 203788516,
+      "end_clock": 203790214,
+      "master_clocks": 1698,
+      "start_field": 570,
+      "end_field": 570,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 207412494,
+      "end_clock": 207413102,
+      "master_clocks": 608,
+      "start_field": 580,
+      "end_field": 580,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    }
+  ],
+  "source_200hz_cadence_proven": false,
+  "offline_frame_entry": false,
+  "native_frame_dispatch_executed": true,
+  "frame_dispatch_production_owner_bound": false,
+  "cost_scope": "Vm_SourceFrameGate entry through terminal status write; includes intervening runtime work; excludes checkpoint waiting",
+  "scope": "Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting",
+  "runtime_world_owner_bound": false,
+  "production_module_loader_bound": false,
+  "table_crc_lease_scope": "Fixture validates generated module/table; native lookup relies on immutable ROM lease and checks structural bounds",
+  "full_rom_audit_pass": true,
+  "host_script_tests": 23,
+  "color_reduction_applied": false,
+  "original_static_regression": {
+    "rom_sha256": "2bec2778b25098304f22128e3701c1b9f05e48b995a07764f31f6b873b8cfde4",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "Kula selection reaches PLAYING",
+        true
+      ],
+      [
+        "Kula source roster identity",
+        true
+      ],
+      [
+        "persistent source campaign first stage",
+        true
+      ],
+      [
+        "first stage remains PLAYING",
+        true
+      ],
+      [
+        "static source presentation has no observed hard admission fault",
+        true
+      ],
+      [
+        "each deferred actor subsequently publishes source OAM",
+        false
+      ],
+      [
+        "player publishes source-sized OAM",
+        true
+      ],
+      [
+        "four bounded production fields observed",
+        true
+      ]
+    ],
+    "campaign_state": [
+      3,
+      0,
+      0
+    ],
+    "source_visual_error": 39,
+    "bus_samples": [
+      {
+        "field": 1,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "16896": 1,
+          "8466": 2,
+          "8465": 2,
+          "16907": 2,
+          "16908": 2,
+          "8464": 2,
+          "8463": 2,
+          "8448": 2,
+          "8462": 2,
+          "8450": 2,
+          "8451": 2,
+          "8452": 5,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175060594
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175060680
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175061794
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175063352
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 175071084
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 234,
+            "masterClock": 175071154
+          }
+        ]
+      },
+      {
+        "field": 2,
+        "counts": {
+          "17267": 7,
+          "17268": 7,
+          "17269": 7,
+          "17270": 7,
+          "8469": 7,
+          "8470": 7,
+          "8471": 7,
+          "8472": 393,
+          "8473": 393,
+          "16907": 7,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 7,
+          "17265": 7,
+          "17266": 7,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175417924
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175418010
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175419146
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175420838
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 175423450
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 232,
+            "masterClock": 175426062
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 234,
+            "masterClock": 175428674
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 236,
+            "masterClock": 175431286
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 237,
+            "masterClock": 175433898
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 241,
+            "masterClock": 175439308
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 241,
+            "masterClock": 175439378
+          }
+        ]
+      },
+      {
+        "field": 3,
+        "counts": {
+          "8460": 1,
+          "8461": 2,
+          "8492": 1,
+          "16908": 2,
+          "8464": 2,
+          "8465": 2,
+          "8466": 2,
+          "16896": 1,
+          "8453": 1,
+          "8463": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8462": 2,
+          "8459": 1,
+          "8448": 2
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175775298
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175775384
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 231,
+            "masterClock": 175782532
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 231,
+            "masterClock": 175782602
+          }
+        ]
+      },
+      {
+        "field": 4,
+        "counts": {
+          "17267": 4,
+          "17268": 4,
+          "17269": 4,
+          "17270": 4,
+          "8469": 4,
+          "8470": 4,
+          "8471": 4,
+          "8472": 128,
+          "8473": 128,
+          "16907": 4,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 4,
+          "17265": 4,
+          "17266": 4,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 176132696
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 176132782
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 176133918
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 176136018
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 176138078
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 231,
+            "masterClock": 176140178
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 236,
+            "masterClock": 176146402
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 236,
+            "masterClock": 176146472
+          }
+        ]
+      }
+    ],
+    "source_visual_observer": [
+      {
+        "field": 1,
+        "busy": {},
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 2,
+        "busy": {},
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 3,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 4,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 5,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 6,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 7,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 8,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 9,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 10,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 11,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 12,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 13,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 14,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 15,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 16,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 17,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 18,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 19,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 20,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 21,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 22,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 23,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 24,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 25,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 26,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 27,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 28,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 29,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 30,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 31,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 32,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 33,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 34,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 35,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 36,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 37,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 38,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 39,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 40,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 41,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 42,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 43,
+        "busy": {
+          "0": 1
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 44,
+        "busy": {
+          "0": 2,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 45,
+        "busy": {
+          "0": 2,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 46,
+        "busy": {
+          "0": 2,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 47,
+        "busy": {
+          "0": 2,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 48,
+        "busy": {
+          "0": 2,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 49,
+        "busy": {
+          "0": 4,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 50,
+        "busy": {
+          "0": 4,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 51,
+        "busy": {
+          "0": 4,
+          "32": 3
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 52,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 53,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 54,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 55,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 56,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 57,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 58,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 59,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 60,
+        "busy": {
+          "0": 4,
+          "32": 5
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 61,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 62,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 63,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 64,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 65,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 66,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 67,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 68,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 69,
+        "busy": {
+          "0": 6,
+          "32": 7
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 70,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 71,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 72,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 73,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 74,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 75,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 76,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 77,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 78,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 79,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 80,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 81,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 82,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 83,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 84,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 85,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 86,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 87,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 88,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 89,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 90,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 91,
+        "busy": {
+          "0": 8,
+          "32": 9
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 92,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 93,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 94,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 95,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 96,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 97,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 98,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 99,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 100,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 101,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 102,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 103,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 104,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 105,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 106,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 107,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 108,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 109,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 110,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 111,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 112,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 113,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 114,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 115,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 116,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 117,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 118,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 119,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 120,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 121,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 122,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 123,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 124,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 125,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 126,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 127,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 128,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 129,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 130,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 131,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 132,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 133,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 134,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 135,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 136,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 137,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 138,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 139,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 140,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 141,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 142,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 143,
+        "busy": {
+          "0": 10,
+          "32": 11
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 144,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 145,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 146,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 147,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 148,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 149,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 150,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 151,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 152,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 153,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 154,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 155,
+        "busy": {
+          "0": 12,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 156,
+        "busy": {
+          "0": 14,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 157,
+        "busy": {
+          "0": 14,
+          "32": 13
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 158,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 159,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 160,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 161,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 162,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 163,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 164,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 165,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 166,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 167,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 168,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 169,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 170,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 171,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 172,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 173,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 174,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 175,
+        "busy": {
+          "0": 14,
+          "32": 15
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 176,
+        "busy": {
+          "0": 16,
+          "32": 17
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 177,
+        "busy": {
+          "0": 16,
+          "32": 17
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 178,
+        "busy": {
+          "0": 16,
+          "32": 17
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 179,
+        "busy": {
+          "0": 16,
+          "32": 17
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 180,
+        "busy": {
+          "0": 16,
+          "32": 17
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 181,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 182,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 183,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 184,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {},
+        "hard": []
+      },
+      {
+        "field": 185,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 186,
+        "busy": {
+          "0": 18,
+          "32": 19
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 187,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 188,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 189,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 190,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 191,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 192,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 193,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 194,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 195,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 196,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 197,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 198,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 199,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 200,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 201,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 202,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 203,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 204,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 205,
+        "busy": {
+          "0": 18,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 206,
+        "busy": {
+          "0": 22,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 207,
+        "busy": {
+          "0": 22,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 208,
+        "busy": {
+          "0": 22,
+          "32": 21
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 209,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 210,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 211,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 212,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 213,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 214,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 215,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 216,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 217,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 218,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 219,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 220,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 221,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 222,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 223,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 224,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 225,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 226,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 227,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 228,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 229,
+        "busy": {
+          "0": 22,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 230,
+        "busy": {
+          "0": 24,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 231,
+        "busy": {
+          "0": 24,
+          "32": 23
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 232,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 233,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 234,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 235,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 236,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 237,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 238,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 239,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 240,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 241,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 242,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 243,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 244,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 245,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 246,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 247,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 248,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 249,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 250,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 251,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 252,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 253,
+        "busy": {
+          "0": 24,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 254,
+        "busy": {
+          "0": 26,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 255,
+        "busy": {
+          "0": 26,
+          "32": 25
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 256,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 257,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 258,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 259,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 260,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 261,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 262,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 263,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 264,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 265,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 266,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 267,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 268,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 269,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 270,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 271,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 272,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 273,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 274,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 275,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 276,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 277,
+        "busy": {
+          "0": 26,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 278,
+        "busy": {
+          "0": 28,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 279,
+        "busy": {
+          "0": 28,
+          "32": 27
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 280,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 281,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 282,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 283,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 284,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 285,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 286,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 287,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 288,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 289,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 290,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 291,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 292,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 293,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 294,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 295,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 296,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 297,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 298,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 299,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 300,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 301,
+        "busy": {
+          "0": 28,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 302,
+        "busy": {
+          "0": 30,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 303,
+        "busy": {
+          "0": 30,
+          "32": 29
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 304,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 305,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 306,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 307,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 308,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 309,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 310,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 311,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 312,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      },
+      {
+        "field": 313,
+        "busy": {
+          "0": 30,
+          "32": 31
+        },
+        "published": {
+          "0": 20
+        },
+        "hard": []
+      }
+    ],
+    "source_busy_deferrals_recovered": false,
+    "player_visual_lease_hex": "9d03000000000100000000000000000000000000000000000000000000160000",
+    "actor_visual_leases_hex": "9d030000000001000000000000000000000000000000000000000000001600009f000000000001000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "additional_admission_fields": 300,
+    "scope": "Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.",
+    "no_pcm_copies": true
+  }
+}

@@ -100,7 +100,7 @@ Vm_Run:
     rep #$31
 .a16
 .i16
-    lda.l VmState_Status
+    jsl Vm_SourceFrameGate       ; same four bytes; legacy status or opt-in job
     and #$00FF
     cmp #VMSTAT_DONE
     bcs Vm_Run__noop            ; DONE(4) or FAULT(5): already terminal

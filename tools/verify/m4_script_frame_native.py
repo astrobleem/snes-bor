@@ -6,6 +6,7 @@ from pathlib import Path
 import struct
 import sys
 import os
+import zlib
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from compiler import Source
@@ -22,6 +23,7 @@ def main():
     p.add_argument('--entity-view',action='store_true',help='Install a generic leased caller entity read view')
     p.add_argument('--observe-cost',action='store_true',help='Bounded native execution clocks/instruction observer')
     p.add_argument('--frame-dispatch',action='store_true',help='Exercise the offline frame-4 entry; empty-route runtime dispatcher remains unbound')
+    p.add_argument('--native-frame-dispatch',action='store_true',help='Submit checked-table native jobs, including empty and invalid caller cases')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -45,28 +47,44 @@ def main():
             target=a.output/path.name
             if not target.exists():os.link(path,target)
         entry=next(p['entry_ip'] for p in linked['programs'] if p['identity']['model']==item['model'])
-        if a.frame_dispatch:
+        if a.frame_dispatch or a.native_frame_dispatch:
             location=next(p for p in linked['programs'] if p['identity']['model']==item['model'])
             route=next(r for r in location['routes'] if r['animation_handle']==handle)
             if route['entry_ips'][3] is not None:raise ValueError('FRAME_THREE_MUST_HAVE_EMPTY_ROUTE')
             entry=route['entry_ips'][4]
             if entry is None:raise ValueError('FRAME_FOUR_ENTRY_REQUIRED')
+            if a.native_frame_dispatch:
+                table=(a.linked/'dispatch.b4fd').read_bytes()
+                magic,version,_,_,reserved,code_crc,metadata_crc,payload_crc=struct.unpack_from('<4sHHHHIII',table)
+                if (magic!=b'B4FD' or version!=1 or reserved or code_crc!=zlib.crc32(instructions)&0xffffffff
+                    or metadata_crc!=zlib.crc32(blob)&0xffffffff or payload_crc!=zlib.crc32(table[24:])&0xffffffff):
+                    raise ValueError('FRAME_DISPATCH_PAIRED_CRC_LEASE_INVALID')
+                if len(instructions)+len(table)>32768:raise ValueError('FRAME_DISPATCH_ROM_BANK_CAPACITY')
+                raw[offset+len(instructions):offset+len(instructions)+len(table)]=table
+                (a.output/'bor.sfc').write_bytes(raw)
         compiled=linked|dict(sha256=linked['metadata_sha256'])
-    elif a.frame_dispatch:raise ValueError('FRAME_DISPATCH_LINK_REQUIRED')
+    elif a.frame_dispatch or a.native_frame_dispatch:raise ValueError('FRAME_DISPATCH_LINK_REQUIRED')
     offsets=struct.unpack_from('<6I',blob,24);count,slotcount=struct.unpack_from('<2H',blob,8)
     reporter=Reporter('M4-AUTHORED-SCRIPT-GUARD',kind='GATE');cases=[]
     from actor_s5_entity_fixture import symbols
     from m4_vm_cost_observer import observed_session,pause_for_injection
     runtime_symbols=symbols(root/'src/main.sym')
-    session_type=observed_session(a.output,runtime_symbols,count)
+    session_type=observed_session(a.output,runtime_symbols,count,include_dispatch=a.native_frame_dispatch)
     with session_type(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_PLAYING_REQUIRED')
         inputs=([(4,True,True,entry),(4,False,True,entry)] if a.frame_dispatch else
                 [(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)])
-        if linked:inputs.extend([(3,True,False,0),(3,True,True,count)])
-        for frame,lease,rom_mode,start_ip in inputs:
+        scenarios=None
+        if a.native_frame_dispatch:
+            inputs=[(3,True,True,count),(4,True,True,count),(3,False,True,count),
+                    (1000,True,True,count),(3,True,False,count)]+[(3,True,True,count)]*6
+            scenarios=['empty','command','no_context','bad_frame','no_fetch_lease','bad_program',
+                       'no_table_lease','bank_spill','header_count_mismatch','bad_handle','busy_yield']
+        elif linked:inputs.extend([(3,True,False,0),(3,True,True,count)])
+        for case_index,(frame,lease,rom_mode,start_ip) in enumerate(inputs):
+            scenario=scenarios[case_index] if scenarios else None
             if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_CASE_PLAYING_REQUIRED')
             at_entry=pause_for_injection(m,runtime_symbols)
             m.pause();m.write_memory('snesMemory',code,blob.hex())
@@ -92,6 +110,24 @@ def main():
             for name,value in [('VmState_Ip',start_ip),('VmState_Error',0),('VmState_InstrCount',count),
                 ('VmState_SlotCount',slotcount),('VmState_FrameTop',0)]:m.write_u16(c(const,name),value)
             m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_READY'))
+            if a.native_frame_dispatch:
+                dispatch='src/core/vm/vm_source_frame.pasm'
+                table_address=rom_address+len(instructions)
+                _,_,programs,handles,_,_,_,_=struct.unpack_from('<4sHHHHIII',table)
+                program_index=next(i for i,p in enumerate(linked['programs']) if p['identity']['model']==item['model'])
+                for name,value in [('VmSourceFrame_Base',table_address&0xffff),('VmSourceFrame_Bytes',len(table)),
+                    ('VmSourceFrame_Programs',programs),('VmSourceFrame_Handles',handles),
+                    ('VmSourceFrame_Ready',0xb4fd),('VmSourceFrame_Program',program_index),('VmSourceFrame_Pending',0xb4fc)]:
+                    m.write_u16(c(dispatch,name),value)
+                m.write_u8(c(dispatch,'VmSourceFrame_Bank'),table_address>>16)
+                mutations={'bad_program':('VmSourceFrame_Program',programs),
+                           'no_table_lease':('VmSourceFrame_Ready',0),
+                           'bank_spill':('VmSourceFrame_Base',0xfffc),
+                           'header_count_mismatch':('VmSourceFrame_Handles',handles+1)}
+                if scenario in mutations:
+                    name,value=mutations[scenario];m.write_u16(c(dispatch,name),value)
+                if scenario=='bad_handle':m.write_u16(c(variant,'VmNativeVariant_AnimHandle')+4,0)
+                if scenario=='busy_yield':m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_YIELDED'))
             base=c(const,'VM_STATE_FIRST')
             for field in range(1,61):
                 run_frames_exact(m,1);state=read_block(m,base,32)
@@ -100,6 +136,11 @@ def main():
                 if status in (c(const,'VMSTAT_DONE'),c(const,'VMSTAT_FAULT')):break
             target=struct.unpack('<H',read_block(m,c(call,'VmCall_TargetId'),32)[:2])[0]
             case=dict(frame=frame,context_lease=lease,fields=field,status=status,error=error,native_id=target)
+            if a.native_frame_dispatch:
+                case['dispatch_scenario']=scenario
+                case['dispatch_entry']=struct.unpack('<H',read_block(m,c(dispatch,'VmSourceFrame_Entry'),32)[:2])[0]
+                case['dispatch_pending']=struct.unpack('<H',read_block(m,c(dispatch,'VmSourceFrame_Pending'),32)[:2])[0]
+                reporter.check('submitted source job consumed once',case['dispatch_pending']==0)
             case['injection_checkpoint']=at_entry
             case.update(rom_fetch_enabled=bool(linked and rom_mode),entry_ip=start_ip)
             case['game_state']=startup.u16(m,startup.STATE)
@@ -108,7 +149,10 @@ def main():
             case['module_unchanged']=case['resident_module_sha256']==compiled['sha256']
             reporter.check('resident module identity remains intact',case['module_unchanged'])
             cases.append(case)
-            if linked and (not rom_mode or start_ip==count):
+            if a.native_frame_dispatch and scenario not in ('empty','command'):
+                reporter.check('native route rejects invalid context/frame/ROM lease before empty route',
+                               status==c(const,'VMSTAT_FAULT') and error==c(const,'VMERR_BAD_NATIVE'))
+            elif linked and not a.native_frame_dispatch and (not rom_mode or start_ip==count):
                 expected=c(const,'VMERR_BAD_OPCODE' if not rom_mode else 'VMERR_BAD_JUMP')
                 reporter.check('external-format/fetch-boundary rejection '+str(expected),
                     status==c(const,'VMSTAT_FAULT') and error==expected)
@@ -123,15 +167,20 @@ def main():
         from m4_vm_cost_observer import spans
         observed=spans(a.output/'mesen.log')
         reporter.check('one bounded CPU span per authored case',len(observed)==len(cases))
-        reporter.check('observed instruction counts are bounded',all(0<x['instructions']<=200 for x in observed))
+        reporter.check('observed instruction counts are bounded',all((0 if a.native_frame_dispatch else 1)<=x['instructions']<=200 for x in observed))
+        if a.native_frame_dispatch:
+            reporter.check('empty and invalid jobs fetch no VM instructions',len(observed)==len(cases) and
+                           all(span['instructions']==0 for case,span in zip(cases,observed) if case['dispatch_scenario']!='command'))
     result=dict(schema='BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1',
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
         rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
         entity_read_view_installed=a.entity_view,native_cpu_spans=observed,source_200hz_cadence_proven=False,
-        offline_frame_entry=a.frame_dispatch,frame_dispatch_runtime_bound=False,
-        cost_scope='Vm_Run after entry PHP/REP and first status LDA through terminal status write; includes intervening runtime work; excludes checkpoint waiting',
+        offline_frame_entry=a.frame_dispatch,native_frame_dispatch_executed=a.native_frame_dispatch,
+        frame_dispatch_production_owner_bound=False,
+        cost_scope=('Vm_SourceFrameGate entry through terminal status write' if a.native_frame_dispatch else
+                    'Vm_Run after entry PHP/REP and first status LDA through terminal status write')+'; includes intervening runtime work; excludes checkpoint waiting',
         scope='Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting')
     (a.output/'report.json').write_text(json.dumps(result,indent=2)+'\n');reporter.finish()
 

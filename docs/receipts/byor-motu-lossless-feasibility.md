@@ -627,3 +627,30 @@ retained. These spans include intervening runtime work and exclude host waiting;
 they are partial callbacks, not source spawning or 200 Hz workload admission.
 Twenty-three focused script tests pass. Receipt: `byor-motu-frame-dispatch.json`.
 No color reduction is applied.
+
+### Native checked frame routing
+
+The opt-in native dispatcher consumes one submitted callback and validates the
+installed caller lease, self type, frame/animation-handle types and ranges,
+ROM instruction lease, immutable table header, descriptor bounds and selected
+entry IP before executing or skipping. An empty route returns DONE without
+fetching a VM instruction. A four-byte JSL replaces the existing four-byte
+status load; new routines and scratch live outside bank 0. Cold boot disables
+the table and job leases. The ordinary path retains legacy VM status behavior.
+Production world ownership and the B48R/CRC loader are still unbound; the native
+proof installs an externally checked, immutable ROM table lease.
+
+Eleven native cases pass: empty frame, authored spawn callback up to its unbound
+API, missing context, invalid frame, missing ROM lease, invalid program, missing
+table lease, ROM bank spill, header/count mismatch, zero handle and a busy
+yielded interpreter. Every empty/invalid case fetches zero VM instructions and
+each job is consumed once. The empty dispatch takes 12,332 observed master
+clocks; the partial frame-4 path including dispatch takes 234,092 clocks and
+32 VM instructions. These are bounded injected-context measurements, not full
+spawn or workload certification. Receipt: `byor-motu-frame-dispatch-native.json`.
+
+The full ROM audit and 23 focused script tests pass. The bounded original-BOR
+selector/first-stage/player-source-publication checks pass on the new image,
+but the stronger concurrent actor recovery check still FAILS as before. That
+result is retained explicitly; it is not a passing gameplay regression gate.
+No color reduction is applied.
