@@ -424,3 +424,31 @@ bank-0 scope before decoding. Two tests prove foreign bytes cannot manufacture
 a violation while a real unowned bank-0 call still fails. Full audit passes;
 width guard has zero new violations. No baseline failures are suppressed.
 Receipt: `byor-motu-typed-native-boundary.json`.
+
+### Native frame locals and real VM storage ownership
+
+Caller-installed self/frame/animnum/animhandle now return complete variants.
+Self retains its supplied pointer token rather than aliasing the player.
+Literal and existing dynamic string keys are read by identity; persistent
+local writes and entity APIs remain unbound. An invalid caller context fails
+explicitly. The native He_ManB breath wrapper returns before the command on
+frame 3; frame 4 reaches and rejects unbound getentityproperty (ID 520).
+With no context lease, getlocalvar fails at ID 521. Module bytes stay intact
+in every case. These are dispatch/binding checks, not effect execution.
+
+The former nominal 32 KiB code reservation overlapped scene-video staging
+and telemetry at $7E6200..$7E9A9B. This did not corrupt the video-inactive
+probe, but could not support larger modules concurrently with scene video.
+Code now owns $7E9AA0..$7EDFFF (17,760 bytes), disjoint from video and the
+fixed guard at $7EE000. The linker checks those actual intervals and packing
+counts all module sections against the real bound. All seven MOTU modules
+fit; the largest is 15,772 bytes. Code loading/actor attachment remain open.
+
+Native typed locals, authored frame guards, the original BOR selector and
+first-stage static presentation all pass on ROM
+`5fcd6eb097d2f931e87096fae770988861e1671c02f7401d35a9436711a08aa4`.
+Nineteen focused host tests and the ROM audit pass, with no new width errors.
+The authored checks take 3/12/12 observed fields at the existing host's VM
+checkpoint; this is not admission of 200 Hz source script timing. Runtime
+code remains in bank 28 and the bank-0 NMI margin remains two bytes.
+Receipt: `byor-motu-frame-locals-native.json`. No color reduction is applied.

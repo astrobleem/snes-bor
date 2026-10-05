@@ -24,8 +24,10 @@ SOURCE='int f(int x){if(x<3)return x+7;return x-1;} void main(){int a=f(2);int b
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
-    source=SOURCE.replace('return a*10+b;','void n=NULL();return a*10+b;')
-    blob,compiled=lower(compile_library(parse_script(source,'lowering-native-probe.c'),['NULL']),numeric_policy=POLICY)
+    source=SOURCE.replace('return a*10+b;',
+        'void n=NULL();void caller=getlocalvar("self");int fr=getlocalvar("frame");'
+        'int ah=getlocalvar("animhandle");return a*10+b;')
+    blob,compiled=lower(compile_library(parse_script(source,'lowering-native-probe.c'),['NULL','getlocalvar']),numeric_policy=POLICY)
     (a.output/'probe.b48s').write_bytes(blob)
     root=Path(__file__).resolve().parents[2]
     def constant(file,name):return pasm_constant_in(str(root/file),name)
@@ -42,6 +44,12 @@ def main():
         m.write_u16(constant(run,'VmPriv_InstrOff'),offsets[0])
         m.write_u16(constant(call,'VmCall_CallsitesOff'),offsets[2])
         m.write_u16(constant(call,'VmCall_ArgSlotsOff'),offsets[3])
+        m.write_u16(constant('src/core/vm/vm_string.pasm','VmStr_StringsOff'),offsets[4])
+        variant='src/core/vm/vm_native_variant.pasm'
+        context=struct.pack('<BBHI',5,0,0,0x006abcde)+struct.pack('<BBHI',1,0,0,42)+\
+            struct.pack('<BBHI',1,0,0,77)+struct.pack('<BBHI',1,0,0,36)
+        m.write_memory('snesMemory',constant(variant,'VmNativeVariant_Self'),context.hex())
+        m.write_u16(constant(variant,'VmNativeVariant_ContextValid'),0xb48f)
         for name,value in [('VmState_Ip',0),('VmState_Error',0),('VmState_InstrCount',count),
             ('VmState_SlotCount',slotcount),('VmState_FrameTop',0)]:m.write_u16(constant(const,name),value)
         m.write_u8(constant(const,'VmState_Status'),constant(const,'VMSTAT_READY'))
@@ -63,6 +71,11 @@ def main():
         nullslot=compiled['function_local_slots']['main']['n']
         nullbytes=read_block(m,slots+nullslot*8,32)[:8]
         report.check('Build 4086 NULL native returns complete EMPTY variant',nullbytes==bytes(8))
+        for name,kind,expected in [('caller',5,0x006abcde),('fr',1,42),('ah',1,36)]:
+            index=compiled['function_local_slots']['main'][name]
+            actual=struct.unpack('<BBHI',read_block(m,slots+index*8,32)[:8])
+            checks.append(dict(name=name,slot=index,type=actual[0],value=actual[3],expected=expected))
+            report.check('native context '+name+' retains caller variant',actual==(kind,0,0,expected))
         guards={}
         for name,fill in [('VmGuardLo',0xa5),('VmGuardHi',0x5a)]:
             guards[name]=read_block(m,constant(const,name),32)[:16].hex()
@@ -71,7 +84,7 @@ def main():
         status='PASS' if all(ok for _,ok in report.results) else 'FAIL',
         rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),source=source,module=compiled,
         samples=samples,checks=checks,guards=guards,null_variant_hex=nullbytes.hex(),
-        bound_source_apis=['NULL'],motu_native_apis_bound=False,motu_gameplay_proven=False,
+        bound_source_apis=['NULL','getlocalvar installed frame locals'],motu_native_apis_bound=False,motu_gameplay_proven=False,
         scope='Existing native VM call/branch/parameter/return lowering only; debug memory injection; original ROM unchanged')
     (a.output/'report.json').write_text(json.dumps(result,indent=2)+'\n');report.finish()
 

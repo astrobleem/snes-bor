@@ -1,0 +1,833 @@
+{
+  "schema": "BYOR_SOURCE_FRAME_LOCALS_NATIVE_V1",
+  "status": "NATIVE_FRAME_GUARD_AND_TYPED_LOCALS_PASS",
+  "native_frame_guard": {
+    "schema": "BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1",
+    "status": "PASS",
+    "rom_sha256": "5fcd6eb097d2f931e87096fae770988861e1671c02f7401d35a9436711a08aa4",
+    "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "model": "He_ManB",
+    "animation": "freespecial4",
+    "animation_handle": 36,
+    "module": {
+      "bytes": 6672,
+      "sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4",
+      "instructions": 499,
+      "slots": 142,
+      "callsites": 66,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [
+        {
+          "source_bits": "000000000000f83f",
+          "source": 1.5,
+          "adapted": 1.5,
+          "error": 0.0
+        }
+      ],
+      "function_local_slots": {
+        "dasher": {
+          "Vx": 53,
+          "Vy": 54,
+          "Vz": 55,
+          "self": 56,
+          "dir": 57
+        },
+        "leaper": {
+          "Vx": 58,
+          "Vy": 59,
+          "Vz": 60,
+          "self": 61,
+          "dir": 62
+        },
+        "keyint": {
+          "Ani": 63,
+          "Frame": 64,
+          "Key": 65,
+          "Hflag": 66,
+          "self": 67,
+          "Health": 68,
+          "iPIndex": 69,
+          "iRKey": 70
+        },
+        "keyflip": {
+          "Inv": 71,
+          "self": 72,
+          "iPIndex": 73
+        },
+        "flip": {
+          "self": 74,
+          "Direction": 75
+        },
+        "block": {
+          "Flag": 76,
+          "self": 77
+        },
+        "spawn01": {
+          "vName": 78,
+          "fX": 79,
+          "fY": 80,
+          "fZ": 81,
+          "self": 82,
+          "vSpawn": 83,
+          "iDirection": 84
+        },
+        "shooter": {
+          "Shot": 85,
+          "dx": 86,
+          "dy": 87,
+          "dz": 88,
+          "Vx": 89,
+          "Vy": 90,
+          "Vz": 91,
+          "self": 92,
+          "Dir": 93,
+          "x": 94,
+          "y": 95,
+          "z": 96,
+          "vShot": 97
+        },
+        "main": {
+          "frame": 98,
+          "animhandle": 99
+        }
+      },
+      "function_stack_slots": {
+        "dasher": [
+          100,
+          101,
+          102,
+          103,
+          104
+        ],
+        "leaper": [
+          105,
+          106,
+          107,
+          108
+        ],
+        "keyint": [
+          109,
+          110,
+          111
+        ],
+        "keyflip": [
+          112,
+          113,
+          114
+        ],
+        "flip": [
+          115,
+          116,
+          117
+        ],
+        "block": [
+          118,
+          119,
+          120,
+          121
+        ],
+        "spawn01": [
+          122,
+          123,
+          124,
+          125,
+          126
+        ],
+        "shooter": [
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134
+        ],
+        "main": [
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 513,
+          "name": "changeentityproperty",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 514,
+          "name": "changeentityproperty",
+          "arity": 4,
+          "bound": false
+        },
+        {
+          "id": 515,
+          "name": "changeentityproperty",
+          "arity": 5,
+          "bound": false
+        },
+        {
+          "id": 518,
+          "name": "clearspawnentry",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 520,
+          "name": "getentityproperty",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 523,
+          "name": "openborconstant",
+          "arity": 1,
+          "bound": false
+        },
+        {
+          "id": 525,
+          "name": "playerkeys",
+          "arity": 3,
+          "bound": false
+        },
+        {
+          "id": 526,
+          "name": "projectile",
+          "arity": 8,
+          "bound": false
+        },
+        {
+          "id": 529,
+          "name": "setspawnentry",
+          "arity": 2,
+          "bound": false
+        },
+        {
+          "id": 530,
+          "name": "spawn",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 531,
+          "name": "tossentity",
+          "arity": 4,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "cases": [
+      {
+        "frame": 3,
+        "context_lease": true,
+        "fields": 3,
+        "status": 4,
+        "error": 0,
+        "native_id": 521,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 32850,
+          "k": 27,
+          "a": 252,
+          "x": 251,
+          "y": 207,
+          "sp": 8177,
+          "d": 0,
+          "dbr": 0,
+          "ps": 4,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22360716
+        },
+        "resident_module_sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4",
+        "module_unchanged": true
+      },
+      {
+        "frame": 4,
+        "context_lease": true,
+        "fields": 12,
+        "status": 5,
+        "error": 10,
+        "native_id": 520,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 32894,
+          "k": 27,
+          "a": 42,
+          "x": 41,
+          "y": 21,
+          "sp": 8177,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22942360
+        },
+        "resident_module_sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4",
+        "module_unchanged": true
+      },
+      {
+        "frame": 3,
+        "context_lease": false,
+        "fields": 12,
+        "status": 5,
+        "error": 10,
+        "native_id": 521,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 54780,
+          "k": 0,
+          "a": 284,
+          "x": 283,
+          "y": 286,
+          "sp": 8180,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 23537614
+        },
+        "resident_module_sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4",
+        "module_unchanged": true
+      }
+    ],
+    "source_effect_native_executed": false,
+    "motu_gameplay_proven": false,
+    "scope": "Authored frame guard, installed caller locals and explicit missing getentityproperty capability only"
+  },
+  "native_typed_locals": {
+    "schema": "BYOR_NATIVE_SCRIPT_LOWERING_PROOF_V1",
+    "status": "PASS",
+    "rom_sha256": "5fcd6eb097d2f931e87096fae770988861e1671c02f7401d35a9436711a08aa4",
+    "source": "int f(int x){if(x<3)return x+7;return x-1;} void main(){int a=f(2);int b=f(8);void n=NULL();void caller=getlocalvar(\"self\");int fr=getlocalvar(\"frame\");int ah=getlocalvar(\"animhandle\");return a*10+b;}",
+    "module": {
+      "bytes": 659,
+      "sha256": "061ee67016dd48231dc221d17a1d2f87e3b402af37f9bf5a1ff6a96cb3f57fab",
+      "instructions": 38,
+      "slots": 21,
+      "callsites": 6,
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "decimal_constants": [],
+      "function_local_slots": {
+        "f": {
+          "x": 10
+        },
+        "main": {
+          "a": 11,
+          "b": 12,
+          "n": 13,
+          "caller": 14,
+          "fr": 15,
+          "ah": 16
+        }
+      },
+      "function_stack_slots": {
+        "f": [
+          17,
+          18
+        ],
+        "main": [
+          19,
+          20
+        ]
+      },
+      "engine_api_requirements": [
+        {
+          "id": 512,
+          "name": "NULL",
+          "arity": 0,
+          "bound": false
+        },
+        {
+          "id": 521,
+          "name": "getlocalvar",
+          "arity": 1,
+          "bound": false
+        }
+      ],
+      "source_numeric_equivalence": false,
+      "native_executed": false,
+      "entity_api_bound": false,
+      "unresolved_semantics": [
+        "Q16 arithmetic differs from binary64 including decimal NEG union fallthrough",
+        "engine pointer identity and comparisons require native support",
+        "divide-by-zero EMPTY behavior requires native support"
+      ]
+    },
+    "samples": [
+      {
+        "field": 1,
+        "status": 2,
+        "error": 0
+      },
+      {
+        "field": 2,
+        "status": 4,
+        "error": 0
+      }
+    ],
+    "checks": [
+      {
+        "name": "a",
+        "slot": 11,
+        "type": 1,
+        "value": 9,
+        "expected": 9
+      },
+      {
+        "name": "b",
+        "slot": 12,
+        "type": 1,
+        "value": 7,
+        "expected": 7
+      },
+      {
+        "name": "return",
+        "slot": 19,
+        "type": 1,
+        "value": 97,
+        "expected": 97
+      },
+      {
+        "name": "caller",
+        "slot": 14,
+        "type": 5,
+        "value": 6995166,
+        "expected": 6995166
+      },
+      {
+        "name": "fr",
+        "slot": 15,
+        "type": 1,
+        "value": 42,
+        "expected": 42
+      },
+      {
+        "name": "ah",
+        "slot": 16,
+        "type": 1,
+        "value": 36,
+        "expected": 36
+      }
+    ],
+    "guards": {
+      "VmGuardLo": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+      "VmGuardHi": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a"
+    },
+    "null_variant_hex": "0000000000000000",
+    "bound_source_apis": [
+      "NULL",
+      "getlocalvar installed frame locals"
+    ],
+    "motu_native_apis_bound": false,
+    "motu_gameplay_proven": false,
+    "scope": "Existing native VM call/branch/parameter/return lowering only; debug memory injection; original ROM unchanged"
+  },
+  "original_static_smoke": {
+    "rom_sha256": "5fcd6eb097d2f931e87096fae770988861e1671c02f7401d35a9436711a08aa4",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "Kula selection reaches PLAYING",
+        true
+      ],
+      [
+        "Kula source roster identity",
+        true
+      ],
+      [
+        "persistent source campaign first stage",
+        true
+      ],
+      [
+        "static source presentation has no admission fault",
+        true
+      ],
+      [
+        "first stage remains PLAYING",
+        true
+      ],
+      [
+        "four bounded production fields observed",
+        true
+      ]
+    ],
+    "campaign_state": [
+      3,
+      0,
+      0
+    ],
+    "source_visual_error": 0,
+    "bus_samples": [
+      {
+        "field": 1,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "16896": 1,
+          "8466": 2,
+          "8465": 2,
+          "16907": 2,
+          "16908": 2,
+          "8464": 2,
+          "8463": 2,
+          "8448": 2,
+          "8462": 2,
+          "8450": 2,
+          "8451": 2,
+          "8452": 5,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 174703198
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 174703284
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 174704398
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 174705956
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 174713680
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 174713750
+          }
+        ]
+      },
+      {
+        "field": 2,
+        "counts": {
+          "17267": 7,
+          "17268": 7,
+          "17269": 7,
+          "17270": 7,
+          "8469": 7,
+          "8470": 7,
+          "8471": 7,
+          "8472": 393,
+          "8473": 393,
+          "16907": 7,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 7,
+          "17265": 7,
+          "17266": 7,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175060566
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175060652
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175061788
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175063480
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 175066100
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 232,
+            "masterClock": 175068712
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 234,
+            "masterClock": 175071332
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 236,
+            "masterClock": 175073944
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 237,
+            "masterClock": 175076564
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 241,
+            "masterClock": 175081974
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 241,
+            "masterClock": 175082044
+          }
+        ]
+      },
+      {
+        "field": 3,
+        "counts": {
+          "8460": 1,
+          "8461": 2,
+          "8492": 1,
+          "16908": 2,
+          "8464": 2,
+          "8465": 2,
+          "8466": 2,
+          "16896": 1,
+          "8453": 1,
+          "8463": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8462": 2,
+          "8459": 1,
+          "8448": 2
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175417934
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175418020
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 231,
+            "masterClock": 175425168
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 231,
+            "masterClock": 175425238
+          }
+        ]
+      },
+      {
+        "field": 4,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "8469": 2,
+          "8470": 2,
+          "8471": 2,
+          "8472": 32,
+          "8473": 32,
+          "16907": 2,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175775342
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175775428
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175776564
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175778408
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 175785308
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 175785378
+          }
+        ]
+      }
+    ],
+    "scope": "Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.",
+    "no_pcm_copies": true
+  },
+  "bound_apis": [
+    "NULL",
+    "getlocalvar installed self/frame/animnum/animhandle and absent named locals"
+  ],
+  "unbound_apis": "persistent local writes, entity APIs and other engine APIs fail explicitly",
+  "vm_code_range": [
+    "0x7E9AA0",
+    "0x7EE000"
+  ],
+  "vm_code_bytes": 17760,
+  "scene_video_range": [
+    "0x7E6200",
+    "0x7E9A9C"
+  ],
+  "scratch_context_range": [
+    "0x7FF600",
+    "0x7FF63C"
+  ],
+  "largest_current_module_bytes": 15772,
+  "module_total_bytes": 37002,
+  "runtime_code_bank": 28,
+  "free_before_nmi": 2,
+  "host_tests_passed": 19,
+  "audit_all": "PASS",
+  "no_color_reduction_applied": true,
+  "motu_gameplay_proven": false,
+  "source_effect_native_executed": false,
+  "source_tick_cadence_proven": false,
+  "nonclaims": [
+    "No per-entity world attachment",
+    "No entity property/spawn binding",
+    "No persistent local-variable storage",
+    "No binary64 equivalence",
+    "No source 200-Hz script cadence",
+    "No MOTU candidate/completion"
+  ]
+}

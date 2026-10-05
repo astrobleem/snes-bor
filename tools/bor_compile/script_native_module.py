@@ -128,7 +128,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None):
         if kind=='function':m.instructions[i].a=entries[name];m.callsites[cs].target_id=entries[name]
     arities={native_ids[key]:key[1] for key in requirements}
     blob=pack_module(m,native_arities=arities)
-    if len(blob)>32768:raise ValueError('NATIVE_MODULE_WRAM_CAPACITY')
+    if len(blob)>17760:raise ValueError('NATIVE_MODULE_WRAM_CAPACITY')
     report=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),instructions=len(m.instructions),
         slots=len(m.slots),callsites=len(m.callsites),numeric_policy=POLICY,decimal_constants=numeric,
         function_local_slots={name:dict(zip(library['functions'][name]['locals'],slots)) for name,slots in homes.items()},

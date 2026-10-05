@@ -47,7 +47,10 @@ VMERR_UNIMPLEMENTED   = $0010   ; opcode is a VALID ABI value but this gate
 ; --- WRAM map (plan_vm.md 0.4). Absolute addresses, never Direct Page.
 ; End addresses are written out on purpose -- see 0.4's note about the guard
 ; region that was originally placed inside the slot array. ---
-VmCode_Wram     = $7E6000   ; 32768 B, ends $7EDFFF
+; Scene video owns $7E6200..$7E9A9B, so the former nominal 32 KiB code
+; reservation was safe only for the small boot module. Put complete source
+; modules after that live range. All current MOTU modules fit 17,760 bytes.
+VmCode_Wram     = $7E9AA0   ; 17760 B, ends $7EDFFF
 VmGuardLo       = $7EE000   ; 16 B of $A5, ends $7EE00F
 
 ; --- Gate 1 (plan_vm.md 3) WRAM-collision fix -----------------------------
@@ -71,8 +74,8 @@ VmGuardLo       = $7EE000   ; 16 B of $A5, ends $7EE00F
 ; tables end at $7FB8FF (main.pasm:3096, stream_cache_fp.pasm:60-65) --
 ; nothing references $7FC000+ anywhere in src/. VmSlots_Wram moved here too
 ; (its old base spilled 16 bytes into Tile2Slot's own first entries) rather
-; than just shrinking the gap after VmGuardLo, so Code/GuardLo can stay
-; exactly where they are (proven collision-free, zero risk) and everything
+; than just shrinking the gap after VmGuardLo. GuardLo remains fixed; code
+; now starts above scene video as declared above. Everything
 ; that touches the tile cache moves together as one block with headroom for
 ; Gate 3/4's still-unimplemented Frames/StrPool reservations.
 ; ----------------------------------------------------------------------------
@@ -82,7 +85,7 @@ VmTrace_Wram    = $7FE010   ; 32 x 4 B = 128 B, ends $7FE08F           (Gate 0)
 VM_GUARD_LEN    = 16
 VM_GUARD_LO_FILL = $A5
 VM_GUARD_HI_FILL = $5A
-VM_CODE_MAX      = 32768
+VM_CODE_MAX      = 17760
 VM_INSTR_MAX     = 4096
 VM_SLOT_MAX      = 1024
 

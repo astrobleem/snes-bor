@@ -23,9 +23,9 @@ COMPOSITOR_BLIT_COUNT = 21   ; VRAM ceiling: BG2 char base $2000, OBJ char
                               ; (8064 words) fits, 22 would overrun OBJ's own
                               ; tile graphics -- see sa1_compositor_scaling_limit
 
-; G15 L3A: one-frame BOR scene-video test state. The staging area borrows the
-; unused tail of the VM WRAM reservation while gameplay is suspended. The
-; build guard keeps the loaded VM below $7E6200.
+; G15 L3A: one-frame BOR scene-video state. Its staging/telemetry range ends
+; below $7E9AA0. VM code now has a separate checked 17,760-byte reservation
+; above that boundary, so source modules survive scene presentation.
 SceneVideo_FrameStaging       = $7E6200 ; through $7E9A5F
 SceneVideo_TestRequest        = $7E9A60 ; .dw: 1=start Rugal, 2=stop
 SceneVideo_TestActive         = $7E9A62 ; .db

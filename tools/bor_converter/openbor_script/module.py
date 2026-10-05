@@ -23,7 +23,7 @@ class ModuleLimitError(Exception):
     pass
 
 
-def pack_module(m, vm_instr_max=4096, vm_slot_max=1024, native_arities=None):
+def pack_module(m, vm_instr_max=4096, vm_slot_max=1024, native_arities=None, vm_code_max=17760):
     """m: compiler.Module. Enforces the engine's real bounds (vm_consts.pasm's
     VM_INSTR_MAX/VM_SLOT_MAX), not FORMAT.md's more permissive 0..8192/range --
     advisor note: "enforce the engine's numbers in the exporter so an
@@ -96,6 +96,8 @@ def pack_module(m, vm_instr_max=4096, vm_slot_max=1024, native_arities=None):
         offset += len(data)
 
     module_size = HEADER_SIZE + len(body)
+    if module_size > vm_code_max:
+        raise ModuleLimitError(f'{module_size} bytes exceeds VM_CODE_MAX={vm_code_max}')
 
     header_no_crc = struct.pack(
         '<4sBBBBHHHHHHHH',

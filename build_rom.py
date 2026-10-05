@@ -598,7 +598,7 @@ def validate_score_layout(symbol_path):
         'HudCachedLives16': 0x7E58E5,
         'HudCachedP2Lives16': 0x7E58E7,
         'G12_AnimTrace_LastInput': 0x7E58D0,
-        'VmCode_Wram': 0x7E6000,
+        'VmCode_Wram': 0x7E9AA0,
         'G1_NumberSnapshotOffset': 0x7E2852,
         'Text_ScoreValue32': 0x7E2854,
         'Text_ScorePlace32': 0x7E2858,
@@ -661,6 +661,31 @@ def validate_score_layout(symbol_path):
           'P1_Lives16=$7E58E1-$7E58E2, P2_Lives16=$7E58E3-$7E58E4, '
           'HudCachedLives16=$7E58E5-$7E58E6, '
           'HudCachedP2Lives16=$7E58E7-$7E58E8)')
+
+
+def vm_wram_layout_ranges(symbols):
+    """Use actual assembled ownership; forbid code/video/guard collisions."""
+    names=('VmCode_Wram','VM_CODE_MAX','VmGuardLo','SceneVideo_FrameStaging',
+           'SceneVideo_MsuDmaProbe')
+    if any(name not in symbols for name in names):
+        raise ValueError('VM_WRAM_LAYOUT_SYMBOL_MISSING')
+    code=(symbols['VmCode_Wram'],symbols['VmCode_Wram']+symbols['VM_CODE_MAX'])
+    video=(symbols['SceneVideo_FrameStaging'],symbols['SceneVideo_MsuDmaProbe']+2)
+    if not (0x7E0000<=code[0]<code[1]<=symbols['VmGuardLo']<=0x7F0000):
+        raise ValueError('VM_WRAM_CODE_RANGE_INVALID')
+    if code[0]<video[1] and video[0]<code[1]:
+        raise ValueError('VM_WRAM_SCENE_VIDEO_OVERLAP')
+    return dict(code=list(code),code_bytes=code[1]-code[0],scene_video=list(video),
+                guard=symbols['VmGuardLo'])
+
+
+def validate_vm_wram_layout(symbol_path):
+    try:
+        ranges=vm_wram_layout_ranges(_load_poppy_symbols(symbol_path))
+    except ValueError as error:
+        raise SystemExit('VM WRAM layout guard: '+str(error))
+    print(f"VM WRAM layout guard: PASS ({ranges['code_bytes']} code bytes; disjoint scene video)")
+    return ranges
 
 
 def bank0_layout_guard_self_test():
@@ -965,6 +990,7 @@ def link_rom():
     validate_bank0_layout(poppy_data, 'src/main.sym')
     validate_text_bank_layout('src/main.sym')
     validate_score_layout('src/main.sym')
+    validate_vm_wram_layout('src/main.sym')
 
     rom = bytearray(ROM_SIZE)
     # Historically clamped to BANK0_SIZE (32KB) because main.pasm was
