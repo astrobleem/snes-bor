@@ -12,6 +12,9 @@ from scipy.sparse import coo_matrix
 
 
 LEGAL_SIZES = ((8,8),(16,16),(32,32),(64,64),(16,32),(32,64))
+OBJ_SIZE_PAIRS = (((8,8),(16,16)), ((8,8),(32,32)), ((8,8),(64,64)),
+                  ((16,16),(32,32)), ((16,16),(64,64)), ((32,32),(64,64)),
+                  ((16,32),(32,64)), ((16,32),(32,32)))
 
 
 def pieces_for_grid(pixels, size):
@@ -45,6 +48,10 @@ def assign_banks(pieces, banks, time_limit=60):
         lo.append(lower);hi.append(upper)
     for i,p in enumerate(pieces):
         row([(i*nb+b,1) for b in range(nb)],1,1)
+        allowed = p.get('allowed_banks', banks)
+        for b, bank in enumerate(banks):
+            if bank not in allowed:
+                row([(i*nb+b,1)],0,0)
         for y,cs in p['rows'].items():
             for c in cs:
                 for b in range(nb): row([(i*nb+b,1),(cv[y,c,b],-1)],-np.inf,0)
@@ -57,6 +64,8 @@ def assign_banks(pieces, banks, time_limit=60):
         return dict(status='FIXED_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',
                     solver_status=int(result.status),message=result.message)
     assignment=[banks[int(np.argmax(result.x[i*nb:(i+1)*nb]))] for i in range(npieces)]
+    if any(bank not in p.get('allowed_banks', banks) for p, bank in zip(pieces, assignment)):
+        raise AssertionError('INVALID_SOLVER_BANK_ELIGIBILITY')
     # Never accept a fractional/invalid incumbent as proof.
     for y in sorted({y for y,c in pairs}):
         for bank in banks:
@@ -106,6 +115,78 @@ def split_color_masks(pieces, banks, time_limit=60):
     return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,
                 assignment=assignment,solver_status=int(result.status),message=result.message,
                 objective=float(result.fun),lower_bound=float(result.mip_dual_bound))
+
+
+def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60):
+    """Piece-local color masks with shared row/bank capacity and eligibility.
+
+    Unlike the simpler one-image model, equal colors on different actors may
+    occupy different banks. This permits distinct alpha eligibility per piece.
+    Infeasibility is confined to the supplied grid and legal size mode.
+    """
+    if not pieces:
+        return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN', pieces=[], assignment=[])
+    if not banks or len(set(banks)) != len(banks) or any(b not in range(8) for b in banks):
+        raise ValueError('INVALID_BANKS')
+    sizes = {(p['width'],p['height']) for p in pieces}
+    if not any(sizes <= set(pair) for pair in OBJ_SIZE_PAIRS):
+        raise ValueError('NO_SHARED_OBSEL_SIZE_MODE')
+    nb = len(banks); n = len(pieces)
+    atoms = [(i,y,c) for i,p in enumerate(pieces) for y,cs in p['rows'].items() for c in cs]
+    local = {(i,y,c,b):n*nb+j*nb+b for j,(i,y,c) in enumerate(atoms) for b in range(nb)}
+    pairs = sorted({(y,c) for i,y,c in atoms})
+    start = n*nb+len(local)
+    resident = {(y,c,b):start+j*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
+    count = start+len(resident); rr=[]; cc=[]; vv=[]; lo=[]; hi=[]
+    def row(items, lower, upper):
+        r=len(lo)
+        for c,v in items: rr.append(r); cc.append(c); vv.append(v)
+        lo.append(lower); hi.append(upper)
+    for i,p in enumerate(pieces):
+        if tuple((p['width'],p['height'])) not in LEGAL_SIZES:
+            raise ValueError('ILLEGAL_OBJ_SIZE')
+        for b,bank in enumerate(banks):
+            if bank not in p.get('allowed_banks',banks): row([(i*nb+b,1)],0,0)
+    for i,y,c in atoms:
+        row([(local[i,y,c,b],1) for b in range(nb)],1,1)
+        for b in range(nb):
+            row([(local[i,y,c,b],1),(i*nb+b,-1)],-np.inf,0)
+            row([(local[i,y,c,b],1),(resident[y,c,b],-1)],-np.inf,0)
+    row([(i,1) for i in range(n*nb)],0,128)
+    for y in sorted({y for y,c in pairs} | {yy for p in pieces for yy in range(p['y'],p['y']+p['height'])}):
+        for b in range(nb): row([(resident[yy,c,b],1) for yy,c in pairs if yy==y],0,15)
+        live = [(i*nb+b,1) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)]
+        row(live,0,32)
+        row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces)
+             if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
+    objective=np.zeros(count); objective[:n*nb]=1
+    result=milp(objective,integrality=np.ones(count),bounds=Bounds(0,1),
+        constraints=LinearConstraint(coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc(),lo,hi),
+        options={'time_limit':time_limit,'mip_rel_gap':0.03})
+    if result.x is None:
+        return dict(status='SCENE_MASK_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',
+                    solver_status=int(result.status),message=result.message)
+    expanded=[]; assignment=[]
+    for i,p in enumerate(pieces):
+        for b,bank in enumerate(banks):
+            rows={y:[c for c in cs if result.x[local[i,y,c,b]]>0.5] for y,cs in p['rows'].items()}
+            if any(rows.values()):
+                if bank not in p.get('allowed_banks',banks): raise AssertionError('INVALID_BANK_ELIGIBILITY')
+                expanded.append(dict(p,rows=rows,source_piece=i)); assignment.append(bank)
+    for i,p in enumerate(pieces):
+        for y,cs in p['rows'].items():
+            recovered=[c for q in expanded if q['source_piece']==i for c in q['rows'].get(y,[])]
+            if sorted(recovered)!=sorted(cs): raise AssertionError('SCENE_COLOR_MASK_IDENTITY')
+    for y in sorted({yy for p in pieces for yy in range(p['y'],p['y']+p['height'])}):
+        live=[p for p in expanded if p['y']<=y<p['y']+p['height']]
+        if len(live)>32 or sum((p['width']+7)//8 for p in live)>34: raise AssertionError('SCENE_OBJ_OVERFLOW')
+        for bank in banks:
+            if len({c for p,b in zip(expanded,assignment) if b==bank for c in p['rows'].get(y,[])})>15:
+                raise AssertionError('SCENE_BANK_OVERFLOW')
+    if len(expanded)>128: raise AssertionError('SCENE_OAM_OVERFLOW')
+    return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,assignment=assignment,
+        solver_status=int(result.status),message=result.message,objective=float(result.fun),
+        lower_bound=float(result.mip_dual_bound),piece_row_color_identity_verified=True)
 
 
 def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16, capacity=15):

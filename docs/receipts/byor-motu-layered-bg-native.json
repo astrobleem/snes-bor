@@ -1,0 +1,109 @@
+{
+  "rom_sha256": "eabfd5b5d4e670b11c2e22e440c2be311713075731de4c3ef202c3ccb0bd0491",
+  "schedule_sha256": "143be643df74d3d2cdc5018e6e3cdcb3e95273330f63efa45731725effe268d9",
+  "resources": {
+    "chr_bytes": 42944,
+    "oam_entries": 0,
+    "hdma_channels": [
+      0
+    ],
+    "dma_channel": 7,
+    "code_bank": 1,
+    "per_field_palette_restore_bytes": 478,
+    "peak_cgram_data_bytes": 36,
+    "schedule_data_bytes": 8288,
+    "timer_dots": 80,
+    "dma_timer_dots": 239,
+    "mechanism": "PREPARE_IRQ_THEN_MASKED_IRQ_WAI_WAKE",
+    "spc_protocol_proven": false,
+    "irq_entry_prg_offset": 33792,
+    "irq_exit_prg_offset": 33851,
+    "reserved_hud_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+  },
+  "cpu_state": {
+    "cpuType": "Snes",
+    "pc": 33844,
+    "k": 1,
+    "a": 80,
+    "x": 96,
+    "y": 0,
+    "sp": 8186,
+    "d": 0,
+    "dbr": 0,
+    "ps": 36,
+    "emulationMode": false,
+    "stopState": "Running",
+    "cycleCount": 161875
+  },
+  "advancement": [
+    {
+      "requested": 1,
+      "startFrame": 0,
+      "endFrame": 1,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 2,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 3,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 3,
+      "endFrame": 3,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 3,
+      "endFrame": 4,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 4,
+      "endFrame": 5,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    }
+  ],
+  "completed_fields": 5,
+  "observer_budget_yields": 1,
+  "pixel_identity_verified": true,
+  "pixel_mismatches": 0,
+  "cgram_schedule_observer_verified": true,
+  "observed_register_writes": 8288,
+  "expected_register_writes": 8288,
+  "timing_samples": 448,
+  "active_window_sample_writes": 0,
+  "hud_palette_unchanged": true,
+  "irq_service_samples": 224,
+  "peak_irq_service_master_clocks": 1118,
+  "visible_field_irq_service_master_clocks": 249982,
+  "scope": "Isolated fixed composed scene. No production compositor, script reachability, upload latency or real TAD protocol admission.",
+  "pass": true,
+  "artifact_hashes": {
+    "proof.sfc": "eabfd5b5d4e670b11c2e22e440c2be311713075731de4c3ef202c3ccb0bd0491",
+    "screenshot.png": "0dc0b5594f09e8dc348ab67424159c7152b563b27f4750db65747d23b87f607f",
+    "observer.json": "7bebf26bc2d7ea156789822d264b15bc1887ac8dba7598ec0010fce18abe5ccd"
+  },
+  "classification": "ISOLATED_LAYERED_BG_REPLAY_PASS_NOT_MOTU_GAMEPLAY"
+}

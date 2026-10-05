@@ -1,10 +1,21 @@
 """Admission and identity checks for offline raster scheduling."""
 import unittest
 import numpy as np
-from raster_palette import prove_frame, schedule,bounded_schedule
+from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks, split_scene_color_masks
 
 
 class RasterPaletteTests(unittest.TestCase):
+    def test_piece_bank_eligibility_and_equal_colors_on_different_actors(self):
+        pieces=[dict(x=0,y=0,width=8,height=8,rows={0:[7]},allowed_banks=[0]),
+                dict(x=8,y=0,width=8,height=8,rows={0:[7]},allowed_banks=[4])]
+        self.assertEqual(assign_banks(pieces,[0,4])['assignment'],[0,4])
+        r=split_scene_color_masks(pieces,[0,4])
+        self.assertEqual(r['assignment'],[0,4])
+        self.assertTrue(r['piece_row_color_identity_verified'])
+        pieces[1]['allowed_banks']=[7]
+        self.assertEqual(assign_banks(pieces,[0,4])['status'],'FIXED_GRID_INFEASIBLE')
+        self.assertEqual(split_scene_color_masks(pieces,[0,4])['status'],'SCENE_MASK_GRID_INFEASIBLE')
+
     def test_transparent_frame_needs_no_objects_or_palette_writes(self):
         r=prove_frame(np.full((16,16),-1))
         self.assertEqual(r['geometry']['oam_entries'],0)

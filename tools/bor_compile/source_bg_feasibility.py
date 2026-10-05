@@ -43,14 +43,44 @@ def probe(source,model,frame,background,position=(80,90),size=(256,224),capacity
     blended=255-((255-effect)*(255-under)//255)
     mask=indices!=0;under[mask]=blended[mask]
     expected=rgb555(canvas)
-    lines=[sorted(set(map(int,row))) for row in expected]
-    peak=max(map(len,lines)); union=len(set(map(int,expected.flat)))
     result=dict(background=background,background_sha256=bg_hash,effect_frame=frame,
         effect_sha256=effect_hash,position=list(position),effect_dimensions=[ew,eh],viewport=list(size),
-        alpha='BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS',full_frame_colors=union,
-        peak_scanline_colors=peak,bg_opaque_slot_capacity=capacity,
+        alpha='BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS',
         scope='Sampled background plus effect only; panel, frontpanel, actors and HUD not composited.',
-        no_color_reduction=True,source_rgb555_sha256=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest())
+        effect_dirty_tile_bytes=((ew+7)//8+1)*((eh+7)//8+1)*64)
+    return dict(result,**compile_canvas(expected,capacity,prefetch_budget,bounded,export))
+
+
+def compile_canvas(expected,capacity=175,prefetch_budget=3,bounded=False,export=None):
+    """Precompute lossless scanline palette/index data for a supplied RGB555 canvas."""
+    h,w=expected.shape
+    if w%8 or h%8 or w>256 or h>224:
+        raise ValueError('FIXTURE_VIEWPORT_UNSUPPORTED')
+    lines=[sorted(set(map(int,row))) for row in expected]
+    peak=max(map(len,lines));union=len(set(map(int,expected.flat)))
+    result=dict(full_frame_colors=union,peak_scanline_colors=peak,bg_opaque_slot_capacity=capacity,
+        viewport=[w,h],no_color_reduction=True,
+        source_rgb555_sha256=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest())
+    if export is not None:
+        export=Path(export);export.mkdir(parents=True,exist_ok=True)
+        (export/'expected.rgb555').write_bytes(expected.astype('<u2').tobytes())
+    # An interval can start with at most capacity of its colors resident.
+    # Every additional distinct required color needs a write within it. This
+    # necessary bound is independent of slot heuristics and is reproducible.
+    worst=None
+    for first in range(h):
+        required=set()
+        for last in range(first,h):
+            required.update(lines[last])
+            if last==first:continue
+            needed=max(0,len(required)-capacity)
+            budget=needed/(last-first)
+            if worst is None or budget>worst['minimum_average_writes']:
+                worst=dict(first_scanline=first,last_scanline=last,distinct_required_colors=len(required),
+                    initial_resident_capacity=capacity,minimum_writes_within_interval=needed,
+                    transfer_boundaries=last-first,minimum_average_writes=budget,
+                    necessary_integer_peak_writes=(needed+last-first-1)//(last-first))
+    result['interval_write_lower_bound']=worst
     if peak>capacity:
         return dict(result,status='SAMPLE_BG_SCANLINE_CAPACITY_EXCEEDED')
     piece=dict(rows={y:cs for y,cs in enumerate(lines)})
@@ -80,7 +110,6 @@ def probe(source,model,frame,background,position=(80,90),size=(256,224),capacity
         frame_chr_bytes=((w+7)//8)*((h+7)//8)*64,
         deduplicated_chr_bytes=64*len(tile_hashes),unique_8bpp_tiles=len(tile_hashes),
         frame_tilemap_bytes=32*32*2,
-        effect_dirty_tile_bytes=((ew+7)//8+1)*((eh+7)//8+1)*64,
         pixel_identity_verified=True,indices_sha256=hashlib.sha256(remapped.tobytes()).hexdigest(),
         initial_palette_bytes=trace[0]['cgram_data_bytes'],lookahead_lines=h,
         prefetch_write_budget=prefetch_budget,

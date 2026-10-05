@@ -176,3 +176,57 @@ data writes. The longest sampled forced-blank commit lasts 21,330 master
 clocks and releases near scanline 241. This is a baseline census, **not** a
 worst-case transfer budget, production audio stress proof or admission of the
 new raster schedule. No complete campaign was rerun.
+
+## Concurrent layered context and contiguous IRQ replay
+
+The generic solver now accepts per-piece palette eligibility, including equal
+RGB555 colors residing in different banks on different actors. Its scene mask
+model checks a shared OBSEL size mode, fixed banks, 128 OAM entries, 32 objects
+and 34 slivers per line. Explicit HBreath/player and HBreath/player/Knightbot
+pose searches reached solver time limits without an incumbent; **neither is
+classified infeasible**. Source pose tools retain that distinction.
+
+`source_scene_bg.py` adds the source GUILE2 background, panel and frontpanels,
+He_ManB, Knightbot and peak HBreath, in an explicit camera-zero pose/tie order.
+It composes 32-bit source SCREEN before RGB555 high-bit conversion. This is
+a sampled pose, not certified script reachability, HUD/shadow/quake behavior
+or an online compositor. The source dimensions of HBreath remain 110 by 90.
+It yields 698 frame colors, at most 90 on a line. Scanlines 125 through 140
+require 475 distinct colors: even 239 resident slots require 236 writes over
+15 boundaries, forcing a peak of at least 16. Seven-write HDMA schedules fail
+with both 175 and 239 slots. The unrestricted exact slot model finds a
+16-write schedule with 239 slots, but does not establish contiguous transfer
+destinations.
+
+`contiguous_palette.py` independently finds an 18-slot contiguous burst
+schedule with exact index reconstruction and no burst across reserved HUD
+entries 112 through 127. The 16/17-slot heuristic failures are **not** hardware
+infeasibility claims. Artifacts are
+`out/byor-motu-bg-layered-contiguous18.json` and its adjacent directory.
+
+`m4_bg_irq_native.py` replays that composed scene with a bank-1 IRQ body,
+DMA channel 7, and four APU-port bytes per line on HDMA channel 0. A preparation
+IRQ at dot 80 arms a masked-IRQ WAI wake at dot 239; this bounds phase variation
+before the 36-byte palette burst. It passes all 57,344 rendered RGB555 pixels,
+all 8,288 expected CGRAM register writes, 448 first/last timing samples with
+zero sampled active-window writes, and reserved HUD palette identity. All
+actors in this fixture are BG-composited; no OBJ is enabled. CHR is 42,944
+bytes, palette restoration is 478 bytes per field, and schedule payload plus
+destinations is 8,288 bytes. No production bank-0 code is added by this fixture.
+
+The measured IRQ service is substantial: 249,982 master clocks for 224 visible
+lines, with a peak of 1,118 clocks per service (about 70 percent of a complete
+NTSC field, before production integration overhead). This cost must be
+budgeted, not hidden. One host observer-budget timeout yielded within a field;
+bounded retries completed exactly five fields without over-advancement. The
+observer and pixel checks prove replay, **not** real TAD protocol, moving-scene
+upload latency, production CPU capacity, combat or MOTU completion. Native
+ROM, screenshot, observer and result remain under the artifact's `native/`
+directory. No color reduction is applied.
+
+The masked-IRQ wake behavior is documented by WDC in sections 2.24 and 7.13
+of its [W65C816S datasheet](https://www.westerndesigncenter.com/wdc/documentation/w65c816s.pdf):
+with I set, IRQ releases WAI and execution continues without another vector
+entry. The fixture has a fixed accumulator/index ABI. A production consumer
+must preserve the real caller's registers, widths, direct page and data bank,
+and measure the resulting overhead; the fixture cost is not that admission.
