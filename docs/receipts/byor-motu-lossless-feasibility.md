@@ -143,3 +143,36 @@ All ROM audits pass; 183 older baselined sites remain reported. See
 [the annotation receipt](byor-motu-width-repair.json). Production bank 0 gains
 zero bytes and still has two bytes free before NMI. All 17 protected tracked
 files retain their preserved hashes. No PCM was copied.
+
+## Source timing and baseline production census
+
+`tools/bor_compile/dialect_4086.py` now produces a separate, explicitly selected
+4086 source IR. It cites loader commit
+`af23dc9c2316bb7853bb266ccf40986aa9765aeb`; this does not authenticate the engine
+used to author the archive. AT copies and clears the pending spawn structure,
+including a zero initialized entry. Demo therefore contains **35** authored
+queue entries (22 spawns and one empty entry), rather than the strict earlier
+survey's 34. Reset directives replace pending entries. Source modifiers,
+scripts and declarations remain retained; no SNES queue or script consumer is
+claimed by this IR.
+
+Frame delay persists across ANIM, while offset and collision bounds reset.
+SOUND is consumed by one FRAME. The He_ManB breath event is at frame index 4,
+tick 48 on the 200 Hz source clock (24 centiseconds); its uninterrupted
+animation lasts 312 ticks. Skeletor's rise declares 16 geyser calls at ticks
+208, 258, 308, 358, 408 and 456. These are event declarations, not yet a
+certified simultaneous visibility bound: lifespan countdown, freeze, hit
+removal, and interruption semantics still matter. Four focused IR tests pass.
+The reproducible full IR is `out/byor-motu-4086-ir.json`.
+
+The existing persistent original-BOR Easy candidate (ROM SHA-256
+`46d7e21f23b81653ba626610d0c2c462c1fea2a858af02423b625705cf8a8e2a`)
+passed a fresh-process cold boot, Kula selector and first-stage smoke, with
+zero source visual admission fault. `tools/verify/m4_runtime_bus.py` records
+four bounded production fields in `out/byor-motu-static-bus/result.json`.
+All sampled queued DMA uses channel 7; HDMA enable returns to zero. Sampled
+VRAM traffic is 0, 786, 0 and 64 register bytes per field; no sampled CGRAM
+data writes. The longest sampled forced-blank commit lasts 21,330 master
+clocks and releases near scanline 241. This is a baseline census, **not** a
+worst-case transfer budget, production audio stress proof or admission of the
+new raster schedule. No complete campaign was rerun.
