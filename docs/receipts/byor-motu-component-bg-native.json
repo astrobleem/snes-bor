@@ -221,5 +221,234 @@
       },
       "scope": "Shared union schedule only. Failure does not reject frame-specific scheduling."
     }
-  ]
+  ],
+  "anchored_frames": {
+    "byor-motu-bg-components-mode4-anchored": {
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 42880,
+        "low_chr_bytes": 9984,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 43008,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 172,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 0,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 11,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "rom_sha256": "6c8340d799291f670f5a73c94d7a62ef4d497ccc872a3d522dc7e1234b62491d",
+      "schedule_sha256": "edd80ee9fa1452e250ae0ae173b222c317393db8ae1e245794b2103b7b367c45",
+      "advancement": [
+        {
+          "requested": 1,
+          "startFrame": 0,
+          "endFrame": 1,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 2,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 3,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 3,
+          "endFrame": 3,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 3,
+          "endFrame": 4,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 4,
+          "endFrame": 5,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        }
+      ],
+      "completed_fields": 5,
+      "pixel_identity_verified": true,
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "observed_register_writes": 5152,
+      "expected_register_writes": 5152,
+      "timing_samples": 448,
+      "active_window_samples": 0,
+      "irq_service_samples": 224,
+      "peak_irq_service_master_clocks": 620,
+      "visible_field_irq_service_master_clocks": 138208,
+      "low_palette_unchanged": true,
+      "hud_palette_unchanged": true,
+      "no_color_reduction": true,
+      "scope": "Fixed composed source scene. No live compositor, actor reachability, HUD drawing or production audio admission.",
+      "pass": true
+    },
+    "byor-motu-bg-components-next-mode4-anchored": {
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 43072,
+        "low_chr_bytes": 10016,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 45056,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 172,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 0,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 13,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "rom_sha256": "365d1ddeae37a4cceee0f104f31b16aa85c260ced181e179bc654707935d1043",
+      "schedule_sha256": "d980cacf892d7a4e597663eccda50b20b01e035f339d4e58064fe5aa9f756665",
+      "advancement": [
+        {
+          "requested": 1,
+          "startFrame": 0,
+          "endFrame": 1,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 2,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 3,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 3,
+          "endFrame": 3,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 3,
+          "endFrame": 4,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 4,
+          "endFrame": 5,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        }
+      ],
+      "completed_fields": 5,
+      "pixel_identity_verified": true,
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "observed_register_writes": 6048,
+      "expected_register_writes": 6048,
+      "timing_samples": 448,
+      "active_window_samples": 0,
+      "irq_service_samples": 224,
+      "peak_irq_service_master_clocks": 652,
+      "visible_field_irq_service_master_clocks": 145284,
+      "low_palette_unchanged": true,
+      "hud_palette_unchanged": true,
+      "no_color_reduction": true,
+      "scope": "Fixed composed source scene. No live compositor, actor reachability, HUD drawing or production audio admission.",
+      "pass": true
+    }
+  },
+  "bounded_cache": {
+    "status": "BOUNDED_COMPONENT_TILE_CACHE",
+    "frames": [
+      "out\\byor-motu-bg-components-mode4-anchored",
+      "out\\byor-motu-bg-components-next-mode4-anchored"
+    ],
+    "high_chr_bytes": 46848,
+    "low_chr_bytes": 10976,
+    "low_chr_vram_base": 49152,
+    "offset_tilemap_vram_base": 47104,
+    "vram_admitted": true,
+    "transitions": [
+      {
+        "from_frame": 0,
+        "to_frame": 1,
+        "transfers": [
+          {
+            "vram_byte_address": 62272,
+            "source_byte_offset": 832,
+            "first_tile_row": 13,
+            "last_tile_row": 20,
+            "bytes": 512,
+            "sha256": "e31ac6c8d0f436e88b757b0c180022b1589c724f722bfe08e85cd067f6d3c727"
+          },
+          {
+            "vram_byte_address": 64320,
+            "source_byte_offset": 832,
+            "first_tile_row": 13,
+            "last_tile_row": 20,
+            "bytes": 512,
+            "sha256": "fe2111d5e90fe616c445eeb6be13be61848bd8d95311fffb4a5c7ad9c6563d03"
+          }
+        ],
+        "tilemap_bytes": 1024,
+        "chr_bytes": 0,
+        "palette_restore_bytes": 472,
+        "descriptors": 2
+      }
+    ],
+    "no_color_reduction": true,
+    "native_animation_admitted": false,
+    "scope": "Offline cache and descriptor accounting; no preload, next-frame refill or production timing admission."
+  }
 }

@@ -242,7 +242,8 @@ def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16,
     return trace,snapshots
 
 
-def bounded_schedule(pieces, assignment, height, capacity=15, write_budget=7, lookahead=16, time_limit=60):
+def bounded_schedule(pieces, assignment, height, capacity=15, write_budget=7, lookahead=16, time_limit=60,
+                     fixed_residency=None,slot_locks=None,fixed_color_slots=None):
     """MILP admission for a strict total color-write budget per scanline.
 
     Residency is binary per color/bank/line; newly resident identities count
@@ -255,7 +256,11 @@ def bounded_schedule(pieces, assignment, height, capacity=15, write_budget=7, lo
     for y,line in enumerate(demands):
         for b,cs in line.items():
             for c in cs:uses.setdefault((b,c),[]).append(y)
-    keys=[(b,c,y) for (b,c),ys in sorted(uses.items()) for y in range(max(0,ys[0]-lookahead),ys[-1]+1)]
+    fixed_residency=fixed_residency or {};slot_locks=slot_locks or {}
+    fixed_color_slots=fixed_color_slots or {}
+    keys=sorted({(b,c,y) for (b,c),ys in uses.items() for y in range(max(0,ys[0]-lookahead),ys[-1]+1)} |
+                {key for key,value in fixed_residency.items() if value})
+    for b,c,y in keys:uses.setdefault((b,c),[])
     ids={key:i for i,key in enumerate(keys)};n=len(keys)
     rr=[];cc=[];vv=[];lo=[];hi=[]
     def row(items,lower,upper):
@@ -263,11 +268,16 @@ def bounded_schedule(pieces, assignment, height, capacity=15, write_budget=7, lo
         for c,v in items:rr.append(r);cc.append(c);vv.append(v)
         lo.append(lower);hi.append(upper)
     lower=np.zeros(n*2);upper=np.ones(n*2);integrality=np.zeros(n*2);integrality[:n]=1
+    for key,value in fixed_residency.items():
+        if key in ids:lower[ids[key]]=upper[ids[key]]=int(value)
+        elif value:return dict(status='PINNED_RESIDENCY_OUTSIDE_LOOKAHEAD',key=list(key))
     objective=np.zeros(n*2);objective[n:]=1
     lineids={};bankline={}
     for i,(b,c,y) in enumerate(keys):
         bankline.setdefault((b,y),[]).append(i)
-        if c in demands[y].get(b,set()):lower[i]=1
+        if c in demands[y].get(b,set()):
+            if upper[i]==0:return dict(status='PINNED_REQUIRED_RESIDENCY_CONFLICT',key=[b,c,y])
+            lower[i]=1
         if y:
             items=[(i,1),(n+i,-1)]
             if (b,c,y-1) in ids:items.append((ids[b,c,y-1],-1))
@@ -289,11 +299,23 @@ def bounded_schedule(pieces, assignment, height, capacity=15, write_budget=7, lo
             wanted=line.get(b,set());required=demands[y].get(b,set())
             if len(wanted)>capacity or not required<=wanted:raise AssertionError('RESIDENCY_ADMISSION_FAULT')
             for c in sorted(wanted-set(s)):
-                i=next(i for i,v in enumerate(s) if v not in wanted)
+                end=y
+                while end+1<height and c in residency[end+1].get(b,set()):end+=1
+                candidates=[i for i,v in enumerate(s) if v not in wanted and all(
+                    slot_locks.get((b,i,yy),c)==c for yy in range(y,end+1))]
+                locked=[i for i in range(capacity) if slot_locks.get((b,i,y))==c]
+                if (b,c) in fixed_color_slots:locked=[fixed_color_slots[b,c]]
+                if locked:candidates=[i for i in candidates if i in locked]
+                if not candidates:return dict(status='SLOT_LOCK_REPLAY_LIMIT',scanline=y,bank=b,color=c,
+                    scope='Residency solution exists; greedy physical-slot replay failed. Not hardware infeasibility.')
+                i=candidates[0]
                 events.append(dict(bank=b,slot=i+1,old=s[i],color=c,kind='required' if c in required else 'prefetch'))
                 s[i]=c
             # Eviction need not overwrite CGRAM; retain stale but harmless
             # identities. Future insertions can use their physical slots.
+            if any(s[i]!=c for (bb,i,yy),c in slot_locks.items() if bb==b and yy==y):
+                return dict(status='SLOT_LOCK_REPLAY_LIMIT',scanline=y,bank=b,
+                    scope='Resident identity is in a different physical slot. Not hardware infeasibility.')
         if y and len(events)>write_budget:raise AssertionError('WRITE_BUDGET_FAULT')
         states.append({b:list(s) for b,s in slots.items()})
         trace.append(dict(scanline=y,resident_before=before,

@@ -280,3 +280,34 @@ placement and real production upload timing still require investigation.
 This proof contains no live compositor, source-reachable combat, actual HUD
 drawing, moving actors, two-player certification or MOTU Demo completion.
 No color reduction is applied.
+
+### Anchored palette identities and bounded tile caching
+
+The no-effect background/player/enemy context contains 101 final RGB555
+colors and 100 high-component colors. `bg_component_anchored.py` keeps those
+100 component slots fixed and schedules the remaining 136 as a contiguous
+suffix. The peak and adjacent poses need heuristic bursts of 11 and 13 colors,
+respectively. These are successful schedules, not minimum-write claims.
+Both replay natively with an ordinary dot-172 HIRQ and channel-7 DMA, while
+channel 0 emits four APU-port bytes per line. They require no masked-IRQ WAI
+preparation. Bank-1 fixed-ABI handlers pass every source pixel and CGRAM event,
+all 448 first/last **CGDATA** samples (CGADD itself need not be in HBlank),
+and low/HUD palette hashes. IRQ service totals are 138,208 and 145,284 master
+clocks per visible field, with peaks 620 and 652; roughly 39--41 percent of a
+complete NTSC field. Actual production ABI/interrupt phase and real TAD
+protocol still need admission. Bounded observer retries handle one zero-field
+host timeout on each receipt without over-advancement.
+
+Anchoring cuts each plane's changing tile cells to exactly 62. A shared two-pose
+cache compiled by `bg_component_cache.py` needs 46,848 high CHR bytes and
+10,976 low CHR bytes. Low CHR starts at 49,152; the zero offset tilemap fits at
+47,104. Both poses fit simultaneously. The compiled transition needs only
+two tilemap DMA descriptors, each 512 bytes, plus 472 palette restore bytes;
+there is no CHR upload for this cached transition. This fits the existing
+2,816-byte queue policy by byte count, but **native animated cache replay and
+production timing are not yet certified**. Initial preload, subsequent cache
+refill, live source blending/moving actors and full MOTU remain open.
+
+Optional previous-frame residency/slot-lock experiments retain explicit
+optimization failure classifications; their failures do not reject the
+successful contiguous path or all hardware renderers.

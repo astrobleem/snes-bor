@@ -28,7 +28,7 @@ def tiles(indices,bpp):
     return b''.join(data),tilemap.tobytes()
 
 
-def compile_rom(report,assets):
+def compile_rom(report,assets,timer=180):
     if report['bg_mode']!=4 or report['low_bpp']!=2 or report['high_palette_start']!=4 or report['high_opaque_capacity']!=236:
         raise ValueError('MODE4_COMPONENT_FIXTURE_CONTRACT')
     high=np.frombuffer((assets/'indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)+3
@@ -42,11 +42,18 @@ def compile_rom(report,assets):
     palette[240:256]=np.arange(16,dtype=np.uint16)+0x1234
     state=json.loads((assets/'initial.json').read_text())
     for i,c in enumerate(state):palette[i+4]=c or 0
-    tables=[bytearray() for _ in range(7)];expected_trace=[]
+    burst=report.get('contiguous_bursts');span=report.get('span',0)
+    tables=[bytearray() for _ in range(7)];expected_trace=[];targets=bytearray();payload=bytearray()
     for row in report['trace']:
         events=row['updates'] if row['scanline'] else []
-        if len(events)>7:raise ValueError('MODE4_HDMA_BUDGET')
+        if len(events)>7 and not burst:raise ValueError('MODE4_HDMA_BUDGET')
         for e in events:state[e['slot']-1]=e['color']
+        if burst:
+            start=burst[row['scanline']]['start_slot'];values=state[start-1:start-1+span]
+            if len(values)!=span:raise ValueError('MODE4_BURST_RANGE')
+            targets.append(start+3);raw=struct.pack('<'+'H'*span,*[c or 0 for c in values]);payload.extend(raw)
+            expected_trace.extend([f'2121:{start+3:02x}',*[f'2122:{v:02x}' for v in raw]])
+            continue
         for ch in range(7):
             if ch<len(events):e=events[ch];slot=e['slot']+3;color=e['color']
             else:slot=4;color=state[0] or 0
@@ -75,18 +82,33 @@ def compile_rom(report,assets):
     cursor=0xa000;audio=bytes([0x81,0,0,0,57])*224+bytes([0])
     for address,value in [(0x4300,4),(0x4301,0x40),(0x4302,cursor&255),(0x4303,cursor>>8),(0x4304,5)]:store(address,value)
     rom[0x28000+cursor-0x8000:0x28000+cursor-0x8000+len(audio)]=audio;cursor+=len(audio)
-    for ch,table in enumerate(tables,1):
+    for ch,table in ([] if burst else enumerate(tables,1)):
         base=0x4300+ch*16
         for address,value in [(base,3),(base+1,0x21),(base+2,cursor&255),(base+3,cursor>>8),(base+4,5)]:store(address,value)
         rom[0x28000+cursor-0x8000:0x28000+cursor-0x8000+len(table)]=table
         if ch==7:channel7=cursor
         cursor+=len(table)
-    code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'));store(0x420c,0xff);store(0x2100,15)
+    if burst:
+        for address,value in [(0x4207,timer&255),(0x4208,timer>>8)]:store(address,value)
+    code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'));store(0x420c,1 if burst else 0xff);store(0x2100,15)
     loop=len(code);code.extend(bytes.fromhex('ad 12 42 29 80 d0 f9'));code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     store(0,1);store(0x2121,4);dma(0x9008,5,0x22,472,0);store(0,0)
-    for address,value in [(0x4370,3),(0x4371,0x21),(0x4372,channel7&255),(0x4373,channel7>>8),(0x4374,5)]:store(address,value)
+    if burst:
+        for address,value in [(0x4370,0),(0x4371,0x22),(0x4372,0),(0x4373,0x80),(0x4374,6),(0x4375,span*2),(0x4376,0)]:store(address,value)
+        code.extend(bytes.fromhex('a2 00 00'));store(0x4200,0x10);code.append(0x58)
+    else:
+        for address,value in [(0x4370,3),(0x4371,0x21),(0x4372,channel7&255),(0x4373,channel7>>8),(0x4374,5)]:store(address,value)
     code.extend(bytes([0x4c,(0x8000+loop)&255,(0x8000+loop)>>8]))
     rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x8000:0x8000+len(code)]=code
+    irq=None
+    if burst:
+        irq=bytearray.fromhex('48 ad 11 42 ad 12 42 29 80 d0 00 e0 e0 00 b0 00')
+        irq.extend(bytes([0xa9,span*2,0x8d,0x75,0x43,0xbf,0x00,0xa8,0x05,0x8d,0x21,0x21,
+                          0xa9,128,0x8d,0x0b,0x42,0xe8,0x68,0x40]))
+        irq[10]=len(irq)-2-11;irq[15]=len(irq)-2-16
+        rom[0x100:0x104]=bytes.fromhex('5c 00 84 01');rom[0x8400:0x8400+len(irq)]=irq
+        rom[0x2a800:0x2a800+len(targets)]=targets;rom[0x30000:0x30000+len(payload)]=payload
+        rom[0x7fee:0x7ff0]=struct.pack('<H',0x8100)
     rom[0x10000:0x18000]=highchr[:32768].ljust(32768,b'\0');rom[0x18000:0x18000+len(highchr[32768:])]=highchr[32768:]
     rom[0x20000:0x20000+len(lowchr)]=lowchr;rom[0x28000:0x28800]=highmap;rom[0x28800:0x29000]=lowmap
     rom[0x29000:0x29200]=palette.tobytes();rom[0x29800:0x2a000]=bytes(2048)
@@ -94,7 +116,9 @@ def compile_rom(report,assets):
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     if len(rom)!=262144:raise AssertionError('COMPONENT_ROM_SIZE_DRIFT')
     return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),low_chr_bytes=len(lowchr),
-        low_chr_base=lowbase,offset_tilemap_base=offsetmap,hdma_channels=list(range(8)),irq_enabled=False,
+        low_chr_base=lowbase,offset_tilemap_base=offsetmap,hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
+        timer_dots=timer if burst else None,irq_entry_prg_offset=0x8400 if irq else None,
+        irq_exit_prg_offset=0x8400+len(irq)-1 if irq else None,
         code_bank=1,oam_entries=0,per_field_palette_restore_bytes=472,peak_palette_updates=report['peak_hblank_colors_written'],
         source_color_bits_preserved=15,spc_protocol_proven=False,
         low_palette_sha256=hashlib.sha256(palette[:4].tobytes()).hexdigest(),
@@ -102,20 +126,31 @@ def compile_rom(report,assets):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True);a=p.parse_args();a.report=a.report.resolve()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
+    p.add_argument('--timer',type=int,default=180);a=p.parse_args();a.report=a.report.resolve()
     report=json.loads(a.report.read_text());assets=a.report.with_suffix('');folder=assets/'native';folder.mkdir(exist_ok=True)
-    rom,expected_trace,resources=compile_rom(report,assets);path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
+    rom,expected_trace,resources=compile_rom(report,assets,a.timer);path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
     lua.write_text('''local active=false;local restoring=false;local frames=0;local n=0;local rows={}
 emu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0,0,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v) if v==15 and not active then active=true;frames=0 end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)
  if active and not restoring and frames==1 then
   n=n+1;rows[#rows+1]=string.format('%04x:%02x',a,v)
-  if n%28==1 or n%28==0 then local s=emu.getState();emu.log('M4COMPTIME|'..table.concat({n,s['ppu.frameCount'],s['ppu.scanline'],s['masterClock']},',')) end
+  if n%ROWCOUNT==FIRSTDATA or n%ROWCOUNT==0 then local s=emu.getState();emu.log('M4COMPTIME|'..table.concat({n,s['ppu.frameCount'],s['ppu.scanline'],s['masterClock']},',')) end
  end
 end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addEventCallback(function() frames=frames+1;if active and frames==2 then emu.log('M4COMPTRACE|'..table.concat(rows,',')) end end,emu.eventType.endFrame)
-''')
+'''.replace('ROWCOUNT',str(1+report['span']*2 if report.get('contiguous_bursts') else 28))
+   .replace('FIRSTDATA','2' if report.get('contiguous_bursts') else '3'))
+    if resources['irq_enabled']:
+        with lua.open('a') as script:
+            script.write('''
+local function service(a,v)
+ if active and frames==1 then local s=emu.getState();emu.log('M4COMPSERVICE|'..table.concat({a,s['ppu.frameCount'],s['ppu.scanline'],s['masterClock']},',')) end
+end
+emu.addMemoryCallback(service,emu.callbackType.exec,ENTRY,ENTRY,emu.cpuType.snes,emu.memType.snesPrgRom)
+emu.addMemoryCallback(service,emu.callbackType.exec,EXIT,EXIT,emu.cpuType.snes,emu.memType.snesPrgRom)
+'''.replace('ENTRY',str(resources['irq_entry_prg_offset'])).replace('EXIT',str(resources['irq_exit_prg_offset'])))
     class Observed(McpSession):
         def __enter__(self):
             import mesen_mcp.session as module
@@ -133,6 +168,8 @@ emu.addEventCallback(function() frames=frames+1;if active and frames==2 then emu
     log=(folder/'mesen.log').read_text();vectors=[line.split('M4COMPTRACE|',1)[1] for line in log.splitlines() if 'M4COMPTRACE|' in line]
     observed=vectors[0].split(',') if len(vectors)==1 and vectors[0] else []
     times=[[int(v) for v in line.split('M4COMPTIME|',1)[1].split(',')] for line in log.splitlines() if 'M4COMPTIME|' in line]
+    service=[[int(v) for v in line.split('M4COMPSERVICE|',1)[1].split(',')] for line in log.splitlines() if 'M4COMPSERVICE|' in line]
+    durations=[service[i+1][3]-service[i][3] for i in range(0,len(service)-1,2) if service[i][2]<224]
     clocks=[(r[3]+4*(r[1]//2))%1364 for r in times]
     cg=bytes.fromhex(cgram['hex']) if isinstance(cgram,dict) else bytes(cgram)
     result=dict(resources=resources,rom_sha256=hashlib.sha256(rom).hexdigest(),
@@ -141,11 +178,13 @@ emu.addEventCallback(function() frames=frames+1;if active and frames==2 then emu
         pixel_mismatches=int(np.count_nonzero(actual!=expected)) if actual.shape==expected.shape else None,
         cgram_observer_verified=(observed==expected_trace),observed_register_writes=len(observed),
         expected_register_writes=len(expected_trace),timing_samples=len(times),active_window_samples=sum(88<=c<1096 for c in clocks),
+        irq_service_samples=len(durations),peak_irq_service_master_clocks=max(durations,default=0),
+        visible_field_irq_service_master_clocks=sum(durations),
         low_palette_unchanged=(hashlib.sha256(cg[:8]).hexdigest()==resources['low_palette_sha256']),
         hud_palette_unchanged=(hashlib.sha256(cg[480:512]).hexdigest()==resources['hud_palette_sha256']),
         no_color_reduction=True,scope='Fixed composed source scene. No live compositor, actor reachability, HUD drawing or production audio admission.')
     result['pass']=all(result[k] for k in ('pixel_identity_verified','cgram_observer_verified','low_palette_unchanged','hud_palette_unchanged')) and not result['active_window_samples'] and advanced==5 and all(r['framesAdvanced']<=1 for r in advancement)
-    (folder/'observer.json').write_text(json.dumps(dict(observed=observed,expected=expected_trace,times=times),indent=2)+'\n')
+    (folder/'observer.json').write_text(json.dumps(dict(observed=observed,expected=expected_trace,times=times,service=service),indent=2)+'\n')
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
     if not result['pass']:raise SystemExit(1)
 

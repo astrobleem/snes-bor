@@ -34,6 +34,17 @@ class RasterPaletteTests(unittest.TestCase):
         self.assertTrue(r['pixel_identity_verified'])
         self.assertEqual(r['pieces'][0]['rows'][0],[0,31])
 
+    def test_optional_physical_slot_locks_are_checked(self):
+        piece=dict(rows={0:[1,2],1:[1,2]})
+        locks={(0,0,0):2,(0,0,1):2,(0,1,0):1,(0,1,1):1}
+        r=bounded_schedule([piece],[0],2,capacity=2,write_budget=0,
+                           slot_locks=locks,fixed_residency={(0,1,0):True})
+        self.assertEqual(r['status'],'BOUNDED_SLOT_SCHEDULE_PROVEN')
+        self.assertEqual(r['states'][1][0],[2,1])
+        conflict=bounded_schedule([piece],[0],2,capacity=2,write_budget=0,
+                                  fixed_residency={(0,1,0):False})
+        self.assertEqual(conflict['status'],'PINNED_REQUIRED_RESIDENCY_CONFLICT')
+
     def test_fixed_piece_over_capacity_cannot_use_another_bank_per_row(self):
         pixels=np.tile(np.arange(16),(16,1))
         r=prove_frame(pixels,size=(16,16),banks=(0,1))
