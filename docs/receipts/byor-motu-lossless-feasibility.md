@@ -452,3 +452,35 @@ The authored checks take 3/12/12 observed fields at the existing host's VM
 checkpoint; this is not admission of 200 Hz source script timing. Runtime
 code remains in bank 28 and the bank-0 NMI margin remains two bytes.
 Receipt: `byor-motu-frame-locals-native.json`. No color reduction is applied.
+
+### Native immutable script residency
+
+All seven model programs link without removing functions or commands into
+2,890 instruction records (23,120 ROM bytes), 12,640 bytes of compact RAM
+metadata and 693 variant slots (5,544 bytes). Strings are interned jointly;
+branch targets, function calls, slot operands and argument lists are relocated
+by ABI role. B48R has a distinct identity and cannot enter the legacy B48S
+loader accidentally. Metadata fits the checked 17,760-byte reservation;
+slots fit the existing 8,192-byte arena. No module paging is required.
+
+The generic native fetch kernel executes either the ordinary RAM path or
+an explicitly enabled ROM descriptor. Instructions reserve bank 38 because
+the persistent source host/worker owns banks 29 through 37. New kernel code
+is in bank 28. The former fetch fault path abandoned a nested call/P frame;
+fetch now returns an error to the dispatch loop, which unwinds its own frame.
+The native out-of-range check proves VMERR_BAD_JUMP without a stale return.
+
+Native He_ManB root 461 preserves the authored frame guard: frame 3 returns,
+frame 4 reaches unbound getentityproperty, and a missing caller lease fails
+getlocalvar. Disabling ROM fetch rejects B48R with VMERR_BAD_OPCODE; IP 2890
+rejects with VMERR_BAD_JUMP. RAM metadata identity remains intact in all
+five cases. Passing debug ROM:
+`6abe6859d540e4f830eb0b5c6ddf84f7c1f58932a3dac89c5b578314d7b9fa03`.
+
+The ordinary RAM path passes original BOR selector/first-stage static smoke
+on `7d99b37a24051ddf0a79d16b69ee5e2a4c0dd5c1c8fa30c7ab4b6d3f99e566d9`.
+Twenty-one focused host checks and the ROM audit pass. NMI margin remains
+2 bytes. Metadata is still installed through bounded debug injection;
+production loading, entity/spawn APIs, world attachment and source 200 Hz
+cadence remain unproven. Receipt: `byor-motu-rom-script-native.json`.
+No color reduction is applied.

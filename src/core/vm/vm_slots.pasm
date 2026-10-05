@@ -39,6 +39,7 @@
 ; verifies, is unchanged -- it is simply invoked one level of indirection
 ; deeper now. ---
 Vm_Boot:
+    jsl Vm_FetchSourceInit
     jsr Vm_Load
     jsr Vm_LoadSlots
     rts

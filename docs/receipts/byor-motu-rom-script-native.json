@@ -1,0 +1,722 @@
+{
+  "schema": "BYOR_ROM_SCRIPT_RESIDENCY_NATIVE_V1",
+  "status": "NATIVE_ROM_FETCH_AND_FRAME_GUARDS_PASS",
+  "linked": {
+    "schema": "BYOR_ROM_SCRIPT_LINK_V1",
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "instruction_count": 2890,
+    "instruction_bytes": 23120,
+    "slot_count": 693,
+    "slot_bytes": 5544,
+    "metadata_bytes": 12640,
+    "callsites": 386,
+    "instruction_sha256": "ce9a12ee5eacf266adab73927530d3e0905684f0cd6a811bec972495573d6c75",
+    "metadata_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+    "programs": [
+      {
+        "identity": {
+          "model": "He_Man",
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT"
+        },
+        "entry_ip": 0,
+        "instructions": 461,
+        "slots": 132,
+        "slot_base": 0,
+        "source_module_sha256": "d548528a28174d82012b2c8493014bcf6d70e1baf4be9f84bd4ee19aeb5f30b1"
+      },
+      {
+        "identity": {
+          "model": "He_ManB",
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT"
+        },
+        "entry_ip": 461,
+        "instructions": 499,
+        "slots": 142,
+        "slot_base": 132,
+        "source_module_sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4"
+      },
+      {
+        "identity": {
+          "model": "Skeletor",
+          "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT"
+        },
+        "entry_ip": 960,
+        "instructions": 1319,
+        "slots": 240,
+        "slot_base": 274,
+        "source_module_sha256": "0b6ea8128dec7900a7f9fd0b44fcbf50e2276fa60f04fd47a77de079eca748c0"
+      },
+      {
+        "identity": {
+          "model": "SkGeyser",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT"
+        },
+        "entry_ip": 2279,
+        "instructions": 38,
+        "slots": 16,
+        "slot_base": 514,
+        "source_module_sha256": "8aae7bcbc41dcfd7812101d8357c1eb75dcf1c66f8a04ecd293d0416f9971b0a"
+      },
+      {
+        "identity": {
+          "model": "SkGeyserT",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT"
+        },
+        "entry_ip": 2317,
+        "instructions": 84,
+        "slots": 30,
+        "slot_base": 530,
+        "source_module_sha256": "8a15074b5cb3d2ca19862c55e58a6949a96beb19c4623336463cbd168396bcd6"
+      },
+      {
+        "identity": {
+          "model": "SkTorn",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT"
+        },
+        "entry_ip": 2401,
+        "instructions": 289,
+        "slots": 48,
+        "slot_base": 560,
+        "source_module_sha256": "1ad5ed2158da382d22657cba081a8956f4c37c716bc4ea779bf46c4d75283761"
+      },
+      {
+        "identity": {
+          "model": "Knightbot",
+          "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT"
+        },
+        "entry_ip": 2690,
+        "instructions": 200,
+        "slots": 85,
+        "slot_base": 608,
+        "source_module_sha256": "0015ae31f4bf57d28a034364a6f4ce2eaab7f0416088713cf04aaa0742a4b341"
+      }
+    ],
+    "no_functions_removed": true,
+    "no_commands_removed": true,
+    "native_loader_bound": false,
+    "native_rom_fetch_bound": false,
+    "entity_api_bound": false,
+    "motu_gameplay_proven": false
+  },
+  "native": {
+    "schema": "BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1",
+    "status": "PASS",
+    "rom_sha256": "6abe6859d540e4f830eb0b5c6ddf84f7c1f58932a3dac89c5b578314d7b9fa03",
+    "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "model": "He_ManB",
+    "animation": "freespecial4",
+    "animation_handle": 36,
+    "module": {
+      "schema": "BYOR_ROM_SCRIPT_LINK_V1",
+      "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+      "instruction_count": 2890,
+      "instruction_bytes": 23120,
+      "slot_count": 693,
+      "slot_bytes": 5544,
+      "metadata_bytes": 12640,
+      "callsites": 386,
+      "instruction_sha256": "ce9a12ee5eacf266adab73927530d3e0905684f0cd6a811bec972495573d6c75",
+      "metadata_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+      "programs": [
+        {
+          "identity": {
+            "model": "He_Man",
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT"
+          },
+          "entry_ip": 0,
+          "instructions": 461,
+          "slots": 132,
+          "slot_base": 0,
+          "source_module_sha256": "d548528a28174d82012b2c8493014bcf6d70e1baf4be9f84bd4ee19aeb5f30b1"
+        },
+        {
+          "identity": {
+            "model": "He_ManB",
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT"
+          },
+          "entry_ip": 461,
+          "instructions": 499,
+          "slots": 142,
+          "slot_base": 132,
+          "source_module_sha256": "b6d146b97e4554fa36e5e4aa56f9830666e03a03c916a4601dcf35847dc6e9d4"
+        },
+        {
+          "identity": {
+            "model": "Skeletor",
+            "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT"
+          },
+          "entry_ip": 960,
+          "instructions": 1319,
+          "slots": 240,
+          "slot_base": 274,
+          "source_module_sha256": "0b6ea8128dec7900a7f9fd0b44fcbf50e2276fa60f04fd47a77de079eca748c0"
+        },
+        {
+          "identity": {
+            "model": "SkGeyser",
+            "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT"
+          },
+          "entry_ip": 2279,
+          "instructions": 38,
+          "slots": 16,
+          "slot_base": 514,
+          "source_module_sha256": "8aae7bcbc41dcfd7812101d8357c1eb75dcf1c66f8a04ecd293d0416f9971b0a"
+        },
+        {
+          "identity": {
+            "model": "SkGeyserT",
+            "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT"
+          },
+          "entry_ip": 2317,
+          "instructions": 84,
+          "slots": 30,
+          "slot_base": 530,
+          "source_module_sha256": "8a15074b5cb3d2ca19862c55e58a6949a96beb19c4623336463cbd168396bcd6"
+        },
+        {
+          "identity": {
+            "model": "SkTorn",
+            "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT"
+          },
+          "entry_ip": 2401,
+          "instructions": 289,
+          "slots": 48,
+          "slot_base": 560,
+          "source_module_sha256": "1ad5ed2158da382d22657cba081a8956f4c37c716bc4ea779bf46c4d75283761"
+        },
+        {
+          "identity": {
+            "model": "Knightbot",
+            "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT"
+          },
+          "entry_ip": 2690,
+          "instructions": 200,
+          "slots": 85,
+          "slot_base": 608,
+          "source_module_sha256": "0015ae31f4bf57d28a034364a6f4ce2eaab7f0416088713cf04aaa0742a4b341"
+        }
+      ],
+      "no_functions_removed": true,
+      "no_commands_removed": true,
+      "native_loader_bound": false,
+      "native_rom_fetch_bound": false,
+      "entity_api_bound": false,
+      "motu_gameplay_proven": false,
+      "sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914"
+    },
+    "cases": [
+      {
+        "frame": 3,
+        "context_lease": true,
+        "fields": 4,
+        "status": 4,
+        "error": 0,
+        "native_id": 521,
+        "rom_fetch_enabled": true,
+        "entry_ip": 461,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 54776,
+          "k": 0,
+          "a": 232,
+          "x": 232,
+          "y": 187,
+          "sp": 8180,
+          "d": 0,
+          "dbr": 0,
+          "ps": 4,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22269788
+        },
+        "resident_module_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+        "module_unchanged": true
+      },
+      {
+        "frame": 4,
+        "context_lease": true,
+        "fields": 12,
+        "status": 5,
+        "error": 10,
+        "native_id": 520,
+        "rom_fetch_enabled": true,
+        "entry_ip": 461,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 54734,
+          "k": 0,
+          "a": 0,
+          "x": 33,
+          "y": 12,
+          "sp": 8180,
+          "d": 0,
+          "dbr": 0,
+          "ps": 39,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 22854597
+        },
+        "resident_module_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+        "module_unchanged": true
+      },
+      {
+        "frame": 3,
+        "context_lease": false,
+        "fields": 12,
+        "status": 5,
+        "error": 10,
+        "native_id": 521,
+        "rom_fetch_enabled": true,
+        "entry_ip": 461,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 32858,
+          "k": 27,
+          "a": 224,
+          "x": 223,
+          "y": 227,
+          "sp": 8177,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 23437114
+        },
+        "resident_module_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+        "module_unchanged": true
+      },
+      {
+        "frame": 3,
+        "context_lease": true,
+        "fields": 11,
+        "status": 5,
+        "error": 1,
+        "native_id": 521,
+        "rom_fetch_enabled": false,
+        "entry_ip": 0,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 54697,
+          "k": 0,
+          "a": 1011,
+          "x": 1010,
+          "y": 15,
+          "sp": 8180,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 23978665
+        },
+        "resident_module_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+        "module_unchanged": true
+      },
+      {
+        "frame": 3,
+        "context_lease": true,
+        "fields": 2,
+        "status": 5,
+        "error": 13,
+        "native_id": 521,
+        "rom_fetch_enabled": true,
+        "entry_ip": 2890,
+        "game_state": 0,
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 32844,
+          "k": 27,
+          "a": 936,
+          "x": 988,
+          "y": 5,
+          "sp": 8177,
+          "d": 0,
+          "dbr": 0,
+          "ps": 165,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 24108350
+        },
+        "resident_module_sha256": "6a91cea0b66c9cd12c37659ac37e5b11f192d666005ecb5c33274f27ae0b4914",
+        "module_unchanged": true
+      }
+    ],
+    "rom_instruction_address": 2523136,
+    "source_effect_native_executed": false,
+    "motu_gameplay_proven": false,
+    "scope": "Authored frame guard, installed caller locals and explicit missing getentityproperty capability only"
+  },
+  "original_static_smoke": {
+    "rom_sha256": "7d99b37a24051ddf0a79d16b69ee5e2a4c0dd5c1c8fa30c7ab4b6d3f99e566d9",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "Kula selection reaches PLAYING",
+        true
+      ],
+      [
+        "Kula source roster identity",
+        true
+      ],
+      [
+        "persistent source campaign first stage",
+        true
+      ],
+      [
+        "static source presentation has no admission fault",
+        true
+      ],
+      [
+        "first stage remains PLAYING",
+        true
+      ],
+      [
+        "four bounded production fields observed",
+        true
+      ]
+    ],
+    "campaign_state": [
+      3,
+      0,
+      0
+    ],
+    "source_visual_error": 0,
+    "bus_samples": [
+      {
+        "field": 1,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "16896": 1,
+          "8466": 2,
+          "8465": 2,
+          "16907": 2,
+          "16908": 2,
+          "8464": 2,
+          "8463": 2,
+          "8448": 2,
+          "8462": 2,
+          "8450": 2,
+          "8451": 2,
+          "8452": 5,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175417944
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175418030
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175419144
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175420710
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 175428434
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 175428504
+          }
+        ]
+      },
+      {
+        "field": 2,
+        "counts": {
+          "17267": 7,
+          "17268": 7,
+          "17269": 7,
+          "17270": 7,
+          "8469": 7,
+          "8470": 7,
+          "8471": 7,
+          "8472": 393,
+          "8473": 393,
+          "16907": 7,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 7,
+          "17265": 7,
+          "17266": 7,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 175775298
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 175775384
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 175776520
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 175778220
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 230,
+            "masterClock": 175780832
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 232,
+            "masterClock": 175783452
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 234,
+            "masterClock": 175786064
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 236,
+            "masterClock": 175788684
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 237,
+            "masterClock": 175791296
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 241,
+            "masterClock": 175796714
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 241,
+            "masterClock": 175796784
+          }
+        ]
+      },
+      {
+        "field": 3,
+        "counts": {
+          "8460": 1,
+          "8461": 2,
+          "8492": 1,
+          "16908": 2,
+          "8464": 2,
+          "8465": 2,
+          "8466": 2,
+          "16896": 1,
+          "8453": 1,
+          "8463": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8462": 2,
+          "8459": 1,
+          "8448": 2
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 176132676
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 176132762
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 231,
+            "masterClock": 176139910
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 231,
+            "masterClock": 176139980
+          }
+        ]
+      },
+      {
+        "field": 4,
+        "counts": {
+          "17267": 2,
+          "17268": 2,
+          "17269": 2,
+          "17270": 2,
+          "8469": 2,
+          "8470": 2,
+          "8471": 2,
+          "8472": 32,
+          "8473": 32,
+          "16907": 2,
+          "16908": 2,
+          "16896": 1,
+          "8466": 2,
+          "8448": 2,
+          "8465": 2,
+          "8464": 2,
+          "8463": 2,
+          "8462": 2,
+          "8453": 1,
+          "8461": 2,
+          "8455": 1,
+          "8456": 1,
+          "8457": 1,
+          "8460": 1,
+          "8459": 1,
+          "17264": 2,
+          "17265": 2,
+          "17266": 2,
+          "8492": 1
+        },
+        "events": [
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 226,
+            "masterClock": 176490040
+          },
+          {
+            "address": 8448,
+            "value": 128,
+            "scanline": 226,
+            "masterClock": 176490126
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 227,
+            "masterClock": 176491262
+          },
+          {
+            "address": 16907,
+            "value": 128,
+            "scanline": 228,
+            "masterClock": 176493106
+          },
+          {
+            "address": 8448,
+            "value": 15,
+            "scanline": 233,
+            "masterClock": 176499998
+          },
+          {
+            "address": 16908,
+            "value": 0,
+            "scanline": 233,
+            "masterClock": 176500068
+          }
+        ]
+      }
+    ],
+    "scope": "Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.",
+    "no_pcm_copies": true
+  },
+  "instruction_rom_bank": 38,
+  "reserved_rom_bytes": 32768,
+  "source_host_worker_reserved_banks": [
+    29,
+    37
+  ],
+  "runtime_code_bank": 28,
+  "metadata_ram_capacity": 17760,
+  "slot_ram_capacity": 8192,
+  "free_before_nmi": 2,
+  "host_tests_passed": 21,
+  "audit_all": "PASS",
+  "no_color_reduction_applied": true,
+  "native_loader_bound": false,
+  "source_200hz_script_timing_proven": false,
+  "motu_gameplay_proven": false,
+  "nonclaims": [
+    "Metadata installed by bounded debug injection, not production loader",
+    "Entity properties/spawn remain unbound",
+    "No world attachment or source cadence admission",
+    "No MOTU candidate/completion"
+  ]
+}

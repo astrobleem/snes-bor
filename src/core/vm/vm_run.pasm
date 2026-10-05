@@ -134,6 +134,11 @@ Vm_Run__loop:
     sta.l VmState_Budget
 
     jsr Vm_Fetch
+    bcc Vm_Run__fetched
+    jmp Vm_Fault
+Vm_Run__fetched:
+.a16
+.i16
     jsr Vm_TraceWrite
 
     sep #$20
@@ -160,58 +165,13 @@ Vm_Run__yield:
 
 ; ============================================================================
 ; Vm_Fetch -- IP bounds check, then the 8-byte record into VmPriv_Opcode/
-; Flags/A/B/C. On an out-of-range IP, faults VMERR_BAD_JUMP directly (never
-; returns to the caller in that case).
+; Flags/A/B/C. Fetch returns carry SET/A=error on failure; the dispatch loop
+; then faults with only Vm_Run's own saved P/return address on its stack.
 ; ============================================================================
 Vm_Fetch:
-    php
-    rep #$31
 .a16
 .i16
-    lda.l VmState_Ip
-    cmp.l VmState_InstrCount
-    bcc Vm_Fetch__inrange
-    lda #VMERR_BAD_JUMP
-    jmp Vm_Fault                ; does not return; the pending jsr's return
-                                 ; address is simply abandoned on the stack --
-                                 ; Vm_Fault's own rts unwinds to Vm_Run's
-                                 ; caller, past this jsr, which is correct: a
-                                 ; fault always exits the whole interpreter,
-                                 ; never just the fetch.
-
-Vm_Fetch__inrange:
-    lda.l VmState_Ip
-    asl a
-    asl a
-    asl a                       ; IP*8 -- max 4095*8=32760, fits 16 bits
-    clc
-    adc.l VmPriv_InstrOff
-    tax                         ; X = instructions_offset + IP*8 (field 0)
-
-    sep #$20
-.a8
-    lda.l VmCode_Wram,x
-    sta.l VmPriv_Opcode
-    inx
-    lda.l VmCode_Wram,x
-    sta.l VmPriv_Flags
-    inx
-
-    rep #$31
-.a16
-.i16
-    lda.l VmCode_Wram,x
-    sta.l VmPriv_A
-    inx
-    inx
-    lda.l VmCode_Wram,x
-    sta.l VmPriv_B
-    inx
-    inx
-    lda.l VmCode_Wram,x
-    sta.l VmPriv_C
-
-    plp
+    jsl Vm_FetchSource
     rts
 
 ; ============================================================================

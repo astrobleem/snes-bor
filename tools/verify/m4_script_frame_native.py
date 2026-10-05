@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import struct
 import sys
+import os
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from compiler import Source
@@ -17,6 +18,7 @@ import game_bor_startup_select as startup
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--source',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--linked',type=Path,help='B48R metadata/instructions/report directory')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -25,13 +27,31 @@ def main():
     def c(file,name):return pasm_constant_in(str(root/file),name)
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';run='src/core/vm/vm_run.pasm'
     variant='src/core/vm/vm_native_variant.pasm';code=c(const,'VmCode_Wram');slots=c(const,'VmSlots_Wram')
+    rom=a.rom.resolve();entry=0;rom_address=None;linked=None
+    if a.linked:
+        from actor_s5_entity_fixture import symbols
+        linked=json.loads((a.linked/'report.json').read_text())
+        instructions=(a.linked/'instructions.bin').read_bytes();blob=(a.linked/'metadata.b48r').read_bytes()
+        rom_address=symbols(root/'src/main.sym')['SourceVM_InstructionReservation']
+        offset=(rom_address>>16)*32768+(rom_address&0xffff)-0x8000
+        raw=bytearray(rom.read_bytes())
+        if raw[offset:offset+32768]!=b'\xff'*32768:raise ValueError('ROM_SCRIPT_RESERVATION_OCCUPIED')
+        raw[offset:offset+len(instructions)]=instructions
+        (a.output/'bor.sfc').write_bytes(raw);rom=(a.output/'bor.sfc').resolve()
+        for path in [a.rom.resolve().with_suffix('.msu'),*a.rom.resolve().parent.glob('bor-*.pcm')]:
+            target=a.output/path.name
+            if not target.exists():os.link(path,target)
+        entry=next(p['entry_ip'] for p in linked['programs'] if p['identity']['model']==item['model'])
+        compiled=linked|dict(sha256=linked['metadata_sha256'])
     offsets=struct.unpack_from('<6I',blob,24);count,slotcount=struct.unpack_from('<2H',blob,8)
     reporter=Reporter('M4-AUTHORED-SCRIPT-GUARD',kind='GATE');cases=[]
-    with McpSession(rom=a.rom.resolve(),mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
+    with McpSession(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_PLAYING_REQUIRED')
-        for frame,lease in [(3,True),(4,True),(3,False)]:
+        inputs=[(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)]
+        if linked:inputs.extend([(3,True,False,0),(3,True,True,count)])
+        for frame,lease,rom_mode,start_ip in inputs:
             if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_CASE_PLAYING_REQUIRED')
             m.pause();m.write_memory('snesMemory',code,blob.hex())
             m.write_memory('snesMemory',slots,blob[offsets[1]:offsets[1]+slotcount*8].hex())
@@ -42,7 +62,12 @@ def main():
                 [(5,0x6abcde),(1,frame),(1,0),(1,handle)])
             m.write_memory('snesMemory',c(variant,'VmNativeVariant_Self'),context.hex())
             m.write_u16(c(variant,'VmNativeVariant_ContextValid'),0xb48f if lease else 0)
-            for name,value in [('VmState_Ip',0),('VmState_Error',0),('VmState_InstrCount',count),
+            if linked:
+                fetch='src/core/vm/vm_fetch_source.pasm'
+                m.write_u16(c(fetch,'VmSourceInstr_Base'),rom_address&0xffff)
+                m.write_u8(c(fetch,'VmSourceInstr_Bank'),rom_address>>16)
+                m.write_u16(c(fetch,'VmSourceInstr_Ready'),0xb48e if rom_mode else 0)
+            for name,value in [('VmState_Ip',start_ip),('VmState_Error',0),('VmState_InstrCount',count),
                 ('VmState_SlotCount',slotcount),('VmState_FrameTop',0)]:m.write_u16(c(const,name),value)
             m.write_u8(c(const,'VmState_Status'),c(const,'VMSTAT_READY'))
             base=c(const,'VM_STATE_FIRST')
@@ -53,13 +78,18 @@ def main():
                 if status in (c(const,'VMSTAT_DONE'),c(const,'VMSTAT_FAULT')):break
             target=struct.unpack('<H',read_block(m,c(call,'VmCall_TargetId'),32)[:2])[0]
             case=dict(frame=frame,context_lease=lease,fields=field,status=status,error=error,native_id=target)
+            case.update(rom_fetch_enabled=bool(linked and rom_mode),entry_ip=start_ip)
             case['game_state']=startup.u16(m,startup.STATE)
             case['cpu']=m.get_cpu_state()
             case['resident_module_sha256']=hashlib.sha256(read_block(m,code,len(blob))).hexdigest()
             case['module_unchanged']=case['resident_module_sha256']==compiled['sha256']
             reporter.check('resident module identity remains intact',case['module_unchanged'])
             cases.append(case)
-            if frame==3 and lease:
+            if linked and (not rom_mode or start_ip==count):
+                expected=c(const,'VMERR_BAD_OPCODE' if not rom_mode else 'VMERR_BAD_JUMP')
+                reporter.check('external-format/fetch-boundary rejection '+str(expected),
+                    status==c(const,'VMSTAT_FAULT') and error==expected)
+            elif frame==3 and lease:
                 reporter.check('authored frame 3 returns before breath command',status==c(const,'VMSTAT_DONE') and error==0)
             else:
                 expected=520 if lease else 521
@@ -67,9 +97,9 @@ def main():
                     status==c(const,'VMSTAT_FAULT') and error==c(const,'VMERR_BAD_NATIVE') and target==expected)
     result=dict(schema='BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1',
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
-        rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
+        rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
-        source_effect_native_executed=False,motu_gameplay_proven=False,
+        rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
         scope='Authored frame guard, installed caller locals and explicit missing getentityproperty capability only')
     (a.output/'report.json').write_text(json.dumps(result,indent=2)+'\n');reporter.finish()
 

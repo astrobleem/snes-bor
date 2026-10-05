@@ -13571,4 +13571,13 @@ Footdie_StreamSource:
 .bank 28
 .org $8000
 .include "core/vm/vm_native_variant.pasm"
+.include "core/vm/vm_fetch_source.pasm"
+
+; Reserved immutable instruction bank for compiler-selected source programs.
+; The ordinary compiler leaves this $FF-filled. Foreign-profile publication
+; owns its descriptor and fills it only after source capability admission.
+.bank 38                         ; persistent source host/worker owns 29..37
+.org $8000
+SourceVM_InstructionReservation:
+    .ds 32768,$FF
 
