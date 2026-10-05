@@ -52,8 +52,14 @@ Vm_NativeVariantDispatch__spawn_name:
 .a16
 .i16
     cmp #$0211                     ; setspawnentry(property,value)
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__spawn
     jmp Vm_SourceSpawnSetName
+Vm_NativeVariantDispatch__spawn:
+.a16
+.i16
+    cmp #$0212                     ; spawn(), checked source-world pool owner
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourceWorldSpawn
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16

@@ -26,11 +26,15 @@ def main():
     p.add_argument('--native-frame-dispatch',action='store_true',help='Submit checked-table native jobs, including empty and invalid caller cases')
     p.add_argument('--check-spawn-reset',action='store_true',help='Seed the portable request and prove source clearspawnentry defaults and EMPTY result')
     p.add_argument('--model-registry',type=Path,help='Checked B4MR table directory; install fixture loaded-model bits and bind setspawnentry name')
+    p.add_argument('--birth-templates',type=Path,help='Checked TYPE_NONE birth templates; install an exclusive fixture pool owner')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     if a.model_registry and not (a.native_frame_dispatch and a.observe_cost):
         raise ValueError('MODEL_REGISTRY_NATIVE_DISPATCH_AND_RETURN_OBSERVER_REQUIRED')
+    if a.birth_templates and not (a.model_registry and a.entity_view and a.check_spawn_reset):
+        raise ValueError('BIRTH_TEMPLATE_MODEL_ENTITY_AND_REQUEST_PROOF_REQUIRED')
     source=compile_source(Source(a.source));item=next(x for x in source['programs'] if x['model']=='He_ManB')
     handle=next(h['handle'] for h in source['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
+    animation_id=next(h['engine_animation_id'] for h in source['animation_handles'] if h['handle']==handle)
     blob,compiled=lower(item['program'],numeric_policy=POLICY);(a.output/'He_ManB.b48s').write_bytes(blob)
     root=Path(__file__).resolve().parents[2]
     def c(file,name):return pasm_constant_in(str(root/file),name)
@@ -71,6 +75,14 @@ def main():
                     model_rom_offset=len(instructions)+len(table)
                     if model_rom_offset+len(model_table)>32768:raise ValueError('MODEL_REGISTRY_ROM_RESERVATION_CAPACITY')
                     raw[offset+model_rom_offset:offset+model_rom_offset+len(model_table)]=model_table
+                    if a.birth_templates:
+                        from source_birth_templates import unpack as unpack_birth
+                        birth_table=(a.birth_templates/'birth.b4bt').read_bytes()
+                        birth_count=unpack_birth(birth_table)
+                        if birth_count!=len(model_rows):raise ValueError('BIRTH_TEMPLATE_REGISTRY_PAIR_COUNT')
+                        birth_rom_offset=model_rom_offset+len(model_table)
+                        if birth_rom_offset+len(birth_table)>32768:raise ValueError('BIRTH_TEMPLATE_ROM_BANK_CAPACITY')
+                        raw[offset+birth_rom_offset:offset+birth_rom_offset+len(birth_table)]=birth_table
                 (a.output/'bor.sfc').write_bytes(raw)
         compiled=linked|dict(sha256=linked['metadata_sha256'])
     elif a.frame_dispatch or a.native_frame_dispatch:raise ValueError('FRAME_DISPATCH_LINK_REQUIRED')
@@ -84,6 +96,11 @@ def main():
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('SCRIPT_GUARD_PLAYING_REQUIRED')
+        if a.birth_templates:
+            # The legacy candidate's SA-1 bootstrap runs after PLAYING becomes
+            # visible. Complete that startup before granting fixture ownership.
+            # This does not bind a production foreign-world startup sequence.
+            run_frames_exact(m,12)
         inputs=([(4,True,True,entry),(4,False,True,entry)] if a.frame_dispatch else
                 [(3,True,True,entry),(4,True,True,entry),(3,False,True,entry)])
         scenarios=None
@@ -103,7 +120,7 @@ def main():
                 (call,'VmCall_ArgSlotsOff',offsets[3]),('src/core/vm/vm_string.pasm','VmStr_StringsOff',offsets[4])]:
                 m.write_u16(c(file,name),value)
             context=b''.join(struct.pack('<BBHI',kind,0,0,value) for kind,value in
-                [(5,0x6abcde),(1,frame),(1,0),(1,handle)])
+                [(5,0x6abcde),(1,frame),(1,animation_id),(1,handle)])
             m.write_memory('snesMemory',c(variant,'VmNativeVariant_Self'),context.hex())
             m.write_u16(c(variant,'VmNativeVariant_ContextValid'),0xb48f if lease else 0)
             if a.entity_view:
@@ -111,7 +128,7 @@ def main():
                 from m4_source_entity_fixture import fixture_base
                 entity_base=fixture_base(root,STRIDE)
                 maxhealth=next(row['maxhealth'] for row in model_rows if row['lookup_name']==item['model'].lower()) if a.model_registry else 150
-                descriptor,data=view(entity_base,[record(0x6abcde,dict(a=0,animationid=handle,
+                descriptor,data=view(entity_base,[record(0x6abcde,dict(a=0,animationid=animation_id,
                     direction=0,health=100,playerindex=0,x=80*65536,z=220*65536,maxhealth=maxhealth))])
                 m.write_memory('snesMemory',entity_base,data.hex())
                 m.write_memory('snesMemory',c('src/core/vm/vm_source_entity.pasm','VmSourceEntity_Base'),descriptor.hex())
@@ -156,6 +173,25 @@ def main():
                 loaded=bytearray(bitmap_bytes)
                 for row in model_rows:loaded[row['id']//8]|=1<<(row['id']%8)
                 m.write_memory('snesMemory',c(models,'VmSourceModels_Loaded'),loaded.hex())
+            if a.birth_templates:
+                from source_world_pool import empty_pool,descriptor as world_descriptor,POOL_BANK,POOL_BASE,SIDE_BASE
+                from source_entity_abi import record
+                world='src/core/vm/vm_source_world_birth.pasm'
+                pool,sides=empty_pool(4)
+                pool=record(0x6abcde,dict(a=0,animationid=animation_id,direction=0,health=100,
+                                        playerindex=0,x=80*65536,z=220*65536,maxhealth=150))+pool[80:]
+                m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
+                m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
+                if (read_block(m,(POOL_BANK<<16)+POOL_BASE,len(pool))!=pool or
+                    read_block(m,(POOL_BANK<<16)+SIDE_BASE,len(sides))!=sides):
+                    raise ValueError('EXCLUSIVE_POOL_WRITEBACK_REQUIRED_BEFORE_LEASE')
+                m.write_memory('snesMemory',c(world,'VmSourceWorld_Ready'),
+                               world_descriptor(4,rom_address+birth_rom_offset,birth_count,len(birth_table),time=48).hex())
+                m.write_u16(c(world,'VmSourceWorld_Players'),1)
+                m.write_memory('snesMemory',c(world,'VmSourceWorld_AdvanceX'),bytes(10).hex())
+                m.write_memory('snesMemory',c('src/core/vm/vm_source_entity.pasm','VmSourceEntity_Base'),
+                               struct.pack('<HBxHH',POOL_BASE,POOL_BANK,4,0xb48b).hex())
+                m.write_u16(c('src/core/vm/vm_source_mutation.pasm','VmSourceMutation_Ready'),0xb4a2)
             base=c(const,'VM_STATE_FIRST')
             for field in range(1,61):
                 run_frames_exact(m,1);state=read_block(m,base,32)
@@ -197,6 +233,21 @@ def main():
                     case['last_native_result_hex' if a.model_registry else 'clear_return_variant_hex']=variant_result.hex()
                     expected_result=struct.pack('<BBHI',1,0,0,1) if a.model_registry else bytes(8)
                     if not a.model_registry:reporter.check('clearspawnentry returns complete EMPTY',variant_result==expected_result)
+            if a.birth_templates:
+                born=read_block(m,(POOL_BANK<<16)+POOL_BASE+80,80)
+                born_side=read_block(m,(POOL_BANK<<16)+SIDE_BASE+64,64)
+                called=frame==4 and lease and scenario=='command'
+                expected=record((POOL_BANK<<16)+POOL_BASE+80,
+                                dict(a=93*65536,animationid=0,direction=0,health=0,playerindex=0,
+                                     x=62*65536,z=220*65536,maxhealth=0)) if called else pool[80:160]
+                reporter.check('authored callback births and positions source effect only when routed',born==expected)
+                case['born_view_hex']=born.hex();case['born_side_hex']=born_side.hex()
+                if called:
+                    reporter.check('source birth owns model/handle, alpha, lifespan and initial timing',
+                        struct.unpack_from('<4H',born_side)==(model,model,47,0) and
+                        struct.unpack_from('<4I',born_side,8)==(54,48,300,49) and
+                        struct.unpack_from('<I',born_side,24)[0]==49 and
+                        struct.unpack_from('<HHI',born_side,28)==(7,1,2*65536))
             cases.append(case)
             if a.native_frame_dispatch and scenario not in ('empty','command'):
                 reporter.check('native route rejects invalid context/frame/ROM lease before empty route',
@@ -205,6 +256,8 @@ def main():
                 expected=c(const,'VMERR_BAD_OPCODE' if not rom_mode else 'VMERR_BAD_JUMP')
                 reporter.check('external-format/fetch-boundary rejection '+str(expected),
                     status==c(const,'VMSTAT_FAULT') and error==expected)
+            elif a.birth_templates and scenario=='command':
+                reporter.check('authored spawn callback completes natively',status==c(const,'VMSTAT_DONE') and error==0)
             elif frame==3 and lease:
                 reporter.check('authored frame 3 returns before breath command',status==c(const,'VMSTAT_DONE') and error==0)
             else:
@@ -226,11 +279,16 @@ def main():
             name_returns=[x for x in returned if x['native_id']==529]
             reporter.check('setspawnentry observed INTEGER 1 at its native return',len(name_returns)==1 and
                            name_returns[0]['variant_hex']==struct.pack('<BBHI',1,0,0,1).hex())
+        if a.birth_templates:
+            spawn_returns=[x for x in returned if x['native_id']==530]
+            reporter.check('spawn returns complete stable pool PTR',len(spawn_returns)==1 and
+                           spawn_returns[0]['variant_hex']==struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+80).hex())
     result=dict(schema='BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1',
         status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
-        model=item['model'],animation='freespecial4',animation_handle=handle,module=compiled,cases=cases,
-        rom_instruction_address=rom_address,source_effect_native_executed=False,motu_gameplay_proven=False,
+        model=item['model'],animation='freespecial4',animation_handle=handle,engine_animation_id=animation_id,module=compiled,cases=cases,
+        rom_instruction_address=rom_address,source_effect_native_executed=False,
+        source_effect_birth_native_executed=bool(a.birth_templates),source_effect_presentation_proven=False,motu_gameplay_proven=False,
         entity_read_view_installed=a.entity_view,native_cpu_spans=observed,source_200hz_cadence_proven=False,
         native_return_trace=returned,
         entity_fixture_base=entity_base if a.entity_view else None,
@@ -238,6 +296,7 @@ def main():
         frame_dispatch_production_owner_bound=False,
         clearspawnentry_state_proven=a.check_spawn_reset,
         model_name_registry_installed=bool(a.model_registry),live_model_loader_bound=False,
+        birth_templates_installed=bool(a.birth_templates),live_world_owner_bound=False,
         cost_scope=('Vm_SourceFrameGate entry through terminal status write' if a.native_frame_dispatch else
                     'Vm_Run after entry PHP/REP and first status LDA through terminal status write')+'; includes intervening runtime work; excludes checkpoint waiting',
         scope='Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting')

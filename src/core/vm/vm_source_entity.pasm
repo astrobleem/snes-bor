@@ -215,6 +215,23 @@ Vm_SourceEntityLocate__lease:
     beq Vm_SourceEntityLocate__bank_ok
     cmp #$007F
     beq Vm_SourceEntityLocate__bank_ok
+    cmp #$0041
+    bne Vm_SourceEntityLocate__bank_bad
+    ; Physical BW-RAM records belong only to the exclusive foreign pool owner.
+    lda.l VmSourceWorld_Ready
+    cmp #$B4A3
+    bne Vm_SourceEntityLocate__bank_bad
+    lda.l VmSourceEntity_Base
+    cmp #$4000
+    bne Vm_SourceEntityLocate__bank_bad
+    lda.l VmSourceEntity_Count
+    cmp.l VmSourceWorld_Count
+    bne Vm_SourceEntityLocate__bank_bad
+    cmp #129
+    bcc Vm_SourceEntityLocate__bank_ok
+Vm_SourceEntityLocate__bank_bad:
+.a16
+.i16
     jmp Vm_SourceEntityLocate__bad
 Vm_SourceEntityLocate__bank_ok:
 .a16

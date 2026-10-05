@@ -763,3 +763,51 @@ are retained. The full ROM audit and 24 script tests pass; bank 0 still has two
 bytes free and all 17 protected tracked files are unchanged. The inherited
 concurrent static recovery failure remains open. Receipt:
 `byor-motu-property-mutation-native.json`. No color reduction is applied.
+
+### Source animation numbers and checked effect birth
+
+A pinned engine authority snapshot now supplies animation enum values, loader
+aliases, default arrays and the exact global expansion order. MOTU maxfollows
+10 produces 168 engine animation numbers: follow5/follow6 are 162/163. Loader
+waiting selects ANI_SELECT (59), while select selects ANI_PICK (25). These
+engine animation numbers are distinct from the compiler's immutable frame
+handles. The authored breath caller now installs engine animation ID 44 and
+compiler frame handle 36. Compiler instruction/metadata encodings are unchanged
+by that additional identity metadata.
+
+Generic SOURCE_NONE_IDLE_BIRTH templates derive health, alpha, lifespan, initial
+animation/frame identity, delay and physics flags from source. Seven models are
+admitted to this initial birth capability. A model requiring type-specific
+initial actions, scripts, sound/frame effects or environment queries fails
+explicitly until that initialization is bound. This is birth initialization
+admission, not a claim that all model behavior, collisions or presentation exist.
+
+An opt-in native allocator uses a separately leased physical BW-RAM region
+$41:4000..$41:87ff: 128 80-byte property records and 128 64-byte birth sidecars.
+Stable pool tokens survive slot reuse. The allocator initializes all supported
+state before publishing alive=1; it never aliases original-BOR actor indices.
+Read/mutation access to these BW-RAM records requires that exclusive pool owner.
+Cold boot leaves the owner disabled. Production pool startup remains unbound.
+
+The eleven-case authored callback proof passes. The source command clears the
+request, resolves HBreath, allocates it, applies position/direction and returns
+normally. Its born coordinates are (62,220,93) for the left-facing caller;
+model/default identity 5, idle handle 47, frame zero, alpha 1 and 300-tick lifespan
+are retained. At time 48 it has nextanim 54 and nextthink/nextmove 49. The observer
+captures a complete stable pool PTR at spawn return. The complete callback takes
+64 VM instructions and 639,634 measured master clocks, including routing and
+intervening runtime work. This does not prove a 200-Hz workload budget.
+
+Ten separate native allocation cases pass: birth, absent level, absent owner,
+missing model, unadmitted initializer, full pool, invalid base/count/template and
+zero free-slot token. Failure paths leave both pool arrays unchanged; absent
+level/model and full pool return EMPTY. Fixtures wait for twelve legacy startup
+fields and require complete pool writeback before granting their injected owner.
+An earlier skipped-frame fixture failed ownership before that startup boundary;
+its result is retained without a more specific causal claim.
+
+The full ROM audit and 30 focused compiler tests pass. Bank 0 still has two bytes
+free and all 17 protected tracked files are unchanged. Live source world ticking,
+additional API policies, selector/combat/Demo completion and effect presentation
+are still unbound. The inherited concurrent static recovery failure remains open.
+Receipt: `byor-motu-world-birth-native.json`. No color reduction is applied.

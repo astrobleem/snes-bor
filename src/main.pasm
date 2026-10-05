@@ -13578,6 +13578,7 @@ Footdie_StreamSource:
 .include "core/vm/vm_source_spawn.pasm"
 .include "core/vm/vm_source_models.pasm"
 .include "core/vm/vm_source_mutation.pasm"
+.include "core/vm/vm_source_world_birth.pasm"
 
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication

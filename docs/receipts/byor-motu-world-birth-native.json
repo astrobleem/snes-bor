@@ -1,0 +1,1200 @@
+{
+  "schema": "BYOR_CHECKED_NONE_IDLE_BIRTH_NATIVE_V1",
+  "status": "PASS",
+  "birth_templates": {
+    "schema": "BYOR_SOURCE_BIRTH_TEMPLATES_V1",
+    "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "models": [
+      {
+        "id": 0,
+        "identity": "Shock",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 1,
+        "initial_delay_ticks": 8,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 1,
+        "identity": "Slash",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 2,
+        "initial_delay_ticks": 8,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 2,
+        "identity": "Spark",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 3,
+        "initial_delay_ticks": 4,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 3,
+        "identity": "He_Man",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "TYPE_SPECIFIC_INITIALIZATION_UNBOUND",
+          "INITIAL_ACTION_POLICY_UNBOUND",
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 150,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 6,
+        "initial_delay_ticks": 20,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 4,
+        "identity": "He_ManB",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_ACTION_POLICY_UNBOUND",
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 150,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 25,
+        "initial_delay_ticks": 20,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 5,
+        "identity": "HBreath",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 1,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 47,
+        "initial_delay_ticks": 6,
+        "lifespan_ticks": 300,
+        "gravity": 0,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 6,
+        "identity": "HWWind",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_FRAME_SIDE_EFFECT_UNBOUND"
+        ],
+        "maxhealth": 0,
+        "alpha": 1,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 48,
+        "initial_delay_ticks": 10,
+        "lifespan_ticks": 400,
+        "gravity": 0,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 7,
+        "identity": "ShWave",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 49,
+        "initial_delay_ticks": 20,
+        "lifespan_ticks": 200,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 8,
+        "identity": "Skeletor",
+        "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "TYPE_SPECIFIC_INITIALIZATION_UNBOUND",
+          "INITIAL_ACTION_POLICY_UNBOUND",
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 400,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 52,
+        "initial_delay_ticks": 30,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 9,
+        "identity": "GeyserN",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_FRAME_SIDE_EFFECT_UNBOUND"
+        ],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 68,
+        "initial_delay_ticks": 20,
+        "lifespan_ticks": 200,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 10,
+        "identity": "SkFBall",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 1,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 69,
+        "initial_delay_ticks": 12,
+        "lifespan_ticks": 200,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 11,
+        "identity": "SkGeyser",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_ACTION_POLICY_UNBOUND",
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 70,
+        "initial_delay_ticks": 12,
+        "lifespan_ticks": 200,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 12,
+        "identity": "SkGeyserT",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 72,
+        "initial_delay_ticks": 2,
+        "lifespan_ticks": 400,
+        "gravity": 0,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 13,
+        "identity": "SkTorn",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 73,
+        "initial_delay_ticks": 12,
+        "lifespan_ticks": 600,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 14,
+        "identity": "Knightbot",
+        "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": false,
+        "rejections": [
+          "TYPE_SPECIFIC_INITIALIZATION_UNBOUND",
+          "INITIAL_ACTION_POLICY_UNBOUND",
+          "INITIAL_CALLBACK_OWNER_UNBOUND"
+        ],
+        "maxhealth": 70,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 74,
+        "initial_delay_ticks": 16,
+        "lifespan_ticks": 2147483647,
+        "gravity": 1,
+        "no_adjust_base": 1
+      },
+      {
+        "id": 15,
+        "identity": "ShockBall",
+        "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "capability": "SOURCE_NONE_IDLE_BIRTH",
+        "admitted": true,
+        "rejections": [],
+        "maxhealth": 0,
+        "alpha": 0,
+        "initial_animation_id": 0,
+        "initial_frame_handle": 80,
+        "initial_delay_ticks": 10,
+        "lifespan_ticks": 400,
+        "gravity": 1,
+        "no_adjust_base": 1
+      }
+    ],
+    "admission_scope": "TYPE_NONE idle birth without initial script/frame/environment side effects",
+    "model_template_complete_engine_behavior": false,
+    "live_world_owner_bound": false,
+    "motu_gameplay_proven": false,
+    "table_bytes": 2584,
+    "table_sha256": "d05a9f129ecb5c833d8b297a3491e6cb9d6107a2579a6bab43d49d438d1341ce"
+  },
+  "animation_identities": {
+    "schema": "BYOR_4086_ANIMATION_IDENTITIES_V1",
+    "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "authority_snapshot_sha256": "22179e3182ef91475650e59af5c509580777842ddc742764bbcd05dbded394de",
+    "limits": {
+      "max_downs": 1,
+      "max_ups": 1,
+      "max_backwalks": 1,
+      "max_walks": 1,
+      "max_idles": 1,
+      "max_freespecials": 8,
+      "max_attacks": 4,
+      "max_follows": 10,
+      "max_attack_types": 20
+    },
+    "max_animations": 168,
+    "models": [
+      {
+        "identity": "Shock",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "Slash",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "Spark",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "He_Man",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+        "animations": [
+          {
+            "role": "waiting",
+            "engine_animation_id": 59
+          },
+          {
+            "role": "select",
+            "engine_animation_id": 25
+          },
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          },
+          {
+            "role": "walk",
+            "engine_animation_id": 1
+          },
+          {
+            "role": "get",
+            "engine_animation_id": 16
+          },
+          {
+            "role": "run",
+            "engine_animation_id": 37
+          },
+          {
+            "role": "attack1",
+            "engine_animation_id": 8
+          },
+          {
+            "role": "runattack",
+            "engine_animation_id": 38
+          },
+          {
+            "role": "special",
+            "engine_animation_id": 21
+          },
+          {
+            "role": "freespecial",
+            "engine_animation_id": 22
+          },
+          {
+            "role": "freespecial2",
+            "engine_animation_id": 26
+          },
+          {
+            "role": "freespecial3",
+            "engine_animation_id": 28
+          },
+          {
+            "role": "freespecial4",
+            "engine_animation_id": 44
+          },
+          {
+            "role": "jumpdelay",
+            "engine_animation_id": 108
+          },
+          {
+            "role": "jump",
+            "engine_animation_id": 2
+          },
+          {
+            "role": "jumpattack",
+            "engine_animation_id": 14
+          },
+          {
+            "role": "jumpland",
+            "engine_animation_id": 107
+          },
+          {
+            "role": "pain",
+            "engine_animation_id": 4
+          },
+          {
+            "role": "fall",
+            "engine_animation_id": 5
+          },
+          {
+            "role": "rise",
+            "engine_animation_id": 6
+          },
+          {
+            "role": "land",
+            "engine_animation_id": 3
+          }
+        ]
+      },
+      {
+        "identity": "He_ManB",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          },
+          {
+            "role": "walk",
+            "engine_animation_id": 1
+          },
+          {
+            "role": "get",
+            "engine_animation_id": 16
+          },
+          {
+            "role": "run",
+            "engine_animation_id": 37
+          },
+          {
+            "role": "attack1",
+            "engine_animation_id": 8
+          },
+          {
+            "role": "attack2",
+            "engine_animation_id": 9
+          },
+          {
+            "role": "attack3",
+            "engine_animation_id": 10
+          },
+          {
+            "role": "runattack",
+            "engine_animation_id": 38
+          },
+          {
+            "role": "freespecial",
+            "engine_animation_id": 22
+          },
+          {
+            "role": "freespecial2",
+            "engine_animation_id": 26
+          },
+          {
+            "role": "freespecial3",
+            "engine_animation_id": 28
+          },
+          {
+            "role": "freespecial4",
+            "engine_animation_id": 44
+          },
+          {
+            "role": "freespecial5",
+            "engine_animation_id": 45
+          },
+          {
+            "role": "freespecial6",
+            "engine_animation_id": 46
+          },
+          {
+            "role": "jumpdelay",
+            "engine_animation_id": 108
+          },
+          {
+            "role": "jump",
+            "engine_animation_id": 2
+          },
+          {
+            "role": "jumpattack",
+            "engine_animation_id": 14
+          },
+          {
+            "role": "jumpland",
+            "engine_animation_id": 107
+          },
+          {
+            "role": "pain",
+            "engine_animation_id": 4
+          },
+          {
+            "role": "fall",
+            "engine_animation_id": 5
+          },
+          {
+            "role": "rise",
+            "engine_animation_id": 6
+          },
+          {
+            "role": "land",
+            "engine_animation_id": 3
+          }
+        ]
+      },
+      {
+        "identity": "HBreath",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "HWWind",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "ShWave",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "Skeletor",
+        "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+        "animations": [
+          {
+            "role": "spawn",
+            "engine_animation_id": 23
+          },
+          {
+            "role": "follow5",
+            "engine_animation_id": 162
+          },
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          },
+          {
+            "role": "walk",
+            "engine_animation_id": 1
+          },
+          {
+            "role": "follow4",
+            "engine_animation_id": 84
+          },
+          {
+            "role": "follow6",
+            "engine_animation_id": 163
+          },
+          {
+            "role": "pain",
+            "engine_animation_id": 4
+          },
+          {
+            "role": "fall",
+            "engine_animation_id": 5
+          },
+          {
+            "role": "rise",
+            "engine_animation_id": 6
+          },
+          {
+            "role": "block",
+            "engine_animation_id": 13
+          },
+          {
+            "role": "attack1",
+            "engine_animation_id": 8
+          },
+          {
+            "role": "follow1",
+            "engine_animation_id": 81
+          },
+          {
+            "role": "freespecial",
+            "engine_animation_id": 22
+          },
+          {
+            "role": "attack2",
+            "engine_animation_id": 9
+          },
+          {
+            "role": "follow2",
+            "engine_animation_id": 82
+          },
+          {
+            "role": "attack3",
+            "engine_animation_id": 10
+          },
+          {
+            "role": "follow3",
+            "engine_animation_id": 83
+          },
+          {
+            "role": "freespecial3",
+            "engine_animation_id": 28
+          }
+        ]
+      },
+      {
+        "identity": "GeyserN",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "SkFBall",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "SkGeyser",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          },
+          {
+            "role": "spawn",
+            "engine_animation_id": 23
+          }
+        ]
+      },
+      {
+        "identity": "SkGeyserT",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "SkTorn",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      },
+      {
+        "identity": "Knightbot",
+        "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          },
+          {
+            "role": "walk",
+            "engine_animation_id": 1
+          },
+          {
+            "role": "pain",
+            "engine_animation_id": 4
+          },
+          {
+            "role": "fall",
+            "engine_animation_id": 5
+          },
+          {
+            "role": "rise",
+            "engine_animation_id": 6
+          },
+          {
+            "role": "attack1",
+            "engine_animation_id": 8
+          }
+        ]
+      },
+      {
+        "identity": "ShockBall",
+        "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+        "animations": [
+          {
+            "role": "idle",
+            "engine_animation_id": 0
+          }
+        ]
+      }
+    ],
+    "frame_handles_are_engine_animation_numbers": false,
+    "world_owner_bound": false,
+    "motu_gameplay_proven": false
+  },
+  "authored_callback": {
+    "status": "PASS",
+    "rom_sha256": "fc8835dce5d027f36fea94f4b75ad895cad8ae9b1f61681a649dfa6a6f0a917d",
+    "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "model": "He_ManB",
+    "animation": "freespecial4",
+    "animation_handle": 36,
+    "engine_animation_id": 44,
+    "native_cpu_spans": [
+      {
+        "start_clock": 181237132,
+        "end_clock": 181249464,
+        "master_clocks": 12332,
+        "start_field": 507,
+        "end_field": 507,
+        "instructions": 0,
+        "status": 4,
+        "error": 0,
+        "native_id": 108
+      },
+      {
+        "start_clock": 185241312,
+        "end_clock": 185880946,
+        "master_clocks": 639634,
+        "start_field": 518,
+        "end_field": 520,
+        "instructions": 64,
+        "status": 4,
+        "error": 0,
+        "native_id": 513
+      },
+      {
+        "start_clock": 190908606,
+        "end_clock": 190909556,
+        "master_clocks": 950,
+        "start_field": 534,
+        "end_field": 534,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 192470946,
+        "end_clock": 192481300,
+        "master_clocks": 10354,
+        "start_field": 538,
+        "end_field": 538,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 195385886,
+        "end_clock": 195387808,
+        "master_clocks": 1922,
+        "start_field": 546,
+        "end_field": 546,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 198365494,
+        "end_clock": 198368026,
+        "master_clocks": 2532,
+        "start_field": 555,
+        "end_field": 555,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 201537582,
+        "end_clock": 201539416,
+        "master_clocks": 1834,
+        "start_field": 564,
+        "end_field": 564,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 202422812,
+        "end_clock": 202425136,
+        "master_clocks": 2324,
+        "start_field": 566,
+        "end_field": 566,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 205286394,
+        "end_clock": 205292268,
+        "master_clocks": 5874,
+        "start_field": 574,
+        "end_field": 574,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 209567182,
+        "end_clock": 209568880,
+        "master_clocks": 1698,
+        "start_field": 586,
+        "end_field": 586,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      },
+      {
+        "start_clock": 213447566,
+        "end_clock": 213448214,
+        "master_clocks": 648,
+        "start_field": 597,
+        "end_field": 597,
+        "instructions": 0,
+        "status": 5,
+        "error": 10,
+        "native_id": 513
+      }
+    ],
+    "native_return_trace": [
+      {
+        "master_clock": 185331608,
+        "native_id": 521,
+        "variant_hex": "05000000debc6a00",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185382424,
+        "native_id": 520,
+        "variant_hex": "0100000000000000",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185399052,
+        "native_id": 518,
+        "variant_hex": "0000000000000000",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185467782,
+        "native_id": 529,
+        "variant_hex": "0100000001000000",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185541960,
+        "native_id": 520,
+        "variant_hex": "0200000000005000",
+        "result_slot": 237
+      },
+      {
+        "master_clock": 185587242,
+        "native_id": 520,
+        "variant_hex": "0200000000000000",
+        "result_slot": 237
+      },
+      {
+        "master_clock": 185636400,
+        "native_id": 520,
+        "variant_hex": "020000000000dc00",
+        "result_slot": 237
+      },
+      {
+        "master_clock": 185729534,
+        "native_id": 530,
+        "variant_hex": "0500000050404100",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185807836,
+        "native_id": 515,
+        "variant_hex": "0000000000000000",
+        "result_slot": 236
+      },
+      {
+        "master_clock": 185850982,
+        "native_id": 513,
+        "variant_hex": "0000000000000000",
+        "result_slot": 236
+      }
+    ],
+    "cases": [
+      {
+        "dispatch_scenario": "empty",
+        "frame": 3,
+        "status": 4,
+        "error": 0,
+        "native_id": 108,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "command",
+        "frame": 4,
+        "status": 4,
+        "error": 0,
+        "native_id": 513,
+        "born_view_hex": "50404100010000000200000000005d0001000000000000000100000000000000010000000000000001000000000000000200000000003e00020000000000dc0001000000000000000000000000000000",
+        "born_side_hex": "050005002f00000036000000300000002c0100003100000031000000070001000000020000000000000000000000000000000000000001000600000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 451
+      },
+      {
+        "dispatch_scenario": "no_context",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "bad_frame",
+        "frame": 1000,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "no_fetch_lease",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "bad_program",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "no_table_lease",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "bank_spill",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "header_count_mismatch",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "bad_handle",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      },
+      {
+        "dispatch_scenario": "busy_yield",
+        "frame": 3,
+        "status": 5,
+        "error": 10,
+        "native_id": 513,
+        "born_view_hex": "5040410000000000020000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000001000000000000000000000000000000",
+        "born_side_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "dispatch_pending": 0,
+        "dispatch_entry": 65535
+      }
+    ]
+  },
+  "allocation": {
+    "schema": "BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1",
+    "status": "PASS",
+    "rom_sha256": "ebcfde9e4985c95837db270e77da6e592786d13422f1bc499ad5d2c5e8509bba",
+    "cases": [
+      {
+        "case": "allocated",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "return_variant_hex": "0500000000404100",
+        "pool_sha256": "a00bd8bd807c3ca57ba234d78ddd8f9dca7e761ebc40fbf105b409df3a672b0d",
+        "sides_sha256": "0047039c62004317566d5821a45fb07745034204f756fbc5555696c457f14b29"
+      },
+      {
+        "case": "no_level",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "no_owner",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "missing_model",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "unadmitted",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "full",
+        "fields": 1,
+        "status": 4,
+        "error": 0,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "5c25b707870f59be43daf103155b6c47961ae5d7dd767a2915b347631c878434",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "bad_base",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "bad_count",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "bad_table",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "35c6a50a1481325c176ea86f1a68e73d524320423b7d15878ec5039b4cc62c92",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      },
+      {
+        "case": "zero_token",
+        "fields": 1,
+        "status": 5,
+        "error": 10,
+        "return_variant_hex": "0000000000000000",
+        "pool_sha256": "10f9c228a8b4cdba46b6f0ff23952c132c36dba025d58c7dfdbe3d9db7a52fc2",
+        "sides_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca"
+      }
+    ],
+    "fixture_pool_count": 2,
+    "compiler_pool_capacity": 128,
+    "pool_ownership_scope": "Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader",
+    "live_world_owner_bound": false,
+    "physics_bound": false,
+    "presentation_bound": false,
+    "motu_gameplay_proven": false,
+    "no_pcm_copies": true
+  },
+  "artifacts": {
+    "authored": "out/byor-motu-birth-callback-native-owned-pool/report.json",
+    "allocation": "out/byor-motu-world-birth-native/report.json",
+    "templates": "out/byor-motu-birth-templates/report.json",
+    "animation_ids": "out/byor-motu-animation-identities.json"
+  },
+  "pool_region": {
+    "bank": 65,
+    "views_begin": 16384,
+    "sides_begin": 26624,
+    "end_exclusive": 34816,
+    "capacity": 128,
+    "view_stride": 80,
+    "side_stride": 64
+  },
+  "base_rom_sha256": "8a1cc3bb1835f50c2a81d907fdf7d872053f8a12e4c478ac8a7e69f5f8ef30f7",
+  "audit_status": "ALL CHECKS PASS",
+  "host_tests_passed": 30,
+  "bank0_free_before_nmi_bytes": 2,
+  "no_color_reduction_applied": true,
+  "live_world_owner_bound": false,
+  "source_200hz_workload_proven": false,
+  "source_effect_presentation_proven": false,
+  "motu_gameplay_proven": false,
+  "scope": "Native birth and authored callback under externally checked exclusive leases after legacy startup; no production foreign world or presentation admission.",
+  "first_attempt_scope": "A pre-bootstrap empty-route fixture did not retain the seeded pool. Passing fixtures wait twelve legacy startup fields and require full readback before granting the pool lease. No causal claim beyond observed failed ownership is made."
+}

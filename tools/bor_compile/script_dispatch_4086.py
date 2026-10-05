@@ -7,11 +7,13 @@ from source_profile import document,discover
 from script_ir_4086 import parse_script,inspect
 from script_bytecode import compile_library
 from dialect_4086 import ENGINE_COMMIT
+from source_animation_ids import configure,role_id
 
 
 def compile_source(source):
     docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     structure=discover(source,docs);registry=docs[key(structure['models_path'])]['directives']
+    animation_ids=configure(registry)
     compatibility=[r for r in registry if r['directive']=='nocmdcompatible']
     if compatibility and int(compatibility[-1]['values'][0])!=0:
         raise ValueError('SCRIPT_NOCMDCOMPATIBLE_POLICY_UNSUPPORTED')
@@ -24,7 +26,8 @@ def compile_source(source):
             role=animation['role']
             if role in roles:raise ValueError('SCRIPT_DUPLICATE_ANIMATION_REQUIRES_LOADER_AUTHORITY')
             roles[role]=len(handles)+1
-            handles.append(dict(handle=roles[role],model=model['declaration'],source_path=model['source_path'],role=role))
+            handles.append(dict(handle=roles[role],model=model['declaration'],source_path=model['source_path'],
+                                role=role,engine_animation_id=role_id(animation_ids,role)))
         if not model['scripts'] and not model['inline_scripts']:continue
         functions=''
         if model['scripts']:
