@@ -1,8 +1,4 @@
-"""Measure a source model's static OBJ color demand and explicit alternatives.
-
-No assets are rewritten. Color-reduction figures are deterministic examples,
-not an optimal quantizer, visual acceptance or a runtime admission guarantee.
-"""
+"""Measure source RGB555 demand without modifying or reducing source colors."""
 import argparse
 from collections import Counter
 import io
@@ -17,7 +13,7 @@ from source_profile import document, discover, sha
 from source_palette import model_palettes
 
 
-def measure(path, model_name, role):
+def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_size=(8,8), color_masks=False):
     source = Source(path)
     docs = {k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     structure = discover(source,docs)
@@ -36,6 +32,7 @@ def measure(path, model_name, role):
     palette = palettes['base']['rgb8']
     lut = np.array(palettes['base']['rgb555'])
     histogram, frame_reports = Counter(), []
+    raster_pixels=[]
     for frame in frames:
         image_path = source.image_path(frame['values'][0])
         raw = source.read(image_path)
@@ -47,6 +44,8 @@ def measure(path, model_name, role):
             visible = colors[indices!=0]
             histogram.update(map(int,visible))
             line_sets = [set(map(int,colors[y][indices[y]!=0])) for y in range(image.height)]
+            if raster:
+                raster_pixels.append(np.where(indices!=0,colors,-1))
             frame_reports.append(dict(**frame, image_path=image_path, asset_sha256=sha(raw),
                 colors=len(set(map(int,visible))), visible_pixels=int(visible.size),
                 maximum_scanline_colors=max(map(len,line_sets), default=0),
@@ -56,27 +55,11 @@ def measure(path, model_name, role):
     if not histogram:
         raise ValueError('COLOR_MODEL_HAS_NO_VISIBLE_PIXELS: '+model_name)
     colors = np.array(sorted(histogram),dtype=np.int32)
-    rgb = np.column_stack((colors&31,(colors>>5)&31,(colors>>10)&31))
-    weights = np.array([histogram[int(c)] for c in colors],dtype=np.int64)
-    alternatives = []
-    for budget in (120,90,60):
-        selected = [int(np.argmax(weights))]
-        distances = np.sum((rgb-rgb[selected[0]])**2,axis=1)
-        while len(selected)<min(budget,len(colors)):
-            next_color = int(np.argmax(distances*weights))
-            if distances[next_color]==0:
-                break
-            selected.append(next_color)
-            distances = np.minimum(distances,np.sum((rgb-rgb[next_color])**2,axis=1))
-        alternatives.append(dict(policy='EXAMPLE_WEIGHTED_GREEDY_RGB555_SOURCE_COLOR_REDUCTION',
-            opaque_colors=len(selected), obj_palettes=(len(selected)+14)//15,
-            remaining_obj_palettes=8-(len(selected)+14)//15,
-            changed_pixel_fraction=float(weights[distances!=0].sum()/weights.sum()),
-            rgb555_channel_rmse=float(np.sqrt(np.sum(distances*weights)/(3*weights.sum()))),
-            maximum_rgb555_euclidean_error=float(np.sqrt(distances.max())),
-            selected_rgb555=list(map(int,colors[selected])),
-            scope='animation pixel-frequency sample, no timing weight; not runtime admission or visual approval'))
     peak = max(frame_reports,key=lambda r:r['colors'])
+    raster_report=None
+    if raster:
+        from raster_palette import prove_frame
+        raster_report=prove_frame(raster_pixels[frame_reports.index(peak)],piece_size,banks,color_masks=color_masks)
     hardware_source = ROOT.parent/'Mesen2/Core/SNES/SnesPpu.cpp'
     return dict(status='STATIC_OBJ_COLOR_RESOURCE_LIMIT' if peak['colors']>120 else 'STATIC_OBJ_COLOR_CAPACITY_WITHIN_LIMIT',source_sha256=sha(Path(path).read_bytes()),
         model=model['declaration'],role=role,model_source_path=model['source_path'],
@@ -89,7 +72,7 @@ def measure(path, model_name, role):
             invariants=['Palette=(flags>>1)&7','GetTilePixelColor<4>','color zero transparent','CGRAM offset=128+(palette<<4)+color']),
         static_color_deficit=peak['colors']-120,
         required_static_palettes=(peak['colors']+14)//15,
-        frame_requirements=frame_reports,source_color_reduction_examples=alternatives,
+        frame_requirements=frame_reports,raster_peak_frame=raster_report,
         other_options=[dict(policy='RASTER_PALETTE_REUSE',
             fidelity='Potential RGB555 color preservation; not proven.',
             costs='Per-line CGRAM traffic and fixed OAM bank/index constraints; competes with actor palettes and HDMA.',
@@ -110,8 +93,13 @@ if __name__=='__main__':
     parser.add_argument('--model',required=True)
     parser.add_argument('--role',required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--raster',action='store_true')
+    parser.add_argument('--banks',default='0,1,2,3,4,5,6,7')
+    parser.add_argument('--piece-size',default='8,8')
+    parser.add_argument('--color-masks',action='store_true')
     args=parser.parse_args()
-    report=measure(args.source,args.model,args.role)
+    report=measure(args.source,args.model,args.role,args.raster,
+                   tuple(map(int,args.banks.split(','))),tuple(map(int,args.piece_size.split(','))),args.color_masks)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({k:report[k] for k in ('status','static_color_deficit','required_static_palettes','animation_union_colors')},indent=2))

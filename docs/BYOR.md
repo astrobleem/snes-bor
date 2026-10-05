@@ -54,11 +54,17 @@ not reduce color count, borrow original-game palettes, or certify production
 runtime consumption. MOTU's HBreath peak frame still needs 204 opaque RGB555
 colors (at least 14 static OBJ palette banks); hardware provides eight banks
 of 15 opaque colors each. `source_color_capacity.py` produces reproducible
-requirements and sample reduction costs. That is a limitation of the current
+requirements and optional fixed-bank raster schedules. No color-reduction
+examples or modified source assets are generated. That is a limitation of the current
 static OBJ renderer, not proof that a raster palette or BG renderer is
-impossible. Choosing a new color adaptation or pursuing a different renderer
-requires the measured presentation policy decision in
-[the M4 partial receipt](receipts/byor-motu-m4-partial.md).
+impossible. The authorized policy is lossless raster OBJ first, then lossless
+BG/hybrid if raster reaches a measured limit. The four banks eligible for OBJ
+color math cannot carry the peak frame's unavoidable 50-byte adjacent-line
+transition within the safe CGRAM access window. Generic offline slot scheduling
+and isolated Mode 3 BG proofs now preserve sampled screen-blended contexts
+without reducing RGB555 colors. Moving effects and concurrent actor/foreground
+composition remain unimplemented; this is not a MOTU candidate. See the
+[lossless presentation receipt](receipts/byor-motu-lossless-feasibility.md).
 
 From the repository root, with Python 3.10 and the existing build dependencies:
 

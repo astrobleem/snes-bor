@@ -1,0 +1,92 @@
+{
+  "byor-motu-bg-gray-seven": {
+    "chr_bytes": 31936,
+    "tilemap_bytes": 2048,
+    "hdma_table_bytes": 8968,
+    "code_bank": 1,
+    "hdma_channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "channel0_stress": "4 bytes to APU ports per line; bus contention only",
+    "palette_reserved_before_sha256": "d8c5296692dac2fa31326c7cdec965bd413cd4c67e0f3de494b95b9b8fe3700b",
+    "rom_sha256": "47b7e55ba5fb175cb90babc078a3a788fe96ad1d6beb3655a438155bb674a706",
+    "frame_advance": {
+      "requested": 3,
+      "startFrame": 0,
+      "endFrame": 3,
+      "framesAdvanced": 3,
+      "isPaused": true,
+      "timedOut": false
+    },
+    "screenshot": "E:\\gh\\snes-bor\\out\\byor-motu-bg-gray-seven\\native\\screenshot.png",
+    "pixel_identity_verified": true,
+    "observer_palette_schedule_identity_verified": true,
+    "observed_register_writes": 6272,
+    "screenshot_size": [
+      256,
+      224
+    ],
+    "cgram_reserved_after_sha256": "d8c5296692dac2fa31326c7cdec965bd413cd4c67e0f3de494b95b9b8fe3700b",
+    "alpha": "OFFLINE_BOR4086_SCREEN_COMPOSITING",
+    "runtime_compositor_proven": false,
+    "no_color_reduction": true,
+    "scope": "One static context; no gameplay/native compositor claim.",
+    "observer_sha256": "a583e8cf220ad3ef2cab40e99e28aa6bb5c45e24f15208ddfab8e556bbebecd0",
+    "timing_sha256": "9f0f2efef166530cc5795f4756223938101f218bc4862721fc93475e87f13163"
+  },
+  "byor-motu-bg-jungle-layers": {
+    "chr_bytes": 22016,
+    "tilemap_bytes": 2048,
+    "hdma_table_bytes": 8968,
+    "code_bank": 1,
+    "hdma_channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "channel0_stress": "4 bytes to APU ports per line; bus contention only",
+    "palette_reserved_before_sha256": "d8c5296692dac2fa31326c7cdec965bd413cd4c67e0f3de494b95b9b8fe3700b",
+    "rom_sha256": "91879580f035696aee6eca1db2337d99a9bc7cf001a5782e56ed579099dc749b",
+    "frame_advance": {
+      "requested": 3,
+      "startFrame": 0,
+      "endFrame": 3,
+      "framesAdvanced": 3,
+      "isPaused": true,
+      "timedOut": false
+    },
+    "screenshot": "E:\\gh\\snes-bor\\out\\byor-motu-bg-jungle-layers\\native\\screenshot.png",
+    "pixel_identity_verified": true,
+    "observer_palette_schedule_identity_verified": true,
+    "observed_register_writes": 6272,
+    "screenshot_size": [
+      256,
+      224
+    ],
+    "cgram_reserved_after_sha256": "d8c5296692dac2fa31326c7cdec965bd413cd4c67e0f3de494b95b9b8fe3700b",
+    "alpha": "OFFLINE_BOR4086_SCREEN_COMPOSITING",
+    "runtime_compositor_proven": false,
+    "no_color_reduction": true,
+    "scope": "One static context; no gameplay/native compositor claim.",
+    "observer_sha256": "94b9398d9c1f4084622716f0a79401ecad8d9806db4e3f81c6a417b6c2900025",
+    "timing_sha256": "f189271a0aabb0e1c34456fa00845fb36c0bcac9d4459240365dd3f4af164a5c"
+  },
+  "emulator": {
+    "Mesen.exe": "3fbb4f3a12e9a4bcf6f6e00c03f3a63f9fc587f28ebc34ef40da7c772b0cda14",
+    "Mesen.dll": "7186aa5c2f03134a5a620a71ad935b24a7d6227b7560311672be12cc34b761d9",
+    "MesenCore.dll": "e2ca9d7a0a604d82d45fabf84f0ae5dc764be50ac0125f5a47e035a43cf7373d"
+  },
+  "status": "ISOLATED_LOSSLESS_BG_CONTEXTS_PROVEN_NOT_GAMEPLAY"
+}

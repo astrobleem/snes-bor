@@ -2,6 +2,11 @@
 
 Classification: **PRODUCT_DECISION_REQUIRED**. Milestone 4 remains partial.
 
+Historical receipt: Chad subsequently authorized lossless raster OBJ first,
+then lossless BG/hybrid, with no color reduction. The decision above is no
+longer pending. Current evidence is in
+[the lossless presentation receipt](byor-motu-lossless-feasibility.md).
+
 Branch: `feat/byor-motu`, based on canonical master
 `ceb00643f32bb88db5dd56b6b54d200b5225c794`. No merge is authorized.
 
