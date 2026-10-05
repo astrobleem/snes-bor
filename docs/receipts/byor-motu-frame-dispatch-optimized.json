@@ -1,0 +1,2868 @@
+{
+  "schema": "BYOR_NATIVE_AUTHORED_FRAME_GUARD_V1",
+  "status": "PASS",
+  "rom_sha256": "b07ab66ed90003447c99b492883adee06872a61a5b9c01c73ba0fb72d5249b96",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "model": "He_ManB",
+  "animation": "freespecial4",
+  "animation_handle": 36,
+  "module": {
+    "schema": "BYOR_ROM_SCRIPT_LINK_V1",
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "instruction_count": 2568,
+    "instruction_bytes": 20544,
+    "slot_count": 616,
+    "slot_bytes": 4928,
+    "metadata_bytes": 11812,
+    "callsites": 372,
+    "instruction_sha256": "a8ec41e909c46c45d6a185ce3641766e34a5e2647a2868fdbe9022fdba19e2bf",
+    "metadata_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+    "no_functions_removed": true,
+    "no_commands_removed": true,
+    "native_loader_bound": false,
+    "native_rom_fetch_bound": false,
+    "entity_api_bound": false,
+    "motu_gameplay_proven": false,
+    "frame_dispatch_bound": false,
+    "empty_route_requires_valid_context": true,
+    "dispatch_table_bytes": 2678,
+    "dispatch_table_sha256": "c1eceec03e594aa9992306989573a7eb11a90de3154b8867c84bc90d4286657c",
+    "dispatch_rom_offset": 20544,
+    "total_rom_reservation_bytes": 23222,
+    "sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35"
+  },
+  "cases": [
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 4,
+      "error": 0,
+      "native_id": 46267,
+      "dispatch_scenario": "empty",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22295990
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32770,
+        "k": 27,
+        "a": 123,
+        "x": 122,
+        "y": 78,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22318720
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 4,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "command",
+      "dispatch_entry": 451,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22907008
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32853,
+        "k": 27,
+        "a": 61,
+        "x": 60,
+        "y": 40,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 132,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22935825
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": false,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_context",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23478453
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 33401,
+        "k": 14,
+        "a": 200,
+        "x": 199,
+        "y": 203,
+        "sp": 8170,
+        "d": 0,
+        "dbr": 0,
+        "ps": 132,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23518640
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 1000,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_frame",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24063137
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32786,
+        "k": 27,
+        "a": 188,
+        "x": 187,
+        "y": 215,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 164,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24109125
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_fetch_lease",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24188023
+      },
+      "rom_fetch_enabled": false,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32774,
+        "k": 27,
+        "a": 13,
+        "x": 12,
+        "y": 52,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24207715
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_program",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24437936
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54720,
+        "k": 0,
+        "a": 108,
+        "x": 178,
+        "y": 152,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24474520
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "no_table_lease",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24732276
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54734,
+        "k": 0,
+        "a": 769,
+        "x": 956,
+        "y": 20,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 37,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24741790
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bank_spill",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25085105
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 35082,
+        "k": 18,
+        "a": 2,
+        "x": 0,
+        "y": 3,
+        "sp": 8155,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25097999
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "header_count_mismatch",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25166986
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 65440,
+        "k": 0,
+        "a": 971,
+        "x": 970,
+        "y": 59,
+        "sp": 8173,
+        "d": 0,
+        "dbr": 0,
+        "ps": 5,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25184424
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "bad_handle",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25536964
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 32844,
+        "k": 27,
+        "a": 936,
+        "x": 995,
+        "y": 108,
+        "sp": 8177,
+        "d": 0,
+        "dbr": 0,
+        "ps": 165,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25561972
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    },
+    {
+      "frame": 3,
+      "context_lease": true,
+      "fields": 1,
+      "status": 5,
+      "error": 10,
+      "native_id": 518,
+      "dispatch_scenario": "busy_yield",
+      "dispatch_entry": 65535,
+      "dispatch_pending": 0,
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25976575
+      },
+      "rom_fetch_enabled": true,
+      "entry_ip": 2568,
+      "game_state": 0,
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 54713,
+        "k": 0,
+        "a": 1948,
+        "x": 1948,
+        "y": 110,
+        "sp": 8180,
+        "d": 0,
+        "dbr": 0,
+        "ps": 4,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 26001404
+      },
+      "resident_module_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+      "module_unchanged": true
+    }
+  ],
+  "rom_instruction_address": 2523136,
+  "source_effect_native_executed": false,
+  "motu_gameplay_proven": false,
+  "entity_read_view_installed": true,
+  "native_cpu_spans": [
+    {
+      "start_clock": 176066720,
+      "end_clock": 176079052,
+      "master_clocks": 12332,
+      "start_field": 492,
+      "end_field": 492,
+      "instructions": 0,
+      "status": 4,
+      "error": 0,
+      "native_id": 46267
+    },
+    {
+      "start_clock": 180923410,
+      "end_clock": 181074782,
+      "master_clocks": 151372,
+      "start_field": 506,
+      "end_field": 506,
+      "instructions": 19,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 185460788,
+      "end_clock": 185461738,
+      "master_clocks": 950,
+      "start_field": 519,
+      "end_field": 519,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 190105126,
+      "end_clock": 190115520,
+      "master_clocks": 10394,
+      "start_field": 532,
+      "end_field": 532,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 191092924,
+      "end_clock": 191094886,
+      "master_clocks": 1962,
+      "start_field": 534,
+      "end_field": 534,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 193075232,
+      "end_clock": 193077724,
+      "master_clocks": 2492,
+      "start_field": 540,
+      "end_field": 540,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 195413110,
+      "end_clock": 195414944,
+      "master_clocks": 1834,
+      "start_field": 546,
+      "end_field": 546,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 198214594,
+      "end_clock": 198216918,
+      "master_clocks": 2324,
+      "start_field": 554,
+      "end_field": 554,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 198863860,
+      "end_clock": 198869734,
+      "master_clocks": 5874,
+      "start_field": 556,
+      "end_field": 556,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 201800258,
+      "end_clock": 201801996,
+      "master_clocks": 1738,
+      "start_field": 564,
+      "end_field": 564,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    },
+    {
+      "start_clock": 205288884,
+      "end_clock": 205289492,
+      "master_clocks": 608,
+      "start_field": 574,
+      "end_field": 574,
+      "instructions": 0,
+      "status": 5,
+      "error": 10,
+      "native_id": 518
+    }
+  ],
+  "source_200hz_cadence_proven": false,
+  "offline_frame_entry": false,
+  "native_frame_dispatch_executed": true,
+  "frame_dispatch_production_owner_bound": false,
+  "cost_scope": "Vm_SourceFrameGate entry through terminal status write; includes intervening runtime work; excludes checkpoint waiting",
+  "scope": "Authored frame guard and explicit missing engine boundary; injected caller locals/read view; CPU cost excludes host waiting",
+  "host_script_tests": 24,
+  "source_frame_facing_comparisons": 1374,
+  "legacy_link_hashes_unchanged": true,
+  "color_reduction_applied": false,
+  "optimized_link": {
+    "schema": "BYOR_ROM_SCRIPT_LINK_V1",
+    "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+    "instruction_count": 2568,
+    "instruction_bytes": 20544,
+    "slot_count": 616,
+    "slot_bytes": 4928,
+    "metadata_bytes": 11812,
+    "callsites": 372,
+    "instruction_sha256": "a8ec41e909c46c45d6a185ce3641766e34a5e2647a2868fdbe9022fdba19e2bf",
+    "metadata_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+    "programs": [
+      {
+        "identity": {
+          "model": "He_Man",
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT"
+        },
+        "entry_ip": 0,
+        "instructions": 421,
+        "slots": 120,
+        "slot_base": 0,
+        "source_module_sha256": "69e8b151af4c81d7238f4971c244fc7e2f4e3917599376be325f1f54d972d4eb",
+        "export_entries": {
+          "__byor_empty": 0,
+          "__byor_frame_0": 3,
+          "__byor_frame_1": 10,
+          "__byor_frame_2": 18,
+          "__byor_frame_3": 23,
+          "__byor_frame_4": 33,
+          "__byor_frame_5": 38
+        },
+        "routes": [
+          {
+            "animation_handle": 4,
+            "role": "waiting",
+            "frames": [
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null
+            ]
+          },
+          {
+            "animation_handle": 5,
+            "role": "select",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 6,
+            "role": "idle",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 7,
+            "role": "walk",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 8,
+            "role": "get",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 9,
+            "role": "run",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 10,
+            "role": "attack1",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 11,
+            "role": "runattack",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_0",
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              3,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 12,
+            "role": "special",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_1",
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              10,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 13,
+            "role": "freespecial",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 14,
+            "role": "freespecial2",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 15,
+            "role": "freespecial3",
+            "frames": [
+              null,
+              "__byor_frame_2",
+              "__byor_frame_3",
+              "__byor_frame_4"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              18,
+              23,
+              33
+            ]
+          },
+          {
+            "animation_handle": 16,
+            "role": "freespecial4",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_5",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              38,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 17,
+            "role": "jumpdelay",
+            "frames": [
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null
+            ]
+          },
+          {
+            "animation_handle": 18,
+            "role": "jump",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 19,
+            "role": "jumpattack",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 20,
+            "role": "jumpland",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 21,
+            "role": "pain",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 22,
+            "role": "fall",
+            "frames": [
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 23,
+            "role": "rise",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 24,
+            "role": "land",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "He_ManB",
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT"
+        },
+        "entry_ip": 421,
+        "instructions": 440,
+        "slots": 129,
+        "slot_base": 120,
+        "source_module_sha256": "f35d6c24ef87fd5d349963bd44784ff3ed8d7cee057558d4227df5905754edf4",
+        "export_entries": {
+          "__byor_empty": 421,
+          "__byor_frame_0": 424,
+          "__byor_frame_1": 431,
+          "__byor_frame_2": 451,
+          "__byor_frame_3": 459,
+          "__byor_frame_4": 466,
+          "__byor_frame_5": 471,
+          "__byor_frame_6": 481
+        },
+        "routes": [
+          {
+            "animation_handle": 25,
+            "role": "idle",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 26,
+            "role": "walk",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 27,
+            "role": "get",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 28,
+            "role": "run",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 29,
+            "role": "attack1",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 30,
+            "role": "attack2",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 31,
+            "role": "attack3",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 32,
+            "role": "runattack",
+            "frames": [
+              null,
+              null,
+              "__byor_frame_0",
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              424,
+              null
+            ]
+          },
+          {
+            "animation_handle": 33,
+            "role": "freespecial",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 34,
+            "role": "freespecial2",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 35,
+            "role": "freespecial3",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_1",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              431,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 36,
+            "role": "freespecial4",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_2",
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              451,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 37,
+            "role": "freespecial5",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_3",
+              null,
+              null,
+              null,
+              "__byor_frame_0",
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              459,
+              null,
+              null,
+              null,
+              424,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 38,
+            "role": "freespecial6",
+            "frames": [
+              null,
+              "__byor_frame_4",
+              "__byor_frame_5",
+              "__byor_frame_6"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              466,
+              471,
+              481
+            ]
+          },
+          {
+            "animation_handle": 39,
+            "role": "jumpdelay",
+            "frames": [
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null
+            ]
+          },
+          {
+            "animation_handle": 40,
+            "role": "jump",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 41,
+            "role": "jumpattack",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 42,
+            "role": "jumpland",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 43,
+            "role": "pain",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 44,
+            "role": "fall",
+            "frames": [
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 45,
+            "role": "rise",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 46,
+            "role": "land",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "Skeletor",
+          "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT"
+        },
+        "entry_ip": 861,
+        "instructions": 1172,
+        "slots": 208,
+        "slot_base": 249,
+        "source_module_sha256": "fbbc6829cd82f107c76262d21b6006d5c04b78f74d658743f965567ee582a360",
+        "export_entries": {
+          "__byor_empty": 861,
+          "__byor_frame_0": 864,
+          "__byor_frame_1": 873,
+          "__byor_frame_2": 881,
+          "__byor_frame_3": 886,
+          "__byor_frame_4": 921,
+          "__byor_frame_5": 929,
+          "__byor_frame_6": 949,
+          "__byor_frame_7": 970,
+          "__byor_frame_8": 990,
+          "__byor_frame_9": 1011,
+          "__byor_frame_10": 1025,
+          "__byor_frame_11": 1041,
+          "__byor_frame_12": 1090,
+          "__byor_frame_13": 1097,
+          "__byor_frame_14": 1165,
+          "__byor_frame_15": 1179,
+          "__byor_frame_16": 1195,
+          "__byor_frame_17": 1209,
+          "__byor_frame_18": 1215,
+          "__byor_frame_19": 1273,
+          "__byor_frame_20": 1282
+        },
+        "routes": [
+          {
+            "animation_handle": 50,
+            "role": "spawn",
+            "frames": [
+              null,
+              null,
+              "__byor_frame_0"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              864
+            ]
+          },
+          {
+            "animation_handle": 51,
+            "role": "follow5",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_1"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              873
+            ]
+          },
+          {
+            "animation_handle": 52,
+            "role": "idle",
+            "frames": [
+              null,
+              "__byor_frame_2",
+              "__byor_frame_2",
+              "__byor_frame_2",
+              "__byor_frame_2",
+              "__byor_frame_2"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              881,
+              881,
+              881,
+              881,
+              881
+            ]
+          },
+          {
+            "animation_handle": 53,
+            "role": "walk",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 54,
+            "role": "follow4",
+            "frames": [
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3",
+              "__byor_frame_3"
+            ],
+            "inline_body_preserved": true,
+            "entry_ips": [
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886,
+              886
+            ]
+          },
+          {
+            "animation_handle": 55,
+            "role": "follow6",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_4",
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              921,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 56,
+            "role": "pain",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 57,
+            "role": "fall",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 58,
+            "role": "rise",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_5",
+              "__byor_frame_6",
+              "__byor_frame_7",
+              "__byor_frame_8",
+              "__byor_frame_9",
+              null,
+              null,
+              "__byor_frame_10"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              929,
+              949,
+              970,
+              990,
+              1011,
+              null,
+              null,
+              1025
+            ]
+          },
+          {
+            "animation_handle": 59,
+            "role": "block",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 60,
+            "role": "attack1",
+            "frames": [
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11",
+              "__byor_frame_11"
+            ],
+            "inline_body_preserved": true,
+            "entry_ips": [
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041,
+              1041
+            ]
+          },
+          {
+            "animation_handle": 61,
+            "role": "follow1",
+            "frames": [
+              null,
+              null,
+              null,
+              "__byor_frame_2"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              881
+            ]
+          },
+          {
+            "animation_handle": 62,
+            "role": "freespecial",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_12",
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              1090,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 63,
+            "role": "attack2",
+            "frames": [
+              "__byor_frame_13",
+              "__byor_frame_13",
+              "__byor_frame_13",
+              "__byor_frame_13",
+              "__byor_frame_13"
+            ],
+            "inline_body_preserved": true,
+            "entry_ips": [
+              1097,
+              1097,
+              1097,
+              1097,
+              1097
+            ]
+          },
+          {
+            "animation_handle": 64,
+            "role": "follow2",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_14",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_15",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_16",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_17",
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              1165,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              1179,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              1195,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              1209,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 65,
+            "role": "attack3",
+            "frames": [
+              "__byor_frame_18",
+              "__byor_frame_18",
+              "__byor_frame_18",
+              "__byor_frame_18",
+              "__byor_frame_18",
+              "__byor_frame_18",
+              "__byor_frame_18"
+            ],
+            "inline_body_preserved": true,
+            "entry_ips": [
+              1215,
+              1215,
+              1215,
+              1215,
+              1215,
+              1215,
+              1215
+            ]
+          },
+          {
+            "animation_handle": 66,
+            "role": "follow3",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_19",
+              "__byor_frame_20",
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              1273,
+              1282,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 67,
+            "role": "freespecial3",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "SkGeyser",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT"
+        },
+        "entry_ip": 2033,
+        "instructions": 35,
+        "slots": 15,
+        "slot_base": 457,
+        "source_module_sha256": "6e1cc4c86af231081dc8336e1f6b847cc2a1bccbbdffb27075d06919bfe22978",
+        "export_entries": {
+          "__byor_empty": 2033,
+          "__byor_frame_0": 2036
+        },
+        "routes": [
+          {
+            "animation_handle": 70,
+            "role": "idle",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 71,
+            "role": "spawn",
+            "frames": [
+              "__byor_frame_0",
+              "__byor_frame_0"
+            ],
+            "inline_body_preserved": true,
+            "entry_ips": [
+              2036,
+              2036
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "SkGeyserT",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT"
+        },
+        "entry_ip": 2068,
+        "instructions": 71,
+        "slots": 24,
+        "slot_base": 472,
+        "source_module_sha256": "82292df0e945be960d54fb3eb38c8117643777010de18b55729a3f1e38a913cd",
+        "export_entries": {
+          "__byor_empty": 2068,
+          "__byor_frame_0": 2071
+        },
+        "routes": [
+          {
+            "animation_handle": 72,
+            "role": "idle",
+            "frames": [
+              null,
+              "__byor_frame_0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              2071,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "SkTorn",
+          "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT"
+        },
+        "entry_ip": 2139,
+        "instructions": 242,
+        "slots": 41,
+        "slot_base": 496,
+        "source_module_sha256": "f905785766423369e539dccb7109f529c9359eb0d5ce41b76ca135f388ff1899",
+        "export_entries": {
+          "__byor_empty": 2139,
+          "__byor_frame_0": 2142
+        },
+        "routes": [
+          {
+            "animation_handle": 73,
+            "role": "idle",
+            "frames": [
+              null,
+              "__byor_frame_0",
+              "__byor_frame_0",
+              "__byor_frame_0"
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              2142,
+              2142,
+              2142
+            ]
+          }
+        ]
+      },
+      {
+        "identity": {
+          "model": "Knightbot",
+          "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT"
+        },
+        "entry_ip": 2381,
+        "instructions": 187,
+        "slots": 79,
+        "slot_base": 537,
+        "source_module_sha256": "f474150597e117ed14f14e4f4ac28f5e171b2ffbe377a4865bbe9899b305e209",
+        "export_entries": {
+          "__byor_empty": 2381,
+          "__byor_frame_0": 2384
+        },
+        "routes": [
+          {
+            "animation_handle": 74,
+            "role": "idle",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 75,
+            "role": "walk",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 76,
+            "role": "pain",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 77,
+            "role": "fall",
+            "frames": [
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 78,
+            "role": "rise",
+            "frames": [
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "animation_handle": 79,
+            "role": "attack1",
+            "frames": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "__byor_frame_0",
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "inline_body_preserved": false,
+            "entry_ips": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              2384,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    ],
+    "no_functions_removed": true,
+    "no_commands_removed": true,
+    "native_loader_bound": false,
+    "native_rom_fetch_bound": false,
+    "entity_api_bound": false,
+    "motu_gameplay_proven": false,
+    "frame_dispatch_bound": false,
+    "empty_route_requires_valid_context": true,
+    "dispatch_table_bytes": 2678,
+    "dispatch_table_sha256": "c1eceec03e594aa9992306989573a7eb11a90de3154b8867c84bc90d4286657c",
+    "dispatch_rom_offset": 20544,
+    "total_rom_reservation_bytes": 23222
+  }
+}

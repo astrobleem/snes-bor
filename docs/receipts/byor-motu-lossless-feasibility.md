@@ -628,6 +628,26 @@ they are partial callbacks, not source spawning or 200 Hz workload admission.
 Twenty-three focused script tests pass. Receipt: `byor-motu-frame-dispatch.json`.
 No color reduction is applied.
 
+### Definite local initialization in exported scripts
+
+The exported-root lowering now uses checked CFG must-analysis to initialize
+only locals that can be read before a source STORE or parameter installation.
+Source declarations already initialize their slots; repeating those stores in
+the prologue was redundant. Self-referential initializers still receive EMPTY,
+including when a different exported root previously used the shared arena.
+Generated non-inline handlers declare frame/animhandle only when their command
+expressions actually reference them. Inline bodies remain unchanged.
+
+All 1,374 source frame/facing comparisons and 24 focused script tests pass.
+The output drops to 2,568 instructions, 616 slots and 11,812 metadata bytes.
+All eleven native dispatch cases pass with the optimized ROM payload. The
+partial authored frame-4 callback now executes 19 VM instructions in 151,372
+observed master clocks including dispatch, versus 32 instructions and 234,092
+clocks before this optimization. It still stops at unbound clearspawnentry;
+spawning and 200 Hz workload admission are not proven. The legacy single-root
+linked instruction and metadata hashes remain unchanged. Receipt:
+`byor-motu-frame-dispatch-optimized.json`. No color reduction is applied.
+
 ### Native checked frame routing
 
 The opt-in native dispatcher consumes one submitted callback and validates the

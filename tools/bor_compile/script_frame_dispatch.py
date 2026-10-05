@@ -57,7 +57,16 @@ def compile_frames(source):
                                     for at,text,inline in group['events'])
                 else:
                     selected=[text for at,text,_ in group['events'] if at==f]
-                    body=('int frame='+str(f)+';int animhandle='+str(handle)+';\n'+'\n'.join(selected)) if selected else ''
+                    body='\n'.join(selected)
+                    if body:
+                        probe=parse_script('void __probe(){'+body+'}',model['source_path'])
+                        def ids(node):
+                            return ({node['name']} if node['kind']=='ID' else set())|set().union(
+                                *(ids(c['node']) for c in node['children']))
+                        referenced=ids(probe['functions']['__probe']['ast'])
+                        prefix=''.join('int '+name+'='+str(value)+';\n' for name,value in
+                                       [('frame',f),('animhandle',handle)] if name in referenced)
+                        body=prefix+body
                 if not body:frame_roots.append(None);continue
                 if body not in body_roots:
                     root='__byor_frame_'+str(len(body_roots))

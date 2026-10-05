@@ -71,5 +71,16 @@ class NativeModuleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'ROOT_ENTRY_CALLED'):
             lower(called,entry='a',export_roots=['b'],numeric_policy=POLICY)
 
+    def test_exported_roots_clear_reads_before_initialization_without_redundant_stores(self):
+        lib=self.library('void a(){int x=99;return x;} void b(){int x=x;return x;} '
+                         'int f(int x){int y=x+1;return y;}')
+        blob,report=lower(lib,entry='a',export_roots=['b'],numeric_policy=POLICY)
+        self.assertEqual(report['initial_empty_locals']['a'],[])
+        self.assertEqual(report['initial_empty_locals']['b'],[0])
+        self.assertEqual(report['initial_empty_locals']['f'],[])
+        oracle=Oracle(unpack(blob),{},{});oracle.run()
+        oracle.ip=report['export_entries']['b'];oracle.run()
+        self.assertEqual(oracle.get(report['function_stack_slots']['b'][0]),(0,0))
+
 
 if __name__=='__main__':unittest.main()

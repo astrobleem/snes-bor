@@ -48,6 +48,35 @@ def decode(function):
     return rows,heights,peak
 
 
+def initial_local_reads(function,decoded):
+    """Find locals that can be read before STORE/PARAM on any reachable path.
+
+    Source declarations already initialize their slots, including declarations
+    without an initializer. A self-referential initializer still needs a fresh
+    EMPTY before its first LOAD. Must-analysis intersects incoming definitions.
+    """
+    rows,heights,_=decoded;all_locals=set(range(len(function['locals'])))
+    predecessors={address:[] for address in heights}
+    for address in heights:
+        op,arg,argc,nxt=rows[address]
+        if op in ('LOAD','STORE') and arg not in all_locals:raise ValueError('NATIVE_LOCAL_INDEX')
+        targets=() if op=='RETURN' else (arg,) if op=='JUMP' else (arg,nxt) if op=='BR_FALSE' else (nxt,)
+        for target in targets:predecessors[target].append(address)
+    incoming={address:set(all_locals) for address in heights};entry=set(range(function['arity']))
+    changed=True
+    while changed:
+        changed=False
+        for address in heights:
+            definitions=[entry] if address==0 else []
+            for previous in predecessors[address]:
+                op,arg,_,_=rows[previous]
+                definitions.append(incoming[previous]|({arg} if op=='STORE' else set()))
+            value=set.intersection(*definitions) if definitions else set()
+            if value!=incoming[address]:incoming[address]=value;changed=True
+    return sorted({arg for address,(op,arg,_,_) in rows.items()
+                   if address in heights and op=='LOAD' and arg not in incoming[address]})
+
+
 def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_roots=None,rom_link_input=False):
     if numeric_policy!=POLICY:raise ValueError('NATIVE_NUMERIC_POLICY_REQUIRED')
     roots=list(dict.fromkeys([entry]+list(export_roots or ())))
@@ -98,16 +127,18 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
                for name,fn in library['functions'].items()}
         stacks={name:root_stacks[:data[2]] if name in roots else [slot() for _ in range(data[2])]
                 for name,data in decoded.items()}
-    entries={};patches=[];arg_offset=0
+    entries={};patches=[];arg_offset=0;initialized={}
     inverse={value:BINOP_OPCODE[key] for key,value in BINARY.items()}
     def emit(op,a=0,b=0,c=0):
         index=len(m.instructions);m.instructions.append(Instr(op,a,b,c));return index
     for name in roots+[n for n in decoded if n not in roots]:
         entries[name]=len(m.instructions);fn=library['functions'][name]
         if export_roots is not None:
-            # Variant locals are fresh for each source invocation. MOV also
-            # releases any owned string left by a previous exported root.
-            for local in homes[name]:emit(4,local,empty)
+            # Only reads before source initialization need prologue EMPTY.
+            # Ordinary STORE/PARAM already overwrites old values and releases
+            # any owned string left by a previous invocation of these slots.
+            initialized[name]=initial_local_reads(fn,decoded[name])
+            for index in initialized[name]:emit(4,homes[name][index],empty)
         if name not in roots:
             for local in homes[name][:fn['arity']]:emit(40,local)
         rows,heights,peak=decoded[name];targets={};returns=[]
@@ -146,6 +177,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
     report=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),instructions=len(m.instructions),
         slots=len(m.slots),callsites=len(m.callsites),numeric_policy=POLICY,decimal_constants=numeric,
         export_entries={name:entries[name] for name in roots},rom_link_input=rom_link_input,
+        initial_empty_locals=initialized,
         function_local_slots={name:dict(zip(library['functions'][name]['locals'],slots)) for name,slots in homes.items()},
         function_stack_slots=stacks,
         engine_api_requirements=[dict(id=native_ids[k],name=k[0],arity=k[1],bound=False) for k in requirements],
