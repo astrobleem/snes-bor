@@ -52,6 +52,8 @@ def main():
     p.add_argument('--initial-idle',action='store_true',help='Execute generic missing-animation set_idle and actual authored idle frame zero.')
     p.add_argument('--initial-walk',action='store_true',help='Execute generic default walk selection and actual authored walk frame zero.')
     p.add_argument('--initial-none-walk',action='store_true',help='Prepare authored TYPE_NONE walker from current speed, then execute real walk frame zero.')
+    p.add_argument('--initial-enemy',help='Source identity for normal enemy initialization through actual authored frame zero.')
+    p.add_argument('--drop-context',type=Path,help='Compiled readonly horizontal drop context bundle.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
@@ -64,6 +66,14 @@ def main():
         plan=pack_plan(derive_plan(effects));unpack_plan(plan,frames)
     actor=next(m['id'] for m in registry['models'] if m['identity']=='He_ManB')
     default=next(m['id'] for m in registry['models'] if m['identity']=='He_Man')
+    enemy_role=None
+    if a.initial_enemy:
+        default=next(m['id'] for m in registry['models'] if m['identity']==a.initial_enemy)
+        if registry['models'][default]['declared_type']!='enemy':raise ValueError('INITIAL_ENEMY_TYPE')
+        authored=[h for h in compile_source(source)['animation_handles'] if h['model']==a.initial_enemy]
+        enemy_role='spawn'if any(h['role']=='spawn'for h in authored)else'idle'
+        a.initial_idle=enemy_role=='idle';a.initial_select=enemy_role=='spawn'
+        if not a.drop_context:raise ValueError('INITIAL_ENEMY_CONTEXT_REQUIRED')
     if a.initial_none_walk:default=actor
     breath=next(m['id'] for m in registry['models'] if m['identity']=='HBreath')
     animation=next(h for h in compile_source(source)['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -76,7 +86,7 @@ def main():
     walk_capability=default_walk_capability(animation_identities(source))if a.initial_walk else None
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:
         if not a.effects_runner or a.birth_core:raise ValueError('INITIAL_SELECT_REQUIRES_EFFECTS_RUNNER_WITHOUT_BIRTH_AUGMENTATION')
-        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']==registry['models'][default]['identity'] and h['role']==('jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
+        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']==registry['models'][default]['identity'] and h['role']==(enemy_role if a.initial_enemy else 'jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
         docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')};structure=discover(source,docs);config=configure(docs[key(structure['models_path'])]['directives'])
         init_report=init_inputs(source);initializers_table=pack_init(init_report);cache=bytearray(16*init_report['maximum_animations']*2)
         for row in init_report['animations']:
@@ -99,6 +109,13 @@ def main():
     if a.effects_runner:
         if raw[59*32768:60*32768]!=bytes(32768):raise ValueError('CALLBACK_PLAN_PRIVATE_BANK')
         raw[59*32768:59*32768+len(plan)]=plan
+    if a.initial_enemy:
+        context_report=json.loads((a.drop_context/'report.json').read_text());assert context_report['status']=='PASS'
+        context_bundle=bytearray((a.drop_context/'bundle.bin').read_bytes())
+        if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('ENEMY_CONTEXT_PRIVATE_BANK')
+        for i in range(len(context_report['stages'])):
+            pointer=struct.unpack_from('<I',context_bundle,i*32+24)[0];struct.pack_into('<I',context_bundle,i*32+24,(58<<16)|(pointer&65535))
+        raw[58*32768:58*32768+len(context_bundle)]=context_bundle
     asm='''.snes
 .bank 39
 .org $8000
@@ -233,6 +250,11 @@ CallbackFixture_EffectsDone:
         else:asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME')
         asm=asm.replace(' jsl CLOCKCOMMIT',' jsl INITACK\n bcs CallbackFixture_Bad\n'+(' jsl PLAYERINV\n bcs CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_jump else'')+(' jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_idle or a.initial_walk else'')+' jsl CLOCKCOMMIT')
     if a.initial_none_walk:asm=asm.replace(' jsl WALKBEGIN',' jsl NONEWALKPREP\n bcs CallbackFixture_Bad\n jsl WALKBEGIN')
+    if a.initial_enemy:
+        if enemy_role=='idle':
+            asm=asm.replace(' jsl IDLEBEGIN',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n ldx #$8000\n ldy #58\n jsl ENEMYDROP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl IDLEBEGIN')
+        else:
+            asm=asm.replace(' jsl CLOCKCOMMIT',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n jsl CLOCKCOMMIT')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -245,6 +267,7 @@ CallbackFixture_EffectsDone:
     if a.initial_idle:values.update(IDLEBEGIN=sy['SourceDefaultInit4086_BeginIdle'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_walk:values.update(WALKBEGIN=sy['SourceWalk4086_BeginDefaultOnly'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_none_walk:values.update(NONEWALKPREP=sy['SourceDefaultNone4086_PrepareWalk'])
+    if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -455,6 +478,20 @@ emu.addMemoryCallback(function()
  emu.log('CALLBACKNONEWALK|'..word(INDEX)..'|'..dw(0x439010)..'|'..dw(0x439000)..'|'..dw(0x416824)..'|'..dw(0x416820)..'|'..dw(0x40c014)..'|'..dw(0x40c024))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 """
+    if a.initial_enemy:
+        from source_actor_numeric import random32_step,INITIAL_SEED
+        life=lifecycle_inputs(source)['models'][default]['fields'];rootcore=model_core_inputs(source)['models'][default]['fields']
+        if life['subtype']in(1,3):raise ValueError('INITIAL_ENEMY_SUBTYPE')
+        speed_bits=struct.unpack('<I',struct.pack('<f',rootcore['speed']))[0];speed_q16=project_q16(speed_bits)
+        initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(VmSourceWorld_Level=1,SourceDefaultChoice4086_Select=0,SourceDefaultChoice4086_Selection=role_id(config,'select'),SourceDefaultPlayer4086_Ready=0xb503,SourceDefaultPlayer4086_Status=0,SourceDefaultPlayer4086_Slot=0,SourceDefaultPlayer4086_Jump=role_id(config,'jump'),SourceLifecycle4086_Ready=0xb4fb,SourceLifecycle4086_Status=2,SourceRandom4086_Ready=0xb4d4,SourceRandom4086_Busy=0,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_Stage=1,SourceEnvironment4086_WallCount=0,SourceEmptyInitEnvironment4086_Ready=0xb504,SourceEmptyInitEnvironment4086_Models=len(registry['models']),SourceEmptyInitEnvironment4086_Stage=1,SourceEmptyInitEnvironment4086_Status=0).items())
+        initialinstall+='\n for j=0,10239 do emu.write(0x439000+j,0,mt)end;put(0x439048,'+str(default)+',2);put(0x43904a,0xb4fb,2);put(0x43904c,0xb508,2);put(0x439044,'+str(int(speed_bits&0x7fffffff!=0))+',4);put(0x439030,'+str(life['subtype']&0xffffffff)+',4);put(0x439034,'+str(life['nomove']&0xffffffff)+',4);put(0x41683c,'+str(speed_q16&0xffffffff)+',4);put(sy.SourceRandom4086_SeedLo,'+str(INITIAL_SEED)+',4);put(sy.SourceRandom4086_CallsLo,0,4);put(0x40c048,2,4);put(0x41400c,0,4);put(0x416830,0,4)\n'
+        for off,name in((0,'multiple'),(4,'subject_to_wall'),(8,'subject_to_platform')):initialinstall+=' put(0x40c000+'+str(off)+','+str(rootcore[name]&0xffffffff)+',4)\n'
+        seed_after,draw=random32_step(INITIAL_SEED);tableoff=(context_report['table_address']&65535)-0x8000;expected_drop=(240<<16)+int.from_bytes(context_bundle[tableoff+24+(draw%10000)*3:tableoff+27+(draw%10000)*3],'little')
+        lua+=r"""
+emu.addMemoryCallback(function()
+ emu.log('CALLBACKENEMY|'..word(INDEX)..'|'..dw(0x439000)..'|'..dw(0x439004)..'|'..dw(0x439008)..'|'..dw(0x43900c)..'|'..dw(0x41400c)..'|'..dw(sy.SourceRandom4086_SeedLo)..'|'..dw(sy.SourceRandom4086_CallsLo)..'|'..dw(0x41683c)..'|'..dw(0x439044)..'|'..word(0x43904c)..'|'..dw(0x40c000)..'|'..word(sy.SourceDefaultPlayer4086_Status))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+"""
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -467,6 +504,9 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  emu.log('CALLBACKSEGMENT|{label}|'..word({INDEX})..'|'..(state.masterClock-owner_start))
 end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
 '''
+    if a.initial_enemy:
+        for label in ('SourceDefaultEnemy4086_PrepareNormal','SourceDefaultEnemy4086_ResolveSpawn','SourceDefaultEnemy4086_SpawnResolved','SourceDefaultEnemy4086_RespawnResolved','SourceDefaultEnemy4086_Done','SourceDefaultEnemy4086_BeginHorizontalDrop','SourceDefaultInit4086_BeginIdle','SourceDefaultPlayer4086_Bad','SourceAnimationInit4086_ResolveBad'):
+            lua+=f"emu.addMemoryCallback(function() emu.log('ENEMYSEG|{label}|'..emu.getState()['cpu.a']..'|'..word(sy.SourceDefaultPlayer4086_Status)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceAnimationInit4086_Handle)..'|'..word(sy.SourceAnimationInit4086_Count)) end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)\n"
     script=folder/'callback_owner.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -504,7 +544,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else [i,2,2,0,0,0,0,49,0] for i,c in enumerate(rows)]
         reporter.check('actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
     if coretable:reporter.check('authored callback publishes exact native birth core and preserves parent role/type',core_results==[[i,0] for i in range(len(rows))])
-    if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+('JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+' initialization completes actual frame-zero before clock retirement',len(select_results)==len(rows)and all(r[0]==i and (a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
+    if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+(enemy_role.upper()if a.initial_enemy else'JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+' initialization completes actual frame-zero before clock retirement',len(select_results)==len(rows)and all(r[0]==i and (a.initial_enemy or a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
     if a.initial_jump:reporter.check('real JUMP frame zero and post-callback source makeinv fields',jump_results==[[i,300*65536,2,1,3,5,1,1,848,1]for i in range(len(rows))])
     tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
     if a.initial_jump:reporter.check('source current-model tail after JUMP and before clock retirement',tail_results==[[i,max(0,rootcore['multiple']),2,2 if rootcore['subject_to_wall']>0 or rootcore['subject_to_platform']>0 else 0]for i in range(len(rows))])
@@ -514,6 +554,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,c['direction'],2]for i,c in enumerate(rows)])
     none_walk_results=[list(map(int,line.split('CALLBACKNONEWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKNONEWALK|'in line]
     if a.initial_none_walk:reporter.check('authored TYPE_NONE walk setup retained through real frame-zero and final tail',none_walk_results==[[i,1,15,(current_speed_q16 if c['direction']==1 else-current_speed_q16)&0xffffffff,65536,max(1,rootcore['subject_to_gravity'])if rootcore['subject_to_gravity']<0 else rootcore['subject_to_gravity'],1 if rootcore['no_adjust_base']<0 else rootcore['no_adjust_base']]for i,c in enumerate(rows)])
+    enemy_results=[list(map(int,line.split('CALLBACKENEMY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKENEMY|'in line]
+    if a.initial_enemy:
+        speed_expected=0 if life['nomove']else speed_q16 if speed_bits&0x7fffffff else 65536
+        multiple=max(0,rootcore['multiple']or 5)
+        reporter.check('authored normal enemy frame zero, default callbacks, source drop RNG and final current-model tail',enemy_results==[[i,6,10,9,5 if enemy_role=='idle'else 4,expected_drop if enemy_role=='idle'else 0,seed_after if enemy_role=='idle'else INITIAL_SEED,1 if enemy_role=='idle'else 0,speed_expected&0xffffffff,int(speed_expected!=0),0xb508,multiple,2]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         owner_table_sha256=hashlib.sha256(callbacks).hexdigest(),cases=rows,results=results,expected=expected,faults=faults,
@@ -526,6 +571,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
+    r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

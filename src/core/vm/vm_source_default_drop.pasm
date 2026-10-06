@@ -567,3 +567,144 @@ SourceHorizontalDrop4086_Bad:
  plp
  sec
  rtl
+
+; Complete synchronous normal-enemy drop/action body, after PrepareNormal
+; returned A=1. X/Y context base/bank; B503 Jump is the derived ANI_JUMP ID.
+; One source RNG draw only if the horizontal predicate requires it.
+; A=1 on success means real ent_set_anim JUMP frame zero is now pending;
+; A=0 means no frame-zero call. Caller owns StartFrame/Ack/idle/final tail.
+SourceDefaultEnemy4086_BeginHorizontalDrop:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsl SourceDefaultEnemy4086_ChooseHorizontalDrop
+ bcc SourceEnemyDrop4086_ContextGood
+ jmp SourceDefaultPlayer4086_Bad
+SourceEnemyDrop4086_ContextGood:
+.a16
+.i16
+ sta.l SourceDefaultPlayer4086_Action
+ ; Validate the actual optional JUMP descriptor before drawing RNG or writing
+ ; altitude. Absent/empty animation remains a source no-call.
+ lda.l SourceDefaultPlayer4086_Slot
+ sta.l SourceAnimationInit4086_Slot
+ lda.l SourceDefaultPlayer4086_Jump
+ sta.l SourceAnimationInit4086_Number
+ lda #0
+ sta.l SourceAnimationInit4086_Reset
+ jsl SourceAnimationInit4086_Resolve
+ bcc SourceEnemyDrop4086_JumpResolved
+ jmp SourceDefaultPlayer4086_Bad
+SourceEnemyDrop4086_JumpResolved:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Action
+ beq SourceEnemyDrop4086_CheckAir
+ lda.l SourceRandom4086_Ready
+ cmp #$B4D4
+ beq SourceEnemyDrop4086_RandomReady
+ jmp SourceEnemyDrop4086_Reject
+SourceEnemyDrop4086_RandomReady:
+.a16
+.i16
+ lda.l SourceRandom4086_Busy
+ beq SourceEnemyDrop4086_RandomIdle
+ jmp SourceEnemyDrop4086_Reject
+SourceEnemyDrop4086_RandomIdle:
+.a16
+.i16
+ jsl SourceRandom4086_Next
+ bcc SourceEnemyDrop4086_Drawn
+ jmp SourceEnemyDrop4086_Reject
+SourceEnemyDrop4086_Drawn:
+.a16
+.i16
+ lda.l VmNativeVariant_Result+4
+ sta.l SourceModelEntityCopy4086_Lo
+ lda.l VmNativeVariant_Result+6
+ sta.l SourceModelEntityCopy4086_Hi
+ jsl SourceRandomFloat4086_Modulo10000
+ pha
+ lda.l SourceDefaultPlayer4086_TimeLo
+ tax
+ lda.l SourceDefaultPlayer4086_TimeHi
+ tay
+ pla
+ jsl SourceRandomFloat4086_LookupU24
+ bcc SourceEnemyDrop4086_AltitudeReady
+ jmp SourceEnemyDrop4086_Reject
+SourceEnemyDrop4086_AltitudeReady:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ lda.l SourceModelEntityCopy4086_Lo
+ sta.l $41000C,x
+ lda.l SourceModelEntityCopy4086_Hi
+ sta.l $41000E,x
+SourceEnemyDrop4086_CheckAir:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ lda.l $41000C,x
+ sta.l SourceModelEntityCopy4086_Lo
+ lda.l $41000E,x
+ sta.l SourceModelEntityCopy4086_Hi
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda.l $416830,x
+ sta.l SourceDefaultPlayer4086_InvLo
+ lda.l $416832,x
+ sta.l SourceDefaultPlayer4086_InvHi
+ jsl SourceInAir4086_Q16Compatibility
+ cmp #0
+ beq SourceEnemyDrop4086_NoCall
+ lda.l SourceDefaultPlayer4086_Life
+ tax
+ lda #5
+ sta.l $43900C,x
+ lda #0
+ sta.l $43900E,x
+ lda.l SourceAnimationInit4086_Handle
+ beq SourceEnemyDrop4086_NoCall
+ lda.l SourceAnimationInit4086_Count
+ beq SourceEnemyDrop4086_NoCall
+ jsl SourceAnimationInit4086_Begin
+ bcc SourceEnemyDrop4086_Began
+ jmp SourceDefaultPlayer4086_Bad
+SourceEnemyDrop4086_Began:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_State
+ cmp #1
+ bne SourceEnemyDrop4086_Reject
+ lda #1
+ bra SourceEnemyDrop4086_Done
+SourceEnemyDrop4086_NoCall:
+.a16
+.i16
+ lda #0
+SourceEnemyDrop4086_Done:
+.a16
+.i16
+ pha
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ pla
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceEnemyDrop4086_Reject:
+.a16
+.i16
+ jmp SourceDefaultPlayer4086_Bad

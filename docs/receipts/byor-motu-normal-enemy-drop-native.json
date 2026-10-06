@@ -1,0 +1,69 @@
+{
+  "schema": "BYOR_4086_NORMAL_ENEMY_DROP_BODY_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-enemy-drop-body-native": {
+      "report": "out/byor-motu-enemy-drop-body-native/report.json",
+      "sha256": "253e8b98c62d525b9b5e5c9e426a52f64bd61e5dcae39cdda40e108d53959f20",
+      "rom_sha256": "a3b86c5f7eef21bee89ad5376963a665ac2412bbb1319998af0cbad9e829dcc3",
+      "cases": 176
+    },
+    "byor-motu-knightbot-default-init-native": {
+      "report": "out/byor-motu-knightbot-default-init-native/report.json",
+      "sha256": "e4f9506a9681177e38f63c6e09f1340d8db82b91032a6ff10940026c2b1f4226",
+      "rom_sha256": "4cf11a95d6fff214b999b18aa351ad0662ba2f5854778031a8575bba3e0a37e8",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-default-init-native": {
+      "report": "out/byor-motu-skeletor-default-init-native/report.json",
+      "sha256": "c8cf32eea827ad86559381a2522781220dfb2985c995681a2615bde6baf0de5b",
+      "rom_sha256": "b81df46fa7dac6158ec1b7343b93e2f102000c94ae64c37c84009a881a89a4bb",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    }
+  },
+  "source_rng_exact_shared": true,
+  "source_altitude_expression": "C-derived binary32 store of 0 + (source vRes 240 + randf(40)) before Q16 projection",
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "authored_enemy_paths": {
+    "Knightbot": "No SPAWN/RESPAWN/JUMP: normal preparation, one drop RNG draw, authored IDLE frame zero, current-model final tail",
+    "Skeletor": "Authored SPAWN 23 frame zero, normal preparation skips drop draw, current-model final tail"
+  },
+  "native_body_cases": 176,
+  "jump_frame_zero_in_enemy_branch_proven": false,
+  "world_installation_instrumented": true,
+  "full_default_init_bound": false,
+  "executable_ai_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_paths": 17,
+  "protected_hashes_preserved": true,
+  "audit": "out/byor-motu-enemy-drop-body-audit.log",
+  "bank_zero_free_before_nmi": 2
+}
