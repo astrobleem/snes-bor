@@ -896,3 +896,39 @@ Five focused constant/animation authority tests and the full ROM audit pass.
 All 17 protected files are unchanged and bank 0 still has two bytes free.
 Production source world, live level ownership and Demo gameplay remain unbound.
 Receipt: `byor-motu-script-constants-native.json`. No color reduction is applied.
+
+### All source effect poses and native cache refills
+
+The generic scene compositor now exposes its RGB8 result separately from
+palette scheduling and preserves source geometry when facing is reversed.
+All 40 HBreath animation poses have lossless Mode 4 component schedules in
+the explicit stationary He_ManB/Knightbot context. Static component colors
+from the other actors and scenery remain anchored in the same slots. The
+largest contiguous palette burst is 15 colors (30 CGRAM data bytes). The
+isolated 15-color native fixed-pose test preserves every composed RGB555 pixel
+and its complete palette trace.
+
+The offline residency planner pins displayed tiles during preload, classifies
+replacements of displayed slots as commit traffic, and replays every tilemap
+against exact resident tile identities. The allocation is 736 high-component
+tiles, 768 low-component tiles, a mandatory zero offset map, and two tilemaps.
+Peak preload CHR traffic is 5,088 bytes; peak commit traffic including tilemaps
+and palette restoration is 3,928 bytes. Adjacent destination slots are
+coalesced into offline DMA packets in the native fixture.
+
+An initial one-field preload attempt overran into visible line 5: 4,448 CHR
+bytes plus palette restoration required 57,298 master clocks including setup
+and the fixture's channel-0 HDMA contention. This is retained as a measured
+single-window failure, not a rejection of lossless BG presentation. Splitting
+safe preloads across two VBlanks fixes that overrun. The following commit
+produces the exact next source pose without replacing displayed tiles early.
+
+All 39 independent native transitions now pass with eight bounded fields
+each: exact previous-pose pixels through both preloads, exact target-pose
+pixels after commit, exact CGRAM traces, exact VRAM payload traces, and no
+unsafe sampled palette writes. The peak commit window is 41,980 master clocks,
+from line 225 to line 255. These are isolated transitions, not a continuous
+animation or a production contention proof. The RGB8 SCREEN composition is
+still performed offline; a live compositor, moving actor/camera contexts,
+actual audio/NMI contention and source-world gameplay remain unbound.
+Receipt: `byor-motu-component-refill-native.json`. No color reduction is applied.

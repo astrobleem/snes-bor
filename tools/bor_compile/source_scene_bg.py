@@ -26,17 +26,18 @@ def overlay(canvas,indices,rgb,x,y,alpha=0,transparent=True):
     return int(mask.sum())
 
 
-def probe(source,stage,scene,capacity=175,write_budget=7,export=None):
+def compose_rgb8(source,stage,scene):
     if scene.get('camera',[0,0])!=[0,0]:raise ValueError('CONTEXT_CAMERA_NOT_IMPLEMENTED')
     docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     models=discover(source,docs)['models']; rows=docs[key(stage)]['directives']
     w,h=scene.get('viewport',[256,224]);canvas=np.zeros((h,w,3),dtype=np.int32);layers=[]
-    def draw(path,x,y,kind,transparent=True,palette=None,alpha=0):
+    def draw(path,x,y,kind,transparent=True,palette=None,alpha=0,flip=False):
         indices,rgb,digest=decode(source,path,palette)
+        if flip:indices=indices[:,::-1];rgb=rgb[:,::-1]
         visible=overlay(canvas,indices,rgb,int(x),int(y),alpha,transparent)
         layers.append(dict(kind=kind,path=source.image_path(path),sha256=digest,
             source_dimensions=list(indices.shape[::-1]),position=[int(x),int(y)],alpha=alpha,
-            visible_source_pixels=visible))
+            visible_source_pixels=visible,source_flip=flip))
     backgrounds=[r for r in rows if r['directive']=='background']
     panels=[r for r in rows if r['directive']=='panel']
     orders=[r for r in rows if r['directive']=='order']
@@ -50,25 +51,37 @@ def probe(source,stage,scene,capacity=175,write_budget=7,export=None):
         model=next(m for m in models if m['name'].casefold()==actor['model'].casefold())
         anim=next(a for a in animation_frames(docs[key(model['source_path'])]['directives']) if a['role']==actor['animation'])
         f=anim['frames'][actor['frame']];x,z,a=actor['position']
-        if actor.get('direction',1)!=1:raise ValueError('CONTEXT_FLIP_NOT_IMPLEMENTED')
+        direction=actor.get('direction',1)
+        if direction not in (0,1):raise ValueError('CONTEXT_DIRECTION_REQUIRED')
         pal=model_palettes(source,model)['base']
         if pal is None:raise ValueError('MODEL_PALETTE_AUTHORITY_REQUIRED')
         alpha_rows=model['properties'].get('alpha',[])
         alpha=int(alpha_rows[-1]['values'][0]) if alpha_rows else 0
-        draw(f['declaration']['values'][0],x-f['offset'][0],z-a-f['offset'][1],
-             'actor:'+model['name'],palette=pal['rgb8'],alpha=alpha)
+        path=f['declaration']['values'][0]
+        left=x-f['offset'][0]
+        if direction==0:
+            indices,_,_=decode(source,path,pal['rgb8'])
+            left=x-(indices.shape[1]-f['offset'][0])
+        draw(path,left,z-a-f['offset'][1],
+             'actor:'+model['name'],palette=pal['rgb8'],alpha=alpha,flip=(direction==0))
     front=[r for r in rows if r['directive']=='frontpanel']
     for ordinal,row in enumerate(front):
         if len(row['values'])!=1:raise ValueError('FRONTPANEL_SECONDARY_LAYERS_NOT_IMPLEMENTED')
         indices,_,_=decode(source,row['values'][0])
         # 4086 load_level assigns ordinal*own_width; camera-zero, no quake.
         draw(row['values'][0],ordinal*indices.shape[1],0,'frontpanel')
-    compiled=compile_canvas(rgb555(canvas),capacity,write_budget,True,export)
-    return dict(compiled,stage=stage,stage_sha256=docs[key(stage)]['sha256'],scene=scene,layers=layers,
+    metadata=dict(stage=stage,stage_sha256=docs[key(stage)]['sha256'],scene=scene,layers=layers,
         alpha='BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS',
         alpha_source_dimensions=[layer['source_dimensions'] for layer in layers if layer['alpha']],
         scope='Explicit source scene pose/tie order; camera zero, no HUD/shadows/quake. No runtime reachability claim.',
         all_actor_models_preserved=True)
+    return canvas,metadata
+
+
+def probe(source,stage,scene,capacity=175,write_budget=7,export=None):
+    canvas,metadata=compose_rgb8(source,stage,scene)
+    compiled=compile_canvas(rgb555(canvas),capacity,write_budget,True,export)
+    return dict(compiled,**metadata)
 
 
 def main():

@@ -131,8 +131,11 @@ def compile_rom(report,assets,timer=180,cache_assets=None):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
+    p.add_argument('--assets',type=Path,help='Explicit compiled frame directory; default is report stem')
+    p.add_argument('--output',type=Path,help='Explicit bounded native evidence directory')
     p.add_argument('--timer',type=int,default=180);a=p.parse_args();a.report=a.report.resolve()
-    report=json.loads(a.report.read_text());assets=a.report.with_suffix('');folder=assets/'native';folder.mkdir(exist_ok=True)
+    report=json.loads(a.report.read_text());assets=a.assets.resolve() if a.assets else a.report.with_suffix('')
+    folder=a.output.resolve() if a.output else assets/'native';folder.mkdir(parents=True,exist_ok=True)
     rom,expected_trace,resources=compile_rom(report,assets,a.timer);path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
     lua.write_text('''local active=false;local restoring=false;local frames=0;local n=0;local rows={}
 emu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0,0,emu.cpuType.snes,emu.memType.snesMemory)
