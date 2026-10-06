@@ -1027,3 +1027,42 @@ a stand-in NMI that deliberately changes DMA7 and dummy channel-zero HDMA;
 it does not establish production TAD, streaming or NMI contention. The
 large CPU cost remains to be admitted against the live source-world owner.
 Receipt: `byor-motu-raster-gate-native.json`. No color reduction is applied.
+
+
+### Production NMI stationary presentation
+
+The widest 30-byte-per-line pose now passes exact RGB555 pixels and the
+complete CGRAM trace with the real production cold boot and NMI handler.
+There are 1,350 IRQ and six NMI context checks with no register/stack faults
+and no unsafe first/last DMA-byte samples. Peak gateway-to-RTI spans are
+1,182 clocks for IRQ and 19,272 for NMI. This NMI cost must be accounted for
+when admitting source-cadence VRAM refills; the earlier bare-fixture 47,454
+clock transfer peak is not a combined production budget PASS.
+
+The private owner requires an explicit SA-1 ROM mapping: register 2223=81
+maps A0..BF to the one-megabyte ROM segment containing the new banked code.
+The SA-1 defaults do not supply the LoROM mirror used by the isolated fixture.
+The existing boot writes MEMSEL=80, whose enable bit is clear; this owner
+explicitly writes MEMSEL=1. Existing bank-zero JSL operands and the native
+IRQ vector are redirected without growing bank-zero runtime. The real
+original selector reaches the original first stage before a private outer
+loop handoff; this is not a MOTU selector or world proof.
+
+The ordinary frontpanel producer otherwise rewrites BG2 registers every NMI.
+The foreign composed canvas must own BG2 and retire that producer, preserving
+source foreground pixels through composition. The existing edge window masks
+also must be cleared for the full 256-pixel native canvas. Pending old DMA
+was observed to corrupt exact CHR tiles despite a correct CGRAM trace. The
+private handoff now drains the admitted eight-slot queue through the original
+NMI handler before loading the foreign CHR. All added instructions reside
+outside bank zero. This is a stationary private owner, with no TAD frame
+service pump, moving world, source script tick or animated refill admission.
+Receipt: `byor-motu-raster-production-nmi.json`. No color reduction is applied.
+
+The final stationary production receipt uses a banked native field gate
+through the existing TAD frame-service JSL operand. It does not change the
+PC through the debugger. The ordinary eight-slot DMA queue is checked empty
+before VRAM acquisition and is empty in the captured closeout snapshot.
+The original NMI handles the quiescence drain; no queued work is discarded.
+This field gate still stops the ordinary world and enters a private fixed
+scene owner, so it does not certify source gameplay or ongoing TAD service.

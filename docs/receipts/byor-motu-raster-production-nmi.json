@@ -1,0 +1,176 @@
+{
+  "schema": "BYOR_BG_RASTER_PRODUCTION_NMI_V1",
+  "status": "STATIONARY_PRODUCTION_NMI_PASS",
+  "result": {
+    "resources": {
+      "bg_mode": 4,
+      "high_chr_bytes": 43648,
+      "low_chr_bytes": 10160,
+      "low_chr_base": 49152,
+      "offset_tilemap_base": 45056,
+      "offset_map_aliases_bg1": false,
+      "hdma_channels": [
+        0
+      ],
+      "irq_enabled": true,
+      "timer_dots": 76,
+      "irq_entry_prg_offset": 1282048,
+      "irq_exit_prg_offset": 1282126,
+      "code_bank": 1,
+      "oam_entries": 0,
+      "per_field_palette_restore_bytes": 472,
+      "peak_palette_updates": 15,
+      "source_color_bits_preserved": 15,
+      "spc_protocol_proven": false,
+      "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+      "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+      "production_nmi": true,
+      "dummy_hdma": false,
+      "bank0_runtime_growth": 0
+    },
+    "rom_sha256": "c77fab33ee42a5f1de33bb20500906dfaa25c224f1748cb91626b67f09cb9ab4",
+    "schedule_sha256": "a76f63b6a14b82193c93ff12906e54b4d2dfc28aadeeb798e6b18eb0b8f92b84",
+    "advancement": [
+      {
+        "requested": 1,
+        "startFrame": 517,
+        "endFrame": 517,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 517,
+        "endFrame": 518,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 518,
+        "endFrame": 518,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 518,
+        "endFrame": 518,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 518,
+        "endFrame": 518,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 518,
+        "endFrame": 519,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 519,
+        "endFrame": 519,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 519,
+        "endFrame": 520,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 520,
+        "endFrame": 520,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 520,
+        "endFrame": 521,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 521,
+        "endFrame": 521,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 521,
+        "endFrame": 522,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      }
+    ],
+    "completed_fields": 5,
+    "pixel_identity_verified": true,
+    "pixel_mismatches": 0,
+    "cgram_observer_verified": true,
+    "observed_register_writes": 6944,
+    "expected_register_writes": 6944,
+    "timing_samples": 448,
+    "active_window_samples": 0,
+    "irq_service_samples": 224,
+    "peak_irq_service_master_clocks": 926,
+    "visible_field_irq_service_master_clocks": 206344,
+    "low_palette_unchanged": true,
+    "hud_palette_unchanged": true,
+    "no_color_reduction": true,
+    "scope": "Production cold boot and NMI, with a private stationary foreign owner. No live MOTU world or production TAD service admission.",
+    "pass": true,
+    "production_base_sha256": "adbb62b4f04a57e76cb6e1044ba0400c8fa406eb9516497956b305485331a649",
+    "context_witness": "1350,6,0,1182,0,19272",
+    "irq_context_checks": 1350,
+    "nmi_context_checks": 6,
+    "context_faults": 0,
+    "peak_gateway_to_rti_master_clocks": 1182,
+    "all_field_unsafe_data_writes": 0,
+    "peak_nmi_gateway_to_rti_master_clocks": 19272,
+    "sa1_bank3_mapping": 129,
+    "memsel": 1,
+    "ordinary_bg2_producer_retired": true,
+    "ordinary_window_masks_cleared": true
+  },
+  "evidence": "out/byor-motu-production-nmi-field-gate-native",
+  "admission_contract": [
+    "SA1 register 2223=81 maps the opt-in high ROM owner.",
+    "MEMSEL bit zero is explicitly enabled.",
+    "All pending ordinary DMA is drained before acquiring foreign VRAM.",
+    "The ordinary frontpanel producer is retired before acquiring BG2.",
+    "The ordinary edge masks are retired before full canvas presentation."
+  ],
+  "nonclaims": [
+    "No live MOTU world.",
+    "No live TAD frame-service pump or SPC stream admission.",
+    "No combined production NMI and source-cadence animated refill admission."
+  ],
+  "no_color_reduction": true,
+  "ordinary_dma_queue_active_slots_at_close": 0,
+  "handoff": "Banked native field gate replaces an existing JSL operand. No debugger PC mutation."
+}

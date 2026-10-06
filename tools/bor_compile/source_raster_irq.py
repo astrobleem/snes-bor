@@ -167,10 +167,14 @@ SourceRasterNmiAfter:
     beq SourceRasterAfterReady
     jmp SourceRasterAfterDisabled
 SourceRasterAfterReady:
+.a16
+.i16
     lda.l SourceRaster_Fault
     beq SourceRasterAfterValid
     jmp SourceRasterAfterDisabled
 SourceRasterAfterValid:
+.a16
+.i16
     ; The immutable descriptor/CRC, palette slot bounds and ownership are
     ; validated by the installer. This hook performs no allocation.
     sep #$20

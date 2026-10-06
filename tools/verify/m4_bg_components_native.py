@@ -169,7 +169,7 @@ emu.addMemoryCallback(service,emu.callbackType.exec,EXIT,EXIT,emu.cpuType.snes,e
             with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
     with Observed(rom=path,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log') as m:
         advancement=[];advanced=0
-        for _ in range(10):
+        for _ in range(50):
             progress=m.tool('run_frames',{'count':1});advancement.append(progress);advanced+=progress['framesAdvanced']
             if advanced>=5:break
         shot=m.tool('take_screenshot',{'format':'path'});cgram=m.read_memory('SnesCgRam',0,512)

@@ -55,22 +55,11 @@ def combine(raw,report,folder,timer):
     return bytes(rom),sy
 
 
-def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
-    p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=76);a=p.parse_args()
-    folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);compile_base=bg.compile_rom;details={}
-    def compile_gate(*args,**kwargs):
-        raw,trace,resources=compile_base(*args,**kwargs);raw,sy=combine(raw,json.loads(a.report.read_text()),folder,a.timer)
-        details.update(symbols=sy)
-        resources.update(irq_entry_prg_offset=39*32768+4096,irq_exit_prg_offset=(sy['SourceRasterIrqReturn']>>16)*32768+(sy['SourceRasterIrqReturn']&65535)-32768,
-                         reused_irq_gateway=True,post_nmi_hook=True,production_bank0_growth=0)
-        return raw,trace,resources
-    class Extra(McpSession):
-        def __enter__(self):
-            sy=details['symbols'];end=(sy['SourceRasterAfterReturn']>>16)*32768+(sy['SourceRasterAfterReturn']&65535)-32768
-            with (folder/'observer.lua').open('a') as f:
-                f.write('''\nemu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0x7ff85c,0x7ff85c,emu.cpuType.snes,emu.memType.snesMemory)
-local pending={};local started={};local counts={IRQ=0,NMI=0};local faults=0;local irqpeak=0;local unsafe=0
+
+def gate_observer(sy,data_bytes,irq_entry=256,nmi_entry=288):
+    end=39*32768+(sy['SourceRasterAfterReturn']&65535)-32768
+    return '''\nemu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0x7ff85c,0x7ff85c,emu.cpuType.snes,emu.memType.snesMemory)
+local pending={};local started={};local counts={IRQ=0,NMI=0};local faults=0;local irqpeak=0;local nmipeak=0;local unsafe=0
 local function snapshot()
  local s=emu.getState();local r={}
  for _,k in ipairs({'a','x','y','d','dbr','sp'}) do r[k]=s['cpu.'..k] end
@@ -88,11 +77,12 @@ local function leave(kind)
   for k,v in pairs(old) do if new[k]~=v then faults=faults+1;emu.log('GATECONTEXTFAIL|'..kind..'|'..k..'|'..v..'|'..new[k]) end end
   counts[kind]=counts[kind]+1
   if kind=='IRQ' then irqpeak=math.max(irqpeak,emu.getState()['masterClock']-started[kind]) end
+  if kind=='NMI' then nmipeak=math.max(nmipeak,emu.getState()['masterClock']-started[kind]) end
  end
  pending[kind]=nil
 end
-emu.addMemoryCallback(function() if (emu.getState()['cpu.ps'] & 4)~=0 then enter('IRQ') end end,emu.callbackType.exec,256,256,emu.cpuType.snes,emu.memType.snesPrgRom)
-emu.addMemoryCallback(function() enter('NMI') end,emu.callbackType.exec,288,288,emu.cpuType.snes,emu.memType.snesPrgRom)
+emu.addMemoryCallback(function() if (emu.getState()['cpu.ps'] & 4)~=0 then enter('IRQ') end end,emu.callbackType.exec,IRQENTRY,IRQENTRY,emu.cpuType.snes,emu.memType.snesPrgRom)
+emu.addMemoryCallback(function() if emu.read(0x7ff840,emu.memType.snesMemory)==0xb0 and emu.read(0x7ff841,emu.memType.snesMemory)==0xb4 then enter('NMI') end end,emu.callbackType.exec,NMIENTRY,NMIENTRY,emu.cpuType.snes,emu.memType.snesPrgRom)
 emu.addMemoryCallback(function() leave('IRQ') end,emu.callbackType.exec,IRQRETURN,IRQRETURN,emu.cpuType.snes,emu.memType.snesPrgRom)
 emu.addMemoryCallback(function() leave('NMI') end,emu.callbackType.exec,NMIRETURN,NMIRETURN,emu.cpuType.snes,emu.memType.snesPrgRom)
 local databyte=0
@@ -106,8 +96,24 @@ emu.addMemoryCallback(function(a,v)
   end
  end
 end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
-emu.addEventCallback(function() emu.log('GATECONTEXT|'..counts.IRQ..','..counts.NMI..','..faults..','..irqpeak..','..unsafe) end,emu.eventType.endFrame)
-'''.replace('IRQRETURN',str(39*32768+(sy['SourceRasterIrqReturn']&65535)-32768)).replace('NMIRETURN',str(end)).replace('DATASIZE',str(json.loads(a.report.read_text())['span']*2)))
+emu.addEventCallback(function() emu.log('GATECONTEXT|'..counts.IRQ..','..counts.NMI..','..faults..','..irqpeak..','..unsafe..','..nmipeak) end,emu.eventType.endFrame)
+'''.replace('IRQRETURN',str(39*32768+(sy['SourceRasterIrqReturn']&65535)-32768)).replace('NMIRETURN',str(end)).replace('DATASIZE',str(data_bytes)).replace('IRQENTRY',str(irq_entry)).replace('NMIENTRY',str(nmi_entry))
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=76);a=p.parse_args()
+    folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);compile_base=bg.compile_rom;details={}
+    def compile_gate(*args,**kwargs):
+        raw,trace,resources=compile_base(*args,**kwargs);raw,sy=combine(raw,json.loads(a.report.read_text()),folder,a.timer)
+        details.update(symbols=sy)
+        resources.update(irq_entry_prg_offset=39*32768+4096,irq_exit_prg_offset=(sy['SourceRasterIrqReturn']>>16)*32768+(sy['SourceRasterIrqReturn']&65535)-32768,
+                         reused_irq_gateway=True,post_nmi_hook=True,production_bank0_growth=0)
+        return raw,trace,resources
+    class Extra(McpSession):
+        def __enter__(self):
+            sy=details['symbols'];end=(sy['SourceRasterAfterReturn']>>16)*32768+(sy['SourceRasterAfterReturn']&65535)-32768
+            with (folder/'observer.lua').open('a') as f:
+                f.write(gate_observer(sy,json.loads(a.report.read_text())['span']*2))
             return super().__enter__()
         def __exit__(self,*args):
             raw=self.read_memory('SnesMemory',0x7ff840,28)
@@ -121,11 +127,12 @@ emu.addEventCallback(function() emu.log('GATECONTEXT|'..counts.IRQ..','..counts.
             if error.code!=1:raise
     r=json.loads((folder/'result.json').read_text());state=(folder/'gate-state.bin').read_bytes()
     lines=[line.split('GATECONTEXT|',1)[1] for line in (folder/'mesen.log').read_text().splitlines() if 'GATECONTEXT|' in line]
-    counts=[int(v) for v in lines[-1].split(',')] if lines else [0,0,-1,0,-1]
+    counts=[int(v) for v in lines[-1].split(',')] if lines else [0,0,-1,0,-1,0]
     r.update(gate_state=state.hex(),gate_fault=int.from_bytes(state[22:24],'little'),gate_frames=int.from_bytes(state[26:28],'little'),
              irq_context_checks=counts[0],nmi_context_checks=counts[1],context_faults=counts[2],
              peak_gateway_to_rti_master_clocks=counts[3],
              all_field_unsafe_data_writes=counts[4],
+             peak_nmi_gateway_to_rti_master_clocks=counts[5],
              scope='Private contract-shaped interrupt stubs, palette traces and pixels. No production installation, real NMI/DMA load or TAD protocol admission.')
     r['pass']=r['pass'] and r['gate_fault']==0 and r['gate_frames']>=2 and counts[0]>=224 and counts[1]>=2 and counts[2]==0 and counts[4]==0
     (folder/'result.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2))
