@@ -10,16 +10,18 @@ from pathlib import Path
 import subprocess
 from dialect_4086 import ENGINE_COMMIT
 from script_nested_authority import extract
-from source_model_switch_4086 import GLOBAL_NEGATIVE,ENTITY_NEGATIVE,RUN_FIELDS,set_weapon
+from source_model_switch_4086 import GLOBAL_NEGATIVE,ENTITY_NEGATIVE,RUN_FIELDS,CACHED_FIELDS,set_weapon
 
-FIELDS=['speed',*RUN_FIELDS,*GLOBAL_NEGATIVE,*ENTITY_NEGATIVE,'aimove','aiattack','health','mp','risetime.rise','weapnum']
+FIELDS=CACHED_FIELDS
 
 
 def fixtures():
-    return [dict(flags=flags,anim_flag=anim_flag,oldtype=oldtype,newtype=newtype,number=number,
-        select=select,time=48 if time else 0,map=map_,variant=variant)
+    rows=[dict(flags=flags,anim_flag=anim_flag,oldtype=oldtype,newtype=newtype,number=number,
+        select=select,time=48 if time else 0,map=map_,variant=variant,boundary=0)
         for flags in range(8) for anim_flag in (0,1) for oldtype,newtype in ((0,0),(1,0),(1,1))
         for number in (0,1,2,3) for select,time,map_,variant in ((0,1,1,0),(1,1,2,1),(0,0,0,0))]
+    rows.extend(dict(rows[0],flags=1,oldtype=1,number=1,boundary=n) for n in range(1,7))
+    return rows
 
 
 def expected(c):
@@ -34,9 +36,17 @@ def expected(c):
             new[field]=0 if field in ('speed','runspeed','health','mp') else -1
     new.update(identity=1,type=c['newtype'],model_flag=c['flags'],animation={0:None,1:animations[1],2:None,3:animations[3]},
         weapon=None,numweapons=0,weaploss=[3,-1],maps_loaded=1,palette=200,colourmap=[201],onmodelcopy=c['variant'])
+    boundary=c['boundary']
+    if boundary==3:new.update(health=-1,mp=-1)
+    elif boundary==4:new.update(health=0x7fffffff,mp=0x7fffffff)
+    elif boundary==5:new.update(health=-0x80000000,mp=-0x80000000)
+    elif boundary==6:
+        for field in ('aimove','aiattack','risetime.rise'):new[field]=-2
     entity=dict(model=old,defaultmodel=old,modeldata=dict(old),health=500,mp=500,playerindex=0,animnum=0,
         animation=animations[0],animpos=3,nextanim=123,attacking=1,map=c['map'],exists=1,onmodelcopy=0,
         offense_factors=[7,8],defense=[9,10])
+    if boundary==1:entity.update(health=-0x80000000,mp=-0x80000000)
+    elif boundary==2:entity.update(health=0x7fffffff,mp=0x7fffffff)
     for field in ENTITY_NEGATIVE+['aimove','aiattack','health','mp','risetime.rise']:
         entity['modeldata'][field]+=60
     trace=[]
@@ -104,7 +114,7 @@ typedef struct entity {char *name;s_model *model,*defaultmodel; s_model modeldat
  s_anim *animation;unsigned char *colourmap;s_scripts *scripts;
  s_defense *defense;float *offense_factors;
 } entity;
-typedef struct {int flags,anim_flag,oldtype,newtype,number,select,time,map,variant;} fixture;
+typedef struct {int flags,anim_flag,oldtype,newtype,number,select,time,map,variant,boundary;} fixture;
 s_model models[2];struct {s_model *model;} model_cache[2];
 struct {int weapnum;} player[1];struct {int setweap;} lv,*level=&lv;
 unsigned time;int selectScreen,max_animations=4,max_attack_types=2;
@@ -120,7 +130,7 @@ void clear_all_scripts(s_scripts *s,int localclear){event(20);s->onmodelcopy_scr
 void copy_all_scripts(s_scripts *a,s_scripts *b,int localclear){event(21);if(a->onmodelcopy_script)b->onmodelcopy_script=a->onmodelcopy_script;}
 void execute_onmodelcopy_script(entity *e,entity *old){event(23+old->exists);}
 ''' + functions + '\nfixture cases[]={'+',\n'.join('{'+','.join(str(c[k]) for k in
-        ('flags','anim_flag','oldtype','newtype','number','select','time','map','variant'))+'}' for c in rows)+'};\n'
+        ('flags','anim_flag','oldtype','newtype','number','select','time','map','variant','boundary'))+'}' for c in rows)+'};\n'
     source+=r'''int main(void){unsigned i;int j,n,weapons[2]={1,0};entity ent;s_anim anim[4]={{4,1,{6,8,10,12}},{2,2,{14,16}},{0,3,{0}},{1,4,{18}}};
  s_anim *ma[2][4];s_scripts scripts[3];s_defense defense[3][2];float offense[3][2];unsigned char *maps[2][1];fixture *c;
  if(sizeof(long)!=4||sizeof(void*)!=4||sizeof(unsigned)!=4)return 2;
@@ -138,7 +148,13 @@ void execute_onmodelcopy_script(entity *e,entity *old){event(23+old->exists);}
     for n,f in enumerate(FIELDS):
         default='0' if f in ('speed','runspeed','health','mp') else '-1'
         source+=f' models[0].{f}={10+n};models[1].{f}=(!c->variant||{n}%3)?{default}:{110+n};\n'
-    source+=r''' ent.model=ent.defaultmodel=models;ent.modeldata=models[0];ent.health=ent.mp=500;ent.exists=1;
+    source+=r''' if(c->boundary==3)models[1].health=models[1].mp=-1;
+ else if(c->boundary==4)models[1].health=models[1].mp=2147483647;
+ else if(c->boundary==5)models[1].health=models[1].mp=(-2147483647-1);
+ else if(c->boundary==6){models[1].aimove=models[1].aiattack=models[1].risetime.rise=-2;}
+ ent.model=ent.defaultmodel=models;ent.modeldata=models[0];ent.health=ent.mp=500;ent.exists=1;
+ if(c->boundary==1)ent.health=ent.mp=(-2147483647-1);
+ else if(c->boundary==2)ent.health=ent.mp=2147483647;
  ent.animation=anim;ent.animnum=0;ent.animpos=3;ent.nextanim=123;ent.attacking=1;ent.map=c->map;
  ent.scripts=scripts+2;ent.defense=defense[2];ent.offense_factors=offense[2];defense[2][0]=9;defense[2][1]=10;offense[2][0]=7;offense[2][1]=8;
 '''
@@ -152,7 +168,7 @@ void execute_onmodelcopy_script(entity *e,entity *old){event(23+old->exists);}
  printf("|%d,%d,%d,%d,%d,%d,%d,%u,%d,%u,%u,%d,%d,%d,%d,%.9g,%.9g",ent.model->identity,ent.modeldata.type,ent.health,ent.mp,ent.animnum,ent.animation->identity,ent.animpos,ent.nextanim,ent.attacking,ent.map,(unsigned)ent.colourmap,player[0].weapnum,ent.scripts->onmodelcopy_script,ent.defense[0],ent.defense[1],ent.offense_factors[0],ent.offense_factors[1]);
  for(n=0;n<2;n++){s_model *m=n?&ent.modeldata:models+1;
 '''
-    for f in FIELDS:source+=f' printf(",%.9g",(double)m->{f});\n'
+    for f in FIELDS:source+=f' printf(",%.17g",(double)m->{f});\n'
     source+=r''' for(j=0;j<4;j++)printf(",%d",m->animation[j]?m->animation[j]->identity:0);
  printf(",%d,%d",m->numweapons,m->weapon==models[0].weapon);
  }puts("");}return 0;}

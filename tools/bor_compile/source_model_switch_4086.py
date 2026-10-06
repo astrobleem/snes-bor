@@ -11,6 +11,8 @@ ENTITY_NEGATIVE=('multiple subject_to_wall subject_to_platform subject_to_obstac
  'subject_to_hole subject_to_gravity subject_to_screen subject_to_minz subject_to_maxz '
  'no_adjust_base hostile candamage projectilehit').split()
 RUN_FIELDS='runspeed runjumpheight runjumpdist runupdown runhold'.split()
+ENTITY_CORE_FIELDS=ENTITY_NEGATIVE+['aimove','aiattack','health','mp','risetime.rise']
+CACHED_FIELDS=['speed',*RUN_FIELDS,*GLOBAL_NEGATIVE,*ENTITY_NEGATIVE,'aimove','aiattack','health','mp','risetime.rise','weapnum']
 
 
 def copy_cached_defaults(old,new):
