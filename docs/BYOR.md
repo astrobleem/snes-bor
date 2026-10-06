@@ -110,6 +110,15 @@ missing script context fault; this backend does not discard wall declarations.
 Eight native cases cover the result type, invalid numeric inputs and lease
 rejection. The production level owner must still install and retire this lease.
 
+The one-argument native `findtarget` query now uses authoritative hostile masks,
+stealth, death, invincibility and frame vulnerability, with the pinned facing
+and distance preference. An explicit pointer-order directory and active prefix
+preserve engine list ordering independently of physical slots. Native tests
+cover 31 cases, including all 128 slots, reordered lists, signed distance
+extremes, stale metadata and malformed order rejection. This is an injected
+current-tick snapshot proof; the live owner must publish these fields and run
+source list compaction. Animated range queries and live AI remain unfinished.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell

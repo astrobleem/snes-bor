@@ -13596,6 +13596,9 @@ Footdie_StreamSource:
 SourceVM_ConstantReservation:
     .ds 16384,$FF
 
+.org $F000
+.include "core/vm/vm_source_target.pasm"
+
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication
 ; owns its descriptor and fills it only after source capability admission.

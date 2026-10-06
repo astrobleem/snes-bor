@@ -88,8 +88,14 @@ Vm_NativeVariantDispatch__environment:
 .a16
 .i16
     cmp #$0204                     ; checkwall(), checked empty-wall level
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__target
     jmp Vm_SourceCheckWall
+Vm_NativeVariantDispatch__target:
+.a16
+.i16
+    cmp #$0207                     ; findtarget(self), no animation range
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourceFindTarget
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16

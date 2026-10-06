@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_M4_TARGET_QUERY_RECEIPT_V1",
+  "status": "PASS",
+  "native_cases": 31,
+  "native_rom_sha256": "647374a98596f28d9934d004f14e4485e39cc58dfb85de0d3c988a1580c27997",
+  "native_report": "out/byor-motu-target-order-native/report.json",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "One-argument native findtarget over injected pool/metadata leases after original bootstrap; no live AI or MOTU world.",
+  "native_capacity": 128,
+  "metadata_base": "0x41e800",
+  "metadata_bytes": 2560,
+  "order_base": "0x41f200",
+  "order_bytes": 256,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_numeric_equivalence": false,
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}
