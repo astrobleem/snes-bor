@@ -6,6 +6,7 @@ policies and initial callbacks are explicitly rejected rather than aliased.
 """
 import argparse
 from fractions import Fraction
+from source_integer_ticks_4086 import ticks
 import hashlib
 import json
 from pathlib import Path
@@ -69,8 +70,8 @@ def derive(source):
             if int(scalar(name,'0'))>0:rejections.append('INITIAL_ENVIRONMENT_QUERY_UNBOUND:'+name)
         if int(scalar('mp','0'))!=0:rejections.append('MP_MODEL_STATE_UNBOUND')
         declared_lifespan=scalar('lifespan',None)
-        lifespan=Fraction(declared_lifespan)*200 if declared_lifespan is not None else Fraction(0x7fffffff)
-        if lifespan.denominator!=1 or not 0<=lifespan<=0x7fffffff:
+        lifespan=ticks(declared_lifespan) if declared_lifespan is not None else 0x7fffffff
+        if not 0<=lifespan<=0x7fffffff:
             rejections.append('LIFESPAN_INTEGER_TICK_POLICY_REQUIRED')
         gravity=int(scalar('subject_to_gravity','1'));no_adjust=int(scalar('no_adjust_base','1'))
         if gravity<0:gravity=1

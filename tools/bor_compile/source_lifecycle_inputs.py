@@ -9,6 +9,7 @@ from compiler import Source,key
 from dialect_4086 import ENGINE_COMMIT
 from source_profile import document,discover
 from source_model_core_4086 import binary32,integer
+from source_integer_ticks_4086 import ticks
 
 HEADER=24
 STRIDE=32
@@ -25,9 +26,7 @@ def load(rows):
         elif n in ('nomove','priority'):d[n]=integer(v)
         elif n=='makeinv':
             if not 1<=len(v)<=2:raise ValueError('LIFECYCLE_MAKEINV_ARITY')
-            value=binary32(binary32(v[0])*200)
-            if not -2147483648<=value<=2147483647:raise ValueError('LIFECYCLE_MAKEINV_DOMAIN')
-            value=int(value)
+            value=ticks(v[0])
             d[n]=-value if integer(v,1) else value
             if d[n]==-2147483648:raise ValueError('LIFECYCLE_ABS_INT_MIN_UNDEFINED')
         elif n=='knockdowncount':
@@ -40,7 +39,7 @@ def derive(source):
     docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')};structure=discover(source,docs);models=[]
     for i,m in enumerate(structure['models']):
         doc=docs[key(m['source_path'])];models.append(dict(id=i,identity=m['declaration'],source_path=m['source_path'],source_sha256=doc['sha256'],fields=load(doc['directives'])))
-    return dict(schema='BYOR_4086_LIFECYCLE_INPUTS_V1',engine_commit=ENGINE_COMMIT,models=models,field_authority='init_model priority=1/calloc; CMD_MODEL_SUBTYPE/NOMOVE/MAKEINV/KNOCKDOWNCOUNT',makeinv_policy='binary32 GET_FLOAT_ARG * GAME_SPEED(200), truncated signed int; optional second argument negates',native_lifecycle_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+    return dict(schema='BYOR_4086_LIFECYCLE_INPUTS_V1',engine_commit=ENGINE_COMMIT,models=models,field_authority='init_model priority=1/calloc; CMD_MODEL_SUBTYPE/NOMOVE/MAKEINV/KNOCKDOWNCOUNT',makeinv_policy='pinned C GET_FLOAT_ARG * GAME_SPEED(200) direct signed-int assignment, without an intermediate float store; optional second argument negates',native_lifecycle_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 def pack(report):
     if not 1<=len(report['models'])<=16:raise ValueError('LIFECYCLE_MODEL_CAPACITY')

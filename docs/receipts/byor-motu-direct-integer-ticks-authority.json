@@ -1,0 +1,42 @@
+{
+  "schema": "BYOR_4086_DIRECT_INTEGER_TICKS_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-lifecycle-product-rounding-before": {
+      "report": "out/byor-motu-lifecycle-product-rounding-before/report.json",
+      "sha256": "5d7914473abfdf49136ff3f427ad635e022a9488b194b5274082c8137187ebba",
+      "status": "FAIL",
+      "cases": 52
+    },
+    "byor-motu-lifecycle-product-rounding-authority": {
+      "report": "out/byor-motu-lifecycle-product-rounding-authority/report.json",
+      "sha256": "46b14c975a4625a07f33786b944fd9104fed28e5231423b7f091daa4f8727f0b",
+      "status": "PASS",
+      "cases": 1678
+    },
+    "byor-motu-ctor-state-authority": {
+      "report": "out/byor-motu-ctor-state-authority/report.json",
+      "sha256": "c11289a798a1fe0463688cd1e2ab11b67ea7bbefe30b716451d6f363d9298348",
+      "status": "PASS",
+      "cases": 811
+    }
+  },
+  "change": "Share measured GET_FLOAT_ARG*GAME_SPEED direct integer-assignment policy for makeinv and lifespan; remove inserted binary32 store and exact-decimal Fraction multiplication.",
+  "measured_example": {
+    "source": "1.005",
+    "old_makeinv": 201,
+    "pinned_c_makeinv": 200,
+    "new_makeinv": 200
+  },
+  "source_model_float_fields": "Float stores remain binary32; this policy applies only to the tested direct integer tick assignments.",
+  "motu_lifecycle_b4li_sha256": "8abd0256fa3fc83682200082b6da78eb0013a84cd0b2961dc0dffbf22e27be8e",
+  "motu_lifecycle_table_unchanged": true,
+  "motu_birth_templates_unchanged": true,
+  "ctor_state_inputs": "out/byor-motu-ctor-state/report.json",
+  "native_ctor_state_bound": false,
+  "full_constructor_bound": false,
+  "palette_rendering_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

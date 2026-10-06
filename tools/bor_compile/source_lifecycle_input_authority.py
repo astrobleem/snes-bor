@@ -12,8 +12,11 @@ def main():
     default=re.search(r'^    newchar->priority = 1;',raw,re.M)[0];authority=default+'\n'+'\n'.join(bodies)
     rows=[]
     for n in names:
-        for v in (['0','1','-3'] if n in ('NOMOVE','PRIORITY') else ['0','4','0.009','-0.009','-2.5','1.999']):
+        for v in (['0','1','-3'] if n in ('NOMOVE','PRIORITY') else ['0','4','0.009','-0.009','-2.5','1.999','0.005','-0.005','1.005','-1.005','0.045','-0.045','0.145','-0.145','0.0050000001','1.00499999']):
             for flag in (0,1):rows.append(dict(directive=n.lower(),values=[v,str(flag)] if n in ('NOMOVE','MAKEINV') else [v],line=1))
+    from decimal import Decimal
+    for n in range(-400,401):
+        for flag in (0,1):rows.append(dict(directive='makeinv',values=[format(Decimal(n)/200,'f'),str(flag)],line=1))
     cases=',\n'.join('{'+str(names.index(r['directive'].upper()))+',"'+r['values'][0]+'","'+(r['values'][1] if len(r['values'])>1 else '0')+'"}' for r in rows)
     source=r'''#include <stdio.h>
 #include <string.h>
