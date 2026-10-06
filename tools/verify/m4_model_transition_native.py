@@ -212,7 +212,7 @@ TransitionFixture_NestedDone:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local nested_frame_zero='+str(a.nested_frame_zero).lower()+'\nlocal weapon_metadata='+str(a.weapon_metadata).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceAnimationCallback4086_','SourceFrameMotion4086_','SourceFrameEffectPlan4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_'))})+'\n'
+    lua='local nested_frame_zero='+str(a.nested_frame_zero).lower()+'\nlocal weapon_metadata='+str(a.weapon_metadata).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceAnimationCallback4086_','SourceFrameMotion4086_','SourceFrameEffectPlan4086_','SourceSelf4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local failure_before={};local trace={};local ctx=0;local cpu={};local start=0;local services={};local faults=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -251,6 +251,7 @@ emu.addMemoryCallback(function()
  set('SourceAnimationInit','Ready',0xb4ec);set('SourceAnimationInit','State',0);set('SourceAnimationInit','Base',0x8000);set('SourceAnimationInit','Bank',59);set('SourceAnimationInit','Bytes',AIBYTES);set('SourceAnimationInit','Issued',0)
  set('SourceUpdateFrame','Ready',0xb4e3);set('SourceUpdateFrame','State',0);set('SourceUpdateFrame','Pending',0);set('SourceUpdateFrame','Base',0x8000);set('SourceUpdateFrame','Bank',60);set('SourceUpdateFrame','Bytes',FEBYTES);set('SourceUpdateFrame','Animations',4)
  set('SourceFrameStack','Ready',0);set('SourceWorldTick','Ready',0);set('SourceFrameEffectPlan','Ready',0)
+ set('SourceSelf','Ready',0)
  if nested_frame_zero then
   set('SourceFrameStack','Ready',0xb4ed);set('SourceFrameStack','Depth',c.nested_depth or 0);set('SourceFrameStack','Fault',0)
   set('SourceUpdateFrame','State',1);set('SourceUpdateFrame','Pending',2);set('SourceUpdateFrame','Slot',c.slot);set('SourceUpdateFrame','Request',3)

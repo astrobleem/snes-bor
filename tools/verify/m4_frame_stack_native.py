@@ -13,7 +13,7 @@ REQUEST,INDEX,ERROR,MODE=0x7ffd80,0x7ffd82,0x7ffd84,0x7ffd86
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--self-context',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     rows=[dict(mode=mode,depth=d,seed=seed,bad='',fault=0) for mode in (0,1) for d in (range(8) if mode==0 else range(1,9)) for seed in (0,17,131,255)]
     for seed in (0,17,131,255):
@@ -22,6 +22,11 @@ def main():
     for mode in (0,1):
         for bad in ('ready','sticky','depth','busy','active','running','yielded','vmfault','callback','callback_fault','frame_ready','frame_state','frame_pending','motion','init','model','transition','effect_plan'):
             rows.append(dict(mode=mode,depth=1 if mode else 0,seed=31,bad=bad,fault=1))
+    if a.self_context:
+        for mode in (0,1):
+            for bad in ('self_ready','self_fault','self_active','self_alias'):
+                rows.append(dict(mode=mode,depth=1 if mode else 0,seed=31,bad=bad,fault=1))
+        rows.append(dict(mode=1,depth=1,seed=31,bad='self_saved',fault=1))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];raw=bytearray(a.rom.read_bytes());first=39*32768
     if raw[first:first+32768]!=bytes(32768) or raw[0x7fd8]!=8:raise ValueError('FRAME_STACK_PROOF_RESERVATION')
     asm='''.snes
@@ -120,22 +125,24 @@ FrameStackFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceModelTransition4086_','SourceFrameEffectPlan4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_'))})+'\n'
+    lua='local self_context='+str(a.self_context).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceModelTransition4086_','SourceFrameEffectPlan4086_','SourceSelf4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local start=0;local ctx=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
 local function put(a,v)emu.write(a,v&255,mt);emu.write(a+1,(v>>8)&255,mt)end
 local function set(k,v)put(sy['SourceFrameStack4086_'..k],v)end
-local ranges={{0x7ffb50,512},{0x40efc0,64},{0x40f000,4096},{0x414000,10240},{0x43c000,8192}}
+local ranges={{0x7ffb50,528},{0x40efc0,64},{0x40f000,4096},{0x414000,10240},{0x43c000,8192},{0x43fcc0,64},{0x43fd00,128},{0x43fd80,64}}
+if self_context then ranges[#ranges+1]={0x7ffe38,4}end
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
  for _,r in ipairs(ranges)do
-  if not(c.chain==1 and c.step>0 and r[1]==0x40f000)then
+  if not(c.chain==1 and c.step>0 and (r[1]==0x40f000 or r[1]==0x43fd00))then
    for i=0,r[2]-1 do emu.write(r[1]+i,(i*37+c.seed)&255,mt)end
   end
  end
  set('Ready',0xb4ed);if c.chain~=1 or c.step==0 then set('Depth',c.depth)end
  set('Fault',0);put(MODE,c.mode);put(EXPECTFAULT,c.fault)
+ put(sy.SourceSelf4086_Ready,0)
  put(sy.SourceVMRun4086_Busy,0);put(sy.VmSourceCallback_Active,0);put(sy.VmState_Status,4)
  put(sy.SourceAnimationCallback4086_Ready,0xb4e6);put(sy.SourceAnimationCallback4086_State,3)
  put(sy.SourceUpdateFrame4086_Ready,0xb4e3);put(sy.SourceUpdateFrame4086_State,c.mode==0 and 1 or 2);put(sy.SourceUpdateFrame4086_Pending,c.mode==0 and 2 or 0)
@@ -144,6 +151,15 @@ emu.addMemoryCallback(function()
  put(sy.SourceModelAnimation4086_Ready,0xb4ef);put(sy.SourceModelAnimation4086_State,c.mode==0 and 1 or 2)
  put(sy.SourceModelTransition4086_Ready,0xb4f0);put(sy.SourceModelTransition4086_State,c.mode==0 and 1 or 2);put(sy.SourceModelTransition4086_Service,c.mode==0 and 4 or 0);put(sy.SourceModelTransition4086_Acknowledged,0)
  put(sy.SourceFrameEffectPlan4086_Ready,0xb4f2);put(sy.SourceFrameEffectPlan4086_State,c.mode==0 and 1 or 2);put(sy.SourceFrameEffectPlan4086_Service,c.mode==0 and 3 or 0);put(sy.SourceFrameEffectPlan4086_Acknowledged,0)
+ if self_context then
+  local alias=({0,0x4050,0x67b0})[c.depth%3+1];local row=0x40f000+512*(c.depth-1);local tail=0x43fd00+16*(c.depth-1)
+  put(sy.SourceSelf4086_Ready,0xb4f6);put(sy.SourceSelf4086_OldLow,c.seed%2==0 and 0 or 0x4000);put(sy.SourceSelf4086_Active,c.mode==0 and 1 or 0);put(sy.SourceSelf4086_Fault,0)
+  put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_PoolBase,0x4000);put(sy.VmSourceWorld_Count,128)
+  if c.mode==1 then
+   if c.chain~=1 then put(row+0x1ca,0x4000);put(row+0x1cc,1);put(row+0x1ce,0);put(tail+14,alias)else alias=word(tail+14)end
+  end
+  put(sy.SourceSelf4086_GlobalLow,alias);put(sy.SourceSelf4086_GlobalHigh,alias==0 and 0 or 0x41)
+ end
  if c.bad=='ready'then set('Ready',0)
  elseif c.bad=='sticky'then set('Fault',1)
  elseif c.bad=='depth'then set('Depth',c.mode==0 and 8 or 0)
@@ -162,7 +178,12 @@ emu.addMemoryCallback(function()
  elseif c.bad=='init'then put(sy.SourceAnimationInit4086_State,3)
  elseif c.bad=='model'then put(sy.SourceModelAnimation4086_State,3)
  elseif c.bad=='transition'then put(sy.SourceModelTransition4086_State,3)
- elseif c.bad=='effect_plan'then put(sy.SourceFrameEffectPlan4086_State,3)end
+ elseif c.bad=='effect_plan'then put(sy.SourceFrameEffectPlan4086_State,3)
+ elseif c.bad=='self_ready'then put(sy.SourceSelf4086_Ready,1)
+ elseif c.bad=='self_fault'then put(sy.SourceSelf4086_Fault,1)
+ elseif c.bad=='self_active'then put(sy.SourceSelf4086_Active,c.mode==0 and 0 or 1)
+ elseif c.bad=='self_alias'then put(sy.SourceSelf4086_GlobalHigh,0x42)
+ elseif c.bad=='self_saved'then put(0x40f000+512*(c.depth-1)+0x1ca,0x4002)end
  before={};for _,r in ipairs(ranges)do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 local function capture()
@@ -180,10 +201,20 @@ emu.addMemoryCallback(function()
  local function expect(a,v)before[a]=v&255;before[a+1]=(v>>8)&255 end
  if c.fault==0 then
   local row=0x40f000+512*(c.mode==0 and c.depth or c.depth-1)
+  local tail=0x43fd00+16*(c.mode==0 and c.depth or c.depth-1)
   if c.mode==0 then
+   if self_context then
+    expect(sy.SourceSelf4086_SuspendLow,word(sy.SourceSelf4086_GlobalLow))
+   end
    for i=0,511 do before[row+i]=before[0x7ffb50+i]end
+   for i=0,15 do before[tail+i]=before[0x7ffd50+i]end
    for _,k in ipairs({'SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceFrameMotion4086_Status','SourceAnimationCallback4086_State','SourceAnimationInit4086_State','SourceAnimationInit4086_Issued','SourceModelAnimation4086_State','SourceModelTransition4086_State','SourceModelTransition4086_Service','SourceModelTransition4086_Acknowledged','SourceFrameEffectPlan4086_State','SourceFrameEffectPlan4086_Service','SourceFrameEffectPlan4086_Acknowledged'})do expect(sy[k],0)end
-  else for i=0,511 do before[0x7ffb50+i]=before[row+i]end end
+   if self_context then expect(sy.SourceSelf4086_Active,0);expect(sy.SourceSelf4086_Fault,0)end
+  else
+   for i=0,511 do before[0x7ffb50+i]=before[row+i]end
+   for i=0,15 do before[0x7ffd50+i]=before[tail+i]end
+  end
+ elseif string.sub(c.bad,1,5)=='self_' then expect(sy.SourceSelf4086_Fault,1)
  end
  local mismatch=0;for addr,v in pairs(before)do if emu.read(addr,mt)~=v then mismatch=mismatch+1 end end
  emu.log('FRAMESTACKRESULT|'..word(INDEX)..'|'..word(sy.SourceFrameStack4086_Depth)..'|'..word(sy.SourceFrameStack4086_Fault)..'|'..mismatch..'|'..ctx)
@@ -192,6 +223,7 @@ emu.addMemoryCallback(function()
  emu.log('FRAMESTACKIDLE|'..word(INDEX)..'|'..(emu.getState()['cpu.ps']&1))
  -- Isolate direct stack guard from frame/init owners already byte-verified.
  put(sy.SourceUpdateFrame4086_Ready,0);put(sy.SourceAnimationInit4086_Ready,0);put(sy.SourceModelAnimation4086_Ready,0);put(sy.SourceWorldTick4086_Ready,0);put(sy.SourceModelTransition4086_Ready,0);put(sy.SourceFrameEffectPlan4086_Ready,0)
+ put(sy.SourceSelf4086_Ready,0)
  put(sy.SourceClock4086_Ready,0xb4c5);put(sy.SourceClock4086_Due,1);put(sy.SourceClock4086_TimeLo,48);put(sy.SourceClock4086_TimeHi,0);put(sy.SourceClock4086_Fault,0)
 end,emu.callbackType.exec,IDLERESULT,IDLERESULT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()emu.log('FRAMESTACKCLOCK|'..word(INDEX)..'|'..word(sy.SourceClock4086_Due)..'|'..word(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Fault))end,emu.callbackType.exec,CLOCKRESULT,CLOCKRESULT,emu.cpuType.snes,mt)
@@ -227,8 +259,8 @@ emu.addMemoryCallback(function()emu.log('FRAMESTACKCLOCK|'..word(INDEX)..'|'..wo
     reporter.check('outstanding stack or sticky fault blocks idle',len(idle)==len(rows) and all(r==[i,int(c['bad']!='ready' and (wanted(c)!=0 or c['fault']))] for i,(r,c) in enumerate(zip(idle,rows))))
     reporter.check('direct clock cannot commit outstanding frame continuations',len(clocks)==len(rows) and all(r==[i,1,48,1] if c['bad']!='ready' and (wanted(c)!=0 or c['fault']) else r==[i,0,49,0] for i,(r,c) in enumerate(zip(clocks,rows))))
     report=dict(schema='BYOR_4086_FRAME_EFFECT_STACK_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),results=results,cpu_costs=costs,idle_results=idle,clock_results=clocks,
-        stack_range='40F000..40FFFF',snapshot_range='7FFB50..7FFD5F',maximum_depth=8,bytes_per_snapshot=512,row_stride=512,lifo_chains=4,lifo_chain_cases=64,
-        child_services_instrumented=True,recursive_interpreter_bound=False,weapon_frame_execution_bound=False,live_presentation_contention_proven=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+        stack_range='40F000..40FFFF',tail_range='43FD00..43FD7F',snapshot_range='7FFB50..7FFD5F',maximum_depth=8,bytes_per_snapshot=528,row_stride=512,tail_stride=16,lifo_chains=4,lifo_chain_cases=64,
+        native_nested_self_context_proven=a.self_context,child_services_instrumented=True,recursive_interpreter_bound=False,weapon_frame_execution_bound=False,live_presentation_contention_proven=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

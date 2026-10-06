@@ -130,7 +130,7 @@ EffectPlanFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffectPlan4086_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','SourceFrameMotion4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceModelTransition4086_','VmState_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffectPlan4086_','SourceUpdateFrame4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','SourceFrameMotion4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceModelTransition4086_','VmState_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local ctx=0;local start=0;local faults=0;local trace={}
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -143,6 +143,7 @@ emu.addMemoryCallback(function()
  set('PairedCrcLo',PAIR&65535);set('PairedCrcHi',(PAIR>>16)&65535);set('BodyCrcLo',BODY&65535);set('BodyCrcHi',(BODY>>16)&65535)
  put(sy.SourceUpdateFrame4086_Ready,0xb4e3);put(sy.SourceUpdateFrame4086_State,1);put(sy.SourceUpdateFrame4086_Pending,2);put(sy.SourceUpdateFrame4086_Slot,c.slot);put(sy.SourceUpdateFrame4086_Handle,c.handle);put(sy.SourceUpdateFrame4086_Request,c.frame);put(sy.SourceUpdateFrame4086_Count,c.count);put(sy.SourceUpdateFrame4086_Animations,ANIMATIONS)
  put(sy.SourceFrameMotion4086_Ready,0);put(sy.SourceFrameStack4086_Ready,0);put(sy.SourceWorldTick4086_Ready,0);put(sy.SourceAnimationInit4086_Ready,0);put(sy.SourceModelAnimation4086_Ready,0);put(sy.SourceModelTransition4086_Ready,0);put(sy.VmState_Status,4)
+ put(sy.SourceSelf4086_Ready,0)
  put(sy.SourceClock4086_Ready,0xb4c5);put(sy.SourceClock4086_Due,1);put(sy.SourceClock4086_TimeLo,48);put(sy.SourceClock4086_TimeHi,0);put(sy.SourceClock4086_Fault,0);put(EXPECTFAULT,c.fault)
  put(SKIP,c.bad=='unissued' and 1 or 0)
  if c.bad=='ready'then set('Ready',0)

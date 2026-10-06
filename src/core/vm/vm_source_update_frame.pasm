@@ -162,6 +162,12 @@ SourceUpdateFrame4086_Branch_7:
 SourceUpdateFrame4086_PlanIdle:
 .a16
 .i16
+    jsl SourceSelf4086_CheckIdle
+    bcc SourceUpdateFrame4086_SelfIdle
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_SelfIdle:
+.a16
+.i16
     lda.l VmState_Status
     and #$00FF
     cmp #VMSTAT_RUNNING
@@ -577,6 +583,12 @@ SourceUpdateFrame4086_Branch_52:
 SourceUpdateFrame4086_PlanFresh:
 .a16
 .i16
+    jsl SourceSelf4086_Enter
+    bcc SourceUpdateFrame4086_SelfEntered
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_SelfEntered:
+.a16
+.i16
     lda.l SourceUpdateFrame4086_Side
     tax
     lda.l SourceUpdateFrame4086_Request
@@ -745,6 +757,12 @@ SourceUpdateFrame4086_Branch_66:
     lda #2
     jmp SourceUpdateFrame4086_Issue
 SourceUpdateFrame4086_Complete:
+.a16
+.i16
+    jsl SourceSelf4086_Leave
+    bcc SourceUpdateFrame4086_SelfRestored
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_SelfRestored:
 .a16
 .i16
     lda #0

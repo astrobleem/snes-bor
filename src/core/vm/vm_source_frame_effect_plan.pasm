@@ -2,7 +2,7 @@
 ; Handlers must perform each operation/predicate before Ack. This cursor does
 ; not implicitly execute dynamic quake, child, dust or projectile services.
 ; B4F2 installer validates B4EP/B4FE CRCs and canonical opcode directories.
-; $7FFD40..$7FFD5F completes the frame stack's 512-byte snapshot.
+; $7FFD40..$7FFD5F completes the frame stack's 528-byte snapshot.
 SourceFrameEffectPlan4086_Ready = $7FFD40
 SourceFrameEffectPlan4086_State = $7FFD42
 SourceFrameEffectPlan4086_Service = $7FFD44

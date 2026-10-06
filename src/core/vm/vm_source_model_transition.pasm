@@ -5,7 +5,7 @@
 ; scripts, weapon metadata, animation parameters); 3/6 apply colourmap; 4
 ; completes nested frame-zero initialization; 5 copies scripts/factors; 7 runs
 ; onmodelcopy and releases its snapshot. Even a no-op service needs explicit Ack.
-; Included in the frame stack's $7FFB50..$7FFD3F continuation snapshot.
+; Included in the frame stack's $7FFB50..$7FFD5F continuation snapshot.
 SourceModelTransition4086_Ready = $7FFD00
 SourceModelTransition4086_State = $7FFD02
 SourceModelTransition4086_Service = $7FFD04

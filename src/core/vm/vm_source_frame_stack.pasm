@@ -2,14 +2,16 @@
 ; Push is permitted only after a parent's animation scripts completed, while
 ; its remaining effects are pending. Child frame/scripts/effects must finish
 ; before Pop. Live entity mutations and shared cached model data are retained.
-; B4ED exclusive lease: eight 512-byte rows at $40F000..$40FFFF.
-; Snapshot $7FFB50..$7FFD5F (512 bytes) includes frame/motion/callback/model
-; initialization and effect-plan owners. Stack controls follow outside snapshot.
+; B4ED exclusive lease: eight 512-byte rows at $40F000..$40FFFF plus
+; eight 16-byte tails at $43FD00..$43FD7F. Snapshot $7FFB50..$7FFD5F is
+; 528 bytes: main portion ends $7FFD4F; tails save $7FFD50..$7FFD5F.
+; Stack controls follow outside the snapshot.
 SourceFrameStack4086_Ready = $7FFD60
 SourceFrameStack4086_Depth = $7FFD62
 SourceFrameStack4086_Fault = $7FFD64
 SourceFrameStack4086_Row = $7FFD66
 SourceFrameStack4086_Status = $7FFD68
+SourceFrameStack4086_TailRow = $7FFD6A
 
 SourceFrameStack4086_CheckIdle:
 .a16
@@ -162,12 +164,23 @@ SourceFrameStack4086_PushEffectPlanLease:
 SourceFrameStack4086_PushEffectPlanDone:
 .a16
 .i16
+    jsl SourceSelf4086_Suspend
+    bcc SourceFrameStack4086_PushSelfDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushSelfDone:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     jsr SourceFrameStack4086_RowOffset
     tay
     ldx #$FB50
     lda #511
     mvn $40,$7F
+    lda.l SourceFrameStack4086_TailRow
+    tay
+    ldx #$FD50
+    lda #15
+    mvn $43,$7F
     lda.l SourceFrameStack4086_Depth
     inc a
     sta.l SourceFrameStack4086_Depth
@@ -185,6 +198,14 @@ SourceFrameStack4086_PushEffectPlanDone:
     sta.l SourceFrameEffectPlan4086_State
     sta.l SourceFrameEffectPlan4086_Service
     sta.l SourceFrameEffectPlan4086_Acknowledged
+    lda.l SourceSelf4086_Ready
+    beq SourceFrameStack4086_ChildSelfReady
+    lda #0
+    sta.l SourceSelf4086_Active
+    sta.l SourceSelf4086_Fault
+SourceFrameStack4086_ChildSelfReady:
+.a16
+.i16
     jmp SourceFrameStack4086_Good
 
 SourceFrameStack4086_Pop:
@@ -261,9 +282,20 @@ SourceFrameStack4086_PopEffectPlanDone:
     dec a
     jsr SourceFrameStack4086_RowOffset
     tax
+    jsl SourceSelf4086_CheckResume
+    bcc SourceFrameStack4086_PopSelfDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PopSelfDone:
+.a16
+.i16
     ldy #$FB50
     lda #511
     mvn $7F,$40
+    lda.l SourceFrameStack4086_TailRow
+    tax
+    ldy #$FD50
+    lda #15
+    mvn $7F,$43
     lda.l SourceFrameStack4086_Depth
     dec a
     sta.l SourceFrameStack4086_Depth
@@ -295,11 +327,21 @@ SourceFrameStack4086_Bad:
 SourceFrameStack4086_RowOffset:
 .a16
 .i16
+    pha
     xba
     asl a
     clc
     adc #$F000
     sta.l SourceFrameStack4086_Row
+    pla
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc #$FD00
+    sta.l SourceFrameStack4086_TailRow
+    lda.l SourceFrameStack4086_Row
     rts
 
 SourceFrameStack4086_CheckBoundary:

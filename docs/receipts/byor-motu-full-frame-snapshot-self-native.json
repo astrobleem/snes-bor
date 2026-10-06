@@ -1,0 +1,74 @@
+{
+  "schema": "BYOR_M4_FULL_FRAME_SNAPSHOT_SELF_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-frame-stack-full-528-native/report.json",
+      "sha256": "1de95431aeda4877facbcbdd0ede83cb2582f9a35194a8b4df29e4e5f4b11719",
+      "cases": 164,
+      "native_rom_sha256": "c1e431714ccc92ee0cd4d35725bb27dd3dc481bcd7a563b4367600d017b337a8"
+    },
+    {
+      "path": "out/byor-motu-frame-stack-self-528-native/report.json",
+      "sha256": "436dd8678143b0c22550eb67280334ea9351ed59edc6f88c672311c0bd734129",
+      "cases": 173,
+      "native_rom_sha256": "7b2ba70756c7fe7deaf51f6c86439a69644f32e8d8056108dd50650efd5f500b"
+    },
+    {
+      "path": "out/byor-motu-self-native/report.json",
+      "sha256": "2f25804b28fdd86f28bb80ec6f4011542b0925f75e3a41910d2ccfbaa8f7dfe9",
+      "cases": 75,
+      "native_rom_sha256": "0c8162765548e1a6da60c9cfbb2556a6d76868d08069521867fbe044113d9854"
+    },
+    {
+      "path": "out/byor-motu-model-transition-self-528-native/report.json",
+      "sha256": "94cf561ccc245060debadde92d656a3d95070ea5a0f84e43bdd03108e427423a",
+      "cases": 179,
+      "native_rom_sha256": "824046328727d497935744909e6904616df6d871b5cec3ece39b332bd1ae5502"
+    },
+    {
+      "path": "out/byor-motu-frame-effect-plan-self-native/report.json",
+      "sha256": "ad24097ab4031dc14a3df9c43dc444ba122a38556c001e4b289ae8fc8ba11b08",
+      "cases": 856,
+      "native_rom_sha256": "f1846483f9db4d2b9e4e354dc3467aa2f1e838c2c68992d90bda230468daafb4"
+    }
+  ],
+  "production_rom_sha256": "87f24583a43d984cb4bb8a12ae2eef1af6292bff564fc2bf4da801e73d74b535",
+  "coverage_correction": {
+    "prior_commit": "cb08b1d",
+    "prior_receipt": "docs/receipts/byor-motu-frame-effect-plan-native.json",
+    "prior_receipt_sha256": "8313762aef45ec2b01bdbd484f9570d5825bea6021190c42ba7fffe5996437be",
+    "prior_claimed_range": "7FFB50..7FFD5F",
+    "prior_actual_covered_range": "7FFB50..7FFD4F",
+    "prior_actual_bytes": 512,
+    "required_bytes": 528,
+    "missing_range": "7FFD50..7FFD5F",
+    "prior_full_range_claim_valid": false,
+    "fix": "Eight main 512-byte rows plus eight separate 16-byte tails. Observer checks every byte of both regions and tail guards through all eight depths."
+  },
+  "stack_main_lease": "40F000..40FFFF",
+  "stack_tail_lease": "43FD00..43FD7F",
+  "snapshot_bytes": 528,
+  "snapshot_storage_bytes": 4224,
+  "engine_global_self": {
+    "ready": "B4F6",
+    "ticket": "7FFD1A..7FFD1F",
+    "suspended_pointer_low": "7FFD5E",
+    "pointer": "7FFE38..7FFE3B",
+    "admitted_domain": "NULL or aligned physical source entity token in 414000 pool",
+    "script_local_self_distinct": true,
+    "terminal_restore_effect_bound": true,
+    "snapshot_global_alias_checked": true
+  },
+  "proof": "Full 528-byte snapshot preservation and guarded engine-global self ownership. Global self may be temporarily another entity or NULL during suspended source services; exact alias is saved in the tail and verified before Pop. Source globals restore independently from script-local variants. Invalid tokens/stale restore tickets fault; admitted pending/faulty self blocks clock. Child frame bodies/completion remain instrumented in stack proof; foreign gameplay not admitted.",
+  "full_native_frame_effect_dispatch_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

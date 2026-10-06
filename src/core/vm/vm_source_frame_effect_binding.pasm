@@ -1,4 +1,4 @@
-; Weapon/idle operation continuation, captured in the existing 512-byte frame
+; Weapon/idle operation continuation, captured in the complete frame
 ; snapshot. Begin resolves source policy and starts the native model/animation
 ; owners. Finish requires their matching completed ticket before cursor Ack.
 ; The caller still must bind all model transition services and nested frame 0.

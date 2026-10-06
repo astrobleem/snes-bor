@@ -420,6 +420,8 @@ SourceClock4086_Commit__retire:
     bcs SourceClock4086_Commit__bad
     jsl SourceFrameEffectPlan4086_CheckIdle
     bcs SourceClock4086_Commit__bad
+    jsl SourceSelf4086_CheckIdle
+    bcs SourceClock4086_Commit__bad
     lda.l SourceClock4086_Due
     dec a
     sta.l SourceClock4086_Due
