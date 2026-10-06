@@ -1210,3 +1210,26 @@ remain unimplemented. Receipt: `byor-motu-playerkeys-native.json`.
 The full assembly audit passes, with zero new width violations and two bytes
 free before bank-zero NMI. This API introduces no static-model presentation
 path changes.
+
+### Native physical-controller bridge
+
+Both physical controller ports pass all twelve target bindings for held,
+pressed and released source masks across 180 native refreshes. All snapshots
+match independently calculated masks from the exact JOY words consumed by
+the native loads. Unsupported port counts zero and three preserve the lease
+unchanged. The target binding uses the existing Y/B attack/attack2, A jump
+and X special layout; L/R add attack3/4 and Select escape. Screenshot has no
+physical button binding. This is a control adaptation, not the BOR keyboard
+configuration. The pinned engine refreshes edge masks before its logical
+catch-up loop and retains them through those ticks.
+
+The production bridge is a banked, explicitly called owner helper. The private
+observer fixture invokes it from the unconditional NMI timer hook after real
+original-BOR bootstrap, including busy visual fields; its timestamps count
+physical fields, not world ticks. Its peak refresh cost is 10,630 master
+clocks including waiting for the hardware latch. The intended live owner
+must call it outside NMI. No live MOTU world admission is claimed. Direct Lua
+MMIO peeks misrepresented JOY2 values; this observer reads the exact native
+captured words instead. Receipt: `byor-motu-input-controller-native.json`.
+Bank zero remains two bytes free; the shared static presentation path is
+unchanged. No color reduction is applied.

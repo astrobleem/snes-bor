@@ -74,8 +74,11 @@ The generic typed `playerkeys` API returns the pinned BOR key-mask values for
 three-argument calls over an immutable, explicitly owned source-tick snapshot.
 Native tests cover held, new and released keys, all fourteen source selectors,
 dynamic strings and invalid ownership/index rejection. Q16.16 to integer
-conversion remains an explicit adaptation. A live controller mapping and MOTU
-input owner are separate, unfinished capabilities.
+conversion remains an explicit adaptation. The native controller bridge now
+publishes exact held/new/released masks from both physical SNES ports, with
+Y/B attack/attack2, A jump, X special, L/R attack3/4 and Select escape as an
+explicit target binding. Its outer refresh retains edges across catch-up ticks.
+The live MOTU input/world owner remains unfinished.
 
 From the repository root, with Python 3.10 and the existing build dependencies:
 

@@ -1,0 +1,67 @@
+{
+  "schema": "BYOR_SOURCE_CONTROLLER_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "f4f4ff53c3c239e13691fbc1c22cdeb15c80edc4832f15c98580ee67a0226649",
+  "control_binding": [
+    [
+      16384,
+      "attack"
+    ],
+    [
+      32768,
+      "attack2"
+    ],
+    [
+      128,
+      "jump"
+    ],
+    [
+      64,
+      "special"
+    ],
+    [
+      32,
+      "attack3"
+    ],
+    [
+      16,
+      "attack4"
+    ],
+    [
+      8192,
+      "esc"
+    ],
+    [
+      4096,
+      "start"
+    ],
+    [
+      2048,
+      "moveup"
+    ],
+    [
+      1024,
+      "movedown"
+    ],
+    [
+      512,
+      "moveleft"
+    ],
+    [
+      256,
+      "moveright"
+    ]
+  ],
+  "peak_refresh_master_clocks": 10630,
+  "scope": "Real physical controller latches and native outer-refresh snapshots after original BOR bootstrap. Field-counter timestamps are fixture data, not a 200-Hz live MOTU world.",
+  "bank0_growth": 0,
+  "evidence": "out/byor-motu-input-controller-final-native/report.json",
+  "observed_refreshes": 180,
+  "authority": "af23dc9c:engine/openbor.c inputrefresh/update; masks in tools/bor_compile/authority/4086_playerkeys.json",
+  "unsupported_port_counts": [
+    0,
+    3
+  ],
+  "source_edge_scope": "Retained until the next outer input refresh, including all logical catch-up ticks",
+  "width_audit": "out/byor-motu-input-controller-audit.log: ALL CHECKS PASS, zero new violations"
+}
