@@ -1,0 +1,135 @@
+{
+  "schema": "BYOR_M4_NATIVE_ANIMATION_CALLBACK_OWNER_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "reports": [
+    {
+      "path": "out/byor-motu-callback-owner-native/report.json",
+      "sha256": "a950192d210605e0f78d2b35832780f5eaa743f9acc4934125fc7ae480654c0f"
+    },
+    {
+      "path": "out/byor-motu-callback-fast-regression/report.json",
+      "sha256": "ff49724e12953318a76276cc725ba053dfd39b9dc825d94379e69ac31e751fa1"
+    }
+  ],
+  "native_rom_sha256": "dabc041f35291569f055935fecdb2e97e896fa1dfd092fa9fc9ed9951e11ff84",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "model_descriptors": 16,
+  "authored_programs": 7,
+  "callback_cases": 8,
+  "callback_cpu_costs": [
+    [
+      0,
+      242580,
+      507,
+      507
+    ],
+    [
+      1,
+      104948,
+      507,
+      508
+    ],
+    [
+      2,
+      242580,
+      508,
+      508
+    ],
+    [
+      3,
+      960676,
+      508,
+      511
+    ],
+    [
+      4,
+      944676,
+      511,
+      514
+    ],
+    [
+      5,
+      784392,
+      514,
+      516
+    ],
+    [
+      6,
+      925468,
+      516,
+      519
+    ],
+    [
+      7,
+      683318,
+      519,
+      520
+    ]
+  ],
+  "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",
+  "initializer_copy_checks": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0
+    ],
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      4,
+      0,
+      1
+    ],
+    [
+      5,
+      0,
+      1
+    ],
+    [
+      6,
+      0,
+      1
+    ],
+    [
+      7,
+      0,
+      1
+    ]
+  ],
+  "boundary": "Install once for captured current/default programs, test fresh default eligibility, clear four named values once at completion or fault.",
+  "optimization": "Single preflight namespace/capacity scan; checked cached row ownership/names at END; empty checked routes skip temporary initialization; bounded MVN initializes nonempty program slots.",
+  "authored_case": "He_ManB freespecial4 frame 4 spawns source HBreath at facing-dependent x=62/98, z=220, a=93 at time=48.",
+  "scope": "Exclusive source world after ordinary original BOR startup; frame sound/effect service instrumented.",
+  "fixed_installed_namespace_capability": "Generic compiler rejects callbacks whose writes may replace installed self/frame/animnum/animhandle; unrelated pointer-suffixed keys remain supported.",
+  "callback_owner_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "remaining_frame_effects_bound": false,
+  "nested_engine_actions_bound": false,
+  "player_initialization_bound": false,
+  "motu_gameplay_proven": false,
+  "full_demo_completion_proven": false,
+  "limitations": [
+    "Nonrecursive callback ownership only; nested engine-action semantics still require continuations.",
+    "Birth callback remains expensive in the measured SCPU fixture; production scheduling and live presentation remain unproven.",
+    "Original BOR startup is bootstrap evidence, not MOTU boot/selector evidence."
+  ],
+  "unrelated_protected_files_unchanged": 17,
+  "rom_audit": "ALL CHECKS PASS"
+}
