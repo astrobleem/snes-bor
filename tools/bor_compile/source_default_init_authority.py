@@ -38,7 +38,7 @@ def reference(c):
         if s==Service.SET_ANIMATION:e['animation']=arg
         elif s==Service.SET_IDLE:e['animation']='idle'
         elif s==Service.RANDOM_FLOAT:reply=0.125
-        elif s==Service.IN_AIR:reply=e['a']!=e['base']
+        elif s==Service.IN_AIR:reply=abs(e['a']-e['base'])>=0.1
         elif s==Service.WALK_ANIMATION:e['animation']='walk'
         elif s==Service.PLATFORM_BELOW:reply=dict(a=5,platform_height=7) if c['environment']==1 else None
         elif s==Service.WALL_BELOW:reply=-1 if c['environment']==4 else 1 if c['environment']==3 else 0
@@ -95,7 +95,7 @@ int validanim(entity *e,int id){return !!(mask&(1<<id));}
 void ent_set_anim(entity *e,int id,int reset){event(1,id);e->animation=&anim;e->animid=id;mutate(e,1,id);}
 void set_idle(entity *e){event(2,0);e->animation=&anim;e->animid=0;mutate(e,2,0);}
 float randf(float maximum){event(3,(int)maximum);return .125f;}
-int inair(entity *e){event(4,0);return e->position.y!=e->base;}
+int inair(entity *e){float delta=e->position.y<e->base?e->base-e->position.y:e->position.y-e->base;event(4,0);return delta>=0.1;}
 void common_walk_anim(entity *e){event(5,0);e->animation=&anim;e->animid=5;mutate(e,5,0);}
 entity *check_platform_below(float x,float z,float y,entity *e){event(6,0);return environment==1?&platform:NULL;}
 int checkwall_below(float x,float z,float y){event(7,(int)y);return environment==4?-1:environment==3?1:0;}

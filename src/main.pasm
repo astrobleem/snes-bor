@@ -13647,6 +13647,8 @@ SourceVM_InstructionReservation:
 
 .include "core/vm/vm_source_default_player.pasm"
 .include "core/vm/vm_source_default_enemy.pasm"
+.include "core/vm/vm_source_random_float.pasm"
+.include "core/vm/vm_source_air.pasm"
 
 .include "core/vm/vm_source_empty_init_environment.pasm"
 

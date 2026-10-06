@@ -12,7 +12,8 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8):
+    if batch_size not in (1,2,4,8,16,32,64):raise ValueError('LEAF_BATCH_SIZE')
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
     asm='''.snes
@@ -82,6 +83,7 @@ LeafFixture_Return:
  phy
  jml RESUME
 '''
+    asm=asm.replace(' and #7',' and #'+str(batch_size-1))
     if finish:
         asm=asm.replace(' jsl APPLY',' lda.l MODE\n beq LeafFixture_Begin\n jsl SECONDARY\n bra LeafFixture_After\nLeafFixture_Begin:\n.a16\n.i16\n jsl APPLY')
     if post:

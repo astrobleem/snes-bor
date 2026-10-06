@@ -1,0 +1,93 @@
+{
+  "schema": "BYOR_M4_DROP_NUMERIC_SERVICES_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "services_c": {
+      "path": "out/byor-motu-drop-services-authority/report.json",
+      "sha256": "b0fcd7e1bd0649649c7b1f292e746907e117e3692ae166e53d34c2243cf9b352",
+      "cases": 10000
+    },
+    "default_init_c_air_correction": {
+      "path": "out/byor-motu-default-init-air-correction-authority/report.json",
+      "sha256": "3cfb03656ef7a6741711b7e3d43f48291d27180687586687e1d8860e497aa57f",
+      "cases": 3167
+    },
+    "randf_native": {
+      "path": "out/byor-motu-random-float-native/report.json",
+      "sha256": "019ee703f8816600c6f9421f81917e05ce3c136a225509db80c0faddb03bab88",
+      "cases": 10023
+    },
+    "inair_native": {
+      "path": "out/byor-motu-inair-native/report.json",
+      "sha256": "2b8548b5c49f9c3074e3a8553b32fe3e71acdeb74ad3c82a0caf277c018104b9",
+      "cases": 191
+    },
+    "fractional_limit_c": {
+      "path": "out/byor-motu-randf-fractional-authority/report.json",
+      "sha256": "8ed1aaad41c8ca33529ed2fb7e23e1516579a781343175d929e5d102642c2c31",
+      "cases": 10000
+    },
+    "fractional_limit_native": {
+      "path": "out/byor-motu-random-float-fractional-native/report.json",
+      "sha256": "01479812784f6bf9835219708ad0f82d0b9ddb259fa58de2252af49d7fe7470d",
+      "cases": 128
+    }
+  },
+  "source_randf": "rand32 unsigned modulo10000, source binary32 division, then explicit Q16 projection",
+  "lookup_bytes": 30024,
+  "lookup_hash": "f335af57f676b4131cdaa627047c04e08f5cb754319d5a73727659ebe9ad2f3c",
+  "lookup_domain": "Constant nonnegative maximum less than256, finite nonzero divisor; current source randf40 certified",
+  "randf_source_rounding_retained": true,
+  "rational_truncation_mismatches_avoided": 520,
+  "source_inair": "diff of source binary32 y and base >= double literal0.1",
+  "native_inair": "Explicit ACCEPTED_COMPAT_Q16_16 absolute coordinate difference >=6554",
+  "arbitrary_binary32_inair_exact": false,
+  "measured_air_boundary_deviations": [
+    {
+      "y": 6553,
+      "base": 0,
+      "expected": 0,
+      "source_air": 1,
+      "source_case": 8
+    },
+    {
+      "y": -6553,
+      "base": 0,
+      "expected": 0,
+      "source_air": 1,
+      "source_case": 9
+    },
+    {
+      "y": 6553,
+      "base": 0,
+      "expected": 0,
+      "source_air": 1,
+      "source_case": 10
+    },
+    {
+      "y": -6553,
+      "base": 0,
+      "expected": 0,
+      "source_air": 1,
+      "source_case": 11
+    }
+  ],
+  "new_persistent_wram_fields": 0,
+  "bank0_code_changed": false,
+  "one_shared_rng_draw_and_order_bound": false,
+  "complete_drop_owner_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-drop-numeric-audit.log: ALL CHECKS PASS",
+  "generic_fractional_limit_table_producer": "Verbatim pinned C randf output bits; rounded-divisor shortcut rejects SOURCE_RANDF_C_TABLE_REQUIRED for inexact divisors",
+  "rejected_general_divisor_shortcut": {
+    "path": "out/byor-motu-randf-domain-probe/report.json",
+    "sha256": "f8297d020905201b7e058a8a4fcb6423a6265758e6e2c9df9efafb4877f8939c",
+    "mismatches": 1778,
+    "comparisons": 60000,
+    "status": "FAIL_RETAINED_AS_REJECTION_EVIDENCE"
+  }
+}
