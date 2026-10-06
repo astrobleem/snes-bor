@@ -337,6 +337,23 @@ Vm_SourceWorldSpawn__vertical:
 Vm_SourceWorldSpawn__publish:
 .a16
 .i16
+    lda.l SourceToss4086_Ready
+    cmp #$B4E2
+    bne Vm_SourceWorldSpawn__publish_alive
+    lda.l VmSourceWorld_SideOffset
+    lsr a
+    lsr a
+    lsr a
+    lsr a                         ; physical slot*4 in extended toss-time array
+    tax
+    lda #0
+    sta.l SOURCE_WORLD_TOSS_TIMES,x
+    sta.l SOURCE_WORLD_TOSS_TIMES+2,x
+Vm_SourceWorldSpawn__publish_alive:
+.a16
+.i16
+    lda.l VmSourceWorld_ViewOffset
+    tax
     lda #1
     sta.l SOURCE_WORLD_POOL+4,x     ; publish only after complete initialization
     lda.l SourceWorldTick4086_Ready

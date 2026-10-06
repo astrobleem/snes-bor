@@ -1,0 +1,51 @@
+{
+  "schema": "BYOR_M4_SOURCE_TOSS_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority_functions_sha256": "88bab936c8f8fc7ac56b6df5222b78960871bb40f2d98a318882a7c24e9e0ccf",
+  "authority_cases": 16,
+  "reports": [
+    {
+      "path": "out/byor-motu-toss-authority/report.json",
+      "sha256": "093afbb7720868ebcf071b9de211af58da3e0e024f882c38581c53f3e2ca95f8"
+    },
+    {
+      "path": "out/byor-motu-world-tick-toss-native/report.json",
+      "sha256": "496efa15017b4611db10ea48d7eac14aa8feffc02d46fae38878391045ee5db8"
+    },
+    {
+      "path": "out/byor-motu-toss-birth-native/report.json",
+      "sha256": "c7d4f107cb9f70ebda724c58fd1df0e0d131583de3ca231a9dcf1f1fd87a9884"
+    }
+  ],
+  "authored_leaper_rom_sha256": "024c9eb5df6bedb334d2ce1d2e666c301721db39ac6859c1908823e691fc7d7a",
+  "optional_arity_rom_sha256": "e46e31a9f850d7d63bcfb3b06e27c9ad29abde6db9d1f7a424cedaab5baad269",
+  "world_cases": 410,
+  "world_service_events": 8507,
+  "authored_leaper_callbacks": 758,
+  "authored_leaper_calls": 6822,
+  "native_vm_call_spans": 575322,
+  "cooperative_yields": 287661,
+  "context_faults": 0,
+  "birth_cases": 24,
+  "toss_cases": [
+    "toss_full",
+    "toss_zero",
+    "toss_one",
+    "toss_two",
+    "toss_three",
+    "toss_non_numeric",
+    "toss_range",
+    "toss_no_aux"
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_semantics": "Optional arguments default to decimal zero; nonnumeric arguments stay zero. Set horizontal velocities; nonzero lift sets vertical velocity, increments altitude by 0.5, and sets toss_time=time+1 modulo uint32. Return full INTEGER 1.",
+  "aux_ownership": "Explicit B4E2 lease; clear reused physical-slot toss_time before publishing birth; preserve adjacent slot.",
+  "rejection_policy": "Reject absent auxiliary lease and unrepresentable Q16.16 operands before motion writes.",
+  "gravity_bound": false,
+  "landing_bound": false,
+  "production_callback_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

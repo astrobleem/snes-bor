@@ -52,7 +52,20 @@ def main():
         'velocity_skip':('changeentityproperty(born,"velocity","invalid",2,NULL());',{40:131072}),
         'speed_skip':('changeentityproperty(born,"speed","invalid");',{}),
     }
+    toss_cases={
+        'toss_full':('tossentity(born,0.25,1.5,-0.75);',{36:98304,40:-49152,44:16384},32768,49),
+        'toss_zero':('changeentityproperty(born,"velocity",4,5,6);tossentity(born,0,1.5,-0.75);',
+                     {36:98304,40:-49152,44:393216},0,0),
+        'toss_one':('tossentity(born);',{36:0,40:0,44:0},0,0),
+        'toss_two':('tossentity(born,0.25);',{36:0,40:0,44:16384},32768,49),
+        'toss_three':('tossentity(born,0.25,1.5);',{36:98304,40:0,44:16384},32768,49),
+        'toss_non_numeric':('changeentityproperty(born,"velocity",4,5,6);tossentity(born,"invalid",1.5,NULL());',
+                            {36:98304,40:0,44:393216},0,0),
+        'toss_range':('tossentity(born,40000,1.5,-0.75);',{},0,0),
+        'toss_no_aux':('tossentity(born,0.25,1.5,-0.75);',{},0,0x11223344),
+    }
     cases.extend((n,'HBreath',None,'PTR') for n in motion_cases)
+    cases.extend((n,'HBreath',None,'PTR_FAULT' if n in ('toss_range','toss_no_aux') else 'PTR') for n in toss_cases)
     reporter=Reporter('M4-SOURCE-WORLD-BIRTH',kind='GATE');results=[]
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';registry='src/core/vm/vm_source_models.pasm'
     world='src/core/vm/vm_source_world_birth.pasm'
@@ -63,10 +76,10 @@ def main():
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('BIRTH_PLAYING_REQUIRED')
         run_frames_exact(m,12)
         for name,model,override,outcome in cases:
-            body=motion_cases.get(name,('',{}))[0]
+            body=toss_cases[name][0] if name in toss_cases else motion_cases.get(name,('',{}))[0]
             source='void main(){clearspawnentry();setspawnentry("name","'+model+'");void born=spawn();'+body+'}'
             blob,compiled=lower(compile_library(parse_script(source,'birth-probe.c'),
-                                ['clearspawnentry','setspawnentry','spawn','changeentityproperty','NULL']),numeric_policy=POLICY)
+                                ['clearspawnentry','setspawnentry','spawn','changeentityproperty','NULL','tossentity']),numeric_policy=POLICY)
             checkpoint=pause_for_injection(m,syms);m.pause();offsets=struct.unpack_from('<6I',blob,24)
             instructions,slots=struct.unpack_from('<2H',blob,8)
             m.write_memory('snesMemory',c(const,'VmCode_Wram'),blob.hex())
@@ -84,6 +97,8 @@ def main():
             ordered=name in ('reordered_allocated','invalid_order')
             m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
             m.write_u16(syms['SourceWorldTick4086_Maximum'],0)
+            m.write_u16(syms['SourceToss4086_Ready'],0xb4e2 if name in toss_cases and name!='toss_no_aux' else 0)
+            m.write_memory('snesMemory',syms['SOURCE_WORLD_TOSS_TIMES'],struct.pack('<II',0x11223344,0x55667788).hex())
             m.write_memory('snesMemory',syms['SOURCE_TARGET_ORDER'],
                            struct.pack('<HH',2 if name=='invalid_order' else 1,0).hex())
             if read_block(m,(POOL_BANK<<16)+POOL_BASE,len(pool))!=pool:
@@ -120,23 +135,30 @@ def main():
             actual_sides=read_block(m,(POOL_BANK<<16)+SIDE_BASE,len(sides))
             expected_pool=pool;expected_sides=sides
             born_slot=1 if name=='reordered_allocated' else 0
-            if outcome=='PTR':
+            if outcome in ('PTR','PTR_FAULT'):
                 model_id=next(row['id'] for row in rows if row['lookup_name']==model.lower())
                 template=births[24+model_id*STRIDE:24+(model_id+1)*STRIDE]
                 at=born_slot*80
-                born=pool[at:at+4]+b'\x01\0\0\0'+template[16:88]
+                born=bytearray(pool[at:at+4]+b'\x01\0\0\0'+template[16:88])
+                if name in toss_cases:struct.pack_into('<I',born,12,toss_cases[name][2])
+                born=bytes(born)
                 expected_pool=pool[:at]+born+pool[at+80:]
                 side=bytearray(template[88:152])
                 struct.pack_into('<II',side,8,48+struct.unpack_from('<I',side,56)[0],48)
                 struct.pack_into('<II',side,20,49,49)
                 for offset,value in motion_cases.get(name,('',{}))[1].items():struct.pack_into('<i',side,offset,value)
+                if name in toss_cases:
+                    for offset,value in toss_cases[name][1].items():struct.pack_into('<i',side,offset,value)
                 at=born_slot*64
                 expected_sides=sides[:at]+bytes(side)+sides[at+64:]
-            reporter.check(name+' terminal state',(status,error)==((5,10) if outcome=='FAULT' else (4,0)))
+            reporter.check(name+' terminal state',(status,error)==((5,10) if outcome in ('FAULT','PTR_FAULT') else (4,0)))
             reporter.check(name+' exact pool publication or no mutation',actual_pool==expected_pool and actual_sides==expected_sides)
             if outcome!='FAULT':
-                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+born_slot*80) if outcome=='PTR' else bytes(8)
+                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+born_slot*80) if outcome in ('PTR','PTR_FAULT') else bytes(8)
                 reporter.check(name+' complete PTR/EMPTY result',returned==expected)
+            if name in toss_cases:
+                reporter.check(name+' exact toss timestamp and untouched adjacent slot',
+                    read_block(m,syms['SOURCE_WORLD_TOSS_TIMES'],32)[:8]==struct.pack('<II',toss_cases[name][3],0x55667788))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -144,11 +166,13 @@ def main():
                                 injection_checkpoint=checkpoint))
         m.write_u16(c(world,'VmSourceWorld_Ready'),0)
         m.write_u16(syms['SourceWorldTick4086_Ready'],0)
+        m.write_u16(syms['SourceToss4086_Ready'],0)
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
                 live_world_owner_bound=False,physics_bound=False,presentation_bound=False,motu_gameplay_proven=False,no_pcm_copies=True,
                 motion_property_cases=list(motion_cases),motion_numeric_policy='ACCEPTED_COMPAT_Q16_16')
+    report['toss_cases']=list(toss_cases)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

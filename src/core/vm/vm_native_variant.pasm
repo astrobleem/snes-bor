@@ -100,8 +100,21 @@ Vm_NativeVariantDispatch__random:
 .a16
 .i16
     cmp #$020F                     ; rand(), shared checked 4086 world stream
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__toss
     jmp Vm_SourceRand
+Vm_NativeVariantDispatch__toss:
+.a16
+.i16
+    cmp #$0213                     ; tossentity(self,lift,x,z), owned tick
+    beq Vm_NativeVariantDispatch__toss_call
+    cmp #$0215                     ; appended optional-argument signatures
+    bcc Vm_NativeVariantDispatch__unbound
+    cmp #$0218
+    bcs Vm_NativeVariantDispatch__unbound
+Vm_NativeVariantDispatch__toss_call:
+.a16
+.i16
+    jmp Vm_SourceToss
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16

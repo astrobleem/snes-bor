@@ -33,6 +33,8 @@ def main():
     p.add_argument('--script-source',type=Path)
     p.add_argument('--script-library',default='DATA/SCRIPTS/SCRIPT.C')
     p.add_argument('--script-expression',default='dasher(1.5,0.25,-0.75);'*9)
+    p.add_argument('--expected-velocity',nargs=3,type=float,default=[-1.5,-0.75,0.25],metavar=('X','Z','Y'))
+    p.add_argument('--script-toss-count',type=int,default=0)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads((a.authority/'report.json').read_text());rows=cases()
     if authority['status']!='PASS' or [r['case'] for r in authority['results']]!=rows:
@@ -371,12 +373,14 @@ local function hex(a,h) for i=1,#h,2 do emu.write(a+(i-1)/2,tonumber(h:sub(i,i+1
             f'put({sy["VmSourceMutation_Ready"]},0xb4a2,2)',f'put({sy["VmSourceVars_Ready"]},0,2)',
             f'put({sy["VmSourceInstr_Ready"]},0,2)',f'put({sy["SourceVMRun4086_Ready"]},0xb4d7,2)',
             f'put({sy["SourceVMRun4086_Busy"]},0,2)',
+            f'put({sy["SourceToss4086_Ready"]},0xb4e2,2)',
             '''for s=0,c.n-1 do
  local base=0x414000+80*s;put(base,base,4);put(base+6,0,2)
  for n,tag in ipairs({2,1,1,1,1,2,2,1}) do
   put(base+8*n,tag,2);put(base+8*n+2,0,2);put(base+8*n+4,(n==4 or n==8) and 150 or 0,4)
  end
  for j=72,79 do put(base+j,0,1) end
+ put(0x41f300+4*s,0,4)
 end'''])
         script_prepare='\n'.join([
             'if service==5 then',
@@ -398,7 +402,7 @@ emu.addMemoryCallback(function()
 end,emu.callbackType.exec,SCRIPTRETURN,SCRIPTRETURN,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local slot=word(sy.SourceWorldTick4086_Slot);local base=0x416800+64*slot
- emu.log('WORLDTICKSCRIPT|'..word(INDEX)..'|'..slot..'|'..dw(base+36)..'|'..dw(base+40)..'|'..dw(base+44)..'|'..context_faults..'|'..script_calls..'|'..script_yields)
+ emu.log('WORLDTICKSCRIPT|'..word(INDEX)..'|'..slot..'|'..dw(base+36)..'|'..dw(base+40)..'|'..dw(base+44)..'|'..context_faults..'|'..script_calls..'|'..script_yields..'|'..dw(0x41400c+80*slot)..'|'..dw(0x41f300+4*slot))
  local c=fixtures[word(INDEX)+1]
  if c.kill_stage==5 and slot==c.kill_slot then put(0x414004+80*slot,0,2) end
 end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
@@ -452,10 +456,13 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
                    faults==[[i,1,49 if i==5 else 48,1] for i in range(10)])
     if callback:
         invocations=sum(sum(e[0]==5 for e in r['events']) for r in actual)
+        velocity=[int(v*65536)&0xffffffff for v in a.expected_velocity]
         reporter.check('source-authored function executes inside native owner services',
-            len(script_results)==invocations and all(r[2:5]==[(-98304)&0xffffffff,(-49152)&0xffffffff,16384] for r in script_results))
+            len(script_results)==invocations and all(r[2:5]==velocity for r in script_results))
         reporter.check('VM portal preserves owner context across cooperative yields',
-            bool(script_results) and all(r[5]==0 for r in script_results) and script_results[-1][-1]>0)
+            bool(script_results) and all(r[5]==0 for r in script_results) and script_results[-1][7]>0)
+        reporter.check('toss altitude and tick timestamp are source-derived',
+            all(r[8]==a.script_toss_count*32768 and r[9]==(((rows[r[0]]['time']+1)&0xffffffff) if a.script_toss_count else 0) for r in script_results))
     report=dict(schema='BYOR_4086_WORLD_TICK_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(rom).hexdigest(),authority_functions_sha256=authority['functions_sha256'],
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
