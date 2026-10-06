@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_M4_NORMAL_ENEMY_PREPARATION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-normal-enemy-native/report.json",
+    "sha256": "6110e6c8a50b972da7ebc0f78fd2a377de039582e9c776fa35043f93b4136e96",
+    "cases": 108
+  },
+  "semantic_callback_ids": {
+    "think": 6,
+    "damage": 10,
+    "trymove": 9,
+    "spawn_action": 4
+  },
+  "enemy_zero_multiple": 5,
+  "npc_zero_multiple_before_final_tail": -1,
+  "normal_subtype_notgrab": 2,
+  "biker_and_arrow_reject": true,
+  "current_source_speed_zero_identity_preserved": true,
+  "source_tiny_nonzero_not_defaulted": true,
+  "nomove_forces_current_speed_zero": true,
+  "returned_drop_service": "A=1 only when no valid current-model SPAWN/RESPAWN; A=0 otherwise",
+  "drop_service_bound": false,
+  "callback_execution_bound": false,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-normal-enemy-audit.log: ALL CHECKS PASS"
+}
