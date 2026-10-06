@@ -6,6 +6,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from source_model_switch_4086 import CACHED_FIELDS,ENTITY_CORE_FIELDS
 from source_lifecycle_inputs import unpack as unpack_lifecycle,pack as pack_lifecycle
+from source_binary32_q16 import project as project_q16
 from actor_s5_entity_fixture import symbols
 from m4_input_controller_native import offset
 from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,run_frames_exact,exact_input_edge
@@ -43,11 +44,14 @@ def main():
             struct.pack_into('<HHi',view,32,1,0,current);struct.pack_into('<HHi',view,64,1,0,777)
             want=bytearray(view);struct.pack_into('<i',want,36,int(actual[2]));struct.pack_into('<i',want,68,int(core[15]))
             rows.append(dict(slot=slot,cache=list(cache),before=list(before),after=list(after),view=list(view),want=list(want),
-                oldtype=c['oldtype'],fault=0,bad='',boundary=c['boundary']))
+                oldtype=c['oldtype'],fault=0,bad='',boundary=c['boundary'],speed_q16=project_q16(struct.unpack_from('<I',cache,160)[0])))
     lifetable=pack_lifecycle(dict(models=unpack_lifecycle(a.lifecycle.read_bytes())[:2])) if a.lifecycle else b''
     base=rows[0]
-    for bad in ('ready','world_ready','world_base','entities','slot','models','model','health_tag','max_tag','health_reserved','max_reserved'):
+    for bad in ('ready','world_ready','world_base','world_side','entities','slot','models','model','health_tag','max_tag','health_reserved','max_reserved'):
         rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
+    for bits in (0x7f800000,0xff800000,0x7fc00000,0x47000000,0xc7000000):
+        cache=bytearray(base['cache']);struct.pack_into('<I',cache,160,bits)
+        rows.append(dict(base,cache=list(cache),fault=1,bad='speed_domain',after=base['before'],want=base['view']))
     if lifetable:
         for bad in ('life_ready','life_sticky','life_table','life_paired','life_uninitialized'):rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(a.rom.read_bytes())
@@ -165,13 +169,15 @@ emu.addMemoryCallback(function()
  end
  for i=0,12287 do emu.write(0x40c000+i,0xa5,mt)end
  for i=0,10239 do emu.write(0x414000+i,0xa5,mt)end
+ for i=0,8191 do emu.write(0x416800+i,0xa5,mt)end
  copy(0x40b000,c.cache);copy(0x40c000+96*c.slot,c.before);copy(0x414000+80*c.slot,c.view)
  for i=0,63 do emu.write(0x40bfc0+i,0x7b,mt);emu.write(0x40f000+i,0x2d,mt)end
  set('Ready',0xb4eb);set('Entities',128);set('Models',2);set('Slot',c.slot);set('Model',1);put(EXPECTFAULT,c.fault)
- put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_PoolBase,0x4000);put(sy.VmSourceWorld_Count,128)
+ put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_PoolBase,0x4000);put(sy.VmSourceWorld_SideBase,0x6800);put(sy.VmSourceWorld_Count,128)
  if c.bad=='ready'then set('Ready',0)
  elseif c.bad=='world_ready'then put(sy.VmSourceWorld_Ready,0)
  elseif c.bad=='world_base'then put(sy.VmSourceWorld_PoolBase,0x4002)
+ elseif c.bad=='world_side'then put(sy.VmSourceWorld_SideBase,0x6802)
  elseif c.bad=='entities'then set('Entities',0)
  elseif c.bad=='slot'then set('Slot',128)
  elseif c.bad=='models'then set('Models',17)
@@ -195,6 +201,7 @@ emu.addMemoryCallback(function()
  local n=word(INDEX)+1;local c=rows[n];local mismatch=0;local guards=0;local cachefault=0
  for i=0,12287 do local r=i-96*c.slot;local v=r>=0 and r<96 and c.after[r+1] or 0xa5;if emu.read(0x40c000+i,mt)~=v then mismatch=mismatch+1 end end
  for i=0,10239 do local r=i-80*c.slot;local v=r>=0 and r<80 and c.want[r+1] or 0xa5;if emu.read(0x414000+i,mt)~=v then mismatch=mismatch+1 end end
+ for i=0,8191 do local r=i-64*c.slot-60;local v=c.fault==0 and r>=0 and r<4 and ((c.speed_q16>>(8*r))&255)or 0xa5;if emu.read(0x416800+i,mt)~=v then mismatch=mismatch+1 end end
  for i,v in ipairs(c.cache)do if emu.read(0x40b000+i-1,mt)~=v then cachefault=cachefault+1 end end
  for i=0,63 do if emu.read(0x40bfc0+i,mt)~=0x7b then guards=guards+1 end;if emu.read(0x40f000+i,mt)~=0x2d then guards=guards+1 end end
  if lifeenabled then
@@ -242,6 +249,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         core_fields=ENTITY_CORE_FIELDS,cache_fields=CACHED_FIELDS,cache_range='40B000..40B9FF',entity_range='40C000..40EFFF',
         source_type_policy='Install new model type now; return original entity type for restoration after source animation initialization.',
         current_model_lifecycle_installation_proven=bool(lifetable),lifecycle_table_sha256=hashlib.sha256(lifetable).hexdigest() if lifetable else None,
+        current_model_speed_installation_proven=True,speed_numeric_policy='ACCEPTED_COMPAT_Q16_16',source_float_arithmetic_equivalence=False,
         full_model_switch_bound=False,animation_initialization_bound=False,live_presentation_contention_proven=False,
         motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()

@@ -30,6 +30,7 @@ from source_animation_ids import derive as animation_identities
 from source_model_core_4086 import derive as model_core_inputs
 from source_idle_4086 import default_idle_capability
 from source_walk_animation_4086 import default_walk_capability
+from source_binary32_q16 import project as project_q16
 from source_world_pool import empty_pool
 from source_script_variables import descriptor
 from script_dispatch_4086 import compile_source
@@ -50,7 +51,8 @@ def main():
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
     p.add_argument('--initial-idle',action='store_true',help='Execute generic missing-animation set_idle and actual authored idle frame zero.')
     p.add_argument('--initial-walk',action='store_true',help='Execute generic default walk selection and actual authored walk frame zero.')
-    a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    p.add_argument('--initial-none-walk',action='store_true',help='Prepare authored TYPE_NONE walker from current speed, then execute real walk frame zero.')
+    a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
     coretable=pack_core(birth_core(source)) if a.birth_core else b''
@@ -62,6 +64,7 @@ def main():
         plan=pack_plan(derive_plan(effects));unpack_plan(plan,frames)
     actor=next(m['id'] for m in registry['models'] if m['identity']=='He_ManB')
     default=next(m['id'] for m in registry['models'] if m['identity']=='He_Man')
+    if a.initial_none_walk:default=actor
     breath=next(m['id'] for m in registry['models'] if m['identity']=='HBreath')
     animation=next(h for h in compile_source(source)['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
     rows=[dict(f=f,direction=d,default=default,fault=0) for f in (3,4) for d in (0,1)]
@@ -73,7 +76,7 @@ def main():
     walk_capability=default_walk_capability(animation_identities(source))if a.initial_walk else None
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:
         if not a.effects_runner or a.birth_core:raise ValueError('INITIAL_SELECT_REQUIRES_EFFECTS_RUNNER_WITHOUT_BIRTH_AUGMENTATION')
-        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']=='He_Man' and h['role']==('jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
+        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']==registry['models'][default]['identity'] and h['role']==('jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
         docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')};structure=discover(source,docs);config=configure(docs[key(structure['models_path'])]['directives'])
         init_report=init_inputs(source);initializers_table=pack_init(init_report);cache=bytearray(16*init_report['maximum_animations']*2)
         for row in init_report['animations']:
@@ -229,6 +232,7 @@ CallbackFixture_EffectsDone:
             asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTPREPARE\n bcs CallbackFixture_Bad\n jsl PLAYERBEGIN\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n jsl STARTFRAME')
         else:asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME')
         asm=asm.replace(' jsl CLOCKCOMMIT',' jsl INITACK\n bcs CallbackFixture_Bad\n'+(' jsl PLAYERINV\n bcs CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_jump else'')+(' jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_idle or a.initial_walk else'')+' jsl CLOCKCOMMIT')
+    if a.initial_none_walk:asm=asm.replace(' jsl WALKBEGIN',' jsl NONEWALKPREP\n bcs CallbackFixture_Bad\n jsl WALKBEGIN')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -240,6 +244,7 @@ CallbackFixture_EffectsDone:
     if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_idle:values.update(IDLEBEGIN=sy['SourceDefaultInit4086_BeginIdle'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_walk:values.update(WALKBEGIN=sy['SourceWalk4086_BeginDefaultOnly'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
+    if a.initial_none_walk:values.update(NONEWALKPREP=sy['SourceDefaultNone4086_PrepareWalk'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -439,6 +444,17 @@ emu.addMemoryCallback(function()
  emu.log('CALLBACKWALK|'..word(INDEX)..'|'..dw(0x43902c)..'|'..word(sy.SourceDefaultPlayer4086_Status))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 """
+    if a.initial_none_walk:
+        import struct as native_struct
+        rootcore=model_core_inputs(source)['models'][default]['fields']
+        current_speed_q16=project_q16(native_struct.unpack('<I',native_struct.pack('<f',rootcore['speed']))[0])
+        initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(VmSourceWorld_Level=1,SourceEmptyInitEnvironment4086_Ready=0xb504,SourceEmptyInitEnvironment4086_Models=len(registry['models']),SourceEmptyInitEnvironment4086_Stage=1,SourceEmptyInitEnvironment4086_Status=0,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_WallCount=0,SourceEnvironment4086_Stage=1).items())
+        initialinstall+='\n put(0x40c048,0,4);put(0x40c000,'+str(rootcore['multiple']&0xffffffff)+',4);put(0x40c004,'+str(rootcore['subject_to_wall']&0xffffffff)+',4);put(0x40c008,'+str(rootcore['subject_to_platform']&0xffffffff)+',4);put(0x40c014,'+str(rootcore['subject_to_gravity']&0xffffffff)+',4);put(0x40c024,'+str(rootcore['no_adjust_base']&0xffffffff)+',4);put(0x416820,65536,4);put(0x41683c,'+str(current_speed_q16&0xffffffff)+',4)\n'
+        lua+=r"""
+emu.addMemoryCallback(function()
+ emu.log('CALLBACKNONEWALK|'..word(INDEX)..'|'..dw(0x439010)..'|'..dw(0x439000)..'|'..dw(0x416824)..'|'..dw(0x416820)..'|'..dw(0x40c014)..'|'..dw(0x40c024))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+"""
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -496,6 +512,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     if a.initial_idle:reporter.check('generic set_idle flags and movement plus authored idle frame zero',idle_results==[[i,3,0,0,0,2]for i in range(len(rows))])
     walk_results=[list(map(int,line.split('CALLBACKWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKWALK|'in line]
     if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,c['direction'],2]for i,c in enumerate(rows)])
+    none_walk_results=[list(map(int,line.split('CALLBACKNONEWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKNONEWALK|'in line]
+    if a.initial_none_walk:reporter.check('authored TYPE_NONE walk setup retained through real frame-zero and final tail',none_walk_results==[[i,1,15,(current_speed_q16 if c['direction']==1 else-current_speed_q16)&0xffffffff,65536,max(1,rootcore['subject_to_gravity'])if rootcore['subject_to_gravity']<0 else rootcore['subject_to_gravity'],1 if rootcore['no_adjust_base']<0 else rootcore['no_adjust_base']]for i,c in enumerate(rows)])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         owner_table_sha256=hashlib.sha256(callbacks).hexdigest(),cases=rows,results=results,expected=expected,faults=faults,
@@ -507,7 +525,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(native_birth_core=a.birth_core,birth_core_results=core_results)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
-    r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results)
+    r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

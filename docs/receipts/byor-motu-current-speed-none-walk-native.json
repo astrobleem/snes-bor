@@ -1,0 +1,68 @@
+{
+  "schema": "BYOR_M4_CURRENT_SPEED_NONE_WALK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "conversion_c": {
+      "path": "out/byor-motu-binary32-q16-authority/report.json",
+      "sha256": "7072526c2037fdc37cbbb78900e3e1a9448a3dc1202acca1832cd5e7e984c926",
+      "cases": 1540
+    },
+    "conversion_native": {
+      "path": "out/byor-motu-binary32-q16-native/report.json",
+      "sha256": "d74f74e9ec482d21ba32e40b207cd243dce950457d2a80a60f415d1199473a50",
+      "cases": 1540
+    },
+    "model_copy": {
+      "path": "out/byor-motu-model-current-speed-native/report.json",
+      "sha256": "5ebcf546e0cce7ebfcdef03ca920b5475ca7d78d7bc7811d3033b14a3defc053",
+      "cases": 472
+    },
+    "model_transition_nested": {
+      "path": "out/byor-motu-model-current-speed-transition-native/report.json",
+      "sha256": "f5d248d04e52c79c59595caba56faeb6b153c28054e155a50bb23265b85025ba",
+      "cases": 177
+    },
+    "none_walk_prepare": {
+      "path": "out/byor-motu-default-none-walk-native/report.json",
+      "sha256": "cec7bfe1870a3868580758cbd24122569386beea76f5bc0cc298530cdbb06861",
+      "cases": 124
+    },
+    "authored_none_walk": {
+      "path": "out/byor-motu-none-initial-walk-native/report.json",
+      "sha256": "a8529855c4037ff068238a4a031f07b6708aa94fdf34f16f275235985073c322",
+      "cases": 2
+    }
+  },
+  "current_model_speed_field": "Source side +60 Q16.16; model copy refreshes from current foreground-owned cached binary32 speed",
+  "native_projection": "SourceModelSpeed4086_ProjectQ16",
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_float_equivalence": false,
+  "projection_domain": "Finite, magnitude strictly less than 32768; explicit rejection before entity writes",
+  "projection_error": "Less than 1/65536 per projected input; signed-zero distinction discarded",
+  "projection_cost_scope": "Native entry through return including intervening runtime/NMI; not an isolated kernel bandwidth claim",
+  "native_walk_setup": "SourceDefaultNone4086_PrepareWalk",
+  "walk_setup": {
+    "nograb": 1,
+    "negative_gravity": 1,
+    "negative_no_adjust": 1,
+    "think_id": 15,
+    "velocity": "current modeldata speed for direction==1, negated otherwise; reject unrepresentable positive negation of Q16 INT_MIN"
+  },
+  "authored_model": "He_ManB",
+  "authored_walk_handle": 26,
+  "authored_walk_velocity_q16": [
+    -78643,
+    78643
+  ],
+  "authored_speedmul_q16": 65536,
+  "authored_initial_frame_zero_native": true,
+  "final_tail_before_clock_49": true,
+  "lease_installation_instrumented": true,
+  "anything_walk_execution_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-none-walk-current-speed-audit.log: ALL CHECKS PASS"
+}

@@ -7,6 +7,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from source_model_switch_4086 import CACHED_FIELDS,ENTITY_CORE_FIELDS
 from source_animation_init_4086 import pack as pack_init
 from source_frame_effects_4086 import pack as pack_effects,ANIMATION_FIELDS
+from source_binary32_q16 import project as project_q16
 from actor_s5_entity_fixture import symbols
 from m4_input_controller_native import offset
 from m4_animation_init_native import luav
@@ -48,7 +49,7 @@ def main():
         for f,v in zip(CACHED_FIELDS,s[17:56]):wanted_cache.extend(struct.pack('<f' if f in FLOATS else '<i',float(v) if f in FLOATS else int(v)))
         wanted_cache.extend(struct.pack('<i',c['newtype']))
         wanted_core=struct.pack('<20i',*[int(v) for v in s[82:100]],c['oldtype'],int(s[3]))+struct.pack('<4i',123,77,int(s[8]),0x25252525)
-        rows.append(dict(c,slot=(0,1,127)[len(rows)%3],cache=cache,core=core,hp=hp,wanted=s,wanted_cache=list(wanted_cache),wanted_core=list(wanted_core),trace=ar['actual']['trace']))
+        rows.append(dict(c,slot=(0,1,127)[len(rows)%3],cache=cache,core=core,hp=hp,wanted=s,wanted_cache=list(wanted_cache),wanted_core=list(wanted_core),trace=ar['actual']['trace'],speed_q16=project_q16(struct.unpack_from('<I',wanted_cache)[0])))
     base=next(r for r in rows if r['flags']==1 and r['anim_flag']==1 and r['variant']==0)
     rows.extend(dict(base,bad_ack=n) for n in range(1,8))
     rows.extend(dict(base,same_model=1,slot=slot) for slot in (0,1,127))
@@ -314,6 +315,7 @@ emu.addMemoryCallback(function()
  if not c.bad_ack and not c.nested_bad and c.same_model~=1 then
  expectbytes(0x40b0a0,c.wanted_cache);expectbytes(0x40c000+96*c.slot,c.wanted_core)
  expectlong(v+36,w[3]);expectlong(v+68,w[98]);expectlong(v+20,w[5]);expect(s,1);expect(s+4,w[6]);expect(s+6,w[7]);expectlong(s+8,w[8])
+ expectlong(s+60,c.speed_q16)
  if c.anim_flag~=0 or (c.flags&1)~=0 then
   expectlong(0x40c000+96*c.slot+84,123);expectlong(aux+8,0);expect(aux+16,1);expectlong(0x43e000+4*(w[6]-1),0)
   if nested_frame_zero then expectlong(aux+12,0)end

@@ -168,6 +168,19 @@ SourceModelEntityCopy4086_Branch_15:
 SourceModelEntityCopy4086_Branch_16:
 .a16
 .i16
+    lda.l VmSourceWorld_SideBase
+    cmp #$6800
+    beq SourceModelEntityCopy4086_SpeedPreflight
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_SpeedPreflight:
+.a16
+.i16
+    jsr SourceModelEntityCopy4086_ProjectCachedSpeed
+    bcc SourceModelEntityCopy4086_SpeedAdmitted
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_SpeedAdmitted:
+.a16
+.i16
     lda.l SourceLifecycle4086_Ready
     beq SourceModelEntityCopy4086_LifecycleDone
     lda.l SourceModelEntityCopy4086_Slot
@@ -374,6 +387,28 @@ SourceModelEntityCopy4086_ClampMP:
 SourceModelEntityCopy4086_Done:
 .a16
 .i16
+    ; Re-read the same foreground-owned cached speed; no callback has run
+    ; since preflight. The current modeldata movement field is side +60.
+    jsr SourceModelEntityCopy4086_ProjectCachedSpeed
+    bcc SourceModelEntityCopy4086_InstallSpeed
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_InstallSpeed:
+.a16
+.i16
+    lda.l SourceModelEntityCopy4086_Slot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc #$6800
+    tax
+    lda.l SourceModelEntityCopy4086_Lo
+    sta.l $41003C,x
+    lda.l SourceModelEntityCopy4086_Hi
+    sta.l $41003E,x
     lda #1
     sta.l SourceModelEntityCopy4086_Status
     ply
@@ -408,4 +443,129 @@ SourceModelEntityCopy4086_CompareHigh:
     eor #$8000
     sta.l SourceModelEntityCopy4086_Hi
     plp
+    rts
+
+; Pure binary32 -> Q16.16 compatibility projection. Input/output Lo/Hi;
+; Index is synchronous scratch. Does not touch entities, cached models or
+; any pending owner. C=1 rejects NaN/Inf or |speed| >=32768 before input writes.
+; Signed zero projects to integer zero. This is not source float arithmetic.
+SourceModelSpeed4086_ProjectQ16:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    lda.l SourceModelEntityCopy4086_Hi
+    and #$8000
+    pha
+    lda.l SourceModelEntityCopy4086_Hi
+    and #$7F80
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    cmp #142
+    bcc SourceModelSpeed4086_Domain
+    jmp SourceModelSpeed4086_Reject
+SourceModelSpeed4086_Domain:
+.a16
+.i16
+    cmp #111
+    bcs SourceModelSpeed4086_Normal
+    lda #0
+    sta.l SourceModelEntityCopy4086_Lo
+    sta.l SourceModelEntityCopy4086_Hi
+    pla
+    jmp SourceModelSpeed4086_Done
+SourceModelSpeed4086_Normal:
+.a16
+.i16
+    sta.l SourceModelEntityCopy4086_Index
+    lda.l SourceModelEntityCopy4086_Hi
+    and #$007F
+    ora #$0080
+    sta.l SourceModelEntityCopy4086_Hi
+    lda.l SourceModelEntityCopy4086_Index
+    cmp #134
+    bcc SourceModelSpeed4086_RightCount
+    sec
+    sbc #134
+    tay
+    beq SourceModelSpeed4086_Sign
+SourceModelSpeed4086_Left:
+.a16
+.i16
+    lda.l SourceModelEntityCopy4086_Lo
+    asl a
+    sta.l SourceModelEntityCopy4086_Lo
+    lda.l SourceModelEntityCopy4086_Hi
+    rol a
+    sta.l SourceModelEntityCopy4086_Hi
+    dey
+    bne SourceModelSpeed4086_Left
+    bra SourceModelSpeed4086_Sign
+SourceModelSpeed4086_RightCount:
+.a16
+.i16
+    lda #134
+    sec
+    sbc.l SourceModelEntityCopy4086_Index
+    tay
+SourceModelSpeed4086_Right:
+.a16
+.i16
+    lda.l SourceModelEntityCopy4086_Hi
+    lsr a
+    sta.l SourceModelEntityCopy4086_Hi
+    lda.l SourceModelEntityCopy4086_Lo
+    ror a
+    sta.l SourceModelEntityCopy4086_Lo
+    dey
+    bne SourceModelSpeed4086_Right
+SourceModelSpeed4086_Sign:
+.a16
+.i16
+    pla
+    bpl SourceModelSpeed4086_Done
+    lda.l SourceModelEntityCopy4086_Lo
+    eor #$FFFF
+    clc
+    adc #1
+    sta.l SourceModelEntityCopy4086_Lo
+    lda.l SourceModelEntityCopy4086_Hi
+    eor #$FFFF
+    adc #0
+    sta.l SourceModelEntityCopy4086_Hi
+SourceModelSpeed4086_Done:
+.a16
+.i16
+    ply
+    plx
+    plp
+    clc
+    rtl
+SourceModelSpeed4086_Reject:
+.a16
+.i16
+    pla
+    ply
+    plx
+    plp
+    sec
+    rtl
+
+SourceModelEntityCopy4086_ProjectCachedSpeed:
+.a16
+.i16
+    lda.l SourceModelEntityCopy4086_Cache
+    tax
+    lda.l $400000,x
+    sta.l SourceModelEntityCopy4086_Lo
+    lda.l $400002,x
+    sta.l SourceModelEntityCopy4086_Hi
+    jsl SourceModelSpeed4086_ProjectQ16
     rts
