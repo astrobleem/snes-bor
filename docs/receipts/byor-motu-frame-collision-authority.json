@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "engine_source_sha256": "fa319b01a0cd47dea0921e31eaa3532f614716c72ae3a780c5e2675bdcb0703a",
+  "probe_sha256": "2f0422769dcbfc9729893e9a6900fd8acb39ca8c2b00909105d3175ef26aede7",
+  "source_frames": 836,
+  "synthetic_frames": 5,
+  "frames": 841,
+  "vulnerable_frames": 413,
+  "attack_frames": 176,
+  "mismatches": [],
+  "scope": "verbatim numeric collision loader bodies; external media services and engine runtime excluded",
+  "native_gameplay_proven": false,
+  "schema": "BYOR_FRAME_COLLISION_LOADER_AUTHORITY_V1",
+  "source_frame_count": 836,
+  "source_vulnerable_frames": 409,
+  "source_attack_frames": 172,
+  "table_bytes": 17441,
+  "table_sha256": "a0d0222d9d3f6d694cad18ec12c244e45c9590aa2e610b26d2cf87c38c800ee3",
+  "table_format": "B4FC v1: 80 animation directories, 836 frame descriptors, deduplicated boxes and attacks, symbolic media directory",
+  "compiler": "tools/bor_compile/source_frame_state_4086.py",
+  "verification": "tools/verify/m4_frame_collision_authority.py",
+  "tests": "5 focused unit tests including all-frame binary roundtrip and corrupt descriptors",
+  "color_reduction_applied": false,
+  "limitations": [
+    "Collision records are source-derived data; collision execution is unbound",
+    "Frame callbacks, movement, audio and kill cleanup are not certified",
+    "Media references remain symbolic",
+    "Drop velocities retain loader binary32; native arithmetic adaptation is unbound",
+    "MOTU boot, combat and Demo completion remain unproven"
+  ]
+}
