@@ -1,0 +1,93 @@
+{
+  "schema": "BYOR_RGB8_SCREEN_SA1_NATIVE_V1",
+  "status": "ISOLATED_ARITHMETIC_AND_BG_CONTENDING_PASS",
+  "operator": "BOR4086 SCREEN: 255-floor((255-source8)*(255-destination8)/255)",
+  "source_opaque_pixels": 2751,
+  "source_channel_pairs": 8253,
+  "arithmetic_rgb8_lossless": true,
+  "no_color_reduction": true,
+  "raw_multiply_rom_code_master_clocks": 2624462,
+  "channel_lut_iram_code_master_clocks": 665424,
+  "linear_lut_iram_code_master_clocks": 445666,
+  "linear_lut_with_host_bwram_reads_master_clocks": 442756,
+  "linear_lut_with_bg_palette_irq_master_clocks": 438920,
+  "parallel_bg_pixel_mismatches": 0,
+  "parallel_palette_trace_exact": true,
+  "parallel_unsafe_palette_samples": 0,
+  "exhaustive_unique_rgb8_channel_pairs": 65536,
+  "exhaustive_native_blocks": [
+    {
+      "block": 0,
+      "passed": true,
+      "pairs": 16383,
+      "rom_sha256": "e85e08e4d14c410d49204c3412e88ae3c4787a3c8b08b222f190023280c306e2",
+      "master_clocks": 884686
+    },
+    {
+      "block": 1,
+      "passed": true,
+      "pairs": 16383,
+      "rom_sha256": "b5abab1990a01603919bea9616f3c1aec29adf7ef958de75eb549c42a9bfcb02",
+      "master_clocks": 884686
+    },
+    {
+      "block": 2,
+      "passed": true,
+      "pairs": 16383,
+      "rom_sha256": "36de8446b7d1b232bdb2de8431f06ad0bc8a9fe3360cc3f620cfd7ec873ad92f",
+      "master_clocks": 884686
+    },
+    {
+      "block": 3,
+      "passed": true,
+      "pairs": 16383,
+      "rom_sha256": "a9ed888de43512a04e7dffb0584f44a78aafa3ed34c440b6e1a36d3751ba9b02",
+      "master_clocks": 884686
+    },
+    {
+      "block": 4,
+      "passed": true,
+      "pairs": 6,
+      "rom_sha256": "9b2b0761478cf9b085a9135398e06dc2c506e10a059f3b6d9078896a0add3384",
+      "master_clocks": 328
+    }
+  ],
+  "resource_requirements": {
+    "lut_rom_bytes": 65536,
+    "code": "SA-1 internal RAM $3200, bounded byte executor",
+    "scratch": "SA-1 internal RAM $3000..3002",
+    "result": "Private witness BW-RAM bank $42, byte values with stride two"
+  },
+  "proofs": [
+    {
+      "path": "out/byor-motu-screen-sa1-owned-native/result.json",
+      "rom_sha256": "4fa45d42ae08ef4ec8a41c3e0d75e4b916d850e0e0660f9c40ee536a19906a5f"
+    },
+    {
+      "path": "out/byor-motu-screen-sa1-lut-iram-native/result.json",
+      "rom_sha256": "8aaa9f6e26ccc099a8005bc0f80b68a506d7700ca2528b3fdd294f71a7244837"
+    },
+    {
+      "path": "out/byor-motu-screen-sa1-linear-iram-native/result.json",
+      "rom_sha256": "c7b36205ec784abeb6869b493a21b58bfd400172d4b335cc01fb2a5de85e7080"
+    },
+    {
+      "path": "out/byor-motu-screen-sa1-linear-busy-native/result.json",
+      "rom_sha256": "3b5e396c4b67c626ceaddde2222c98db4a4e5e96265105404ae07c9ddcbdcbed"
+    },
+    {
+      "path": "out/byor-motu-screen-bg-contention-native/result.json",
+      "rom_sha256": "746cc9ee299bdbc123b6a8cf4430b6e7c6c48d78873f0d5ad44113477e46d2ae"
+    }
+  ],
+  "nonclaims": [
+    "Live geometry loops",
+    "Background RGB8 identity storage",
+    "Palette allocation/packing from computed results",
+    "Computed values driving live PPU",
+    "Moving concurrent actors",
+    "Production SA-1 owner integration",
+    "Real TAD/MSU contention",
+    "Actual source world/controller/combat/route"
+  ]
+}

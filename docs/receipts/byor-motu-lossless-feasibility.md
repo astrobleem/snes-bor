@@ -972,3 +972,30 @@ prove a live SCREEN compositor, moving other actors/camera, exact physical
 NTSC 200-Hz world timing, production TAD/MSU/NMI contention, a production IRQ
 gateway, or actual MOTU gameplay. Receipt:
 `byor-motu-component-continuous-native.json`. No color reduction is applied.
+
+### Native RGB8 SCREEN arithmetic cost
+
+The continuous sequence still uses offline compositions. A separate native
+SA-1 witness now measures the exact source alpha operator on all 2,751 opaque
+pixels of br12, capturing their actual underlying RGB8 pixels before the
+frontpanel is drawn. All 8,253 channel results match pinned BOR4086 SCREEN.
+RGB8 is retained through blending; conversion to RGB555 is not used to hide
+intermediate arithmetic differences.
+
+Straight multiplication with ROM-resident code takes 2,624,462 master clocks.
+A 65,536-byte channel lookup table with internal-RAM code takes 665,424.
+Using the SA-1's linear ROM mapping, eight-bit accumulation and three-channel
+loop groups reduces this to 445,666. A host BW-RAM-read loop measures 442,756.
+Five additional bounded native blocks verify all 65,536 possible RGB8 channel
+pairs, including the table's final address. This is a generic SCREEN operator,
+not an actor-name special case.
+
+In a combined native fixture, the SA-1 executes that arithmetic while the
+lossless BG palette IRQ and dummy channel-0 HDMA run. The job takes 438,920
+master clocks, about 20.4 ms. Its RGB8 result, the independently displayed
+precomposed BG pixels, and the complete BG CGRAM trace are exact; no sampled
+palette write occurs in active display. The computed values do not yet feed
+the PPU. Geometry, background identity storage, live palette allocation and
+the production SA-1 owner remain unbound. The 30-ms source-frame interval
+therefore is not a complete compositor deadline PASS. Receipt:
+`byor-motu-screen-sa1-native.json`. No color reduction is applied.
