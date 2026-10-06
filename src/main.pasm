@@ -13631,4 +13631,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_frame_effect_leaf.pasm"
 .include "core/vm/vm_source_frame_effect_binding.pasm"
 .include "core/vm/vm_source_self.pasm"
+.include "core/vm/vm_source_frame_effects_run.pasm"
 

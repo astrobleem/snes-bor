@@ -12,7 +12,7 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None):
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
     asm='''.snes
@@ -86,7 +86,9 @@ LeafFixture_Return:
         asm=asm.replace(' jsl APPLY',' lda.l MODE\n beq LeafFixture_Begin\n jsl SECONDARY\n bra LeafFixture_After\nLeafFixture_Begin:\n.a16\n.i16\n jsl APPLY')
     if post:
         asm=asm.replace(' lda.l INDEX',' jsl POST\nLeafFixture_Post:\n.a16\n.i16\n nop\n lda.l INDEX')
-    values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,MODE=REQUEST+8,READY=sy[ready],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy[apply],CASES=len(rows),RESUME=entry+5,MAGIC=magic)
+    asm+=append
+    values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,MODE=REQUEST+8,READY=sy[ready],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy.get(apply,apply),CASES=len(rows),RESUME=entry+5,MAGIC=magic)
+    if bindings:values.update({k:sy[v] for k,v in bindings.items()})
     if finish:values['SECONDARY']=sy[finish]
     if post:values['POST']=sy[post]
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
@@ -94,6 +96,8 @@ LeafFixture_Return:
     proc=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(pasm),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True);(folder/'build.log').write_text(proc.stdout+proc.stderr)
     if proc.returncode:raise ValueError('LEAF_FIXTURE_ASSEMBLY')
     fs=symbols(folder/'fixture.sym');code=(folder/'fixture.bin').read_bytes()[first:];raw[first:first+len(code)]=code
+    if apply not in sy:values['APPLY']=fs[apply]
+    if probes:values.update({k:fs[v] for k,v in probes.items()})
     for bank,at,data in tables:
         if bank not in (59,60) or not 0<=at<=32768-len(data):raise ValueError('LEAF_TABLE_RESERVATION')
         raw[bank*32768+at:bank*32768+at+len(data)]=data
@@ -103,7 +107,7 @@ LeafFixture_Return:
     for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_'))})+'\n'+lua
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
     values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
     if post:values['POSTRESULT']=fs['LeafFixture_Post']
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)

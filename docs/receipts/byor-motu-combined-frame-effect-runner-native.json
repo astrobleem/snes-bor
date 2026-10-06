@@ -1,0 +1,52 @@
+{
+  "schema": "BYOR_M4_COMBINED_FRAME_EFFECT_RUNNER_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-frame-owner-native/report.json",
+      "sha256": "6949e353ccf74f4bdb28ccb1f65056c24680600dcb5774221872b548996f7926",
+      "cases": 288,
+      "peak_master_clocks": 106332,
+      "native_rom_sha256": "694b96823a548244b57df9e47de9df7c65a480bf7fa0cca1dde95db7651026fa"
+    },
+    {
+      "path": "out/byor-motu-frame-runner-native/report.json",
+      "sha256": "98e076630da633705a15d23a9877c718463422e6d50be1f374e782c26e9198e6",
+      "cases": 288,
+      "peak_master_clocks": 112742,
+      "native_rom_sha256": "c2eecdbc4a756e352981236c909785b41f726cf8ea834b10155a5618a46d3060"
+    },
+    {
+      "path": "out/byor-motu-frame-runner-yield-native/report.json",
+      "sha256": "7af9b6113626b81e28a132e32fe7bc40efc8082aa6a4211e543fc168e49ccbce",
+      "cases": 288,
+      "peak_master_clocks": 123358,
+      "native_rom_sha256": "f7bf176d2d29bc6ecc4c1d4f0bf4db53e92939201b3de064fcfc06e63a38c02b"
+    },
+    {
+      "path": "out/byor-motu-frame-runner-guards-native/report.json",
+      "sha256": "f22f51f94257eea49f57e3a63b4070590eca77cd983a364a1292d84fdefd8eaa",
+      "cases": 42,
+      "peak_master_clocks": 80772,
+      "native_rom_sha256": "3716d20ffd8c0e4de8f836bd9a17ed940cae8b47615dbd25f4bc2c73ef30804c"
+    }
+  ],
+  "production_rom_sha256": "90997cf795c70838dc58dede3a18e4d17a55175b725ac46fcba38d71f968f723",
+  "proof": "Captured B4FE/B4EP frame zero executes real motion, quake, cursor, engine self restoration and prefix retirement through the generic native driver. Pinned C cases cover callback frame/handle interruption, kill without interruption, signed animating, direction, level and physical slots 0/1/127. Script body and synthetic sound completion are instrumented. Repeated external-service resume retains tickets, does not repeat motion/quake, blocks clock and requires exact completion Ack. Fourteen stale/invalid lease and ticket classes across three physical slots fault with clock blocked.",
+  "snapshot_bytes": 528,
+  "extra_persistent_scratch_bytes": 0,
+  "external_operation_contract": "Returns raw B4EP opcode without Ack; external handler must finish and publish exact Acknowledged ticket, or finish model/init continuation.",
+  "callback_body_instrumented": true,
+  "sound_handler_instrumented": true,
+  "external_effect_services_bound": false,
+  "full_model_transition_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
