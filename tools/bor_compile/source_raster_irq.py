@@ -310,6 +310,20 @@ SourceRasterAfterReturn:
 .i16
     lda.l $%06X
     sta.l $00420C'''%canvas_contract['hdma_current'])
+        if targets_rom is not None:
+            # The hook can select another frame's immutable target table.
+            # Initialize its cursor after that selection, while IRQs remain
+            # masked, rather than retaining the previous frame's target base.
+            cursor='''    lda.l SourceRaster_TargetBase
+    sta.l SourceRaster_Row
+    clc
+    adc #224
+    sta.l SourceRaster_RowLimit
+'''
+            if code.count(cursor)!=1:raise ValueError('SOURCE_CANVAS_CURSOR_SETUP_CONTRACT')
+            code=code.replace(cursor,'',1)
+            hook='    jsl $%06X'%frame_hook
+            code=code.replace(hook,hook+'\n'+cursor,1)
     if canvas_contract is not None:
         required=('timer_hook','audio_fence','frame_counter','hdma_enable','hdma_current')
         if set(canvas_contract)!=set(required) or any(not 0<=canvas_contract[k]<=0xffffff for k in required):

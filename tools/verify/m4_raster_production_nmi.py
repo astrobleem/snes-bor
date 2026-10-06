@@ -23,7 +23,7 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm=''):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False):
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
     from source_raster_irq import fetch_prologue,emit
@@ -53,6 +53,7 @@ SourceRasterColdInit:
     sta.l SourceRaster_Fault
     sta.l SourceRaster_CoreMode
     sta.l $7FF860
+    sta.l $7FF882
     pla
     plp
     jml $%06X
@@ -82,6 +83,99 @@ SourceRasterFieldOrdinary:
     jml $%06X
 '''%sy['Tad_StreamFrameService']
     asm+=extra_asm
+    if audio_service:
+        asm+='''
+.bank 39
+.org $C600
+SourceCanvasAudioService:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    phd
+    lda #0
+    tcd
+    sep #$20
+.a8
+    pha
+    plb
+    rep #$20
+.a16
+    lda.l $7FF882
+    cmp #$B4C1
+    beq SourceCanvasAudioReady
+    lda #$B4C1
+    sta.l $7FF882
+    lda #0
+    sta.l $7FF884
+    sep #$20
+.a8
+    lda #2
+    sta.l $%(source_id)06X
+    jsl $A7C780
+    rep #$30
+.a16
+.i16
+    lda #$FFFF
+    sta.l $7FF880
+SourceCanvasAudioReady:
+.a16
+.i16
+    lda.l $%(frame_counter)06X
+    cmp.l $7FF880
+    beq SourceCanvasAudioReturn
+    sta.l $7FF880
+SourceCanvasAudioStart:
+.a16
+.i16
+    jsl $%(service)06X
+    jsl $%(late)06X
+    rep #$30
+.a16
+.i16
+    lda.l $7FF884
+    inc a
+    sta.l $7FF884
+SourceCanvasAudioDone:
+.a16
+.i16
+    nop
+SourceCanvasAudioReturn:
+.a16
+.i16
+    pld
+    plb
+    ply
+    plx
+    pla
+    plp
+    rtl
+.org $C780
+SourceCanvasAudioNearCall:
+.a16
+.i16
+    ; The production stream policy returns RTS. Supply a near return to
+    ; an existing RTL in its own bank, above this JSL's far return frame.
+    pea $%(near_relay)04X
+    sep #$20
+.a8
+    lda #$%(near_bank)02X
+    pha
+    pea $%(near_target)04X
+    rtl
+'''%dict(source_id=sy['AudioStream_SourceId'],source_start=sy['AudioSemantic_StreamBackendPolicy'],
+         frame_counter=sy['Nmi_FrameCounter'],service=sy['Tad_StreamFrameService'],late=sy['Tad_StreamLatePump'],
+         near_relay=(sy['Tad_ProcessMaybeStream__return']&65535)-1,
+         near_bank=sy['AudioSemantic_StreamBackendPolicy']>>16,
+         near_target=(sy['AudioSemantic_StreamBackendPolicy']&65535)-1)
+        if sy['AudioSemantic_StreamBackendPolicy']>>16!=sy['Tad_ProcessMaybeStream__return']>>16:
+            raise ValueError('AUDIO_NEAR_RELAY_BANK')
+        if original[offset(sy['Tad_ProcessMaybeStream__return'])]!=0x6b:
+            raise ValueError('AUDIO_NEAR_RELAY_NOT_RTL')
     (folder/'production-gate.pasm').write_text(asm)
     command=[r'C:\Users\chad\.dotnet\dotnet.exe',r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll',str(folder/'production-gate.pasm'),
              '--output',str(folder/'production-gate.bin'),'--symbols',str(folder/'production-gate.sym'),'--no-pansy']
@@ -161,7 +255,7 @@ SourceRasterFieldOrdinary:
         code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
     code.extend(bytes.fromhex('e2 20 a9 01 8d 0d 42 a9 0f 8d 00 21 a9 81 8d 00 42 58'))
     loop=0x8000+len(code)
-    code.extend(bytes.fromhex('22 00 c0 a7'))
+    code.extend(bytes.fromhex('22 00 c6 a7' if audio_service else '22 00 c0 a7'))
     code.extend(bytes([0x5c,loop&255,loop>>8,0xa8]))
     if len(code)>32768:raise ValueError('PRIVATE_OWNER_BANK_OVERFLOW')
     rom[40*32768:40*32768+len(code)]=code

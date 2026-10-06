@@ -1171,3 +1171,42 @@ from the active repeat. This removes the isolated rendering-contention gap
 for this immutable context. It does not admit production TAD or live geometry,
 underlay changes or palette allocation. The real production audio test is a
 separate integration gate.
+
+### Production palette/VRAM sequence with active TAD service
+
+The corrected 40-pose continuous sequence passes 75 completed fields and
+4,300,800 visible RGB555 pixels with zero mismatches. All 75 captured CGRAM
+traces are exact; context faults, unsafe palette samples and active-display
+VRAM writes remain zero. Peak NMI entry-to-RTI is 50,152 master clocks. The
+minimum RTI-entry margin is 236 clocks, including the required 64-clock guard;
+native RTI consumes 50 clocks. Descriptor liveness removes redundant field
+writes. The raster target cursor must be initialized after the frame hook
+selects its target table, which is covered by an ordering test.
+
+This proof executes the existing TAD frame and late pumps, and requests real
+original-BOR source-2 audio through the existing backend policy. The latter
+returns RTS, so a banked relay supplies its required near return and then
+returns long; a direct JSL would corrupt the return bank. Eighteen stream
+chunks are accepted during the bounded test. Complete stream transport,
+audible playback, MOTU media bindings, moving composition and live source
+world admission are not claimed. An observed service span of 1,773,432 clocks
+includes interrupts and multiple display epochs; it is not a once-per-field
+CPU budget. Receipt: `byor-motu-component-production-audio-native.json`.
+No color reduction is applied.
+
+### Typed source input queries
+
+The native three-argument `playerkeys` capability passes 72 cases against
+pinned engine masks: held/new/released variants, all fourteen selectors,
+uppercase and dynamic names, multiple player slots, default conversions and
+explicit invalid lease/index rejection. It returns the actual mask, including
+4096 for attack4, rather than boolean 1. Source case folding is confirmed by
+pinned `searchList` and `stricmp` in `engine/source/utils.c`. The owned snapshot
+remains unchanged by the queries and is cold-disabled. Fractional numbers use
+the declared Q16.16 integer conversion adaptation; this is not binary64 script
+compatibility. The fixture installs snapshots after the original selector
+and first-stage bootstrap. A real controller mapping and live MOTU world owner
+remain unimplemented. Receipt: `byor-motu-playerkeys-native.json`.
+The full assembly audit passes, with zero new width violations and two bytes
+free before bank-zero NMI. This API introduces no static-model presentation
+path changes.

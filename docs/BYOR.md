@@ -61,10 +61,21 @@ impossible. The authorized policy is lossless raster OBJ first, then lossless
 BG/hybrid if raster reaches a measured limit. The four banks eligible for OBJ
 color math cannot carry the peak frame's unavoidable 50-byte adjacent-line
 transition within the safe CGRAM access window. Generic offline slot scheduling
-and isolated Mode 3 BG proofs now preserve sampled screen-blended contexts
-without reducing RGB555 colors. Moving effects and concurrent actor/foreground
-composition remain unimplemented; this is not a MOTU candidate. See the
+and Mode 4 component BG proofs preserve all 40 precomposed effect poses in a
+fixed player/enemy/foreground context without reducing RGB555 colors. Native
+SA-1 SCREEN arithmetic and palette bindings also pass exact cache, CGRAM and
+pixel checks. The continuous production sequence now passes with the real
+TAD frame/late pumps and an original-BOR stream request; complete transport
+and MOTU audio bindings remain unproven. Moving geometry, changing underlays
+and the live MOTU world remain unimplemented; this is not a MOTU candidate. See the
 [lossless presentation receipt](receipts/byor-motu-lossless-feasibility.md).
+
+The generic typed `playerkeys` API returns the pinned BOR key-mask values for
+three-argument calls over an immutable, explicitly owned source-tick snapshot.
+Native tests cover held, new and released keys, all fourteen source selectors,
+dynamic strings and invalid ownership/index rejection. Q16.16 to integer
+conversion remains an explicit adaptation. A live controller mapping and MOTU
+input owner are separate, unfinished capabilities.
 
 From the repository root, with Python 3.10 and the existing build dependencies:
 
