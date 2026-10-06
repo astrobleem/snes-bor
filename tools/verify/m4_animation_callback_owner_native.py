@@ -56,6 +56,7 @@ def main():
     p.add_argument('--drop-context',type=Path,help='Compiled readonly horizontal drop context bundle.')
     p.add_argument('--default-owner',action='store_true',help='Use generic source-order default-init Begin/Continue instead of direct leaf sequencing.')
     p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
+    p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
@@ -117,6 +118,16 @@ def main():
     if a.script_clone:
         from source_script_clone import derive as clone_inputs,pack as pack_clone
         script_clone_report=clone_inputs(source);script_clone_table=pack_clone(script_clone_report);locations['scriptclone']=base+cursor;raw[at+cursor:at+cursor+len(script_clone_table)]=script_clone_table;cursor+=len(script_clone_table)
+    if a.ctor_model:
+        if not a.script_clone:raise ValueError('CTOR_MODEL_REQUIRES_SCRIPT_CLONE')
+        from source_lifecycle_inputs import pack as pack_lifecycle
+        ctor_life=pack_lifecycle(lifecycle_inputs(source));locations['ctorlife']=base+cursor;raw[at+cursor:at+cursor+len(ctor_life)]=ctor_life;cursor+=len(ctor_life)
+        from source_model_core_4086 import CACHED_FIELDS,FLOAT_FIELDS
+        ctor_cache=bytearray()
+        for m in model_core_inputs(source)['models']:
+            for field in CACHED_FIELDS:ctor_cache.extend(struct.pack('<f'if field in FLOAT_FIELDS else'<i',m['fields'][field]))
+            ctor_cache.extend(struct.pack('<i',m['fields']['type']))
+        # Scalar cache only: media bindings are not exercised by this fixture.
     if cursor>32768:raise ValueError('CALLBACK_NATIVE_IMMUTABLE_BANK_CAPACITY')
     raw[60*32768:60*32768+len(frames)]=frames
     if a.effects_runner:
@@ -277,6 +288,7 @@ CallbackFixture_EffectsDone:
     if a.script_clone:
         if not a.default_owner:raise ValueError('SCRIPT_CLONE_REQUIRES_DEFAULT_OWNER_FIXTURE')
         asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop','CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SCRIPTCLONECLEAR\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND\n bcs CallbackFixture_Bad')
+    if a.ctor_model:asm=asm.replace(' jsl SCRIPTCLONEBIND',' jsl CTORMODEL\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -292,6 +304,7 @@ CallbackFixture_EffectsDone:
     if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
+    if a.ctor_model:values.update(CTORMODEL=sy['SourceCtorModel4086_Apply'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -531,6 +544,12 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceAnimationCallback4086_Models=16,SourceAnimationCallback4086_Programs=owners['program_count'],SourceScriptClone4086_Ready=0xb5c1,SourceScriptClone4086_Status=0,SourceScriptClone4086_Slot=0,SourceScriptClone4086_Model=default,SourceScriptClone4086_Base=locations['scriptclone']&65535,SourceScriptClone4086_Bank=base>>16,SourceScriptClone4086_Bytes=len(script_clone_table),SourceScriptClone4086_Models=16).items())
         initialinstall+='\n for i=0,63 do emu.write(0x409000+i,0,mt)end;put(0x40902c,1,4);for i=0,1 do local r=0x418800+(8+i)*64;put(r,0x414000+i*80,4);put(r+4,1,2);put(r+6,3,2);put(r+8,1,4);put(r+12,i==0 and 77 or 99,4);for j=0,2 do emu.write(r+16+j,97+i,mt)end end\n'
         lua+="emu.addMemoryCallback(function()emu.log('SCRIPTCLONEOWNER|'..word(INDEX)..'|'..word(sy.SourceScriptClone4086_Status)..'|'..dw(0x40902c)..'|'..dw(0x418a08)..'|'..dw(0x418a0c)..'|'..dw(0x418a4c)..'|'..word(0x418a06))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+    if a.ctor_model:
+        lua='local ctor_cache={'+','.join(map(str,ctor_cache))+'}\n'+lua
+        initialinstall+='\n copy(0x40b000,ctor_cache);for j=0,95 do emu.write(0x40c000+j,165,mt)end;for j=0,79 do emu.write(0x439000+j,165,mt)end\n'
+        initialinstall+='\n'+\
+            '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceLifecycle4086_Ready=0xb4fb,SourceLifecycle4086_Status=0,SourceLifecycle4086_Base=locations['ctorlife']&65535,SourceLifecycle4086_Bank=base>>16,SourceLifecycle4086_Bytes=len(ctor_life),SourceLifecycle4086_Models=16).items())
+        lua+="emu.addMemoryCallback(function()emu.log('CTORMODELOWNER|'..word(INDEX)..'|'..word(sy.SourceCtorModel4086_Status)..'|'..dw(0x414024)..'|'..dw(0x414044)..'|'..dw(0x40c04c))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -592,7 +611,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         cached_none=model_core_inputs(source)['models'][default]['fields']['type']==0
         reporter.check('generic set_idle flags and cached-type movement plus authored idle frame zero',idle_results==[[i,3,0,65536 if cached_none else 0,131072 if cached_none else 0,2]for i in range(len(rows))])
     walk_results=[list(map(int,line.split('CALLBACKWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKWALK|'in line]
-    if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,c['direction'],2]for i,c in enumerate(rows)])
+    if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,0 if a.ctor_model else c['direction'],2]for i,c in enumerate(rows)])
     none_walk_results=[list(map(int,line.split('CALLBACKNONEWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKNONEWALK|'in line]
     if a.initial_none_walk:reporter.check('authored TYPE_NONE walk setup retained through real frame-zero and final tail',none_walk_results==[[i,1,15,(current_speed_q16 if c['direction']==1 else-current_speed_q16)&0xffffffff,65536,max(1,rootcore['subject_to_gravity'])if rootcore['subject_to_gravity']<0 else rootcore['subject_to_gravity'],1 if rootcore['no_adjust_base']<0 else rootcore['no_adjust_base']]for i,c in enumerate(rows)])
     enemy_results=[list(map(int,line.split('CALLBACKENEMY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKENEMY|'in line]
@@ -605,6 +624,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     no_walk_results=[list(map(int,line.split('DEFAULTNONE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'DEFAULTNONE|'in line]
     if a.initial_none_model:reporter.check('authored TYPE_NONE no-WALK defaults retained after real IDLE frame zero',no_walk_results==[[i,1,131072,1 if rootcore['subject_to_gravity']<0 else rootcore['subject_to_gravity'],1 if rootcore['no_adjust_base']<0 else rootcore['no_adjust_base'],max(0,rootcore['multiple'])]for i in range(len(rows))])
     clone_results=[list(map(int,line.split('SCRIPTCLONEOWNER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SCRIPTCLONEOWNER|'in line]
+    if a.ctor_model:
+        ctor_results=[list(map(int,line.split('CTORMODELOWNER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORMODELOWNER|'in line]
+        cm=model_core_inputs(source)['models'][default]['fields']
+        reporter.check('current cached model fields installed before actual authored initialization',ctor_results==[[i,2,cm['health']&0xffffffff,cm['health']&0xffffffff,cm['mp']&0xffffffff]for i in range(len(rows))])
     if a.script_clone:reporter.check('constructor script cleanup/binding survives actual authored frame zero with foreign instance intact',clone_results==[[i,2,script_clone_report['models'][default]['initialized_mask'],0,0,99,3]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
@@ -619,7 +642,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
     r.update(initial_none_model=a.initial_none_model,initial_none_model_results=no_walk_results)
-    r.update(script_clone_bound=a.script_clone,script_clone_results=clone_results,script_clone_table_sha256=hashlib.sha256(script_clone_table).hexdigest()if script_clone_table else None)
+    r.update(ctor_model_bound=a.ctor_model,ctor_media_bindings_bound=False,script_clone_bound=a.script_clone,script_clone_results=clone_results,script_clone_table_sha256=hashlib.sha256(script_clone_table).hexdigest()if script_clone_table else None)
     r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()

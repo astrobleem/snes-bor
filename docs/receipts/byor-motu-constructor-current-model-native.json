@@ -1,0 +1,119 @@
+{
+  "schema": "BYOR_4086_CONSTRUCTOR_MODEL_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-ctor-model-native": {
+      "report": "out/byor-motu-ctor-model-native/report.json",
+      "sha256": "dc85d30e7a2a16c64384f38bdad468683b832c49d01723b3b33059c0dc59c765",
+      "cases": 159
+    },
+    "byor-motu-player-cached-ctor-native": {
+      "report": "out/byor-motu-player-cached-ctor-native/report.json",
+      "sha256": "7883a3ed5f90689f0a743d1c686c7de1d0d21faf69e9298a840b94488d08ebae",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-knightbot-cached-ctor-native": {
+      "report": "out/byor-motu-knightbot-cached-ctor-native/report.json",
+      "sha256": "17cb227c36849d191c109728d538039e8086e3d316d9c2f2c9d106557b415d6f",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-cached-ctor-native": {
+      "report": "out/byor-motu-skeletor-cached-ctor-native/report.json",
+      "sha256": "951af0ec8ab93f522267fd7d53e4337700dcf4768f494e39ce278973b881a5d6",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-none-cached-ctor-native": {
+      "report": "out/byor-motu-none-cached-ctor-native/report.json",
+      "sha256": "2102c26b697e87e1d6f7d8f1acc41320050e86e9998918efa36277db776e6326",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-effect-cached-ctor-native": {
+      "report": "out/byor-motu-effect-cached-ctor-native/report.json",
+      "sha256": "42373c8e211fb79892a50504848b79a7a1f1096cc9a3f631d238b48bed7def96",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 5,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 5,
+          "fault": 0
+        }
+      ]
+    }
+  },
+  "service": "SourceCtorModel4086_Apply",
+  "policy": "Fresh copy from current shared cache, no negative model-switch fallback; source binary32 speed truth remains separate from Q16 projection.",
+  "resources": {
+    "code_bank": 62,
+    "control_start": "43B820",
+    "control_end_exclusive": "43B832",
+    "bytes": 18,
+    "bank0_growth": 0
+  },
+  "source_fields": "18 cached core scalars, type, current MP, health/maxhealth, current/default model, current speed; reset lifecycle plus paired immutable model scalars.",
+  "audit": "out/byor-motu-ctor-model-audit.log",
+  "protected_files_unchanged": 17,
+  "media_bindings_bound": false,
+  "full_constructor_bound": false,
+  "factors_draw_name_palette_roles_coordinates_publication_and_nested_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

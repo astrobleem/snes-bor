@@ -13650,6 +13650,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_default_drop.pasm"
 .include "core/vm/vm_source_default_owner.pasm"
 .include "core/vm/vm_source_script_clone.pasm"
+.include "core/vm/vm_source_ctor_model.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 
