@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_M4_FRAME_EFFECT_PLAN_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-frame-effect-plan/report.json",
+    "sha256": "408d90c21baf29b62503154909480f7f7e109f759b3aa1f83cf09804eb44b2bc"
+  },
+  "table_sha256": "2ed52f6ab3faec4377a15519bbe1935f885a21d0580721816ddaa39faf92b399",
+  "table_bytes": 9072,
+  "animations": 80,
+  "frames": 836,
+  "paired_frame_effects_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+  "source_corpus": {
+    "path": "out/byor-motu-update-frame-authority/report.json",
+    "sha256": "445bc872a377a95f20f51ceb75408b0eadeab24143a5183354765c874c216e74",
+    "cases": 1080,
+    "functions_sha256": "72d75ee216c7c00ceb01f6f811b77184dda3a8f22f0174b7f0be6e35205183d7"
+  },
+  "proof": "Offline source-derived ordered operation sequence per captured frame. Reference executor matches verbatim pinned update_frame/toss corpus, including interruption, post-weapon captured animation, dynamic quake/subentity/projectile predicates and source-self restoration. Every authored sound operation agrees with B4FE media admission, including skipped missing source assets. CRC pairing and canonical directories checked.",
+  "native_effect_services_bound": false,
+  "motu_gameplay_proven": false,
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
