@@ -1,0 +1,52 @@
+{
+  "schema": "BYOR_M4_SOURCE_PLAYER_DROP_JUMP_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "native_prepare": {
+      "path": "out/byor-motu-player-action-native/report.json",
+      "sha256": "549bf7e8c4c5ba772e6772b68d37143a6351fe6a655c9283b925461f209de9c4",
+      "cases": 1901
+    },
+    "c": {
+      "path": "out/byor-motu-player-action-authority/report.json",
+      "sha256": "3cfb03656ef7a6741711b7e3d43f48291d27180687586687e1d8860e497aa57f",
+      "cases": 3167
+    },
+    "authored_jump": {
+      "path": "out/byor-motu-jump-initial-frame-native/report.json",
+      "sha256": "503c553526bfe48c45d0938c9b3821f03f7f31efc12f3c052fdb6b5501f66412",
+      "cases": 2
+    }
+  },
+  "source_spawn_height": 300,
+  "compiler_derived_jump_id": 2,
+  "authored_jump_frames": 5,
+  "authored_jump_first_frame": "data/chars/he-man/jump1.png",
+  "native_prepare": "SourceDefaultPlayer4086_PrepareAction",
+  "native_execute": "SourceDefaultPlayer4086_BeginAction -> SourceAnimationInit4086_Begin/StartFrame -> actual callback/effect runner -> Ack",
+  "native_finish_fields": "SourceDefaultPlayer4086_ApplyInvincibility reads current modeldata without reselecting TYPE",
+  "authored_result": {
+    "a_q16": 19660800,
+    "think_id": 2,
+    "takedamage_id": 1,
+    "trymove_id": 3,
+    "takeaction_id": 5,
+    "invincible": 1,
+    "blink": 1,
+    "invinctime": 848,
+    "arrowon": 1,
+    "logical_time_after_clock": 49
+  },
+  "pending_ticket": "Only existing B4EC frame-zero continuation, already in 528-byte source frame snapshot; no new pending ticket in transient player scratch",
+  "first_choice_completion_instrumented_in_prepare_matrix": true,
+  "authored_frame_zero_native": true,
+  "authored_pixels_presented": false,
+  "executable_player_callbacks_bound": false,
+  "final_idle_environment_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "rom_audit": "out/byor-motu-player-action-audit.log: ALL CHECKS PASS"
+}
