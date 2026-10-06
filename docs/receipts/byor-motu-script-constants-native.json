@@ -1,0 +1,1538 @@
+{
+  "schema": "BYOR_NATIVE_SOURCE_CONSTANTS_V1",
+  "status": "PASS",
+  "rom_sha256": "b44d5c23264eace2646eefc99c913ec3f37cc01b644cabcee17f74c6720b98a3",
+  "constant_table_sha256": "fde1ac70137a68332e66d0b7a5eb4aba23d5f049d18d98301d271c5d4571d4cd",
+  "cases": [
+    {
+      "case": "ANI_FALL",
+      "source": "void main(){void value=openborconstant(\"ANI_FALL\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "0100000005000000",
+          "expected_hex": "0100000005000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 22946628
+      }
+    },
+    {
+      "case": "ANI_ATTACK",
+      "source": "void main(){void value=openborconstant(\"ANI_ATTACK\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "0100000007000000",
+          "expected_hex": "0100000007000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 23451049
+      }
+    },
+    {
+      "case": "ANI_ATTACK1",
+      "source": "void main(){void value=openborconstant(\"ANI_ATTACK1\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "0100000008000000",
+          "expected_hex": "0100000008000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24114651
+      }
+    },
+    {
+      "case": "ANI_FOLLOW5",
+      "source": "void main(){void value=openborconstant(\"ANI_FOLLOW5\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "01000000a2000000",
+          "expected_hex": "01000000a2000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24382708
+      }
+    },
+    {
+      "case": "ani_follow6",
+      "source": "void main(){void value=openborconstant(\"ani_follow6\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "01000000a3000000",
+          "expected_hex": "01000000a3000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 24729805
+      }
+    },
+    {
+      "case": "MAX_ANIS",
+      "source": "void main(){void value=openborconstant(\"MAX_ANIS\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "01000000a2000000",
+          "expected_hex": "01000000a2000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25201283
+      }
+    },
+    {
+      "case": "dynamic_name",
+      "source": "void main(){void value=openborconstant(\"ANI_FOLLOW\"+\"5\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "01000000a2000000",
+          "expected_hex": "01000000a2000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25615277
+      }
+    },
+    {
+      "case": "repeat_dynamic_80",
+      "source": "void main(){openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");openborconstant(\"ANI_FOLLOW\"+\"5\");void value=openborconstant(\"ANI_FOLLOW6\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 32,
+      "checks": [
+        {
+          "actual_hex": "01000000a3000000",
+          "expected_hex": "01000000a3000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 25915725
+      }
+    },
+    {
+      "case": "integer_passthrough_without_table",
+      "source": "void main(){void value=openborconstant(-2147483647);}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "0100000001000080",
+          "expected_hex": "0100000001000080"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 28082631
+      }
+    },
+    {
+      "case": "live_minimum",
+      "source": "void main(){void value=openborconstant(\"PLAYER_MIN_Z\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 1,
+      "checks": [
+        {
+          "actual_hex": "01000000b4000000",
+          "expected_hex": "01000000b4000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 28713335
+      }
+    },
+    {
+      "case": "live_maximum",
+      "source": "void main(){void value=openborconstant(\"player_max_z\");}",
+      "status": 4,
+      "error": 0,
+      "fields": 2,
+      "checks": [
+        {
+          "actual_hex": "01000000e8000000",
+          "expected_hex": "01000000e8000000"
+        }
+      ],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 29244341
+      }
+    },
+    {
+      "case": "no_table",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 29768515
+      }
+    },
+    {
+      "case": "bad_bank",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 30512731
+      }
+    },
+    {
+      "case": "bad_base",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 30836700
+      }
+    },
+    {
+      "case": "bad_count",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 30938345
+      }
+    },
+    {
+      "case": "bank_spill",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31024586
+      }
+    },
+    {
+      "case": "header_count_mismatch",
+      "source": "void main(){openborconstant(\"ANI_FALL\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31111594
+      }
+    },
+    {
+      "case": "unbound_name",
+      "source": "void main(){openborconstant(\"ANI_FOLLOW11\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31197122
+      }
+    },
+    {
+      "case": "decimal_rejected",
+      "source": "void main(){openborconstant(2.5);}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31303975
+      }
+    },
+    {
+      "case": "no_level_bounds_owner",
+      "source": "void main(){openborconstant(\"PLAYER_MIN_Z\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 2,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31589350
+      }
+    },
+    {
+      "case": "no_world_owner",
+      "source": "void main(){openborconstant(\"PLAYER_MIN_Z\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 31872033
+      }
+    },
+    {
+      "case": "no_level",
+      "source": "void main(){openborconstant(\"PLAYER_MIN_Z\");}",
+      "status": 5,
+      "error": 10,
+      "fields": 1,
+      "checks": [],
+      "injection_checkpoint": {
+        "cpuType": "Snes",
+        "pc": 38465,
+        "k": 0,
+        "a": 256,
+        "x": 0,
+        "y": 1,
+        "sp": 8185,
+        "d": 0,
+        "dbr": 0,
+        "ps": 0,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 32018256
+      }
+    }
+  ],
+  "authority": "af23dc9 openborscript.c mapstrings_transconst/openbor_transconst; pinned animation enum/expansion arrays",
+  "capability": "source animation constants plus exclusively owned live PLAYER_MIN_Z/MAX_Z",
+  "live_level_owner_bound": false,
+  "other_constant_families_bound": false,
+  "motu_gameplay_proven": false,
+  "compiler": {
+    "schema": "BYOR_SOURCE_SCRIPT_CONSTANTS_V1",
+    "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "animation_authority_sha256": "22179e3182ef91475650e59af5c509580777842ddc742764bbcd05dbded394de",
+    "records": [
+      {
+        "name": "ani_up",
+        "kind": 0,
+        "value": 29
+      },
+      {
+        "name": "ani_die",
+        "kind": 0,
+        "value": 24
+      },
+      {
+        "name": "ani_get",
+        "kind": 0,
+        "value": 16
+      },
+      {
+        "name": "ani_run",
+        "kind": 0,
+        "value": 37
+      },
+      {
+        "name": "ani_up1",
+        "kind": 0,
+        "value": 29
+      },
+      {
+        "name": "ani_burn",
+        "kind": 0,
+        "value": 32
+      },
+      {
+        "name": "ani_cant",
+        "kind": 0,
+        "value": 62
+      },
+      {
+        "name": "ani_die2",
+        "kind": 0,
+        "value": 75
+      },
+      {
+        "name": "ani_die3",
+        "kind": 0,
+        "value": 76
+      },
+      {
+        "name": "ani_die4",
+        "kind": 0,
+        "value": 77
+      },
+      {
+        "name": "ani_die5",
+        "kind": 0,
+        "value": 97
+      },
+      {
+        "name": "ani_die6",
+        "kind": 0,
+        "value": 98
+      },
+      {
+        "name": "ani_die7",
+        "kind": 0,
+        "value": 99
+      },
+      {
+        "name": "ani_die8",
+        "kind": 0,
+        "value": 100
+      },
+      {
+        "name": "ani_die9",
+        "kind": 0,
+        "value": 101
+      },
+      {
+        "name": "ani_down",
+        "kind": 0,
+        "value": 30
+      },
+      {
+        "name": "ani_duck",
+        "kind": 0,
+        "value": 60
+      },
+      {
+        "name": "ani_fall",
+        "kind": 0,
+        "value": 5
+      },
+      {
+        "name": "ani_grab",
+        "kind": 0,
+        "value": 17
+      },
+      {
+        "name": "ani_idle",
+        "kind": 0,
+        "value": 0
+      },
+      {
+        "name": "ani_jump",
+        "kind": 0,
+        "value": 2
+      },
+      {
+        "name": "ani_land",
+        "kind": 0,
+        "value": 3
+      },
+      {
+        "name": "ani_pain",
+        "kind": 0,
+        "value": 4
+      },
+      {
+        "name": "ani_pick",
+        "kind": 0,
+        "value": 25
+      },
+      {
+        "name": "ani_rise",
+        "kind": 0,
+        "value": 6
+      },
+      {
+        "name": "ani_turn",
+        "kind": 0,
+        "value": 103
+      },
+      {
+        "name": "ani_walk",
+        "kind": 0,
+        "value": 1
+      },
+      {
+        "name": "max_anis",
+        "kind": 0,
+        "value": 162
+      },
+      {
+        "name": "ani_block",
+        "kind": 0,
+        "value": 13
+      },
+      {
+        "name": "ani_die10",
+        "kind": 0,
+        "value": 102
+      },
+      {
+        "name": "ani_dodge",
+        "kind": 0,
+        "value": 50
+      },
+      {
+        "name": "ani_down1",
+        "kind": 0,
+        "value": 30
+      },
+      {
+        "name": "ani_faint",
+        "kind": 0,
+        "value": 61
+      },
+      {
+        "name": "ani_fall2",
+        "kind": 0,
+        "value": 72
+      },
+      {
+        "name": "ani_fall3",
+        "kind": 0,
+        "value": 73
+      },
+      {
+        "name": "ani_fall4",
+        "kind": 0,
+        "value": 74
+      },
+      {
+        "name": "ani_fall5",
+        "kind": 0,
+        "value": 91
+      },
+      {
+        "name": "ani_fall6",
+        "kind": 0,
+        "value": 92
+      },
+      {
+        "name": "ani_fall7",
+        "kind": 0,
+        "value": 93
+      },
+      {
+        "name": "ani_fall8",
+        "kind": 0,
+        "value": 94
+      },
+      {
+        "name": "ani_fall9",
+        "kind": 0,
+        "value": 95
+      },
+      {
+        "name": "ani_idle1",
+        "kind": 0,
+        "value": 0
+      },
+      {
+        "name": "ani_pain2",
+        "kind": 0,
+        "value": 69
+      },
+      {
+        "name": "ani_pain3",
+        "kind": 0,
+        "value": 70
+      },
+      {
+        "name": "ani_pain4",
+        "kind": 0,
+        "value": 71
+      },
+      {
+        "name": "ani_pain5",
+        "kind": 0,
+        "value": 85
+      },
+      {
+        "name": "ani_pain6",
+        "kind": 0,
+        "value": 86
+      },
+      {
+        "name": "ani_pain7",
+        "kind": 0,
+        "value": 87
+      },
+      {
+        "name": "ani_pain8",
+        "kind": 0,
+        "value": 88
+      },
+      {
+        "name": "ani_pain9",
+        "kind": 0,
+        "value": 89
+      },
+      {
+        "name": "ani_rise2",
+        "kind": 0,
+        "value": 126
+      },
+      {
+        "name": "ani_rise3",
+        "kind": 0,
+        "value": 127
+      },
+      {
+        "name": "ani_rise4",
+        "kind": 0,
+        "value": 128
+      },
+      {
+        "name": "ani_rise5",
+        "kind": 0,
+        "value": 129
+      },
+      {
+        "name": "ani_rise6",
+        "kind": 0,
+        "value": 130
+      },
+      {
+        "name": "ani_rise7",
+        "kind": 0,
+        "value": 131
+      },
+      {
+        "name": "ani_rise8",
+        "kind": 0,
+        "value": 132
+      },
+      {
+        "name": "ani_rise9",
+        "kind": 0,
+        "value": 133
+      },
+      {
+        "name": "ani_riseb",
+        "kind": 0,
+        "value": 135
+      },
+      {
+        "name": "ani_rises",
+        "kind": 0,
+        "value": 136
+      },
+      {
+        "name": "ani_shock",
+        "kind": 0,
+        "value": 31
+      },
+      {
+        "name": "ani_sleep",
+        "kind": 0,
+        "value": 80
+      },
+      {
+        "name": "ani_slide",
+        "kind": 0,
+        "value": 122
+      },
+      {
+        "name": "ani_spawn",
+        "kind": 0,
+        "value": 23
+      },
+      {
+        "name": "ani_throw",
+        "kind": 0,
+        "value": 20
+      },
+      {
+        "name": "ani_upper",
+        "kind": 0,
+        "value": 12
+      },
+      {
+        "name": "ani_walk1",
+        "kind": 0,
+        "value": 1
+      },
+      {
+        "name": "ani_attack",
+        "kind": 0,
+        "value": 7
+      },
+      {
+        "name": "ani_charge",
+        "kind": 0,
+        "value": 78
+      },
+      {
+        "name": "ani_fall10",
+        "kind": 0,
+        "value": 96
+      },
+      {
+        "name": "ani_grabup",
+        "kind": 0,
+        "value": 57
+      },
+      {
+        "name": "ani_pain10",
+        "kind": 0,
+        "value": 90
+      },
+      {
+        "name": "ani_rise10",
+        "kind": 0,
+        "value": 134
+      },
+      {
+        "name": "ani_select",
+        "kind": 0,
+        "value": 59
+      },
+      {
+        "name": "ani_attack1",
+        "kind": 0,
+        "value": 8
+      },
+      {
+        "name": "ani_attack2",
+        "kind": 0,
+        "value": 9
+      },
+      {
+        "name": "ani_attack3",
+        "kind": 0,
+        "value": 10
+      },
+      {
+        "name": "ani_attack4",
+        "kind": 0,
+        "value": 11
+      },
+      {
+        "name": "ani_burndie",
+        "kind": 0,
+        "value": 67
+      },
+      {
+        "name": "ani_follow1",
+        "kind": 0,
+        "value": 81
+      },
+      {
+        "name": "ani_follow2",
+        "kind": 0,
+        "value": 82
+      },
+      {
+        "name": "ani_follow3",
+        "kind": 0,
+        "value": 83
+      },
+      {
+        "name": "ani_follow4",
+        "kind": 0,
+        "value": 84
+      },
+      {
+        "name": "ani_follow5",
+        "kind": 0,
+        "value": 162
+      },
+      {
+        "name": "ani_follow6",
+        "kind": 0,
+        "value": 163
+      },
+      {
+        "name": "ani_follow7",
+        "kind": 0,
+        "value": 164
+      },
+      {
+        "name": "ani_follow8",
+        "kind": 0,
+        "value": 165
+      },
+      {
+        "name": "ani_follow9",
+        "kind": 0,
+        "value": 166
+      },
+      {
+        "name": "ani_grabbed",
+        "kind": 0,
+        "value": 35
+      },
+      {
+        "name": "ani_grabup2",
+        "kind": 0,
+        "value": 58
+      },
+      {
+        "name": "ani_hitwall",
+        "kind": 0,
+        "value": 109
+      },
+      {
+        "name": "ani_respawn",
+        "kind": 0,
+        "value": 104
+      },
+      {
+        "name": "ani_runjump",
+        "kind": 0,
+        "value": 106
+      },
+      {
+        "name": "ani_special",
+        "kind": 0,
+        "value": 21
+      },
+      {
+        "name": "ani_walkoff",
+        "kind": 0,
+        "value": 161
+      },
+      {
+        "name": "ani_attackup",
+        "kind": 0,
+        "value": 40
+      },
+      {
+        "name": "ani_backwalk",
+        "kind": 0,
+        "value": 79
+      },
+      {
+        "name": "ani_burnpain",
+        "kind": 0,
+        "value": 34
+      },
+      {
+        "name": "ani_follow10",
+        "kind": 0,
+        "value": 167
+      },
+      {
+        "name": "ani_grabdown",
+        "kind": 0,
+        "value": 55
+      },
+      {
+        "name": "ani_grabturn",
+        "kind": 0,
+        "value": 118
+      },
+      {
+        "name": "ani_grabwalk",
+        "kind": 0,
+        "value": 112
+      },
+      {
+        "name": "ani_jumpcant",
+        "kind": 0,
+        "value": 65
+      },
+      {
+        "name": "ani_jumpland",
+        "kind": 0,
+        "value": 107
+      },
+      {
+        "name": "ani_runslide",
+        "kind": 0,
+        "value": 123
+      },
+      {
+        "name": "ani_shockdie",
+        "kind": 0,
+        "value": 68
+      },
+      {
+        "name": "ani_special2",
+        "kind": 0,
+        "value": 36
+      },
+      {
+        "name": "player_max_z",
+        "kind": 2,
+        "value": 0
+      },
+      {
+        "name": "player_min_z",
+        "kind": 1,
+        "value": 0
+      },
+      {
+        "name": "ani_backwalk1",
+        "kind": 0,
+        "value": 79
+      },
+      {
+        "name": "ani_blockpain",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_chipdeath",
+        "kind": 0,
+        "value": 148
+      },
+      {
+        "name": "ani_grabdown2",
+        "kind": 0,
+        "value": 56
+      },
+      {
+        "name": "ani_jumpdelay",
+        "kind": 0,
+        "value": 108
+      },
+      {
+        "name": "ani_runattack",
+        "kind": 0,
+        "value": 38
+      },
+      {
+        "name": "ani_shockpain",
+        "kind": 0,
+        "value": 33
+      },
+      {
+        "name": "ani_attackboth",
+        "kind": 0,
+        "value": 51
+      },
+      {
+        "name": "ani_attackdown",
+        "kind": 0,
+        "value": 41
+      },
+      {
+        "name": "ani_blockpain1",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_blockpain2",
+        "kind": 0,
+        "value": 137
+      },
+      {
+        "name": "ani_blockpain3",
+        "kind": 0,
+        "value": 138
+      },
+      {
+        "name": "ani_blockpain4",
+        "kind": 0,
+        "value": 139
+      },
+      {
+        "name": "ani_blockpain5",
+        "kind": 0,
+        "value": 140
+      },
+      {
+        "name": "ani_blockpain6",
+        "kind": 0,
+        "value": 141
+      },
+      {
+        "name": "ani_blockpain7",
+        "kind": 0,
+        "value": 142
+      },
+      {
+        "name": "ani_blockpain8",
+        "kind": 0,
+        "value": 143
+      },
+      {
+        "name": "ani_blockpain9",
+        "kind": 0,
+        "value": 144
+      },
+      {
+        "name": "ani_blockpainb",
+        "kind": 0,
+        "value": 146
+      },
+      {
+        "name": "ani_blockpains",
+        "kind": 0,
+        "value": 147
+      },
+      {
+        "name": "ani_duckattack",
+        "kind": 0,
+        "value": 125
+      },
+      {
+        "name": "ani_grabattack",
+        "kind": 0,
+        "value": 18
+      },
+      {
+        "name": "ani_grabwalkup",
+        "kind": 0,
+        "value": 114
+      },
+      {
+        "name": "ani_guardbreak",
+        "kind": 0,
+        "value": 149
+      },
+      {
+        "name": "ani_jumpattack",
+        "kind": 0,
+        "value": 14
+      },
+      {
+        "name": "ani_riseattack",
+        "kind": 0,
+        "value": 49
+      },
+      {
+        "name": "ani_blockpain10",
+        "kind": 0,
+        "value": 145
+      },
+      {
+        "name": "ani_blockpain11",
+        "kind": 0,
+        "value": 141
+      },
+      {
+        "name": "ani_blockpain12",
+        "kind": 0,
+        "value": 142
+      },
+      {
+        "name": "ani_blockpain13",
+        "kind": 0,
+        "value": 143
+      },
+      {
+        "name": "ani_blockpain14",
+        "kind": 0,
+        "value": 144
+      },
+      {
+        "name": "ani_blockpain15",
+        "kind": 0,
+        "value": 145
+      },
+      {
+        "name": "ani_blockpain16",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_blockpain17",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_blockpain18",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_blockpain19",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_blockpain20",
+        "kind": 0,
+        "value": 124
+      },
+      {
+        "name": "ani_forwardjump",
+        "kind": 0,
+        "value": 105
+      },
+      {
+        "name": "ani_freespecial",
+        "kind": 0,
+        "value": 22
+      },
+      {
+        "name": "ani_grabattack2",
+        "kind": 0,
+        "value": 19
+      },
+      {
+        "name": "ani_grabbedturn",
+        "kind": 0,
+        "value": 119
+      },
+      {
+        "name": "ani_grabbedwalk",
+        "kind": 0,
+        "value": 113
+      },
+      {
+        "name": "ani_grabforward",
+        "kind": 0,
+        "value": 52
+      },
+      {
+        "name": "ani_jumpattack2",
+        "kind": 0,
+        "value": 15
+      },
+      {
+        "name": "ani_jumpattack3",
+        "kind": 0,
+        "value": 27
+      },
+      {
+        "name": "ani_jumpforward",
+        "kind": 0,
+        "value": 54
+      },
+      {
+        "name": "ani_jumpspecial",
+        "kind": 0,
+        "value": 66
+      },
+      {
+        "name": "ani_riseattack2",
+        "kind": 0,
+        "value": 150
+      },
+      {
+        "name": "ani_riseattack3",
+        "kind": 0,
+        "value": 151
+      },
+      {
+        "name": "ani_riseattack4",
+        "kind": 0,
+        "value": 152
+      },
+      {
+        "name": "ani_riseattack5",
+        "kind": 0,
+        "value": 153
+      },
+      {
+        "name": "ani_riseattack6",
+        "kind": 0,
+        "value": 154
+      },
+      {
+        "name": "ani_riseattack7",
+        "kind": 0,
+        "value": 155
+      },
+      {
+        "name": "ani_riseattack8",
+        "kind": 0,
+        "value": 156
+      },
+      {
+        "name": "ani_riseattack9",
+        "kind": 0,
+        "value": 157
+      },
+      {
+        "name": "ani_riseattackb",
+        "kind": 0,
+        "value": 159
+      },
+      {
+        "name": "ani_riseattacks",
+        "kind": 0,
+        "value": 160
+      },
+      {
+        "name": "ani_throwattack",
+        "kind": 0,
+        "value": 63
+      },
+      {
+        "name": "ani_chargeattack",
+        "kind": 0,
+        "value": 64
+      },
+      {
+        "name": "ani_freespecial1",
+        "kind": 0,
+        "value": 22
+      },
+      {
+        "name": "ani_freespecial2",
+        "kind": 0,
+        "value": 26
+      },
+      {
+        "name": "ani_freespecial3",
+        "kind": 0,
+        "value": 28
+      },
+      {
+        "name": "ani_freespecial4",
+        "kind": 0,
+        "value": 44
+      },
+      {
+        "name": "ani_freespecial5",
+        "kind": 0,
+        "value": 45
+      },
+      {
+        "name": "ani_freespecial6",
+        "kind": 0,
+        "value": 46
+      },
+      {
+        "name": "ani_freespecial7",
+        "kind": 0,
+        "value": 47
+      },
+      {
+        "name": "ani_freespecial8",
+        "kind": 0,
+        "value": 48
+      },
+      {
+        "name": "ani_grabbackwalk",
+        "kind": 0,
+        "value": 120
+      },
+      {
+        "name": "ani_grabbackward",
+        "kind": 0,
+        "value": 110
+      },
+      {
+        "name": "ani_grabforward2",
+        "kind": 0,
+        "value": 53
+      },
+      {
+        "name": "ani_grabwalkdown",
+        "kind": 0,
+        "value": 116
+      },
+      {
+        "name": "ani_riseattack10",
+        "kind": 0,
+        "value": 158
+      },
+      {
+        "name": "ani_attackforward",
+        "kind": 0,
+        "value": 42
+      },
+      {
+        "name": "ani_grabbackward2",
+        "kind": 0,
+        "value": 111
+      },
+      {
+        "name": "ani_grabbedwalkup",
+        "kind": 0,
+        "value": 115
+      },
+      {
+        "name": "ani_runjumpattack",
+        "kind": 0,
+        "value": 39
+      },
+      {
+        "name": "ani_attackbackward",
+        "kind": 0,
+        "value": 43
+      },
+      {
+        "name": "ani_grabbedbackwalk",
+        "kind": 0,
+        "value": 121
+      },
+      {
+        "name": "ani_grabbedwalkdown",
+        "kind": 0,
+        "value": 117
+      }
+    ],
+    "live_level_bounds_owner_required": true,
+    "additional_constant_families_bound": false,
+    "world_owner_bound": false,
+    "motu_gameplay_proven": false,
+    "table_sha256": "fde1ac70137a68332e66d0b7a5eb4aba23d5f049d18d98301d271c5d4571d4cd",
+    "table_bytes": 7544
+  },
+  "native_fixture_report": "out/byor-motu-script-constants-native-binary-search/report.json",
+  "rom_audit": "out/byor-motu-script-constants-final-audit.log: ALL CHECKS PASS",
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction_applied": true,
+  "search_policy": "canonical (name length, lowercase bytes) immutable table; bounded binary lookup",
+  "failed_attempts": [
+    "dynamic owned-string header was rejected before accepting source dynamic flags",
+    "80-call linear-table case remained yielded at the 60-field observation boundary; binary lookup completes in 32 observed fields"
+  ],
+  "numeric_string_addition_bound": false,
+  "source_200hz_deadline_proven": false
+}

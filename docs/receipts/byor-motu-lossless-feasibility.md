@@ -857,3 +857,42 @@ All 17 protected files remain unchanged; bank 0 still has two bytes free.
 Concurrent static recovery remains FAIL in the fresh bounded smoke, with queue,
 cache and CPU diagnostics retained. Receipt:
 `byor-motu-callback-lifecycle-native.json`. No color reduction is applied.
+
+### Static recovery completion and inherited latency
+
+The source-residency trace proves forward progress: each missing enemy block
+is admitted while unused OBJ slots remain. A longer bounded observation reaches
+first player publication at field 200 and enemy publication at field 689.
+Both actors recover their latest observed deferrals by field 775. The retained
+byte-checked control ROM produces the same publication fields and the same 762
+additional fields of observation. Source presentation code is unchanged.
+
+This supersedes the inference that the 300-field failure demonstrates permanent
+starvation. That failed bound is retained and remains the tool's default. The
+explicit 1200-field observation passes eventual recovery for this first-stage
+smoke, with substantial inherited loading latency; it does not certify a loading
+latency requirement, source cadence or a full campaign. Receipt:
+`byor-motu-static-publication-latency.json`.
+
+### Source constants and live level boundaries
+
+A canonical immutable table derives 186 animation constants from pinned enum
+and configured expansion arrays. Engine animation IDs remain separate from
+compiler frame handles. MAX_ANIS is the enum sentinel 162, whereas MOTU's
+configured animation capacity is 168. Live PLAYER_MIN_Z/MAX_Z entries require
+an additional current-level owner; values never alias the original-BOR world.
+Other constant families and unknown names remain explicitly unbound.
+
+Twenty-two native cases pass, including case-folded aliases, dynamic heap
+names, 80 repeated dynamic calls with zero retained heap objects, INTEGER
+passthrough, live bounds and descriptor/type/owner rejection. Native string
+mapping converts its argument temporary and releases that string's ownership
+before returning a complete INTEGER. Immutable rows use bounded binary search.
+The initial owned-string-header rejection is corrected. The 80-call linear
+lookup attempt was still yielded at its 60-field observation bound; binary
+search completes in 32 observed fields. This is not a 200-Hz deadline proof.
+
+Five focused constant/animation authority tests and the full ROM audit pass.
+All 17 protected files are unchanged and bank 0 still has two bytes free.
+Production source world, live level ownership and Demo gameplay remain unbound.
+Receipt: `byor-motu-script-constants-native.json`. No color reduction is applied.

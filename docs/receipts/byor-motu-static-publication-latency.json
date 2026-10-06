@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_STATIC_FIRST_PUBLICATION_LATENCY_CONTROL_V1",
+  "status": "PASS_WITH_INHERITED_LATENCY",
+  "candidate_rom_sha256": "3b81c5af1b6c7ddd6d67bb00c095b2628f668949d3887f0051516a2dbfc5ab0a",
+  "control_rom_sha256": "09b903da5d128b5d15c53a055aa72b9ad5d4db3dcfdcf4da4c804d5f1fdde74a",
+  "candidate_report": "out/byor-motu-static-first-publication-latency/result.json",
+  "control_report": "out/byor-motu-static-control-publication-latency/result.json",
+  "first_publication_field": {
+    "0": 200,
+    "32": 689
+  },
+  "latest_deferral_recovery_field": 775,
+  "additional_admission_fields": 762,
+  "maximum_additional_admission_fields": 1200,
+  "presentation_code_changed": false,
+  "original_300_field_gate": "FAIL retained and default unchanged",
+  "source_loading_latency_requirement_satisfied": false,
+  "scope": "Original BOR Easy Kula selector/first stage; neither campaign traversal nor MOTU source cadence",
+  "no_color_reduction_applied": true
+}

@@ -13581,6 +13581,11 @@ Footdie_StreamSource:
 .include "core/vm/vm_source_world_birth.pasm"
 .include "core/vm/vm_source_variables.pasm"
 .include "core/vm/vm_source_callback.pasm"
+.include "core/vm/vm_source_constants.pasm"
+
+.org $B000
+SourceVM_ConstantReservation:
+    .ds 16384,$FF
 
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication

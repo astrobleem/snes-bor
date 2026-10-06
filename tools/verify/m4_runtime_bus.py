@@ -20,7 +20,10 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--rom', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--max-admission-fields',type=int,default=300,
+                   help='Bounded resource warmup measurement; default retains the original 300-field failure gate')
     a = p.parse_args(); a.rom = a.rom.resolve(); a.output = a.output.resolve()
+    if not 1<=a.max_admission_fields<=1600:raise ValueError('STATIC_ADMISSION_OBSERVER_BOUND')
     a.output.mkdir(parents=True, exist_ok=True)
     lua = a.output / 'observer.lua'
     lua.write_text('''local active=false;local selected=false;local fields=0
@@ -65,7 +68,7 @@ emu.addEventCallback(function()
  end
  if selected and state==PLAYING then active=true end
 end,emu.eventType.endFrame)
-'''.replace('STATE',str(startup.STATE)).replace('CHARSELECT',str(startup.CHARSELECT))
+'''.replace('320',str(a.max_admission_fields+20)).replace('STATE',str(startup.STATE)).replace('CHARSELECT',str(startup.CHARSELECT))
         .replace('PLAYING',str(startup.PLAYING)), encoding='utf-8')
     class Observed(McpSession):
         def __enter__(self):
@@ -93,10 +96,10 @@ end,emu.eventType.endFrame)
         # Resource admission can span fields. Keep the proof bounded, but
         # require the actual post-Emit player flag rather than an early sample.
         leases = read_block(m,0x7e4a80,192)
-        for extra in range(301):
+        for extra in range(a.max_admission_fields+1):
             if leases[28]==1 and all(not int.from_bytes(leases[i+6:i+8],'little')
                                     or leases[i+28]==1 for i in range(0,192,32)): break
-            if extra==300: break
+            if extra==a.max_admission_fields: break
             run_frames_exact(m,1)
             leases = read_block(m,0x7e4a80,192)
         lease=leases[:32]
@@ -125,10 +128,14 @@ end,emu.eventType.endFrame)
     reporter.check('each deferred actor subsequently publishes source OAM',recovered)
     reporter.check('player publishes source-sized OAM',witness['published'].get('0',0)>0)
     reporter.check('four bounded production fields observed', len(samples) == 4)
+    first_publication={}
+    for row in visual:
+        for record,seq in row['published'].items():first_publication.setdefault(record,row['field'])
     result = dict(rom_sha256=hashlib.sha256(a.rom.read_bytes()).hexdigest(),
         checks=reporter.results, campaign_state=campaign, source_visual_error=error, bus_samples=samples,
         source_visual_observer=visual,source_busy_deferrals_recovered=recovered,
         final_diagnostics=diagnostics,
+        first_publication_field=first_publication,maximum_additional_admission_fields=a.max_admission_fields,
         player_visual_lease_hex=lease.hex(),actor_visual_leases_hex=leases.hex(),additional_admission_fields=extra,
         scope='Original BOR Easy Kula selector/first-stage only; no campaign traversal or new raster admission.',
         no_pcm_copies=True)

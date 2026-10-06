@@ -56,7 +56,7 @@ def role_id(configuration,role):
 def animation_constant(configuration,name):
     # ICMPCONST precedes ICMPSCONSTA/B; constant names use case folding.
     name=name.upper();enum=configuration['authority']['enum']
-    if name in enum and name!='MAX_ANIS':return enum[name]
+    if name in enum:return enum[name]
     match=re.fullmatch(r'ANI_([A-Z]+)([1-9][0-9]*)',name)
     if not match or match[1].lower() not in FAMILIES:
         raise ValueError('ANIMATION_CONSTANT_UNSUPPORTED:'+name)

@@ -69,6 +69,12 @@ Vm_NativeVariantDispatch__spawn_name:
 Vm_NativeVariantDispatch__spawn:
 .a16
 .i16
+    cmp #$020B                     ; openborconstant(name or INTEGER)
+    bne Vm_NativeVariantDispatch__birth
+    jmp Vm_SourceConstantGet
+Vm_NativeVariantDispatch__birth:
+.a16
+.i16
     cmp #$0212                     ; spawn(), checked source-world pool owner
     bne Vm_NativeVariantDispatch__unbound
     jmp Vm_SourceWorldSpawn
