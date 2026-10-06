@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_M4_PLAYER_SPAWN_HEIGHT_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "c": {
+      "path": "out/byor-motu-player-spawn-height-authority/report.json",
+      "sha256": "3ac5a2e43ef622c9c1d60a6f06dec8f30495c92f611c882775a1bcfceb0095e3",
+      "cases": 37
+    },
+    "source": {
+      "path": "out/byor-motu-player-spawn-height/report.json",
+      "sha256": "7e23ea92e8fa7528f67237ea7fe9145894bb692612cffa4cc40f11f822408cf0"
+    }
+  },
+  "source_default": 300,
+  "negative_override_policy": "Reset to 300",
+  "source_loader_verbatim": true,
+  "native_numeric_policy": "Integer heights 0..32767 exactly represented in Q16; larger positive source heights explicitly rejected by current descriptor backend",
+  "authored_stage_heights": [
+    [
+      300,
+      300,
+      300,
+      300
+    ],
+    [
+      300,
+      300,
+      300,
+      300
+    ]
+  ],
+  "native_drop_jump_branch_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
