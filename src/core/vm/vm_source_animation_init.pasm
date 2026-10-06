@@ -745,8 +745,8 @@ SourceAnimationInit4086_Relaxed_53:
 .i16
     jmp SourceAnimationInit4086_Done
 
-; Issue exactly one fresh frame-zero continuation. Caller must first save any
-; parent frame owner, then run every nested script/effect service to completion.
+; Issue exactly one fresh frame-zero continuation without a live parent.
+; For a parent waiting on frame effects, use StartNestedFrame/FinishNestedFrame.
 SourceAnimationInit4086_StartFrame:
 .a16
 .i16
@@ -804,3 +804,155 @@ SourceAnimationInit4086_Relaxed_59:
     plp
     clc
     rtl
+
+; Atomically save the parent continuation and issue its new frame zero.
+; Issued is captured in the parent's snapshot BEFORE Push clears child owners.
+; Child scripts/effects must really finish; FinishNestedFrame validates their
+; completed invocation and saved parent ticket before restoring/acknowledging.
+SourceAnimationInit4086_StartNestedFrame:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    lda.l SourceAnimationInit4086_Ready
+    cmp #$B4EC
+    beq SourceAnimationInit4086_NestedState
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedState:
+.a16
+.i16
+    lda.l SourceAnimationInit4086_State
+    cmp #1
+    beq SourceAnimationInit4086_NestedFresh
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedFresh:
+.a16
+.i16
+    lda.l SourceAnimationInit4086_Issued
+    beq SourceAnimationInit4086_NestedIssue
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedIssue:
+.a16
+.i16
+    lda #1
+    sta.l SourceAnimationInit4086_Issued
+    jsl SourceFrameStack4086_Push
+    bcc SourceAnimationInit4086_NestedBegin
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedBegin:
+.a16
+.i16
+    lda.l SourceAnimationInit4086_Slot
+    sta.l SourceUpdateFrame4086_Slot
+    lda #0
+    sta.l SourceUpdateFrame4086_Request
+    jsl SourceUpdateFrame4086_Begin
+    bcc SourceAnimationInit4086_NestedGood
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedGood:
+.a16
+.i16
+    ply
+    plx
+    plp
+    clc
+    rtl
+
+SourceAnimationInit4086_FinishNestedFrame:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    lda.l SourceFrameStack4086_Ready
+    cmp #$B4ED
+    beq SourceAnimationInit4086_NestedDepth
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedDepth:
+.a16
+.i16
+    lda.l SourceFrameStack4086_Fault
+    beq SourceAnimationInit4086_NestedDepthValue
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedDepthValue:
+.a16
+.i16
+    lda.l SourceFrameStack4086_Depth
+    bne SourceAnimationInit4086_NestedDepthNonzero
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedDepthNonzero:
+.a16
+.i16
+    cmp #9
+    bcc SourceAnimationInit4086_NestedChild
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedChild:
+.a16
+.i16
+    lda.l SourceUpdateFrame4086_Ready
+    cmp #$B4E3
+    beq SourceAnimationInit4086_NestedChildState
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedChildState:
+.a16
+.i16
+    lda.l SourceUpdateFrame4086_State
+    cmp #2
+    beq SourceAnimationInit4086_NestedChildRequest
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedChildRequest:
+.a16
+.i16
+    lda.l SourceUpdateFrame4086_Request
+    ora.l SourceUpdateFrame4086_Pending
+    beq SourceAnimationInit4086_NestedTicket
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedTicket:
+.a16
+.i16
+    lda.l SourceFrameStack4086_Depth
+    dec a
+    xba
+    asl a
+    clc
+    adc #$F000
+    tax
+    ; Snapshot begins at FB50: C90/C92/C94/CB8 = 140/142/144/168.
+    lda.l $400140,x
+    cmp #$B4EC
+    beq SourceAnimationInit4086_NestedTicketState
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedTicketState:
+.a16
+.i16
+    lda.l $400142,x
+    cmp #1
+    beq SourceAnimationInit4086_NestedTicketIssued
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedTicketIssued:
+.a16
+.i16
+    lda.l $400168,x
+    cmp #1
+    beq SourceAnimationInit4086_NestedTicketSlot
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedTicketSlot:
+.a16
+.i16
+    lda.l $400144,x
+    cmp.l SourceUpdateFrame4086_Slot
+    beq SourceAnimationInit4086_NestedPop
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedPop:
+.a16
+.i16
+    jsl SourceFrameStack4086_Pop
+    bcc SourceAnimationInit4086_NestedComplete
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_NestedComplete:
+.a16
+.i16
+    jmp SourceAnimationInit4086_Done

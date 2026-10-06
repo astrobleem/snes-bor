@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_M4_NESTED_ANIMATION_FRAME_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-model-transition-nested-native/report.json",
+    "sha256": "7b59f96f1a4267bf1b6b9244c6a931cc857dc8a62915da2e75009a735fdd0fc2"
+  },
+  "native_rom_sha256": "b7eaf74a5cac43c70f219aa0bdbdeb57d433e13625ff0ceaddb724f611715e1a",
+  "cases": 179,
+  "source_transitions": 152,
+  "stale_model_ack_rejections": 7,
+  "same_model_noops": 3,
+  "nested_ticket_rejections": 10,
+  "extra_stack_depth_cases": 7,
+  "maximum_native_nested_depth": 8,
+  "peak_call_master_clocks": 338652,
+  "proof": "StartNestedFrame captures a fresh initialization ticket with the parent before pushing/clearing child owners, then issues native update_frame(0). FinishNestedFrame validates completed child slot/request and saved parent lease/state/issued ticket before Pop/ack. All eight stack rows exercised; stale child/snapshot tickets rejected without mutating live data. Parent frame effects remain pending until explicitly completed; clock guards checked.",
+  "native_nested_frame_prefix_bound": true,
+  "child_scripts_and_remaining_effects_instrumented": true,
+  "entity_weapon_metadata_install_bound": true,
+  "full_model_switch_bound": false,
+  "frame_zero_effects_bound": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
