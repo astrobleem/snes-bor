@@ -23,7 +23,7 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False):
     if source_clock and not audio_service:raise ValueError('CLOCK_SERVICE_OWNER_REQUIRED')
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
@@ -31,8 +31,10 @@ def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=Fals
     contract={key:sy[value] for key,value in dict(timer_hook='SourceClock4086_NmiGate',audio_fence='Tad_StreamOneShotHdmaFence',
               frame_counter='Nmi_FrameCounter',hdma_enable='Nmi_HdmaEnable',hdma_current='Nmi_HdmaEnableCurrent').items()}
     if not 0<=palette_prefix<236:raise ValueError('INITIAL_PALETTE_PREFIX_RANGE')
+    palette_count=236-palette_prefix if palette_count is None else palette_count
+    if not 1<=palette_count<=236-palette_prefix:raise ValueError('INITIAL_PALETTE_COUNT_RANGE')
     asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit(contract if canvas_nmi else None,
-         0xb48000 if direct_targets_rom else None,(4+palette_prefix,236-palette_prefix),frame_hook)
+         0xb48000 if direct_targets_rom else None,(4+palette_prefix,palette_count),frame_hook,compact_canvas_nmi,sparse_targets)
     asm+='\n.bank 39\n.org $C000\nSourceRasterFetchWrapper:\n.a16\n.i16\n'+fetch_prologue()
     asm+='    plp\n    jml $%06X\n'%sy['Vm_FetchSource']
     asm+='''
@@ -267,7 +269,7 @@ SourceCanvasClockComplete:
     code.extend(bytes.fromhex('e2 20'))
     for address in (0x2123,0x2124,0x2125,0x212a,0x212b,0x212e,0x212f):
         code.extend(bytes([0xa9,0,0x8d,address&255,address>>8]))
-    shadows={0x7e5000:0,0x7e5004:15,0x7e500c:1,0x7e500d:0,0x7e500e:2,0x7e500f:4,
+    shadows={0x7e5000:0,0x7e5004:15,0x7e500c:0x11 if report.get('native_obj_entries',0) else 1,0x7e500d:0,0x7e500e:2,0x7e500f:4,
              0x7e5010:0x78,0x7e5011:report['offset_map_base']>>9 if 'offset_map_base' in report else 0x58,0x7e5012:0x60,0x7e5003:0x81}
     # The composed foreign canvas owns BG2, including its source foreground.
     # Retire the ordinary frontpanel producer before acquiring that resource.
@@ -280,7 +282,11 @@ SourceCanvasClockComplete:
     code.extend(bytes.fromhex('c2 30'))
     for address,value in [(0x7ff862,0xb4b1 if canvas_nmi else 0),(0x7e5017,0),(0x7e5019,65535),(0x7e501b,0),(0x7e501d,65535),(0x7e501f,0),(0x7e5021,0)]:
         code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
-    code.extend(bytes.fromhex('e2 20 a9 01 8d 0d 42 a9 0f 8d 00 21 a9 81 8d 00 42 58'))
+    # Asset loading and shadow installation can finish late in VBlank.
+    # Enabling NMI there immediately services its pending flag with too little
+    # transfer time. Acquire a fresh edge while still forced blank instead.
+    code.extend(bytes.fromhex('e2 20 ad 12 42 29 80 d0 f9 ad 12 42 29 80 f0 f9'))
+    code.extend(bytes.fromhex('a9 01 8d 0d 42 a9 0f 8d 00 21 a9 81 8d 00 42 58'))
     loop=0x8000+len(code)
     code.extend(bytes.fromhex('22 00 c6 a7' if audio_service else '22 00 c0 a7'))
     code.extend(bytes([0x5c,loop&255,loop>>8,0xa8]))

@@ -13,7 +13,9 @@ IRQ_FAST=0xa79000
 AFTER_FAST=0xa7b000
 
 
-def emit(canvas_contract=None,targets_rom=None,palette_range=None,frame_hook=None):
+def emit(canvas_contract=None,targets_rom=None,palette_range=None,frame_hook=None,compact_canvas_nmi=False,sparse_targets=False):
+    if compact_canvas_nmi and canvas_contract is None:raise ValueError('COMPACT_CANVAS_OWNER_REQUIRED')
+    if sparse_targets and (targets_rom is None or frame_hook is None):raise ValueError('SPARSE_RASTER_FRAME_OWNER_REQUIRED')
     code = '''
 SourceRaster_Ready = $7FF840
 SourceRaster_Row = $7FF842
@@ -391,6 +393,67 @@ SourceCanvasNmi:
     plp
     rtl
 '''%canvas_contract
+    if sparse_targets:
+        code=code.replace('SourceRaster_RowLimit = $7FF864','SourceRaster_RowLimit = $7FF864\nSourceRaster_FirstLine = $7FF886')
+        old='''    tax
+    inc a
+    sta.l SourceRaster_Row
+    sep #$20
+.a8
+    sta.l $004209
+    lda.l $%06X,x
+    sta.l $002121'''%targets_rom
+        new='''    tax
+    inc a
+    inc a
+    sta.l SourceRaster_Row
+    sep #$20
+.a8
+    lda.l $%06X,x
+    sta.l $002121
+    lda.l $%06X,x
+    sta.l $004209'''%(targets_rom,targets_rom+1)
+        if code.count(old)!=1:raise ValueError('SPARSE_RASTER_IRQ_CURSOR_CONTRACT')
+        code=code.replace(old,new)
+        # CMP above established C=0 for every in-range event. One ADC advances
+        # the two-byte cursor; keep the frequent DMA path falling into restore.
+        code=code.replace('    tax\n    inc a\n    inc a\n    sta.l SourceRaster_Row',
+                          '    tax\n    adc #2\n    sta.l SourceRaster_Row',1)
+        disable='''SourceRasterIrqDisable:
+.a16
+.i16
+    sep #$20
+.a8
+    lda.l SourceRaster_BaseEnable
+    sta.l $004200
+'''
+        if code.count(disable)!=1:raise ValueError('SPARSE_RASTER_DISABLE_BOUNDARY')
+        code=code.replace('    bra SourceRasterIrqRestore\n'+disable,'',1)
+        marker='SourceRasterIrqReturn:\n.a16\n.i16\n    rti'
+        code=code.replace(marker,marker+'\n'+disable+'    bra SourceRasterIrqRestore',1)
+        # The compiler publishes the sparse end cursor and first VIRQ line.
+        code=code.replace('    clc\n    adc #224\n    sta.l SourceRaster_RowLimit\n','')
+        code=code.replace('    lda #0\n    sta.l $004209','    lda.l SourceRaster_FirstLine\n    sta.l $004209')
+    if compact_canvas_nmi:
+        # The canvas branch already skips the legacy Core_Nmi JSR. Execute
+        # palette publication before returning through the existing native RTI,
+        # avoiding an extra hardware return frame and the saved-stack shuffle.
+        first=code.index('.org $B000');last=code.index('.bank 39\n.org $E000',first)
+        compact=code[first:last].replace('.org $B000','.bank 39\n.org $B800')
+        compact=compact.replace('SourceRasterNmiAfter','SourceRasterCompactAfter')
+        compact=compact.replace('SourceRasterAfter','SourceRasterCompact')
+        compact=compact.replace('    rti','    rtl')
+        marker='    jsl $A7E000\nSourceRasterNmiLegacyCore:'
+        if code.count(marker)!=1:raise ValueError('COMPACT_CANVAS_NMI_BOUNDARY')
+        code=code.replace(marker,'''    jsl $A7E000
+    jsl $A7B800
+    plb
+    plx
+    pla
+    plp
+    rtl
+SourceRasterNmiLegacyCore:''',1)
+        code+='\n'+compact
     return code
 
 

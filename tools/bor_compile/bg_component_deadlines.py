@@ -4,6 +4,7 @@ The cost model selects an offline candidate. It is not measured runtime
 admission. A failed greedy schedule is explicitly a heuristic limit.
 """
 import argparse
+import math
 import json
 from pathlib import Path
 import numpy as np
@@ -29,30 +30,33 @@ def derive_jobs(plan, maps, starts, bases=None):
     return jobs
 
 
-def cost(items,setup_clocks=336):
+def cost(items,setup_clocks=336,refresh_clocks=0):
+    if not 0<=refresh_clocks<1364:raise ValueError('TRANSFER_REFRESH_WINDOW')
     ordered=sorted(items,key=lambda j:j['address']);runs=0;end=-1
     for item in ordered:
         if item['address']!=end:runs+=1
         end=item['address']+item['bytes']
-    return sum(j['bytes'] for j in ordered)*8+runs*setup_clocks
+    data=sum(j['bytes'] for j in ordered)*8
+    return math.ceil(data*1364/(1364-refresh_clocks))+runs*setup_clocks
 
 
-def schedule(jobs, mandatory, last, budget,setup_clocks=336,palette_allowance=5000):
+def schedule(jobs, mandatory, last, budget,setup_clocks=336,palette_allowance=5000,refresh_clocks=0,late_release_first=False):
     pending=list(jobs);fields=[]
     for field in range(last+1):
         selected=[];fixed=mandatory.get(field,[])
-        candidates=sorted((j for j in pending if j['release']<=field),key=lambda j:(j['deadline'],j['address']))
+        candidates=sorted((j for j in pending if j['release']<=field),
+            key=lambda j:(j['deadline'],-j['release'] if late_release_first else 0,j['address']))
         # Startup can fill otherwise unoccupied slots before the clock starts.
         ceiling=None if field==0 else budget-palette_allowance
         for job in candidates:
-            if ceiling is None or cost(fixed+selected+[job],setup_clocks)<=ceiling:selected.append(job)
+            if ceiling is None or cost(fixed+selected+[job],setup_clocks,refresh_clocks)<=ceiling:selected.append(job)
         selected_ids={id(j) for j in selected}
         pending=[j for j in pending if id(j) not in selected_ids]
         missed=[j for j in pending if j['deadline']<=field]
         fields.append(dict(field=field,jobs=selected,mandatory=fixed,
-                           estimated_master_clocks=cost(fixed+selected,setup_clocks)+(0 if field==0 else palette_allowance),
+                           estimated_master_clocks=cost(fixed+selected,setup_clocks,refresh_clocks)+(0 if field==0 else palette_allowance),
                            missed_deadline_jobs=missed,
-                           mandatory_budget_exceeded=ceiling is not None and cost(fixed,setup_clocks)>ceiling))
+                           mandatory_budget_exceeded=ceiling is not None and cost(fixed,setup_clocks,refresh_clocks)>ceiling))
         if missed or fields[-1]['mandatory_budget_exceeded']:return fields,False
     return fields,not pending
 

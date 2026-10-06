@@ -20,13 +20,29 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_ed
 import game_bor_startup_select as startup
 
 
-def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False):
+def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
+    hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
     assets=[sequence/f'frame-{i:02d}' for i in range(len(schedule['source_frame_start_fields']))]
-    reports=[json.loads((p/'frame.json').read_text()) for p in assets]
+    if hybrid:
+        from m4_hybrid_scene_native import prepare
+        prepared=[prepare(p) for p in assets];reports=[v[1] for v in prepared];assets=[v[3] for v in prepared]
+        for r in reports:r['native_obj_entries']=plan['static_obj_entries']
+    else:reports=[json.loads((p/'frame.json').read_text()) for p in assets]
     initials=[json.loads((p/'initial.json').read_text()) for p in assets]
     prefix=100
+    if hybrid:
+        prefix=0
+        while prefix<236 and all((v[prefix] or 0)==(initials[0][prefix] or 0) for v in initials):prefix+=1
+        if prefix==236:raise ValueError('HYBRID_FULLY_STATIC_SEQUENCE_RESTORE_NOT_REQUIRED')
+    suffix=0
+    if hybrid:
+        while suffix<236-prefix and all((v[235-suffix] or 0)==(initials[0][235-suffix] or 0) for v in initials):suffix+=1
+        for r in reports:
+            if any(e['slot']>236-suffix and (e['color'] or 0)!=(initials[0][e['slot']-1] or 0)
+                   for row in r['trace'] for e in row['updates']):raise ValueError('HYBRID_FIXED_SUFFIX_MUTATION')
+    palette_count=236-prefix-suffix;palette_bytes=palette_count*2
     if any(row[:prefix]!=initials[0][:prefix] for row in initials):raise ValueError('SEQUENCE_ANCHOR_IDENTITY')
     for r,initial in zip(reports,initials):
         if any(e['slot']<=prefix and e['color']!=initial[e['slot']-1] for row in r['trace'] for e in row['updates']):
@@ -40,7 +56,13 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         (cache/f'{name}.chr').write_bytes(data)
         (cache/f'0-{name}.map').write_bytes((residency/f'00-{name}.map').read_bytes())
     (cache/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=49152)))
-    component,_,resources=compile_rom(reports[0],assets[0],74 if audio_service else 76,cache,offset_alias=True)
+    kwargs={}
+    if hybrid:
+        if not plan.get('offset_map_aliases_bg2') or not plan.get('static_obj_subdivision'):
+            raise ValueError('HYBRID_PRODUCTION_LAYOUT_UNPROVEN')
+        kwargs=dict(high_tile_offset=64,obj_obsel=0,obj_chr=(residency/'obj.chr').read_bytes(),
+            oam=(residency/'oam.bin').read_bytes(),obj_rom_bank=5,obj_rom_address=0xb000)
+    component,_,resources=compile_rom(reports[0],assets[0],65 if sparse_palette else (74 if audio_service else 76),cache,offset_alias='low' if hybrid else True,**kwargs)
     fields=schedule['fields']+[dict(field=schedule['fields'][-1]['field']+1,jobs=[],mandatory=[])]
     fields[0]=dict(field=0,jobs=[],mandatory=[])
     # Pack all per-field programs and their immutable bytes into fast ROM.
@@ -62,7 +84,7 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         reserve=256+40*len(packets);data_size=sum(len(p[1]) for p in packets)
         if cursor%32768+reserve+data_size>32768:cursor=(cursor//32768+1)*32768
         if cursor+reserve+data_size>64*32768:raise ValueError('PRODUCTION_SEQUENCE_FASTROM_CAPACITY')
-        start=cursor;payload=start+reserve;code=bytearray();config=None;bank_state=None
+        start=cursor;payload=start+reserve;code=bytearray();config=None;bank_state=None;source_end=None
         def longword(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
         def descriptor(address,value):
             # The compiled programs execute sequentially under one exclusive
@@ -72,8 +94,12 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         def word(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8d,address&255,address>>8]))
         # The post-NMI hook initializes Row and RowLimit from TargetBase.
         # Writing them again here only spends the transfer window.
-        descriptor(0x7ff844,frame*256)
-        descriptor(0x7ff84e,0x8000+frame*272);descriptor(0x7ff850,0xae)
+        descriptor(0x7ff844,frame*(512 if sparse_palette else 256))
+        if sparse_palette:
+            events=[r for r in reports[frame]['trace'] if r['scanline'] and r['updates']]
+            descriptor(0x7ff864,frame*512+len(events)*2)
+            descriptor(0x7ff886,events[0]['scanline'] if events else 224)
+        descriptor(0x7ff84e,0x8000+frame*palette_bytes);descriptor(0x7ff850,0xae)
         offset=frame*8192
         descriptor(0x7ff848,offset&65535);descriptor(0x7ff84a,0xe0+(offset>>16));descriptor(0x7ff84c,reports[frame]['span']*2)
         descriptor(0x7ff870,frame);longword(0x7ff872,row['field'])
@@ -82,7 +108,8 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
             word(0x2116,address//2)
             if config!=0x1801:word(0x4370,0x1801);config=0x1801
             if bank_state!=bank:word(0x4374,bank);bank_state=bank
-            word(0x4372,source);word(0x4375,len(data));word(0x420b,128)
+            if not hybrid or source_end!=(bank,source):word(0x4372,source)
+            word(0x4375,len(data));word(0x420b,128);source_end=(bank,(source+len(data))&65535)
             blocks.append((payload,bytes(data)));payload+=len(data)
         code.append(0x6b)
         if len(code)>reserve:raise ValueError('PRODUCTION_SEQUENCE_CODE_RESERVATION')
@@ -122,7 +149,7 @@ SourceCanvasProgramTable:
 '''%(len(programs),len(programs)-1)
     for program in programs:
         pos=program['start'];asm+='    .dw $%04X,$%04X\n'%(0x8000+pos%32768-1,0x80+pos//32768)
-    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock)
+    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette)
     rom=bytearray(raw)
     for first,size in [(46*32768,32768),(53*32768,11*32768),(64*32768,5*65536)]:
         if rom[first:first+size]!=bytes(size):raise ValueError('PRODUCTION_SEQUENCE_ROM_RESERVATION_OCCUPIED')
@@ -130,19 +157,29 @@ SourceCanvasProgramTable:
     traces=[]
     for i,(r,initial) in enumerate(zip(reports,initials)):
         state=list(initial);target=bytearray();payload=bytearray();trace=[]
+        events=[row['scanline'] for row in r['trace'] if row['scanline'] and row['updates']]
         for row,burst in zip(r['trace'],r['contiguous_bursts']):
             if row['scanline']:
                 for e in row['updates']:state[e['slot']-1]=e['color']
+            if sparse_palette and row['scanline'] not in events:continue
             slot=burst['start_slot'];target.append(slot+3)
+            if sparse_palette:
+                idx=events.index(row['scanline']);target.append(events[idx+1] if idx+1<len(events) else 224)
             data=struct.pack('<'+'H'*r['span'],*[c or 0 for c in state[slot-1:slot-1+r['span']]])
             payload.extend(data);trace.extend([f'2121:{slot+3:02x}',*[f'2122:{b:02x}' for b in data]])
-        rom[52*32768+i*256:52*32768+i*256+224]=target
-        rom[46*32768+i*272:46*32768+(i+1)*272]=struct.pack('<136H',*[c or 0 for c in initial[prefix:]])
+        stride=512 if sparse_palette else 256
+        rom[52*32768+i*stride:52*32768+i*stride+len(target)]=target
+        rom[46*32768+i*palette_bytes:46*32768+(i+1)*palette_bytes]=struct.pack('<'+'H'*palette_count,*[c or 0 for c in initial[prefix:prefix+palette_count]])
         pos=64*32768+i*8192;rom[pos:pos+len(payload)]=payload
         traces.append(trace)
     resources.update(programs=programs,source_frame_start_fields=schedule['source_frame_start_fields'],production_canvas_nmi=True,
                      palette_prefix_colors=prefix,no_live_world_claim=True,production_audio_service=audio_service,
                      native_source_clock_service=source_clock)
+    resources.update(hybrid_static_obj=hybrid,per_field_palette_restore_bytes=palette_bytes)
+    resources.update(fixed_palette_suffix_words=suffix)
+    resources['compact_canvas_nmi']=compact_canvas_nmi
+    resources['sparse_palette_events']=sparse_palette
+    if hybrid:resources.update(static_obj_oam_sha256=plan['oam_sha256'],static_obj_subdivision=plan['static_obj_subdivision'])
     return bytes(rom),gates,resources,traces,assets
 
 
@@ -205,14 +242,16 @@ emu.addMemoryCallback(function(a,v)
  end
 end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addEventCallback(function()
- if active and n>0 and completed<75 then
+ if active and (n>0 or SPARSEEVENTS) and completed<75 then
+  frame=word(0x7ff870)
   displayfield=word(0x7ff872);displayed=frame
   emu.log('PRODSEQTRACE|'..displayfield..'|'..frame..'|'..table.concat(data,','));data={};n=0;completed=completed+1
   emu.log('PRODSEQWINDOW|'..displayfield..'|'..firstmin..'|'..firstmax..'|'..lastmin..'|'..lastmax)
   firstmin=9999;firstmax=0;lastmin=9999;lastmax=0
  end
 end,emu.eventType.endFrame)
-'''+gate_observer(gates,'word(0x7ff84c)',sy['Vm_Fetch']-32768,sy['nmi_handler']-32768)+'''
+'''.replace('SPARSEEVENTS','true' if resources.get('sparse_palette_events') else 'false')+gate_observer(gates,'word(0x7ff84c)',sy['Vm_Fetch']-32768,sy['nmi_handler']-32768,
+                 sy['nmi_handler']+7-32768 if resources.get('compact_canvas_nmi') else None)+'''
 local vramunsafe=0;local boundaries=0
 emu.addMemoryCallback(function(a,v)
  if active then
@@ -226,7 +265,23 @@ emu.addMemoryCallback(function()
   emu.log('PRODSEQRETURN|'..word(0x7ff872)..'|'..s['ppu.scanline']..'|'..s.masterClock..'|'..s['ppu.frameCount']..'|'..vramunsafe)
   boundaries=boundaries+1
  end
-end,emu.callbackType.exec,'''+str(39*32768+(gates['SourceRasterAfterReturn']&65535)-32768)+''','''+str(39*32768+(gates['SourceRasterAfterReturn']&65535)-32768)+''',emu.cpuType.snes,emu.memType.snesPrgRom)
+end,emu.callbackType.exec,'''+str(sy['nmi_handler']+7-32768 if resources.get('compact_canvas_nmi') else 39*32768+(gates['SourceRasterAfterReturn']&65535)-32768)+''','''+str(sy['nmi_handler']+7-32768 if resources.get('compact_canvas_nmi') else 39*32768+(gates['SourceRasterAfterReturn']&65535)-32768)+''',emu.cpuType.snes,emu.memType.snesPrgRom)
+''')
+    if resources.get('hybrid_static_obj'):
+        with lua.open('a') as script:
+            script.write('''
+local hybridshown=false;local hybridcount=0;local hybridoam={}
+emu.addMemoryCallback(function(a,v)
+ if not hybridshown then hybridcount=hybridcount+1;hybridoam[(hybridcount-1)%544+1]=string.format('%02x',v) end
+end,emu.callbackType.write,0x2104,0x2104,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addMemoryCallback(function(a,v)
+ if v==15 and word(0x7ff840)==0xb4b0 and not hybridshown then
+  hybridshown=true;local ordered={}
+  for i=1,544 do ordered[i]=hybridoam[(hybridcount+i-1)%544+1] or '' end
+  emu.log('PRODHYBRIDOAM|'..table.concat(ordered,''))
+ end
+end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addEventCallback(function() if hybridshown then emu.log('PRODHYBRIDFLAGS|'..emu.read(0x213e,emu.memType.snesMemory)) end end,emu.eventType.endFrame)
 ''')
     if resources.get('production_audio_service'):
         with lua.open('a') as script:
@@ -282,7 +337,8 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
     for line in lines:
         if 'PRODSEQTRACE|' in line:
             field,frame,data=line.split('PRODSEQTRACE|',1)[1].split('|',2);frame=int(frame)
-            observed.append(dict(field=int(field),frame=frame,verified=data.split(',')==traces[frame],writes=len(data.split(','))))
+            values=data.split(',') if data else []
+            observed.append(dict(field=int(field),frame=frame,verified=values==traces[frame],writes=len(values)))
     contexts=[line.split('GATECONTEXT|',1)[1] for line in lines if 'GATECONTEXT|' in line]
     counts=[int(v) for v in contexts[-1].split(',')] if contexts else [0,0,-1,0,-1,0]
     starts=resources['source_frame_start_fields']
@@ -311,6 +367,12 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
                 nmi_returns=returns,transfer_window_verified=transfer_window,
                 scope='Continuous fixed-context compiled sequence through a banked canvas NMI after real production cold boot. No live compositor, world or TAD frame-service admission.')
     result['pass']=owned and len(observed)>=73 and cadence and pixel_cadence and transfer_window and all(r['verified'] for r in observed) and counts[2]==0 and counts[4]==0 and counts[5]<=50464 and set(range(len(assets)))<=set(i for p in pixels for i in p['matches'])
+    if resources.get('hybrid_static_obj'):
+        oam=[v.split('PRODHYBRIDOAM|',1)[1] for v in lines if 'PRODHYBRIDOAM|' in v]
+        flags=[int(v.split('PRODHYBRIDFLAGS|',1)[1]) for v in lines if 'PRODHYBRIDFLAGS|' in v]
+        result.update(oam_observer_verified=len(oam)==1 and hashlib.sha256(bytes.fromhex(oam[0])).hexdigest()==resources['static_obj_oam_sha256'],
+            obj_overflow_samples=sum(bool(v&0xc0) for v in flags),obj_status_samples=len(flags))
+        result['pass']=result['pass'] and result['oam_observer_verified'] and bool(flags) and not result['obj_overflow_samples']
     if resources.get('production_audio_service'):
         audio=[list(map(int,line.split('PRODSEQAUDIO|',1)[1].split('|'))) for line in lines if 'PRODSEQAUDIO|' in line]
         spans=[audio[i+1][1]-audio[i][1] for i in range(0,len(audio)-1,2)]
@@ -344,9 +406,11 @@ def main():
     for n in ('sequence','residency','deadlines','rom','output'):p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--audio-service',action='store_true')
     p.add_argument('--source-clock',action='store_true')
+    p.add_argument('--compact-canvas-nmi',action='store_true')
+    p.add_argument('--sparse-palette',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
-    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock)
+    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette)
     (folder/'proof.sfc').write_bytes(rom)
     (folder/'compiled.json').write_text(json.dumps(dict(resources=resources,gates=gates,assets=[str(p) for p in assets],traces=traces),indent=2))
     print('PRODUCTION_SEQUENCE_COMPILED')

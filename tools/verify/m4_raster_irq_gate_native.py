@@ -56,8 +56,8 @@ def combine(raw,report,folder,timer):
 
 
 
-def gate_observer(sy,data_bytes,irq_entry=256,nmi_entry=288):
-    end=39*32768+(sy['SourceRasterAfterReturn']&65535)-32768
+def gate_observer(sy,data_bytes,irq_entry=256,nmi_entry=288,nmi_return=None):
+    end=39*32768+(sy['SourceRasterAfterReturn']&65535)-32768 if nmi_return is None else nmi_return
     return '''\nemu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0x7ff85c,0x7ff85c,emu.cpuType.snes,emu.memType.snesMemory)
 local pending={};local started={};local counts={IRQ=0,NMI=0};local faults=0;local irqpeak=0;local nmipeak=0;local unsafe=0
 local function snapshot()
@@ -77,14 +77,21 @@ local function leave(kind)
   for k,v in pairs(old) do if new[k]~=v then faults=faults+1;emu.log('GATECONTEXTFAIL|'..kind..'|'..k..'|'..v..'|'..new[k]) end end
   counts[kind]=counts[kind]+1
   if kind=='IRQ' then irqpeak=math.max(irqpeak,emu.getState()['masterClock']-started[kind]) end
-  if kind=='NMI' then nmipeak=math.max(nmipeak,emu.getState()['masterClock']-started[kind]) end
+  if kind=='NMI' then
+   local elapsed=emu.getState()['masterClock']-started[kind]
+   nmipeak=math.max(nmipeak,elapsed)
+   if counts.NMI<=90 then
+    local lo=emu.read(0x7ff872,emu.memType.snesMemory);local hi=emu.read(0x7ff873,emu.memType.snesMemory)
+    emu.log('GATENMITIME|'..(lo+256*hi)..'|'..elapsed)
+   end
+  end
  end
  pending[kind]=nil
 end
 emu.addMemoryCallback(function() if (emu.getState()['cpu.ps'] & 4)~=0 then enter('IRQ') end end,emu.callbackType.exec,IRQENTRY,IRQENTRY,emu.cpuType.snes,emu.memType.snesPrgRom)
 emu.addMemoryCallback(function() if emu.read(0x7ff840,emu.memType.snesMemory)==0xb0 and emu.read(0x7ff841,emu.memType.snesMemory)==0xb4 then enter('NMI') end end,emu.callbackType.exec,NMIENTRY,NMIENTRY,emu.cpuType.snes,emu.memType.snesPrgRom)
 emu.addMemoryCallback(function() leave('IRQ') end,emu.callbackType.exec,IRQRETURN,IRQRETURN,emu.cpuType.snes,emu.memType.snesPrgRom)
-emu.addMemoryCallback(function() leave('NMI') end,emu.callbackType.exec,NMIRETURN,NMIRETURN,emu.cpuType.snes,emu.memType.snesPrgRom)
+emu.addMemoryCallback(function() NMIRETURNFILTER end,emu.callbackType.exec,NMIRETURN,NMIRETURN,emu.cpuType.snes,emu.memType.snesPrgRom)
 local databyte=0
 emu.addMemoryCallback(function() databyte=0 end,emu.callbackType.write,0x2121,0x2121,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)
@@ -97,7 +104,7 @@ emu.addMemoryCallback(function(a,v)
  end
 end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addEventCallback(function() emu.log('GATECONTEXT|'..counts.IRQ..','..counts.NMI..','..faults..','..irqpeak..','..unsafe..','..nmipeak) end,emu.eventType.endFrame)
-'''.replace('IRQRETURN',str(39*32768+(sy['SourceRasterIrqReturn']&65535)-32768)).replace('NMIRETURN',str(end)).replace('DATASIZE',str(data_bytes)).replace('IRQENTRY',str(irq_entry)).replace('NMIENTRY',str(nmi_entry))
+'''.replace('NMIRETURNFILTER',"if emu.read(0x7ff840,emu.memType.snesMemory)==0xb0 and emu.read(0x7ff841,emu.memType.snesMemory)==0xb4 then leave('NMI') end" if nmi_return is not None else "leave('NMI')").replace('IRQRETURN',str(39*32768+(sy['SourceRasterIrqReturn']&65535)-32768)).replace('NMIRETURN',str(end)).replace('DATASIZE',str(data_bytes)).replace('IRQENTRY',str(irq_entry)).replace('NMIENTRY',str(nmi_entry))
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
