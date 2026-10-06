@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_M4_MODEL_CORE_LOADER_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority_sha256": "6d211be18dcbd2da555246b1716b9dc1eb24ff245c8908364a9fff07db32f57a",
+  "authority_report": {
+    "path": "out/byor-motu-model-core-authority/report.json",
+    "sha256": "ee6f5d4527f04a0e16601a09cd9d3349db0ad04aa0f7dd6c465299beb4ef3e76"
+  },
+  "cases": 214,
+  "authored_models": 16,
+  "cache_row_bytes": 160,
+  "cache_bytes": 2560,
+  "inputs": {
+    "path": "out/byor-motu-model-core-inputs.json",
+    "sha256": "97ad07df455584158fe4c47b155d008bd07260c5523d160c5251b06cdb4abc45"
+  },
+  "proof": "Verbatim pinned type, mask and AI loader helpers, selected init_model assignments, model command branches and postloader defaults. Compare all 39 cached fields and declared type bit-for-bit. Media loader services use explicit symbolic identities.",
+  "media_indices_bound": false,
+  "complete_model_constructor_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "unrelated_protected_files_unchanged": 17
+}
