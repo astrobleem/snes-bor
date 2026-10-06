@@ -30,7 +30,7 @@ def offset(address):return (address>>16)*32768+(address&65535)-32768
 
 
 def build(original,sy,folder):
-    rom=bytearray(original);target=sy['StageTimer_NmiField']
+    rom=bytearray(original);target=sy.get('SourceClock4086_NmiGate',sy['StageTimer_NmiField'])
     needle=bytes([0x22,target&255,target>>8&255,target>>16])
     entry=rom.find(needle)
     if entry<0 or rom.find(needle,entry+1)>=0:raise ValueError('SOURCE_INPUT_NMI_HOOK_CHANGED')

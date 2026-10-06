@@ -450,6 +450,9 @@ StageTimer_NmiField:
     rep #$20
 .a16
     pha
+StageTimer_NmiField__after_save:
+.a16
+.i16
     lda.l Game_CampaignId
     and #$00FF
     cmp #STAGE_TIMER_CAMPAIGN

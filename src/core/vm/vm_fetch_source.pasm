@@ -29,6 +29,7 @@ Vm_FetchSourceInit:
     sta.l VmSourceConstants_Ready
     sta.l VmSourceLevelBounds_Ready
     sta.l VmSourceInput_Ready
+    sta.l SourceClock4086_Ready
     ; Dynamic pool headers need an actual cold-boot owner. Older string
     ; fixtures cleared them through debug writes; random WRAM is not free.
     ldx #0

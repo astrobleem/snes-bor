@@ -1,0 +1,19 @@
+{
+  "schema": "BOR4086_SOURCE_CLOCK_AUTHORITY_V1",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "files": {
+    "engine/openbor.c": "fa319b01a0cd47dea0921e31eaa3532f614716c72ae3a780c5e2675bdcb0703a",
+    "engine/sdl/timer.c": "4bbc0c71d92e13c37f0e0f314e5682be1cbaecb64c3c1467f03fd564a0a5ebf5",
+    "engine/openbor.h": "3d54f4d40f76c0e51fc30617c5dedd968ab57168a063cd349dc104ae5fc8756b"
+  },
+  "source_game_speed": 200,
+  "sdl_timer_hz": 1000,
+  "source_interval_block_ms": 5,
+  "backlog_rules": {
+    "over_200": 1,
+    "over_50": 50
+  },
+  "ordering": "getinterval before inputrefresh; paused observations consume wall time; time increments only after update_ents",
+  "target_policy": "Explicit NTSC 224-line non-interlace field observation at 21477270 master clocks per second, 357368 clocks per full field, four fewer per odd short field",
+  "source_platform_clock_equivalence_claim": false
+}

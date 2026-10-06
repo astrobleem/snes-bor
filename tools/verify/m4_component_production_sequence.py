@@ -20,7 +20,7 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_ed
 import game_bor_startup_select as startup
 
 
-def build(sequence,residency,deadlines,original,sy,folder,audio_service=False):
+def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
     assets=[sequence/f'frame-{i:02d}' for i in range(len(schedule['source_frame_start_fields']))]
@@ -122,7 +122,7 @@ SourceCanvasProgramTable:
 '''%(len(programs),len(programs)-1)
     for program in programs:
         pos=program['start'];asm+='    .dw $%04X,$%04X\n'%(0x8000+pos%32768-1,0x80+pos//32768)
-    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service)
+    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock)
     rom=bytearray(raw)
     for first,size in [(46*32768,32768),(53*32768,11*32768),(64*32768,5*65536)]:
         if rom[first:first+size]!=bytes(size):raise ValueError('PRODUCTION_SEQUENCE_ROM_RESERVATION_OCCUPIED')
@@ -141,7 +141,8 @@ SourceCanvasProgramTable:
         pos=64*32768+i*8192;rom[pos:pos+len(payload)]=payload
         traces.append(trace)
     resources.update(programs=programs,source_frame_start_fields=schedule['source_frame_start_fields'],production_canvas_nmi=True,
-                     palette_prefix_colors=prefix,no_live_world_claim=True,production_audio_service=audio_service)
+                     palette_prefix_colors=prefix,no_live_world_claim=True,production_audio_service=audio_service,
+                     native_source_clock_service=source_clock)
     return bytes(rom),gates,resources,traces,assets
 
 
@@ -275,6 +276,8 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
             if field>=72 and advanced>=77:break
         (folder/'cpu-state.json').write_text(json.dumps(m.get_cpu_state(),indent=2))
         (folder/'audio-closeout.bin').write_bytes(m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64))
+        if resources.get('native_source_clock_service'):
+            (folder/'clock-closeout.bin').write_bytes(m.read_memory('SnesMemory',sy['SourceClock4086_Ready'],80))
     lines=(folder/'mesen.log').read_text().splitlines();observed=[]
     for line in lines:
         if 'PRODSEQTRACE|' in line:
@@ -323,6 +326,14 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
                       audio_stream_transport_complete_verified=audio[-1][3]==audio[-1][5] and audio[-1][6]==1 if audio else False,
                       scope='Continuous fixed-context sequence with the real production TAD frame and late pumps, plus a native original-BOR source-2 stream request. No moving compositor, MOTU audio binding or live world admission.')
         result['pass']=result['pass'] and admitted
+    if resources.get('native_source_clock_service'):
+        closeout=(folder/'clock-closeout.bin').read_bytes()
+        def clock_word(name):return struct.unpack_from('<H',closeout,sy[name]-sy['SourceClock4086_Ready'])[0]
+        ready=clock_word('SourceClock4086_Ready');fault=clock_word('SourceClock4086_Fault')
+        time=clock_word('SourceClock4086_TimeLo')+65536*clock_word('SourceClock4086_TimeHi')
+        result.update(native_clock_ready=ready,native_clock_fault=fault,native_clock_ticks_committed=time,
+                      clock_scope='Owned 4086 physical-field clock with empty logical ticks; no live entity update or MOTU gameplay.')
+        result['pass']=result['pass'] and ready==0xb4c5 and fault==0 and time>0
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:v for k,v in result.items() if k not in ('resources','pixels','observer','snapshots','completed_display_pixels','nmi_returns','audio_service_events')}))
     if not result['pass']:raise SystemExit(1)
@@ -332,9 +343,10 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for n in ('sequence','residency','deadlines','rom','output'):p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--audio-service',action='store_true')
+    p.add_argument('--source-clock',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
-    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service)
+    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock)
     (folder/'proof.sfc').write_bytes(rom)
     (folder/'compiled.json').write_text(json.dumps(dict(resources=resources,gates=gates,assets=[str(p) for p in assets],traces=traces),indent=2))
     print('PRODUCTION_SEQUENCE_COMPILED')

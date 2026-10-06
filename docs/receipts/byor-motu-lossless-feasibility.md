@@ -1233,3 +1233,40 @@ MMIO peeks misrepresented JOY2 values; this observer reads the exact native
 captured words instead. Receipt: `byor-motu-input-controller-native.json`.
 Bank zero remains two bytes free; the shared static presentation path is
 unchanged. No color reduction is applied.
+
+### Owned 4086 clock and combined presentation budget
+
+The pinned SDL timer uses 1,000-Hz integer time and five-ms blocks at source
+GAME_SPEED 200. `getinterval` caps intervals above fifty ticks to fifty,
+except values above two hundred reset to one. `update` consumes the interval
+even while paused and increments logical time after the world update. The
+target explicitly adapts observation to NTSC 224-line non-interlace hardware
+fields at 21,477,270 master clocks/second, including the four-clock short
+fields; PC SDL wall-time equivalence is not claimed.
+
+Native field observations, phase arithmetic, pause consumption, real bounded
+backlogs and post-update tick commits pass independently calculated checks.
+The clock epoch captures the hardware odd-field bit once. Short-field totals
+are derived outside NMI, including interval arithmetic across physical-counter
+wrap; the physical counter is read with an interrupt-safe retry. The foreign
+lease retires the legacy stage timer. Opt-out reuses that timer's exact saved
+stack frame and continues its original logic. This avoids maintaining two
+clock owners or paying two save/restore prologues. Sampling gaps of 32,768
+fields or more fail explicitly. Receipt: `byor-motu-source-clock-native.json`.
+
+The combined 40-pose BG sequence now passes with both the new clock and real
+TAD frame/late pumps active. All 75 fields, 4,300,800 visible RGB555 pixels
+and 75 CGRAM traces match exactly. Context faults, unsafe palette samples and
+active-display VRAM writes are zero. Peak NMI entry-to-RTI is 50,244 clocks;
+the minimum RTI-entry margin is 144 against the 64-clock guard. Native RTI
+consumes fifty clocks. The clock commits 249 empty ticks with zero faults.
+Eighteen real original-BOR audio chunks are accepted, without a complete or
+audible playback claim. The 2,913,914-clock maximum service span includes
+interrupts and display epochs. Receipt:
+`byor-motu-component-production-clock-audio-native.json`.
+
+No live entity update, moving compositor, MOTU media or campaign admission is
+claimed. Clock constant columns use separate banked labels: Poppy arithmetic
+on a ROM label discarded its bank in the first failed arithmetic fixture.
+The corrected columns pass the native comparison. No color reduction is
+applied, and bank zero remains two bytes free before NMI.

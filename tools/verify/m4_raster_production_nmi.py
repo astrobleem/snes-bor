@@ -23,11 +23,12 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False):
+    if source_clock and not audio_service:raise ValueError('CLOCK_SERVICE_OWNER_REQUIRED')
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
     from source_raster_irq import fetch_prologue,emit
-    contract={key:sy[value] for key,value in dict(timer_hook='StageTimer_NmiField',audio_fence='Tad_StreamOneShotHdmaFence',
+    contract={key:sy[value] for key,value in dict(timer_hook='SourceClock4086_NmiGate',audio_fence='Tad_StreamOneShotHdmaFence',
               frame_counter='Nmi_FrameCounter',hdma_enable='Nmi_HdmaEnable',hdma_current='Nmi_HdmaEnableCurrent').items()}
     if not 0<=palette_prefix<236:raise ValueError('INITIAL_PALETTE_PREFIX_RANGE')
     asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit(contract if canvas_nmi else None,
@@ -176,6 +177,32 @@ SourceCanvasAudioNearCall:
             raise ValueError('AUDIO_NEAR_RELAY_BANK')
         if original[offset(sy['Tad_ProcessMaybeStream__return'])]!=0x6b:
             raise ValueError('AUDIO_NEAR_RELAY_NOT_RTL')
+    if source_clock:
+        init='    lda #$B4C1\n    sta.l $7FF882\n'
+        if asm.count(init)!=1:raise ValueError('CLOCK_NATIVE_INITIALIZER_BOUNDARY')
+        asm=asm.replace(init,'    jsl $%06X\n'%sy['SourceClock4086_Start']+init)
+        marker='SourceCanvasAudioStart:\n.a16\n.i16\n'
+        job='''    lda #1
+    jsl $%(observe)06X
+    bcs SourceCanvasClockFault
+SourceCanvasClockDrain:
+.a16
+.i16
+    lda.l $%(due)06X
+    beq SourceCanvasClockComplete
+    jsl $%(commit)06X
+    bcc SourceCanvasClockDrain
+SourceCanvasClockFault:
+.a16
+.i16
+    lda #$C5
+    sta.l SourceRaster_Fault
+SourceCanvasClockComplete:
+.a16
+.i16
+'''%dict(observe=sy['SourceClock4086_Observe'],due=sy['SourceClock4086_Due'],commit=sy['SourceClock4086_Commit'])
+        if asm.count(marker)!=1:raise ValueError('CLOCK_NATIVE_SERVICE_BOUNDARY')
+        asm=asm.replace(marker,marker+job)
     (folder/'production-gate.pasm').write_text(asm)
     command=[r'C:\Users\chad\.dotnet\dotnet.exe',r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll',str(folder/'production-gate.pasm'),
              '--output',str(folder/'production-gate.bin'),'--symbols',str(folder/'production-gate.sym'),'--no-pansy']

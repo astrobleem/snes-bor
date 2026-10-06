@@ -219,7 +219,7 @@ Core_Nmi_Play:
 
     ; S8 nominal-field timer must count busy/skipped visual commits too.
     ; This private counter hook preserves registers and never touches PPU.
-    jsl StageTimer_NmiField
+    jsl SourceClock4086_NmiGate
 
     sep #$20
 .a8

@@ -1,0 +1,125 @@
+{
+  "schema": "BYOR_SOURCE_CLOCK_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "ca6c6ffc28a1b6058e3f6a9f1c8db542890b712b77d0967180edf235ed2315f8",
+  "scope": "Native NTSC field clock, pinned 4086 backlog/pause policy and empty tick commits after original bootstrap. No live MOTU world update or gameplay.",
+  "bank0_growth": 0,
+  "no_color_reduction": true,
+  "evidence": "out/byor-motu-source-clock-owner-native/report.json",
+  "field_observations": 190,
+  "interval_observations": 15,
+  "peak_observe_master_clocks": 15252,
+  "tested_raw_ticks": [
+    33,
+    43,
+    77,
+    23,
+    17,
+    23,
+    209,
+    24,
+    26,
+    37,
+    17,
+    33,
+    33,
+    20,
+    7
+  ],
+  "tested_due_ticks": [
+    33,
+    43,
+    50,
+    23,
+    17,
+    23,
+    1,
+    24,
+    26,
+    0,
+    0,
+    0,
+    33,
+    20,
+    7
+  ],
+  "native_commits": [
+    [
+      33,
+      0,
+      0
+    ],
+    [
+      76,
+      0,
+      0
+    ],
+    [
+      126,
+      0,
+      0
+    ],
+    [
+      149,
+      0,
+      0
+    ],
+    [
+      166,
+      0,
+      0
+    ],
+    [
+      189,
+      0,
+      0
+    ],
+    [
+      190,
+      0,
+      0
+    ],
+    [
+      214,
+      0,
+      0
+    ],
+    [
+      240,
+      0,
+      0
+    ],
+    [
+      240,
+      0,
+      0
+    ],
+    [
+      240,
+      0,
+      0
+    ],
+    [
+      240,
+      0,
+      0
+    ],
+    [
+      273,
+      0,
+      0
+    ],
+    [
+      293,
+      0,
+      0
+    ],
+    [
+      300,
+      0,
+      0
+    ]
+  ],
+  "authority": "tools/bor_compile/authority/4086_clock.json",
+  "ownership": "Foreign clock lease retires the legacy stage timer; opt-out tail shares the original save frame and preserves its timer"
+}

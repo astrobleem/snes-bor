@@ -80,6 +80,14 @@ Y/B attack/attack2, A jump, X special, L/R attack3/4 and Select escape as an
 explicit target binding. Its outer refresh retains edges across catch-up ticks.
 The live MOTU input/world owner remains unfinished.
 
+The opt-in 4086 clock counts physical NTSC fields before visual busy gates,
+accounts for short fields, consumes paused intervals and applies the pinned
+50-tick/over-200-tick catch-up limits. Logical time advances only at a tick
+commit. Its exclusive lease retires the legacy stage timer; opt-out preserves
+that timer. Native arithmetic/ownership tests and the combined fixed-context
+BG/audio sequence pass. Those combined ticks are empty: this is not a live
+MOTU actor, combat or campaign owner.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell
