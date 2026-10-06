@@ -1,0 +1,77 @@
+{
+  "schema": "BYOR_M4_NONE_IDLE_PHYSICAL_BIRTH_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "loader": {
+      "path": "out/byor-motu-lifecycle-input-authority/report.json",
+      "sha256": "e8e03ab446f21438df32b18f6e992631bb78e6732786554ec9f53f879aa30c4d",
+      "cases": 36,
+      "status": "PASS"
+    },
+    "inputs": {
+      "path": "out/byor-motu-lifecycle-inputs/report.json",
+      "sha256": "14e7eb788768b4dcf509f96cb947a3584cdaef7e18ce003cd8d71e4fdd996e2e",
+      "cases": null,
+      "status": "DERIVED"
+    },
+    "core_table": {
+      "path": "out/byor-motu-birth-core/report.json",
+      "sha256": "5687f76d46e0af620776a57908d2e8bfc5f041811b439157c5a6491e81222ea5",
+      "cases": null,
+      "status": "DERIVED"
+    },
+    "native_leaf": {
+      "path": "out/byor-motu-birth-core-native/report.json",
+      "sha256": "e0ff0459d0285a91101d145faf2fafcd17fbc106d851f879ca781c7f9704a916",
+      "cases": 82,
+      "status": "PASS"
+    },
+    "typed_birth_lifecycle": {
+      "path": "out/byor-motu-world-birth-core-native/report.json",
+      "sha256": "3c7cdc3c7cb5e6ba1dafd70160fe1fb045701a7dda907db0add39a25147df726",
+      "cases": 29,
+      "status": "PASS"
+    },
+    "authored_callback": {
+      "path": "out/byor-motu-callback-birth-core-native/report.json",
+      "sha256": "87bd4845e42d54055f6d06f4d324c231ab00fa87b051e3557044c71120950206",
+      "cases": 8,
+      "status": "PASS"
+    }
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "candidate_sha256": "7f7557dcb4bd53a2f8dba4161ff0e0887898d8a1936d0f0ac1ef3b1b5b346c82",
+  "table_bytes": 3352,
+  "models": 16,
+  "admitted_existing_birth_policies": 7,
+  "extra_admission": false,
+  "negative_abi_checks": 7,
+  "leaf_peak_master_clocks": 341354,
+  "authored_callback_peak_master_clocks": 1622328,
+  "cost_scope": "isolated calls/callbacks including intervening runtime; not gameplay throughput or contention",
+  "physical_fields": [
+    "96-byte current model core",
+    "32-byte flags",
+    "64-byte relation/lifecycle row",
+    "ent_count increment before alive publication"
+  ],
+  "guards": [
+    "live slot and invalid pointer",
+    "invalid paired registry counts or table bounds",
+    "missing lifecycle leases",
+    "pre-existing named variable ownership requires full constructor cleanup",
+    "sticky faults block source clock"
+  ],
+  "typed_lifecycle_proven": [
+    "spawn to kill",
+    "kill a dead physical pointer returns INTEGER 1",
+    "retire and reuse physical slot with exact reinitialization"
+  ],
+  "authored_callback_proven": true,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-birth-core-audit.log: ALL CHECKS PASS"
+}

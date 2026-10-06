@@ -13639,3 +13639,5 @@ SourceVM_InstructionReservation:
 .org $8000
 .include "core/vm/vm_source_retirement.pasm"
 
+
+.include "core/vm/vm_source_birth_core.pasm"

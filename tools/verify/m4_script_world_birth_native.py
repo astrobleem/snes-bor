@@ -10,6 +10,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from source_model_registry import unpack as unpack_models
 from source_birth_templates import unpack as unpack_birth,STRIDE
+from source_birth_core import unpack as unpack_core,STRIDE as CORE_STRIDE
 from source_world_pool import empty_pool,descriptor,POOL_BANK,POOL_BASE,SIDE_BASE
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
@@ -24,6 +25,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--birth-templates',type=Path,required=True)
     p.add_argument('--frame-aux',action='store_true',help='Lease and verify auxiliary update_frame state during birth')
+    p.add_argument('--birth-core',type=Path,help='Paired B4BI physical core/flags/relation augmentation')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
@@ -34,6 +36,11 @@ def main():
     raw=bytearray(a.rom.resolve().read_bytes())
     if raw[offset:offset+32768]!=b'\xff'*32768:raise ValueError('BIRTH_TABLE_ROM_RESERVATION_OCCUPIED')
     raw[offset:offset+len(models)]=models;raw[offset+len(models):offset+len(models)+len(births)]=births
+    coretable=a.birth_core.read_bytes() if a.birth_core else b''
+    coreaddress=address+len(models)+len(births)
+    if coretable:
+        if unpack_core(coretable)!=count or len(models)+len(births)+len(coretable)>32768:raise ValueError('BIRTH_CORE_PAIRED_RESERVATION')
+        raw[offset+len(models)+len(births):offset+len(models)+len(births)+len(coretable)]=coretable
     rom=a.output/'bor.sfc';rom.write_bytes(raw)
     for path in [a.rom.resolve().with_suffix('.msu'),*a.rom.resolve().parent.glob('bor-*.pcm')]:
         destination=a.output/path.name
@@ -67,6 +74,8 @@ def main():
     }
     cases.extend((n,'HBreath',None,'PTR') for n in motion_cases)
     cases.extend((n,'HBreath',None,'PTR_FAULT' if n in ('toss_range','toss_no_aux') else 'PTR') for n in toss_cases)
+    if coretable:cases.extend((n,'HBreath',None,'FAULT') for n in ('missing_core','existing_vars'))
+    if coretable:cases.extend([(n,'HBreath',None,outcome) for n,outcome in (('kill_birth','PTR_KILLED'),('kill_dead_birth','PTR_KILLED'),('retire_reuse','PTR'))])
     reporter=Reporter('M4-SOURCE-WORLD-BIRTH',kind='GATE');results=[]
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';registry='src/core/vm/vm_source_models.pasm'
     world='src/core/vm/vm_source_world_birth.pasm'
@@ -78,9 +87,10 @@ def main():
         run_frames_exact(m,12)
         for name,model,override,outcome in cases:
             body=toss_cases[name][0] if name in toss_cases else motion_cases.get(name,('',{}))[0]
+            if name in ('kill_birth','kill_dead_birth','retire_reuse'):body='int killed=killentity(born);'+('int second=killentity(born);' if name=='kill_dead_birth' else 'void again=spawn();' if name=='retire_reuse' else '')
             source='void main(){clearspawnentry();setspawnentry("name","'+model+'");void born=spawn();'+body+'}'
             blob,compiled=lower(compile_library(parse_script(source,'birth-probe.c'),
-                                ['clearspawnentry','setspawnentry','spawn','changeentityproperty','NULL','tossentity']),numeric_policy=POLICY)
+                                ['clearspawnentry','setspawnentry','spawn','changeentityproperty','NULL','tossentity','killentity']),numeric_policy=POLICY)
             checkpoint=pause_for_injection(m,syms);m.pause();offsets=struct.unpack_from('<6I',blob,24)
             instructions,slots=struct.unpack_from('<2H',blob,8)
             m.write_memory('snesMemory',c(const,'VmCode_Wram'),blob.hex())
@@ -93,6 +103,15 @@ def main():
                 for n in range(2):struct.pack_into('<H',pool,n*80+4,1)
             if name=='zero_token':pool[:4]=bytes(4)
             pool=bytes(pool)
+            m.write_u16(syms['SourceBirthCore4086_Ready'],0)
+            m.write_u16(syms['SourceRetirement4086_Ready'],0)
+            initial_core=bytes([0xa5])*192;initial_flags=bytes([0xa5])*64;initial_relations=bytes(128)
+            if coretable:
+                for at,data in ((0x40c000,initial_core),(0x43eb00,initial_flags),(0x409000,bytes(8192)),(0x43fd80,bytes(32)),(0x418800,bytes(24576))):m.write_memory('snesMemory',at,data.hex())
+                m.write_u16(0x43fd80,2 if name=='full' else 0)
+                for k,v in [('SourceModelEntityCopy4086_Ready',0xb4eb),('SourceModelEntityCopy4086_Entities',2),('SourceModelEntityCopy4086_Models',16),('SourceIdle4086_Ready',0xb4f3),('SourceSelf4086_Ready',0xb4f6),('SourceSelf4086_GlobalLow',0),('SourceSelf4086_GlobalHigh',0),('SourceSelf4086_Active',0),('SourceSelf4086_Fault',0),('VmSourceVars_Ready',0xb4a4),('VmSourceVars_Base',0x8800),('VmSourceVars_Bank',0x41),('VmSourceVars_Count',384),('SourceRetirement4086_Ready',0xb4f8),('SourceRetirement4086_Status',0),('SourceBirthCore4086_Ready',0xb4f9),('SourceBirthCore4086_Status',0),('SourceBirthCore4086_Base',coreaddress&65535),('SourceBirthCore4086_Bank',coreaddress>>16),('SourceBirthCore4086_Bytes',len(coretable)),('SourceBirthCore4086_Models',16)]:m.write_u16(syms[k],v)
+                if name=='missing_core':m.write_u16(syms['SourceBirthCore4086_Ready'],0)
+                if name=='existing_vars':m.write_memory('snesMemory',0x418800,struct.pack('<I',0x414000).hex())
             m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
             ordered=name in ('reordered_allocated','invalid_order')
@@ -141,11 +160,12 @@ def main():
             actual_sides=read_block(m,(POOL_BANK<<16)+SIDE_BASE,len(sides))
             expected_pool=pool;expected_sides=sides
             born_slot=1 if name=='reordered_allocated' else 0
-            if outcome in ('PTR','PTR_FAULT'):
+            if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
                 model_id=next(row['id'] for row in rows if row['lookup_name']==model.lower())
                 template=births[24+model_id*STRIDE:24+(model_id+1)*STRIDE]
                 at=born_slot*80
                 born=bytearray(pool[at:at+4]+b'\x01\0\0\0'+template[16:88])
+                if outcome=='PTR_KILLED':born[4:8]=bytes(4);born[36:40]=bytes(4)
                 if name in toss_cases:struct.pack_into('<I',born,12,toss_cases[name][2])
                 born=bytes(born)
                 expected_pool=pool[:at]+born+pool[at+80:]
@@ -160,17 +180,28 @@ def main():
             reporter.check(name+' terminal state',(status,error)==((5,10) if outcome in ('FAULT','PTR_FAULT') else (4,0)))
             reporter.check(name+' exact pool publication or no mutation',actual_pool==expected_pool and actual_sides==expected_sides)
             if outcome!='FAULT':
-                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+born_slot*80) if outcome in ('PTR','PTR_FAULT') else bytes(8)
+                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+born_slot*80) if outcome in ('PTR','PTR_FAULT','PTR_KILLED') else bytes(8)
                 reporter.check(name+' complete PTR/EMPTY result',returned==expected)
             if name in toss_cases:
                 reporter.check(name+' exact toss timestamp and untouched adjacent slot',
                     read_block(m,syms['SOURCE_WORLD_TOSS_TIMES'],32)[:8]==struct.pack('<II',toss_cases[name][3],0x55667788))
             if a.frame_aux:
                 expected_aux=bytearray(initial_aux)
-                if outcome in ('PTR','PTR_FAULT'):
+                if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
                     expected_aux[born_slot*20:(born_slot+1)*20]=bytes(16)+struct.pack('<hH',1,0)
                 reporter.check(name+' initialized frame auxiliary row and preserved neighbor',
                     read_block(m,syms['SOURCE_UPDATE_FRAME_AUX'],40)==bytes(expected_aux))
+            if coretable:
+                expected_core=bytearray(initial_core);expected_flags=bytearray(initial_flags);expected_relations=bytearray(initial_relations)
+                if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
+                    row=coretable[24+model_id*CORE_STRIDE:24+(model_id+1)*CORE_STRIDE]
+                    expected_core[born_slot*96:(born_slot+1)*96]=row[16:112]
+                    expected_flags[born_slot*32:(born_slot+1)*32]=row[112:144]
+                    expected_relations[born_slot*64:(born_slot+1)*64]=row[144:208]
+                reporter.check(name+' exact core/flags/relations and count at alive publication',read_block(m,0x40c000,192)==bytes(expected_core) and read_block(m,0x43eb00,64)==bytes(expected_flags) and read_block(m,0x409000,128)==bytes(expected_relations) and startup.u16(m,0x43fd80)==(1 if outcome in ('PTR','PTR_FAULT') else 2 if name=='full' else 0))
+                if name in ('kill_birth','kill_dead_birth','retire_reuse'):
+                    local=compiled['function_local_slots']['main'];expected_kill=struct.pack('<BBHI',1,0,0,1)
+                    reporter.check(name+' typed kill result and dead pointer/reuse identity',read_block(m,c(const,'VmSlots_Wram')+8*local['killed'],32)[:8]==expected_kill and (name!='kill_dead_birth' or read_block(m,c(const,'VmSlots_Wram')+8*local['second'],32)[:8]==expected_kill) and (name!='retire_reuse' or read_block(m,c(const,'VmSlots_Wram')+8*local['again'],32)[:8]==returned))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -180,6 +211,8 @@ def main():
         m.write_u16(syms['SourceWorldTick4086_Ready'],0)
         m.write_u16(syms['SourceToss4086_Ready'],0)
         m.write_u16(syms['SourceUpdateFrame4086_Ready'],0)
+        m.write_u16(syms['SourceBirthCore4086_Ready'],0)
+        m.write_u16(syms['SourceRetirement4086_Ready'],0)
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
@@ -187,6 +220,7 @@ def main():
                 motion_property_cases=list(motion_cases),motion_numeric_policy='ACCEPTED_COMPAT_Q16_16')
     report['toss_cases']=list(toss_cases)
     report['frame_auxiliary_initialization_proven']=a.frame_aux
+    report['physical_birth_core_initialization_proven']=bool(coretable)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

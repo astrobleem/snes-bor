@@ -248,6 +248,30 @@ Vm_SourceWorldBranch_16:
 Vm_SourceWorldSpawn__copy:
 .a16
 .i16
+    lda.l SourceBirthCore4086_Ready
+    bne Vm_SourceWorldSpawn__core_preflight
+    lda.l SourceRetirement4086_Ready
+    beq Vm_SourceWorldSpawn__copy_payload
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__core_preflight:
+.a16
+.i16
+    lda.l VmSourceWorld_SideOffset
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    sta.l SourceBirthCore4086_Slot
+    lda.l VmSourceWorld_Model
+    sta.l SourceBirthCore4086_Model
+    jsl SourceBirthCore4086_Preflight
+    bcc Vm_SourceWorldSpawn__copy_payload
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__copy_payload:
+.a16
+.i16
     ldy #16                        ; template view payload, 72 bytes
 Vm_SourceWorldSpawn__view:
 .a16
@@ -353,6 +377,12 @@ Vm_SourceWorldSpawn__publish_alive:
 .a16
 .i16
     jsl SourceUpdateFrame4086_InitializeBirth
+    jsl SourceBirthCore4086_Apply
+    bcc Vm_SourceWorldSpawn__core_published
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__core_published:
+.a16
+.i16
     lda.l VmSourceWorld_ViewOffset
     tax
     lda #1
