@@ -15,7 +15,7 @@ from dialect_4086 import ENGINE_COMMIT
 
 
 def extract(text, name):
-    match = re.search(r'^(?:(?:HRESULT|int|void|float|double)\s+|entity\s*\*\s*)' + re.escape(name) + r'\s*\([^;]*?\)\s*\{', text, re.M)
+    match = re.search(r'^(?:static\s+)?(?:(?:HRESULT|int|void|float|double)\s+|entity\s*\*\s*)' + re.escape(name) + r'\s*\([^;]*?\)\s*\{', text, re.M)
     if not match: raise ValueError('AUTHORITY_FUNCTION_MISSING:' + name)
     begin = match.start(); i = text.index('{', match.start()); depth = 0; state = 'code'
     while i < len(text):

@@ -1,0 +1,133 @@
+{
+  "schema": "BYOR_4086_CONSTRUCTOR_SCRIPT_CLONE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-script-clone-authority": {
+      "report": "out/byor-motu-script-clone-authority/report.json",
+      "sha256": "c16da58fc9af1fbec396c66543ee926b80a06248f83bbf9351a4de46b92dbf20",
+      "cases": 24
+    },
+    "byor-motu-script-clone-native": {
+      "report": "out/byor-motu-script-clone-native/report.json",
+      "sha256": "5a153e1cb478bbbbb7f15f8059e36b830aa1c333655393a4767a1288852de25d",
+      "cases": 246
+    },
+    "byor-motu-knightbot-script-ctor-native": {
+      "report": "out/byor-motu-knightbot-script-ctor-native/report.json",
+      "sha256": "fbb16361223e081954c90e087a2408890a0d22caef71eac080214d55b01d29c6",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-script-ctor-native": {
+      "report": "out/byor-motu-skeletor-script-ctor-native/report.json",
+      "sha256": "f4852f74d73e439b00f7ec5fa60d2f7b256e7b181f736c481e0d3024078e591c",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-player-script-ctor-native": {
+      "report": "out/byor-motu-player-script-ctor-native/report.json",
+      "sha256": "016c345c61f8e30f47e3cf4e4beb4798b4e5d94fa70b7f2cfa4f27a7e1bc1b04",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-none-script-ctor-native": {
+      "report": "out/byor-motu-none-script-ctor-native/report.json",
+      "sha256": "80ace3138bf7c290a5340499e55d10e1e64a7a91140be46f5382ca04ca4b5014",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-effect-script-ctor-native": {
+      "report": "out/byor-motu-effect-script-ctor-native/report.json",
+      "sha256": "cdb72510de67a1d5c128df251503d7a727c0de65a7f29c7b544ddf7ea98890a4",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 5,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 5,
+          "fault": 0
+        }
+      ]
+    }
+  },
+  "source_requirements": "out/byor-motu-script-clone/report.json",
+  "generic_capability": "NO_SCRIPT_INIT_CLEAR_ENTRIES",
+  "initialized_program_source": "B4CO paired descriptor; inline and external animation scripts both included",
+  "retained_names_and_scopes": true,
+  "entity_owned_named_values_empty": true,
+  "foreign_instance_values_preserved": true,
+  "physical_pointer_replication_claimed": false,
+  "inactive_c_script_pointer_fields_not_semantic_program_identity": true,
+  "indexed_api_admitted": false,
+  "control_memory": {
+    "start": 4438016,
+    "end_exclusive": 4438048,
+    "preceding_lifecycle_end_exclusive": 4438016,
+    "following_animation_cache_start": 4440064,
+    "outside_held_renderer_palette_end_exclusive": 4423168
+  },
+  "new_bank_zero_code": false,
+  "bank_zero_free_before_nmi": 2,
+  "audit": "out/byor-motu-script-clone-audit.log",
+  "script_cleanup_copy_native_bound": true,
+  "actual_authored_default_initialization_after_clone": true,
+  "full_constructor_bound": false,
+  "production_world_installer_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_paths_preserved": 17
+}
