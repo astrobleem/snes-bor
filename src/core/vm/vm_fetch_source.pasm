@@ -53,6 +53,8 @@ Vm_FetchSourceInit:
     sta.l SourceModelAnimation4086_Ready
     sta.l SourceLifecycle4086_Ready
     sta.l SourceLifecycle4086_Status
+    sta.l SourceDefaultPlayer4086_Ready
+    sta.l SourceDefaultPlayer4086_Status
     ; Dynamic pool headers need an actual cold-boot owner. Older string
     ; fixtures cleared them through debug writes; random WRAM is not free.
     ldx #0

@@ -13645,3 +13645,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_default_choice.pasm"
 
 .include "core/vm/vm_source_lifecycle.pasm"
+
+.include "core/vm/vm_source_default_player.pasm"

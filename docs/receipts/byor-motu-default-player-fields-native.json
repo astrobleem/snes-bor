@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_M4_DEFAULT_PLAYER_FIELDS_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "native": {
+      "path": "out/byor-motu-default-player-native/report.json",
+      "sha256": "00b36e464e1beb0bc3cabd23d9d8f152e85dd66e72a1484861279d27a2e5a75c",
+      "cases": 434
+    },
+    "c": {
+      "path": "out/byor-motu-default-player-authority/report.json",
+      "sha256": "b51201c2d77c7bad503c74457614d7637ef1d0653b4ba5b452a72c7531017cde",
+      "cases": 1439
+    }
+  },
+  "native_entry": "SourceDefaultPlayer4086_Apply",
+  "source_scope": "Exact TYPE_PLAYER, current entity modeldata, existing animation after first-animation choice",
+  "callback_semantic_ids": {
+    "player_takedamage": 1,
+    "player_think": 2,
+    "player_trymove": 3,
+    "common_spawn": 4
+  },
+  "makeinv_policy": "time nonzero and makeinv nonzero: invincible=1, blink=(makeinv>0), invinctime=uint32(time+abs(makeinv)), arrowon=1; otherwise preserve fields",
+  "durations_tested": [
+    0,
+    -20,
+    20,
+    800,
+    -800,
+    65536,
+    -65536,
+    2147483647,
+    -2147483647
+  ],
+  "first_animation_completion_instrumented": true,
+  "executable_callback_services_bound": false,
+  "drop_jump_bound": false,
+  "final_idle_platform_wall_bound": false,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-default-player-audit.log: ALL CHECKS PASS"
+}

@@ -20,6 +20,7 @@ def fixtures():
             for t in (0,1,2,32,512):rows.append(dict(base,type=t,**{field:v}))
     rows.extend(dict(base,type=t,mask=m,select=s,time=time) for t,m,s,time in itertools.product((0,1,2,32,512),(2,4,8,6,63),(0,1),(0,48,0xffffffff)))
     rows.extend(dict(base,type=t,subtype=sub,mask=mask,direction=direction,speed=speed,nomove=nomove,ptype=ptype) for t,sub,mask in ((0,0,32),(2,1,0),(2,3,0),(32,0,0)) for direction,speed,nomove,ptype in itertools.product((0,1,2),(0,3),(0,1),(0,1)))
+    rows.extend(dict(base,type=1,existing=1,makeinv=inv,time=time,mask=mask) for inv,time,mask in itertools.product((0,-20,20,800,-800,65536,-65536,2147483647,-2147483647),(0,48,0xffffffff),(0,2,4,6)))
     rows.extend(dict(base,type=t,mask=mask,level=level,mutation=mutation) for t,mask,mutation in ((2,2,1),(1,16,2),(0,32,3),(0,0,4),(2,2,5)) for level in (0,1))
     return rows
 
