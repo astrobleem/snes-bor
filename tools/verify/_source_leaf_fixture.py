@@ -1,0 +1,118 @@
+"""Bounded foreground leaf fixture using the existing native VM portal."""
+import os, re, struct, subprocess
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+from actor_s5_entity_fixture import symbols
+from m4_input_controller_native import offset
+from m4_animation_init_native import luav
+from _harness import McpSession, MESEN_EXE, _free_tcp_port, run_frames_exact, exact_input_edge
+import game_bor_startup_select as startup
+
+REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
+
+
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter):
+    sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
+    if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
+    asm='''.snes
+.bank 39
+.org $8000
+LeafFixture_Gate:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l REQUEST
+ cmp #MAGIC
+ bne LeafFixture_Return
+LeafFixture_Init:
+.a16
+.i16
+ nop
+ jsl APPLY
+LeafFixture_After:
+.a16
+.i16
+ nop
+ bcc LeafFixture_Success
+ lda.l EXPECTFAULT
+ beq LeafFixture_Bad
+ bra LeafFixture_Result
+LeafFixture_Success:
+.a16
+.i16
+ lda.l EXPECTFAULT
+ bne LeafFixture_Bad
+LeafFixture_Result:
+.a16
+.i16
+ nop
+ lda.l INDEX
+ inc a
+ sta.l INDEX
+ cmp #CASES
+ bcs LeafFixture_Done
+ and #7
+ bne LeafFixture_Init
+ bra LeafFixture_Return
+LeafFixture_Bad:
+.a16
+.i16
+ lda #1
+ sta.l ERROR
+LeafFixture_Done:
+.a16
+.i16
+ lda #0
+ sta.l REQUEST
+ sta.l READY
+ sta.l WORLDREADY
+LeafFixture_Return:
+.a16
+.i16
+ ply
+ plx
+ plp
+ php
+ rep #$31
+ phx
+ phy
+ jml RESUME
+'''
+    values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,READY=sy[ready],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy[apply],CASES=len(rows),RESUME=entry+5,MAGIC=magic)
+    for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
+    pasm=folder/'fixture.pasm';pasm.write_text(asm)
+    proc=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(pasm),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True);(folder/'build.log').write_text(proc.stdout+proc.stderr)
+    if proc.returncode:raise ValueError('LEAF_FIXTURE_ASSEMBLY')
+    fs=symbols(folder/'fixture.sym');code=(folder/'fixture.bin').read_bytes()[first:];raw[first:first+len(code)]=code
+    for bank,at,data in tables:
+        if bank not in (59,60) or not 0<=at<=32768-len(data):raise ValueError('LEAF_TABLE_RESERVATION')
+        raw[bank*32768+at:bank*32768+at+len(data)]=data
+    if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('LEAF_GATE')
+    raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['LeafFixture_Gate'])[:3]+b'\xea'
+    rom=folder/'bor.sfc';rom.write_bytes(raw)
+    for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
+        target=folder/media.name
+        if not target.exists():os.link(media.resolve(),target)
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceUpdateFrame4086_','SourceIdle4086_','VmSourceWorld_'))})+'\n'+lua
+    values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
+    for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
+    script=folder/'observer.lua';script.write_text(lua)
+    class Observed(McpSession):
+        def __enter__(self):
+            import mesen_mcp.session as module
+            def launch(argv,**kwargs):return subprocess.Popen([*argv,'--donotsavesettings',str(script)],**kwargs)
+            with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
+    with Observed(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log') as m:
+        with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
+        startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
+        if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('LEAF_BOOTSTRAP')
+        run_frames_exact(m,12);m.write_u16(INDEX,0);m.write_u16(ERROR,0);m.write_u16(REQUEST,magic)
+        for _ in range(2000):
+            run_frames_exact(m,1)
+            if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
+        reporter.check('native leaf batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
+    return raw,(folder/'mesen.log').read_text()

@@ -33,7 +33,7 @@ SourceUpdateFrame4086_AnimIdLo = $7FFB7C
 SourceUpdateFrame4086_AnimIdHi = $7FFB7E
 SourceUpdateFrame4086_ScratchEnd = $7FFB80
 SOURCE_UPDATE_FRAME_AUX = $41F500
-SOURCE_UPDATE_FRAME_QUAKE = $41FF00
+SOURCE_UPDATE_FRAME_QUAKE = $43FB00 ; shared int32 counters, 128*4 bytes
 
 ; Initialize the admitted NONE idle row before alive publication. Other birth
 ; policies must supply their actual source state; this does not admit them.

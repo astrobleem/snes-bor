@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_M4_FRAME_EFFECT_LEAF_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-effect-leaf-native/report.json",
+    "sha256": "9b41b10b8e77d6100093fae751e426bc51143f828c3e122ecc95ef59835f189a"
+  },
+  "cases": 1006,
+  "source_c_cases": 80,
+  "authored_cases": 895,
+  "guard_cases": 31,
+  "production_rom_sha256": "25f669f86c21714f666820294a05683ff846ea6c3fba352f6e4674bb057b43d5",
+  "native_rom_sha256": "fd22f4a8a44e0c28c3001dadd893f43f4564d079e09d38ac7ee83804e2d3e8e9",
+  "source_table_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+  "peak_call_master_clocks": 29394,
+  "proof": "Native QUAKE/JUMP_VELOCITY/REACTIVE handlers execute captured source inputs, then acknowledge exactly one cursor operation. Every authored operation and counter phases covered; pinned-C surviving frame cases include kill and post-idle animation changes. Source current model/animation deliberately differ. int32 shared animation quake counters and level quake; event velocities retain declared Q16.16 compatibility. Stale leases, arithmetic undefined domains and cursor bounds fail before live writes. Cursor publication instrumented; observer verifies all live bytes and CPU context.",
+  "quake_counter_lease": "43FB00..43FCFF",
+  "level_quake_camera_presentation_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
