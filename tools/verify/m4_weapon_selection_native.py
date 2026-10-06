@@ -13,14 +13,14 @@ REQUEST,INDEX,ERROR=0x7ffd80,0x7ffd82,0x7ffd84
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--install-metadata',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text())
     if authority['status']!='PASS' or authority['function_sha256']!='f3aa6e1c2fb5b0ec566b70df86ed487502be6905af07cfff3e4656803052d295':raise ValueError('WEAPON_SELECTION_C_AUTHORITY')
     rows=[]
     for ar in authority['results']:
         c=ar['case'];lists=[[],[2,0],[0,1],[-1,2]];owner=65535 if c['weapon'] is None else lists.index(c['weapon'])
         rows.append(dict(c,owner=owner,slot=(0,1,127)[len(rows)%3],wanted=ar['actual'],fault=int(ar['expected']['unsafe']),bad=''))
-    for bad in ('ready','world','pool','entities','slot','models','players','bank','base','bytes','player_tag','player_reserved','player_high','player_index','owner','count','default'):
+    for bad in (() if a.install_metadata else ('ready','world','pool','entities','slot','models','players','bank','base','bytes','player_tag','player_reserved','player_high','player_index','owner','count','default')):
         base=next(r for r in rows if r['type']==1 and r['number']==1 and r['owner']==1 and not r['fault'])
         rows.append(dict(base,fault=1,bad=bad))
     table=struct.pack('<4s6H',b'B4MW',1,4,8,16,32,0)
@@ -44,6 +44,7 @@ WeaponFixture_Init:
 .a16
 .i16
  nop
+ INSTALLCALL
  jsl APPLY
 WeaponFixture_After:
 .a16
@@ -94,6 +95,7 @@ WeaponFixture_Return:
  phy
  jml RESUME
 '''
+    asm=asm.replace(' INSTALLCALL',(' jsl '+str(sy['SourceWeapon4086_InstallMetadata'])+'\nWeaponFixture_MutateCache:\n.a16\n.i16\n nop') if a.install_metadata else '')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,READY=sy['SourceWeapon4086_Ready'],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy['SourceWeapon4086_Resolve'],CASES=len(rows),RESUME=entry+5)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     pasm=folder/'fixture.pasm';pasm.write_text(asm)
@@ -106,7 +108,7 @@ WeaponFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceWeapon4086_','VmSourceWorld_'))})+'\n'
+    lua='local install_metadata='+str(a.install_metadata).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceWeapon4086_','SourceModelEntityCopy4086_','SourceModelCachedCopy4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local ctx=0;local start=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -114,14 +116,22 @@ local function put(a,v)emu.write(a,v&255,mt);emu.write(a+1,(v>>8)&255,mt)end
 local function long(a,v)put(a,v&65535);put(a+2,(v>>16)&65535)end
 local function set(k,v)put(sy['SourceWeapon4086_'..k],v)end
 local ranges={{0x414000,10240},{0x416800,8192},{0x40c000,12288},{0x43e1c0,2176}}
+if install_metadata then ranges[#ranges+1]={0x40ba00,512}end
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local v=0x414000+80*c.slot;local s=0x416800+64*c.slot;local e=0x40c000+96*c.slot;local meta=0x43e200+16*c.slot
  for _,r in ipairs(ranges)do for i=0,r[2]-1 do emu.write(r[1]+i,0xa5,mt)end end
  put(v+40,1);put(v+42,0);long(v+44,c.player);put(s+2,3);long(e+72,c.type)
  put(meta,c.owner);put(meta+2,c.weapon and #c.weapon or 0);long(meta+4,c.loss);long(meta+8,-1);long(meta+12,0)
  for i=0,3 do long(0x43ea00+4*i,77)end
+ if install_metadata then
+  for i=0,15 do emu.write(meta+i,0xa5,mt)end
+  put(0x40ba20,c.owner);put(0x40ba22,c.weapon and #c.weapon or 0);put(0x40ba24,7);put(0x40ba26,0);long(0x40ba28,c.loss);long(0x40ba2c,-1)
+  put(sy.SourceModelEntityCopy4086_Ready,0xb4eb);put(sy.SourceModelEntityCopy4086_Models,4);put(sy.SourceModelEntityCopy4086_Entities,128)
+  put(sy.SourceModelCachedCopy4086_Ready,0xb4ee);put(sy.SourceModelCachedCopy4086_Models,4)
+ end
  set('Ready',0xb4f1);set('Slot',c.slot);set('NumberLo',c.number&65535);set('NumberHi',(c.number>>16)&65535);set('AnimFlagLo',c.anim_flag&65535);set('AnimFlagHi',(c.anim_flag>>16)&65535)
  set('Base',0x8000);set('Bank',59);set('Bytes',TABLEBYTES);set('Models',4);set('Entities',128);set('Players',4);set('LevelWeaponLo',5);set('LevelWeaponHi',0);set('Selected',65535);set('Sync',65535)
+ if install_metadata then set('Selected',1)end
  put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_PoolBase,0x4000);put(sy.VmSourceWorld_Count,128);put(EXPECTFAULT,c.fault)
  if c.bad=='ready'then set('Ready',0)
  elseif c.bad=='world'then put(sy.VmSourceWorld_Ready,0)
@@ -151,6 +161,10 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local w=c.wanted
  local function expectlong(a,n)for i=0,3 do before[a+i]=(n>>(8*i))&255 end end
+ if install_metadata then
+  local at=0x43e200+16*c.slot;before[at]=c.owner&255;before[at+1]=(c.owner>>8)&255;before[at+2]=c.weapon and #c.weapon or 0;before[at+3]=0;expectlong(at+4,c.loss);expectlong(at+8,-1);expectlong(at+12,0)
+  expectlong(0x40ba20,65535);expectlong(0x40ba28,0);expectlong(0x40ba2c,17)
+ end
  if c.bad==''then for i=0,3 do expectlong(0x43ea00+4*i,w[4+i])end
  elseif c.bad=='owner' or c.bad=='count' or c.bad=='default'then expectlong(0x43ea00+4*c.player,c.loss==3 and c.number or 5)end
  local mismatch=0;for addr,value in pairs(before)do if emu.read(addr,mt)~=value then mismatch=mismatch+1 end end
@@ -158,6 +172,15 @@ emu.addMemoryCallback(function()
  emu.log('WEAPONRESULT|'..word(INDEX)..'|'..word(sy.SourceWeapon4086_Status)..'|'..mismatch..'|'..ctx..'|'..selection)
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
+    if a.install_metadata:
+        lua+=r'''
+emu.addMemoryCallback(function()
+ if word(sy.SourceWeapon4086_Status)~=1 then emu.log('WEAPONINSTALLFAIL|'..word(INDEX))end
+ -- A later cached-model mutation cannot retarget an existing entity's copy.
+ long(0x40ba20,65535);long(0x40ba28,0);long(0x40ba2c,17)
+end,emu.callbackType.exec,MUTATE,MUTATE,emu.cpuType.snes,mt)
+'''
+        values['MUTATE']=fs['WeaponFixture_MutateCache']
     values.update(INIT=fs['WeaponFixture_Init'],AFTER=fs['WeaponFixture_After'],RESULT=fs['WeaponFixture_Result'],TABLEBYTES=len(table))
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     script=folder/'observer.lua';script.write_text(lua)
@@ -181,7 +204,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         for marker,target in [('WEAPONRESULT|',results),('WEAPONCOST|',costs)]:
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('selection/player bookkeeping match C and preserve all unrelated bytes/context',len(results)==len(rows) and all(r==[i,2 if c['fault'] else 1,0,0,0] for i,(r,c) in enumerate(zip(results,rows))))
-    report=dict(schema='BYOR_4086_WEAPON_SELECTION_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),results=results,cpu_costs=costs,source_undefined_rejections=authority['source_undefined_rejections'],authority_report_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),entity_weapon_metadata_install_bound=False,model_transition_bound=False,motu_gameplay_proven=False,live_presentation_contention_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    report=dict(schema='BYOR_4086_WEAPON_SELECTION_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),results=results,cpu_costs=costs,source_undefined_rejections=authority['source_undefined_rejections'],authority_report_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),entity_weapon_metadata_install_bound=a.install_metadata,cached_mutation_after_install_tested=a.install_metadata,model_transition_bound=False,motu_gameplay_proven=False,live_presentation_contention_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

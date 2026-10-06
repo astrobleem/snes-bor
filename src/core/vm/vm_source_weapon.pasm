@@ -30,6 +30,113 @@ SourceWeapon4086_LevelWeaponLo = $7FFE0A
 SourceWeapon4086_LevelWeaponHi = $7FFE0C
 SourceWeapon4086_Players = $7FFE0E
 
+; Remaining shallow modeldata weapon fields, installed by model service 2.
+; Selected is the new cached model ID. Immutable list/ROM validation belongs
+; to Resolve; installation copies pointer identity/count and both loss values.
+SourceWeapon4086_InstallMetadata:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    lda.l SourceWeapon4086_Ready
+    cmp #$B4F1
+    beq SourceWeapon4086_InstallCoreLease
+    jmp SourceWeapon4086_Bad
+SourceWeapon4086_InstallCoreLease:
+.a16
+.i16
+    lda.l SourceModelEntityCopy4086_Ready
+    cmp #$B4EB
+    beq SourceWeapon4086_InstallCacheLease
+    jmp SourceWeapon4086_Bad
+SourceWeapon4086_InstallCacheLease:
+.a16
+.i16
+    lda.l SourceModelCachedCopy4086_Ready
+    cmp #$B4EE
+    beq SourceWeapon4086_InstallModels
+    jmp SourceWeapon4086_Bad
+SourceWeapon4086_InstallModels:
+.a16
+.i16
+    lda.l SourceWeapon4086_Models
+    beq SourceWeapon4086_InstallReject
+    cmp #17
+    bcs SourceWeapon4086_InstallReject
+    cmp.l SourceModelEntityCopy4086_Models
+    bne SourceWeapon4086_InstallReject
+    cmp.l SourceModelCachedCopy4086_Models
+    bne SourceWeapon4086_InstallReject
+    lda.l SourceWeapon4086_Selected
+    cmp.l SourceWeapon4086_Models
+    bcs SourceWeapon4086_InstallReject
+    lda.l SourceWeapon4086_Entities
+    beq SourceWeapon4086_InstallReject
+    cmp #129
+    bcs SourceWeapon4086_InstallReject
+    cmp.l SourceModelEntityCopy4086_Entities
+    bne SourceWeapon4086_InstallReject
+    lda.l SourceWeapon4086_Slot
+    cmp.l SourceWeapon4086_Entities
+    bcc SourceWeapon4086_InstallOffsets
+SourceWeapon4086_InstallReject:
+.a16
+.i16
+    jmp SourceWeapon4086_Bad
+SourceWeapon4086_InstallOffsets:
+.a16
+.i16
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceWeapon4086_Row
+    lda.l SourceWeapon4086_Selected
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceWeapon4086_Offset
+    lda #0
+    sta.l SourceWeapon4086_Temp
+SourceWeapon4086_InstallLoop:
+.a16
+.i16
+    lda.l SourceWeapon4086_Temp
+    cmp #4
+    bcc SourceWeapon4086_InstallSource
+    clc
+    adc #4 ; skip cached flags and reserved words
+SourceWeapon4086_InstallSource:
+.a16
+.i16
+    clc
+    adc.l SourceWeapon4086_Offset
+    tax
+    lda.l $40BA00,x
+    sta.l SourceWeapon4086_Value
+    lda.l SourceWeapon4086_Temp
+    clc
+    adc.l SourceWeapon4086_Row
+    tax
+    lda.l SourceWeapon4086_Value
+    sta.l $43E200,x
+    lda.l SourceWeapon4086_Temp
+    inc a
+    inc a
+    sta.l SourceWeapon4086_Temp
+    cmp #12
+    bcc SourceWeapon4086_InstallLoop
+    lda.l SourceWeapon4086_Row
+    tax
+    lda #0
+    sta.l $43E20C,x
+    sta.l $43E20E,x
+    jmp SourceWeapon4086_Good
+
 SourceWeapon4086_Resolve:
 .a16
 .i16

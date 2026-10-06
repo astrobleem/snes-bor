@@ -326,6 +326,24 @@ SourceModelTransition4086_InstallCore:
 SourceModelTransition4086_InstallSide:
 .a16
 .i16
+    lda.l SourceWeapon4086_Ready
+    beq SourceModelTransition4086_InstallSideIdentity
+    cmp #$B4F1
+    beq SourceModelTransition4086_InstallWeaponMetadata
+    jmp SourceModelTransition4086_Bad
+SourceModelTransition4086_InstallWeaponMetadata:
+.a16
+.i16
+    lda.l SourceModelTransition4086_Slot
+    sta.l SourceWeapon4086_Slot
+    lda.l SourceModelTransition4086_New
+    sta.l SourceWeapon4086_Selected
+    jsl SourceWeapon4086_InstallMetadata
+    bcc SourceModelTransition4086_InstallSideIdentity
+    jmp SourceModelTransition4086_Bad
+SourceModelTransition4086_InstallSideIdentity:
+.a16
+.i16
     lda.l SourceModelTransition4086_Side
     tax
     lda.l SourceModelTransition4086_New

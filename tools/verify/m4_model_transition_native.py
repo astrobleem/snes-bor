@@ -37,7 +37,7 @@ def inputs(c):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--weapon-metadata',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text())
     if authority['status']!='PASS' or authority['functions_sha256']!='b986f6344bb027ff9bbc61f30375b49503941b5088906fd09aa7dc564b3d0c35':raise ValueError('MODEL_TRANSITION_AUTHORITY')
     rows=[]
@@ -154,7 +154,7 @@ TransitionFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModel','SourceAnimationInit4086_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_'))})+'\n'
+    lua='local weapon_metadata='+str(a.weapon_metadata).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local trace={};local ctx=0;local cpu={};local start=0;local services={};local faults=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -163,6 +163,7 @@ local function long(a,v)put(a,v&65535);put(a+2,(v>>16)&65535)end
 local function set(prefix,k,v)put(sy[prefix..'4086_'..k],v)end
 local function bytes(a,b)for i,v in ipairs(b)do emu.write(a+i-1,v,mt)end end
 local ranges={{0x414000,10240},{0x416800,8192},{0x40b000,3072},{0x40c000,12288},{0x41f500,2560},{0x43c000,8192},{0x43e000,512}}
+if weapon_metadata then ranges[#ranges+1]={0x43e200,2048}end
 emu.addMemoryCallback(function()
  if word(sy.SourceClock4086_Due)~=1 or word(sy.SourceClock4086_TimeLo)~=48 or word(sy.SourceClock4086_Fault)~=1 then faults=faults+1 end
  set('SourceClock','Fault',0)
@@ -193,6 +194,7 @@ emu.addMemoryCallback(function()
  set('SourceUpdateFrame','Ready',0xb4e3);set('SourceUpdateFrame','State',0);set('SourceUpdateFrame','Pending',0);set('SourceUpdateFrame','Base',0x8000);set('SourceUpdateFrame','Bank',60);set('SourceUpdateFrame','Bytes',FEBYTES);set('SourceUpdateFrame','Animations',4)
  set('SourceFrameStack','Ready',0);set('SourceWorldTick','Ready',0)
  set('SourceModelTransition','Ready',0xb4f0);set('SourceModelTransition','State',0);set('SourceModelTransition','Service',0);set('SourceModelTransition','Slot',c.slot);set('SourceModelTransition','New',1)
+ set('SourceWeapon','Ready',weapon_metadata and 0xb4f1 or 0);set('SourceWeapon','Models',2);set('SourceWeapon','Entities',128)
  put(EXPECTFAULT,c.bad_ack and 1 or 0)
  if c.same_model==1 then set('SourceModelTransition','New',0);set('SourceModelCachedCopy','Ready',0);set('SourceModelAnimationCopy','Ready',0);set('SourceModelAnimation','Ready',0)end
  set('SourceClock','Ready',0xb4c5);set('SourceClock','Due',1);set('SourceClock','TimeLo',48);set('SourceClock','TimeHi',0);set('SourceClock','Fault',0)
@@ -243,6 +245,10 @@ emu.addMemoryCallback(function()
  end
  for i=0,3 do expect(0x43c000+336+2*i,w[57+i])end
  if(c.flags&3)==0 then expect(0x40ba20,0);expect(0x40ba22,2)end
+ if weapon_metadata then
+  local at=0x43e200+16*c.slot
+  expect(at,(c.flags&3)==0 and 0 or 65535);expect(at+2,(c.flags&3)==0 and 2 or 0);expectlong(at+4,3);expectlong(at+8,-1);expectlong(at+12,0)
+ end
  end
  local mismatch=0;for addr,value in pairs(before)do if emu.read(addr,mt)~=value then mismatch=mismatch+1;if mismatch<5 then emu.log('MODELOWNERDIFF|'..word(INDEX)..'|'..addr..'|'..emu.read(addr,mt)..'|'..value)end end end
  if not c.bad_ack and c.same_model~=1 then
@@ -276,7 +282,7 @@ emu.addMemoryCallback(function()emu.log('MODELOWNERCLOCK|'..word(INDEX)..'|'..wo
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('all source transitions preserve bytes/context and service order',len(results)==len(rows) and all(r==[i,3 if c.get('bad_ack') else 2,0,0,0] for i,(r,c) in enumerate(zip(results,rows))))
     reporter.check('completed transitions retire clock; stale acknowledgements cannot',len(clocks)==len(rows) and all(r==([i,1,48,1] if c.get('bad_ack') else [i,0,49,0]) for i,(r,c) in enumerate(zip(clocks,rows))))
-    report=dict(schema='BYOR_4086_MODEL_TRANSITION_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),results=results,cpu_costs=costs,clock_results=clocks,authority_report_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),external_services_instrumented=True,full_model_switch_bound=False,frame_zero_effects_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    report=dict(schema='BYOR_4086_MODEL_TRANSITION_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),results=results,cpu_costs=costs,clock_results=clocks,authority_report_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),entity_weapon_metadata_install_bound=a.weapon_metadata,external_services_instrumented=True,full_model_switch_bound=False,frame_zero_effects_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

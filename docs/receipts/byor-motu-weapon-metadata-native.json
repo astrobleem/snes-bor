@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_M4_WEAPON_METADATA_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "transition_report": {
+    "path": "out/byor-motu-model-transition-weapon-native/report.json",
+    "sha256": "600baf7c68833373b5377e69061c7bc182d030a8d480651470862b274059828c"
+  },
+  "transition_cases": 162,
+  "selection_report": {
+    "path": "out/byor-motu-weapon-metadata-native/report.json",
+    "sha256": "6e48314519323be84cda893d6d317c20ee4d62153cdf63de4628fcf0d38b5b93"
+  },
+  "selection_cases": 2520,
+  "proof": "Copy weapon pointer identity/count and both signed weaploss values from cached model into per-entity shallow modeldata. Ordered model transition invokes installation when B4F1 is admitted. Later cached metadata mutation cannot retarget an existing entity. All unrelated bytes and CPU context checked.",
+  "metadata_install_bound": true,
+  "entity_metadata_range": "43E200..43E9FF",
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "full_model_switch_bound": false,
+  "frame_zero_effects_bound": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
