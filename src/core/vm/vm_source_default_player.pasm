@@ -1189,3 +1189,193 @@ SourceDefaultInitTail4086_Done:
  plp
  clc
  rtl
+
+; Generic final set_idle when current animation is absent. DEFAULT_IDLE_ONLY
+; registry lease is required; expensive dispatch stays in the compiler.
+; Returns A=1 with the existing B4EC frame-zero continuation, otherwise A=0.
+; Caller must complete actual frame zero/Ack, then FinalizeEmpty.
+SourceDefaultInit4086_BeginIdle:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceDefaultPlayer4086_Ready
+ cmp #$B503
+ beq SourceDefaultInitIdle4086_Guard_1
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_1:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Status
+ cmp #3
+ bne SourceDefaultInitIdle4086_Guard_2
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_2:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceDefaultInitIdle4086_Guard_3
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_3:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceDefaultInitIdle4086_Guard_4
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_4:
+.a16
+.i16
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ beq SourceDefaultInitIdle4086_Guard_5
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_5:
+.a16
+.i16
+ lda.l VmSourceWorld_Count
+ bne SourceDefaultInitIdle4086_Guard_6
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_6:
+.a16
+.i16
+ cmp #129
+ bcc SourceDefaultInitIdle4086_Guard_7
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_7:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcc SourceDefaultInitIdle4086_Guard_8
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_8:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ beq SourceDefaultInitIdle4086_Guard_9
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_9:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Entities
+ cmp.l VmSourceWorld_Count
+ beq SourceDefaultInitIdle4086_Guard_10
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_10:
+.a16
+.i16
+ jsl SourceAnimationInit4086_CheckIdle
+ bcc SourceDefaultInitIdle4086_Guard_11
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_11:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Life
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ cmp.l $410000,x
+ beq SourceDefaultInitIdle4086_Guard_12
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_12:
+.a16
+.i16
+ lda.l $410002,x
+ cmp #$0041
+ beq SourceDefaultInitIdle4086_Guard_13
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Guard_13:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ sta.l SourceDefaultPlayer4086_Core
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda.l $416804,x
+ bne SourceDefaultInitIdle4086_Existing
+ jmp SourceDefaultInitIdle4086_Needed
+SourceDefaultInitIdle4086_Needed:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ sta.l SourceIdle4086_Slot
+ sta.l SourceAnimationInit4086_Slot
+ lda #0
+ sta.l SourceAnimationInit4086_Number
+ sta.l SourceAnimationInit4086_Reset
+ jsl SourceAnimationInit4086_Resolve
+ bcc SourceDefaultInitIdle4086_Present
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Present:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_Handle
+ beq SourceDefaultInitIdle4086_Absent
+ lda.l SourceAnimationInit4086_Count
+ bne SourceDefaultInitIdle4086_Prepare
+SourceDefaultInitIdle4086_Absent:
+.a16
+.i16
+ ; This capability requires a nonempty idle. Missing idle needs a separate
+ ; source no-animation continuation, never an invented frame-zero service.
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Prepare:
+.a16
+.i16
+ jsl SourceIdle4086_Prepare
+ bcc SourceDefaultInitIdle4086_Begin
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Begin:
+.a16
+.i16
+ jsl SourceAnimationInit4086_Begin
+ bcc SourceDefaultInitIdle4086_Pending
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitIdle4086_Pending:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_State
+ cmp #1
+ beq SourceDefaultInitIdle4086_Issued
+ jmp SourceDefaultInitIdle4086_Existing
+SourceDefaultInitIdle4086_Issued:
+.a16
+.i16
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ lda #1
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceDefaultInitIdle4086_Existing:
+.a16
+.i16
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ lda #0
+ ply
+ plx
+ plp
+ clc
+ rtl

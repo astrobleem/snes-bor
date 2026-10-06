@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_M4_DEFAULT_INITIAL_IDLE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "guards": {
+      "path": "out/byor-motu-default-idle-guards-native/report.json",
+      "sha256": "107648b089b637b8e70ae4f1a7c81d2e5eefd2001cfe8ed6b8082a343cce70a7",
+      "cases": 40
+    },
+    "authored_idle": {
+      "path": "out/byor-motu-default-initial-idle-native/report.json",
+      "sha256": "aa58c229969cffebfc79c286216faae212de3d32cd0093ad1c47182db482cec8",
+      "cases": 2
+    }
+  },
+  "native_begin": "SourceDefaultInit4086_BeginIdle",
+  "capability": "DEFAULT_IDLE_ONLY registry plus a nonempty current idle animation",
+  "source_registry_capability_verified": true,
+  "authored_model": "He_Man",
+  "authored_idle_handle": 6,
+  "authored_initial_frame_zero_native": true,
+  "native_final_tail_after_ack": true,
+  "no_level_branch_proven": true,
+  "valid_dead_pointer_guards_proven": true,
+  "missing_or_empty_idle_explicitly_rejected": true,
+  "pending_ticket": "Existing B4EC animation initializer in 528-byte source snapshot",
+  "cpu_status_preserved": true,
+  "lease_installation_instrumented": true,
+  "full_default_init_bound": false,
+  "executable_player_callbacks_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-default-idle-audit.log: ALL CHECKS PASS"
+}
