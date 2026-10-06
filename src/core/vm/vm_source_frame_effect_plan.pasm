@@ -18,6 +18,11 @@ SourceFrameEffectPlan4086_Record = $7FFD56
 SourceFrameEffectPlan4086_Temp = $7FFD58
 SourceFrameEffectPlan4086_Word = $7FFD5A
 SourceFrameEffectPlan4086_Current = $7FFD5C
+; These words are free while an operation is pending and are captured by the
+; frame stack. The binding owner uses them for model/idle service tickets.
+SourceFrameEffectBinding4086_State = $7FFD58
+SourceFrameEffectBinding4086_Issued = $7FFD5A
+SourceFrameEffectBinding4086_Target = $7FFD5C
 SourceFrameEffectPlan4086_End = $7FFD5E
 SourceFrameEffectPlan4086_Base = $7FFE20
 SourceFrameEffectPlan4086_Bank = $7FFE22
@@ -405,6 +410,9 @@ SourceFrameEffectPlan4086_OpcodeGood:
     sta.l SourceFrameEffectPlan4086_Service
     lda #0
     sta.l SourceFrameEffectPlan4086_Acknowledged
+    sta.l SourceFrameEffectBinding4086_State
+    sta.l SourceFrameEffectBinding4086_Issued
+    sta.l SourceFrameEffectBinding4086_Target
     lda #1
     sta.l SourceFrameEffectPlan4086_State
 SourceFrameEffectPlan4086_Good:

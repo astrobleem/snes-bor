@@ -12,7 +12,7 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None):
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
     asm='''.snes
@@ -82,7 +82,10 @@ LeafFixture_Return:
  phy
  jml RESUME
 '''
-    values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,READY=sy[ready],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy[apply],CASES=len(rows),RESUME=entry+5,MAGIC=magic)
+    if finish:
+        asm=asm.replace(' jsl APPLY',' lda.l MODE\n beq LeafFixture_Begin\n jsl SECONDARY\n bra LeafFixture_After\nLeafFixture_Begin:\n.a16\n.i16\n jsl APPLY')
+    values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,EXPECTFAULT=REQUEST+6,MODE=REQUEST+8,READY=sy[ready],WORLDREADY=sy['VmSourceWorld_Ready'],APPLY=sy[apply],CASES=len(rows),RESUME=entry+5,MAGIC=magic)
+    if finish:values['SECONDARY']=sy[finish]
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     pasm=folder/'fixture.pasm';pasm.write_text(asm)
     proc=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(pasm),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True);(folder/'build.log').write_text(proc.stdout+proc.stderr)
@@ -97,7 +100,7 @@ LeafFixture_Return:
     for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceUpdateFrame4086_','SourceIdle4086_','VmSourceWorld_'))})+'\n'+lua
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','VmSourceWorld_'))})+'\n'+lua
     values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     script=folder/'observer.lua';script.write_text(lua)

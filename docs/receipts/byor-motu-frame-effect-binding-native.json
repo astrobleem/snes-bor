@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_M4_FRAME_EFFECT_BINDING_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-effect-binding-native/report.json",
+      "sha256": "a61457bd35f05d1c169a19bf99dc5cefc6c0e2e71d4cdf866159665bb1d32c3e",
+      "cases": 953
+    },
+    {
+      "path": "out/byor-motu-frame-effect-plan-binding-native/report.json",
+      "sha256": "1b87c207753da3c6a5f82ae9990a92e017898e13a7c9bea30287ef3129134ebe",
+      "cases": 856
+    },
+    {
+      "path": "out/byor-motu-drop-weapon-authority/report.json",
+      "sha256": "bb85d06df1c52d9205ee228bccfc29d9a21ab6cfc1cb5f203248cf79d270541f",
+      "cases": 48
+    }
+  ],
+  "production_rom_sha256": "2fc8bf8a82581178196feca4c86ae487995d5e00d8f5245823db23571e7296dc",
+  "proof": "B4F5 consumes captured DROP_WEAPON/SET_WEAPON/SET_IDLE operations using actual native selection, model transition and animation initializer entrypoints. Same-model/no-op completions advance exactly once; pending model/frame-zero operations retain captured tickets until matching Finish. Saved ticket words fit existing frame snapshots. C-authority flag-2/no-attached-item branch verified; full weapon selection cases and ticket/domain guards preserve unrelated bytes/context. External completion tickets instrumented; actual nested/model service execution remains a separate required integration.",
+  "native_cases": 953,
+  "peak_call_master_clocks": 54496,
+  "full_transition_services_bound": false,
+  "attached_weapon_release_bound": false,
+  "nested_idle_frame_execution_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
