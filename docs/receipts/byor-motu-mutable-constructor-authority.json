@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_M4_MUTABLE_CONSTRUCTOR_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "reports": {
+    "default_init": {
+      "path": "out/byor-motu-default-init-mutable-authority/report.json",
+      "sha256": "a283c80cf3e18d5094296f4915f6c4b020493ca4b5283230999dc82e32785552",
+      "cases": 1331
+    },
+    "spawn": {
+      "path": "out/byor-motu-spawn-mutable-authority/report.json",
+      "sha256": "a5f8ff693fff03905e6136c57c6ee743fadf69b6ff4f81d1cad5617eca2e005c",
+      "cases": 896
+    }
+  },
+  "default_init": "Read fresh modeldata after initial ent_set_anim and jump/walk/idle services; retain the selected switch case through its body",
+  "spawn": "Read current modeldata after script copy and colourmap; retain original model parameter for lifespan",
+  "mutation_services_instrumented": true,
+  "actual_script_copy_model_replacement_proven": false,
+  "native_type_body_bound": false,
+  "motu_gameplay_proven": false,
+  "foreign_profile_admitted": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17
+}

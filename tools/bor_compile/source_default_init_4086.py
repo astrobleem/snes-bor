@@ -18,7 +18,7 @@ class Service(IntEnum):
 def initialize(e,o):
     if e is None:return
     d=e['modeldata'];t=d['type'];level=o['level'];time=o['time']
-    valid=lambda name:name in d['animations'] and d['animations'][name]>0
+    valid=lambda name:name in e['modeldata']['animations'] and e['modeldata']['animations'][name]>0
     def callback(field,name):e[field]=name
     if (not o['select'] and not time) or t!=1:
         if valid('spawn'):yield Service.SET_ANIMATION,e,'spawn'
@@ -27,6 +27,9 @@ def initialize(e,o):
         if valid('respawn'):yield Service.SET_ANIMATION,e,'respawn'
         elif valid('spawn'):yield Service.SET_ANIMATION,e,'spawn'
     elif o['select'] and valid('select'):yield Service.SET_ANIMATION,e,'select'
+    # ent_set_anim runs update_frame synchronously; scripts may replace the
+    # current modeldata. The C switch reads it after that call returns.
+    d=e['modeldata'];t=d['type']
     if level is None:
         if e['animation'] is None:yield Service.SET_IDLE,e,None
         return
@@ -37,6 +40,7 @@ def initialize(e,o):
         elif e['animation'] is None and time and level['spawn_y'][e['playerindex']]>e['a']:
             callback('takeaction','common_drop');e['a']=level['spawn_y'][e['playerindex']]
             if valid('jump'):yield Service.SET_ANIMATION,e,'jump'
+        d=e['modeldata']
         if time and d['makeinv']:
             e.update(invincible=1,blink=int(d['makeinv']>0),invinctime=(time+abs(d['makeinv']))&0xffffffff,arrowon=1)
     elif t in (2,512):
@@ -94,6 +98,7 @@ def initialize(e,o):
         else:e['speedmul']=2
     elif t==1024:e['nograb']=1
     if e['animation'] is None:yield Service.SET_IDLE,e,None
+    d=e['modeldata'] # jump/walk/set_idle can each run frame-zero callbacks
     if d['multiple']<0:d['multiple']=0
     other=None
     if d['subject_to_platform']>0:other=yield Service.PLATFORM_BELOW,e,None

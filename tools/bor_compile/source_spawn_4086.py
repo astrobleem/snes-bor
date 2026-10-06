@@ -38,14 +38,16 @@ def spawn(owner,x,z,a,direction,name,index,model=None):
         owner['count']+=1
         yield Service.COPY_SCRIPTS,e,(model,1)
         owner['maximum']=max(owner['maximum'],owner['count'])
-        e.update(timestamp=owner['time'],health=model['health'],mp=model['mp'],knockdowncount=model['knockdowncount'],x=x,z=z,a=a,direction=direction,nextthink=(owner['time']+1)&0xffffffff,nextmove=(owner['time']+1)&0xffffffff,speedmul=1)
+        data=e['modeldata']
+        e.update(timestamp=owner['time'],health=data['health'],mp=data['mp'],knockdowncount=data['knockdowncount'],x=x,z=z,a=a,direction=direction,nextthink=(owner['time']+1)&0xffffffff,nextmove=(owner['time']+1)&0xffffffff,speedmul=1)
         yield Service.COLOURMAP,e,0
         e['lifespan']=model['lifespan']
-        if model['type']&1 and ((owner['level'] is not None and owner['level']['nohit']) or owner['saved_mode']):
+        data=e['modeldata']
+        if data['type']&1 and ((owner['level'] is not None and owner['level']['nohit']) or owner['saved_mode']):
             e['modeldata']['hostile']&=~1;e['modeldata']['candamage']&=~1
-        e['playerindex']=owner['spawnplayer'] if model['type']&1 else 0
-        if model['type']&128:owner['textbox']=e
-        e['name']=model['name'][:owner['name_limit']]
+        e['playerindex']=owner['spawnplayer'] if data['type']&1 else 0
+        if data['type']&128:owner['textbox']=e
+        e['name']=data['name'][:owner['name_limit']]
         e.update({k:saved[k] for k in ('sortid','defense','offense_factors','varlist')})
         yield Service.DEFAULT_INIT,e,None
         return e
