@@ -13611,3 +13611,9 @@ SourceVM_ConstantReservation:
 SourceVM_InstructionReservation:
     .ds 32768,$FF
 
+; Foreign source frame owner. Banks 39..45 belong to presentation proof/runtime
+; publication. Keep this owner outside those reservations and outside bank 0.
+.bank 61
+.org $C000
+.include "core/vm/vm_source_update_frame.pasm"
+

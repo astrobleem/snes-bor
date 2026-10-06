@@ -352,6 +352,7 @@ Vm_SourceWorldSpawn__publish:
 Vm_SourceWorldSpawn__publish_alive:
 .a16
 .i16
+    jsl SourceUpdateFrame4086_InitializeBirth
     lda.l VmSourceWorld_ViewOffset
     tax
     lda #1

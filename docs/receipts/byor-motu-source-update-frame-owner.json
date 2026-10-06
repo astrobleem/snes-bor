@@ -1,0 +1,58 @@
+{
+  "schema": "BYOR_M4_SOURCE_UPDATE_FRAME_OWNER_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "reports": [
+    {
+      "path": "out/byor-motu-frame-effects-authority/report.json",
+      "sha256": "1368d3f3e0f8b92a9ccb608498e1f2bab3da3b0a772f1e7cbb800d85400a78c0"
+    },
+    {
+      "path": "out/byor-motu-update-frame-authority/report.json",
+      "sha256": "445bc872a377a95f20f51ceb75408b0eadeab24143a5183354765c874c216e74"
+    },
+    {
+      "path": "out/byor-motu-update-frame-prefix-native/report.json",
+      "sha256": "ae1ff6d6334c47607bf4b8ab9c2183a8d8c641a9bfee3465a68bc06f5e70a940"
+    },
+    {
+      "path": "out/byor-motu-frame-aux-birth-native/report.json",
+      "sha256": "5dc95fe477f626c12b27a2684626feeca23317e5a660f8dbd6779073bbc8acfd"
+    },
+    {
+      "path": "out/byor-motu-world-tick-frame-guard-native/report.json",
+      "sha256": "c243901ac7989f1ed03ffca16316cea9839b3269d25e9c349acf85faf8d6a268"
+    }
+  ],
+  "effect_table_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+  "effect_table_bytes": 31479,
+  "loader_frames": 836,
+  "loader_animations": 80,
+  "loader_records": 916,
+  "update_frame_authority_functions_sha256": "72d75ee216c7c00ceb01f6f811b77184dda3a8f22f0174b7f0be6e35205183d7",
+  "update_frame_authority_cases": 1080,
+  "prefix_native_rom_sha256": "72ebdd44dfcfbc6bfae4f7f3ea346608492e228a45c0b40632e30ca3808b47aa",
+  "prefix_native_cases": 2513,
+  "pending_services_with_early_commit_rejected": 4184,
+  "auxiliary_birth_native_rom_sha256": "730071641c9c6f6b3f29aa3a3fef23e8ff87c4f323e414883318dc8249ca8908",
+  "auxiliary_birth_cases": 24,
+  "world_regression_cases": 410,
+  "world_regression_events": 8507,
+  "prefix_scope": "Native frame mutation, signed animating gate, delay/time wrap, pause reset, callback interruption and unfinished-frame commit rejection",
+  "source_order": "Animation script precedes movement, facing, weapon, quake, unsummon, births, sound and jumping/projectiles. Only the initial script interruption check compares animation/frame; killing self alone does not interrupt.",
+  "effect_backend_bound": false,
+  "production_callback_owner_bound": false,
+  "nested_callback_owner_bound": false,
+  "collision_runtime_bound": false,
+  "motu_gameplay_proven": false,
+  "aux_layout": "B4E3-exclusive 41F500..41FEFF: 128 rows of 20 bytes; 41FF00..41FFFF reserved shared per-animation quake counts.",
+  "frame_owner_code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "limitations": [
+    "Native prefix services instrumented; full effect execution still required.",
+    "Loader media lookup and frame storage instrumented; PAK-missing sample identities retained and lowered to -1 in isolated source namespace.",
+    "MOTU selector, live combat, moving underlay composition and full Demo completion remain unproven."
+  ]
+}

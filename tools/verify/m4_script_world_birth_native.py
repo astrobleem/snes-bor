@@ -23,6 +23,7 @@ import game_bor_startup_select as startup
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--birth-templates',type=Path,required=True)
+    p.add_argument('--frame-aux',action='store_true',help='Lease and verify auxiliary update_frame state during birth')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
@@ -98,6 +99,11 @@ def main():
             m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
             m.write_u16(syms['SourceWorldTick4086_Maximum'],0)
             m.write_u16(syms['SourceToss4086_Ready'],0xb4e2 if name in toss_cases and name!='toss_no_aux' else 0)
+            m.write_u16(syms['SourceUpdateFrame4086_Ready'],0xb4e3 if a.frame_aux else 0)
+            m.write_u16(syms['SourceUpdateFrame4086_State'],0)
+            m.write_u16(syms['SourceUpdateFrame4086_Pending'],0)
+            initial_aux=bytes([0xA5])*40
+            if a.frame_aux:m.write_memory('snesMemory',syms['SOURCE_UPDATE_FRAME_AUX'],initial_aux.hex())
             m.write_memory('snesMemory',syms['SOURCE_WORLD_TOSS_TIMES'],struct.pack('<II',0x11223344,0x55667788).hex())
             m.write_memory('snesMemory',syms['SOURCE_TARGET_ORDER'],
                            struct.pack('<HH',2 if name=='invalid_order' else 1,0).hex())
@@ -159,6 +165,12 @@ def main():
             if name in toss_cases:
                 reporter.check(name+' exact toss timestamp and untouched adjacent slot',
                     read_block(m,syms['SOURCE_WORLD_TOSS_TIMES'],32)[:8]==struct.pack('<II',toss_cases[name][3],0x55667788))
+            if a.frame_aux:
+                expected_aux=bytearray(initial_aux)
+                if outcome in ('PTR','PTR_FAULT'):
+                    expected_aux[born_slot*20:(born_slot+1)*20]=bytes(16)+struct.pack('<hH',1,0)
+                reporter.check(name+' initialized frame auxiliary row and preserved neighbor',
+                    read_block(m,syms['SOURCE_UPDATE_FRAME_AUX'],40)==bytes(expected_aux))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -167,12 +179,14 @@ def main():
         m.write_u16(c(world,'VmSourceWorld_Ready'),0)
         m.write_u16(syms['SourceWorldTick4086_Ready'],0)
         m.write_u16(syms['SourceToss4086_Ready'],0)
+        m.write_u16(syms['SourceUpdateFrame4086_Ready'],0)
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
                 live_world_owner_bound=False,physics_bound=False,presentation_bound=False,motu_gameplay_proven=False,no_pcm_copies=True,
                 motion_property_cases=list(motion_cases),motion_numeric_policy='ACCEPTED_COMPAT_Q16_16')
     report['toss_cases']=list(toss_cases)
+    report['frame_auxiliary_initialization_proven']=a.frame_aux
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

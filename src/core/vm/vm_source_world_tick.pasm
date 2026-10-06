@@ -596,6 +596,12 @@ SourceWorldTick4086_Branch_57:
 SourceWorldTick4086_Branch_58:
 .a16
 .i16
+    jsl SourceUpdateFrame4086_CheckIdle
+    bcc SourceWorldTick4086_Ack__frame_idle
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_Ack__frame_idle:
+.a16
+.i16
     lda.l VmState_Status
     and #$00FF
     cmp #VMSTAT_RUNNING

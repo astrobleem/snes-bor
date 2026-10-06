@@ -408,6 +408,8 @@ SourceClock4086_Commit:
 SourceClock4086_Commit__retire:
 .a16
 .i16
+    jsl SourceUpdateFrame4086_CheckIdle
+    bcs SourceClock4086_Commit__bad
     lda.l SourceClock4086_Due
     dec a
     sta.l SourceClock4086_Due
