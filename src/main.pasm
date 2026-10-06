@@ -13582,6 +13582,8 @@ Footdie_StreamSource:
 .include "core/vm/vm_source_variables.pasm"
 .include "core/vm/vm_source_callback.pasm"
 .include "core/vm/vm_source_constants.pasm"
+.include "core/vm/vm_source_input.pasm"
+.include "generated/source_input_keys.pasm"
 
 .org $B000
 SourceVM_ConstantReservation:

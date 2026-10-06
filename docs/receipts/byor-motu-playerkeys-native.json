@@ -1,0 +1,98 @@
+{
+  "schema": "BYOR_SOURCE_PLAYERKEYS_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "1c3d129bbbd056494cd5cce4a49c4346b7b28fb744e2bb66243f757b2284f32f",
+  "engine_authority": {
+    "schema": "BOR4086_PLAYERKEYS_AUTHORITY_V1",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "files": {
+      "engine/openbor.h": "3d54f4d40f76c0e51fc30617c5dedd968ab57168a063cd349dc104ae5fc8756b",
+      "engine/openborscript.c": "4be42b223e003565531d785e6182127d75307e4e0625028b7e03e2ab124ffa45",
+      "engine/source/utils.c": "f759b74f3086be9094d2f182c448c3c3dfa93771205b55e676ed0d3c67773f31"
+    },
+    "keys": [
+      {
+        "selector": 0,
+        "name": "anybutton",
+        "mask": 7618
+      },
+      {
+        "selector": 1,
+        "name": "attack",
+        "mask": 64
+      },
+      {
+        "selector": 2,
+        "name": "attack2",
+        "mask": 1024
+      },
+      {
+        "selector": 3,
+        "name": "attack3",
+        "mask": 2048
+      },
+      {
+        "selector": 4,
+        "name": "attack4",
+        "mask": 4096
+      },
+      {
+        "selector": 5,
+        "name": "esc",
+        "mask": 1
+      },
+      {
+        "selector": 6,
+        "name": "jump",
+        "mask": 128
+      },
+      {
+        "selector": 7,
+        "name": "movedown",
+        "mask": 32
+      },
+      {
+        "selector": 8,
+        "name": "moveleft",
+        "mask": 4
+      },
+      {
+        "selector": 9,
+        "name": "moveright",
+        "mask": 8
+      },
+      {
+        "selector": 10,
+        "name": "moveup",
+        "mask": 16
+      },
+      {
+        "selector": 11,
+        "name": "screenshot",
+        "mask": 512
+      },
+      {
+        "selector": 12,
+        "name": "special",
+        "mask": 256
+      },
+      {
+        "selector": 13,
+        "name": "start",
+        "mask": 2
+      }
+    ],
+    "modes": {
+      "held": "newkey other than 1 or 2",
+      "pressed": 1,
+      "released": 2
+    },
+    "result": "INTEGER mask value, not boolean",
+    "index_domain": "0..MAX_PLAYERS-1; native owner must validate bounds before indexing"
+  },
+  "scope": "Typed source API with injected immutable source-key snapshots after original-BOR bootstrap. No real controller mapping, live MOTU input owner or gameplay claim.",
+  "bank0_growth": 0,
+  "native_case_count": 72,
+  "evidence": "out/byor-motu-playerkeys-native/report.json",
+  "width_audit": "out/byor-motu-playerkeys-audit.log: ALL CHECKS PASS; 3768 targets, 183 reviewed baseline, 0 new violations"
+}

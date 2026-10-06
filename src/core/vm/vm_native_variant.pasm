@@ -76,8 +76,14 @@ Vm_NativeVariantDispatch__birth:
 .a16
 .i16
     cmp #$0212                     ; spawn(), checked source-world pool owner
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__input
     jmp Vm_SourceWorldSpawn
+Vm_NativeVariantDispatch__input:
+.a16
+.i16
+    cmp #$020D                     ; playerkeys(), owned source-tick snapshot
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourcePlayerKeys
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16
