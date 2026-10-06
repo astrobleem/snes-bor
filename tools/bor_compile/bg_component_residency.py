@@ -73,12 +73,15 @@ def plan_plane(frames,bpp,capacity):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--sequence',type=Path,required=True)
-    p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--share-offset-map',action='store_true',help='Alias Mode4 disabled offset-control words with unflipped BG1 tilemap')
+    a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     sequence=json.loads((a.sequence/'report.json').read_text());frames=[Path(f['report']).parent for f in sequence['frames']]
     if not sequence['all_offline_schedules_proven']:raise ValueError('COMPONENT_UNPROVEN_SEQUENCE')
     high=[np.fromfile(f/'indices.bin',dtype=np.uint8).reshape(224,256)+3 for f in frames]
     low=[np.fromfile(f/'low_indices.bin',dtype=np.uint8).reshape(224,256) for f in frames]
-    high_plan,high_maps,high_chr=plan_plane(high,8,736);low_plan,low_maps,low_chr=plan_plane(low,2,768)
+    high_plan,high_maps,high_chr=plan_plane(high,8,768 if a.share_offset_map else 736);low_plan,low_maps,low_chr=plan_plane(low,2,768)
+    if a.share_offset_map and any(np.any(m&0x6000) for m in high_maps):raise ValueError('COMPONENT_OFFSET_ALIAS_ENABLE_BITS')
     (a.output/'high-tiles.chr').write_bytes(high_chr);(a.output/'low-tiles.chr').write_bytes(low_chr)
     for index,(h,l) in enumerate(zip(high_maps,low_maps)):
         (a.output/f'{index:02d}-high.map').write_bytes(h.tobytes());(a.output/f'{index:02d}-low.map').write_bytes(l.tobytes())
@@ -94,8 +97,9 @@ def main():
                                 total_transition_bytes=preload+commit+map_bytes+472,
                                 commit_transfer_bytes=commit+map_bytes+472,tilemap_transfers=transfers))
     result=dict(schema='BYOR_COMPONENT_RESIDENCY_SEQUENCE_V1',high=high_plan,low=low_plan,transitions=transitions,
-                allocation=dict(high_chr=[0,47104],zero_offset_map=[47104,49152],low_chr=[49152,61440],
+                allocation=dict(high_chr=[0,49152 if a.share_offset_map else 47104],zero_offset_map=[61440,63488] if a.share_offset_map else [47104,49152],low_chr=[49152,61440],
                                 high_map=[61440,63488],low_map=[63488,65536]),
+                offset_map_aliases_bg1=a.share_offset_map,
                 peak_preload_chr_bytes=max(t['preload_chr_bytes'] for t in transitions),
                 peak_commit_transfer_bytes=max(t['commit_transfer_bytes'] for t in transitions),
                 peak_total_transition_bytes=max(t['total_transition_bytes'] for t in transitions),

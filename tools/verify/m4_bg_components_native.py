@@ -28,7 +28,7 @@ def tiles(indices,bpp):
     return b''.join(data),tilemap.tobytes()
 
 
-def compile_rom(report,assets,timer=180,cache_assets=None):
+def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
     if report['bg_mode']!=4 or report['low_bpp']!=2 or report['high_palette_start']!=4 or report['high_opaque_capacity']!=236:
         raise ValueError('MODE4_COMPONENT_FIXTURE_CONTRACT')
     high=np.frombuffer((assets/'indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)+3
@@ -41,6 +41,9 @@ def compile_rom(report,assets,timer=180,cache_assets=None):
     gaps=[(len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
     offsetmap=next((((first+2047)//2048)*2048 for first,last in gaps
                     if ((first+2047)//2048)*2048+2048<=last),None)
+    if offset_alias:
+        if np.any(np.frombuffer(highmap,dtype='<u2')&0x6000):raise ValueError('MODE4_OFFSET_ALIAS_ENABLE_BITS')
+        offsetmap=0xf000
     if offsetmap is None or lowbase+len(lowchr)>0xf000:raise ValueError('MODE4_VRAM_LAYOUT_LIMIT')
     palette=np.zeros(256,dtype='<u2');palette[:4]=report['low_component_palette']
     palette[240:256]=np.arange(16,dtype=np.uint16)+0x1234
@@ -75,7 +78,7 @@ def compile_rom(report,assets,timer=180,cache_assets=None):
     if len(highchr)>32768:dma(0x8000,3,0x18,len(highchr)-32768,1)
     dma(0x8000,4,0x18,len(lowchr),1,lowbase//2)
     dma(0x8000,5,0x18,2048,1,0x7800);dma(0x8800,5,0x18,2048,1,0x7c00)
-    dma(0x9800,5,0x18,2048,1,offsetmap//2)
+    if not offset_alias:dma(0x9800,5,0x18,2048,1,offsetmap//2)
     store(0x2121,0);dma(0x9000,5,0x22,512,0)
     for address,value in [(0x2105,4),(0x2107,0x78),(0x2108,0x7c),(0x2109,offsetmap>>9),
                           (0x210b,(lowbase//8192)<<4),
@@ -120,7 +123,7 @@ def compile_rom(report,assets,timer=180,cache_assets=None):
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     if len(rom)!=262144:raise AssertionError('COMPONENT_ROM_SIZE_DRIFT')
     return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),low_chr_bytes=len(lowchr),
-        low_chr_base=lowbase,offset_tilemap_base=offsetmap,hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
+        low_chr_base=lowbase,offset_tilemap_base=offsetmap,offset_map_aliases_bg1=offset_alias,hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
         timer_dots=timer if burst else None,irq_entry_prg_offset=0x8400 if irq else None,
         irq_exit_prg_offset=0x8400+len(irq)-1 if irq else None,
         code_bank=1,oam_entries=0,per_field_palette_restore_bytes=472,peak_palette_updates=report['peak_hblank_colors_written'],
@@ -133,10 +136,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',type=Path,required=True)
     p.add_argument('--assets',type=Path,help='Explicit compiled frame directory; default is report stem')
     p.add_argument('--output',type=Path,help='Explicit bounded native evidence directory')
+    p.add_argument('--offset-alias',action='store_true',help='Reuse BG1 map as disabled Mode4 offset-control data')
     p.add_argument('--timer',type=int,default=180);a=p.parse_args();a.report=a.report.resolve()
     report=json.loads(a.report.read_text());assets=a.assets.resolve() if a.assets else a.report.with_suffix('')
     folder=a.output.resolve() if a.output else assets/'native';folder.mkdir(parents=True,exist_ok=True)
-    rom,expected_trace,resources=compile_rom(report,assets,a.timer);path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
+    rom,expected_trace,resources=compile_rom(report,assets,a.timer,offset_alias=a.offset_alias);path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
     lua.write_text('''local active=false;local restoring=false;local frames=0;local n=0;local rows={}
 emu.addMemoryCallback(function(a,v) restoring=(v==1) end,emu.callbackType.write,0,0,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v) if v==15 and not active then active=true;frames=0 end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)

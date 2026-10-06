@@ -1,0 +1,93 @@
+{
+  "schema": "BYOR_COMPONENT_CONTINUOUS_NATIVE_V1",
+  "status": "ISOLATED_CONTINUOUS_SEQUENCE_PASS",
+  "rom_sha256": "f2e28d3c224b04d92372d4816b2b52b73458b9039a047d9ba7a7eae816977a3e",
+  "inputs": [
+    {
+      "path": "out/byor-motu-hbreath-context-component-sequence/report.json",
+      "sha256": "e6e6d11155a94f415443693b237dbb71f2f2101c2a6f0051f029621128e9573f"
+    },
+    {
+      "path": "out/byor-motu-hbreath-context-offset-alias-residency/report.json",
+      "sha256": "5e3b6020e8152091d40db9b84431c4293ec0ab3b6ae650b66fb44e4c5479a8d1"
+    },
+    {
+      "path": "out/byor-motu-bg-offset-alias-deadlines-47k.json",
+      "sha256": "d47712e3aa778feae9773cc6b2b542d67cd5083ca91c4f110c8f2393759f95a1"
+    },
+    {
+      "path": "out\\byor-motu-bg-continuous-epoch-native\\result.json",
+      "sha256": "818a1ae4675ce727e3e5ba8212c03e151560b260f8f8ce777156bbc8fd6ae941"
+    },
+    {
+      "path": "out\\byor-motu-bg-continuous-epoch-native\\observer.lua",
+      "sha256": "55bc0c3ba5773835770729f08c4c398c6dd0dfd33614030ee014dbd487a81f40"
+    }
+  ],
+  "frames": 40,
+  "completed_native_fields": 78,
+  "palette_observer_fields": 74,
+  "palette_timing_samples": 33152,
+  "unsafe_sampled_palette_writes": 0,
+  "all_rendered_source_poses_pixel_exact": true,
+  "all_cgram_traces_exact": true,
+  "observer_cadence_verified": true,
+  "pixel_cadence_verified": true,
+  "clock_hypothesis": {
+    "source_ticks_per_second": 200,
+    "display_fields_per_second": 60,
+    "actual_ntsc_clock_equivalence_claimed": false
+  },
+  "peak_transfer_window": {
+    "field": 22,
+    "start_line": 225,
+    "end_line": 259,
+    "master_clocks": 47454
+  },
+  "allocation": {
+    "high_chr": [
+      0,
+      49152
+    ],
+    "low_chr": [
+      49152,
+      61440
+    ],
+    "high_map": [
+      61440,
+      63488
+    ],
+    "low_map": [
+      63488,
+      65536
+    ],
+    "offset_control_alias": "BG1 map; bits13/14 remain clear",
+    "high_tiles": 768,
+    "low_tiles": 768
+  },
+  "peak_commit_transfer_bytes": 1880,
+  "peak_preload_chr_bytes": 6560,
+  "no_color_reduction": true,
+  "source_dimensions_preserved": true,
+  "alpha": "BOR4086 RGB8 SCREEN offline composition then exact RGB555 component addition",
+  "mechanism": "Offline liveness, prefetch and coalesced DMA packets; FastROM CPU transfer executor, slow-ROM palette IRQ, DMA7 and dummy mode4 HDMA0",
+  "offset_authority": {
+    "mesen_commit": "18c05d3f076728d05310c6e591b7d0a08d604d42",
+    "file": "E:/gh/Mesen2-mcp-frameexact/Core/SNES/SnesPpu.cpp",
+    "lines": [
+      145,
+      176
+    ],
+    "primary_reference": "https://github.com/SourMesen/Mesen2/blob/master/Core/SNES/SnesPpu.cpp"
+  },
+  "two_window_transition_receipt": "out/byor-motu-bg-refill-two-window-sequence-native/report.json",
+  "all_two_window_transitions_passed": true,
+  "nonclaims": [
+    "Live RGB8 SCREEN compositor",
+    "Moving player/enemy/camera contexts",
+    "Physical console verification",
+    "Production IRQ gateway and TAD/MSU/NMI contention",
+    "Exact NTSC 200-Hz source-world clock",
+    "MOTU selector/combat/full Demo/completion"
+  ]
+}

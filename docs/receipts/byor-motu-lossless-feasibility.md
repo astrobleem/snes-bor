@@ -932,3 +932,43 @@ animation or a production contention proof. The RGB8 SCREEN composition is
 still performed offline; a live compositor, moving actor/camera contexts,
 actual audio/NMI contention and source-world gameplay remain unbound.
 Receipt: `byor-motu-component-refill-native.json`. No color reduction is applied.
+
+### Continuous isolated sequence with source-delay deadlines
+
+All 39 transitions also pass in two VBlanks after redundant DMA mode,
+destination-register and bank setup writes are removed. This alone does not
+prove source cadence: six source ticks at 200 Hz are about 1.8 display fields,
+so some adjacent frame deadlines are only one field apart.
+
+The Mode 4 offset-control map need not occupy a separate zero-filled page.
+Its BG1/BG2 enable bits are bits 13/14, as implemented in the primary
+[Mesen PPU source](https://github.com/SourMesen/Mesen2/blob/master/Core/SNES/SnesPpu.cpp).
+The component tilemap has both bits clear in every entry and can also serve
+as disabled offset-control data. A native fixed-pose alias test preserves
+every pixel and the full CGRAM trace. This frees 2,048 VRAM bytes for 32 more
+high-component tiles. High and low caches now each have 768 tiles; peak
+commit traffic falls from 3,928 to 1,880 bytes. Peak preload traffic rises to
+6,560 bytes, which liveness can distribute before its source-frame deadline.
+
+The offline deadline tool derives each tile replacement's earliest safe field
+from the last visible use of its previous resident identity. Its candidate
+uses authored six-tick delays under an explicit 200-tick/60-field clock
+hypothesis. Every displayed tile identity is replayed. A failed greedy
+schedule is a heuristic limit, not hardware infeasibility.
+
+A continuous isolated ROM now executes the complete 40-pose sequence with
+that schedule. Seventy-eight bounded native fields pass: all poses match
+their expected pixels, all 74 observed field palette traces match, and all
+33,152 sampled first/last palette writes lie outside active display. Palette
+observer and screenshot frame order match the derived deadlines, including
+one-field intervals. The first full visible field explicitly establishes the
+source-clock epoch. The longest measured transfer window is 47,454 master
+clocks, from scanline 225 to scanline 259. Main transfer code executes from
+FastROM; the palette IRQ retains the measured slow-ROM timing. DMA uses
+channel 7 alongside dummy mode-4 channel-0 HDMA.
+
+This proves continuous precomposed fixed-context presentation. It does not
+prove a live SCREEN compositor, moving other actors/camera, exact physical
+NTSC 200-Hz world timing, production TAD/MSU/NMI contention, a production IRQ
+gateway, or actual MOTU gameplay. Receipt:
+`byor-motu-component-continuous-native.json`. No color reduction is applied.

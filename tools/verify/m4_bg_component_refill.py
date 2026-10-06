@@ -14,7 +14,7 @@ from m4_bg_components_native import compile_rom
 from _harness import McpSession, MESEN_EXE, _free_tcp_port
 
 
-def build(sequence, residency, index, output, timer):
+def build(sequence, residency, index, output, timer, preload_first_packets=None):
     plan = json.loads((residency/'report.json').read_text())
     if not 1 <= index < len(plan['high']['frames']):
         raise ValueError('REFILL_TRANSITION_INDEX')
@@ -62,14 +62,17 @@ def build(sequence, residency, index, output, timer):
         rom[0x2c000+field*512:0x2c000+field*512+472]=struct.pack('<236H',*[v or 0 for v in initial])
         traces.append(trace)
     def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
+    dma_settings={}
     def dma(source,bank,dest,data_len,target=None):
         if target is not None:store(0x2116,target&255);store(0x2117,target>>8)
-        for address,value in [(0x4370,1 if dest==0x18 else 0),(0x4371,dest),(0x4372,source&255),(0x4373,source>>8),
-                              (0x4374,bank),(0x4375,data_len&255),(0x4376,data_len>>8),(0x420b,128)]:store(address,value)
+        for address,value in [(0x4370,1 if dest==0x18 else 0),(0x4371,dest),(0x4374,bank)]:
+            if dma_settings.get(address)!=value:store(address,value);dma_settings[address]=value
+        for address,value in [(0x4372,source&255),(0x4373,source>>8),(0x4375,data_len&255),(0x4376,data_len>>8),(0x420b,128)]:store(address,value)
     def prepare(field):
         for address,value in [(0x4370,0),(0x4371,0x22),(0x4372,0),(0x4373,0x80),(0x4374,6+field),
                               (0x4375,reports[field]['span']*2),(0x4376,0),(2,224),(3,field),(4,reports[field]['span']*2),(1,field)]:store(address,value)
         code.extend(bytes([0xa2,0,field]))
+        dma_settings.clear()  # IRQ preparation replaces the channel registers.
     def wait():code.extend(bytes.fromhex('ad 12 42 29 80 d0 f9 ad 12 42 29 80 f0 f9 78'));store(0x4200,0)
     cursor=0x40000
     def transfer(phase, selected=None):
@@ -83,10 +86,23 @@ def build(sequence, residency, index, output, timer):
     def resume(field):prepare(field);store(0,0);store(0x4200,0x10);code.append(0x58)
     store(0,0);prepare(0);store(0x2100,15);store(0x4200,0x10);code.append(0x58)
     # Preserve displayed slots while spreading safe preloads across two fields.
-    split=len(packets['PRELOAD'])//2
+    if preload_first_packets==-1:
+        # Seven immediate-store pairs per packet cost 42 CPU cycles; data DMA
+        # costs eight master clocks per byte. This selects a candidate split,
+        # never hardware admission: the complete native windows decide PASS.
+        costs=[8*len(data)+336 for _,data in packets['PRELOAD']]
+        commit_cost=sum(8*len(data)+336 for _,data in packets['COMMIT'])
+        split=min(range(len(costs)+1),key=lambda n:max(sum(costs[:n]),sum(costs[n:])+commit_cost))
+    else:split=len(packets['PRELOAD'])//2 if preload_first_packets is None else preload_first_packets
+    if not 0<=split<=len(packets['PRELOAD']):raise ValueError('REFILL_PRELOAD_SPLIT')
     wait();transfer('PRELOAD',packets['PRELOAD'][:split]);palette(0);resume(0)
-    wait();transfer('PRELOAD',packets['PRELOAD'][split:]);palette(0);resume(0)
-    wait();transfer('COMMIT');palette(1);resume(1)
+    if preload_first_packets is None:
+        wait();transfer('PRELOAD',packets['PRELOAD'][split:]);palette(0);resume(0)
+        wait();transfer('COMMIT');palette(1);resume(1)
+    else:
+        packets['COMMIT']=packets['PRELOAD'][split:]+packets['COMMIT']
+        packets['PRELOAD']=packets['PRELOAD'][:split]
+        wait();transfer('COMMIT');palette(1);resume(1)
     loop=len(code);wait();store(0,3);palette(1);resume(1)
     code.extend(bytes([0x4c,(0x8000+loop)&255,(0x8000+loop)>>8]))
     irq=bytearray.fromhex('48 ad 11 42 ad 12 42 29 80 d0 00 e4 02 b0 00')
@@ -98,16 +114,19 @@ def build(sequence, residency, index, output, timer):
     rom[0x7fd7]=9
     resources.update(transition=transition,descriptors={p:len(v) for p,v in packets.items()},
                      irq_entry_prg_offset=0xf000,irq_exit_prg_offset=0xf000+len(irq)-1,
-                     palette_spans=[r['span'] for r in reports],source_frame_indices=[index-1,index])
+                     palette_spans=[r['span'] for r in reports],source_frame_indices=[index-1,index],
+                     preload_first_packets=preload_first_packets,resolved_preload_first_packets=split)
     return bytes(rom),traces,packets,resources,assets
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--sequence',type=Path,required=True)
     p.add_argument('--residency',type=Path,required=True);p.add_argument('--to-frame',type=int,required=True)
-    p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=160);a=p.parse_args()
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=160)
+    p.add_argument('--preload-first-packets',type=int,help='Use two VBlanks: N safe preload packets first, remainder with commit; -1 selects a measured candidate automatically')
+    a=p.parse_args();two=a.preload_first_packets is not None
     folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
-    rom,traces,packets,resources,assets=build(a.sequence,a.residency,a.to_frame,folder,a.timer)
+    rom,traces,packets,resources,assets=build(a.sequence,a.residency,a.to_frame,folder,a.timer,a.preload_first_packets)
     path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
     lua.write_text('''local active=false;local phase=0;local v={};local frames=0;local rows={};local n=0;local field=0
 emu.addMemoryCallback(function(a,value)
@@ -128,6 +147,8 @@ emu.addMemoryCallback(function(a,value)
 end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addEventCallback(function() if active and frames>=1 and frames<=4 then emu.log('REFILLTRACE|'..field..'|'..table.concat(rows,','));rows={};n=0 end;frames=frames+1 end,emu.eventType.endFrame)
 ''')
+    if two:
+        lua.write_text(lua.read_text().replace('frames<5','frames<4').replace('frames<=4','frames<=3'))
     class Observed(McpSession):
         def __enter__(self):
             import mesen_mcp.session as module
@@ -143,7 +164,7 @@ emu.addEventCallback(function() if active and frames>=1 and frames<=4 then emu.l
                 matches=[i for i,e in enumerate(expected) if actual.shape==e.shape and np.array_equal(actual,e)]
                 pixels.append(dict(field=advanced,matches=matches,mismatches=[int(np.count_nonzero(actual!=e)) for e in expected] if actual.shape==expected[0].shape else None))
                 shutil.copyfile(shot['path'],folder/f'field-{advanced}.png')
-            if advanced>=8:break
+            if advanced>=(7 if two else 8):break
     lines=(folder/'mesen.log').read_text().splitlines();observed=[];vr=[]
     preload_vectors=[]
     for line in lines:
@@ -153,10 +174,11 @@ emu.addEventCallback(function() if active and frames>=1 and frames<=4 then emu.l
         if 'REFILLVRAM|' in line:
             phase,data=line.split('REFILLVRAM|',1)[1].split('|',1);phase=int(phase)
             split=len(packets['PRELOAD'])//2
-            selected=(packets['PRELOAD'][:split] if not preload_vectors else packets['PRELOAD'][split:]) if phase==1 else packets['COMMIT']
+            selected=(packets['PRELOAD'] if two else packets['PRELOAD'][:split] if not preload_vectors else packets['PRELOAD'][split:]) if phase==1 else packets['COMMIT']
             if phase==1:preload_vectors.append(data)
             expect=b''.join(bytes(v) for _,v in selected)
-            vr.append(dict(phase=phase,bytes=len(data.split(',')),verified=data.split(',')==[f'{v:02x}' for v in expect]))
+            values=data.split(',') if data else []
+            vr.append(dict(phase=phase,bytes=len(values),verified=values==[f'{v:02x}' for v in expect]))
     times=[[int(v) for v in line.split('REFILLTIME|',1)[1].split(',')] for line in lines if 'REFILLTIME|' in line]
     bounds=[[int(v) for v in line.split('REFILLBOUND|',1)[1].split(',')] for line in lines if 'REFILLBOUND|' in line]
     durations=[dict(phase=bounds[i][0],master_clocks=bounds[i+1][3]-bounds[i][3],start_line=bounds[i][2],end_line=bounds[i+1][2]) for i in range(0,len(bounds)-1,2)]
@@ -165,11 +187,11 @@ emu.addEventCallback(function() if active and frames>=1 and frames<=4 then emu.l
                 observer=observed,vram_observer=vr,transfer_windows=durations,timing_samples=len(times),unsafe_cgram_samples=unsafe,
                 no_color_reduction=True,scope='Isolated one-way cached-pose preload/commit. No live compositor, production audio, full animation or source cadence admission.')
     # Both preloads must leave the previous source pose pixel exact.
-    previous=[p for p in pixels if p['field'] in (3,4,5)]
-    result['pass']=(advanced==8 and all(p['framesAdvanced']<=1 for p in advancement) and len(observed)==4 and all(r['verified'] for r in observed)
-                    and len(vr)==3 and all(r['verified'] for r in vr) and len(times)==1792 and unsafe==0
+    previous=[p for p in pixels if p['field'] in ((3,4) if two else (3,4,5))]
+    result['pass']=(advanced==(7 if two else 8) and all(p['framesAdvanced']<=1 for p in advancement) and len(observed)==(3 if two else 4) and all(r['verified'] for r in observed)
+                    and len(vr)==(2 if two else 3) and all(r['verified'] for r in vr) and len(times)==(1344 if two else 1792) and unsafe==0
                     and all(225<=r['start_line']<=r['end_line']<=261 for r in durations)
-                    and len(previous)==3 and all(0 in p['matches'] for p in previous)
+                    and len(previous)==(2 if two else 3) and all(0 in p['matches'] for p in previous)
                     and all(1 in p['matches'] for p in pixels[-3:]))
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
     if not result['pass']:raise SystemExit(1)
