@@ -1,0 +1,35 @@
+{
+  "schema": "BYOR_M4_CURRENT_MODEL_INITIALIZATION_TAIL_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "tail": {
+      "path": "out/byor-motu-default-init-tail-native/report.json",
+      "sha256": "793fd08a19d32f4d4176eda96d5efdf061310ce20d11a1775fb997167c02d645",
+      "cases": 226
+    },
+    "post_callback_invincibility": {
+      "path": "out/byor-motu-post-callback-invincibility-native/report.json",
+      "sha256": "3581aaba01f4300f0c2360b04c8436d739eed8bf50f8f4df4f6207f6f46b82ee",
+      "cases": 368
+    },
+    "authored_jump_tail": {
+      "path": "out/byor-motu-jump-tail-native/report.json",
+      "sha256": "6494ab93e0730a7956c276f5d2e1ad94c144844fb6b013e685e3f1adf3e22311",
+      "cases": 2
+    }
+  },
+  "native_tail": "SourceDefaultInit4086_FinalizeEmpty",
+  "native_fresh_invincibility": "SourceDefaultPlayer4086_ApplyInvincibility",
+  "authored_path": "real He_Man JUMP frame zero -> Ack -> fresh makeinv -> current-model empty environment tail -> clock 49",
+  "physical_storage": "Existing B503 synchronous scratch; no new pending ticket or bank-0 code",
+  "lease_installation_instrumented": true,
+  "closed_environment_world_installer_bound": false,
+  "set_idle_branch_bound": false,
+  "executable_player_callbacks_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "rom_audit": "out/byor-motu-default-tail-audit.log: ALL CHECKS PASS"
+}

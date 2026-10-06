@@ -1016,3 +1016,176 @@ SourceDefaultPlayerInv4086_Done:
  plp
  clc
  rtl
+
+; Generic ent_default_init tail when an animation already exists. Uses the
+; shared B503 synchronous field-component lease/slot, not actor identity.
+; Empty platform/wall capability is required only for positive query flags.
+SourceDefaultInit4086_FinalizeEmpty:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceDefaultPlayer4086_Ready
+ cmp #$B503
+ beq SourceDefaultInitTail4086_Guard_1
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_1:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Status
+ cmp #3
+ bne SourceDefaultInitTail4086_Guard_2
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_2:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceDefaultInitTail4086_Guard_3
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_3:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceDefaultInitTail4086_Guard_4
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_4:
+.a16
+.i16
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ beq SourceDefaultInitTail4086_Guard_5
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_5:
+.a16
+.i16
+ lda.l VmSourceWorld_Count
+ bne SourceDefaultInitTail4086_Guard_6
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_6:
+.a16
+.i16
+ cmp #129
+ bcc SourceDefaultInitTail4086_Guard_7
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_7:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcc SourceDefaultInitTail4086_Guard_8
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_8:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ beq SourceDefaultInitTail4086_Guard_9
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_9:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Entities
+ cmp.l VmSourceWorld_Count
+ beq SourceDefaultInitTail4086_Guard_10
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_10:
+.a16
+.i16
+ jsl SourceAnimationInit4086_CheckIdle
+ bcc SourceDefaultInitTail4086_Guard_11
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_11:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Life
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ cmp.l $410000,x
+ beq SourceDefaultInitTail4086_Guard_12
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_12:
+.a16
+.i16
+ lda.l $410002,x
+ cmp #$0041
+ beq SourceDefaultInitTail4086_Guard_13
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_13:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ sta.l SourceDefaultPlayer4086_Core
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda.l $416804,x
+ bne SourceDefaultInitTail4086_Guard_14
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Guard_14:
+.a16
+.i16
+ lda.l VmSourceWorld_Level
+ bne SourceDefaultInitTail4086_Level
+ jmp SourceDefaultInitTail4086_Done
+SourceDefaultInitTail4086_Level:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Core
+ tax
+ lda.l $40C00A,x
+ bmi SourceDefaultInitTail4086_NoPlatform
+ bne SourceDefaultInitTail4086_Query
+ lda.l $40C008,x
+ bne SourceDefaultInitTail4086_Query
+SourceDefaultInitTail4086_NoPlatform:
+.a16
+.i16
+ lda.l $40C006,x
+ bmi SourceDefaultInitTail4086_Clamp
+ bne SourceDefaultInitTail4086_Query
+ lda.l $40C004,x
+ beq SourceDefaultInitTail4086_Clamp
+SourceDefaultInitTail4086_Query:
+.a16
+.i16
+ jsl SourceEmptyInitEnvironment4086_Query
+ bcc SourceDefaultInitTail4086_Clamp
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultInitTail4086_Clamp:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Core
+ tax
+ lda.l $40C002,x
+ bpl SourceDefaultInitTail4086_Done
+ lda #0
+ sta.l $40C000,x
+ sta.l $40C002,x
+SourceDefaultInitTail4086_Done:
+.a16
+.i16
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ ply
+ plx
+ plp
+ clc
+ rtl

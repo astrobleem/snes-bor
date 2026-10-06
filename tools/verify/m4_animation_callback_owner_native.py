@@ -216,7 +216,7 @@ CallbackFixture_EffectsDone:
         if a.initial_jump:
             asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTPREPARE\n bcs CallbackFixture_Bad\n jsl PLAYERBEGIN\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n jsl STARTFRAME')
         else:asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME')
-        asm=asm.replace(' jsl CLOCKCOMMIT',' jsl INITACK\n bcs CallbackFixture_Bad\n'+(' jsl PLAYERINV\n bcs CallbackFixture_Bad\n'if a.initial_jump else'')+' jsl CLOCKCOMMIT')
+        asm=asm.replace(' jsl CLOCKCOMMIT',' jsl INITACK\n bcs CallbackFixture_Bad\n'+(' jsl PLAYERINV\n bcs CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_jump else'')+' jsl CLOCKCOMMIT')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -225,7 +225,7 @@ CallbackFixture_EffectsDone:
     values.update(EXPECTFAULT=0x7ffb86,CHECKIDLE=sy['SourceUpdateFrame4086_CheckIdle'],CLOCKCOMMIT=sy['SourceClock4086_Commit'])
     if a.effects_runner:values.update(EFFECTRUN=sy['SourceFrameEffects4086_Run'],EFFECTACK=sy['SourceFrameEffectPlan4086_Ack'],EFFECTACKWORD=sy['SourceFrameEffectPlan4086_Acknowledged'])
     if a.initial_select or a.initial_jump:values.update(DEFAULTBEGIN=sy['SourceDefaultChoice4086_Begin'],STARTFRAME=sy['SourceAnimationInit4086_StartFrame'],INITACK=sy['SourceAnimationInit4086_Ack'])
-    if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'])
+    if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -397,11 +397,15 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
     if a.initial_jump:
         life=lifecycle_inputs(source)['models'][default]['fields']
+        rootcore=birth_core(source)['models'][default]['core']
         initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceDefaultChoice4086_Select=0,SourceDefaultChoice4086_Selection=role_id(config,'select'),VmSourceWorld_Level=1,SourceLifecycle4086_Ready=0xb4fb,SourceLifecycle4086_Status=2,SourceDefaultPlayer4086_Ready=0xb503,SourceDefaultPlayer4086_Status=0,SourceDefaultPlayer4086_Slot=0,SourceDefaultPlayer4086_Jump=animation['engine_animation_id'],SourceDefaultPlayer4086_TimeLo=48,SourceDefaultPlayer4086_TimeHi=0,SourcePlayerSpawnHeight4086_Ready=0xb505,SourcePlayerSpawnHeight4086_Stage=1,SourcePlayerSpawnHeight4086_Status=0,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_WallCount=0,SourceEnvironment4086_Stage=1).items())
         initialinstall+='\n for j=0,10239 do emu.write(0x439000+j,0,mt)end;put(0x439038,'+str(life['makeinv'])+',4);put(0x439048,'+str(default)+',2);put(0x43904a,0xb4fb,2);for j=0,3 do put(sy.SourcePlayerSpawnHeight4086_Heights+j*4,300*65536,4)end\n'
+        initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceEmptyInitEnvironment4086_Ready=0xb504,SourceEmptyInitEnvironment4086_Models=len(registry['models']),SourceEmptyInitEnvironment4086_Stage=1,SourceEmptyInitEnvironment4086_Status=0).items())
+        initialinstall+='\n put(0x40c000,'+str(rootcore['multiple']&0xffffffff)+',4);put(0x40c004,'+str(rootcore['subject_to_wall']&0xffffffff)+',4);put(0x40c008,'+str(rootcore['subject_to_platform']&0xffffffff)+',4)\n'
         lua+=r'''
 emu.addMemoryCallback(function()
  emu.log('CALLBACKJUMP|'..word(INDEX)..'|'..dw(0x41400c)..'|'..dw(0x439000)..'|'..dw(0x439004)..'|'..dw(0x439008)..'|'..dw(0x43900c)..'|'..dw(0x439018)..'|'..dw(0x43901c)..'|'..dw(0x439020)..'|'..dw(0x439024))
+ emu.log('CALLBACKTAIL|'..word(INDEX)..'|'..dw(0x40c000)..'|'..word(sy.SourceDefaultPlayer4086_Status)..'|'..word(sy.SourceEmptyInitEnvironment4086_Status))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
@@ -453,8 +457,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else [i,2,2,0,0,0,0,49,0] for i,c in enumerate(rows)]
         reporter.check('actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
     if coretable:reporter.check('authored callback publishes exact native birth core and preserves parent role/type',core_results==[[i,0] for i in range(len(rows))])
-    if a.initial_select or a.initial_jump:reporter.check('authored SELECT initialization completes actual frame-zero before clock retirement',select_results==[[i,65535 if a.initial_jump else animation['engine_animation_id'],2,1,animation['engine_animation_id'],animation['handle'],0] for i in range(len(rows))])
+    if a.initial_select or a.initial_jump:reporter.check('authored '+('JUMP'if a.initial_jump else'SELECT')+' initialization completes actual frame-zero before clock retirement',select_results==[[i,65535 if a.initial_jump else animation['engine_animation_id'],2,1,animation['engine_animation_id'],animation['handle'],0] for i in range(len(rows))])
     if a.initial_jump:reporter.check('real JUMP frame zero and post-callback source makeinv fields',jump_results==[[i,300*65536,2,1,3,5,1,1,848,1]for i in range(len(rows))])
+    tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
+    if a.initial_jump:reporter.check('source current-model tail after JUMP and before clock retirement',tail_results==[[i,max(0,rootcore['multiple']),2,2 if rootcore['subject_to_wall']>0 or rootcore['subject_to_platform']>0 else 0]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         owner_table_sha256=hashlib.sha256(callbacks).hexdigest(),cases=rows,results=results,expected=expected,faults=faults,
@@ -465,6 +471,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         combat_proven=False,motu_gameplay_proven=False,no_pcm_copies=True,no_color_reduction=True)
     r.update(native_birth_core=a.birth_core,birth_core_results=core_results)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
+    r.update(empty_environment_tail_bound=a.initial_jump,tail_results=tail_results)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 
