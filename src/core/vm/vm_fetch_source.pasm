@@ -65,6 +65,8 @@ Vm_FetchSourceInit:
     sta.l SourceLifecycle4086_Status
     sta.l SourceScriptClone4086_Ready
     sta.l SourceScriptClone4086_Status
+    sta.l SourceFactors4086_Ready
+    sta.l SourceFactors4086_Status
     sta.l SourceDefaultInit4086_Phase
     sta.l SourceDefaultInit4086_OwnerSlot
     sta.l SourceDefaultInit4086_Walk

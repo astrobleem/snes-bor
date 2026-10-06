@@ -56,6 +56,7 @@ def main():
     p.add_argument('--drop-context',type=Path,help='Compiled readonly horizontal drop context bundle.')
     p.add_argument('--default-owner',action='store_true',help='Use generic source-order default-init Begin/Continue instead of direct leaf sequencing.')
     p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
+    p.add_argument('--ctor-factors',action='store_true',help='Copy source-derived exact uniform defense/offense factors before model installation.')
     p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
@@ -128,6 +129,10 @@ def main():
             for field in CACHED_FIELDS:ctor_cache.extend(struct.pack('<f'if field in FLOAT_FIELDS else'<i',m['fields'][field]))
             ctor_cache.extend(struct.pack('<i',m['fields']['type']))
         # Scalar cache only: media bindings are not exercised by this fixture.
+    if a.ctor_factors:
+        if not a.ctor_model:raise ValueError('CTOR_FACTORS_REQUIRES_CTOR_MODEL')
+        from source_model_factors import derive as factor_inputs,pack as pack_factors
+        factor_report=factor_inputs(source);factor_table=pack_factors(factor_report);locations['factors']=base+cursor;raw[at+cursor:at+cursor+len(factor_table)]=factor_table;cursor+=len(factor_table)
     if cursor>32768:raise ValueError('CALLBACK_NATIVE_IMMUTABLE_BANK_CAPACITY')
     raw[60*32768:60*32768+len(frames)]=frames
     if a.effects_runner:
@@ -289,6 +294,7 @@ CallbackFixture_EffectsDone:
         if not a.default_owner:raise ValueError('SCRIPT_CLONE_REQUIRES_DEFAULT_OWNER_FIXTURE')
         asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop','CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SCRIPTCLONECLEAR\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND\n bcs CallbackFixture_Bad')
     if a.ctor_model:asm=asm.replace(' jsl SCRIPTCLONEBIND',' jsl CTORMODEL\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND')
+    if a.ctor_factors:asm=asm.replace(' jsl CTORMODEL',' jsl CTORFACTORS\n bcs CallbackFixture_Bad\n jsl CTORMODEL')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -304,6 +310,7 @@ CallbackFixture_EffectsDone:
     if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
+    if a.ctor_factors:values.update(CTORFACTORS=sy['SourceFactors4086_Apply'])
     if a.ctor_model:values.update(CTORMODEL=sy['SourceCtorModel4086_Apply'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
@@ -550,6 +557,10 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+='\n'+\
             '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceLifecycle4086_Ready=0xb4fb,SourceLifecycle4086_Status=0,SourceLifecycle4086_Base=locations['ctorlife']&65535,SourceLifecycle4086_Bank=base>>16,SourceLifecycle4086_Bytes=len(ctor_life),SourceLifecycle4086_Models=16).items())
         lua+="emu.addMemoryCallback(function()emu.log('CTORMODELOWNER|'..word(INDEX)..'|'..word(sy.SourceCtorModel4086_Status)..'|'..dw(0x414024)..'|'..dw(0x414044)..'|'..dw(0x40c04c))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+    if a.ctor_factors:
+        initialinstall+='\n'+\
+            '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceFactors4086_Ready=0xb5f1,SourceFactors4086_Status=0,SourceFactors4086_Base=locations['factors']&65535,SourceFactors4086_Bank=base>>16,SourceFactors4086_Bytes=len(factor_table),SourceFactors4086_Models=16,SourceFactors4086_Attacks=factor_report['attack_types']).items())
+        lua+="emu.addMemoryCallback(function()local v='';for j=0,31 do v=v..string.format('%02x',emu.read(0x432800+j,mt))end;emu.log('CTORFACTORSOWNER|'..word(INDEX)..'|'..word(sy.SourceFactors4086_Status)..'|'..word(0x43b900)..'|'..word(0x43b902)..'|'..v)end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -628,6 +639,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         ctor_results=[list(map(int,line.split('CTORMODELOWNER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORMODELOWNER|'in line]
         cm=model_core_inputs(source)['models'][default]['fields']
         reporter.check('current cached model fields installed before actual authored initialization',ctor_results==[[i,2,cm['health']&0xffffffff,cm['health']&0xffffffff,cm['mp']&0xffffffff]for i in range(len(rows))])
+    if a.ctor_factors:
+        factor_results=[line.split('CTORFACTORSOWNER|',1)[1].strip().split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'CTORFACTORSOWNER|'in line]
+        reporter.check('independent source defense/offense snapshot retained through actual authored initialization',factor_results==[[str(i),'2',str(default),str(0xb5f1),factor_report['models'][default]['vector_hex']]for i in range(len(rows))])
     if a.script_clone:reporter.check('constructor script cleanup/binding survives actual authored frame zero with foreign instance intact',clone_results==[[i,2,script_clone_report['models'][default]['initialized_mask'],0,0,99,3]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
@@ -642,7 +656,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
     r.update(initial_none_model=a.initial_none_model,initial_none_model_results=no_walk_results)
-    r.update(ctor_model_bound=a.ctor_model,ctor_media_bindings_bound=False,script_clone_bound=a.script_clone,script_clone_results=clone_results,script_clone_table_sha256=hashlib.sha256(script_clone_table).hexdigest()if script_clone_table else None)
+    r.update(ctor_factors_bound=a.ctor_factors,ctor_model_bound=a.ctor_model,ctor_media_bindings_bound=False,script_clone_bound=a.script_clone,script_clone_results=clone_results,script_clone_table_sha256=hashlib.sha256(script_clone_table).hexdigest()if script_clone_table else None)
     r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()

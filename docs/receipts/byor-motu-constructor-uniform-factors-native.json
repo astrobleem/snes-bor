@@ -1,0 +1,142 @@
+{
+  "schema": "BYOR_4086_UNIFORM_FACTORS_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "capability": "UNIFORM_IMMUTABLE_ATTACK_FACTORS",
+  "evidence": {
+    "byor-motu-factor-authority": {
+      "report": "out/byor-motu-factor-authority/report.json",
+      "sha256": "f6ee95897f1c35647d1ae6b4a5e112cf3a1bf8561b4857f8a51c8692b0663fa4",
+      "cases": 63
+    },
+    "byor-motu-uniform-factors-native": {
+      "report": "out/byor-motu-uniform-factors-native/report.json",
+      "sha256": "272b4a8edf600a33c0954ba2580816483c81b0ede69fd25b89cf7529d0f68239",
+      "cases": 150
+    },
+    "byor-motu-player-factors-ctor-native": {
+      "report": "out/byor-motu-player-factors-ctor-native/report.json",
+      "sha256": "c7b403b1850fb2561a7e9ae39fded530998c09e5ed3b4eb2d1f5703b756992b8",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-knightbot-factors-ctor-native": {
+      "report": "out/byor-motu-knightbot-factors-ctor-native/report.json",
+      "sha256": "64693e4820e5118c74b9d4992a416b422381e4403813ba598f4d6876517ef2b8",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-factors-ctor-native": {
+      "report": "out/byor-motu-skeletor-factors-ctor-native/report.json",
+      "sha256": "c07b90807879a33e95754ee2cf52c0baa2e5204baf06f3c5ee9ac7a68ab03fe3",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-none-factors-ctor-native": {
+      "report": "out/byor-motu-none-factors-ctor-native/report.json",
+      "sha256": "ed2ca60c0ea0c40900c4df0d8779b082555a93d879770d48d5a227b41210288f",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-effect-factors-ctor-native": {
+      "report": "out/byor-motu-effect-factors-ctor-native/report.json",
+      "sha256": "66470e39a512e417ab99a0544239a8ce9c779389702bd2cc3537062fc3e0d9d9",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 5,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 5,
+          "fault": 0
+        }
+      ]
+    },
+    "source_factors": {
+      "report": "out/byor-motu-uniform-factors/report.json",
+      "sha256": "5d4e77e6926d3d39ce6f57a1a569e853e551d2e45eb52cf35e9a49f6980d6f9c",
+      "models": 16,
+      "attack_types": 20
+    }
+  },
+  "resources": {
+    "code_bank": 62,
+    "bank0_growth": 0,
+    "control_span": [
+      "43B832",
+      "43B848"
+    ],
+    "entity_vector_span": [
+      "432800",
+      "433800"
+    ],
+    "entity_vector_bytes": 4096,
+    "entity_identity_span": [
+      "43B900",
+      "43BB00"
+    ],
+    "entity_identity_bytes": 512
+  },
+  "policy": "Exact independent 32-byte entity defense/offense vectors, all 20 admitted attack indices share the same source values. No value projection. Explicit factor declarations reject pending loader certification. Mutation APIs and nonuniform factors require another capability.",
+  "constructor_order": "In admitted models no init/clear entry exists, so fixture groups named cleanup and Script_Clear before factor copy with no intervening observable callback; then cached model install, shared script Bind and real default-init/frame-zero.",
+  "source_proof": "Pinned C uses actual 28-byte s_defense, 4-byte offense and original spawn memcpy statements; later cached-model mutations leave entity copies unchanged.",
+  "audit": "out/byor-motu-factors-audit.log",
+  "protected_files_unchanged": 17,
+  "factor_mutation_api_admitted": false,
+  "native_combat_arithmetic_bound": false,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
