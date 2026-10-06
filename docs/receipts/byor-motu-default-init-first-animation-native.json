@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_M4_DEFAULT_INIT_FIRST_ANIMATION_EXECUTION_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "native_initializer": {
+      "path": "out/byor-motu-default-choice-init-native/report.json",
+      "sha256": "f07d5b4107647557739bca6c2c31477762fcdc4ab06ff34cc438150083a57821",
+      "cases": 710
+    },
+    "authored_select_frame_zero": {
+      "path": "out/byor-motu-select-initial-frame-native/report.json",
+      "sha256": "1708b559aaabaa9c703166822649cc06835ea3bf1c427726adb402c4ae30a0e3",
+      "cases": 2
+    }
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "native_entry": "SourceDefaultChoice4086_Begin",
+  "native_initializer": "SourceAnimationInit4086_Begin",
+  "authored_model": "He_Man",
+  "authored_select_handle": 5,
+  "compiler_derived_select_id": 25,
+  "authored_select_frame_count": 131,
+  "authored_first_frame": "data/chars/he-man/entry/entry01.png",
+  "source_first_frame_delay": 24,
+  "source_first_frame_sound": "data/chars/he-man/entry/entry.wav",
+  "frame_zero_control_flow": "real StartFrame, authored callback ownership/dispatch, captured motion/quake/terminal-self effects, real animation Ack before source clock commit",
+  "sound_service_instrumented": true,
+  "no_level_default_init_control_flow_proven": true,
+  "full_constructor_bound": false,
+  "remaining_level_type_initialization_bound": false,
+  "frontend_player_selection_proven": false,
+  "source_pixels_presented": false,
+  "motu_gameplay_proven": false,
+  "foreign_profile_admitted": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-default-choice-init-audit.log: ALL CHECKS PASS",
+  "descriptor_requirement": "Initialize B4FE animation-count descriptor before ent_set_anim resolver; do not depend on a prior update_frame call to populate it",
+  "ticket_proof": "No-call branch preserves existing issued ticket; real initialization leaves actual frame-zero pending ticket until service completion"
+}

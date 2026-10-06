@@ -2974,6 +2974,7 @@
 07:8F50 G13_Game_Score_Award__p1_owner
 3E:8F51 SourceDefaultChoice4086_TryGood
 3E:8F53 SourceDefaultChoice4086_TryBad
+3E:8F55 SourceDefaultChoice4086_Begin
 0D:8F56 StageEnv_AliasName39
 1C:8F56 Vm_SourceSpawnClear__clear
 07:8F58 G13_Game_Score_Award__amount
@@ -2983,8 +2984,11 @@
 1C:8F5C Vm_SourceSpawnClear__zero
 03:8F5E Spawn_RevealPendingItems__check3
 0D:8F63 StageEnv_AliasName40
+3E:8F63 SourceDefaultChoice4086_BeginPrepared
 0D:8F6B StageEnv_AliasName41
+3E:8F6C SourceDefaultChoice4086_BeginRequired
 0D:8F72 StageEnv_AliasName42
+3E:8F75 SourceDefaultChoice4086_BeginIssued
 08:8F78 G12_AnimTrace_BusyStore
 0D:8F78 StageEnv_AliasName43
 03:8F7C Spawn_RevealPendingItems__check4

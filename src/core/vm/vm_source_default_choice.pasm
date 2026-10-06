@@ -224,3 +224,34 @@ SourceDefaultChoice4086_TryBad:
 .i16
     sec
     rts
+
+; Execute the prepared ent_set_anim call through the real owner. Any frame-zero
+; continuation belongs to SourceAnimationInit and must complete before the
+; caller proceeds with the rest of ent_default_init. No additional live ticket
+; is kept outside the existing full frame snapshot.
+SourceDefaultChoice4086_Begin:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    jsl SourceDefaultChoice4086_Prepare
+    bcc SourceDefaultChoice4086_BeginPrepared
+    jmp SourceDefaultChoice4086_Bad
+SourceDefaultChoice4086_BeginPrepared:
+.a16
+.i16
+    lda.l SourceDefaultChoice4086_Service
+    bne SourceDefaultChoice4086_BeginRequired
+    jmp SourceDefaultChoice4086_Done
+SourceDefaultChoice4086_BeginRequired:
+.a16
+.i16
+    jsl SourceAnimationInit4086_Begin
+    bcc SourceDefaultChoice4086_BeginIssued
+    jmp SourceDefaultChoice4086_Bad
+SourceDefaultChoice4086_BeginIssued:
+.a16
+.i16
+    jmp SourceDefaultChoice4086_Done
