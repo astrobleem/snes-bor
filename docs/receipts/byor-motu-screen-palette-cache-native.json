@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_NATIVE_CACHED_SCREEN_PALETTE_V1",
+  "status": "PASS",
+  "result_path": "out/byor-motu-screen-cache-unrolled-native/result.json",
+  "rom_sha256": "88302e0d4851ded63f3faea79bc8ad6b9addf99c090a39cea952cbd8b423b004",
+  "source_pixels": 2751,
+  "unique_rgb8_pairs": 1072,
+  "full_rgb555_cache_words_verified": 1072,
+  "native_cache_expected_sha256": "916542ad7a154fd36302736b2121318e1e69c267aa0b55c194e3fc14baa7c304",
+  "compiled_bindings_sha256": "09107388de39c7e764a3d9e90eb6d8ba3325c17aab7aabbaf67fb99eb087a2a2",
+  "native_colour_workspace_bytes": 8480,
+  "native_cgram_bound_words": 3076,
+  "source_constant_words": 92,
+  "native_job_master_clocks": 454940,
+  "native_colour_pair_master_clocks": 242036,
+  "job_milliseconds_approximately": 21.18,
+  "source_frame_interval_milliseconds": 30,
+  "native_source_cadence_admitted": false,
+  "pixel_mismatches": 0,
+  "cgram_register_writes_verified": 6048,
+  "unsafe_palette_samples": 0,
+  "no_color_reduction": true,
+  "bank0_production_growth": 0,
+  "scope": "Fixed source-derived context and forced-blank startup. The native RGB555 cache supplies CGRAM; the original effect high-palette bytes are zeroed. Geometry, low-component indices and bindings are compiled offline. This is not a moving-world compositor, production audio or source-cadence admission.",
+  "interpreter_comparison": {
+    "result_path": "out/byor-motu-screen-cache-timed-native/result.json",
+    "native_job_master_clocks": 702176,
+    "native_colour_pair_master_clocks": 241870
+  }
+}

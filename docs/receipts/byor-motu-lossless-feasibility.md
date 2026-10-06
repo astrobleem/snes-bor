@@ -1139,3 +1139,26 @@ The cold fixture clears its completion markers before the original CHR load,
 so battery-backed data from a prior run cannot bypass the native job.
 Receipt: `byor-motu-screen-component-feed-native.json`. No color reduction
 is applied.
+
+### Cached native SCREEN colors bind the CGRAM schedule
+
+The peak fixed context uses 1,072 distinct RGB8 source/underlay pairs for
+2,751 effect pixels. Native SA-1 arithmetic now computes every full RGB555
+cache word and binds the offline palette schedule to those native results.
+The original effect high-palette bytes are zeroed in the fixture ROM. All
+1,072 cached words match independently calculated SCREEN results, including
+the low component bits. The final scene has zero pixel mismatches, all 6,048
+CGRAM register writes match, and no sampled write enters active display.
+
+The interpreted bindings cost 702,176 master clocks, about 32.7 ms. Offline
+unrolled bindings reduce the total to 454,940 clocks, about 21.2 ms; the pair
+calculation itself costs 242,036 clocks. Color workspace is 8,480 bytes.
+An exhaustive test checks all 65,536 RGB8 channel pairs, while a separate
+binding test covers repeated pairs, source constants and schedule updates.
+Malformed record alignment, row counts and palette ranges fail explicitly.
+
+This is forced-blank startup on an immutable source-derived underlay. It
+does not admit a moving compositor, production audio contention or the
+30-ms source deadline under ongoing rendering. The next native check runs
+the same cached job during active palette IRQ service. Receipt:
+`byor-motu-screen-palette-cache-native.json`. No color reduction is applied.
