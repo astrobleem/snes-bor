@@ -21,8 +21,11 @@ def encode(tile,bpp):
     return bytes(data)
 
 
-def plan_plane(frames,bpp,capacity):
+def plan_plane(frames,bpp,capacity,physical_slots=None):
     if not 1<=capacity<=1024:raise ValueError('COMPONENT_RESIDENT_TILE_CAPACITY')
+    physical_slots=list(range(capacity)) if physical_slots is None else list(physical_slots)
+    if len(physical_slots)!=capacity or len(set(physical_slots))!=capacity or any(not 0<=s<1024 for s in physical_slots):
+        raise ValueError('COMPONENT_PHYSICAL_SLOT_ALLOCATION')
     unique={};tiles=[];ids=[];uses={}
     for index,frame in enumerate(frames):
         if frame.shape!=(224,256):raise ValueError('COMPONENT_RESIDENT_VIEWPORT')
@@ -36,7 +39,7 @@ def plan_plane(frames,bpp,capacity):
         if len(required)>capacity:raise ValueError('COMPONENT_SINGLE_FRAME_TILE_CAPACITY:'+str(index)+':'+str(len(required)))
         for tile in required:uses.setdefault(tile,[]).append(index)
         ids.append(grid)
-    resident=[None]*capacity;previous=set();plans=[];maps=[]
+    resident=[None]*(max(physical_slots)+1);previous=set();plans=[];maps=[]
     def next_use(tile,index):
         if tile is None:return len(frames)+1
         sequence=uses[tile];position=bisect_right(sequence,index)
@@ -44,7 +47,7 @@ def plan_plane(frames,bpp,capacity):
     for index,grid in enumerate(ids):
         required=set(map(int,grid.flat));present={tile:slot for slot,tile in enumerate(resident) if tile is not None}
         missing=sorted(required-set(present));writes=[]
-        victims=sorted((slot for slot,tile in enumerate(resident) if tile not in required),
+        victims=sorted((slot for slot in physical_slots if resident[slot] not in required),
                        key=lambda slot:(resident[slot] in previous,-next_use(resident[slot],index),slot))
         if len(victims)<len(missing):raise AssertionError('COMPONENT_RESIDENCY_ALLOCATION')
         for tile,slot in zip(missing,victims):
@@ -68,19 +71,26 @@ def plan_plane(frames,bpp,capacity):
                           boot_bytes=sum(w['bytes'] for w in writes if w['phase']=='BOOT'),
                           pixel_index_identity_verified=True))
         maps.append(tilemap);previous=required
-    return dict(capacity=capacity,bpp=bpp,unique_sequence_tiles=len(tiles),frames=plans),maps,b''.join(encode(tile,bpp) for tile in tiles)
+    return dict(capacity=capacity,slot_extent=len(resident),physical_slots=physical_slots,bpp=bpp,unique_sequence_tiles=len(tiles),frames=plans),maps,b''.join(encode(tile,bpp) for tile in tiles)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--sequence',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--share-offset-map',action='store_true',help='Alias Mode4 disabled offset-control words with unflipped BG1 tilemap')
+    p.add_argument('--low-slots',type=int,default=768)
+    p.add_argument('--reclaim-low-tail',action='store_true',help='Allocate additional high CHR slots after the low CHR region')
     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
     sequence=json.loads((a.sequence/'report.json').read_text());frames=[Path(f['report']).parent for f in sequence['frames']]
     if not sequence['all_offline_schedules_proven']:raise ValueError('COMPONENT_UNPROVEN_SEQUENCE')
     high=[np.fromfile(f/'indices.bin',dtype=np.uint8).reshape(224,256)+3 for f in frames]
     low=[np.fromfile(f/'low_indices.bin',dtype=np.uint8).reshape(224,256) for f in frames]
-    high_plan,high_maps,high_chr=plan_plane(high,8,768 if a.share_offset_map else 736);low_plan,low_maps,low_chr=plan_plane(low,2,768)
+    if not 1<=a.low_slots<=768:raise ValueError('COMPONENT_LOW_VRAM_CAPACITY')
+    physical=list(range(768 if a.share_offset_map else 736))
+    if a.reclaim_low_tail:
+        if not a.share_offset_map:raise ValueError('COMPONENT_TAIL_REQUIRES_OFFSET_ALIAS')
+        physical+=list(range((49152+a.low_slots*16+63)//64,960))
+    high_plan,high_maps,high_chr=plan_plane(high,8,len(physical),physical);low_plan,low_maps,low_chr=plan_plane(low,2,a.low_slots)
     if a.share_offset_map and any(np.any(m&0x6000) for m in high_maps):raise ValueError('COMPONENT_OFFSET_ALIAS_ENABLE_BITS')
     (a.output/'high-tiles.chr').write_bytes(high_chr);(a.output/'low-tiles.chr').write_bytes(low_chr)
     for index,(h,l) in enumerate(zip(high_maps,low_maps)):
@@ -97,7 +107,8 @@ def main():
                                 total_transition_bytes=preload+commit+map_bytes+472,
                                 commit_transfer_bytes=commit+map_bytes+472,tilemap_transfers=transfers))
     result=dict(schema='BYOR_COMPONENT_RESIDENCY_SEQUENCE_V1',high=high_plan,low=low_plan,transitions=transitions,
-                allocation=dict(high_chr=[0,49152 if a.share_offset_map else 47104],zero_offset_map=[61440,63488] if a.share_offset_map else [47104,49152],low_chr=[49152,61440],
+                allocation=dict(high_chr=[0,49152 if a.share_offset_map else 47104],high_tail_chr=[min(physical[768:])*64,61440] if len(physical)>768 else None,
+                                zero_offset_map=[61440,63488] if a.share_offset_map else [47104,49152],low_chr=[49152,49152+a.low_slots*16],
                                 high_map=[61440,63488],low_map=[63488,65536]),
                 offset_map_aliases_bg1=a.share_offset_map,
                 peak_preload_chr_bytes=max(t['preload_chr_bytes'] for t in transitions),

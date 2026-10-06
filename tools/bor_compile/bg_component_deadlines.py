@@ -28,36 +28,36 @@ def derive_jobs(plan, maps, starts):
     return jobs
 
 
-def cost(items):
+def cost(items,setup_clocks=336):
     ordered=sorted(items,key=lambda j:j['address']);runs=0;end=-1
     for item in ordered:
         if item['address']!=end:runs+=1
         end=item['address']+item['bytes']
-    return sum(j['bytes'] for j in ordered)*8+runs*336
+    return sum(j['bytes'] for j in ordered)*8+runs*setup_clocks
 
 
-def schedule(jobs, mandatory, last, budget):
+def schedule(jobs, mandatory, last, budget,setup_clocks=336,palette_allowance=5000):
     pending=list(jobs);fields=[]
     for field in range(last+1):
         selected=[];fixed=mandatory.get(field,[])
         candidates=sorted((j for j in pending if j['release']<=field),key=lambda j:(j['deadline'],j['address']))
         # Startup can fill otherwise unoccupied slots before the clock starts.
-        ceiling=None if field==0 else budget-5000
+        ceiling=None if field==0 else budget-palette_allowance
         for job in candidates:
-            if ceiling is None or cost(fixed+selected+[job])<=ceiling:selected.append(job)
+            if ceiling is None or cost(fixed+selected+[job],setup_clocks)<=ceiling:selected.append(job)
         selected_ids={id(j) for j in selected}
         pending=[j for j in pending if id(j) not in selected_ids]
         missed=[j for j in pending if j['deadline']<=field]
         fields.append(dict(field=field,jobs=selected,mandatory=fixed,
-                           estimated_master_clocks=cost(fixed+selected)+(0 if field==0 else 5000),
+                           estimated_master_clocks=cost(fixed+selected,setup_clocks)+(0 if field==0 else palette_allowance),
                            missed_deadline_jobs=missed,
-                           mandatory_budget_exceeded=ceiling is not None and cost(fixed)>ceiling))
+                           mandatory_budget_exceeded=ceiling is not None and cost(fixed,setup_clocks)>ceiling))
         if missed or fields[-1]['mandatory_budget_exceeded']:return fields,False
     return fields,not pending
 
 
 def replay(fields, plan, maps, starts):
-    residents={name:[None]*plan[name]['capacity'] for name in ('high','low')}
+    residents={name:[None]*plan[name].get('slot_extent',plan[name]['capacity']) for name in ('high','low')}
     for name in residents:
         for w in plan[name]['frames'][0]['writes']:residents[name][w['slot']]=w['tile']
     expected=[]
@@ -85,7 +85,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--sequence',type=Path,required=True)
     p.add_argument('--residency',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--source-ticks-per-second',type=int,default=200);p.add_argument('--fields-per-second',type=int,default=60)
-    p.add_argument('--window-master-clocks',type=int,default=45000);a=p.parse_args()
+    p.add_argument('--window-master-clocks',type=int,default=45000)
+    p.add_argument('--packet-setup-master-clocks',type=int,default=336)
+    p.add_argument('--palette-allowance-master-clocks',type=int,default=5000)
+    a=p.parse_args()
+    if a.packet_setup_master_clocks<0 or a.palette_allowance_master_clocks<0:raise ValueError('NEGATIVE_TRANSFER_COST')
     seq=json.loads((a.sequence/'report.json').read_text());plan=json.loads((a.residency/'report.json').read_text())
     starts=[];tick=0
     for frame in seq['frames']:
@@ -96,13 +100,13 @@ def main():
     jobs=derive_jobs(plan,maps,starts);mandatory={}
     for t in plan['transitions']:
         mandatory[starts[t['to_frame']]]=[dict(address=x['vram_byte_address'],bytes=x['bytes'],kind='tilemap') for x in t['tilemap_transfers']]
-    fields,passed=schedule(jobs,mandatory,starts[-1],a.window_master_clocks)
+    fields,passed=schedule(jobs,mandatory,starts[-1],a.window_master_clocks,a.packet_setup_master_clocks,a.palette_allowance_master_clocks)
     identity=replay(fields,plan,maps,starts) if passed else False
     result=dict(schema='BYOR_COMPONENT_SOURCE_DEADLINES_V1',
                 status='OFFLINE_DEADLINE_CANDIDATE' if passed and identity else 'GREEDY_DEADLINE_HEURISTIC_LIMIT',
                 source_ticks_per_second=a.source_ticks_per_second,display_fields_per_second=a.fields_per_second,
                 source_frame_start_fields=starts,window_master_clocks=a.window_master_clocks,
-                cost_policy='8 master clocks per data byte + 336 per contiguous packet + 5000 per-field palette/setup allowance; not native admission',
+                cost_policy=f'8 master clocks per data byte + {a.packet_setup_master_clocks} per contiguous packet + {a.palette_allowance_master_clocks} per-field palette/setup allowance; not native admission',
                 jobs=jobs,fields=fields,resident_identity_replay=identity,no_color_reduction=True,native_admitted=False,
                 scope='Specified rational display-clock hypothesis, fixed pose context, fixed physical slot plan. No production cadence or optimality claim.')
     a.output.write_text(json.dumps(result,indent=2)+'\n')

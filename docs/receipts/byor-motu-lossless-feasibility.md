@@ -1066,3 +1066,34 @@ before VRAM acquisition and is empty in the captured closeout snapshot.
 The original NMI handles the quiescence drain; no queued work is discarded.
 This field gate still stops the ordinary world and enters a private fixed
 scene owner, so it does not certify source gameplay or ongoing TAD service.
+
+### Continuous component sequence through the banked canvas NMI
+
+All 40 precomposed HBreath poses now run continuously after the real production
+cold boot and native field handoff. The canvas NMI retains the stage timer,
+frame counter and one-shot audio fence while owning the foreign BG registers.
+Immutable ROM scanline targets and a source-derived 100-color palette prefix
+remove redundant transfer work. Word DMA packets commit the offline CHR and
+tilemap schedule. The existing bank-zero stub operands change size-neutrally;
+all added instructions remain outside bank zero.
+
+The bounded proof verifies 75 completed fields, 4,300,800 visible RGB555 pixels
+with zero mismatches, all 40 poses, their compiled 200/60 source-cadence mapping,
+and every captured CGRAM write. The observer pairs the finished PPU buffer with
+the display epoch, rather than trusting a descriptor read during NMI. Mesen's
+seven top and eight bottom border rows are excluded without resizing source
+pixels. Register/stack faults, unsafe palette samples and active-display VRAM
+writes are all zero. Peak NMI entry-to-RTI cost is 50,284 master clocks. The
+latest RTI entry has only 80 clocks before the next field; native RTI consumes
+50 of those clocks. This narrow margin is a fixed-context admission, not a
+budget for ongoing audio service or a moving world.
+
+The generic residency planner also accepts sparse physical CHR slots so an
+unused low-plane tail can be investigated without treating its holes as free
+high-plane capacity. Exact identity tests cover sparse-slot replacement. No
+native sparse-tail admission is claimed. Greedy deadline failures remain
+heuristic failures, not hardware infeasibility.
+
+Receipt: `byor-motu-component-production-sequence-native.json`. Live RGB8
+composition, actor/camera movement, production TAD frame service and the MOTU
+world remain unbound. No color reduction is applied.

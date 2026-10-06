@@ -38,6 +38,10 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
         highchr=(cache_assets/'high.chr').read_bytes();lowchr=(cache_assets/'low.chr').read_bytes()
         highmap=(cache_assets/'0-high.map').read_bytes();lowmap=(cache_assets/'0-low.map').read_bytes()
         lowbase=((len(highchr)+8191)//8192)*8192
+        layout=cache_assets/'layout.json'
+        if layout.exists():
+            lowbase=json.loads(layout.read_text())['low_chr_vram_base']
+            if lowbase%8192 or any(highchr[lowbase:lowbase+len(lowchr)]):raise ValueError('MODE4_CACHE_CHR_OVERLAP')
     gaps=[(len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
     offsetmap=next((((first+2047)//2048)*2048 for first,last in gaps
                     if ((first+2047)//2048)*2048+2048<=last),None)

@@ -1,0 +1,43 @@
+{
+  "schema": "BYOR_COMPOSED_BG_PRODUCTION_SEQUENCE_NATIVE_V1",
+  "status": "PASS",
+  "scope": "Continuous fixed-context compiled sequence through a banked canvas NMI after real production cold boot. No live compositor, world or TAD frame-service admission.",
+  "rom_sha256": "6eccb1836907818a530a1cae5ec075b0984ead73d87d6c2339fcc1c64ad0bb47",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "result_path": "out\\byor-motu-component-production-final-native\\result.json",
+  "compiled_schedule_sha256": "d24b5a74e38d74df276a5b45001a6078e88e1009fefb267332d72da42913a105",
+  "completed_fields": 75,
+  "visible_pixels_checked": 4300800,
+  "pixel_mismatches": 0,
+  "cgram_trace_fields": 75,
+  "cgram_trace_mismatches": 0,
+  "source_cadence_verified": true,
+  "context_faults": 0,
+  "unsafe_palette_samples": 0,
+  "unsafe_vram_writes": 0,
+  "peak_nmi_master_clocks": 50284,
+  "minimum_clocks_at_rti_entry_before_next_field": 80,
+  "native_rti_master_clocks": 50,
+  "bank0_runtime_growth": 0,
+  "no_color_reduction": true,
+  "all_40_poses_exact": true,
+  "capabilities": [
+    "banked canvas NMI retains stage timer and one-shot audio fence",
+    "ROM target lookup",
+    "immutable source-derived 100-color palette prefix",
+    "word DMA VRAM packets",
+    "continuous fixed-context compiled sequence"
+  ],
+  "nonclaims": [
+    "MOTU selector or gameplay",
+    "live RGB8 compositing",
+    "moving actors/camera",
+    "TAD frame-service pump or active audio contention",
+    "source clock native policy outside the offline 200/60 display hypothesis"
+  ],
+  "supporting_stationary_proofs": [
+    "out/byor-motu-canvas-nmi-native/result.json",
+    "out/byor-motu-canvas-direct-nmi-native/result.json"
+  ],
+  "offline_sparse_tail_status": "generic allocation has exact identity tests; no native sparse-tail admission"
+}

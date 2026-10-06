@@ -23,11 +23,15 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm=''):
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
     from source_raster_irq import fetch_prologue,emit
-    asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit()
+    contract={key:sy[value] for key,value in dict(timer_hook='StageTimer_NmiField',audio_fence='Tad_StreamOneShotHdmaFence',
+              frame_counter='Nmi_FrameCounter',hdma_enable='Nmi_HdmaEnable',hdma_current='Nmi_HdmaEnableCurrent').items()}
+    if not 0<=palette_prefix<236:raise ValueError('INITIAL_PALETTE_PREFIX_RANGE')
+    asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit(contract if canvas_nmi else None,
+         0xb48000 if direct_targets_rom else None,(4+palette_prefix,236-palette_prefix),frame_hook)
     asm+='\n.bank 39\n.org $C000\nSourceRasterFetchWrapper:\n.a16\n.i16\n'+fetch_prologue()
     asm+='    plp\n    jml $%06X\n'%sy['Vm_FetchSource']
     asm+='''
@@ -47,6 +51,7 @@ SourceRasterColdInit:
     lda #0
     sta.l SourceRaster_Ready
     sta.l SourceRaster_Fault
+    sta.l SourceRaster_CoreMode
     sta.l $7FF860
     pla
     plp
@@ -76,6 +81,7 @@ SourceRasterFieldOrdinary:
     plp
     jml $%06X
 '''%sy['Tad_StreamFrameService']
+    asm+=extra_asm
     (folder/'production-gate.pasm').write_text(asm)
     command=[r'C:\Users\chad\.dotnet\dotnet.exe',r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll',str(folder/'production-gate.pasm'),
              '--output',str(folder/'production-gate.bin'),'--symbols',str(folder/'production-gate.sym'),'--no-pansy']
@@ -90,6 +96,9 @@ SourceRasterFieldOrdinary:
     rom[39*32768:40*32768]=emitted[39*32768:40*32768].ljust(32768,b'\xff')
     for old,new in [(2,41),(3,42),(4,43),(5,44),(6,45)]:
         rom[new*32768:(new+1)*32768]=private[old*32768:(old+1)*32768]
+    if direct_targets_rom:
+        if rom[52*32768:53*32768]!=bytes(32768):raise ValueError('IMMUTABLE_TARGET_ROM_RESERVATION_OCCUPIED')
+        rom[52*32768:52*32768+224]=private[0x2a800:0x2a800+224]
     code=bytearray(private[0x8000:0x8400]);end=code.find(bytes([255])*32)
     if end<0:raise ValueError('PRIVATE_OWNER_END')
     code=code[:end]
@@ -123,6 +132,12 @@ SourceRasterFieldOrdinary:
         after=bytes([0xa9,new,0,0x8f,address&255,(address>>8)&255,address>>16])
         if code.count(before)!=1:raise ValueError('PALETTE_DESCRIPTOR_RELOCATION')
         code=code.replace(before,after)
+    for address,old,new in [(0x7ff844,0xa800,0 if direct_targets_rom else 0xa800),
+                            (0x7ff84e,0x9008,0x9008+palette_prefix*2)]:
+        before=bytes([0xa9,old&255,old>>8,0x8f,address&255,(address>>8)&255,address>>16])
+        after=bytes([0xa9,new&255,new>>8,0x8f,address&255,(address>>8)&255,address>>16])
+        if code.count(before)!=1:raise ValueError('RANGED_PALETTE_OR_TARGET_DESCRIPTOR')
+        code=code.replace(before,after)
     # Replace owner body after the boot's final mode switch. Install shadows
     # before exposing Ready, so the production NMI commits this scene.
     marker=code.find(bytes.fromhex('e2 20 a9 01 8d 0d 42 a9 0f 8d 00 21 a9 81 8d 00 42 58'))
@@ -142,7 +157,7 @@ SourceRasterFieldOrdinary:
     shadows[0x7e5011]=private[0x8000+at-1]
     for address,value in shadows.items():code.extend(bytes([0xa9,value,0x8f,address&255,(address>>8)&255,address>>16]))
     code.extend(bytes.fromhex('c2 30'))
-    for address,value in [(0x7e5017,0),(0x7e5019,65535),(0x7e501b,0),(0x7e501d,65535),(0x7e501f,0),(0x7e5021,0)]:
+    for address,value in [(0x7ff862,0xb4b1 if canvas_nmi else 0),(0x7e5017,0),(0x7e5019,65535),(0x7e501b,0),(0x7e501d,65535),(0x7e501f,0),(0x7e5021,0)]:
         code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
     code.extend(bytes.fromhex('e2 20 a9 01 8d 0d 42 a9 0f 8d 00 21 a9 81 8d 00 42 58'))
     loop=0x8000+len(code)
@@ -169,14 +184,25 @@ SourceRasterFieldOrdinary:
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
-    p.add_argument('--report',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    p.add_argument('--report',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--canvas-nmi',action='store_true',help='Own foreign-canvas presentation while retaining timer/audio field fences')
+    p.add_argument('--direct-target-rom',action='store_true')
+    p.add_argument('--palette-prefix-colors',type=int,default=0)
+    a=p.parse_args()
     folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     original=a.rom.resolve().read_bytes();sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
     compile_base=bg.compile_rom;details={};report=json.loads(a.report.read_text())
+    initial=json.loads((a.report.parent/'initial.json').read_text())
+    for row in report['trace']:
+        for event in row['updates']:
+            if event['slot']<=a.palette_prefix_colors and event['color']!=initial[event['slot']-1]:
+                raise ValueError('INITIAL_PALETTE_PREFIX_NOT_IMMUTABLE')
     def compile_production(*args,**kwargs):
-        raw,trace,resources=compile_base(*args,**kwargs);raw,gates=build(raw,report,folder,original,sy);details['gates']=gates
+        raw,trace,resources=compile_base(*args,**kwargs);raw,gates=build(raw,report,folder,original,sy,a.canvas_nmi,a.direct_target_rom,a.palette_prefix_colors);details['gates']=gates
         resources.update(irq_entry_prg_offset=39*32768+4096,irq_exit_prg_offset=offset(gates['SourceRasterIrqReturn']),
-                         production_nmi=True,dummy_hdma=False,bank0_runtime_growth=0)
+                         production_nmi=True,canvas_nmi=a.canvas_nmi,dummy_hdma=False,bank0_runtime_growth=0)
+        resources.update(direct_target_rom=a.direct_target_rom,initial_palette_prefix_colors=a.palette_prefix_colors,
+                         per_field_palette_restore_bytes=(236-a.palette_prefix_colors)*2)
         for path in [a.rom.resolve().with_suffix('.msu'),*a.rom.resolve().parent.glob('bor-*.pcm')]:
             destination=folder/('proof'+path.name[3:])
             if not destination.exists():os.link(path,destination)

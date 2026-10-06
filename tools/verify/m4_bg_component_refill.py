@@ -25,7 +25,7 @@ def build(sequence, residency, index, output, timer, preload_first_packets=None)
     for name, base in [('high',0),('low',49152)]:
         plane=plan[name];size=plane['bpp']*8
         tiles=(residency/f'{name}-tiles.chr').read_bytes()
-        resident=bytearray(plane['capacity']*size)
+        resident=bytearray(plane.get('slot_extent',plane['capacity'])*size)
         for frame in plane['frames'][:index]:
             for w in frame['writes']:
                 resident[w['slot']*size:(w['slot']+1)*size]=tiles[w['tile']*size:(w['tile']+1)*size]
@@ -44,7 +44,8 @@ def build(sequence, residency, index, output, timer, preload_first_packets=None)
         name='high' if t['vram_byte_address']<0xf800 else 'low'
         data=(residency/f'{index:02d}-{name}.map').read_bytes()
         packets['COMMIT'].append([t['vram_byte_address'],bytearray(data[t['source_byte_offset']:t['source_byte_offset']+t['bytes']])])
-    raw,_,resources=compile_rom(reports[0],assets[0],timer,cache)
+    (cache/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=plan['allocation']['low_chr'][0])))
+    raw,_,resources=compile_rom(reports[0],assets[0],timer,cache,offset_alias=plan.get('offset_map_aliases_bg1',False))
     rom=bytearray(raw)+bytearray([255])*262144
     prefix=rom[0x8000:0x8400];end=prefix.find(bytes.fromhex('a9 0f 8d 00 21'))
     if end<0:raise ValueError('REFILL_BOOT_PREFIX')

@@ -14,7 +14,7 @@ from m4_bg_components_native import compile_rom
 from _harness import McpSession, MESEN_EXE, _free_tcp_port
 
 
-def build(sequence,residency,deadlines,output,timer):
+def build(sequence,residency,deadlines,output,timer,word_dma=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay'] or not plan['offset_map_aliases_bg1']:
         raise ValueError('SEQUENCE_DEADLINES_OR_OFFSET_ALIAS_UNPROVEN')
@@ -25,13 +25,14 @@ def build(sequence,residency,deadlines,output,timer):
     chr_data={n:(residency/f'{n}-tiles.chr').read_bytes() for n in ('high','low')}
     cache=output/'boot-cache';cache.mkdir(exist_ok=True)
     for name in chr_data:
-        plane=plan[name];size=plane['bpp']*8;data=bytearray(plane['capacity']*size)
+        plane=plan[name];size=plane['bpp']*8;data=bytearray(plane.get('slot_extent',plane['capacity'])*size)
         for w in plane['frames'][0]['writes']:
             data[w['slot']*size:(w['slot']+1)*size]=chr_data[name][w['tile']*size:(w['tile']+1)*size]
         for w in schedule['fields'][0]['jobs']:
             if w['plane']==name:data[w['slot']*size:(w['slot']+1)*size]=chr_data[name][w['tile']*size:(w['tile']+1)*size]
         (cache/f'{name}.chr').write_bytes(data)
         (cache/f'0-{name}.map').write_bytes((residency/f'00-{name}.map').read_bytes())
+    (cache/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=plan['allocation']['low_chr'][0])))
     raw,_,resources=compile_rom(reports[0],assets[0],timer,cache,offset_alias=True)
     rom=bytearray(raw)+bytearray([255])*(2097152-len(raw));traces=[]
     for index,(r,folder) in enumerate(zip(reports,assets)):
@@ -70,6 +71,17 @@ def build(sequence,residency,deadlines,output,timer):
         start=cursor;code=bytearray();data_cursor=start+reserve;settings={}
         def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
         def dma(source,bank,dest,size,target=None):
+            if word_dma:
+                def word(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8d,address&255,address>>8]))
+                if target is not None:word(0x2116,target)
+                cfg=(1 if dest==0x18 else 0)|(dest<<8)
+                if settings.get('cfg')!=cfg:word(0x4370,cfg);settings['cfg']=cfg
+                if settings.get('bank')!=bank:word(0x4374,bank);settings['bank']=bank
+                word(0x4372,source);word(0x4375,size)
+                # The transfer owns VBlank: clear HDMA during each word trigger
+                # and restore its field mask once all transfer work is complete.
+                word(0x420b,128)
+                return
             if target is not None:store(0x2116,target&255);store(0x2117,target>>8)
             for address,value in [(0x4370,1 if dest==0x18 else 0),(0x4371,dest),(0x4374,bank)]:
                 if settings.get(address)!=value:store(address,value);settings[address]=value
@@ -77,10 +89,16 @@ def build(sequence,residency,deadlines,output,timer):
         code.extend(bytes.fromhex('ad 12 42 29 80 d0 f9 ad 12 42 29 80 f0 f9 78'))
         store(0x4200,0);store(0,1)
         store(5,row['field'])
+        if word_dma:code.extend(bytes.fromhex('c2 20'))
         for address,data in packets:
             rom[data_cursor:data_cursor+len(data)]=data
             dma(0x8000+data_cursor%32768,data_cursor//32768,0x18,len(data),address//2);data_cursor+=len(data)
-        store(0x2121,4);dma(0x8000+frame*472,46,0x22,472)
+        if word_dma:code.extend(bytes.fromhex('e2 20'))
+        store(0x2121,4)
+        if word_dma:code.extend(bytes.fromhex('c2 20'))
+        dma(0x8000+frame*472,46,0x22,472)
+        if word_dma:
+            code.extend(bytes.fromhex('e2 20'));store(0x420c,1)
         for address,value in [(0x4370,0),(0x4371,0x22),(0x4372,0),(0x4373,0x80),(0x4374,6+frame),
                               (0x4375,reports[frame]['span']*2),(0x4376,0),(2,224),(3,frame),(4,reports[frame]['span']*2),(1,frame)]:store(address,value)
         code.extend(bytes([0xa2,0,frame]));store(0,0);store(0x4200,0x10);code.append(0x58)
@@ -111,14 +129,16 @@ def build(sequence,residency,deadlines,output,timer):
     resources.update(programs=programs,source_frame_start_fields=schedule['source_frame_start_fields'],
                      main_cpu_fastrom=True,irq_cpu_fastrom=False,source_clock_hypothesis=[200,60],
                      full_sequence_production_admitted=False)
+    resources['word_dma']=word_dma
     return bytes(rom),traces,resources,assets
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('sequence','residency','deadlines','output'):p.add_argument('--'+name,type=Path,required=True)
-    p.add_argument('--timer',type=int,default=160);a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
-    rom,traces,resources,assets=build(a.sequence,a.residency,a.deadlines,folder,a.timer)
+    p.add_argument('--timer',type=int,default=160);p.add_argument('--word-dma',action='store_true')
+    a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
+    rom,traces,resources,assets=build(a.sequence,a.residency,a.deadlines,folder,a.timer,a.word_dma)
     path=folder/'proof.sfc';path.write_bytes(rom);lua=folder/'observer.lua'
     lua.write_text('''local active=false;local restore=false;local frames=0;local n=0;local rows={};local field=0
 emu.addMemoryCallback(function(a,v)
