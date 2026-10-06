@@ -999,3 +999,31 @@ the PPU. Geometry, background identity storage, live palette allocation and
 the production SA-1 owner remain unbound. The 30-ms source-frame interval
 therefore is not a complete compositor deadline PASS. Receipt:
 `byor-motu-screen-sa1-native.json`. No color reduction is applied.
+
+
+### Isolated IRQ gateway and post-NMI restoration
+
+A private contract-shaped native fixture reuses the existing bank-zero
+JSL/RTS VM fetch gateway for IRQ dispatch and the existing eight-byte NMI
+stub for a post-NMI hook. All added assembly is in bank 39; production
+installation has not occurred. The NMI hook inserts a temporary return
+frame, lets the ordinary NMI stub finish, then restores the high palette
+and DMA7 configuration before returning to the interrupted owner.
+
+The peak-color br12 pose and the 15-color-per-line transfer pose both pass
+exact pixel and CGRAM traces. Each case has 900 IRQ and four NMI checks
+with zero differences in A/X/Y/D/DBR/SP or the original hardware return
+frame. The owner exercises eight- and sixteen-bit register widths, nonzero
+direct page and WRAM DBR. Four-field first/last DMA-byte observers find
+zero unsafe samples. Peak gateway-entry-to-RTI clocks are 1,206 and 1,236,
+respectively; these exclude hardware interrupt entry and RTI execution.
+The 15-color case transfers 30 bytes per line using an H+V trigger at dot
+76. Slow-owner and later-trigger variants are retained as failures: one
+variant reached h=88 on a later field despite a passing first-field trace.
+
+Admission requires ordinary fetches with I=0, FastROM owner execution and
+exclusive post-NMI ownership of DMA7 and the WRAM port. This fixture uses
+a stand-in NMI that deliberately changes DMA7 and dummy channel-zero HDMA;
+it does not establish production TAD, streaming or NMI contention. The
+large CPU cost remains to be admitted against the live source-world owner.
+Receipt: `byor-motu-raster-gate-native.json`. No color reduction is applied.

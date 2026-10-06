@@ -1,0 +1,280 @@
+{
+  "schema": "BYOR_BG_RASTER_GATE_NATIVE_V1",
+  "status": "ISOLATED_GATE_PASS",
+  "no_color_reduction": true,
+  "admission_contract": [
+    "All ordinary VM fetch calls run with I=0 when this gateway is installed.",
+    "Source owner runs through FastROM.",
+    "Post-NMI hook exclusively owns DMA7 and WRAM port 2180..2183.",
+    "Raster descriptor and palette ranges are validated before activation."
+  ],
+  "cases": [
+    {
+      "evidence": "out/byor-motu-irq-gate-br12-fast-native",
+      "result": {
+        "resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 42880,
+          "low_chr_bytes": 9984,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 43008,
+          "offset_map_aliases_bg1": false,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 76,
+          "irq_entry_prg_offset": 1282048,
+          "irq_exit_prg_offset": 1282126,
+          "code_bank": 1,
+          "oam_entries": 0,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 13,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "reused_irq_gateway": true,
+          "post_nmi_hook": true,
+          "production_bank0_growth": 0
+        },
+        "rom_sha256": "589390b5625f5fffb479e6aeea7dbbf3bfe7b34840b71b2565dfabe8ea47f591",
+        "schedule_sha256": "ca5b40454265ff56b6d60db9cadb809b613fca4a0210c535c61b75547ab021ac",
+        "advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 3,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 3,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 4,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 4,
+            "endFrame": 4,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 4,
+            "endFrame": 5,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "completed_fields": 5,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "cgram_observer_verified": true,
+        "observed_register_writes": 6048,
+        "expected_register_writes": 6048,
+        "timing_samples": 448,
+        "active_window_samples": 0,
+        "irq_service_samples": 224,
+        "peak_irq_service_master_clocks": 950,
+        "visible_field_irq_service_master_clocks": 209944,
+        "low_palette_unchanged": true,
+        "hud_palette_unchanged": true,
+        "no_color_reduction": true,
+        "scope": "Private contract-shaped interrupt stubs, palette traces and pixels. No production installation, real NMI/DMA load or TAD protocol admission.",
+        "pass": true,
+        "gate_state": "b0b4000000a80500008006001a0008900500810001000000ef120400",
+        "gate_fault": 0,
+        "gate_frames": 4,
+        "irq_context_checks": 900,
+        "nmi_context_checks": 4,
+        "context_faults": 0,
+        "peak_gateway_to_rti_master_clocks": 1206,
+        "all_field_unsafe_data_writes": 0
+      }
+    },
+    {
+      "evidence": "out/byor-motu-irq-gate-fast-owner-76-native",
+      "result": {
+        "resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 43648,
+          "low_chr_bytes": 10160,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 45056,
+          "offset_map_aliases_bg1": false,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 76,
+          "irq_entry_prg_offset": 1282048,
+          "irq_exit_prg_offset": 1282126,
+          "code_bank": 1,
+          "oam_entries": 0,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 15,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "reused_irq_gateway": true,
+          "post_nmi_hook": true,
+          "production_bank0_growth": 0
+        },
+        "rom_sha256": "b97d5c274fbdbdde86eb2b36f5e51e51e58dc7a87bfa28e9ff132437fc788dd0",
+        "schedule_sha256": "a76f63b6a14b82193c93ff12906e54b4d2dfc28aadeeb798e6b18eb0b8f92b84",
+        "advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 3,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 3,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 3,
+            "endFrame": 4,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 4,
+            "endFrame": 4,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 4,
+            "endFrame": 5,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "completed_fields": 5,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "cgram_observer_verified": true,
+        "observed_register_writes": 6944,
+        "expected_register_writes": 6944,
+        "timing_samples": 448,
+        "active_window_samples": 0,
+        "irq_service_samples": 224,
+        "peak_irq_service_master_clocks": 980,
+        "visible_field_irq_service_master_clocks": 217318,
+        "low_palette_unchanged": true,
+        "hud_palette_unchanged": true,
+        "no_color_reduction": true,
+        "scope": "Private contract-shaped interrupt stubs, palette traces and pixels. No production installation, real NMI/DMA load or TAD protocol admission.",
+        "pass": true,
+        "gate_state": "b0b4e00000a80500008006001e000890050081000100000034120300",
+        "gate_fault": 0,
+        "gate_frames": 3,
+        "irq_context_checks": 900,
+        "nmi_context_checks": 4,
+        "context_faults": 0,
+        "peak_gateway_to_rti_master_clocks": 1236,
+        "all_field_unsafe_data_writes": 0
+      }
+    }
+  ],
+  "nonclaims": [
+    "No production installation or measured production NMI/TAD/streaming contention.",
+    "No live compositor or actual MOTU world playback.",
+    "No CPU cost admission for a source-world owner."
+  ]
+}
