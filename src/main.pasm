@@ -13589,6 +13589,7 @@ Footdie_StreamSource:
 .include "generated/source_clock_4086.pasm"
 .include "core/vm/vm_source_clock.pasm"
 .include "core/vm/vm_source_animation_step.pasm"
+.include "core/vm/vm_source_motion_property.pasm"
 
 .org $B000
 SourceVM_ConstantReservation:

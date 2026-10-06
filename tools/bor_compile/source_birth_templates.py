@@ -24,6 +24,17 @@ CAP_NONE_IDLE=1
 SIDE_BYTES=64
 
 
+def loader_speed(rows):
+    """af23 CMD_MODEL_SPEED/SPEEDF, in source order; calloc default zero."""
+    speed=Fraction(0)
+    for d in rows:
+        if d['directive'] in ('speed','speedf'):
+            if len(d['values'])!=1:raise ValueError('BIRTH_MODEL_SPEED_ARITY')
+            speed=Fraction(d['values'][0])
+            if d['directive']=='speed':speed=max(Fraction(1,2),min(Fraction(30),speed/10))
+    return speed
+
+
 def derive(source):
     docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     structure=discover(source,docs);registry=model_registry(source);scripts=compile_source(source)
@@ -65,11 +76,16 @@ def derive(source):
         if gravity<0:gravity=1
         if no_adjust<0:no_adjust=1
         if gravity not in (0,1) or no_adjust not in (0,1):rejections.append('INITIAL_PHYSICS_FLAG_POLICY_UNBOUND')
+        # init_model calloc gives speed zero. SPEED is divided by ten and
+        # clamped; SPEEDF directly replaces it, in authored directive order.
+        speed=loader_speed(directives)
+        if not -32768<=speed<32768:raise ValueError('BIRTH_MODEL_SPEED_Q16_RANGE')
         models.append(dict(id=row['id'],identity=row['identity'],source_path=row['source_path'],
                            source_sha256=row['source_sha256'],capability='SOURCE_NONE_IDLE_BIRTH',
                            admitted=not rejections,rejections=rejections,maxhealth=row['maxhealth'],alpha=row['alpha'],
                            initial_animation_id=role_id(configuration,'idle'),initial_frame_handle=handles.get((model['declaration'],'idle'),0),
-                           initial_delay_ticks=delay,lifespan_ticks=int(lifespan),gravity=gravity,no_adjust_base=no_adjust))
+                           initial_delay_ticks=delay,lifespan_ticks=int(lifespan),gravity=gravity,no_adjust_base=no_adjust,
+                           model_speed_q16=int(speed*65536),numeric_policy='ACCEPTED_COMPAT_Q16_16'))
     return dict(schema='BYOR_SOURCE_BIRTH_TEMPLATES_V1',engine_authority=ENGINE_COMMIT,models=models,
                 admission_scope='TYPE_NONE idle birth without initial script/frame/environment side effects',
                 model_template_complete_engine_behavior=False,live_world_owner_bound=False,motu_gameplay_proven=False)
@@ -90,6 +106,7 @@ def pack(report):
         struct.pack_into('<I',data,side+16,row['lifespan_ticks'])
         struct.pack_into('<HHI',data,side+28,7,row['alpha'],2*65536) # nograb,idling,animating; speedmul
         struct.pack_into('<HHI',data,side+52,row['gravity'],row['no_adjust_base'],row['initial_delay_ticks'])
+        struct.pack_into('<i',data,side+60,row['model_speed_q16'])
         body.extend(data)
     return struct.pack('<4sHHHHIII',b'B4BT',1,STRIDE,len(report['models']),0,len(body),zlib.crc32(body)&0xffffffff,0)+body
 

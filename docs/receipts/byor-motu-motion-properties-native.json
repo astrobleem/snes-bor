@@ -1,0 +1,19 @@
+{
+  "schema": "BYOR_M4_MOTION_PROPERTIES_RECEIPT_V1",
+  "status": "PASS",
+  "native_report": "out/byor-motu-motion-properties-native/report.json",
+  "native_rom_sha256": "9169e4b0815df7de2f93fa8c167c94af4c3dc260b3a2720ec3f5d50ab3953357",
+  "native_cases": 14,
+  "motion_cases": [
+    "velocity_full",
+    "velocity_one",
+    "velocity_skip",
+    "speed_skip"
+  ],
+  "read_view_regression": "PASS",
+  "read_view_report": "out/byor-motu-motion-view-regression-native/report.json",
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "scope": "Injected exclusive foreign pool lease; no production world loader or physics integration.",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}

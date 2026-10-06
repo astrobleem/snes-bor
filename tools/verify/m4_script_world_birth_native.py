@@ -44,6 +44,14 @@ def main():
            ('bad_count','HBreath',('VmSourceWorld_Count',129),'FAULT'),
            ('bad_table','HBreath',('VmSourceWorld_TemplateBase',(address+len(models)+2)&65535),'FAULT'),
            ('zero_token','HBreath',None,'FAULT')]
+    motion_cases={
+        'velocity_full':('changeentityproperty(born,"VeLoCiTy",1.5,-0.75,2.25);changeentityproperty(born,"speed",3.5);',
+                         {36:98304,40:-49152,44:147456,60:229376}),
+        'velocity_one':('changeentityproperty(born,"velocity",-2);',{36:-131072}),
+        'velocity_skip':('changeentityproperty(born,"velocity","invalid",2,NULL());',{40:131072}),
+        'speed_skip':('changeentityproperty(born,"speed","invalid");',{}),
+    }
+    cases.extend((n,'HBreath',None,'PTR') for n in motion_cases)
     reporter=Reporter('M4-SOURCE-WORLD-BIRTH',kind='GATE');results=[]
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';registry='src/core/vm/vm_source_models.pasm'
     world='src/core/vm/vm_source_world_birth.pasm'
@@ -54,9 +62,10 @@ def main():
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('BIRTH_PLAYING_REQUIRED')
         run_frames_exact(m,12)
         for name,model,override,outcome in cases:
-            source='void main(){clearspawnentry();setspawnentry("name","'+model+'");void born=spawn();}'
+            body=motion_cases.get(name,('',{}))[0]
+            source='void main(){clearspawnentry();setspawnentry("name","'+model+'");void born=spawn();'+body+'}'
             blob,compiled=lower(compile_library(parse_script(source,'birth-probe.c'),
-                                ['clearspawnentry','setspawnentry','spawn']),numeric_policy=POLICY)
+                                ['clearspawnentry','setspawnentry','spawn','changeentityproperty','NULL']),numeric_policy=POLICY)
             checkpoint=pause_for_injection(m,syms);m.pause();offsets=struct.unpack_from('<6I',blob,24)
             instructions,slots=struct.unpack_from('<2H',blob,8)
             m.write_memory('snesMemory',c(const,'VmCode_Wram'),blob.hex())
@@ -77,6 +86,13 @@ def main():
                            descriptor(2,address+len(models),count,len(births),time=48).hex())
             m.write_u16(c(world,'VmSourceWorld_Players'),1)
             m.write_memory('snesMemory',c(world,'VmSourceWorld_AdvanceX'),bytes(10).hex())
+            # The same canonical pool view is authoritative during this
+            # private lease; the ordinary WRAM read-view cannot own sidecars.
+            entity='src/core/vm/vm_source_entity.pasm'
+            for key,value in [('VmSourceEntity_Base',POOL_BASE),('VmSourceEntity_Bank',POOL_BANK),
+                              ('VmSourceEntity_Count',2),('VmSourceEntity_Ready',0xb48b)]:m.write_u16(c(entity,key),value)
+            m.write_u16(c('src/core/vm/vm_source_mutation.pasm','VmSourceMutation_Ready'),0xb4a2)
+            m.write_u16(c('src/core/vm/vm_native_variant.pasm','VmNativeVariant_ContextValid'),0xb48f)
             if override:m.write_u16(c(world,override[0]),override[1])
             for key,value in [('VmSourceModels_Base',address&65535),('VmSourceModels_Count',len(rows)),
                               ('VmSourceModels_Bytes',len(models)),('VmSourceModels_Ready',0xb4a1)]:m.write_u16(c(registry,key),value)
@@ -105,6 +121,7 @@ def main():
                 side=bytearray(template[88:152])
                 struct.pack_into('<II',side,8,48+struct.unpack_from('<I',side,56)[0],48)
                 struct.pack_into('<II',side,20,49,49)
+                for offset,value in motion_cases.get(name,('',{}))[1].items():struct.pack_into('<i',side,offset,value)
                 expected_sides=bytes(side)+sides[64:]
             reporter.check(name+' terminal state',(status,error)==((5,10) if outcome=='FAULT' else (4,0)))
             reporter.check(name+' exact pool publication or no mutation',actual_pool==expected_pool and actual_sides==expected_sides)
@@ -118,7 +135,8 @@ def main():
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
-                live_world_owner_bound=False,physics_bound=False,presentation_bound=False,motu_gameplay_proven=False,no_pcm_copies=True)
+                live_world_owner_bound=False,physics_bound=False,presentation_bound=False,motu_gameplay_proven=False,no_pcm_copies=True,
+                motion_property_cases=list(motion_cases),motion_numeric_policy='ACCEPTED_COMPAT_Q16_16')
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

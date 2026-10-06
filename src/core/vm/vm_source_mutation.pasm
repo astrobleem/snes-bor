@@ -91,7 +91,7 @@ Vm_SourceEntityChange__next_name:
     clc
     adc #16
     sta.l VmSourceMutation_Name
-    cmp #112
+    cmp #144
     bcc Vm_SourceEntityChange__name
 Vm_SourceEntityChange__bad:
 .a16
@@ -101,6 +101,13 @@ Vm_SourceEntityChange__bad:
     rtl
 
 Vm_SourceEntityChange__property:
+.a16
+.i16
+    lda.l VmSourceMutation_Name
+    cmp #112
+    bcc Vm_SourceEntityChange__view_property
+    jmp Vm_SourceMotionProperty
+Vm_SourceEntityChange__view_property:
 .a16
 .i16
     lda.l VmSourceMutation_Name
@@ -313,3 +320,5 @@ Vm_SourceMutationNames:
     .db 1,"a",0,0,0,0,0,0,0,0,0,0,0,0,8,2
     .db 1,"y",0,0,0,0,0,0,0,0,0,0,0,0,8,2
     .db 6,"health",0,0,0,0,0,0,0,32,1
+    .db 8,"velocity",0,0,0,0,0,36,2
+    .db 5,"speed",0,0,0,0,0,0,0,0,0,60,2

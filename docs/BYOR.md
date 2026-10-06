@@ -96,6 +96,13 @@ It returns a frame request; the world owner must execute callbacks and frame
 side effects before committing time. It does not itself implement `updateframe`,
 attack checks, kill cleanup or a live MOTU world.
 
+The authoritative foreign pool additionally binds script `velocity` (x, z,
+altitude) and model `speed` changes to separate sidecar fields. Birth data derives
+the loader's ordered `speed`/`speedf` values, including `speed` division by ten
+and clamps. Coordinates and motion use the explicit Q16.16 adaptation. Native
+birth/motion and ordinary read-view regression tests pass; physics integration
+and the production world lease remain unfinished.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell
