@@ -4,7 +4,7 @@ Weapon switching preserves the source entity type while globally inheriting
 missing cached animation pointers. This is a required capability description;
 publishing it does not admit a foreign profile or bind a native model owner.
 """
-import argparse,hashlib,json
+import argparse,json,struct
 from pathlib import Path
 from compiler import Source,key
 from source_profile import document,discover
@@ -62,6 +62,23 @@ def derive(source):
         source_animation_policy='Mutable shared cached animation pointers; inherited frames keep original immutable frame identity/handle.',
         source_script_policy='Current/default descriptors captured at callback begin; fresh default eligibility after current callback.',
         native_model_switch_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False)
+
+
+def pack_animation_cache(report):
+    count=len(report['models']);maximum=report['maximum_animations']
+    if not 1<=count<=128 or not 1<=maximum<=1024 or count*maximum*2>8192:
+        raise ValueError('MODEL_ANIMATION_CACHE_NATIVE_CAPACITY')
+    values=[0]*(count*maximum);seen=set()
+    for index,model in enumerate(report['models']):
+        if model['id']!=index:raise ValueError('MODEL_ANIMATION_CACHE_MODEL_ID')
+        for animation in model['animation_slots']:
+            number,handle=animation['engine_animation_id'],animation['frame_handle']
+            if not 0<=number<maximum or not 1<=handle<=65535:
+                raise ValueError('MODEL_ANIMATION_CACHE_ANIMATION_ID')
+            slot=index*maximum+number
+            if slot in seen:raise ValueError('MODEL_ANIMATION_CACHE_DUPLICATE_SLOT')
+            seen.add(slot);values[slot]=handle
+    return struct.pack('<'+'H'*len(values),*values)
 
 
 def main():

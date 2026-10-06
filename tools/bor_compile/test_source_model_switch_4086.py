@@ -1,7 +1,8 @@
 from pathlib import Path
 import unittest
+import struct
 from compiler import Source
-from source_model_switch_requirements import derive
+from source_model_switch_requirements import derive,pack_animation_cache
 from source_model_switch_4086 import set_weapon
 
 
@@ -18,6 +19,14 @@ class ModelSwitch(unittest.TestCase):
         self.assertEqual(r['maximum_animations'],168);self.assertEqual(r['cached_animation_map_bytes'],5376)
         self.assertFalse(r['native_model_switch_bound']);self.assertFalse(r['foreign_profile_admitted'])
         self.assertFalse(any(m['rejections'] for m in r['models']))
+        cache=pack_animation_cache(r);self.assertEqual(len(cache),5376)
+        self.assertEqual(sorted(h for h in struct.unpack('<2688H',cache) if h),list(range(1,81)))
+        for m in r['models']:
+            for animation in m['animation_slots']:
+                at=2*(m['id']*168+animation['engine_animation_id'])
+                self.assertEqual(struct.unpack_from('<H',cache,at)[0],animation['frame_handle'])
+        with self.assertRaisesRegex(ValueError,'MODEL_ANIMATION_CACHE_NATIVE_CAPACITY'):
+            pack_animation_cache(dict(r,maximum_animations=1024))
 
     def test_undefined_negative_weapon_index_cannot_alias_python_last_model(self):
         e=dict(modeldata=dict(type=1,weaploss=[3,0],weapon=[-1],numweapons=1),playerindex=0)
