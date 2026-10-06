@@ -156,6 +156,12 @@ SourceUpdateFrame4086_Branch_6:
 SourceUpdateFrame4086_Branch_7:
 .a16
 .i16
+    jsl SourceFrameEffectPlan4086_CheckIdle
+    bcc SourceUpdateFrame4086_PlanIdle
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_PlanIdle:
+.a16
+.i16
     lda.l VmState_Status
     and #$00FF
     cmp #VMSTAT_RUNNING
@@ -562,6 +568,15 @@ SourceUpdateFrame4086_Branch_52:
     sta.l SourceUpdateFrame4086_Fault
     ; The opt-in motion backend is once per admitted frame invocation.
     sta.l SourceFrameMotion4086_Status
+    lda.l SourceFrameEffectPlan4086_Ready
+    beq SourceUpdateFrame4086_PlanFresh
+    lda #0
+    sta.l SourceFrameEffectPlan4086_State
+    sta.l SourceFrameEffectPlan4086_Service
+    sta.l SourceFrameEffectPlan4086_Acknowledged
+SourceUpdateFrame4086_PlanFresh:
+.a16
+.i16
     lda.l SourceUpdateFrame4086_Side
     tax
     lda.l SourceUpdateFrame4086_Request
@@ -657,6 +672,12 @@ SourceUpdateFrame4086_Ack__motion_leased:
     beq SourceUpdateFrame4086_Ack__motion_disabled
     jmp SourceUpdateFrame4086_Bad
 SourceUpdateFrame4086_Ack__motion_disabled:
+.a16
+.i16
+    jsl SourceFrameEffectPlan4086_CheckComplete
+    bcc SourceUpdateFrame4086_Ack__plan_complete
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_Ack__plan_complete:
 .a16
 .i16
     lda.l VmState_Status

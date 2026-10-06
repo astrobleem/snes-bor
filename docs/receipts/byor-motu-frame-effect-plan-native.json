@@ -1,0 +1,41 @@
+{
+  "schema": "BYOR_M4_FRAME_EFFECT_PLAN_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-frame-effect-plan-native/report.json",
+      "sha256": "0b4f174b13bc0dace976b97bb9f22f5a2b4748e0a55554081a19623e7f3c99ba",
+      "cases": 856,
+      "native_rom_sha256": "a7128f2aaf84cf17edf454e92c63fae1d9d7f43e0f61935269c33d015e7afad7"
+    },
+    {
+      "path": "out/byor-motu-frame-stack-effect-plan-native/report.json",
+      "sha256": "23a114e717300080db6224c2df6ce440cf7cbc431ecbd99d49ced2e8caf8e62c",
+      "cases": 164,
+      "native_rom_sha256": "d701876c68d89308772b1cb2d78788e1967610265ec90b8bdd1da5eccda8ef2c"
+    },
+    {
+      "path": "out/byor-motu-model-transition-effect-stack-native/report.json",
+      "sha256": "815f016e025ccde1edf910d6cecf7c1ccae25975e7f08a4022c97d7c5b915861",
+      "cases": 179,
+      "native_rom_sha256": "c8c6a8f834364029a54d3a4c0a42cac7c441490813b91a443a62d4b310e71ff9"
+    }
+  ],
+  "production_rom_sha256": "9c169d753156d47efbb229793c9cd9021dc3efc28a4ec17d93ea3ecdee18cbac",
+  "proof": "Captured-frame B4EP cursor issues every authored operation in order. Exact acknowledgement advances it; unissued and stale completion cannot retire the frame. Full 512-byte snapshots preserve the cursor through eight nested frame levels. Model transition regression exercises native child prefixes; external effect services remain instrumented.",
+  "source_frames": 836,
+  "cursor_cases": 856,
+  "stack_cases": 164,
+  "nested_transition_cases": 179,
+  "snapshot_bytes": 512,
+  "native_effect_services_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

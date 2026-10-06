@@ -3,8 +3,8 @@
 ; its remaining effects are pending. Child frame/scripts/effects must finish
 ; before Pop. Live entity mutations and shared cached model data are retained.
 ; B4ED exclusive lease: eight 512-byte rows at $40F000..$40FFFF.
-; Snapshot $7FFB50..$7FFD3F (496 bytes) includes frame/motion/callback/model
-; initialization owners. $7FFD40..$7FFD5F stays reserved; stack controls follow.
+; Snapshot $7FFB50..$7FFD5F (512 bytes) includes frame/motion/callback/model
+; initialization and effect-plan owners. Stack controls follow outside snapshot.
 SourceFrameStack4086_Ready = $7FFD60
 SourceFrameStack4086_Depth = $7FFD62
 SourceFrameStack4086_Fault = $7FFD64
@@ -147,11 +147,26 @@ SourceFrameStack4086_PushTransitionLease:
 SourceFrameStack4086_PushTransitionDone:
 .a16
 .i16
+    lda.l SourceFrameEffectPlan4086_Ready
+    beq SourceFrameStack4086_PushEffectPlanDone
+    cmp #$B4F2
+    beq SourceFrameStack4086_PushEffectPlanLease
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushEffectPlanLease:
+.a16
+.i16
+    lda.l SourceFrameEffectPlan4086_State
+    cmp #3
+    bcc SourceFrameStack4086_PushEffectPlanDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushEffectPlanDone:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     jsr SourceFrameStack4086_RowOffset
     tay
     ldx #$FB50
-    lda #495
+    lda #511
     mvn $40,$7F
     lda.l SourceFrameStack4086_Depth
     inc a
@@ -167,6 +182,9 @@ SourceFrameStack4086_PushTransitionDone:
     sta.l SourceModelTransition4086_State
     sta.l SourceModelTransition4086_Service
     sta.l SourceModelTransition4086_Acknowledged
+    sta.l SourceFrameEffectPlan4086_State
+    sta.l SourceFrameEffectPlan4086_Service
+    sta.l SourceFrameEffectPlan4086_Acknowledged
     jmp SourceFrameStack4086_Good
 
 SourceFrameStack4086_Pop:
@@ -233,12 +251,18 @@ SourceFrameStack4086_PopModelDone:
 SourceFrameStack4086_PopTransitionDone:
 .a16
 .i16
+    jsl SourceFrameEffectPlan4086_CheckIdle
+    bcc SourceFrameStack4086_PopEffectPlanDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PopEffectPlanDone:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     dec a
     jsr SourceFrameStack4086_RowOffset
     tax
     ldy #$FB50
-    lda #495
+    lda #511
     mvn $7F,$40
     lda.l SourceFrameStack4086_Depth
     dec a
