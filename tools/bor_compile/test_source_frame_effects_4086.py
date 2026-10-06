@@ -2,7 +2,7 @@ from pathlib import Path
 import struct
 import unittest
 from compiler import Source
-from source_frame_effects_4086 import derive,loader_frames,pack,unpack
+from source_frame_effects_4086 import derive,loader_frames,pack,unpack,validate_native_motion
 from source_update_frame_authority import cases,expected
 
 
@@ -36,6 +36,7 @@ frame four'''))
     def test_source_effects_roundtrip_missing_sound_and_corrupt_tables(self):
         r=derive(Source(Path(__file__).resolve().parents[2]/'Masters of the Universe [v.3.0 Build 4086].pak'))
         binary=pack(r);decoded=unpack(binary)
+        self.assertEqual(validate_native_motion(binary)['frames'],836)
         self.assertLessEqual(len(binary),32768)
         self.assertEqual(len(r['animations']),80)
         self.assertEqual(sum(len(a['frames']) for a in r['animations']),836)
@@ -67,6 +68,15 @@ frame four'''))
         for mode in (1,2):
             c=dict(c,mode=mode);r=expected(c)
             self.assertEqual(r['trace'],[1]);self.assertEqual(r['state'][17],1)
+
+    def test_native_motion_domain_checks_first_base_and_facing_negation(self):
+        from copy import deepcopy
+        a=loader_frames(rows('anim idle\nframe one\nseta 65536\nframe two'))[0]
+        a['handle']=1;r=dict(models=[],animations=[a])
+        self.assertEqual(validate_native_motion(pack(r))['frames'],2)
+        for field,value in (('base',65536),('x',65536),('x',-32768),('y',-32769),('z',32768)):
+            bad=deepcopy(r);bad['animations'][0]['frames'][0]['move'][field]=value
+            with self.assertRaises(ValueError):validate_native_motion(pack(bad))
 
 
 if __name__=='__main__':unittest.main()

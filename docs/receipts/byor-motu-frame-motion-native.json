@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_M4_NATIVE_FRAME_MOTION_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "report": {
+    "path": "out/byor-motu-frame-motion-native/report.json",
+    "sha256": "100271fd7eb167789a859d2c38a1ea1b4da278dd5556681546a8477a3d1c8b7e"
+  },
+  "native_rom_sha256": "0fd79d8159ef48b7b146e20af6b13fea85943131ea39cbf5b2487868819e34f4",
+  "fixture_table_sha256": "f645db8d82a28718d79d4a6072bce77f2d18d82e62ef1783b3555549a2518283",
+  "native_cases": 2568,
+  "authored_frames": 836,
+  "pinned_verbatim_c_cases": 48,
+  "atomic_rejection_cases": 7,
+  "motion_calls": 2565,
+  "peak_motion_master_clocks": 20630,
+  "average_motion_master_clocks": 8441.816764132554,
+  "timing_scope": "Apply entry through JSL return; includes intervening runtime/NMI; debugger initialization excluded.",
+  "capability": "FRAME_MOTION_Q16_16; source integer motion exact; compiler checks first-frame base and movement/facing conversion domains; native checks live sum overflow before mutation.",
+  "source_scope": "Level-gated directional movex/movez, first-frame base rules, additive/reset altbase and full integer direction truth for flipframe.",
+  "fault_scope": "Out-of-domain movement, facing negation, four live fixed-point overflows and duplicate application reject; pending frame prevents clock commit.",
+  "isolation": "CPU P except carry, D, DBR, X, Y, stack and neighboring physical entity/view/side/aux records checked.",
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "unrelated_protected_files_unchanged": 17,
+  "rom_audit": "ALL CHECKS PASS",
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "remaining_effects_bound": false,
+  "nested_engine_actions_bound": false,
+  "motu_gameplay_proven": false,
+  "limitations": [
+    "Weapon, quake, births, sound, jump and projectile services still require the remaining frame-effect backend.",
+    "Animation callback service instrumented in this motion proof; native authored callback owner separately certified.",
+    "C-derived synthetic frames and deliberate invalid tables are private fixtures, not authored MOTU media."
+  ]
+}

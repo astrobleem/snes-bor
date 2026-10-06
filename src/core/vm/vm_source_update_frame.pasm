@@ -560,6 +560,8 @@ SourceUpdateFrame4086_Branch_52:
     sta.l SourceUpdateFrame4086_TimeHi
     lda #0
     sta.l SourceUpdateFrame4086_Fault
+    ; The opt-in motion backend is once per admitted frame invocation.
+    sta.l SourceFrameMotion4086_Status
     lda.l SourceUpdateFrame4086_Side
     tax
     lda.l SourceUpdateFrame4086_Request
@@ -640,6 +642,21 @@ SourceUpdateFrame4086_Branch_57:
     beq SourceUpdateFrame4086_Branch_58
     jmp SourceUpdateFrame4086_Bad
 SourceUpdateFrame4086_Branch_58:
+.a16
+.i16
+    lda.l SourceFrameMotion4086_Ready
+    beq SourceUpdateFrame4086_Ack__motion_disabled
+    cmp #$B4E8
+    beq SourceUpdateFrame4086_Ack__motion_leased
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_Ack__motion_leased:
+.a16
+.i16
+    lda.l SourceFrameMotion4086_Status
+    cmp #1
+    beq SourceUpdateFrame4086_Ack__motion_disabled
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_Ack__motion_disabled:
 .a16
 .i16
     lda.l VmState_Status

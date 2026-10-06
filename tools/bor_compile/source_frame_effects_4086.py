@@ -193,6 +193,31 @@ def unpack(data):
     return dict(animations=animations,media=media)
 
 
+def validate_native_motion(data):
+    """Admit exact integer motion to the generic Q16.16 native frame backend.
+
+    This validates source constants; native application separately rejects
+    overflowing sums with current live state before writing any motion field.
+    Current-frame SETA is intentionally not used: source reads the FIRST base.
+    """
+    decoded=unpack(data);frames=0
+    for animation in decoded['animations']:
+        base=animation['frames'][0]['move']['base']
+        if not -32768<=base<=32767:
+            raise ValueError('FRAME_MOTION_FIRST_BASE_Q16_DOMAIN')
+        for frame in animation['frames']:
+            for axis in ('x','y','z'):
+                value=frame['move'][axis]
+                if not -32768<=value<=32767:
+                    raise ValueError('FRAME_MOTION_'+axis.upper()+'_Q16_DOMAIN')
+            if frame['move']['x']==-32768:
+                raise ValueError('FRAME_MOTION_FACING_NEGATION_Q16_DOMAIN')
+            frames+=1
+    return dict(capability='FRAME_MOTION_Q16_16',source_integer_motion_exact=True,
+        frames=frames,animations=len(decoded['animations']),
+        live_state_overflow_policy='Explicit atomic native failure before motion writes')
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
     p.add_argument('--output',type=Path,required=True);a=p.parse_args()

@@ -13617,4 +13617,5 @@ SourceVM_InstructionReservation:
 .org $C000
 .include "core/vm/vm_source_update_frame.pasm"
 .include "core/vm/vm_source_animation_callback.pasm"
+.include "core/vm/vm_source_frame_motion.pasm"
 
