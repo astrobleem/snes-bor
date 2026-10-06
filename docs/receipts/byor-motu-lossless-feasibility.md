@@ -1116,3 +1116,26 @@ its first stack push, fixing a random-DBR fixture fault. These fixtures do not
 feed SCREEN output into the PPU or admit production DMA/IRQ contention.
 Receipt: `byor-motu-sa1-character-conversion-native.json`. No source artwork
 or colors are reduced.
+
+### Native SCREEN arithmetic feeds the PPU
+
+The isolated peak-frame fixture now computes source SCREEN colors on SA-1,
+uses those computed values to select the high palette index and low-component
+bits, writes the chunky tile caches, and transfers them through type-1 DMA.
+All 2,751 source-effect pixels begin with invalidated high indices and cleared
+low bits. The resulting native caches match every compiled byte, and the
+displayed 256x224 scene has zero RGB555 pixel mismatches. All 6,048 captured
+CGRAM writes match; no sampled palette write enters active display.
+
+The per-pixel native job costs 1,369,986 master clocks, about 63.8 ms, against
+the 30-ms source-frame interval. This startup proof runs while forced blank,
+with fixed source-derived geometry and an immutable underlay. It is not a
+source-cadence live compositor PASS or a hardware infeasibility verdict.
+A generic color-pair cache is the next optimization: these 2,751 pixels
+require 1,072 distinct RGB8 source/underlay pairs. An exhaustive compiler test
+checks all 65,536 RGB8 channel pairs through the component projection tables.
+
+The cold fixture clears its completion markers before the original CHR load,
+so battery-backed data from a prior run cannot bypass the native job.
+Receipt: `byor-motu-screen-component-feed-native.json`. No color reduction
+is applied.

@@ -1,0 +1,22 @@
+{
+  "schema": "BYOR_NATIVE_SCREEN_TO_COMPONENT_BG_V1",
+  "status": "PASS",
+  "result_path": "out\\byor-motu-screen-feed-cold-native\\result.json",
+  "rom_sha256": "ee3f75cb6529219afcf9a93ab912f43dd0edeaf143f75c144abdeff860b9c179",
+  "native_pixels": 2751,
+  "high_bytes": 42880,
+  "low_bytes": 9984,
+  "native_screen_component_job_master_clocks": 1369986,
+  "job_milliseconds": 63.78771603653537,
+  "source_frame_interval_milliseconds": 30,
+  "native_source_cadence_admitted": false,
+  "pixel_mismatches": 0,
+  "cgram_trace_exact": true,
+  "native_chunky_identity_exact": true,
+  "unsafe_palette_samples": 0,
+  "expected_rgb555_sha256": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d",
+  "no_color_reduction": true,
+  "bank0_production_growth": 0,
+  "scope": "Native SCREEN projected into component indices, type-1 converted and displayed on a fixed source-derived underlay. Forced-blank startup; no moving world, online palette admission or source-cadence compositor claim.",
+  "next_resolution": "Cache repeated source/underlay RGB8 pairs; 2751 pixels use 1072 distinct pairs. The current per-pixel job is a measured deadline failure, not a hardware infeasibility verdict."
+}
