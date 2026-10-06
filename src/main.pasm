@@ -13651,3 +13651,5 @@ SourceVM_InstructionReservation:
 
 ; Foreign clock owner moved from saturated bank 28; all external entries use JSL.
 .include "core/vm/vm_source_clock.pasm"
+
+.include "core/vm/vm_source_player_spawn_height.pasm"

@@ -490,6 +490,12 @@ SourceClock4086_Commit_GuardWide_14:
 SourceClock4086_Commit_GuardWide_15:
 .a16
 .i16
+    jsl SourcePlayerSpawnHeight4086_CheckIdle
+    bcc SourceClock4086_Commit_GuardWide_16
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_16:
+.a16
+.i16
     lda.l SourceClock4086_Due
     dec a
     sta.l SourceClock4086_Due

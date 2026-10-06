@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_M4_PLAYER_SPAWN_HEIGHT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-player-spawn-height-native/report.json",
+    "sha256": "fc68bdf80d457971be80b5b05ee594b3ebeef02b6f9e03b9959de94b3edd2b41",
+    "cases": 234
+  },
+  "capability": "B505 exact integer player spawn heights in Q16; paired B4D1 current stage",
+  "native_entry": "SourcePlayerSpawnHeight4086_Query",
+  "physical_descriptor": "7FFEE0..7FFEF3, ready/stage/four Q16 heights",
+  "transient_scratch": "7FFEF4..7FFFFF, query output/slot/view/index/status; no pending state",
+  "player_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "source_heights_tested": [
+    0,
+    4,
+    300,
+    32767
+  ],
+  "supports_valid_dead_entity_pointer": true,
+  "source_default": 300,
+  "stage_descriptor_installation_instrumented": true,
+  "native_world_publication_bound": false,
+  "drop_jump_bound": false,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-player-spawn-height-audit.log: ALL CHECKS PASS",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}
