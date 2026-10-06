@@ -201,8 +201,8 @@ def classify(domain, row, exercised):
             status = 'SOURCE_DIALECT_VARIANT'
             resolution = 'Extend shared attack/loop IR for every source argument; do not discard trailing values.'
     elif domain == 'model' and (n.startswith('@') or n.endswith('script')):
-        status, nearest = 'GENERIC_CAPABILITY_MISSING', 'native actor lowering; no script VM'
-        resolution = 'Analyze supplied functions/inline blocks and lower their semantics to generic native operations; never ignore commands.'
+        status, nearest = 'GENERIC_CAPABILITY_MISSING', 'typed source VM and offline frame dispatch; live callback owner unbound'
+        resolution = 'Bind the source world callback order and remaining engine services to the typed VM; compiled scripts alone do not certify gameplay.'
     elif domain == 'model' and n in ('palette', 'alternatepal'):
         status, nearest = 'SOURCE_DIALECT_VARIANT', 'source palette/remap catalog'
         resolution = 'Resolve per-model PNG palettes and alternatepal mappings from source; do not borrow global BOR palettes.'

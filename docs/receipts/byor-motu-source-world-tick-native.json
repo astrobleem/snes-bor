@@ -1,0 +1,101 @@
+{
+  "schema": "BYOR_M4_SOURCE_WORLD_TICK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "native_rom_sha256": "9bb84dd69480d2fcf5572559e112c5b5a4ae5f5fdab046303adf7fbd05b5bb71",
+  "native_report": "out/byor-motu-world-tick-native/report.json",
+  "native_report_sha256": "e3dde39de7106d565fb543c6c373ae6fcb8905d55ff71f0f782cbd78bc89bb5b",
+  "authority_report": "out/byor-motu-world-tick-authority/report.json",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_sha256": "fa319b01a0cd47dea0921e31eaa3532f614716c72ae3a780c5e2675bdcb0703a",
+  "functions_sha256": "049e0f506a6e16a205246a0ed23b8983e0cb4620da11fd93e35dd81f69a0c79d",
+  "c_authority_cases": 410,
+  "native_cases": 410,
+  "native_service_events": 8507,
+  "native_rejections": [
+    [
+      0,
+      1,
+      48,
+      1
+    ],
+    [
+      1,
+      1,
+      48,
+      1
+    ],
+    [
+      2,
+      1,
+      48,
+      1
+    ],
+    [
+      3,
+      1,
+      48,
+      1
+    ],
+    [
+      4,
+      1,
+      48,
+      1
+    ],
+    [
+      5,
+      1,
+      49,
+      1
+    ],
+    [
+      6,
+      1,
+      48,
+      1
+    ],
+    [
+      7,
+      1,
+      48,
+      1
+    ],
+    [
+      8,
+      1,
+      48,
+      1
+    ],
+    [
+      9,
+      1,
+      48,
+      1
+    ]
+  ],
+  "early_direct_clock_commit_rejections": 410,
+  "birth_report": "out/byor-motu-world-tick-birth-native/report.json",
+  "birth_rom_sha256": "d8b21880997ae8bb80d8e69f16e28e7371f60f445ae466db5e8fa0dc6e416cc7",
+  "birth_cases": 16,
+  "birth_scope": "Native typed-VM first-free pointer-order slot allocation and maximum-prefix publication. Retained private ROM predates the final owner Begin guards; birth implementation is unchanged.",
+  "physical_order": "Complete slot permutation at 0x41F200, shared with source target enumeration; opaque pool tokens remain stable.",
+  "tick_scope": "Pinned update_ents/arrange_ents traversal with explicit externally instrumented gameplay services. Native owner requests and acknowledges services, compacts the pointer list, and commits exactly one completed tick.",
+  "source_compaction_behavior": "Post-update eligibility is checked at the current list index after swapping into a prior hole, exactly as in the pinned C. A zero-live pool retains ent_max.",
+  "exclusive_bwram_lease_required": true,
+  "gameplay_services_bound": false,
+  "source_frame_callbacks_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "original_bor_smoke": "Cold INTRO, TITLE, selector and first PLAYING entry reached by both native probes; no campaign rerun.",
+  "bank0_growth_bytes": 0,
+  "bank0_free_before_nmi_bytes": 2,
+  "rom_audit_all_pass": true,
+  "width_labels": 4015,
+  "new_width_violations": 0,
+  "legitimate_width_baseline_entries": 183,
+  "clean_baseline_entries": 2,
+  "focused_tests": "15 passed: world tick completion/admission, source clock and birth-template tests.",
+  "protected_unrelated_tracked_files": 17,
+  "protected_unchanged": true
+}

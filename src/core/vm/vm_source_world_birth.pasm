@@ -168,6 +168,15 @@ Vm_SourceWorldBranch_11:
 Vm_SourceWorldSpawn__scan:
 .a16
 .i16
+    lda.l SourceWorldTick4086_Ready
+    cmp #$B4D5
+    bne Vm_SourceWorldSpawn__physical_scan
+    jsr Vm_SourceWorldOrderSlot
+    bcc Vm_SourceWorldSpawn__physical_scan
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__physical_scan:
+.a16
+.i16
     lda.l VmSourceWorld_ViewOffset
     tax
     lda.l SOURCE_WORLD_POOL+4,x
@@ -194,6 +203,13 @@ Vm_SourceWorldBranch_14:
 .i16
     jmp Vm_NativeVariantDispatch__null_ok ; source allocation failure is EMPTY
 Vm_SourceWorldSpawn__advance:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Ready
+    cmp #$B4D5
+    bne Vm_SourceWorldSpawn__advance_physical
+    jmp Vm_SourceWorldSpawn__scan
+Vm_SourceWorldSpawn__advance_physical:
 .a16
 .i16
     lda.l VmSourceWorld_ViewOffset
@@ -323,6 +339,17 @@ Vm_SourceWorldSpawn__publish:
 .i16
     lda #1
     sta.l SOURCE_WORLD_POOL+4,x     ; publish only after complete initialization
+    lda.l SourceWorldTick4086_Ready
+    cmp #$B4D5
+    bne Vm_SourceWorldSpawn__return_token
+    jsr SourceWorldTick4086_CountLive
+    lda.l SourceWorldTick4086_Live
+    cmp.l SourceWorldTick4086_Maximum
+    bcc Vm_SourceWorldSpawn__return_token
+    sta.l SourceWorldTick4086_Maximum
+Vm_SourceWorldSpawn__return_token:
+.a16
+.i16
     lda #BOR_VT_PTR
     sta.l VmNativeVariant_Result
     lda #0
@@ -333,6 +360,36 @@ Vm_SourceWorldSpawn__publish:
     sta.l VmNativeVariant_Result+6
     clc
     rtl
+
+; The live world's pointer permutation is authoritative for free-slot choice.
+; The opt-out path above retains the original independent birth fixture ABI.
+Vm_SourceWorldOrderSlot:
+.a16
+.i16
+    lda.l VmSourceWorld_Index
+    asl a
+    tax
+    lda.l SOURCE_TARGET_ORDER,x
+    cmp.l VmSourceWorld_Count
+    bcs Vm_SourceWorldOrderSlot__bad
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l VmSourceWorld_Read
+    asl a
+    asl a
+    sta.l VmSourceWorld_SideOffset
+    clc
+    adc.l VmSourceWorld_Read
+    sta.l VmSourceWorld_ViewOffset
+    clc
+    rts
+Vm_SourceWorldOrderSlot__bad:
+.a16
+.i16
+    sec
+    rts
 
 Vm_SourceWorldValidate:
 .a16

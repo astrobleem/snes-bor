@@ -13599,6 +13599,7 @@ SourceVM_ConstantReservation:
 .org $F000
 .include "core/vm/vm_source_target.pasm"
 .include "core/vm/vm_source_random.pasm"
+.include "core/vm/vm_source_world_tick.pasm"
 
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication

@@ -395,6 +395,20 @@ SourceClock4086_Commit:
     bne SourceClock4086_Commit__bad
     lda.l SourceClock4086_Due
     beq SourceClock4086_Commit__bad
+    ; An admitted foreign traversal owns commit. A direct caller cannot turn
+    ; its pending callback/physics requests into an empty completed tick.
+    lda.l SourceWorldTick4086_Ready
+    cmp #$B4D5
+    bne SourceClock4086_Commit__retire
+    lda.l SourceWorldTick4086_State
+    cmp #4
+    bne SourceClock4086_Commit__bad
+    lda.l SourceWorldTick4086_Pending
+    bne SourceClock4086_Commit__bad
+SourceClock4086_Commit__retire:
+.a16
+.i16
+    lda.l SourceClock4086_Due
     dec a
     sta.l SourceClock4086_Due
     lda.l SourceClock4086_TimeLo

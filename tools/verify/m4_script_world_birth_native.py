@@ -37,7 +37,8 @@ def main():
     for path in [a.rom.resolve().with_suffix('.msu'),*a.rom.resolve().parent.glob('bor-*.pcm')]:
         destination=a.output/path.name
         if not destination.exists():os.link(path,destination)
-    cases=[('allocated','HBreath',None,'PTR'),('no_level','HBreath',('VmSourceWorld_Level',0),'EMPTY'),
+    cases=[('allocated','HBreath',None,'PTR'),('reordered_allocated','HBreath',None,'PTR'),
+           ('invalid_order','HBreath',None,'FAULT'),('no_level','HBreath',('VmSourceWorld_Level',0),'EMPTY'),
            ('no_owner','HBreath',('VmSourceWorld_Ready',0),'FAULT'),('missing_model','absent',None,'EMPTY'),
            ('unadmitted','He_Man',None,'FAULT'),('full','HBreath',None,'EMPTY'),
            ('bad_base','HBreath',('VmSourceWorld_PoolBase',0x4001),'FAULT'),
@@ -80,6 +81,11 @@ def main():
             pool=bytes(pool)
             m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
+            ordered=name in ('reordered_allocated','invalid_order')
+            m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
+            m.write_u16(syms['SourceWorldTick4086_Maximum'],0)
+            m.write_memory('snesMemory',syms['SOURCE_TARGET_ORDER'],
+                           struct.pack('<HH',2 if name=='invalid_order' else 1,0).hex())
             if read_block(m,(POOL_BANK<<16)+POOL_BASE,len(pool))!=pool:
                 raise ValueError('BIRTH_POOL_WRITEBACK_REQUIRED_BEFORE_LEASE')
             m.write_memory('snesMemory',c(world,'VmSourceWorld_Ready'),
@@ -113,25 +119,31 @@ def main():
             actual_pool=read_block(m,(POOL_BANK<<16)+POOL_BASE,len(pool))
             actual_sides=read_block(m,(POOL_BANK<<16)+SIDE_BASE,len(sides))
             expected_pool=pool;expected_sides=sides
+            born_slot=1 if name=='reordered_allocated' else 0
             if outcome=='PTR':
                 model_id=next(row['id'] for row in rows if row['lookup_name']==model.lower())
                 template=births[24+model_id*STRIDE:24+(model_id+1)*STRIDE]
-                born=pool[:4]+b'\x01\0\0\0'+template[16:88]
-                expected_pool=born+pool[80:]
+                at=born_slot*80
+                born=pool[at:at+4]+b'\x01\0\0\0'+template[16:88]
+                expected_pool=pool[:at]+born+pool[at+80:]
                 side=bytearray(template[88:152])
                 struct.pack_into('<II',side,8,48+struct.unpack_from('<I',side,56)[0],48)
                 struct.pack_into('<II',side,20,49,49)
                 for offset,value in motion_cases.get(name,('',{}))[1].items():struct.pack_into('<i',side,offset,value)
-                expected_sides=bytes(side)+sides[64:]
+                at=born_slot*64
+                expected_sides=sides[:at]+bytes(side)+sides[at+64:]
             reporter.check(name+' terminal state',(status,error)==((5,10) if outcome=='FAULT' else (4,0)))
             reporter.check(name+' exact pool publication or no mutation',actual_pool==expected_pool and actual_sides==expected_sides)
             if outcome!='FAULT':
-                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE) if outcome=='PTR' else bytes(8)
+                expected=struct.pack('<BBHI',5,0,0,(POOL_BANK<<16)+POOL_BASE+born_slot*80) if outcome=='PTR' else bytes(8)
                 reporter.check(name+' complete PTR/EMPTY result',returned==expected)
+            if name=='reordered_allocated':
+                reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
                                 pool_sha256=hashlib.sha256(actual_pool).hexdigest(),sides_sha256=hashlib.sha256(actual_sides).hexdigest(),
                                 injection_checkpoint=checkpoint))
         m.write_u16(c(world,'VmSourceWorld_Ready'),0)
+        m.write_u16(syms['SourceWorldTick4086_Ready'],0)
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
