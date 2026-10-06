@@ -1603,3 +1603,186 @@ SourceDefaultNone4086_Speed:
  plp
  clc
  rtl
+
+; DEFAULT_WALK_ONLY: compiler proves max_walks=1 for the closed registry.
+; Entity walkmode int32 is lifecycle +44 (calloc zero, retained on model copy).
+; Caller supplies derived default WALK in AnimationInit.Number. A is only a
+; pending-frame service flag; common_walk_anim return is unused by default init.
+SourceWalk4086_BeginDefaultOnly:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceDefaultPlayer4086_Ready
+ cmp #$B503
+ beq SourceWalkDefault4086_Guard_1
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_1:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Status
+ cmp #3
+ bne SourceWalkDefault4086_Guard_2
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_2:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceWalkDefault4086_Guard_3
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_3:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceWalkDefault4086_Guard_4
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_4:
+.a16
+.i16
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ beq SourceWalkDefault4086_Guard_5
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_5:
+.a16
+.i16
+ lda.l VmSourceWorld_Count
+ bne SourceWalkDefault4086_Guard_6
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_6:
+.a16
+.i16
+ cmp #129
+ bcc SourceWalkDefault4086_Guard_7
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_7:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcc SourceWalkDefault4086_Guard_8
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_8:
+.a16
+.i16
+ lda.l SourceLifecycle4086_Ready
+ cmp #$B4FB
+ beq SourceWalkDefault4086_Guard_9
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_9:
+.a16
+.i16
+ lda.l SourceLifecycle4086_Status
+ cmp #3
+ bne SourceWalkDefault4086_Guard_10
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_10:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Life
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ sta.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ cmp.l $410000,x
+ beq SourceWalkDefault4086_Guard_11
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_11:
+.a16
+.i16
+ lda.l $410002,x
+ cmp #$0041
+ beq SourceWalkDefault4086_Guard_12
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_12:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda.l $416800,x
+ sta.l SourceDefaultPlayer4086_Action
+ lda.l SourceDefaultPlayer4086_Life
+ tax
+ lda.l $43904A,x
+ cmp #$B4FB
+ beq SourceWalkDefault4086_Guard_13
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_13:
+.a16
+.i16
+ lda.l $439048,x
+ cmp.l SourceDefaultPlayer4086_Action
+ beq SourceWalkDefault4086_Guard_14
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Guard_14:
+.a16
+.i16
+ lda.l $43902E,x
+ beq SourceWalkDefault4086_Mode
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Mode:
+.a16
+.i16
+ lda.l $43902C,x
+ cmp #2
+ bcc SourceWalkDefault4086_Resolve
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Resolve:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ sta.l SourceAnimationInit4086_Slot
+ lda #0
+ sta.l SourceAnimationInit4086_Reset
+ jsl SourceAnimationInit4086_Resolve
+ bcc SourceWalkDefault4086_Present
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_Present:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_Handle
+ beq SourceWalkDefault4086_NoPending
+ lda.l SourceAnimationInit4086_Count
+ beq SourceWalkDefault4086_NoPending
+ jsl SourceAnimationInit4086_Begin
+ bcc SourceWalkDefault4086_CheckPending
+ jmp SourceDefaultPlayer4086_Bad
+SourceWalkDefault4086_CheckPending:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_State
+ cmp #1
+ bne SourceWalkDefault4086_NoPending
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ lda #1
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceWalkDefault4086_NoPending:
+.a16
+.i16
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ lda #0
+ ply
+ plx
+ plp
+ clc
+ rtl

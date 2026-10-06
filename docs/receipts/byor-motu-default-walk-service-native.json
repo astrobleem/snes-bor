@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_M4_DEFAULT_WALK_SERVICE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "authority": {
+      "path": "out/byor-motu-walk-animation-authority/report.json",
+      "sha256": "4349791e0b1c0b0f16d7605eb26be7419a8b85ad4325d334e487fd92dd4ba331",
+      "cases": 432
+    },
+    "native_guards": {
+      "path": "out/byor-motu-default-walk-guards-native/report.json",
+      "sha256": "d2cb7ebeaf7f5d1f26507c6deaa56ea2f977032af6aa88a0991b7c91d229b2f3",
+      "cases": 64
+    },
+    "authored_walk": {
+      "path": "out/byor-motu-default-initial-walk-native/report.json",
+      "sha256": "ddc6b1a9f2039942af7d45aef1440be86a7c8f98f7109eac09a0fb3e7a5bc71c",
+      "cases": 2
+    }
+  },
+  "native_begin": "SourceWalk4086_BeginDefaultOnly",
+  "capability": "DEFAULT_WALK_ONLY: compiler proves max_walks=1 for entire closed registry",
+  "walkmode_domain": [
+    0,
+    1
+  ],
+  "walkmode_storage": "Current lifecycle row +44, int32; constructor zero and model copy retains",
+  "target_search_required": false,
+  "actual_authored_walk": "He_Man WALK frame zero, both directions/modes",
+  "pending_ticket": "Existing B4EC animation initializer and 528-byte source snapshot",
+  "missing_or_current_walk_has_no_new_frame_service": true,
+  "lease_installation_instrumented": true,
+  "type_none_velocity_and_think_setup_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-default-walk-audit.log: ALL CHECKS PASS"
+}

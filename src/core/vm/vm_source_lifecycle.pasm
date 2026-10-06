@@ -1,5 +1,6 @@
 ; B4FB synchronous current-model scalar install. Isolated BW-RAM lease.
 ; 128 x 80 bytes at $439000..$43B7FF. Callback identities are not executable pointers.
+; +44 is current entity walkmode int32: birth calloc zero, model copies retain.
 ; Reset=1 clears the full entity lifecycle row; Reset=0 preserves lifecycle fields.
 SourceLifecycle4086_Ready = $7FFE9C
 SourceLifecycle4086_Slot = $7FFE9E
