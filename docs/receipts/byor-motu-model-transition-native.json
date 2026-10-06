@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_M4_MODEL_TRANSITION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-model-transition-native/report.json",
+    "sha256": "4aab93f7335223a6a20afaa0702dfef865673110bbddf50403b696e2a2d7a1db"
+  },
+  "native_rom_sha256": "0d4c02948c9e4bd9cd704caccc9cce00523728d984905d8bd7e37aa189597ce8",
+  "cases": 162,
+  "source_transitions": 152,
+  "stale_ack_rejections": 7,
+  "same_model_noops": 3,
+  "peak_call_master_clocks": 332172,
+  "stack_report": {
+    "path": "out/byor-motu-frame-stack-transition-native/report.json",
+    "sha256": "0d4826cf2e2cc4cb96ec633a3ca76f4ba2cfb60569ec4dfb48fbcecf4799b1e0"
+  },
+  "stack_cases": 162,
+  "proof": "Ordered set_model_ex continuation: snapshot service before cached inheritance; new core/type installed before colourmap/animation initialization; old type restored after initialization and before script/factor copy. Pending services and stale acknowledgements cannot commit the clock. Nested stack preserves transition controls and all unrelated bytes.",
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "external_services_instrumented": true,
+  "full_model_switch_bound": false,
+  "frame_zero_effects_bound": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

@@ -132,6 +132,21 @@ SourceFrameStack4086_PushModelLeaseGood:
 SourceFrameStack4086_PushModelDone:
 .a16
 .i16
+    lda.l SourceModelTransition4086_Ready
+    beq SourceFrameStack4086_PushTransitionDone
+    cmp #$B4F0
+    beq SourceFrameStack4086_PushTransitionLease
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushTransitionLease:
+.a16
+.i16
+    lda.l SourceModelTransition4086_State
+    cmp #3
+    bcc SourceFrameStack4086_PushTransitionDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushTransitionDone:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     jsr SourceFrameStack4086_RowOffset
     tay
@@ -149,6 +164,9 @@ SourceFrameStack4086_PushModelDone:
     sta.l SourceAnimationInit4086_State
     sta.l SourceAnimationInit4086_Issued
     sta.l SourceModelAnimation4086_State
+    sta.l SourceModelTransition4086_State
+    sta.l SourceModelTransition4086_Service
+    sta.l SourceModelTransition4086_Acknowledged
     jmp SourceFrameStack4086_Good
 
 SourceFrameStack4086_Pop:
@@ -207,6 +225,12 @@ SourceFrameStack4086_Relaxed_16:
     bcc SourceFrameStack4086_PopModelDone
     jmp SourceFrameStack4086_Bad
 SourceFrameStack4086_PopModelDone:
+.a16
+.i16
+    jsl SourceModelTransition4086_CheckIdle
+    bcc SourceFrameStack4086_PopTransitionDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PopTransitionDone:
 .a16
 .i16
     lda.l SourceFrameStack4086_Depth
