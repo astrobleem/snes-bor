@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_M4_DEFAULT_NONE_NO_WALK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "default_none": {
+      "path": "out/byor-motu-default-none-native/report.json",
+      "sha256": "f916ad45426e8e28085f5e7779fceec00c47063a27140684740718106ab4a0ad",
+      "cases": 256
+    },
+    "world_birth": {
+      "path": "out/byor-motu-none-default-world-birth-native/report.json",
+      "sha256": "ca2e8e4e8a9430ef46324c77aefc6ea14d7274a48aad544583b2a95e5aac4082",
+      "cases": 33
+    },
+    "alive_observer": {
+      "path": "out/byor-motu-none-default-alive-observer-native/report.json",
+      "sha256": "59255f073b042f22e95419af960b4d4490627cabf828015bd53bc54cc53bc6cb",
+      "cases": 1
+    }
+  },
+  "native_default": "SourceDefaultNone4086_ApplyNoWalk",
+  "capability": "Current TYPE_NONE and no valid source WALK; compiler supplies WALK number",
+  "current_fields": {
+    "nograb": 1,
+    "negative_subject_to_gravity": 1,
+    "negative_no_adjust_base": 1,
+    "speedmul_q16": 131072
+  },
+  "walk_capable_models_explicitly_rejected": true,
+  "positive_flags_retained": true,
+  "valid_dead_pointer_supported": true,
+  "source_callback_fields_retained": true,
+  "none_idle_birth_nograb_corrected": true,
+  "alive_observer": {
+    "slot": 0,
+    "nograb": 1,
+    "marker": 46331,
+    "exists_before_publish": 0
+  },
+  "earlier_lifecycle_birth_proof_scope": "Constructor scalar storage; new receipt adds the missing TYPE_NONE default nograb field",
+  "lease_installation_instrumented": true,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-none-default-audit.log: ALL CHECKS PASS"
+}

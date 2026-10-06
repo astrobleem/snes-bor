@@ -28,6 +28,7 @@ def main():
     p.add_argument('--frame-aux',action='store_true',help='Lease and verify auxiliary update_frame state during birth')
     p.add_argument('--birth-core',type=Path,help='Paired B4BI physical core/flags/relation augmentation')
     p.add_argument('--lifecycle',type=Path,help='Paired B4LI current-model scalars at physical birth')
+    p.add_argument('--case',action='append',help='Run only these bounded native probe names.')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
@@ -84,10 +85,25 @@ def main():
     if coretable:cases.extend((n,'HBreath',None,'FAULT') for n in ('missing_core','existing_vars'))
     if coretable:cases.extend([(n,'HBreath',None,outcome) for n,outcome in (('kill_birth','PTR_KILLED'),('kill_dead_birth','PTR_KILLED'),('retire_reuse','PTR'))])
     if lifetable:cases.extend((n,'HBreath',None,'FAULT')for n in ('life_bad_ready','life_bad_table','life_paired','life_sticky'))
+    if a.case:
+        if set(a.case)-{c[0]for c in cases}:raise ValueError('UNKNOWN_BIRTH_PROBE')
+        cases=[c for c in cases if c[0]in a.case]
     reporter=Reporter('M4-SOURCE-WORLD-BIRTH',kind='GATE');results=[]
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';registry='src/core/vm/vm_source_models.pasm'
     world='src/core/vm/vm_source_world_birth.pasm'
     session=observed_session(a.output,syms,0)
+    if lifetable:
+        observer=a.output/'vm_cost.lua'
+        with observer.open('a')as f:
+            f.write('''
+local publications=0
+emu.addMemoryCallback(function()
+ if word(LIFEREADY)~=0xb4fb or publications>=128 then return end
+ publications=publications+1
+ local slot=word(BIRTHSLOT);local base=0x439000+slot*80
+ emu.log('BIRTHLIFEPUBLISH|'..slot..'|'..word(base+16)..'|'..word(base+18)..'|'..word(base+74)..'|'..word(0x414004+slot*80))
+end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
+'''.replace('LIFEREADY',str(syms['SourceLifecycle4086_Ready'])).replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__core_published'])))
     with session(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
@@ -222,7 +238,7 @@ def main():
             if lifetable:
                 expected_life=bytearray(initial_life)
                 if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
-                    row=bytearray(80);row[48:68]=lifetable[24+model_id*32+4:24+model_id*32+24];struct.pack_into('<HH',row,72,model_id,0xb4fb);expected_life[born_slot*80:(born_slot+1)*80]=row
+                    row=bytearray(80);struct.pack_into('<I',row,16,1);row[48:68]=lifetable[24+model_id*32+4:24+model_id*32+24];struct.pack_into('<HH',row,72,model_id,0xb4fb);expected_life[born_slot*80:(born_slot+1)*80]=row
                 reporter.check(name+' current lifecycle row published before alive, or preserved on rejection',read_block(m,0x439000,160)==bytes(expected_life))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
@@ -236,6 +252,10 @@ def main():
         m.write_u16(syms['SourceLifecycle4086_Ready'],0)
         m.write_u16(syms['SourceBirthCore4086_Ready'],0)
         m.write_u16(syms['SourceRetirement4086_Ready'],0)
+    publications=[list(map(int,line.split('BIRTHLIFEPUBLISH|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if 'BIRTHLIFEPUBLISH|'in line]
+    if lifetable:
+        expected_publications=sum(c[3]in ('PTR','PTR_FAULT','PTR_KILLED')for c in cases)+sum(c[0]=='retire_reuse'for c in cases)
+        reporter.check('observer proves source nograb and current model marker before alive publication',len(publications)==expected_publications and all(r[1:]==[1,0,0xb4fb,0]for r in publications))
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
                 rom_sha256=hashlib.sha256(raw).hexdigest(),cases=results,fixture_pool_count=2,compiler_pool_capacity=128,
                 pool_ownership_scope='Injected exclusive BW-RAM lease after legacy candidate bootstrap; no production world loader',
@@ -246,6 +266,7 @@ def main():
     report['physical_birth_core_initialization_proven']=bool(coretable)
     report['current_lifecycle_birth_installation_proven']=bool(lifetable)
     report['lifecycle_table_sha256']=hashlib.sha256(lifetable).hexdigest() if lifetable else None
+    report['lifecycle_before_alive_observer']=publications
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

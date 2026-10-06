@@ -1379,3 +1379,227 @@ SourceDefaultInitIdle4086_Existing:
  plp
  clc
  rtl
+
+; Generic current TYPE_NONE branch, with no valid source walk animation.
+; Caller supplies compiler-derived walk number in AnimationInit.Number.
+; Requires current B4FB model state and the checked animation cache.
+; A walk-capable model explicitly requires the separate walk service.
+SourceDefaultNone4086_ApplyNoWalk:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceDefaultPlayer4086_Ready
+ cmp #$B503
+ beq SourceDefaultNone4086_Guard_1
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_1:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Status
+ cmp #3
+ bne SourceDefaultNone4086_Guard_2
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_2:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceDefaultNone4086_Guard_3
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_3:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceDefaultNone4086_Guard_4
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_4:
+.a16
+.i16
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ beq SourceDefaultNone4086_Guard_5
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_5:
+.a16
+.i16
+ lda.l VmSourceWorld_Count
+ bne SourceDefaultNone4086_Guard_6
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_6:
+.a16
+.i16
+ cmp #129
+ bcc SourceDefaultNone4086_Guard_7
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_7:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcc SourceDefaultNone4086_Guard_8
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_8:
+.a16
+.i16
+ lda.l SourceLifecycle4086_Ready
+ cmp #$B4FB
+ beq SourceDefaultNone4086_Guard_9
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_9:
+.a16
+.i16
+ lda.l SourceLifecycle4086_Status
+ cmp #3
+ bne SourceDefaultNone4086_Guard_10
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_10:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Life
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Side
+ clc
+ adc.l SourceDefaultPlayer4086_Life
+ sta.l SourceDefaultPlayer4086_Life
+ clc
+ adc #$4000
+ tax
+ cmp.l $410000,x
+ beq SourceDefaultNone4086_Guard_11
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_11:
+.a16
+.i16
+ lda.l $410002,x
+ cmp #$0041
+ beq SourceDefaultNone4086_Guard_12
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_12:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda.l $416800,x
+ sta.l SourceDefaultPlayer4086_Action
+ lda.l SourceDefaultPlayer4086_Life
+ tax
+ lda.l $43904A,x
+ cmp #$B4FB
+ beq SourceDefaultNone4086_Guard_13
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_13:
+.a16
+.i16
+ lda.l $439048,x
+ cmp.l SourceDefaultPlayer4086_Action
+ beq SourceDefaultNone4086_Guard_14
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Guard_14:
+.a16
+.i16
+ lda.l VmSourceWorld_Level
+ bne SourceDefaultNone4086_CoreLease
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_CoreLease:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ beq SourceDefaultNone4086_CoreCount
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_CoreCount:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Entities
+ cmp.l VmSourceWorld_Count
+ beq SourceDefaultNone4086_Core
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Core:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceDefaultPlayer4086_Core
+ asl a
+ clc
+ adc.l SourceDefaultPlayer4086_Core
+ sta.l SourceDefaultPlayer4086_Core
+ tax
+ lda.l $40C048,x
+ ora.l $40C04A,x
+ beq SourceDefaultNone4086_Walk
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Walk:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Slot
+ sta.l SourceAnimationInit4086_Slot
+ lda #0
+ sta.l SourceAnimationInit4086_Reset
+ jsl SourceAnimationInit4086_Resolve
+ bcc SourceDefaultNone4086_CheckWalk
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_CheckWalk:
+.a16
+.i16
+ lda.l SourceAnimationInit4086_Handle
+ beq SourceDefaultNone4086_Apply
+ lda.l SourceAnimationInit4086_Count
+ beq SourceDefaultNone4086_Apply
+ jmp SourceDefaultPlayer4086_Bad
+SourceDefaultNone4086_Apply:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Life
+ tax
+ lda #1
+ sta.l $439010,x
+ lda #0
+ sta.l $439012,x
+ lda.l SourceDefaultPlayer4086_Core
+ tax
+ lda.l $40C016,x
+ bpl SourceDefaultNone4086_Adjust
+ lda #1
+ sta.l $40C014,x
+ lda #0
+ sta.l $40C016,x
+SourceDefaultNone4086_Adjust:
+.a16
+.i16
+ lda.l $40C026,x
+ bpl SourceDefaultNone4086_Speed
+ lda #1
+ sta.l $40C024,x
+ lda #0
+ sta.l $40C026,x
+SourceDefaultNone4086_Speed:
+.a16
+.i16
+ lda.l SourceDefaultPlayer4086_Side
+ tax
+ lda #0
+ sta.l $416820,x
+ lda #2
+ sta.l $416822,x
+ lda #2
+ sta.l SourceDefaultPlayer4086_Status
+ ply
+ plx
+ plp
+ clc
+ rtl

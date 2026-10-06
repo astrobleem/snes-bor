@@ -342,8 +342,20 @@ SourceBirthCore4086_Guard_28:
  lda.l SourceLifecycle4086_Ready
  beq SourceBirthCore4086_LifecycleDone
  jsl SourceLifecycle4086_Apply
- bcc SourceBirthCore4086_LifecycleDone
+ bcc SourceBirthCore4086_LifecycleDefault
  jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_LifecycleDefault:
+.a16
+.i16
+ ; B4BI admission proves TYPE_NONE/no-walk/idle default initialization.
+ ; Current lifecycle storage must include its source nograb=1 field, not
+ ; merely the constructor's calloc state. Apply before exists publication.
+ lda.l SourceLifecycle4086_Entity
+ tax
+ lda #1
+ sta.l $439010,x
+ lda #0
+ sta.l $439012,x
 SourceBirthCore4086_LifecycleDone:
 .a16
 .i16
