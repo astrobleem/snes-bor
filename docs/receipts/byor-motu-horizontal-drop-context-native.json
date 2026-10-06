@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_M4_HORIZONTAL_DEFAULT_DROP_CONTEXT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "compiler": {
+      "path": "out/byor-motu-drop-context/report.json",
+      "sha256": "3e8082d99db8bda5e7be31a20b05a29c0681c56681b626572a4f48d1f60c0ee7",
+      "cases": null,
+      "stages": 2
+    },
+    "native": {
+      "path": "out/byor-motu-drop-context-native/report.json",
+      "sha256": "10bcbc48e63536cb8e7cf13bf46d9e7bd7ff46d2370f81cbf9250da9ce9553b2",
+      "cases": 299,
+      "stages": 0
+    }
+  },
+  "source_video_dimensions": [
+    320,
+    240
+  ],
+  "source_global_nodropspawn": 0,
+  "source_stage_directions": [
+    "right",
+    "right"
+  ],
+  "global_drop_policy_readonly_required": true,
+  "stage_model_table_pairing_checked": true,
+  "current_world_camera_integer_q16_required": true,
+  "strict_boundaries": "advancex-30 < x < advancex+source_width+30",
+  "native_actor_coordinate_policy": "ACCEPTED_COMPAT_Q16_16",
+  "initial_animation_idle_guard_bound": true,
+  "valid_dead_entity_supported": true,
+  "entity_writes": 0,
+  "rng_draws": 0,
+  "table_expression_height_checked": true,
+  "new_persistent_wram_fields": 0,
+  "complete_enemy_drop_owner_bound": false,
+  "complete_default_init_bound": false,
+  "world_stage_owner_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-drop-context-audit.log: ALL CHECKS PASS"
+}
