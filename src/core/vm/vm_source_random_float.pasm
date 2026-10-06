@@ -1,5 +1,6 @@
 ; Constant randf source capability: offline source binary32 -> native Q16
-; lookup. Generic U24 table domain 0 <= maximum < 256, not actor identity.
+; lookup. U24 table domain 0 <= maximum < 256; v2 preserves a source-derived
+; integer-addend expression before projection using a delta table and bias.
 ; No RNG draw here: caller owns the one shared source stream and call order.
 ; Both kernels are synchronous and use stack-local scratch only.
 
@@ -89,11 +90,23 @@ SourceRandomFloat4086_BaseLowGood:
 .a16
 .i16
  cpx #$8AB9
- bcs SourceRandomFloat4086_LookupBad
+ bcc SourceRandomFloat4086_WideGuard_1
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_1:
+.a16
+.i16
  tya
- beq SourceRandomFloat4086_LookupBad
+ bne SourceRandomFloat4086_WideGuard_2
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_2:
+.a16
+.i16
  cmp #64
- bcs SourceRandomFloat4086_LookupBad
+ bcc SourceRandomFloat4086_WideGuard_3
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_3:
+.a16
+.i16
  sep #$20
 .a8
  pha
@@ -102,27 +115,81 @@ SourceRandomFloat4086_BaseLowGood:
 .a16
  lda.w $0000,x
  cmp #$3542
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_4
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_4:
+.a16
+.i16
  lda.w $0002,x
  cmp #$4652
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_5
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_5:
+.a16
+.i16
  lda.w $0004,x
  cmp #1
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_LegacyBias
+ cmp #2
+ beq SourceRandomFloat4086_WideGuard_6
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_6:
+.a16
+.i16
+ lda.w $0014,x
+ beq SourceRandomFloat4086_WideGuard_7
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_7:
+.a16
+.i16
+ lda.w $0016,x
+ bpl SourceRandomFloat4086_WideGuard_8
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_8:
+.a16
+.i16
+ bra SourceRandomFloat4086_BiasGood
+SourceRandomFloat4086_LegacyBias:
+.a16
+.i16
+ lda.w $0014,x
+ ora.w $0016,x
+ beq SourceRandomFloat4086_WideGuard_9
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_9:
+.a16
+.i16
+SourceRandomFloat4086_BiasGood:
+.a16
+.i16
  lda.w $0006,x
  cmp #3
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_10
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_10:
+.a16
+.i16
  lda.w $0008,x
  cmp #10000
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_11
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_11:
+.a16
+.i16
  lda.w $000A,x
  ora.w $0012,x
- ora.w $0014,x
- ora.w $0016,x
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_12
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_12:
+.a16
+.i16
  lda.w $0010,x
  cmp #24
- bne SourceRandomFloat4086_LookupBad
+ beq SourceRandomFloat4086_WideGuard_13
+ jmp SourceRandomFloat4086_LookupBad
+SourceRandomFloat4086_WideGuard_13:
+.a16
+.i16
  ; Restored incoming A is five stack bytes above saved DBR.
  lda $06,s
  asl a
@@ -134,14 +201,27 @@ SourceRandomFloat4086_BaseLowGood:
  adc $04,s
  tax
  lda.w $0000,x
- sta.l SourceModelEntityCopy4086_Lo
+ pha
  sep #$20
 .a8
  lda.w $0002,x
  rep #$20
 .a16
  and #$00FF
+ pha
+ lda $08,s
+ tax
+ lda $03,s
+ clc
+ adc.w $0014,x
+ sta $03,s
+ lda $01,s
+ adc.w $0016,x
+ bmi SourceRandomFloat4086_BiasOverflow
  sta.l SourceModelEntityCopy4086_Hi
+ pla
+ pla
+ sta.l SourceModelEntityCopy4086_Lo
  plb
  ply
  plx
@@ -149,6 +229,11 @@ SourceRandomFloat4086_BaseLowGood:
  plp
  clc
  rtl
+SourceRandomFloat4086_BiasOverflow:
+.a16
+.i16
+ pla
+ pla
 SourceRandomFloat4086_LookupBad:
 .a16
 .i16

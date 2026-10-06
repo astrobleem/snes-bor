@@ -25,14 +25,24 @@ def values(maximum,source_bits=None):
  # independently rounded binary32 divisor without current C authority.
  if divisor!=10000/maximum:raise ValueError('SOURCE_RANDF_C_TABLE_REQUIRED')
  return [bits(f32(n/divisor))for n in range(MODULUS)]
-def pack(maximum,source_bits=None):
- original=values(maximum,source_bits);projected=[project(v)for v in original]
+def pack(maximum,source_bits=None,bias=0):
+ if not isinstance(bias,int)or not 0<=bias<32768:raise ValueError('SOURCE_RANDF_BIAS_DOMAIN')
+ if bias:
+  maximum=f32(maximum)
+  if not math.isfinite(maximum)or not 0<=maximum<256 or bias+maximum>=32768:raise ValueError('SOURCE_RANDF_U24_MAXIMUM_DOMAIN')
+  if source_bits is None or len(source_bits)!=MODULUS:raise ValueError('SOURCE_RANDF_EXPRESSION_C_TABLE_REQUIRED')
+  original=list(source_bits)
+  for v in original:
+   f=struct.unpack('<f',struct.pack('<I',v))[0]
+   if not math.isfinite(f)or f<bias or f>bias+maximum:raise ValueError('SOURCE_RANDF_EXPRESSION_VALUE_DOMAIN')
+ else:original=values(maximum,source_bits)
+ projected=[project(v)-(bias<<16)for v in original]
  assert all(0<=v<1<<24 for v in projected)
- return struct.pack('<4sHHIIII',MAGIC,1,3,MODULUS,bits(f32(maximum)),HEADER,0)+b''.join(v.to_bytes(3,'little')for v in projected)
+ return struct.pack('<4sHHIIII',MAGIC,2 if bias else 1,3,MODULUS,bits(f32(maximum)),HEADER,bias<<16)+b''.join(v.to_bytes(3,'little')for v in projected)
 def unpack(raw,source_bits=None):
  if len(raw)!=HEADER+MODULUS*3:raise ValueError('SOURCE_RANDF_U24_BYTES')
- magic,version,stride,count,maximum,offset,reserved=struct.unpack_from('<4sHHIIII',raw)
- if(magic,version,stride,count,offset,reserved)!=(MAGIC,1,3,MODULUS,HEADER,0):raise ValueError('SOURCE_RANDF_U24_DESCRIPTOR')
- expected=pack(struct.unpack('<f',struct.pack('<I',maximum))[0],source_bits)
+ magic,version,stride,count,maximum,offset,bias=struct.unpack_from('<4sHHIIII',raw)
+ if(magic,stride,count,offset)!=(MAGIC,3,MODULUS,HEADER)or version not in(1,2)or bias&65535 or bias>=0x80000000 or(version==1 and bias):raise ValueError('SOURCE_RANDF_U24_DESCRIPTOR')
+ expected=pack(struct.unpack('<f',struct.pack('<I',maximum))[0],source_bits,bias>>16)
  if raw!=expected:raise ValueError('SOURCE_RANDF_U24_SOURCE_IDENTITY')
- return [int.from_bytes(raw[i:i+3],'little')for i in range(HEADER,len(raw),3)]
+ return [bias+int.from_bytes(raw[i:i+3],'little')for i in range(HEADER,len(raw),3)]

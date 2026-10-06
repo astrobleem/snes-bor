@@ -52,7 +52,9 @@ def main():
   for v in values:rows.append(dict(rows[0],**{k:v},fault=1))
  badtable=bytearray()
  for i,at in enumerate((0,2,4,6,8,10,16,18,20,22)):
-  header=bytearray(table[:24]);header[at]^=1;badtable.extend(header);rows.append(dict(rows[0],base=0x8000+i*24,bank=60,fault=1))
+  header=bytearray(table[:24]);header[at]^=1
+  if at==22 and struct.unpack_from('<H',table,4)[0]==2:struct.pack_into('<H',header,22,0x8000)
+  badtable.extend(header);rows.append(dict(rows[0],base=0x8000+i*24,bank=60,fault=1))
  wrapper='''
 RandomFloatFixture_Apply:
 .a16

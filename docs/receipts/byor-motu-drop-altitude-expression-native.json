@@ -1,0 +1,43 @@
+{
+  "schema": "BYOR_M4_COMPLETE_DROP_ALTITUDE_EXPRESSION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "expression_c": {
+      "path": "out/byor-motu-drop-altitude-table-authority/report.json",
+      "sha256": "203be8877f65a554145478ea59f7b265caa29e178fad3e544aadbe5dfd6588c6",
+      "cases": 10000
+    },
+    "expression_native": {
+      "path": "out/byor-motu-biased-randf-native/report.json",
+      "sha256": "6750af7b468f0a2a3ab5197d9004f5dee3a9e1d521116e5f81740bf4f698149c",
+      "cases": 10023
+    },
+    "unbiased_regression": {
+      "path": "out/byor-motu-randf-v1-regression-native/report.json",
+      "sha256": "bbf679f26f59f1cd009d9369225dd9c57a2a1b55eb62758e315b427051e2cd84",
+      "cases": 128
+    }
+  },
+  "source_expression": "e->position.y += videomodes.vRes + randf(40)",
+  "source_context": {
+    "initial_altitude": 0,
+    "source_height": 240
+  },
+  "table_format": "B5RF v2: source-derived Q16 result minus integer addend in U24 entries; native decoder restores bias",
+  "generic_addend": true,
+  "source_binary32_expression_before_projection_preserved": true,
+  "integer_add_after_projection_mismatches_avoided": 4952,
+  "table_bytes": 30024,
+  "table_sha256": "21e19c32e730966845019ba1a9e15186743e62642295ae1c3d4ec5edd3b2f9b8",
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "no_color_reduction": true,
+  "source_height_not_native_viewport_height": true,
+  "new_persistent_wram_fields": 0,
+  "bank0_code_changed": false,
+  "draw_and_drop_owner_bound": false,
+  "complete_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-biased-randf-audit.log: ALL CHECKS PASS"
+}
