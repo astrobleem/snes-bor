@@ -1162,3 +1162,12 @@ does not admit a moving compositor, production audio contention or the
 30-ms source deadline under ongoing rendering. The next native check runs
 the same cached job during active palette IRQ service. Receipt:
 `byor-motu-screen-palette-cache-native.json`. No color reduction is applied.
+
+The optional active repeat now passes native cache, CGRAM and full-scene pixel
+identity checks while palette IRQ and dummy channel-zero HDMA execute. The
+repeat takes 443,644 master clocks, about 20.7 ms; its color-pair phase takes
+239,748 clocks. Separate native markers distinguish the forced-blank startup
+from the active repeat. This removes the isolated rendering-contention gap
+for this immutable context. It does not admit production TAD or live geometry,
+underlay changes or palette allocation. The real production audio test is a
+separate integration gate.

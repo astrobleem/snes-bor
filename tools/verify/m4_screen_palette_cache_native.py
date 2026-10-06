@@ -16,7 +16,7 @@ from source_screen_components import derive as pixels
 from source_screen_palette import derive,projection_tables
 
 
-def combine(raw,report,assets,source,stage,scene,folder,unroll_bindings=False):
+def combine(raw,report,assets,source,stage,scene,folder,unroll_bindings=False,active_repeat=False):
     high=np.fromfile(assets/'indices.bin',dtype=np.uint8).reshape(224,256)+3
     low=np.fromfile(assets/'low_indices.bin',dtype=np.uint8).reshape(224,256)
     image=np.fromfile(assets/'expected.rgb555',dtype='<u2').reshape(224,256)
@@ -31,7 +31,17 @@ def combine(raw,report,assets,source,stage,scene,folder,unroll_bindings=False):
         code=code.replace(bytes.fromhex(old),bytes.fromhex(new))
     cold=bytes.fromhex('a9 80 8d 26 22 c2 20 a9 00 00 8f f0 3f 41 8f f2 3f 41 e2 20')
     target=struct.unpack_from('<H',code,len(code)-2)[0]
-    code[-2:]=struct.pack('<H',target+len(cold)+4);code[marker:marker]=bytes.fromhex('22 00 00 c9');code[11:11]=cold
+    restart=bytes.fromhex('a9 20 8d 00 22 c2 20 a9 00 00 8f f0 3f 41 e2 20') if active_repeat else b''
+    release=bytes.fromhex('9c 00 22') if active_repeat else b''
+    code[-2:]=struct.pack('<H',target+len(cold)+4+len(restart))
+    if active_repeat:
+        irq_setup=code.find(bytes.fromhex('a9 10 8d 00 42 58'))
+        if irq_setup<0:raise ValueError('SCREEN_CACHE_ACTIVE_IRQ_SETUP')
+        # Release only after unblank and IRQ/HDMA activation. Later fields
+        # write zero again without a reset edge, so the worker runs once.
+        code[irq_setup+5:irq_setup+5]=release
+    code[marker:marker]=bytes.fromhex('22 00 00 c9')+restart
+    code[11:11]=cold
     asm='''
 .snes
 .bank 18
@@ -146,6 +156,7 @@ ScreenCacheWorker:
     sta $20
     ldy #0
 ScreenCacheStart:
+    nop
 ScreenCachePair:
     sep #$20
 .a8
@@ -270,7 +281,7 @@ ScreenCacheUnrollStart:
     rom[0x7fd5:0x7fdc]=bytes([0x23,0x35,10,8,1,0x33,0])
     (folder/'expected-cache.rgb555').write_bytes(expected)
     detail.update(rom_source_pairs_sha256=hashlib.sha256(pairs).hexdigest(),bank0_production_growth=0,
-                  unrolled_bindings=unroll_bindings)
+                  unrolled_bindings=unroll_bindings,active_display_repeat=active_repeat)
     return bytes(rom),sy,detail
 
 
@@ -279,20 +290,22 @@ def main():
     for name in ('source','stage'):p.add_argument('--'+name,required=True)
     for name in ('scene','components','output'):p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--unroll-bindings',action='store_true')
+    p.add_argument('--active-repeat',action='store_true',help='Repeat once while the displayed scene runs palette IRQ and dummy HDMA')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     base=bg.compile_rom;detail={};report=json.loads(a.components.read_text());assets=a.components.parent
     def compile_cache(*args,**kwargs):
         raw,trace,resources=base(*args,**kwargs)
-        raw,sy,data=combine(raw,report,assets,Source(a.source),a.stage,json.loads(a.scene.read_text()),folder,a.unroll_bindings)
+        raw,sy,data=combine(raw,report,assets,Source(a.source),a.stage,json.loads(a.scene.read_text()),folder,a.unroll_bindings,a.active_repeat)
         detail.update(symbols=sy,inputs=data);resources.update(native_screen_palette_cache=True)
         return raw,trace,resources
     class Extra(McpSession):
         def __enter__(self):
-            sy=detail['symbols'];script='local screen_cache_seen={}\n'
+            sy=detail['symbols'];script='local screen_cache_active=0\n'
+            script+='emu.addMemoryCallback(function(a,v) if v==15 then screen_cache_active=1 end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)\n'
             for name in ('ScreenCacheStart','ScreenCachePairsDone','ScreenCacheUnrollDone' if a.unroll_bindings else 'ScreenCacheDone'):
                 address=0x3300+sy[name]-sy['ScreenCacheWorker']
                 if name=='ScreenCacheUnrollDone':address=0xca0000+((sy[name]>>16)-20)*32768+(sy[name]&65535)-32768
-                script+=f"emu.addMemoryCallback(function(a,v) if not screen_cache_seen[a] then local s=emu.getState();emu.log('SCREENCACHE|'..a..'|'..s.masterClock);screen_cache_seen[a]=true end end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+                script+=f"emu.addMemoryCallback(function(a,v) local s=emu.getState();emu.log('SCREENCACHE|'..a..'|'..s.masterClock..'|'..s['ppu.frameCount']..'|'..s['ppu.scanline']..'|'..screen_cache_active) end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
             with (folder/'observer.lua').open('a') as f:f.write(script)
             super().__enter__()
             try:
@@ -315,11 +328,16 @@ def main():
     r=json.loads((folder/'result.json').read_text())
     events=[list(map(int,l.split('SCREENCACHE|',1)[1].split('|'))) for l in (folder/'mesen.log').read_text().splitlines() if 'SCREENCACHE|' in l]
     cache_exact=(folder/'native-cache.rgb555').read_bytes()==(folder/'expected-cache.rgb555').read_bytes()
+    count=6 if a.active_repeat else 3
+    complete=len(events)==count
+    first=3 if a.active_repeat else 0
+    active_exact=not a.active_repeat or (complete and all(e[4]==1 for e in events[3:]) and all(e[4]==0 for e in events[:3]))
     r.update(cache_inputs=detail['inputs'],native_cache_identity_verified=cache_exact,native_job_events=events,
-             native_job_master_clocks=events[-1][1]-events[0][1] if len(events)==3 else None,
-             native_colour_pair_master_clocks=events[1][1]-events[0][1] if len(events)==3 else None,
-             scope='Native SCREEN color-pair cache binds CGRAM colors of a source-derived fixed context. No moving-world underlay, online scheduling or production cadence/audio admission.')
-    r['pass']=r['pass'] and cache_exact and len(events)==3
+             native_job_master_clocks=events[first+2][1]-events[first][1] if complete else None,
+             native_colour_pair_master_clocks=events[first+1][1]-events[first][1] if complete else None,
+             active_display_repeat_verified=active_exact,
+             scope='Native SCREEN color-pair cache binds CGRAM colors of a source-derived fixed context. Optional repeated job runs during active palette IRQ and dummy channel-0 HDMA. No moving-world underlay, online scheduling or production cadence/audio admission.')
+    r['pass']=r['pass'] and cache_exact and complete and active_exact
     (folder/'result.json').write_text(json.dumps(r,indent=2)+'\n')
     print(json.dumps({k:r[k] for k in ['pass','native_cache_identity_verified','native_job_master_clocks','native_colour_pair_master_clocks','scope']}))
     if not r['pass']:raise SystemExit(1)

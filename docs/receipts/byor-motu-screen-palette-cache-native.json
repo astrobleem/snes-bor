@@ -26,5 +26,18 @@
     "result_path": "out/byor-motu-screen-cache-timed-native/result.json",
     "native_job_master_clocks": 702176,
     "native_colour_pair_master_clocks": 241870
+  },
+  "active_render_repeat": {
+    "status": "PASS",
+    "result_path": "out/byor-motu-screen-cache-active-native/result.json",
+    "rom_sha256": "dc9711efea2d530fd152b664de1df50daf8f39ce986e12b740cf7e7a77023770",
+    "native_job_master_clocks": 443644,
+    "native_colour_pair_master_clocks": 239748,
+    "active_display_job_markers_verified": true,
+    "full_rgb555_cache_exact": true,
+    "pixel_mismatches": 0,
+    "cgram_register_writes_verified": 6048,
+    "unsafe_palette_samples": 0,
+    "scope": "Recompute the same immutable-context native palette during active palette IRQ and dummy channel-0 HDMA. The buffer retains the same values; no dynamic publication, production TAD or moving-world admission."
   }
 }
