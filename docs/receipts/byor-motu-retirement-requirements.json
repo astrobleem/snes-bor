@@ -1,0 +1,43 @@
+{
+  "schema": "BYOR_M4_RETIREMENT_REQUIREMENTS_RECEIPT_V1",
+  "status": "REQUIREMENTS_DERIVED",
+  "report_path": "out/byor-motu-retirement-requirements.json",
+  "report_sha256": "fd628358b29f9a797bddefa54fd2cbd2f41bf77a6e3b7459a4ac45c9ee3f539d",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "models": 16,
+  "onkill_scripts": 0,
+  "script_clear_entries": 0,
+  "summonkill_default": 1,
+  "summonkill_default_source_assignment": "newchar->summonkill                 = 1;",
+  "source_assignment_sha256": "3f649da55c7071ea4209a56e90d1d8f87d7f0db236218cc0e716c70a6e296a14",
+  "derived_summonkill_values": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "proposed_relation_lease": "409000..40AFFF, 128 rows of 64 bytes",
+  "proposed_role_lease": "43FD80..43FDAF, after full frame snapshot tails",
+  "physical_lease_published": false,
+  "native_retirement_bound": false,
+  "proof": "Model documents and parsed script ASTs require no onkill callback or clear-entry execution for any of the 16 current source identities. The pinned loader initializes summonkill to 1. Minion handling remains an actual requirement, including when the directive is absent. Relation ABI holds physical entity tokens and rejects invalid pool pointers, signed scalar overflow and nonzero reserved bytes; it does not alias script IDs or original-BOR slots.",
+  "byte_domain_verification": {
+    "roundtrip": "slot127 parent, slot0 owner, summonkill -1, cantfire INT32_MIN, script mask UINT32_MAX",
+    "rejected_pointer_and_reserved_cases": 6
+  },
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
