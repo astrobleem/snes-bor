@@ -107,7 +107,9 @@ LeafFixture_Return:
     for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
+    if 'SourceRetirement4086_Ready' in sy:
+        lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceRetirement4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceRetirement4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k in ('VmCode_Wram','VmSlots_Wram') or k.startswith(('VmCall_','VmNativeVariant_','SourceRetirement4086_','VmSourceVars_','SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
     values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
     if post:values['POSTRESULT']=fs['LeafFixture_Post']
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)

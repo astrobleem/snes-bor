@@ -57,6 +57,12 @@ Vm_NativeVariantDispatch__entity:
 Vm_NativeVariantDispatch__local:
 .a16
 .i16
+    cmp #$020A                     ; killentity(), guarded full retirement leaf
+    bne Vm_NativeVariantDispatch__getlocal
+    jmp Vm_SourceKill
+Vm_NativeVariantDispatch__getlocal:
+.a16
+.i16
     cmp #$0209                     ; getlocalvar(key), stable source ABI
     bne Vm_NativeVariantDispatch__spawn_name
     jmp Vm_NativeVariantGetLocal

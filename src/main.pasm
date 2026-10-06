@@ -13602,6 +13602,7 @@ SourceVM_ConstantReservation:
 .include "core/vm/vm_source_world_tick.pasm"
 .include "core/vm/vm_source_run_call.pasm"
 .include "core/vm/vm_source_toss.pasm"
+.include "core/vm/vm_source_kill.pasm"
 
 ; Reserved immutable instruction bank for compiler-selected source programs.
 ; The ordinary compiler leaves this $FF-filled. Foreign-profile publication
@@ -13632,4 +13633,9 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_frame_effect_binding.pasm"
 .include "core/vm/vm_source_self.pasm"
 .include "core/vm/vm_source_frame_effects_run.pasm"
+
+; Synchronous foreign retirement leaf; separate from presentation reservations.
+.bank 62
+.org $8000
+.include "core/vm/vm_source_retirement.pasm"
 

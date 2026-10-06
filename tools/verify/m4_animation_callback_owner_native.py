@@ -264,6 +264,7 @@ emu.addMemoryCallback(function()
  set('VmNativeVariant_ContextValid',0);set('SourceWorldTick4086_Ready',0);set('SourceClock4086_Ready',0)
  set('SourceFrameEffectPlan4086_Ready',0);set('SourceSelf4086_Ready',0);set('SourceFrameMotion4086_Ready',0)
  set('SourceAnimationInit4086_Ready',0);set('SourceModelAnimation4086_Ready',0);set('SourceModelTransition4086_Ready',0);set('SourceFrameStack4086_Ready',0)
+ set('SourceRetirement4086_Ready',0)
  INSTALL_EFFECT_RUNNER
  put(0x414004,1,2)
  for n,tag in ipairs({2,1,1,1,1,2,2,1})do put(0x414000+8*n,tag,4)end

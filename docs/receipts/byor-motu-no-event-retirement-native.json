@@ -1,0 +1,119 @@
+{
+  "schema": "BYOR_M4_NO_EVENT_RETIREMENT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "kill_authority": {
+      "path": "out/byor-motu-kill-subentity-authority/report.json",
+      "sha256": "8dd3f89560599bb473994a0aa8acb3704fa2d6017aeb91367d674467373ad1cf",
+      "cases": 144,
+      "status": "PASS"
+    },
+    "api_authority": {
+      "path": "out/byor-motu-kill-api-authority/report.json",
+      "sha256": "838ccd56a364aea892cebe1495685f8e0b8b72bf730e38a52e03a6df148de429",
+      "cases": 9,
+      "status": "PASS"
+    },
+    "native": {
+      "path": "out/byor-motu-kill-api-native/report.json",
+      "sha256": "5a981c299786db26b8b4a74d757a75ecde0d135d8eef5d6e792db80138485189",
+      "cases": 315,
+      "status": "PASS"
+    },
+    "frame_regression": {
+      "path": "out/byor-motu-frame-runner-retirement-regression/report.json",
+      "sha256": "a8e4ea142ad37742214a3d8268258a6c135a008e751d29ad5bff7c776c92c474",
+      "cases": 288,
+      "status": "PASS"
+    },
+    "callback_regression": {
+      "path": "out/byor-motu-callback-retirement-regression/report.json",
+      "sha256": "cac11733e49792c227c23bced1b6dfea68c5ff2cd0984351794c78aee48990dd",
+      "cases": [
+        {
+          "f": 3,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 3,
+          "direction": 0,
+          "default": 3,
+          "fault": 0,
+          "warm": 1
+        },
+        {
+          "f": 3,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 4,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 4,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 4,
+          "direction": 1,
+          "default": 3,
+          "fault": 0,
+          "warm": 1
+        },
+        {
+          "f": 4,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 4,
+          "direction": 1,
+          "default": 3,
+          "fault": 1
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "candidate_sha256": "2a9f2adecc1e9a8fda1903da830128ae8ea88fb6f0420a2bac4e08b160872730",
+  "candidate_bytes": 4194304,
+  "main_bytes": 2034541,
+  "physical_pool_capacity": 128,
+  "slot_index_table_bytes": 1280,
+  "slot_index_table_sha256": "1367cb90e355b6f549931b984de40a591e95c2ab9dabfe399d72725b598fcdc9",
+  "slot_index_rom_verified": true,
+  "peak_wrapper_master_clocks": 464002,
+  "cost_scope": "Vm_SourceKill entry to return; excludes dispatcher comparisons; isolated call, not gameplay contention",
+  "bound": [
+    "typed PTR/INTEGER killentity, NULL and dead pointer results",
+    "shot cantfire, unlink, health/existence/count",
+    "method-1 named variable value clearing, retaining names",
+    "roles and live relation repair",
+    "engine global self restore",
+    "preflight before live mutation",
+    "admitted fault blocks source clock"
+  ],
+  "unbound": [
+    "onkill callback execution",
+    "script clear-entry callbacks",
+    "minion damage or recursive retirement",
+    "foreign constructor and installer",
+    "live gameplay contention"
+  ],
+  "retirement_lease": "409000..40AFFF, 43FD80..43FDAF; fixture only",
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files_verified": 17,
+  "width_audit": "out/byor-motu-kill-api-audit.log: ALL CHECKS PASS"
+}
