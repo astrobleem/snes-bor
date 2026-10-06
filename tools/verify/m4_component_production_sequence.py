@@ -20,7 +20,7 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_ed
 import game_bor_startup_select as startup
 
 
-def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False):
+def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
     hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
@@ -31,6 +31,22 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         for r in reports:r['native_obj_entries']=plan['static_obj_entries']
     else:reports=[json.loads((p/'frame.json').read_text()) for p in assets]
     initials=[json.loads((p/'initial.json').read_text()) for p in assets]
+    folds=[]
+    if fold_first_use:
+        if not sparse_palette:raise ValueError('FIRST_USE_REQUIRES_SPARSE_PALETTE_EVENTS')
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
+        from raster_palette_first_use import fold
+        transformed=[]
+        for i,(report,initial,asset) in enumerate(zip(reports,initials,assets)):
+            indices=np.fromfile(asset/'indices.bin',dtype=np.uint8).reshape(224,256)+3
+            revised,palette,evidence=fold(report,initial,indices)
+            destination=folder/'first-use-inputs'/f'frame-{i:02d}';destination.mkdir(parents=True,exist_ok=True)
+            for n in ('indices.bin','low_indices.bin','expected.rgb555'):
+                if not (destination/n).exists():os.link(asset/n,destination/n)
+            (destination/'initial.json').write_text(json.dumps(palette)+'\n')
+            (destination/'report.json').write_text(json.dumps(revised)+'\n')
+            reports[i]=revised;initials[i]=palette;folds.append(evidence);transformed.append(destination)
+        assets=transformed
     prefix=100
     if hybrid:
         prefix=0
@@ -62,7 +78,7 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
             raise ValueError('HYBRID_PRODUCTION_LAYOUT_UNPROVEN')
         kwargs=dict(high_tile_offset=64,obj_obsel=0,obj_chr=(residency/'obj.chr').read_bytes(),
             oam=(residency/'oam.bin').read_bytes(),obj_rom_bank=5,obj_rom_address=0xb000)
-    component,_,resources=compile_rom(reports[0],assets[0],65 if sparse_palette else (74 if audio_service else 76),cache,offset_alias='low' if hybrid else True,**kwargs)
+    component,_,resources=compile_rom(reports[0],assets[0],73 if sparse_palette else (74 if audio_service else 76),cache,offset_alias='low' if hybrid else True,**kwargs)
     fields=schedule['fields']+[dict(field=schedule['fields'][-1]['field']+1,jobs=[],mandatory=[])]
     fields[0]=dict(field=0,jobs=[],mandatory=[])
     # Pack all per-field programs and their immutable bytes into fast ROM.
@@ -149,7 +165,7 @@ SourceCanvasProgramTable:
 '''%(len(programs),len(programs)-1)
     for program in programs:
         pos=program['start'];asm+='    .dw $%04X,$%04X\n'%(0x8000+pos%32768-1,0x80+pos//32768)
-    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette)
+    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette,serialize_audio_raster=serialize_audio_raster)
     rom=bytearray(raw)
     for first,size in [(46*32768,32768),(53*32768,11*32768),(64*32768,5*65536)]:
         if rom[first:first+size]!=bytes(size):raise ValueError('PRODUCTION_SEQUENCE_ROM_RESERVATION_OCCUPIED')
@@ -179,6 +195,8 @@ SourceCanvasProgramTable:
     resources.update(fixed_palette_suffix_words=suffix)
     resources['compact_canvas_nmi']=compact_canvas_nmi
     resources['sparse_palette_events']=sparse_palette
+    resources['serialized_audio_raster']=serialize_audio_raster
+    resources['palette_first_use_folds']=folds
     if hybrid:resources.update(static_obj_oam_sha256=plan['oam_sha256'],static_obj_subdivision=plan['static_obj_subdivision'])
     return bytes(rom),gates,resources,traces,assets
 
@@ -408,9 +426,11 @@ def main():
     p.add_argument('--source-clock',action='store_true')
     p.add_argument('--compact-canvas-nmi',action='store_true')
     p.add_argument('--sparse-palette',action='store_true')
+    p.add_argument('--serialize-audio-raster',action='store_true')
+    p.add_argument('--fold-first-use',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
-    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette)
+    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette,a.serialize_audio_raster,a.fold_first_use)
     (folder/'proof.sfc').write_bytes(rom)
     (folder/'compiled.json').write_text(json.dumps(dict(resources=resources,gates=gates,assets=[str(p) for p in assets],traces=traces),indent=2))
     print('PRODUCTION_SEQUENCE_COMPILED')

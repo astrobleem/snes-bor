@@ -394,6 +394,20 @@ SourceCanvasNmi:
     rtl
 '''%canvas_contract
     if sparse_targets:
+        # Sparse production installation uses a size-neutral JML gateway.
+        # There is no gateway JSL frame; only the fetch prologue's PHP remains.
+        tail='''    plx
+    pla
+    sta.l SourceRaster_OriginalA
+    tsc
+    clc
+    adc #4
+    tcs
+    lda.l SourceRaster_OriginalA'''
+        if code.count(tail)!=1:raise ValueError('SPARSE_RASTER_JML_RETURN_CONTRACT')
+        # PLP discards the one remaining byte directly. Native RTI then restores
+        # the interrupted hardware P/PC, with original A/X/Y/D/DBR intact.
+        code=code.replace(tail,'    plx\n    pla\n    plp',1)
         code=code.replace('SourceRaster_RowLimit = $7FF864','SourceRaster_RowLimit = $7FF864\nSourceRaster_FirstLine = $7FF886')
         old='''    tax
     inc a
@@ -457,14 +471,14 @@ SourceRasterNmiLegacyCore:''',1)
     return code
 
 
-def fetch_prologue():
+def fetch_prologue(clear_decimal=False):
     """Replace PHP/REP; installation requires all ordinary fetches to have I=0.
 
     Testing the lease on every IRQ costs the transfer window. This prologue
     is an opt-in foreign-profile gateway, not an unconditional static-path edit.
     The installer must prove the I=0 invariant before redirecting either vector.
     """
-    return '''
+    code = '''
     php
     rep #$31
     pha
@@ -477,3 +491,4 @@ SourceRasterFetchOrdinary:
 .i16
     pla
 '''
+    return code.replace('rep #$31','rep #$39') if clear_decimal else code

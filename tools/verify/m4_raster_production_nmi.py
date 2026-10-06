@@ -23,7 +23,8 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False,serialize_audio_raster=False):
+    if serialize_audio_raster and not (audio_service and sparse_targets):raise ValueError('AUDIO_RASTER_RESERVATION_OWNER_REQUIRED')
     if source_clock and not audio_service:raise ValueError('CLOCK_SERVICE_OWNER_REQUIRED')
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
@@ -35,8 +36,12 @@ def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=Fals
     if not 1<=palette_count<=236-palette_prefix:raise ValueError('INITIAL_PALETTE_COUNT_RANGE')
     asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit(contract if canvas_nmi else None,
          0xb48000 if direct_targets_rom else None,(4+palette_prefix,palette_count),frame_hook,compact_canvas_nmi,sparse_targets)
-    asm+='\n.bank 39\n.org $C000\nSourceRasterFetchWrapper:\n.a16\n.i16\n'+fetch_prologue()
-    asm+='    plp\n    jml $%06X\n'%sy['Vm_FetchSource']
+    asm+='\n.bank 39\n.org $C000\nSourceRasterFetchWrapper:\n.a16\n.i16\n'+fetch_prologue(clear_decimal=sparse_targets)
+    if sparse_targets:
+        # Ordinary JSR callers still return through the existing bank-zero RTS.
+        # IRQ entry avoids the otherwise wasted three-byte JSL stack frame.
+        asm+='    plp\n    jsl $%06X\n    jml $%06X\n'%(sy['Vm_FetchSource'],sy['Vm_Fetch']+4)
+    else:asm+='    plp\n    jml $%06X\n'%sy['Vm_FetchSource']
     asm+='''
 .org $C100
 SourceRasterColdInit:
@@ -205,6 +210,17 @@ SourceCanvasClockComplete:
 '''%dict(observe=sy['SourceClock4086_Observe'],due=sy['SourceClock4086_Due'],commit=sy['SourceClock4086_Commit'])
         if asm.count(marker)!=1:raise ValueError('CLOCK_NATIVE_SERVICE_BOUNDARY')
         asm=asm.replace(marker,marker+job)
+    if serialize_audio_raster:
+        marker='SourceCanvasAudioReady:\n.a16\n.i16\n'
+        if asm.count(marker)!=1:raise ValueError('AUDIO_RASTER_RESERVATION_BOUNDARY')
+        asm=asm.replace(marker,marker+'''    lda.l SourceRaster_Row
+    cmp.l SourceRaster_RowLimit
+    bcs SourceCanvasAudioRasterReleased
+    jmp SourceCanvasAudioReturn
+SourceCanvasAudioRasterReleased:
+.a16
+.i16
+''')
     (folder/'production-gate.pasm').write_text(asm)
     command=[r'C:\Users\chad\.dotnet\dotnet.exe',r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll',str(folder/'production-gate.pasm'),
              '--output',str(folder/'production-gate.bin'),'--symbols',str(folder/'production-gate.sym'),'--no-pansy']
@@ -294,6 +310,7 @@ SourceCanvasClockComplete:
     rom[40*32768:40*32768+len(code)]=code
     # All bank-zero substitutions preserve instruction size and bank0 end.
     fetch=offset(sy['Vm_Fetch']);assert rom[fetch]==0x22
+    if sparse_targets:rom[fetch]=0x5c
     rom[fetch+1:fetch+4]=bytes.fromhex('00 c0 a7')
     nmi=offset(sy['nmi_handler']);assert rom[nmi]==0x22
     rom[nmi+1:nmi+4]=bytes.fromhex('00 80 a7')
