@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_M4_FRAME_STACK_MODEL_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-frame-stack-model-native/report.json",
+    "sha256": "9ef41532cb56ae25222962b94c3136c03ec1d7357f16a398d2b345d16d47aaac"
+  },
+  "native_rom_sha256": "93a13aa8d11a0148939f0a9049f0e8f9a1763055ed91f5e1988111f706f82aec",
+  "cases": 160,
+  "peak_call_master_clocks": 47426,
+  "average_call_master_clocks": 26139.2875,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "proof": "All eight depths and four full LIFO chains preserve model-animation owner with parent frame/callback/init state; reject faulted child model owner; direct clock blocks outstanding continuations.",
+  "maximum_depth": 8,
+  "snapshot_range": "7FFB50..7FFD3F",
+  "stack_range": "40F000..40FFFF",
+  "child_services_instrumented": true,
+  "recursive_interpreter_bound": false,
+  "weapon_frame_execution_bound": false
+}

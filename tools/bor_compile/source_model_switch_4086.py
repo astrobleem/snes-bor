@@ -52,7 +52,11 @@ def set_colourmap(entity,which):
 def set_model(entity,new,sync,owner):
     old=entity['modeldata'];entity['model']=new;entity['modeldata']=dict(new)
     copy_entity_uninitialized(entity,old);set_colourmap(entity,entity['map'])
-    animation=new['animation'].get(entity['animnum'])
+    set_model_animation(entity,sync,owner)
+
+
+def set_model_animation(entity,sync,owner):
+    new=entity['modeldata'];animation=new['animation'].get(entity['animnum'])
     if sync and animation is not None:
         entity['animation']=animation
         if entity['animpos']>=animation['numframes']:entity['animpos']=animation['numframes']-1

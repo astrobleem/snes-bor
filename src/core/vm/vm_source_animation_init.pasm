@@ -53,7 +53,7 @@ SourceAnimationInit4086_CheckIdle_Bad:
     sec
     rtl
 
-SourceAnimationInit4086_Begin:
+SourceAnimationInit4086_Resolve:
 .a16
 .i16
     php
@@ -63,87 +63,87 @@ SourceAnimationInit4086_Begin:
     lda.l SourceAnimationInit4086_Ready
     cmp #$B4EC
     beq SourceAnimationInit4086_Relaxed_1
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_1:
 .a16
 .i16
     lda.l SourceAnimationInit4086_State
     cmp #1
     bne SourceAnimationInit4086_Relaxed_2
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_2:
 .a16
 .i16
     cmp #3
     bne SourceAnimationInit4086_Relaxed_3
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_3:
 .a16
 .i16
     lda.l VmSourceWorld_Ready
     cmp #$B4A3
     beq SourceAnimationInit4086_Relaxed_4
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_4:
 .a16
 .i16
     lda.l VmSourceWorld_PoolBase
     cmp #$4000
     beq SourceAnimationInit4086_Relaxed_5
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_5:
 .a16
 .i16
     lda.l SourceModelEntityCopy4086_Ready
     cmp #$B4EB
     beq SourceAnimationInit4086_Relaxed_6
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_6:
 .a16
 .i16
     lda.l SourceModelAnimationCopy4086_Ready
     cmp #$B4E9
     beq SourceAnimationInit4086_Relaxed_7
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_7:
 .a16
 .i16
     lda.l SourceUpdateFrame4086_Ready
     cmp #$B4E3
     beq SourceAnimationInit4086_Relaxed_8
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_8:
 .a16
 .i16
     lda.l VmSourceWorld_Count
     bne SourceAnimationInit4086_Relaxed_9
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_9:
 .a16
 .i16
     cmp #129
     bcc SourceAnimationInit4086_Relaxed_10
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_10:
 .a16
 .i16
     lda.l SourceAnimationInit4086_Slot
     cmp.l VmSourceWorld_Count
     bcc SourceAnimationInit4086_Relaxed_11
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_11:
 .a16
 .i16
     ; Invalid source animation numbers are source no-ops, not table faults.
     lda.l SourceModelAnimationCopy4086_Maximum
     bne SourceAnimationInit4086_Relaxed_12
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_12:
 .a16
 .i16
     cmp #1025
     bcc SourceAnimationInit4086_Relaxed_13
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_13:
 .a16
 .i16
@@ -151,13 +151,13 @@ SourceAnimationInit4086_Relaxed_13:
     sta.l SourceAnimationInit4086_RowBytes
     lda.l SourceModelAnimationCopy4086_Models
     bne SourceAnimationInit4086_Relaxed_14
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_14:
 .a16
 .i16
     cmp #129
     bcc SourceAnimationInit4086_Relaxed_15
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_15:
 .a16
 .i16
@@ -169,7 +169,7 @@ SourceAnimationInit4086_Capacity:
     clc
     adc.l SourceAnimationInit4086_RowBytes
     bcc SourceAnimationInit4086_Relaxed_16
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_16:
 .a16
 .i16
@@ -177,20 +177,20 @@ SourceAnimationInit4086_Relaxed_16:
     bne SourceAnimationInit4086_Capacity
     cmp #8193
     bcc SourceAnimationInit4086_Relaxed_17
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_17:
 .a16
 .i16
     cmp.l SourceModelAnimationCopy4086_Bytes
     beq SourceAnimationInit4086_Relaxed_18
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_18:
 .a16
 .i16
     lda.l SourceAnimationInit4086_Number
     cmp.l SourceModelAnimationCopy4086_Maximum
     bcc SourceAnimationInit4086_Relaxed_19
-    jmp SourceAnimationInit4086_Done
+    jmp SourceAnimationInit4086_ResolveNoop
 SourceAnimationInit4086_Relaxed_19:
 .a16
 .i16
@@ -198,21 +198,21 @@ SourceAnimationInit4086_Relaxed_19:
     lda.l SourceAnimationInit4086_Bank
     cmp #64
     bcc SourceAnimationInit4086_Relaxed_20
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_20:
 .a16
 .i16
     lda.l SourceAnimationInit4086_Base
     cmp #$8000
     bcs SourceAnimationInit4086_Relaxed_21
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_21:
 .a16
 .i16
     lda.l SourceAnimationInit4086_Bytes
     cmp #16
     bcs SourceAnimationInit4086_Relaxed_22
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_22:
 .a16
 .i16
@@ -220,7 +220,7 @@ SourceAnimationInit4086_Relaxed_22:
     clc
     adc.l SourceAnimationInit4086_Base
     bcc SourceAnimationInit4086_Relaxed_23
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_23:
 .a16
 .i16
@@ -228,7 +228,7 @@ SourceAnimationInit4086_Relaxed_23:
     jsr SourceAnimationInit4086_Read
     cmp #$3442
     beq SourceAnimationInit4086_Relaxed_24
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_24:
 .a16
 .i16
@@ -236,7 +236,7 @@ SourceAnimationInit4086_Relaxed_24:
     jsr SourceAnimationInit4086_Read
     cmp #$4941
     beq SourceAnimationInit4086_Relaxed_25
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_25:
 .a16
 .i16
@@ -244,27 +244,27 @@ SourceAnimationInit4086_Relaxed_25:
     jsr SourceAnimationInit4086_Read
     cmp #1
     beq SourceAnimationInit4086_Relaxed_26
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_26:
 .a16
 .i16
     ldx #6
     jsr SourceAnimationInit4086_Read
     bne SourceAnimationInit4086_Relaxed_27
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_27:
 .a16
 .i16
     cmp #129
     bcc SourceAnimationInit4086_Relaxed_28
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_28:
 .a16
 .i16
     sta.l SourceAnimationInit4086_Handles
     cmp.l SourceUpdateFrame4086_Animations
     beq SourceAnimationInit4086_Relaxed_29
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_29:
 .a16
 .i16
@@ -275,7 +275,7 @@ SourceAnimationInit4086_Relaxed_29:
     adc #16
     cmp.l SourceAnimationInit4086_Bytes
     beq SourceAnimationInit4086_Relaxed_30
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_30:
 .a16
 .i16
@@ -283,7 +283,7 @@ SourceAnimationInit4086_Relaxed_30:
     jsr SourceAnimationInit4086_Read
     cmp.l SourceModelAnimationCopy4086_Maximum
     beq SourceAnimationInit4086_Relaxed_31
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_31:
 .a16
 .i16
@@ -291,7 +291,7 @@ SourceAnimationInit4086_Relaxed_31:
     jsr SourceAnimationInit4086_Read
     cmp #8
     beq SourceAnimationInit4086_Relaxed_32
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_32:
 .a16
 .i16
@@ -299,14 +299,14 @@ SourceAnimationInit4086_Relaxed_32:
     jsr SourceAnimationInit4086_Read
     cmp #16
     beq SourceAnimationInit4086_Relaxed_33
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_33:
 .a16
 .i16
     ldx #14
     jsr SourceAnimationInit4086_Read
     beq SourceAnimationInit4086_Relaxed_34
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_34:
 .a16
 .i16
@@ -326,7 +326,7 @@ SourceAnimationInit4086_Relaxed_34:
     lda.l $410000,x
     cmp.l SourceModelAnimationCopy4086_Models
     bcc SourceAnimationInit4086_Relaxed_35
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_35:
 .a16
 .i16
@@ -362,14 +362,14 @@ SourceAnimationInit4086_Relaxed_35:
     lda.l $410010,x ; animation ID variant tag
     cmp #BOR_VT_INTEGER
     beq SourceAnimationInit4086_Relaxed_36
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_36:
 .a16
 .i16
     lda.l $410012,x
     ora.l $410016,x ; reserved/high ID (native IDs nonnegative <=1024)
     beq SourceAnimationInit4086_Relaxed_37
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_37:
 .a16
 .i16
@@ -396,14 +396,14 @@ SourceAnimationInit4086_ModelOffset:
     tax
     lda.l SOURCE_MODEL_ANIMATION_CACHE,x
     bne SourceAnimationInit4086_Relaxed_38
-    jmp SourceAnimationInit4086_Done
+    jmp SourceAnimationInit4086_ResolveNoop
 SourceAnimationInit4086_Relaxed_38:
 .a16
 .i16
     sta.l SourceAnimationInit4086_Handle
     jsr SourceAnimationInit4086_CheckHandle
     bcc SourceAnimationInit4086_Relaxed_39
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_39:
 .a16
 .i16
@@ -418,7 +418,7 @@ SourceAnimationInit4086_Relaxed_39:
     jsr SourceModelAnimationCopy4086_FrameCount
     cmp.l SourceAnimationInit4086_Count
     beq SourceAnimationInit4086_Relaxed_40
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_40:
 .a16
 .i16
@@ -428,7 +428,7 @@ SourceAnimationInit4086_CountChecked:
 .i16
     lda.l SourceAnimationInit4086_Count
     bne SourceAnimationInit4086_Relaxed_41
-    jmp SourceAnimationInit4086_Done
+    jmp SourceAnimationInit4086_ResolveGood
 SourceAnimationInit4086_Relaxed_41:
 .a16
 .i16
@@ -444,11 +444,61 @@ SourceAnimationInit4086_Relaxed_41:
     beq SourceAnimationInit4086_SyncChecked
     cmp.l SourceModelAnimationCopy4086_Maximum
     bcc SourceAnimationInit4086_Relaxed_42
-    jmp SourceAnimationInit4086_Bad
+    jmp SourceAnimationInit4086_ResolveBad
 SourceAnimationInit4086_Relaxed_42:
 .a16
 .i16
 SourceAnimationInit4086_SyncChecked:
+.a16
+.i16
+    jmp SourceAnimationInit4086_ResolveGood
+SourceAnimationInit4086_ResolveNoop:
+.a16
+.i16
+    lda #0
+    sta.l SourceAnimationInit4086_Handle
+    sta.l SourceAnimationInit4086_Count
+SourceAnimationInit4086_ResolveGood:
+.a16
+.i16
+    ply
+    plx
+    plp
+    clc
+    rtl
+SourceAnimationInit4086_ResolveBad:
+.a16
+.i16
+    lda #3
+    sta.l SourceAnimationInit4086_State
+    ply
+    plx
+    plp
+    sec
+    rtl
+
+SourceAnimationInit4086_Begin:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    jsl SourceAnimationInit4086_Resolve
+    bcc SourceAnimationInit4086_BeginResolved
+    jmp SourceAnimationInit4086_Bad
+SourceAnimationInit4086_BeginResolved:
+.a16
+.i16
+    lda.l SourceAnimationInit4086_Handle
+    beq SourceAnimationInit4086_BeginNoop
+    lda.l SourceAnimationInit4086_Count
+    bne SourceAnimationInit4086_BeginPresent
+SourceAnimationInit4086_BeginNoop:
+.a16
+.i16
+    jmp SourceAnimationInit4086_Done
+SourceAnimationInit4086_BeginPresent:
 .a16
 .i16
     lda.l SourceAnimationInit4086_Reset

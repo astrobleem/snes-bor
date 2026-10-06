@@ -1,0 +1,22 @@
+{
+  "schema": "BYOR_M4_ANIMATION_RESOLVE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-animation-resolve-native/report.json",
+    "sha256": "4e179bbcdfbc754f713aa7b5f055688a358a71af3da9dbfee59dc1ecc3f82ef1"
+  },
+  "native_rom_sha256": "7358c66e6891e4f25bbb649f235111585db6c14ac02b3d7eb6a1e9460fd60b5a",
+  "cases": 1746,
+  "peak_call_master_clocks": 31698,
+  "average_call_master_clocks": 11723.616265750286,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "proof": "Factored immutable animation resolution preserves original C-derived initialization and direct clock guards.",
+  "frame_zero_effects_bound": false
+}

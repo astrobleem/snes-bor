@@ -23,7 +23,7 @@ def derive(source):
     by_name={m['identity'].lower():m['id'] for m in models['models']};by_program={m['id']:m['program'] for m in programs['models']}
     frame_effects=effects(source);entries=[]
     for model in models['models']:
-        rows=docs[key(model['source_path'])]['directives'];flags=0;weapons=None;weaploss=[0,-1];rejections=[]
+        rows=docs[key(model['source_path'])]['directives'];flags=0;weapons=None;weaploss=[0,-1];rejections=[];edelay=[0,0.0,0,0,0,0]
         for row in rows:
             name,values=row['directive'],row['values']
             if name=='modelflag':
@@ -33,6 +33,11 @@ def derive(source):
             elif name=='weaploss':
                 if not 1<=len(values)<=2:raise ValueError('MODEL_SWITCH_WEAPLOSS_ARITY')
                 weaploss=[int(values[0]),int(values[1]) if len(values)>1 else 0]
+            elif name=='edelay':
+                if not 1<=len(values)<=6:raise ValueError('MODEL_ENTITY_DELAY_ARITY')
+                args=list(values)+['0']*(6-len(values))
+                edelay=[int(args[0]),float(args[1]),*[int(v) for v in args[2:]]]
+                if any(edelay):rejections.append('MODEL_ENTITY_DELAY_BACKEND_REQUIRED')
             elif name=='weapons' and values:
                 # Pinned helper allocates only on the first nonempty declaration.
                 # Growth on a later declaration reaches undefined C memory.
@@ -53,11 +58,13 @@ def derive(source):
         entries.append(dict(id=model['id'],identity=model['identity'],source_path=model['source_path'],
             source_sha256=model['source_sha256'],declared_type=model['declared_type'],model_flag=flags,
             weapon_ids=weapons,weaploss=weaploss,script_program=by_program[model['id']],animation_slots=handles,
+            entity_delay_inputs=edelay,entity_delay_backend='SOURCE_DEFAULT_EDELAY' if not any(edelay) else 'UNBOUND',
             weapon_frame_events=weapon_frames,rejections=sorted(set(rejections)),
             requires_mutable_model_presentation=weapons is not None or bool(weapon_frames)))
     return dict(schema='BYOR_4086_MUTABLE_MODEL_REQUIREMENTS_V1',engine_commit=ENGINE_COMMIT,
         models=entries,maximum_animations=config['max_animations'],
         cached_animation_map_bytes=len(entries)*config['max_animations']*2,
+        initialization_role_ids={n.lower():config['authority']['enum']['ANI_'+n] for n in ('IDLE','SPAWN','RESPAWN','SELECT')},
         source_type_policy='Preserve previous entity type after ent_set_model initialization; retain distinct cached model declaration.',
         source_animation_policy='Mutable shared cached animation pointers; inherited frames keep original immutable frame identity/handle.',
         source_script_policy='Current/default descriptors captured at callback begin; fresh default eligibility after current callback.',

@@ -19,6 +19,8 @@ class ModelSwitch(unittest.TestCase):
         self.assertEqual(r['maximum_animations'],168);self.assertEqual(r['cached_animation_map_bytes'],5376)
         self.assertFalse(r['native_model_switch_bound']);self.assertFalse(r['foreign_profile_admitted'])
         self.assertFalse(any(m['rejections'] for m in r['models']))
+        self.assertEqual(r['initialization_role_ids'],dict(idle=0,spawn=23,respawn=104,select=59))
+        self.assertTrue(all(m['entity_delay_backend']=='SOURCE_DEFAULT_EDELAY' for m in r['models']))
         cache=pack_animation_cache(r);self.assertEqual(len(cache),5376)
         self.assertEqual(sorted(h for h in struct.unpack('<2688H',cache) if h),list(range(1,81)))
         for m in r['models']:

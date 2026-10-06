@@ -20,7 +20,7 @@ def main():
         rows.extend(dict(mode=0,depth=d,seed=(seed+13*d)&255,bad='',fault=0,chain=1,step=d) for d in range(8))
         rows.extend(dict(mode=1,depth=d,seed=(seed+7*d)&255,bad='',fault=0,chain=1,step=16-d) for d in range(8,0,-1))
     for mode in (0,1):
-        for bad in ('ready','sticky','depth','busy','active','running','yielded','vmfault','callback','callback_fault','frame_ready','frame_state','frame_pending','motion','init'):
+        for bad in ('ready','sticky','depth','busy','active','running','yielded','vmfault','callback','callback_fault','frame_ready','frame_state','frame_pending','motion','init','model'):
             rows.append(dict(mode=mode,depth=1 if mode else 0,seed=31,bad=bad,fault=1))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];raw=bytearray(a.rom.read_bytes());first=39*32768
     if raw[first:first+32768]!=bytes(32768) or raw[0x7fd8]!=8:raise ValueError('FRAME_STACK_PROOF_RESERVATION')
@@ -120,7 +120,7 @@ FrameStackFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local start=0;local ctx=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -141,6 +141,7 @@ emu.addMemoryCallback(function()
  put(sy.SourceUpdateFrame4086_Ready,0xb4e3);put(sy.SourceUpdateFrame4086_State,c.mode==0 and 1 or 2);put(sy.SourceUpdateFrame4086_Pending,c.mode==0 and 2 or 0)
  put(sy.SourceFrameMotion4086_Ready,0xb4e8);put(sy.SourceFrameMotion4086_Status,1)
  put(sy.SourceAnimationInit4086_Ready,0xb4ec);put(sy.SourceAnimationInit4086_State,c.mode==0 and 1 or 2);put(sy.SourceAnimationInit4086_Issued,1)
+ put(sy.SourceModelAnimation4086_Ready,0xb4ef);put(sy.SourceModelAnimation4086_State,c.mode==0 and 1 or 2)
  if c.bad=='ready'then set('Ready',0)
  elseif c.bad=='sticky'then set('Fault',1)
  elseif c.bad=='depth'then set('Depth',c.mode==0 and 8 or 0)
@@ -156,7 +157,8 @@ emu.addMemoryCallback(function()
  elseif c.bad=='frame_pending'then put(sy.SourceUpdateFrame4086_Pending,1)
  elseif c.bad=='motion'then
   if c.mode==0 then put(sy.SourceFrameMotion4086_Status,0)else put(sy.SourceAnimationInit4086_State,1)end
- elseif c.bad=='init'then put(sy.SourceAnimationInit4086_State,3)end
+ elseif c.bad=='init'then put(sy.SourceAnimationInit4086_State,3)
+ elseif c.bad=='model'then put(sy.SourceModelAnimation4086_State,3)end
  before={};for _,r in ipairs(ranges)do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 local function capture()
@@ -176,7 +178,7 @@ emu.addMemoryCallback(function()
   local row=0x40f000+512*(c.mode==0 and c.depth or c.depth-1)
   if c.mode==0 then
    for i=0,495 do before[row+i]=before[0x7ffb50+i]end
-   for _,k in ipairs({'SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceFrameMotion4086_Status','SourceAnimationCallback4086_State','SourceAnimationInit4086_State','SourceAnimationInit4086_Issued'})do expect(sy[k],0)end
+   for _,k in ipairs({'SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceFrameMotion4086_Status','SourceAnimationCallback4086_State','SourceAnimationInit4086_State','SourceAnimationInit4086_Issued','SourceModelAnimation4086_State'})do expect(sy[k],0)end
   else for i=0,495 do before[0x7ffb50+i]=before[row+i]end end
  end
  local mismatch=0;for addr,v in pairs(before)do if emu.read(addr,mt)~=v then mismatch=mismatch+1 end end
@@ -185,7 +187,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  emu.log('FRAMESTACKIDLE|'..word(INDEX)..'|'..(emu.getState()['cpu.ps']&1))
  -- Isolate direct stack guard from frame/init owners already byte-verified.
- put(sy.SourceUpdateFrame4086_Ready,0);put(sy.SourceAnimationInit4086_Ready,0);put(sy.SourceWorldTick4086_Ready,0)
+ put(sy.SourceUpdateFrame4086_Ready,0);put(sy.SourceAnimationInit4086_Ready,0);put(sy.SourceModelAnimation4086_Ready,0);put(sy.SourceWorldTick4086_Ready,0)
  put(sy.SourceClock4086_Ready,0xb4c5);put(sy.SourceClock4086_Due,1);put(sy.SourceClock4086_TimeLo,48);put(sy.SourceClock4086_TimeHi,0);put(sy.SourceClock4086_Fault,0)
 end,emu.callbackType.exec,IDLERESULT,IDLERESULT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()emu.log('FRAMESTACKCLOCK|'..word(INDEX)..'|'..word(sy.SourceClock4086_Due)..'|'..word(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Fault))end,emu.callbackType.exec,CLOCKRESULT,CLOCKRESULT,emu.cpuType.snes,mt)

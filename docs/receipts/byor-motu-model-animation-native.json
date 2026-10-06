@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_M4_MODEL_ANIMATION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-model-animation-native/report.json",
+    "sha256": "8d1fb8f786cfcdedbaff31330182e35f7d540b01895a7f47293527208ef0753f"
+  },
+  "native_rom_sha256": "4d2720ab74413bd670f7f2de622d1d9abd6aa8b5017d425af79491cb595717cf",
+  "cases": 2600,
+  "peak_call_master_clocks": 76338,
+  "average_call_master_clocks": 39736.88846153846,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority_report": {
+    "path": "out/byor-motu-model-animation-authority/report.json",
+    "sha256": "9af170f62ae2fe7321c96ce1c54139b18c87f2aee9849e1bf893e802ee0eb577"
+  },
+  "functions_sha256": "b8aa5981df840a7e7a07526ed2a79ddd9d09539ec73b1e6606c42a7756821362",
+  "authority_cases": 2592,
+  "source_undefined_zero_frame_sync_rejections": 144,
+  "proof": "Verbatim ent_set_model/ent_set_anim transitions: current pointer synchronization clamps to final frame and recomputes deadline including uint32 wrap; type/select/time/validanim choose spawn/respawn/select/idle. All entity/side/core/aux/cache/animhits bytes and CPU context checked. Pending/faulty transitions cannot commit clock.",
+  "source_default_edelay_required": true,
+  "frame_zero_service_instrumented": true,
+  "full_model_switch_bound": false,
+  "frame_zero_effects_bound": false
+}

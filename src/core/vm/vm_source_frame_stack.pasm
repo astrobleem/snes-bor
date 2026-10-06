@@ -117,6 +117,21 @@ SourceFrameStack4086_Relaxed_9:
 SourceFrameStack4086_PushInitDone:
 .a16
 .i16
+    lda.l SourceModelAnimation4086_Ready
+    beq SourceFrameStack4086_PushModelDone
+    cmp #$B4EF
+    beq SourceFrameStack4086_PushModelLeaseGood
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushModelLeaseGood:
+.a16
+.i16
+    lda.l SourceModelAnimation4086_State
+    cmp #3
+    bcc SourceFrameStack4086_PushModelDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushModelDone:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     jsr SourceFrameStack4086_RowOffset
     tay
@@ -133,6 +148,7 @@ SourceFrameStack4086_PushInitDone:
     sta.l SourceAnimationCallback4086_State
     sta.l SourceAnimationInit4086_State
     sta.l SourceAnimationInit4086_Issued
+    sta.l SourceModelAnimation4086_State
     jmp SourceFrameStack4086_Good
 
 SourceFrameStack4086_Pop:
@@ -185,6 +201,12 @@ SourceFrameStack4086_Relaxed_15:
     bcc SourceFrameStack4086_Relaxed_16
     jmp SourceFrameStack4086_Bad
 SourceFrameStack4086_Relaxed_16:
+.a16
+.i16
+    jsl SourceModelAnimation4086_CheckIdle
+    bcc SourceFrameStack4086_PopModelDone
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PopModelDone:
 .a16
 .i16
     lda.l SourceFrameStack4086_Depth
