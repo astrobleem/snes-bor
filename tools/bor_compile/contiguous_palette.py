@@ -7,17 +7,44 @@ from pathlib import Path
 import numpy as np
 
 
-def attempt(lines,capacity,span,layout='first',prefetch=True,breaks=()):
+def attempt(lines,capacity,span,layout='first',prefetch=True,breaks=(),compact=False,initial_slots=None):
     if not 1<=span<=capacity<=255:raise ValueError('INVALID_CONTIGUOUS_CAPACITY')
     uses={}
     for y,cs in enumerate(lines):
         for c in cs:uses.setdefault(c,[]).append(y)
     order=sorted(uses,key=lambda c:(uses[c][0],c))
+    if layout.startswith('initial_'):
+        if layout=='initial_frequency':ranked=sorted(uses,key=lambda c:(-len(uses[c]),uses[c][0],c))
+        elif layout=='initial_persistent':ranked=sorted(uses,key=lambda c:(-(uses[c][-1]-uses[c][0]),uses[c][0],c))
+        elif layout=='initial_last':ranked=sorted(uses,key=lambda c:(-uses[c][-1],uses[c][0],c))
+        elif layout=='initial_peak':
+            peak=max(range(len(lines)),key=lambda y:len(lines[y]))
+            importance={c:sum(abs(y-peak)<=12 for y in ys) for c,ys in uses.items()}
+            ranked=sorted(uses,key=lambda c:(-importance[c],-len(uses[c]),uses[c][0],c))
+        else:raise ValueError('INVALID_INITIAL_PALETTE_LAYOUT')
+        # VBlank may preload any future identities, but line zero is mandatory.
+        required=set(lines[0]);order=sorted(required)+[c for c in ranked if c not in required]
     initial=order[:capacity]
     if layout=='persistent':initial.sort(key=lambda c:(-(uses[c][-1]-uses[c][0]),uses[c][0],c))
     elif layout=='last':initial.sort(key=lambda c:(uses[c][-1],uses[c][0],c))
     elif layout=='frequency':initial.sort(key=lambda c:(-len(uses[c]),uses[c][0],c))
     slots=initial+[None]*(capacity-len(initial));trace=[];states=[]
+    if initial_slots is not None:
+        if len(initial_slots)!=capacity:raise ValueError('CONTIGUOUS_INITIAL_RESIDENCY_SIZE')
+        slots=[c if c in uses else None for c in initial_slots]
+        present=set(slots)-{None}
+        if len(present)!=sum(c is not None for c in slots):raise ValueError('CONTIGUOUS_INITIAL_DUPLICATE_IDENTITY')
+        mandatory=set(lines[0])-present
+        for c in sorted(mandatory):
+            free=next((i for i,v in enumerate(slots) if v is None),None)
+            if free is None:
+                candidates=[i for i,v in enumerate(slots) if v not in lines[0]]
+                if not candidates:return dict(status='CONTIGUOUS_HEURISTIC_LIMIT',scanline=0,missing=len(mandatory),layout=layout)
+                free=max(candidates,key=lambda i:(uses[slots[i]][0],i))
+            slots[free]=c
+        present=set(slots)-{None}
+        wanted=sorted(set(lines[0])-present)+[c for c in order if c not in present and c not in lines[0]]
+        for i,c in zip((i for i,v in enumerate(slots) if v is None),wanted):slots[i]=c
     def nxt(c,y):
         if c is None:return len(lines)+1
         i=bisect_right(uses[c],y)
@@ -45,7 +72,7 @@ def attempt(lines,capacity,span,layout='first',prefetch=True,breaks=()):
         if best is None:
             return dict(status='CONTIGUOUS_HEURISTIC_LIMIT',scanline=y,missing=len(missing),
                         reason='NO_SAFE_SINGLE_BURST_WINDOW',layout=layout)
-        _,start,victims=best;updates=[]
+        _,start,victims=best;updates=[];before=list(slots)
         for c,i in zip(sorted(missing),victims):
             updates.append(dict(slot=i+1,old=slots[i],color=c));slots[i]=c
         rest=victims[len(missing):]
@@ -54,12 +81,23 @@ def attempt(lines,capacity,span,layout='first',prefetch=True,breaks=()):
                 candidates=[c for c in future if c not in slots and nxt(c,y)<nxt(slots[i],y)]
                 if candidates:
                     c=candidates[0];updates.append(dict(slot=i+1,old=slots[i],color=c));slots[i]=c
+        if compact:
+            # The chosen burst already transfers every word in its window.
+            # Pack long-lived current identities together inside that window
+            # so later dead slots can form a contiguous refill region. Pixels
+            # are remapped offline to the resulting per-row slot identities.
+            window=slots[start:start+span]
+            window.sort(key=lambda c:(c is None,c not in required,
+                -(uses[c][-1] if c is not None else -1),nxt(c,y),c if c is not None else -1))
+            slots[start:start+span]=window
+            updates=[dict(slot=i+1,old=before[i],color=slots[i]) for i in range(start,start+span) if before[i]!=slots[i]]
         if not required<=set(slots):raise AssertionError('CONTIGUOUS_PALETTE_IDENTITY')
         trace.append(dict(scanline=y,start_slot=start+1,values=slots[start:start+span] if updates else [],
                           updates=updates,data_bytes=span*2 if updates else 0,phase='BEFORE_SCANLINE'))
         states.append(list(slots))
-    return dict(status='CONTIGUOUS_BURST_SCHEDULE_PROVEN',capacity=capacity,span=span,layout=layout,breaks=list(breaks),
-                trace=trace,states=states,peak_cgram_data_bytes=span*2,native_admitted=False)
+    return dict(status='CONTIGUOUS_BURST_SCHEDULE_PROVEN',capacity=capacity,span=span,layout=layout,breaks=list(breaks),compact=compact,
+                trace=trace,states=states,peak_cgram_data_bytes=span*2,native_admitted=False,
+                previous_frame_residency_used=initial_slots is not None)
 
 
 def main():

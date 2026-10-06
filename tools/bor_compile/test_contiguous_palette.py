@@ -18,5 +18,18 @@ class ContiguousPaletteTests(unittest.TestCase):
     def test_invalid_palette_size_rejected(self):
         with self.assertRaises(ValueError):attempt([{0}],256,2)
 
+    def test_previous_frame_slots_retain_identity_and_vblank_admits_line_zero(self):
+        lines=[{3},{1,3},{1,2}]
+        r=attempt(lines,3,1,initial_slots=[1,2,99])
+        self.assertEqual(r['status'],'CONTIGUOUS_BURST_SCHEDULE_PROVEN')
+        self.assertEqual(r['states'][0],[1,2,3])
+        self.assertEqual(sum(t['data_bytes'] for t in r['trace'][1:]),0)
+        r=attempt(lines,3,1,initial_slots=[1,2,4])
+        self.assertTrue(all(set(line)<=set(state) for line,state in zip(lines,r['states'])))
+
+    def test_duplicate_initial_identity_is_rejected(self):
+        with self.assertRaisesRegex(ValueError,'DUPLICATE_IDENTITY'):
+            attempt([{1},{2}],3,1,initial_slots=[1,1,2])
+
 
 if __name__=='__main__':unittest.main()

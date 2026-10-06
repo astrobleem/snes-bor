@@ -29,12 +29,18 @@ def tiles(indices,bpp):
 
 
 def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
-                high_base=0,priority_mask=None,obj_chr=None,oam=None):
+                high_base=0,priority_mask=None,obj_chr=None,oam=None,high_tile_offset=0,obj_obsel=0xc0,
+                obj_rom_bank=7,obj_rom_address=0x8000):
     if report['bg_mode']!=4 or report['low_bpp']!=2 or report['high_palette_start']!=4 or report['high_opaque_capacity']!=236:
         raise ValueError('MODE4_COMPONENT_FIXTURE_CONTRACT')
     high=np.frombuffer((assets/'indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)+3
     low=np.frombuffer((assets/'low_indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)
     highchr,highmap=tiles(high,8);lowchr,lowmap=tiles(low,2);lowbase=report['low_chr_vram_base']
+    if not 0<=high_tile_offset<1024:raise ValueError('MODE4_HIGH_TILE_OFFSET_DOMAIN')
+    if high_tile_offset:
+        words=np.frombuffer(highmap,dtype='<u2').copy()
+        if int(words.max())+high_tile_offset>=1024:raise ValueError('MODE4_HIGH_TILE_INDEX_LIMIT')
+        highmap=(words+high_tile_offset).tobytes()
     if priority_mask is not None:
         if priority_mask.shape!=(28,32):raise ValueError('MODE4_PRIORITY_MASK_DOMAIN')
         words=np.frombuffer(highmap,dtype='<u2').copy().reshape(32,32)
@@ -46,13 +52,19 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
         layout=cache_assets/'layout.json'
         if layout.exists():
             lowbase=json.loads(layout.read_text())['low_chr_vram_base']
-            if lowbase%8192 or any(highchr[lowbase:lowbase+len(lowchr)]):raise ValueError('MODE4_CACHE_CHR_OVERLAP')
-    if high_base%8192 or high_base+len(highchr)>lowbase:raise ValueError('MODE4_HIGH_CHR_BASE_LIMIT')
-    if obj_chr is not None and (len(obj_chr)>high_base or oam is None or len(oam)!=544):raise ValueError('MODE4_OBJ_CHR_OVERLAP')
-    gaps=[(high_base+len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
+            offset=lowbase-high_base-high_tile_offset*64
+            if lowbase%8192 or offset<0 or any(highchr[offset:offset+len(lowchr)]):raise ValueError('MODE4_CACHE_CHR_OVERLAP')
+    high_start=high_base+high_tile_offset*64
+    sparse_cache=cache_assets is not None and bool(offset_alias)
+    if high_base%8192 or high_start+len(highchr)>(0xf000 if sparse_cache else lowbase):raise ValueError('MODE4_HIGH_CHR_BASE_LIMIT')
+    if obj_chr is not None and (len(obj_chr)>high_start or oam is None or len(oam)!=544):raise ValueError('MODE4_OBJ_CHR_OVERLAP')
+    gaps=[(high_start+len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
     offsetmap=next((((first+2047)//2048)*2048 for first,last in gaps
                     if ((first+2047)//2048)*2048+2048<=last),None)
-    if offset_alias:
+    if offset_alias=='low':
+        if np.any(np.frombuffer(lowmap,dtype='<u2')&0x6000):raise ValueError('MODE4_LOW_OFFSET_ALIAS_ENABLE_BITS')
+        offsetmap=0xf800
+    elif offset_alias:
         if np.any(np.frombuffer(highmap,dtype='<u2')&0x6000):raise ValueError('MODE4_OFFSET_ALIAS_ENABLE_BITS')
         offsetmap=0xf000
     if offsetmap is None or lowbase+len(lowchr)>0xf000:raise ValueError('MODE4_VRAM_LAYOUT_LIMIT')
@@ -85,15 +97,16 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
         for address,value in [(0x4370,mode),(0x4371,dest),(0x4372,source&255),(0x4373,source>>8),
                               (0x4374,bank),(0x4375,n&255),(0x4376,n>>8),(0x420b,128)]:store(address,value)
     for address,value in [(0x4200,0),(0x420c,0),(0x2100,128),(0x2115,128)]:store(address,value)
-    dma(0x8000,2,0x18,min(len(highchr),32768),1,high_base//2)
+    dma(0x8000,2,0x18,min(len(highchr),32768),1,high_start//2)
     if len(highchr)>32768:dma(0x8000,3,0x18,len(highchr)-32768,1)
     dma(0x8000,4,0x18,len(lowchr),1,lowbase//2)
     dma(0x8000,5,0x18,2048,1,0x7800);dma(0x8800,5,0x18,2048,1,0x7c00)
     if not offset_alias:dma(0x9800,5,0x18,2048,1,offsetmap//2)
     if obj_chr is not None:
-        if obj_chr:dma(0x8000,7,0x18,len(obj_chr),1,0)
-        store(0x2102,0);store(0x2103,0);dma(0xa000,7,0x04,544,0)
-        store(0x2101,0xc0)
+        if not 0<=obj_rom_bank<8 or not 0x8000<=obj_rom_address<=0xdddf:raise ValueError('MODE4_OBJ_ROM_RANGE')
+        if obj_chr:dma(obj_rom_address,obj_rom_bank,0x18,len(obj_chr),1,0)
+        store(0x2102,0);store(0x2103,0);dma(obj_rom_address+8192,obj_rom_bank,0x04,544,0)
+        store(0x2101,obj_obsel)
     store(0x2121,0);dma(0x9000,5,0x22,512,0)
     for address,value in [(0x2105,4),(0x2107,0x78),(0x2108,0x7c),(0x2109,offsetmap>>9),
                           (0x210b,((lowbase//8192)<<4)|(high_base//8192)),
@@ -135,12 +148,13 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
     rom[0x20000:0x20000+len(lowchr)]=lowchr;rom[0x28000:0x28800]=highmap;rom[0x28800:0x29000]=lowmap
     rom[0x29000:0x29200]=palette.tobytes();rom[0x29800:0x2a000]=bytes(2048)
     if obj_chr is not None:
-        rom[0x38000:0x38000+len(obj_chr)]=obj_chr;rom[0x3a000:0x3a000+544]=oam
+        pos=obj_rom_bank*32768+obj_rom_address-0x8000
+        rom[pos:pos+len(obj_chr)]=obj_chr;rom[pos+8192:pos+8192+544]=oam
     rom[0x7fc0:0x7fd5]=b'M4 BG COMPONENTS'.ljust(21);rom[0x7fd5:0x7fdc]=bytes([0x20,0,8,0,1,0,0])
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     if len(rom)!=262144:raise AssertionError('COMPONENT_ROM_SIZE_DRIFT')
-    return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),high_chr_base=high_base,low_chr_bytes=len(lowchr),
-        low_chr_base=lowbase,offset_tilemap_base=offsetmap,offset_map_aliases_bg1=offset_alias,hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
+    return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),high_chr_base=high_base,high_chr_start=high_start,high_tile_offset=high_tile_offset,obj_obsel=obj_obsel if obj_chr is not None else None,low_chr_bytes=len(lowchr),
+        low_chr_base=lowbase,offset_tilemap_base=offsetmap,offset_map_aliases_bg1=bool(offset_alias and offset_alias!='low'),offset_map_aliases_bg2=offset_alias=='low',hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
         timer_dots=timer if burst else None,irq_entry_prg_offset=0x8400 if irq else None,
         irq_exit_prg_offset=0x8400+len(irq)-1 if irq else None,
         code_bank=1,oam_entries=report.get('native_obj_entries',0) if obj_chr is not None else 0,
@@ -208,6 +222,8 @@ emu.addMemoryCallback(service,emu.callbackType.exec,EXIT,EXIT,emu.cpuType.snes,e
         pixel_mismatches=int(np.count_nonzero(actual!=expected)) if actual.shape==expected.shape else None,
         cgram_observer_verified=(observed==expected_trace),observed_register_writes=len(observed),
         expected_register_writes=len(expected_trace),timing_samples=len(times),active_window_samples=sum(88<=c<1096 for c in clocks),
+        first_cgram_data_hclock_range=[min(clocks[::2]),max(clocks[::2])] if clocks else None,
+        last_cgram_data_hclock_range=[min(clocks[1::2]),max(clocks[1::2])] if clocks else None,
         irq_service_samples=len(durations),peak_irq_service_master_clocks=max(durations,default=0),
         visible_field_irq_service_master_clocks=sum(durations),
         low_palette_unchanged=(hashlib.sha256(cg[:8]).hexdigest()==resources['low_palette_sha256']),

@@ -16,12 +16,19 @@ from _harness import McpSession, MESEN_EXE, _free_tcp_port
 
 def build(sequence,residency,deadlines,output,timer,word_dma=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
-    if not schedule['resident_identity_replay'] or not plan['offset_map_aliases_bg1']:
+    hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
+    offset_alias='low' if hybrid else True
+    if not schedule['resident_identity_replay'] or not plan.get('offset_map_aliases_bg2' if hybrid else 'offset_map_aliases_bg1'):
         raise ValueError('SEQUENCE_DEADLINES_OR_OFFSET_ALIAS_UNPROVEN')
     count=len(schedule['source_frame_start_fields'])
     if count>40:raise ValueError('SEQUENCE_FIXTURE_TABLE_LIMIT')
     assets=[sequence/f'frame-{i:02d}' for i in range(count)]
-    reports=[json.loads((p/'frame.json').read_text()) for p in assets]
+    if hybrid:
+        from m4_hybrid_scene_native import prepare
+        prepared=[prepare(p) for p in assets]
+        reports=[row[1] for row in prepared];assets=[row[3] for row in prepared]
+        for r in reports:r['native_obj_entries']=plan['static_obj_entries']
+    else:reports=[json.loads((p/'frame.json').read_text()) for p in assets]
     chr_data={n:(residency/f'{n}-tiles.chr').read_bytes() for n in ('high','low')}
     cache=output/'boot-cache';cache.mkdir(exist_ok=True)
     for name in chr_data:
@@ -33,8 +40,27 @@ def build(sequence,residency,deadlines,output,timer,word_dma=False):
         (cache/f'{name}.chr').write_bytes(data)
         (cache/f'0-{name}.map').write_bytes((residency/f'00-{name}.map').read_bytes())
     (cache/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=plan['allocation']['low_chr'][0])))
-    raw,_,resources=compile_rom(reports[0],assets[0],timer,cache,offset_alias=True)
+    kwargs={}
+    if hybrid:
+        if not plan['static_obj_retention_verified'] or not plan['static_obj_subdivision']:
+            raise ValueError('HYBRID_SEQUENCE_REQUIRES_SUBDIVIDED_STATIC_ATLAS')
+        kwargs=dict(high_base=0,high_tile_offset=64,obj_obsel=0,
+            obj_chr=(residency/'obj.chr').read_bytes(),oam=(residency/'oam.bin').read_bytes(),
+            obj_rom_bank=0,obj_rom_address=0x9000)
+    raw,_,resources=compile_rom(reports[0],assets[0],timer,cache,offset_alias=offset_alias,**kwargs)
     rom=bytearray(raw)+bytearray([255])*(2097152-len(raw));traces=[]
+    palette_prefix=0
+    if hybrid:
+        initials=[json.loads((f/'initial.json').read_text()) for f in assets]
+        while palette_prefix<236 and all((row[palette_prefix] or 0)==(initials[0][palette_prefix] or 0) for row in initials):
+            palette_prefix+=1
+        for r in reports:
+            if any(e['slot']<=palette_prefix and (e['color'] or 0)!=(initials[0][e['slot']-1] or 0)
+                   for row in r['trace'] for e in row['updates']):
+                raise ValueError('HYBRID_FIXED_PREFIX_MUTATION')
+        if palette_prefix==236:raise ValueError('HYBRID_FULLY_STATIC_SEQUENCE_RESTORE_NOT_REQUIRED')
+    resources['fixed_palette_prefix_words']=palette_prefix
+    resources['per_field_palette_restore_bytes']=472-palette_prefix*2
     for index,(r,folder) in enumerate(zip(reports,assets)):
         initial=json.loads((folder/'initial.json').read_text());state=list(initial);targets=bytearray();payload=bytearray();trace=[]
         for row,burst in zip(r['trace'],r['contiguous_bursts']):
@@ -47,7 +73,7 @@ def build(sequence,residency,deadlines,output,timer,word_dma=False):
         pos=(6+index)*32768;rom[pos:pos+len(payload)]=payload
         pos=46*32768+index*472;rom[pos:pos+472]=struct.pack('<236H',*[v or 0 for v in initial])
         traces.append(trace)
-    programs=[];frame=0;cursor=47*32768
+    programs=[];frame=0;cursor=47*32768;descriptor_frame=0
     # One initial no-transfer field makes the first full visible field the
     # source clock epoch. Boot unblank itself happens during VBlank.
     fields=[dict(field=0,jobs=[],mandatory=[])]+schedule['fields'][1:]+[dict(field=schedule['fields'][-1]['field']+1,jobs=[],mandatory=[])]
@@ -70,17 +96,22 @@ def build(sequence,residency,deadlines,output,timer,word_dma=False):
         if cursor+reserve+payload_size>len(rom):raise ValueError('CONTINUOUS_FIXTURE_ROM_LIMIT')
         start=cursor;code=bytearray();data_cursor=start+reserve;settings={}
         def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
+        def word(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8d,address&255,address>>8]))
         def dma(source,bank,dest,size,target=None):
             if word_dma:
-                def word(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8d,address&255,address>>8]))
                 if target is not None:word(0x2116,target)
                 cfg=(1 if dest==0x18 else 0)|(dest<<8)
                 if settings.get('cfg')!=cfg:word(0x4370,cfg);settings['cfg']=cfg
                 if settings.get('bank')!=bank:word(0x4374,bank);settings['bank']=bank
-                word(0x4372,source);word(0x4375,size)
+                # Adjacent immutable payloads use incrementing DMA source
+                # addressing. A1T already points to the next packet after the
+                # previous transfer, so only the first packet needs this store.
+                if settings.get('source_end')!=(bank,source):word(0x4372,source)
+                word(0x4375,size)
                 # The transfer owns VBlank: clear HDMA during each word trigger
                 # and restore its field mask once all transfer work is complete.
                 word(0x420b,128)
+                settings['source_end']=(bank,(source+size)&65535)
                 return
             if target is not None:store(0x2116,target&255);store(0x2117,target>>8)
             for address,value in [(0x4370,1 if dest==0x18 else 0),(0x4371,dest),(0x4374,bank)]:
@@ -88,19 +119,26 @@ def build(sequence,residency,deadlines,output,timer,word_dma=False):
             for address,value in [(0x4372,source&255),(0x4373,source>>8),(0x4375,size&255),(0x4376,size>>8),(0x420b,128)]:store(address,value)
         code.extend(bytes.fromhex('ad 12 42 29 80 d0 f9 ad 12 42 29 80 f0 f9 78'))
         store(0x4200,0);store(0,1)
-        store(5,row['field'])
+        if not word_dma:store(5,row['field'])
         if word_dma:code.extend(bytes.fromhex('c2 20'))
         for address,data in packets:
             rom[data_cursor:data_cursor+len(data)]=data
             dma(0x8000+data_cursor%32768,data_cursor//32768,0x18,len(data),address//2);data_cursor+=len(data)
         if word_dma:code.extend(bytes.fromhex('e2 20'))
-        store(0x2121,4)
+        store(0x2121,4+palette_prefix)
         if word_dma:code.extend(bytes.fromhex('c2 20'))
-        dma(0x8000+frame*472,46,0x22,472)
+        dma(0x8000+frame*472+palette_prefix*2,46,0x22,472-palette_prefix*2)
         if word_dma:
+            # Palette restore already installed the IRQ's CGRAM DMA mode.
+            # Set the remaining descriptor and row bounds with word stores.
+            word(0x4372,0x8000);word(0x4374,6+frame);word(0x4375,reports[frame]['span']*2)
+            if frame!=descriptor_frame:
+                word(2,224|(frame<<8));word(1,frame|(224<<8));descriptor_frame=frame
+            word(4,reports[frame]['span']*2|(row['field']<<8))
             code.extend(bytes.fromhex('e2 20'));store(0x420c,1)
-        for address,value in [(0x4370,0),(0x4371,0x22),(0x4372,0),(0x4373,0x80),(0x4374,6+frame),
-                              (0x4375,reports[frame]['span']*2),(0x4376,0),(2,224),(3,frame),(4,reports[frame]['span']*2),(1,frame)]:store(address,value)
+        else:
+            for address,value in [(0x4370,0),(0x4371,0x22),(0x4372,0),(0x4373,0x80),(0x4374,6+frame),
+                                  (0x4375,reports[frame]['span']*2),(0x4376,0),(2,224),(3,frame),(4,reports[frame]['span']*2),(1,frame)]:store(address,value)
         code.extend(bytes([0xa2,0,frame]));store(0,0);store(0x4200,0x10);code.append(0x58)
         jump=len(code);code.extend(bytes.fromhex('5c 00 00 00'))
         if len(code)>reserve:raise ValueError('CONTINUOUS_CODE_RESERVATION')
@@ -130,6 +168,8 @@ def build(sequence,residency,deadlines,output,timer,word_dma=False):
                      main_cpu_fastrom=True,irq_cpu_fastrom=False,source_clock_hypothesis=[200,60],
                      full_sequence_production_admitted=False)
     resources['word_dma']=word_dma
+    resources['hybrid_static_obj']=hybrid
+    if hybrid:resources['static_obj_oam_sha256']=plan['oam_sha256']
     return bytes(rom),traces,resources,assets
 
 
@@ -155,6 +195,14 @@ emu.addMemoryCallback(function(a,v)
  end
 end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addEventCallback(function() if active and frames>=1 and frames<=74 then emu.log('SEQTRACE|'..field..'|'..table.concat(rows,','));rows={};n=0 end;frames=frames+1 end,emu.eventType.endFrame)
+''')
+    if resources['hybrid_static_obj']:
+        with lua.open('a') as f:
+            f.write('''
+local oam={};local shown=false
+emu.addMemoryCallback(function(a,v) if not shown then oam[#oam+1]=string.format('%02x',v) end end,emu.callbackType.write,0x2104,0x2104,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addMemoryCallback(function(a,v) if v==15 and not shown then shown=true;emu.log('HYBRIDOAM|'..table.concat(oam,'')) end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addEventCallback(function() if shown then emu.log('HYBRIDFLAGS|'..emu.read(0x213e,emu.memType.snesMemory)) end end,emu.eventType.endFrame)
 ''')
     class Observed(McpSession):
         def __enter__(self):
@@ -196,6 +244,12 @@ emu.addEventCallback(function() if active and frames>=1 and frames<=74 then emu.
                     and all(225<=r['start_line']<=r['end_line']<=261 for r in windows)
                     and all(p['matches'] for p in pixels[2:])
                     and set(range(len(assets)))<=set(i for p in pixels for i in p['matches']))
+    if resources['hybrid_static_obj']:
+        oam=[line.split('HYBRIDOAM|',1)[1] for line in lines if 'HYBRIDOAM|' in line]
+        flags=[int(line.split('HYBRIDFLAGS|',1)[1]) for line in lines if 'HYBRIDFLAGS|' in line]
+        result.update(oam_observer_verified=len(oam)==1 and hashlib.sha256(bytes.fromhex(oam[0])).hexdigest()==resources['static_obj_oam_sha256'],
+            obj_overflow_samples=sum(bool(v&0xc0) for v in flags),obj_status_samples=len(flags))
+        result['pass']=result['pass'] and result['oam_observer_verified'] and bool(flags) and not result['obj_overflow_samples']
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
     if not result['pass']:raise SystemExit(1)
 

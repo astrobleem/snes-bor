@@ -38,7 +38,7 @@ def capture(source,stage,scene):
     return canvas,metadata,draws
 
 
-def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None):
+def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None):
     if not 1<=banks<=7:raise ValueError('HYBRID_OBJ_BANK_COUNT')
     first_bank=7-banks if first_bank is None else first_bank
     if not 0<=first_bank<=7-banks:raise ValueError('HYBRID_OBJ_BANK_RANGE')
@@ -73,7 +73,11 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None):
             region=predicted[y0:y1,x0:x1];region[part>=0]=part[part>=0]
     predicted[roi]=bg[roi]
     if not np.array_equal(predicted,expected):raise AssertionError('HYBRID_LAYER_PIXEL_IDENTITY')
-    allocated=split_scene_color_masks(pieces,banks=tuple(obj_banks),time_limit=time_limit)
+    assignment_key=hashlib.sha256(json.dumps(pieces,sort_keys=True).encode()).hexdigest()
+    allocated=assignment_cache.get(assignment_key) if assignment_cache is not None else None
+    if allocated is None:
+        allocated=split_scene_color_masks(pieces,banks=tuple(obj_banks),time_limit=time_limit)
+        if assignment_cache is not None:assignment_cache[assignment_key]=allocated
     public={k:v for k,v in allocated.items() if k not in ('pieces','assignment')}
     result=dict(schema='BYOR_HYBRID_EXPLICIT_SCENE_V1',scene=scene,source_layers=metadata['layers'],
         promoted_tiles=int(np.count_nonzero(promoted)),promoted_pixels=int(np.count_nonzero(roi)),
@@ -84,7 +88,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None):
         source_rgb555_sha256=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest(),
         bg_canvas_sha256=hashlib.sha256(bg.astype('<u2').tobytes()).hexdigest(),
         layer_pixel_identity_verified=True,obj_assignment=public,
-        no_color_reduction=True,native_admitted=False,motu_gameplay_proven=False,
+        no_color_reduction=True,native_admitted=False,motu_gameplay_proven=False,static_obj_assignment_sha256=assignment_key,
         scope='Explicit poses, camera zero, no HUD/shadow/quake; assumed Mode4 BG1 high above OBJ priority2, low below it; native priority and full publication budget unproven')
     if 'pieces' not in allocated:return result,None
     expanded=allocated['pieces'];assignment=allocated['assignment']
@@ -114,15 +118,18 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None):
         result['bg_schedule']=dict(status='FIXED_BG_PREFIX_CAPACITY_LIMIT',fixed=len(fixed_free),capacity=len(physical));return result,None
     dynamic=physical[len(fixed_free):];breaks=[i for i in range(1,len(dynamic)) if dynamic[i]!=dynamic[i-1]+1]
     lines=[set(map(int,row))-set(fixed)-set(aliases) for row in high];attempts=[];solved=None
-    for layout in ('first','persistent','last','frequency'):
-        trial=attempt(lines,len(dynamic),span,layout,breaks=breaks)
-        attempts.append({k:v for k,v in trial.items() if k not in ('states','trace')})
-        if 'states' in trial:solved=trial;break
+    layouts=('first','persistent','last','frequency','initial_frequency','initial_persistent','initial_last','initial_peak')
+    for compact in (False,True):
+        for layout in layouts:
+            trial=attempt(lines,len(dynamic),span,layout,breaks=breaks,compact=compact,initial_slots=palette_seed)
+            attempts.append(dict({k:v for k,v in trial.items() if k not in ('states','trace')},compact=compact))
+            if 'states' in trial:solved=trial;break
+        if solved is not None:break
     result.update(bg_high_palette_capacity=len(physical),fixed_bg_colors=len(fixed),fixed_bg_exclusive_slots=len(fixed_free),
                   bg_exact_obj_palette_aliases=[dict(color=c,slot=slot) for c,slot in sorted(aliases.items())],dynamic_bg_slots=len(dynamic),
                   dynamic_physical_slots=dynamic,physical_burst_breaks=breaks,bg_attempts=attempts)
     if solved is None:result['bg_schedule']=dict(status='CONTIGUOUS_HEURISTIC_LIMIT');return result,None
-    indices=np.zeros((224,256),dtype=np.uint8);trace=[];palette=[]
+    indices=np.zeros((224,256),dtype=np.uint8);trace=[];palette=[];liveness=[]
     for y,state in enumerate(solved['states']):
         colors=fixed_free+state;mapping={c:physical[i] for i,c in enumerate(colors) if c is not None};mapping.update(aliases)
         indices[y]=[mapping[int(c)] for c in high[y]]
@@ -130,13 +137,29 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None):
         recovered=np.array([reverse[int(i)] for i in indices[y]],dtype=np.uint16)+np.array(low_palette,dtype=np.uint16)[low[y]]
         if not np.array_equal(recovered,bg[y]):raise AssertionError('HYBRID_BG_PALETTE_IDENTITY')
         entry=solved['trace'][y];start=entry['start_slot']-1
+        before=solved['states'][y-1] if y else state
+        before_set=set(before)-{None};after_set=set(state)-{None}
+        required=lines[y]
+        changed=sum(a!=b for a,b in zip(before,state)) if y else 0
+        liveness.append(dict(scanline=y,resident_colors_before=sorted(before_set),
+            retained_colors=sorted(before_set&after_set),evicted_colors=sorted(before_set-after_set),
+            prefetched_colors=sorted((after_set-before_set)-required),
+            required_colors=sorted(required),changed_slots=changed,
+            written_words=len(entry['values']) if y else 0,
+            cgram_data_bytes=len(entry['values'])*2 if y else 0))
         if y and entry['values']:
             destinations=dynamic[start:start+span]
             if destinations!=list(range(destinations[0],destinations[0]+span)):raise AssertionError('HYBRID_BURST_OBJ_OVERLAP')
             trace.append(dict(scanline=y,cgram_start=destinations[0],values=entry['values'],bytes=len(entry['values'])*2))
         if y==0:palette=[dict(slot=slot,color=c) for slot,c in zip(physical,colors)]+obj_palette_words
     result.update(bg_schedule=dict(status=solved['status'],span=span,peak_bytes=max((t['bytes'] for t in trace),default=0),
-        trace=trace,initial=palette),bg_palette_pixel_identity_verified=True)
+        trace=trace,initial=palette,liveness=liveness,
+        final_dynamic_residency=solved['states'][-1],previous_frame_residency_used=palette_seed is not None,
+        peak_changed_slots=max(v['changed_slots'] for v in liveness),
+        average_scheduled_words=sum(v['written_words'] for v in liveness[1:])/223,
+        initial_load_phase='VBLANK',update_phase='BEFORE_TARGET_SCANLINE',
+        runtime_policy='Fixed-width native fixture also retransmits unchanged windows; publication budget must include these writes'),
+        bg_palette_pixel_identity_verified=True)
     # Cull only fully hidden colour-mask objects. Partial objects retain their
     # complete source-derived graphic; promoted BG tiles hide covered pixels.
     graphics=[]

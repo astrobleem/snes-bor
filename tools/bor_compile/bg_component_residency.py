@@ -21,8 +21,9 @@ def encode(tile,bpp):
     return bytes(data)
 
 
-def plan_plane(frames,bpp,capacity,physical_slots=None):
+def plan_plane(frames,bpp,capacity,physical_slots=None,initial_layout='first'):
     if not 1<=capacity<=1024:raise ValueError('COMPONENT_RESIDENT_TILE_CAPACITY')
+    if initial_layout not in ('first','frequency'):raise ValueError('COMPONENT_INITIAL_TILE_LAYOUT')
     physical_slots=list(range(capacity)) if physical_slots is None else list(physical_slots)
     if len(physical_slots)!=capacity or len(set(physical_slots))!=capacity or any(not 0<=s<1024 for s in physical_slots):
         raise ValueError('COMPONENT_PHYSICAL_SLOT_ALLOCATION')
@@ -47,6 +48,8 @@ def plan_plane(frames,bpp,capacity,physical_slots=None):
     for index,grid in enumerate(ids):
         required=set(map(int,grid.flat));present={tile:slot for slot,tile in enumerate(resident) if tile is not None}
         missing=sorted(required-set(present));writes=[]
+        if index==0 and initial_layout=='frequency':
+            missing.sort(key=lambda tile:(-len(uses[tile]),uses[tile][-1],tile))
         victims=sorted((slot for slot in physical_slots if resident[slot] not in required),
                        key=lambda slot:(resident[slot] in previous,-next_use(resident[slot],index),slot))
         if len(victims)<len(missing):raise AssertionError('COMPONENT_RESIDENCY_ALLOCATION')

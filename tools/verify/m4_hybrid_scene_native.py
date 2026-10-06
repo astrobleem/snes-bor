@@ -27,9 +27,10 @@ def prepare(folder):
             start=entry['cgram_start']
             events=[dict(slot=start+i-3,color=c or 0) for i,c in enumerate(entry['values'])]
         trace.append(dict(scanline=y,updates=events));bursts.append(dict(scanline=y,start_slot=start-3))
+    span=r['bg_schedule']['span']
     report=dict(bg_mode=4,low_bpp=2,high_palette_start=4,high_opaque_capacity=236,
-        low_chr_vram_base=49152,low_component_palette=[0,32,1024,1056],span=15,
-        trace=trace,contiguous_bursts=bursts,peak_hblank_colors_written=15,native_obj_entries=r['native_obj_entries'])
+        low_chr_vram_base=49152,low_component_palette=[0,32,1024,1056],span=span,
+        trace=trace,contiguous_bursts=bursts,peak_hblank_colors_written=span,native_obj_entries=r['native_obj_entries'])
     path=out/'report.json';path.write_text(json.dumps(report,indent=2)+'\n')
     return r,report,path,out
 
@@ -37,12 +38,25 @@ def prepare(folder):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--assets',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=160)
+    p.add_argument('--static-residency',type=Path,help='Use a verified retained/subdivided ordinary OBJ atlas')
+    p.add_argument('--share-low-offset-map',action='store_true')
     a=p.parse_args();folder=a.assets.resolve();output=a.output.resolve();output.mkdir(parents=True,exist_ok=True)
     source,report,path,inputs=prepare(folder);compiler=bg.compile_rom
     promoted=np.fromfile(folder/'promoted.bin',dtype=np.bool_).reshape(28,32)
     chr_data=(folder/'obj_chr.bin').read_bytes();oam=(folder/'oam.bin').read_bytes()
+    high_base=8192;high_tile_offset=0;obsel=0xc0;residency=None
+    if a.static_residency:
+        residency=json.loads((a.static_residency/'report.json').read_text())
+        if not residency['static_obj_retention_verified']:raise ValueError('HYBRID_STATIC_RETENTION_UNPROVEN')
+        chr_data=(a.static_residency/'obj.chr').read_bytes();oam=(a.static_residency/'oam.bin').read_bytes()
+        report['native_obj_entries']=residency['static_obj_entries']
+        if residency['static_obj_subdivision']:
+            high_base=0;high_tile_offset=64;obsel=0
+        path.write_text(json.dumps(report,indent=2)+'\n')
     def compile_hybrid(r,assets,timer,**kwargs):
-        return compiler(r,assets,timer,high_base=8192,priority_mask=promoted,obj_chr=chr_data,oam=oam,**kwargs)
+        if a.share_low_offset_map:kwargs['offset_alias']='low'
+        return compiler(r,assets,timer,high_base=high_base,high_tile_offset=high_tile_offset,obj_obsel=obsel,
+            priority_mask=promoted,obj_chr=chr_data,oam=oam,**kwargs)
     class ObservedHybrid(McpSession):
         def __enter__(self):
             lua=output/'observer.lua'
@@ -67,6 +81,7 @@ emu.addEventCallback(function() if shown then emu.log('HYBRIDFLAGS|'..emu.read(0
         promoted_tiles=source['promoted_tiles'],fully_bg_occluded_obj_entries=source['fully_bg_occluded_obj_entries'],
         source_rgb555_sha256=source['source_rgb555_sha256'],source_scene=source['scene'],
         no_color_reduction=True,scope='Native explicit hybrid pose, source-sized graphics, exact SCREEN already compiled; no live world, moving underlay generation, audio or Demo certification')
+    if residency:result['static_obj_subdivision']=residency['static_obj_subdivision']
     result['pass']=result['pass'] and result['oam_observer_verified'] and bool(flags) and not result['obj_overflow_samples']
     (output/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ('pass','pixel_mismatches','oam_observer_verified','obj_overflow_samples','ppu_obj_status')}))

@@ -36,6 +36,30 @@ def row_transfer(before,after,vram_base):
                 sha256=hashlib.sha256(raw).hexdigest())
 
 
+def sparse_transfers(before,after,vram_base,setup_clocks=216):
+    """Minimize 8-clocks/byte + packet setup over changed tilemap words.
+
+    Unchanged gaps are copied from the exact target map only when transferring
+    the gap costs no more than starting another DMA packet.
+    """
+    if before.shape!=after.shape or before.dtype.itemsize!=2 or setup_clocks<0:
+        raise ValueError('SPARSE_TILEMAP_DOMAIN')
+    changed=np.flatnonzero(before.reshape(-1)!=after.reshape(-1))
+    if not len(changed):return []
+    runs=[];first=last=int(changed[0])
+    for value in changed[1:]:
+        current=int(value)
+        if (current-last-1)*16>setup_clocks:
+            runs.append((first,last));first=current
+        last=current
+    runs.append((first,last));raw=after.astype('<u2').tobytes();result=[]
+    for first,last in runs:
+        start=first*2;size=(last-first+1)*2
+        result.append(dict(vram_byte_address=vram_base+start,source_byte_offset=start,bytes=size,
+            sha256=hashlib.sha256(raw[start:start+size]).hexdigest()))
+    return result
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--frame',type=Path,action='append',required=True)

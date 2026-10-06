@@ -1,0 +1,614 @@
+{
+  "schema": "BYOR_HYBRID_SOURCE_ANIMATION_NATIVE_V1",
+  "classification": "FIXED_CONTEXT_HYBRID_ANIMATION_PROVEN",
+  "source_scene": {
+    "viewport": [
+      256,
+      224
+    ],
+    "piece_size": [
+      16,
+      32
+    ],
+    "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+    "actors": [
+      {
+        "model": "HBreath",
+        "animation": "idle",
+        "frame": 11,
+        "position": [
+          98,
+          220,
+          93
+        ],
+        "order": 2
+      },
+      {
+        "model": "He_ManB",
+        "animation": "freespecial4",
+        "frame": 6,
+        "position": [
+          80,
+          220,
+          0
+        ],
+        "order": 0
+      },
+      {
+        "model": "Knightbot",
+        "animation": "idle",
+        "frame": 0,
+        "position": [
+          200,
+          220,
+          0
+        ],
+        "order": 1
+      }
+    ]
+  },
+  "source_animation_handle": 47,
+  "source_frames": 40,
+  "source_duration_ticks": 240,
+  "source_delay_ticks": 6,
+  "native_rom_sha256": "b62caa453d9c2a388f3ad017607d45023e3a4f03023f70de9dafc1bf9ebac5a7",
+  "source_clock_hypothesis": [
+    200,
+    60
+  ],
+  "source_alpha": "BOR4086 SCREEN: source RGB8 operation before RGB555 conversion; precomputed final BG pixels, ordinary OBJ color math disabled",
+  "no_color_reduction": true,
+  "source_dimensions_preserved": true,
+  "all_frame_palette_and_layer_pixel_identity_verified": true,
+  "independent_native_frame_inventory": [
+    {
+      "frame": 0,
+      "passed": true,
+      "result_sha256": "acaa73449c475e74a45cdee08457a56364d95c72130164f61ec9aa3d14b4eb00",
+      "rom_sha256": "975e1d3677c31eb63ededf86997efe81858d4f38f92379ea93c37e7d3c4c6fe7",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 1,
+      "passed": true,
+      "result_sha256": "11f475c130b47bbaac32a41d056629d5281b01274443e05007039b29c4bcbca6",
+      "rom_sha256": "a104374f19529caf2c1c72a57f2d252976e00ee7d8f4b3462198b3f0d956a950",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 2,
+      "passed": true,
+      "result_sha256": "04a831e80971b80590a0d628fd5511e81499d0e85885cc64e544a78161f5f3d3",
+      "rom_sha256": "69a7df098520e96f75b6fb14d7bdf8d9426c80e6a46cde846641df3b7407c26d",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 3,
+      "passed": true,
+      "result_sha256": "c485c56c828ab7c346fa9f64ee74c3d034cd34ac5307737915430cf1acf3e816",
+      "rom_sha256": "f8ff9e0d7a23821be85022774dc4d81cd424571ba734d0983e508c14df9f8044",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 4,
+      "passed": true,
+      "result_sha256": "ce9b003295058b30af792e4f45ce3d5d892e50d24db356ec4db99c42a616eb26",
+      "rom_sha256": "5598fead1ad88b16c0f0b9470e5c7d6eb185881ad8655b61c951d3eca3787c72",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 5,
+      "passed": true,
+      "result_sha256": "5d922957f9b837788bb0266d3deef4eef7440fbb4cd212cc0be50a21a8178b16",
+      "rom_sha256": "42a2d2fef9d0cdbf5fb9cdaaaebb9b86ba814205edbaf7b7d5d825de43fa2c1c",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 6,
+      "passed": true,
+      "result_sha256": "cd49ea36b5f08752dfba0830fe54ff4e02afd724081c20f5a85114afb81da925",
+      "rom_sha256": "c3ca4eb38db7611818dabc27bd28d35eb53275b64806feed1536dcf3d41e34a9",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 7,
+      "passed": true,
+      "result_sha256": "3cd5df6ca13684c6cd522bd4e2fc3ef729410adf675b6951c62857f8c1d38607",
+      "rom_sha256": "79ce9c6d3840fd89e9fa7e7490db80d1c1be5d95dda103e251e213e7768bedf7",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 8,
+      "passed": true,
+      "result_sha256": "75768dd15c8a557c88a3c112af2b884857fbb18d270ef564fad0607c34b93f87",
+      "rom_sha256": "f34db92d21f4366a7a1d7e241c6eb8977676bbfe2261401000cb02724703bc36",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 9,
+      "passed": true,
+      "result_sha256": "586df2f0edcebe0a0ba10403d800f043fce2bccae7e52cbdd906cfe60062268c",
+      "rom_sha256": "a22cb115a4387500cd9ff59b5cbbc6554e92dbd94cb2122f7dc4d0f43e376975",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 10,
+      "passed": true,
+      "result_sha256": "80225806f1fd19266518d403e8093263d87b1dde23d37eb5bb5a955db4f017df",
+      "rom_sha256": "0f0429676a3eb2d3064f1025c8170e78102ae0e1fea8bc0b50abceaa08deec0d",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 11,
+      "passed": true,
+      "result_sha256": "a69c648b505dbaa1e170eade4634d521de1c53493ee280234aeaf139a292f8a0",
+      "rom_sha256": "e3f606a2554b9edf1edecb0d924040ed747baa06d553271c47f45a9dbd06b8b6",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 12,
+      "passed": true,
+      "result_sha256": "3a74bae32be758cd5900ec5f56b80ae4b210a331bdcb229a4f4c356f669d5286",
+      "rom_sha256": "3cfe967c75eb80d3c0b0c03a2f28a6b2cb7c3697ae73d907013c9ba843b8ec58",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 13,
+      "passed": true,
+      "result_sha256": "661470fe39c152a79d3767952739bb9de459ecce95cb2229401293d3f5f3b9f9",
+      "rom_sha256": "9a530fd85a592d86a218e2e9f4c392be5a446e3940c73e07ac0bbe5ea36d233d",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 14,
+      "passed": true,
+      "result_sha256": "9b8838840f8da8e598e93ee2c73d6e1c9eef4e704689528caedf45f57b6402c4",
+      "rom_sha256": "02523623a197c7e7db1e87cd135513ad32539042b4f25f1783430ca91f9d513f",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 15,
+      "passed": true,
+      "result_sha256": "c2f031c1ac54ea843a1d2f88675dd7e9c8c8458cc181baaa912daa57b674b43a",
+      "rom_sha256": "139fe4a5648fce57c2b358300d52f85d0da601fc5d25e65b9f5a2e1171d9f654",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 16,
+      "passed": true,
+      "result_sha256": "22a8342f71b916c2e81cf5da9ccfe445591d25987f4d2655d72ab6645384e254",
+      "rom_sha256": "27966e442e492699e6eedb712a67ddeb710791d84f0c49c9dc06802d98a60772",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 17,
+      "passed": true,
+      "result_sha256": "d48c6cac86ec34074352e8875a70d27d5f6d210b7998f3b8c089bc133ed06443",
+      "rom_sha256": "4c96ea902c7b67b96cb95bfe508f84f485e6283d69e6c0fe3f765137ae907129",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 18,
+      "passed": true,
+      "result_sha256": "9e8f7458b92bdd7c2c1b3b3f3d1af669be3270ebce33176636847a85124a4932",
+      "rom_sha256": "6a91e4037b9eca1d4f7501ba3d86a61166c5088a823fc6c5afc59d1e47d36cdd",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 19,
+      "passed": true,
+      "result_sha256": "b4822ca23493859c9231d026709d03f952d703793508b7fc97ee995001657c12",
+      "rom_sha256": "092d3ae75a12717809a016bc8e58c4bb8f53bd22ac4cde8f9f945aee40539439",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 20,
+      "passed": true,
+      "result_sha256": "6adfa00f7fad3abef58d598f267da1d613f5eb4e7e5c435a23d9107aead65eba",
+      "rom_sha256": "f4e5fb840caf77d95692f74cf11c37f22be9b7f5856324c9f4e4b42d53427116",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 21,
+      "passed": true,
+      "result_sha256": "e6572aaaef8e3efff010283a75b4ea48ebad3f5f005616d7010e77d310b253ad",
+      "rom_sha256": "682d4f65bd66855a9624113ce67ab738f769887b3beb543f611790227750adb0",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 22,
+      "passed": true,
+      "result_sha256": "5ba0f0dbf814954f3fda67697df374880fa39e41c8a6e8d97cd35c076f58aab9",
+      "rom_sha256": "43570bb38aa116e4569a36eae952b5cef730852a7a9c4032bb509a305032d5fd",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 23,
+      "passed": true,
+      "result_sha256": "e7b09f78d5c2ba08a4b910e188a1d81d59195310b836bac01744f7b3362b8796",
+      "rom_sha256": "e0a7dbf8fc0181277b7f48a50f82a7cf7fdc39d0254a6daec0effa16984397fc",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 24,
+      "passed": true,
+      "result_sha256": "ca610cd7c4fe17f3f7f36babd7a6b52255bfa5b651c32f2b00d895ab46802ece",
+      "rom_sha256": "5f156b4bad29bb4f0a7c65dbd1e94ae9c06fe6931fc88ba7fcaeaffaace6068f",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 25,
+      "passed": true,
+      "result_sha256": "6736b70f5d678c5177ea003b3151bc1fbbe8668912894573fc747f033f1883eb",
+      "rom_sha256": "405a417b8b868d2c456b9fd46a85f0a4f7bfad41bba8a2506c762a3526619bc4",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 26,
+      "passed": true,
+      "result_sha256": "168c74ab2c431990a9adf823d48e542a699bc782727d8f99a18c05def7b42f0f",
+      "rom_sha256": "4a5925c46ca2df7aa4a2ce738621f78adda9639e0474c88d4621757bb0eb06ae",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 27,
+      "passed": true,
+      "result_sha256": "d3097e596608c57f8e78863e57ae4e4565458509d3b56a883ff2c5730d65219c",
+      "rom_sha256": "2e94b0c2e813cc421e2273a3827d4f51bc89217c3164ef666cddca53e3ae12db",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 28,
+      "passed": true,
+      "result_sha256": "9352f6817a5da3ee890607317ca5bc6eedea2a194acc4bcbf3005ab6f88b16df",
+      "rom_sha256": "b964ac3524eecfa3f0912868da6790ba73ff13bf2eafa628b7575d2a9d492f96",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 29,
+      "passed": true,
+      "result_sha256": "92bbcd02a926f500406d4f4f0d4097fc41f2b21dc2ef7d8f60d843d7fa9f251b",
+      "rom_sha256": "ce72f4db1b9f39c2e16204d744b823632df4381b3b8c769bfc207e3de8fd6ed7",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 30,
+      "passed": true,
+      "result_sha256": "38bd54bbf029605e15c204ede95c5c01bfc35cacaa10f8e9d400aec6e53ab94e",
+      "rom_sha256": "4a21e0f4b769666fa013154360ea262a26b407454dd8663f0368e8113ed0b959",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 31,
+      "passed": true,
+      "result_sha256": "ed14e2ed73a9e4377a11315e4b2d9fa2a3dc18f8f5d3a81e3b4e2aac64335e6d",
+      "rom_sha256": "bc5d1b783ea0b70e707fc441c9d94f27afccfb0e2b78bbf8051e936354c5404e",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 32,
+      "passed": true,
+      "result_sha256": "a0beb623b3e27f43fd4bba266dffe2b018afd5fb73d248b6785546afdc70a5ac",
+      "rom_sha256": "062702d35a6b6043a44b3d620b6678be9408b2b6de7db8a0ed54649b5cdca7e4",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 33,
+      "passed": true,
+      "result_sha256": "a247cfabfe2bbb2cb5b289a263c61ca238422b90e8f3a0339057ea6027c9110f",
+      "rom_sha256": "b531e0f30c57e4f6073c103b31eab6e2513b7316fa1e9f443db4a97d22db05ab",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 34,
+      "passed": true,
+      "result_sha256": "47b6b4b6ffc4a3c5d9d52ab92e93237917ccc54b9d1c771e4706121d2c67d7b3",
+      "rom_sha256": "c257987d714e3390c28bbf5d2cd0e71473e1454d2617c8dea7378810a428011f",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 35,
+      "passed": true,
+      "result_sha256": "f8ae43375b898e198a6942e705c6777a5a5e1623cb2bda2bfcf8909419c1069a",
+      "rom_sha256": "23d151700c13fce6184ff8ca7d09699155fdedc456c3d6ba79952bc205060fc7",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 36,
+      "passed": true,
+      "result_sha256": "986f390a3957100daa7380fac67e03af682a98e0620db3b91ce0f916d7fb7a1b",
+      "rom_sha256": "23768791c1617461e2a4f3bdec1df79985c3d4c891545ddf5e26c1053a2f6a49",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 37,
+      "passed": true,
+      "result_sha256": "eda19f697054e0788265468140d13f4247db52ded71b966a86d5d7fd48ad1fc6",
+      "rom_sha256": "4aa88eaf872269d7ec861e6d0e10c9e17d0d6d1a5fa2e7e76a9293a1cf0c793f",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 38,
+      "passed": true,
+      "result_sha256": "ad5cdfaf01231b04b239dff5ded9e957b57d5e6a059e89b3fb641655b044c475",
+      "rom_sha256": "28bb3e7c0e289d39786afce6a80044a1c4ca27fb88e58e5f1e046229543956fa",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    },
+    {
+      "frame": 39,
+      "passed": true,
+      "result_sha256": "70347e0e17d5265befccf5d8316d70ee3607609f707e34d3f9e2533764694bf0",
+      "rom_sha256": "e5dc80da398682ccfb722745efca51b2787cb9685905d96f9b27e2d28460af5c",
+      "pixel_mismatches": 0,
+      "active_window_samples": 0,
+      "obj_overflow_samples": 0,
+      "oam_observer_verified": true
+    }
+  ],
+  "continuous_native": {
+    "pass_all_checks": true,
+    "observer_fields": 74,
+    "exact_screenshot_fields": 76,
+    "all_40_frames_observed": true,
+    "observer_cadence_verified": true,
+    "pixel_cadence_verified": true,
+    "cgram_observer_verified": true,
+    "cgram_register_writes": 516992,
+    "timing_samples": 33152,
+    "unsafe_palette_samples": 0,
+    "oam_observer_verified": true,
+    "obj_overflow_samples": 0,
+    "obj_status_samples": 77,
+    "peak_vblank_window": {
+      "field": 46,
+      "start_line": 225,
+      "end_line": 261,
+      "master_clocks": 49438
+    },
+    "all_transfer_windows_within_vblank": true
+  },
+  "resources": {
+    "obj_banks": [
+      4,
+      5,
+      6
+    ],
+    "obj_subdivision": {
+      "entries": 68,
+      "large_entries": 19,
+      "small_entries": 49,
+      "peak_sprites": 10,
+      "peak_slivers": 14,
+      "occupied_tiles": 125,
+      "obsel": 0
+    },
+    "allocation": {
+      "obj_chr": [
+        0,
+        4096
+      ],
+      "high_chr": [
+        4096,
+        49152
+      ],
+      "low_chr": [
+        49152,
+        59392
+      ],
+      "high_tail_chr": [
+        59392,
+        61440
+      ],
+      "zero_offset_map": null,
+      "offset_control_map": [
+        63488,
+        65536
+      ],
+      "high_map": [
+        61440,
+        63488
+      ],
+      "low_map": [
+        63488,
+        65536
+      ]
+    },
+    "high_cache_slots": 736,
+    "low_cache_slots": 640,
+    "peak_frame_high_tiles": 635,
+    "peak_frame_low_tiles": 593,
+    "peak_scheduled_cgram_bytes": 34,
+    "peak_fixed_native_burst_bytes": 34,
+    "static_palette_prefix_words": 55,
+    "palette_restore_bytes": 362,
+    "hdma_channels": [
+      0
+    ],
+    "irq_dma_channel": 7,
+    "irq_timer_dots": 154,
+    "code_banks": [
+      1,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ],
+    "bank_zero_production_code_added": false
+  },
+  "liveness_peak_burst_frame": {
+    "frame": 15,
+    "peak_changed_slots": 17,
+    "average_scheduled_words_per_line": 3.125560538116592,
+    "native_fixed_width_words_per_line": 17,
+    "policy": "Fixed-width native fixture also retransmits unchanged windows; publication budget must include these writes"
+  },
+  "artifacts": [
+    {
+      "path": "out/byor-motu-hybrid-sequence-prefix-native/result.json",
+      "sha256": "a80a45ef74fcdce9a802c1794db650fce054e4f869a04fe844461842e3e88683"
+    },
+    {
+      "path": "out/byor-motu-hybrid-sequence-prefix-native/proof.sfc",
+      "sha256": "b62caa453d9c2a388f3ad017607d45023e3a4f03023f70de9dafc1bf9ebac5a7"
+    },
+    {
+      "path": "out/byor-motu-hybrid-sequence-prefix-native/observer.lua",
+      "sha256": "55dc9baab4334d5b210d1e3da845f1166c2b204fca17f7c9c60a1fdccab424a3"
+    },
+    {
+      "path": "out/byor-motu-hybrid-hbreath-adaptive/report.json",
+      "sha256": "a52f8e88bf793d30da858419915f2bea7ee7e5ec169d20c9cd5ab1a262a8d0ec"
+    },
+    {
+      "path": "out/byor-motu-hybrid-inventory-native/report.json",
+      "sha256": "3d98f2489858a3555a3ebfa5b0ef75a19434e6cbf7ac49e67fd9a52b4c50d4c9"
+    },
+    {
+      "path": "out/byor-motu-hybrid-sparse-residency/report.json",
+      "sha256": "d9dc03a6ecda756e32b812f4f228c42c141db68d68369f7fb9839679f913bf63"
+    },
+    {
+      "path": "out/byor-motu-hybrid-liveness/frame-15.json",
+      "sha256": "e2b69ce56ddeed0d0a9f055d7f299207ed600ed2727bd9049f722ad4663d8009"
+    }
+  ],
+  "validation": [
+    "14 focused palette/cache/residency tests passed",
+    "Default component fixture ROM remains byte-identical at 6c8340d799291f670f5a73c94d7a62ef4d497ccc872a3d522dc7e1234b62491d",
+    "17 protected tracked fingerprints unchanged"
+  ],
+  "nonclaims": [
+    "No native production TAD/MSU audio or main NMI budget admission for this hybrid sequence",
+    "No live moving underlay compositor",
+    "No source actor pose reachability or live combat",
+    "No selector, stage queue, full Demo route or completion certification",
+    "No timing optimality or raster/BG hardware infeasibility claim from failed heuristics"
+  ],
+  "scope": "Standalone native continuous source animation with specified fixed opaque player/enemy poses, camera zero and source foreground. Preserve the complete fixed-context proof while continuing M4 gameplay integration."
+}

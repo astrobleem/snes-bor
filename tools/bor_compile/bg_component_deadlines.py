@@ -9,9 +9,10 @@ from pathlib import Path
 import numpy as np
 
 
-def derive_jobs(plan, maps, starts):
+def derive_jobs(plan, maps, starts, bases=None):
     jobs=[]
-    for name,base in [('high',0),('low',49152)]:
+    bases={'high':0,'low':49152} if bases is None else bases
+    for name,base in bases.items():
         plane=plan[name];size=plane['bpp']*8
         used=[set(map(int,m.flat)) for m in maps[name]]
         births={w['slot']:0 for w in plane['frames'][0]['writes']}
