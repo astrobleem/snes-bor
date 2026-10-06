@@ -1,0 +1,143 @@
+{
+  "schema": "BYOR_4086_DEFAULT_INIT_CONTROL_OWNER_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-knightbot-default-owner-native": {
+      "report": "out/byor-motu-knightbot-default-owner-native/report.json",
+      "sha256": "77288df8194786598cc36986522b509e1ec81a3ab2be811a79670e1c5f66d294",
+      "rom_sha256": "7c68b3265ff2fa2616428b8b871933f60053c4467d2000e6f7f109c29eebc6bb",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-default-owner-native": {
+      "report": "out/byor-motu-skeletor-default-owner-native/report.json",
+      "sha256": "6a3f7cb3b6bb58e68f745f24fdd98a691a326cfe8d6a529e2c21b5c57f8439eb",
+      "rom_sha256": "08ac9bfedf9d2f3544c18d60c0e1e0ce528f7a807e7300c7b699aee81e86a9b5",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-player-default-owner-native": {
+      "report": "out/byor-motu-player-default-owner-native/report.json",
+      "sha256": "20f550a62c3b5f0a446f319d8e28a966f8548e0819641b42d50fc40c6f218edd",
+      "rom_sha256": "816de1980bb9fd3009b3454502ac4d4fc2c4ff6beb4be0f7f6b0e9ccbdf29586",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-none-default-owner-native": {
+      "report": "out/byor-motu-none-default-owner-native/report.json",
+      "sha256": "85aa51a21d3209ea28951b5e36be538a7ed440dc2d0019842ca2c8d12d48f4d3",
+      "rom_sha256": "6eeac3e568c3ee6143b2243fbddff29b00eb15dfbc84874a38d7f8faa913ae8e",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-effect-default-owner-native": {
+      "report": "out/byor-motu-effect-default-owner-native/report.json",
+      "sha256": "3f1a03b1fd8b28f6371b92cda3d401e8bbcbf1b66cbbd9e1c72a4758f6e3e6ac",
+      "rom_sha256": "6eeac3e568c3ee6143b2243fbddff29b00eb15dfbc84874a38d7f8faa913ae8e",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 5,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 5,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-default-owner-guards-native": {
+      "report": "out/byor-motu-default-owner-guards-native/report.json",
+      "sha256": "30a6c3115e7acf53c969aae2bc6c33152893fe82612264ffa4147f37da2f91fe",
+      "rom_sha256": "1e275afead949475a3bd571aacf648227b62ebaab11e946a337364bdb8980b96",
+      "cases": 164
+    },
+    "byor-motu-default-owner-stack-native": {
+      "report": "out/byor-motu-default-owner-stack-native/report.json",
+      "sha256": "1f5a76a5afa6f1f817369d796ccbe4075d063c792c1bff43963303b26c5c0770",
+      "rom_sha256": "b1b5eb454f094d06495df4b4fbc0c2c81dab1c172e0e9c9587a4131d41c0bba5",
+      "cases": 173
+    }
+  },
+  "capability_report": "out/byor-motu-default-init-capability.json",
+  "capability_sha256": "063fefcc36fd90ab6fc3c7fadb77330cf95b504dabddbe37dce68bf613c8cbf3",
+  "authored_paths": [
+    "Knightbot normal drop -> authored idle",
+    "Skeletor authored spawn -> normal fields, no RNG drop",
+    "He_Man player drop -> authored JUMP -> invincibility",
+    "He_ManB TYPE_NONE -> authored WALK",
+    "HBreath TYPE_NONE without WALK -> authored IDLE"
+  ],
+  "pending_ticket_snapshot_fields": {
+    "phase": 8387724,
+    "slot": 8387726,
+    "walk": 8387770
+  },
+  "pending_frame_zero_must_complete_before_ack": true,
+  "type_selected_after_first_frame_zero": true,
+  "selected_player_case_preserved_after_jump_callback": true,
+  "cached_none_idle_preserves_velocity": true,
+  "semantic_callbacks_only": true,
+  "default_init_control_native_bound": true,
+  "constructor_cleanup_bound": false,
+  "script_copy_onspawn_bound": false,
+  "executable_ai_bound": false,
+  "production_world_installer_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_paths_preserved": 17,
+  "audit": "out/byor-motu-default-owner-audit.log",
+  "bank_zero_free_before_nmi": 2
+}

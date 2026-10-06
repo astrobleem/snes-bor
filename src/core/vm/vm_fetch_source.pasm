@@ -63,6 +63,9 @@ Vm_FetchSourceInit:
     sta.l SourceDefaultChoice4086_Ready
     sta.l SourceLifecycle4086_Ready
     sta.l SourceLifecycle4086_Status
+    sta.l SourceDefaultInit4086_Phase
+    sta.l SourceDefaultInit4086_OwnerSlot
+    sta.l SourceDefaultInit4086_Walk
     sta.l SourceDefaultPlayer4086_Ready
     sta.l SourceDefaultPlayer4086_Status
     sta.l SourceEmptyInitEnvironment4086_Ready

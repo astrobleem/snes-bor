@@ -54,6 +54,8 @@ def main():
     p.add_argument('--initial-none-walk',action='store_true',help='Prepare authored TYPE_NONE walker from current speed, then execute real walk frame zero.')
     p.add_argument('--initial-enemy',help='Source identity for normal enemy initialization through actual authored frame zero.')
     p.add_argument('--drop-context',type=Path,help='Compiled readonly horizontal drop context bundle.')
+    p.add_argument('--default-owner',action='store_true',help='Use generic source-order default-init Begin/Continue instead of direct leaf sequencing.')
+    p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
@@ -74,6 +76,12 @@ def main():
         enemy_role='spawn'if any(h['role']=='spawn'for h in authored)else'idle'
         a.initial_idle=enemy_role=='idle';a.initial_select=enemy_role=='spawn'
         if not a.drop_context:raise ValueError('INITIAL_ENEMY_CONTEXT_REQUIRED')
+    if a.initial_none_model:
+        default=next(m['id'] for m in registry['models'] if m['identity']==a.initial_none_model)
+        if model_core_inputs(source)['models'][default]['fields']['type']!=0:raise ValueError('INITIAL_NONE_TYPE')
+        if any(h['model']==a.initial_none_model and h['role']=='walk'for h in compile_source(source)['animation_handles']):raise ValueError('INITIAL_NONE_HAS_WALK')
+        if not a.default_owner:raise ValueError('INITIAL_NONE_REQUIRES_DEFAULT_OWNER')
+        a.initial_idle=True
     if a.initial_none_walk:default=actor
     breath=next(m['id'] for m in registry['models'] if m['identity']=='HBreath')
     animation=next(h for h in compile_source(source)['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -255,6 +263,12 @@ CallbackFixture_EffectsDone:
             asm=asm.replace(' jsl IDLEBEGIN',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n ldx #$8000\n ldy #58\n jsl ENEMYDROP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl IDLEBEGIN')
         else:
             asm=asm.replace(' jsl CLOCKCOMMIT',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n jsl CLOCKCOMMIT')
+    if a.default_owner:
+        if not(a.initial_enemy or a.initial_jump or a.initial_none_walk or a.initial_none_model or a.initial_select):raise ValueError('DEFAULT_OWNER_FIXTURE_MODE')
+        start=asm.index(' nop\n',asm.index('CallbackFixture_Init:'))+len(' nop\n');end=asm.index('CallbackFixture_BeforeOwner:',start)
+        asm=asm[:start]+" lda #"+str(role_id(config,'walk'))+"\n ldx #$8000\n ldy #58\n jsl OWNERBEGIN\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\nCallbackFixture_OwnerFrame:\n.a16\n.i16\n jsl STARTFRAME\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n"+asm[end:]
+        start=asm.index(' jsl INITACK',asm.index('CallbackFixture_EffectsDone:'));end=asm.index(' jsl CLOCKCOMMIT',start)
+        asm=asm[:start]+" ldx #$8000\n ldy #58\n jsl OWNERCONTINUE\n bcs CallbackFixture_Bad\n cmp #1\n beq CallbackFixture_OwnerFrame\n cmp #0\n bne CallbackFixture_Bad\n"+asm[end:]
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -268,6 +282,7 @@ CallbackFixture_EffectsDone:
     if a.initial_walk:values.update(WALKBEGIN=sy['SourceWalk4086_BeginDefaultOnly'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_none_walk:values.update(NONEWALKPREP=sy['SourceDefaultNone4086_PrepareWalk'])
     if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
+    if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -492,6 +507,17 @@ emu.addMemoryCallback(function()
  emu.log('CALLBACKENEMY|'..word(INDEX)..'|'..dw(0x439000)..'|'..dw(0x439004)..'|'..dw(0x439008)..'|'..dw(0x43900c)..'|'..dw(0x41400c)..'|'..dw(sy.SourceRandom4086_SeedLo)..'|'..dw(sy.SourceRandom4086_CallsLo)..'|'..dw(0x41683c)..'|'..dw(0x439044)..'|'..word(0x43904c)..'|'..dw(0x40c000)..'|'..word(sy.SourceDefaultPlayer4086_Status))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 """
+    if a.initial_none_model:
+        rootcore=model_core_inputs(source)['models'][default]['fields']
+        initialinstall+='\n'+"\n".join(" set('"+name+"',"+str(value)+")"for name,value in dict(VmSourceWorld_Level=1,SourceDefaultChoice4086_Select=0,SourceLifecycle4086_Ready=0xb4fb,SourceLifecycle4086_Status=2,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_Stage=1,SourceEnvironment4086_WallCount=0).items())
+        initialinstall+='\n for j=0,10239 do emu.write(0x439000+j,0,mt)end;put(0x439048,'+str(default)+',2);put(0x43904a,0xb4fb,2);put(0x40c048,0,4);put(0x416820,65536,4)\n'
+        for off,name in((0,'multiple'),(4,'subject_to_wall'),(8,'subject_to_platform'),(20,'subject_to_gravity'),(36,'no_adjust_base')):initialinstall+=' put(0x40c000+'+str(off)+','+str(rootcore[name]&0xffffffff)+',4)\n'
+        lua+=r"""
+emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x439010)..'|'..dw(0x416820)..'|'..dw(0x40c014)..'|'..dw(0x40c024)..'|'..dw(0x40c000))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+"""
+    if a.default_owner:
+        initialinstall+="\n set('SourceDefaultInit4086_Phase',0);set('SourceDefaultPlayer4086_Ready',0xb503);set('SourceDefaultPlayer4086_Status',0)\n"
+        lua+="emu.addMemoryCallback(function()emu.log('DEFAULTOWNER|'..word(INDEX)..'|'..word(sy.SourceDefaultInit4086_Phase)..'|'..word(sy.SourceDefaultInit4086_OwnerSlot)..'|'..word(sy.SourceDefaultInit4086_Walk))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -549,7 +575,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
     if a.initial_jump:reporter.check('source current-model tail after JUMP and before clock retirement',tail_results==[[i,max(0,rootcore['multiple']),2,2 if rootcore['subject_to_wall']>0 or rootcore['subject_to_platform']>0 else 0]for i in range(len(rows))])
     idle_results=[list(map(int,line.split('CALLBACKIDLE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKIDLE|'in line]
-    if a.initial_idle:reporter.check('generic set_idle flags and movement plus authored idle frame zero',idle_results==[[i,3,0,0,0,2]for i in range(len(rows))])
+    if a.initial_idle:
+        cached_none=model_core_inputs(source)['models'][default]['fields']['type']==0
+        reporter.check('generic set_idle flags and cached-type movement plus authored idle frame zero',idle_results==[[i,3,0,65536 if cached_none else 0,131072 if cached_none else 0,2]for i in range(len(rows))])
     walk_results=[list(map(int,line.split('CALLBACKWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKWALK|'in line]
     if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,c['direction'],2]for i,c in enumerate(rows)])
     none_walk_results=[list(map(int,line.split('CALLBACKNONEWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKNONEWALK|'in line]
@@ -559,6 +587,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         speed_expected=0 if life['nomove']else speed_q16 if speed_bits&0x7fffffff else 65536
         multiple=max(0,rootcore['multiple']or 5)
         reporter.check('authored normal enemy frame zero, default callbacks, source drop RNG and final current-model tail',enemy_results==[[i,6,10,9,5 if enemy_role=='idle'else 4,expected_drop if enemy_role=='idle'else 0,seed_after if enemy_role=='idle'else INITIAL_SEED,1 if enemy_role=='idle'else 0,speed_expected&0xffffffff,int(speed_expected!=0),0xb508,multiple,2]for i in range(len(rows))])
+    owner_results=[list(map(int,line.split('DEFAULTOWNER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'DEFAULTOWNER|'in line]
+    if a.default_owner:reporter.check('generic default-init continuation completes before source clock retirement',owner_results==[[i,6,0,role_id(config,'walk')]for i in range(len(rows))])
+    no_walk_results=[list(map(int,line.split('DEFAULTNONE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'DEFAULTNONE|'in line]
+    if a.initial_none_model:reporter.check('authored TYPE_NONE no-WALK defaults retained after real IDLE frame zero',no_walk_results==[[i,1,131072,1 if rootcore['subject_to_gravity']<0 else rootcore['subject_to_gravity'],1 if rootcore['no_adjust_base']<0 else rootcore['no_adjust_base'],max(0,rootcore['multiple'])]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         owner_table_sha256=hashlib.sha256(callbacks).hexdigest(),cases=rows,results=results,expected=expected,faults=faults,
@@ -571,6 +603,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
+    r.update(initial_none_model=a.initial_none_model,initial_none_model_results=no_walk_results)
+    r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
