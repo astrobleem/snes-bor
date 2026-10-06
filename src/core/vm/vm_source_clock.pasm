@@ -392,9 +392,17 @@ SourceClock4086_Commit:
     rep #$31
     lda.l SourceClock4086_Ready
     cmp #$B4C5
-    bne SourceClock4086_Commit__bad
+    beq SourceClock4086_Commit_GuardWide_1
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_1:
+.a16
+.i16
     lda.l SourceClock4086_Due
-    beq SourceClock4086_Commit__bad
+    bne SourceClock4086_Commit_GuardWide_2
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_2:
+.a16
+.i16
     ; An admitted foreign traversal owns commit. A direct caller cannot turn
     ; its pending callback/physics requests into an empty completed tick.
     lda.l SourceWorldTick4086_Ready
@@ -402,32 +410,86 @@ SourceClock4086_Commit:
     bne SourceClock4086_Commit__retire
     lda.l SourceWorldTick4086_State
     cmp #4
-    bne SourceClock4086_Commit__bad
+    beq SourceClock4086_Commit_GuardWide_3
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_3:
+.a16
+.i16
     lda.l SourceWorldTick4086_Pending
-    bne SourceClock4086_Commit__bad
+    beq SourceClock4086_Commit_GuardWide_4
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_4:
+.a16
+.i16
 SourceClock4086_Commit__retire:
 .a16
 .i16
     jsl SourceUpdateFrame4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_5
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_5:
+.a16
+.i16
     jsl SourceAnimationInit4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_6
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_6:
+.a16
+.i16
     jsl SourceFrameStack4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_7
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_7:
+.a16
+.i16
     jsl SourceModelAnimation4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_8
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_8:
+.a16
+.i16
     jsl SourceModelTransition4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_9
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_9:
+.a16
+.i16
     jsl SourceFrameEffectPlan4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_10
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_10:
+.a16
+.i16
     jsl SourceSelf4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_11
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_11:
+.a16
+.i16
     jsl SourceRetirement4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_12
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_12:
+.a16
+.i16
     jsl SourceBirthCore4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_13
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_13:
+.a16
+.i16
     jsl SourceLifecycle4086_CheckIdle
-    bcs SourceClock4086_Commit__bad
+    bcc SourceClock4086_Commit_GuardWide_14
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_14:
+.a16
+.i16
+    jsl SourceEmptyInitEnvironment4086_CheckIdle
+    bcc SourceClock4086_Commit_GuardWide_15
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_Commit_GuardWide_15:
+.a16
+.i16
     lda.l SourceClock4086_Due
     dec a
     sta.l SourceClock4086_Due

@@ -1,0 +1,47 @@
+{
+  "schema": "BYOR_M4_EMPTY_INIT_ENVIRONMENT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "native": {
+      "path": "out/byor-motu-empty-init-environment-native/report.json",
+      "sha256": "7624c75daca4a808dce727e582f00d77ed1cbf51391334cd4c7f76b40878fb17",
+      "cases": 42
+    },
+    "c": {
+      "path": "out/byor-motu-empty-init-environment-authority/report.json",
+      "sha256": "cbe95dc7b40cebd0a739ac0296bd47d462e3589a44e8be131365b8f03241203f",
+      "cases": 648
+    },
+    "clock_regression": {
+      "path": "out/byor-motu-relocated-clock-native/report.json",
+      "sha256": "eb7b2f6c2f12539eb5bc97b59fc62a563eb3d82a71583bcbee2cbd9441cb0c1d",
+      "cases": 12
+    }
+  },
+  "source_report": "out/byor-motu-empty-init-environment/report.json",
+  "source_models": 16,
+  "source_platform_declarations": 0,
+  "empty_wall_stages": 2,
+  "capability": "B504 closed no-platform animation registry, paired with B4D1 current empty-wall stage",
+  "native_entry": "SourceEmptyInitEnvironment4086_Query",
+  "result": {
+    "platform_pointer": 0,
+    "wall_index": -1
+  },
+  "grant_requirements": [
+    "Every cached/current animation belongs to checked closed registry",
+    "No platform mutation capability admitted",
+    "Invalidate before registry or stage changes"
+  ],
+  "lease_installation_instrumented": true,
+  "closed_registry_native_world_publication_bound": false,
+  "full_default_init_bound": false,
+  "clock_relocation": "Entire source clock owner relocated bank 28 to bank 62; all external entries JSL; local subroutine calls retained",
+  "cold_initialization": "Explicitly retire newer independent source leases; zero readiness is ordinary opt-out",
+  "bank0_growth": 0,
+  "rom_audit": "out/byor-motu-empty-init-environment-audit.log: ALL CHECKS PASS",
+  "protected_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

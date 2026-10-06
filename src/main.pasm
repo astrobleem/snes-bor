@@ -13587,7 +13587,6 @@ Footdie_StreamSource:
 .include "core/vm/vm_source_input_controller.pasm"
 .include "generated/source_input_controller.pasm"
 .include "generated/source_clock_4086.pasm"
-.include "core/vm/vm_source_clock.pasm"
 .include "core/vm/vm_source_animation_step.pasm"
 .include "core/vm/vm_source_motion_property.pasm"
 .include "core/vm/vm_source_environment.pasm"
@@ -13647,3 +13646,8 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_lifecycle.pasm"
 
 .include "core/vm/vm_source_default_player.pasm"
+
+.include "core/vm/vm_source_empty_init_environment.pasm"
+
+; Foreign clock owner moved from saturated bank 28; all external entries use JSL.
+.include "core/vm/vm_source_clock.pasm"
