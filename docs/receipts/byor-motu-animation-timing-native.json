@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_M4_ANIMATION_TIMING_RECEIPT_V1",
+  "status": "PASS",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_animations": 80,
+  "source_frames": 836,
+  "timing_table_bytes": 2960,
+  "native_cases": 1033,
+  "native_rom_sha256": "237df55119af544fff2cd36c7b36643d6ab5bf6b37148b6b0baebcaaa98223cb",
+  "peak_observed_master_clocks": 19676,
+  "timing_note": "Observed span may include NMI; not a production world tick budget.",
+  "native_report": "out/byor-motu-animation-step-final-native/report.json",
+  "scope": "Native timed advance decisions for source animations. No update_frame side effects, live world, rendering or MOTU gameplay.",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}

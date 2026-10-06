@@ -88,6 +88,14 @@ that timer. Native arithmetic/ownership tests and the combined fixed-context
 BG/audio sequence pass. Those combined ticks are empty: this is not a live
 MOTU actor, combat or campaign owner.
 
+Source animation timing now compiles into a checked immutable table with raw
+frame delays and fixed animation handles. A native decision operator preserves
+the pinned equality test, reverse playback, loop break/minimum rules and
+stop/autokill decisions. Its 1,033-case test covers all 80 MOTU animation handles.
+It returns a frame request; the world owner must execute callbacks and frame
+side effects before committing time. It does not itself implement `updateframe`,
+attack checks, kill cleanup or a live MOTU world.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell
