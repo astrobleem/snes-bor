@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_M4_DEFAULT_INIT_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "815cbee5badceb49d15caf1bde03bc2b73d0bcf1a9841a39ca65796ce791049b",
+  "report_path": "out/byor-motu-default-init-authority/report.json",
+  "report_sha256": "edbb4ded43846f7115fe6e3c75910be40e94a8b235068914c983bd03013abf51",
+  "cases": 1321,
+  "null_entry_guard_checked": true,
+  "coverage": [
+    "all source type cases plus mixed bitmask noncases",
+    "regular, biker, notgrab and arrow subtypes",
+    "spawn/respawn/select priority and no-level early return",
+    "player drop and signed invincibility",
+    "enemy drop, random service, callbacks and animation",
+    "TYPE_NONE walk and idle initialization",
+    "platform/wall precedence and tall-wall relocation",
+    "uint32 time wrapping and float bit identities including negative zero"
+  ],
+  "animation_random_environment_bodies_instrumented": true,
+  "native_default_init_bound": false,
+  "float_native_policy_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

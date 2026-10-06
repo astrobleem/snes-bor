@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_M4_SPAWN_CONSTRUCTOR_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out/byor-motu-spawn-constructor-authority/report.json",
+  "report_sha256": "22b64eb15d7ceae502dacbf0ee6662cc99205a65fbbd88a739a0888974431b2e",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "f49371b6027d4f4223d42ff7d47ce160036b598817bfa44cfc7ca34fa60b1ef2",
+  "cases": 768,
+  "coverage": [
+    "NULL/cache/name/direct model resolution",
+    "free first slot and priority override with kill",
+    "allocation failure, success without free slot, success with growth",
+    "resource identities retained through entity memset",
+    "ordered cleanup/factor/script/color-map/default-init services",
+    "player damage mask adaptation and textbox role",
+    "uint32 timestamp and nextthink/nextmove wrap"
+  ],
+  "external_services_instrumented": true,
+  "native_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
