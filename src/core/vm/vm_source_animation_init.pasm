@@ -24,6 +24,35 @@ SourceAnimationInit4086_RowBytes = $7FFCB4
 SourceAnimationInit4086_Model = $7FFCB6
 SourceAnimationInit4086_Issued = $7FFCB8
 
+SourceAnimationInit4086_CheckIdle:
+.a16
+.i16
+    php
+    rep #$38
+    pha
+    lda.l SourceAnimationInit4086_Ready
+    beq SourceAnimationInit4086_CheckIdle_Good
+    cmp #$B4EC
+    bne SourceAnimationInit4086_CheckIdle_Bad
+    lda.l SourceAnimationInit4086_State
+    beq SourceAnimationInit4086_CheckIdle_Good
+    cmp #2
+    bne SourceAnimationInit4086_CheckIdle_Bad
+SourceAnimationInit4086_CheckIdle_Good:
+.a16
+.i16
+    pla
+    plp
+    clc
+    rtl
+SourceAnimationInit4086_CheckIdle_Bad:
+.a16
+.i16
+    pla
+    plp
+    sec
+    rtl
+
 SourceAnimationInit4086_Begin:
 .a16
 .i16

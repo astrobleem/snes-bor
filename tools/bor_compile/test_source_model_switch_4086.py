@@ -2,7 +2,7 @@ from pathlib import Path
 import unittest
 import struct
 from compiler import Source
-from source_model_switch_requirements import derive,pack_animation_cache
+from source_model_switch_requirements import derive,pack_animation_cache,pack_weapon_metadata
 from source_model_switch_4086 import set_weapon
 
 
@@ -27,6 +27,16 @@ class ModelSwitch(unittest.TestCase):
                 self.assertEqual(struct.unpack_from('<H',cache,at)[0],animation['frame_handle'])
         with self.assertRaisesRegex(ValueError,'MODEL_ANIMATION_CACHE_NATIVE_CAPACITY'):
             pack_animation_cache(dict(r,maximum_animations=1024))
+        meta,lists=pack_weapon_metadata(r)
+        self.assertEqual(len(meta),512)
+        self.assertEqual(struct.unpack_from('<4s6H',lists),(b'B4MW',1,16,8,16,32,0))
+        for m in r['models']:
+            owner,size,flags,reserved,l0,l1=struct.unpack_from('<4H2i',meta,32*m['id'])
+            self.assertEqual((size,flags,reserved,l0,l1),(len(m['weapon_ids'] or []),m['model_flag'],0,*m['weaploss']))
+            self.assertEqual(owner,m['id'] if m['weapon_ids'] is not None else 65535)
+            ident,count,at,reserved=struct.unpack_from('<4H',lists,16+8*m['id'])
+            self.assertEqual((ident,count,reserved),(m['id'],size,0))
+            self.assertEqual(list(struct.unpack_from('<'+'h'*size,lists,at)),m['weapon_ids'] or [])
 
     def test_undefined_negative_weapon_index_cannot_alias_python_last_model(self):
         e=dict(modeldata=dict(type=1,weaploss=[3,0],weapon=[-1],numweapons=1),playerindex=0)

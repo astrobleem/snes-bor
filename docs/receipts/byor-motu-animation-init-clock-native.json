@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_M4_ANIMATION_INIT_CLOCK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-animation-init-clock-native/report.json",
+    "sha256": "ed8b5259b8a8aac4a4eb4e6820d5db84906827abd1c29eb72065463c3269d878"
+  },
+  "native_rom_sha256": "922a9fa117eee3de2198e2c119b1fd2cf034319fcefdcd138e24f082718976b8",
+  "cases": 1746,
+  "peak_call_master_clocks": 31162,
+  "average_call_master_clocks": 11361.589919816724,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "proof": "C-derived animation initialization, full entity/cache byte and CPU-context checks; direct clock commit rejected for pending/faulty initialization.",
+  "frame_zero_effects_bound": false,
+  "nested_owner_bound": false
+}

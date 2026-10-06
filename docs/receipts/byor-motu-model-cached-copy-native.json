@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_M4_MODEL_CACHED_COPY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-model-cached-copy-native/report.json",
+    "sha256": "f3796faab9fd4928ffe3c3a558956f8230a58cf3b5861f3a1c7356dcb9ad261d"
+  },
+  "native_rom_sha256": "0568165fa06c59ee10e01a363d58b6302afb0b5a3660f52a07cbbd23a4ca561b",
+  "cases": 468,
+  "peak_call_master_clocks": 43600,
+  "average_call_master_clocks": 12682.42735042735,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority_report": {
+    "path": "out/byor-motu-model-cached-authority/report.json",
+    "sha256": "e19b81c4b5967e41c8c36da713473a99391e6a611be1609215e2321b36ac05fa"
+  },
+  "functions_sha256": "b986f6344bb027ff9bbc61f30375b49503941b5088906fd09aa7dc564b3d0c35",
+  "authority_cases": 584,
+  "cache_range": "40B000..40B9FF",
+  "metadata_range": "40BA00..40BBFF",
+  "authored_list_bytes": 152,
+  "authored_list_sha256": "22839440a1d508458b5ee08c9fd99882c289679f8af64aed5d041e2054d3c153",
+  "authored_metadata_bytes": 512,
+  "authored_metadata_sha256": "ed06825e306ba372130baf5190c22629c5927624f570e4f5b7146a7f72efe78b",
+  "proof": "Scalar inheritance and list aliases compared to verbatim C, including negative zero and minimum normal binary32, all flag combinations, IDs at both cache bounds; all cache/metadata/guard bytes and CPU context checked.",
+  "authored_cache_loader_bound": false,
+  "full_model_switch_bound": false
+}

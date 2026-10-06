@@ -20,7 +20,7 @@ def fixtures():
         select=select,time=48 if time else 0,map=map_,variant=variant,boundary=0)
         for flags in range(8) for anim_flag in (0,1) for oldtype,newtype in ((0,0),(1,0),(1,1))
         for number in (0,1,2,3) for select,time,map_,variant in ((0,1,1,0),(1,1,2,1),(0,0,0,0))]
-    rows.extend(dict(rows[0],flags=1,oldtype=1,number=1,boundary=n) for n in range(1,7))
+    rows.extend(dict(rows[0],flags=1 if n<=6 else 0,oldtype=1,number=1,boundary=n) for n in range(1,9))
     return rows
 
 
@@ -42,6 +42,8 @@ def expected(c):
     elif boundary==5:new.update(health=-0x80000000,mp=-0x80000000)
     elif boundary==6:
         for field in ('aimove','aiattack','risetime.rise'):new[field]=-2
+    elif boundary==7:new.update(speed=-0.0,runspeed=-0.0)
+    elif boundary==8:new.update(speed=1.1754943508222875e-38,runspeed=1.1754943508222875e-38)
     entity=dict(model=old,defaultmodel=old,modeldata=dict(old),health=500,mp=500,playerindex=0,animnum=0,
         animation=animations[0],animpos=3,nextanim=123,attacking=1,map=c['map'],exists=1,onmodelcopy=0,
         offense_factors=[7,8],defense=[9,10])
@@ -152,6 +154,8 @@ void execute_onmodelcopy_script(entity *e,entity *old){event(23+old->exists);}
  else if(c->boundary==4)models[1].health=models[1].mp=2147483647;
  else if(c->boundary==5)models[1].health=models[1].mp=(-2147483647-1);
  else if(c->boundary==6){models[1].aimove=models[1].aiattack=models[1].risetime.rise=-2;}
+ else if(c->boundary==7){models[1].speed=-0.0f;models[1].runspeed=-0.0f;}
+ else if(c->boundary==8){models[1].speed=1.1754943508222875e-38f;models[1].runspeed=1.1754943508222875e-38f;}
  ent.model=ent.defaultmodel=models;ent.modeldata=models[0];ent.health=ent.mp=500;ent.exists=1;
  if(c->boundary==1)ent.health=ent.mp=(-2147483647-1);
  else if(c->boundary==2)ent.health=ent.mp=2147483647;

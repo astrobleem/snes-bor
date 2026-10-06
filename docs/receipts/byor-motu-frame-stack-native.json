@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_M4_FRAME_STACK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-frame-stack-clock-native/report.json",
+    "sha256": "1b3cda71fee0b1fd60fb466db319421104928d30e781fe7aac2884a9ec73585a"
+  },
+  "native_rom_sha256": "ce7284fe770c4f26002940ab4f1cfb1f03b237ceaf06f343a1d39bdf432a15ac",
+  "cases": 158,
+  "peak_call_master_clocks": 47214,
+  "average_call_master_clocks": 26128.227848101265,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "stack_range": "40F000..40FFFF",
+  "snapshot_range": "7FFB50..7FFD3F",
+  "maximum_depth": 8,
+  "bytes_per_snapshot": 496,
+  "row_stride": 512,
+  "lifo_chains": 4,
+  "proof": "All eight depths, four complete 8-push/8-pop chains, invalid boundaries/capacity, all snapshot/guard bytes and untouched live entities/model cache, preserved CPU context; direct clock cannot commit outstanding continuations.",
+  "child_services_instrumented": true,
+  "recursive_interpreter_bound": false,
+  "weapon_frame_execution_bound": false
+}

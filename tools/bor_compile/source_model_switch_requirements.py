@@ -81,6 +81,28 @@ def pack_animation_cache(report):
     return struct.pack('<'+'H'*len(values),*values)
 
 
+def pack_weapon_metadata(report):
+    """Immutable B4MW list identities plus mutable cached pointer/count rows."""
+    count=len(report['models'])
+    if not 1<=count<=16:raise ValueError('MODEL_WEAPON_METADATA_CAPACITY')
+    cache=bytearray(count*32);directory=bytearray();pool=bytearray()
+    for number,model in enumerate(report['models']):
+        if model['id']!=number:raise ValueError('MODEL_WEAPON_METADATA_IDENTITY')
+        flags=model['model_flag'];weapons=model['weapon_ids'];loss=model['weaploss']
+        if not 0<=flags<=7 or len(loss)!=2 or any(not -0x80000000<=v<=0x7fffffff for v in loss):
+            raise ValueError('MODEL_WEAPON_METADATA_DOMAIN')
+        if weapons is not None and (len(weapons)>128 or any(not 0<=v<count for v in weapons)):
+            raise ValueError('SOURCE_WEAPON_CACHED_INDEX_UNDEFINED')
+        size=len(weapons) if weapons is not None else 0
+        owner=number if weapons is not None else 65535
+        struct.pack_into('<4H2i',cache,number*32,owner,size,flags,0,*loss)
+        at=16+8*count+len(pool)
+        directory.extend(struct.pack('<4H',number,size,at,0))
+        if weapons:pool.extend(struct.pack('<'+'h'*size,*weapons))
+    table=struct.pack('<4s6H',b'B4MW',1,count,8,16,32,0)+directory+pool
+    return bytes(cache),table
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();r=derive(Source(a.source))

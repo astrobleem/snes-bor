@@ -94,6 +94,11 @@ AnimationInitFixture_Result:
 .a16
 .i16
  nop
+ jsl CLOCK
+AnimationInitFixture_ClockResult:
+.a16
+.i16
+ nop
  lda.l INDEX
  inc a
  sta.l INDEX
@@ -127,7 +132,7 @@ AnimationInitFixture_Return:
  jml RESUME
 '''
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,APPLY=sy['SourceAnimationInit4086_Begin'],
-        EXPECTFAULT=REQUEST+6,MODE=REQUEST+8,ACK=sy['SourceAnimationInit4086_Ack'],CASES=len(rows),READY=sy['SourceAnimationInit4086_Ready'],WORLDREADY=sy['VmSourceWorld_Ready'],RESUME=entry+5)
+        EXPECTFAULT=REQUEST+6,MODE=REQUEST+8,CLOCK=sy['SourceClock4086_Commit'],ACK=sy['SourceAnimationInit4086_Ack'],CASES=len(rows),READY=sy['SourceAnimationInit4086_Ready'],WORLDREADY=sy['VmSourceWorld_Ready'],RESUME=entry+5)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     pasm=folder/'fixture.pasm';pasm.write_text(asm)
     proc=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(pasm),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True)
@@ -141,7 +146,7 @@ AnimationInitFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceAnimationInit4086_','SourceModelAnimationCopy4086_','SourceModelEntityCopy4086_','SourceUpdateFrame4086_','VmSourceWorld_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceAnimationInit4086_','SourceModelAnimationCopy4086_','SourceModelEntityCopy4086_','SourceUpdateFrame4086_','SourceClock4086_','SourceWorldTick4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local start=0;local context_faults=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -164,6 +169,8 @@ emu.addMemoryCallback(function()
  put(sy.SourceModelEntityCopy4086_Ready,0xb4eb)
  put(sy.SourceModelAnimationCopy4086_Ready,0xb4e9);put(sy.SourceModelAnimationCopy4086_Models,1);put(sy.SourceModelAnimationCopy4086_Maximum,4);put(sy.SourceModelAnimationCopy4086_Bytes,8)
  put(sy.SourceUpdateFrame4086_Ready,0xb4e3);put(sy.SourceUpdateFrame4086_Base,0x8000);put(sy.SourceUpdateFrame4086_Bank,60);put(sy.SourceUpdateFrame4086_Bytes,FEBYTES);put(sy.SourceUpdateFrame4086_Animations,HANDLES)
+ put(sy.SourceUpdateFrame4086_State,0);put(sy.SourceUpdateFrame4086_Pending,0)
+ put(sy.SourceClock4086_Ready,0xb4c5);put(sy.SourceClock4086_Due,1);put(sy.SourceClock4086_TimeLo,48);put(sy.SourceClock4086_TimeHi,0);put(sy.SourceClock4086_Fault,0);put(sy.SourceWorldTick4086_Ready,0)
  put(EXPECTFAULT,c.fault);put(MODE,0)
  if c.bad=='ready'then set('Ready',0)
  elseif c.bad=='world'then put(sy.VmSourceWorld_Ready,0)
@@ -208,8 +215,11 @@ emu.addMemoryCallback(function()
  local mismatch=0;for addr,value in pairs(before)do if emu.read(addr,mt)~=value then mismatch=mismatch+1 end end
  emu.log('ANIMINITRESULT|'..word(INDEX)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..mismatch..'|'..context_faults)
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('ANIMINITCLOCK|'..word(INDEX)..'|'..word(sy.SourceClock4086_Due)..'|'..word(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Fault))
+end,emu.callbackType.exec,CLOCKRESULT,CLOCKRESULT,emu.cpuType.snes,mt)
 '''
-    for k,v in dict(INDEX=INDEX,MODE=REQUEST+8,ACK=sy['SourceAnimationInit4086_Ack'],EXPECTFAULT=REQUEST+6,INIT=fs['AnimationInitFixture_Init'],APPLY=sy['SourceAnimationInit4086_Begin'],AFTER=fs['AnimationInitFixture_After'],RESULT=fs['AnimationInitFixture_Result'],AIBYTES=len(ai),FEBYTES=len(fe),HANDLES=len(synthetic)).items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
+    for k,v in dict(INDEX=INDEX,MODE=REQUEST+8,ACK=sy['SourceAnimationInit4086_Ack'],CLOCKRESULT=fs['AnimationInitFixture_ClockResult'],EXPECTFAULT=REQUEST+6,INIT=fs['AnimationInitFixture_Init'],APPLY=sy['SourceAnimationInit4086_Begin'],AFTER=fs['AnimationInitFixture_After'],RESULT=fs['AnimationInitFixture_Result'],AIBYTES=len(ai),FEBYTES=len(fe),HANDLES=len(synthetic)).items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     script=folder/'observer.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -227,13 +237,14 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
             run_frames_exact(m,1)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native initialization batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
-    results=[];costs=[]
+    results=[];costs=[];clocks=[]
     for line in (folder/'mesen.log').read_text().splitlines():
-        for marker,target in [('ANIMINITRESULT|',results),('ANIMINITCOST|',costs)]:
+        for marker,target in [('ANIMINITRESULT|',results),('ANIMINITCOST|',costs),('ANIMINITCLOCK|',clocks)]:
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('C-derived initialization preserves all unrelated entity/cache bytes and CPU context',len(results)==len(rows) and all(r==[i,3 if c['fault'] else 1 if c['wanted'][-1] else 2,0,0] for i,(r,c) in enumerate(zip(results,rows))))
+    reporter.check('direct clock commit cannot retire pending or faulty initialization',len(clocks)==len(rows) and all(r==[i,1,48,1] if c['wanted'][-1] or c['fault'] and c['bad']!='ready' else r==[i,0,49,0] for i,(r,c) in enumerate(zip(clocks,rows))))
     report=dict(schema='BYOR_4086_ANIMATION_INIT_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),authority_report_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),
-        authored_table_sha256=hashlib.sha256(authored_data).hexdigest(),authored_animations=len(authored['animations']),cases=len(rows),results=results,cpu_costs=costs,
+        authored_table_sha256=hashlib.sha256(authored_data).hexdigest(),authored_animations=len(authored['animations']),cases=len(rows),results=results,cpu_costs=costs,clock_results=clocks,
         frame_zero_service_instrumented=True,frame_zero_effects_bound=False,nested_owner_bound=False,live_presentation_contention_proven=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
