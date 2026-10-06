@@ -1,0 +1,175 @@
+{
+  "status": "PASS",
+  "rom_sha256": "21706441ba99d2b991a35d9a0a3ef3e4b820c9eaca5449ec16a50d94a5ef55bc",
+  "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+  "table_bytes": 698500,
+  "source_color_rows": 254,
+  "destination_color_count": 1375,
+  "input_pixels": 5502,
+  "pose_pixels": [
+    2751,
+    2751
+  ],
+  "changed_underlay_pixels": 142,
+  "rgb555_mismatches": 0,
+  "job_master_clocks": 703594,
+  "clocks_per_pixel": 127.87968011632134,
+  "events": [
+    [
+      12839,
+      2917092
+    ],
+    [
+      12949,
+      3620686
+    ]
+  ],
+  "busy_host_bwram_reads": true,
+  "iram_code": true,
+  "immutable_source_rows_in_rom": true,
+  "loop_unroll": 3,
+  "destination_range_checked": true,
+  "native_fault": 0,
+  "invalid_destination_probe": false,
+  "no_color_reduction": true,
+  "source_poses": [
+    {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            80,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            200,
+            220,
+            0
+          ],
+          "order": 1
+        }
+      ]
+    },
+    {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            50,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            200,
+            220,
+            0
+          ],
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "scope": "Native exact table reads with mutable destination IDs; source-derived changed underlay inputs. No live compositor, online palette allocation, BG update or gameplay proof.",
+  "schema": "BYOR_DYNAMIC_UNDERLAY_SCREEN_LOOKUP_NATIVE_V1",
+  "catalog_effects": [
+    {
+      "model": "HBreath",
+      "rows": 254,
+      "columns": 1375,
+      "row_stride_bytes": 2750,
+      "table_bytes": 698500,
+      "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f"
+    },
+    {
+      "model": "HWWind",
+      "rows": 246,
+      "columns": 1375,
+      "row_stride_bytes": 2750,
+      "table_bytes": 676500,
+      "table_sha256": "f26ee08e2200e733ed144bc112fc253ac72bbd6d8f99e3497c7a59b4a510ff83"
+    },
+    {
+      "model": "SkFBall",
+      "rows": 129,
+      "columns": 1375,
+      "row_stride_bytes": 2750,
+      "table_bytes": 354750,
+      "table_sha256": "1cefb1721f8a461d529d2ca70c2cca09324b628d75bcf57d0a7d1cdd7a2014d8"
+    }
+  ],
+  "total_matrix_bytes": 1729750,
+  "invalid_destination_rejection": {
+    "status": "PASS",
+    "native_fault": 1,
+    "rom_sha256": "c96795ebe13db5915e54b646644abbf50d060fb6496a0082dbe40a55cd5e7630",
+    "rejection_master_clocks": 96
+  },
+  "tests": "3 focused tests including all 65536 channel pairs for each RGB channel and rejection of noninteger identities",
+  "production_runtime_modified": false,
+  "motu_gameplay_proven": false,
+  "limitations": [
+    "No native underlay generation or geometry traversal",
+    "No online BG palette allocation or publication",
+    "Only one SCREEN layer admitted; stacked SCREEN not bound",
+    "Two explicit poses do not prove gameplay reachability",
+    "Lookup timing is not a complete frame budget"
+  ],
+  "color_reduction_applied": false
+}
