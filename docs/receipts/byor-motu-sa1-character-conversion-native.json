@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_SA1_CHARACTER_CONVERSION_PROOF_V1",
+  "status": "PASS",
+  "proofs": {
+    "type2": {
+      "path": "out/byor-motu-sa1-character-domain-native/result.json",
+      "rom_sha256": "675c66c14f6722315079a6105399bf1a5030cc996266491c133cc457683e3cbe",
+      "bytes": 14336,
+      "timings": {
+        "8": 405016,
+        "4": 283066,
+        "2": 222004
+      },
+      "exact": true
+    },
+    "type1_bitmap": {
+      "path": "out/byor-motu-sa1-type1-timed-native/result.json",
+      "rom_sha256": "c8b43d232c4b18399b58c0fbb185c1c47b0370a460005ba54dc58e7f158de6f4",
+      "bytes": 14336,
+      "timings": {
+        "8": 67642,
+        "4": 33874,
+        "2": 16970
+      },
+      "exact": true
+    },
+    "type1_tiles": {
+      "path": "out/byor-motu-sa1-type1-tile-native/result.json",
+      "rom_sha256": "c431b25f127fac1eed412357bc7f85a7d6957f60afd2dfa3370e80da5202eb57",
+      "bytes": 14336,
+      "timings": {
+        "8": 67642,
+        "4": 33874,
+        "2": 16970
+      },
+      "exact": true
+    }
+  },
+  "manual_authority": "Nintendo SNES Development Manual Book II sections 6.4, 6.5 and 6.7",
+  "type1_contract": "SA-1 owns DCNT; S-CPU waits for CHRIRQ, owns shared descriptors and DMA7, performs no other BW-RAM reads until CHDEND; two aligned IRAM character buffers",
+  "type2_bug_fixed": "SA-1 IRAM write permission is enabled before the first stack push; an uninitialized DBR previously depended on random stack bytes.",
+  "type1_observer_contract": "The completed-transfer observer runs after an intervening instruction, covering deferred MDMA activation; byte-times are validated against bytes times eight.",
+  "scope": "Source-neutral 2/4/8bpp packing and forced-blank VRAM delivery only. No SCREEN-to-PPU, production contention or gameplay admission.",
+  "no_color_reduction": true,
+  "bank0_production_growth": 0
+}

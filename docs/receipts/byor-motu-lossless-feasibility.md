@@ -1097,3 +1097,22 @@ heuristic failures, not hardware infeasibility.
 Receipt: `byor-motu-component-production-sequence-native.json`. Live RGB8
 composition, actor/camera movement, production TAD frame service and the MOTU
 world remain unbound. No color reduction is applied.
+
+### Native SA-1 character conversion
+
+Both type-2 register-fed packing and type-1 bitmap DMA pass exact byte
+comparison through VRAM for 128 source-neutral tiles at each of 2/4/8bpp.
+Type-1 is tested with both sixteen-column bitmaps and one-column tile storage.
+Its 8/4/2bpp transfer spans are 67,642 / 33,874 / 16,970 master clocks; type-2
+packing plus copying into BW-RAM takes 405,016 / 283,066 / 222,004 clocks before
+the later VRAM DMA. The Nintendo manual specifies that type-1 conversion runs
+at S-CPU DMA speed. Generic serialization and checked descriptors enforce
+source alignment, bit depth, bank boundaries and IRAM buffer alignment.
+
+The observer includes deferred MDMA activation; an immediate post-write exec
+callback was measured to fire before the actual transfer and is not used as
+a transfer-cost proof. The type-2 bootstrap enables SA-1 IRAM writes before
+its first stack push, fixing a random-DBR fixture fault. These fixtures do not
+feed SCREEN output into the PPU or admit production DMA/IRQ contention.
+Receipt: `byor-motu-sa1-character-conversion-native.json`. No source artwork
+or colors are reduced.
