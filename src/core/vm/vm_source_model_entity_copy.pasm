@@ -168,6 +168,20 @@ SourceModelEntityCopy4086_Branch_15:
 SourceModelEntityCopy4086_Branch_16:
 .a16
 .i16
+    lda.l SourceLifecycle4086_Ready
+    beq SourceModelEntityCopy4086_LifecycleDone
+    lda.l SourceModelEntityCopy4086_Slot
+    sta.l SourceLifecycle4086_Slot
+    lda.l SourceModelEntityCopy4086_Model
+    sta.l SourceLifecycle4086_Model
+    lda #0
+    sta.l SourceLifecycle4086_Reset
+    jsl SourceLifecycle4086_Apply
+    bcc SourceModelEntityCopy4086_LifecycleDone
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_LifecycleDone:
+.a16
+.i16
     lda.l SourceModelEntityCopy4086_Entity
     tax
     lda.l $400048,x

@@ -11,6 +11,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from source_model_registry import unpack as unpack_models
 from source_birth_templates import unpack as unpack_birth,STRIDE
 from source_birth_core import unpack as unpack_core,STRIDE as CORE_STRIDE
+from source_lifecycle_inputs import unpack as unpack_lifecycle
 from source_world_pool import empty_pool,descriptor,POOL_BANK,POOL_BASE,SIDE_BASE
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
@@ -26,6 +27,7 @@ def main():
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--birth-templates',type=Path,required=True)
     p.add_argument('--frame-aux',action='store_true',help='Lease and verify auxiliary update_frame state during birth')
     p.add_argument('--birth-core',type=Path,help='Paired B4BI physical core/flags/relation augmentation')
+    p.add_argument('--lifecycle',type=Path,help='Paired B4LI current-model scalars at physical birth')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
@@ -41,6 +43,11 @@ def main():
     if coretable:
         if unpack_core(coretable)!=count or len(models)+len(births)+len(coretable)>32768:raise ValueError('BIRTH_CORE_PAIRED_RESERVATION')
         raw[offset+len(models)+len(births):offset+len(models)+len(births)+len(coretable)]=coretable
+    lifetable=a.lifecycle.read_bytes() if a.lifecycle else b''
+    lifeaddress=coreaddress+len(coretable)
+    if lifetable:
+        if not coretable or len(unpack_lifecycle(lifetable))!=count or lifeaddress-address+len(lifetable)>32768:raise ValueError('LIFECYCLE_BIRTH_PAIRED_RESERVATION')
+        raw[offset+lifeaddress-address:offset+lifeaddress-address+len(lifetable)]=lifetable
     rom=a.output/'bor.sfc';rom.write_bytes(raw)
     for path in [a.rom.resolve().with_suffix('.msu'),*a.rom.resolve().parent.glob('bor-*.pcm')]:
         destination=a.output/path.name
@@ -76,6 +83,7 @@ def main():
     cases.extend((n,'HBreath',None,'PTR_FAULT' if n in ('toss_range','toss_no_aux') else 'PTR') for n in toss_cases)
     if coretable:cases.extend((n,'HBreath',None,'FAULT') for n in ('missing_core','existing_vars'))
     if coretable:cases.extend([(n,'HBreath',None,outcome) for n,outcome in (('kill_birth','PTR_KILLED'),('kill_dead_birth','PTR_KILLED'),('retire_reuse','PTR'))])
+    if lifetable:cases.extend((n,'HBreath',None,'FAULT')for n in ('life_bad_ready','life_bad_table','life_paired','life_sticky'))
     reporter=Reporter('M4-SOURCE-WORLD-BIRTH',kind='GATE');results=[]
     const='src/core/vm/vm_consts.pasm';call='src/core/vm/vm_call.pasm';registry='src/core/vm/vm_source_models.pasm'
     world='src/core/vm/vm_source_world_birth.pasm'
@@ -103,6 +111,7 @@ def main():
                 for n in range(2):struct.pack_into('<H',pool,n*80+4,1)
             if name=='zero_token':pool[:4]=bytes(4)
             pool=bytes(pool)
+            m.write_u16(syms['SourceLifecycle4086_Ready'],0)
             m.write_u16(syms['SourceBirthCore4086_Ready'],0)
             m.write_u16(syms['SourceRetirement4086_Ready'],0)
             initial_core=bytes([0xa5])*192;initial_flags=bytes([0xa5])*64;initial_relations=bytes(128)
@@ -112,6 +121,14 @@ def main():
                 for k,v in [('SourceModelEntityCopy4086_Ready',0xb4eb),('SourceModelEntityCopy4086_Entities',2),('SourceModelEntityCopy4086_Models',16),('SourceIdle4086_Ready',0xb4f3),('SourceSelf4086_Ready',0xb4f6),('SourceSelf4086_GlobalLow',0),('SourceSelf4086_GlobalHigh',0),('SourceSelf4086_Active',0),('SourceSelf4086_Fault',0),('VmSourceVars_Ready',0xb4a4),('VmSourceVars_Base',0x8800),('VmSourceVars_Bank',0x41),('VmSourceVars_Count',384),('SourceRetirement4086_Ready',0xb4f8),('SourceRetirement4086_Status',0),('SourceBirthCore4086_Ready',0xb4f9),('SourceBirthCore4086_Status',0),('SourceBirthCore4086_Base',coreaddress&65535),('SourceBirthCore4086_Bank',coreaddress>>16),('SourceBirthCore4086_Bytes',len(coretable)),('SourceBirthCore4086_Models',16)]:m.write_u16(syms[k],v)
                 if name=='missing_core':m.write_u16(syms['SourceBirthCore4086_Ready'],0)
                 if name=='existing_vars':m.write_memory('snesMemory',0x418800,struct.pack('<I',0x414000).hex())
+            initial_life=bytes([0xa5])*160
+            if lifetable:
+                m.write_memory('snesMemory',0x439000,initial_life.hex())
+                for k,v in [('SourceLifecycle4086_Ready',0xb4fb),('SourceLifecycle4086_Status',0),('SourceLifecycle4086_Base',lifeaddress&65535),('SourceLifecycle4086_Bank',lifeaddress>>16),('SourceLifecycle4086_Bytes',len(lifetable)),('SourceLifecycle4086_Models',16)]:m.write_u16(syms[k],v)
+                if name=='life_bad_ready':m.write_u16(syms['SourceLifecycle4086_Ready'],0xffff)
+                if name=='life_bad_table':m.write_u16(syms['SourceLifecycle4086_Base'],(lifeaddress+2)&65535)
+                if name=='life_paired':m.write_u16(syms['SourceLifecycle4086_Models'],15)
+                if name=='life_sticky':m.write_u16(syms['SourceLifecycle4086_Status'],3)
             m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
             ordered=name in ('reordered_allocated','invalid_order')
@@ -202,6 +219,11 @@ def main():
                 if name in ('kill_birth','kill_dead_birth','retire_reuse'):
                     local=compiled['function_local_slots']['main'];expected_kill=struct.pack('<BBHI',1,0,0,1)
                     reporter.check(name+' typed kill result and dead pointer/reuse identity',read_block(m,c(const,'VmSlots_Wram')+8*local['killed'],32)[:8]==expected_kill and (name!='kill_dead_birth' or read_block(m,c(const,'VmSlots_Wram')+8*local['second'],32)[:8]==expected_kill) and (name!='retire_reuse' or read_block(m,c(const,'VmSlots_Wram')+8*local['again'],32)[:8]==returned))
+            if lifetable:
+                expected_life=bytearray(initial_life)
+                if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
+                    row=bytearray(80);row[48:68]=lifetable[24+model_id*32+4:24+model_id*32+24];struct.pack_into('<HH',row,72,model_id,0xb4fb);expected_life[born_slot*80:(born_slot+1)*80]=row
+                reporter.check(name+' current lifecycle row published before alive, or preserved on rejection',read_block(m,0x439000,160)==bytes(expected_life))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -211,6 +233,7 @@ def main():
         m.write_u16(syms['SourceWorldTick4086_Ready'],0)
         m.write_u16(syms['SourceToss4086_Ready'],0)
         m.write_u16(syms['SourceUpdateFrame4086_Ready'],0)
+        m.write_u16(syms['SourceLifecycle4086_Ready'],0)
         m.write_u16(syms['SourceBirthCore4086_Ready'],0)
         m.write_u16(syms['SourceRetirement4086_Ready'],0)
     report=dict(schema='BYOR_CHECKED_NATIVE_WORLD_BIRTH_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
@@ -221,6 +244,8 @@ def main():
     report['toss_cases']=list(toss_cases)
     report['frame_auxiliary_initialization_proven']=a.frame_aux
     report['physical_birth_core_initialization_proven']=bool(coretable)
+    report['current_lifecycle_birth_installation_proven']=bool(lifetable)
+    report['lifecycle_table_sha256']=hashlib.sha256(lifetable).hexdigest() if lifetable else None
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

@@ -292,6 +292,7 @@ emu.addMemoryCallback(function()
  set('SourceFrameEffectPlan4086_Ready',0);set('SourceSelf4086_Ready',0);set('SourceFrameMotion4086_Ready',0)
  set('SourceAnimationInit4086_Ready',0);set('SourceModelAnimation4086_Ready',0);set('SourceModelTransition4086_Ready',0);set('SourceFrameStack4086_Ready',0)
  set('SourceRetirement4086_Ready',0)
+ set('SourceLifecycle4086_Ready',0)
  set('SourceBirthCore4086_Ready',0)
  INSTALL_EFFECT_RUNNER
  INSTALL_BIRTH_CORE

@@ -1,0 +1,67 @@
+{
+  "schema": "BYOR_M4_CURRENT_LIFECYCLE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "scalar": {
+      "path": "out/byor-motu-lifecycle-native/report.json",
+      "sha256": "1887e6fd599c936b516e5dfc03abf0a7543fed32f7081be098f3b4e3fd833923",
+      "cases": 160,
+      "rom_sha256": "fd5b32148005021e8b57eb7a1cb137b7babceda5c40c27d923e3bf8ebcefd9d2"
+    },
+    "birth": {
+      "path": "out/byor-motu-world-lifecycle-native/report.json",
+      "sha256": "463a38125eba7c8d135817261d8264bb6426cb5965b411a2bdda29d68b4d7410",
+      "cases": 33,
+      "rom_sha256": "5ab9b91cb874be7565403d4cea8e1f256bb8c7f5c01a5243a2929caab37cbe2e"
+    },
+    "model_copy": {
+      "path": "out/byor-motu-model-lifecycle-native/report.json",
+      "sha256": "a4d9b1516c4c72b45dbf330bdd98a0816dfa44a036796f0503fb50419c378da2",
+      "cases": 466,
+      "rom_sha256": "78af33be1a405aad88446853fc397162597dd4a1b175de6d70f496fc0a9439a6"
+    }
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "lease": "B4FB",
+  "physical_range": "439000..43B7FF, 128 rows of 80 bytes",
+  "fields": {
+    "think": 0,
+    "takedamage": 4,
+    "trymove": 8,
+    "takeaction": 12,
+    "nograb": 16,
+    "dead": 20,
+    "invincible": 24,
+    "blink": 28,
+    "invinctime": 32,
+    "arrowon": 36,
+    "ptype": 40,
+    "reserved": 44,
+    "current_subtype": 48,
+    "current_nomove": 52,
+    "current_makeinv": 56,
+    "current_priority": 60,
+    "current_knockdowncount_binary32": 64,
+    "reserved2": 68,
+    "current_model_id_u16": 72,
+    "initialized_marker_u16": 74,
+    "reserved3": 76
+  },
+  "native_installer": "SourceLifecycle4086_Preflight/Apply",
+  "birth": "Paired scalar row validated before view/side publication; reset full lifecycle row before alive",
+  "model_change": "Replace current model scalars; preserve current callbacks/lifecycle state; reject malformed lease before core writes",
+  "clock": "Admitted bad readiness or sticky fault blocks source clock retirement",
+  "ordinary_optout": "Ready zero; cold initialization clears new lease and status",
+  "held_renderer_palette_binding_limit": "32768 byte immutable bindings bound; at most 8192 output words, destination ends at 435E00",
+  "held_renderer_geometry_workspace": "Existing held proof low chunky buffer 430000..4327FF; high chunky buffer 420000..42DFFF",
+  "production_renderer_coexistence_proven": false,
+  "scratch_snapshot": "Only synchronous transient parameter/read scratch outside existing 528-byte frame continuation; no new pending ticket",
+  "callback_execution_bound": false,
+  "full_constructor_bound": false,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "rom_audit": "out/byor-motu-lifecycle-audit.log: ALL CHECKS PASS"
+}

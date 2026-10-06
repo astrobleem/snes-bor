@@ -290,6 +290,17 @@ SourceBirthCore4086_VarNext:
  sta.l SourceBirthCore4086_Variable
  dey
  bne SourceBirthCore4086_VarLoop
+ lda.l SourceLifecycle4086_Ready
+ beq SourceBirthCore4086_Good
+ lda.l SourceBirthCore4086_Slot
+ sta.l SourceLifecycle4086_Slot
+ lda.l SourceBirthCore4086_Model
+ sta.l SourceLifecycle4086_Model
+ lda #1
+ sta.l SourceLifecycle4086_Reset
+ jsl SourceLifecycle4086_Preflight
+ bcc SourceBirthCore4086_Good
+ jmp SourceBirthCore4086_Bad
 SourceBirthCore4086_Good:
 .a16
 .i16
@@ -326,6 +337,14 @@ SourceBirthCore4086_Guard_27:
  bne SourceBirthCore4086_Guard_28
  jmp SourceBirthCore4086_Good
 SourceBirthCore4086_Guard_28:
+.a16
+.i16
+ lda.l SourceLifecycle4086_Ready
+ beq SourceBirthCore4086_LifecycleDone
+ jsl SourceLifecycle4086_Apply
+ bcc SourceBirthCore4086_LifecycleDone
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_LifecycleDone:
 .a16
 .i16
  lda #1

@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from source_model_switch_4086 import CACHED_FIELDS,ENTITY_CORE_FIELDS
+from source_lifecycle_inputs import unpack as unpack_lifecycle,pack as pack_lifecycle
 from actor_s5_entity_fixture import symbols
 from m4_input_controller_native import offset
 from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,run_frames_exact,exact_input_edge
@@ -15,6 +16,7 @@ REQUEST,INDEX,ERROR=0x7ffb80,0x7ffb82,0x7ffb84
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True)
+    p.add_argument('--lifecycle',type=Path,help='Enable paired current-model scalar installation')
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads(a.authority.read_text())
@@ -42,9 +44,12 @@ def main():
             want=bytearray(view);struct.pack_into('<i',want,36,int(actual[2]));struct.pack_into('<i',want,68,int(core[15]))
             rows.append(dict(slot=slot,cache=list(cache),before=list(before),after=list(after),view=list(view),want=list(want),
                 oldtype=c['oldtype'],fault=0,bad='',boundary=c['boundary']))
+    lifetable=pack_lifecycle(dict(models=unpack_lifecycle(a.lifecycle.read_bytes())[:2])) if a.lifecycle else b''
     base=rows[0]
     for bad in ('ready','world_ready','world_base','entities','slot','models','model','health_tag','max_tag','health_reserved','max_reserved'):
         rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
+    if lifetable:
+        for bad in ('life_ready','life_sticky','life_table','life_paired','life_uninitialized'):rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(a.rom.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[0x7fd8]!=8:raise ValueError('MODEL_ENTITY_PROOF_RESERVED_ROM_OR_BWRAM')
     asm='''.snes
@@ -60,10 +65,6 @@ EntityCopyFixture_Gate:
  lda.l REQUEST
  cmp #$B4EC
  bne EntityCopyFixture_Return
- lda #0
- sta.l REQUEST
- sta.l INDEX
- sta.l ERROR
 EntityCopyFixture_Init:
 .a16
 .i16
@@ -90,8 +91,10 @@ EntityCopyFixture_Result:
  inc a
  sta.l INDEX
  cmp #CASES
- bcc EntityCopyFixture_Init
- bra EntityCopyFixture_Done
+ bcs EntityCopyFixture_Done
+ and #7
+ bne EntityCopyFixture_Init
+ bra EntityCopyFixture_Return
 EntityCopyFixture_Bad:
 .a16
 .i16
@@ -101,6 +104,7 @@ EntityCopyFixture_Done:
 .a16
 .i16
  lda #0
+ sta.l REQUEST
  sta.l READY
  sta.l WORLDREADY
 EntityCopyFixture_Return:
@@ -127,6 +131,8 @@ EntityCopyFixture_Return:
     fs=symbols(folder/'fixture.sym');code=(folder/'fixture.bin').read_bytes()[first:]
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('MODEL_ENTITY_PROOF_GATE')
     raw[first:first+len(code)]=code;raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['EntityCopyFixture_Gate'])[:3]+b'\xea'
+    if lifetable:
+        assert raw[59*32768:60*32768]==bytes(32768);raw[59*32768:59*32768+len(lifetable)]=lifetable
     rom=folder/'bor.sfc';rom.write_bytes(raw)
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
@@ -136,7 +142,8 @@ EntityCopyFixture_Return:
         if isinstance(value,list):return '{'+','.join(luav(v) for v in value)+'}'
         if isinstance(value,dict):return '{'+','.join(k+'='+luav(v) for k,v in value.items())+'}'
         return str(value)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceLifecycle4086_','SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
+    lua+='local lifeenabled='+str(bool(lifetable)).lower()+'\nlocal lifetable='+luav(list(lifetable))+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local cpu={};local start=0;local context_faults=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -145,6 +152,17 @@ local function set(k,v)put(sy['SourceModelEntityCopy4086_'..k],v)end
 local function copy(a,t)for i,v in ipairs(t)do emu.write(a+i-1,v,mt)end end
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
+ put(sy.SourceLifecycle4086_Ready,0)
+ if lifeenabled then
+  for i=0,10239 do emu.write(0x439000+i,0xa5,mt)end
+  put(0x43904a+c.slot*80,0xb4fb)
+  for k,v in pairs({Ready=0xb4fb,Status=0,Base=0x8000,Bank=59,Bytes=#lifetable,Models=2})do put(sy['SourceLifecycle4086_'..k],v)end
+  if c.bad=='life_ready'then put(sy.SourceLifecycle4086_Ready,0xffff)
+  elseif c.bad=='life_sticky'then put(sy.SourceLifecycle4086_Status,3)
+  elseif c.bad=='life_table'then put(sy.SourceLifecycle4086_Base,0x8002)
+  elseif c.bad=='life_paired'then put(sy.SourceLifecycle4086_Models,1)
+  elseif c.bad=='life_uninitialized'then put(0x43904a+c.slot*80,0)end
+ end
  for i=0,12287 do emu.write(0x40c000+i,0xa5,mt)end
  for i=0,10239 do emu.write(0x414000+i,0xa5,mt)end
  copy(0x40b000,c.cache);copy(0x40c000+96*c.slot,c.before);copy(0x414000+80*c.slot,c.view)
@@ -179,6 +197,16 @@ emu.addMemoryCallback(function()
  for i=0,10239 do local r=i-80*c.slot;local v=r>=0 and r<80 and c.want[r+1] or 0xa5;if emu.read(0x414000+i,mt)~=v then mismatch=mismatch+1 end end
  for i,v in ipairs(c.cache)do if emu.read(0x40b000+i-1,mt)~=v then cachefault=cachefault+1 end end
  for i=0,63 do if emu.read(0x40bfc0+i,mt)~=0x7b then guards=guards+1 end;if emu.read(0x40f000+i,mt)~=0x2d then guards=guards+1 end end
+ if lifeenabled then
+  local expected={};for i=0,10239 do expected[i]=0xa5 end
+  expected[c.slot*80+74]=0xfb;expected[c.slot*80+75]=0xb4
+  if c.bad=='life_uninitialized'then expected[c.slot*80+74]=0;expected[c.slot*80+75]=0 end
+  if c.fault==0 then
+   for i=0,19 do expected[c.slot*80+48+i]=lifetable[24+32+4+i+1]end
+   expected[c.slot*80+72]=1;expected[c.slot*80+73]=0
+  end
+  for i=0,10239 do if emu.read(0x439000+i,mt)~=expected[i]then mismatch=mismatch+1 end end
+ end
  emu.log('ENTITYCOPYRESULT|'..word(INDEX)..'|'..word(sy.SourceModelEntityCopy4086_Status)..'|'..mismatch..'|'..guards..'|'..cachefault..'|'..context_faults..'|'..word(sy.SourceModelEntityCopy4086_OldTypeLo)..'|'..word(sy.SourceModelEntityCopy4086_OldTypeHi))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
@@ -197,9 +225,9 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         reporter.check('cold entity model copy disabled',startup.u16(m,sy['SourceModelEntityCopy4086_Ready'])==0)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('MODEL_ENTITY_BOOTSTRAP')
-        run_frames_exact(m,12);m.write_u16(REQUEST,0xb4ec)
-        for _ in range(24):
-            run_frames_exact(m,60)
+        run_frames_exact(m,12);m.write_u16(INDEX,0);m.write_u16(ERROR,0);m.write_u16(REQUEST,0xb4ec)
+        for _ in range(2000):
+            run_frames_exact(m,1)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native entity model copy batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
     results=[];costs=[]
@@ -213,6 +241,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         cases=len(rows),rejection_cases=sum(c['fault'] for c in rows),results=results,cpu_costs=costs,
         core_fields=ENTITY_CORE_FIELDS,cache_fields=CACHED_FIELDS,cache_range='40B000..40B9FF',entity_range='40C000..40EFFF',
         source_type_policy='Install new model type now; return original entity type for restoration after source animation initialization.',
+        current_model_lifecycle_installation_proven=bool(lifetable),lifecycle_table_sha256=hashlib.sha256(lifetable).hexdigest() if lifetable else None,
         full_model_switch_bound=False,animation_initialization_bound=False,live_presentation_contention_proven=False,
         motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
