@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import struct
 from pathlib import Path
 import subprocess
 import sys
@@ -29,11 +30,27 @@ FAULT_INDEX=0x7ffb26
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--script-source',type=Path)
+    p.add_argument('--script-library',default='DATA/SCRIPTS/SCRIPT.C')
+    p.add_argument('--script-expression',default='dasher(1.5,0.25,-0.75);'*9)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads((a.authority/'report.json').read_text());rows=cases()
     if authority['status']!='PASS' or [r['case'] for r in authority['results']]!=rows:
         raise ValueError('WORLD_TICK_PINNED_AUTHORITY_REQUIRED')
     sy=symbols(Path('src/main.sym'));rom=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate'];start=39*32768
+    callback=None;callback_blob=None
+    if a.script_source:
+        from compiler import Source
+        from script_ir_4086 import parse_script
+        from script_bytecode import compile_library
+        from script_native_module import lower,POLICY
+        from script_native_api import SIGNATURES
+        raw=Source(a.script_source).read(a.script_library)
+        callback_blob,detail=lower(compile_library(parse_script(raw.decode('latin1')+'\nvoid main(){'+a.script_expression+'}',
+            a.script_library+'#owner-probe'),sorted({name for name,_ in SIGNATURES})),numeric_policy=POLICY)
+        callback=dict(source_library=a.script_library,source_sha256=hashlib.sha256(raw).hexdigest(),
+            wrapper_expression=a.script_expression,module_sha256=hashlib.sha256(callback_blob).hexdigest(),
+            numeric_policy=POLICY)
     if rom[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a') or rom[start:start+32768]!=bytes(32768):
         raise ValueError('WORLD_TICK_NATIVE_GATE_RESERVATION')
     asm='''.snes
@@ -91,6 +108,30 @@ WorldTickFixture_Observe:
 .a16
 .i16
     nop
+    lda #SCRIPTENABLED
+    beq WorldTickFixture_Ack
+    lda.l PHASE
+    cmp #5
+    bne WorldTickFixture_Ack
+WorldTickFixture_ScriptCall:
+.a16
+.i16
+    jsl SCRIPTCALL
+    bcs WorldTickFixture_PendingFault
+WorldTickFixture_ScriptReturn:
+.a16
+.i16
+    cmp #3
+    beq WorldTickFixture_ScriptCall
+    cmp #4
+    bne WorldTickFixture_PendingFault
+WorldTickFixture_ScriptComplete:
+.a16
+.i16
+    nop
+WorldTickFixture_Ack:
+.a16
+.i16
     pla
     jsl ACK
     bcs WorldTickFixture_Fault
@@ -193,6 +234,7 @@ WorldTickFixture_Done:
     sta.l WORLDREADY
     sta.l TICKREADY
     sta.l CLOCKREADY
+    sta.l SCRIPTREADY
 WorldTickFixture_Return:
 .a16
 .i16
@@ -214,7 +256,8 @@ WorldTickFixture_End:
         PHASE=sy['SourceWorldTick4086_Phase'],WORLDREADY=sy['VmSourceWorld_Ready'],
         TICKREADY=sy['SourceWorldTick4086_Ready'],CLOCKREADY=sy['SourceClock4086_Ready'])
     replacements.update(CLOCKCOMMIT=sy['SourceClock4086_Commit'],CLOCKFAULT=sy['SourceClock4086_Fault'],
-                        FAULTINDEX=FAULT_INDEX,VMSTATUS=sy['VmState_Status'])
+                        FAULTINDEX=FAULT_INDEX,VMSTATUS=sy['VmState_Status'],SCRIPTENABLED=int(callback is not None),
+                        SCRIPTCALL=sy['SourceVMRun4086_Call'],SCRIPTREADY=sy['SourceVMRun4086_Ready'])
     asm=asm.replace('    ldx.l FAULTINDEX','    lda.l FAULTINDEX\n    tax\n    lda #1')
     for name,value in replacements.items():
         asm=re.sub(r'\b'+name+r'\b',('$%06X'%value) if name!='CASES' else str(value),asm)
@@ -241,6 +284,7 @@ WorldTickFixture_End:
     fixture='{' + ','.join('{'+','.join('%s=%s'%(k,('{'+','.join(map(str,v))+'}' if isinstance(v,list) else str(int(v)))) for k,v in c.items())+'}' for c in rows)+'}'
     lua=r'''local mt=emu.memType.snesMemory
 local fixtures=FIXTURES;local sy=SYMBOLS;local spawned=false
+SCRIPTDEFINITIONS
 local function word(a) return emu.read(a,mt)+256*emu.read(a+1,mt) end
 local function put(a,v,n) for i=0,n-1 do emu.write(a+i,math.floor(v/256^i)%256,mt) end end
 local function dw(a) return word(a)+65536*word(a+2) end
@@ -260,13 +304,15 @@ emu.addMemoryCallback(function()
   put(0x41f200+2*s,c.order[s+1],2);put(0x414004+80*s,bit(c.alive,s),2)
   put(0x41680c+64*s,bit(c.fresh,s)==1 and c.time or (c.time-1)%4294967296,4)
  end
+ SCRIPTINIT
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local index=word(INDEX);local c=fixtures[index+1]
  local service=word(sy.SourceWorldTick4086_Phase);local slot=word(sy.SourceWorldTick4086_Slot)
  emu.log('WORLDTICKEVENT|'..index..'|'..service..'|'..slot..'|'..dw(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Due))
  if service==3 then put(sy.SourceWorldTick4086_Frozen,bit(c.frozen,slot),2) end
- if service==c.kill_stage and slot==c.kill_slot then put(0x414004+80*slot,0,2) end
+ SCRIPTPREPARE
+ if service==c.kill_stage and slot==c.kill_slot and (service~=5 or not callback_enabled) then put(0x414004+80*slot,0,2) end
  if service==c.spawn_stage and not spawned then
   spawned=true
   for i=0,c.n-1 do
@@ -308,6 +354,59 @@ emu.addMemoryCallback(function()
  emu.log('WORLDTICKFAULT|'..i..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..dw(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Due))
 end,emu.callbackType.exec,FAULTOBSERVE,FAULTOBSERVE,emu.cpuType.snes,mt)
 '''.replace('FIXTURES',fixture).replace('SYMBOLS','{'+','.join(k+'='+str(v) for k,v in sy.items() if k.startswith(('SourceWorldTick4086_','SourceClock4086_','VmSourceWorld_','VmState_')))+'}')
+    script_definitions=script_init=script_prepare=''
+    if callback:
+        count,slots=struct.unpack_from('<2H',callback_blob,8);offsets=struct.unpack_from('<6I',callback_blob,24)
+        slot_data=callback_blob[offsets[1]:offsets[1]+slots*8]
+        script_definitions='''local callback_enabled=true;local context_faults=0;local script_calls=0;local script_yields=0;local before_call=nil
+local function hex(a,h) for i=1,#h,2 do emu.write(a+(i-1)/2,tonumber(h:sub(i,i+1),16),mt) end end
+'''
+        script_init='\n'.join([
+            f'hex({sy["VmCode_Wram"]},"{callback_blob.hex()}")',f'hex({sy["VmSlots_Wram"]},"{slot_data.hex()}")',
+            f'put({sy["VmPriv_InstrOff"]},{offsets[0]},2)',f'put({sy["VmCall_CallsitesOff"]},{offsets[2]},2)',
+            f'put({sy["VmCall_ArgSlotsOff"]},{offsets[3]},2)',f'put({sy["VmStr_StringsOff"]},{offsets[4]},2)',
+            f'put({sy["VmState_InstrCount"]},{count},2)',f'put({sy["VmState_SlotCount"]},{slots},2)',
+            f'put({sy["VmSourceEntity_Base"]},0x4000,2)',f'put({sy["VmSourceEntity_Bank"]},0x41,2)',
+            f'put({sy["VmSourceEntity_Count"]},c.n,2)',f'put({sy["VmSourceEntity_Ready"]},0xb48b,2)',
+            f'put({sy["VmSourceMutation_Ready"]},0xb4a2,2)',f'put({sy["VmSourceVars_Ready"]},0,2)',
+            f'put({sy["VmSourceInstr_Ready"]},0,2)',f'put({sy["SourceVMRun4086_Ready"]},0xb4d7,2)',
+            f'put({sy["SourceVMRun4086_Busy"]},0,2)',
+            '''for s=0,c.n-1 do
+ local base=0x414000+80*s;put(base,base,4);put(base+6,0,2)
+ for n,tag in ipairs({2,1,1,1,1,2,2,1}) do
+  put(base+8*n,tag,2);put(base+8*n+2,0,2);put(base+8*n+4,(n==4 or n==8) and 150 or 0,4)
+ end
+ for j=72,79 do put(base+j,0,1) end
+end'''])
+        script_prepare='\n'.join([
+            'if service==5 then',
+            f' put({sy["VmNativeVariant_ContextValid"]},0xb48f,2)',
+            f' put({sy["VmNativeVariant_Self"]},5,4)',f' put({sy["VmNativeVariant_Self"]+4},0x414000+80*slot,4)',
+            f' put({sy["VmState_Ip"]},{struct.unpack_from("<H",callback_blob,16)[0]},2)',
+            f' put({sy["VmState_FrameTop"]},0,2)',f' put({sy["VmState_Error"]},0,2)',f' put({sy["VmState_Status"]},1,1)',
+            'end'])
+        lua += r'''
+emu.addMemoryCallback(function()
+ local s=emu.getState();before_call={}
+ for _,k in ipairs({'x','y','d','dbr','sp','ps'}) do before_call[k]=s['cpu.'..k] end
+end,emu.callbackType.exec,CALLENTRY,CALLENTRY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local s=emu.getState();script_calls=script_calls+1
+ for _,k in ipairs({'x','y','d','dbr'}) do if before_call[k]~=s['cpu.'..k] then context_faults=context_faults+1 end end
+ if before_call.sp+3~=s['cpu.sp'] or (before_call.ps & 0xfe)~=(s['cpu.ps'] & 0xfe) then context_faults=context_faults+1 end
+ if word(STATUSADDRESS)==3 then script_yields=script_yields+1 end
+end,emu.callbackType.exec,SCRIPTRETURN,SCRIPTRETURN,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceWorldTick4086_Slot);local base=0x416800+64*slot
+ emu.log('WORLDTICKSCRIPT|'..word(INDEX)..'|'..slot..'|'..dw(base+36)..'|'..dw(base+40)..'|'..dw(base+44)..'|'..context_faults..'|'..script_calls..'|'..script_yields)
+ local c=fixtures[word(INDEX)+1]
+ if c.kill_stage==5 and slot==c.kill_slot then put(0x414004+80*slot,0,2) end
+end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
+'''
+        for key,value in dict(CALLENTRY=sy['SourceVMRun4086_Call'],SCRIPTRETURN=fs['WorldTickFixture_ScriptReturn'],
+            SCRIPTCOMPLETE=fs['WorldTickFixture_ScriptComplete'],STATUSADDRESS=sy['SourceVMRun4086_Status']).items():
+            lua=re.sub(r'\b'+key+r'\b',str(value),lua)
+    lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',script_init).replace('SCRIPTPREPARE',script_prepare)
     for key,value in dict(INDEX=INDEX,INIT=fs['WorldTickFixture_Init'],OBSERVE=fs['WorldTickFixture_Observe'],RESULT=fs['WorldTickFixture_Result'],
         FAULTINDEX=FAULT_INDEX,FAULTINIT=fs['WorldTickFixture_FaultInit'],FAULTOBSERVE=fs['WorldTickFixture_FaultObserved']).items():
         lua=re.sub(r'\b'+key+r'\b',str(value),lua)
@@ -326,12 +425,14 @@ end,emu.callbackType.exec,FAULTOBSERVE,FAULTOBSERVE,emu.cpuType.snes,mt)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('WORLD_TICK_NATIVE_BOOTSTRAP')
         run_frames_exact(m,12);m.write_u16(REQUEST,0xb4d6)
-        for _ in range(12):
+        for _ in range(128 if callback else 12):
             run_frames_exact(m,60)
             if (startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10) or startup.u16(m,ERROR):break
         reporter.check('native traversal batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10 and startup.u16(m,ERROR)==0)
-    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[]
+    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[];script_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
+        if 'WORLDTICKSCRIPT|' in line:
+            script_results.append(list(map(int,line.split('WORLDTICKSCRIPT|',1)[1].split('|'))))
         if 'WORLDTICKFAULT|' in line:
             faults.append(list(map(int,line.split('WORLDTICKFAULT|',1)[1].split('|'))))
         if 'WORLDTICKEVENT|' in line:
@@ -349,10 +450,17 @@ end,emu.callbackType.exec,FAULTOBSERVE,FAULTOBSERVE,emu.cpuType.snes,mt)
     reporter.check('time commits only after the completed traversal',bool(clock_checks) and all(clock_checks))
     reporter.check('invalid ownership and incomplete services reject without clock mutation',
                    faults==[[i,1,49 if i==5 else 48,1] for i in range(10)])
+    if callback:
+        invocations=sum(sum(e[0]==5 for e in r['events']) for r in actual)
+        reporter.check('source-authored function executes inside native owner services',
+            len(script_results)==invocations and all(r[2:5]==[(-98304)&0xffffffff,(-49152)&0xffffffff,16384] for r in script_results))
+        reporter.check('VM portal preserves owner context across cooperative yields',
+            bool(script_results) and all(r[5]==0 for r in script_results) and script_results[-1][-1]>0)
     report=dict(schema='BYOR_4086_WORLD_TICK_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(rom).hexdigest(),authority_functions_sha256=authority['functions_sha256'],
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
         rejections=faults,early_direct_clock_commit_rejections=len(rows),
+        callback=callback,script_results=script_results,
         bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

@@ -39,6 +39,8 @@ Vm_FetchSourceInit:
     sta.l SourceWorldTick4086_State
     sta.l SourceWorldTick4086_Pending
     sta.l SourceWorldTick4086_Fault
+    sta.l SourceVMRun4086_Ready
+    sta.l SourceVMRun4086_Busy
     ; Dynamic pool headers need an actual cold-boot owner. Older string
     ; fixtures cleared them through debug writes; random WRAM is not free.
     ldx #0
@@ -72,6 +74,17 @@ Vm_FetchSource:
 .i16
     php
     rep #$31
+    lda.l SourceVMRun4086_Busy
+    cmp #$B4D8
+    bne Vm_FetchSource__ordinary
+    lda.l VmState_Status
+    and #$00FF
+    cmp #VMSTAT_RUNNING
+    beq Vm_FetchSource__ordinary
+    jmp SourceVMRun4086_Return
+Vm_FetchSource__ordinary:
+.a16
+.i16
     lda.l VmState_Ip
     cmp.l VmState_InstrCount
     bcc Vm_FetchSource__inrange
